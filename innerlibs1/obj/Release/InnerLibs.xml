@@ -1,0 +1,2669 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+InnerLibs
+</name>
+</assembly>
+<members>
+<member name="T:InnerLibs.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:InnerLibs.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:InnerLibs.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="T:InnerLibs.Bootstrap.ElementType">
+ <summary>
+ Classe que representa a aparência de um elemento de forma geral
+ </summary>
+</member>
+<member name="T:InnerLibs.Bootstrap.BootstrapElement">
+ <summary>
+ Classe mãe dos elementos de Bootstrap
+ </summary>
+</member>
+<member name="M:InnerLibs.Bootstrap.BootstrapElement.CreateObjectClass(InnerLibs.Bootstrap.ElementType)">
+ <summary>
+ Retorna uma classe baseada no tipo do element criado
+ </summary>
+ <param name="ElementType">Elemento do bootstrap</param>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Bootstrap.Panel">
+ <summary>
+ Elemento Panel do Bootstrap
+ </summary>
+</member>
+<member name="M:InnerLibs.Bootstrap.Panel.TransformElement(System.Web.UI.HtmlControls.HtmlGenericControl@)">
+ <summary>
+ Transforma um elemento em um Panel do Bootstrap
+ </summary>
+ <param name="Control">Elemento que vai sofrer a transformação</param>
+</member>
+<member name="T:InnerLibs.Bootstrap.Alert">
+ <summary>
+ Elemento Alert do Bootstrap
+ </summary>
+</member>
+<member name="M:InnerLibs.Bootstrap.Alert.TransformElement(System.Web.UI.HtmlControls.HtmlGenericControl@)">
+ <summary>
+ Transforma um elemento em um Alert do Bootstrap
+ </summary>
+ <param name="Control">Elemento que vai sofrer a transformação</param>
+</member>
+<member name="M:InnerLibs.Bootstrap.Progress_Bar.TransformElement(System.Web.UI.HtmlControls.HtmlGenericControl@)">
+ <summary>
+ Transforma um elemento em um Panel do Bootstrap
+ </summary>
+ <param name="Control">Elemento que vai sofrer a transformação</param>
+</member>
+<member name="P:InnerLibs.Brasil.UF">
+ <summary>
+ Lista com todos os UF de estados brasileiros
+ </summary>
+ <value></value>
+ <returns>Lista</returns>
+</member>
+<member name="P:InnerLibs.Brasil.States">
+ <summary>
+  Lista com todos os nomes de de estados brasileiros
+ </summary>
+ <value></value>
+ <returns>Lista</returns>
+</member>
+<member name="P:InnerLibs.Brasil.Cities">
+ <summary>
+ Lista com todas as cidades do Brasil
+ </summary>
+ <value></value>
+ <returns>Lista</returns>
+</member>
+<member name="M:InnerLibs.Brasil.GetCitiesOf(System.String)">
+ <summary>
+ Traz uma Lista de cidades pertencentes a um determinado estado
+ </summary>
+ <param name="UFOrState">Nome ou UF do estado</param>
+ <returns>Uma lista de strings contendo as cidades</returns>
+</member>
+<member name="P:InnerLibs.DataBase`1.ConnectionString">
+ <summary>
+ Conexão genérica (Oracle, MySQL, SQLServer etc.)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase`1.#ctor(System.String)">
+ <summary>
+ Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString
+ </summary>
+ <param name="ConnectionString">String de conexão com o banco</param>
+</member>
+<member name="M:InnerLibs.DataBase`1.RunSQL(System.String)">
+ <summary>
+ Executa uma Query no banco. Recomenda-se o uso de procedures.
+ </summary>
+ <param name="SQLQuery">Comando SQL a ser executado</param>
+ <returns>Um DataReader com as informações da consulta</returns>
+</member>
+<member name="M:InnerLibs.DataBase`1.RunSQL(System.String,System.String,System.Byte[])">
+ <summary>
+ Executa uma Query no banco com upload de arquivos.
+ </summary>
+ <param name="SQLQuery">Comando SQL a ser executado</param>
+ <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
+ <param name="File">Arquivo</param>
+ <returns>Um DataReader com as informações da consulta</returns>
+</member>
+<member name="M:InnerLibs.DataBase`1.QuickSELECT(System.String,System.String,System.Web.UI.HtmlControls.HtmlInputControl[])">
+ <summary>
+ Realiza uma Query SQL no Banco utilizando os IDs dos controles como nome das colunas e preenche estes controles com o valor da primeira linha encontrada
+ </summary>
+ <param name="TableName">Nome da tabela</param>
+ <param name="Conditions">Condiçoes WHERE...</param>
+ <param name="Columns">Controles que serão pesquisados e preenchidos</param>
+</member>
+<member name="M:InnerLibs.DataBase`1.QuickSELECT(System.String,System.String,System.Windows.Forms.Control[])">
+ <summary>
+ Realiza uma Query SQL no Banco utilizando os IDs dos controles como nome das colunas e preenche estes controles com o valor da primeira linha encontrada
+ </summary>
+ <param name="TableName">Nome da tabela</param>
+ <param name="Conditions">Condiçoes WHERE...</param>
+ <param name="Columns">Controles que serão pesquisados e preenchidos</param>
+</member>
+<member name="T:InnerLibs.DataManipulation">
+ <summary>
+ Módulo de manipulaçao de Datareaders
+ </summary>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToHtmlSelect(System.Data.Common.DbDataReader,System.String,System.String)">
+ <summary>
+ Traz um HtmlSelect com os Itens de um DataReader
+ </summary>
+ <param name="Reader">DataReader</param>
+ <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
+ <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.GetDataBasesFactoryClasses">
+ <summary>
+ Traz uma lista das possíveis conexões de Bancos de Dados
+ </summary>
+ <returns>Uma DataTable com todas as factories de Banco de dados</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.CountRows(System.Data.Common.DbDataReader)">
+ <summary>
+ Conta o numero de linhas de um OleDbDatareader
+ </summary>
+ <param name="Reader">OleDbDataReader</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToDataTableReader(System.String[])">
+ <summary>
+ Converte um Array para um DataTableReader de 1 Coluna
+ </summary>
+ <param name="Input">Array com 1 coluna a ser convertida</param>
+ <returns>Um DataReader de 1 Coluna</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToDataSet(System.String[])">
+ <summary>
+ Converte um Array para um DataSet de 1 Coluna
+ </summary>
+ <param name="Input">Array com 1 coluna a ser convertida</param>
+ <returns>um DataSet de 1 Coluna</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.GetColumns(System.Data.Common.DbDataReader)">
+ <summary>
+ Retorna uma Lista com todas as colunas de um DataReader
+ </summary>
+ <param name="Reader">Reader</param>
+ <returns>uma Lista de strings com os nomes das colunas</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToDelimitedString(System.Data.Common.DbDataReader,System.String,System.String,System.String)">
+ <summary>
+ Transforma um DataReader em uma string delimitada por caracteres
+ </summary>
+ <param name="Reader">DataReader</param>
+ <param name="ColDelimiter">Delimitador de Coluna</param>
+ <param name="RowDelimiter">Delimitador de Linha</param>
+ <param name="TableDelimiter">Delimitador de Tabelas</param>
+ <returns>Uma string delimitada</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToList``1(System.Data.Common.DbDataReader,System.String)">
+ <summary>
+ Transforma uma coluna de um DataReader em Lista
+ </summary>
+ <param name="Reader">O objeto DataReader</param>
+ <param name="ItemName">O nome da Coluna a ser transofrmada em lista</param>
+ <returns>Um objeto List com todos os itens de uma coluna especifica</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToXML(System.Data.Common.DbDataReader)">
+ <summary>
+ Converte um DataReader em XML
+ </summary>
+ <param name="Reader">DataReader</param>
+ <returns>String XML</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToCSV(System.Data.Common.DbDataReader,System.String)">
+ <summary>
+ Converte um DataReader em CSV
+ </summary>
+ <param name="Reader">DataReader</param>
+ <param name="Separator">Separador de valores (vírgula)</param>
+ <returns>uma string Comma Separated Values (CSV)</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToSession(System.Data.Common.DbDataReader,System.Web.SessionState.HttpSessionState)">
+ <summary>
+ Copia a primeira linha de um DataReader para uma sessão HttpSessionState usando os nomes das colunas como os nomes dos objetos da sessão
+ </summary>
+ <param name="Reader">DataReader</param>
+ <param name="Session">Objeto da sessão</param>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToJSON(System.Data.Common.DbDataReader)">
+ <summary>
+ Converte um DataReader para Javascript Object Notation 
+ </summary>
+ <param name="Reader">DataReader</param>
+ <returns>String JSON</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToHTMLTable(System.Data.Common.DbDataReader,System.String)">
+ <summary>
+ Converte um DataReader para uma tabela em HTML
+ </summary>
+ <param name="Reader">Reader</param>
+ <param name="Classes">Classes CSS da tabela</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToDataTable(System.Data.Common.DbDataReader)">
+ <summary>
+ Converte um DataReader para uma lista de DataTables
+ </summary>
+ <param name="Reader">Reader</param>
+ <returns>Uma lista com todas as DataTables</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ApplyToControls(System.Data.Common.DbDataReader,System.Web.UI.HtmlControls.HtmlInputControl[])">
+ <summary>
+ Aplica os valores encontrados nas colunas de um DataReader em inputs com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
+ </summary>
+ <param name="Reader">DataReader</param>
+ <param name="Controls">Controles que serão Manipulados</param>
+ <returns>Um array contendo os inputs</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ApplyToControls(System.Data.Common.DbDataReader,System.Web.UI.HtmlControls.HtmlSelect[])">
+ <summary>
+ Aplica os valores encontrados nas colunas de um DataReader em selects com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
+ </summary>
+ <param name="Reader">DataReader</param>
+ <param name="Controls">Controles que serão Manipulados</param>
+ <returns>Um array contendo os selects</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ApplyToControls(System.Data.Common.DbDataReader,System.Web.UI.HtmlControls.HtmlGenericControl[])">
+ <summary>
+ Aplica os valores encontrados nas colunas de um DataReader como texto de elementos html com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+ </summary>
+ <param name="Reader">DataReader</param>
+ <param name="Controls">Controles que serão Manipulados</param>
+ <returns>Um array contendo os selects</returns>
+</member>
+<member name="M:InnerLibs.DateTimeSpan.CompareDates(System.DateTime,System.DateTime)">
+ <summary>
+ Compara 2 datas e retorna um DateTimeSpan com a diferença
+ </summary>
+ <param name="FirstDate">Data mais antiga</param>
+ <param name="SecondDate">Data atual ou mais velha que a antiga</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.FileContextMenu.Register(System.String,System.String,System.String,System.String)">
+ <summary>
+ Adciona opções customizadas ao menu de contexto do windows
+ </summary>
+ <param name="FileType">Extensão do arquivo</param>
+ <param name="ShellKeyName">Nome da chave de Registro</param>
+ <param name="MenuText">Texto do Menu</param>
+ <param name="MenuCommand">Comando do Menu</param>
+ <returns>TRUE se conseguir reistrar</returns>
+</member>
+<member name="M:InnerLibs.FileContextMenu.Unregister(System.String,System.String)">
+ <summary>
+ Remove uma opção customizada do menu de contexto do windows
+ </summary>
+ <param name="FileType">Extensão do arquivo</param>
+ <param name="ShellKeyName">Nome da chave de Registro</param>
+ <returns>TRUE se conseguir remover</returns>
+</member>
+<member name="T:InnerLibs.FormAnimator">
+ <summary>
+ Animates a form when it is shown, hidden or closed.
+ </summary>
+ <remarks>
+ MDI child forms do not support the Blend method and only support other methods while being displayed for the first time and when closing.
+ </remarks>
+</member>
+<member name="T:InnerLibs.FormAnimator.AnimationMethod">
+ <summary>
+ The methods of animation available.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationMethod.Roll">
+ <summary>
+ Rolls out from edge when showing and into edge when hiding.
+ </summary>
+ <remarks>
+ This is the default animation method and requires a direction.
+ </remarks>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationMethod.Centre">
+ <summary>
+ Expands out from centre when showing and collapses into centre when hiding.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationMethod.Slide">
+ <summary>
+ Slides out from edge when showing and slides into edge when hiding.
+ </summary>
+ <remarks>
+ Requires a direction.
+ </remarks>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationMethod.Blend">
+ <summary>
+ Fades from transaprent to opaque when showing and from opaque to transparent when hiding.
+ </summary>
+</member>
+<member name="T:InnerLibs.FormAnimator.AnimationDirection">
+ <summary>
+ The directions in which the Roll and Slide animations can be shown.
+ </summary>
+ <remarks>
+ Horizontal and vertical directions can be combined to create diagonal animations.
+ </remarks>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationDirection.Right">
+ <summary>
+ From left to right.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationDirection.Left">
+ <summary>
+ From right to left.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationDirection.Down">
+ <summary>
+ From top to bottom.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.AnimationDirection.Up">
+ <summary>
+ From bottom to top.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.AW_HIDE">
+ <summary>
+ Hide the form.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.AW_ACTIVATE">
+ <summary>
+ Activate the form.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.DEFAULT_DURATION">
+ <summary>
+ The number of milliseconds over which the animation occurs if no value is specified.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator.__form">
+ <summary>
+ The form to be animated.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator._method">
+ <summary>
+ The animation method used to show and hide the form.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator._direction">
+ <summary>
+ The direction in which to Roll or Slide the form.
+ </summary>
+</member>
+<member name="F:InnerLibs.FormAnimator._duration">
+ <summary>
+ The number of milliseconds over which the animation is played.
+ </summary>
+</member>
+<member name="P:InnerLibs.FormAnimator.Method">
+ <summary>
+ Gets or sets the animation method used to show and hide the form.
+ </summary>
+ <value>
+ The animation method used to show and hide the form.
+ </value>
+ <remarks>
+ <b>Roll</b> is used by default if no method is specified.
+ </remarks>
+</member>
+<member name="P:InnerLibs.FormAnimator.Direction">
+ <summary>
+ Gets or sets the direction in which the animation is performed.
+ </summary>
+ <value>
+ The direction in which the animation is performed.
+ </value>
+ <remarks>
+ The direction is only applicable to the <b>Roll</b> and <b>Slide</b> methods.
+ </remarks>
+</member>
+<member name="P:InnerLibs.FormAnimator.Duration">
+ <summary>
+ Gets or sets the number of milliseconds over which the animation is played.
+ </summary>
+ <value>
+ The number of milliseconds over which the animation is played.
+ </value>
+</member>
+<member name="P:InnerLibs.FormAnimator.Form">
+ <summary>
+ Gets the form to be animated.
+ </summary>
+ <value>
+ The form to be animated.
+ </value>
+</member>
+<member name="M:InnerLibs.FormAnimator.AnimateWindow(System.IntPtr,System.Int32,System.Int32)">
+ <summary>
+ Windows API function to animate a window.
+ </summary>
+</member>
+<member name="M:InnerLibs.FormAnimator.#ctor(System.Windows.Forms.Form)">
+ <summary>
+ Creates a new <b></b>FormAnimator object for the specified form.
+ </summary>
+ <param name="form">
+ The form to be animated.
+ </param>
+ <remarks>
+ No animation will be used unless the <b>Method</b> and/or <b>Direction</b> properties are set independently. The <b>Duration</b> is set to quarter of a second by default.
+ </remarks>
+</member>
+<member name="M:InnerLibs.FormAnimator.#ctor(System.Windows.Forms.Form,InnerLibs.FormAnimator.AnimationMethod,System.Int32)">
+ <summary>
+ Creates a new <b>FormAnimator</b> object for the specified form using the specified method over the specified duration.
+ </summary>
+ <param name="form">
+ The form to be animated.
+ </param>
+ <param name="method">
+ The animation method used to show and hide the form.
+ </param>
+ <param name="duration">
+ The number of milliseconds over which the animation is played.
+ </param>
+ <remarks>
+ No animation will be used for the <b>Roll</b> or <b>Slide</b> methods unless the <b>Direction</b> property is set independently.
+ </remarks>
+</member>
+<member name="M:InnerLibs.FormAnimator.#ctor(System.Windows.Forms.Form,InnerLibs.FormAnimator.AnimationMethod,InnerLibs.FormAnimator.AnimationDirection,System.Int32)">
+ <summary>
+ Creates a new <b>FormAnimator</b> object for the specified form using the specified method in the specified direction over the specified duration.
+ </summary>
+ <param name="form">
+ The form to be animated.
+ </param>
+ <param name="method">
+ The animation method used to show and hide the form.
+ </param>
+ <param name="direction">
+ The direction in which to animate the form.
+ </param>
+ <param name="duration">
+ The number of milliseconds over which the animation is played.
+ </param>
+ <remarks>
+ The <i>direction</i> argument will have no effect if the <b>Centre</b> or <b>Blend</b> method is
+ specified.
+ </remarks>
+</member>
+<member name="M:InnerLibs.FormAnimator.Form_Load(System.Object,System.EventArgs)">
+ <summary>
+ Animates the form automatically when it is loaded.
+ </summary>
+</member>
+<member name="M:InnerLibs.FormAnimator.Form_VisibleChanged(System.Object,System.EventArgs)">
+ <summary>
+ Animates the form automatically when it is shown or hidden.
+ </summary>
+</member>
+<member name="M:InnerLibs.FormAnimator.Form_Closing(System.Object,System.ComponentModel.CancelEventArgs)">
+ <summary>
+ Animates the form automatically when it closes.
+ </summary>
+</member>
+<member name="M:InnerLibs.GoogleMap.#ctor(System.String)">
+ <summary>
+ Cria um novo objeto de Mapa
+ </summary>
+ <param name="APIKey">Chave da API do Google</param>
+</member>
+<member name="M:InnerLibs.GoogleMap.#ctor(System.String,InnerLibs.Location[])">
+ <summary>
+ Cria um mapa e seus respectivos marcadores a partir de varias localizações
+ </summary>
+ <param name="APIKey">Chave da API do Google</param>
+ <param name="Locations">Localizações</param>
+</member>
+<member name="M:InnerLibs.GoogleMap.#ctor(System.String,InnerLibs.GoogleMap.Marker[])">
+ <summary>
+ Cria um mapa a partir de um conjunto de marcadores
+ </summary>
+ <param name="APIKey">Chave da API do Google</param>
+ <param name="Markers">Marcadores</param>
+</member>
+<member name="M:InnerLibs.GoogleMap.MakeMap(System.String,System.Int32,System.String,InnerLibs.Location)">
+ <summary>
+ Constroi uma div com o Mapa
+ </summary>
+ <param name="Center">Localização do Centro do Mapa</param>
+ <param name="Zoom">Distancia do Mapa</param>
+ <param name="Height">Altura da Div do Mapa</param>
+ <param name="MAP_ID">ID do MAPA</param>
+ <returns>Uma string html contendo as referencias e o Mapa</returns>
+</member>
+<member name="M:InnerLibs.GoogleMap.AddApiScriptTag">
+ <summary>
+ Adiciona a API do Google Maps
+ </summary>
+ <returns>uma string contendo o script da API. Utilize no Header ou Body</returns>
+</member>
+<member name="T:InnerLibs.GoogleMap.Marker">
+ <summary>
+ Marcador da localização no mapa
+ </summary>
+</member>
+<member name="M:InnerLibs.GoogleMap.Marker.#ctor(InnerLibs.Location,System.String)">
+ <summary>
+ Cria um marcador
+ </summary>
+ <param name="Location">'Locaização do Marcador</param>
+ <param name="Pin">Imagem do marcador</param>
+</member>
+<member name="P:InnerLibs.GoogleMap.Marker.Location">
+ <summary>
+ Localizaçao
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.GoogleMap.Marker.Pin">
+ <summary>
+ Caminho da imagem do Marcador
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.GoogleMap.Marker.Title">
+ <summary>
+ Titulo do Marcador
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.GoogleMap.Marker.Description">
+ <summary>
+ Descrição do marcador (balão)
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Base64">
+ <summary>
+ Modulo para manipulação de imagens e Strings Base64
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Base64.ToDataURI(System.Drawing.Image)">
+ <summary>
+ Transforma uma imagem em uma URL Base64
+ </summary>
+ <param name="Image">Imagem</param>
+ <returns>Uma DataURI em string</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToBase64(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ Converte uma Imagem para String Base64
+ </summary>
+ <param name="OriginalImage">Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)</param>
+ <param name="OriginalImageFormat">Formato da imagem de acordo com sua extensão (JPG, PNG, GIF etc.)</param>
+ <returns>Uma string em formato Base64</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToDataURI(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ Converte uma imagem para DataURI trocando o MIME Type
+ </summary>
+ <param name="OriginalImage">Imagem</param>
+ <param name="OriginalImageFormat">Formato da Imagem</param>
+ <returns>Uma data URI com a imagem convertida</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToBase64(System.Drawing.Image)">
+ <summary>
+ Converte uma Imagem para String Base64
+ </summary>
+ <param name="OriginalImage">Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)</param>
+ <returns>Uma string em formato Base64</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToBase64(System.String)">
+ <summary>
+ Converte uma Imagem da WEB para String Base64
+ </summary>
+ <param name="ImageURL">Caminho da imagem</param>
+ <returns>Uma string em formato Base64</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToBase64(System.String,System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ Converte uma Imagem da WEB para String Base64
+ </summary>
+ <param name="ImageURL">Caminho da imagem</param>
+ <param name="OriginalImageFormat">Formato da imagem de acordo com sua extensão (JPG, PNG, GIF etc.)</param>
+ <returns>Uma string em formato Base64</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToImage(System.String,System.Int32,System.Int32)">
+ <summary>
+ Converte uma String Base64 para Imagem
+ </summary>
+ <param name="Base64String">A string Base64 a ser convertida</param>
+ <param name="Width">Altura da nova imagem (não preencher retorna o tamanho original da imagem)</param>
+ <param name="Height">Largura da nova imagem (não preencher retorna o tamanho original da imagem)</param>
+ <returns>Uma imagem (componente Image())</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToImage(System.Web.HttpPostedFile)">
+ <summary>
+ Converte um httpPostedFile para imagem
+ </summary>
+ <param name="PostedFile">Arquivo HttpPostedFile</param>
+ <returns>uma Image</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToBase64(System.Web.HttpPostedFile,System.Boolean)">
+ <summary>
+ Converte uma Imagem dem HttpPostedFile para String Base64
+ </summary>
+ <param name="PostedFile">Arquivo de Imagem</param>
+ <param name="DataUrl">Especifica se a resposta deve ser em DataURI ou apenas a Base64</param>
+ <returns>Uma string em formato Base64</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToDataURI(System.Web.HttpPostedFile)">
+ <summary>
+ Converte uma Imagem dem HttpPostedFile para uma Data URI
+ </summary>
+ <param name="PostedFile">Arquivo de Imagem</param>
+ <returns>Uma data URI Base64</returns>
+</member>
+<member name="T:InnerLibs.Maths">
+ <summary>
+ Arredondar números
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Maths.Factorial(System.Int32)">
+ <summary>
+ Calcula o fatorial de um numero
+ </summary>
+ <param name="Number"></param>
+ <returns>fatorial do numero inteiro</returns>
+ 
+</member>
+<member name="M:InnerLibs.Maths.GetPercent(System.Decimal,System.Decimal)">
+ <summary>
+ Retorna o percentual de um valor
+ </summary>
+ <param name="Value">Valor a ser calculado</param>
+ <param name="Total">Valor Total (Representa 100%)</param>
+ <returns>Um numero decimal contendo a porcentagem</returns>
+</member>
+<member name="M:InnerLibs.Maths.GetValueFrom(System.String,System.Decimal)">
+ <summary>
+ Retorna o valor de um determinado percentual de um valor total
+ </summary>
+ <param name="Percent">Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%</param>
+ <param name="Total">Valor Total (Representa 100%)</param>
+ <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
+</member>
+<member name="M:InnerLibs.Maths.Ceil(System.Decimal)">
+ <summary>
+ Arredonda um numero para cima. Ex.: 4,5 -> 5
+ </summary>
+ <param name="Number">Numero a ser arredondado</param>
+ <returns>Um numero inteiro (Integer ou Int)</returns>
+</member>
+<member name="M:InnerLibs.Maths.Floor(System.Decimal)">
+ <summary>
+ Arredonda um numero para baixo. Ex.: 4,5 -> 4
+ </summary>
+ <param name="Number">Numero a ser arredondado</param>
+ <returns>Um numero inteiro (Integer ou Int)</returns>
+</member>
+<member name="M:InnerLibs.Maths.Sum(System.Decimal[])">
+ <summary>
+ Soma todos os números de um array
+ </summary>
+ <param name="Values">Array de números</param>
+ <returns>Decimal contendo a soma de todos os valores</returns>
+</member>
+<member name="M:InnerLibs.Maths.Average(System.Decimal[])">
+ <summary>
+ Tira a média de todos os números de um Array
+ </summary>
+ <param name="Values">Array de números</param>
+ <returns>Decimal contendo</returns>
+</member>
+<member name="M:InnerLibs.Maths.CalculateDistance(InnerLibs.Location,InnerLibs.Location)">
+ <summary>
+ Calcula a distancia entre 2 locais
+ </summary>
+ <param name="FirstLocation">Primeiro Local</param>
+ <param name="SecondLocation">Segundo Local</param>
+ <returns>A distancia em kilometros</returns>
+</member>
+<member name="M:InnerLibs.Maths.CalculateDistance(InnerLibs.Location[])">
+ <summary>
+ Calcula a distancia passando por todos os pontos
+ </summary>
+ <param name="Locations">Localizacoes</param>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Verify">
+ <summary>
+ Verifica determinados valores como Arquivos, Numeros e URLs
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Verify.IsDirectory(System.String)">
+ <summary>
+ Verifica se uma string é um diretório válido
+ </summary>
+ <param name="Text">Texto</param>
+ <returns>TRUE se o caminho for válido</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsIP(System.String)">
+ <summary>
+ Verifica se a string é um endereço IP válido
+ </summary>
+ <param name="IP">Endereco IP</param>
+ <returns>TRUE ou FALSE</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsRunningAsAdministrator(System.Windows.Forms.Form)">
+ <summary>
+ Verifica se a aplicação está rodando como administrador
+ </summary>
+ <param name="Form">Formulário da aplicação</param>
+ <returns>TRUE ou FALSE</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsInUse(System.IO.FileInfo)">
+ <summary>
+ Verifica se o arquivo está em uso por outro procedimento
+ </summary>
+ <param name="File">o Arquivo a ser verificado</param>
+ <returns>TRUE se o arquivo estiver em uso, FALSE se não estiver</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsNullOrInvalid(System.Object)">
+ <summary>
+ Verifica se um valor é Nulo (NULL), vazio (""), é zero (0) ou possui apenas espaços em branco (" ")
+ </summary>
+ <param name="theText">Valor a ser verificado</param>
+ <returns>Valor Boolean Indicando se o objeto é valido ou não</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsNumber(System.Object)">
+ <summary>
+ Verifica se o valor é um numero
+ </summary>
+ <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
+ <returns>TRUE se for um numero, FALSE se não for um numero</returns> 
+</member>
+<member name="M:InnerLibs.Verify.IsEmail(System.String)">
+ <summary>
+ Verifica se um determinado texto é um email
+ </summary>
+ <param name="Text">Texto a ser validado</param>
+ <returns>TRUE se for um email, FALSE se não for email</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsURL(System.String)">
+ <summary>
+ Verifica se um determinado texto é uma URL válida
+ </summary>
+ <param name="Text">Texto a ser verificado</param>
+ <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsValidDomain(System.String)">
+ <summary>
+ Verifica se o dominio é válido (existe) em uma URL ou email
+ </summary>
+ <param name="DomainOrEmail">Uma String contendo a URL ou email</param>
+ <returns>TRUE se o dominio existir, FALSE se o dominio não existir</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsMobile(System.Net.HttpWebRequest)">
+ <summary>
+ Verifica se o User Agent da requisição é um dispositivel móvel (Celulares e Tablets)
+ </summary>
+ <param name="HttpRequest">Requisição HTTP</param>
+ <returns>TRUE para mobile ou FALSE para desktop</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsIpad(System.Net.HttpWebRequest)">
+ <summary>
+ Verifica se o User Agent da requisição é um Ipad
+ </summary>
+ <param name="HttpRequest">Requisição HTTP</param>
+ <returns>TRUE para ipad ou FALSE para outro dispositivo</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsAndroid(System.Net.HttpWebRequest)">
+ <summary>
+ Verifica se o User Agent da requisição é um Android
+ </summary>
+ <param name="HttpRequest">Requisição HTTP</param>
+ <returns>TRUE para ipad ou FALSE para outro dispositivo</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsDesktop(System.Net.HttpWebRequest)">
+ <summary>
+ Verifica se o User Agent da requisição é um PC/NOTEBOOK/MAC
+ </summary>
+ <param name="HttpRequest">Requisição HTTP</param>
+ <returns>TRUE para desktops, FALSE para mobile</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsNull(System.String,System.String,System.Boolean)">
+ <summary>
+ Verifica se um valor é NULO e prepara a string para uma query TransactSQL
+ </summary>
+ <param name="theText">Valor a ser testado</param>
+ <param name="DefaultValue">Valor para retornar se o valor testado for Nulo, Vazio ou branco</param>
+ <param name="Quotes">Indica se o valor testado deve ser retornado entre aspas simples (prepara a string para SQL)</param>
+ <returns>uma String contento o valor ou o valor se Nulo</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsBlank(System.String)">
+ <summary>
+ Verifica se uma String está em branco
+ </summary>
+ <param name="theText">Uma string</param>
+ <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsZero(System.Decimal)">
+ <summary>
+ Verifica se um numero é 0
+ </summary>
+ <param name="number">Um numero</param>
+ <returns>TRUE se for 0, FALSE se  nao for 0</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsZero(System.Int32)">
+ <summary>
+ Verifica se um numero é 0
+ </summary>
+ <param name="number">Um numero</param>
+ <returns>TRUE se for 0, FALSE se  nao for 0</returns>
+</member>
+<member name="M:InnerLibs.Verify.IsNotBlank(System.String)">
+ <summary>
+ Verifica se uma String não está em branco
+ </summary>
+ <param name="theText">Uma string</param>
+ <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
+</member>
+<member name="T:InnerLibs.Generate">
+ <summary>
+ Geradores de conteudo
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Generate.ShortenUrl(System.Uri,System.String,System.String,System.Boolean)">
+ <summary>Encurta a URL usando bit.ly</summary>
+ <param name="longUrl">URL Longa</param>
+ <param name="login">Login da sua conta do Bit.y (http://bit.ly/account/your_api_key).</param>
+ <param name="apiKey">API key da sua conta do Bit.ly (http://bit.ly/account/your_api_key).</param>
+ <param name="addHistory">Salva a URL no histórico da conta</param>
+ <returns>URL encurtada ou URL longa se ocorrer algum erro</returns>
+</member>
+<member name="M:InnerLibs.Generate.DaFontLogo(System.String,System.String,System.String)">
+ <summary>
+ Gera uma Imagem com uma fonte específica do site Dafont (Muito Impreciso, API em fase experimental)
+ </summary>
+ <param name="Text">Um texto qualquer a ser usado como exemplo</param>
+ <param name="FontName">Nome da fonte (verifique no site)</param>
+ <param name="FontSize">Tamanho da fonte</param>
+ <returns>Uma Imagem (Image())</returns>
+</member>
+<member name="M:InnerLibs.Generate.ScreenshotFromWebsite(System.String,System.String,System.Boolean,System.Int32,System.String,System.Int32)">
+ <summary>
+ Tira uma screenshot usando o serviço Screenshotlayer.com
+ </summary>
+ <param name="Url">Url do site</param>
+ <param name="FullPage">Valor indicando se o screenshot deverá ser da pagina inteira</param>
+ <param name="Delay">Atraso em segundos</param>
+ <param name="Viewport">Tamanho da tela</param>
+ <param name="ImageWidth">Largura da Imagem</param>
+ <param name="AccessKey">Chave de acesso (gratuita ou paga) do ScreenshotLayer.com</param>
+ <returns>Um objeto Image() contendo o screenshot do site</returns>
+</member>
+<member name="M:InnerLibs.Generate.ToGoogleMapsURL(InnerLibs.Location,System.Boolean)">
+ <summary>
+ Gera uma URL do google MAPs baseado na localização
+ </summary>
+ <param name="local">Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as coordenadas geográficas</param>
+ <param name="LatLong">Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro</param>
+ <returns>Uma URI do Google Maps</returns>
+</member>
+<member name="M:InnerLibs.Generate.ToStaticGoogleMap(InnerLibs.Location,System.Int32,System.Int32,System.Int32,System.Int32,InnerLibs.Generate.MapType)">
+ <summary>
+ Cria um Mapa estatico utilizando a API do google Maps
+ </summary>
+ <param name="Location">Objeto contendo as Coordenadas</param>
+ <param name="Width">Largura do Mapa</param>
+ <param name="Height">Altura do Mapa</param>
+ <param name="Zoom">Numero correspondente a aproximação da vizualização do Mapa</param>
+ <param name="Scale">Escala do mapa (qualidade)</param>
+ <param name="Maptype">Tipo do Mapa (roadmap, satellite, hybrid, ou terrain)</param>
+ <returns>Um componente Image() com o mapa</returns>
+</member>
+<member name="T:InnerLibs.Generate.MapType">
+ <summary>
+ Tipo de mapa do Google Maps
+ </summary>
+ 
+</member>
+<member name="F:InnerLibs.Generate.MapType.RoadMap">
+ <summary>
+ Rotas
+ </summary>
+</member>
+<member name="F:InnerLibs.Generate.MapType.Satellite">
+ <summary>
+ Visao de satelite
+ </summary>
+</member>
+<member name="F:InnerLibs.Generate.MapType.Hybrid">
+ <summary>
+ Hibrido (Rotas + Satelite)
+ </summary>
+</member>
+<member name="F:InnerLibs.Generate.MapType.Terrain">
+ <summary>
+ Terreno/Relevo
+ </summary>
+</member>
+<member name="M:InnerLibs.Generate.RandomNumber(System.Int64,System.Int64)">
+ <summary>
+ Gera um numero Aleatório entre 2 números
+ </summary>
+ <param name="Min">Numero minimo, Padrão 0 </param>
+ <param name="Max">Numero Maximo, Padrão 999999</param>
+ <returns>Um numero Inteiro (Integer ou Int)</returns>
+</member>
+<member name="M:InnerLibs.Generate.InnerIpsum(System.Int32)">
+ <summary>
+ Gera um InnerIpsum (InnerIpsum é uma modificação do classico Lorem Ipsum)
+ </summary>
+ <param name="ParagraphNumber">Quantidade de parágrafos do texto</param>
+ <returns>Uma String contendo diversos paragrafos com texto aleatório</returns>
+</member>
+<member name="M:InnerLibs.Generate.PlaceHold(System.Int32,System.Int32,System.String,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color})">
+ <summary>
+ Gera uma imagem baseada na resolução
+ </summary>
+ <param name="Width">A Largura da imagem</param>
+ <param name="Height">A Altura da imagem</param>
+ <returns>Uma imagem (image())</returns>
+</member>
+<member name="M:InnerLibs.Generate.ToQRCode(System.String,System.Int32)">
+ <summary>
+ Converte uma String para um QR Code usando uma API (Nescessita de Internet)
+ </summary>
+ <param name="Data">Informações do QR Code</param>
+ <param name="Size">Tamanho do QR code</param>
+ <returns>Um componente Image() com o QR code</returns>
+</member>
+<member name="T:InnerLibs.ColorConvert">
+ <summary>
+ Modulo de Conversão de Cores
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.ColorConvert.ToHexadecimal(System.Drawing.Color,System.Boolean)">
+ <summary>
+ Converte uma cor de sistema para hexadecimal
+ </summary>
+ <param name="Color">Cor do sistema</param>
+ <param name="Hash">parametro indicando se a cor deve ser retornada com ou sem hashsign (#)</param>
+ <returns>string contendo o hexadecimal da cor</returns>
+</member>
+<member name="M:InnerLibs.ColorConvert.ToRGB(System.Drawing.Color)">
+ <summary>
+ Converte uma cor de sistema para CSS RGB
+ </summary>
+ <param name="Color">Cor do sistema</param>
+ <returns>String contendo a cor em RGB</returns>
+</member>
+<member name="T:InnerLibs.Directories">
+ <summary>
+ Funções para trabalhar com diretorios
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Directories.ToDirectory(System.String)">
+ <summary>
+ Cria um diretório se o mesmo nao existir e retorna as um DirectoryInfo com o caminho completo
+ </summary>
+ <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
+ <returns>Uma DirectoryInfo contendo as informacoes do diretório criado</returns>
+</member>
+<member name="M:InnerLibs.Directories.ToZipFile(System.IO.DirectoryInfo,System.String)">
+ <summary>
+ Cria um arquivo .ZIP de um diretório
+ </summary>
+ <param name="FilesDirectory">Um diretório contendo arquivos</param>
+ <param name="OutputFile">O caminho onde será exportado o arquivo ZIP, Mesmo caminho do diretório se não especificado</param>
+ <returns>Um FileInfo contendo as informações do arquivo gerado</returns>
+</member>
+<member name="M:InnerLibs.Directories.Search(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">
+ <summary>
+ Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas
+ </summary>
+ <param name="Directory">Diretório</param>
+ <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+ <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.HasFiles(System.IO.DirectoryInfo)">
+ <summary>
+ Verifica se um diretório possui arquivos
+ </summary>
+ <param name="Directory">Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.HasDirectories(System.IO.DirectoryInfo)">
+ <summary>
+ Verifica se um diretório possui subdiretórios
+ </summary>
+ <param name="Directory">Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.IsEmpty(System.IO.DirectoryInfo)">
+ <summary>
+ Verifica se um diretório está vazio
+ </summary>
+ <param name="Directory">Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.IsNotEmpty(System.IO.DirectoryInfo)">
+ <summary>
+ Verifica se um diretório não está vazio
+ </summary>
+ <param name="Directory">Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.CleanDirectory(System.IO.DirectoryInfo)">
+ <summary>
+ Remove todos os subdiretorios vazios
+ </summary>
+ <param name="TopDirectory">Diretorio da operação</param>
+</member>
+<member name="T:InnerLibs.Bytes">
+ <summary>
+ Módulo para criação de arquivos baseados em Array de Bytes() 
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Bytes.WriteToFile(System.Byte[],System.String)">
+ <summary>
+ Transforma um resource ou Array de Bytes em um arquivo
+ </summary>
+ <param name="BytesOrResource">A MAtriz com os Bytes ou a Resource a ser escrita</param>
+ <param name="FilePath">Caminho onde o arquivo será gravado</param>
+ <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+</member>
+<member name="M:InnerLibs.Bytes.ToBytes(System.IO.FileInfo)">
+ <summary>
+ Transforma um arquivo em um Array de Bytes
+ </summary>
+ <param name="File">O arquivo a ser convertido</param>
+ <returns>Um array do tipo Byte()</returns>
+</member>
+<member name="T:InnerLibs.Images">
+ <summary>
+ Modulo de Imagem
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Images.Resize(System.Drawing.Image,System.Int32,System.Int32,System.Drawing.Imaging.ImageFormat,System.Int32)">
+ <summary>
+ Redimensiona e converte uma imagem
+ </summary>
+ <param name="image">Imagem</param>
+ <param name="maxWidth">Largura</param>
+ <param name="maxHeight">Altura.</param>
+ <param name="quality">Qualidade</param>
+ <param name="RawFormat">Formato de conversao</param>
+</member>
+<member name="M:InnerLibs.Images.GetEncoderInfo(System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ Pega o encoder a partir de um formato de imagem
+ </summary>
+ <param name="RawFormat">Image format</param>
+ <returns>image codec info.</returns>
+</member>
+<member name="M:InnerLibs.Images.CombineImages(System.Collections.Generic.List{System.Drawing.Image},System.Boolean)">
+ <summary>
+ Combina 2 ou mais imagens em uma única imagem
+ </summary>
+ <param name="Images">Lista de Imagens para combinar</param>
+ <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
+ <returns>Um Bitmap com a combinaçao de todas as imagens da Lista</returns>
+</member>
+<member name="M:InnerLibs.Images.CombineImages(System.Drawing.Image[],System.Boolean)">
+ <summary>
+ Combina 2 ou mais imagens em uma única imagem
+ </summary>
+ <param name="Images">Array de Imagens para combinar</param>
+ <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
+ <returns>Um Bitmap com a combinaçao de todas as imagens do Array</returns>
+</member>
+<member name="M:InnerLibs.Images.DrawBrowserImage(System.String)">
+ <summary>
+ Gera uma imagem de um site a partir de uma URL
+ </summary>
+ <param name="URL"></param>
+ <returns>Um componente Image() com uma captura de tela do site todo utilizando o IE8 </returns>
+</member>
+<member name="M:InnerLibs.Images.GetMostUsedColors(System.Drawing.Bitmap)">
+ <summary>
+ Retorna a cor mais utilizada na imagem
+ </summary>
+ <param name="Image">Imagem</param>
+ <returns>um objeto Color</returns>
+</member>
+<member name="T:InnerLibs.Calendars">
+ <summary>
+ Modulo para manipulação de calendário
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Calendars.IsAnniversary(System.DateTime,System.Boolean)">
+ <summary>
+ Verifica se a Data de hoje é um aniversário
+ </summary>
+ <param name="BirthDate">Data de nascimento</param>
+ <param name="UseTomorrow">Verifica se o aniversario é Amanha</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetDifference(System.DateTime,System.Nullable{System.DateTime})">
+ <summary>
+ Retorna um DateTimeSpan com a diferença entre 2 Datas
+ </summary>
+ <param name="InitialDate"></param>
+ <param name="SecondDate"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.ToTimeElapsedString(InnerLibs.DateTimeSpan)">
+ <summary>
+ Retorna uma String no formato "X anos, Y meses e Z dias"
+ </summary>
+ <param name="TimeElapsed">DateTimeSpan com o intervalo</param>
+ <returns>string</returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetBusinessDays(System.DateTime,System.DateTime)">
+ <summary>
+ Conta o numero de dias úteis entre 2 datas
+ </summary>
+ <param name="initialDate">Data Inicial</param>
+ <param name="finalDate">Data Final</param>
+ <returns>Numero di dias (int)</returns>
+</member>
+<member name="M:InnerLibs.Calendars.ToLongMonthName(System.Int32)">
+ <summary>
+ Retorna uma String baseado no numero do Mês Ex.: 1 -> Janeiro
+ </summary>
+ <param name="MonthNumber">Numero do Mês</param>
+ <returns>String com nome do Mês</returns>
+</member>
+<member name="M:InnerLibs.Calendars.ToShortMonthName(System.Int32)">
+ <summary>
+ Retorna uma String curta baseado no numero do Mês Ex.: 1 -> Jan
+ </summary>
+ <param name="MonthNumber">Numero do Mês</param>
+ <returns>String com nome curto do Mês</returns>
+</member>
+<member name="M:InnerLibs.Calendars.ToLongDayOfWeekName(System.Int32)">
+ <summary>
+ Retorna uma String  baseado no numero do Dia da Semana Ex.: 2 -> Segunda-Feira
+ </summary>
+ <param name="DayNumber">Numero do Dia</param>
+ <returns>String com nome do Dia</returns>
+</member>
+<member name="M:InnerLibs.Calendars.ToShortDayOfWeekName(System.Int32)">
+ <summary>
+ Retorna uma String  baseado no numero do Dia da Semana Ex.: 2 -> Seg
+ </summary>
+ <param name="DayNumber">Numero do Dia</param>
+ <returns>String com nome curto do Dia</returns>
+</member>
+<member name="P:InnerLibs.Calendars.Tomorrow">
+ <summary>
+ Retorna a data de amanhã
+ </summary>
+ <returns>Data de amanhã</returns>
+</member>
+<member name="P:InnerLibs.Calendars.Yesterday">
+ <summary>
+ Retorna a data de ontem
+ </summary>
+ <returns>Data de ontem</returns>
+</member>
+<member name="M:InnerLibs.Calendars.IsWeekend(System.DateTime)">
+ <summary>
+ Verifica se o dia se encontra no fim de semana
+ </summary>
+ <param name="YourDate">Uma data qualquer</param>
+ <returns>TRUE se for sabado ou domingo, caso contrario FALSE</returns>
+</member>
+<member name="M:InnerLibs.Calendars.ToGreeting(System.DateTime,System.String,System.Boolean)">
+ <summary>
+ Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
+ </summary>
+ <param name="Time">Horario</param>
+ <param name="Language">Idioma da saudação (pt, en, es)</param>
+ <param name="Farewell">Parametro opcional indicando se é uma despedida (TRUE) ou não (FALSE), padrão é FALSE</param>
+ <returns>Uma string com a saudação ou despedida</returns>
+</member>
+<member name="M:InnerLibs.Calendars.Farewell(System.DateTime,System.String)">
+ <summary>
+ Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
+ </summary>
+ <param name="Time">Horario</param>
+ <param name="Language">Idioma da saudação (pt, en, es)</param> 
+ <returns>Uma string com a saudação ou despedida</returns>
+</member>
+<member name="P:InnerLibs.Calendars.Greeting(System.String)">
+ <summary>
+ Retorna uma saudação
+ </summary>
+ <param name="Language">Idioma da saudação (pt, en, es)</param>
+ <returns>Uma string com a saudação</returns>
+</member>
+<member name="P:InnerLibs.Calendars.Fareweel(System.String)">
+ <summary>
+ Retorna uma despedida
+ </summary>
+ <param name="Language">Idioma da despedida (pt, en, es)</param>
+ <returns>Uma string com a despedida</returns>
+</member>
+<member name="M:InnerLibs.Calendars.FillWithMonths(System.Windows.Forms.ComboBox@,InnerLibs.Calendars.TypeOfFill)">
+ <summary>
+ Preenche uma ComboBox com todos os meses
+ </summary>
+ <param name="Box">ComboBox que irá receber a lista</param>
+ <param name="Type">Apresentação dos meses</param>
+</member>
+<member name="M:InnerLibs.Calendars.FillWithMonths(System.Web.UI.HtmlControls.HtmlSelect@,InnerLibs.Calendars.TypeOfFill,InnerLibs.Calendars.TypeOfFill)">
+ <summary>
+ Preenche uma HTML Select com todos os meses
+ </summary>
+ <param name="Box">HTML Select que irá receber a lista</param>
+ <param name="Type">Apresentação dos meses</param>
+</member>
+<member name="M:InnerLibs.Calendars.FillWithWeekDays(System.Windows.Forms.ComboBox@,InnerLibs.Calendars.TypeOfFill)">
+ <summary>
+ Preenche uma ComboBox com todos os dias da semana
+ </summary>
+ <param name="Box">ComboBox que irá receber a lista</param>
+ <param name="Type">Apresentação dos dias da semana</param>
+</member>
+<member name="M:InnerLibs.Calendars.FillWithWeekDays(System.Web.UI.HtmlControls.HtmlSelect@,InnerLibs.Calendars.TypeOfFill)">
+ <summary>
+ Preenche uma HTML Select com todos os dias da semana
+ </summary>
+ <param name="Box">HTML Select que irá receber a lista</param>
+ <param name="Type">Apresentação dos dias da semana</param>
+</member>
+<member name="T:InnerLibs.Calendars.TypeOfFill">
+ <summary>
+ Tipo de Apresentação dos Meses/Dias da Semana/Estado
+ </summary>
+</member>
+<member name="F:InnerLibs.Calendars.TypeOfFill.Number">
+ <summary>
+ Numerico
+ </summary>
+</member>
+<member name="F:InnerLibs.Calendars.TypeOfFill.ShortName">
+ <summary>
+ Abreviado
+ </summary>
+</member>
+<member name="F:InnerLibs.Calendars.TypeOfFill.LongName">
+ <summary>
+ Completo
+ </summary>
+</member>
+<member name="T:InnerLibs.Telephone">
+ <summary>
+ Representa um numero de telefone e suas respectivas informações
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="P:InnerLibs.Telephone.DDD">
+ <summary>
+ Numero de DDD Ex.: 11
+ </summary>
+ <value></value>
+ <returns>DDD</returns>
+</member>
+<member name="P:InnerLibs.Telephone.PhoneNumber">
+ <summary>
+ Numero de telefone
+ </summary>
+ <value></value>
+ <returns>Numero de telefone</returns>
+</member>
+<member name="P:InnerLibs.Telephone.CarrierName">
+ <summary>
+ Nome da Operadora Ex.: TIM
+ </summary>
+ <value></value>
+ <returns>Operadora</returns>
+</member>
+<member name="P:InnerLibs.Telephone.CarrierCode">
+ <summary>
+ Código da Operadora Ex.: 41
+ </summary>
+ <value></value>
+ <returns>Codigo da Operadora</returns>
+</member>
+<member name="M:InnerLibs.Telephone.#ctor(System.Int32,System.Int32)">
+ <summary>
+ Cria uma nova Instancia de telefone
+ </summary>
+ <param name="DDD">DDD do Numero</param>
+ <param name="Number">Numero de Telefone</param>
+</member>
+<member name="T:InnerLibs.MobileCarrier">
+ <summary>
+ Modulo para trabalhar com a API do TELEIN.com.br
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.MobileCarrier.FindCarrier(InnerLibs.Telephone,System.String)">
+ <summary>
+ Encontrar as informações da operadora do respectivo numero de telefone
+ </summary>
+ <param name="Tel">Uma Instancia de telefone</param>
+ <param name="TeleinKey">Chave para contas PRO do telein, por padrão a chave gratuita já está habilitada</param>
+ <returns>Uma instancia de telefone com todos os dados (Codigo e Operadora)</returns>
+</member>
+<member name="M:InnerLibs.MobileCarrier.ToCarrierName(System.Int32)">
+ <summary>
+ Converte um Código de Operadora em seu respectivo Nome
+ </summary>
+ <param name="CarrierCode">Código da operadora</param>
+ <returns>Uma String com o nome da Operadora</returns>
+</member>
+<member name="T:InnerLibs.Location">
+ <summary>
+ Representa um deteminado local com suas Informações
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Location.#ctor">
+ <summary>
+ Cria um novo objeto de localização vazio
+ </summary>
+</member>
+<member name="M:InnerLibs.Location.#ctor(System.String)">
+ <summary>
+ Cria um objeto de lcoalização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP e Google Maps 
+ </summary>
+ <param name="PostalCode"></param>
+</member>
+<member name="M:InnerLibs.Location.#ctor(System.String,System.String)">
+ <summary>
+ Cria um objeto de localização e imediatamente pesquisa as informações de um local através da Latitude e Longitude usando a API do Google Maps
+ </summary>
+ <param name="Latitude"></param>
+ <param name="Longitude"></param>
+</member>
+<member name="P:InnerLibs.Location.Address">
+ <summary>
+ Endereco
+ </summary>
+ <value></value>
+ <returns>Endereco</returns>
+</member>
+<member name="P:InnerLibs.Location.Number">
+ <summary>
+ Numero da casa, predio etc.
+ </summary>
+ <value></value>
+ <returns>Numero</returns>
+</member>
+<member name="P:InnerLibs.Location.Complement">
+ <summary>
+ Complemento
+ </summary>
+ <value></value>
+ <returns>Complemento</returns>
+</member>
+<member name="P:InnerLibs.Location.Neighborhood">
+ <summary>
+ Bairro
+ </summary>
+ <value></value>
+ <returns>Bairro</returns>
+</member>
+<member name="P:InnerLibs.Location.PostalCode">
+ <summary>
+ CEP - Codigo de Endereçamento Postal
+ </summary>
+ <value></value>
+ <returns>CEP</returns>
+</member>
+<member name="P:InnerLibs.Location.City">
+ <summary>
+ Cidade
+ </summary>
+ <value></value>
+ <returns>Cidade</returns>
+</member>
+<member name="P:InnerLibs.Location.State">
+ <summary>
+ Estado
+ </summary>
+ <value></value>
+ <returns>Estado</returns>
+</member>
+<member name="P:InnerLibs.Location.UF">
+ <summary>
+ Unidade federativa
+ </summary>
+ <value></value>
+ <returns>Sigla do estado</returns>
+</member>
+<member name="P:InnerLibs.Location.Country">
+ <summary>
+ País
+ </summary>
+ <value></value>
+ <returns>País</returns>
+</member>
+<member name="P:InnerLibs.Location.Latitude">
+ <summary>
+ Coordenada geográfica LATITUDE
+ </summary>
+ <value></value>
+ <returns>Latitude</returns>
+</member>
+<member name="P:InnerLibs.Location.Longitude">
+ <summary>
+ Coordenada geográfica LONGITUDE
+ </summary>
+ <value></value>
+ <returns>Longitude</returns>
+</member>
+<member name="M:InnerLibs.Location.FullAddress">
+ <summary>
+ Retorna o endereço completo (logradouro)
+ </summary>
+ <returns>Uma String com o endereço completo devidamente formatado</returns>
+</member>
+<member name="M:InnerLibs.Location.ToString">
+ <summary>
+ Retorna uma String contendo as informações do Local
+ </summary>
+ <returns>string</returns>
+</member>
+<member name="M:InnerLibs.Location.LatitudeLongitude">
+ <summary>
+ Retorna as coordenadas geográficas do Local
+ </summary>
+ <returns>Uma String contendo LATITUDE e LONGITUDE separados por virgula</returns>
+</member>
+<member name="T:InnerLibs.Political">
+ <summary>
+ Módulo para trabalhar com informações de mapa politicas
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Political.ToStateName(System.String)">
+ <summary>
+ Retorna o nome do Estado/Unidade Federativa de acordo com seu acrônimo (Sigla)
+ </summary>
+ <param name="Acronym">Uma sigla representante de um determinado estado</param>
+ <returns>Uma string com Nome Completo do Estado</returns>
+</member>
+<member name="M:InnerLibs.Political.ToStateAcronym(System.String)">
+ <summary>
+ retorna a sigla ou acrônimo de acordo com o nome do estado
+ </summary>
+ <param name="StateName">Nome do estado</param>
+ <returns>Uma string contendo o acrônimo/sigla</returns>
+</member>
+<member name="M:InnerLibs.Political.FillWithStates(System.Windows.Forms.ComboBox@,InnerLibs.Calendars.TypeOfFill)">
+ <summary>
+ Preenche uma ComboBox com todos os Estados Brasileiros
+ </summary>
+ <param name="Box">ComboBox que irá receber a lista</param>
+ <param name="Type">Apresentação dos Estados Brasileiros</param>
+</member>
+<member name="M:InnerLibs.Political.FillWithStates(System.Web.UI.HtmlControls.HtmlSelect@,InnerLibs.Calendars.TypeOfFill)">
+ <summary>
+ Preenche uma HTML Select com todos os Estados Brasileiros
+ </summary>
+ <param name="Box">HTML Select que irá receber a lista</param>
+ <param name="Type">Apresentação dos Estados Brasileiros</param>
+</member>
+<member name="M:InnerLibs.Political.GetInfoByPostalCode(InnerLibs.Location@)">
+ <summary>
+ Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
+ </summary>
+ <param name="Location">Local com as informações</param>
+ <returns>Uma Variavel InnerLibs.Location com as informações encontradas</returns>
+</member>
+<member name="M:InnerLibs.Political.GetInfoByPostalCode(System.String)">
+ <summary>
+ Retorna o endereço de acordo com o CEP usando a API https://viacep.com.br/
+ </summary>
+ <param name="PostalCode">CEP</param>
+ <returns>Uma Variavel InnerLibs.Location com as informações encontradas</returns>
+</member>
+<member name="M:InnerLibs.Political.SearchOnGoogleMaps(System.String,System.Boolean)">
+ <summary>
+ Realiza uma busca detalhada no google Maps
+ </summary>
+ <param name="Location">String contendo os detalhes da busca ex.: Av. Rio Pequeno, 240</param>
+ <param name="Sensor">Indica se a pesquisa deve ser baseada na sua localização atual. Padrao TRUE</param>
+ <returns>Uma variavel do tipo InnerLibs.Location com as informações encontradas</returns>
+</member>
+<member name="T:InnerLibs.Encrypt">
+ <summary>
+ Modulo de Criptografia
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Encrypt.ToMD5String(System.String)">
+ <summary>
+ Criptografa um Texto em MD5
+ </summary>
+ <param name="Text">Texto a ser Criptografado</param>
+ <returns>Uma String MD5</returns>
+</member>
+<member name="M:InnerLibs.Encrypt.TryReverseMD5(System.String)">
+ <summary>
+ Tenta reverter uma string MD5 para seu valor original
+ </summary>
+ <param name="Text">String MD5</param>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Text">
+ <summary>
+ Modulo de manipulação de Texto
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Text.RemoveFirstIf(System.String,System.String)">
+ <summary>
+ Remove um texto do inicio de uma string se ele for um outro texto
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="StartStringTest">Texto inicial que será comparado</param> 
+</member>
+<member name="M:InnerLibs.Text.RemoveLastIf(System.String,System.String)">
+ <summary>
+ Remove um texto do final de uma string se ele for um outro texto
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="EndStringTest">Texto final que será comparado</param> 
+</member>
+<member name="M:InnerLibs.Text.ParseJSON``1(System.String)">
+ <summary>
+ Transforma uma JSON String em um Objeto ou Classe
+ </summary>
+ <typeparam name="TypeClass">Objeto ou Classe</typeparam>
+ <param name="JSON">String JSON</param>
+ <returns>Um objeto do tipo T</returns>
+</member>
+<member name="M:InnerLibs.Text.SerializeJSON(System.Object)">
+ <summary>
+ Transforma um Objeto em JSON
+ </summary>
+ <param name="[Object]">Objeto</param>
+ <returns>Uma String JSON</returns>
+</member>
+<member name="M:InnerLibs.Text.Split(System.String,System.String)">
+ <summary>
+ Separa um texto em um array de strings a partir de uma outra string
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="Separator">Texto utilizado como separador</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.RemoveNonPrintable(System.String)">
+ <summary>
+ Remove caracteres não printaveis de uma string
+ </summary>
+ <param name="Text">Texto</param>
+ <returns>String corrigida</returns>
+</member>
+<member name="M:InnerLibs.Text.Join``1(``0[],System.String)">
+ <summary>
+ Une todos os valores de um objeto em uma unica string
+ </summary>
+ <param name="Array">Objeto com os valores</param>
+ <param name="Separator">Separador entre as strings</param>
+ <returns>string</returns>
+</member>
+<member name="M:InnerLibs.Text.GetDomain(System.Uri)">
+ <summary>
+ Pega o dominio principal de uma URL
+ </summary>
+ <param name="URL">URL</param>
+ <returns>nome do dominio</returns>
+</member>
+<member name="M:InnerLibs.Text.ToNumber(System.Decimal,System.Char,System.Char)">
+ <summary>
+ Formata um numero decimal com separador de milhares e 2 casas decimais.
+ </summary>
+ <param name="Number">Numero Decimal</param>
+ <param name="ThousandSeparator">Separador de milhares</param>
+ <param name="DecimalSeparator">Separador de casas decimais</param>
+ <returns>Numero formatado em string</returns>
+</member>
+<member name="M:InnerLibs.Text.ToMoney(System.Decimal,System.String,System.Char,System.Char)">
+ <summary>
+ Formata um numero decimal como moeda
+ </summary>
+ <param name="Number">Numero Decimal</param>
+ <param name="Currency">SImbolo de moeda</param>
+ <param name="ThousandSeparator">Separador de milhares</param>
+ <param name="DecimalSeparator">Separador de casas decimais</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.FixPunctuation(System.String,System.String)">
+ <summary>
+ Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao.
+ </summary>
+ <param name="Text">Frase, Texto a ser pontuado</param>
+ <param name="Punctuation">Ponto a ser adicionado na frase se a mesma não estiver com pontuacao</param>
+ <returns>Frase corretamente pontuada</returns>
+</member>
+<member name="M:InnerLibs.Text.Replace(System.String,System.String)">
+ <summary>
+ Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são substituídas por vazio.
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="OldValue">Valor a ser substituido por vazio</param>
+ <returns>String corrigida</returns>
+</member>
+<member name="M:InnerLibs.Text.Replace(System.String,System.String,System.String[])">
+ <summary>
+ Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são substituídas por um novo valor.
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="NewValue">Novo Valor</param>
+ <param name="OldValues">Valores a serem substituido por um novo valor</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.RemoveAny(System.String,System.String[])">
+ <summary>
+ Remove várias strings de uma string
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="Values">Strings a serem removidas</param>
+ <returns>Uma string com os valores removidos</returns>
+</member>
+<member name="M:InnerLibs.Text.ToFriendlyURL(System.String,System.Boolean)">
+ <summary>
+ Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca espacos por hifen)
+ </summary>
+ <param name="Text"></param>
+    ''' <param name="UseUnderscore">Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens</param>
+ <returns>string amigavel para URL</returns>
+</member>
+<member name="M:InnerLibs.Text.IsAny(System.String,System.String[])">
+ <summary>
+ Compara se uma string é igual a outras strings
+ </summary>
+ <param name="Text">string principal</param>
+ <param name="Texts">strings para comparar</param>
+ <returns>TRUE se alguma das strings for igual a principal</returns>
+</member>
+<member name="M:InnerLibs.Text.RemoveAccents(System.String@)">
+ <summary>
+ Remove os acentos de uma string
+ </summary>
+ <param name="Text">Texto</param>
+ <returns>String sem os acentos</returns>
+</member>
+<member name="M:InnerLibs.Text.RemoveDiacritics(System.String@)">
+ <summary>
+ Remove os acentos de uma string
+ </summary>
+ <param name="Text">Texto</param>
+ <returns>String sem os acentos</returns>
+</member>
+<member name="M:InnerLibs.Text.Append(System.String@,System.String)">
+ <summary>
+ Adiciona texto ao final de uma string
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="AppendText">Texto adicional</param>
+</member>
+<member name="M:InnerLibs.Text.Increment(System.Int32@)">
+ <summary>
+ Incrementa em 1 um numero inteiro
+ </summary>
+ <param name="Number">Numero</param>
+</member>
+<member name="M:InnerLibs.Text.Prepend(System.String@,System.String)">
+ <summary>
+ Adiciona texto ao começo de uma string
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="PrependText">Texto adicional</param>
+</member>
+<member name="M:InnerLibs.Text.Decrement(System.Int32@)">
+ <summary>
+ Decrementa em 1 um numero inteiro
+ </summary>
+ <param name="Number">Numero</param>
+</member>
+<member name="M:InnerLibs.Text.ToBytesString(System.Int64)">
+ <summary>
+ Retorna o uma string representando um valor em bytes, KB, MB ou TB
+ </summary>
+ <param name="Size">Tamanho</param>
+ <returns>String com o tamanho + unidade de medida</returns>
+</member>
+<member name="M:InnerLibs.Text.InExtensive(System.Int32)">
+ <summary>
+ Transforma um numero inteiro em sua forma extensa
+ </summary>
+ <param name="Number">Numero Inteiro</param>
+ <returns>String contendo o numero por extenso</returns>
+</member>
+<member name="M:InnerLibs.Text.DeleteLine(System.String@,System.Int32)">
+ <summary>
+ remove uma determinada linha de um texto
+ </summary>
+ <param name="Text">Texto completo</param>
+ <param name="LineIndex">numero da linha a ser removida (Começando do 0)</param>
+ <returns>string sem a linha indicada</returns>
+</member>
+<member name="M:InnerLibs.Text.RemoveFirstChars(System.String,System.Int32)">
+ <summary>
+ Remove os X primeiros caracteres
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="Quantity">Quantidade de Caracteres</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.RemoveLastChars(System.String,System.Int32)">
+ <summary>
+ Remove os X ultimos caracteres
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="Quantity">Quantidade de Caracteres</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.Slice(System.String,System.Int32,System.Boolean)">
+ <summary>
+ Corta uma string em uma determinada posição e completa com reticências.
+ </summary>
+ <param name="Text">O Texto a ser Cortado</param>
+ <param name="TextLength">A quantidade de caracteres final da string cortada</param>
+ <param name="Ellipsis">TRUE para reticências, FALSE para apenas a string cortada</param>
+ <returns>string cortada</returns>
+</member>
+<member name="M:InnerLibs.Text.RemoveHTML(System.String)">
+ <summary>
+ Remove as tags HTML de um texto
+ </summary>
+ <param name="Text">Texto a ser Tratado</param>
+ <returns>String sem as tags HTML</returns>
+</member>
+<member name="M:InnerLibs.Text.FixBreakLines(System.String)">
+ <summary>
+ Transforma quebras de linha HTML em quebras de linha comuns ao .net
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <returns>String fixada</returns>
+</member>
+<member name="M:InnerLibs.Text.AdjustWhiteSpaces(System.String)">
+ <summary>
+ Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final da frase
+ </summary>
+ <param name="Text">Frase a ser manipulada</param>
+ <returns>Uma String com a frase corrigida</returns>
+</member>
+<member name="M:InnerLibs.Text.ToProper(System.String)">
+ <summary>
+ Transforma um texto em nome proprio Ex.: igor -> Igor / inner code -> Inner Code
+ </summary>
+ <param name="Text">Texto a ser manipulado</param>
+ <returns>Uma String com o texto em nome próprio</returns>
+</member>
+<member name="M:InnerLibs.Text.FixQuotesToQuery(System.String)">
+ <summary>
+ Prepara uma string com aspas simples para uma Query TransactSQL
+ </summary>
+ <param name="Text">Texto a ser tratado</param>
+ <returns>String pornta para a query</returns>
+</member>
+<member name="M:InnerLibs.Text.Quote(System.String,System.String)">
+ <summary>
+ Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="QuoteChar">Caractere de encapsulamento</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.Wrap(System.String,System.String)">
+ <summary>
+ Encapsula um tento entre 2 textos
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="WrapChar">Caractere de encapsulamento</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.PutInTag(System.String,System.String)">
+ <summary>
+ Encapsula um texto dentro de um elemento HTML
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="TagName">Nome da Tag (Exemplo: div)</param>
+ <returns>Uma string HTML com seu texto dentro de uma tag</returns>
+</member>
+<member name="M:InnerLibs.Text.GetLastChars(System.String,System.Int32)">
+ <summary>
+ Retorna os N ultimos caracteres
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Number">Numero de caracteres</param>
+ <returns>Uma String com os N ultimos caracteres</returns>
+</member>
+<member name="M:InnerLibs.Text.GetFirstChars(System.String,System.Int32)">
+ <summary>
+ Retorna os N primeiros caracteres
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Number">Numero de caracteres</param>
+ <returns>Uma String com os N primeiros caracteres</returns>
+</member>
+<member name="M:InnerLibs.Text.HtmlEncode(System.String)">
+ <summary>
+ Escapa o texto HTML
+ </summary>
+ <param name="Text">string HTML</param>
+ <returns>String HTML corrigido</returns> 
+</member>
+<member name="M:InnerLibs.Text.HtmlDecode(System.String)">
+ <summary>
+ Retorna um texto com  entidades HTML convertidas para caracteres
+ </summary>
+ <param name="Text">string HTML</param>
+ <returns>String HTML corrigido</returns> 
+</member>
+<member name="M:InnerLibs.Text.GetBetween(System.String,System.String,System.String)">
+ <summary>
+ Retorna o texto entre dois textos
+ </summary>
+ <param name="Text">O texto correspondente</param>
+ <param name="Before">O texto Anterior</param>
+ <param name="After">O texto Posterior</param>
+ <returns>Uma String com o texto entre o texto anterior e posterior</returns>
+</member>
+<member name="M:InnerLibs.Text.GetBefore(System.String,System.String)">
+ <summary>
+ Retorna um texto anterior a outro
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Value">Texto Anterior</param>
+ <returns>Uma string com o valor anterior ao valor especificado.</returns>
+</member>
+<member name="M:InnerLibs.Text.GetAfter(System.String,System.String)">
+ <summary>
+ Retorna um texto anterior a outro
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Value">Texto Posterior</param>
+ <returns>Uma string com o valor posterior ao valor especificado.</returns>
+</member>
+<member name="M:InnerLibs.Text.ContainsAny(System.String,System.String[])">
+ <summary>
+  Verifica se uma String contém qualquer um dos valores especificados
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Values">Lista de valores</param>
+ <returns>True se conter algum valor, false se não</returns>
+</member>
+<member name="M:InnerLibs.Text.ContainsAny(System.String,System.StringComparison,System.String[])">
+ <summary>
+  Verifica se uma String contém qualquer um dos valores especificados
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Values">Lista de valores</param>
+ <param name="ComparisonType">Tipo de comparacao</param>
+ <returns>True se conter algum valor, false se não</returns>
+</member>
+<member name="M:InnerLibs.Text.ContainsAll(System.String,System.String[])">
+ <summary>
+  Verifica se uma String contém todos os valores especificados
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Values">Lista de valores</param>
+ <returns>True se conter algum valor, false se não</returns>
+</member>
+<member name="M:InnerLibs.Text.ContainsAll(System.String,System.StringComparison,System.String[])">
+ <summary>
+  Verifica se uma String contém todos os valores especificados
+ </summary>
+ <param name="Text">Texto correspondente</param>
+ <param name="Values">Lista de valores</param>
+ <param name="ComparisonType">Tipo de comparacao</param>
+ <returns>True se conter algum valor, false se não</returns>
+</member>
+<member name="M:InnerLibs.Text.GetWords(System.String,System.String)">
+ <summary>
+ Retorna um Array com todas as palavras de uma frase
+ </summary>
+ <param name="Text">String com a frase</param>
+ <param name="Delimiter">Delimitador da frase, por padrão é espaço (" ")</param>
+ <returns>Um array de Strings com as palavras</returns>
+</member>
+<member name="M:InnerLibs.Text.GetLast(System.String[])">
+ <summary>
+ Traz o ultimo elemento de um Array
+ </summary>
+ <param name="Words">Array de Strings</param>
+ <returns>Uma string</returns>
+</member>
+<member name="M:InnerLibs.Text.GetFirst(System.String[])">
+ <summary>
+ Traz o primeiro elemento de um Array
+ </summary>
+ <param name="Words">Array de Strings</param>
+ <returns>Uma string</returns>
+</member>
+<member name="T:InnerLibs.AJAX">
+ <summary>
+ Métodos de requisição
+ </summary>
+</member>
+<member name="M:InnerLibs.AJAX.GET(System.String)">
+ <summary>
+ Retorna o conteúdo de uma página
+ </summary>
+ <param name="URL">a URL da solicitação</param>
+ <returns>conteudo de uma pagina em string</returns>
+</member>
+<member name="M:InnerLibs.AJAX.GETFile(System.String)">
+ <summary>
+ Faz o download de um arquivo da internet em formato BYTE
+ </summary>
+ <param name="URL">URL do arquivo</param>
+ <returns>Array de Bytes do arquivo</returns>
+</member>
+<member name="T:InnerLibs.AJAX.Response">
+ <summary>
+ Template de resposta de requisiçoes ajax. Facilita respostas em de RestAPI em JSON
+ </summary>
+</member>
+<member name="P:InnerLibs.AJAX.Response.status">
+ <summary>
+ Status da requisicao
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.AJAX.Response.message">
+ <summary>
+ Mensagem retornada ao ciente
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.AJAX.Response.response">
+ <summary>
+ Objeto adicionado a resposta, ele será serializado em JSON
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.AJAX.Response.ToJSON">
+ <summary>
+ Retorna um JSON deste objeto
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Web">
+ <summary>
+ Modulo Web
+ </summary>
+ <remarks></remarks>
+ 
+</member>
+<member name="M:InnerLibs.Web.ToCookie(System.Web.SessionState.HttpSessionState,System.String,System.String[])">
+ <summary>
+ Cria um cookie guardando valores especificos da sessão atual
+ </summary>
+ <param name="Session">Sessão</param>
+ <param name="CookieName">Nome do Cookie</param>
+ <param name="SessionKeys">As keys especificas que você quer guardar</param>
+ <returns>Um cookie com os valores da sessão</returns>
+</member>
+<member name="M:InnerLibs.Web.ToCookie(System.Web.SessionState.HttpSessionState,System.String)">
+ <summary>
+ Cria um cookie guardando todos os valores da sessão atual
+ </summary>
+ <param name="Session">Sessão</param>
+ <param name="CookieName">Nome do Cookie</param>
+ <returns>Um cookie com os valores da sessão</returns>
+</member>
+<member name="M:InnerLibs.Web.AddParameter(System.Uri,System.String,System.String)">
+ <summary>
+ Adciona um parametro a Query String de uma URL
+ </summary>
+ <param name="Url">Uri</param>
+ <param name="Key">Nome do parâmetro</param>
+ <param name="Value">Valor do Parâmetro</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.ToProcedure(System.Web.HttpRequest,System.String,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de uma URL como parametros da procedure
+ </summary>
+ <param name="Request">Requisicao HTTP</param>
+ <param name="ProcedureName">Nome da Procedure</param>
+ <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToProcedure(System.Web.HttpRequest,System.String)">
+ <summary>
+ Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de uma URL como parametros da procedure
+ </summary>
+ <param name="Request">Requisicao HTTP</param>
+ <param name="ProcedureName">Nome da Procedure</param> 
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.WriteEnd(System.Web.HttpResponse,System.String)">
+ <summary>
+ Escreve um texto e finaliza um HttpResponse
+ </summary>
+ <param name="Response">HttpResponse</param>
+ <param name="Text">Texto</param>
+</member>
+<member name="M:InnerLibs.Web.WriteJSON(System.Web.HttpResponse,System.String)">
+ <summary>
+ Escreve um JSON e finaliza um HttpResponse
+ </summary>
+ <param name="Response">HttpResponse</param>
+ <param name="JSON">String JSON</param>
+</member>
+<member name="M:InnerLibs.Web.WriteJSON(System.Web.HttpResponse,InnerLibs.AJAX.Response)">
+ <summary>
+ Escreve um JSON e finaliza um HttpResponse
+ </summary>
+ <param name="Response">HttpResponse</param>
+ <param name="JSON">Objeto de resposta AJAX</param>
+</member>
+<member name="M:InnerLibs.Web.WriteXML(System.Web.HttpResponse,System.String)">
+ <summary>
+ Escreve um XML e finaliza um HttpResponse
+ </summary>
+ <param name="Response">HttpResponse</param>
+ <param name="XML">String XML</param>
+</member>
+<member name="M:InnerLibs.Web.WriteScript(System.Web.HttpResponse,System.String)">
+ <summary>
+ Escreve um script na página
+ </summary>
+ <param name="Response">HttpResponse</param>
+ <param name="Script">Texto do Script</param>
+</member>
+<member name="M:InnerLibs.Web.GetYoutubeVideoId(System.String)">
+ <summary>
+ Captura o ID de um video do youtube em uma URL
+ </summary>
+ <param name="URL">URL do video</param>
+ <returns>ID do video do youtube</returns>
+</member>
+<member name="M:InnerLibs.Web.GetYoutubeVideoId(System.Uri)">
+ <summary>
+ Captura o ID de um video do youtube em uma URL
+ </summary>
+ <param name="URL">URL do video</param>
+ <returns>ID do video do youtube</returns>
+</member>
+<member name="M:InnerLibs.Web.IsDown(System.String)">
+ <summary>
+ Verifica se um site está indisponível usando o serviço IsUp.Me
+ </summary>
+ <param name="Url">Url</param>
+ <returns>True para site fora do Ar</returns>
+</member>
+<member name="M:InnerLibs.Web.IsUp(System.String)">
+ <summary>
+ Verifica se um site está disponível usando o serviço IsUp.Me
+ </summary>
+ <param name="Url">Url</param>
+ <returns>False para site fora do Ar</returns>
+</member>
+<member name="M:InnerLibs.Web.IsDown(System.Uri)">
+ <summary>
+ Verifica se um site está indisponível usando o serviço IsUp.Me
+ </summary>
+ <param name="Url">Url</param>
+ <returns>True para site fora do Ar</returns>
+</member>
+<member name="M:InnerLibs.Web.IsUp(System.Uri)">
+ <summary>
+ Verifica se um site está disponível usando o serviço IsUp.Me
+ </summary>
+ <param name="Url">Url</param>
+ <returns>False para site fora do Ar</returns>
+</member>
+<member name="T:InnerLibs.Toggles">
+ <summary>
+ Modulo que liga/desliga, (inverte) valores de variaveis
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Toggles.Toggle(System.Boolean@)">
+ <summary>
+ Inverte os valores TRUE/FALSE
+ </summary>
+ <param name="Bool">Variavel BOOLEANA que será invertida</param>
+</member>
+<member name="M:InnerLibs.Toggles.Toggle(System.Int32@)">
+ <summary>
+ Inverte os valores 0/1
+ </summary>
+ <param name="Int">Variavel INTEIRA que será invertida</param>
+</member>
+<member name="M:InnerLibs.Toggles.Toggle(System.Windows.Forms.Form@,InnerLibs.Toggles.Effect)">
+ <summary>
+ Inverte a visibilidade do form
+ </summary>
+ <param name="Form">Variavel INTEIRA que será invertida</param>
+ <param name="Effect">Efeito (SLIDE, FADE, NONE)</param>
+</member>
+<member name="M:InnerLibs.Toggles.Toggle(System.Int32@,System.String,System.String)">
+ <summary>
+ Alterna uma String ente 2 valores diferentes
+ </summary>
+ <param name="CurrentString">String contendo o primeiro ou segundo valor</param>
+ <param name="TrueValue">Primeiro valor</param>
+ <param name="FalseValue">Segundo Valor</param>
+</member>
+<member name="T:InnerLibs.Toggles.Effect">
+ <summary>
+ Efeitos de Formulário
+ </summary>
+</member>
+<member name="F:InnerLibs.Toggles.Effect.None">
+ <summary>
+ Nenhum Efeito
+ </summary>
+</member>
+<member name="F:InnerLibs.Toggles.Effect.Fade">
+ <summary>
+ Efeito da Fade (aparece/desaparece aos poucos)
+ </summary>
+</member>
+<member name="F:InnerLibs.Toggles.Effect.Slide">
+ <summary>
+ Efeito de slide (desliza na tela)
+ </summary>
+</member>
+<member name="T:InnerLibs.Romanize">
+ <summary>
+ Modulo para manipulação de numeros romanos
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="T:InnerLibs.Romanize.RomanDigit">
+ <summary>
+ Lista de algarismos romanos
+ </summary>
+</member>
+<member name="F:InnerLibs.Romanize.RomanDigit.I">
+ <summary>
+ Valor correspondente
+ </summary>
+</member>
+<member name="F:InnerLibs.Romanize.RomanDigit.V">
+ <summary>
+ Valor correspondente
+ </summary>
+</member>
+<member name="F:InnerLibs.Romanize.RomanDigit.X">
+ <summary>
+ Valor correspondente
+ </summary>
+</member>
+<member name="F:InnerLibs.Romanize.RomanDigit.L">
+ <summary>
+ Valor correspondente
+ </summary>
+</member>
+<member name="F:InnerLibs.Romanize.RomanDigit.C">
+ <summary>
+ Valor correspondente
+ </summary>
+</member>
+<member name="F:InnerLibs.Romanize.RomanDigit.D">
+ <summary>
+ Valor correspondente
+ </summary>
+</member>
+<member name="F:InnerLibs.Romanize.RomanDigit.M">
+ <summary>
+ Valor correspondente
+ </summary>
+</member>
+<member name="M:InnerLibs.Romanize.ToArabic(System.String)">
+ <summary>
+ Converte uma String contendo um numero romano para seu valor arabico
+ </summary>
+ <param name="RomanNumber">Stringo contendo o numero romano</param>
+ <returns>Valor em arabico</returns>
+</member>
+<member name="M:InnerLibs.Romanize.ToRoman(System.Int32)">
+ <summary>
+ Converte um valor numérico arabico para numero romano
+ </summary>
+ <param name="ArabicNumber">Valor numerico arabico</param>
+ <returns>uma string com o numero romano</returns>
+</member>
+<member name="T:InnerLibs.WinForms">
+ <summary>
+ Módulo de controle de formulários
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="T:InnerLibs.WinForms.Direction">
+ <summary>
+ Direção do movimento do formulário
+ </summary>
+</member>
+<member name="F:InnerLibs.WinForms.Direction.Up">
+ <summary>
+ Desliza Para cima
+ </summary>
+</member>
+<member name="F:InnerLibs.WinForms.Direction.Down">
+ <summary>
+ Desliza para baixo
+ </summary>
+</member>
+<member name="F:InnerLibs.WinForms.Direction.Left">
+ <summary>
+ Desliza para esquerda
+ </summary>
+</member>
+<member name="F:InnerLibs.WinForms.Direction.Right">
+ <summary>
+ Desliza para direita
+ </summary>
+</member>
+<member name="M:InnerLibs.WinForms.RestartAsAdmin(System.Windows.Forms.Form)">
+ <summary>
+ Reinicia a aplicação solicitando acesso administrativo (Este Método funciona apenas se a aplicação nao está em modo administrativo)
+ </summary>
+</member>
+<member name="M:InnerLibs.WinForms.FadeIn(System.Windows.Forms.Form,System.Decimal)">
+ <summary>
+ Mostra o formulário com Fade
+ </summary>
+ <param name="Form">Formulário que será mostrado</param>
+   <param name="Delay">Delay de carregamento</param>
+</member>
+<member name="M:InnerLibs.WinForms.FadeOut(System.Windows.Forms.Form,System.Decimal)">
+ <summary>
+ Esconde o formulário com Fade
+ </summary>
+ <param name="Form">Formulario que será escondido</param>
+   <param name="Delay">Delay de carregamento</param>
+</member>
+<member name="M:InnerLibs.WinForms.SlideIn(System.Windows.Forms.Form,InnerLibs.WinForms.Direction,System.Int32,System.Decimal)">
+ <summary>
+ desliza o Formulário para dentro da tela
+ </summary>
+ <param name="Form">Formulário</param>
+ <param name="Direction">Direção da rolagem (UP, DOWN, LEFT, RIGHT)</param>
+ <param name="Value">Local da tela onde o form irá parar</param>
+ <param name="Delay">Delay de Velocidade</param>
+</member>
+<member name="M:InnerLibs.WinForms.SlideOut(System.Windows.Forms.Form,InnerLibs.WinForms.Direction,System.Decimal)">
+ <summary>
+ Desliza o formulário para fora da tela
+ </summary>
+ <param name="Form">Formulário</param>
+ <param name="Direction">Direção da rolagem (UP, DOWN, LEFT, RIGHT)</param>
+ <param name="Delay">Delay de Velocidade</param>
+</member>
+<member name="M:InnerLibs.WinForms.Alert(System.String)">
+ <summary>
+ Exibe uma caixa de alerta com uma mensagem
+ </summary>
+ <param name="Message">Texto da caixa de alerta</param>
+</member>
+<member name="M:InnerLibs.WinForms.Confirm(System.String)">
+ <summary>
+ Exibe uma caixa de comfirmação com uma mensagem
+ </summary>
+ <param name="Message">Texto da caixa de confirmação</param>
+ <returns>TRUE ou FALSE</returns>
+</member>
+<member name="M:InnerLibs.WinForms.Prompt(System.String)">
+ <summary>
+ Exibe uma caixa de mensagem ao usuário esperando uma resposta
+ </summary>
+ <param name="Message">Mensagem String</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.WinForms.ToFullScreen(System.Windows.Forms.Form,System.Int32)">
+ <summary>
+ Deixa o  Form em tela cheia.
+ </summary>
+ <param name="Form">O formulario</param>
+ <param name="TheScreen">Qual tela o form será aplicado</param>
+</member>
+<member name="M:InnerLibs.WinForms.SetTelephoneMask(System.Windows.Forms.MaskedTextBox)">
+ <summary>
+ Aplica máscara de telefone com ou sem o nono dígito automaticamente de acordo com o número inputado. Utilize este metodo no Evento GotFocus e LostFocus simultaneamente
+ </summary>
+ <param name="theTextBox">A MaskedTextBox</param>
+</member>
+<member name="M:InnerLibs.WinForms.Notify(System.String,System.Drawing.Size,System.Int32,System.Drawing.ContentAlignment)">
+ <summary>
+ Notifica uma mensagem ao usuário usando um ToastForm
+ </summary>
+ <param name="Message">Mensagem</param>
+ <param name="Size">Tamanho do Formulário</param>
+ <param name="LifeTime">Tempo que a notificação permanece na tela</param>
+</member>
+<member name="M:InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control)">
+ <summary>
+ Pega todos os controles filhos de um controle pai
+ </summary>
+ <typeparam name="ControlType">Tipo de controle</typeparam>
+ <param name="Control">Controle Pai</param>
+ <returns>Uma lista com os controles</returns>
+</member>
+<member name="T:InnerLibs.HtmlGenerator">
+ <summary>
+ Cria componentes de HTML dinamicos
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlGenerator.TableRow(System.String,System.String[])">
+ <summary>
+ Cria uma linha de tabela html com diversas colunas (td)
+ </summary>
+ <param name="Tds">strings contendo o conteudo de cada TD</param>
+ <returns>Uma TR</returns>
+</member>
+<member name="M:InnerLibs.HtmlGenerator.TableHeader(System.String[])">
+ <summary>
+ Cria um Table Header (thead) com as colunas especificadas
+ </summary>
+ <param name="Ths">Colunas</param>
+ <returns>String thead</returns>
+</member>
+<member name="M:InnerLibs.HtmlGenerator.Table(System.String,System.String,System.String,System.String)">
+ <summary>
+ Cria uma Table HTML a partir de strings geradas
+ </summary>
+ <param name="TableHeader">Elemento thead com o cabeçalho</param>
+ <param name="Rows">Linhas da tabela</param>
+ <param name="ID">id da tabela</param>
+ <param name="[Class]">atributo class da tabela</param>
+ <returns>uma strig com a table</returns>
+</member>
+<member name="M:InnerLibs.Converter.To``1(System.IConvertible)">
+ <summary>
+ Converte um tipo para outro
+ </summary>
+ <typeparam name="T">Tipo</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
+<member name="T:InnerLibs.MimeTypes">
+ <summary>
+ Módulo de manipulaçao de MIME Types
+ </summary>
+</member>
+<member name="M:InnerLibs.MimeTypes.GetMimeType(System.String)">
+ <summary>
+ Retorna o Mime Type a partir da extensão de um arquivo
+ </summary>
+ <param name="Extension">extensão do arquivo</param>
+ <returns>string mime type</returns>
+</member>
+<member name="M:InnerLibs.MimeTypes.GetMimeType(System.IO.FileInfo)">
+ <summary>
+ Retorna o Mime Type a partir  de um arquivo
+ </summary>
+ <param name="File">Arquivo</param>
+ <returns>string mime type</returns>
+</member>
+<member name="M:InnerLibs.MimeTypes.GetMimeType(System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ Retorna o Mime Type a partir de de um formato de Imagem
+ </summary>
+ <param name="RawFormat">Formato de Imagem</param>
+ <returns>string mime type</returns>
+</member>
+<member name="M:InnerLibs.MimeTypes.GetMimeType(System.Drawing.Image)">
+ <summary>
+ Retorna o Mime Type a partir de de uma Imagem
+ </summary>
+ <param name="Image">Imagem</param>
+ <returns>string mime type</returns>
+</member>
+<member name="M:InnerLibs.Shortcuts.CreateShortcut(System.IO.DirectoryInfo,System.String,System.String,System.String,System.String,System.String)">
+ <summary>
+ Cria atalhos em um diretõrio especifico
+ </summary>
+ <param name="Directory">Diretório de destino</param>
+ <param name="Name">nome do arquivo de atalho</param>
+ <param name="Arguments">Argumentos</param>
+ <param name="Target">Destino (se não especificado, apota para a sua aplicação)</param>
+ <param name="Description">Descrição do atalho</param>
+ <param name="Icon">Icone do atalho</param>
+ <returns>TRUE se foi possivel criar o atalho, caso contrario, FALSE</returns>
+</member>
+<member name="M:InnerLibs.Sound.SoundEx(System.String)">
+ <summary>
+ Gera um código SOUNDEX para comparação de fonemas
+ </summary>
+ <param name="Text">Texto</param>
+ <returns>Um código soundex</returns>
+</member>
+<member name="M:InnerLibs.Sound.SoundsLike(System.String,System.String)">
+ <summary>
+ Compara 2 palavras e verifica se elas possuem fonema parecido
+ </summary>
+ <param name="FirstText">Primeira palavra</param>
+ <param name="SecondText">Segunda palavra</param>
+ <returns>TRUE se possuirem o mesmo fonema</returns>
+</member>
+<member name="F:InnerLibs.ToastForm.openForms">
+ <summary>
+ The list of currently open ToastForms.
+ </summary>
+</member>
+<member name="F:InnerLibs.ToastForm.allowFocus">
+ <summary>
+ Indicates whether the form can receive focus or not.
+ </summary>
+</member>
+<member name="F:InnerLibs.ToastForm.animator">
+ <summary>
+ The object that creates the sliding animation.
+ </summary>
+</member>
+<member name="F:InnerLibs.ToastForm.currentForegroundWindow">
+ <summary>
+ The handle of the window that currently has focus.
+ </summary>
+</member>
+<member name="M:InnerLibs.ToastForm.GetForegroundWindow">
+ <summary>
+ Gets the handle of the window that currently has focus.
+ </summary>
+ <returns>
+ The handle of the window that currently has focus.
+ </returns>
+</member>
+<member name="M:InnerLibs.ToastForm.SetForegroundWindow(System.IntPtr)">
+ <summary>
+ Activates the specified window.
+ </summary>
+ <param name="hWnd">
+ The handle of the window to be focused.
+ </param>
+ <returns>
+ True if the window was focused; False otherwise.
+ </returns>
+</member>
+<member name="M:InnerLibs.ToastForm.#ctor(System.Int32,System.String,System.Drawing.ContentAlignment)">
+ <summary>
+ Creates a new ToastForm object that is displayed for the specified length of time.
+ </summary>
+ <param name="lifeTime">
+ The length of time, in milliseconds, that the form will be displayed.
+ </param>
+</member>
+<member name="M:InnerLibs.ToastForm.Show">
+ <summary>
+ Displays the form.
+ </summary>
+ <remarks>
+ Required to allow the form to determine the current foreground window     before being displayed.
+ </remarks>
+</member>
+<member name="T:InnerLibs.vCard">
+ <summary>
+ Um objeto vCard
+ </summary>
+</member>
+<member name="T:InnerLibs.StilingueAPI">
+ <summary>
+ API do Stilingue
+ </summary>
+</member>
+<member name="P:InnerLibs.StilingueAPI.URL">
+ <summary>
+ Propriedade que indica se qual Endpoint (URL) a API irá trabalhar
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.StilingueAPI.BaseURL">
+ <summary>
+ URL da API do Stilingue
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.StilingueAPI.RequestKeys(System.String,System.String)">
+ <summary>
+ Retorna uma Lista com todas as KEYS de um usuário do Stilingue
+ </summary>
+ <param name="Login">Login do Stilingue</param>
+ <param name="Senha">Senha do Stilingue</param>
+ <returns>Lista com as Keys</returns>
+</member>
+<member name="M:InnerLibs.StilingueAPI.RequestKeys(System.Net.NetworkCredential)">
+ <summary>
+ Retorna uma Lista com todas as KEYS de um usuário do Stilingue
+ </summary>
+ <param name="Credentials">Credenciais de Login</param>
+ <returns>Lista com as Keys</returns>
+</member>
+<member name="T:InnerLibs.StilingueAPI.WarRoom">
+ <summary>
+ API de Cards e News do Stilingue
+ </summary>
+</member>
+<member name="P:InnerLibs.StilingueAPI.WarRoom.Errors">
+ <summary>
+ Lista de Erros capturados ao fazer a requisiçao da API
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.StilingueAPI.WarRoom.#ctor(System.String,System.Boolean,InnerLibs.StilingueAPI.Endpoint)">
+ <summary>
+ Declara um novo objeto WarRoom
+ </summary>
+ <param name="Key">Chave única de acesso da pesquisa disponível no dashboard do War Room</param>
+ <param name="AutoRequest">Quando TRUE, faz uma requisição das informações de META e NEWS imediatamente ao declarar o objeto</param>
+ <param name="URLEndPoint">Quando TRUE, Utiliza a URL alpha (Não recomendado para ambientes produção)</param>
+</member>
+<member name="M:InnerLibs.StilingueAPI.WarRoom.GetFrameCardURL(InnerLibs.StilingueAPI.WarRoom.Cards)">
+ <summary>
+ Gera um objeto URI com a URL de um Card especifico
+ </summary>
+ <param name="Card">Tipo do Card</param>
+ <returns>URI</returns>
+</member>
+<member name="T:InnerLibs.StilingueAPI.WarRoom.Cards">
+ <summary>
+ Lista de Cards do Stilingue
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Sonar">
+ <summary>
+ Sonar
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Gallery">
+ <summary>
+ Galeria de Mídia
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Overview">
+ <summary>
+ Visão Geral
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Statistics">
+ <summary>
+ Estatísticas Gerais
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Matrix">
+ <summary>
+ Matriz
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Metro">
+ <summary>
+ Metro
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Stream">
+ <summary>
+ Evolução dos Clusters
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Cards.Clipping">
+ <summary>
+ Noticias
+ </summary>
+</member>
+<member name="M:InnerLibs.StilingueAPI.WarRoom.GetMeta">
+ <summary>
+ Traz as informações dos Metatados da Pesquisa
+ </summary>
+</member>
+<member name="M:InnerLibs.StilingueAPI.WarRoom.GetNews(InnerLibs.StilingueAPI.WarRoom.Channel,System.Boolean,System.Int32,System.Int32,System.String[],System.String[])">
+ <summary>
+ Traz os posts de Mídias Sociais e/ou Notícias
+ </summary> 
+ <param name="Channel">Canal de publicações.</param>
+ <param name="Group_Posts">Agrupar Publicações</param>
+ <param name="Limit">Limite por página. Maximo de 36.</param>
+ <param name="Offset">Pagina</param>
+ <param name="Groups">Filtrar grupos especificos  (lista de títulos concatenados por dois pontos. Exemplo: 'Grupo1:Grupo2’)</param>
+ <param name="Themes">Filtrar temas especificos  (lista de títulos concatenados por dois pontos. Exemplo: 'Tema1:Tema2’)</param>
+</member>
+<member name="T:InnerLibs.StilingueAPI.WarRoom.Channel">
+ <summary>
+ Canal de Pesquisa
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Channel.All">
+ <summary>
+ Todas as Publicações
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Channel.Clipping">
+ <summary>
+ Apenas Notícias
+ </summary>
+</member>
+<member name="F:InnerLibs.StilingueAPI.WarRoom.Channel.SocialMedia">
+ <summary>
+ Apenas Mídias Sociais
+ </summary>
+</member>
+<member name="T:InnerLibs.StilingueAPI.WarRoom.Meta">
+ <summary>
+ Metadados da Pesquisa
+ </summary>
+</member>
+<member name="T:InnerLibs.StilingueAPI.WarRoom.News">
+ <summary>
+ Noticias e publicações em Redes Sociais
+ </summary>
+</member>
+<member name="T:InnerLibs.StilingueAPI.WarRoom.Post">
+ <summary>
+ Noticia ou Post
+ </summary>
+</member>
+</members>
+</doc>
