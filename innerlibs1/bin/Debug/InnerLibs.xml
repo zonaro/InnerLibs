@@ -5150,11 +5150,16 @@ Atualiza a lista de keys
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.AJAX.Response.ToJSON">
+<member name="P:InnerLibs.AJAX.Response.timeout">
  <summary>
- Retorna um JSON deste objeto
+ Tempo que a API demora para responder (calculado automaticamente no metodo <see cref="M:InnerLibs.AJAX.Response.ToJSON"/>)
  </summary>
  <returns></returns>
+</member>
+<member name="M:InnerLibs.AJAX.Response.ToJSON">
+ <summary>
+ Processa a resposta e retorna um JSON deste objeto
+ </summary>
 </member>
 <member name="T:InnerLibs.Web">
  <summary>

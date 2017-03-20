@@ -100,47 +100,57 @@ Public NotInheritable Class AJAX
     ''' Template de resposta de requisiçoes ajax. Facilita respostas de RestAPI em JSON
     ''' </summary>
     Public Class Response
+
+
         ''' <summary>
         ''' Status da requisicao
         ''' </summary>
         ''' <returns></returns>
-        Property status As String
+        Property status As String = ""
         ''' <summary>
         ''' Mensagem retornada ao ciente
         ''' </summary>
         ''' <returns></returns>
-        Property message As String
+        Property message As String = ""
         ''' <summary>
         ''' Objeto adicionado a resposta, ele será serializado em JSON
         ''' </summary>
         ''' <returns></returns>
         Property response As Object
 
-        Public Sub New()
+        ''' <summary>
+        ''' Tempo que a API demora para responder (calculado automaticamente no metodo <see cref="ToJSON()"/>)
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property timeout As Integer
+            Get
+                Return t
+            End Get
+        End Property
 
-        End Sub
+        Private t As Integer = Now.Ticks
 
-        Public Sub New(Status As String)
-            Me.status = Status
-        End Sub
-
-        Public Sub New(Status As String, Message As String)
-            Me.status = Status
-            Me.message = Message
-        End Sub
-
-        Public Sub New(Status As String, Message As String, Response As Object)
+        Public Sub New(Optional Status As String = "", Optional Message As String = "", Optional Response As Object = Nothing)
             Me.status = Status
             Me.message = Message
             Me.response = Response
         End Sub
 
         ''' <summary>
-        ''' Retorna um JSON deste objeto
+        ''' Processa a resposta e retorna um JSON deste objeto
         ''' </summary>
-        ''' <returns></returns>
         Public Function ToJSON()
-            Return Me.SerializeJSON
+            Try
+                Me.status = If(status.IsBlank, "success", status)
+                t = Now.Ticks - t
+                Return Me.SerializeJSON
+            Catch ex As Exception
+                Me.status = If(status.IsBlank, "error", status)
+                Me.message = If(message.IsBlank, ex.Message, message)
+                Me.response = Nothing
+                t = Now.Ticks - t
+                Return Me.SerializeJSON
+            End Try
         End Function
     End Class
 End Class
