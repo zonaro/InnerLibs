@@ -128,7 +128,7 @@ Public NotInheritable Class AJAX
             End Get
         End Property
 
-        Private t As Integer = Now.Ticks
+        Private t As Long = Now.Ticks
 
         Public Sub New(Optional Status As String = "", Optional Message As String = "", Optional Response As Object = Nothing)
             Me.status = Status
