@@ -146,8 +146,8 @@ Public Module Verify
 
     <Extension()>
     Public Function IsURL(Text As String) As Boolean
-        Dim urlRx = New Regex("^(http|https)://([\w+?\.\w+])+([a-zA-Z0-9\~\!\@\#\$\%\^\&\*\(\)_\-\=\+\\\/\?\.\:\;\'\,]*)?$")
-        Return urlRx.IsMatch(Text)
+        Dim u As Uri
+        Return Uri.TryCreate(Text, UriKind.Absolute, u)
     End Function
 
     ''' <summary>

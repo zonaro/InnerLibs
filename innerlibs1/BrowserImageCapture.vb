@@ -10,7 +10,7 @@ Public Module BrowserClipper
     ''' Cria um snapshot de uma pagina da web a partir de uma URL
     ''' </summary>
     ''' <param name="URL">URL</param>
-    Public Function Capture(URL As String)
+    Public Function Capture(URL As String) As Image
         Dim Img As Image
         Dim thread As New Thread(Sub()
                                      If URL.IsURL = False Then Throw New Exception("Invalid URL")
@@ -59,16 +59,20 @@ Public Module BrowserClipper
     ''' <param name="URL">URL</param>
     ''' <returns></returns>
     Function GetTitle(URL As String) As String
-        Dim title As String
+        Dim title As String = ""
         Dim thread As New Thread(Sub()
                                      If URL.IsURL = False Then Throw New Exception("Invalid URL")
                                      Dim web = New WebBrowser()
                                      web.ScrollBarsEnabled = False
                                      web.ScriptErrorsSuppressed = True
                                      web.Navigate(URL)
-                                     While (web.ReadyState <> WebBrowserReadyState.Complete)
+                                     Do
                                          Application.DoEvents()
-                                     End While
+                                         Try
+                                             title = web.DocumentTitle
+                                         Catch ex As Exception
+                                         End Try
+                                     Loop While (web.ReadyState <> WebBrowserReadyState.Complete) And title.IsBlank
                                      title = web.DocumentTitle
                                  End Sub)
         thread.SetApartmentState(ApartmentState.STA)
