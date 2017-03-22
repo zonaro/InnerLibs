@@ -11,7 +11,7 @@ Imports System.Web.UI.WebControls
 Imports System.Windows.Forms
 Imports System.Xml
 
-Public Class DataBase(Of ConnectionType As DbConnection)
+Public Class DataBase
 
     ''' <summary>
     ''' Conexão genérica (Oracle, MySQL, SQLServer etc.)
@@ -20,20 +20,35 @@ Public Class DataBase(Of ConnectionType As DbConnection)
     Public Property ConnectionString As String
 
     ''' <summary>
-    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString
+    ''' Tipo da conexão
+    ''' </summary>
+    ''' <returns></returns>
+    Property ConnectionType As Type
+
+    ''' <summary>
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString e em um Tipo de Conexão
     ''' </summary>
     ''' <param name="ConnectionString">String de conexão com o banco</param>
-
-    Public Sub New(ByVal ConnectionString As String)
+    ''' <param name="Type">Tipo de conexão com o banco</param>
+    Public Sub New(Type As Type, ByVal ConnectionString As String)
         Me.ConnectionString = ConnectionString
+        ConnectionType = Type
     End Sub
-
 
     Private Sub UnsupportedMethod(ParamArray AllowedTypes As Type())
-        If Not AllowedTypes.Contains(GetType(ConnectionType)) Then
-            Throw New NotImplementedException("Este método/função ainda não é suportado em " & GetType(ConnectionType).Name)
+        If Not AllowedTypes.Contains(ConnectionType) Then
+            Throw New NotImplementedException("Este método/função ainda não é suportado em " & ConnectionType.Name)
         End If
     End Sub
+
+    ''' <summary>
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString e em um Tipo de Conexão
+    ''' </summary>
+    ''' <param name="ConnectionString">String de conexão com o banco</param>
+    ''' <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
+    Public Shared Function Create(Of Connectiontype As DbConnection)(ConnectionString As String) As DataBase
+        Return New DataBase(GetType(Connectiontype), ConnectionString)
+    End Function
 
     ''' <summary>
     ''' Executa uma Query no banco. Recomenda-se o uso de procedures.
@@ -43,7 +58,7 @@ Public Class DataBase(Of ConnectionType As DbConnection)
 
     Public Function RunSQL(ByVal SQLQuery As String) As DbDataReader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
-        Dim con = Activator.CreateInstance(Of ConnectionType)
+        Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
         Dim command As DbCommand = con.CreateCommand()
@@ -51,6 +66,29 @@ Public Class DataBase(Of ConnectionType As DbConnection)
         Dim Reader As DbDataReader = command.ExecuteReader()
         command.Dispose()
         Return Reader
+    End Function
+
+    ''' <summary>
+    ''' Executa uma Query no banco partir de um Arquivo.
+    ''' </summary>
+    ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
+    ''' <returns>Um DataReader com as informações da consulta</returns>
+    Public Function RunSQL(ByVal File As FileInfo) As DbDataReader
+        Using s = File.OpenText
+            Return RunSQL(s.ReadToEnd)
+        End Using
+    End Function
+
+
+    ''' <summary>
+    ''' Executa uma Query no banco partir de um Arquivo.
+    ''' </summary>
+    ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
+    ''' <returns>Um DataReader com as informações da consulta</returns>
+    Public Function RunSQL(ByVal File As HttpPostedFile) As DbDataReader
+        Using s = New StreamReader(File.InputStream)
+            Return RunSQL(s.ReadToEnd)
+        End Using
     End Function
 
     ''' <summary>
@@ -115,7 +153,7 @@ Public Class DataBase(Of ConnectionType As DbConnection)
     ''' <returns>Um DataReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte()) As DbDataReader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
-        Dim con = Activator.CreateInstance(Of ConnectionType)
+        Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
         Dim command As DbCommand = con.CreateCommand()
@@ -134,7 +172,7 @@ Public Class DataBase(Of ConnectionType As DbConnection)
     ''' <returns>Um DataReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile) As DbDataReader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
-        Dim con = Activator.CreateInstance(Of ConnectionType)
+        Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
         Dim command As DbCommand = con.CreateCommand()
@@ -153,7 +191,7 @@ Public Class DataBase(Of ConnectionType As DbConnection)
     ''' <returns>Um DataReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo) As DbDataReader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
-        Dim con = Activator.CreateInstance(Of ConnectionType)
+        Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
         Dim command As DbCommand = con.CreateCommand()
@@ -170,7 +208,7 @@ Public Class DataBase(Of ConnectionType As DbConnection)
     ''' <returns></returns>
     Public Function RunSQL(Command As DbCommand) As DbDataReader
         Debug.WriteLine(Environment.NewLine & Command.CommandText & Environment.NewLine)
-        Dim con = Activator.CreateInstance(Of ConnectionType)
+        Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
         Dim Reader As DbDataReader = Command.ExecuteReader()
@@ -183,9 +221,9 @@ Public Class DataBase(Of ConnectionType As DbConnection)
     ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
     ''' <param name="Parameters">Parametros que serão adicionados ao comando</param>
     ''' <returns>Um DataReader com as informações da consulta</returns> 
-    Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter)
+    Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter) As DbDataReader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
-        Dim con = Activator.CreateInstance(Of ConnectionType)
+        Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
         Dim command As DbCommand = con.CreateCommand()

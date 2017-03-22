@@ -111,19 +111,7 @@ Public Class FileType
     End Function
 
     ''' <summary>
-    ''' Retorna uma lista com todas as extensões que possuem representação em MIME Type
-    ''' </summary>
-    ''' <returns></returns>
-    Public Shared Function GetFileTypeExtensionList() As List(Of String)
-        Dim l As New List(Of String)
-        For Each m In GetFileTypeList()
-            l.AddRange(m.Extensions)
-        Next
-        Return l
-    End Function
-
-    ''' <summary>
-    ''' Traz a primeira extensão compatível com o MIME type especificado
+    ''' Traz uma lista de extensões de acordo com o  MIME type especificado
     ''' </summary>
     ''' <param name="MIME">MIME Type String</param>
     ''' <returns></returns>
@@ -159,14 +147,14 @@ Public Class FileType
     End Sub
 
     ''' <summary>
-    ''' Constroi um MIME Type a partir de um Arquivo (FileInfo)
+    ''' Constroi um File Type a partir de um Arquivo (FileInfo)
     ''' </summary>
     ''' <param name="File">Fileinfo com o Arquivo</param>
     Public Sub New(File As FileInfo)
         Build(File.Extension)
     End Sub
     ''' <summary>
-    ''' Constroi um MIME Type a partir da extensão de um Arquivo
+    ''' Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
     ''' </summary>
     ''' <param name="MimeTypeOrExtension">Extensão do arquivo</param>
     Public Sub New(MimeTypeOrExtension As String)
@@ -183,7 +171,7 @@ Public Class FileType
     End Sub
 
     ''' <summary>
-    ''' Retorna uma string que representa o Mime Type
+    ''' Retorna uma string com o primeiro MIME TYPE do arquivo
     ''' </summary>
     ''' <returns></returns>
     Public Overrides Function ToString() As String

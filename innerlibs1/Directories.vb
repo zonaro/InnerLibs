@@ -3,6 +3,7 @@
 Imports System.IO
 Imports System.IO.Compression
 Imports System.Runtime.CompilerServices
+
 ''' <summary>
 ''' Funções para trabalhar com diretorios
 ''' </summary>
@@ -12,7 +13,7 @@ Public Module Directories
     ''' Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório
     ''' </summary>
     ''' <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
-    ''' <returns>Uma DirectoryInfo contendo as informacoes do diretório criado</returns>
+    ''' <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
 
     <Extension()>
     Function ToDirectory(DirectoryName As String) As DirectoryInfo
@@ -21,6 +22,21 @@ Public Module Directories
             Directory.CreateDirectory(DirectoryName)
         End If
         Return New DirectoryInfo(DirectoryName & "\")
+    End Function
+
+    ''' <summary>
+    ''' Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
+    ''' </summary>
+    ''' <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
+    ''' <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
+    <Extension()>
+    Function ToFile(FileName As String, Optional Type As FileType = Nothing) As FileInfo
+        Type = If(Type, New FileType(".txt"))
+        FileName = Path.GetFullPath(FileName.RemoveAny(Path.GetExtension(FileName))) & Type.Extensions(0)
+        If File.Exists(FileName) = False Then
+            File.Create(FileName).Dispose()
+        End If
+        Return New FileInfo(FileName)
     End Function
 
     ''' <summary>
@@ -139,7 +155,7 @@ Public Module Directories
                 diretorio.Delete()
             End If
         Next
-        If TopDirectory.Exists And TopDirectory.IsEmpty Then
+        If TopDirectory.Exists AndAlso TopDirectory.IsEmpty Then
             TopDirectory.Delete()
         End If
     End Sub
