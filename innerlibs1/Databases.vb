@@ -463,8 +463,12 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension()>
     Public Function GetColumnValue(Of Type As IConvertible)(Reader As DbDataReader, Column As String) As Type
-        Reader.Read()
-        Return DirectCast(Reader(Column), Type)
+        Try
+            Return DirectCast(Reader(Column), Type)
+        Catch ex As Exception
+            Reader.Read()
+            Return DirectCast(Reader(Column), Type)
+        End Try
     End Function
 
     ''' <summary>
