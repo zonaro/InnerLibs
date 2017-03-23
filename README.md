@@ -16,9 +16,10 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
  - Conversão de números para algarismos romanos e vice versa;
  - Conversão de números para sua forma extensa;
  - Classe para criação e edição de vCards;
- - Integraçao com a API goqr.me para criaçao de QR Codes
- - Calculo de prazo de entrega baseado em jornada de trabalho utilizando `InnerLibs.TimeMachine`
- - Vários manipuladores e validadores de texto
+ - Integraçao com a API goqr.me para criaçao de QR Codes;
+ - Calculo de prazo de entrega baseado em jornada de trabalho utilizando `InnerLibs.TimeMachine`;
+ - Vários manipuladores e validadores de texto;
+ - Identificação de MIME Type a partir da extensão de arquivos;
  
 # License
 
