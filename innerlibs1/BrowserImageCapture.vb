@@ -10,7 +10,7 @@ Public Module BrowserClipper
     ''' Cria um snapshot de uma pagina da web a partir de uma URL
     ''' </summary>
     ''' <param name="URL">URL</param>
-    Public Function Capture(URL As String) As Image
+    Public Function Capture(URL As String, Optional DelaySeconds As Integer = 5) As Image
         Dim Img As Image
         Dim thread As New Thread(Sub()
                                      If URL.IsURL = False Then Throw New Exception("Invalid URL")
@@ -18,7 +18,7 @@ Public Module BrowserClipper
                                      web.ScrollBarsEnabled = False
                                      web.ScriptErrorsSuppressed = True
                                      web.Navigate(URL)
-                                     Img = Capture(web)
+                                     Img = Capture(web, DelaySeconds)
                                  End Sub)
         thread.SetApartmentState(ApartmentState.STA)
         thread.Start()
@@ -66,13 +66,16 @@ Public Module BrowserClipper
                                      web.ScrollBarsEnabled = False
                                      web.ScriptErrorsSuppressed = True
                                      web.Navigate(URL)
-                                     Do
+                                     While (web.ReadyState <> WebBrowserReadyState.Complete)
                                          Application.DoEvents()
                                          Try
                                              title = web.DocumentTitle
+                                             If title.IsNotBlank Then
+                                                 Exit While
+                                             End If
                                          Catch ex As Exception
                                          End Try
-                                     Loop While (web.ReadyState <> WebBrowserReadyState.Complete) And title.IsBlank
+                                     End While
                                      title = web.DocumentTitle
                                  End Sub)
         thread.SetApartmentState(ApartmentState.STA)
