@@ -518,6 +518,18 @@ End Module
 ''' </summary>
 Public Class HtmlTag
 
+    Friend stringoriginal As String
+
+    ''' <summary>
+    ''' String que originou essa classe
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property OriginalTagString As String
+        Get
+            Return stringoriginal
+        End Get
+    End Property
+
     ''' <summary>
     ''' Nome da Tag
     ''' </summary>
@@ -543,13 +555,17 @@ Public Class HtmlTag
         Dim attribs = ""
         For Each a In Attributes
             If a.Value.IsBlank Then
-                attribs.Append(a.Key & " ")
+                attribs.Append(" " & a.Key)
             Else
-                attribs.Append(a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote & " ")
+                attribs.Append(" " & a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote)
             End If
         Next
-        Return AdjustWhiteSpaces("<" & TagName & " " & attribs & ">" & Content & "</" & TagName & ">")
+        Return "<" & TagName & attribs & ">" & Content & "</" & TagName & ">"
     End Function
+
+    Sub FixIn(ByRef HtmlText As String)
+        HtmlText = HtmlText.Replace(stringoriginal, Me.ToString)
+    End Sub
 
     ''' <summary>
     ''' Cria uma HtmlTagInfo a partir de uma String
@@ -557,10 +573,13 @@ Public Class HtmlTag
     ''' <param name="TagString">String contendo a tag</param>
     Public Sub New(Optional TagString As String = "")
         If TagString.IsNotBlank Then
+            stringoriginal = TagString
             Me.TagName = TagString.AdjustWhiteSpaces.GetBefore(" ").RemoveFirstIf("<")
-            Dim t As HtmlTag = TagString.GetTag(Me.TagName).FirstOrDefault
+            Dim t As HtmlTag = TagString.GetElementsByTagName(Me.TagName).FirstOrDefault
             Me.Attributes = t.Attributes
             Me.Content = t.Content
         End If
     End Sub
 End Class
+
+

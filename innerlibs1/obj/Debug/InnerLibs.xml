@@ -5419,6 +5419,12 @@ Atualiza a lista de keys
  Estrutura de uma TAG HTML
  </summary>
 </member>
+<member name="P:InnerLibs.HtmlTag.OriginalTagString">
+ <summary>
+ String que originou essa classe
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.HtmlTag.TagName">
  <summary>
  Nome da Tag

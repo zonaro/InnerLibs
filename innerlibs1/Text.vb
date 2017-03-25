@@ -1592,7 +1592,7 @@ Public Module Text
         Text = Text.Replace("{ ", "{")
         Text = Text.Replace("< ", "<")
         Text = String.Join(" ", Text.Split(New Char() {}, StringSplitOptions.RemoveEmptyEntries))
-        Return Text
+        Return Text.Trim
 
     End Function
 
@@ -1786,12 +1786,13 @@ Public Module Text
     End Function
 
     <Extension>
-    Public Function GetTag(HTMLText As String, TagName As String) As List(Of HtmlTag)
+    Public Function GetElementsByTagName(HTMLText As String, TagName As String) As List(Of HtmlTag)
         Dim lista As New List(Of HtmlTag)
         TagName = TagName.RemoveAny("<", ">", "/").Trim
         Dim tagm As MatchCollection = New Regex("<" & TagName & "\b([^>]*)>(.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
         For Each find As Match In tagm
             Dim t As New HtmlTag
+            t.stringoriginal = find.Value
             t.Content = find.Groups(2).Value
             Dim atributos = find.Groups(1).Value
             For Each a As Match In New Regex("(\S+)=[""']?((?:.(?![""']?\s+(?:\S+)=|[>""']))+.)[""']?").Matches(atributos)

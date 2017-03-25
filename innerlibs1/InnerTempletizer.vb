@@ -45,13 +45,13 @@ Namespace Templatizer
             Dim filefound = TemplateFolder.Search(SearchOption.TopDirectoryOnly, TemplateFile).First
             If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateFolder.FullName)
             Using file As StreamReader = filefound.OpenText
-                template = file.ReadToEnd
+                template = file.ReadToEnd.RemoveNonPrintable.AdjustWhiteSpaces
                 Try
-                    header = template.GetTag("head").First.Content
+                    header = template.GetElementsByTagName("head").First.Content
                 Catch ex As Exception
                 End Try
                 Try
-                    template = template.GetTag("body").First.Content.AdjustWhiteSpaces
+                    template = template.GetElementsByTagName("body").First.Content
                 Catch ex As Exception
                 End Try
             End Using
@@ -63,9 +63,12 @@ Namespace Templatizer
                     For Each col In reader.GetColumns
                         copia = copia.Replace("##" & col & "##", reader(col).ToString())
                     Next
+
                     'replace nas procedures
-                    For Each proc As HtmlTag In copia.GetTag("sqlquery")
-                        copia = copia.AdjustWhiteSpaces.Replace(proc.ToString.AdjustWhiteSpaces, Build(proc.Content, proc.Attributes.Item("data-templatefile")))
+                    For Each sqlTag As HtmlTag In copia.GetElementsByTagName("sqlquery")
+                        sqlTag.FixIn(copia)
+                        Dim tp = Build(sqlTag.Content, sqlTag.Attributes.Item("data-templatefile"))
+                        copia = copia.Replace(sqlTag.ToString, tp)
                     Next
                     response.Append(copia)
                 End While
