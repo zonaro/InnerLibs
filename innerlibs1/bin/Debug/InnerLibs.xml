@@ -1576,6 +1576,38 @@ InnerLibs
  <param name="EncryptedText">Texto Criptografado</param>
  <returns></returns>
 </member>
+<member name="T:InnerLibs.Templatizer.TemplateBuilder">
+ <summary>
+ Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML
+ </summary>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.#ctor(InnerLibs.DataBase,System.IO.DirectoryInfo)">
+ <summary>
+ Instancia um Novo TemplateBuilder
+ </summary>
+ <param name="DataBase">Conexão com o banco de dados</param>
+ <param name="TemplateFolder">Pasta com os arquivos HTML dos templates</param>
+</member>
+<member name="P:InnerLibs.Templatizer.TemplateBuilder.DataBase">
+ <summary>
+ Conexão genérica de Banco de Dados
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Templatizer.TemplateBuilder.TemplateFolder">
+ <summary>
+ Pasta contendo os arquivos HTML utilizados como template
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build(System.String,System.String)">
+ <summary>
+ Processa os comandos SQL e retorna o resultado em HTML utilizando o template especificado
+ </summary>
+ <param name="SQLQuery">Comando SQL</param>
+ <param name="TemplateFile">Arquivo do Template</param>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.LimitedCollection`1">
  <summary>
  Cria uma coleção Limitada
@@ -4577,28 +4609,6 @@ InnerLibs
  <param name="ComparisonType">Tipo de comparacao</param>
  <returns>True se conter algum valor, false se não</returns>
 </member>
-<member name="M:InnerLibs.Text.GetWords(System.String,System.String)">
- <summary>
- Retorna um Array com todas as palavras de uma frase
- </summary>
- <param name="Text">String com a frase</param>
- <param name="Delimiter">Delimitador da frase, por padrão é espaço (" ")</param>
- <returns>Um array de Strings com as palavras</returns>
-</member>
-<member name="M:InnerLibs.Text.GetLast(System.String[])">
- <summary>
- Traz o ultimo elemento de um Array
- </summary>
- <param name="Words">Array de Strings</param>
- <returns>Uma string</returns>
-</member>
-<member name="M:InnerLibs.Text.GetFirst(System.String[])">
- <summary>
- Traz o primeiro elemento de um Array
- </summary>
- <param name="Words">Array de Strings</param>
- <returns>Uma string</returns>
-</member>
 <member name="M:InnerLibs.Text.IsAnagramOf(System.String,System.String)">
  <summary>
  Verifica se uma palavra é um Anagrama de outra palavra
@@ -5403,6 +5413,42 @@ Atualiza a lista de keys
  </summary>
  <param name="Url">Url</param>
  <returns>False para site fora do Ar</returns>
+</member>
+<member name="T:InnerLibs.HtmlTag">
+ <summary>
+ Estrutura de uma TAG HTML
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlTag.TagName">
+ <summary>
+ Nome da Tag
+ </summary>
+ <returns></returns>
+ 
+</member>
+<member name="P:InnerLibs.HtmlTag.Attributes">
+ <summary>
+ Atributos da Tag
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlTag.Content">
+ <summary>
+ Conteudo da Tag
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlTag.ToString">
+ <summary>
+ Retorna a string da tag
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlTag.#ctor(System.String)">
+ <summary>
+ Cria uma HtmlTagInfo a partir de uma String
+ </summary>
+ <param name="TagString">String contendo a tag</param>
 </member>
 <member name="T:InnerLibs.WinForms">
  <summary>

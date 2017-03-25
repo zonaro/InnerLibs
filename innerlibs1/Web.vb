@@ -15,6 +15,9 @@ Imports System.Xml
 ''' </summary>
 Public NotInheritable Class AJAX
 
+
+
+
     ''' <summary>
     ''' Retorna o conteúdo de uma página
     ''' </summary>
@@ -509,3 +512,55 @@ Public Module Web
 
 
 End Module
+
+''' <summary>
+''' Estrutura de uma TAG HTML
+''' </summary>
+Public Class HtmlTag
+
+    ''' <summary>
+    ''' Nome da Tag
+    ''' </summary>
+    ''' <returns></returns>
+    ''' 
+    Public Property TagName As String
+    ''' <summary>
+    ''' Atributos da Tag
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Attributes As New Dictionary(Of String, String)
+    ''' <summary>
+    ''' Conteudo da Tag
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Content As String
+
+    ''' <summary>
+    ''' Retorna a string da tag
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function ToString() As String
+        Dim attribs = ""
+        For Each a In Attributes
+            If a.Value.IsBlank Then
+                attribs.Append(a.Key & " ")
+            Else
+                attribs.Append(a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote & " ")
+            End If
+        Next
+        Return AdjustWhiteSpaces("<" & TagName & " " & attribs & ">" & Content & "</" & TagName & ">")
+    End Function
+
+    ''' <summary>
+    ''' Cria uma HtmlTagInfo a partir de uma String
+    ''' </summary>
+    ''' <param name="TagString">String contendo a tag</param>
+    Public Sub New(Optional TagString As String = "")
+        If TagString.IsNotBlank Then
+            Me.TagName = TagString.AdjustWhiteSpaces.GetBefore(" ").RemoveFirstIf("<")
+            Dim t As HtmlTag = TagString.GetTag(Me.TagName).FirstOrDefault
+            Me.Attributes = t.Attributes
+            Me.Content = t.Content
+        End If
+    End Sub
+End Class

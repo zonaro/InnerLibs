@@ -83,6 +83,7 @@
     <Compile Include="DataGridViewManager.vb" />
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="Dice.vb" />
+    <Compile Include="Dictionary.vb" />
     <Compile Include="Files.vb" />
     <Compile Include="Calendars.vb" />
     <Compile Include="ColorConvert.vb" />

@@ -790,7 +790,7 @@ Public Module Text
     <Extension()>
     Public Function Censor(ByRef Text As String, BadWords As List(Of String), Optional CensorshipCharacter As Char = "*") As Boolean
         Dim IsCensored As Boolean = False
-        Dim words As String() = Text.AdjustWhiteSpaces().GetWords()
+        Dim words As String() = Text.AdjustWhiteSpaces().Split(" ")
         For Each bad In BadWords
             Dim censored = ""
             For index = 1 To bad.Length
@@ -1564,36 +1564,36 @@ Public Module Text
 
     <Extension()>
     Public Function AdjustWhiteSpaces(ByRef Text As String) As String
-        If Text IsNot Nothing Then
-            'adiciona espaco quando nescessario
-            Text = Text.Replace(")", ") ")
-            Text = Text.Replace("]", "] ")
-            Text = Text.Replace("}", "} ")
-            Text = Text.Replace("(", " (")
-            Text = Text.Replace("[", " [")
-            Text = Text.Replace("{", " {")
+        Text = Text & ""
 
-            'remove espaco quando nescessario
-            For i = 0 To Text.Length()
-                Text = Text.Replace("  ", " ")
-                Text = Text.Replace(" ,", ",")
-                Text = Text.Replace(" .", ".")
-                Text = Text.Replace(" !", "!")
-                Text = Text.Replace(" ?", "?")
-                Text = Text.Replace(" ;", ";")
-                Text = Text.Replace(" :", ":")
-                Text = Text.Replace(" )", ")")
-                Text = Text.Replace(" ]", "]")
-                Text = Text.Replace(" }", "}")
-                Text = Text.Replace("( ", "(")
-                Text = Text.Replace("[ ", "[")
-                Text = Text.Replace("{ ", "{")
-            Next
+        'adiciona espaco quando nescessario
+        Text = Text.Replace(")", ") ")
+        Text = Text.Replace("]", "] ")
+        Text = Text.Replace("}", "} ")
+        Text = Text.Replace(">", "> ")
+        Text = Text.Replace("(", " (")
+        Text = Text.Replace("<", " <")
+        Text = Text.Replace("[", " [")
+        Text = Text.Replace("{", " {")
 
+        'remove espaco quando nescessario
+        Text = Text.Replace(" ,", ",")
+        Text = Text.Replace(" .", ".")
+        Text = Text.Replace(" !", "!")
+        Text = Text.Replace(" ?", "?")
+        Text = Text.Replace(" ;", ";")
+        Text = Text.Replace(" :", ":")
+        Text = Text.Replace(" )", ")")
+        Text = Text.Replace(" ]", "]")
+        Text = Text.Replace(" }", "}")
+        Text = Text.Replace(" >", ">")
+        Text = Text.Replace("( ", "(")
+        Text = Text.Replace("[ ", "[")
+        Text = Text.Replace("{ ", "{")
+        Text = Text.Replace("< ", "<")
+        Text = String.Join(" ", Text.Split(New Char() {}, StringSplitOptions.RemoveEmptyEntries))
+        Return Text
 
-
-        End If
-        Return Text.Trim()
     End Function
 
     ''' <summary>
@@ -1786,18 +1786,21 @@ Public Module Text
     End Function
 
     <Extension>
-    Public Function GetTagContent(HTMLText As String, TagName As String) As String
-        TagName = TagName.RemoveAny("<", ">", "/")
-        Dim attr = HTMLText.GetBetween("<" & TagName, ">")
-        HTMLText = HTMLText.RemoveAny(attr)
-        Dim regularExpressionPattern1 = "(?<=<" & TagName & ")(.*?)(?=<\/" & TagName & ">)"
-        Dim Regex = New Regex(regularExpressionPattern1, RegexOptions.Singleline)
-        Dim Collection As MatchCollection = Regex.Matches(HTMLText)
-        If Collection.Count = 0 Then
-            Return ""
-        Else
-            Return Collection(0).Groups(0).Value.RemoveNonPrintable.Trim.RemoveFirstIf(">").AdjustWhiteSpaces
-        End If
+    Public Function GetTag(HTMLText As String, TagName As String) As List(Of HtmlTag)
+        Dim lista As New List(Of HtmlTag)
+        TagName = TagName.RemoveAny("<", ">", "/").Trim
+        Dim tagm As MatchCollection = New Regex("<" & TagName & "\b([^>]*)>(.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
+        For Each find As Match In tagm
+            Dim t As New HtmlTag
+            t.Content = find.Groups(2).Value
+            Dim atributos = find.Groups(1).Value
+            For Each a As Match In New Regex("(\S+)=[""']?((?:.(?![""']?\s+(?:\S+)=|[>""']))+.)[""']?").Matches(atributos)
+                t.Attributes.Add(a.Groups(1).Value, a.Groups(2).Value)
+            Next
+            t.TagName = TagName
+            lista.Add(t)
+        Next
+        Return lista
     End Function
 
     ''' <summary>
@@ -1917,35 +1920,8 @@ Public Module Text
         Next
         Return True
     End Function
-    ''' <summary>
-    ''' Retorna um Array com todas as palavras de uma frase
-    ''' </summary>
-    ''' <param name="Text">String com a frase</param>
-    ''' <param name="Delimiter">Delimitador da frase, por padrão é espaço (" ")</param>
-    ''' <returns>Um array de Strings com as palavras</returns>
-    <Extension()>
-    Public Function GetWords(Text As String, Optional Delimiter As String = " ") As String()
-        Return Text.Split(Delimiter)
-    End Function
-    ''' <summary>
-    ''' Traz o ultimo elemento de um Array
-    ''' </summary>
-    ''' <param name="Words">Array de Strings</param>
-    ''' <returns>Uma string</returns>
-    <Extension>
-    Public Function GetLast(Words As String()) As String
-        Return Words(Words.Length - 1)
-    End Function
 
-    ''' <summary>
-    ''' Traz o primeiro elemento de um Array
-    ''' </summary>
-    ''' <param name="Words">Array de Strings</param>
-    ''' <returns>Uma string</returns>
-    <Extension>
-    Public Function GetFirst(Words As String()) As String
-        Return Words(0)
-    End Function
+
 
     ''' <summary>
     ''' Verifica se uma palavra é um Anagrama de outra palavra
