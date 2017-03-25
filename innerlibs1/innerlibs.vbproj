@@ -90,6 +90,7 @@
     <Compile Include="Databases.vb" />
     <Compile Include="GeoIP.vb" />
     <Compile Include="InnerCrypt.vb" />
+    <Compile Include="InnerTempletizer.vb" />
     <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="RiotAPI.vb" />

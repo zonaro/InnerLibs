@@ -110,19 +110,19 @@ Namespace GoogleMaps
         ''' URL da a API do Google Maps
         ''' </summary>
         ''' <returns>uma string contendo a URL da API.</returns>
-        Public ReadOnly Property ApiUrl As String
+        Public ReadOnly Property ApiUrl As Uri
             Get
-                Return "https://maps.googleapis.com/maps/api/js?key=" & Me.APIKey
+                Return New Uri("https://maps.googleapis.com/maps/api/js?key=" & Me.APIKey)
             End Get
         End Property
 
         ''' <summary>
-        ''' Tag Script contendo a URL da Api
+        ''' Tag Script contendo a URL da Api no SRC (Adicione no Header ou Body)
         ''' </summary>
-        ''' <returns>uma string contendo a tag com a URL da API. Adicione no Header ou Body</returns>
-        Public ReadOnly Property ScriptTag
+        ''' <returns>uma string contendo a tag com a URL da API.</returns>
+        Public ReadOnly Property ScriptTag As String
             Get
-                Return "<script type='' src=" & ApiUrl.Quote & "></script>"
+                Return "<script src=" & ApiUrl.AbsoluteUri.Quote & "></script>"
             End Get
         End Property
 

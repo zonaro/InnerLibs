@@ -4,12 +4,68 @@ Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Windows.Forms
+
 ''' <summary>
 ''' Modulo de Imagem
 ''' </summary>
 ''' <remarks></remarks>
+''' 
 Public Module Images
 
+
+    Public Function InsertWatermark(Image As Image, Watermark As String, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
+        Return InsertWatermark(Image, Watermark.ToTextImage(Image.Width, Image.Height))
+    End Function
+    Public Function InsertWatermark(Image As Image, WaterMark As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
+        ' a imagem que será usada como marca d'agua
+        Dim bm_marcaDagua As New Bitmap(WaterMark)
+        ' a imagem onde iremos aplicar a marca dágua
+        Dim bm_Resultado As New Bitmap(Image)
+        If X < 0 Then X = (bm_Resultado.Width - bm_marcaDagua.Width) \ 2   'centraliza a marca d'agua
+        If Y < 0 Then Y = (bm_Resultado.Height - bm_marcaDagua.Height) \ 2   'centraliza a marca d'agua
+        Const ALPHA As Byte = 128
+        ' Define o componente Alpha do pixel
+        Dim clr As Color
+        For py As Integer = 0 To bm_marcaDagua.Height - 1
+            For px As Integer = 0 To bm_marcaDagua.Width - 1
+                clr = bm_marcaDagua.GetPixel(px, py)
+                bm_marcaDagua.SetPixel(px, py, Color.FromArgb(ALPHA, clr.R, clr.G, clr.B))
+            Next px
+        Next py
+        ' Define a marca dagua como transparente
+        bm_marcaDagua.MakeTransparent(bm_marcaDagua.GetPixel(0, 0))
+        ' Copia o resultado na imagem
+        Dim gr As Graphics = Graphics.FromImage(bm_Resultado)
+        gr.DrawImage(bm_marcaDagua, X, Y)
+        Return bm_Resultado
+    End Function
+
+
+    ''' <summary>
+    ''' Escreve uma string em uma imagem
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <param name="Width">Largura da imagem</param>
+    ''' <param name="Height">Altura da imagem</param>
+    ''' <param name="Font">Fonte que será usada</param>
+    ''' <param name="TextColor">Cor do texto</param>
+    ''' <param name="BackColor">Cor de fundo</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function ToTextImage(Text As String, Width As Integer, Height As Integer, Optional Font As Font = Nothing, Optional TextColor As Color? = Nothing, Optional BackColor As Color? = Nothing) As Image
+        If Not TextColor.HasValue Then TextColor = Color.Black
+        Font = If(Font, New Font("Arial", 12))
+        Dim bmp As New Bitmap(Width, Height)
+        Dim graph As Graphics = Graphics.FromImage(bmp)
+        Dim point As New PointF(5.0F, 5.0F)
+        Dim BrushForeColor As New SolidBrush(TextColor.Value)
+        If BackColor.HasValue Then
+            Dim BrushBackColor As New SolidBrush(BackColor.Value)
+            graph.FillRectangle(BrushBackColor, 0, 0, Width, Height)
+        End If
+        graph.DrawString(Text, Font, BrushForeColor, point)
+        Return bmp
+    End Function
 
 
     ''' <summary>
