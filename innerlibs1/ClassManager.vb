@@ -39,7 +39,9 @@ Public Module ClassManager
     ''' <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
     ''' <returns></returns>
     <Extension()> Public Function GetResourceFileText(Assembly As Assembly, FileName As String) As String
-        Return New StreamReader(Assembly.GetManifestResourceStream(FileName)).ReadToEnd
+        Using d As New StreamReader(Assembly.GetManifestResourceStream(FileName))
+            Return d.ReadToEnd
+        End Using
     End Function
 
 

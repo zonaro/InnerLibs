@@ -11,7 +11,7 @@ Namespace Templatizer
     Public NotInheritable Class TemplateBuilder
 
         ''' <summary>
-        ''' Instancia um Novo TemplateBuilder
+        ''' Instancia um Novo TemplateBuilder utilizando uma Pasta para guardar os templates
         ''' </summary>
         ''' <param name="DataBase">Conexão com o banco de dados</param>
         ''' <param name="TemplateFolder">Pasta com os arquivos HTML dos templates</param>
@@ -19,6 +19,19 @@ Namespace Templatizer
             Me.TemplateFolder = TemplateFolder
             Me.DataBase = DataBase
         End Sub
+
+        ''' <summary>
+        ''' Instancia um Novo TemplateBuilder
+        ''' </summary>
+        ''' <param name="DataBase">Conexão com o banco de dados</param>
+        ''' <param name="ApplicationAssembly">Assembly da aplicação onde os arquivos HTML dos templates estão compilados</param>
+
+
+        Sub New(DataBase As DataBase, ApplicationAssembly As Reflection.Assembly)
+            Me.DataBase = DataBase
+            Me.ApplicationAssembly = ApplicationAssembly
+        End Sub
+
 
         ''' <summary>
         ''' Conexão genérica de Banco de Dados
@@ -30,31 +43,49 @@ Namespace Templatizer
         ''' Pasta contendo os arquivos HTML utilizados como template
         ''' </summary>
         ''' <returns></returns>
-        Property TemplateFolder As DirectoryInfo
+        ReadOnly Property TemplateFolder As DirectoryInfo = Nothing
 
         ''' <summary>
-        ''' Processa os comandos SQL e retorna o resultado em HTML utilizando o template especificado
+        ''' Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML utilziados como template
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property ApplicationAssembly As Reflection.Assembly
+
+
+
+        ''' <summary>
+        ''' Processa os comandos SQL e retorna o resultado em HTML utilizando o arquivo de template especificado
         ''' </summary>
         ''' <param name="SQLQuery">Comando SQL</param>
         ''' <param name="TemplateFile">Arquivo do Template</param>
-        ''' <returns></returns>
+        ''' <returns></returns>    
+
         Public Function Build(SQLQuery As String, TemplateFile As String) As String
             Dim response As String = ""
             Dim template As String = ""
             Dim header As String = ""
-            Dim filefound = TemplateFolder.Search(SearchOption.TopDirectoryOnly, TemplateFile).First
-            If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateFolder.FullName)
-            Using file As StreamReader = filefound.OpenText
-                template = file.ReadToEnd.RemoveNonPrintable.AdjustWhiteSpaces
+            If IsNothing(ApplicationAssembly) Then
+                Dim filefound = TemplateFolder.Search(SearchOption.TopDirectoryOnly, TemplateFile).First
+                If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateFolder.Name)
+                Using file As StreamReader = filefound.OpenText
+                    template = file.ReadToEnd.RemoveNonPrintable.AdjustWhiteSpaces
+                End Using
+            Else
                 Try
-                    header = template.GetElementsByTagName("head").First.Content
+                    template = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile).RemoveNonPrintable.AdjustWhiteSpaces
                 Catch ex As Exception
+                    Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name)
                 End Try
-                Try
-                    template = template.GetElementsByTagName("body").First.Content
-                Catch ex As Exception
-                End Try
-            End Using
+            End If
+            Try
+                header = template.GetElementsByTagName("head").First.Content
+            Catch ex As Exception
+            End Try
+            Try
+                template = template.GetElementsByTagName("body").First.Content
+            Catch ex As Exception
+            End Try
+
 
             Using reader As DbDataReader = DataBase.RunSQL(SQLQuery)
                 While reader.Read
@@ -76,6 +107,19 @@ Namespace Templatizer
             response.Append(header)
             Return response
         End Function
+
+        Public Function GetTemplateList() As List(Of String)
+            Dim l As New List(Of String)
+            If IsNothing(ApplicationAssembly) Then
+                For Each f In TemplateFolder.GetFiles
+                    l.Add(f.Name)
+                Next
+            Else
+                l.AddRange(ApplicationAssembly.GetManifestResourceNames())
+            End If
+            Return l
+        End Function
+
 
     End Class
 End Namespace

@@ -69,9 +69,5 @@ Public Module FontAwesome
 
     Public Const CDNFontAwesomeCSS = "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 
-    Public Function GetUnicodeValueFromClass(CssClass As String, Optional FontAwesomeCSS As String = CDNFontAwesomeCSS) As String
-        Dim css = AJAX.GET(Of String)(FontAwesomeCSS)
-        Dim uni = String.Format(".{0}", CssClass)
-        Return uni
-    End Function
+
 End Module

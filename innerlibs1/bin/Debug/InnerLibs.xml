@@ -1583,10 +1583,17 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.Templatizer.TemplateBuilder.#ctor(InnerLibs.DataBase,System.IO.DirectoryInfo)">
  <summary>
- Instancia um Novo TemplateBuilder
+ Instancia um Novo TemplateBuilder utilizando uma Pasta para guardar os templates
  </summary>
  <param name="DataBase">Conexão com o banco de dados</param>
  <param name="TemplateFolder">Pasta com os arquivos HTML dos templates</param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.#ctor(InnerLibs.DataBase,System.Reflection.Assembly)">
+ <summary>
+ Instancia um Novo TemplateBuilder
+ </summary>
+ <param name="DataBase">Conexão com o banco de dados</param>
+ <param name="ApplicationAssembly">Assembly da aplicação onde os arquivos HTML dos templates estão compilados</param>
 </member>
 <member name="P:InnerLibs.Templatizer.TemplateBuilder.DataBase">
  <summary>
@@ -1600,13 +1607,19 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.Templatizer.TemplateBuilder.ApplicationAssembly">
+ <summary>
+ Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML utilziados como template
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Templatizer.TemplateBuilder.Build(System.String,System.String)">
  <summary>
- Processa os comandos SQL e retorna o resultado em HTML utilizando o template especificado
+ Processa os comandos SQL e retorna o resultado em HTML utilizando o arquivo de template especificado
  </summary>
  <param name="SQLQuery">Comando SQL</param>
  <param name="TemplateFile">Arquivo do Template</param>
- <returns></returns>
+ <returns></returns>    
 </member>
 <member name="T:InnerLibs.LimitedCollection`1">
  <summary>
