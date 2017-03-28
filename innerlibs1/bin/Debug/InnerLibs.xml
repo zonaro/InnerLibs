@@ -4666,9 +4666,9 @@ InnerLibs
  <param name="Text">Texto</param>
  <returns></returns>
 </member>
-<member name="F:InnerLibs.NotificationForm.VisibleNotifications">
+<member name="P:InnerLibs.NotificationForm.VisibleNotifications">
  <summary>
- The list of currently open NotificationForms.
+ Lista com as notificações abertas
  </summary>
 </member>
 <member name="F:InnerLibs.NotificationForm.allowFocus">
@@ -4705,16 +4705,12 @@ InnerLibs
  True if the window was focused; False otherwise.
  </returns>
 </member>
-<member name="M:InnerLibs.NotificationForm.DestroyNotifications">
- <summary>
- Destroi todas as notificações criadas na aplicação.
- </summary>
-</member>
-<member name="M:InnerLibs.NotificationForm.#ctor(System.EventHandler@)">
+<member name="M:InnerLibs.NotificationForm.#ctor(System.EventHandler@,System.Boolean)">
  <summary>
  Cria uma Nova Notificação
  </summary>
  <param name="Action">Ação disparada no clique do botão OK</param>
+ <param name="ShowInputBox">Mostra ou esconde a InputBox</param> 
 </member>
 <member name="P:InnerLibs.NotificationForm.TextAlign">
  <summary>
@@ -4725,6 +4721,24 @@ InnerLibs
 <member name="P:InnerLibs.NotificationForm.OKButtonText">
  <summary>
  Texto do Botão OK
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.NotificationForm.InputBoxText">
+ <summary>
+ Texto da caixa de input
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.NotificationForm.ShowInputBox">
+ <summary>
+ Exibe uma caixa de texto na notificação para entrada de informações
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.NotificationForm.InputBoxAutocomplete">
+ <summary>
+ Coleção de strings para o AutoCompletar do InputBox
  </summary>
  <returns></returns>
 </member>
@@ -4758,10 +4772,17 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.NotificationForm.DestroyNotifications">
+ <summary>
+ Destroi todas as notificações criadas na aplicação.
+ </summary>
+</member>
 <member name="M:InnerLibs.NotificationForm.Show(System.Int32,System.Boolean)">
  <summary>
  Exibe a notificação
  </summary>
+ <param name="Seconds">Tempo que a notificação ficará na tela</param>
+ <param name="ShowRemainTime">Exibe o contador na notificação</param>
 </member>
 <member name="T:InnerLibs.Toggles">
  <summary>

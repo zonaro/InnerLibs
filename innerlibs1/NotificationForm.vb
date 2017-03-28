@@ -5,12 +5,12 @@ Imports InnerLibs.FormAnimator
 
 Public NotInheritable Class NotificationForm
 
-#Region " Variables "
+
 
     ''' <summary>
-    ''' The list of currently open NotificationForms.
+    ''' Lista com as notificações abertas
     ''' </summary>
-    Private Shared VisibleNotifications As New List(Of NotificationForm)
+    Public Shared Property VisibleNotifications As New List(Of NotificationForm)
 
     ''' <summary>
     ''' Indicates whether the form can receive focus or not.
@@ -27,9 +27,9 @@ Public NotInheritable Class NotificationForm
 
     Private CorrectPos As Point = Nothing
 
-#End Region 'Variables
 
-#Region " APIs "
+
+
 
     ''' <summary>
     ''' Gets the handle of the window that currently has focus.
@@ -54,33 +54,18 @@ Public NotInheritable Class NotificationForm
     Private Shared Function SetForegroundWindow(ByVal hWnd As IntPtr) As Boolean
     End Function
 
-    ''' <summary>
-    ''' Destroi todas as notificações criadas na aplicação.
-    ''' </summary>
-    Public Shared Sub DestroyNotifications()
-        Dim Notifications = New List(Of NotificationForm)
-        For index = 0 To Application.OpenForms.Count - 1
-            If GetType(NotificationForm) = Application.OpenForms.Item(index).GetType Then
-                Notifications.Add(Application.OpenForms.Item(index))
-            End If
-        Next
-        For index = 0 To Notifications.Count - 1
-            Notifications(index).Dispose()
-        Next
-    End Sub
 
 
-#End Region 'APIs
-
-#Region " Constructors "
 
     ''' <summary>
     ''' Cria uma Nova Notificação
     ''' </summary>
     ''' <param name="Action">Ação disparada no clique do botão OK</param>
+    ''' <param name="ShowInputBox">Mostra ou esconde a InputBox</param> 
 
-    Public Sub New(Optional ByRef Action As EventHandler = Nothing)
+    Public Sub New(Optional ByRef Action As EventHandler = Nothing, Optional ShowInputBox As Boolean = False)
         InitializeComponent()
+        InputBox.Visible = ShowInputBox
         If IsNothing(Action) Then
             Me.OKButton.AddClick(AddressOf Me.Close)
             Me.CloseButton.Visible = False
@@ -91,9 +76,8 @@ Public NotInheritable Class NotificationForm
         Me.animator = New FormAnimator(Me, FormAnimator.AnimationMethod.Slide, OpenDirection, 500)
     End Sub
 
-#End Region 'Constructors
 
-#Region "Properties"
+
 
     ''' <summary>
     ''' Alinhamento do texto da notificação
@@ -119,6 +103,45 @@ Public NotInheritable Class NotificationForm
         End Get
         Set(value As String)
             Me.OKButton.Text = value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Texto da caixa de input
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property InputBoxText As String
+        Get
+            Return InputBox.Text
+        End Get
+        Set(value As String)
+            InputBox.Text = value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Exibe uma caixa de texto na notificação para entrada de informações
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ShowInputBox As Boolean
+        Get
+            Return InputBox.Visible
+        End Get
+        Set(value As Boolean)
+            InputBox.Visible = value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Coleção de strings para o AutoCompletar do InputBox
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property InputBoxAutocomplete As AutoCompleteStringCollection
+        Get
+            Return InputBox.AutoCompleteCustomSource
+        End Get
+        Set(value As AutoCompleteStringCollection)
+            InputBox.AutoCompleteCustomSource = value
         End Set
     End Property
 
@@ -159,13 +182,30 @@ Public NotInheritable Class NotificationForm
     ''' </summary>
     ''' <returns></returns>
     Public Property CloseDirection As AnimationDirection = AnimationDirection.Down
-#End Region
 
-#Region " Methods "
+
+
+
+    ''' <summary>
+    ''' Destroi todas as notificações criadas na aplicação.
+    ''' </summary>
+    Public Shared Sub DestroyNotifications()
+        Dim Notifications = New List(Of NotificationForm)
+        For index = 0 To Application.OpenForms.Count - 1
+            If GetType(NotificationForm) = Application.OpenForms.Item(index).GetType Then
+                Notifications.Add(Application.OpenForms.Item(index))
+            End If
+        Next
+        For index = 0 To Notifications.Count - 1
+            Notifications(index).Dispose()
+        Next
+    End Sub
 
     ''' <summary>
     ''' Exibe a notificação
     ''' </summary>
+    ''' <param name="Seconds">Tempo que a notificação ficará na tela</param>
+    ''' <param name="ShowRemainTime">Exibe o contador na notificação</param>
     Public Shadows Sub Show(Optional Seconds As Integer = 0, Optional ShowRemainTime As Boolean = False)
         Label1.Text = ""
         Me.ShowRemainTime = ShowRemainTime
@@ -192,11 +232,6 @@ Public NotInheritable Class NotificationForm
 
         Me.animator.Direction = CloseDirection
     End Sub
-
-#End Region 'Methods
-
-#Region " Event Handlers "
-
 
 
     Private Sub NotificationForm_Activated(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Activated
@@ -262,7 +297,5 @@ Public NotInheritable Class NotificationForm
         Me.Location = CorrectPos
     End Sub
 
-
-#End Region 'Event Handlers
 
 End Class
