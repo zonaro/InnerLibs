@@ -17,7 +17,11 @@ Public Module ClassManager
         Return MyObject.GetType().GetProperties().ToList()
     End Function
 
-
+    ''' <summary>
+    ''' Traz todos os Valores de uma enumeração
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <returns></returns>
     Public Function GetValues(Of T)() As List(Of T)
         Return [Enum].GetValues(GetType(T)).Cast(Of T)().ToList
     End Function

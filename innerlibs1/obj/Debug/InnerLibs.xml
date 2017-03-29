@@ -295,6 +295,13 @@ InnerLibs
  <param name="MyObject">Objeto</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassManager.GetValues``1">
+ <summary>
+ Traz todos os Valores de uma enumeração
+ </summary>
+ <typeparam name="T"></typeparam>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassManager.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0})">
  <summary>
  Verifica se o objeto existe dentro de uma Lista, coleção ou array.
@@ -1134,11 +1141,50 @@ InnerLibs
  <param name="Action">Açao que será realizada no banco</param>
  <param name="WhereConditions">Condições WHERE</param>
  <returns></returns>
- 
+</member>
+<member name="M:InnerLibs.DataBase.RunSQL``1(System.String,``0)">
+ <summary>
+ Executa uma Query no banco usando como base um TableQuickConnector
+ </summary>
+ <typeparam name="Type">Tipo da Classe</typeparam>
+ <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
+ <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.SELECT``1(System.String,``0@,System.String)">
+ <summary>
+ Insere um objeto em uma tabela a partir de suas propriedades e valores
+ </summary>
+ <typeparam name="Type">Tipo do Objeto</typeparam>
+ <param name="TableName">Nome da tabela</param>
+ <param name="[Object]">Objeto onde</param>
+</member>
+<member name="M:InnerLibs.DataBase.INSERT``1(System.String,``0)">
+ <summary>
+ Insere um objeto em uma tabela a partir de suas propriedades e valores
+ </summary>
+ <typeparam name="Type">Tipo do Objeto</typeparam>
+ <param name="TableName"></param>
+ <param name="[Object]"></param>
+</member>
+<member name="M:InnerLibs.DataBase.UPDATE``1(System.String,``0,System.String)">
+ <summary>
+ Atualiza um registro de uma tabela usando um Objeto
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="WhereConditions">Condições após a clausula WHERE</param>
+ <param name="Object">Objeto com os valores que serão atualizados</param>
+</member>
+<member name="M:InnerLibs.DataBase.DELETE(System.String,System.String)">
+ <summary>
+ Deleta um registro de uma tabela
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="WhereConditions">Condições após a clausula WHERE</param>
 </member>
 <member name="T:InnerLibs.TableQuickConnector">
  <summary>
- Classe utilizada para intergligar os campos de um formulário a uma tabela no banco de dados
+ Classe utilizada para interligar os campos de um formulário a uma tabela no banco de dados
  </summary>
 </member>
 <member name="T:InnerLibs.TableQuickConnector.Action">
@@ -1377,11 +1423,10 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataManipulation.ToDictionary(System.Data.Common.DbDataReader,System.Int32)">
  <summary>
- Converte um DataReader para uma Lista de dicionario
+ Converte um DataReader para uma Lista de Dicionarios
  </summary>
  <param name="Reader">DataReader</param>
  <param name="ResultIndex">Indice de resultado</param>
- <returns>String JSON</returns>
 </member>
 <member name="M:InnerLibs.DataManipulation.ToMarkdown(System.Data.Common.DbDataReader)">
  <summary>
@@ -4210,6 +4255,20 @@ InnerLibs
  <param name="URL">URL</param>
  <returns>nome do dominio</returns>
 </member>
+<member name="M:InnerLibs.Text.GetRelativeURL(System.Uri)">
+ <summary>
+ Retorna o caminho relativo da url
+ </summary>
+ <param name="URL">Url</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.GetRelativeURL(System.String)">
+ <summary>
+ Retorna o caminho relativo da url
+ </summary>
+ <param name="URL">Url</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.GetDomain(System.String)">
  <summary>
  Pega o dominio principal de uma URL
@@ -4736,7 +4795,7 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.NotificationForm.InputBoxAutocomplete">
+<member name="P:InnerLibs.NotificationForm.InputBoxAutoComplete">
  <summary>
  Coleção de strings para o AutoCompletar do InputBox
  </summary>
@@ -5596,12 +5655,12 @@ Atualiza a lista de keys
  <param name="Control">Controle Pai</param>
  <returns>Uma lista com os controles</returns>
 </member>
-<member name="M:InnerLibs.WinForms.SetQueryableValue(System.Object@,System.Object)">
+<member name="M:InnerLibs.WinForms.CastControl(System.Object@,System.Object)">
  <summary>
  Aplica um valor a um controle dependendo do seu tipo
  </summary>
- <param name="COntrol">Controle</param>
- <param name="Value"></param>
+ <param name="Control">Controle</param>
+ <param name="Value">Valor</param>
 </member>
 <member name="M:InnerLibs.WinForms.GetQueryableValue(System.Object@)">
  <summary>

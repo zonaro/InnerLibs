@@ -986,6 +986,26 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Retorna o caminho relativo da url
+    ''' </summary>
+    ''' <param name="URL">Url</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetRelativeURL(URL As Uri) As String
+        Return URL.PathAndQuery.RemoveAny(URL.AbsoluteUri)
+    End Function
+
+    ''' <summary>
+    ''' Retorna o caminho relativo da url
+    ''' </summary>
+    ''' <param name="URL">Url</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetRelativeURL(URL As String) As String
+        Return New Uri(URL).GetRelativeURL()
+    End Function
+
+    ''' <summary>
     ''' Pega o dominio principal de uma URL
     ''' </summary>
     ''' <param name="URL">URL</param>

@@ -1,7 +1,9 @@
-﻿Imports System.Collections.Specialized
+﻿Imports System
+Imports System.Collections.Specialized
 Imports System.Data.Common
 Imports System.Drawing
 Imports System.IO
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Web
@@ -12,6 +14,8 @@ Imports System.Windows.Forms
 Imports System.Xml
 
 Public Class DataBase
+
+
 
     ''' <summary>
     ''' Conexão genérica (Oracle, MySQL, SQLServer etc.)
@@ -91,6 +95,11 @@ Public Class DataBase
         End Using
     End Function
 
+
+
+
+
+
     ''' <summary>
     ''' Executa uma procedure para cada item dentro de uma coleção
     ''' </summary>
@@ -143,6 +152,8 @@ Public Class DataBase
     Public Sub RunBatchProcedure(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray ProcedureConfig As ProcedureConfig())
         RunBatchProcedure(New BatchProcedure(Items, ForeignKey, ForeignValue, ProcedureConfig))
     End Sub
+
+
 
     ''' <summary>
     ''' Executa uma Query no banco com upload de arquivos.
@@ -242,7 +253,6 @@ Public Class DataBase
     ''' <param name="Action">Açao que será realizada no banco</param>
     ''' <param name="WhereConditions">Condições WHERE</param>
     ''' <returns></returns>
-    ''' 
     Public Function RunSQL(TableQuickConnector As TableQuickConnector, Action As TableQuickConnector.Action, Optional WhereConditions As String = "") As DbDataReader
         Dim query As String = ""
         Select Case Action
@@ -267,16 +277,128 @@ Public Class DataBase
         Dim reader As DbDataReader = RunSQL(query)
         While reader.Read
             For Each col In TableQuickConnector.ColumnControls
-                col.SetQueryableValue(reader(col.Name))
+                col.CastControl(reader(col.Name))
             Next
         End While
         Return reader
     End Function
+
+    ''' <summary>
+    ''' Executa uma Query no banco usando como base um TableQuickConnector
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo da Classe</typeparam>
+    ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
+    ''' <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
+    ''' <returns></returns>
+    Public Function RunSQL(Of Type)(SQLQuery As String, [Object] As Type) As DbDataReader
+        Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+        Dim con = Activator.CreateInstance(ConnectionType)
+        con.ConnectionString = Me.ConnectionString
+        con.Open()
+        Dim command As DbCommand = con.CreateCommand()
+        command.CommandText = SQLQuery
+        For Each prop As PropertyInfo In GetType(Type).GetProperties
+            Dim param As DbParameter = command.CreateParameter
+            param.Value = prop.GetValue([Object])
+            param.DbType = prop.GetValue([Object]).GetDbType()
+            param.ParameterName = "@" & prop.Name
+            command.Parameters.Add(param)
+        Next
+        Return RunSQL(command)
+    End Function
+
+
+    ''' <summary>
+    ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <param name="TableName">Nome da tabela</param>
+    ''' <param name="[Object]">Objeto onde</param>
+    Public Function [SELECT](Of Type)(TableName As String, ByRef [Object] As Type, Optional WhereConditions As String = "") As List(Of Type)
+        Dim cmd = "SELECT * FROM " & TableName
+        If WhereConditions.IsNotBlank Then
+            cmd.Append(" where " & WhereConditions.Trim().RemoveFirstIf("where"))
+        End If
+        Return RunSQL(cmd).ToList(Of Type)
+    End Function
+
+    ''' <summary>
+    ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <param name="TableName"></param>
+    ''' <param name="[Object]"></param>
+    Public Sub INSERT(Of Type)(TableName As String, [Object] As Type)
+        RunAction("INSERT", TableName, [Object])
+    End Sub
+
+
+
+    ''' <summary>
+    ''' Atualiza um registro de uma tabela usando um Objeto
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
+    ''' <param name="Object">Objeto com os valores que serão atualizados</param>
+    Public Sub UPDATE(Of Type)(TableName As String, [Object] As Type, WhereConditions As String)
+        RunAction("UPDATE", TableName, [Object], WhereConditions.Trim().RemoveFirstIf("where"))
+    End Sub
+
+    ''' <summary>
+    ''' Deleta um registro de uma tabela
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
+    Public Sub DELETE(TableName As String, WhereConditions As String)
+        Dim cmd = "DELETE FROM " & TableName
+        If WhereConditions.IsNotBlank Then
+            cmd.Append(" where " & WhereConditions)
+        Else
+            Debug.Write("WARNING: WhereConditions is Blank!!")
+        End If
+        RunSQL(cmd)
+    End Sub
+
+
+    Private Sub RunAction(Of Type)(Action As String, TableName As String, Obj As Type, Optional WhereConditions As String = "")
+        Dim con = Activator.CreateInstance(ConnectionType)
+        con.ConnectionString = Me.ConnectionString
+        con.Open()
+        Dim command As DbCommand = con.CreateCommand()
+        Dim colunas As New List(Of String)
+        For Each prop As PropertyInfo In GetType(Type).GetProperties
+            If Not IsNothing(prop.GetValue(Obj)) Then
+                Dim param As DbParameter = command.CreateParameter
+                param.DbType = prop.GetValue(Obj).GetDbType
+                param.Value = prop.GetValue(Obj)
+                param.ParameterName = "@" & prop.Name
+                colunas.Add(prop.Name)
+                command.Parameters.Add(param)
+            End If
+        Next
+        Select Case Action
+            Case "INSERT"
+                command.CommandText = String.Format("INSERT INTO " & TableName & " ({0}) values (@{1})", colunas.Join(","), colunas.Join(", @").RemoveLastIf("@"))
+            Case "UPDATE"
+                Dim part = ""
+                For index = 0 To colunas.Count - 1
+                    part.Append(colunas(index) & " = @" & colunas(index))
+                Next
+                command.CommandText = "UPDATE " & TableName & " set " & part
+                If WhereConditions.IsNotBlank Then
+                    command.CommandText.Append(" where " & WhereConditions)
+                End If
+        End Select
+        RunSQL(command)
+    End Sub
+
+
+
 End Class
 
 
 ''' <summary>
-''' Classe utilizada para intergligar os campos de um formulário a uma tabela no banco de dados
+''' Classe utilizada para interligar os campos de um formulário a uma tabela no banco de dados
 ''' </summary>
 Public Class TableQuickConnector
     ''' <summary>
@@ -436,6 +558,33 @@ End Class
 ''' Módulo de manipulaçao de Datareaders
 ''' </summary>
 Public Module DataManipulation
+
+    <Extension()>
+    Public Function GetDbType(Obj As Object) As DbType
+        Select Case Obj.GetType
+            Case GetType(String)
+                Return DbType.String
+            Case GetType(Char)
+                Return DbType.String
+            Case GetType(Short)
+                Return DbType.Int16
+            Case GetType(Integer)
+                Return DbType.Int32
+            Case GetType(Long)
+                Return DbType.Int64
+            Case GetType(Double)
+                Return DbType.Double
+            Case GetType(DateTime)
+                Return DbType.DateTime
+            Case GetType(Byte), GetType(Byte())
+                Return DbType.Binary
+            Case Else
+                Return DbType.Object
+        End Select
+    End Function
+
+
+
     ''' <summary>
     ''' Cria um array com os Itens de um DataReader
     ''' </summary>
@@ -794,11 +943,10 @@ Public Module DataManipulation
     End Function
 
     ''' <summary>
-    ''' Converte um DataReader para uma Lista de dicionario
+    ''' Converte um DataReader para uma Lista de Dicionarios
     ''' </summary>
     ''' <param name="Reader">DataReader</param>
     ''' <param name="ResultIndex">Indice de resultado</param>
-    ''' <returns>String JSON</returns>
     <Extension()> Public Function ToDictionary(Reader As DbDataReader, ResultIndex As Integer) As List(Of Dictionary(Of String, Object))
         Dim resultsets As New List(Of List(Of Dictionary(Of String, Object)))
         For index = 0 To ResultIndex - 1

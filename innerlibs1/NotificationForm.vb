@@ -136,13 +136,10 @@ Public NotInheritable Class NotificationForm
     ''' Coleção de strings para o AutoCompletar do InputBox
     ''' </summary>
     ''' <returns></returns>
-    Public Property InputBoxAutocomplete As AutoCompleteStringCollection
+    Public ReadOnly Property InputBoxAutoComplete As AutoCompleteStringCollection
         Get
             Return InputBox.AutoCompleteCustomSource
         End Get
-        Set(value As AutoCompleteStringCollection)
-            InputBox.AutoCompleteCustomSource = value
-        End Set
     End Property
 
     ''' <summary>

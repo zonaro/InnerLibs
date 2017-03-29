@@ -215,9 +215,9 @@ Public Module WinForms
     ''' <summary>
     ''' Aplica um valor a um controle dependendo do seu tipo
     ''' </summary>
-    ''' <param name="COntrol">Controle</param>
-    ''' <param name="Value"></param>
-    <Extension()> Public Sub SetQueryableValue(ByRef Control As Object, Value As Object)
+    ''' <param name="Control">Controle</param>
+    ''' <param name="Value">Valor</param>
+    <Extension()> Public Sub CastControl(ByRef Control As Object, Value As Object)
         Select Case Control.GetType
             Case GetType(NumericUpDown), GetType(TrackBar)
                 Control.Value = Convert.ToDecimal(Value)
@@ -229,8 +229,24 @@ Public Module WinForms
                 Control.Text = Convert.ToString(Value)
             Case GetType(RadioButton), GetType(CheckBox)
                 Control.Checked = Convert.ToBoolean(Value)
+            Case GetType(String)
+                Control = DirectCast(Value, String)
+            Case GetType(Long)
+                Control = DirectCast(Value, Long)
+            Case GetType(Integer)
+                Control = DirectCast(Value, Integer)
+            Case GetType(Decimal)
+                Control = DirectCast(Value, Decimal)
+            Case GetType(Short)
+                Control = DirectCast(Value, Short)
+            Case GetType(DateTime)
+                Control = DirectCast(Value, DateTime)
+            Case GetType(Char)
+                Control = DirectCast(Value, Char)
+            Case GetType(Char)
+                Control = DirectCast(Value, Char)
             Case Else
-                Throw New ArgumentException("O controle " & Control.ToString() & " não é suportado")
+                Throw New ArgumentException("O controle ou tipo " & Control.GetType.Name & " não é suportado")
         End Select
     End Sub
 
