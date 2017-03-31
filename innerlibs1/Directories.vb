@@ -3,6 +3,7 @@
 Imports System.IO
 Imports System.IO.Compression
 Imports System.Runtime.CompilerServices
+Imports System.Text.RegularExpressions
 
 ''' <summary>
 ''' Funções para trabalhar com diretorios
@@ -72,7 +73,7 @@ Public Module Directories
         End If
         OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
         If File.Exists(OutputFile) Then File.Delete(OutputFile)
-        For Each arq In FilesDirectory.Search(SearchOption, Searches)
+        For Each arq In FilesDirectory.SearchFiles(SearchOption, Searches)
             Using archive As ZipArchive = ZipFile.Open(OutputFile, If(File.Exists(OutputFile), ZipArchiveMode.Update, ZipArchiveMode.Create))
                 Dim arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).Replace("\", "/"), CompressionLevel)
                 Debug.WriteLine("Adding: " & arqz.FullName)
@@ -90,10 +91,43 @@ Public Module Directories
     ''' <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
     ''' <returns></returns>
     <Extension>
-    Public Function Search(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileInfo)
+    Public Function SearchFiles(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileInfo)
         Dim FilteredList As New List(Of FileInfo)
         For Each pattern As String In Searches
             FilteredList.AddRange(Directory.GetFiles(pattern.Trim, SearchOption))
+        Next
+        Return FilteredList
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
+    ''' </summary>
+    ''' <param name="Directory">Diretório</param>
+    ''' <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+    ''' <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function SearchDirectories(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of DirectoryInfo)
+        Dim FilteredList As New List(Of DirectoryInfo)
+        For Each pattern As String In Searches
+            FilteredList.AddRange(Directory.GetDirectories(pattern.Trim, SearchOption))
+        Next
+        Return FilteredList
+    End Function
+
+
+    ''' <summary>
+    ''' Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
+    ''' </summary>
+    ''' <param name="Directory">Diretório</param>
+    ''' <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+    ''' <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function Search(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileSystemInfo)
+        Dim FilteredList As New List(Of FileSystemInfo)
+        For Each pattern As String In Searches
+            FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim, SearchOption))
         Next
         Return FilteredList
     End Function
@@ -159,7 +193,6 @@ Public Module Directories
             TopDirectory.Delete()
         End If
     End Sub
-
 
 
 

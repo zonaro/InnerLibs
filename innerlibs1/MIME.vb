@@ -64,6 +64,20 @@ Public Module FileTypeExtensions
     Public Function ToFileType(MimeTypeOrExtension As String) As FileType
         Return New FileType(MimeTypeOrExtension)
     End Function
+
+    ''' <summary>
+    ''' Retorna um icone de acordo com o arquivo
+    ''' </summary>
+    ''' <param name="File">Arquivo</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetIcon(File As FileInfo) As Icon
+        Try
+            Return System.Drawing.Icon.ExtractAssociatedIcon(File.FullName)
+        Catch ex As Exception
+            Return SystemIcons.WinLogo
+        End Try
+    End Function
 End Module
 
 
@@ -255,7 +269,7 @@ Public Class FileTypeList
                 support.Add("*" & ext.PrependIf(".", Not ext.StartsWith(".")))
             Next
         Next
-        Return Directory.Search(SearchOption, support.ToArray)
+        Return Directory.SearchFiles(SearchOption, support.ToArray)
     End Function
 
     ''' <summary>

@@ -1805,6 +1805,12 @@ Public Module Text
         Return HttpUtility.HtmlDecode(Text)
     End Function
 
+    ''' <summary>
+    ''' Procura uma tag especifica em uma string htm e a converte para uma HTMLTag
+    ''' </summary>
+    ''' <param name="HTMLText">String HTML</param>
+    ''' <param name="TagName">Nome da tag</param>
+    ''' <returns></returns>
     <Extension>
     Public Function GetElementsByTagName(HTMLText As String, TagName As String) As List(Of HtmlTag)
         Dim lista As New List(Of HtmlTag)
@@ -1846,6 +1852,20 @@ Public Module Text
 
         Return Text.Substring(startIndex, afterStartIndex - startIndex)
     End Function
+
+    ''' <summary>
+    ''' Captura todas as sentenças que estão entre aspas em um texto
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <returns></returns>
+    <Extension> Public Function GetQuotedText(Text As String) As List(Of String)
+        Dim lista As New List(Of String)
+        For Each a As Match In New Regex("([""'])(?:(?=(\\?))\2.)*?\1", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
+            lista.Add(a.Value)
+        Next
+        Return lista
+    End Function
+
     ''' <summary>
     ''' Retorna um texto anterior a outro
     ''' </summary>

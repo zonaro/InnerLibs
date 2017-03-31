@@ -14,7 +14,7 @@ Public Module Images
 
 
     Public Function InsertWatermark(Image As Image, Watermark As String, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
-        Return InsertWatermark(Image, Watermark.ToTextImage(Image.Width, Image.Height))
+        Return InsertWatermark(Image, Watermark.DrawImage(Image.Width, Image.Height))
     End Function
     Public Function InsertWatermark(Image As Image, WaterMark As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         ' a imagem que será usada como marca d'agua
@@ -52,7 +52,7 @@ Public Module Images
     ''' <param name="BackColor">Cor de fundo</param>
     ''' <returns></returns>
     <Extension>
-    Public Function ToTextImage(Text As String, Width As Integer, Height As Integer, Optional Font As Font = Nothing, Optional TextColor As Color? = Nothing, Optional BackColor As Color? = Nothing) As Image
+    Public Function DrawImage(Text As String, Width As Integer, Height As Integer, Optional Font As Font = Nothing, Optional TextColor As Color? = Nothing, Optional BackColor As Color? = Nothing) As Image
         If Not TextColor.HasValue Then TextColor = Color.Black
         Font = If(Font, New Font("Arial", 12))
         Dim bmp As New Bitmap(Width, Height)

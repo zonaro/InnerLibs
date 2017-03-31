@@ -65,7 +65,7 @@ Namespace Templatizer
             Dim template As String = ""
             Dim header As String = ""
             If IsNothing(ApplicationAssembly) Then
-                Dim filefound = TemplateFolder.Search(SearchOption.TopDirectoryOnly, TemplateFile).First
+                Dim filefound = TemplateFolder.SearchFiles(SearchOption.TopDirectoryOnly, TemplateFile).First
                 If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateFolder.Name)
                 Using file As StreamReader = filefound.OpenText
                     template = file.ReadToEnd.RemoveNonPrintable.AdjustWhiteSpaces

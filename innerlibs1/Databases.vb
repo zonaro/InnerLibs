@@ -559,6 +559,11 @@ End Class
 ''' </summary>
 Public Module DataManipulation
 
+    ''' <summary>
+    ''' Retorna o DbType de acordo com o tipo do objeto
+    ''' </summary>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
     <Extension()>
     Public Function GetDbType(Obj As Object) As DbType
         Select Case Obj.GetType
@@ -594,13 +599,15 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension>
     Public Function ToListItems(Reader As DbDataReader, TextColumn As String, ValueColumn As String) As ListItem()
-        Dim h As New List(Of ListItem)
-        If Reader.HasRows Then
-            While Reader.Read()
-                h.Add(New ListItem(Reader(TextColumn).ToString, Reader(ValueColumn).ToString))
-            End While
-        End If
-        Return h.ToArray
+        Using Reader
+            Dim h As New List(Of ListItem)
+            If Reader.HasRows Then
+                While Reader.Read()
+                    h.Add(New ListItem(Reader(TextColumn).ToString, Reader(ValueColumn).ToString))
+                End While
+            End If
+            Return h.ToArray
+        End Using
     End Function
 
     ''' <summary>
@@ -629,13 +636,15 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension>
     Public Function ToDictionary(Of TKey, TValue)(Reader As DbDataReader, KeyColumn As String, ValueColumn As String) As Dictionary(Of TKey, TValue)
-        Dim h As New Dictionary(Of TKey, TValue)
-        If Reader.HasRows Then
-            While Reader.Read()
-                h.Add(Reader(KeyColumn), Reader(ValueColumn))
-            End While
-        End If
-        Return h
+        Using Reader
+            Dim h As New Dictionary(Of TKey, TValue)
+            If Reader.HasRows Then
+                While Reader.Read()
+                    h.Add(Reader(KeyColumn), Reader(ValueColumn))
+                End While
+            End If
+            Return h
+        End Using
     End Function
 
     ''' <summary>
@@ -647,13 +656,15 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension>
     Public Function ToTextValueList(Of TValue)(Reader As DbDataReader, TextColumn As String, ValueColumn As String) As TextValueList(Of TValue)
-        Dim h As New TextValueList(Of TValue)
-        If Reader.HasRows Then
-            While Reader.Read()
-                h.Add("" & Reader(TextColumn), DirectCast(Reader(ValueColumn), TValue))
-            End While
-        End If
-        Return h
+        Using Reader
+            Dim h As New TextValueList(Of TValue)
+            If Reader.HasRows Then
+                While Reader.Read()
+                    h.Add("" & Reader(TextColumn), DirectCast(Reader(ValueColumn), TValue))
+                End While
+            End If
+            Return h
+        End Using
     End Function
 
 
@@ -696,15 +707,17 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension>
     Public Function CountRows(Reader As DbDataReader) As Integer
-        Dim cnt As Integer = 0
-        Try
-            While Reader.Read()
-                cnt.Increment
-            End While
-            Return cnt
-        Catch generatedExceptionName As Exception
-            Return -1
-        End Try
+        Using Reader
+            Dim cnt As Integer = 0
+            Try
+                While Reader.Read()
+                    cnt.Increment
+                End While
+                Return cnt
+            Catch generatedExceptionName As Exception
+                Return -1
+            End Try
+        End Using
     End Function
     ''' <summary>
     ''' Converte um Array para um DataTableReader de 1 Coluna
@@ -739,18 +752,20 @@ Public Module DataManipulation
     ''' <param name="Reader">Data Reader</param>
     ''' <returns></returns>
     <Extension> Public Function ToQueryString(Reader As DbDataReader) As String
-        Dim param As String = ""
-        If Reader.HasRows Then
-            Dim colunas As List(Of String) = Reader.GetColumns()
-            While Reader.Read()
-                For Each item In colunas
-                    param.Append("&" & item & "=" & HttpUtility.UrlEncode("" & Reader(item)))
-                Next
-            End While
-            Reader.Dispose()
-            Reader.Close()
-        End If
-        Return param.RemoveFirstIf("?").Prepend("?")
+        Using Reader
+            Dim param As String = ""
+            If Reader.HasRows Then
+                Dim colunas As List(Of String) = Reader.GetColumns()
+                While Reader.Read()
+                    For Each item In colunas
+                        param.Append("&" & item & "=" & HttpUtility.UrlEncode("" & Reader(item)))
+                    Next
+                End While
+                Reader.Dispose()
+                Reader.Close()
+            End If
+            Return param.RemoveFirstIf("?").Prepend("?")
+        End Using
     End Function
 
 
@@ -780,24 +795,26 @@ Public Module DataManipulation
 
     <Extension()>
     Public Function ToDelimitedString(Reader As DbDataReader, Optional ColDelimiter As String = "[ColDelimiter]", Optional RowDelimiter As String = "[RowDelimiter]", Optional TableDelimiter As String = "[TableDelimiter]") As String
-        Try
-            Dim DelimitedString As String = ""
-            Do
-                Dim columns As List(Of String) = Reader.GetColumns()
+        Using Reader
+            Try
+                Dim DelimitedString As String = ""
+                Do
+                    Dim columns As List(Of String) = Reader.GetColumns()
 
-                While Reader.Read()
-                    For Each coluna In columns
-                        DelimitedString = DelimitedString & (HttpUtility.HtmlEncode(Reader(coluna)) & ColDelimiter)
-                    Next
-                    DelimitedString = DelimitedString & RowDelimiter
-                End While
-                DelimitedString = DelimitedString & TableDelimiter
-            Loop While Reader.NextResult()
+                    While Reader.Read()
+                        For Each coluna In columns
+                            DelimitedString = DelimitedString & (HttpUtility.HtmlEncode(Reader(coluna)) & ColDelimiter)
+                        Next
+                        DelimitedString = DelimitedString & RowDelimiter
+                    End While
+                    DelimitedString = DelimitedString & TableDelimiter
+                Loop While Reader.NextResult()
 
-            Return DelimitedString
-        Catch ex As Exception
-            Return ex.Message
-        End Try
+                Return DelimitedString
+            Catch ex As Exception
+                Return ex.Message
+            End Try
+        End Using
     End Function
 
 
@@ -811,25 +828,27 @@ Public Module DataManipulation
     ''' '<param name="TableName">Nome do nó principal do documento</param>
 
     <Extension()> Function ToXML(Reader As DbDataReader, Optional TableName As String = "Table", Optional ItemName As String = "Row") As XmlDocument
-        Dim doc As New XmlDocument
-        Dim stringas = ""
-        Dim dt = Reader.ToDataTable
-        dt.TableName = ItemName.IsNull("Row", False)
-        Dim xmlWriter = New StringWriter()
-        dt.WriteXml(xmlWriter)
-        stringas.Append(xmlWriter.ToString)
-        doc.LoadXml(stringas)
-        Dim newDocElem As System.Xml.XmlElement = doc.CreateElement(TableName.IsNull("Table", False))
+        Using Reader
+            Dim doc As New XmlDocument
+            Dim stringas = ""
+            Dim dt = Reader.ToDataTable
+            dt.TableName = ItemName.IsNull("Row", False)
+            Dim xmlWriter = New StringWriter()
+            dt.WriteXml(xmlWriter)
+            stringas.Append(xmlWriter.ToString)
+            doc.LoadXml(stringas)
+            Dim newDocElem As System.Xml.XmlElement = doc.CreateElement(TableName.IsNull("Table", False))
 
-        ' Move the nodes from the old DocumentElement to the new one
-        While doc.DocumentElement.HasChildNodes
-            newDocElem.AppendChild(doc.DocumentElement.ChildNodes(0))
-        End While
+            ' Move the nodes from the old DocumentElement to the new one
+            While doc.DocumentElement.HasChildNodes
+                newDocElem.AppendChild(doc.DocumentElement.ChildNodes(0))
+            End While
 
-        ' Switch in the new DocumentElement
-        doc.RemoveChild(doc.DocumentElement)
-        doc.AppendChild(newDocElem)
-        Return doc
+            ' Switch in the new DocumentElement
+            doc.RemoveChild(doc.DocumentElement)
+            doc.AppendChild(newDocElem)
+            Return doc
+        End Using
     End Function
 
     ''' <summary>
@@ -840,16 +859,18 @@ Public Module DataManipulation
     ''' <returns>uma string Comma Separated Values (CSV)</returns>
     <Extension>
     Public Function ToCSV(Reader As DbDataReader, Optional Separator As String = ",") As String
-        Dim Returned As String = "sep=" & Separator & Environment.NewLine
-        If Reader.HasRows Then
-            While Reader.Read()
-                For Each item As String In Reader.GetColumns()
-                    Returned.Append(Reader(item).ToString().Quote & Separator)
-                Next
-                Returned.Append(Environment.NewLine)
-            End While
-        End If
-        Return Returned
+        Using Reader
+            Dim Returned As String = "sep=" & Separator & Environment.NewLine
+            If Reader.HasRows Then
+                While Reader.Read()
+                    For Each item As String In Reader.GetColumns()
+                        Returned.Append(Reader(item).ToString().Quote & Separator)
+                    Next
+                    Returned.Append(Environment.NewLine)
+                End While
+            End If
+            Return Returned
+        End Using
     End Function
 
     ''' <summary>
@@ -860,19 +881,20 @@ Public Module DataManipulation
     ''' <param name="Timeout">Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)</param>
     <Extension()>
     Public Sub ToSession(Reader As DbDataReader, Session As HttpSessionState, Optional Timeout As Integer = 0)
-        For Each coluna In Reader.GetColumns()
-            Session(coluna) = Nothing
-        Next
-
-        While Reader.Read()
+        Using Reader
             For Each coluna In Reader.GetColumns()
-                Session(coluna) = Reader(coluna)
+                Session(coluna) = Nothing
             Next
-        End While
-        If Timeout > 0 Then
-            Session.Timeout = Timeout
-        End If
-        Reader.Close()
+
+            While Reader.Read()
+                For Each coluna In Reader.GetColumns()
+                    Session(coluna) = Reader(coluna)
+                Next
+            End While
+            If Timeout > 0 Then
+                Session.Timeout = Timeout
+            End If
+        End Using
     End Sub
 
     ''' <summary>
@@ -926,8 +948,35 @@ Public Module DataManipulation
     ''' <param name="Reader">DataReader</param>
     ''' <returns>String JSON</returns>
     <Extension()> Public Function ToDictionary(Reader As DbDataReader) As List(Of List(Of Dictionary(Of String, Object)))
-        Dim todastabelas As New List(Of List(Of Dictionary(Of String, Object)))
-        Do
+        Using Reader
+            Dim todastabelas As New List(Of List(Of Dictionary(Of String, Object)))
+            Do
+                Dim listatabela As New List(Of Dictionary(Of String, Object))
+                Dim cols = Reader.GetColumns
+                While Reader.Read
+                    Dim lista As New Dictionary(Of String, Object)
+                    For Each col In cols
+                        lista.Add(col, Reader(col))
+                    Next
+                    listatabela.Add(lista)
+                End While
+                todastabelas.Add(listatabela)
+            Loop While Reader.NextResult
+            Return todastabelas
+        End Using
+    End Function
+
+    ''' <summary>
+    ''' Converte um DataReader para uma Lista de Dicionarios
+    ''' </summary>
+    ''' <param name="Reader">DataReader</param>
+    ''' <param name="ResultIndex">Indice de resultado</param>
+    <Extension()> Public Function ToDictionary(Reader As DbDataReader, ResultIndex As Integer) As List(Of Dictionary(Of String, Object))
+        Using Reader
+            Dim resultsets As New List(Of List(Of Dictionary(Of String, Object)))
+            For index = 0 To ResultIndex - 1
+                Reader.NextResult()
+            Next
             Dim listatabela As New List(Of Dictionary(Of String, Object))
             Dim cols = Reader.GetColumns
             While Reader.Read
@@ -937,31 +986,8 @@ Public Module DataManipulation
                 Next
                 listatabela.Add(lista)
             End While
-            todastabelas.Add(listatabela)
-        Loop While Reader.NextResult
-        Return todastabelas
-    End Function
-
-    ''' <summary>
-    ''' Converte um DataReader para uma Lista de Dicionarios
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="ResultIndex">Indice de resultado</param>
-    <Extension()> Public Function ToDictionary(Reader As DbDataReader, ResultIndex As Integer) As List(Of Dictionary(Of String, Object))
-        Dim resultsets As New List(Of List(Of Dictionary(Of String, Object)))
-        For index = 0 To ResultIndex - 1
-            Reader.NextResult()
-        Next
-        Dim listatabela As New List(Of Dictionary(Of String, Object))
-        Dim cols = Reader.GetColumns
-        While Reader.Read
-            Dim lista As New Dictionary(Of String, Object)
-            For Each col In cols
-                lista.Add(col, Reader(col))
-            Next
-            listatabela.Add(lista)
-        End While
-        Return listatabela
+            Return listatabela
+        End Using
     End Function
 
     ''' <summary>
@@ -971,32 +997,34 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension>
     Public Function ToMarkdown(Reader As DbDataReader) As String
-        Dim Returned As String = ""
-        Do
-            If Reader.HasRows Then
-                Dim header As String = ""
-                Dim base As String = ""
-                For Each item As String In Reader.GetColumns()
-                    header.Append("|" & item)
-                    base.Append("|" & item.Censor("-", item))
-                Next
-                header.Append("|" & Environment.NewLine)
-                base.Append("|" & Environment.NewLine)
-
-                Returned.Append(header)
-                Returned.Append(base)
-
-                While Reader.Read()
+        Using Reader
+            Dim Returned As String = ""
+            Do
+                If Reader.HasRows Then
+                    Dim header As String = ""
+                    Dim base As String = ""
                     For Each item As String In Reader.GetColumns()
-                        Returned.Append("|" & Reader(item))
+                        header.Append("|" & item)
+                        base.Append("|" & item.Censor("-", item))
                     Next
-                    Returned.Append("|" & Environment.NewLine)
-                End While
-            End If
-            Returned.Append(Environment.NewLine)
-            Returned.Append(Environment.NewLine)
-        Loop While Reader.NextResult()
-        Return Returned
+                    header.Append("|" & Environment.NewLine)
+                    base.Append("|" & Environment.NewLine)
+
+                    Returned.Append(header)
+                    Returned.Append(base)
+
+                    While Reader.Read()
+                        For Each item As String In Reader.GetColumns()
+                            Returned.Append("|" & Reader(item))
+                        Next
+                        Returned.Append("|" & Environment.NewLine)
+                    End While
+                End If
+                Returned.Append(Environment.NewLine)
+                Returned.Append(Environment.NewLine)
+            Loop While Reader.NextResult()
+            Return Returned
+        End Using
     End Function
 
     ''' <summary>
@@ -1007,31 +1035,33 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension>
     Public Function ToHTMLTable(Reader As DbDataReader, ParamArray Attr As String()) As String
-        Dim Returned As String = ""
-        Do
-            If Reader.HasRows Then
-                Returned = "<table " & Attr.Join(" ") & ">"
+        Using Reader
+            Dim Returned As String = ""
+            Do
+                If Reader.HasRows Then
+                    Returned = "<table " & Attr.Join(" ") & ">"
 
-                Returned.Append(" <thead>")
-                Returned.Append("     <tr>")
-                For Each item As String In Reader.GetColumns()
-                    Returned.Append("         <th>" & item & "</th>")
-                Next
-                Returned.Append("     </tr>")
-                Returned.Append(" </thead>")
-                Returned.Append(" <tbody>")
-                While Reader.Read()
+                    Returned.Append(" <thead>")
                     Returned.Append("     <tr>")
                     For Each item As String In Reader.GetColumns()
-                        Returned.Append(" <td>" & Reader(item) & "</td>")
+                        Returned.Append("         <th>" & item & "</th>")
                     Next
                     Returned.Append("     </tr>")
-                End While
-                Returned.Append(" </tbody>")
-                Returned.Append(" </table>")
-            End If
-        Loop While Reader.NextResult()
-        Return Returned
+                    Returned.Append(" </thead>")
+                    Returned.Append(" <tbody>")
+                    While Reader.Read()
+                        Returned.Append("     <tr>")
+                        For Each item As String In Reader.GetColumns()
+                            Returned.Append(" <td>" & Reader(item) & "</td>")
+                        Next
+                        Returned.Append("     </tr>")
+                    End While
+                    Returned.Append(" </tbody>")
+                    Returned.Append(" </table>")
+                End If
+            Loop While Reader.NextResult()
+            Return Returned
+        End Using
     End Function
 
     ''' <summary>
@@ -1041,27 +1071,29 @@ Public Module DataManipulation
     ''' <returns>Uma lista com todas as DataTables</returns>
     <Extension()>
     Public Function ToDataTable(Reader As DbDataReader) As DataTable
-        Dim tbRetorno As DataTable = New DataTable
-        Dim tbEsquema As DataTable = Reader.GetSchemaTable
-        For Each r As DataRow In tbEsquema.Rows
-            If Not tbRetorno.Columns.Contains(r("ColumnName")) Then
-                Dim col As New DataColumn
-                col.ColumnName = r("ColumnName").ToString
-                col.Unique = Convert.ToBoolean(r("IsUnique"))
-                col.AllowDBNull = Convert.ToBoolean(r("AllowDbNull"))
-                col.ReadOnly = Convert.ToBoolean(r("IsReadOnly"))
-                tbRetorno.Columns.Add(col)
-            End If
-        Next
-
-        While Reader.Read
-            Dim novaLinha As DataRow = tbRetorno.NewRow
-            For i As Integer = 0 To tbRetorno.Columns.Count - 1
-                novaLinha(i) = Reader.GetValue(i)
+        Using Reader
+            Dim tbRetorno As DataTable = New DataTable
+            Dim tbEsquema As DataTable = Reader.GetSchemaTable
+            For Each r As DataRow In tbEsquema.Rows
+                If Not tbRetorno.Columns.Contains(r("ColumnName")) Then
+                    Dim col As New DataColumn
+                    col.ColumnName = r("ColumnName").ToString
+                    col.Unique = Convert.ToBoolean(r("IsUnique"))
+                    col.AllowDBNull = Convert.ToBoolean(r("AllowDbNull"))
+                    col.ReadOnly = Convert.ToBoolean(r("IsReadOnly"))
+                    tbRetorno.Columns.Add(col)
+                End If
             Next
-            tbRetorno.Rows.Add(novaLinha)
-        End While
-        Return tbRetorno
+
+            While Reader.Read
+                Dim novaLinha As DataRow = tbRetorno.NewRow
+                For i As Integer = 0 To tbRetorno.Columns.Count - 1
+                    novaLinha(i) = Reader.GetValue(i)
+                Next
+                tbRetorno.Rows.Add(novaLinha)
+            End While
+            Return tbRetorno
+        End Using
     End Function
 
     ''' <summary>
@@ -1072,16 +1104,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo os inputs manipulados</returns>
     <Extension()>
     Public Function ApplyToInputs(Reader As DbDataReader, ParamArray Inputs() As HtmlInputControl) As HtmlInputControl()
-
-        For Each c In Inputs
-            Try
-                c.Value = Reader(c.ID).ToString()
-            Catch ex As Exception
-            End Try
-        Next
-
-
-        Return Inputs
+        Using Reader
+            For Each c In Inputs
+                Try
+                    c.Value = Reader(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return Inputs
+        End Using
     End Function
 
     ''' <summary>
@@ -1092,16 +1123,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo os selects manipulados</returns>
     <Extension>
     Public Function ApplyToSelects(Reader As DbDataReader, ParamArray Selects() As HtmlSelect) As HtmlSelect()
-
-        For Each c In Selects
-            Try
-                c.Value = Reader(c.ID).ToString()
-            Catch ex As Exception
-            End Try
-        Next
-
-
-        Return Selects
+        Using Reader
+            For Each c In Selects
+                Try
+                    c.Value = Reader(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return Selects
+        End Using
     End Function
 
     ''' <summary>
@@ -1112,15 +1142,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo os controles HTML manipulados</returns>
     <Extension>
     Public Function ApplyToControls(Reader As DbDataReader, ParamArray Controls() As HtmlGenericControl) As HtmlGenericControl()
-
-        For Each c In Controls
-            Try
-                c.InnerText = Reader(c.ID).ToString()
-            Catch ex As Exception
-            End Try
-        Next
-
-        Return Controls
+        Using Reader
+            For Each c In Controls
+                Try
+                    c.InnerText = Reader(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return Controls
+        End Using
     End Function
 
     ''' <summary>
@@ -1131,15 +1161,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo as Textareas manipuladas</returns>
     <Extension>
     Public Function ApplyToTextAreas(Reader As DbDataReader, ParamArray TextAreas() As HtmlTextArea) As HtmlTextArea()
-
-        For Each c In TextAreas
-            Try
-                c.InnerText = Reader(c.ID).ToString()
-            Catch ex As Exception
-            End Try
-        Next
-
-        Return TextAreas
+        Using Reader
+            For Each c In TextAreas
+                Try
+                    c.InnerText = Reader(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return TextAreas
+        End Using
     End Function
 
     ''' <summary>

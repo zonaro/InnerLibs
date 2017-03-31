@@ -1794,6 +1794,13 @@ InnerLibs
  <param name="Box">ListBox</param>
  <param name="Source">Lista</param>
 </member>
+<member name="M:InnerLibs.SQLExplorer.SQLExplorer.SQLDir(System.String)">
+ <summary>
+ Busca arquivos em um diretório utilizando SQL
+ </summary>
+ <param name="SQLQuery">Comando SQL</param>
+ <returns>Uma Lista com todos os caminhos Encontrados</returns>
+</member>
 <member name="T:InnerLibs.TimeMachine.TimeFlow">
  <summary>
  Classe para comapração entre 2 Datas com possibilidade de validação de dias Relevantes
@@ -2274,9 +2281,27 @@ InnerLibs
  <param name="CompressionLevel">Nivel de compressão do arquivo Zip</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Directories.Search(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">
+<member name="M:InnerLibs.Directories.SearchFiles(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">
  <summary>
  Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas
+ </summary>
+ <param name="Directory">Diretório</param>
+ <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+ <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.SearchDirectories(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">
+ <summary>
+ Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
+ </summary>
+ <param name="Directory">Diretório</param>
+ <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+ <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.Search(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">
+ <summary>
+ Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
  </summary>
  <param name="Directory">Diretório</param>
  <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
@@ -2880,7 +2905,7 @@ InnerLibs
  <remarks></remarks>
  
 </member>
-<member name="M:InnerLibs.Images.ToTextImage(System.String,System.Int32,System.Int32,System.Drawing.Font,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color})">
+<member name="M:InnerLibs.Images.DrawImage(System.String,System.Int32,System.Int32,System.Drawing.Font,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color})">
  <summary>
  Escreve uma string em uma imagem
  </summary>
@@ -3428,6 +3453,13 @@ InnerLibs
  Retorna um Objeto FileType a partir de uma string FileType ou Extensão de Arquivo
  </summary>
  <param name="MimeTypeOrExtension"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.FileTypeExtensions.GetIcon(System.IO.FileInfo)">
+ <summary>
+ Retorna um icone de acordo com o arquivo
+ </summary>
+ <param name="File">Arquivo</param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.FileType">
@@ -4622,6 +4654,14 @@ InnerLibs
  <param name="Text">string HTML</param>
  <returns>String HTML corrigido</returns> 
 </member>
+<member name="M:InnerLibs.Text.GetElementsByTagName(System.String,System.String)">
+ <summary>
+ Procura uma tag especifica em uma string htm e a converte para uma HTMLTag
+ </summary>
+ <param name="HTMLText">String HTML</param>
+ <param name="TagName">Nome da tag</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.GetBetween(System.String,System.String,System.String)">
  <summary>
  Retorna o texto entre dois textos
@@ -4630,6 +4670,13 @@ InnerLibs
  <param name="Before">O texto Anterior</param>
  <param name="After">O texto Posterior</param>
  <returns>Uma String com o texto entre o texto anterior e posterior</returns>
+</member>
+<member name="M:InnerLibs.Text.GetQuotedText(System.String)">
+ <summary>
+ Captura todas as sentenças que estão entre aspas em um texto
+ </summary>
+ <param name="Text">Texto</param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.GetBefore(System.String,System.String)">
  <summary>

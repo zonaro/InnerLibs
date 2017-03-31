@@ -95,6 +95,7 @@
     <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="RiotAPI.vb" />
+    <Compile Include="SQLExplorer.vb" />
     <Compile Include="TimeMachine.vb" />
     <Compile Include="Directories.vb" />
     <Compile Include="Encrypt.vb" />
