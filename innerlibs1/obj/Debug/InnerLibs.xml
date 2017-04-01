@@ -1263,6 +1263,13 @@ InnerLibs
  Módulo de manipulaçao de Datareaders
  </summary>
 </member>
+<member name="M:InnerLibs.DataManipulation.GetDbType(System.Object)">
+ <summary>
+ Retorna o DbType de acordo com o tipo do objeto
+ </summary>
+ <param name="Obj"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataManipulation.ToListItems(System.Data.Common.DbDataReader,System.String,System.String)">
  <summary>
  Cria um array com os Itens de um DataReader
@@ -1794,12 +1801,10 @@ InnerLibs
  <param name="Box">ListBox</param>
  <param name="Source">Lista</param>
 </member>
-<member name="M:InnerLibs.SQLExplorer.SQLExplorer.SQLDir(System.String)">
+<member name="T:InnerLibs.SQLExplorer.FileSystemSQL">
  <summary>
  Busca arquivos em um diretório utilizando SQL
  </summary>
- <param name="SQLQuery">Comando SQL</param>
- <returns>Uma Lista com todos os caminhos Encontrados</returns>
 </member>
 <member name="T:InnerLibs.TimeMachine.TimeFlow">
  <summary>
@@ -2306,6 +2311,14 @@ InnerLibs
  <param name="Directory">Diretório</param>
  <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
  <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Directories.CopyTo(System.IO.DirectoryInfo,System.IO.DirectoryInfo)">
+ <summary>
+ Copia um diretório para dentro de outro diretório
+ </summary>
+ <param name="Directory">Diretório</param>
+ <param name="DestinationDirectory">Diretório de destino</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Directories.HasFiles(System.IO.DirectoryInfo)">
@@ -4671,7 +4684,7 @@ InnerLibs
  <param name="After">O texto Posterior</param>
  <returns>Uma String com o texto entre o texto anterior e posterior</returns>
 </member>
-<member name="M:InnerLibs.Text.GetQuotedText(System.String)">
+<member name="M:InnerLibs.Text.GetQuotedText(System.String,System.Boolean)">
  <summary>
  Captura todas as sentenças que estão entre aspas em um texto
  </summary>

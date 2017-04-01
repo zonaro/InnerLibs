@@ -1858,10 +1858,14 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
-    <Extension> Public Function GetQuotedText(Text As String) As List(Of String)
+    <Extension> Public Function GetQuotedText(Text As String, Optional RemoveQuotes As Boolean = False) As List(Of String)
         Dim lista As New List(Of String)
         For Each a As Match In New Regex("([""'])(?:(?=(\\?))\2.)*?\1", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
-            lista.Add(a.Value)
+            If RemoveQuotes Then
+                lista.Add(a.Value.Trim("""").Trim("'"))
+            Else
+                lista.Add(a.Value)
+            End If
         Next
         Return lista
     End Function

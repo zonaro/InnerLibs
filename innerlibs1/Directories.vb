@@ -72,7 +72,6 @@ Public Module Directories
             OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") + FilesDirectory.Name
         End If
         OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
-        If File.Exists(OutputFile) Then File.Delete(OutputFile)
         For Each arq In FilesDirectory.SearchFiles(SearchOption, Searches)
             Using archive As ZipArchive = ZipFile.Open(OutputFile, If(File.Exists(OutputFile), ZipArchiveMode.Update, ZipArchiveMode.Create))
                 Dim arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).Replace("\", "/"), CompressionLevel)
@@ -130,6 +129,18 @@ Public Module Directories
             FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim, SearchOption))
         Next
         Return FilteredList
+    End Function
+
+    ''' <summary>
+    ''' Copia um diretório para dentro de outro diretório
+    ''' </summary>
+    ''' <param name="Directory">Diretório</param>
+    ''' <param name="DestinationDirectory">Diretório de destino</param>
+    ''' <returns></returns>
+    <Extension> Public Function CopyTo(Directory As DirectoryInfo, DestinationDirectory As DirectoryInfo) As DirectoryInfo
+        If Not DestinationDirectory.Exists Then DestinationDirectory.Create()
+        My.Computer.FileSystem.CopyDirectory(Directory.FullName, DestinationDirectory.FullName & "\" & Directory.Name)
+        Return New DirectoryInfo(DestinationDirectory.FullName & "\" & Directory.Name)
     End Function
 
     ''' <summary>
