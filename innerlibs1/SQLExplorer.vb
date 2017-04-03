@@ -23,53 +23,53 @@ Namespace SQLExplorer
                         Select Case True
                             Case SQLQuery.ContainsAny(" WHERE ", " where ") And SQLQuery.ContainsAny(" INTO ".Quote, " into ".Quote)
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)INTO\s(.*)WHERE\s([^>]*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                intofile = r.Groups(3).Value.GetQuotedText(True).First
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetQuotedText(True).First)
+                                intofile = r.Groups(3).Value.GetWrappedText(True).First
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText(True).First)
                                 wheres = r.Groups(4).Value
-                                '' fazer o parse do where
                                 Exit Select
                             Case SQLQuery.ContainsAny(" INTO ".Quote, " into ".Quote)
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)INTO\s(.*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                intofile = r.Groups(3).Value.GetQuotedText(True).First
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetQuotedText(True).First)
+                                intofile = r.Groups(3).Value.GetWrappedText(True).First
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText(True).First)
                                 Exit Select
                             Case SQLQuery.ContainsAny(" WHERE ", " where ")
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)WHERE\s([^>]*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetQuotedText(True).First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText(True).First)
                                 wheres = r.Groups(3).Value
-                                '' fazer o parse do where
                                 Exit Select
                             Case Else
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetQuotedText(True).First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText(True).First)
                         End Select
 
                         Dim searching As SearchOption
                         Dim method As Integer
                         Select Case True
-                            Case r.Groups(1).Value.AdjustWhiteSpaces = "ONLY TOP FILE"
+                            Case r.Groups(1).Value.ToUpper.AdjustWhiteSpaces = "ONLY TOP FILE"
                                 searching = SearchOption.TopDirectoryOnly
                                 method = 1
-                            Case r.Groups(1).Value.AdjustWhiteSpaces = "ONLY TOP DIRECTORY"
+                            Case r.Groups(1).Value.ToUpper.AdjustWhiteSpaces = "ONLY TOP DIRECTORY"
                                 searching = SearchOption.TopDirectoryOnly
                                 method = 2
-                            Case r.Groups(1).Value.AdjustWhiteSpaces = "ONLY TOP EVERYTHING", "ONLY TOP *"
+                            Case r.Groups(1).Value.ToUpper.AdjustWhiteSpaces = "ONLY TOP EVERYTHING", "ONLY TOP *"
                                 searching = SearchOption.TopDirectoryOnly
                                 method = 3
-                            Case r.Groups(1).Value.AdjustWhiteSpaces = "ALL FILE"
+                            Case r.Groups(1).Value.ToUpper.AdjustWhiteSpaces = "ALL FILE"
                                 searching = SearchOption.AllDirectories
                                 method = 1
-                            Case r.Groups(1).Value.AdjustWhiteSpaces = "ALL DIRECTORY"
+                            Case r.Groups(1).Value.ToUpper.AdjustWhiteSpaces = "ALL DIRECTORY"
                                 searching = SearchOption.AllDirectories
                                 method = 2
-                            Case r.Groups(1).Value.AdjustWhiteSpaces = "ALL EVERYTHING", "*", "ALL *"
+                            Case r.Groups(1).Value.ToUpper.AdjustWhiteSpaces = "ALL EVERYTHING", "*", "ALL *"
                                 searching = SearchOption.AllDirectories
                                 method = 3
                             Case Else
                                 Throw New Exception("Wrong syntax at " & r.Groups(1).Value.AdjustWhiteSpaces.Quote)
                         End Select
 
-                        Dim campos = ""
+                        Dim campos As String()
+
+                        campos = wheres.Split(",")
 
                         Select Case method
                             Case 1
@@ -79,18 +79,6 @@ Namespace SQLExplorer
                             Case 3
                                 Me.AddRange(diretorio.Search(searching, campos))
                         End Select
-
-                        wheres = wheres.AdjustWhiteSpaces.Replace("'", """")
-
-                        For Each m As Match In New Regex("(.*?) = ""(.*?)""").Matches(wheres)
-                            Dim param_name = m.Groups(1).Value
-                            Dim param_value = m.Groups(2).Value
-                            Dim templist As New List(Of FileSystemInfo)
-                            'terminar
-
-                        Next
-
-
 
 
 

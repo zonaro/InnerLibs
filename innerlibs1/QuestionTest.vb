@@ -184,7 +184,7 @@ Namespace QuestionTest
         Public Function BuildHtml(ParamArray CssClass() As String) As String
             Dim html = ""
             html.Append("<h2>" & Title & "</h2>")
-            html.Append(Header.PutInTag("header"))
+            html.Append(Header.WrapInTag("header"))
             html.Append("<ol>")
             For Each question In Questions
                 html.Append("    <li> ")
@@ -204,18 +204,18 @@ Namespace QuestionTest
                         html.Append("<ul> ")
                         For Each a As Alternative In derived.Alternatives
                             Dim asid As String = (question.ID & a.ID).ToString
-                            html.Append(PutInTag("<input type=" & If(question.Type = "SingleAlternativeQuestion", "radio", "checkbox").ToString.Quote & " ID=" & asid.Quote & " name=" & question.ID.Quote & "   value=" & a.ID.Quote & " /><label for=" & asid.Quote & ">" & a.Text & "</label>", "li", "class=" & question.CssClass.Join(" ").Quote))
+                            html.Append(WrapInTag("<input type=" & If(question.Type = "SingleAlternativeQuestion", "radio", "checkbox").ToString.Quote & " ID=" & asid.Quote & " name=" & question.ID.Quote & "   value=" & a.ID.Quote & " /><label for=" & asid.Quote & ">" & a.Text & "</label>", "li", "class=" & question.CssClass.Join(" ").Quote))
                         Next
                         html.Append("</ul> ")
                     Case "DissertativeQuestion"
-                        html.Append(PutInTag("<textarea rows=" & derived.Lines & " ID=" & derived.ID.ToString().Quote & " name=" & derived.ID.ToString().Quote & " ></textarea>", "div", "class=" & question.CssClass.Join(" ").Quote))
+                        html.Append(WrapInTag("<textarea rows=" & derived.Lines & " ID=" & derived.ID.ToString().Quote & " name=" & derived.ID.ToString().Quote & " ></textarea>", "div", "class=" & question.CssClass.Join(" ").Quote))
                     Case "NumericQuestion"
-                        html.Append(PutInTag("<input type='number' min=" & derived.MinValue.ToString.Quote & " max=" & derived.MaxValue.ToString.Quote & " ID=" & question.ID.Quote & " name=" & question.ID.Quote & "   value=" & (derived.MaxValue / 2).ToString.Quote & " />", "div", "class=" & question.CssClass.Join(" ").Quote))
+                        html.Append(WrapInTag("<input type='number' min=" & derived.MinValue.ToString.Quote & " max=" & derived.MaxValue.ToString.Quote & " ID=" & question.ID.Quote & " name=" & question.ID.Quote & "   value=" & (derived.MaxValue / 2).ToString.Quote & " />", "div", "class=" & question.CssClass.Join(" ").Quote))
                 End Select
             Next
             html.Append("</ol> ")
-            html.Append(Footer.PutInTag("footer"))
-            Return html.PutInTag("article", "class=" & CssClass.Join(" ").Quote)
+            html.Append(Footer.WrapInTag("footer"))
+            Return html.WrapInTag("article", "class=" & CssClass.Join(" ").Quote)
         End Function
 
 

@@ -1675,24 +1675,8 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Function Quote(Text As String, Optional QuoteChar As String = """") As String
-        Select Case QuoteChar
-            Case "[", "]"
-                Return "[" & Text & "]"
-            Case "{", "}"
-                Return "{" & Text & "}"
-            Case "(", ")"
-                Return "(" & Text & ")"
-            Case "'"
-                Return "'" & Text & "'"
-            Case """"
-                Return """" & Text & """"
-            Case "<", ">"
-                Return "<" & Text & ">"
-            Case Else
-                Return QuoteChar & Text & QuoteChar
-        End Select
+        Return QuoteChar & Text & QuoteChar.GetOppositeWrapChar
     End Function
-
 
     ''' <summary>
     ''' Encapsula um tento entre 2 textos
@@ -1701,7 +1685,7 @@ Public Module Text
     ''' <param name="WrapChar">Caractere de encapsulamento</param>
     ''' <returns></returns>
     <Extension()>
-    Function Wrap(Text As String, WrapChar As String) As String
+    Function Wrap(Text As String, Optional WrapChar As String = """") As String
         Return Text.Quote(WrapChar)
     End Function
 
@@ -1712,7 +1696,7 @@ Public Module Text
     ''' <param name="TagName">Nome da Tag (Exemplo: div)</param>
     ''' <returns>Uma string HTML com seu texto dentro de uma tag</returns>
     <Extension>
-    Function PutInTag(Text As String, TagName As String, Optional Attr As String = "") As String
+    Function WrapInTag(Text As String, TagName As String, Optional Attr As String = "") As String
         TagName = TagName.RemoveAny("<", ">", "/").ToLower()
         Return "<" & TagName & " " & Attr.Trim() & " >" & Text & "</" & TagName & ">"
     End Function
@@ -1749,7 +1733,7 @@ Public Module Text
                 attr.Append(" " & k & "=" & Control.Attributes(k).Quote)
             End If
         Next
-        Return Control.InnerHtml.PutInTag(Control.TagName, attr)
+        Return Control.InnerHtml.WrapInTag(Control.TagName, attr)
     End Function
 
     ''' <summary>
@@ -1854,20 +1838,68 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Captura todas as sentenças que estão entre aspas em um texto
+    ''' Captura todas as sentenças que estão entre aspas ou parentesis ou chaves ou colchetes em um texto
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
-    <Extension> Public Function GetQuotedText(Text As String, Optional RemoveQuotes As Boolean = False) As List(Of String)
+    <Extension> Public Function GetWrappedText(Text As String, Optional Character As String = """", Optional RemoveQuotes As Boolean = False) As List(Of String)
         Dim lista As New List(Of String)
-        For Each a As Match In New Regex("([""'])(?:(?=(\\?))\2.)*?\1", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
+        Dim regx = ""
+        Select Case Character
+            Case """", "'"
+                regx = "([""'])(?:(?=(\\?))\2.)*?\1"
+            Case "(", ")"
+                regx = "\((.*?)\)"
+            Case "[", "]"
+                regx = "\[(.*?)\]"
+            Case "{", "}"
+                regx = "\{(.*?)\}"
+            Case "<", ">"
+                regx = "\<(.*?)\>"
+            Case Else
+                Throw New Exception("Invalid Wrap Character")
+        End Select
+
+        For Each a As Match In New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
             If RemoveQuotes Then
-                lista.Add(a.Value.Trim("""").Trim("'"))
+                lista.Add(a.Value.Trim(Character).Trim(GetOppositeWrapChar(Character)))
             Else
                 lista.Add(a.Value)
             End If
         Next
         Return lista
+    End Function
+
+    ''' <summary>
+    ''' Retorna o caractere oposto ao caractere indicado
+    ''' </summary>
+    ''' <param name="Text">Caractere</param>
+    ''' <returns></returns>
+    <Extension> Function GetOppositeWrapChar(Text As String) As String
+        Select Case Text.GetFirstChars()
+            Case """"
+                Return """"
+            Case "'"
+                Return "'"
+            Case "("
+                Return ")"
+            Case ")"
+                Return "("
+            Case "["
+                Return "]"
+            Case "]"
+                Return "["
+            Case "{"
+                Return "}"
+            Case "}"
+                Return "{"
+            Case "<"
+                Return ">"
+            Case ">"
+                Return "<"
+            Case Else
+                Return Text.GetFirstChars()
+        End Select
     End Function
 
     ''' <summary>
