@@ -1842,26 +1842,30 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
-    <Extension> Public Function GetWrappedText(Text As String, Optional Character As String = """", Optional RemoveQuotes As Boolean = False) As List(Of String)
+    <Extension> Public Function GetWrappedText(Text As String, Optional Character As String = """", Optional ExcludeWrapChars As Boolean = True) As List(Of String)
         Dim lista As New List(Of String)
         Dim regx = ""
         Select Case Character
             Case """", "'"
                 regx = "([""'])(?:(?=(\\?))\2.)*?\1"
             Case "(", ")"
+                Character = "("
                 regx = "\((.*?)\)"
             Case "[", "]"
+                Character = "["
                 regx = "\[(.*?)\]"
             Case "{", "}"
+                Character = "{"
                 regx = "\{(.*?)\}"
             Case "<", ">"
+                Character = "<"
                 regx = "\<(.*?)\>"
             Case Else
                 Throw New Exception("Invalid Wrap Character")
         End Select
 
         For Each a As Match In New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
-            If RemoveQuotes Then
+            If ExcludeWrapChars Then
                 lista.Add(a.Value.Trim(Character).Trim(GetOppositeWrapChar(Character)))
             Else
                 lista.Add(a.Value)
@@ -1871,7 +1875,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna o caractere oposto ao caractere indicado
+    ''' Retorna o caractere de encapsulamento oposto ao caractere indicado
     ''' </summary>
     ''' <param name="Text">Caractere</param>
     ''' <returns></returns>

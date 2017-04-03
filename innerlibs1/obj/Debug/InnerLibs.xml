@@ -4693,7 +4693,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.Text.GetOppositeWrapChar(System.String)">
  <summary>
- Retorna o caractere oposto ao caractere indicado
+ Retorna o caractere de encapsulamento oposto ao caractere indicado
  </summary>
  <param name="Text">Caractere</param>
  <returns></returns>
