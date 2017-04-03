@@ -4615,7 +4615,7 @@ InnerLibs
  <param name="WrapChar">Caractere de encapsulamento</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.PutInTag(System.String,System.String,System.String)">
+<member name="M:InnerLibs.Text.WrapInTag(System.String,System.String,System.String)">
  <summary>
  Encapsula um texto dentro de um elemento HTML
  </summary>
@@ -4684,11 +4684,18 @@ InnerLibs
  <param name="After">O texto Posterior</param>
  <returns>Uma String com o texto entre o texto anterior e posterior</returns>
 </member>
-<member name="M:InnerLibs.Text.GetQuotedText(System.String,System.Boolean)">
+<member name="M:InnerLibs.Text.GetWrappedText(System.String,System.String,System.Boolean)">
  <summary>
- Captura todas as sentenças que estão entre aspas em um texto
+ Captura todas as sentenças que estão entre aspas ou parentesis ou chaves ou colchetes em um texto
  </summary>
  <param name="Text">Texto</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.GetOppositeWrapChar(System.String)">
+ <summary>
+ Retorna o caractere oposto ao caractere indicado
+ </summary>
+ <param name="Text">Caractere</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.GetBefore(System.String,System.String)">
