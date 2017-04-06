@@ -22,6 +22,18 @@ Public Module Files
     End Function
 
     ''' <summary>
+    ''' Retorna o conteudo de um arquivo de texto
+    ''' </summary>
+    ''' <param name="File">Arquivo</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function ReadText(File As FileInfo) As String
+        Using f = File.OpenText
+            Return f.ReadToEnd
+        End Using
+    End Function
+
+    ''' <summary>
     ''' Transforma um arquivo em um Array de Bytes
     ''' </summary>
     ''' <param name="File">O arquivo a ser convertido</param>

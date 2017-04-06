@@ -28,7 +28,29 @@ InnerLibs
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:InnerLibs.Base64.ToDataURI(System.Drawing.Image)">
+<member name="M:InnerLibs.Base64.FixBase64(System.Object)">
+ <summary>
+ Arruma os caracteres de uma string Base64
+ </summary>
+ <param name="Base64StringOrDataUrl">Base64String ou DataURL</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Base64.ToBase64(System.Byte[])">
+ <summary>
+ Converte um Array de Bytes em uma string Base64
+ </summary>
+ <param name="Bytes">Array de Bytes</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Base64.ToDataURL(System.Byte[],InnerLibs.FileType)">
+ <summary>
+ Converte um Array de Bytes em uma DATA URL Completa
+ </summary>
+ <param name="Bytes">Array de Bytes</param>
+ <param name="Type">Tipo de arquivo</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Base64.ToDataURL(System.Drawing.Image)">
  <summary>
  Transforma uma imagem em uma URL Base64
  </summary>
@@ -43,7 +65,7 @@ InnerLibs
  <param name="OriginalImageFormat">Formato da imagem de acordo com sua extensão (JPG, PNG, GIF etc.)</param>
  <returns>Uma string em formato Base64</returns>
 </member>
-<member name="M:InnerLibs.Base64.ToDataURI(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">
+<member name="M:InnerLibs.Base64.ToDataURL(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">
  <summary>
  Converte uma imagem para DataURI trocando o MIME Type
  </summary>
@@ -97,12 +119,19 @@ InnerLibs
  <param name="DataUrl">Especifica se a resposta deve ser em DataURI ou apenas a Base64</param>
  <returns>Uma string em formato Base64</returns>
 </member>
-<member name="M:InnerLibs.Base64.ToDataURI(System.Web.HttpPostedFile)">
+<member name="M:InnerLibs.Base64.ToDataURL(System.Web.HttpPostedFile)">
  <summary>
  Converte uma Imagem dem HttpPostedFile para uma Data URI
  </summary>
  <param name="PostedFile">Arquivo de Imagem</param>
  <returns>Uma data URI Base64</returns>
+</member>
+<member name="M:InnerLibs.Base64.ToByte(System.String)">
+ <summary>
+ Converte uma DATAURL ou Base64 String em um array de Bytes
+ </summary>
+ <param name="Base64StringOrDataURL">Base64 String ou DataURL</param>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.BitLy.BitLy">
  <summary>
@@ -669,6 +698,13 @@ InnerLibs
  <param name="Bytes">A MAtriz com os Bytes  a ser escrita</param>
  <param name="FilePath">Caminho onde o arquivo será gravado</param>
  <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+</member>
+<member name="M:InnerLibs.Files.ReadText(System.IO.FileInfo)">
+ <summary>
+ Retorna o conteudo de um arquivo de texto
+ </summary>
+ <param name="File">Arquivo</param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Files.ToBytes(System.IO.FileInfo)">
  <summary>

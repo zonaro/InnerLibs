@@ -9,12 +9,46 @@ Imports System.Web
 Public Module Base64
 
     ''' <summary>
+    ''' Arruma os caracteres de uma string Base64
+    ''' </summary>
+    ''' <param name="Base64StringOrDataUrl">Base64String ou DataURL</param>
+    ''' <returns></returns>
+    <Extension()> Public Function FixBase64(Base64StringOrDataUrl) As String
+        Dim dummyData As String = Base64StringOrDataUrl.GetAfter(",").Trim().Replace(" ", "+")
+        If dummyData.Length Mod 4 > 0 Then
+            dummyData = dummyData.PadRight(dummyData.Length + 4 - dummyData.Length Mod 4, "="c)
+        End If
+        Return dummyData
+    End Function
+
+    ''' <summary>
+    ''' Converte um Array de Bytes em uma string Base64
+    ''' </summary>
+    ''' <param name="Bytes">Array de Bytes</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToBase64(Bytes As Byte()) As String
+        Return Convert.ToBase64String(Bytes)
+    End Function
+
+    ''' <summary>
+    ''' Converte um Array de Bytes em uma DATA URL Completa
+    ''' </summary>
+    ''' <param name="Bytes">Array de Bytes</param>
+    ''' <param name="Type">Tipo de arquivo</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function ToDataURL(Bytes As Byte(), Type As FileType) As String
+        Return "data:" & Type.MimeTypes.First.ToLower & ";base64," & Bytes.ToBase64()
+    End Function
+
+
+    ''' <summary>
     ''' Transforma uma imagem em uma URL Base64
     ''' </summary>
     ''' <param name="Image">Imagem</param>
     ''' <returns>Uma DataURI em string</returns>
     <Extension()>
-    Public Function ToDataURI(Image As Image) As String
+    Public Function ToDataURL(Image As Image) As String
         Return "data:" & Image.GetFileType.First.ToLower.Replace("application/octet-stream", GetFileType(".jpg").First) & ";base64," & Image.ToBase64()
     End Function
 
@@ -40,8 +74,8 @@ Public Module Base64
     ''' <param name="OriginalImage">Imagem</param>
     ''' <param name="OriginalImageFormat">Formato da Imagem</param>
     ''' <returns>Uma data URI com a imagem convertida</returns>
-    <Extension> Public Function ToDataURI(ByVal OriginalImage As Image, ByVal OriginalImageFormat As System.Drawing.Imaging.ImageFormat) As String
-        Return OriginalImage.ToBase64(OriginalImageFormat).ToImage().ToDataURI()
+    <Extension> Public Function ToDataURL(ByVal OriginalImage As Image, ByVal OriginalImageFormat As System.Drawing.Imaging.ImageFormat) As String
+        Return OriginalImage.ToBase64(OriginalImageFormat).ToImage().ToDataURL()
     End Function
     ''' <summary>
     ''' Converte uma Imagem para String Base64
@@ -146,7 +180,16 @@ Public Module Base64
     ''' <param name="PostedFile">Arquivo de Imagem</param>
     ''' <returns>Uma data URI Base64</returns>
     <Extension>
-    Public Function ToDataURI(PostedFile As HttpPostedFile) As String
+    Public Function ToDataURL(PostedFile As HttpPostedFile) As String
         Return PostedFile.ToBase64(True)
+    End Function
+
+    ''' <summary>
+    ''' Converte uma DATAURL ou Base64 String em um array de Bytes
+    ''' </summary>
+    ''' <param name="Base64StringOrDataURL">Base64 String ou DataURL</param>
+    ''' <returns></returns>
+    Public Function ToByte(Base64StringOrDataURL As String) As Byte()
+        Return Convert.FromBase64String(Base64StringOrDataURL.FixBase64)
     End Function
 End Module

@@ -193,7 +193,7 @@ Namespace QuestionTest
                     html.Append("        <ul class='StatementImageList'>")
                     Dim imagecount As Integer = 0
                     For Each img In question.Statement.Images
-                        html.Append("<li><img src=" & img.Image.ToDataURI.Quote & " alt= " & img.Subtitle.Quote & "/><small>Imagem " & imagecount.Increment.ToString & ": " & img.Subtitle & "</small></li>")
+                        html.Append("<li><img src=" & img.Image.ToDataURL.Quote & " alt= " & img.Subtitle.Quote & "/><small>Imagem " & imagecount.Increment.ToString & ": " & img.Subtitle & "</small></li>")
                     Next
                     html.Append("        </ul>")
                 End If
