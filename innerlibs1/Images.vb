@@ -411,6 +411,25 @@ Public Class PictureService
     Public Function Pipsum() As Picture
         Return New Picture("http://pipsum.com/" & Me.Size.Width.LimitRange(1, 2560) & "x" & Me.Size.Height.LimitRange(1, 1600) & ".jpg")
     End Function
+
+    ''' <summary>
+    ''' Retorna uma imagem de qualquer serviço aleatóriamente
+    ''' </summary>
+    ''' <param name="OnlyPhotos">Apenas serviços de fotografias (Exclui Placehold.It)</param>
+    ''' <returns></returns>
+    Public Function AnyService(Optional OnlyPhotos As Boolean = True) As Picture
+        Select Case RandomNumber(1, If(OnlyPhotos, 3, 4))
+            Case 1
+                Return Pipsum()
+            Case 2
+                Return LoremPixel()
+            Case 3
+                Return Unsplash()
+            Case Else
+                Return PlaceHold()
+        End Select
+    End Function
+
     ''' <summary>
     ''' Cria uma nova Picture com um tamanho especifico
     ''' </summary>

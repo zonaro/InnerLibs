@@ -195,7 +195,7 @@ Public Module Generate
         Dim r = New Random()
         Dim v = 0
         For index = Min To Max
-            v = r.Next(Min, Max)
+            v = r.Next(Min, Max + 1)
         Next
         Return v
     End Function

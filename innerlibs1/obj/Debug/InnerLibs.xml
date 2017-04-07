@@ -3088,6 +3088,13 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.PictureService.AnyService(System.Boolean)">
+ <summary>
+ Retorna uma imagem de qualquer serviço aleatóriamente
+ </summary>
+ <param name="OnlyPhotos">Apenas serviços de fotografias (Exclui Placehold.It)</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.PictureService.#ctor(System.Drawing.Size)">
  <summary>
  Cria uma nova Picture com um tamanho especifico
