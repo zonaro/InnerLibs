@@ -28,12 +28,12 @@ InnerLibs
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:InnerLibs.Base64.FixBase64(System.Object)">
+<member name="M:InnerLibs.Base64.FixBase64(System.String)">
  <summary>
  Arruma os caracteres de uma string Base64
  </summary>
  <param name="Base64StringOrDataUrl">Base64String ou DataURL</param>
- <returns></returns>
+ <returns>Retorna apenas a Base64</returns>
 </member>
 <member name="M:InnerLibs.Base64.ToBase64(System.Byte[])">
  <summary>
@@ -126,7 +126,7 @@ InnerLibs
  <param name="PostedFile">Arquivo de Imagem</param>
  <returns>Uma data URI Base64</returns>
 </member>
-<member name="M:InnerLibs.Base64.ToByte(System.String)">
+<member name="M:InnerLibs.Base64.ToBytes(System.String)">
  <summary>
  Converte uma DATAURL ou Base64 String em um array de Bytes
  </summary>
@@ -2783,14 +2783,6 @@ InnerLibs
  <returns>Uma String contendo diversos paragrafos com texto aleatório</returns>
  
 </member>
-<member name="M:InnerLibs.Generate.PlaceHold(System.Int32,System.Int32,System.String,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color})">
- <summary>
- Gera uma imagem baseada na resolução
- </summary>
- <param name="Width">A Largura da imagem</param>
- <param name="Height">A Altura da imagem</param>
- <returns>Uma imagem (image())</returns>
-</member>
 <member name="M:InnerLibs.Generate.ToQRCode(System.String,System.Int32)">
  <summary>
  Converte uma String para um QR Code usando uma API (Nescessita de Internet)
@@ -2798,21 +2790,6 @@ InnerLibs
  <param name="Data">Informações do QR Code</param>
  <param name="Size">Tamanho do QR code</param>
  <returns>Um componente Image() com o QR code</returns>
-</member>
-<member name="M:InnerLibs.Generate.RandomPicture(System.Int32,System.Int32)">
- <summary>
- Gera uma imagem aleatória usando pipsum.com
- </summary>
- <param name="Width">Largura da imagem</param>
- <param name="Height">Altura da imagem</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Generate.RandomPicture(System.Drawing.Size)">
- <summary>
- Gera uma imagem aleatória usando pipsum.com
- </summary>
- <param name="Size">Tamanho da imagem</param>
- <returns></returns>
 </member>
 <member name="P:InnerLibs.GoogleMaps.Map.Markers">
  <summary>
@@ -2954,6 +2931,26 @@ InnerLibs
  <remarks></remarks>
  
 </member>
+<member name="M:InnerLibs.Images.InsertWatermark(System.Drawing.Image,System.String,System.Int32,System.Int32)">
+ <summary>
+ Insere um texto de marca Dágua na imagem
+ </summary>
+ <param name="Image">Imagem</param>
+ <param name="Watermark">TExto de Marca Dagua</param>
+ <param name="X">Posição X</param>
+ <param name="Y">Posição Y</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Images.InsertWatermark(System.Drawing.Image,System.Drawing.Image,System.Int32,System.Int32)">
+ <summary>
+ Insere uma imagem de marca Dágua na imagem
+ </summary>
+ <param name="Image">Imagem</param>
+ <param name="Watermark">Imagem de Marca Dagua</param>
+ <param name="X">Posição X</param>
+ <param name="Y">Posição Y</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Images.DrawImage(System.String,System.Int32,System.Int32,System.Drawing.Font,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color})">
  <summary>
  Escreve uma string em uma imagem
@@ -3020,6 +3017,89 @@ InnerLibs
  </summary>
  <param name="Image">Imagem</param>
  <returns></returns>
+</member>
+<member name="T:InnerLibs.PictureService">
+ <summary>
+ Retorna imagens de diversos serviços para serem usadas como marcação ou sugestão.
+ </summary>
+</member>
+<member name="P:InnerLibs.PictureService.Picture.URL">
+ <summary>
+ URL da imagem
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PictureService.Picture.Image">
+ <summary>
+ Objeto imagem
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PictureService.Picture.DataURL(System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ DATA URL da imagem (base64)
+ </summary>
+ <param name="ImageFormat">Formato de Imagem</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PictureService.Picture.Bytes">
+ <summary>
+ Bytes da imagem
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PictureService.Size">
+ <summary>
+ Tamanho da imagem que será gerada pelo serviço
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.PictureService.PlaceHold(System.String,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color})">
+ <summary>
+ Retorna uma imagem usando Placehold.It
+ </summary>
+ <param name="Text"></param>
+ <param name="Color"></param>
+ <param name="TextColor"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.PictureService.Unsplash(System.Int32,System.Boolean,System.Boolean)">
+ <summary>
+ Retorna uma Imagem utilizando Unsplash.it
+ </summary>
+ <param name="Index">Index da imagem</param>
+ <param name="Grayscale">Imagem em escala de cinza</param>
+ <param name="Blur">Imagem desbotada</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.PictureService.LoremPixel(System.String,System.Int32,System.Boolean,System.String)">
+ <summary>
+ Retorna uma imagem usando LoremPixel.com
+ </summary>
+ <param name="Category">Categoria da imagem</param>
+ <param name="Index">Indice da imagem</param>
+ <param name="Grayscale">Imagem em escala da cinza</param>
+ <param name="Text">Texto adicional</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.PictureService.Pipsum">
+ <summary>
+ Retorna uma imagem usando Pipsum.com
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.PictureService.#ctor(System.Drawing.Size)">
+ <summary>
+ Cria uma nova Picture com um tamanho especifico
+ </summary>
+ <param name="Size">Tamanho</param>
+</member>
+<member name="M:InnerLibs.PictureService.#ctor(System.Int32,System.Int32)">
+ <summary>
+ Cria uma nova Picture com altura e largura especificados
+ </summary>
+ <param name="Width">Largura</param>
+ <param name="Height">Altura</param>
 </member>
 <member name="T:InnerLibs.MenuBuilder">
  <summary>

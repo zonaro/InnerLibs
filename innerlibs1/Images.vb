@@ -12,10 +12,26 @@ Imports System.Windows.Forms
 ''' 
 Public Module Images
 
-
+    ''' <summary>
+    ''' Insere um texto de marca Dágua na imagem
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <param name="Watermark">TExto de Marca Dagua</param>
+    ''' <param name="X">Posição X</param>
+    ''' <param name="Y">Posição Y</param>
+    ''' <returns></returns>
     Public Function InsertWatermark(Image As Image, Watermark As String, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         Return InsertWatermark(Image, Watermark.DrawImage(Image.Width, Image.Height))
     End Function
+
+    ''' <summary>
+    ''' Insere uma imagem de marca Dágua na imagem
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <param name="Watermark">Imagem de Marca Dagua</param>
+    ''' <param name="X">Posição X</param>
+    ''' <param name="Y">Posição Y</param>
+    ''' <returns></returns>
     Public Function InsertWatermark(Image As Image, WaterMark As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         ' a imagem que será usada como marca d'agua
         Dim bm_marcaDagua As New Bitmap(WaterMark)
@@ -268,3 +284,150 @@ Public Module Images
     End Function
 
 End Module
+
+''' <summary>
+''' Retorna imagens de diversos serviços para serem usadas como marcação ou sugestão.
+''' </summary>
+Public Class PictureService
+
+    Class Picture
+        ''' <summary>
+        ''' URL da imagem
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property URL As Uri
+
+        ''' <summary>
+        ''' Objeto imagem
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Image As Image
+            Get
+                Return AJAX.GET(Of Image)(URL.AbsoluteUri)
+            End Get
+
+        End Property
+
+        ''' <summary>
+        ''' DATA URL da imagem (base64)
+        ''' </summary>
+        ''' <param name="ImageFormat">Formato de Imagem</param>
+        ''' <returns></returns>
+        ReadOnly Property DataURL(Optional ImageFormat As ImageFormat = Nothing) As String
+            Get
+                If IsNothing(ImageFormat) Then ImageFormat = ImageFormat.Jpeg
+                Return Image.ToDataURL(ImageFormat)
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Bytes da imagem
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Bytes As Byte()
+            Get
+                Return DataURL.ToBytes
+            End Get
+        End Property
+
+        Friend Sub New(URL As String)
+            Me.URL = New Uri(URL)
+        End Sub
+
+    End Class
+
+    ''' <summary>
+    ''' Tamanho da imagem que será gerada pelo serviço
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Size As Size
+
+    ''' <summary>
+    ''' Retorna uma imagem usando Placehold.It
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Color"></param>
+    ''' <param name="TextColor"></param>
+    ''' <returns></returns>
+    Public Function PlaceHold(Optional Text As String = "", Optional Color As Color? = Nothing, Optional TextColor As Color? = Nothing) As Picture
+
+        Dim ReColor = If(Color, System.Drawing.Color.Gray)
+        Dim ReColor2 = If(TextColor, System.Drawing.Color.Black)
+        Dim cor1 = ReColor.ToHexadecimal(False)
+        Dim cor2 = ReColor2.ToHexadecimal(False)
+        Text = If(Text.IsBlank, Me.Size.Width & "x" & Me.Size.Height, Text.Replace(" ", "+"))
+        Dim URL As String = "http://placehold.it/" & Me.Size.Width & "x" & Me.Size.Height & "/" & cor1 & "/" & cor2 & "?text=" & Text
+        URL = URL.Replace(" ", "_")
+        Return New Picture(URL)
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma Imagem utilizando Unsplash.it
+    ''' </summary>
+    ''' <param name="Index">Index da imagem</param>
+    ''' <param name="Grayscale">Imagem em escala de cinza</param>
+    ''' <param name="Blur">Imagem desbotada</param>
+    ''' <returns></returns>
+    Public Function Unsplash(Optional Index As Integer = -1, Optional Grayscale As Boolean = False, Optional Blur As Boolean = False) As Picture
+
+        Dim url = "https://unsplash.it/"
+        url.AppendIf("g/", Grayscale)
+        url.Append(Me.Size.Width & "/" & Me.Size.Height)
+        url.Append("?")
+        url.AppendIf("&blur", Blur)
+        If Index > -1 Then
+            url.Append("&image=" & Index)
+        Else
+            url.Append("&random")
+        End If
+        Return New Picture(url)
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma imagem usando LoremPixel.com
+    ''' </summary>
+    ''' <param name="Category">Categoria da imagem</param>
+    ''' <param name="Index">Indice da imagem</param>
+    ''' <param name="Grayscale">Imagem em escala da cinza</param>
+    ''' <param name="Text">Texto adicional</param>
+    ''' <returns></returns>
+    Public Function LoremPixel(Optional Category As String = "", Optional Index As Integer = -1, Optional Grayscale As Boolean = False, Optional Text As String = "") As Picture
+
+        Dim url = "http://lorempixel.com/"
+        url.AppendIf("g/", Grayscale)
+        url.Append(Me.Size.Width & "/" & Me.Size.Height)
+        url.AppendIf("/" & Category, Category.IsNotBlank)
+        url.AppendIf("/" & Index.LimitRange(1, 10), Index > -1)
+        url.AppendIf("/" & System.Web.HttpUtility.UrlEncode(Text), Text.IsNotBlank)
+        Return New Picture(url)
+
+
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma imagem usando Pipsum.com
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Pipsum() As Picture
+        Return New Picture("http://pipsum.com/" & Me.Size.Width.LimitRange(1, 2560) & "x" & Me.Size.Height.LimitRange(1, 1600) & ".jpg")
+    End Function
+    ''' <summary>
+    ''' Cria uma nova Picture com um tamanho especifico
+    ''' </summary>
+    ''' <param name="Size">Tamanho</param>
+    Public Sub New(Size As Size)
+        Me.Size = Size
+    End Sub
+
+    ''' <summary>
+    ''' Cria uma nova Picture com altura e largura especificados
+    ''' </summary>
+    ''' <param name="Width">Largura</param>
+    ''' <param name="Height">Altura</param>
+    Public Sub New(Width As Integer, Height As Integer)
+        Me.Size = New Size(Width, Height)
+    End Sub
+
+
+
+End Class

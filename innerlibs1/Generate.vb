@@ -231,23 +231,7 @@ Public Module Generate
         Return InnerIpsum(ParagraphNumber)
     End Function
 
-    ''' <summary>
-    ''' Gera uma imagem baseada na resolução
-    ''' </summary>
-    ''' <param name="Width">A Largura da imagem</param>
-    ''' <param name="Height">A Altura da imagem</param>
-    ''' <returns>Uma imagem (image())</returns>
 
-    Public Function PlaceHold(Width As Integer, Height As Integer, Optional Text As String = "", Optional Color As Color? = Nothing, Optional TextColor As Color? = Nothing) As Image
-        Dim ReColor = If(Color, System.Drawing.Color.Gray)
-        Dim ReColor2 = If(TextColor, System.Drawing.Color.Black)
-        Dim cor1 = ReColor.ToHexadecimal(False)
-        Dim cor2 = ReColor2.ToHexadecimal(False)
-        Text = If(Text.IsBlank, Width & "x" & Height, Text.Replace(" ", "+"))
-        Dim URL As String = "http://placehold.it/" & Width & "x" & Height & "/" & cor1 & "/" & cor2 & "?text=" & Text
-        URL = URL.Replace(" ", "_")
-        Return AJAX.GET(Of Image)(URL)
-    End Function
 
     ''' <summary>
     ''' Converte uma String para um QR Code usando uma API (Nescessita de Internet)
@@ -263,22 +247,4 @@ Public Module Generate
         Return AJAX.GET(Of Image)(URL)
     End Function
 
-    ''' <summary>
-    ''' Gera uma imagem aleatória usando pipsum.com
-    ''' </summary>
-    ''' <param name="Width">Largura da imagem</param>
-    ''' <param name="Height">Altura da imagem</param>
-    ''' <returns></returns>
-    Public Function RandomPicture(Width As Integer, Height As Integer) As Image
-        Return AJAX.GET(Of Image)("http://pipsum.com/" & Width.LimitRange(1, 2560) & "x" & Height.LimitRange(1, 1600) & ".jpg")
-    End Function
-
-    ''' <summary>
-    ''' Gera uma imagem aleatória usando pipsum.com
-    ''' </summary>
-    ''' <param name="Size">Tamanho da imagem</param>
-    ''' <returns></returns>
-    Public Function RandomPicture(Size As Size) As Image
-        Return RandomPicture(Size.Width, Size.Height)
-    End Function
 End Module

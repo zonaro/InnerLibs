@@ -12,8 +12,8 @@ Public Module Base64
     ''' Arruma os caracteres de uma string Base64
     ''' </summary>
     ''' <param name="Base64StringOrDataUrl">Base64String ou DataURL</param>
-    ''' <returns></returns>
-    <Extension()> Public Function FixBase64(Base64StringOrDataUrl) As String
+    ''' <returns>Retorna apenas a Base64</returns>
+    <Extension()> Public Function FixBase64(Base64StringOrDataUrl As String) As String
         Dim dummyData As String = Base64StringOrDataUrl.GetAfter(",").Trim().Replace(" ", "+")
         If dummyData.Length Mod 4 > 0 Then
             dummyData = dummyData.PadRight(dummyData.Length + 4 - dummyData.Length Mod 4, "="c)
@@ -189,7 +189,7 @@ Public Module Base64
     ''' </summary>
     ''' <param name="Base64StringOrDataURL">Base64 String ou DataURL</param>
     ''' <returns></returns>
-    Public Function ToByte(Base64StringOrDataURL As String) As Byte()
+    <Extension()> Public Function ToBytes(Base64StringOrDataURL As String) As Byte()
         Return Convert.FromBase64String(Base64StringOrDataURL.FixBase64)
     End Function
 End Module

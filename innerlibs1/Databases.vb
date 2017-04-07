@@ -881,20 +881,18 @@ Public Module DataManipulation
     ''' <param name="Timeout">Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)</param>
     <Extension()>
     Public Sub ToSession(Reader As DbDataReader, Session As HttpSessionState, Optional Timeout As Integer = 0)
-        Using Reader
-            For Each coluna In Reader.GetColumns()
-                Session(coluna) = Nothing
-            Next
+        For Each coluna In Reader.GetColumns()
+            Session(coluna) = Nothing
+        Next
 
-            While Reader.Read()
-                For Each coluna In Reader.GetColumns()
-                    Session(coluna) = Reader(coluna)
-                Next
-            End While
-            If Timeout > 0 Then
-                Session.Timeout = Timeout
-            End If
-        End Using
+        While Reader.Read()
+            For Each coluna In Reader.GetColumns()
+                Session(coluna) = Reader(coluna)
+            Next
+        End While
+        If Timeout > 0 Then
+            Session.Timeout = Timeout
+        End If
     End Sub
 
     ''' <summary>
@@ -1104,15 +1102,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo os inputs manipulados</returns>
     <Extension()>
     Public Function ApplyToInputs(Reader As DbDataReader, ParamArray Inputs() As HtmlInputControl) As HtmlInputControl()
-        Using Reader
-            For Each c In Inputs
-                Try
-                    c.Value = Reader(c.ID).ToString()
-                Catch ex As Exception
-                End Try
-            Next
-            Return Inputs
-        End Using
+
+        For Each c In Inputs
+            Try
+                c.Value = Reader(c.ID).ToString()
+            Catch ex As Exception
+            End Try
+        Next
+        Return Inputs
+
     End Function
 
     ''' <summary>
@@ -1123,15 +1121,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo os selects manipulados</returns>
     <Extension>
     Public Function ApplyToSelects(Reader As DbDataReader, ParamArray Selects() As HtmlSelect) As HtmlSelect()
-        Using Reader
-            For Each c In Selects
+
+        For Each c In Selects
                 Try
                     c.Value = Reader(c.ID).ToString()
                 Catch ex As Exception
                 End Try
             Next
             Return Selects
-        End Using
+
     End Function
 
     ''' <summary>
@@ -1142,15 +1140,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo os controles HTML manipulados</returns>
     <Extension>
     Public Function ApplyToControls(Reader As DbDataReader, ParamArray Controls() As HtmlGenericControl) As HtmlGenericControl()
-        Using Reader
-            For Each c In Controls
+
+        For Each c In Controls
                 Try
                     c.InnerText = Reader(c.ID).ToString()
                 Catch ex As Exception
                 End Try
             Next
             Return Controls
-        End Using
+
     End Function
 
     ''' <summary>
@@ -1161,15 +1159,15 @@ Public Module DataManipulation
     ''' <returns>Um array contendo as Textareas manipuladas</returns>
     <Extension>
     Public Function ApplyToTextAreas(Reader As DbDataReader, ParamArray TextAreas() As HtmlTextArea) As HtmlTextArea()
-        Using Reader
-            For Each c In TextAreas
+
+        For Each c In TextAreas
                 Try
                     c.InnerText = Reader(c.ID).ToString()
                 Catch ex As Exception
                 End Try
             Next
             Return TextAreas
-        End Using
+
     End Function
 
     ''' <summary>
