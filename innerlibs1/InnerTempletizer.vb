@@ -60,8 +60,19 @@ Namespace Templatizer
         ''' <param name="TemplateFile">Arquivo do Template</param>
         ''' <returns></returns>    
 
-        Public Function Build(SQLQuery As String, TemplateFile As String) As String
-            Dim response As String = ""
+        Public Function Build(Of Type)(SQLQuery As String, TemplateFile As String) As Type
+            Dim response As Object
+
+            Select Case GetType(Type)
+                Case GetType(String)
+                    response = ""
+                Case GetType(List(Of String))
+                    response = New List(Of String)
+                Case Else
+                    Throw New InvalidCastException("Only Type parameter can be only 'String' or 'List(Of String)'")
+            End Select
+
+
             Dim template As String = ""
             Dim header As String = ""
             If IsNothing(ApplicationAssembly) Then
@@ -86,25 +97,33 @@ Namespace Templatizer
             Catch ex As Exception
             End Try
 
-
-            Using reader As DbDataReader = DataBase.RunSQL(SQLQuery)
+            Using reader As DataBase.Reader = DataBase.RunSQL(SQLQuery)
                 While reader.Read
                     Dim copia As String = template
                     'replace nas strings padrão
                     For Each col In reader.GetColumns
                         copia = copia.Replace("##" & col & "##", reader(col).ToString())
                     Next
-
                     'replace nas procedures
                     For Each sqlTag As HtmlTag In copia.GetElementsByTagName("sqlquery")
                         sqlTag.FixIn(copia)
-                        Dim tp = Build(sqlTag.Content, sqlTag.Attributes.Item("data-templatefile"))
+                        Dim tp As String = Build(Of String)(sqlTag.Content, sqlTag.Attributes.Item("data-templatefile"))
                         copia = copia.Replace(sqlTag.ToString, tp)
                     Next
-                    response.Append(copia)
+                    Select Case GetType(Type)
+                        Case GetType(String)
+                            response.Append(copia)
+                        Case GetType(List(Of String))
+                            response.add(copia)
+                    End Select
                 End While
             End Using
-            response.Append(header)
+            Select Case GetType(Type)
+                Case GetType(String)
+                    response.Append(header)
+                Case GetType(List(Of String))
+                    response.Add(header)
+            End Select
             Return response
         End Function
 
@@ -119,7 +138,5 @@ Namespace Templatizer
             End If
             Return l
         End Function
-
-
     End Class
 End Namespace

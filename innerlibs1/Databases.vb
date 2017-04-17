@@ -12,10 +12,468 @@ Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
 Imports System.Windows.Forms
 Imports System.Xml
+Imports InnerLibs.DataBase
 
-Public Class DataBase
+Public NotInheritable Class DataBase
+
+    Public NotInheritable Class Reader
+        Inherits List(Of List(Of Dictionary(Of String, Object)))
+        Implements IDisposable
+
+        Public Sub Dispose() Implements IDisposable.Dispose
+            MyBase.Clear()
+            ' Suppress finalization.
+            GC.SuppressFinalize(Me)
+        End Sub
 
 
+        Public Function GetColumns() As List(Of String)
+            Return MyBase.Item(resultindex)(0).Keys.ToList
+        End Function
+
+        Public Function CountRows() As Integer
+            Return MyBase.Item(resultindex).Count
+        End Function
+
+        Default Public Shadows ReadOnly Property Item(ColumnName As String) As Object
+            Get
+                If rowindex < 0 Then rowindex = 0
+                Return MyBase.Item(resultindex)(rowindex)(ColumnName)
+            End Get
+        End Property
+
+        Default Public Shadows ReadOnly Property Item(ColumnIndex As Integer) As Object
+            Get
+                If rowindex < 0 Then rowindex = 0
+                Return MyBase.Item(resultindex)(rowindex)(MyBase.Item(resultindex)(rowindex).Keys(ColumnIndex))
+            End Get
+        End Property
+
+        Public Property HasRows As Boolean
+
+        Function ToJSON() As String
+            Return Me.SerializeJSON
+        End Function
+
+        Function ToJSON(ResultIndex As Integer) As String
+            Return MyBase.Item(ResultIndex).SerializeJSON
+        End Function
+
+        Friend Sub New(Reader As DbDataReader)
+            Using Reader
+                Do
+                    Dim listatabela As New List(Of Dictionary(Of String, Object))
+                    Dim columns = New List(Of String)
+                    For i As Integer = 0 To Reader.FieldCount - 1
+                        columns.Add(Reader.GetName(i))
+                    Next
+                    While Reader.Read
+                        Dim lista As New Dictionary(Of String, Object)
+                        For Each col In columns
+                            lista.Add(col, Reader(col))
+                        Next
+                        listatabela.Add(lista)
+                    End While
+                    Me.Add(listatabela)
+                Loop While Reader.NextResult
+            End Using
+        End Sub
+
+
+        Private resultindex As Integer = 0
+        Private rowindex As Integer = -1
+
+        ''' <summary>
+        ''' Avança para o próximo resultado
+        ''' </summary>
+        ''' <returns></returns>
+        Function NextResult() As Boolean
+            If resultindex < Me.Count - 1 Then
+                resultindex.Increment
+                rowindex = -1
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        ''' <summary>
+        ''' Retorna para os resultados anteriores
+        ''' </summary>
+        ''' <returns></returns>
+        Function PreviousResult() As Boolean
+            If resultindex > 0 Then
+                resultindex.Decrement
+                rowindex = -1
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        ''' <summary>
+        ''' Avança para o próximo registro, é um alias para <see cref="GoForward()"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Function Read() As Boolean
+            Return GoForward()
+        End Function
+
+        ''' <summary>
+        ''' Retornar para o registro anterior
+        ''' </summary>
+        ''' <returns></returns>
+        Function GoBack() As Boolean
+            If rowindex > 0 Then
+                rowindex.Decrement
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        ''' <summary>
+        ''' Avança para o próximo registro
+        ''' </summary>
+        ''' <returns></returns>
+        Function GoForward() As Boolean
+            If rowindex < CountRows() - 1 Then
+                rowindex.Increment
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+
+
+        ''' <summary>
+        ''' Cria um array com os Itens de um DataBaseReader
+        ''' </summary>
+        ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
+        ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
+        ''' <returns></returns>
+
+        Public Function ToListItems(TextColumn As String, ValueColumn As String) As ListItem()
+
+            Dim h As New List(Of ListItem)
+            If Me.HasRows Then
+                While Me.Read()
+                    h.Add(New ListItem(Me(TextColumn).ToString, Me(ValueColumn).ToString))
+                End While
+            End If
+            Return h.ToArray
+
+        End Function
+
+        ''' <summary>
+        ''' Retorna o valor de uma coluna especifica da primeira linha do primeiro resultado de um DataBaseReader
+        ''' </summary>
+        ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
+        ''' <param name="Column">Coluna</param>
+        ''' <returns></returns>
+        Public Function GetColumnValue(Of Type As IConvertible)(Column As String) As Type
+            Return DirectCast(Me(Column), Type)
+        End Function
+
+        ''' <summary>
+        ''' Cria um Dictionary com os 2 Itens de um DataBaseReader
+        ''' </summary>
+        ''' <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
+        ''' <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
+        ''' <returns></returns>
+
+        Public Function ToDictionary(Of TKey, TValue)(KeyColumn As String, ValueColumn As String) As Dictionary(Of TKey, TValue)
+            Dim h As New Dictionary(Of TKey, TValue)
+            If Me.HasRows Then
+                While Me.Read()
+                    h.Add(Me(KeyColumn), Me(ValueColumn))
+                End While
+            End If
+            Return h
+        End Function
+
+        ''' <summary>
+        ''' Cria uma lista de pares com os Itens de um DataBaseReader
+        ''' </summary>
+        ''' <param name="TextColumn">Coluna que será usada como Text do item</param>
+        ''' <param name="ValueColumn">Coluna que será usada como Value do item</param>
+        ''' <returns></returns>
+        Public Function ToTextValueList(Of TValue)(TextColumn As String, ValueColumn As String) As TextValueList(Of TValue)
+            Dim h As New TextValueList(Of TValue)
+            If Me.HasRows Then
+                While Me.Read()
+                    h.Add("" & Me(TextColumn), DirectCast(Me(ValueColumn), TValue))
+                End While
+            End If
+            Return h
+        End Function
+
+        ''' <summary>
+        ''' Transforma o resultado de um DataBaseReader em QueryString
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ToQueryString() As String
+            Dim param As String = ""
+            If Me.HasRows Then
+                While Me.Read()
+                    For Each it In Me.GetColumns()
+                        param.Append("&" & it & "=" & HttpUtility.UrlEncode("" & Me(it)))
+                    Next
+                End While
+            End If
+            Return param.RemoveFirstIf("?").Prepend("?")
+
+        End Function
+
+
+        ''' <summary>
+        ''' Transforma um DataBaseReader em uma string delimitada por caracteres
+        ''' </summary>
+        ''' <param name="ColDelimiter">Delimitador de Coluna</param>
+        ''' <param name="RowDelimiter">Delimitador de Linha</param>
+        ''' <param name="TableDelimiter">Delimitador de Tabelas</param>
+        ''' <returns>Uma string delimitada</returns>
+
+        Public Function ToDelimitedString(Optional ColDelimiter As String = "[ColDelimiter]", Optional RowDelimiter As String = "[RowDelimiter]", Optional TableDelimiter As String = "[TableDelimiter]") As String
+            Dim DelimitedString As String = ""
+            Do
+                Dim columns As List(Of String) = Me.GetColumns()
+                While Me.Read()
+                    For Each coluna In columns
+                        DelimitedString = DelimitedString & (HttpUtility.HtmlEncode(Me(coluna)) & ColDelimiter)
+                    Next
+                    DelimitedString = DelimitedString & RowDelimiter
+                End While
+                DelimitedString = DelimitedString & TableDelimiter
+            Loop While Me.NextResult()
+            Return DelimitedString
+        End Function
+
+        Public Function ToDataTable() As DataTable
+            Dim result As New DataTable()
+            If MyBase.Item(resultindex).Count = 0 Then
+                Return result
+            End If
+            result.Columns.AddRange(MyBase.Item(resultindex)(0).[Select](Function(r) New DataColumn(r.Key)).ToArray())
+            For Each i As Dictionary(Of String, Object) In MyBase.Item(resultindex)
+                result.Rows.Add(i.Values.ToArray)
+            Next
+            Return result
+        End Function
+
+
+        ''' <summary>
+        ''' Converte um DataBaseReader em XML
+        ''' </summary>
+        ''' <param name="ItemName">Nome do nó que representa cada linha</param>
+        ''' '<param name="TableName">Nome do nó principal do documento</param>
+
+        Function ToXML(Optional TableName As String = "Table", Optional ItemName As String = "Row") As XmlDocument
+
+            Dim doc As New XmlDocument
+            Dim stringas = ""
+            Dim dt = Me.ToDataTable
+            dt.TableName = ItemName.IsNull("Row", False)
+            Dim xmlWriter = New StringWriter()
+            dt.WriteXml(xmlWriter)
+            stringas.Append(xmlWriter.ToString)
+            doc.LoadXml(stringas)
+            Dim newDocElem As System.Xml.XmlElement = doc.CreateElement(TableName.IsNull("Table", False))
+
+            ' Move the nodes from the old DocumentElement to the new one
+            While doc.DocumentElement.HasChildNodes
+                newDocElem.AppendChild(doc.DocumentElement.ChildNodes(0))
+            End While
+
+            ' Switch in the new DocumentElement
+            doc.RemoveChild(doc.DocumentElement)
+            doc.AppendChild(newDocElem)
+            Return doc
+
+        End Function
+
+        ''' <summary>
+        ''' Converte um DataBaseReader em CSV
+        ''' </summary>
+        ''' <param name="Separator">Separador de valores (vírgula)</param>
+        ''' <returns>uma string Comma Separated Values (CSV)</returns>
+
+        Public Function ToCSV(Optional Separator As String = ",") As String
+
+            Dim Returned As String = "sep=" & Separator & Environment.NewLine
+            If Me.HasRows Then
+                While Me.Read()
+                    For Each item As String In Me.GetColumns()
+                        Returned.Append(Me(item).ToString().Quote & Separator)
+                    Next
+                    Returned.Append(Environment.NewLine)
+                End While
+            End If
+            Return Returned
+        End Function
+
+        ''' <summary>
+        ''' Copia a primeira linha de um DataBaseReader para uma sessão HttpSessionState usando os nomes das colunas como os nomes dos objetos da sessão
+        ''' </summary>
+        ''' <param name="Session">Objeto da sessão</param>
+        ''' <param name="Timeout">Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)</param>
+
+        Public Sub ToSession(Session As HttpSessionState, Optional Timeout As Integer = 0)
+            For Each coluna In Me.GetColumns()
+                Session(coluna) = Nothing
+            Next
+            While Me.Read()
+                For Each coluna In Me.GetColumns()
+                    Session(coluna) = Me(coluna)
+                Next
+            End While
+            If Timeout > 0 Then
+                Session.Timeout = Timeout
+            End If
+        End Sub
+
+
+
+
+        ''' <summary>
+        ''' Converte um DataBaseReader para uma tabela em Markdown Pipe
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ToMarkdown() As String
+            Dim Returned As String = ""
+            Do
+                If Me.HasRows Then
+                    Dim header As String = ""
+                    Dim base As String = ""
+                    For Each item As String In Me.GetColumns()
+                        header.Append("|" & item)
+                        base.Append("|" & item.Censor("-", item))
+                    Next
+                    header.Append("|" & Environment.NewLine)
+                    base.Append("|" & Environment.NewLine)
+
+                    Returned.Append(header)
+                    Returned.Append(base)
+
+                    While Me.Read()
+                        For Each item As String In Me.GetColumns()
+                            Returned.Append("|" & Me(item))
+                        Next
+                        Returned.Append("|" & Environment.NewLine)
+                    End While
+                End If
+                Returned.Append(Environment.NewLine)
+                Returned.Append(Environment.NewLine)
+            Loop While Me.NextResult()
+            Return Returned
+
+        End Function
+
+        ''' <summary>
+        ''' Converte um DataBaseReader para uma tabela em HTML
+        ''' </summary>
+        ''' <param name="Attr">Atributos da tabela. Recomenda-se o uso de classes</param>
+        ''' <returns></returns>
+        Public Function ToHTMLTable(ParamArray Attr As String()) As String
+
+            Dim Returned As String = ""
+            Do
+                If Me.HasRows Then
+                    Returned = "<table " & Attr.Join(" ") & ">"
+
+                    Returned.Append(" <thead>")
+                    Returned.Append("     <tr>")
+                    For Each item As String In Me.GetColumns()
+                        Returned.Append("         <th>" & item & "</th>")
+                    Next
+                    Returned.Append("     </tr>")
+                    Returned.Append(" </thead>")
+                    Returned.Append(" <tbody>")
+                    While Me.Read()
+                        Returned.Append("     <tr>")
+                        For Each item As String In Me.GetColumns()
+                            Returned.Append(" <td>" & Me(item) & "</td>")
+                        Next
+                        Returned.Append("     </tr>")
+                    End While
+                    Returned.Append(" </tbody>")
+                    Returned.Append(" </table>")
+                End If
+            Loop While Me.NextResult()
+            Return Returned
+        End Function
+
+
+
+        ''' <summary>
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em inputs com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
+        ''' </summary>
+        ''' <param name="Inputs">Controles que serão Manipulados</param>
+        ''' <returns>Um array contendo os inputs manipulados</returns>
+        Public Function ApplyToInputs(ParamArray Inputs() As HtmlInputControl) As HtmlInputControl()
+            For Each c In Inputs
+                Try
+                    c.Value = Me(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return Inputs
+
+        End Function
+
+        ''' <summary>
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em selects com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
+        ''' </summary>
+        ''' <param name="Selects">Controles que serão Manipulados</param>
+        ''' <returns>Um array contendo os selects manipulados</returns>
+
+        Public Function ApplyToSelects(ParamArray Selects() As HtmlSelect) As HtmlSelect()
+            For Each c In Selects
+                Try
+                    c.Value = Me(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return Selects
+
+        End Function
+
+        ''' <summary>
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+        ''' </summary>
+        ''' <param name="Controls">Controles que serão Manipulados</param>
+        ''' <returns>Um array contendo os controles HTML manipulados</returns>
+
+        Public Function ApplyToControls(ParamArray Controls() As HtmlGenericControl) As HtmlGenericControl()
+
+            For Each c In Controls
+                Try
+                    c.InnerText = Me(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return Controls
+        End Function
+
+        ''' <summary>
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+        ''' </summary>
+        ''' <param name="TextAreas">Controles que serão Manipulados</param>
+        ''' <returns>Um array contendo as Textareas manipuladas</returns>
+
+        Public Function ApplyToTextAreas(ParamArray TextAreas() As HtmlTextArea) As HtmlTextArea()
+
+            For Each c In TextAreas
+                Try
+                    c.InnerText = Me(c.ID).ToString()
+                Catch ex As Exception
+                End Try
+            Next
+            Return TextAreas
+        End Function
+
+    End Class
 
     ''' <summary>
     ''' Conexão genérica (Oracle, MySQL, SQLServer etc.)
@@ -58,26 +516,28 @@ Public Class DataBase
     ''' Executa uma Query no banco. Recomenda-se o uso de procedures.
     ''' </summary>
     ''' <param name="SQLQuery">Comando SQL a ser executado</param>
-    ''' <returns>Um DataReader com as informações da consulta</returns>
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
 
-    Public Function RunSQL(ByVal SQLQuery As String) As DbDataReader
+    Public Function RunSQL(ByVal SQLQuery As String) As Reader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
-        Dim con = Activator.CreateInstance(ConnectionType)
-        con.ConnectionString = Me.ConnectionString
-        con.Open()
-        Dim command As DbCommand = con.CreateCommand()
-        command.CommandText = SQLQuery
-        Dim Reader As DbDataReader = command.ExecuteReader()
-        command.Dispose()
-        Return Reader
+        Using con = Activator.CreateInstance(ConnectionType)
+            con.ConnectionString = Me.ConnectionString
+            con.Open()
+            Using command As DbCommand = con.CreateCommand()
+                command.CommandText = SQLQuery
+                Using Reader As DbDataReader = command.ExecuteReader()
+                    Return New Reader(Reader)
+                End Using
+            End Using
+        End Using
     End Function
 
     ''' <summary>
     ''' Executa uma Query no banco partir de um Arquivo.
     ''' </summary>
     ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
-    ''' <returns>Um DataReader com as informações da consulta</returns>
-    Public Function RunSQL(ByVal File As FileInfo) As DbDataReader
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    Public Function RunSQL(ByVal File As FileInfo) As Reader
         Using s = File.OpenText
             Return RunSQL(s.ReadToEnd)
         End Using
@@ -88,8 +548,8 @@ Public Class DataBase
     ''' Executa uma Query no banco partir de um Arquivo.
     ''' </summary>
     ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
-    ''' <returns>Um DataReader com as informações da consulta</returns>
-    Public Function RunSQL(ByVal File As HttpPostedFile) As DbDataReader
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    Public Function RunSQL(ByVal File As HttpPostedFile) As Reader
         Using s = New StreamReader(File.InputStream)
             Return RunSQL(s.ReadToEnd)
         End Using
@@ -122,8 +582,6 @@ Public Class DataBase
             Next
             RunSQL(comando.Trim.RemoveLastIf(","))
         Next
-
-
     End Sub
 
     ''' <summary>
@@ -161,8 +619,8 @@ Public Class DataBase
     ''' <param name="SQLQuery">Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">Arquivo</param>
-    ''' <returns>Um DataReader com as informações da consulta</returns>
-    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte()) As DbDataReader
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte()) As Reader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -171,7 +629,7 @@ Public Class DataBase
         command.CommandText = SQLQuery
         command.AddFile(FileParameter, File)
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return Reader
+        Return New Reader(Reader)
     End Function
 
     ''' <summary>
@@ -180,8 +638,8 @@ Public Class DataBase
     ''' <param name="SQLQuery">Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">Arquivo postado</param>
-    ''' <returns>Um DataReader com as informações da consulta</returns>
-    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile) As DbDataReader
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile) As Reader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -190,7 +648,7 @@ Public Class DataBase
         command.CommandText = SQLQuery
         command.AddFile(FileParameter, File)
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return Reader
+        Return New Reader(Reader)
     End Function
 
     ''' <summary>
@@ -199,8 +657,8 @@ Public Class DataBase
     ''' <param name="SQLQuery">Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">Arquivo</param>
-    ''' <returns>Um DataReader com as informações da consulta</returns>
-    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo) As DbDataReader
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo) As Reader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -209,7 +667,7 @@ Public Class DataBase
         command.CommandText = SQLQuery
         command.AddFile(FileParameter, File)
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return Reader
+        Return New Reader(Reader)
     End Function
 
     ''' <summary>
@@ -217,13 +675,13 @@ Public Class DataBase
     ''' </summary>
     ''' <param name="Command">Commando de banco de dados pre-pronto</param>
     ''' <returns></returns>
-    Public Function RunSQL(Command As DbCommand) As DbDataReader
+    Public Function RunSQL(Command As DbCommand) As Reader
         Debug.WriteLine(Environment.NewLine & Command.CommandText & Environment.NewLine)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
         Dim Reader As DbDataReader = Command.ExecuteReader()
-        Return Reader
+        Return New Reader(Reader)
     End Function
 
     ''' <summary>
@@ -231,8 +689,8 @@ Public Class DataBase
     ''' </summary>
     ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
     ''' <param name="Parameters">Parametros que serão adicionados ao comando</param>
-    ''' <returns>Um DataReader com as informações da consulta</returns> 
-    Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter) As DbDataReader
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns> 
+    Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter) As Reader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -243,7 +701,7 @@ Public Class DataBase
             command.Parameters.Add(param)
         Next
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return Reader
+        Return New Reader(Reader)
     End Function
 
     ''' <summary>
@@ -253,7 +711,7 @@ Public Class DataBase
     ''' <param name="Action">Açao que será realizada no banco</param>
     ''' <param name="WhereConditions">Condições WHERE</param>
     ''' <returns></returns>
-    Public Function RunSQL(TableQuickConnector As TableQuickConnector, Action As TableQuickConnector.Action, Optional WhereConditions As String = "") As DbDataReader
+    Public Function RunSQL(TableQuickConnector As TableQuickConnector, Action As TableQuickConnector.Action, Optional WhereConditions As String = "") As DataBase.Reader
         Dim query As String = ""
         Select Case Action
             Case 0
@@ -274,7 +732,7 @@ Public Class DataBase
             Case Else
                 Throw New ArgumentException("Ação especificada não existe!")
         End Select
-        Dim reader As DbDataReader = RunSQL(query)
+        Dim reader As Reader = RunSQL(query)
         While reader.Read
             For Each col In TableQuickConnector.ColumnControls
                 col.CastControl(reader(col.Name))
@@ -290,7 +748,7 @@ Public Class DataBase
     ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
     ''' <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
     ''' <returns></returns>
-    Public Function RunSQL(Of Type)(SQLQuery As String, [Object] As Type) As DbDataReader
+    Public Function RunSQL(Of Type)(SQLQuery As String, [Object] As Type) As Reader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -314,12 +772,12 @@ Public Class DataBase
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <param name="TableName">Nome da tabela</param>
     ''' <param name="[Object]">Objeto onde</param>
-    Public Function [SELECT](Of Type)(TableName As String, ByRef [Object] As Type, Optional WhereConditions As String = "") As List(Of Type)
+    Public Function [SELECT](Of Type)(TableName As String, ByRef [Object] As Type, Optional WhereConditions As String = "") As Reader
         Dim cmd = "SELECT * FROM " & TableName
         If WhereConditions.IsNotBlank Then
             cmd.Append(" where " & WhereConditions.Trim().RemoveFirstIf("where"))
         End If
-        Return RunSQL(cmd).ToList(Of Type)
+        Return RunSQL(cmd)
     End Function
 
     ''' <summary>
@@ -554,664 +1012,7 @@ End Class
 
 
 
-''' <summary>
-''' Módulo de manipulaçao de Datareaders
-''' </summary>
-Public Module DataManipulation
 
-    ''' <summary>
-    ''' Retorna o DbType de acordo com o tipo do objeto
-    ''' </summary>
-    ''' <param name="Obj"></param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function GetDbType(Obj As Object) As DbType
-        Select Case Obj.GetType
-            Case GetType(String)
-                Return DbType.String
-            Case GetType(Char)
-                Return DbType.String
-            Case GetType(Short)
-                Return DbType.Int16
-            Case GetType(Integer)
-                Return DbType.Int32
-            Case GetType(Long)
-                Return DbType.Int64
-            Case GetType(Double)
-                Return DbType.Double
-            Case GetType(DateTime)
-                Return DbType.DateTime
-            Case GetType(Byte), GetType(Byte())
-                Return DbType.Binary
-            Case Else
-                Return DbType.Object
-        End Select
-    End Function
-
-
-
-    ''' <summary>
-    ''' Cria um array com os Itens de um DataReader
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
-    ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function ToListItems(Reader As DbDataReader, TextColumn As String, ValueColumn As String) As ListItem()
-        Using Reader
-            Dim h As New List(Of ListItem)
-            If Reader.HasRows Then
-                While Reader.Read()
-                    h.Add(New ListItem(Reader(TextColumn).ToString, Reader(ValueColumn).ToString))
-                End While
-            End If
-            Return h.ToArray
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Retorna o valor de uma coluna especifica da primeira linha do primeiro resultado de um DataReader
-    ''' </summary>
-    ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
-    ''' <param name="Reader">Reader</param>
-    ''' <param name="Column">Coluna</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function GetColumnValue(Of Type As IConvertible)(Reader As DbDataReader, Column As String) As Type
-        Try
-            Return DirectCast(Reader(Column), Type)
-        Catch ex As Exception
-            Reader.Read()
-            Return DirectCast(Reader(Column), Type)
-        End Try
-    End Function
-
-    ''' <summary>
-    ''' Cria um Dictionary com os 2 Itens de um DataReader
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
-    ''' <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function ToDictionary(Of TKey, TValue)(Reader As DbDataReader, KeyColumn As String, ValueColumn As String) As Dictionary(Of TKey, TValue)
-        Using Reader
-            Dim h As New Dictionary(Of TKey, TValue)
-            If Reader.HasRows Then
-                While Reader.Read()
-                    h.Add(Reader(KeyColumn), Reader(ValueColumn))
-                End While
-            End If
-            Return h
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Cria uma lista de pares com os Itens de um DataReader
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="TextColumn">Coluna que será usada como Text do item</param>
-    ''' <param name="ValueColumn">Coluna que será usada como Value do item</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function ToTextValueList(Of TValue)(Reader As DbDataReader, TextColumn As String, ValueColumn As String) As TextValueList(Of TValue)
-        Using Reader
-            Dim h As New TextValueList(Of TValue)
-            If Reader.HasRows Then
-                While Reader.Read()
-                    h.Add("" & Reader(TextColumn), DirectCast(Reader(ValueColumn), TValue))
-                End While
-            End If
-            Return h
-        End Using
-    End Function
-
-
-    ''' <summary>
-    ''' Traz uma lista das possíveis conexões de Bancos de Dados
-    ''' </summary>
-    ''' <returns>Uma DataTable com todas as factories de Banco de dados</returns>
-
-    Public Function GetDataBasesFactoryClasses() As DataTable
-        Return DbProviderFactories.GetFactoryClasses
-    End Function
-
-    ''' <summary>
-    ''' Concatena um parametro a uma string de comando SQL
-    ''' </summary>
-    ''' <param name="Command">Comando sql</param>
-    ''' <param name="Key">nome do parametro</param>
-    ''' <param name="Value">valor do parametro</param>
-    <Extension>
-    Public Sub AppendSQLParameter(ByRef Command As String, Key As String, Optional Value As String = "")
-        Dim param = " @" & Key & "=" & Value.IsNull(Quotes:=Not Value.IsNumber)
-        If (Command.Contains("@")) Then
-            If Command.Trim.EndsWith(",") Then
-                Command.Append(" " & param)
-            Else
-                Command.Append(", " & param)
-            End If
-        Else
-            Command.Append(param)
-        End If
-    End Sub
-
-
-
-
-    ''' <summary>
-    ''' Conta o numero de linhas de um DbDatareader
-    ''' </summary>
-    ''' <param name="Reader">OleDbDataReader</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function CountRows(Reader As DbDataReader) As Integer
-        Using Reader
-            Dim cnt As Integer = 0
-            Try
-                While Reader.Read()
-                    cnt.Increment
-                End While
-                Return cnt
-            Catch generatedExceptionName As Exception
-                Return -1
-            End Try
-        End Using
-    End Function
-    ''' <summary>
-    ''' Converte um Array para um DataTableReader de 1 Coluna
-    ''' </summary>
-    ''' <param name="Input">Array com 1 coluna a ser convertida</param>
-    ''' <returns>Um DataReader de 1 Coluna</returns>
-    <Extension()>
-    Public Function ToDataTableReader(Input As String()) As DataTableReader
-        Return New DataTableReader(Input.ToDataSet().Tables(0))
-    End Function
-
-    ''' <summary>
-    ''' Converte um Array para um DataSet de 1 Coluna
-    ''' </summary>
-    ''' <param name="Input">Array com 1 coluna a ser convertida</param>
-    ''' <returns>um DataSet de 1 Coluna</returns>
-
-    <Extension()>
-    Public Function ToDataSet(Input As String()) As DataSet
-        Dim dataSet As New DataSet()
-        Dim dataTable As DataTable = dataSet.Tables.Add()
-        dataTable.Columns.Add()
-        For Each value In Input.ToList()
-            dataTable.Rows.Add(value)
-        Next
-        Return dataSet
-    End Function
-
-    ''' <summary>
-    ''' Transforma o resultado de um DataReader em QueryString
-    ''' </summary>
-    ''' <param name="Reader">Data Reader</param>
-    ''' <returns></returns>
-    <Extension> Public Function ToQueryString(Reader As DbDataReader) As String
-        Using Reader
-            Dim param As String = ""
-            If Reader.HasRows Then
-                Dim colunas As List(Of String) = Reader.GetColumns()
-                While Reader.Read()
-                    For Each item In colunas
-                        param.Append("&" & item & "=" & HttpUtility.UrlEncode("" & Reader(item)))
-                    Next
-                End While
-                Reader.Dispose()
-                Reader.Close()
-            End If
-            Return param.RemoveFirstIf("?").Prepend("?")
-        End Using
-    End Function
-
-
-
-    ''' <summary>
-    ''' Retorna uma Lista com todas as colunas de um DataReader
-    ''' </summary>
-    ''' <param name="Reader">Reader</param>
-    ''' <returns>uma Lista de strings com os nomes das colunas</returns>
-    <Extension>
-    Public Function GetColumns(Reader As DbDataReader) As List(Of String)
-        Dim columns As New List(Of String)
-        For i As Integer = 0 To Reader.FieldCount - 1
-            columns.Add(Reader.GetName(i))
-        Next
-        Return columns
-    End Function
-
-    ''' <summary>
-    ''' Transforma um DataReader em uma string delimitada por caracteres
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="ColDelimiter">Delimitador de Coluna</param>
-    ''' <param name="RowDelimiter">Delimitador de Linha</param>
-    ''' <param name="TableDelimiter">Delimitador de Tabelas</param>
-    ''' <returns>Uma string delimitada</returns>
-
-    <Extension()>
-    Public Function ToDelimitedString(Reader As DbDataReader, Optional ColDelimiter As String = "[ColDelimiter]", Optional RowDelimiter As String = "[RowDelimiter]", Optional TableDelimiter As String = "[TableDelimiter]") As String
-        Using Reader
-            Try
-                Dim DelimitedString As String = ""
-                Do
-                    Dim columns As List(Of String) = Reader.GetColumns()
-
-                    While Reader.Read()
-                        For Each coluna In columns
-                            DelimitedString = DelimitedString & (HttpUtility.HtmlEncode(Reader(coluna)) & ColDelimiter)
-                        Next
-                        DelimitedString = DelimitedString & RowDelimiter
-                    End While
-                    DelimitedString = DelimitedString & TableDelimiter
-                Loop While Reader.NextResult()
-
-                Return DelimitedString
-            Catch ex As Exception
-                Return ex.Message
-            End Try
-        End Using
-    End Function
-
-
-
-
-    ''' <summary>
-    ''' Converte um DataReader em XML
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="ItemName">Nome do nó que representa cada linha</param>
-    ''' '<param name="TableName">Nome do nó principal do documento</param>
-
-    <Extension()> Function ToXML(Reader As DbDataReader, Optional TableName As String = "Table", Optional ItemName As String = "Row") As XmlDocument
-        Using Reader
-            Dim doc As New XmlDocument
-            Dim stringas = ""
-            Dim dt = Reader.ToDataTable
-            dt.TableName = ItemName.IsNull("Row", False)
-            Dim xmlWriter = New StringWriter()
-            dt.WriteXml(xmlWriter)
-            stringas.Append(xmlWriter.ToString)
-            doc.LoadXml(stringas)
-            Dim newDocElem As System.Xml.XmlElement = doc.CreateElement(TableName.IsNull("Table", False))
-
-            ' Move the nodes from the old DocumentElement to the new one
-            While doc.DocumentElement.HasChildNodes
-                newDocElem.AppendChild(doc.DocumentElement.ChildNodes(0))
-            End While
-
-            ' Switch in the new DocumentElement
-            doc.RemoveChild(doc.DocumentElement)
-            doc.AppendChild(newDocElem)
-            Return doc
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Converte um DataReader em CSV
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="Separator">Separador de valores (vírgula)</param>
-    ''' <returns>uma string Comma Separated Values (CSV)</returns>
-    <Extension>
-    Public Function ToCSV(Reader As DbDataReader, Optional Separator As String = ",") As String
-        Using Reader
-            Dim Returned As String = "sep=" & Separator & Environment.NewLine
-            If Reader.HasRows Then
-                While Reader.Read()
-                    For Each item As String In Reader.GetColumns()
-                        Returned.Append(Reader(item).ToString().Quote & Separator)
-                    Next
-                    Returned.Append(Environment.NewLine)
-                End While
-            End If
-            Return Returned
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Copia a primeira linha de um DataReader para uma sessão HttpSessionState usando os nomes das colunas como os nomes dos objetos da sessão
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="Session">Objeto da sessão</param>
-    ''' <param name="Timeout">Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)</param>
-    <Extension()>
-    Public Sub ToSession(Reader As DbDataReader, Session As HttpSessionState, Optional Timeout As Integer = 0)
-        For Each coluna In Reader.GetColumns()
-            Session(coluna) = Nothing
-        Next
-
-        While Reader.Read()
-            For Each coluna In Reader.GetColumns()
-                Session(coluna) = Reader(coluna)
-            Next
-        End While
-        If Timeout > 0 Then
-            Session.Timeout = Timeout
-        End If
-    End Sub
-
-    ''' <summary>
-    ''' Converte um DataReader para Javascript Object Notation 
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <returns>String JSON</returns>
-    <Extension>
-    Public Function ToJSON(Reader As DbDataReader) As String
-        Return Reader.ToDictionary.SerializeJSON
-    End Function
-
-    ''' <summary>
-    ''' Converte um DataReader para Javascript Object Notation 
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="ResultIndex">Indice de resultado</param>
-    ''' <returns>String JSON</returns>
-    <Extension>
-    Public Function ToJSON(Reader As DbDataReader, ResultIndex As Integer) As String
-        Return Reader.ToDictionary(ResultIndex).SerializeJSON
-    End Function
-
-    ''' <summary>
-    ''' Converte um  DataReader para uma Lista serializada de um objeto especifico
-    ''' </summary>
-    ''' <typeparam name="Type"></typeparam>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="ResultIndex"></param>
-    <Extension>
-    Public Function ToList(Of Type)(Reader As DbDataReader, Optional ResultIndex As Integer = 0) As List(Of Type)
-        Return Reader.ToJSON(ResultIndex).ParseJSON(Of List(Of Type))
-    End Function
-
-    ''' <summary>
-    ''' Pega o primeiro item (linha) do resultado e serializa em um objeto especifico
-    ''' </summary>
-    ''' <typeparam name="Type">Tipo de objeto</typeparam>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="ResultIndex">Index do resultset que será serializado (normalmente 0)</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function ToItem(Of Type)(Reader As DbDataReader, Optional ResultIndex As Integer = 0) As Type
-        Return Reader.ToList(Of Type)(ResultIndex)(0)
-    End Function
-
-
-    ''' <summary>
-    ''' Converte um DataReader para Uma Lista de Listas de Dicionario
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <returns>String JSON</returns>
-    <Extension()> Public Function ToDictionary(Reader As DbDataReader) As List(Of List(Of Dictionary(Of String, Object)))
-        Using Reader
-            Dim todastabelas As New List(Of List(Of Dictionary(Of String, Object)))
-            Do
-                Dim listatabela As New List(Of Dictionary(Of String, Object))
-                Dim cols = Reader.GetColumns
-                While Reader.Read
-                    Dim lista As New Dictionary(Of String, Object)
-                    For Each col In cols
-                        lista.Add(col, Reader(col))
-                    Next
-                    listatabela.Add(lista)
-                End While
-                todastabelas.Add(listatabela)
-            Loop While Reader.NextResult
-            Return todastabelas
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Converte um DataReader para uma Lista de Dicionarios
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="ResultIndex">Indice de resultado</param>
-    <Extension()> Public Function ToDictionary(Reader As DbDataReader, ResultIndex As Integer) As List(Of Dictionary(Of String, Object))
-        Using Reader
-            Dim resultsets As New List(Of List(Of Dictionary(Of String, Object)))
-            For index = 0 To ResultIndex - 1
-                Reader.NextResult()
-            Next
-            Dim listatabela As New List(Of Dictionary(Of String, Object))
-            Dim cols = Reader.GetColumns
-            While Reader.Read
-                Dim lista As New Dictionary(Of String, Object)
-                For Each col In cols
-                    lista.Add(col, Reader(col))
-                Next
-                listatabela.Add(lista)
-            End While
-            Return listatabela
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Converte um DataReader para uma tabela em Markdown Pipe
-    ''' </summary>
-    ''' <param name="Reader">Reader</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function ToMarkdown(Reader As DbDataReader) As String
-        Using Reader
-            Dim Returned As String = ""
-            Do
-                If Reader.HasRows Then
-                    Dim header As String = ""
-                    Dim base As String = ""
-                    For Each item As String In Reader.GetColumns()
-                        header.Append("|" & item)
-                        base.Append("|" & item.Censor("-", item))
-                    Next
-                    header.Append("|" & Environment.NewLine)
-                    base.Append("|" & Environment.NewLine)
-
-                    Returned.Append(header)
-                    Returned.Append(base)
-
-                    While Reader.Read()
-                        For Each item As String In Reader.GetColumns()
-                            Returned.Append("|" & Reader(item))
-                        Next
-                        Returned.Append("|" & Environment.NewLine)
-                    End While
-                End If
-                Returned.Append(Environment.NewLine)
-                Returned.Append(Environment.NewLine)
-            Loop While Reader.NextResult()
-            Return Returned
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Converte um DataReader para uma tabela em HTML
-    ''' </summary>
-    ''' <param name="Reader">Reader</param>
-    ''' <param name="Attr">Atributos da tabela. Recomenda-se o uso de classes</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function ToHTMLTable(Reader As DbDataReader, ParamArray Attr As String()) As String
-        Using Reader
-            Dim Returned As String = ""
-            Do
-                If Reader.HasRows Then
-                    Returned = "<table " & Attr.Join(" ") & ">"
-
-                    Returned.Append(" <thead>")
-                    Returned.Append("     <tr>")
-                    For Each item As String In Reader.GetColumns()
-                        Returned.Append("         <th>" & item & "</th>")
-                    Next
-                    Returned.Append("     </tr>")
-                    Returned.Append(" </thead>")
-                    Returned.Append(" <tbody>")
-                    While Reader.Read()
-                        Returned.Append("     <tr>")
-                        For Each item As String In Reader.GetColumns()
-                            Returned.Append(" <td>" & Reader(item) & "</td>")
-                        Next
-                        Returned.Append("     </tr>")
-                    End While
-                    Returned.Append(" </tbody>")
-                    Returned.Append(" </table>")
-                End If
-            Loop While Reader.NextResult()
-            Return Returned
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Converte um DataReader para uma lista de DataTables
-    ''' </summary>
-    ''' <param name="Reader">Reader</param>
-    ''' <returns>Uma lista com todas as DataTables</returns>
-    <Extension()>
-    Public Function ToDataTable(Reader As DbDataReader) As DataTable
-        Using Reader
-            Dim tbRetorno As DataTable = New DataTable
-            Dim tbEsquema As DataTable = Reader.GetSchemaTable
-            For Each r As DataRow In tbEsquema.Rows
-                If Not tbRetorno.Columns.Contains(r("ColumnName")) Then
-                    Dim col As New DataColumn
-                    col.ColumnName = r("ColumnName").ToString
-                    col.Unique = Convert.ToBoolean(r("IsUnique"))
-                    col.AllowDBNull = Convert.ToBoolean(r("AllowDbNull"))
-                    col.ReadOnly = Convert.ToBoolean(r("IsReadOnly"))
-                    tbRetorno.Columns.Add(col)
-                End If
-            Next
-
-            While Reader.Read
-                Dim novaLinha As DataRow = tbRetorno.NewRow
-                For i As Integer = 0 To tbRetorno.Columns.Count - 1
-                    novaLinha(i) = Reader.GetValue(i)
-                Next
-                tbRetorno.Rows.Add(novaLinha)
-            End While
-            Return tbRetorno
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Aplica os valores encontrados nas colunas de um DataReader em inputs com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="Inputs">Controles que serão Manipulados</param>
-    ''' <returns>Um array contendo os inputs manipulados</returns>
-    <Extension()>
-    Public Function ApplyToInputs(Reader As DbDataReader, ParamArray Inputs() As HtmlInputControl) As HtmlInputControl()
-
-        For Each c In Inputs
-            Try
-                c.Value = Reader(c.ID).ToString()
-            Catch ex As Exception
-            End Try
-        Next
-        Return Inputs
-
-    End Function
-
-    ''' <summary>
-    ''' Aplica os valores encontrados nas colunas de um DataReader em selects com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="Selects">Controles que serão Manipulados</param>
-    ''' <returns>Um array contendo os selects manipulados</returns>
-    <Extension>
-    Public Function ApplyToSelects(Reader As DbDataReader, ParamArray Selects() As HtmlSelect) As HtmlSelect()
-
-        For Each c In Selects
-                Try
-                    c.Value = Reader(c.ID).ToString()
-                Catch ex As Exception
-                End Try
-            Next
-            Return Selects
-
-    End Function
-
-    ''' <summary>
-    ''' Aplica os valores encontrados nas colunas de um DataReader como texto de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="Controls">Controles que serão Manipulados</param>
-    ''' <returns>Um array contendo os controles HTML manipulados</returns>
-    <Extension>
-    Public Function ApplyToControls(Reader As DbDataReader, ParamArray Controls() As HtmlGenericControl) As HtmlGenericControl()
-
-        For Each c In Controls
-                Try
-                    c.InnerText = Reader(c.ID).ToString()
-                Catch ex As Exception
-                End Try
-            Next
-            Return Controls
-
-    End Function
-
-    ''' <summary>
-    ''' Aplica os valores encontrados nas colunas de um DataReader como texto de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
-    ''' </summary>
-    ''' <param name="Reader">DataReader</param>
-    ''' <param name="TextAreas">Controles que serão Manipulados</param>
-    ''' <returns>Um array contendo as Textareas manipuladas</returns>
-    <Extension>
-    Public Function ApplyToTextAreas(Reader As DbDataReader, ParamArray TextAreas() As HtmlTextArea) As HtmlTextArea()
-
-        For Each c In TextAreas
-                Try
-                    c.InnerText = Reader(c.ID).ToString()
-                Catch ex As Exception
-                End Try
-            Next
-            Return TextAreas
-
-    End Function
-
-    ''' <summary>
-    ''' Adiciona um parametro de Arquivo no commando 
-    ''' </summary>
-    ''' <param name="Command">Comando</param>
-    ''' <param name="FileParameter">Parametro de arquivo</param>
-    ''' <param name="File">Array de bytes</param>
-    ''' <returns></returns>
-    <Extension()> Public Function AddFile(ByRef Command As DbCommand, FileParameter As String, File As Byte()) As DbCommand
-        Dim param = Command.CreateParameter()
-        param.ParameterName = If(FileParameter.StartsWith("@"), FileParameter, "@" & FileParameter)
-        param.DbType = DbType.Binary
-        param.Value = File
-        Command.Parameters.Add(param)
-        Return Command
-    End Function
-
-    ''' <summary>
-    ''' Adiciona um parametro de Arquivo no commando 
-    ''' </summary>
-    ''' <param name="Command">Comando</param>
-    ''' <param name="FileParameter">Parametro de arquivo</param>
-    ''' <param name="File">Arquivo postado</param>
-    ''' <returns></returns>
-    <Extension()> Public Function AddFile(ByRef Command As DbCommand, FileParameter As String, File As HttpPostedFile) As DbCommand
-        Return AddFile(Command, FileParameter, File.ToBytes)
-    End Function
-
-    ''' <summary>
-    ''' Adiciona um parametro de Arquivo no commando 
-    ''' </summary>
-    ''' <param name="Command">Comando</param>
-    ''' <param name="FileParameter">Parametro de arquivo</param>
-    ''' <param name="File">Arquivo postado</param>
-    ''' <returns></returns>
-    <Extension()> Public Function AddFile(ByRef Command As DbCommand, FileParameter As String, File As FileInfo) As DbCommand
-        Return AddFile(Command, FileParameter, File.ToBytes)
-    End Function
-
-
-
-
-End Module
 
 ''' <summary>
 ''' Conjunto de configuraçoes de procedures para ser executado em sequencia

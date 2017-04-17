@@ -15,9 +15,6 @@ Imports System.Xml
 ''' </summary>
 Public NotInheritable Class AJAX
 
-
-
-
     ''' <summary>
     ''' Retorna o conteúdo de uma página
     ''' </summary>
@@ -46,10 +43,11 @@ Public NotInheritable Class AJAX
                     Case GetType(Byte)
                         Return responsebytes
                     Case GetType(XmlDocument)
-                        Dim ms As New MemoryStream(responsebytes)
-                        Dim x As New XmlDocument
-                        x.Load(ms)
-                        Return x
+                        Using ms As New MemoryStream(responsebytes)
+                            Dim x As New XmlDocument
+                            x.Load(ms)
+                            Return x
+                        End Using
                     Case GetType(Image), GetType(Bitmap)
                         Dim ms As New MemoryStream(responsebytes)
                         Return Image.FromStream(ms)
@@ -58,7 +56,7 @@ Public NotInheritable Class AJAX
                 End Select
             End Using
         Else
-            Throw New Exception("URL inválida")
+            Throw New Exception("Invalid URL")
             Return Nothing
         End If
     End Function
@@ -437,6 +435,27 @@ Public Module Web
 
     End Sub
 
+    ''' <summary>
+    ''' Captura o Username ou UserID de uma URL do Facebook
+    ''' </summary>
+    ''' <param name="URL">URL do Facebook</param>
+    ''' <returns></returns>
+    Public Function GetFacebookUsername(URL As String) As String
+        If URL.IsURL AndAlso URL.GetDomain.ToLower = "facebook.com" Then
+            Return Regex.Match(URL, "(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups(1).Value
+        Else
+            Throw New Exception("Invalid Facebook URL")
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Captura o Username ou UserID de uma URL do Facebook
+    ''' </summary>
+    ''' <param name="URL">URL do Facebook</param>
+    ''' <returns></returns>
+    Public Function GetFacebookUsername(URL As Uri) As String
+        Return GetFacebookUsername(URL.AbsoluteUri)
+    End Function
 
     ''' <summary>
     ''' Captura o ID de um video do youtube em uma URL
@@ -445,10 +464,10 @@ Public Module Web
     ''' <returns>ID do video do youtube</returns>
 
     Public Function GetYoutubeVideoId(URL As String) As String
-        If URL.IsURL Then
+        If URL.IsURL AndAlso URL.GetDomain.ContainsAny("youtube", "youtu") Then
             Return Regex.Match(URL.Replace("&feature=youtu.be"), "(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups(1).Value
         Else
-            Throw New Exception("URL Inválida")
+            Throw New Exception("Invalid Youtube URL")
         End If
     End Function
 

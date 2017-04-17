@@ -11,6 +11,13 @@ Namespace SQLExplorer
     Public Class FileSystemSQL
         Inherits List(Of FileSystemInfo)
 
+        Public Property LatestFile As FileInfo
+
+
+        ''' <summary>
+        ''' Cria uma nova busca SQL em um diretório
+        ''' </summary>
+        ''' <param name="SQLQuery"></param>
         Public Sub New(SQLQuery As String)
             SQLQuery = SQLQuery.AdjustWhiteSpaces
             Dim wheres As String = ""
@@ -24,22 +31,22 @@ Namespace SQLExplorer
                             Case SQLQuery.ContainsAny(" WHERE ", " where ") And SQLQuery.ContainsAny(" INTO ".Quote, " into ".Quote)
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)INTO\s(.*)WHERE\s([^>]*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
                                 intofile = r.Groups(3).Value.GetWrappedText().First
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
                                 wheres = r.Groups(4).Value
                                 Exit Select
                             Case SQLQuery.ContainsAny(" INTO ".Quote, " into ".Quote)
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)INTO\s(.*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
                                 intofile = r.Groups(3).Value.GetWrappedText(True).First
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
                                 Exit Select
                             Case SQLQuery.ContainsAny(" WHERE ", " where ")
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)WHERE\s([^>]*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
                                 wheres = r.Groups(3).Value
                                 Exit Select
                             Case Else
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
                         End Select
 
                         Dim searching As SearchOption
@@ -85,6 +92,7 @@ Namespace SQLExplorer
 
 
                         If intofile.IsNotBlank Then
+                            LatestFile = New FileInfo(intofile)
                             Select Case True
                                 Case intofile.IsDirectory
                                     For Each f As FileSystemInfo In Me
@@ -108,8 +116,18 @@ Namespace SQLExplorer
                                             memoryStream.CopyTo(fileStream)
                                         End Using
                                     End Using
-                                Case New FileInfo(intofile).Extension.IsAny(".json", ".txt")
+                                Case New FileInfo(intofile).Extension.IsAny(".json")
                                     Me.SerializeJSON.WriteToFile(intofile)
+                                Case New FileInfo(intofile).Extension.IsAny(".html")
+                                    Dim html As String = ""
+                                    For Each f In Me
+                                        html.Append(f.FullName.WrapInTag("li"))
+                                    Next
+                                    html = html.WrapInTag("ul")
+                                    html.Prepend(WrapInTag("Result of " & SQLQuery.Quote, "h1"))
+                                    html = html.WrapInTag("body")
+                                    html.WriteToFile(intofile)
+                                Case Else
                             End Select
                         End If
                     Case SQLQuery.StartsWith("DROP", StringComparison.CurrentCultureIgnoreCase), SQLQuery.StartsWith("DELETE", StringComparison.CurrentCultureIgnoreCase)

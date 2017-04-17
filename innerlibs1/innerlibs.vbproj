@@ -82,6 +82,7 @@
     <Compile Include="Console.vb" />
     <Compile Include="DataGridViewManager.vb" />
     <Compile Include="DataGridViewProgressCell.vb" />
+    <Compile Include="DataManipulation.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="Dictionary.vb" />
     <Compile Include="Files.vb" />

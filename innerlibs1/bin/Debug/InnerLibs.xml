@@ -456,6 +456,62 @@ InnerLibs
  <param name="MyObject">Lista de Itens do mesmo Tipo</param>
  <typeparam name="Type">Tipo de Item</typeparam>
 </member>
+<member name="M:InnerLibs.DataManipulation.GetDbType(System.Object)">
+ <summary>
+ Retorna o DbType de acordo com o tipo do objeto
+ </summary>
+ <param name="Obj"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.AppendSQLParameter(System.String@,System.String,System.String)">
+ <summary>
+ Concatena um parametro a uma string de comando SQL
+ </summary>
+ <param name="Command">Comando sql</param>
+ <param name="Key">nome do parametro</param>
+ <param name="Value">valor do parametro</param>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToDataTableReader(System.String[])">
+ <summary>
+ Converte um Array para um DataTableReader de 1 Coluna
+ </summary>
+ <param name="Input">Array com 1 coluna a ser convertida</param>
+ <returns>Um DataReader de 1 Coluna</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Web.HttpPostedFile)">
+ <summary>
+ Adiciona um parametro de Arquivo no commando 
+ </summary>
+ <param name="Command">Comando</param>
+ <param name="FileParameter">Parametro de arquivo</param>
+ <param name="File">Arquivo postado</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.IO.FileInfo)">
+ <summary>
+ Adiciona um parametro de Arquivo no commando 
+ </summary>
+ <param name="Command">Comando</param>
+ <param name="FileParameter">Parametro de arquivo</param>
+ <param name="File">Arquivo postado</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Byte[])">
+ <summary>
+ Adiciona um parametro de Arquivo no commando 
+ </summary>
+ <param name="Command">Comando</param>
+ <param name="FileParameter">Parametro de arquivo</param>
+ <param name="File">Array de bytes</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToDataSet(System.String[])">
+ <summary>
+ Converte um Array para um DataSet de 1 Coluna
+ </summary>
+ <param name="Input">Array com 1 coluna a ser convertida</param>
+ <returns>um DataSet de 1 Coluna</returns>
+</member>
 <member name="T:InnerLibs.DiceRoller">
  <summary>
  Combinação de varios dados de RPG que podem ser rolados ao mesmo tempo
@@ -1055,6 +1111,145 @@ InnerLibs
  <param name="Request">Request GET ou POST</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.DataBase.Reader.NextResult">
+ <summary>
+ Avança para o próximo resultado
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.PreviousResult">
+ <summary>
+ Retorna para os resultados anteriores
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.Read">
+ <summary>
+ Avança para o próximo registro, é um alias para <see cref="M:InnerLibs.DataBase.Reader.GoForward"/>
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.GoBack">
+ <summary>
+ Retornar para o registro anterior
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.GoForward">
+ <summary>
+ Avança para o próximo registro
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToListItems(System.String,System.String)">
+ <summary>
+ Cria um array com os Itens de um DataBaseReader
+ </summary>
+ <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
+ <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.GetColumnValue``1(System.String)">
+ <summary>
+ Retorna o valor de uma coluna especifica da primeira linha do primeiro resultado de um DataBaseReader
+ </summary>
+ <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
+ <param name="Column">Coluna</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToDictionary``2(System.String,System.String)">
+ <summary>
+ Cria um Dictionary com os 2 Itens de um DataBaseReader
+ </summary>
+ <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
+ <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToTextValueList``1(System.String,System.String)">
+ <summary>
+ Cria uma lista de pares com os Itens de um DataBaseReader
+ </summary>
+ <param name="TextColumn">Coluna que será usada como Text do item</param>
+ <param name="ValueColumn">Coluna que será usada como Value do item</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToQueryString">
+ <summary>
+ Transforma o resultado de um DataBaseReader em QueryString
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToDelimitedString(System.String,System.String,System.String)">
+ <summary>
+ Transforma um DataBaseReader em uma string delimitada por caracteres
+ </summary>
+ <param name="ColDelimiter">Delimitador de Coluna</param>
+ <param name="RowDelimiter">Delimitador de Linha</param>
+ <param name="TableDelimiter">Delimitador de Tabelas</param>
+ <returns>Uma string delimitada</returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToXML(System.String,System.String)">
+ <summary>
+ Converte um DataBaseReader em XML
+ </summary>
+ <param name="ItemName">Nome do nó que representa cada linha</param>
+ '<param name="TableName">Nome do nó principal do documento</param>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToCSV(System.String)">
+ <summary>
+ Converte um DataBaseReader em CSV
+ </summary>
+ <param name="Separator">Separador de valores (vírgula)</param>
+ <returns>uma string Comma Separated Values (CSV)</returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToSession(System.Web.SessionState.HttpSessionState,System.Int32)">
+ <summary>
+ Copia a primeira linha de um DataBaseReader para uma sessão HttpSessionState usando os nomes das colunas como os nomes dos objetos da sessão
+ </summary>
+ <param name="Session">Objeto da sessão</param>
+ <param name="Timeout">Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)</param>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToMarkdown">
+ <summary>
+ Converte um DataBaseReader para uma tabela em Markdown Pipe
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToHTMLTable(System.String[])">
+ <summary>
+ Converte um DataBaseReader para uma tabela em HTML
+ </summary>
+ <param name="Attr">Atributos da tabela. Recomenda-se o uso de classes</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ApplyToInputs(System.Web.UI.HtmlControls.HtmlInputControl[])">
+ <summary>
+ Aplica os valores encontrados nas colunas de um DataBaseReader em inputs com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
+ </summary>
+ <param name="Inputs">Controles que serão Manipulados</param>
+ <returns>Um array contendo os inputs manipulados</returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ApplyToSelects(System.Web.UI.HtmlControls.HtmlSelect[])">
+ <summary>
+ Aplica os valores encontrados nas colunas de um DataBaseReader em selects com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
+ </summary>
+ <param name="Selects">Controles que serão Manipulados</param>
+ <returns>Um array contendo os selects manipulados</returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ApplyToControls(System.Web.UI.HtmlControls.HtmlGenericControl[])">
+ <summary>
+ Aplica os valores encontrados nas colunas de um DataBaseReader como texto de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+ </summary>
+ <param name="Controls">Controles que serão Manipulados</param>
+ <returns>Um array contendo os controles HTML manipulados</returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ApplyToTextAreas(System.Web.UI.HtmlControls.HtmlTextArea[])">
+ <summary>
+ Aplica os valores encontrados nas colunas de um DataBaseReader como texto de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+ </summary>
+ <param name="TextAreas">Controles que serão Manipulados</param>
+ <returns>Um array contendo as Textareas manipuladas</returns>
+</member>
 <member name="P:InnerLibs.DataBase.ConnectionString">
  <summary>
  Conexão genérica (Oracle, MySQL, SQLServer etc.)
@@ -1086,21 +1281,21 @@ InnerLibs
  Executa uma Query no banco. Recomenda-se o uso de procedures.
  </summary>
  <param name="SQLQuery">Comando SQL a ser executado</param>
- <returns>Um DataReader com as informações da consulta</returns>
+ <returns>Um DataBaseReader com as informações da consulta</returns>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.IO.FileInfo)">
  <summary>
  Executa uma Query no banco partir de um Arquivo.
  </summary>
  <param name="File">Arquivo com o comando SQL a ser executado</param>
- <returns>Um DataReader com as informações da consulta</returns>
+ <returns>Um DataBaseReader com as informações da consulta</returns>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.Web.HttpPostedFile)">
  <summary>
  Executa uma Query no banco partir de um Arquivo.
  </summary>
  <param name="File">Arquivo com o comando SQL a ser executado</param>
- <returns>Um DataReader com as informações da consulta</returns>
+ <returns>Um DataBaseReader com as informações da consulta</returns>
 </member>
 <member name="M:InnerLibs.DataBase.RunProcedureForEach(System.String,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String[])">
  <summary>
@@ -1134,7 +1329,7 @@ InnerLibs
  <param name="SQLQuery">Comando SQL a ser executado</param>
  <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
  <param name="File">Arquivo</param>
- <returns>Um DataReader com as informações da consulta</returns>
+ <returns>Um DataBaseReader com as informações da consulta</returns>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.Web.HttpPostedFile)">
  <summary>
@@ -1143,7 +1338,7 @@ InnerLibs
  <param name="SQLQuery">Comando SQL a ser executado</param>
  <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
  <param name="File">Arquivo postado</param>
- <returns>Um DataReader com as informações da consulta</returns>
+ <returns>Um DataBaseReader com as informações da consulta</returns>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.IO.FileInfo)">
  <summary>
@@ -1152,7 +1347,7 @@ InnerLibs
  <param name="SQLQuery">Comando SQL a ser executado</param>
  <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
  <param name="File">Arquivo</param>
- <returns>Um DataReader com as informações da consulta</returns>
+ <returns>Um DataBaseReader com as informações da consulta</returns>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.Data.Common.DbCommand)">
  <summary>
@@ -1167,7 +1362,7 @@ InnerLibs
  </summary>
  <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
  <param name="Parameters">Parametros que serão adicionados ao comando</param>
- <returns>Um DataReader com as informações da consulta</returns> 
+ <returns>Um DataBaseReader com as informações da consulta</returns> 
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(InnerLibs.TableQuickConnector,InnerLibs.TableQuickConnector.Action,System.String)">
  <summary>
@@ -1292,264 +1487,6 @@ InnerLibs
  Retorna um comando de SELECT na tabela utilizando os campos como nome das colunas
  </summary>
  <param name="WHereConditions">Condiçoes WHERE da Query</param>
- <returns></returns>
-</member>
-<member name="T:InnerLibs.DataManipulation">
- <summary>
- Módulo de manipulaçao de Datareaders
- </summary>
-</member>
-<member name="M:InnerLibs.DataManipulation.GetDbType(System.Object)">
- <summary>
- Retorna o DbType de acordo com o tipo do objeto
- </summary>
- <param name="Obj"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToListItems(System.Data.Common.DbDataReader,System.String,System.String)">
- <summary>
- Cria um array com os Itens de um DataReader
- </summary>
- <param name="Reader">DataReader</param>
- <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
- <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.GetColumnValue``1(System.Data.Common.DbDataReader,System.String)">
- <summary>
- Retorna o valor de uma coluna especifica da primeira linha do primeiro resultado de um DataReader
- </summary>
- <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
- <param name="Reader">Reader</param>
- <param name="Column">Coluna</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToDictionary``2(System.Data.Common.DbDataReader,System.String,System.String)">
- <summary>
- Cria um Dictionary com os 2 Itens de um DataReader
- </summary>
- <param name="Reader">DataReader</param>
- <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
- <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToTextValueList``1(System.Data.Common.DbDataReader,System.String,System.String)">
- <summary>
- Cria uma lista de pares com os Itens de um DataReader
- </summary>
- <param name="Reader">DataReader</param>
- <param name="TextColumn">Coluna que será usada como Text do item</param>
- <param name="ValueColumn">Coluna que será usada como Value do item</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.GetDataBasesFactoryClasses">
- <summary>
- Traz uma lista das possíveis conexões de Bancos de Dados
- </summary>
- <returns>Uma DataTable com todas as factories de Banco de dados</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.AppendSQLParameter(System.String@,System.String,System.String)">
- <summary>
- Concatena um parametro a uma string de comando SQL
- </summary>
- <param name="Command">Comando sql</param>
- <param name="Key">nome do parametro</param>
- <param name="Value">valor do parametro</param>
-</member>
-<member name="M:InnerLibs.DataManipulation.CountRows(System.Data.Common.DbDataReader)">
- <summary>
- Conta o numero de linhas de um DbDatareader
- </summary>
- <param name="Reader">OleDbDataReader</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToDataTableReader(System.String[])">
- <summary>
- Converte um Array para um DataTableReader de 1 Coluna
- </summary>
- <param name="Input">Array com 1 coluna a ser convertida</param>
- <returns>Um DataReader de 1 Coluna</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToDataSet(System.String[])">
- <summary>
- Converte um Array para um DataSet de 1 Coluna
- </summary>
- <param name="Input">Array com 1 coluna a ser convertida</param>
- <returns>um DataSet de 1 Coluna</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToQueryString(System.Data.Common.DbDataReader)">
- <summary>
- Transforma o resultado de um DataReader em QueryString
- </summary>
- <param name="Reader">Data Reader</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.GetColumns(System.Data.Common.DbDataReader)">
- <summary>
- Retorna uma Lista com todas as colunas de um DataReader
- </summary>
- <param name="Reader">Reader</param>
- <returns>uma Lista de strings com os nomes das colunas</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToDelimitedString(System.Data.Common.DbDataReader,System.String,System.String,System.String)">
- <summary>
- Transforma um DataReader em uma string delimitada por caracteres
- </summary>
- <param name="Reader">DataReader</param>
- <param name="ColDelimiter">Delimitador de Coluna</param>
- <param name="RowDelimiter">Delimitador de Linha</param>
- <param name="TableDelimiter">Delimitador de Tabelas</param>
- <returns>Uma string delimitada</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToXML(System.Data.Common.DbDataReader,System.String,System.String)">
- <summary>
- Converte um DataReader em XML
- </summary>
- <param name="Reader">DataReader</param>
- <param name="ItemName">Nome do nó que representa cada linha</param>
- '<param name="TableName">Nome do nó principal do documento</param>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToCSV(System.Data.Common.DbDataReader,System.String)">
- <summary>
- Converte um DataReader em CSV
- </summary>
- <param name="Reader">DataReader</param>
- <param name="Separator">Separador de valores (vírgula)</param>
- <returns>uma string Comma Separated Values (CSV)</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToSession(System.Data.Common.DbDataReader,System.Web.SessionState.HttpSessionState,System.Int32)">
- <summary>
- Copia a primeira linha de um DataReader para uma sessão HttpSessionState usando os nomes das colunas como os nomes dos objetos da sessão
- </summary>
- <param name="Reader">DataReader</param>
- <param name="Session">Objeto da sessão</param>
- <param name="Timeout">Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)</param>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToJSON(System.Data.Common.DbDataReader)">
- <summary>
- Converte um DataReader para Javascript Object Notation 
- </summary>
- <param name="Reader">DataReader</param>
- <returns>String JSON</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToJSON(System.Data.Common.DbDataReader,System.Int32)">
- <summary>
- Converte um DataReader para Javascript Object Notation 
- </summary>
- <param name="Reader">DataReader</param>
- <param name="ResultIndex">Indice de resultado</param>
- <returns>String JSON</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToList``1(System.Data.Common.DbDataReader,System.Int32)">
- <summary>
- Converte um  DataReader para uma Lista serializada de um objeto especifico
- </summary>
- <typeparam name="Type"></typeparam>
- <param name="Reader">DataReader</param>
- <param name="ResultIndex"></param>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToItem``1(System.Data.Common.DbDataReader,System.Int32)">
- <summary>
- Pega o primeiro item (linha) do resultado e serializa em um objeto especifico
- </summary>
- <typeparam name="Type">Tipo de objeto</typeparam>
- <param name="Reader">DataReader</param>
- <param name="ResultIndex">Index do resultset que será serializado (normalmente 0)</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToDictionary(System.Data.Common.DbDataReader)">
- <summary>
- Converte um DataReader para Uma Lista de Listas de Dicionario
- </summary>
- <param name="Reader">DataReader</param>
- <returns>String JSON</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToDictionary(System.Data.Common.DbDataReader,System.Int32)">
- <summary>
- Converte um DataReader para uma Lista de Dicionarios
- </summary>
- <param name="Reader">DataReader</param>
- <param name="ResultIndex">Indice de resultado</param>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToMarkdown(System.Data.Common.DbDataReader)">
- <summary>
- Converte um DataReader para uma tabela em Markdown Pipe
- </summary>
- <param name="Reader">Reader</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToHTMLTable(System.Data.Common.DbDataReader,System.String[])">
- <summary>
- Converte um DataReader para uma tabela em HTML
- </summary>
- <param name="Reader">Reader</param>
- <param name="Attr">Atributos da tabela. Recomenda-se o uso de classes</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ToDataTable(System.Data.Common.DbDataReader)">
- <summary>
- Converte um DataReader para uma lista de DataTables
- </summary>
- <param name="Reader">Reader</param>
- <returns>Uma lista com todas as DataTables</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ApplyToInputs(System.Data.Common.DbDataReader,System.Web.UI.HtmlControls.HtmlInputControl[])">
- <summary>
- Aplica os valores encontrados nas colunas de um DataReader em inputs com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
- </summary>
- <param name="Reader">DataReader</param>
- <param name="Inputs">Controles que serão Manipulados</param>
- <returns>Um array contendo os inputs manipulados</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ApplyToSelects(System.Data.Common.DbDataReader,System.Web.UI.HtmlControls.HtmlSelect[])">
- <summary>
- Aplica os valores encontrados nas colunas de um DataReader em selects com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
- </summary>
- <param name="Reader">DataReader</param>
- <param name="Selects">Controles que serão Manipulados</param>
- <returns>Um array contendo os selects manipulados</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ApplyToControls(System.Data.Common.DbDataReader,System.Web.UI.HtmlControls.HtmlGenericControl[])">
- <summary>
- Aplica os valores encontrados nas colunas de um DataReader como texto de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
- </summary>
- <param name="Reader">DataReader</param>
- <param name="Controls">Controles que serão Manipulados</param>
- <returns>Um array contendo os controles HTML manipulados</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.ApplyToTextAreas(System.Data.Common.DbDataReader,System.Web.UI.HtmlControls.HtmlTextArea[])">
- <summary>
- Aplica os valores encontrados nas colunas de um DataReader como texto de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
- </summary>
- <param name="Reader">DataReader</param>
- <param name="TextAreas">Controles que serão Manipulados</param>
- <returns>Um array contendo as Textareas manipuladas</returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Byte[])">
- <summary>
- Adiciona um parametro de Arquivo no commando 
- </summary>
- <param name="Command">Comando</param>
- <param name="FileParameter">Parametro de arquivo</param>
- <param name="File">Array de bytes</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Web.HttpPostedFile)">
- <summary>
- Adiciona um parametro de Arquivo no commando 
- </summary>
- <param name="Command">Comando</param>
- <param name="FileParameter">Parametro de arquivo</param>
- <param name="File">Arquivo postado</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.IO.FileInfo)">
- <summary>
- Adiciona um parametro de Arquivo no commando 
- </summary>
- <param name="Command">Comando</param>
- <param name="FileParameter">Parametro de arquivo</param>
- <param name="File">Arquivo postado</param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.BatchProcedure">
@@ -1701,7 +1638,7 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build(System.String,System.String)">
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build``1(System.String,System.String)">
  <summary>
  Processa os comandos SQL e retorna o resultado em HTML utilizando o arquivo de template especificado
  </summary>
@@ -1841,6 +1778,12 @@ InnerLibs
  <summary>
  Busca arquivos em um diretório utilizando SQL
  </summary>
+</member>
+<member name="M:InnerLibs.SQLExplorer.FileSystemSQL.#ctor(System.String)">
+ <summary>
+ Cria uma nova busca SQL em um diretório
+ </summary>
+ <param name="SQLQuery"></param>
 </member>
 <member name="T:InnerLibs.TimeMachine.TimeFlow">
  <summary>
@@ -5654,6 +5597,20 @@ Atualiza a lista de keys
  </summary>
  <param name="Response">HttpResponse</param>
  <param name="ScriptOrURL">Texto ou URL absoluta do Script</param>
+</member>
+<member name="M:InnerLibs.Web.GetFacebookUsername(System.String)">
+ <summary>
+ Captura o Username ou UserID de uma URL do Facebook
+ </summary>
+ <param name="URL">URL do Facebook</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFacebookUsername(System.Uri)">
+ <summary>
+ Captura o Username ou UserID de uma URL do Facebook
+ </summary>
+ <param name="URL">URL do Facebook</param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.GetYoutubeVideoId(System.String)">
  <summary>

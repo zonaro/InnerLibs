@@ -1830,7 +1830,7 @@ Public Module Text
         Dim startIndex As Integer = beforeStartIndex + Before.Length
         Dim afterStartIndex As Integer = Text.IndexOf(After, startIndex)
 
-        If beforeStartIndex = -1 OrElse afterStartIndex = -1 Then
+        If beforeStartIndex < 0 OrElse afterStartIndex < 0 Then
             Return Text
         End If
 
@@ -1846,8 +1846,10 @@ Public Module Text
         Dim lista As New List(Of String)
         Dim regx = ""
         Select Case Character
-            Case """", "'"
-                regx = "([""'])(?:(?=(\\?))\2.)*?\1"
+            Case """"
+                regx = "\""(.*?)\"""
+            Case "'"
+                regx = "\'(.*?)\'"
             Case "(", ")"
                 Character = "("
                 regx = "\((.*?)\)"
@@ -1861,7 +1863,8 @@ Public Module Text
                 Character = "<"
                 regx = "\<(.*?)\>"
             Case Else
-                Throw New Exception("Invalid Wrap Character")
+                Character = Character.GetFirstChars
+                regx = "\" & Character & "(.*?)\" & Character
         End Select
 
         For Each a As Match In New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
