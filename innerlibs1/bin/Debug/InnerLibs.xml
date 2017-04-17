@@ -1149,6 +1149,19 @@ InnerLibs
  <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.DataBase.Reader.ToList``1(System.String)">
+ <summary>
+ Cria uma lista de com os Itens de um DataBaseReader
+ </summary>
+ <param name="Column">Coluna que será usada</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToList``1">
+ <summary>
+ Cria uma lista de com os Itens de um DataBaseReader
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataBase.Reader.GetColumnValue``1(System.String)">
  <summary>
  Retorna o valor de uma coluna especifica da primeira linha do primeiro resultado de um DataBaseReader

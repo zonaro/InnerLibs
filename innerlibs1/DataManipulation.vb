@@ -3,7 +3,7 @@ Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Web
 
-Module DataManipulation
+Public Module DataManipulation
 
     ''' <summary>
     ''' Retorna o DbType de acordo com o tipo do objeto

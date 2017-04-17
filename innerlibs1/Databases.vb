@@ -26,6 +26,15 @@ Public NotInheritable Class DataBase
             GC.SuppressFinalize(Me)
         End Sub
 
+        Public Sub Close()
+            Me.Dispose()
+        End Sub
+
+        Public ReadOnly Property IsClosed
+            Get
+                Return MyBase.Count = 0
+            End Get
+        End Property
 
         Public Function GetColumns() As List(Of String)
             Return MyBase.Item(resultindex)(0).Keys.ToList
@@ -49,7 +58,11 @@ Public NotInheritable Class DataBase
             End Get
         End Property
 
-        Public Property HasRows As Boolean
+        Public ReadOnly Property HasRows As Boolean
+            Get
+                Return MyBase.Item(resultindex).Count > 0
+            End Get
+        End Property
 
         Function ToJSON() As String
             Return Me.SerializeJSON
@@ -164,6 +177,42 @@ Public NotInheritable Class DataBase
             End If
             Return h.ToArray
 
+        End Function
+
+
+        ''' <summary>
+        ''' Cria uma lista de com os Itens de um DataBaseReader
+        ''' </summary>
+        ''' <param name="Column">Coluna que será usada</param>
+        ''' <returns></returns>
+        Public Function ToList(Of TValue)(Column As String) As List(Of TValue)
+            Dim h As New List(Of TValue)
+            If Me.HasRows Then
+                While Me.Read()
+                    h.Add(DirectCast(Me(Column), TValue))
+                End While
+            End If
+            Return h
+        End Function
+
+        ''' <summary>
+        ''' Cria uma lista de com os Itens de um DataBaseReader
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ToList(Of TValue)() As List(Of TValue)
+            Dim h As New List(Of TValue)
+            If Me.HasRows Then
+                While Me.Read()
+                    Dim i = Activator.CreateInstance(Of TValue)
+                    For Each prop As PropertyInfo In GetType(TValue).GetProperties
+                        If prop.CanWrite Then
+                            prop.SetValue(i, Me(prop.Name))
+                        End If
+                    Next
+                    h.Add(i)
+                End While
+            End If
+            Return h
         End Function
 
         ''' <summary>
