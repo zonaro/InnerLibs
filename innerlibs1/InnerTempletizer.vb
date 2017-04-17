@@ -112,15 +112,15 @@ Namespace Templatizer
                     Next
                     Select Case GetType(Type)
                         Case GetType(String)
-                            response.Append(copia)
+                            response = response & copia
                         Case GetType(List(Of String))
-                            response.add(copia)
+                            response.Add(copia)
                     End Select
                 End While
             End Using
             Select Case GetType(Type)
                 Case GetType(String)
-                    response.Append(header)
+                    response = response & header
                 Case GetType(List(Of String))
                     response.Add(header)
             End Select

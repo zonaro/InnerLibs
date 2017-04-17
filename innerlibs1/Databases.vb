@@ -83,7 +83,9 @@ Public NotInheritable Class DataBase
                     While Reader.Read
                         Dim lista As New Dictionary(Of String, Object)
                         For Each col In columns
-                            lista.Add(col, Reader(col))
+                            If Not lista.Keys.Contains(col) Then
+                                lista.Add(col, Reader(col))
+                            End If
                         Next
                         listatabela.Add(lista)
                     End While
