@@ -1218,6 +1218,17 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Incrementa em 1 ou mais um numero inteiro
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <param name="Amount">QUantidade adicionada</param>
+    <Extension()>
+    Public Function Increment(ByRef Number As Long, Optional Amount As Integer = 1) As Integer
+        Number = Number + Amount.SetMinValue(1)
+        Return Number
+    End Function
+
+    ''' <summary>
     ''' Adiciona texto ao começo de uma string
     ''' </summary>
     ''' <param name="Text">Texto</param>
@@ -1245,6 +1256,17 @@ Public Module Text
     ''' `<param name="Amount">QUantidade que será removida</param>
     <Extension()>
     Public Function Decrement(ByRef Number As Integer, Optional Amount As Integer = 1) As Integer
+        Number = Number - Amount.SetMinValue(1)
+        Return Number
+    End Function
+
+    ''' <summary>
+    ''' Decrementa em 1 ou mais um numero inteiro
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' `<param name="Amount">QUantidade que será removida</param>
+    <Extension()>
+    Public Function Decrement(ByRef Number As Long, Optional Amount As Integer = 1) As Integer
         Number = Number - Amount.SetMinValue(1)
         Return Number
     End Function

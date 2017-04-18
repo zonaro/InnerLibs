@@ -582,7 +582,7 @@ Public Class HtmlTag
         Return "<" & TagName & attribs & ">" & Content & "</" & TagName & ">"
     End Function
 
-    Sub FixIn(ByRef HtmlText As String)
+    Friend Sub FixIn(ByRef HtmlText As String)
         HtmlText = HtmlText.Replace(stringoriginal, Me.ToString)
     End Sub
 

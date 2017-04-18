@@ -1,49 +1,70 @@
-﻿Imports System
-Imports System.Collections.Specialized
+﻿Imports System.Collections.Specialized
 Imports System.Data.Common
-Imports System.Drawing
 Imports System.IO
 Imports System.Reflection
-Imports System.Runtime.CompilerServices
-Imports System.Text
 Imports System.Web
 Imports System.Web.SessionState
 Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
 Imports System.Windows.Forms
 Imports System.Xml
-Imports InnerLibs.DataBase
 
 Public NotInheritable Class DataBase
 
+    ''' <summary>
+    ''' Estrutura que 'implementa' um DataReader estático copiando o conteudo e permitindo leitura e releitura mesmo após o fechamento da conexão.
+    ''' </summary>
     Public NotInheritable Class Reader
         Inherits List(Of List(Of Dictionary(Of String, Object)))
         Implements IDisposable
 
+        ''' <summary>
+        ''' Esvazia o reader
+        ''' </summary>
         Public Sub Dispose() Implements IDisposable.Dispose
             MyBase.Clear()
             ' Suppress finalization.
             GC.SuppressFinalize(Me)
         End Sub
 
+        ''' <summary>
+        ''' Esvazia o reader
+        ''' </summary>
         Public Sub Close()
             Me.Dispose()
         End Sub
 
+        ''' <summary>
+        ''' Verifica se o Reader está vazio ou fechado (Count = 0)
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property IsClosed
             Get
                 Return MyBase.Count = 0
             End Get
         End Property
 
+        ''' <summary>
+        ''' Retorna as colunas do resultado atual
+        ''' </summary>
+        ''' <returns></returns>
         Public Function GetColumns() As List(Of String)
             Return MyBase.Item(resultindex)(0).Keys.ToList
         End Function
 
+        ''' <summary>
+        ''' Retorna o numero de linhas do resultado atual
+        ''' </summary>
+        ''' <returns></returns>
         Public Function CountRows() As Integer
             Return MyBase.Item(resultindex).Count
         End Function
 
+        ''' <summary>
+        ''' Retorna o valor da coluna do resultado e linha atual a partir do nome da coluna
+        ''' </summary>
+        ''' <param name="ColumnName">Nome da Coluna</param>
+        ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnName As String) As Object
             Get
                 If rowindex < 0 Then rowindex = 0
@@ -51,6 +72,11 @@ Public NotInheritable Class DataBase
             End Get
         End Property
 
+        ''' <summary>
+        ''' Retorna o valor da coluna do resultado e linha atual a partir do índice da coluna
+        ''' </summary>
+        ''' <param name="ColumnIndex">Índice da Coluna</param>
+        ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnIndex As Integer) As Object
             Get
                 If rowindex < 0 Then rowindex = 0
@@ -58,16 +84,29 @@ Public NotInheritable Class DataBase
             End Get
         End Property
 
+        ''' <summary>
+        ''' Verifica se o resultado atual possui linhas
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property HasRows As Boolean
             Get
                 Return MyBase.Item(resultindex).Count > 0
             End Get
         End Property
 
+        ''' <summary>
+        ''' Retorna um Json do Reader
+        ''' </summary>
+        ''' <returns></returns>
         Function ToJSON() As String
             Return Me.SerializeJSON
         End Function
 
+        ''' <summary>
+        ''' Retorna o Json do resultado especifico
+        ''' </summary>
+        ''' <param name="ResultIndex">Índice do resultado</param>
+        ''' <returns></returns>
         Function ToJSON(ResultIndex As Integer) As String
             Return MyBase.Item(ResultIndex).SerializeJSON
         End Function
@@ -99,6 +138,22 @@ Public NotInheritable Class DataBase
         Private rowindex As Integer = -1
 
         ''' <summary>
+        ''' Reinicia a leitura do Reader retornando os índices para seus valores padrão, é um alias para <see cref="Reset()"/>)
+        ''' </summary>
+        Public Sub StartOver()
+            resultindex = 0
+            rowindex = -1
+        End Sub
+
+        ''' <summary>
+        ''' Reinicia a leitura do Reader retornando os índices para seus valores padrão
+        ''' </summary>
+        Public Sub Reset()
+            StartOver()
+        End Sub
+
+
+        ''' <summary>
         ''' Avança para o próximo resultado
         ''' </summary>
         ''' <returns></returns>
@@ -113,7 +168,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Retorna para os resultados anteriores
+        ''' Retorna para os resultado anterior
         ''' </summary>
         ''' <returns></returns>
         Function PreviousResult() As Boolean

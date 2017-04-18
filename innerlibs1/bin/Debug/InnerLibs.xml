@@ -1111,6 +1111,82 @@ InnerLibs
  <param name="Request">Request GET ou POST</param>
  <returns></returns>
 </member>
+<member name="T:InnerLibs.DataBase.Reader">
+ <summary>
+ Estrutura que 'implementa' um DataReader estático copiando o conteudo e permitindo leitura e releitura mesmo após o fechamento da conexão.
+ </summary>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.Dispose">
+ <summary>
+ Esvazia o reader
+ </summary>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.Close">
+ <summary>
+ Esvazia o reader
+ </summary>
+</member>
+<member name="P:InnerLibs.DataBase.Reader.IsClosed">
+ <summary>
+ Verifica se o Reader está vazio ou fechado (Count = 0)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.GetColumns">
+ <summary>
+ Retorna as colunas do resultado atual
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.CountRows">
+ <summary>
+ Retorna o numero de linhas do resultado atual
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataBase.Reader.Item(System.String)">
+ <summary>
+ Retorna o valor da coluna do resultado e linha atual a partir do nome da coluna
+ </summary>
+ <param name="ColumnName">Nome da Coluna</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataBase.Reader.Item(System.Int32)">
+ <summary>
+ Retorna o valor da coluna do resultado e linha atual a partir do índice da coluna
+ </summary>
+ <param name="ColumnIndex">Índice da Coluna</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataBase.Reader.HasRows">
+ <summary>
+ Verifica se o resultado atual possui linhas
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToJSON">
+ <summary>
+ Retorna um Json do Reader
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToJSON(System.Int32)">
+ <summary>
+ Retorna o Json do resultado especifico
+ </summary>
+ <param name="ResultIndex">Índice do resultado</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.StartOver">
+ <summary>
+ Reinicia a leitura do Reader retornando os índices para seus valores padrão, é um alias para <see cref="M:InnerLibs.DataBase.Reader.Reset"/>)
+ </summary>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.Reset">
+ <summary>
+ Reinicia a leitura do Reader retornando os índices para seus valores padrão
+ </summary>
+</member>
 <member name="M:InnerLibs.DataBase.Reader.NextResult">
  <summary>
  Avança para o próximo resultado
@@ -1119,7 +1195,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataBase.Reader.PreviousResult">
  <summary>
- Retorna para os resultados anteriores
+ Retorna para os resultado anterior
  </summary>
  <returns></returns>
 </member>
@@ -1651,13 +1727,127 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build``1(System.String,System.String)">
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build(InnerLibs.Templatizer.Template[])">
  <summary>
- Processa os comandos SQL e retorna o resultado em HTML utilizando o arquivo de template especificado
+ Processa os comandos SQL de varios templates e cria uma unica lista com todos eles
+ </summary>
+ <param name="Templates">Templates</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build(System.String,System.String,System.String)">
+ <summary>
+ Processa o comando SQL e retorna os resultados em HTML utilizando o arquivo de template especificado
  </summary>
  <param name="SQLQuery">Comando SQL</param>
  <param name="TemplateFile">Arquivo do Template</param>
+ <param name="OrderColumn">Coluna do resultado que será utilizado como ordem</param>
  <returns></returns>    
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.GetTemplateContent(System.String)">
+ <summary>
+ Retorna o conteudo estático de um arquivo de template
+ </summary>
+ <param name="Templatefile">Nome do arquivo do template</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateBuilder.GetTemplateList">
+ <summary>
+ Traz a lista dos arquivos de template encontrados
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Templatizer.TemplateList">
+ <summary>
+ Lista de resultados gerados a partir de um ou mais templates
+ </summary>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.op_Addition(InnerLibs.Templatizer.TemplateList,InnerLibs.Templatizer.Template)">
+ <summary>
+ Adiciona um template á lista
+ </summary>
+ <param name="List">Lista</param>
+ <param name="Template">Template</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.op_Addition(InnerLibs.Templatizer.TemplateList,InnerLibs.Templatizer.TemplateList)">
+ <summary>
+ Adiciona os templates de uma lista á outra lista
+ </summary>
+ <param name="List">Lista</param>
+ <param name="AnotherList">Outra lista</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.ToString">
+ <summary>
+ Retorna uma string HTML com todos os templates processados e o conteúdo do Head
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.AddRange(InnerLibs.Templatizer.TemplateList)">
+ <summary>
+ Adiciona uma lista de templates á lista na posição correta de acordo com a coluna de ordem
+ </summary>
+ <param name="TemplateList">Lista de templates</param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.Add(InnerLibs.Templatizer.Template)">
+ <summary>
+ Adiciona um novo template á lista na posição correta de acordo com a coluna de ordem
+ </summary>
+ <param name="Template">template</param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.#ctor(InnerLibs.Templatizer.Template[])">
+ <summary>
+ Cria uma lista de templates a partir de varios templates
+ </summary>
+ <param name="Templates"></param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.#ctor(InnerLibs.Templatizer.TemplateList[])">
+ <summary>
+ Cria uma lista de templates a partir de varias lista de templates
+ </summary>
+ <param name="Templates">Lista de templates</param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.#ctor">
+ <summary>
+ Cria uma nova Lista vazia
+ </summary>
+</member>
+<member name="P:InnerLibs.Templatizer.TemplateList.Head">
+ <summary>
+ Conteudo da tag Head do template principal. é adicionado a string após o fim da recursão.
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Templatizer.Template">
+ <summary>
+ Resultado de uma Query transformada em um template
+ </summary>
+</member>
+<member name="P:InnerLibs.Templatizer.Template.Content">
+ <summary>
+ Conteudo do Template
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Templatizer.Template.Order">
+ <summary>
+ Objeto que define a ordem de apresentação
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Templatizer.Template.TemplateFile">
+ <summary>
+ Arquivo de onde o conteudo foi extraido e processado
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.Template.#ctor(System.String,System.String,System.String)">
+ <summary>
+ Cria uma nova instrução para contrução de um template
+ </summary>
+ <param name="SQLQuery">Query SQL</param>
+ <param name="TemplateFile">Nome do arquivo de template</param>
+ <param name="OrderColumn">Nome da Coluna de Ordem</param>
 </member>
 <member name="T:InnerLibs.LimitedCollection`1">
  <summary>
@@ -4524,6 +4714,13 @@ InnerLibs
  <param name="Number">Numero</param>
  <param name="Amount">QUantidade adicionada</param>
 </member>
+<member name="M:InnerLibs.Text.Increment(System.Int64@,System.Int32)">
+ <summary>
+ Incrementa em 1 ou mais um numero inteiro
+ </summary>
+ <param name="Number">Numero</param>
+ <param name="Amount">QUantidade adicionada</param>
+</member>
 <member name="M:InnerLibs.Text.Prepend(System.String@,System.String)">
  <summary>
  Adiciona texto ao começo de uma string
@@ -4540,6 +4737,13 @@ InnerLibs
  <param name="Test">Teste</param>
 </member>
 <member name="M:InnerLibs.Text.Decrement(System.Int32@,System.Int32)">
+ <summary>
+ Decrementa em 1 ou mais um numero inteiro
+ </summary>
+ <param name="Number">Numero</param>
+ `<param name="Amount">QUantidade que será removida</param>
+</member>
+<member name="M:InnerLibs.Text.Decrement(System.Int64@,System.Int32)">
  <summary>
  Decrementa em 1 ou mais um numero inteiro
  </summary>
