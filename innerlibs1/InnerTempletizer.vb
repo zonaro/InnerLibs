@@ -1,7 +1,4 @@
-﻿
-Imports System.Collections.ObjectModel
-Imports System.Data.Common
-Imports System.IO
+﻿Imports System.IO
 
 
 Namespace Templatizer
