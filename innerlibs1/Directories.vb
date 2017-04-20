@@ -116,7 +116,7 @@ Public Module Directories
 
 
     ''' <summary>
-    ''' Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
+    ''' Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
     ''' </summary>
     ''' <param name="Directory">Diretório</param>
     ''' <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>

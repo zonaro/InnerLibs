@@ -133,7 +133,6 @@ Public NotInheritable Class DataBase
             End Using
         End Sub
 
-
         Private resultindex As Integer = 0
         Private rowindex As Integer = -1
 
@@ -151,7 +150,6 @@ Public NotInheritable Class DataBase
         Public Sub Reset()
             StartOver()
         End Sub
-
 
         ''' <summary>
         ''' Avança para o próximo resultado
@@ -215,17 +213,13 @@ Public NotInheritable Class DataBase
             End If
         End Function
 
-
-
         ''' <summary>
         ''' Cria um array com os Itens de um DataBaseReader
         ''' </summary>
         ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
         ''' <returns></returns>
-
         Public Function ToListItems(TextColumn As String, ValueColumn As String) As ListItem()
-
             Dim h As New List(Of ListItem)
             If Me.HasRows Then
                 While Me.Read()
@@ -233,9 +227,7 @@ Public NotInheritable Class DataBase
                 End While
             End If
             Return h.ToArray
-
         End Function
-
 
         ''' <summary>
         ''' Cria uma lista de com os Itens de um DataBaseReader
@@ -332,7 +324,6 @@ Public NotInheritable Class DataBase
 
         End Function
 
-
         ''' <summary>
         ''' Transforma um DataBaseReader em uma string delimitada por caracteres
         ''' </summary>
@@ -367,7 +358,6 @@ Public NotInheritable Class DataBase
             Next
             Return result
         End Function
-
 
         ''' <summary>
         ''' Converte um DataBaseReader em XML
@@ -439,9 +429,6 @@ Public NotInheritable Class DataBase
             End If
         End Sub
 
-
-
-
         ''' <summary>
         ''' Converte um DataBaseReader para uma tabela em Markdown Pipe
         ''' </summary>
@@ -509,8 +496,6 @@ Public NotInheritable Class DataBase
             Loop While Me.NextResult()
             Return Returned
         End Function
-
-
 
         ''' <summary>
         ''' Aplica os valores encontrados nas colunas de um DataBaseReader em inputs com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
@@ -582,6 +567,119 @@ Public NotInheritable Class DataBase
     End Class
 
     ''' <summary>
+    ''' Cria um parametro de Query SQL a partir de uma variavel
+    ''' </summary>
+    ''' <param name="Name">Nome do Parametro</param>
+    ''' <param name="Value">Valor do Parametro</param>
+    ''' <returns></returns>
+    Function CreateParameter(Name As String, Value As Object) As DbParameter
+        Using con = Activator.CreateInstance(ConnectionType)
+            con.ConnectionString = Me.ConnectionString
+            con.Open()
+            Using command As DbCommand = con.CreateCommand()
+                Dim param = command.CreateParameter()
+                param.DbType = DataManipulation.GetDbType(Value)
+                param.ParameterName = "@" & Name.TrimStart("@")
+                Dim valor As Object = DBNull.Value
+                Select Case Value.GetType
+                    Case GetType(String), GetType(Char())
+                        valor = Value.ToString
+                    Case GetType(Char)
+                        valor = Value.ToString.GetFirstChars
+                    Case GetType(Byte), GetType(Byte())
+                        If DirectCast(Value, Byte()).LongLength > 0 Then
+                            valor = Value
+                        End If
+                    Case GetType(HttpPostedFile)
+                        If DirectCast(Value, HttpPostedFile).ContentLength > 0 Then
+                            Return Me.CreateParameter(Name, Value.ToBytes())
+                        End If
+                    Case GetType(FileInfo)
+                        If DirectCast(Value, FileInfo).Length > 0 Then
+                            Return Me.CreateParameter(Name, Value.ToBytes())
+                        End If
+                    Case Else
+                        valor = Value
+                End Select
+                If Value = Nothing Then valor = DBNull.Value
+                param.Value = valor
+                Return param
+            End Using
+        End Using
+
+    End Function
+
+    ''' <summary>
+    ''' Retorna a lista de arquivos SQL disponiveis
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetSqlFilesList() As List(Of String)
+        Dim l As New List(Of String)
+        Select Case True
+            Case IsNothing(ApplicationAssembly) And Not IsNothing(CommandDirectory)
+                For Each f In CommandDirectory.Search(SearchOption.AllDirectories, "*.sql")
+                    l.Add(f.Name)
+                Next
+            Case Not IsNothing(ApplicationAssembly) And IsNothing(CommandDirectory)
+                For Each n In ApplicationAssembly.GetManifestResourceNames()
+                    If Path.GetExtension(n).IsAny(".sql", "sql", "SQL", ".SQL") Then
+                        l.Add(n)
+                    End If
+                Next
+            Case Else
+                Throw New Exception("ApplicationAssembly or CommandDirectory is not configured!")
+        End Select
+        Return l
+    End Function
+
+    ''' <summary>
+    ''' Pega o comando SQL de um arquivo ou resource
+    ''' </summary>
+    ''' <param name="CommandFile">Nome do arquivo ou resource</param>
+    ''' <returns></returns>
+    Function GetCommand(CommandFile As String) As String
+        CommandFile = Path.GetFileNameWithoutExtension(CommandFile) & ".sql"
+        Select Case True
+            Case IsNothing(ApplicationAssembly) And Not IsNothing(CommandDirectory)
+                Dim filefound = CommandDirectory.SearchFiles(SearchOption.TopDirectoryOnly, CommandFile).First
+                If Not filefound.Exists Then Throw New FileNotFoundException(CommandFile.Quote & "  not found in " & CommandDirectory.Name.Quote)
+                Using file As StreamReader = filefound.OpenText
+                    Return file.ReadToEnd
+                End Using
+            Case Not IsNothing(ApplicationAssembly) And IsNothing(CommandDirectory)
+                Try
+                    Return GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & CommandFile)
+                Catch ex As Exception
+                    Throw New FileNotFoundException(CommandFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
+                End Try
+            Case Else
+                Throw New Exception("ApplicationAssembly or CommandDirectory is not configured!")
+        End Select
+    End Function
+
+    ''' <summary>
+    ''' Executa o comando de um arquivo SQL configurado
+    ''' </summary>
+    ''' <param name="CommandFile">Nome do arquivo SQL</param>
+    ''' <param name="Parameters">Parametros do comando SQL</param>
+    ''' <returns></returns>
+    Function OpenFile(CommandFile As String, ParamArray Parameters As DbParameter()) As DataBase.Reader
+        Return RunSQL(GetCommand(CommandFile), Parameters)
+    End Function
+
+    ''' <summary>
+    ''' Assembly da aplicação que contém os arquivos SQL
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ApplicationAssembly As Assembly = Nothing
+
+    ''' <summary>
+    ''' Diretório que contém os arquivos SQL
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property CommandDirectory As DirectoryInfo = Nothing
+
+    ''' <summary>
     ''' Conexão genérica (Oracle, MySQL, SQLServer etc.)
     ''' </summary>
     ''' <returns></returns>
@@ -603,6 +701,30 @@ Public NotInheritable Class DataBase
         ConnectionType = Type
     End Sub
 
+    ''' <summary>
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de arquivos SQL e em um Tipo de Conexão
+    ''' </summary>
+    ''' <param name="Type">Tipo de Conexão</param>
+    ''' <param name="ConnectionString">String de conexão com o banco</param>
+    ''' <param name="CommandDirectory">Diretorio de arquivos SQL</param>
+    Public Sub New(Type As Type, ByVal ConnectionString As String, CommandDirectory As DirectoryInfo)
+        Me.ConnectionString = ConnectionString
+        ConnectionType = Type
+        Me.CommandDirectory = CommandDirectory
+    End Sub
+
+    ''' <summary>
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de arquivos SQL e em um Tipo de Conexão
+    ''' </summary>
+    ''' <param name="Type">Tipo de Conexão</param>
+    ''' <param name="ConnectionString">String de conexão com o banco</param>
+    ''' <param name="ApplicationAssembly">Assembly contendo os arquivos SQL</param>
+    Public Sub New(Type As Type, ByVal ConnectionString As String, ApplicationAssembly As Assembly)
+        Me.ConnectionString = ConnectionString
+        ConnectionType = Type
+        Me.ApplicationAssembly = ApplicationAssembly
+    End Sub
+
     Private Sub UnsupportedMethod(ParamArray AllowedTypes As Type())
         If Not AllowedTypes.Contains(ConnectionType) Then
             Throw New NotImplementedException("Este método/função ainda não é suportado em " & ConnectionType.Name)
@@ -616,6 +738,26 @@ Public NotInheritable Class DataBase
     ''' <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
     Public Shared Function Create(Of Connectiontype As DbConnection)(ConnectionString As String) As DataBase
         Return New DataBase(GetType(Connectiontype), ConnectionString)
+    End Function
+
+    ''' <summary>
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de arquivos SQL e em um Tipo de Conexão
+    ''' </summary>
+    ''' <param name="ConnectionString">String de conexão com o banco</param>
+    ''' <param name="CommandDirectory">Diretório onde estão guardados os arquivos SQL</param>
+    ''' <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
+    Public Shared Function Create(Of Connectiontype As DbConnection)(ConnectionString As String, CommandDirectory As DirectoryInfo) As DataBase
+        Return New DataBase(GetType(Connectiontype), ConnectionString, CommandDirectory)
+    End Function
+
+    ''' <summary>
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de arquivos SQL e em um Tipo de Conexão
+    ''' </summary>
+    ''' <param name="ConnectionString">String de conexão com o banco</param>
+    ''' <param name="ApplicationAssembly">Diretório onde estão guardados os arquivos SQL</param>
+    ''' <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
+    Public Shared Function Create(Of Connectiontype As DbConnection)(ConnectionString As String, ApplicationAssembly As Assembly) As DataBase
+        Return New DataBase(GetType(Connectiontype), ConnectionString, ApplicationAssembly)
     End Function
 
     ''' <summary>
@@ -649,7 +791,6 @@ Public NotInheritable Class DataBase
         End Using
     End Function
 
-
     ''' <summary>
     ''' Executa uma Query no banco partir de um Arquivo.
     ''' </summary>
@@ -660,11 +801,6 @@ Public NotInheritable Class DataBase
             Return RunSQL(s.ReadToEnd)
         End Using
     End Function
-
-
-
-
-
 
     ''' <summary>
     ''' Executa uma procedure para cada item dentro de uma coleção
@@ -716,8 +852,6 @@ Public NotInheritable Class DataBase
     Public Sub RunBatchProcedure(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray ProcedureConfig As ProcedureConfig())
         RunBatchProcedure(New BatchProcedure(Items, ForeignKey, ForeignValue, ProcedureConfig))
     End Sub
-
-
 
     ''' <summary>
     ''' Executa uma Query no banco com upload de arquivos.
@@ -795,7 +929,7 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
     ''' <param name="Parameters">Parametros que serão adicionados ao comando</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns> 
+    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter) As Reader
         Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
         Dim con = Activator.CreateInstance(ConnectionType)
@@ -871,20 +1005,20 @@ Public NotInheritable Class DataBase
         Return RunSQL(command)
     End Function
 
-
     ''' <summary>
     ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
     ''' </summary>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
     ''' <param name="TableName">Nome da tabela</param>
-    ''' <param name="[Object]">Objeto onde</param>
-    Public Function [SELECT](Of Type)(TableName As String, ByRef [Object] As Type, Optional WhereConditions As String = "") As Reader
-        Dim cmd = "SELECT * FROM " & TableName
-        If WhereConditions.IsNotBlank Then
-            cmd.Append(" where " & WhereConditions.Trim().RemoveFirstIf("where"))
-        End If
-        Return RunSQL(cmd)
-    End Function
+    Default ReadOnly Property [SELECT](TableName As String, Optional WhereConditions As String = "") As Reader
+        Get
+            Dim cmd = "SELECT * FROM " & TableName
+            If WhereConditions.IsNotBlank Then
+                cmd.Append(" where " & WhereConditions.Trim().RemoveFirstIf("where"))
+            End If
+            Return RunSQL(cmd)
+        End Get
+    End Property
 
     ''' <summary>
     ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
@@ -895,8 +1029,6 @@ Public NotInheritable Class DataBase
     Public Sub INSERT(Of Type)(TableName As String, [Object] As Type)
         RunAction("INSERT", TableName, [Object])
     End Sub
-
-
 
     ''' <summary>
     ''' Atualiza um registro de uma tabela usando um Objeto
@@ -922,7 +1054,6 @@ Public NotInheritable Class DataBase
         End If
         RunSQL(cmd)
     End Sub
-
 
     Private Sub RunAction(Of Type)(Action As String, TableName As String, Obj As Type, Optional WhereConditions As String = "")
         Dim con = Activator.CreateInstance(ConnectionType)
@@ -956,10 +1087,7 @@ Public NotInheritable Class DataBase
         RunSQL(command)
     End Sub
 
-
-
 End Class
-
 
 ''' <summary>
 ''' Classe utilizada para interligar os campos de um formulário a uma tabela no banco de dados
@@ -1012,7 +1140,6 @@ Public Class TableQuickConnector
         Next
     End Sub
 
-
     ''' <summary>
     ''' Inicia uma instancia de TableQuickConnector
     ''' </summary>
@@ -1023,9 +1150,8 @@ Public Class TableQuickConnector
         Me.Table = Table
     End Sub
 
-
     ''' <summary>
-    ''' Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, retorna UPDATE, caso contrario, retorna um INSERT.
+    ''' Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, executa um  UPDATE, caso contrario, executa um INSERT.
     ''' </summary>
     ''' <param name="ID">Valor da coluna de ID da tabela</param>
     ''' <param name="Column">Coluna de id da tabela</param>
@@ -1039,7 +1165,6 @@ Public Class TableQuickConnector
             End If
         End Get
     End Property
-
 
     ''' <summary>
     ''' Retorna um comando de INSERT na tabela utilizando os campos como nome das colunas e seus valores como os valores do INSERT
@@ -1095,7 +1220,6 @@ Public Class TableQuickConnector
         End Get
     End Property
 
-
     Private Function GetColumnPartOfQuery() As String
         Dim fields As String = ""
         For Each c In ColumnControls
@@ -1115,10 +1239,6 @@ Public Class TableQuickConnector
     End Function
 
 End Class
-
-
-
-
 
 ''' <summary>
 ''' Conjunto de configuraçoes de procedures para ser executado em sequencia
@@ -1199,8 +1319,3 @@ Public Class ProcedureConfig
         Me.Keys = Keys
     End Sub
 End Class
-
-
-
-
-

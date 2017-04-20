@@ -4,7 +4,6 @@ Imports System.Runtime.CompilerServices
 Imports System.Web
 
 Public Module DataManipulation
-
     ''' <summary>
     ''' Retorna o DbType de acordo com o tipo do objeto
     ''' </summary>
@@ -33,7 +32,6 @@ Public Module DataManipulation
                 Return DbType.Object
         End Select
     End Function
-
 
     ''' <summary>
     ''' Concatena um parametro a uma string de comando SQL
@@ -65,10 +63,8 @@ Public Module DataManipulation
         Return New DataTableReader(Input.ToDataSet().Tables(0))
     End Function
 
-
-
     ''' <summary>
-    ''' Adiciona um parametro de Arquivo no commando 
+    ''' Adiciona um parametro de Arquivo no commando
     ''' </summary>
     ''' <param name="Command">Comando</param>
     ''' <param name="FileParameter">Parametro de arquivo</param>
@@ -79,7 +75,7 @@ Public Module DataManipulation
     End Function
 
     ''' <summary>
-    ''' Adiciona um parametro de Arquivo no commando 
+    ''' Adiciona um parametro de Arquivo no commando
     ''' </summary>
     ''' <param name="Command">Comando</param>
     ''' <param name="FileParameter">Parametro de arquivo</param>
@@ -89,10 +85,8 @@ Public Module DataManipulation
         Return AddFile(Command, FileParameter, File.ToBytes)
     End Function
 
-
-
     ''' <summary>
-    ''' Adiciona um parametro de Arquivo no commando 
+    ''' Adiciona um parametro de Arquivo no commando
     ''' </summary>
     ''' <param name="Command">Comando</param>
     ''' <param name="FileParameter">Parametro de arquivo</param>
@@ -108,7 +102,7 @@ Public Module DataManipulation
     End Function
 
     ''' <summary>
-    ''' Converte um Array para um DataSet de 1 Coluna
+    ''' Converte um Array para um <see cref="DataSet"/> de 1 Coluna
     ''' </summary>
     ''' <param name="Input">Array com 1 coluna a ser convertida</param>
     ''' <returns>um DataSet de 1 Coluna</returns>
@@ -122,6 +116,16 @@ Public Module DataManipulation
             dataTable.Rows.Add(value)
         Next
         Return dataSet
+    End Function
+
+    ''' <summary>
+    ''' Converte um <see cref="DbDataReader"/> para um <see cref="DataBase.Reader"/>
+    ''' </summary>
+    ''' <param name="Reader">Reader</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function ToDataBaseReader(Reader As DbDataReader) As DataBase.Reader
+        Return New DataBase.Reader(Reader)
     End Function
 
 End Module
