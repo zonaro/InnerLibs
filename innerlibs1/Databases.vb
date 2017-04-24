@@ -111,6 +111,15 @@ Public NotInheritable Class DataBase
             Return MyBase.Item(ResultIndex).SerializeJSON
         End Function
 
+        ''' <summary>
+        ''' Encontra linhas onde qualquer valor de suas colunas conter um determinado valor
+        ''' </summary>
+        ''' <param name="Value">Valor</param>
+        ''' <returns></returns>
+        Function Search(Value As Object) As List(Of Dictionary(Of String, Object))
+            Return MyBase.Item(resultindex).Where(Function(x, y) x.Values(y).ToString().Contains(Value.ToString)).ToList
+        End Function
+
         Friend Sub New(Reader As DbDataReader)
             Using Reader
                 Do

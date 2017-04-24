@@ -785,7 +785,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <param name="BadWords">Lista de palavras indesejadas</param>
-    ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param> 
+    ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     ''' <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
     <Extension()>
     Public Function Censor(ByRef Text As String, BadWords As List(Of String), Optional CensorshipCharacter As Char = "*") As Boolean
@@ -812,7 +812,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <param name="BadWords">Array de palavras indesejadas</param>
-    ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param> 
+    ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     <Extension()>
     Public Function Censor(ByVal Text As String, CensorshipCharacter As Char, ParamArray BadWords As String()) As String
         Dim txt As String = Text
@@ -824,7 +824,7 @@ Public Module Text
     ''' Remove um texto do inicio de uma string se ele for um outro texto especificado
     ''' </summary>
     ''' <param name="Text">Texto</param>
-    ''' <param name="StartStringTest">Texto inicial que será comparado</param> 
+    ''' <param name="StartStringTest">Texto inicial que será comparado</param>
     <Extension>
     Function RemoveFirstIf(ByVal Text As String, StartStringTest As String) As String
         If Text.StartsWith(StartStringTest) Then
@@ -837,7 +837,7 @@ Public Module Text
     ''' Remove um texto do final de uma string se ele for um outro texto
     ''' </summary>
     ''' <param name="Text">Texto</param>
-    ''' <param name="EndStringTest">Texto final que será comparado</param> 
+    ''' <param name="EndStringTest">Texto final que será comparado</param>
     <Extension>
     Function RemoveLastIf(ByVal Text As String, EndStringTest As String) As String
         If Text.EndsWith(EndStringTest) Then
@@ -851,7 +851,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
-    ''' <param name="EndStringTest">Conjunto de textos que serão comparados</param> 
+    ''' <param name="EndStringTest">Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()>
     Public Function RemoveLastAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray EndStringTest As String()) As String
@@ -869,7 +869,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
-    ''' <param name="StartStringTest">Conjunto de textos que serão comparados</param> 
+    ''' <param name="StartStringTest">Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()>
     Public Function RemoveFirstAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StartStringTest As String()) As String
@@ -887,7 +887,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
-    ''' <param name="StringTest">Conjunto de textos que serão comparados</param> 
+    ''' <param name="StringTest">Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()> Public Function TrimAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StringTest As String()) As String
         Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
@@ -973,7 +973,6 @@ Public Module Text
     Public Function Join(Of Type)(List As List(Of Type), Optional Separator As String = ";") As String
         Return List.ToArray.Join(Separator)
     End Function
-
 
     ''' <summary>
     ''' Pega o dominio principal de uma URL
@@ -1137,8 +1136,6 @@ Public Module Text
         Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?").RemoveAccents().ToLower()
     End Function
 
-
-
     ''' <summary>
     ''' Compara se uma string é igual a outras strings
     ''' </summary>
@@ -1281,7 +1278,6 @@ Public Module Text
         Return Size.To(Of Decimal).ToBytesString
     End Function
 
-
     ''' <summary>
     ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
     ''' </summary>
@@ -1345,14 +1341,11 @@ Public Module Text
 
                     Return Size.ToString & " bytes"
 
-
-
             End Select
 
         End If
 
     End Function
-
 
     <Extension()>
     Private Function InExtensive(ByVal Number As Long) As String
@@ -1483,7 +1476,6 @@ Public Module Text
         Dim num As Long = Number.Floor
         Return (num.InExtensive & If(dec = 0 Or DecimalPlaces = 0, "", " vírgula " & dec.InExtensive)).ToLower.AdjustWhiteSpaces
     End Function
-
 
     ''' <summary>
     ''' Transforma um numero em sua forma extensa
@@ -1790,12 +1782,11 @@ Public Module Text
 
     End Function
 
-
     ''' <summary>
     ''' Escapa o texto HTML
     ''' </summary>
     ''' <param name="Text">string HTML</param>
-    ''' <returns>String HTML corrigido</returns> 
+    ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
         Return HttpUtility.HtmlEncode(Text)
@@ -1805,7 +1796,7 @@ Public Module Text
     ''' Retorna um texto com  entidades HTML convertidas para caracteres
     ''' </summary>
     ''' <param name="Text">string HTML</param>
-    ''' <returns>String HTML corrigido</returns> 
+    ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlDecode(ByVal Text As String) As String
         Return HttpUtility.HtmlDecode(Text)
@@ -1959,7 +1950,6 @@ Public Module Text
         Return Text.Substring(Text.IndexOf(Value) + Value.Length)
     End Function
 
-
     ''' <summary>
     '''  Verifica se uma String contém qualquer um dos valores especificados
     ''' </summary>
@@ -1993,7 +1983,6 @@ Public Module Text
         Return False
     End Function
 
-
     ''' <summary>
     '''  Verifica se uma String contém todos os valores especificados
     ''' </summary>
@@ -2026,8 +2015,6 @@ Public Module Text
         Next
         Return True
     End Function
-
-
 
     ''' <summary>
     ''' Verifica se uma palavra é um Anagrama de outra palavra
@@ -2112,7 +2099,6 @@ Public Module Text
             Next
         Next
 
-
         'Shift Characters
         'for each empty column
         For i = 1 To Text.Length - 1
@@ -2155,4 +2141,5 @@ Public Module Text
         Text = RandomWord(Text)
         Return Text
     End Function
+
 End Module

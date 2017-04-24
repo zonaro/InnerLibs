@@ -1,7 +1,8 @@
 ﻿Imports System.Runtime.CompilerServices
+Imports System.Text
+Imports System.Text.RegularExpressions
 
-Public Module Sound
-
+Public Module SoundEx
 
     ''' <summary>
     ''' Gera um código SOUNDEX para comparação de fonemas
@@ -23,7 +24,6 @@ Public Module Sound
     Public Function SoundsLike(FirstText As String, SecondText As String) As Boolean
         Return FirstText.SoundEx() = SecondText.SoundEx()
     End Function
-
 
     ''' <summary>
     ''' Gera um código SOUNDEX para comparação de fonemas
@@ -93,4 +93,142 @@ Public Module Sound
         ' Return the computed soundex
         Return Value
     End Function
+
 End Module
+
+''' <summary>
+''' Implementação da função SoundEX em Portugues
+''' </summary>
+Public Class Phonetic
+
+    ''' <summary>
+    ''' Compara o fonema de uma palavra em portugues com outra palavra
+    ''' </summary>
+    ''' <param name="Word">Palavra para comparar</param>
+    ''' <returns></returns>
+    Default ReadOnly Property SoundsLike(Word As String) As Boolean
+        Get
+            Return New Phonetic(Word).SoundExCode = Me.SoundExCode
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Compara o fonema de uma palavra com outra
+    ''' </summary>
+    ''' <param name="Word1">primeira palavra</param>
+    ''' <param name="Word2">segunda palavra</param>
+    ''' <returns></returns>
+    Shared Operator =(Word1 As Phonetic, Word2 As String) As Boolean
+        Return Word1(Word2)
+    End Operator
+
+    ''' <summary>
+    ''' Compara o fonema de uma palavra com outra
+    ''' </summary>
+    ''' <param name="Word1">primeira palavra</param>
+    ''' <param name="Word2">segunda palavra</param>
+    ''' <returns></returns>
+    Shared Operator <>(Word1 As Phonetic, Word2 As String) As Boolean
+        Return Not Word1 = Word2
+    End Operator
+
+    ''' <summary>
+    ''' Palavra Original
+    ''' </summary>
+    ''' <returns></returns>
+    Property Word As String
+
+    Sub New(Word As String)
+        Me.Word = Word
+    End Sub
+
+    ''' <summary>
+    ''' Código SoundExBR que representa o fonema da palavra
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property SoundExCode As String
+        Get
+            Dim text = Word
+            text = text.Trim.ToUpper
+            If text.EndsWith("Z") And text.StartsWith("Z") Then
+                text = "Z" & text.Trim("Z").Replace("Z", "S") & "S"
+            Else
+                If text.StartsWith("Z") Then
+                    text = "Z" & text.Replace("Z", "S")
+                Else
+                    text = text.Replace("Z", "S")
+                End If
+            End If
+            text = text.Replace("Ç", "S")
+            text = text.RemoveDiacritics
+            text = text.Replace("Y", "I")
+            text = text.Replace("AL", "AU")
+            text = text.Replace("BR", "B")
+            text = text.Replace("BL", "B")
+            text = text.Replace("PH", "F")
+            text = text.Replace("MG", "G")
+            text = text.Replace("NG", "G")
+            text = text.Replace("RG", "G")
+            text = text.Replace("GE", "J")
+            text = text.Replace("GI", "J")
+            text = text.Replace("RJ", "J")
+            text = text.Replace("MJ", "J")
+            text = text.Replace("NJ", "J")
+            text = text.Replace("GR", "G")
+            text = text.Replace("GL", "G")
+            text = text.Replace("CE", "S")
+            text = text.Replace("CI", "S")
+            text = text.Replace("CH", "X")
+            text = text.Replace("CT", "T")
+            text = text.Replace("CS", "S")
+            text = text.Replace("QU", "K")
+            text = text.Replace("Q", "K")
+            text = text.Replace("CA", "K")
+            text = text.Replace("CO", "K")
+            text = text.Replace("CU", "K")
+            text = text.Replace("CK", "K")
+            text = text.Replace("LH", "LI")
+            text = text.Replace("RM", "SM")
+            text = text.Replace("N", "M")
+            text = text.Replace("GM", "M")
+            text = text.Replace("MD", "M")
+            text = text.Replace("NH", "N")
+            text = text.Replace("PR", "P")
+            text = text.Replace("X", "S")
+            text = text.Replace("TS", "S")
+            text = text.Replace("RS", "S")
+            text = text.Replace("TR", "T")
+            text = text.Replace("TL", "T")
+            text = text.Replace("LT", "T")
+            text = text.Replace("RT", "T")
+            text = text.Replace("ST", "T")
+            text = text.Replace("W", "V")
+            text = text.Replace("L", "R")
+            text = text.Replace("H", "")
+            Dim sb = New StringBuilder(text)
+
+            Dim tam As Integer = sb.Length - 1
+            If tam > -1 Then
+                If sb(tam) = "S" OrElse sb(tam) = "Z" OrElse sb(tam) = "R" OrElse sb(tam) = "M" OrElse sb(tam) = "N" OrElse sb(tam) = "L" Then
+                    sb.Remove(tam, 1)
+                End If
+            End If
+            tam = sb.Length - 2
+            If tam > -1 Then
+                If sb(tam) = "A" AndAlso sb(tam + 1) = "O" Then
+                    sb.Remove(tam, 2)
+                End If
+            End If
+
+            Dim frasesaida As New StringBuilder()
+            frasesaida.Append(sb(0))
+            For i As Integer = 1 To sb.Length - 1
+                If frasesaida(frasesaida.Length - 1) <> sb(i) OrElse Char.IsDigit(sb(i)) Then
+                    frasesaida.Append(sb(i))
+                End If
+            Next
+            Return frasesaida.ToString
+        End Get
+    End Property
+
+End Class
