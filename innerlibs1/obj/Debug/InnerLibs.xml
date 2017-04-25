@@ -480,7 +480,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Web.HttpPostedFile)">
  <summary>
- Adiciona um parametro de Arquivo no commando 
+ Adiciona um parametro de Arquivo no commando
  </summary>
  <param name="Command">Comando</param>
  <param name="FileParameter">Parametro de arquivo</param>
@@ -489,7 +489,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.IO.FileInfo)">
  <summary>
- Adiciona um parametro de Arquivo no commando 
+ Adiciona um parametro de Arquivo no commando
  </summary>
  <param name="Command">Comando</param>
  <param name="FileParameter">Parametro de arquivo</param>
@@ -498,7 +498,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Byte[])">
  <summary>
- Adiciona um parametro de Arquivo no commando 
+ Adiciona um parametro de Arquivo no commando
  </summary>
  <param name="Command">Comando</param>
  <param name="FileParameter">Parametro de arquivo</param>
@@ -507,10 +507,17 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataManipulation.ToDataSet(System.String[])">
  <summary>
- Converte um Array para um DataSet de 1 Coluna
+ Converte um Array para um <see cref="T:System.Data.DataSet"/> de 1 Coluna
  </summary>
  <param name="Input">Array com 1 coluna a ser convertida</param>
  <returns>um DataSet de 1 Coluna</returns>
+</member>
+<member name="M:InnerLibs.DataManipulation.ToDataBaseReader(System.Data.Common.DbDataReader)">
+ <summary>
+ Converte um <see cref="T:System.Data.Common.DbDataReader"/> para um <see cref="T:InnerLibs.DataBase.Reader"/>
+ </summary>
+ <param name="Reader">Reader</param>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.DiceRoller">
  <summary>
@@ -1177,6 +1184,13 @@ InnerLibs
  <param name="ResultIndex">Índice do resultado</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.DataBase.Reader.Search(System.Object)">
+ <summary>
+ Encontra linhas onde qualquer valor de suas colunas conter um determinado valor
+ </summary>
+ <param name="Value">Valor</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataBase.Reader.StartOver">
  <summary>
  Reinicia a leitura do Reader retornando os índices para seus valores padrão, é um alias para <see cref="M:InnerLibs.DataBase.Reader.Reset"/>)
@@ -1240,15 +1254,21 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataBase.Reader.GetColumnValue``1(System.String)">
  <summary>
- Retorna o valor de uma coluna especifica da primeira linha do primeiro resultado de um DataBaseReader
+ Retorna o valor de uma coluna especifica de um DataBaseReader
  </summary>
  <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
  <param name="Column">Coluna</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.DataBase.Reader.GetCurrentRow">
+ <summary>
+ Retorna um Array de Valores da linha atual
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataBase.Reader.ToDictionary``2(System.String,System.String)">
  <summary>
- Cria um Dictionary com os 2 Itens de um DataBaseReader
+ Cria um Dictionary a partir de DataBaseReader usando uma coluna como Key e outra como Value 
  </summary>
  <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
  <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
@@ -1304,7 +1324,7 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DataBase.Reader.ToHTMLTable(System.String[])">
+<member name="M:InnerLibs.DataBase.Reader.ToHTMLTable(System.Collections.Generic.Dictionary{System.String,System.String})">
  <summary>
  Converte um DataBaseReader para uma tabela em HTML
  </summary>
@@ -1339,6 +1359,64 @@ InnerLibs
  <param name="TextAreas">Controles que serão Manipulados</param>
  <returns>Um array contendo as Textareas manipuladas</returns>
 </member>
+<member name="M:InnerLibs.DataBase.Reader.FillDataGridView(System.Windows.Forms.DataGridView@,System.Int32)">
+ <summary>
+ Preenche um DataGrivView com os resultados
+ </summary>
+ <param name="DatagridView"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.FillComboBox``1(System.Windows.Forms.ComboBox@,System.String,System.String)">
+ <summary>
+ Preenche um combobox com um TextValueList criado a partir deste DataBase.Reader
+ </summary>
+ <typeparam name="TValue">Tipo do Valor da coluna</typeparam>
+ <param name="ComboBox"></param>
+ <param name="TextColumn">Coluna usada como Texto do ComboBox</param>
+ <param name="ValueColumn">Coluna usada como Valor do ComboBox</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.CreateParameter(System.String,System.Object)">
+ <summary>
+ Cria um parametro de Query SQL a partir de uma variavel
+ </summary>
+ <param name="Name">Nome do Parametro</param>
+ <param name="Value">Valor do Parametro</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.GetSqlFilesList">
+ <summary>
+ Retorna a lista de arquivos SQL disponiveis
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.GetCommand(System.String)">
+ <summary>
+ Pega o comando SQL de um arquivo ou resource
+ </summary>
+ <param name="CommandFile">Nome do arquivo ou resource</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.OpenFile(System.String,System.Data.Common.DbParameter[])">
+ <summary>
+ Executa o comando de um arquivo SQL configurado
+ </summary>
+ <param name="CommandFile">Nome do arquivo SQL</param>
+ <param name="Parameters">Parametros do comando SQL</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataBase.ApplicationAssembly">
+ <summary>
+ Assembly da aplicação que contém os arquivos SQL
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataBase.CommandDirectory">
+ <summary>
+ Diretório que contém os arquivos SQL
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.DataBase.ConnectionString">
  <summary>
  Conexão genérica (Oracle, MySQL, SQLServer etc.)
@@ -1358,11 +1436,43 @@ InnerLibs
  <param name="ConnectionString">String de conexão com o banco</param>
  <param name="Type">Tipo de conexão com o banco</param>
 </member>
+<member name="M:InnerLibs.DataBase.#ctor(System.Type,System.String,System.IO.DirectoryInfo)">
+ <summary>
+ Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de arquivos SQL e em um Tipo de Conexão
+ </summary>
+ <param name="Type">Tipo de Conexão</param>
+ <param name="ConnectionString">String de conexão com o banco</param>
+ <param name="CommandDirectory">Diretorio de arquivos SQL</param>
+</member>
+<member name="M:InnerLibs.DataBase.#ctor(System.Type,System.String,System.Reflection.Assembly)">
+ <summary>
+ Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de arquivos SQL e em um Tipo de Conexão
+ </summary>
+ <param name="Type">Tipo de Conexão</param>
+ <param name="ConnectionString">String de conexão com o banco</param>
+ <param name="ApplicationAssembly">Assembly contendo os arquivos SQL</param>
+</member>
 <member name="M:InnerLibs.DataBase.Create``1(System.String)">
  <summary>
  Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString e em um Tipo de Conexão
  </summary>
  <param name="ConnectionString">String de conexão com o banco</param>
+ <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
+</member>
+<member name="M:InnerLibs.DataBase.Create``1(System.String,System.IO.DirectoryInfo)">
+ <summary>
+ Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de arquivos SQL e em um Tipo de Conexão
+ </summary>
+ <param name="ConnectionString">String de conexão com o banco</param>
+ <param name="CommandDirectory">Diretório onde estão guardados os arquivos SQL</param>
+ <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
+</member>
+<member name="M:InnerLibs.DataBase.Create``1(System.String,System.Reflection.Assembly)">
+ <summary>
+ Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de arquivos SQL e em um Tipo de Conexão
+ </summary>
+ <param name="ConnectionString">String de conexão com o banco</param>
+ <param name="ApplicationAssembly">Diretório onde estão guardados os arquivos SQL</param>
  <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.String)">
@@ -1451,7 +1561,7 @@ InnerLibs
  </summary>
  <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
  <param name="Parameters">Parametros que serão adicionados ao comando</param>
- <returns>Um DataBaseReader com as informações da consulta</returns> 
+ <returns>Um DataBaseReader com as informações da consulta</returns>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(InnerLibs.TableQuickConnector,InnerLibs.TableQuickConnector.Action,System.String)">
  <summary>
@@ -1471,13 +1581,12 @@ InnerLibs
  <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DataBase.SELECT``1(System.String,``0@,System.String)">
+<member name="P:InnerLibs.DataBase.SELECT(System.String,System.String)">
  <summary>
  Insere um objeto em uma tabela a partir de suas propriedades e valores
  </summary>
- <typeparam name="Type">Tipo do Objeto</typeparam>
+ <param name="WhereConditions">Condições após a clausula WHERE</param>
  <param name="TableName">Nome da tabela</param>
- <param name="[Object]">Objeto onde</param>
 </member>
 <member name="M:InnerLibs.DataBase.INSERT``1(System.String,``0)">
  <summary>
@@ -1545,7 +1654,7 @@ InnerLibs
 </member>
 <member name="P:InnerLibs.TableQuickConnector.INSERTorUPDATE(System.Int32,System.String)">
  <summary>
- Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, retorna UPDATE, caso contrario, retorna um INSERT.
+ Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, executa um  UPDATE, caso contrario, executa um INSERT.
  </summary>
  <param name="ID">Valor da coluna de ID da tabela</param>
  <param name="Column">Coluna de id da tabela</param>
@@ -1690,51 +1799,70 @@ InnerLibs
  <param name="EncryptedText">Texto Criptografado</param>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.Templatizer.TemplateBuilder">
+<member name="T:InnerLibs.Templatizer.Templatizer">
  <summary>
  Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML
  </summary>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.#ctor(InnerLibs.DataBase,System.IO.DirectoryInfo)">
- <summary>
- Instancia um Novo TemplateBuilder utilizando uma Pasta para guardar os templates
- </summary>
- <param name="DataBase">Conexão com o banco de dados</param>
- <param name="TemplateFolder">Pasta com os arquivos HTML dos templates</param>
-</member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.#ctor(InnerLibs.DataBase,System.Reflection.Assembly)">
- <summary>
- Instancia um Novo TemplateBuilder
- </summary>
- <param name="DataBase">Conexão com o banco de dados</param>
- <param name="ApplicationAssembly">Assembly da aplicação onde os arquivos HTML dos templates estão compilados</param>
-</member>
-<member name="P:InnerLibs.Templatizer.TemplateBuilder.DataBase">
+<member name="P:InnerLibs.Templatizer.Templatizer.DataBase">
  <summary>
  Conexão genérica de Banco de Dados
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Templatizer.TemplateBuilder.TemplateFolder">
+<member name="P:InnerLibs.Templatizer.Templatizer.TemplateDirectory">
  <summary>
  Pasta contendo os arquivos HTML utilizados como template
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Templatizer.TemplateBuilder.ApplicationAssembly">
+<member name="P:InnerLibs.Templatizer.Templatizer.ApplicationAssembly">
  <summary>
  Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML utilziados como template
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build(InnerLibs.Templatizer.Template[])">
+<member name="M:InnerLibs.Templatizer.Templatizer.#ctor(InnerLibs.DataBase)">
+ <summary>
+ Instancia um Novo Templatizer herdando a <see cref="P:InnerLibs.DataBase.ApplicationAssembly"/>
+ </summary>
+ <param name="DataBase">Conexão com o banco de dados</param>
+</member>
+<member name="M:InnerLibs.Templatizer.Templatizer.#ctor(InnerLibs.DataBase,System.IO.DirectoryInfo)">
+ <summary>
+ Instancia um Novo Templatizer utilizando uma Pasta para guardar os templates
+ </summary>
+ <param name="DataBase">Conexão com o banco de dados</param>
+ <param name="TemplateFolder">Pasta com os arquivos HTML dos templates</param>
+</member>
+<member name="M:InnerLibs.Templatizer.Templatizer.#ctor(InnerLibs.DataBase,System.Reflection.Assembly)">
+ <summary>
+ Instancia um Novo Templatizer utilizando uma Assembly para guardas os templates como resources
+ </summary>
+ <param name="DataBase">Conexão com o banco de dados</param>
+ <param name="ApplicationAssembly">Assembly da aplicação onde os arquivos HTML dos templates estão compilados</param>
+</member>
+<member name="M:InnerLibs.Templatizer.Templatizer.GetTemplateList">
+ <summary>
+ Traz a lista dos arquivos de template encontrados
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.Templatizer.GetTemplateContent(System.String)">
+ <summary>
+ Retorna o conteudo estático de um arquivo de template
+ </summary>
+ <param name="Templatefile">Nome do arquivo do template</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.Templatizer.LoadTemplates(InnerLibs.Templatizer.Template[])">
  <summary>
  Processa os comandos SQL de varios templates e cria uma unica lista com todos eles
  </summary>
  <param name="Templates">Templates</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.Build(System.String,System.String,System.String)">
+<member name="M:InnerLibs.Templatizer.Templatizer.LoadQuery(System.String,System.String,System.String)">
  <summary>
  Processa o comando SQL e retorna os resultados em HTML utilizando o arquivo de template especificado
  </summary>
@@ -1743,17 +1871,13 @@ InnerLibs
  <param name="OrderColumn">Coluna do resultado que será utilizado como ordem</param>
  <returns></returns>    
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.GetTemplateContent(System.String)">
+<member name="M:InnerLibs.Templatizer.Templatizer.LoadFile(System.String,System.String,System.String)">
  <summary>
- Retorna o conteudo estático de um arquivo de template
+ Processa o comando de um arquivo SQL e retorna os resultados em HTML utilizando o arquivo de template especificado
  </summary>
- <param name="Templatefile">Nome do arquivo do template</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Templatizer.TemplateBuilder.GetTemplateList">
- <summary>
- Traz a lista dos arquivos de template encontrados
- </summary>
+ <param name="CommandFile">Arquivo de comando SQL</param>
+ <param name="TemplateFile">Arquivo do Template</param>
+ <param name="OrderColumn">Coluna do resultado que será utilizado como ordem</param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.Templatizer.TemplateList">
@@ -1761,39 +1885,11 @@ InnerLibs
  Lista de resultados gerados a partir de um ou mais templates
  </summary>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateList.op_Addition(InnerLibs.Templatizer.TemplateList,InnerLibs.Templatizer.Template)">
+<member name="P:InnerLibs.Templatizer.TemplateList.Head">
  <summary>
- Adiciona um template á lista
- </summary>
- <param name="List">Lista</param>
- <param name="Template">Template</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Templatizer.TemplateList.op_Addition(InnerLibs.Templatizer.TemplateList,InnerLibs.Templatizer.TemplateList)">
- <summary>
- Adiciona os templates de uma lista á outra lista
- </summary>
- <param name="List">Lista</param>
- <param name="AnotherList">Outra lista</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Templatizer.TemplateList.ToString">
- <summary>
- Retorna uma string HTML com todos os templates processados e o conteúdo do Head
+ Conteudo da tag Head do template principal. é adicionado a string após o fim da recursão.
  </summary>
  <returns></returns>
-</member>
-<member name="M:InnerLibs.Templatizer.TemplateList.AddRange(InnerLibs.Templatizer.TemplateList)">
- <summary>
- Adiciona uma lista de templates á lista na posição correta de acordo com a coluna de ordem
- </summary>
- <param name="TemplateList">Lista de templates</param>
-</member>
-<member name="M:InnerLibs.Templatizer.TemplateList.Add(InnerLibs.Templatizer.Template)">
- <summary>
- Adiciona um novo template á lista na posição correta de acordo com a coluna de ordem
- </summary>
- <param name="Template">template</param>
 </member>
 <member name="M:InnerLibs.Templatizer.TemplateList.#ctor(InnerLibs.Templatizer.Template[])">
  <summary>
@@ -1812,10 +1908,74 @@ InnerLibs
  Cria uma nova Lista vazia
  </summary>
 </member>
-<member name="P:InnerLibs.Templatizer.TemplateList.Head">
+<member name="M:InnerLibs.Templatizer.TemplateList.BuildHtml(System.Boolean)">
  <summary>
- Conteudo da tag Head do template principal. é adicionado a string após o fim da recursão.
+ Retorna uma string HTML com todos os templates processados e o conteúdo do Head
  </summary>
+ <param name="AscendingOrder">Se TRUE, Ordem crescente</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.ToString">
+ <summary>
+ Retorna uma string HTML com todos os templates processados e o conteúdo do Head
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.ReOrder(System.Object)">
+ <summary>
+ Reordena a lista de acordo com a propriedade <see cref="P:InnerLibs.Templatizer.Template.Order"/>
+ </summary>
+ <param name="AscendingOrder">Se TRUE, Ordem crescente</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.AddRange(InnerLibs.Templatizer.TemplateList)">
+ <summary>
+ Adiciona uma lista de templates á lista na posição correta de acordo com a coluna de ordem
+ </summary>
+ <param name="TemplateList">Lista de templates</param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.AddRange(System.Collections.Generic.IEnumerable{InnerLibs.Templatizer.Template})">
+ <summary>
+ Adiciona uma lista de templates á lista na posição correta de acordo com a coluna de ordem
+ </summary>
+ <param name="TemplateList">Lista de templates</param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.Add(InnerLibs.Templatizer.Template)">
+ <summary>
+ Adiciona um novo template á lista na posição correta de acordo com a coluna de ordem
+ </summary>
+ <param name="Template">template</param>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.op_Concatenate(System.String,InnerLibs.Templatizer.TemplateList)">
+ <summary>
+ Concatena o HTML da lista de templates a string
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="TemplateList">Lista de Template</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.op_Addition(InnerLibs.Templatizer.TemplateList,InnerLibs.Templatizer.Template)">
+ <summary>
+ Adiciona um template á lista
+ </summary>
+ <param name="List">Lista</param>
+ <param name="Template">Template</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.op_Addition(InnerLibs.Templatizer.TemplateList,InnerLibs.Templatizer.TemplateList)">
+ <summary>
+ Adiciona os templates de uma lista á outra lista
+ </summary>
+ <param name="List">Lista</param>
+ <param name="AnotherList">Outra lista</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.TemplateList.op_Addition(System.String,InnerLibs.Templatizer.TemplateList)">
+ <summary>
+ Concatena o HTML da lista de templates a string
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="TemplateList">Lista de Template</param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.Templatizer.Template">
@@ -1835,19 +1995,38 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.Templatizer.Template.OrderColumn">
+ <summary>
+ Coluna utilizada na ordenação da lista
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.Templatizer.Template.TemplateFile">
  <summary>
  Arquivo de onde o conteudo foi extraido e processado
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Templatizer.Template.#ctor(System.String,System.String,System.String)">
+<member name="P:InnerLibs.Templatizer.Template.SQLQuery">
+ <summary>
+ Query SQL aplicada neste template
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Templatizer.Template.#ctor(System.String,System.String,System.String,System.Boolean)">
  <summary>
  Cria uma nova instrução para contrução de um template
  </summary>
  <param name="SQLQuery">Query SQL</param>
  <param name="TemplateFile">Nome do arquivo de template</param>
  <param name="OrderColumn">Nome da Coluna de Ordem</param>
+</member>
+<member name="M:InnerLibs.Templatizer.Template.CompareTo(System.Object)">
+ <summary>
+ Metodo de comparação de ordem dos templates
+ </summary>
+ <param name="Template">Template</param>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.LimitedCollection`1">
  <summary>
@@ -2488,7 +2667,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.Directories.Search(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">
  <summary>
- Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
+ Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
  </summary>
  <param name="Directory">Diretório</param>
  <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
@@ -4360,14 +4539,14 @@ InnerLibs
  <param name="Icon">Icone do atalho</param>
  <returns>TRUE se foi possivel criar o atalho, caso contrario, FALSE</returns>
 </member>
-<member name="M:InnerLibs.Sound.SoundEx(System.String)">
+<member name="M:InnerLibs.SoundEx.SoundEx(System.String)">
  <summary>
  Gera um código SOUNDEX para comparação de fonemas
  </summary>
  <param name="Text">Texto</param>
  <returns>Um código soundex</returns>
 </member>
-<member name="M:InnerLibs.Sound.SoundsLike(System.String,System.String)">
+<member name="M:InnerLibs.SoundEx.SoundsLike(System.String,System.String)">
  <summary>
  Compara 2 palavras e verifica se elas possuem fonema parecido
  </summary>
@@ -4375,12 +4554,52 @@ InnerLibs
  <param name="SecondText">Segunda palavra</param>
  <returns>TRUE se possuirem o mesmo fonema</returns>
 </member>
-<member name="M:InnerLibs.Sound.SoundEx(System.String,System.Int32)">
+<member name="M:InnerLibs.SoundEx.SoundEx(System.String,System.Int32)">
  <summary>
  Gera um código SOUNDEX para comparação de fonemas
  </summary>
  <param name="Text">Texto</param>
  <returns>Um código soundex</returns>
+</member>
+<member name="T:InnerLibs.Phonetic">
+ <summary>
+ Implementação da função SoundEX em Portugues
+ </summary>
+</member>
+<member name="P:InnerLibs.Phonetic.SoundsLike(System.String)">
+ <summary>
+ Compara o fonema de uma palavra em portugues com outra palavra
+ </summary>
+ <param name="Word">Palavra para comparar</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Phonetic.op_Equality(InnerLibs.Phonetic,System.String)">
+ <summary>
+ Compara o fonema de uma palavra com outra
+ </summary>
+ <param name="Word1">primeira palavra</param>
+ <param name="Word2">segunda palavra</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Phonetic.op_Inequality(InnerLibs.Phonetic,System.String)">
+ <summary>
+ Compara o fonema de uma palavra com outra
+ </summary>
+ <param name="Word1">primeira palavra</param>
+ <param name="Word2">segunda palavra</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Phonetic.Word">
+ <summary>
+ Palavra Original
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Phonetic.SoundExCode">
+ <summary>
+ Código SoundExBR que representa o fonema da palavra
+ </summary>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.Text">
  <summary>
@@ -4456,7 +4675,7 @@ InnerLibs
  </summary>
  <param name="Text">Texto</param>
  <param name="BadWords">Lista de palavras indesejadas</param>
- <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param> 
+ <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
  <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
 </member>
 <member name="M:InnerLibs.Text.Censor(System.String,System.Char,System.String[])">
@@ -4465,21 +4684,21 @@ InnerLibs
  </summary>
  <param name="Text">Texto</param>
  <param name="BadWords">Array de palavras indesejadas</param>
- <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param> 
+ <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
 </member>
 <member name="M:InnerLibs.Text.RemoveFirstIf(System.String,System.String)">
  <summary>
  Remove um texto do inicio de uma string se ele for um outro texto especificado
  </summary>
  <param name="Text">Texto</param>
- <param name="StartStringTest">Texto inicial que será comparado</param> 
+ <param name="StartStringTest">Texto inicial que será comparado</param>
 </member>
 <member name="M:InnerLibs.Text.RemoveLastIf(System.String,System.String)">
  <summary>
  Remove um texto do final de uma string se ele for um outro texto
  </summary>
  <param name="Text">Texto</param>
- <param name="EndStringTest">Texto final que será comparado</param> 
+ <param name="EndStringTest">Texto final que será comparado</param>
 </member>
 <member name="M:InnerLibs.Text.RemoveLastAny(System.String,System.Boolean,System.String[])">
  <summary>
@@ -4487,7 +4706,7 @@ InnerLibs
  </summary>
  <param name="Text">Texto</param>
  <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
- <param name="EndStringTest">Conjunto de textos que serão comparados</param> 
+ <param name="EndStringTest">Conjunto de textos que serão comparados</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.RemoveFirstAny(System.String,System.Boolean,System.String[])">
@@ -4496,7 +4715,7 @@ InnerLibs
  </summary>
  <param name="Text">Texto</param>
  <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
- <param name="StartStringTest">Conjunto de textos que serão comparados</param> 
+ <param name="StartStringTest">Conjunto de textos que serão comparados</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.TrimAny(System.String,System.Boolean,System.String[])">
@@ -4505,7 +4724,7 @@ InnerLibs
  </summary>
  <param name="Text">Texto</param>
  <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
- <param name="StringTest">Conjunto de textos que serão comparados</param> 
+ <param name="StringTest">Conjunto de textos que serão comparados</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ParseJSON``1(System.String)">
@@ -4941,14 +5160,14 @@ InnerLibs
  Escapa o texto HTML
  </summary>
  <param name="Text">string HTML</param>
- <returns>String HTML corrigido</returns> 
+ <returns>String HTML corrigido</returns>
 </member>
 <member name="M:InnerLibs.Text.HtmlDecode(System.String)">
  <summary>
  Retorna um texto com  entidades HTML convertidas para caracteres
  </summary>
  <param name="Text">string HTML</param>
- <returns>String HTML corrigido</returns> 
+ <returns>String HTML corrigido</returns>
 </member>
 <member name="M:InnerLibs.Text.GetElementsByTagName(System.String,System.String)">
  <summary>
@@ -5895,7 +6114,7 @@ Atualiza a lista de keys
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.HtmlTag.Content">
+<member name="P:InnerLibs.HtmlTag.InnerHtml">
  <summary>
  Conteudo da Tag
  </summary>
@@ -5904,6 +6123,12 @@ Atualiza a lista de keys
 <member name="M:InnerLibs.HtmlTag.ToString">
  <summary>
  Retorna a string da tag
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlTag.ToXML">
+ <summary>
+ Retorna um XML Document a partir desta HTML Tag
  </summary>
  <returns></returns>
 </member>

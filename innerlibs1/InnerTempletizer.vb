@@ -153,11 +153,11 @@ Namespace Templatizer
             Dim header As String = ""
 
             Try
-                header = template.GetElementsByTagName("head").First.Content
+                header = template.GetElementsByTagName("head").First.InnerHtml
             Catch ex As Exception
             End Try
             Try
-                template = template.GetElementsByTagName("body").First.Content
+                template = template.GetElementsByTagName("body").First.InnerHtml
             Catch ex As Exception
             End Try
 
@@ -173,7 +173,7 @@ Namespace Templatizer
                     'replace nas procedures
                     For Each sqlTag As HtmlTag In copia.GetElementsByTagName("sqlquery")
                         sqlTag.FixIn(copia)
-                        Dim tp As String = Load(Of String)(sqlTag.Content, sqlTag.Attributes.Item("data-templatefile"))
+                        Dim tp As String = Load(Of String)(sqlTag.InnerHtml, sqlTag.Attributes.Item("data-templatefile"))
                         copia = copia.Replace(sqlTag.ToString, tp)
                     Next
                     Select Case GetType(Type)

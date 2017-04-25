@@ -1816,7 +1816,7 @@ Public Module Text
         For Each find As Match In tagm
             Dim t As New HtmlTag
             t.stringoriginal = find.Value
-            t.Content = find.Groups(2).Value
+            t.InnerHtml = find.Groups(2).Value
             Dim atributos = find.Groups(1).Value
             For Each a As Match In New Regex("(\S+)=[""']?((?:.(?![""']?\s+(?:\S+)=|[>""']))+.)[""']?").Matches(atributos)
                 t.Attributes.Add(a.Groups(1).Value, a.Groups(2).Value)

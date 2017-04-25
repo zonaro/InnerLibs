@@ -564,7 +564,7 @@ Public Class HtmlTag
     ''' Conteudo da Tag
     ''' </summary>
     ''' <returns></returns>
-    Public Property Content As String
+    Public Property InnerHtml As String
 
     ''' <summary>
     ''' Retorna a string da tag
@@ -579,12 +579,22 @@ Public Class HtmlTag
                 attribs.Append(" " & a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote)
             End If
         Next
-        Return "<" & TagName & attribs & ">" & Content & "</" & TagName & ">"
+        Return "<" & TagName & attribs & ">" & InnerHtml & "</" & TagName & ">"
     End Function
 
     Friend Sub FixIn(ByRef HtmlText As String)
         HtmlText = HtmlText.Replace(stringoriginal, Me.ToString)
     End Sub
+
+    ''' <summary>
+    ''' Retorna um XML Document a partir desta HTML Tag
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function ToXML() As XmlDocument
+        Dim xml As New XmlDocument
+        xml.LoadXml(Me.ToString)
+        Return xml
+    End Function
 
     ''' <summary>
     ''' Cria uma HtmlTagInfo a partir de uma String
@@ -596,7 +606,7 @@ Public Class HtmlTag
             Me.TagName = TagString.AdjustWhiteSpaces.GetBefore(" ").RemoveFirstIf("<")
             Dim t As HtmlTag = TagString.GetElementsByTagName(Me.TagName).FirstOrDefault
             Me.Attributes = t.Attributes
-            Me.Content = t.Content
+            Me.InnerHtml = t.InnerHtml
         End If
     End Sub
 End Class

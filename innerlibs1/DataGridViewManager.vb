@@ -41,4 +41,6 @@ Public Module DataGridViewManager
     <Extension()> Public Function BuildFromAJAX(Of Type)(ByRef DataGridView As DataGridView, URL As String)
         Return BuildFromClass(Of Type)(DataGridView, AJAX.GET(Of List(Of Type))(URL))
     End Function
+
+
 End Module

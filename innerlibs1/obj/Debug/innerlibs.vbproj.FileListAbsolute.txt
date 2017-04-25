@@ -35,3 +35,15 @@ C:\SVN\innerlibs\innerlibs1\obj\Debug\InnerLibs.dll
 C:\SVN\innerlibs\innerlibs1\obj\Debug\InnerLibs.xml
 C:\SVN\innerlibs\innerlibs1\obj\Debug\InnerLibs.pdb
 C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\innerlibs.vbprojResolveAssemblyReference.cache
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.dll
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.pdb
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.xml
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\Interop.IWshRuntimeLibrary.dll
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\Interop.MSScriptControl.dll
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.ResolveComReference.cache
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.Resources.resources
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.NotificationForm.resources
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.GenerateResource.Cache
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.dll
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.xml
+C:\Users\SEM NOME\Documents\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.pdb

@@ -274,7 +274,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Retorna o valor de uma coluna especifica da primeira linha do primeiro resultado de um DataBaseReader
+        ''' Retorna o valor de uma coluna especifica de um DataBaseReader
         ''' </summary>
         ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
         ''' <param name="Column">Coluna</param>
@@ -282,9 +282,16 @@ Public NotInheritable Class DataBase
         Public Function GetColumnValue(Of Type As IConvertible)(Column As String) As Type
             Return DirectCast(Me(Column), Type)
         End Function
+        ''' <summary>
+        ''' Retorna um Array de Valores da linha atual
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetCurrentRow() As Object()
+            Return MyBase.Item(resultindex).Item(rowindex).Values.ToArray
+        End Function
 
         ''' <summary>
-        ''' Cria um Dictionary com os 2 Itens de um DataBaseReader
+        ''' Cria um Dictionary a partir de DataBaseReader usando uma coluna como Key e outra como Value 
         ''' </summary>
         ''' <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
@@ -306,7 +313,8 @@ Public NotInheritable Class DataBase
         ''' <param name="TextColumn">Coluna que será usada como Text do item</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do item</param>
         ''' <returns></returns>
-        Public Function ToTextValueList(Of TValue)(TextColumn As String, ValueColumn As String) As TextValueList(Of TValue)
+        Public Function ToTextValueList(Of TValue)(TextColumn As String, Optional ValueColumn As String = "") As TextValueList(Of TValue)
+            If ValueColumn.IsBlank Then ValueColumn = TextColumn
             Dim h As New TextValueList(Of TValue)
             If Me.HasRows Then
                 While Me.Read()
@@ -477,13 +485,11 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <param name="Attr">Atributos da tabela. Recomenda-se o uso de classes</param>
         ''' <returns></returns>
-        Public Function ToHTMLTable(ParamArray Attr As String()) As String
-
+        Public Function ToHTMLTable(Optional Attr As Dictionary(Of String, String) = Nothing) As HtmlTag
+            If IsNothing(Attr) Then Attr = New Dictionary(Of String, String)
             Dim Returned As String = ""
             Do
                 If Me.HasRows Then
-                    Returned = "<table " & Attr.Join(" ") & ">"
-
                     Returned.Append(" <thead>")
                     Returned.Append("     <tr>")
                     For Each item As String In Me.GetColumns()
@@ -503,7 +509,10 @@ Public NotInheritable Class DataBase
                     Returned.Append(" </table>")
                 End If
             Loop While Me.NextResult()
-            Return Returned
+            Dim tag As New HtmlTag("<table></table>")
+            tag.Attributes = Attr
+            tag.InnerHtml = Returned
+            Return tag
         End Function
 
         ''' <summary>
@@ -571,6 +580,40 @@ Public NotInheritable Class DataBase
                 End Try
             Next
             Return TextAreas
+        End Function
+
+        ''' <summary>
+        ''' Preenche um DataGrivView com os resultados
+        ''' </summary>
+        ''' <param name="DatagridView"></param>
+        ''' <returns></returns>
+        Public Function FillDataGridView(ByRef DataGridView As DataGridView, Optional ResultIndex As Integer = 0) As DataGridView
+            DataGridView.Rows.Clear()
+            DataGridView.Columns.Clear()
+            For Each c In GetColumns()
+                DataGridView.Columns.Add(c, c)
+            Next
+            StartOver()
+            While Me.resultindex < ResultIndex
+                ResultIndex.Increment
+            End While
+            While Read()
+                DataGridView.Rows.Add(GetCurrentRow)
+            End While
+            Return DataGridView
+        End Function
+
+        ''' <summary>
+        ''' Preenche um combobox com um TextValueList criado a partir deste DataBase.Reader
+        ''' </summary>
+        ''' <typeparam name="TValue">Tipo do Valor da coluna</typeparam>
+        ''' <param name="ComboBox"></param>
+        ''' <param name="TextColumn">Coluna usada como Texto do ComboBox</param>
+        ''' <param name="ValueColumn">Coluna usada como Valor do ComboBox</param>
+        ''' <returns></returns>
+        Public Function FillComboBox(Of TValue)(ByRef ComboBox As ComboBox, TextColumn As String, Optional ValueColumn As String = Nothing) As ComboBox
+            ComboBox.SetPairDataSource(Of TValue)(Me.ToTextValueList(Of TValue)(TextColumn, ValueColumn))
+            Return ComboBox
         End Function
 
     End Class
@@ -1095,6 +1138,8 @@ Public NotInheritable Class DataBase
         End Select
         RunSQL(command)
     End Sub
+
+
 
 End Class
 
