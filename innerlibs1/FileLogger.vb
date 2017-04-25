@@ -14,8 +14,9 @@ Public Class FileLogger
             Return _file
         End Get
         Set(value As FileInfo)
-            If File.Exists Then
-                File.MoveTo(value.FullName)
+            If Not IsNothing(_file) AndAlso _file.Exists AndAlso _file.FullName <> value.FullName Then
+                value.Delete()
+                _file.MoveTo(value.FullName)
             End If
             _file = value
         End Set

@@ -755,7 +755,7 @@ Public NotInheritable Class DataBase
             Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
             If Not IsNothing(LogFile) Then
                 Dim logger As New FileLogger(LogFile) From {
-                    {"Query Executed", SQLQuery}
+                    {"Query Executed", SQLQuery.Replace(Environment.NewLine, " ")}
                 }
             End If
         Catch ex As Exception
