@@ -741,7 +741,27 @@ Public NotInheritable Class DataBase
     ''' Tipo da conexão
     ''' </summary>
     ''' <returns></returns>
-    Property ConnectionType As Type
+    Public Property ConnectionType As Type
+
+    ''' <summary>
+    ''' Arquivo onde serão salvos os logs
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property LogFile As FileInfo
+
+
+    Private Sub Log(ByVal SQLQuery As String)
+        Try
+            Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+            If Not IsNothing(LogFile) Then
+                Dim logger As New FileLogger(LogFile) From {
+                    {"Query Executed", SQLQuery}
+                }
+            End If
+        Catch ex As Exception
+            Debug.WriteLine(Environment.NewLine & "Can't write to log file!" & Environment.NewLine)
+        End Try
+    End Sub
 
     ''' <summary>
     ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString e em um Tipo de Conexão
@@ -819,7 +839,7 @@ Public NotInheritable Class DataBase
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
 
     Public Function RunSQL(ByVal SQLQuery As String) As Reader
-        Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+        Log(SQLQuery)
         Using con = Activator.CreateInstance(ConnectionType)
             con.ConnectionString = Me.ConnectionString
             con.Open()
@@ -913,7 +933,7 @@ Public NotInheritable Class DataBase
     ''' <param name="File">Arquivo</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte()) As Reader
-        Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+        Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
@@ -932,7 +952,7 @@ Public NotInheritable Class DataBase
     ''' <param name="File">Arquivo postado</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile) As Reader
-        Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+        Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
@@ -951,7 +971,7 @@ Public NotInheritable Class DataBase
     ''' <param name="File">Arquivo</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo) As Reader
-        Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+        Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
@@ -968,7 +988,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Command">Commando de banco de dados pre-pronto</param>
     ''' <returns></returns>
     Public Function RunSQL(Command As DbCommand) As Reader
-        Debug.WriteLine(Environment.NewLine & Command.CommandText & Environment.NewLine)
+        Log(Command.CommandText)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
@@ -983,7 +1003,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Parameters">Parametros que serão adicionados ao comando</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter) As Reader
-        Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+        Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
@@ -1041,7 +1061,7 @@ Public NotInheritable Class DataBase
     ''' <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
     ''' <returns></returns>
     Public Function RunSQL(Of Type)(SQLQuery As String, [Object] As Type) As Reader
-        Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
+        Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()

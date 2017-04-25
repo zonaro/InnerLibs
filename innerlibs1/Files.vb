@@ -81,6 +81,17 @@ Public Module Files
     End Function
 
     ''' <summary>
+    ''' Salva um texto em um arquivo
+    ''' </summary>
+    ''' <param name="Text">TExto</param>
+    ''' <param name="File">Arquivo</param>
+    ''' <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+    <Extension()>
+    Public Function WriteToFile(Text As String, File As FileInfo, Optional Append As Boolean = False) As FileInfo
+        Return Text.WriteToFile(File.FullName, Append)
+    End Function
+
+    ''' <summary>
     ''' Retorna o nome do diretorio onde o arquivo se encontra
     ''' </summary>
     ''' <param name="Path">Caminho do arquivo</param>

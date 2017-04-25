@@ -85,6 +85,7 @@
     <Compile Include="DataManipulation.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="Dictionary.vb" />
+    <Compile Include="FileLogger.vb" />
     <Compile Include="Files.vb" />
     <Compile Include="Calendars.vb" />
     <Compile Include="ColorConvert.vb" />

@@ -748,6 +748,31 @@ InnerLibs
  Dado de 100 Lados (Util para porcentagem)
  </summary>
 </member>
+<member name="P:InnerLibs.FileLogger.File">
+ <summary>
+ Local do arquivo de log
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.FileLogger.Add(System.String,System.String)">
+ <summary>
+ Adiciona uma Entrada ao Log
+ </summary>
+ <param name="Title"></param>
+ <param name="Message"></param>
+</member>
+<member name="M:InnerLibs.FileLogger.#ctor(System.IO.FileInfo)">
+ <summary>
+ Inicia uma nova instancia de Log
+ </summary>
+ <param name="File">Arquivo</param>
+</member>
+<member name="M:InnerLibs.FileLogger.#ctor(System.String)">
+ <summary>
+ Inicia uma nova instancia de Log
+ </summary>
+ <param name="Path">Caminho do arquivo</param>
+</member>
 <member name="T:InnerLibs.Files">
  <summary>
  Módulo para criação de arquivos baseados em Array de Bytes() 
@@ -789,6 +814,14 @@ InnerLibs
  </summary>
  <param name="Text">TExto</param>
  <param name="FilePath">Caminho do arquivo</param>
+ <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+</member>
+<member name="M:InnerLibs.Files.WriteToFile(System.String,System.IO.FileInfo,System.Boolean)">
+ <summary>
+ Salva um texto em um arquivo
+ </summary>
+ <param name="Text">TExto</param>
+ <param name="File">Arquivo</param>
  <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
 </member>
 <member name="M:InnerLibs.Files.GetLatestDirectoryName(System.IO.FileInfo)">
@@ -1426,6 +1459,12 @@ InnerLibs
 <member name="P:InnerLibs.DataBase.ConnectionType">
  <summary>
  Tipo da conexão
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataBase.LogFile">
+ <summary>
+ Arquivo onde serão salvos os logs
  </summary>
  <returns></returns>
 </member>
