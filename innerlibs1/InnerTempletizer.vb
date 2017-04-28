@@ -1,5 +1,7 @@
-﻿Imports System.IO
-
+﻿Imports System.Data.Common
+Imports System.IO
+Imports System.Reflection
+Imports System.Web
 
 Namespace Templatizer
 
@@ -7,6 +9,32 @@ Namespace Templatizer
     ''' Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML
     ''' </summary>
     Public NotInheritable Class Templatizer
+
+        Private sel As String() = {"##", "##"}
+
+        ''' <summary>
+        ''' Seletor dos campos
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property FieldSelector As String()
+            Get
+                Return sel
+            End Get
+        End Property
+
+        Public Function ApplySelector(Name As String) As String
+            Return sel(0) & Name & sel(1)
+        End Function
+
+        ''' <summary>
+        ''' Altera os seletores padrão dos campos
+        ''' </summary>
+        ''' <param name="OpenSelector">Seletor</param>
+        ''' <param name="CloseSelector"></param>
+        Public Sub SetSelector(OpenSelector As String, CloseSelector As String)
+            sel(0) = If(OpenSelector.IsBlank, "##", OpenSelector)
+            sel(1) = If(CloseSelector.IsBlank, "##", CloseSelector)
+        End Sub
 
         ''' <summary>
         ''' Conexão genérica de Banco de Dados
@@ -25,6 +53,28 @@ Namespace Templatizer
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property ApplicationAssembly As Reflection.Assembly = Nothing
+
+        ''' <summary>
+        ''' Cria uma instancia de Templatizer diretamente de um diretório e uma connectionstring
+        ''' </summary>
+        ''' <typeparam name="ConnectionType">Tipo de ConnectionString</typeparam>
+        ''' <param name="ConnectionString">String de conexão com o banco</param>
+        ''' <param name="Directory">Diretório com os arquivos SQL e os arquivos HTML</param>
+        ''' <returns></returns>
+        Public Shared Function Create(Of ConnectionType As DbConnection)(ConnectionString As String, Directory As DirectoryInfo) As Templatizer
+            Return New Templatizer(DataBase.Create(Of ConnectionType)(ConnectionString, Directory), Directory)
+        End Function
+
+        ''' <summary>
+        ''' Cria uma instancia de Templatizer diretamente de um diretório e uma connectionstring
+        ''' </summary>
+        ''' <typeparam name="ConnectionType">Tipo de ConnectionString</typeparam>
+        ''' <param name="ConnectionString">String de conexão com o banco</param>
+        ''' <param name="ApplicationAssembly">Assembly da aplicação onde estão os arquivos html e sql guardados como resources</param>
+        ''' <returns></returns>
+        Public Shared Function Create(Of ConnectionType As DbConnection)(ConnectionString As String, ApplicationAssembly As Assembly) As Templatizer
+            Return New Templatizer(DataBase.Create(Of ConnectionType)(ConnectionString, ApplicationAssembly))
+        End Function
 
         ''' <summary>
         ''' Instancia um Novo Templatizer herdando a <see cref="DataBase.ApplicationAssembly"/>
@@ -114,16 +164,15 @@ Namespace Templatizer
             Return New TemplateList(retorno.ToArray)
         End Function
 
-
         ''' <summary>
         ''' Processa o comando SQL e retorna os resultados em HTML utilizando o arquivo de template especificado
         ''' </summary>
         ''' <param name="SQLQuery">Comando SQL</param>
         ''' <param name="TemplateFile">Arquivo do Template</param>
         ''' <param name="OrderColumn">Coluna do resultado que será utilizado como ordem</param>
-        ''' <returns></returns>    
+        ''' <returns></returns>
         Public Function LoadQuery(SQLQuery As String, TemplateFile As String, Optional OrderColumn As String = "") As TemplateList
-            Return Load(Of TemplateList)(SQLQuery, TemplateFile, OrderColumn)
+            Return processar(Of TemplateList)(SQLQuery, TemplateFile, OrderColumn)
         End Function
 
         ''' <summary>
@@ -137,8 +186,21 @@ Namespace Templatizer
             Return LoadQuery(DataBase.GetCommand(CommandFile), TemplateFile, OrderColumn)
         End Function
 
+        ''' <summary>
+        ''' Processa um template configurado
+        ''' </summary>
+        ''' <param name="TemplateName">Nome do template</param>
+        ''' <param name="OrderColumn">Coluna utilizada para ordenar</param>
+        ''' <returns></returns>
+        Default Public ReadOnly Property Load(TemplateName As String, Optional OrderColumn As String = "") As TemplateList
+            Get
+                TemplateName = Path.GetFileNameWithoutExtension(TemplateName)
+                Return LoadFile(TemplateName & ".sql", TemplateName & ".html", OrderColumn)
 
-        Private Function Load(Of Type)(SQLQuery As String, TemplateFile As String, Optional OrderColumn As String = "") As Type
+            End Get
+        End Property
+
+        Private Function processar(Of Type)(SQLQuery As String, TemplateFile As String, Optional OrderColumn As String = "") As Type
             Dim response As Object = Nothing
 
             Select Case GetType(Type)
@@ -148,32 +210,57 @@ Namespace Templatizer
                     response = New TemplateList
             End Select
 
-
-            Dim template As String = GetTemplateContent(TemplateFile)
+            Dim template As String = ""
             Dim header As String = ""
 
-            Try
-                header = template.GetElementsByTagName("head").First.InnerHtml
-            Catch ex As Exception
-            End Try
-            Try
-                template = template.GetElementsByTagName("body").First.InnerHtml
-            Catch ex As Exception
-            End Try
+            If Not TemplateFile.ContainsAny("<", ">") Then
+                template = GetTemplateContent(TemplateFile)
+                Try
+                    header = template.GetElementsByTagName("head").First.InnerHtml
+                Catch ex As Exception
+                End Try
+                Try
+                    Dim bb = template.GetElementsByTagName("body").First
+                    template = bb.InnerHtml
+                    OrderColumn = If(OrderColumn.IsBlank, bb.Attribute("data-ordercolumn"), OrderColumn)
+                Catch ex As Exception
+                End Try
+            Else
+                template = TemplateFile
+            End If
 
-            Using reader As DataBase.Reader = DataBase.RunSQL(SQLQuery)
+            Using reader As DataBase.Reader = DataBase.RunSQL(SQLQuery.ToString)
                 Dim ordenator As Int64 = 0
                 While reader.Read
                     ordenator.Increment
                     Dim copia As String = template
                     'replace nas strings padrão
                     For Each col In reader.GetColumns
-                        copia = copia.Replace("##" & col & "##", reader(col).ToString())
+                        copia = copia.Replace(ApplySelector(col), reader(col).ToString())
                     Next
                     'replace nas procedures
-                    For Each sqlTag As HtmlTag In copia.GetElementsByTagName("sqlquery")
+                    For Each sqlTag As HtmlTag In copia.GetElementsByTagName("template")
                         sqlTag.FixIn(copia)
-                        Dim tp As String = Load(Of String)(sqlTag.InnerHtml, sqlTag.Attributes.Item("data-templatefile"))
+                        Dim tp As String = ""
+                        Dim novaquery As String = sqlTag("data-sqlquery")
+                        Dim parametrossql As String = sqlTag("data-sqlparameters")
+                        If novaquery.IsBlank AndAlso sqlTag("data-sqlfile").IsNotBlank Then
+                            novaquery = DataBase.GetCommand(sqlTag("data-sqlfile"))
+                            If parametrossql.IsNotBlank Then
+                                Dim colecaoparam = HttpUtility.ParseQueryString(parametrossql)
+                                For Each param In colecaoparam.AllKeys
+                                    novaquery.Replace(ApplySelector(param), colecaoparam(param))
+                                Next
+                            End If
+                        End If
+                        Dim arquivo As String = sqlTag("data-templatefile")
+                        Dim coluna As String = sqlTag("data-ordercolumn")
+                        If novaquery.IsNotBlank Then
+                            If arquivo.IsBlank Then
+                                arquivo = sqlTag.InnerHtml
+                            End If
+                            tp = processar(Of String)(novaquery, arquivo, coluna)
+                        End If
                         copia = copia.Replace(sqlTag.ToString, tp)
                     Next
                     Select Case GetType(Type)
@@ -245,7 +332,6 @@ Namespace Templatizer
             Return ReOrder(AscendingOrder).ToString()
         End Function
 
-
         ''' <summary>
         ''' Retorna uma string HTML com todos os templates processados e o conteúdo do Head
         ''' </summary>
@@ -269,7 +355,6 @@ Namespace Templatizer
             If Not AscendingOrder Then Me.Reverse()
             Return Me
         End Function
-
 
         ''' <summary>
         ''' Adiciona uma lista de templates á lista na posição correta de acordo com a coluna de ordem
@@ -440,6 +525,5 @@ Namespace Templatizer
         End Function
 
     End Class
-
 
 End Namespace
