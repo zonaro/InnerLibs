@@ -47,6 +47,9 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -92,6 +95,7 @@
     <Compile Include="Converter.vb" />
     <Compile Include="Databases.vb" />
     <Compile Include="GeoIP.vb" />
+    <Compile Include="HtmlParser.vb" />
     <Compile Include="InnerCrypt.vb" />
     <Compile Include="InnerTempletizer.vb" />
     <Compile Include="JsonDB.vb" />
