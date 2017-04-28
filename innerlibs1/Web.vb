@@ -61,8 +61,6 @@ Public NotInheritable Class AJAX
         End If
     End Function
 
-
-
     ''' <summary>
     ''' Realiza um POST em uma URL e retorna um Objeto convertido para o tipo especificado
     ''' </summary>
@@ -101,7 +99,6 @@ Public NotInheritable Class AJAX
     ''' Template de resposta de requisiçoes ajax. Facilita respostas de RestAPI em JSON
     ''' </summary>
     Public Class Response
-
 
         ''' <summary>
         ''' Status da requisicao
@@ -156,14 +153,11 @@ Public NotInheritable Class AJAX
     End Class
 End Class
 
-
-
-
 ''' <summary>
 ''' Modulo Web
 ''' </summary>
 ''' <remarks></remarks>
-''' 
+'''
 Public Module Web
 
     ''' <summary>
@@ -179,7 +173,6 @@ Public Module Web
     Public Sub CreateFromAjax(Of Type)(ByRef TheObject As Type, URL As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing)
         TheObject = AJAX.Request(Of Type)(URL, Parameters, ContentType, Encoding)
     End Sub
-
 
     ''' <summary>
     ''' Destroi a Sessão e todos os cookies de uma aplicação ASP.NET
@@ -260,14 +253,35 @@ Public Module Web
     ''' <returns></returns>
     <Extension>
     Public Function AddParameter(Url As Uri, Key As String, Value As String) As Uri
-        Dim uriBuilder = New UriBuilder(Url)
-        Dim query = HttpUtility.ParseQueryString(uriBuilder.Query)
+        Dim UriBuilder = New UriBuilder(Url)
+        Dim query = HttpUtility.ParseQueryString(UriBuilder.Query)
         query(Key) = Value
-        uriBuilder.Query = query.ToString()
-        Return New Uri(uriBuilder.ToString())
+        UriBuilder.Query = query.ToString()
+        Return New Uri(UriBuilder.ToString())
     End Function
 
-
+    ''' <summary>
+    ''' Reescreve a URL original a partir de uma REGEX aplicada em uma URL amigavel
+    ''' </summary>
+    ''' <param name="App">Aplicaçao HTTP</param>
+    ''' <param name="URLPattern">REGEX da URL</param>
+    ''' <param name="URL">URL original</param>
+    <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, URL As String) As Boolean
+        Dim theurl = App.Request.Path
+        If New Regex(URLPattern).Match(theurl).Success Then
+            Dim novaurl = If(App.Request.IsSecureConnection, "https://", "http://") & App.Request.Url.GetDomain & "/" & URL.ToString
+            novaurl = String.Format(novaurl, App.Request.Url.Segments)
+            Dim novauri = New Uri(novaurl)
+            For Each param In App.Request.QueryString.AllKeys
+                novauri = novauri.AddParameter(param, App.Request(param))
+            Next
+            theurl = novauri.PathAndQuery
+            App.Context.RewritePath("~" & theurl)
+            Return True
+        Else
+            Return False
+        End If
+    End Function
 
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de uma URL como parametros da procedure
@@ -293,7 +307,7 @@ Public Module Web
     ''' Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de uma URL como parametros da procedure
     ''' </summary>
     ''' <param name="Request">Requisicao HTTP</param>
-    ''' <param name="ProcedureName">Nome da Procedure</param> 
+    ''' <param name="ProcedureName">Nome da Procedure</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()>
     Public Function ToProcedure(Request As HttpRequest, ByVal ProcedureName As String) As String
@@ -481,7 +495,6 @@ Public Module Web
         Return GetYoutubeVideoId(URL.AbsoluteUri)
     End Function
 
-
     ''' <summary>
     ''' Verifica se um site está indisponível usando o serviço IsUp.Me
     ''' </summary>
@@ -529,86 +542,4 @@ Public Module Web
         Return Url.AbsoluteUri.IsUp()
     End Function
 
-
 End Module
-
-''' <summary>
-''' Estrutura de uma TAG HTML
-''' </summary>
-Public Class HtmlTag
-
-    Friend stringoriginal As String
-
-    ''' <summary>
-    ''' String que originou essa classe
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property OriginalTagString As String
-        Get
-            Return stringoriginal
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Nome da Tag
-    ''' </summary>
-    ''' <returns></returns>
-    ''' 
-    Public Property TagName As String
-    ''' <summary>
-    ''' Atributos da Tag
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property Attributes As New Dictionary(Of String, String)
-    ''' <summary>
-    ''' Conteudo da Tag
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property InnerHtml As String
-
-    ''' <summary>
-    ''' Retorna a string da tag
-    ''' </summary>
-    ''' <returns></returns>
-    Public Overrides Function ToString() As String
-        Dim attribs = ""
-        For Each a In Attributes
-            If a.Value.IsBlank Then
-                attribs.Append(" " & a.Key)
-            Else
-                attribs.Append(" " & a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote)
-            End If
-        Next
-        Return "<" & TagName & attribs & ">" & InnerHtml & "</" & TagName & ">"
-    End Function
-
-    Friend Sub FixIn(ByRef HtmlText As String)
-        HtmlText = HtmlText.Replace(stringoriginal, Me.ToString)
-    End Sub
-
-    ''' <summary>
-    ''' Retorna um XML Document a partir desta HTML Tag
-    ''' </summary>
-    ''' <returns></returns>
-    Public Function ToXML() As XmlDocument
-        Dim xml As New XmlDocument
-        xml.LoadXml(Me.ToString)
-        Return xml
-    End Function
-
-    ''' <summary>
-    ''' Cria uma HtmlTagInfo a partir de uma String
-    ''' </summary>
-    ''' <param name="TagString">String contendo a tag</param>
-    Public Sub New(Optional TagString As String = "")
-        If TagString.IsNotBlank Then
-            stringoriginal = TagString
-            Me.TagName = TagString.AdjustWhiteSpaces.GetBefore(" ").RemoveFirstIf("<")
-            Dim t As HtmlTag = TagString.GetElementsByTagName(Me.TagName).FirstOrDefault
-            Me.Attributes = t.Attributes
-            Me.InnerHtml = t.InnerHtml
-        End If
-    End Sub
-End Class
-
-

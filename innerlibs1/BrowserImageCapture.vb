@@ -33,6 +33,7 @@ Public Module BrowserClipper
     Public Function Capture(Browser As WebBrowser, Optional DelaySeconds As Integer = 5) As Image
         Dim scrollbars = Browser.ScrollBarsEnabled
         Dim erros = Browser.ScriptErrorsSuppressed
+        Browser.ScriptErrorsSuppressed = True
         Dim ss = Browser.Size
         Dim min = Browser.MinimumSize
         While (Browser.ReadyState <> WebBrowserReadyState.Complete)

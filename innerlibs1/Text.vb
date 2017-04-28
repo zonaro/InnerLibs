@@ -3,10 +3,13 @@ Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
+Imports System.Threading
 Imports System.Web
 Imports System.Web.Script.Serialization
 Imports System.Web.UI.HtmlControls
+Imports System.Windows.Forms
 Imports System.Xml
+Imports mshtml
 ''' <summary>
 ''' Modulo de manipulação de Texto
 ''' </summary>
@@ -1816,12 +1819,18 @@ Public Module Text
         For Each find As Match In tagm
             Dim t As New HtmlTag
             t.stringoriginal = find.Value
+            t.TagName = TagName
             t.InnerHtml = find.Groups(2).Value
             Dim atributos = find.Groups(1).Value
-            For Each a As Match In New Regex("(\S+)=[""']?((?:.(?![""']?\s+(?:\S+)=|[>""']))+.)[""']?").Matches(atributos)
-                t.Attributes.Add(a.Groups(1).Value, a.Groups(2).Value)
+
+            Dim xml As New XmlDocument()
+            xml.LoadXml("<temp " + atributos + "></temp>")
+            For Each a As XmlAttribute In xml.DocumentElement.Attributes
+                t.Attributes.Add(a.Name, a.Value)
             Next
-            t.TagName = TagName
+            'For Each a As Match In New Regex("(\S+)=[""']?((?:.(?![""']?\s+(?:\S+)=|[>""']))+.)[""']?").Matches(atributos)
+            '    t.Attributes.Add(a.Groups(1).Value, a.Groups(2).Value)
+            'Next
             lista.Add(t)
         Next
         Return lista
@@ -1959,7 +1968,7 @@ Public Module Text
     <Extension>
     Public Function ContainsAny(Text As String, ParamArray Values As String()) As Boolean
         For Each value As String In Values
-            If Text.IndexOf(value) <> -1 Then
+            If Not IsNothing(Text) AndAlso Text.IndexOf(value) <> -1 Then
                 Return True
             End If
         Next

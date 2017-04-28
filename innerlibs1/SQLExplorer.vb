@@ -13,7 +13,6 @@ Namespace SQLExplorer
 
         Public Property LatestFile As FileInfo
 
-
         ''' <summary>
         ''' Cria uma nova busca SQL em um diretório
         ''' </summary>
@@ -36,7 +35,7 @@ Namespace SQLExplorer
                                 Exit Select
                             Case SQLQuery.ContainsAny(" INTO ".Quote, " into ".Quote)
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)INTO\s(.*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                intofile = r.Groups(3).Value.GetWrappedText(True).First
+                                intofile = r.Groups(3).Value.GetWrappedText().First
                                 diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
                                 Exit Select
                             Case SQLQuery.ContainsAny(" WHERE ", " where ")
@@ -89,8 +88,6 @@ Namespace SQLExplorer
                                 Me.AddRange(diretorio.Search(searching, campos))
                         End Select
 
-
-
                         If intofile.IsNotBlank Then
                             LatestFile = New FileInfo(intofile)
                             Select Case True
@@ -138,9 +135,6 @@ Namespace SQLExplorer
                 Throw ex
             End Try
         End Sub
-
-
-
 
     End Class
 

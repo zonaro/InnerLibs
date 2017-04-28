@@ -1,5 +1,4 @@
-﻿
-Imports System.Runtime.CompilerServices
+﻿Imports System.Runtime.CompilerServices
 ''' <summary>
 ''' Módulo para calculos
 ''' </summary>
@@ -72,8 +71,6 @@ Public Module Mathematic
         Return aa
     End Function
 
-
-
     ''' <summary>
     ''' Retorna uma sequencia Fibonacci de N numeros
     ''' </summary>
@@ -93,7 +90,7 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero inteiro positivo maior que zero</param>
     ''' <returns>fatorial do numero inteiro</returns>
-    ''' 
+    '''
     <Extension>
     Public Function Factorial(Number As Integer) As Integer
         Number = Mathematic.Round(Number)
@@ -134,7 +131,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Corta um numero decimal com a quntdade de casas especiicadas 
+    ''' Corta um numero decimal com a quntdade de casas especiicadas
     ''' </summary>
     ''' <param name="Value">Numero</param>
     ''' <param name="Places">Numero de casas apos a virgula</param>
@@ -220,7 +217,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Limita o valor Maximo de um numero
+    ''' Limita o valor minimo de um numero
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <param name="MinValue">Valor Maximo</param>
@@ -231,7 +228,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Limita o valor Maximo de um numero
+    ''' Limita o valor minimo de um numero
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <param name="MinValue">Valor Maximo</param>
@@ -242,7 +239,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Limita o valor Maximo de um numero
+    ''' Limita o valor minimo de um numero
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <param name="MinValue">Valor Maximo</param>
@@ -253,7 +250,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Limita um range para um numero  
+    ''' Limita um range para um numero
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <param name="MinValue">Valor Minimo para o numero</param>
@@ -270,9 +267,8 @@ Public Module Mathematic
         Return Number
     End Function
 
-
     ''' <summary>
-    ''' Limita um range para um numero  
+    ''' Limita um range para um numero
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <param name="MinValue">Valor Minimo para o numero</param>
@@ -284,7 +280,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Limita um range para um numero  
+    ''' Limita um range para um numero
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <param name="MinValue">Valor Minimo para o numero</param>
@@ -294,7 +290,6 @@ Public Module Mathematic
     Public Function LimitRange(ByRef Number As Double, Optional MinValue As Double = Nothing, Optional MaxValue As Double = Nothing) As Double
         Return Number.To(Of Decimal).LimitRange(MinValue, MaxValue).To(Of Double)
     End Function
-
 
     ''' <summary>
     ''' Arredonda um numero para baixo ou para cima de acordo com outro numero
@@ -315,7 +310,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Arredonda um numero para o valor inteiro mais próximo
     ''' </summary>
-    ''' <param name="Number">Numero</param> 
+    ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function Round(Number As Decimal) As Integer
         Return Math.Round(Number)
@@ -416,8 +411,4 @@ Public Module Mathematic
         Return totalDistance
     End Function
 
-
-
 End Module
-
-

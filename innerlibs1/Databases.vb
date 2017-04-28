@@ -73,6 +73,18 @@ Public NotInheritable Class DataBase
         End Property
 
         ''' <summary>
+        ''' Retorna o valor da coluna do resultado de uma linha especifica a partir do nome da coluna e o Index da linha
+        ''' </summary>
+        ''' <param name="ColumnName">Nome da Coluna</param>
+        ''' <param name="RowIndex">Índice da Linha</param>
+        ''' <returns></returns>
+        Default Public Shadows ReadOnly Property Item(ColumnName As String, RowIndex As Integer) As Object
+            Get
+                Return MyBase.Item(resultindex)(RowIndex)(ColumnName)
+            End Get
+        End Property
+
+        ''' <summary>
         ''' Retorna o valor da coluna do resultado e linha atual a partir do índice da coluna
         ''' </summary>
         ''' <param name="ColumnIndex">Índice da Coluna</param>
@@ -81,6 +93,18 @@ Public NotInheritable Class DataBase
             Get
                 If rowindex < 0 Then rowindex = 0
                 Return MyBase.Item(resultindex)(rowindex)(MyBase.Item(resultindex)(rowindex).Keys(ColumnIndex))
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Retorna o valor da coluna do resultado de uma linha especifica a partir do nome da coluna e o Index da linha
+        ''' </summary>
+        ''' <param name="ColumnIndex">Índice da Coluna</param>
+        ''' <param name="RowIndex">Índice da Linha</param>
+        ''' <returns></returns>
+        Default Public Shadows ReadOnly Property Item(ColumnIndex As Integer, RowIndex As Integer) As Object
+            Get
+                Return MyBase.Item(resultindex)(RowIndex)(MyBase.Item(resultindex)(RowIndex).Keys(ColumnIndex))
             End Get
         End Property
 
@@ -223,20 +247,30 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Cria um array com os Itens de um DataBaseReader
+        ''' Cria um array de <see cref="ListItem"/> com os Itens de um DataBaseReader
         ''' </summary>
         ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
         ''' <returns></returns>
-        Public Function ToListItems(TextColumn As String, ValueColumn As String) As ListItem()
+        Public Function ToListItems(TextColumn As String, Optional ValueColumn As String = "") As ListItem()
             Dim h As New List(Of ListItem)
             If Me.HasRows Then
                 While Me.Read()
-                    h.Add(New ListItem(Me(TextColumn).ToString, Me(ValueColumn).ToString))
+                    h.Add(New ListItem(Me(TextColumn).ToString, Me(If(ValueColumn.IsBlank, TextColumn, ValueColumn)).ToString))
                 End While
             End If
             Return h.ToArray
         End Function
+
+        ''' <summary>
+        ''' Preenche um <see cref="HtmlSelect"/> com itens do DataBaseReader
+        ''' </summary>
+        ''' <param name="[SelectControl]">Controle HtmlSelect</param>
+        ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
+        ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
+        Public Sub FillSelectControl(ByRef [SelectControl] As HtmlSelect, TextColumn As String, Optional ValueColumn As String = "")
+            SelectControl.Items.AddRange(Me.ToListItems(TextColumn, ValueColumn))
+        End Sub
 
         ''' <summary>
         ''' Cria uma lista de com os Itens de um DataBaseReader
@@ -291,7 +325,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Cria um Dictionary a partir de DataBaseReader usando uma coluna como Key e outra como Value 
+        ''' Cria um Dictionary a partir de DataBaseReader usando uma coluna como Key e outra como Value
         ''' </summary>
         ''' <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
@@ -749,7 +783,6 @@ Public NotInheritable Class DataBase
     ''' <returns></returns>
     Public Property LogFile As FileInfo
 
-
     Private Sub Log(ByVal SQLQuery As String)
         Try
             Debug.WriteLine(Environment.NewLine & SQLQuery & Environment.NewLine)
@@ -1158,8 +1191,6 @@ Public NotInheritable Class DataBase
         End Select
         RunSQL(command)
     End Sub
-
-
 
 End Class
 
