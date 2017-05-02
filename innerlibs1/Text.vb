@@ -1806,6 +1806,26 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Encoda uma string para transmissão por URL
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function UrlEncode(ByVal Text As String) As String
+        Return HttpUtility.UrlEncode(Text)
+    End Function
+
+    ''' <summary>
+    ''' Decoda uma string de uma transmissão por URL
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function UrlDecode(ByVal Text As String) As String
+        Return HttpUtility.UrlDecode(Text)
+    End Function
+
+    ''' <summary>
     ''' Procura uma tag especifica em uma string htm e a converte para uma HTMLTag
     ''' </summary>
     ''' <param name="HTMLText">String HTML</param>
