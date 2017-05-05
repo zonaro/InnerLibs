@@ -99,7 +99,7 @@ End Module
 ''' <summary>
 ''' Implementação da função SoundEX em Portugues
 ''' </summary>
-Public Class Phonetic
+Public NotInheritable Class Phonetic
 
     ''' <summary>
     ''' Compara o fonema de uma palavra em portugues com outra palavra
@@ -108,7 +108,7 @@ Public Class Phonetic
     ''' <returns></returns>
     Default ReadOnly Property SoundsLike(Word As String) As Boolean
         Get
-            Return New Phonetic(Word).SoundExCode = Me.SoundExCode
+            Return New Phonetic(Word).SoundExCode = Me.SoundExCode Or Word = Me.Word
         End Get
     End Property
 
@@ -118,7 +118,7 @@ Public Class Phonetic
     ''' <param name="Word1">primeira palavra</param>
     ''' <param name="Word2">segunda palavra</param>
     ''' <returns></returns>
-    Shared Operator =(Word1 As Phonetic, Word2 As String) As Boolean
+    Shared Operator Like(Word1 As Phonetic, Word2 As String) As Boolean
         Return Word1(Word2)
     End Operator
 
@@ -128,9 +128,23 @@ Public Class Phonetic
     ''' <param name="Word1">primeira palavra</param>
     ''' <param name="Word2">segunda palavra</param>
     ''' <returns></returns>
-    Shared Operator <>(Word1 As Phonetic, Word2 As String) As Boolean
-        Return Not Word1 = Word2
+    Shared Operator Like(Word1 As String, Word2 As Phonetic) As Boolean
+        Return Word2(Word1)
     End Operator
+
+    ''' <summary>
+    ''' Verifica se o fonema atual está presente em alguma frase
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <returns></returns>
+    Public Function IsListenedIn(Text As String) As Boolean
+        For Each w In Text.Split(" ")
+            If Me Like w Then
+                Return True
+            End If
+        Next
+        Return False
+    End Function
 
     ''' <summary>
     ''' Palavra Original
@@ -138,10 +152,17 @@ Public Class Phonetic
     ''' <returns></returns>
     Property Word As String
 
+    ''' <summary>
+    ''' Cria um novo Phonetic a partir de uma palavra
+    ''' </summary>
+    ''' <param name="Word">Palavra</param>
     Sub New(Word As String)
-        Me.Word = Word
+        Try
+            Me.Word = Word.Split(" ")(0)
+        Catch ex As Exception
+            Me.Word = Word
+        End Try
     End Sub
-
     ''' <summary>
     ''' Código SoundExBR que representa o fonema da palavra
     ''' </summary>
@@ -207,27 +228,34 @@ Public Class Phonetic
             text = text.Replace("H", "")
             Dim sb = New StringBuilder(text)
 
-            Dim tam As Integer = sb.Length - 1
-            If tam > -1 Then
-                If sb(tam) = "S" OrElse sb(tam) = "Z" OrElse sb(tam) = "R" OrElse sb(tam) = "M" OrElse sb(tam) = "N" OrElse sb(tam) = "L" Then
-                    sb.Remove(tam, 1)
+            If text.IsNotBlank Then
+                Dim tam As Integer = sb.Length - 1
+                If tam > -1 Then
+                    If sb(tam) = "S" OrElse sb(tam) = "Z" OrElse sb(tam) = "R" OrElse sb(tam) = "M" OrElse sb(tam) = "N" OrElse sb(tam) = "L" Then
+                        sb.Remove(tam, 1)
+                    End If
                 End If
-            End If
-            tam = sb.Length - 2
-            If tam > -1 Then
-                If sb(tam) = "A" AndAlso sb(tam + 1) = "O" Then
-                    sb.Remove(tam, 2)
+                tam = sb.Length - 2
+                If tam > -1 Then
+                    If sb(tam) = "A" AndAlso sb(tam + 1) = "O" Then
+                        sb.Remove(tam, 2)
+                    End If
                 End If
-            End If
 
-            Dim frasesaida As New StringBuilder()
-            frasesaida.Append(sb(0))
-            For i As Integer = 1 To sb.Length - 1
-                If frasesaida(frasesaida.Length - 1) <> sb(i) OrElse Char.IsDigit(sb(i)) Then
-                    frasesaida.Append(sb(i))
-                End If
-            Next
-            Return frasesaida.ToString
+                Dim frasesaida As New StringBuilder()
+                Try
+                    frasesaida.Append(sb(0))
+                Catch ex As Exception
+                End Try
+                For i As Integer = 1 To sb.Length - 1
+                    If frasesaida(frasesaida.Length - 1) <> sb(i) OrElse Char.IsDigit(sb(i)) Then
+                        frasesaida.Append(sb(i))
+                    End If
+                Next
+                Return frasesaida.ToString
+            Else
+                Return ""
+            End If
         End Get
     End Property
 

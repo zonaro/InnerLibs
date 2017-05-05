@@ -2,6 +2,7 @@
 Imports System.Data.Common
 Imports System.IO
 Imports System.Reflection
+Imports System.Text.RegularExpressions
 Imports System.Web
 Imports System.Web.SessionState
 Imports System.Web.UI.HtmlControls
@@ -117,6 +118,23 @@ Public NotInheritable Class DataBase
                 Return MyBase.Item(resultindex).Count > 0
             End Get
         End Property
+
+        ''' <summary>
+        ''' Retorna uma linha do resultado atual
+        ''' </summary>
+        ''' <param name="RowIndex"></param>
+        ''' <returns></returns>
+        Public Function GetRow(RowIndex As Integer) As Dictionary(Of String, Object)
+            Return MyBase.Item(resultindex)(RowIndex)
+        End Function
+
+        ''' <summary>
+        ''' Retorna a linha atual do resultado atual
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetCurrentRow() As Dictionary(Of String, Object)
+            Return MyBase.Item(resultindex)(rowindex)
+        End Function
 
         ''' <summary>
         ''' Retorna um Json do Reader
@@ -316,11 +334,12 @@ Public NotInheritable Class DataBase
         Public Function GetColumnValue(Of Type As IConvertible)(Column As String) As Type
             Return DirectCast(Me(Column), Type)
         End Function
+
         ''' <summary>
         ''' Retorna um Array de Valores da linha atual
         ''' </summary>
         ''' <returns></returns>
-        Public Function GetCurrentRow() As Object()
+        Public Function GetCurrentRowValues() As Object()
             Return MyBase.Item(resultindex).Item(rowindex).Values.ToArray
         End Function
 
@@ -632,7 +651,7 @@ Public NotInheritable Class DataBase
                 ResultIndex.Increment
             End While
             While Read()
-                DataGridView.Rows.Add(GetCurrentRow)
+                DataGridView.Rows.Add(GetCurrentRowValues)
             End While
             Return DataGridView
         End Function
@@ -687,7 +706,7 @@ Public NotInheritable Class DataBase
                     Case Else
                         valor = Value
                 End Select
-                If Value = Nothing Then valor = DBNull.Value
+                If IsNothing(Value) Then valor = DBNull.Value
                 param.Value = valor
                 Return param
             End Using
@@ -908,6 +927,44 @@ Public NotInheritable Class DataBase
     End Function
 
     ''' <summary>
+    ''' Cria um comando SQL utilizando as key e os valores de um <see cref="HttpRequest"/>
+    ''' </summary>
+    ''' <param name="SQLQuery">Comando SQL</param>
+    ''' <param name="Request">Request de onde serão extraidos os valores</param>
+    ''' <returns></returns>
+    Public Function CreateCommandFromRequest(Request As HttpRequest, SQLQuery As String, ParamArray CustomParameters As DbParameter()) As DbCommand
+        Dim reg = New Regex("\@(?<param>[^=<>\s\',]+)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(SQLQuery)
+        Dim con = Activator.CreateInstance(ConnectionType)
+        con.ConnectionString = Me.ConnectionString
+        con.Open()
+        Dim command As DbCommand = con.CreateCommand()
+        command.CommandText = SQLQuery
+        For Each p As Match In reg
+            Dim param = p.Groups("param").Value
+            param = param.TrimAny(True, "@", " ")
+            Select Case True
+                Case Request.Form.AllKeys.Contains(param)
+                    command.Parameters.Add(Me.CreateParameter(param, Request.Form(param)))
+                Case Request.QueryString.AllKeys.Contains(param)
+                    command.Parameters.Add(Me.CreateParameter(param, Request.QueryString(param)))
+                Case Request.Files.AllKeys.Contains(param)
+                    command.Parameters.Add(Me.CreateParameter(param, Request.Files(param).ToBytes))
+                Case Request.Cookies.AllKeys.Contains(param)
+                    command.Parameters.Add(Me.CreateParameter(param, Request.Cookies(param)))
+                Case Request.ServerVariables.AllKeys.Contains(param)
+                    command.Parameters.Add(Me.CreateParameter(param, Request.ServerVariables(param)))
+                Case Else
+                    For Each c In CustomParameters
+                        If c.ParameterName.Trim("@") = param Then
+                            command.Parameters.Add(c)
+                        End If
+                    Next
+            End Select
+        Next
+        Return command
+    End Function
+
+    ''' <summary>
     ''' Executa uma procedure para cada item dentro de uma coleção
     ''' </summary>
     ''' <param name="Procedure">Nome da procedure</param>
@@ -1109,7 +1166,6 @@ Public NotInheritable Class DataBase
         Next
         Return RunSQL(command)
     End Function
-
     ''' <summary>
     ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
     ''' </summary>

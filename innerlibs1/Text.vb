@@ -1835,22 +1835,29 @@ Public Module Text
     Public Function GetElementsByTagName(HTMLText As String, TagName As String) As List(Of HtmlTag)
         Dim lista As New List(Of HtmlTag)
         TagName = TagName.RemoveAny("<", ">", "/").Trim
-        Dim tagm As MatchCollection = New Regex("<" & TagName & "\b([^>]*)>(.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
-        For Each find As Match In tagm
+        Dim listam As New List(Of Match)
+        For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>(?<innerhtml>.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
+            listam.Add(m)
+        Next
+        For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)/>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
+            listam.Add(m)
+        Next
+        For Each find As Match In listam
             Dim t As New HtmlTag
             t.stringoriginal = find.Value
             t.TagName = TagName
-            t.InnerHtml = find.Groups(2).Value
-            Dim atributos = find.Groups(1).Value
-
+            Try
+                t.InnerHtml = find.Groups("innerhtml").Value
+                t.selfclosing = False
+            Catch ex As Exception
+                t.selfclosing = True
+            End Try
+            Dim atributos = find.Groups("attributes").Value
             Dim xml As New XmlDocument()
             xml.LoadXml("<temp " + atributos + "></temp>")
             For Each a As XmlAttribute In xml.DocumentElement.Attributes
                 t.Attributes.Add(a.Name, a.Value)
             Next
-            'For Each a As Match In New Regex("(\S+)=[""']?((?:.(?![""']?\s+(?:\S+)=|[>""']))+.)[""']?").Matches(atributos)
-            '    t.Attributes.Add(a.Groups(1).Value, a.Groups(2).Value)
-            'Next
             lista.Add(t)
         Next
         Return lista
@@ -1988,7 +1995,7 @@ Public Module Text
     <Extension>
     Public Function ContainsAny(Text As String, ParamArray Values As String()) As Boolean
         For Each value As String In Values
-            If Not IsNothing(Text) AndAlso Text.IndexOf(value) <> -1 Then
+            If Not IsNothing(Text) AndAlso Text.ToLower.IndexOf(value.ToLower) <> -1 Then
                 Return True
             End If
         Next
@@ -2021,7 +2028,7 @@ Public Module Text
     <Extension>
     Public Function ContainsAll(Text As String, ParamArray Values As String()) As Boolean
         For Each value As String In Values
-            If Text.IndexOf(value) = -1 Then
+            If IsNothing(Text) OrElse Text.ToLower.IndexOf(value.ToLower) = -1 Then
                 Return False
             End If
         Next
@@ -2038,7 +2045,7 @@ Public Module Text
     <System.Runtime.CompilerServices.Extension>
     Public Function ContainsAll(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
         For Each value As String In Values
-            If Text.IndexOf(value, ComparisonType) = -1 Then
+            If IsNothing(Text) OrElse Text.IndexOf(value, ComparisonType) = -1 Then
                 Return False
             End If
         Next

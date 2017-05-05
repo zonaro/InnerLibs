@@ -299,7 +299,6 @@ Public Module Web
                 ProcedureName.Append("@" & Key & "=" & Request(Key).IsNull(Quotes:=Not Request(Key).IsNumber()) & ", ")
             End If
         Next
-
         Return ProcedureName.Trim.TrimEnd(",")
     End Function
 

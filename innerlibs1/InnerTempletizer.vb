@@ -118,12 +118,12 @@ Namespace Templatizer
             If IsNothing(ApplicationAssembly) Then
                 For Each f In TemplateDirectory.GetFiles
                     ordenator.Increment
-                    l.Add(New Template(f.Name, ordenator, GetTemplateContent(f.Name), Nothing, "Default"))
+                    l.Add(New Template(f.Name, Nothing, "", GetTemplateContent(f.Name), ""))
                 Next
             Else
                 For Each n In ApplicationAssembly.GetManifestResourceNames()
                     ordenator.Increment
-                    l.Add(New Template(n, ordenator, GetTemplateContent(n), Nothing, "Default"))
+                    l.Add(New Template(n, Nothing, "", GetTemplateContent(n), ""))
                 Next
             End If
             Return l
@@ -159,7 +159,7 @@ Namespace Templatizer
         Public Function LoadTemplates(ParamArray Templates As Template()) As TemplateList
             Dim retorno As New List(Of Template)
             For Each t In Templates
-                retorno.AddRange(LoadQuery(t.SQLQuery, t.TemplateFile, t.OrderColumn))
+                retorno.AddRange(LoadQuery(t.SQLQuery, t.TemplateFile, t.OrderByColumn))
             Next
             Return New TemplateList(retorno.ToArray)
         End Function
@@ -169,10 +169,10 @@ Namespace Templatizer
         ''' </summary>
         ''' <param name="SQLQuery">Comando SQL</param>
         ''' <param name="TemplateFile">Arquivo do Template</param>
-        ''' <param name="OrderColumn">Coluna do resultado que será utilizado como ordem</param>
+        ''' <param name="OrderByColumn">Coluna do resultado que será utilizado como ordem</param>
         ''' <returns></returns>
-        Public Function LoadQuery(SQLQuery As String, TemplateFile As String, Optional OrderColumn As String = "") As TemplateList
-            Return processar(Of TemplateList)(SQLQuery, TemplateFile, OrderColumn)
+        Public Function LoadQuery(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = "") As TemplateList
+            Return processar(Of TemplateList)(SQLQuery, TemplateFile, OrderByColumn)
         End Function
 
         ''' <summary>
@@ -180,27 +180,26 @@ Namespace Templatizer
         ''' </summary>
         ''' <param name="CommandFile">Arquivo de comando SQL</param>
         ''' <param name="TemplateFile">Arquivo do Template</param>
-        ''' <param name="OrderColumn">Coluna do resultado que será utilizado como ordem</param>
+        ''' <param name="OrderByColumn">Coluna do resultado que será utilizado como ordem</param>
         ''' <returns></returns>
-        Public Function LoadFile(CommandFile As String, TemplateFile As String, Optional OrderColumn As String = "") As TemplateList
-            Return LoadQuery(DataBase.GetCommand(CommandFile), TemplateFile, OrderColumn)
+        Public Function LoadFile(CommandFile As String, TemplateFile As String, Optional OrderByColumn As String = "") As TemplateList
+            Return LoadQuery(DataBase.GetCommand(CommandFile), TemplateFile, OrderByColumn)
         End Function
 
         ''' <summary>
         ''' Processa um template configurado
         ''' </summary>
         ''' <param name="TemplateName">Nome do template</param>
-        ''' <param name="OrderColumn">Coluna utilizada para ordenar</param>
+        ''' <param name="OrderByColumn">Coluna utilizada para ordenar</param>
         ''' <returns></returns>
-        Default Public ReadOnly Property Load(TemplateName As String, Optional OrderColumn As String = "") As TemplateList
+        Default Public ReadOnly Property Load(TemplateName As String, Optional OrderByColumn As String = "") As TemplateList
             Get
                 TemplateName = Path.GetFileNameWithoutExtension(TemplateName)
-                Return LoadFile(TemplateName & ".sql", TemplateName & ".html", OrderColumn)
-
+                Return LoadFile(TemplateName & ".sql", TemplateName & ".html", OrderByColumn)
             End Get
         End Property
 
-        Private Function processar(Of Type)(SQLQuery As String, TemplateFile As String, Optional OrderColumn As String = "") As Type
+        Friend Function processar(Of Type)(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = "") As Type
             Dim response As Object = Nothing
 
             Select Case GetType(Type)
@@ -222,7 +221,7 @@ Namespace Templatizer
                 Try
                     Dim bb = template.GetElementsByTagName("body").First
                     template = bb.InnerHtml
-                    OrderColumn = If(OrderColumn.IsBlank, bb.Attribute("data-ordercolumn"), OrderColumn)
+                    OrderByColumn = If(OrderByColumn.IsBlank, bb.Attribute("data-orderbycolumn"), OrderByColumn)
                 Catch ex As Exception
                 End Try
             Else
@@ -240,7 +239,7 @@ Namespace Templatizer
                     Next
                     'replace nas procedures
                     For Each sqlTag As HtmlTag In copia.GetElementsByTagName("template")
-                        sqlTag.FixIn(copia)
+                        sqlTag.ReplaceIn(copia)
                         Dim tp As String = ""
                         Dim novaquery As String = sqlTag("data-sqlquery")
                         Dim parametrossql As String = sqlTag("data-sqlparameters")
@@ -254,7 +253,7 @@ Namespace Templatizer
                             End If
                         End If
                         Dim arquivo As String = sqlTag("data-templatefile")
-                        Dim coluna As String = sqlTag("data-ordercolumn")
+                        Dim coluna As String = sqlTag("data-orderbycolumn")
                         If novaquery.IsNotBlank Then
                             If arquivo.IsBlank Then
                                 arquivo = sqlTag.InnerHtml
@@ -267,10 +266,10 @@ Namespace Templatizer
                         Case GetType(String)
                             response = response & copia
                         Case GetType(TemplateList)
-                            If OrderColumn.IsNotBlank AndAlso OrderColumn.IsIn(reader.GetColumns) Then
-                                response.Add(New Template(TemplateFile, reader(OrderColumn), copia, SQLQuery, OrderColumn))
+                            If OrderByColumn.IsNotBlank AndAlso OrderByColumn.IsIn(reader.GetColumns) Then
+                                response.Add(New Template(TemplateFile, reader.GetCurrentRow, OrderByColumn, copia, SQLQuery))
                             Else
-                                response.Add(New Template(TemplateFile, ordenator, copia, SQLQuery, OrderColumn))
+                                response.Add(New Template(TemplateFile, reader.GetCurrentRow, reader.GetColumns()(0), copia, SQLQuery))
                             End If
                     End Select
                 End While
@@ -279,7 +278,7 @@ Namespace Templatizer
                 Case GetType(String)
                     response = response & header
                 Case GetType(TemplateList)
-                    response.Head = header
+                    response.Head.Add(header)
             End Select
             Return response
         End Function
@@ -295,7 +294,7 @@ Namespace Templatizer
         ''' Conteudo da tag Head do template principal. é adicionado a string após o fim da recursão.
         ''' </summary>
         ''' <returns></returns>
-        Property Head As String
+        Property Head As New List(Of String())
 
         ''' <summary>
         ''' Cria uma lista de templates a partir de varios templates
@@ -341,8 +340,84 @@ Namespace Templatizer
             For Each i In Me
                 htmlstring.Append(i.Content)
             Next
-            htmlstring.Append(Head)
+            htmlstring.Append(Head.Join(Environment.NewLine))
             Return htmlstring
+        End Function
+
+        ''' <summary>
+        ''' Procura valores no <see cref="Template.Data"/> que contenham qualquer um dos termos pesquisados
+        ''' </summary>
+        ''' <param name="SearchTerms">Termos Pesquisados</param>
+        ''' <returns></returns>
+        Function SearchAny(ParamArray SearchTerms As String()) As TemplateList
+            SearchAny = New TemplateList
+            For Each t As Template In Me
+                For Each k In t.Data.Keys.ToArray
+                    If t.Data(k).ToString.ContainsAny(SearchTerms) And Not t.IsIn(SearchAny) Then
+                        SearchAny.Add(t)
+                    End If
+                Next
+            Next
+            Return SearchAny
+        End Function
+
+        ''' <summary>
+        ''' Procura valores no <see cref="Template.Data"/> que contenham qualquer um dos termos pesquisados usando comparação fonética
+        ''' </summary>
+        ''' <param name="SearchTerms">Termos Pesquisados</param>
+        ''' <returns></returns>
+        Function SearchAny(ParamArray SearchTerms As Phonetic()) As TemplateList
+            SearchAny = New TemplateList
+            For Each t As Template In Me
+                For Each k In t.Data.Keys.ToArray
+                    For Each p In SearchTerms
+                        If (p.IsListenedIn(t.Data(k).ToString) Or (t.Data(k).ToString.ContainsAny(p.Word))) And Not t.IsIn(SearchAny) Then
+                            SearchAny.Add(t)
+                        End If
+                    Next
+                Next
+            Next
+            Return SearchAny
+        End Function
+
+        ''' <summary>
+        ''' Procura valores nas colunas especificadas do <see cref="Template.Data"/> que contenham qualquer um dos termos pesquisados
+        ''' </summary>
+        ''' <param name="SearchTerms">Termos Pesquisados</param>
+        ''' <returns></returns>
+        Function SearchAny(SearchTerms As String(), ParamArray Columns As String()) As TemplateList
+            SearchAny = New TemplateList
+            For Each t As Template In Me
+                For Each k In t.Data.Keys.ToArray
+                    If k.IsIn(Columns) Then
+                        If t.Data(k).ToString.ContainsAny(SearchTerms) And Not t.IsIn(SearchAny) Then
+                            SearchAny.Add(t)
+                        End If
+                    End If
+                Next
+            Next
+            Return SearchAny
+        End Function
+
+        ''' <summary>
+        ''' Procura valores nas colunas especificadas do <see cref="Template.Data"/> que contenham qualquer um dos termos pesquisados usando comparação fonética
+        ''' </summary>
+        ''' <param name="SearchTerms">Termos Pesquisados</param>
+        ''' <returns></returns>
+        Function SearchIn(SearchTerms As Phonetic(), ParamArray Columns As String()) As TemplateList
+            SearchIn = New TemplateList
+            For Each t As Template In Me
+                For Each k In t.Data.Keys.ToArray
+                    If k.IsIn(Columns) Then
+                        For Each p In SearchTerms
+                            If (p.IsListenedIn(t.Data(k).ToString) Or (t.Data(k).ToString.ContainsAny(p.Word))) And Not t.IsIn(SearchIn) Then
+                                SearchIn.Add(t)
+                            End If
+                        Next
+                    End If
+                Next
+            Next
+            Return SearchIn
         End Function
 
         ''' <summary>
@@ -351,7 +426,7 @@ Namespace Templatizer
         ''' <param name="AscendingOrder">Se TRUE, Ordem crescente</param>
         ''' <returns></returns>
         Function ReOrder(Optional AscendingOrder = True) As TemplateList
-            Me.Sort(Function(x, y) x.CompareTo(y))
+            Me.Sort(Function(x, y) If(IsNothing(x), y, x).CompareTo(y))
             If Not AscendingOrder Then Me.Reverse()
             Return Me
         End Function
@@ -379,8 +454,10 @@ Namespace Templatizer
         ''' </summary>
         ''' <param name="Template">template</param>
         Public Shadows Sub Add(Template As Template)
-            MyBase.Add(Template)
-            ReOrder()
+            If Not IsNothing(Template) Then
+                MyBase.Add(Template)
+                ReOrder()
+            End If
         End Sub
 
         ''' <summary>
@@ -400,8 +477,9 @@ Namespace Templatizer
         ''' <param name="Template">Template</param>
         ''' <returns></returns>
         Public Shared Operator +(List As TemplateList, Template As Template) As TemplateList
-            List.Add(Template)
-            Return List
+            Dim l As New TemplateList
+            l.Add(Template)
+            Return l
         End Operator
 
         ''' <summary>
@@ -411,8 +489,12 @@ Namespace Templatizer
         ''' <param name="AnotherList">Outra lista</param>
         ''' <returns></returns>
         Public Shared Operator +(List As TemplateList, AnotherList As TemplateList) As TemplateList
-            List.AddRange(AnotherList)
-            Return List
+            Dim l As New TemplateList
+            l.Head.AddRange(List.Head)
+            l.Head.AddRange(AnotherList.Head)
+            l.AddRange(List)
+            l.AddRange(AnotherList)
+            Return l
         End Operator
 
         ''' <summary>
@@ -424,6 +506,17 @@ Namespace Templatizer
         Public Shared Operator +(Text As String, TemplateList As TemplateList) As String
             Return Text & TemplateList.ToString
         End Operator
+
+        ''' <summary>
+        ''' Concatena o HTML da lista de templates a string
+        ''' </summary>
+        ''' <param name="Text">Texto</param>
+        ''' <param name="TemplateList">Lista de Template</param>
+        ''' <returns></returns>
+        Public Shared Operator +(TemplateList As TemplateList, Text As String) As String
+            Return Text & TemplateList.ToString
+        End Operator
+
     End Class
 
     ''' <summary>
@@ -438,16 +531,10 @@ Namespace Templatizer
         ReadOnly Property Content As String
 
         ''' <summary>
-        ''' Objeto que define a ordem de apresentação
+        ''' Dicionário de onde serão extraidos os valores que definem a ordem de apresentação e o filtro
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property Order As Object
-
-        ''' <summary>
-        ''' Coluna utilizada na ordenação da lista
-        ''' </summary>
-        ''' <returns></returns>
-        ReadOnly Property OrderColumn As String
+        ReadOnly Property Data As Dictionary(Of String, Object)
 
         ''' <summary>
         ''' Arquivo de onde o conteudo foi extraido e processado
@@ -461,12 +548,32 @@ Namespace Templatizer
         ''' <returns></returns>
         ReadOnly Property SQLQuery As String
 
-        Friend Sub New(TemplateFile, Order, Content, SQLQuery, OrderColumn)
+        ''' <summary>
+        ''' Coluna que define a ordem de apresentação na <see cref="TemplateList"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property OrderByColumn As String
+
+        ''' <summary>
+        '''  Valor que define a ordem de apresentação na <see cref="TemplateList"/>
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Order As Object
+            Get
+                If Not IsNothing(Data) AndAlso Data.ContainsKey(OrderByColumn) Then
+                    Return Me.Data(OrderByColumn)
+                Else
+                    Return Nothing
+                End If
+            End Get
+        End Property
+
+        Friend Sub New(TemplateFile As String, Values As Dictionary(Of String, Object), OrderByColumn As String, Content As String, SQLQuery As String)
             Me.Content = Content
-            Me.Order = Order
+            Me.Data = Values
             Me.TemplateFile = TemplateFile
-            Me.OrderColumn = OrderColumn
             Me.SQLQuery = SQLQuery
+            Me.OrderByColumn = OrderByColumn
         End Sub
 
         ''' <summary>
@@ -474,13 +581,12 @@ Namespace Templatizer
         ''' </summary>
         ''' <param name="SQLQuery">Query SQL</param>
         ''' <param name="TemplateFile">Nome do arquivo de template</param>
-        ''' <param name="OrderColumn">Nome da Coluna de Ordem</param>
-        Public Sub New(SQLQuery As String, TemplateFile As String, Optional OrderColumn As String = "", Optional IsCommandFile As Boolean = False)
+        ''' <param name="OrderByColumn">Nome da Coluna de Ordem</param>
+        Public Sub New(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = Nothing)
             Me.SQLQuery = SQLQuery
             Me.TemplateFile = TemplateFile
             Me.Content = Nothing
-            Me.OrderColumn = OrderColumn
-            Me.Order = 0
+            Me.OrderByColumn = Me.OrderByColumn
         End Sub
 
         ''' <summary>
@@ -491,38 +597,76 @@ Namespace Templatizer
         Public Function CompareTo(Template As Object) As Integer Implements IComparable.CompareTo
             If IsNothing(Template) Then Return -1
             If IsNothing(Template.Order) Then Return -1
-            Dim orderToCompare As Template = TryCast(Template, Template)
-            If Template.Order.GetType.Equals(orderToCompare.Order.GetType) Then
-                Select Case Template.Order.GetType
-                    Case GetType(String)
-                        Return -1 * String.Compare(orderToCompare.Order, Order, True)
-                    Case GetType(DateTime)
-                        Return -1 * DateTime.Compare(orderToCompare.Order, Order)
-                    Case GetType(Integer), GetType(Decimal), GetType(Short), GetType(Long)
-                        Select Case True
-                            Case orderToCompare.Order < Order
-                                Return -1
-                            Case orderToCompare.Order > Order
-                                Return 1
-                            Case Else
-                                Return 0
-                        End Select
-                    Case GetType(Byte())
-                        Select Case True
-                            Case orderToCompare.Order.Length < Order.Length
-                                Return -1
-                            Case orderToCompare.Order.Length > Order.Length
-                                Return 1
-                            Case Else
-                                Return 0
-                        End Select
-                    Case Else
-                        Return -1
-                End Select
+            If GetType(Template) = Template.GetType Then
+                Dim orderToCompare As Template = TryCast(Template, Template)
+                If Me.Order.GetType.Equals(orderToCompare.Order.GetType) Then
+                    Select Case orderToCompare.Order.GetType
+                        Case GetType(String)
+                            Return -1 * String.Compare(orderToCompare.Order, Order, True)
+                        Case GetType(DateTime)
+                            Return -1 * DateTime.Compare(orderToCompare.Order, Order)
+                        Case GetType(Integer), GetType(Decimal), GetType(Short), GetType(Long)
+                            Select Case True
+                                Case orderToCompare.Order < Order
+                                    Return -1
+                                Case orderToCompare.Order > Order
+                                    Return 1
+                                Case Else
+                                    Return 0
+                            End Select
+                        Case GetType(Byte())
+                            Select Case True
+                                Case orderToCompare.Order.Length < Order.Length
+                                    Return -1
+                                Case orderToCompare.Order.Length > Order.Length
+                                    Return 1
+                                Case Else
+                                    Return 0
+                            End Select
+                        Case Else
+                            Return -1
+                    End Select
+                Else
+                    Return -1
+                End If
             Else
                 Return -1
             End If
         End Function
+
+        ''' <summary>
+        ''' cria uma cópia da <see cref="TemplateList"/> e adiciona o <see cref="Template"/> a ela
+        ''' </summary>
+        ''' <param name="Template">Template</param>
+        ''' <param name="TemplateList">Lista</param>
+        ''' <returns></returns>
+        Public Shared Operator +(Template As Template, TemplateList As TemplateList) As TemplateList
+            Dim l As New TemplateList
+            l.Head = TemplateList.Head
+            l.AddRange(TemplateList)
+            l.Add(Template)
+            Return l
+        End Operator
+
+        ''' <summary>
+        ''' cria uma cópia da <see cref="TemplateList"/> e adiciona o <see cref="Template"/> a ela
+        ''' </summary>
+        ''' <param name="Template">Template</param>
+        ''' <param name="TemplateList">Lista</param>
+        ''' <returns></returns>
+        Public Shared Operator +(TemplateList As TemplateList, Template As Template) As TemplateList
+            Return Template + TemplateList
+        End Operator
+
+        ''' <summary>
+        ''' Verifica se 2 templates processados são parecidos (utilizam o mesmo arquivo de template)
+        ''' </summary>
+        ''' <param name="Template1"></param>
+        ''' <param name="Template2"></param>
+        ''' <returns></returns>
+        Public Shared Operator Like(Template1 As Template, Template2 As Template) As Boolean
+            Return Template1.TemplateFile = Template2.TemplateFile Or Template1.Content = Template2.Content
+        End Operator
 
     End Class
 
