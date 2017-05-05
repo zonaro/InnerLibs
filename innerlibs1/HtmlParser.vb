@@ -7,6 +7,8 @@ Imports System.Xml
 Public Class HtmlTag
 
     Friend stringoriginal As String
+    Friend selfclosing As Boolean
+    Friend htmlcontent As String
 
     ''' <summary>
     ''' String que originou essa classe
@@ -15,6 +17,16 @@ Public Class HtmlTag
     Public ReadOnly Property OriginalTagString As String
         Get
             Return stringoriginal
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Indica se a tag atual é uma tag sem conteúdo
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property IsSelfClosingTag As Boolean
+        Get
+            Return selfclosing
         End Get
     End Property
 
@@ -51,11 +63,45 @@ Public Class HtmlTag
     ''' </summary>
     ''' <returns></returns>
     Public Property Attributes As New Dictionary(Of String, String)
+
     ''' <summary>
     ''' Conteudo da Tag
     ''' </summary>
     ''' <returns></returns>
     Public Property InnerHtml As String
+        Get
+            Return htmlcontent
+        End Get
+        Set(value As String)
+            If value.IsNotBlank Then
+                selfclosing = False
+                htmlcontent = value
+            End If
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Conteudo da Tag. É um alias para <see cref="InnerHtml"/>
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Content As String
+        Get
+            Return InnerHtml
+        End Get
+        Set(value As String)
+            InnerHtml = value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Retorna a string da tag
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property OuterHtml As String
+        Get
+            Return ToString()
+        End Get
+    End Property
 
     ''' <summary>
     ''' Retorna a string da tag
@@ -70,24 +116,22 @@ Public Class HtmlTag
                 attribs.Append(" " & a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote)
             End If
         Next
-        Return "<" & TagName & attribs & ">" & InnerHtml & "</" & TagName & ">"
+        If IsSelfClosingTag Then
+            Return "<" & TagName & attribs & "/>"
+        Else
+            Return "<" & TagName & attribs & ">" & InnerHtml & "</" & TagName & ">"
+        End If
     End Function
 
-    Friend Sub FixIn(ByRef HtmlText As String)
+    ''' <summary>
+    ''' Subistitui a Tag String original em um texto pela nova
+    ''' </summary>
+    ''' <param name="HtmlText">Texto HTML com a string original</param>
+    Public Sub ReplaceIn(ByRef HtmlText As String)
         If stringoriginal.IsNotBlank Then
             HtmlText = HtmlText.Replace(stringoriginal, Me.ToString)
         End If
     End Sub
-
-    ''' <summary>
-    ''' Retorna um XML Document a partir desta HTML Tag
-    ''' </summary>
-    ''' <returns></returns>
-    Public Function ToXML() As XmlDocument
-        Dim xml As New XmlDocument
-        xml.LoadXml(Me.ToString)
-        Return xml
-    End Function
 
     ''' <summary>
     ''' Cria uma HtmlTagInfo a partir de uma String
@@ -98,6 +142,7 @@ Public Class HtmlTag
             stringoriginal = TagString
             Me.TagName = TagString.AdjustWhiteSpaces.GetBefore(" ").RemoveFirstIf("<")
             Dim t As HtmlTag = TagString.GetElementsByTagName(Me.TagName).FirstOrDefault
+            Me.selfclosing = t.IsSelfClosingTag
             Me.Attributes = t.Attributes
             Me.InnerHtml = t.InnerHtml
         End If
