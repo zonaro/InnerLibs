@@ -299,7 +299,10 @@ Public NotInheritable Class DataBase
             Dim h As New List(Of TValue)
             If Me.HasRows Then
                 While Me.Read()
-                    h.Add(DirectCast(Me(Column), TValue))
+                    Try
+                        h.Add(DirectCast(Me(Column), TValue))
+                    Catch ex As Exception
+                    End Try
                 End While
             End If
             Return h
@@ -963,6 +966,8 @@ Public NotInheritable Class DataBase
         Next
         Return command
     End Function
+
+
 
     ''' <summary>
     ''' Executa uma procedure para cada item dentro de uma coleção

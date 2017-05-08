@@ -53,6 +53,8 @@ Public Module Converter
         Return result
     End Function
 
+
+
     ''' <summary>
     ''' Converte um NameValueCollection para string JSON
     ''' </summary>

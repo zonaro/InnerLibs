@@ -157,6 +157,18 @@ Public Module Base64
     End Function
 
     ''' <summary>
+    ''' Converte um array de bytes para imagem
+    ''' </summary>
+    ''' <param name="Bytes">Bytes</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function ToImage(Bytes As Byte()) As Image
+        Using s As New MemoryStream(Bytes)
+            Return Image.FromStream(s)
+        End Using
+    End Function
+
+    ''' <summary>
     ''' Converte uma Imagem dem HttpPostedFile para String Base64
     ''' </summary>
     ''' <param name="PostedFile">Arquivo de Imagem</param>
