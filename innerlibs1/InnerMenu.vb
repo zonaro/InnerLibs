@@ -17,16 +17,11 @@ Public Class MenuBuilder
     ''' Transforma a classe em um json
     ''' </summary>
     ''' <returns></returns>
-    Public Function ToJSON() As String
-        Return Me.SerializeJSON
+    Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return Me.SerializeJSON(DateFormat)
     End Function
 
-
-
-
 End Class
-
-
 
 ''' <summary>
 ''' Item de um InnerMenu
@@ -66,7 +61,6 @@ Public Class MenuBuilderItem
             Return SubItems.Count > 0
         End Get
     End Property
-
 
     ''' <summary>
     ''' Inicializa um novo MenuBuilderItem

@@ -1,5 +1,4 @@
-﻿
-Imports System.Collections.Specialized
+﻿Imports System.Collections.Specialized
 Imports System.Runtime.CompilerServices
 
 Public Module Converter
@@ -33,7 +32,6 @@ Public Module Converter
         End Try
     End Function
 
-
     ''' <summary>
     ''' Converte um NameValueCollection para Dictionary
     ''' </summary>
@@ -53,16 +51,14 @@ Public Module Converter
         Return result
     End Function
 
-
-
     ''' <summary>
     ''' Converte um NameValueCollection para string JSON
     ''' </summary>
     ''' <param name="[NameValueCollection]">Formulário</param>
     ''' <returns></returns>
     <Extension>
-    Public Function ToJSON([NameValueCollection] As NameValueCollection) As String
-        Return NameValueCollection.ToDictionary.SerializeJSON
+    Public Function ToJSON([NameValueCollection] As NameValueCollection, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return NameValueCollection.ToDictionary.SerializeJSON(DateFormat)
     End Function
 
     ''' <summary>
@@ -71,7 +67,7 @@ Public Module Converter
     ''' <param name="Request">Request GET ou POST</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function ToJSON(Request As System.Web.HttpRequest) As String
-        Return Request.Form.ToJSON
+    Public Function ToJSON(Request As System.Web.HttpRequest, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return Request.Form.ToJSON(DateFormat)
     End Function
 End Module

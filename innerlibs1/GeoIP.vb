@@ -64,7 +64,7 @@ Public Class GeoIP
     ''' Retorna uma string JSON do objeto
     ''' </summary>
     ''' <returns></returns>
-    Public Function ToJSON() As String
-        Return Me.SerializeJSON
+    Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return Me.SerializeJSON(DateFormat)
     End Function
 End Class

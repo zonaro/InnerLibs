@@ -4,6 +4,22 @@ Imports System.Runtime.CompilerServices
 Imports System.Web
 
 Public Module DataManipulation
+
+    ''' <summary>
+    ''' Adiciona ou troca o valor de um parametro em uma coleção
+    ''' </summary>
+    ''' <param name="Params">Coleçao</param>
+    ''' <param name="Parameter">Parâmetro</param>
+    <Extension()> Sub SetParameter(ByRef Params As DbParameterCollection, Parameter As DbParameter)
+        For Each p As DbParameter In Params
+            If p.ParameterName.TrimAny("@", " ") = Parameter.ParameterName.TrimAny("@", " ") Then
+                Params(Parameter.ParameterName).Value = If(Parameter.ParameterName, DBNull.Value)
+                Exit Sub
+            End If
+        Next
+        Params.Add(Parameter)
+    End Sub
+
     ''' <summary>
     ''' Retorna o DbType de acordo com o tipo do objeto
     ''' </summary>
@@ -24,7 +40,7 @@ Public Module DataManipulation
                 Return DbType.Int64
             Case GetType(Double)
                 Return DbType.Double
-            Case GetType(DateTime)
+            Case GetType(DateTime), GetType(Date)
                 Return DbType.DateTime
             Case GetType(Byte), GetType(Byte())
                 Return DbType.Binary

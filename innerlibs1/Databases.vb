@@ -140,8 +140,8 @@ Public NotInheritable Class DataBase
         ''' Retorna um Json do Reader
         ''' </summary>
         ''' <returns></returns>
-        Function ToJSON() As String
-            Return Me.SerializeJSON
+        Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+            Return Me.SerializeJSON(DateFormat)
         End Function
 
         ''' <summary>
@@ -149,8 +149,8 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <param name="ResultIndex">Índice do resultado</param>
         ''' <returns></returns>
-        Function ToJSON(ResultIndex As Integer) As String
-            Return MyBase.Item(ResultIndex).SerializeJSON
+        Function ToJSON(ResultIndex As Integer, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+            Return MyBase.Item(ResultIndex).SerializeJSON(DateFormat)
         End Function
 
         ''' <summary>
@@ -687,7 +687,7 @@ Public NotInheritable Class DataBase
             Using command As DbCommand = con.CreateCommand()
                 Dim param = command.CreateParameter()
                 param.DbType = DataManipulation.GetDbType(Value)
-                param.ParameterName = "@" & Name.TrimStart("@")
+                param.ParameterName = "@" & Name.TrimAny(True, "@", " ")
                 Dim valor As Object = DBNull.Value
                 Select Case Value.GetType
                     Case GetType(String), GetType(Char())
@@ -714,7 +714,6 @@ Public NotInheritable Class DataBase
                 Return param
             End Using
         End Using
-
     End Function
 
     ''' <summary>
@@ -937,37 +936,53 @@ Public NotInheritable Class DataBase
     ''' <returns></returns>
     Public Function CreateCommandFromRequest(Request As HttpRequest, SQLQuery As String, ParamArray CustomParameters As DbParameter()) As DbCommand
         Dim reg = New Regex("\@(?<param>[^=<>\s\',]+)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(SQLQuery)
-        Dim con = Activator.CreateInstance(ConnectionType)
-        con.ConnectionString = Me.ConnectionString
-        con.Open()
-        Dim command As DbCommand = con.CreateCommand()
-        command.CommandText = SQLQuery
-        For Each p As Match In reg
-            Dim param = p.Groups("param").Value
-            param = param.TrimAny(True, "@", " ")
-            Select Case True
-                Case Request.Form.AllKeys.Contains(param)
-                    command.Parameters.Add(Me.CreateParameter(param, Request.Form(param)))
-                Case Request.QueryString.AllKeys.Contains(param)
-                    command.Parameters.Add(Me.CreateParameter(param, Request.QueryString(param)))
-                Case Request.Files.AllKeys.Contains(param)
-                    command.Parameters.Add(Me.CreateParameter(param, Request.Files(param).ToBytes))
-                Case Request.Cookies.AllKeys.Contains(param)
-                    command.Parameters.Add(Me.CreateParameter(param, Request.Cookies(param)))
-                Case Request.ServerVariables.AllKeys.Contains(param)
-                    command.Parameters.Add(Me.CreateParameter(param, Request.ServerVariables(param)))
-                Case Else
-                    For Each c In CustomParameters
-                        If c.ParameterName.Trim("@") = param Then
-                            command.Parameters.Add(c)
-                        End If
-                    Next
-            End Select
-        Next
-        Return command
+        Using con = Activator.CreateInstance(ConnectionType)
+            con.ConnectionString = Me.ConnectionString
+            con.Open()
+            Dim command As DbCommand = con.CreateCommand()
+            command.CommandText = SQLQuery
+            Dim nomes As New List(Of String)
+            Try
+                nomes.AddRange(CustomParameters.[Select](Function(x) x.ParameterName.TrimAny(True, "@", " ")).Distinct())
+            Catch ex As Exception
+            End Try
+            For Each p As Match In reg
+                Dim param = p.Groups("param").Value
+                param = param.TrimAny(True, "@", " ")
+                Select Case True
+                    Case nomes.Contains(param)
+                        For Each c In CustomParameters
+                            If c.ParameterName.Trim("@") = param Then
+                                command.Parameters.SetParameter(c)
+                            End If
+                        Next
+                        Exit Select
+                    Case Request.Form.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Form(param)))
+                        Exit Select
+
+                    Case Request.QueryString.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.QueryString(param)))
+                        Exit Select
+
+                    Case Request.Files.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Files(param).ToBytes))
+                        Exit Select
+
+                    Case Request.Cookies.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Cookies(param)))
+                        Exit Select
+
+                    Case Request.ServerVariables.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.ServerVariables(param)))
+                        Exit Select
+                    Case Else
+                        command.Parameters.SetParameter(Me.CreateParameter(param, String.Empty))
+                End Select
+            Next
+            Return command
+        End Using
     End Function
-
-
 
     ''' <summary>
     ''' Executa uma procedure para cada item dentro de uma coleção
@@ -994,7 +1009,7 @@ Public NotInheritable Class DataBase
     End Sub
 
     ''' <summary>
-    ''' Executa uma série de procedures baseando-se eum uma unica chave estrangeira
+    ''' Executa uma série de procedures baseando-se em uma unica chave estrangeira
     ''' </summary>
     ''' <param name="BatchProcedure">Configuraçoes das procedures</param>
     Public Sub RunBatchProcedure(BatchProcedure As BatchProcedure)
@@ -1086,6 +1101,7 @@ Public NotInheritable Class DataBase
         Log(Command.CommandText)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
+        Command.Connection = con
         con.Open()
         Dim Reader As DbDataReader = Command.ExecuteReader()
         Return New Reader(Reader)

@@ -221,10 +221,10 @@ Public Module Text
                     Case "Y"c
                         sb.Append("¥")
                         Exit Select
-                    Case "u"c
+                    Case "U"c
                         sb.Append("µ")
                         Exit Select
-                    Case "U"c
+                    Case "u"c
                         sb.Append("µ")
                         Exit Select
                     Case "d"c
@@ -313,10 +313,10 @@ Public Module Text
                     Case "Y"c
                         sb.Append("¥")
                         Exit Select
-                    Case "u"c
+                    Case "U"c
                         sb.Append("µ")
                         Exit Select
-                    Case "U"c
+                    Case "u"c
                         sb.Append("µ")
                         Exit Select
                     Case "f"c
@@ -411,10 +411,10 @@ Public Module Text
                     Case "Y"c
                         sb.Append("¥")
                         Exit Select
-                    Case "u"c
+                    Case "U"c
                         sb.Append("µ")
                         Exit Select
-                    Case "U"c
+                    Case "u"c
                         sb.Append("µ")
                         Exit Select
                     Case "f"c
@@ -533,10 +533,10 @@ Public Module Text
                     Case "Y"c
                         sb.Append("¥")
                         Exit Select
-                    Case "u"c
+                    Case "U"c
                         sb.Append("µ")
                         Exit Select
-                    Case "U"c
+                    Case "u"c
                         sb.Append("µ")
                         Exit Select
                     Case "f"c
@@ -685,10 +685,10 @@ Public Module Text
                     Case "Y"c
                         sb.Append("¥")
                         Exit Select
-                    Case "u"c
+                    Case "U"c
                         sb.Append("µ")
                         Exit Select
-                    Case "U"c
+                    Case "u"c
                         sb.Append("µ")
                         Exit Select
                     Case "f"c
@@ -899,6 +899,16 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Remove do começo e do final de uma string qualquer valor que estiver no conjunto
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <param name="StringTest">Conjunto de textos que serão comparados</param>
+    ''' <returns></returns>
+    <Extension()> Public Function TrimAny(ByVal Text As String, ParamArray StringTest As String()) As String
+        Return Text.TrimAny(True, StringTest)
+    End Function
+
+    ''' <summary>
     ''' Transforma uma JSON String em um Objeto ou Classe
     ''' </summary>
     ''' <typeparam name="TypeClass">Objeto ou Classe</typeparam>
@@ -913,8 +923,8 @@ Public Module Text
     ''' </summary>
     ''' <param name="[Object]">Objeto</param>
     ''' <returns>Uma String JSON</returns>
-    <Extension()> Public Function SerializeJSON([Object] As Object) As String
-        Return New JavaScriptSerializer().Serialize([Object])
+    <Extension()> Public Function SerializeJSON([Object] As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return New JsonSerializer(DateFormat).Serialize([Object])
     End Function
 
     ''' <summary>

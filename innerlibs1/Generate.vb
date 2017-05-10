@@ -1,5 +1,4 @@
-﻿
-Imports System.Drawing
+﻿Imports System.Drawing
 Imports System.Net
 Imports System.Runtime.CompilerServices
 Imports System.Web
@@ -68,7 +67,6 @@ Public Module Generate
         Return letters(rnd.[Next](0, letters.Length - 1))
     End Function
 
-
     ''' <summary>
     ''' Gera uma Imagem com uma fonte específica do site Dafont (Muito Impreciso, API em fase experimental)
     ''' </summary>
@@ -103,10 +101,6 @@ Public Module Generate
             Throw New Exception("Url inválida")
         End If
     End Function
-
-
-
-
 
     ''' <summary>
     ''' Gera uma URL do google MAPs baseado na localização
@@ -158,7 +152,7 @@ Public Module Generate
     ''' <summary>
     ''' Tipo de mapa do Google Maps
     ''' </summary>
-    ''' 
+    '''
 
     Enum MapType
         ''' <summary>
@@ -182,7 +176,6 @@ Public Module Generate
 
         Terrain = 3
     End Enum
-
 
     ''' <summary>
     ''' Gera um numero Aleatório entre 2 números
@@ -226,12 +219,10 @@ Public Module Generate
     ''' </summary>
     ''' <param name="ParagraphNumber">Quantidade de parágrafos do texto</param>
     ''' <returns>Uma String contendo diversos paragrafos com texto aleatório</returns>
-    ''' 
+    '''
     Function LoremIpsum(Optional ParagraphNumber As Integer = 5) As String
         Return InnerIpsum(ParagraphNumber)
     End Function
-
-
 
     ''' <summary>
     ''' Converte uma String para um QR Code usando uma API (Nescessita de Internet)

@@ -1,9 +1,7 @@
-﻿
-Public Class InnerTable
+﻿Public Class InnerTable
     Inherits List(Of List(Of Object))
 
     Property Columns As New List(Of String)
-
 
     Public Sub New(ParamArray Columns() As String)
         Me.Columns.AddRange(Columns)
@@ -23,7 +21,7 @@ Public Class InnerTable
         End If
     End Sub
 
-    Public Function ToJSON()
-        Return Me.SerializeJSON
+    Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return Me.SerializeJSON(DateFormat)
     End Function
 End Class

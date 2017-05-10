@@ -117,10 +117,10 @@ Public NotInheritable Class AJAX
         Property response As Object
 
         ''' <summary>
-        ''' Tempo que a API demora para responder (calculado automaticamente no metodo <see cref="ToJSON()"/>)
+        ''' Tempo que a API demora para responder (calculado automaticamente no metodo <see cref="Response.ToJSON(String)"/>)
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property timeout As Integer
+        ReadOnly Property timeout As Long
             Get
                 Return t
             End Get
@@ -135,21 +135,29 @@ Public NotInheritable Class AJAX
         End Sub
 
         ''' <summary>
+        ''' Processa a resposta e retorna um JSON deste objeto. É um alias para <see cref="Response.ToJSON(String)"/>
+        ''' </summary>
+        Public Function SerializeJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+            Return ToJSON(DateFormat)
+        End Function
+
+        ''' <summary>
         ''' Processa a resposta e retorna um JSON deste objeto
         ''' </summary>
-        Public Function ToJSON()
+        Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
             Try
                 Me.status = If(status.IsBlank, "success", status)
                 t = Now.Ticks - t
-                Return Me.SerializeJSON
+                Return Text.SerializeJSON(Me, DateFormat)
             Catch ex As Exception
                 Me.status = If(status.IsBlank, "error", status)
                 Me.message = If(message.IsBlank, ex.Message, message)
                 Me.response = Nothing
                 t = Now.Ticks - t
-                Return Me.SerializeJSON
+                Return Text.SerializeJSON(Me, DateFormat)
             End Try
         End Function
+
     End Class
 End Class
 
@@ -453,7 +461,7 @@ Public Module Web
     ''' </summary>
     ''' <param name="URL">URL do Facebook</param>
     ''' <returns></returns>
-    Public Function GetFacebookUsername(URL As String) As String
+    <Extension> Public Function GetFacebookUsername(URL As String) As String
         If URL.IsURL AndAlso URL.GetDomain.ToLower = "facebook.com" Then
             Return Regex.Match(URL, "(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups(1).Value
         Else
@@ -466,7 +474,7 @@ Public Module Web
     ''' </summary>
     ''' <param name="URL">URL do Facebook</param>
     ''' <returns></returns>
-    Public Function GetFacebookUsername(URL As Uri) As String
+    <Extension> Public Function GetFacebookUsername(URL As Uri) As String
         Return GetFacebookUsername(URL.AbsoluteUri)
     End Function
 

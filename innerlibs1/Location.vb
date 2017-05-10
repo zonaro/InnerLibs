@@ -7,14 +7,14 @@ Imports System.Xml
 Public Class Location
 
     ''' <summary>
-    ''' Cria um novo objeto de localização vazio 
+    ''' Cria um novo objeto de localização vazio
     ''' </summary>
     Public Sub New()
 
     End Sub
 
     ''' <summary>
-    ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP e Google Maps 
+    ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP e Google Maps
     ''' </summary>
     ''' <param name="PostalCode"></param>
     ''' <param name="Number">Numero da casa</param>
@@ -35,8 +35,6 @@ Public Class Location
         Me.Longitude = Longitude
         Me.SearchOnGoogleMaps(Me.LatitudeLongitude, False)
     End Sub
-
-
 
     ''' <summary>
     ''' Endereco
@@ -117,7 +115,6 @@ Public Class Location
 
     Property Longitude As String
 
-
     ''' <summary>
     ''' URL do Google Maps
     ''' </summary>
@@ -151,7 +148,6 @@ Public Class Location
         Return FullAddress()
     End Function
 
-
     ''' <summary>
     ''' Retorna as coordenadas geográficas do Local
     ''' </summary>
@@ -161,8 +157,8 @@ Public Class Location
         Return Latitude & "," & Longitude
     End Function
 
-    Public Function ToJSON() As String
-        Return Me.SerializeJSON()
+    Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return Me.SerializeJSON(DateFormat)
     End Function
 
     ''' <summary>
@@ -177,7 +173,6 @@ Public Class Location
         Me.Address = cep("logradouro")
         Me.Country = "Brasil"
     End Sub
-
 
     ''' <summary>
     ''' Realiza uma busca detalhada no google Maps
