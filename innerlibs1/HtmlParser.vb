@@ -52,6 +52,10 @@ Public Class HtmlTag
         End Set
     End Property
 
+    Function GetElementsByTagName(ParamArray TagName As String())
+        Return InnerHtml.GetElementsByTagName(TagName)
+    End Function
+
     ''' <summary>
     ''' Nome da Tag
     ''' </summary>
@@ -94,7 +98,7 @@ Public Class HtmlTag
     End Property
 
     ''' <summary>
-    ''' Retorna a string da tag
+    ''' Retorna a string da tag. É um alias para <see cref="ToString()"/>
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property OuterHtml As String
@@ -141,7 +145,7 @@ Public Class HtmlTag
         If TagString.IsNotBlank Then
             stringoriginal = TagString
             Me.TagName = TagString.AdjustWhiteSpaces.GetBefore(" ").RemoveFirstIf("<")
-            Dim t As HtmlTag = TagString.GetElementsByTagName(Me.TagName).FirstOrDefault
+            Dim t As HtmlTag = TagString.GetElementsByTagName({Me.TagName}).FirstOrDefault
             Me.selfclosing = t.IsSelfClosingTag
             Me.Attributes = t.Attributes
             Me.InnerHtml = t.InnerHtml

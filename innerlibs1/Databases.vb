@@ -29,7 +29,7 @@ Public NotInheritable Class DataBase
         End Sub
 
         ''' <summary>
-        ''' Esvazia o reader
+        ''' Esvazia e destroi o reader
         ''' </summary>
         Public Sub Close()
             Me.Dispose()
@@ -51,9 +51,10 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Public Function GetColumns() As List(Of String)
             If HasResults AndAlso HasRows Then
-
+                Return MyBase.Item(resultindex)(0).Keys.ToList
+            Else
+                Return New List(Of String)
             End If
-            Return MyBase.Item(resultindex)(0).Keys.ToList
         End Function
 
         ''' <summary>
@@ -61,7 +62,23 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Public Function CountRows() As Integer
-            Return MyBase.Item(resultindex).Count
+            If HasRows Then
+                Return MyBase.Item(resultindex).Count
+            Else
+                Return 0
+            End If
+        End Function
+
+        ''' <summary>
+        ''' Retorna o numero de linhas de um resultado
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function CountRows(ResultIndex As Integer) As Integer
+            If HasRows And ResultIndex.Between(0, MyBase.Count - 1) Then
+                Return MyBase.Item(ResultIndex).Count
+            Else
+                Return 0
+            End If
         End Function
 
         ''' <summary>
@@ -71,8 +88,12 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnName As String) As Object
             Get
-                If rowindex < 0 Then rowindex = 0
-                Return MyBase.Item(resultindex)(rowindex)(ColumnName)
+                Try
+                    If rowindex < 0 Then rowindex = 0
+                    Return MyBase.Item(resultindex)(rowindex)(ColumnName)
+                Catch ex As Exception
+                    Return Nothing
+                End Try
             End Get
         End Property
 
@@ -84,9 +105,23 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnName As String, RowIndex As Integer) As Object
             Get
-                Return MyBase.Item(resultindex)(RowIndex)(ColumnName)
+                Try
+                    If RowIndex < 0 Then RowIndex = 0
+                    Return MyBase.Item(resultindex)(RowIndex)(ColumnName)
+                Catch ex As Exception
+                    Return Nothing
+                End Try
             End Get
         End Property
+
+        ''' <summary>
+        ''' Retorna um resultado (tabela) a partir do seu Index.
+        ''' </summary>
+        ''' <param name="ResultIndex">Indice do resultado</param>
+        ''' <returns></returns>
+        Function GetResult(ResultIndex As Integer) As List(Of Dictionary(Of String, Object))
+            Return MyBase.Item(ResultIndex)
+        End Function
 
         ''' <summary>
         ''' Retorna o valor da coluna do resultado e linha atual a partir do índice da coluna
@@ -166,7 +201,11 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
-            Return Me.SerializeJSON(DateFormat)
+            Try
+                Return Me.SerializeJSON(DateFormat)
+            Catch ex As Exception
+                Return Nothing
+            End Try
         End Function
 
         ''' <summary>
@@ -345,7 +384,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Cria uma lista de com os Itens de um DataBaseReader
+        ''' Cria uma lista de uma classe específica com os Itens de um DataBaseReader
         ''' </summary>
         ''' <returns></returns>
         Public Function ToList(Of TValue)() As List(Of TValue)
@@ -370,8 +409,31 @@ Public NotInheritable Class DataBase
         ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
         ''' <param name="Column">Coluna</param>
         ''' <returns></returns>
-        Public Function GetColumnValue(Of Type As IConvertible)(Column As String) As Type
+        Public Function GetCurrentRowColumnValue(Of Type As IConvertible)(Column As String) As Type
             Return DirectCast(Me(Column), Type)
+        End Function
+
+        ''' <summary>
+        ''' Retorna o valor de uma coluna especifica de um resultado de um DataBaseReader
+        ''' </summary>
+        ''' <param name="Column">Coluna</param>
+        ''' <param name="ResultIndex">Indice do resultado</param>
+        ''' <param name="RowIndex">Indice da linha dor resultado</param>
+        ''' <returns></returns>
+        Public Function GetValue(ResultIndex As Integer, RowIndex As Integer, Column As String) As Object
+            Return Me.GetResult(ResultIndex).Item(RowIndex).Item(Column)
+        End Function
+
+        ''' <summary>
+        ''' Retorna o valor de uma coluna especifica de um resultado de um DataBaseReader
+        ''' </summary>
+        ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
+        ''' <param name="Column">Coluna</param>
+        ''' <param name="ResultIndex">Indice do resultado</param>
+        ''' <param name="RowIndex">Indice da linha dor resultado</param>
+        ''' <returns></returns>
+        Public Function GetValue(Of Type As IConvertible)(ResultIndex As Integer, RowIndex As Integer, Column As String) As Type
+            Return DirectCast(Me.GetResult(ResultIndex).Item(RowIndex).Item(Column), Type)
         End Function
 
         ''' <summary>
@@ -575,7 +637,7 @@ Public NotInheritable Class DataBase
         ''' <summary>
         ''' Converte um DataBaseReader para uma tabela em HTML
         ''' </summary>
-        ''' <param name="Attr">Atributos da tabela. Recomenda-se o uso de classes</param>
+        ''' <param name="Attr">Atributos da tabela.</param>
         ''' <returns></returns>
         Public Function ToHTMLTable(Optional Attr As Dictionary(Of String, String) = Nothing) As HtmlTag
             If IsNothing(Attr) Then Attr = New Dictionary(Of String, String)

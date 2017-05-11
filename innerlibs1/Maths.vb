@@ -411,4 +411,44 @@ Public Module Mathematic
         Return totalDistance
     End Function
 
+    ''' <summary>
+    ''' Verifica se um numero está entre outros 2 números
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <param name="FirstNumber">Primeiro numero comparador</param>
+    ''' <param name="SecondNumber">Segundo numero comparador</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Between(Number As Decimal, FirstNumber As Decimal, SecondNumber As Decimal) As Boolean
+        Select Case True
+            Case FirstNumber < SecondNumber
+                Return FirstNumber < Number And Number < SecondNumber
+            Case FirstNumber > SecondNumber
+                Return FirstNumber > Number And Number > SecondNumber
+            Case Else
+                Return FirstNumber = Number And Number = SecondNumber
+        End Select
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um numero está entre outros 2 números
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <param name="FirstNumber">Primeiro numero comparador</param>
+    ''' <param name="SecondNumber">Segundo numero comparador</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Between(Number As Long, FirstNumber As Long, SecondNumber As Long) As Boolean
+        Return Between(Number.To(Of Decimal), FirstNumber.To(Of Decimal), SecondNumber.To(Of Decimal))
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um numero está entre outros 2 números
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <param name="FirstNumber">Primeiro numero comparador</param>
+    ''' <param name="SecondNumber">Segundo numero comparador</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Between(Number As Integer, FirstNumber As Integer, SecondNumber As Integer) As Boolean
+        Return Between(Number.To(Of Decimal), FirstNumber.To(Of Decimal), SecondNumber.To(Of Decimal))
+    End Function
+
 End Module

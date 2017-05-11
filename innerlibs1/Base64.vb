@@ -41,7 +41,6 @@ Public Module Base64
         Return "data:" & Type.MimeTypes.First.ToLower & ";base64," & Bytes.ToBase64()
     End Function
 
-
     ''' <summary>
     ''' Transforma uma imagem em uma URL Base64
     ''' </summary>
@@ -125,25 +124,32 @@ Public Module Base64
             Return base64String
         End Using
     End Function
+
     ''' <summary>
-    ''' Converte uma String Base64 para Imagem
+    ''' Converte uma String DataURL ou Base64 para Imagem
     ''' </summary>
-    ''' <param name="Base64String">A string Base64 a ser convertida</param>
+    ''' <param name="DataUrlOrBase64String">A string Base64 a ser convertida</param>
     ''' <param name="Width">Altura da nova imagem (não preencher retorna o tamanho original da imagem)</param>
     ''' <param name="Height">Largura da nova imagem (não preencher retorna o tamanho original da imagem)</param>
     ''' <returns>Uma imagem (componente Image())</returns>
 
     <Extension()>
-    Public Function ToImage(Base64String As String, Optional Width As Integer = 0, Optional Height As Integer = 0) As Image
-        Dim imageBytes As Byte() = Convert.FromBase64String(Base64String)
-        Dim ms = New MemoryStream(imageBytes, 0, imageBytes.Length)
-        ms.Write(imageBytes, 0, imageBytes.Length)
-        If Width > 0 And Height > 0 Then
-            Return Resize(Image.FromStream(ms, True), Width, Height, False)
-        Else
-            Return Image.FromStream(ms, True)
-        End If
-
+    Public Function ToImage(DataUrlOrBase64String As String, Optional Width As Integer = 0, Optional Height As Integer = 0) As Image
+        Try
+            If DataUrlOrBase64String.Contains(",") Then
+                DataUrlOrBase64String = DataUrlOrBase64String.Split(",")(1)
+            End If
+            Dim imageBytes As Byte() = Convert.FromBase64String(DataUrlOrBase64String)
+            Dim ms = New MemoryStream(imageBytes, 0, imageBytes.Length)
+            ms.Write(imageBytes, 0, imageBytes.Length)
+            If Width > 0 And Height > 0 Then
+                Return Resize(Image.FromStream(ms, True), Width, Height, False)
+            Else
+                Return Image.FromStream(ms, True)
+            End If
+        Catch ex As Exception
+            Throw New InvalidDataException("Invalid Base64 or DataURL string or Base64 format is not an Image", ex)
+        End Try
     End Function
 
     ''' <summary>
@@ -184,7 +190,6 @@ Public Module Base64
         Return If(DataUrl, "data:" & PostedFile.ContentType.ToLower() & ";base64," & Convert.ToBase64String(fileData.ToArray()), Convert.ToBase64String(fileData.ToArray()))
 
     End Function
-
 
     ''' <summary>
     ''' Converte uma Imagem dem HttpPostedFile para uma Data URI
