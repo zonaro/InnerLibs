@@ -50,6 +50,9 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Public Function GetColumns() As List(Of String)
+            If HasResults AndAlso HasRows Then
+
+            End If
             Return MyBase.Item(resultindex)(0).Keys.ToList
         End Function
 
@@ -92,8 +95,12 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnIndex As Integer) As Object
             Get
-                If rowindex < 0 Then rowindex = 0
-                Return MyBase.Item(resultindex)(rowindex)(MyBase.Item(resultindex)(rowindex).Keys(ColumnIndex))
+                Try
+                    If rowindex < 0 Then rowindex = 0
+                    Return MyBase.Item(resultindex)(rowindex)(MyBase.Item(resultindex)(rowindex).Keys(ColumnIndex))
+                Catch ex As Exception
+                    Return Nothing
+                End Try
             End Get
         End Property
 
@@ -105,7 +112,11 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnIndex As Integer, RowIndex As Integer) As Object
             Get
-                Return MyBase.Item(resultindex)(RowIndex)(MyBase.Item(resultindex)(RowIndex).Keys(ColumnIndex))
+                Try
+                    Return MyBase.Item(resultindex)(RowIndex)(MyBase.Item(resultindex)(RowIndex).Keys(ColumnIndex))
+                Catch ex As Exception
+                    Return Nothing
+                End Try
             End Get
         End Property
 
@@ -115,7 +126,17 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Public ReadOnly Property HasRows As Boolean
             Get
-                Return MyBase.Item(resultindex).Count > 0
+                Return HasResults AndAlso MyBase.Item(resultindex).Count > 0
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Verifica se exitem resultados
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property HasResults As Boolean
+            Get
+                Return MyBase.Count > 0
             End Get
         End Property
 
@@ -125,7 +146,11 @@ Public NotInheritable Class DataBase
         ''' <param name="RowIndex"></param>
         ''' <returns></returns>
         Public Function GetRow(RowIndex As Integer) As Dictionary(Of String, Object)
-            Return MyBase.Item(resultindex)(RowIndex)
+            If HasRows Then
+                Return MyBase.Item(resultindex)(RowIndex)
+            Else
+                Return Nothing
+            End If
         End Function
 
         ''' <summary>
@@ -133,7 +158,7 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Public Function GetCurrentRow() As Dictionary(Of String, Object)
-            Return MyBase.Item(resultindex)(rowindex)
+            Return GetRow(rowindex)
         End Function
 
         ''' <summary>
@@ -150,7 +175,11 @@ Public NotInheritable Class DataBase
         ''' <param name="ResultIndex">Índice do resultado</param>
         ''' <returns></returns>
         Function ToJSON(ResultIndex As Integer, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
-            Return MyBase.Item(ResultIndex).SerializeJSON(DateFormat)
+            If HasRows Then
+                Return MyBase.Item(ResultIndex).SerializeJSON(DateFormat)
+            Else
+                Return Nothing
+            End If
         End Function
 
         ''' <summary>
@@ -159,7 +188,11 @@ Public NotInheritable Class DataBase
         ''' <param name="Value">Valor</param>
         ''' <returns></returns>
         Function Search(Value As Object) As List(Of Dictionary(Of String, Object))
-            Return MyBase.Item(resultindex).Where(Function(x, y) x.Values(y).ToString().Contains(Value.ToString)).ToList
+            Try
+                Return MyBase.Item(resultindex).Where(Function(x, y) x.Values(y).ToString().Contains(Value.ToString)).ToList
+            Catch ex As Exception
+                Return Nothing
+            End Try
         End Function
 
         Friend Sub New(Reader As DbDataReader)
@@ -269,12 +302,14 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
+        ''' <param name="SelectedValues">Valores Selecionados</param>
         ''' <returns></returns>
-        Public Function ToListItems(TextColumn As String, Optional ValueColumn As String = "") As ListItem()
+        Public Function ToListItems(TextColumn As String, Optional ValueColumn As String = "", Optional SelectedValues As String() = Nothing) As ListItem()
             Dim h As New List(Of ListItem)
             If Me.HasRows Then
                 While Me.Read()
-                    h.Add(New ListItem(Me(TextColumn).ToString, Me(If(ValueColumn.IsBlank, TextColumn, ValueColumn)).ToString))
+                    ValueColumn = If(ValueColumn.IsBlank, TextColumn, ValueColumn)
+                    h.Add(New ListItem(Me(TextColumn).ToString, Me(ValueColumn).ToString) With {.Selected = (Not IsNothing(SelectedValues) AndAlso .Value.IsIn(SelectedValues))})
                 End While
             End If
             Return h.ToArray
@@ -286,8 +321,9 @@ Public NotInheritable Class DataBase
         ''' <param name="[SelectControl]">Controle HtmlSelect</param>
         ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
-        Public Sub FillSelectControl(ByRef [SelectControl] As HtmlSelect, TextColumn As String, Optional ValueColumn As String = "")
-            SelectControl.Items.AddRange(Me.ToListItems(TextColumn, ValueColumn))
+        ''' '<param name="SelectedValues">Valores Selecionados</param>
+        Public Sub FillSelectControl(ByRef [SelectControl] As HtmlSelect, TextColumn As String, Optional ValueColumn As String = "", Optional SelectedValues As String() = Nothing)
+            SelectControl.Items.AddRange(Me.ToListItems(TextColumn, ValueColumn, SelectedValues))
         End Sub
 
         ''' <summary>
