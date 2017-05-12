@@ -278,7 +278,7 @@ Namespace Templatizer
                 Case GetType(String)
                     response = response & header
                 Case GetType(TemplateList)
-                    response.Head.Add(header)
+                    response.Head.Add({header})
             End Select
             Return response
         End Function

@@ -29,12 +29,28 @@ Public Module ClassManager
     ''' <summary>
     ''' Verifica se o objeto existe dentro de uma Lista, coleção ou array.
     ''' </summary>
-    ''' <typeparam name="Type"></typeparam>
-    ''' <param name="Obj"></param>
-    ''' <param name="List"></param>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="Obj">objeto</param>
+    ''' <param name="List">Lista</param>
     ''' <returns></returns>
     <Extension()> Public Function IsIn(Of Type)(Obj As Type, List As IEnumerable(Of Type)) As Boolean
         Return List.Contains(Obj)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="List1">Lista 1</param>
+    ''' <param name="List2">Lista2</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ContainsAll(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type)) As Boolean
+        For Each value As Type In List2
+            If IsNothing(List1) OrElse IsNothing(List2) OrElse Not List1.Contains(value) Then
+                Return False
+            End If
+        Next
+        Return True
     End Function
 
     ''' <summary>
@@ -47,8 +63,6 @@ Public Module ClassManager
             Return d.ReadToEnd
         End Using
     End Function
-
-
 
     ''' <summary>
     ''' Adiciona uma fonte a uma PrivateFontCollection a partir de um Resource
@@ -89,6 +103,5 @@ Public Module ClassManager
         resourceStream.Close()
         Return fontBytes
     End Function
-
 
 End Module

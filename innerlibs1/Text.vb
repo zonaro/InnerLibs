@@ -9,7 +9,9 @@ Imports System.Web.Script.Serialization
 Imports System.Web.UI.HtmlControls
 Imports System.Windows.Forms
 Imports System.Xml
-Imports mshtml
+Imports System
+Imports System.Collections.Generic
+
 ''' <summary>
 ''' Modulo de manipulação de Texto
 ''' </summary>
@@ -993,8 +995,14 @@ Public Module Text
     ''' <param name="URL">URL</param>
     ''' <returns>nome do dominio</returns>
     <Extension>
-    Public Function GetDomain(URL As Uri) As String
-        Return URL.GetLeftPart(UriPartial.Authority).RemoveAny("http://", "https://", "www.")
+    Public Function GetDomain(URL As Uri, Optional RemoveFirstSubdomain As Boolean = False) As String
+        Dim d = URL.GetLeftPart(UriPartial.Authority).RemoveAny("http://", "https://", "www.")
+        If RemoveFirstSubdomain Then
+            Dim parts = d.Split(".").ToList
+            parts.Remove(parts.Item(0))
+            d = parts.Join(".")
+        End If
+        Return d
     End Function
 
     ''' <summary>
@@ -1023,8 +1031,8 @@ Public Module Text
     ''' <param name="URL">URL</param>
     ''' <returns>nome do dominio</returns>
     <Extension>
-    Public Function GetDomain(URL As String) As String
-        Return New Uri(URL).GetDomain
+    Public Function GetDomain(URL As String, Optional RemoveFirstSubdomain As Boolean = False) As String
+        Return New Uri(URL).GetDomain(RemoveFirstSubdomain)
     End Function
 
     ''' <summary>
@@ -1839,36 +1847,38 @@ Public Module Text
     ''' Procura uma tag especifica em uma string htm e a converte para uma HTMLTag
     ''' </summary>
     ''' <param name="HTMLText">String HTML</param>
-    ''' <param name="TagName">Nome da tag</param>
+    ''' <param name="TagNames">Nomes da tags</param>
     ''' <returns></returns>
     <Extension>
-    Public Function GetElementsByTagName(HTMLText As String, TagName As String) As List(Of HtmlTag)
+    Public Function GetElementsByTagName(HTMLText As String, ParamArray TagNames As String()) As List(Of HtmlTag)
         Dim lista As New List(Of HtmlTag)
-        TagName = TagName.RemoveAny("<", ">", "/").Trim
-        Dim listam As New List(Of Match)
-        For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>(?<innerhtml>.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
-            listam.Add(m)
-        Next
-        For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)/>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
-            listam.Add(m)
-        Next
-        For Each find As Match In listam
-            Dim t As New HtmlTag
-            t.stringoriginal = find.Value
-            t.TagName = TagName
-            Try
-                t.InnerHtml = find.Groups("innerhtml").Value
-                t.selfclosing = False
-            Catch ex As Exception
-                t.selfclosing = True
-            End Try
-            Dim atributos = find.Groups("attributes").Value
-            Dim xml As New XmlDocument()
-            xml.LoadXml("<temp " + atributos + "></temp>")
-            For Each a As XmlAttribute In xml.DocumentElement.Attributes
-                t.Attributes.Add(a.Name, a.Value)
+        For Each TagName In TagNames
+            TagName = TagName.RemoveAny("<", ">", "/").Trim
+            Dim listam As New List(Of Match)
+            For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>(?<innerhtml>.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
+                listam.Add(m)
             Next
-            lista.Add(t)
+            For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)/>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
+                listam.Add(m)
+            Next
+            For Each find As Match In listam
+                Dim t As New HtmlTag
+                t.stringoriginal = find.Value
+                t.TagName = TagName
+                Try
+                    t.InnerHtml = find.Groups("innerhtml").Value
+                    t.selfclosing = False
+                Catch ex As Exception
+                    t.selfclosing = True
+                End Try
+                Dim atributos = find.Groups("attributes").Value
+                Dim xml As New XmlDocument()
+                xml.LoadXml("<temp " + atributos + "></temp>")
+                For Each a As XmlAttribute In xml.DocumentElement.Attributes
+                    t.Attributes.Add(a.Name, a.Value)
+                Next
+                lista.Add(t)
+            Next
         Next
         Return lista
     End Function

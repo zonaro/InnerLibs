@@ -6,9 +6,9 @@ Imports System.Xml
 ''' </summary>
 Public Class HtmlTag
 
-    Friend stringoriginal As String
-    Friend selfclosing As Boolean
-    Friend htmlcontent As String
+    Friend stringoriginal As String = ""
+    Friend selfclosing As Boolean = False
+    Friend htmlcontent As String = ""
 
     ''' <summary>
     ''' String que originou essa classe
@@ -37,21 +37,41 @@ Public Class HtmlTag
     ''' <returns></returns>
     Default Property Attribute(Key As String) As String
         Get
-            If Key.IsNotBlank AndAlso Attributes.ContainsKey(Key) Then
-                Return Attributes(Key)
-            Else
-                Return ""
-            End If
+            Select Case True
+                Case Key.ToLower = "tagname"
+                    Return TagName
+                Case Key.ToLower = "innerhtml"
+                    Return InnerHtml
+                Case Key.ToLower = "innertext"
+                    Return InnerText
+                Case Key.IsNotBlank AndAlso Attributes.ContainsKey(Key)
+                    Return Attributes(Key)
+                Case Else
+                    Return ""
+            End Select
+
         End Get
         Set(value As String)
-            If Key.IsNotBlank AndAlso Attributes.ContainsKey(Key) Then
-                Attributes.Item(Key) = value
-            Else
-                If Key.IsNotBlank Then Attributes.Add(Key, value)
-            End If
+            Select Case True
+                Case Key.ToLower = "tagname"
+                    TagName = value.ToLower
+                Case Key.ToLower = "innerhtml"
+                    InnerHtml = value
+                Case Key.ToLower = "innertext"
+                    InnerText = value
+                Case Key.IsNotBlank AndAlso Attributes.ContainsKey(Key)
+                    Attributes.Item(Key) = value
+                Case Else
+                    If Key.IsNotBlank Then Attributes.Add(Key, "" & value)
+            End Select
         End Set
     End Property
 
+    ''' <summary>
+    ''' Retorna elementos desta tag por nome da tag
+    ''' </summary>
+    ''' <param name="TagName"></param>
+    ''' <returns></returns>
     Function GetElementsByTagName(ParamArray TagName As String())
         Return InnerHtml.GetElementsByTagName(TagName)
     End Function
@@ -66,7 +86,40 @@ Public Class HtmlTag
     ''' Atributos da Tag
     ''' </summary>
     ''' <returns></returns>
-    Public Property Attributes As New Dictionary(Of String, String)
+    Public Property Attributes As New SortedDictionary(Of String, String)
+
+    ''' <summary>
+    ''' String que representa os atributos da tag
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property AttributesString As String
+        Get
+            Dim attribs = ""
+            For Each a In Attributes
+                If a.Key.IsNotBlank Then
+                    If a.Value.IsBlank Then
+                        attribs.Append(" " & a.Key)
+                    Else
+                        attribs.Append(" " & a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote)
+                    End If
+                End If
+            Next
+            Return attribs.Trim
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' COnteudo da Tag sem HTML
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property InnerText As String
+        Set(value As String)
+            Me.InnerHtml = value.RemoveHTML
+        End Set
+        Get
+            Return InnerHtml.RemoveHTML
+        End Get
+    End Property
 
     ''' <summary>
     ''' Conteudo da Tag
@@ -112,18 +165,11 @@ Public Class HtmlTag
     ''' </summary>
     ''' <returns></returns>
     Public Overrides Function ToString() As String
-        Dim attribs = ""
-        For Each a In Attributes
-            If a.Value.IsBlank Then
-                attribs.Append(" " & a.Key)
-            Else
-                attribs.Append(" " & a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote)
-            End If
-        Next
+
         If IsSelfClosingTag Then
-            Return "<" & TagName & attribs & "/>"
+            Return "<" & TagName & " " & AttributesString & "/>"
         Else
-            Return "<" & TagName & attribs & ">" & InnerHtml & "</" & TagName & ">"
+            Return "<" & TagName & " " & AttributesString & ">" & InnerHtml & "</" & TagName & ">"
         End If
     End Function
 
@@ -143,9 +189,9 @@ Public Class HtmlTag
     ''' <param name="TagString">String contendo a tag</param>
     Public Sub New(Optional TagString As String = "")
         If TagString.IsNotBlank Then
-            stringoriginal = TagString
-            Me.TagName = TagString.AdjustWhiteSpaces.GetBefore(" ").RemoveFirstIf("<")
-            Dim t As HtmlTag = TagString.GetElementsByTagName({Me.TagName}).FirstOrDefault
+            Me.stringoriginal = TagString
+            Dim t As HtmlTag = TagString.GetElementsByTagName(TagString.Trim.GetBefore(" ").RemoveFirstIf("<")).FirstOrDefault
+            Me.TagName = t.TagName
             Me.selfclosing = t.IsSelfClosingTag
             Me.Attributes = t.Attributes
             Me.InnerHtml = t.InnerHtml

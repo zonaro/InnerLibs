@@ -639,8 +639,8 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <param name="Attr">Atributos da tabela.</param>
         ''' <returns></returns>
-        Public Function ToHTMLTable(Optional Attr As Dictionary(Of String, String) = Nothing) As HtmlTag
-            If IsNothing(Attr) Then Attr = New Dictionary(Of String, String)
+        Public Function ToHTMLTable(Optional Attr As SortedDictionary(Of String, String) = Nothing) As HtmlTag
+            If IsNothing(Attr) Then Attr = New SortedDictionary(Of String, String)
             Dim Returned As String = ""
             Do
                 If Me.HasRows Then

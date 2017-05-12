@@ -76,6 +76,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AJAXCOntentParser.vb" />
     <Compile Include="Base64.vb" />
     <Compile Include="bitly.vb" />
     <Compile Include="Bootstrap.vb" />
