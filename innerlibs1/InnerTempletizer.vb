@@ -22,6 +22,11 @@ Namespace Templatizer
             End Get
         End Property
 
+        ''' <summary>
+        ''' Aplica um seletor ao nome do campo
+        ''' </summary>
+        ''' <param name="Name"></param>
+        ''' <returns></returns>
         Public Function ApplySelector(Name As String) As String
             Return sel(0) & Name & sel(1)
         End Function
@@ -49,7 +54,7 @@ Namespace Templatizer
         ReadOnly Property TemplateDirectory As DirectoryInfo = Nothing
 
         ''' <summary>
-        ''' Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML utilziados como template
+        ''' Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML utilizados como template
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property ApplicationAssembly As Reflection.Assembly = Nothing
@@ -104,7 +109,7 @@ Namespace Templatizer
         ''' </summary>
         ''' <param name="DataBase">Conexão com o banco de dados</param>
         ''' <param name="ApplicationAssembly">Assembly da aplicação onde os arquivos HTML dos templates estão compilados</param>
-        Sub New(DataBase As DataBase, ApplicationAssembly As Reflection.Assembly)
+        Sub New(DataBase As DataBase, ApplicationAssembly As Assembly)
             Me.DataBase = DataBase
             Me.ApplicationAssembly = ApplicationAssembly
         End Sub
@@ -238,13 +243,13 @@ Namespace Templatizer
                         copia = copia.Replace(ApplySelector(col), reader(col).ToString())
                     Next
                     'replace nas procedures
-                    For Each sqlTag As HtmlTag In copia.GetElementsByTagName("template")
-                        sqlTag.ReplaceIn(copia)
+                    For Each templateTag As HtmlTag In copia.GetElementsByTagName("template")
+                        templateTag.ReplaceIn(copia)
                         Dim tp As String = ""
-                        Dim novaquery As String = sqlTag("data-sqlquery")
-                        Dim parametrossql As String = sqlTag("data-sqlparameters")
-                        If novaquery.IsBlank AndAlso sqlTag("data-sqlfile").IsNotBlank Then
-                            novaquery = DataBase.GetCommand(sqlTag("data-sqlfile"))
+                        Dim novaquery As String = templateTag("data-sqlquery")
+                        Dim parametrossql As String = templateTag("data-sqlparameters")
+                        If novaquery.IsBlank AndAlso templateTag("data-sqlfile").IsNotBlank Then
+                            novaquery = DataBase.GetCommand(templateTag("data-sqlfile"))
                             If parametrossql.IsNotBlank Then
                                 Dim colecaoparam = HttpUtility.ParseQueryString(parametrossql)
                                 For Each param In colecaoparam.AllKeys
@@ -252,15 +257,15 @@ Namespace Templatizer
                                 Next
                             End If
                         End If
-                        Dim arquivo As String = sqlTag("data-templatefile")
-                        Dim coluna As String = sqlTag("data-orderbycolumn")
+                        Dim arquivo As String = templateTag("data-templatefile")
+                        Dim coluna As String = templateTag("data-orderbycolumn")
                         If novaquery.IsNotBlank Then
                             If arquivo.IsBlank Then
-                                arquivo = sqlTag.InnerHtml
+                                arquivo = templateTag.InnerHtml
                             End If
                             tp = processar(Of String)(novaquery, arquivo, coluna)
                         End If
-                        copia = copia.Replace(sqlTag.ToString, tp)
+                        copia = copia.Replace(templateTag.ToString, tp)
                     Next
                     Select Case GetType(Type)
                         Case GetType(String)
@@ -278,7 +283,8 @@ Namespace Templatizer
                 Case GetType(String)
                     response = response & header
                 Case GetType(TemplateList)
-                    response.Head.Add({header})
+                    response.Head.Add(header.Split(Environment.NewLine))
+
             End Select
             Return response
         End Function
@@ -340,7 +346,11 @@ Namespace Templatizer
             For Each i In Me
                 htmlstring.Append(i.Content)
             Next
-            htmlstring.Append(Head.Join(Environment.NewLine))
+            For Each cab In Head.Distinct
+                For Each cabitem In cab.Distinct
+                    htmlstring.Append(cabitem & Environment.NewLine)
+                Next
+            Next
             Return htmlstring
         End Function
 

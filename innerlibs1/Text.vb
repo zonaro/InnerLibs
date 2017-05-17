@@ -1858,9 +1858,10 @@ Public Module Text
             For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>(?<innerhtml>.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
                 listam.Add(m)
             Next
-            For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)/>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
+            For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
                 listam.Add(m)
             Next
+
             For Each find As Match In listam
                 Dim t As New HtmlTag
                 t.stringoriginal = find.Value
@@ -1873,9 +1874,17 @@ Public Module Text
                 End Try
                 Dim atributos = find.Groups("attributes").Value
                 Dim xml As New XmlDocument()
-                xml.LoadXml("<temp " + atributos + "></temp>")
+                xml.LoadXml("<temp " & atributos.TrimEnd("/") & "></temp>")
                 For Each a As XmlAttribute In xml.DocumentElement.Attributes
-                    t.Attributes.Add(a.Name, a.Value)
+                    Select Case a.Name.ToLower
+                        Case "class"
+                            t.Class.AddRange(a.Value.Split(" "))
+                        Case "style"
+                            t.Attribute("style") = a.Value
+                        Case Else
+                            t.Attributes.Add(a.Name, a.Value)
+                    End Select
+
                 Next
                 lista.Add(t)
             Next

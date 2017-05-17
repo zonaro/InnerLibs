@@ -99,7 +99,7 @@ Public Module Base64
 
     <Extension()>
     Public Function ToBase64(ImageURL As String) As String
-        Dim imagem As System.Drawing.Image = System.Drawing.Image.FromStream(System.Net.WebRequest.Create(String.Format(ImageURL)).GetResponse().GetResponseStream())
+        Dim imagem As System.Drawing.Image = AJAX.GET(Of Image)(ImageURL)
         Using m As New MemoryStream()
             imagem.Save(m, imagem.RawFormat)
             Dim imageBytes As Byte() = m.ToArray()
@@ -139,7 +139,7 @@ Public Module Base64
             If DataUrlOrBase64String.Contains(",") Then
                 DataUrlOrBase64String = DataUrlOrBase64String.Split(",")(1)
             End If
-            Dim imageBytes As Byte() = Convert.FromBase64String(DataUrlOrBase64String)
+            Dim imageBytes As Byte() = Convert.FromBase64String(DataUrlOrBase64String.FixBase64)
             Dim ms = New MemoryStream(imageBytes, 0, imageBytes.Length)
             ms.Write(imageBytes, 0, imageBytes.Length)
             If Width > 0 And Height > 0 Then
@@ -175,7 +175,7 @@ Public Module Base64
     End Function
 
     ''' <summary>
-    ''' Converte uma Imagem dem HttpPostedFile para String Base64
+    ''' Converte um arquivo em HttpPostedFile para String Base64
     ''' </summary>
     ''' <param name="PostedFile">Arquivo de Imagem</param>
     ''' <param name="DataUrl">Especifica se a resposta deve ser em DataURI ou apenas a Base64</param>

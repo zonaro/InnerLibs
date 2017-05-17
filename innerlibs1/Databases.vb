@@ -639,7 +639,7 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <param name="Attr">Atributos da tabela.</param>
         ''' <returns></returns>
-        Public Function ToHTMLTable(Optional Attr As SortedDictionary(Of String, String) = Nothing) As HtmlTag
+        Public Function ToHTMLTable(Optional Attr As IDictionary(Of String, String) = Nothing) As HtmlTag
             If IsNothing(Attr) Then Attr = New SortedDictionary(Of String, String)
             Dim Returned As String = ""
             Do
@@ -802,6 +802,10 @@ Public NotInheritable Class DataBase
                         End If
                     Case GetType(FileInfo)
                         If DirectCast(Value, FileInfo).Length > 0 Then
+                            Return Me.CreateParameter(Name, Value.ToBytes())
+                        End If
+                    Case GetType(Drawing.Image)
+                        If Not IsNothing(Value) Then
                             Return Me.CreateParameter(Name, Value.ToBytes())
                         End If
                     Case Else

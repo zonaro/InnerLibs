@@ -1,4 +1,5 @@
-﻿Imports System.Windows.Forms
+﻿Imports System.Text.RegularExpressions
+Imports System.Windows.Forms
 Imports System.Xml
 
 ''' <summary>
@@ -39,26 +40,48 @@ Public Class HtmlTag
         Get
             Select Case True
                 Case Key.ToLower = "tagname"
-                    Return TagName
+                    Return TagName & ""
                 Case Key.ToLower = "innerhtml"
-                    Return InnerHtml
+                    Return InnerHtml & ""
                 Case Key.ToLower = "innertext"
-                    Return InnerText
+                    Return InnerText & ""
+                Case Key.ToLower = "class"
+                    Return Me.Class.Join(" ")
+                Case Key.ToLower = "id"
+                    Return Me.ID & ""
+                Case Key.ToLower = "style"
+                    Dim r As String = ""
+                    For Each item In Style
+                        r.Append(item.Key & ":" & item.Value & ";")
+                    Next
+                    Return r & ""
                 Case Key.IsNotBlank AndAlso Attributes.ContainsKey(Key)
-                    Return Attributes(Key)
+                    Return Attributes(Key) & ""
                 Case Else
                     Return ""
             End Select
-
         End Get
         Set(value As String)
             Select Case True
+                Case Key.ToLower = "id"
+                    Me.ID = value
                 Case Key.ToLower = "tagname"
                     TagName = value.ToLower
                 Case Key.ToLower = "innerhtml"
                     InnerHtml = value
                 Case Key.ToLower = "innertext"
                     InnerText = value
+                Case Key.ToLower = "class"
+                    Me.Class = value.Split(" ").ToList
+                Case Key.ToLower = "style"
+                    Dim d As New Dictionary(Of String, String)
+                    Try
+                        For Each prop In value.Split(";")
+                            d.Add(prop.Split(":")(0), prop.Split(":")(1))
+                        Next
+                    Catch ex As Exception
+                    End Try
+                    Style = New SortedDictionary(Of String, String)(d)
                 Case Key.IsNotBlank AndAlso Attributes.ContainsKey(Key)
                     Attributes.Item(Key) = value
                 Case Else
@@ -66,6 +89,18 @@ Public Class HtmlTag
             End Select
         End Set
     End Property
+
+    ''' <summary>
+    ''' Atributo Class da tag HTML
+    ''' </summary>
+    ''' <returns></returns>
+    Property [Class] As New List(Of String)
+
+    ''' <summary>
+    ''' Estilos CSS da tag
+    ''' </summary>
+    ''' <returns></returns>
+    Property Style As New SortedDictionary(Of String, String)
 
     ''' <summary>
     ''' Retorna elementos desta tag por nome da tag
@@ -82,21 +117,66 @@ Public Class HtmlTag
     ''' <returns></returns>
     '''
     Public Property TagName As String
+
+    ''' <summary>
+    ''' ID da tag
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ID As String
+
     ''' <summary>
     ''' Atributos da Tag
     ''' </summary>
     ''' <returns></returns>
-    Public Property Attributes As New SortedDictionary(Of String, String)
+    Public Property Attributes As SortedDictionary(Of String, String)
+        Get
+            Return cs
+        End Get
+        Set(value As SortedDictionary(Of String, String))
+            cs = New SortedDictionary(Of String, String)
+            For Each k In value.Keys
+                Me.Attribute(k) = value(k)
+            Next
+        End Set
+    End Property
+
+    Private cs As SortedDictionary(Of String, String)
 
     ''' <summary>
-    ''' String que representa os atributos da tag
+    ''' Retorna todas as Keys dos atributos incluindo id, class e style se estes possuirem algum valor
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property AttributesKeys As List(Of String)
+        Get
+            Dim l As New List(Of String)(Attributes.Keys)
+            If ID.IsNotBlank Then l.Add("id")
+            If Style.Count > 0 Then l.Add("style")
+            If Me.Class.Count > 0 Then l.Add("class")
+            Return l
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' String que representa os atributos da tag incluindo class, id e style se estes possuirem algum valor
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property AttributesString As String
         Get
             Dim attribs = ""
+            If [Class].Count > 0 Then
+                attribs.Append(" class=" & Attribute("class").Quote)
+            End If
+
+            If Style.Count > 0 Then
+                attribs.Append(" style=" & Attribute("style").Quote)
+            End If
+
+            If ID.IsNotBlank Then
+                attribs.Append(" id=" & Attribute("id").Quote)
+            End If
+
             For Each a In Attributes
-                If a.Key.IsNotBlank Then
+                If a.Key.IsNotBlank And Not a.Key.IsIn({"innerhtml", "innertext", "id", "style", "class"}) Then
                     If a.Value.IsBlank Then
                         attribs.Append(" " & a.Key)
                     Else
@@ -104,6 +184,7 @@ Public Class HtmlTag
                     End If
                 End If
             Next
+
             Return attribs.Trim
         End Get
     End Property
@@ -114,7 +195,7 @@ Public Class HtmlTag
     ''' <returns></returns>
     Public Property InnerText As String
         Set(value As String)
-            Me.InnerHtml = value.RemoveHTML
+            Me.InnerHtml = value.HtmlEncode
         End Set
         Get
             Return InnerHtml.RemoveHTML
@@ -184,16 +265,30 @@ Public Class HtmlTag
     End Sub
 
     ''' <summary>
-    ''' Cria uma HtmlTagInfo a partir de uma String
+    ''' Remove a Tag String original em um texto
+    ''' </summary>
+    ''' <param name="HtmlText">Texto HTML com a string original</param>
+    Public Sub RemoveIn(ByRef HtmlText As String)
+        If stringoriginal.IsNotBlank Then
+            HtmlText = HtmlText.Replace(stringoriginal, "")
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' Cria uma HtmlTag a partir de uma String
     ''' </summary>
     ''' <param name="TagString">String contendo a tag</param>
     Public Sub New(Optional TagString As String = "")
         If TagString.IsNotBlank Then
             Me.stringoriginal = TagString
-            Dim t As HtmlTag = TagString.GetElementsByTagName(TagString.Trim.GetBefore(" ").RemoveFirstIf("<")).FirstOrDefault
+            Me.TagName = TagString.Trim.GetBetween("<", ">").GetBefore(" ")
+            Dim t As HtmlTag = TagString.GetElementsByTagName(Me.TagName).FirstOrDefault
             Me.TagName = t.TagName
             Me.selfclosing = t.IsSelfClosingTag
             Me.Attributes = t.Attributes
+            Me.Class = t.Class
+            Me.Style = t.Style
+            Me.ID = t.ID
             Me.InnerHtml = t.InnerHtml
         End If
     End Sub

@@ -54,6 +54,22 @@ Public Module ClassManager
     End Function
 
     ''' <summary>
+    ''' Verifica se uma lista, coleção ou array contem um dos itens de outra lista, coleção ou array.
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="List1">Lista 1</param>
+    ''' <param name="List2">Lista2</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ContainsAny(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type)) As Boolean
+        For Each value As Type In List2
+            If Not IsNothing(List1) AndAlso List1.Contains(value) Then
+                Return True
+            End If
+        Next
+        Return False
+    End Function
+
+    ''' <summary>
     ''' Pega o texto de um arquivo embutido no assembly
     ''' </summary>
     ''' <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
