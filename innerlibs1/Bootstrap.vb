@@ -1,12 +1,9 @@
-﻿
-
-Imports System.Runtime.CompilerServices
+﻿Imports System.Runtime.CompilerServices
 Imports System.Web.UI.HtmlControls
 Imports System.Xml
 Namespace Bootstrap
 
     Public Class Bootstrap
-
 
         ''' <summary>
         ''' Classe que representa a aparência de um elemento de forma geral
@@ -144,7 +141,6 @@ Namespace Bootstrap
                 Return OuterHtml
             End Function
 
-
         End Class
 
         Public Class ProgressBar
@@ -157,7 +153,6 @@ Namespace Bootstrap
             Property Label As Boolean = True
             Property Min As Decimal = 0
             Property Max As Decimal = 100
-
 
             Public Sub New(Value As Integer, Optional Min As Decimal = 0, Optional Max As Decimal = 100)
                 Me.Value = Value
@@ -200,4 +195,3 @@ Namespace Bootstrap
     End Class
 
 End Namespace
-
