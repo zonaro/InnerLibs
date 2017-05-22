@@ -140,20 +140,23 @@ Namespace Templatizer
         ''' <param name="Templatefile">Nome do arquivo do template</param>
         ''' <returns></returns>
         Public Function GetTemplateContent(TemplateFile As String) As String
-            TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
-            If IsNothing(ApplicationAssembly) Then
-                Dim filefound = TemplateDirectory.SearchFiles(SearchOption.TopDirectoryOnly, TemplateFile).First
-                If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
-                Using file As StreamReader = filefound.OpenText
-                    Return file.ReadToEnd
-                End Using
-            Else
-                Try
-                    Return GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
-                Catch ex As Exception
-                    Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
-                End Try
+            If TemplateFile.IsNotBlank Then
+                TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
+                If IsNothing(ApplicationAssembly) Then
+                    Dim filefound = TemplateDirectory.SearchFiles(SearchOption.TopDirectoryOnly, TemplateFile).First
+                    If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
+                    Using file As StreamReader = filefound.OpenText
+                        Return file.ReadToEnd
+                    End Using
+                Else
+                    Try
+                        Return GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
+                    Catch ex As Exception
+                        Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
+                    End Try
+                End If
             End If
+            Return ""
         End Function
 
         ''' <summary>
@@ -217,7 +220,7 @@ Namespace Templatizer
             Dim template As String = ""
             Dim header As String = ""
 
-            If Not TemplateFile.ContainsAny("<", ">") Then
+            If Not TemplateFile.ContainsAny("<", ">") Or TemplateFile.IsBlank Then
                 template = GetTemplateContent(TemplateFile)
                 Try
                     header = template.GetElementsByTagName("head").First.InnerHtml
@@ -244,6 +247,7 @@ Namespace Templatizer
                     Next
                     'replace nas procedures
                     For Each templateTag As HtmlTag In copia.GetElementsByTagName("template")
+
                         templateTag.ReplaceIn(copia)
                         Dim tp As String = ""
                         Dim novaquery As String = templateTag("data-sqlquery")

@@ -773,6 +773,17 @@ Public NotInheritable Class DataBase
     End Class
 
     ''' <summary>
+    ''' Cria um parametro de Query SQL a partir de uma variavel convertida para um tipo especifico
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo</typeparam>
+    ''' <param name="Name">Nome do Parametro</param>
+    ''' <param name="Value">Valor do Parametro</param>
+    ''' <returns></returns>
+    Function CreateParameter(Of Type)(Name As String, Value As Object) As DbParameter
+        Return CreateParameter(Name, DirectCast(Value, Type))
+    End Function
+
+    ''' <summary>
     ''' Cria um parametro de Query SQL a partir de uma variavel
     ''' </summary>
     ''' <param name="Name">Nome do Parametro</param>
@@ -787,7 +798,7 @@ Public NotInheritable Class DataBase
                 param.DbType = DataManipulation.GetDbType(Value)
                 param.ParameterName = "@" & Name.TrimAny(True, "@", " ")
                 Dim valor As Object = DBNull.Value
-                Select Case Value.GetType
+                Select Case If(Not IsNothing(Value) AndAlso Not IsNothing(Value.GetType), Value.GetType, GetType(Object))
                     Case GetType(String), GetType(Char())
                         valor = Value.ToString
                     Case GetType(Char)
@@ -1050,11 +1061,11 @@ Public NotInheritable Class DataBase
             End Try
             For Each p As Match In reg
                 Dim param = p.Groups("param").Value
-                param = param.TrimAny(True, "@", " ")
+                param = param.TrimAny(True, "@", " ", ",")
                 Select Case True
                     Case nomes.Contains(param)
                         For Each c In CustomParameters
-                            If c.ParameterName.Trim("@") = param Then
+                            If c.ParameterName.TrimAny("@", " ", ",") = param Then
                                 command.Parameters.SetParameter(c)
                             End If
                         Next

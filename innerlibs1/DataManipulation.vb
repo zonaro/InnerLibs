@@ -27,6 +27,7 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension()>
     Public Function GetDbType(Obj As Object) As DbType
+        If IsNothing(Obj) Then Return DbType.Object
         Select Case Obj.GetType
             Case GetType(String)
                 Return DbType.String

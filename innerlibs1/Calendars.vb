@@ -1,6 +1,4 @@
-﻿
-
-Imports System.Collections.Specialized
+﻿Imports System.Collections.Specialized
 Imports System.Runtime.CompilerServices
 Imports System.Web
 Imports System.Web.UI.WebControls
@@ -85,8 +83,6 @@ Public Module Calendars
         End If
     End Function
 
-
-
     ''' <summary>
     ''' Retorna uma lista com as datas de dias especificos da semana entre 2 datas
     ''' </summary>
@@ -120,7 +116,6 @@ Public Module Calendars
         Return h
     End Function
 
-
     ''' <summary>
     ''' Retorna uma String no formato "W dias, X horas, Y minutos e Z segundos"
     ''' </summary>
@@ -143,7 +138,6 @@ Public Module Calendars
         End If
         Return current.AdjustWhiteSpaces
     End Function
-
 
     ''' <summary>
     ''' Retorna uma String baseado no numero do Mês Ex.: 1 -> Janeiro
@@ -183,7 +177,6 @@ Public Module Calendars
         End Select
 
     End Function
-
 
     ''' <summary>
     ''' Retorna uma String curta baseado no numero do Mês Ex.: 1 -> Jan
@@ -248,7 +241,6 @@ Public Module Calendars
 
     Public ReadOnly Property Yesterday() As DateTime = DateTime.Now.AddDays(-1)
 
-
     ''' <summary>
     ''' Verifica se o dia se encontra no fim de semana
     ''' </summary>
@@ -259,7 +251,6 @@ Public Module Calendars
     Public Function IsWeekend(YourDate As DateTime) As Boolean
         Return (YourDate.DayOfWeek = DayOfWeek.Sunday Or YourDate.DayOfWeek = DayOfWeek.Saturday)
     End Function
-
 
     <Extension()>
     Private Function ToGreetingFarewell(Time As DateTime, Optional Language As String = "pt", Optional Farewell As Boolean = False) As String
@@ -303,12 +294,24 @@ Public Module Calendars
     ''' Transforma um DateTime em uma despedida (Bom dia, Boa tarde, Boa noite)
     ''' </summary>
     ''' <param name="Time">Horario</param>
-    ''' <param name="Language">Idioma da saudação (pt, en, es)</param> 
+    ''' <param name="Language">Idioma da saudação (pt, en, es)</param>
     ''' <returns>Uma string com a despedida</returns>
     <Extension>
-    Public Function Farewell(Time As DateTime, Optional Language As String = "pt") As String
+    Public Function ToFarewell(Time As DateTime, Optional Language As String = "pt") As String
         Return Time.ToGreetingFarewell(Language, True)
     End Function
+
+    ''' <summary>
+    ''' Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
+    ''' </summary>
+    ''' <param name="Time">Horario</param>
+    ''' <param name="Language">Idioma da saudação (pt, en, es)</param>
+    ''' <returns>Uma string com a despedida</returns>
+    <Extension>
+    Public Function ToGreeting(Time As DateTime, Optional Language As String = "pt") As String
+        Return Time.ToGreetingFarewell(Language, False)
+    End Function
+
     ''' <summary>
     ''' Retorna uma saudação
     ''' </summary>
@@ -324,13 +327,11 @@ Public Module Calendars
     ''' </summary>
     ''' <param name="Language">Idioma da despedida (pt, en, es)</param>
     ''' <returns>Uma string com a despedida</returns>
-    Public ReadOnly Property Fareweel(Optional Language As String = "pt") As String
+    Public ReadOnly Property Farewell(Optional Language As String = "pt") As String
         Get
             Return Now.ToGreetingFarewell(Language, True)
         End Get
     End Property
-
-
 
     ''' <summary>
     ''' Returna uma lista dupla com os meses
@@ -365,7 +366,6 @@ Public Module Calendars
             Return Months
         End Get
     End Property
-
 
     ''' <summary>
     ''' Returna uma lista dupla com os meses
@@ -412,7 +412,6 @@ Public Module Calendars
             Box.Items.Add(New ListItem(item.Key, item.Value))
         Next
     End Sub
-
 
     ''' <summary>
     ''' Tipo de Apresentação dos Meses/Dias da Semana/Estado
@@ -464,5 +463,3 @@ Public Module Calendars
     End Function
 
 End Module
-
-

@@ -1,9 +1,8 @@
-﻿
-Imports System.IO
+﻿Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Web
 ''' <summary>
-''' Módulo para criação de arquivos baseados em Array de Bytes() 
+''' Módulo para criação de arquivos baseados em Array de Bytes()
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Files
@@ -56,13 +55,13 @@ Public Module Files
     ''' <param name="File">Arquivo postado</param>
     ''' <returns>Um array do tipo Byte()</returns>
     <Extension> Public Function ToBytes(File As HttpPostedFile) As Byte()
-        Dim br As New BinaryReader(File.InputStream)
-        Return br.ReadBytes(CInt(File.InputStream.Length))
+        Try
+            Dim br As New BinaryReader(File.InputStream)
+            Return br.ReadBytes(CInt(File.InputStream.Length))
+        Catch ex As Exception
+            Return Nothing
+        End Try
     End Function
-
-
-
-
 
     ''' <summary>
     ''' Salva um texto em um arquivo

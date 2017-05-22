@@ -131,11 +131,12 @@ Public Module Base64
     ''' <param name="DataUrlOrBase64String">A string Base64 a ser convertida</param>
     ''' <param name="Width">Altura da nova imagem (não preencher retorna o tamanho original da imagem)</param>
     ''' <param name="Height">Largura da nova imagem (não preencher retorna o tamanho original da imagem)</param>
-    ''' <returns>Uma imagem (componente Image())</returns>
+    ''' <returns>Uma imagem (componente Image)</returns>
 
     <Extension()>
     Public Function ToImage(DataUrlOrBase64String As String, Optional Width As Integer = 0, Optional Height As Integer = 0) As Image
         Try
+            If DataUrlOrBase64String.IsBlank Then Return Nothing
             If DataUrlOrBase64String.Contains(",") Then
                 DataUrlOrBase64String = DataUrlOrBase64String.Split(",")(1)
             End If

@@ -985,7 +985,7 @@ Public Module Text
     ''' <param name="Separator">Separador entre as strings</param>
     ''' <returns>string</returns>
     <Extension()>
-    Public Function Join(Of Type)(List As List(Of Type), Optional Separator As String = ";") As String
+    Public Function Join(Of Type)(List As List(Of Type), Optional Separator As String = "") As String
         Return List.ToArray.Join(Separator)
     End Function
 
@@ -1858,10 +1858,11 @@ Public Module Text
             For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>(?<innerhtml>.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
                 listam.Add(m)
             Next
-            For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
-                listam.Add(m)
-            Next
-
+            If listam.Count = 0 Then
+                For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
+                    listam.Add(m)
+                Next
+            End If
             For Each find As Match In listam
                 Dim t As New HtmlTag
                 t.stringoriginal = find.Value
@@ -1877,6 +1878,8 @@ Public Module Text
                 xml.LoadXml("<temp " & atributos.TrimEnd("/") & "></temp>")
                 For Each a As XmlAttribute In xml.DocumentElement.Attributes
                     Select Case a.Name.ToLower
+                        Case "id"
+                            t.ID = a.Value
                         Case "class"
                             t.Class.AddRange(a.Value.Split(" "))
                         Case "style"
@@ -2207,4 +2210,30 @@ Public Module Text
         Return Text
     End Function
 
+    ''' <summary>
+    ''' Retorna uma string em sua forma poop
+    ''' </summary>
+    ''' <param name="Words"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function Poopfy(Words As String()) As String
+        Dim p As New List(Of String)
+        For Each Text In Words
+            Dim l As Decimal = Text.Length / 2
+            l = l.Floor
+            If Not Text.GetFirstChars(l).Last.ToString.ToLower.IsIn({"a", "e", "i", "o", "u"}) Then
+                l = l.To(Of Integer).Decrement
+            End If
+            p.Add(Text.GetFirstChars(l).Trim & Text.GetFirstChars(l).Reverse.ToList.Join.ToLower.Trim)
+        Next
+        Return p.Join(" ").Trim
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma string em sua forma poop
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function Poopfy(Text As String) As String
+        Return Text.Split(" ").Poopfy
+    End Function
 End Module

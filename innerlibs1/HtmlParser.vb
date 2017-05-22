@@ -107,7 +107,7 @@ Public Class HtmlTag
     ''' </summary>
     ''' <param name="TagName"></param>
     ''' <returns></returns>
-    Function GetElementsByTagName(ParamArray TagName As String())
+    Function GetElementsByTagName(ParamArray TagName As String()) As List(Of HtmlTag)
         Return InnerHtml.GetElementsByTagName(TagName)
     End Function
 
@@ -140,7 +140,7 @@ Public Class HtmlTag
         End Set
     End Property
 
-    Private cs As SortedDictionary(Of String, String)
+    Private cs As New SortedDictionary(Of String, String)
 
     ''' <summary>
     ''' Retorna todas as Keys dos atributos incluindo id, class e style se estes possuirem algum valor
