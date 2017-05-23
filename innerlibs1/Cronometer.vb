@@ -56,6 +56,7 @@ Namespace TimeMachine
 
         Sub New(Optional Format As String = "")
             MyBase.New()
+            Me.Visible = False
             timer.Interval = 1
             AddHandler timer.Tick, AddressOf IncrementTick
             Me.Format = Format.IfBlank(Me.Format)
