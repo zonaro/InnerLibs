@@ -14,20 +14,12 @@ Namespace TimeMachine
         ''' Texto atual do cronometro
         ''' </summary>
         ''' <returns></returns>
-        Public Shadows Property Text As String
+        Public Shadows Property Text(Optional Format As String = "") As String
             Get
-                Return MyBase.Text
+                Return Value.ToString(Format.IfBlank(Me.Format).IfBlank("hh\:mm\:ss\.ffff"))
             End Get
             Set(value As String)
-                Try
-                    Try
-                        MyBase.Text = TimeSpan.Parse(value).ToString(Format)
-                    Catch ex As Exception
-                        MyBase.Text = TimeSpan.Parse(value).ToString("hh\:mm\:ss\.ffff")
-                    End Try
-                Catch
-                    Throw New ArgumentException("Value is not a TimeSpan string")
-                End Try
+
             End Set
         End Property
 
@@ -150,7 +142,6 @@ Namespace TimeMachine
             End RemoveHandler
 
             RaiseEvent(ByVal sender As Object, ByVal e As System.EventArgs)
-
                 Me.Text = Value.ToString(Format)
                 For Each handler As EventHandler In TickActions
                     Try
