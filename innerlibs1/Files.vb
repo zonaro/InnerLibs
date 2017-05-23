@@ -1,6 +1,7 @@
 ﻿Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Web
+
 ''' <summary>
 ''' Módulo para criação de arquivos baseados em Array de Bytes()
 ''' </summary>
@@ -15,9 +16,10 @@ Public Module Files
 
     <Extension()>
     Public Function WriteToFile(Bytes As Byte(), FilePath As String) As FileInfo
-        Path.GetDirectoryName(FilePath).ToDirectory()
-        File.WriteAllBytes(FilePath, Bytes)
-        Return New FileInfo(FilePath)
+        Dim p = New FileInfo(FilePath)
+        p.Directory.FullName.ToDirectory()
+        File.WriteAllBytes(p.FullName, Bytes)
+        Return p
     End Function
 
     ''' <summary>
@@ -98,4 +100,5 @@ Public Module Files
     <Extension()> Public Function GetLatestDirectoryName(Path As FileInfo)
         Return IO.Path.GetDirectoryName(Path.DirectoryName)
     End Function
+
 End Module

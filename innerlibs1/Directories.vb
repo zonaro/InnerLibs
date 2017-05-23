@@ -1,6 +1,4 @@
-﻿
-
-Imports System.IO
+﻿Imports System.IO
 Imports System.IO.Compression
 Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
@@ -81,6 +79,17 @@ Public Module Directories
         Return New FileInfo(OutputFile)
     End Function
 
+    ''' <summary>
+    ''' Extrai um arquivo zip em um diretório
+    ''' </summary>
+    ''' <param name="File">Arquivo ZIp</param>
+    ''' <param name="Directory">Diretório</param>
+    ''' <returns></returns>
+    <Extension> Function ExtractZipFile(ByVal File As FileInfo, ByVal Directory As DirectoryInfo) As DirectoryInfo
+        Directory = (Directory.FullName & "\" & Path.GetFileNameWithoutExtension(File.Name)).ToDirectory
+        ZipFile.ExtractToDirectory(File.FullName, Directory.FullName)
+        Return Directory.FullName.ToDirectory
+    End Function
 
     ''' <summary>
     ''' Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas
@@ -113,7 +122,6 @@ Public Module Directories
         Next
         Return FilteredList
     End Function
-
 
     ''' <summary>
     ''' Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
@@ -204,7 +212,5 @@ Public Module Directories
             TopDirectory.Delete()
         End If
     End Sub
-
-
 
 End Module

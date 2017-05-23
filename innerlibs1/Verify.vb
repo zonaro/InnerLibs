@@ -29,8 +29,6 @@ Public Module Verify
         Return (digito(0) = CPF(9) And digito(1) = CPF(10))
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se uma string é um caminho de diretório válido
     ''' </summary>
@@ -55,8 +53,6 @@ Public Module Verify
         Return String.IsNullOrWhiteSpace(Path.GetExtension(Text))
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se uma string é um caminho de diretóio válido
     ''' </summary>
@@ -76,11 +72,11 @@ Public Module Verify
     Public Function IsIP(IP As String) As Boolean
         Return Regex.IsMatch(IP, "\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b")
     End Function
+
     ''' <summary>
     ''' Verifica se a aplicação está rodando como administrador
     ''' </summary>
     ''' <returns>TRUE ou FALSE</returns>
-
 
     Public Function IsRunningAsAdministrator() As Boolean
         ' Get current Windows user
@@ -93,15 +89,13 @@ Public Module Verify
         Return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator)
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se o arquivo está em uso por outro procedimento
     ''' </summary>
     ''' <param name="File">o Arquivo a ser verificado</param>
     ''' <returns>TRUE se o arquivo estiver em uso, FALSE se não estiver</returns>
 
-    Public Function IsInUse(File As FileInfo) As Boolean
+    <Extension()> Public Function IsInUse(File As FileInfo) As Boolean
         Try
             File.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None)
             Return False
@@ -110,13 +104,11 @@ Public Module Verify
         End Try
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se o valor é um numero
     ''' </summary>
     ''' <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
-    ''' <returns>TRUE se for um numero, FALSE se não for um numero</returns> 
+    ''' <returns>TRUE se for um numero, FALSE se não for um numero</returns>
     <Extension()>
     Public Function IsNumber(Value) As Boolean
         Try
@@ -138,6 +130,7 @@ Public Module Verify
         Dim emailExpression As New Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])")
         Return emailExpression.IsMatch(Text)
     End Function
+
     ''' <summary>
     ''' Verifica se um determinado texto é uma URL válida
     ''' </summary>
@@ -175,6 +168,7 @@ Public Module Verify
         End Try
 
     End Function
+
     ''' <summary>
     ''' Verifica se o User Agent da requisição é um dispositivel móvel (Celulares e Tablets)
     ''' </summary>
@@ -216,6 +210,7 @@ Public Module Verify
     Public Function IsDesktop(HttpRequest As HttpRequest) As Boolean
         Return Not HttpRequest.IsMobile()
     End Function
+
     ''' <summary>
     ''' Verifica se um valor é NULO e prepara a string para uma query TransactSQL
     ''' </summary>
@@ -232,6 +227,7 @@ Public Module Verify
             Return DefaultValue
         End If
     End Function
+
     ''' <summary>
     ''' Verifica se uma String está em branco
     ''' </summary>
@@ -245,8 +241,6 @@ Public Module Verify
             Return String.IsNullOrWhiteSpace(Text)
         End If
     End Function
-
-
 
     ''' <summary>
     ''' Verifica se uma String não está em branco
@@ -307,6 +301,7 @@ Public Module Verify
     Public Function IsOdd(Value As Decimal) As Boolean
         Return Not Value.IsEven
     End Function
+
     ''' <summary>
     ''' Verifica se um numero é impar
     ''' </summary>
@@ -316,6 +311,7 @@ Public Module Verify
     Public Function IsOdd(Value As Integer) As Boolean
         Return Not Value.IsEven
     End Function
+
     ''' <summary>
     ''' Verifica se um numero é impar
     ''' </summary>
@@ -325,4 +321,5 @@ Public Module Verify
     Public Function IsOdd(Value As Long) As Boolean
         Return Not Value.IsEven
     End Function
+
 End Module

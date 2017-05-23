@@ -40,7 +40,7 @@ Public NotInheritable Class AJAX
                         Return client.Encoding.GetString(responsebytes)
                     Case GetType(FileInfo)
                         Return responsebytes.WriteToFile(FilePath)
-                    Case GetType(Byte)
+                    Case GetType(Byte), GetType(Byte())
                         Return responsebytes
                     Case GetType(XmlDocument)
                         Using ms As New MemoryStream(responsebytes)
@@ -105,11 +105,13 @@ Public NotInheritable Class AJAX
         ''' </summary>
         ''' <returns></returns>
         Property status As String = ""
+
         ''' <summary>
         ''' Mensagem retornada ao ciente
         ''' </summary>
         ''' <returns></returns>
         Property message As String = ""
+
         ''' <summary>
         ''' Objeto adicionado a resposta, ele será serializado em JSON
         ''' </summary>
@@ -159,6 +161,7 @@ Public NotInheritable Class AJAX
         End Function
 
     End Class
+
 End Class
 
 ''' <summary>

@@ -84,6 +84,7 @@
     <Compile Include="BrowserImageCapture.vb" />
     <Compile Include="ClassManager.vb" />
     <Compile Include="Console.vb" />
+    <Compile Include="Cronometer.vb" />
     <Compile Include="DataGridViewManager.vb" />
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />
@@ -185,6 +186,7 @@
     <Content Include="js\InnerFormValidation.js" />
     <Content Include="js\InnerLibs.js" />
     <Content Include="js\jquery.innerform.js" />
+    <None Include="Resources\zsnesw.exe" />
     <EmbeddedResource Include="GoogleMap.html" />
   </ItemGroup>
   <ItemGroup>
