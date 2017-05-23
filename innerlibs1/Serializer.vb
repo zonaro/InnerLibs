@@ -40,6 +40,8 @@ Public Class JsonSerializer
             Dim dt As DateTime = Convert.ToDateTime(obj)
             Dim dicDateTime As New Dictionary(Of String, Object)
             dicDateTime.Add("DateString", dt.ToString(DateFormat))
+            dicDateTime.Add("DayOfYear", dt.DayOfYear)
+            dicDateTime.Add("DayOfWeek", dt.ToString("dddd"))
             dicDateTime.Add("Year", dt.Year)
             dicDateTime.Add("Month", dt.Month)
             dicDateTime.Add("Day", dt.Day)
@@ -48,6 +50,7 @@ Public Class JsonSerializer
             dicDateTime.Add("Second", dt.Second)
             dicDateTime.Add("Millisecond", dt.Millisecond)
             dicDateTime.Add("Ticks", dt.Ticks)
+
             Return dicDateTime
         End Function
 

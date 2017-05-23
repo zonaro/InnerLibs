@@ -84,7 +84,9 @@
     <Compile Include="BrowserImageCapture.vb" />
     <Compile Include="ClassManager.vb" />
     <Compile Include="Console.vb" />
-    <Compile Include="Cronometer.vb" />
+    <Compile Include="Cronometer.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="DataGridViewManager.vb" />
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />

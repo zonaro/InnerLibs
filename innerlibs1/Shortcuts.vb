@@ -17,7 +17,7 @@ Public Module Shortcuts
     <Extension()>
     Public Function CreateShortcut(Directory As DirectoryInfo, Name As String, Optional Arguments As String = Nothing, Optional Target As String = Nothing, Optional Description As String = Nothing, Optional Icon As String = Nothing) As Boolean
         Try
-            Dim location = Directory.FullName & "\" & Name.RemoveLastIf(".lnk") & ".lnk"
+            Dim location = Directory.FullName & Path.DirectorySeparatorChar & Name.RemoveLastIf(".lnk") & ".lnk"
             Dim oShell As New WshShell
             Dim shortcut As IWshShortcut
             shortcut = oShell.CreateShortcut(location)

@@ -20,7 +20,7 @@ Public Module Directories
         If Directory.Exists(DirectoryName) = False Then
             Directory.CreateDirectory(DirectoryName)
         End If
-        Return New DirectoryInfo(DirectoryName & "\")
+        Return New DirectoryInfo(DirectoryName & Path.DirectorySeparatorChar)
     End Function
 
     ''' <summary>
@@ -72,7 +72,7 @@ Public Module Directories
         OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
         For Each arq In FilesDirectory.SearchFiles(SearchOption, Searches)
             Using archive As ZipArchive = ZipFile.Open(OutputFile, If(File.Exists(OutputFile), ZipArchiveMode.Update, ZipArchiveMode.Create))
-                Dim arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).Replace("\", "/"), CompressionLevel)
+                Dim arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).Replace("/", Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), CompressionLevel)
                 Debug.WriteLine("Adding: " & arqz.FullName)
             End Using
         Next
@@ -86,7 +86,7 @@ Public Module Directories
     ''' <param name="Directory">Diretório</param>
     ''' <returns></returns>
     <Extension> Function ExtractZipFile(ByVal File As FileInfo, ByVal Directory As DirectoryInfo) As DirectoryInfo
-        Directory = (Directory.FullName & "\" & Path.GetFileNameWithoutExtension(File.Name)).ToDirectory
+        Directory = (Directory.FullName & Path.DirectorySeparatorChar & Path.GetFileNameWithoutExtension(File.Name)).ToDirectory
         ZipFile.ExtractToDirectory(File.FullName, Directory.FullName)
         Return Directory.FullName.ToDirectory
     End Function
@@ -147,8 +147,8 @@ Public Module Directories
     ''' <returns></returns>
     <Extension> Public Function CopyTo(Directory As DirectoryInfo, DestinationDirectory As DirectoryInfo) As DirectoryInfo
         If Not DestinationDirectory.Exists Then DestinationDirectory.Create()
-        My.Computer.FileSystem.CopyDirectory(Directory.FullName, DestinationDirectory.FullName & "\" & Directory.Name)
-        Return New DirectoryInfo(DestinationDirectory.FullName & "\" & Directory.Name)
+        My.Computer.FileSystem.CopyDirectory(Directory.FullName, DestinationDirectory.FullName & Path.DirectorySeparatorChar & Directory.Name)
+        Return New DirectoryInfo(DestinationDirectory.FullName & Path.DirectorySeparatorChar & Directory.Name)
     End Function
 
     ''' <summary>

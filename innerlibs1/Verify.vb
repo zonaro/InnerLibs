@@ -30,12 +30,30 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se uma string é um caminho de arquivo válido
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <returns>TRUE se o caminho for válido</returns>
+    <Extension()>
+    Public Function IsFilePath(ByVal Text As String) As Boolean
+        Text = Text.Trim()
+        If Directory.Exists(Text) Then
+            Return False
+        End If
+        If File.Exists(Text) Then
+            Return True
+        End If
+        ' if has extension then its a file; directory otherwise
+        Return Not Text.EndsWith(Path.DirectorySeparatorChar) And String.IsNullOrWhiteSpace(Path.GetExtension(Text))
+    End Function
+
+    ''' <summary>
     ''' Verifica se uma string é um caminho de diretório válido
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns>TRUE se o caminho for válido</returns>
     <Extension()>
-    Public Function IsDirectory(ByVal Text As String) As Boolean
+    Public Function IsDirectoryPath(ByVal Text As String) As Boolean
         Text = Text.Trim()
         If Directory.Exists(Text) Then
             Return True
@@ -60,7 +78,7 @@ Public Module Verify
     ''' <returns>TRUE se o caminho for válido</returns>
     <Extension()>
     Function IsPath(Text As String) As Boolean
-        Return Text.IsDirectory
+        Return Text.IsDirectoryPath Or Text.IsFilePath
     End Function
 
     ''' <summary>
@@ -79,14 +97,7 @@ Public Module Verify
     ''' <returns>TRUE ou FALSE</returns>
 
     Public Function IsRunningAsAdministrator() As Boolean
-        ' Get current Windows user
-        Dim windowsIdentity1 As WindowsIdentity = WindowsIdentity.GetCurrent()
-
-        ' Get current Windows user principal
-        Dim windowsPrincipal As New WindowsPrincipal(windowsIdentity1)
-
-        ' Return TRUE if user is in role "Administrator"
-        Return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator)
+        Return New WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator)
     End Function
 
     ''' <summary>
@@ -158,11 +169,7 @@ Public Module Verify
         Try
             Dim HostName As String = New Uri(DomainOrEmail).Host
             ObjHost = System.Net.Dns.GetHostEntry(HostName)
-            If ObjHost.HostName = HostName Then
-                Return True
-            Else
-                Return False
-            End If
+            Return ObjHost.HostName = HostName
         Catch ex As Exception
             Return False
         End Try
@@ -229,17 +236,34 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo da Variavel</typeparam>
+    ''' <param name="Value">Valor</param>
+    ''' <param name="ValueIfBlank">Valor se estiver em branco</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function IfBlank(Of Type)(Value As Type, ValueIfBlank As Type) As Type
+        Select Case GetType(Type)
+            Case GetType(String)
+                Return If(Value.ToString().IsBlank, ValueIfBlank, Value)
+            Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
+                Return If(Value.ToString.IsBlank Or Value.ToString.To(Of Long) = 0, ValueIfBlank, Value)
+            Case GetType(DateTime)
+                Return If(Value.ToString.To(Of Date) = DateTime.MinValue, ValueIfBlank, Value)
+            Case Else
+                Return (If(IsNothing(Value), ValueIfBlank, Value))
+        End Select
+    End Function
+
+    ''' <summary>
     ''' Verifica se uma String está em branco
     ''' </summary>
     ''' <param name="Text">Uma string</param>
     ''' <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
     <Extension>
     Public Function IsBlank(Text As String) As Boolean
-        If Text Is Nothing Then
-            Return True
-        Else
-            Return String.IsNullOrWhiteSpace(Text)
-        End If
+        Return IsNothing(Text) AndAlso String.IsNullOrWhiteSpace(Text)
     End Function
 
     ''' <summary>
@@ -255,7 +279,7 @@ Public Module Verify
     ''' <summary>
     ''' Verifica se um numero é par
     ''' </summary>
-    ''' <param name="Value">Velor</param>
+    ''' <param name="Value">Valor</param>
     ''' <returns></returns>
     <Extension()>
     Public Function IsEven(Value As Decimal) As Boolean

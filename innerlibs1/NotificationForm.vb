@@ -5,8 +5,6 @@ Imports InnerLibs.FormAnimator
 
 Public NotInheritable Class NotificationForm
 
-
-
     ''' <summary>
     ''' Lista com as notificações abertas
     ''' </summary>
@@ -16,10 +14,12 @@ Public NotInheritable Class NotificationForm
     ''' Indicates whether the form can receive focus or not.
     ''' </summary>
     Private allowFocus As Boolean = False
+
     ''' <summary>
     ''' The object that creates the sliding animation.
     ''' </summary>
     Private animator As FormAnimator
+
     ''' <summary>
     ''' The handle of the window that currently has focus.
     ''' </summary>
@@ -27,16 +27,10 @@ Public NotInheritable Class NotificationForm
 
     Private CorrectPos As Point = Nothing
 
-
-
-
-
     ''' <summary>
     ''' Gets the handle of the window that currently has focus.
     ''' </summary>
-    ''' <returns>
-    ''' The handle of the window that currently has focus.
-    ''' </returns>
+    ''' <returns>The handle of the window that currently has focus.</returns>
     <DllImport("user32")>
     Private Shared Function GetForegroundWindow() As IntPtr
     End Function
@@ -44,24 +38,17 @@ Public NotInheritable Class NotificationForm
     ''' <summary>
     ''' Activates the specified window.
     ''' </summary>
-    ''' <param name="hWnd">
-    ''' The handle of the window to be focused.
-    ''' </param>
-    ''' <returns>
-    ''' True if the window was focused; False otherwise.
-    ''' </returns>
+    ''' <param name="hWnd">The handle of the window to be focused.</param>
+    ''' <returns>True if the window was focused; False otherwise.</returns>
     <DllImport("user32")>
     Private Shared Function SetForegroundWindow(ByVal hWnd As IntPtr) As Boolean
     End Function
 
-
-
-
     ''' <summary>
     ''' Cria uma Nova Notificação
     ''' </summary>
-    ''' <param name="Action">Ação disparada no clique do botão OK</param>
-    ''' <param name="ShowInputBox">Mostra ou esconde a InputBox</param> 
+    ''' <param name="Action">      Ação disparada no clique do botão OK</param>
+    ''' <param name="ShowInputBox">Mostra ou esconde a InputBox</param>
 
     Public Sub New(Optional ByRef Action As EventHandler = Nothing, Optional ShowInputBox As Boolean = False)
         InitializeComponent()
@@ -76,9 +63,6 @@ Public NotInheritable Class NotificationForm
         Me.animator = New FormAnimator(Me, FormAnimator.AnimationMethod.Slide, OpenDirection, 500)
     End Sub
 
-
-
-
     ''' <summary>
     ''' Alinhamento do texto da notificação
     ''' </summary>
@@ -91,7 +75,6 @@ Public NotInheritable Class NotificationForm
             Me.MessageLabel.TextAlign = value
         End Set
     End Property
-
 
     ''' <summary>
     ''' Texto do Botão OK
@@ -148,13 +131,11 @@ Public NotInheritable Class NotificationForm
     ''' <returns></returns>
     Public Property RemainTime As Integer = 0
 
-
     ''' <summary>
     ''' Valor que representa se o contador de segundos deve ser exibido na notificação
     ''' </summary>
     ''' <returns></returns>
     Public Property ShowRemainTime As Boolean = True
-
 
     ''' <summary>
     ''' Tamanho da notificação
@@ -174,14 +155,12 @@ Public NotInheritable Class NotificationForm
     ''' </summary>
     ''' <returns></returns>
     Public Property OpenDirection As AnimationDirection = AnimationDirection.Up
+
     ''' <summary>
     ''' Direção que a notificação desliza ao ser fechada
     ''' </summary>
     ''' <returns></returns>
     Public Property CloseDirection As AnimationDirection = AnimationDirection.Down
-
-
-
 
     ''' <summary>
     ''' Destroi todas as notificações criadas na aplicação.
@@ -201,7 +180,7 @@ Public NotInheritable Class NotificationForm
     ''' <summary>
     ''' Exibe a notificação
     ''' </summary>
-    ''' <param name="Seconds">Tempo que a notificação ficará na tela</param>
+    ''' <param name="Seconds">       Tempo que a notificação ficará na tela</param>
     ''' <param name="ShowRemainTime">Exibe o contador na notificação</param>
     Public Shadows Sub Show(Optional Seconds As Integer = 0, Optional ShowRemainTime As Boolean = False)
         Label1.Text = ""
@@ -229,7 +208,6 @@ Public NotInheritable Class NotificationForm
 
         Me.animator.Direction = CloseDirection
     End Sub
-
 
     Private Sub NotificationForm_Activated(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Activated
         'Prevent the form taking focus when it is initially shown.
@@ -273,7 +251,6 @@ Public NotInheritable Class NotificationForm
         End Select
     End Sub
 
-
     Private Sub NotificationForm_TextChanged(sender As Object, e As EventArgs) Handles Me.TextChanged, lifeTimer.Tick
         MessageLabel.Text = Me.Text.Replace("##RemainTime##", Me.Label1.Text)
     End Sub
@@ -293,6 +270,5 @@ Public NotInheritable Class NotificationForm
         CorrectPos = New Point(Screen.PrimaryScreen.WorkingArea.Width - Me.Width - 5, Screen.PrimaryScreen.WorkingArea.Height - Me.Height - 5)
         Me.Location = CorrectPos
     End Sub
-
 
 End Class

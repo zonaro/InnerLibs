@@ -30,22 +30,22 @@ Namespace SQLExplorer
                             Case SQLQuery.ContainsAny(" WHERE ", " where ") And SQLQuery.ContainsAny(" INTO ".Quote, " into ".Quote)
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)INTO\s(.*)WHERE\s([^>]*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
                                 intofile = r.Groups(3).Value.GetWrappedText().First
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf(Path.DirectorySeparatorChar).GetWrappedText().First)
                                 wheres = r.Groups(4).Value
                                 Exit Select
                             Case SQLQuery.ContainsAny(" INTO ".Quote, " into ".Quote)
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)INTO\s(.*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
                                 intofile = r.Groups(3).Value.GetWrappedText().First
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf(Path.DirectorySeparatorChar).GetWrappedText().First)
                                 Exit Select
                             Case SQLQuery.ContainsAny(" WHERE ", " where ")
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)WHERE\s([^>]*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf(Path.DirectorySeparatorChar).GetWrappedText().First)
                                 wheres = r.Groups(3).Value
                                 Exit Select
                             Case Else
                                 r = New Regex("SELECT\s(.*)FROM\s(.*)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Match(SQLQuery)
-                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf("\").GetWrappedText().First)
+                                diretorio = New DirectoryInfo(r.Groups(2).Value.RemoveLastIf(Path.DirectorySeparatorChar).GetWrappedText().First)
                         End Select
 
                         Dim searching As SearchOption
@@ -91,20 +91,20 @@ Namespace SQLExplorer
                         If intofile.IsNotBlank Then
                             LatestFile = New FileInfo(intofile)
                             Select Case True
-                                Case intofile.IsDirectory
+                                Case intofile.IsDirectoryPath
                                     For Each f As FileSystemInfo In Me
-                                        If f.FullName.IsDirectory Then
+                                        If f.FullName.IsDirectoryPath Then
                                             Directories.CopyTo(New DirectoryInfo(f.FullName), intofile.ToDirectory)
                                         Else
-                                            File.Copy(f.FullName, intofile.ToDirectory.FullName & "\" & f.Name)
+                                            File.Copy(f.FullName, intofile.ToDirectory.FullName & Path.DirectorySeparatorChar & f.Name)
                                         End If
                                     Next
                                 Case New FileInfo(intofile).Extension.IsAny(".zip")
                                     Using memoryStream = New MemoryStream()
                                         Using archive = New ZipArchive(memoryStream, ZipArchiveMode.Create, True)
                                             For Each f As FileSystemInfo In Me
-                                                If Not f.FullName.IsDirectory Then
-                                                    Dim arqz = archive.CreateEntryFromFile(f.FullName, f.FullName.RemoveAny(diretorio.FullName).Replace("\", "/"), CompressionLevel.Fastest)
+                                                If Not f.FullName.IsDirectoryPath Then
+                                                    Dim arqz = archive.CreateEntryFromFile(f.FullName, f.FullName.RemoveAny(diretorio.FullName).Replace("/", Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), CompressionLevel.Fastest)
                                                 End If
                                             Next
                                         End Using

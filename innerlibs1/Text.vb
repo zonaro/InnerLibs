@@ -786,6 +786,31 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Verifica se uma string começa com alguma outra string de um array
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Words"></param>
+    ''' <returns></returns>
+    <Extension()> Function StarsWithAny(Text As String, ParamArray Words As String()) As Boolean
+        For Each w In Words
+            If Text.StartsWith(w) Then Return True
+        Next
+        Return False
+    End Function
+    ''' <summary>
+    ''' Verifica se uma string termina com alguma outra string de um array
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Words"></param>
+    ''' <returns></returns>
+    <Extension()> Function EndsWithAny(Text As String, ParamArray Words As String()) As Boolean
+        For Each w In Words
+            If Text.EndsWith(w) Then Return True
+        Next
+        Return False
+    End Function
+
+    ''' <summary>
     ''' Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro caractere desejado) e retorna um valor indicando se o texto precisou ser censurado
     ''' </summary>
     ''' <param name="Text">Texto</param>
@@ -860,12 +885,14 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function RemoveLastAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray EndStringTest As String()) As String
-        For Each item In EndStringTest
-            If Text.EndsWith(item) Then
-                Text = Text.RemoveLastIf(item)
-                If Not ContinuouslyRemove Then Return Text
-            End If
-        Next
+        While Text.EndsWithAny(EndStringTest)
+            For Each item In EndStringTest
+                If Text.EndsWith(item) Then
+                    Text = Text.RemoveLastIf(item)
+                    If Not ContinuouslyRemove Then Return Text
+                End If
+            Next
+        End While
         Return Text
     End Function
 
@@ -878,12 +905,14 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function RemoveFirstAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StartStringTest As String()) As String
-        For Each item In StartStringTest
-            If Text.StartsWith(item) Then
-                Text = Text.RemoveFirstIf(item)
-                If Not ContinuouslyRemove Then Return Text
-            End If
-        Next
+        While Text.EndsWithAny(StartStringTest)
+            For Each item In StartStringTest
+                If Text.StartsWith(item) Then
+                    Text = Text.RemoveFirstIf(item)
+                    If Not ContinuouslyRemove Then Return Text
+                End If
+            Next
+        End While
         Return Text
     End Function
 
@@ -916,8 +945,8 @@ Public Module Text
     ''' <typeparam name="TypeClass">Objeto ou Classe</typeparam>
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
-    <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String) As TypeClass
-        Return New JavaScriptSerializer().Deserialize(Of TypeClass)(JSON)
+    <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As TypeClass
+        Return New JsonSerializer(DateFormat).Deserialize(Of TypeClass)(JSON)
     End Function
 
     ''' <summary>
@@ -936,10 +965,19 @@ Public Module Text
     ''' <param name="Separator">Texto utilizado como separador</param>
     ''' <returns></returns>
     <Extension>
-    Public Function Split(Text As String, Separator As String) As String()
+    Public Function Split(Text As String, Separator As String, Optional Options As StringSplitOptions = StringSplitOptions.None) As String()
         Dim l As New List(Of String)
         l.Add(Separator)
         Return Text.Split(l.ToArray, StringSplitOptions.None)
+    End Function
+
+    ''' <summary>
+    ''' Retorna as plavaras contidas em uma frase em ordem alfabética
+    ''' </summary>
+    ''' <param name="Text">TExto</param>
+    ''' <returns></returns>
+    <Extension()> Function GetWords(Text As String) As List(Of String)
+        Return Text.Split(" ", StringSplitOptions.RemoveEmptyEntries).Distinct.OrderBy(Of String)(Function(q) q = q).ToList
     End Function
 
     ''' <summary>
@@ -1156,6 +1194,15 @@ Public Module Text
     Public Function ToFriendlyURL(Text As String, Optional UseUnderscore As Boolean = False) As String
         Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?").RemoveAccents().ToLower()
     End Function
+    ''' <summary>
+    ''' Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca espacos por hifen). É um alias para <see cref="ToFriendlyURL(String, Boolean)"/>
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="UseUnderscore">Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens</param>
+    ''' <returns>string amigavel para URL</returns>
+    <Extension()> Function ToSlug(Text As String, Optional UseUnderscore As Boolean = False) As String
+        Return Text.ToFriendlyURL(UseUnderscore)
+    End Function
 
     ''' <summary>
     ''' Compara se uma string é igual a outras strings
@@ -1295,8 +1342,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToBytesString(ByVal Size As Double) As String
-        Return Size.To(Of Decimal).ToBytesString
+    Public Function ToFileSizeString(ByVal Size As Double) As String
+        Return Size.To(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1305,8 +1352,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToBytesString(ByVal Size As Integer) As String
-        Return Size.To(Of Decimal).ToBytesString
+    Public Function ToFileSizeString(ByVal Size As Integer) As String
+        Return Size.To(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1315,8 +1362,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToBytesString(ByVal Size As Long) As String
-        Return Size.To(Of Decimal).ToBytesString
+    Public Function ToFileSizeString(ByVal Size As Long) As String
+        Return Size.To(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1325,12 +1372,12 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToBytesString(ByVal Size As Decimal) As String
+    Public Function ToFileSizeString(ByVal Size As Decimal) As String
         Dim KB As Integer = 1024
 
         Dim MB As Integer = KB * KB
 
-        Dim GB As Integer = MB * 1024
+        Dim GB As Integer = MB * KB
 
         ' Return size of file in kilobytes.
 
@@ -1519,6 +1566,37 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Cria um dicionário com as palavras de uma lista e a quantidade de cada uma.
+    ''' </summary>
+    ''' <param name="List">Lista de palavras</param>
+    ''' <returns></returns>
+    <Extension()> Public Function DistinctCount(ByVal List As List(Of String)) As Dictionary(Of String, Integer)
+        Dim dic As New Dictionary(Of String, Integer)
+        List.Sort()
+        For Each name As String In List.Distinct()
+            dic.Add(name, List.Where(Function(x) x = name).Count)
+        Next
+        Return dic
+    End Function
+    ''' <summary>
+    ''' Cria um dicionário com as palavras de uma lista e a quantidade de cada uma.
+    ''' </summary>
+    ''' <param name="List">Lista de palavras</param>
+    ''' <returns></returns>
+    Public Function DistinctCount(ParamArray List As String()) As Dictionary(Of String, Integer)
+        Return List.ToList.DistinctCount
+    End Function
+
+    ''' <summary>
+    ''' Cria um dicionário com as palavras de uma frase e sua respectiva quantidade.
+    ''' </summary>
+    ''' <param name="Phrase">Lista de palavras</param>
+    ''' <returns></returns>
+    Function DistinctCount(Phrase As String) As Dictionary(Of String, Integer)
+        Return Phrase.Split(" ").ToList.DistinctCount
+    End Function
+
+    ''' <summary>
     ''' Remove uma determinada linha de um texto
     ''' </summary>
     ''' <param name="Text">Texto completo</param>
@@ -1562,6 +1640,7 @@ Public Module Text
             Return ""
         End If
     End Function
+
     ''' <summary>
     ''' Remove os X ultimos caracteres
     ''' </summary>
@@ -1606,7 +1685,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto correspondente</param>
     ''' <returns>String fixada</returns>
-    <System.Runtime.CompilerServices.Extension>
+    <Extension>
     Public Function FixBreakLines(Text As String) As String
         Return Text.Replace("<br />", vbCr & vbLf).Replace("<br>", vbCr & vbLf)
     End Function
@@ -1620,33 +1699,36 @@ Public Module Text
     <Extension()>
     Public Function AdjustWhiteSpaces(ByRef Text As String) As String
         Text = Text & ""
+        If Text.IsNotBlank Then
 
-        'adiciona espaco quando nescessario
-        Text = Text.Replace(")", ") ")
-        Text = Text.Replace("]", "] ")
-        Text = Text.Replace("}", "} ")
-        Text = Text.Replace(">", "> ")
-        Text = Text.Replace("(", " (")
-        Text = Text.Replace("<", " <")
-        Text = Text.Replace("[", " [")
-        Text = Text.Replace("{", " {")
+            'adiciona espaco quando nescessario
+            Text = Text.Replace(")", ") ")
+            Text = Text.Replace("]", "] ")
+            Text = Text.Replace("}", "} ")
+            Text = Text.Replace(">", "> ")
+            Text = Text.Replace("(", " (")
+            Text = Text.Replace("<", " <")
+            Text = Text.Replace("[", " [")
+            Text = Text.Replace("{", " {")
 
-        'remove espaco quando nescessario
-        Text = Text.Replace(" ,", ",")
-        Text = Text.Replace(" .", ".")
-        Text = Text.Replace(" !", "!")
-        Text = Text.Replace(" ?", "?")
-        Text = Text.Replace(" ;", ";")
-        Text = Text.Replace(" :", ":")
-        Text = Text.Replace(" )", ")")
-        Text = Text.Replace(" ]", "]")
-        Text = Text.Replace(" }", "}")
-        Text = Text.Replace(" >", ">")
-        Text = Text.Replace("( ", "(")
-        Text = Text.Replace("[ ", "[")
-        Text = Text.Replace("{ ", "{")
-        Text = Text.Replace("< ", "<")
-        Text = String.Join(" ", Text.Split(New Char() {}, StringSplitOptions.RemoveEmptyEntries))
+            'remove espaco quando nescessario
+            Text = Text.Replace(" ,", ",")
+            Text = Text.Replace(" .", ".")
+            Text = Text.Replace(" !", "!")
+            Text = Text.Replace(" ?", "?")
+            Text = Text.Replace(" ;", ";")
+            Text = Text.Replace(" :", ":")
+            Text = Text.Replace(" )", ")")
+            Text = Text.Replace(" ]", "]")
+            Text = Text.Replace(" }", "}")
+            Text = Text.Replace(" >", ">")
+            Text = Text.Replace("( ", "(")
+            Text = Text.Replace("[ ", "[")
+            Text = Text.Replace("{ ", "{")
+            Text = Text.Replace("< ", "<")
+            Text = String.Join(" ", Text.Split(New Char() {}, StringSplitOptions.RemoveEmptyEntries))
+        End If
+
         Return Text.Trim
 
     End Function
@@ -2074,7 +2156,7 @@ Public Module Text
     ''' <param name="Values">Lista de valores</param>
     ''' <param name="ComparisonType">Tipo de comparacao</param>
     ''' <returns>True se conter algum valor, false se não</returns>
-    <System.Runtime.CompilerServices.Extension>
+    <Extension>
     Public Function ContainsAll(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
         For Each value As String In Values
             If IsNothing(Text) OrElse Text.IndexOf(value, ComparisonType) = -1 Then
@@ -2128,7 +2210,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna uma lista com todos os anagramas de uma palavra
+    ''' Retorna uma lista com todos os anagramas de uma palavra (Metodo Lento)
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns>Lista de anagramas</returns>
@@ -2215,7 +2297,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Words"></param>
     ''' <returns></returns>
-    <Extension()> Public Function Poopfy(Words As String()) As String
+    Public Function Poopfy(ParamArray Words As String()) As String
         Dim p As New List(Of String)
         For Each Text In Words
             Dim l As Decimal = Text.Length / 2
@@ -2234,6 +2316,6 @@ Public Module Text
     ''' <param name="Text"></param>
     ''' <returns></returns>
     <Extension()> Public Function Poopfy(Text As String) As String
-        Return Text.Split(" ").Poopfy
+        Return Poopfy(Text.Split(" "))
     End Function
 End Module

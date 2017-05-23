@@ -27,7 +27,6 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension()>
     Public Function GetDbType(Obj As Object) As DbType
-        If IsNothing(Obj) Then Return DbType.Object
         Select Case Obj.GetType
             Case GetType(String)
                 Return DbType.String
@@ -39,6 +38,8 @@ Public Module DataManipulation
                 Return DbType.Int32
             Case GetType(Long)
                 Return DbType.Int64
+            Case GetType(Decimal)
+                Return DbType.Decimal
             Case GetType(Double)
                 Return DbType.Double
             Case GetType(DateTime), GetType(Date)
