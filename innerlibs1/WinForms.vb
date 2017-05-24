@@ -4,7 +4,6 @@ Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Windows.Forms
 
-
 ''' <summary>
 ''' Módulo de controle de formulários
 ''' </summary>
@@ -17,11 +16,11 @@ Public Module WinForms
     '''<param name="ForceRestart">Força o reinicio da aplicação mesmo se ela estiver em modo administrativo</param>
     Public Sub RestartAsAdmin(Optional ForceRestart As Boolean = False)
         If Not IsRunningAsAdministrator() Or ForceRestart Then
-
             ' Setting up start info of the new process of the same application
             Dim processStartInfo As New ProcessStartInfo(Assembly.GetEntryAssembly().CodeBase)
 
-            ' Using operating shell and setting the ProcessStartInfo.Verb to “runas” will let it run as admin
+            ' Using operating shell and setting the ProcessStartInfo.Verb to “runas” will let it run
+            ' as admin
             processStartInfo.UseShellExecute = True
             processStartInfo.Verb = "runas"
 
@@ -36,18 +35,21 @@ Public Module WinForms
     ''' <summary>
     ''' Exibe uma notificação com uma mensagem
     ''' </summary>
-    ''' <param name="Text">Texto da notiicação </param>
-    ''' <param name="Action">Ação do botão OK</param>
-    ''' <param name="OKButtonText">texto do botão OK</param>
-    ''' <param name="Size">Tamanho do Form</param>
+    ''' <param name="Text">           Texto da notiicação</param>
+    ''' <param name="Action">         Ação do botão OK</param>
+    ''' <param name="OKButtonText">   texto do botão OK</param>
+    ''' <param name="Size">           Tamanho do Form</param>
     ''' <param name="LifeTimeSeconds">Tempo e que a notificação demora para fechar automaticamente</param>
-    ''' <param name="ShowRemainTime">Exibir/Esconder o contador da notificação</param>
-    Public Function Notify(Text As String, Optional Action As EventHandler = Nothing, Optional OKButtonText As String = "OK", Optional Size As Size = Nothing, Optional LifeTimeSeconds As Integer = 10, Optional ShowRemainTime As Boolean = False)
-        Dim n As New NotificationForm(Action)
+    ''' <param name="ShowRemainTime"> Exibir/Esconder o contador da notificação</param>
+    Public Function Notify(Text As String, Optional Action As EventHandler = Nothing, Optional OKButtonText As String = "OK", Optional Size As Size = Nothing, Optional LifeTimeSeconds As Integer = 10, Optional ShowRemainTime As Boolean = False, Optional RemainTimeBehavior As RemainTimeBehavior = RemainTimeBehavior.StackTime)
+        Dim n As New NotificationForm()
         n.Text = Text
         n.OKButtonText = OKButtonText
         n.Size = Size
-        n.Show(LifeTimeSeconds, ShowRemainTime)
+        n.ShowRemainTime = ShowRemainTime
+        n.RemainTimeBehavior = RemainTimeBehavior.StackTime
+        AddHandler n.OnOKButtonClick, Action
+        n.Show(LifeTimeSeconds)
         AddHandler n.FormClosing, AddressOf n.Dispose
         Return n
     End Function
@@ -77,6 +79,7 @@ Public Module WinForms
         Next
         Return result
     End Function
+
     ''' <summary>
     ''' Traz todos os nós descendentes de um TreeView
     ''' </summary>
@@ -120,6 +123,7 @@ Public Module WinForms
     Public Function Confirm(Message As String) As Boolean
         Return If(MsgBox(Message, MsgBoxStyle.OkCancel + MsgBoxStyle.Information, My.Application.Info.AssemblyName) = MsgBoxResult.Ok, True, False)
     End Function
+
     ''' <summary>
     ''' Exibe uma caixa de mensagem ao usuário esperando uma resposta
     ''' </summary>
@@ -130,9 +134,9 @@ Public Module WinForms
     End Function
 
     ''' <summary>
-    ''' Deixa o  Form em tela cheia.
+    ''' Deixa o Form em tela cheia.
     ''' </summary>
-    ''' <param name="Form">O formulario</param>
+    ''' <param name="Form">     O formulario</param>
     ''' <param name="TheScreen">Qual tela o form será aplicado</param>
     <System.Runtime.CompilerServices.Extension>
     Public Sub ToFullScreen(Form As Form, Optional TheScreen As Integer = 0)
@@ -142,7 +146,8 @@ Public Module WinForms
     End Sub
 
     ''' <summary>
-    ''' Aplica máscara de telefone com ou sem o nono dígito automaticamente de acordo com o número inputado. Utilize este metodo no Evento GotFocus e LostFocus simultaneamente
+    ''' Aplica máscara de telefone com ou sem o nono dígito automaticamente de acordo com o número
+    ''' inputado. Utilize este metodo no Evento GotFocus e LostFocus simultaneamente
     ''' </summary>
     ''' <param name="theTextBox">A MaskedTextBox</param>
     <Extension()>
@@ -169,7 +174,7 @@ Public Module WinForms
     ''' Adiciona funções ao clique de algum controle
     ''' </summary>
     ''' <param name="Control">Controle</param>
-    ''' <param name="Action">Ação</param>
+    ''' <param name="Action"> Ação</param>
     <Extension()>
     Public Sub AddClick(ByRef Control As Control, Action As EventHandler)
         AddHandler Control.Click, Action
@@ -179,14 +184,11 @@ Public Module WinForms
     ''' Remove funções do clique de algum controle
     ''' </summary>
     ''' <param name="Control">Controle</param>
-    ''' <param name="Action">Ação</param>
+    ''' <param name="Action"> Ação</param>
     <Extension()>
     Public Sub RemoveClick(ByRef Control As Control, Action As EventHandler)
         RemoveHandler Control.Click, Action
     End Sub
-
-
-
 
     ''' <summary>
     ''' Pega todos os controles filhos de um controle pai
@@ -208,15 +210,11 @@ Public Module WinForms
         Return lista
     End Function
 
-
-
-
-
     ''' <summary>
     ''' Aplica um valor a um controle dependendo do seu tipo
     ''' </summary>
     ''' <param name="Control">Controle</param>
-    ''' <param name="Value">Valor</param>
+    ''' <param name="Value">  Valor</param>
     <Extension()> Public Sub CastControl(ByRef Control As Object, Value As Object)
         Select Case Control.GetType
             Case GetType(NumericUpDown), GetType(TrackBar)

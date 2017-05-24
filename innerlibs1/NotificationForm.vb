@@ -3,6 +3,9 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports InnerLibs.FormAnimator
 
+''' <summary>
+''' Formulário de notificações interativas
+''' </summary>
 Public NotInheritable Class NotificationForm
 
     ''' <summary>
@@ -47,20 +50,21 @@ Public NotInheritable Class NotificationForm
     ''' <summary>
     ''' Cria uma Nova Notificação
     ''' </summary>
-    ''' <param name="Action">      Ação disparada no clique do botão OK</param>
-    ''' <param name="ShowInputBox">Mostra ou esconde a InputBox</param>
-
-    Public Sub New(Optional ByRef Action As EventHandler = Nothing, Optional ShowInputBox As Boolean = False)
+    Public Sub New()
         InitializeComponent()
-        InputBox.Visible = ShowInputBox
-        If IsNothing(Action) Then
-            Me.OKButton.AddClick(AddressOf Me.Close)
-            Me.CloseButton.Visible = False
-        Else
-            Me.OKButton.AddClick(Action)
-            Me.CloseButton.Visible = True
-        End If
-        Me.animator = New FormAnimator(Me, FormAnimator.AnimationMethod.Slide, OpenDirection, 500)
+        CloseButton.Visible = OnOKButtonClickActions.Count > 0
+        AddHandler InputBox.TextChanged, AddressOf TextChange
+
+        AddHandler OKButton.Click, AddressOf OKButtonClick
+        Me.animator = New FormAnimator(Me, AnimationMethod.Slide, OpenDirection, 500)
+    End Sub
+
+    Private Sub OKButtonClick(sender As Object, e As EventArgs)
+        RaiseEvent OnOKButtonClick(sender, e)
+    End Sub
+
+    Private Sub TextChange(sender As Object, e As EventArgs)
+        RaiseEvent OnInputBoxTextChanged(sender, e)
     End Sub
 
     ''' <summary>
@@ -132,6 +136,12 @@ Public NotInheritable Class NotificationForm
     Public Property RemainTime As Integer = 0
 
     ''' <summary>
+    ''' Comportamento do tempo restante da notificação caso ela seja re-utilizada
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property RemainTimeBehavior As RemainTimeBehavior = RemainTimeBehavior.StackTime
+
+    ''' <summary>
     ''' Valor que representa se o contador de segundos deve ser exibido na notificação
     ''' </summary>
     ''' <returns></returns>
@@ -178,18 +188,27 @@ Public NotInheritable Class NotificationForm
     End Sub
 
     ''' <summary>
-    ''' Exibe a notificação
+    ''' Exibe ou altera a notificação
     ''' </summary>
-    ''' <param name="Seconds">       Tempo que a notificação ficará na tela</param>
-    ''' <param name="ShowRemainTime">Exibe o contador na notificação</param>
-    Public Shadows Sub Show(Optional Seconds As Integer = 0, Optional ShowRemainTime As Boolean = False)
+    ''' <param name="Seconds">
+    ''' Valor em segundos que define o tempo de exibição dessa notificação. Se a notificaáo já
+    ''' estiver sendo exibida este valor é utilizado de acordo com a propriedade <see cref="RemainTimeBehavior"/>
+    ''' </param>
+    Public Shadows Sub Show(Optional Seconds As Integer = 0)
+        If Seconds = 0 Then Seconds = -1
         Label1.Text = ""
-        Me.ShowRemainTime = ShowRemainTime
         Me.animator.Direction = OpenDirection
         'Determine the current foreground window so it can be reactivated each time this form tries to get the focus.
         Me.currentForegroundWindow = GetForegroundWindow()
         Seconds = Seconds.SetMinValue(-1)
-        RemainTime = RemainTime + Seconds
+        Select Case RemainTimeBehavior
+            Case RemainTimeBehavior.StackTime
+                RemainTime = RemainTime + Seconds
+            Case RemainTimeBehavior.ResetTime
+                RemainTime = Seconds
+            Case Else
+                RemainTime = RemainTime.SetMinValue(1)
+        End Select
 
         'Start counting down the form's liftime.
         If RemainTime > 0 Then
@@ -205,7 +224,7 @@ Public NotInheritable Class NotificationForm
             MyBase.Show()
             NotificationForm.VisibleNotifications.Add(Me)
         End If
-
+        If ShowInputBox Then InputBox.Select()
         Me.animator.Direction = CloseDirection
     End Sub
 
@@ -237,18 +256,20 @@ Public NotInheritable Class NotificationForm
     End Sub
 
     Private Sub lifeTimer_Tick(ByVal sender As Object, ByVal e As EventArgs) Handles lifeTimer.Tick
-        Label1.Visible = RemainTime > 0 And ShowRemainTime
-        Select Case RemainTime
-            Case 0
-                Me.lifeTimer.Stop()
-                Me.animator.Direction = CloseDirection
-                Me.Close()
-            Case Is < 0
-                Me.lifeTimer.Stop()
-            Case Else
-                RemainTime.Decrement
-                Label1.Text = RemainTime + 1
-        End Select
+        If Not InputBox.Focused Then
+            Label1.Visible = RemainTime > 0 And ShowRemainTime
+            Select Case RemainTime
+                Case 0
+                    Me.lifeTimer.Stop()
+                    Me.animator.Direction = CloseDirection
+                    Me.Close()
+                Case Is < 0
+                    Me.lifeTimer.Stop()
+                Case Else
+                    RemainTime.Decrement
+                    Label1.Text = RemainTime + 1
+            End Select
+        End If
     End Sub
 
     Private Sub NotificationForm_TextChanged(sender As Object, e As EventArgs) Handles Me.TextChanged, lifeTimer.Tick
@@ -271,4 +292,96 @@ Public NotInheritable Class NotificationForm
         Me.Location = CorrectPos
     End Sub
 
+    Private OnInputBoxTextActions As New List(Of EventHandler)
+    Private OnOKButtonClickActions As New List(Of EventHandler)
+
+    Public Custom Event OnOKButtonClick As EventHandler
+        AddHandler(ByVal value As EventHandler)
+            If Not OnOKButtonClickActions.Contains(value) Then
+                OnOKButtonClickActions.Add(value)
+            End If
+            Me.CloseButton.Visible = OnOKButtonClickActions.Count > 0
+        End AddHandler
+
+        RemoveHandler(ByVal value As EventHandler)
+            If OnOKButtonClickActions.Contains(value) Then
+                OnOKButtonClickActions.Remove(value)
+            End If
+            Me.CloseButton.Visible = OnOKButtonClickActions.Count > 0
+        End RemoveHandler
+
+        RaiseEvent(ByVal sender As Object, ByVal e As System.EventArgs)
+            If OnOKButtonClickActions.Count > 0 Then
+                For Each handler As EventHandler In OnOKButtonClickActions
+                    Try
+                        handler.Invoke(sender, e)
+                    Catch ex As Exception
+                        Debug.WriteLine("Exception while invoking event handler: " & ex.ToString())
+                    End Try
+                Next
+            Else
+                Me.Close()
+            End If
+        End RaiseEvent
+    End Event
+
+    Public Custom Event OnInputBoxTextChanged As EventHandler
+        AddHandler(ByVal value As EventHandler)
+            If Not OnInputBoxTextActions.Contains(value) Then
+                OnInputBoxTextActions.Add(value)
+            End If
+        End AddHandler
+
+        RemoveHandler(ByVal value As EventHandler)
+            If OnInputBoxTextActions.Contains(value) Then
+                OnInputBoxTextActions.Remove(value)
+            End If
+        End RemoveHandler
+
+        RaiseEvent(ByVal sender As Object, ByVal e As System.EventArgs)
+            For Each handler As EventHandler In OnInputBoxTextActions
+                Try
+                    handler.Invoke(sender, e)
+                Catch ex As Exception
+                    Debug.WriteLine("Exception while invoking event handler: " & ex.ToString())
+                End Try
+            Next
+        End RaiseEvent
+    End Event
+
+    Private Sub InputBox_KeyDown(sender As Object, e As KeyEventArgs) Handles InputBox.KeyDown
+        Select Case e.KeyCode
+            Case Keys.Enter
+                OKButton.PerformClick()
+            Case Keys.Escape
+                If InputBox.Text.IsBlank Then
+                    Me.Close()
+                Else
+                    InputBox.Clear()
+                End If
+        End Select
+    End Sub
+
 End Class
+
+''' <summary>
+''' Comportamento do contador da notificação
+''' </summary>
+Public Enum RemainTimeBehavior
+
+    ''' <summary>
+    ''' Adiciona segundos ao total de segundos restantes se a notificação já estiver sendo exibida
+    ''' </summary>
+    StackTime
+
+    ''' <summary>
+    ''' Atribui o valor especificado aos do segundos restantes se a notificação já estiver sendo exibida
+    ''' </summary>
+    ResetTime
+
+    ''' <summary>
+    ''' Não altera o tempo restante da notificação
+    ''' </summary>
+    None
+
+End Enum

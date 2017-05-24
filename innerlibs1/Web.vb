@@ -8,6 +8,8 @@ Imports System.Text.RegularExpressions
 Imports System.Web
 Imports System.Web.SessionState
 Imports System.Web.UI
+Imports System.Web.UI.HtmlControls
+Imports System.Web.UI.WebControls
 Imports System.Xml
 
 ''' <summary>
@@ -18,11 +20,11 @@ Public NotInheritable Class AJAX
     ''' <summary>
     ''' Retorna o conteúdo de uma página
     ''' </summary>
-    ''' <param name="URL">URL de requisiçao</param>
-    ''' <param name="Parameters">Parametros da URL</param>
+    ''' <param name="URL">        URL de requisiçao</param>
+    ''' <param name="Parameters"> Parametros da URL</param>
     ''' <param name="ContentType">Conteudo</param>
-    ''' <param name="Encoding">Codificação</param>
-    ''' <param name="FilePath">Caminho do arquivo</param>
+    ''' <param name="Encoding">   Codificação</param>
+    ''' <param name="FilePath">   Caminho do arquivo</param>
     ''' <returns>conteudo no formato especificado</returns>
     Public Shared Function Request(Of Type)(URL As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing, Optional FilePath As String = "") As Object
         If URL.IsURL Then
@@ -48,9 +50,9 @@ Public NotInheritable Class AJAX
                             x.Load(ms)
                             Return x
                         End Using
-                    Case GetType(Image), GetType(Bitmap)
+                    Case GetType(Drawing.Image), GetType(Bitmap)
                         Dim ms As New MemoryStream(responsebytes)
-                        Return Image.FromStream(ms)
+                        Return Drawing.Image.FromStream(ms)
                     Case Else
                         Return client.Encoding.GetString(responsebytes).ParseJSON(Of Type)
                 End Select
@@ -65,8 +67,8 @@ Public NotInheritable Class AJAX
     ''' Realiza um POST em uma URL e retorna um Objeto convertido para o tipo especificado
     ''' </summary>
     ''' <typeparam name="Type">Classe do Tipo</typeparam>
-    ''' <param name="URL">URL do Post</param>
-    ''' <param name="Parameters">Parametros da URL</param>
+    ''' <param name="URL">        URL do Post</param>
+    ''' <param name="Parameters"> Parametros da URL</param>
     ''' <param name="ContentType">Tipo de conteudo que está sendo enviado</param>
     ''' <returns></returns>
     Public Shared Function POST(Of Type)(URL As String, Parameters As NameValueCollection, Optional ContentType As String = "multipart/form-data", Optional Encoding As Encoding = Nothing) As Type
@@ -85,11 +87,11 @@ Public NotInheritable Class AJAX
     ''' <summary>
     ''' Faz o download de um arquivo diretamente em um diretório
     ''' </summary>
-    ''' <param name="URL">URL de requisiçao</param>
-    ''' <param name="Parameters">Parametros da URL</param>
+    ''' <param name="URL">        URL de requisiçao</param>
+    ''' <param name="Parameters"> Parametros da URL</param>
     ''' <param name="ContentType">Conteudo</param>
-    ''' <param name="Encoding">Codificação</param>
-    ''' <param name="FilePath">Caminho do arquivo</param>
+    ''' <param name="Encoding">   Codificação</param>
+    ''' <param name="FilePath">   Caminho do arquivo</param>
     ''' <returns></returns>
     Public Shared Function DownloadFile(URL As String, FilePath As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "multipart/form-data", Optional Encoding As Encoding = Nothing) As FileInfo
         Return AJAX.Request(Of FileInfo)(URL, Parameters, ContentType, Encoding, FilePath)
@@ -168,18 +170,17 @@ End Class
 ''' Modulo Web
 ''' </summary>
 ''' <remarks></remarks>
-'''
 Public Module Web
 
     ''' <summary>
     ''' Cria um objeto a partir de uma requisiçao AJAX
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>
-    ''' <param name="TheObject">Objeto</param>
-    ''' <param name="URL">URL de requisiçao</param>
-    ''' <param name="Parameters">Parametros da URL</param>
+    ''' <param name="TheObject">  Objeto</param>
+    ''' <param name="URL">        URL de requisiçao</param>
+    ''' <param name="Parameters"> Parametros da URL</param>
     ''' <param name="ContentType">Conteudo</param>
-    ''' <param name="Encoding">Codificação</param>
+    ''' <param name="Encoding">   Codificação</param>
     <Extension()>
     Public Sub CreateFromAjax(Of Type)(ByRef TheObject As Type, URL As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing)
         TheObject = AJAX.Request(Of Type)(URL, Parameters, ContentType, Encoding)
@@ -207,8 +208,8 @@ Public Module Web
     ''' <summary>
     ''' Cria um cookie guardando valores especificos da sessão atual (1 dia de duração)
     ''' </summary>
-    ''' <param name="Session">Sessão</param>
-    ''' <param name="CookieName">Nome do Cookie</param>
+    ''' <param name="Session">    Sessão</param>
+    ''' <param name="CookieName"> Nome do Cookie</param>
     ''' <param name="SessionKeys">As keys especificas que você quer guardar</param>
     ''' <returns>Um cookie com os valores da sessão</returns>
     <Extension>
@@ -224,9 +225,9 @@ Public Module Web
     ''' <summary>
     ''' Cria um cookie guardando valores especificos da sessão atual
     ''' </summary>
-    ''' <param name="Session">Sessão</param>
-    ''' <param name="CookieName">Nome do Cookie</param>
-    ''' <param name="Expires">Data de expiração</param>
+    ''' <param name="Session">    Sessão</param>
+    ''' <param name="CookieName"> Nome do Cookie</param>
+    ''' <param name="Expires">    Data de expiração</param>
     ''' <param name="SessionKeys">As keys especificas que você quer guardar</param>
     ''' <returns>Um cookie com os valores da sessão</returns>
     <Extension>
@@ -242,9 +243,9 @@ Public Module Web
     ''' <summary>
     ''' Cria um cookie guardando todos os valores da sessão atual
     ''' </summary>
-    ''' <param name="Session">Sessão</param>
+    ''' <param name="Session">   Sessão</param>
     ''' <param name="CookieName">Nome do Cookie</param>
-    ''' <param name="Expires">Data de expiração</param>
+    ''' <param name="Expires">   Data de expiração</param>
     ''' <returns>Um cookie com os valores da sessão</returns>
     <Extension()>
     Public Function ToCookie(Session As HttpSessionState, Optional CookieName As String = "", Optional Expires As DateTime = Nothing) As HttpCookie
@@ -258,8 +259,8 @@ Public Module Web
     ''' <summary>
     ''' Adciona um parametro a Query String de uma URL
     ''' </summary>
-    ''' <param name="Url">Uri</param>
-    ''' <param name="Key">Nome do parâmetro</param>
+    ''' <param name="Url">  Uri</param>
+    ''' <param name="Key">  Nome do parâmetro</param>
     ''' <param name="Value">Valor do Parâmetro</param>
     ''' <returns></returns>
     <Extension>
@@ -274,9 +275,9 @@ Public Module Web
     ''' <summary>
     ''' Reescreve a URL original a partir de uma REGEX aplicada em uma URL amigavel
     ''' </summary>
-    ''' <param name="App">Aplicaçao HTTP</param>
+    ''' <param name="App">       Aplicaçao HTTP</param>
     ''' <param name="URLPattern">REGEX da URL</param>
-    ''' <param name="URL">URL original</param>
+    ''' <param name="URL">       URL original</param>
     <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, URL As String) As Boolean
         Dim theurl = App.Request.Path
         If New Regex(URLPattern).Match(theurl).Success Then
@@ -295,10 +296,11 @@ Public Module Web
     End Function
 
     ''' <summary>
-    ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de uma URL como parametros da procedure
+    ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
+    ''' uma URL como parametros da procedure
     ''' </summary>
-    ''' <param name="Request">Requisicao HTTP</param>
-    ''' <param name="ProcedureName">Nome da Procedure</param>
+    ''' <param name="Request">        Requisicao HTTP</param>
+    ''' <param name="ProcedureName">  Nome da Procedure</param>
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
 
@@ -314,9 +316,10 @@ Public Module Web
     End Function
 
     ''' <summary>
-    ''' Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de uma URL como parametros da procedure
+    ''' Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de
+    ''' uma URL como parametros da procedure
     ''' </summary>
-    ''' <param name="Request">Requisicao HTTP</param>
+    ''' <param name="Request">      Requisicao HTTP</param>
     ''' <param name="ProcedureName">Nome da Procedure</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()>
@@ -328,7 +331,7 @@ Public Module Web
     ''' Escreve um texto e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">    Texto</param>
     <Extension>
     Public Sub WriteEnd(Response As HttpResponse, Text As String)
         Response.Write(Text)
@@ -338,9 +341,9 @@ Public Module Web
     ''' <summary>
     ''' Escreve um arquivo CSV e finaliza um HttpResponse
     ''' </summary>
-    ''' <param name="Response">HttpResponse</param>
+    ''' <param name="Response"> HttpResponse</param>
     ''' <param name="CSVString">String com o conteudo do arquivo CSV</param>
-    ''' <param name="FileName">Nome do arquivo CSV</param>
+    ''' <param name="FileName"> Nome do arquivo CSV</param>
     <Extension()>
     Public Sub WriteCSV(Response As HttpResponse, CSVString As String, Optional FileName As String = "CSV")
         Response.ContentType = GetFileType(".csv").First
@@ -352,7 +355,7 @@ Public Module Web
     ''' Escreve um JSON e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="JSON">String JSON</param>
+    ''' <param name="JSON">    String JSON</param>
     <Extension>
     Public Sub WriteJSON(Response As HttpResponse, JSON As String)
         Response.ContentType = "application/json"
@@ -363,7 +366,7 @@ Public Module Web
     ''' Escreve uma imagem e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="Image">Imagem</param>
+    ''' <param name="Image">   Imagem</param>
     ''' <param name="MimeType">Formato MIME Type</param>
     <Extension()>
     Public Sub WriteImage(Response As HttpResponse, Image As Byte(), MimeType As String)
@@ -377,7 +380,7 @@ Public Module Web
     ''' Escreve uma imagem e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="Image">Imagem</param>
+    ''' <param name="Image">   Imagem</param>
     ''' <param name="MimeType">Formato MIME Type</param>
     <Extension()>
     Public Sub WriteImage(Response As HttpResponse, Image As Byte(), MimeType As FileType)
@@ -391,9 +394,9 @@ Public Module Web
     ''' Escreve uma imagem e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="Image">Imagem</param>
+    ''' <param name="Image">   Imagem</param>
     <Extension()>
-    Public Sub WriteImage(Response As HttpResponse, Image As Image)
+    Public Sub WriteImage(Response As HttpResponse, Image As Drawing.Image)
         Response.Clear()
         Response.ContentType = Image.GetFileType.First
         Response.BinaryWrite(Image.ToBytes)
@@ -404,7 +407,7 @@ Public Module Web
     ''' Escreve um JSON e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="JSON">Objeto de resposta AJAX</param>
+    ''' <param name="JSON">    Objeto de resposta AJAX</param>
     <Extension>
     Public Sub WriteJSON(Response As HttpResponse, JSON As AJAX.Response)
         Response.ContentType = "application/json"
@@ -427,7 +430,7 @@ Public Module Web
     ''' Escreve um XML e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="XML">String XML</param>
+    ''' <param name="XML">     String XML</param>
     <Extension>
     Public Sub WriteXML(Response As HttpResponse, XML As String)
         Response.ContentType = "application/xml"
@@ -438,7 +441,7 @@ Public Module Web
     ''' Escreve um XML e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>
-    ''' <param name="XML">String XML</param>
+    ''' <param name="XML">     String XML</param>
     <Extension>
     Public Sub WriteXML(Response As HttpResponse, XML As XmlDocument)
         Response.WriteXML(XML.ToXMLString)
@@ -447,7 +450,7 @@ Public Module Web
     ''' <summary>
     ''' Escreve um script na página
     ''' </summary>
-    ''' <param name="Response">HttpResponse</param>
+    ''' <param name="Response">   HttpResponse</param>
     ''' <param name="ScriptOrURL">Texto ou URL absoluta do Script</param>
     <Extension>
     Public Sub WriteScript(Response As HttpResponse, ScriptOrURL As String)
@@ -550,6 +553,65 @@ Public Module Web
 
     Public Function IsUp(Url As Uri) As Boolean
         Return Url.AbsoluteUri.IsUp()
+    End Function
+
+    <Extension()> Public Function ExtractOptions(Control As HtmlSelect) As String
+        Dim options = ""
+        For Each item In Control.Items
+            options.Append("<option value=" & item.Value.ToString.Quote & " " & If(item.Selected, "selected", "") & ">" & item.Text & "</option>")
+        Next
+        Return options
+    End Function
+
+    <Extension()> Public Function ToHtmlString(Control As HtmlSelect) As String
+        Dim t As New HtmlTag("<select></select>")
+        t.InnerHtml = Control.ExtractOptions
+        For Each att As String In Control.Attributes.Keys
+            t.Attribute(att) = Control.Attributes(att)
+        Next
+        Return t.ToString()
+    End Function
+
+    ''' <summary>
+    ''' Seleciona Valores de um <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
+    ''' <param name="Values"> Valores que devem receber a propriedade select</param>
+    <Extension()> Public Sub SelectValues(Control As HtmlSelect, ParamArray Values As String())
+        Dim cnt = 0
+        For Each i As ListItem In Control.Items
+            If Values.Contains(i.Value) Then
+                i.Selected = True
+                cnt.Increment
+            End If
+            If cnt > 1 Then Control.Multiple = True
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' Desseleciona Valores de um <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
+    ''' <param name="Values"> Valores que devem receber a propriedade select</param>
+    <Extension()> Public Sub DisselectValues(Control As HtmlSelect, ParamArray Values As String())
+        For Each i As ListItem In Control.Items
+            If i.Value.IsIn(Values) Then i.Selected = False
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' Adiciona um novo <see cref="ListItem"/> ao <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control"> Controle <see cref="HtmlSelect"/></param>
+    ''' <param name="Text">    Texto do Item</param>
+    ''' <param name="Value">   Valor do Item</param>
+    ''' <param name="Selected">Indica se o item está selecionado ou não</param>
+    ''' <returns></returns>
+    <Extension()> Public Function AddItem(Control As HtmlSelect, Text As String, Optional Value As String = "", Optional Selected As Boolean = False) As ListItem
+        Dim li = New ListItem(Text, Value.IfBlank(Text))
+        If Selected Then Control.SelectValues(Text)
+        Control.Items.Add(li)
+        Return li
     End Function
 
 End Module

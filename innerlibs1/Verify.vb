@@ -66,8 +66,7 @@ Public Module Verify
         If New String() {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}.Any(Function(x) Text.EndsWith(x)) Then
             Return True
         End If
-        ' ends with slash
-        ' if has extension then its a file; directory otherwise
+        ' ends with slash if has extension then its a file; directory otherwise
         Return String.IsNullOrWhiteSpace(Path.GetExtension(Text))
     End Function
 
@@ -221,9 +220,11 @@ Public Module Verify
     ''' <summary>
     ''' Verifica se um valor é NULO e prepara a string para uma query TransactSQL
     ''' </summary>
-    ''' <param name="Text">Valor a ser testado</param>
+    ''' <param name="Text">        Valor a ser testado</param>
     ''' <param name="DefaultValue">Valor para retornar se o valor testado for Nulo, Vazio ou branco</param>
-    ''' <param name="Quotes">Indica se o valor testado deve ser retornado entre aspas simples (prepara a string para SQL)</param>
+    ''' <param name="Quotes">      
+    ''' Indica se o valor testado deve ser retornado entre aspas simples (prepara a string para SQL)
+    ''' </param>
     ''' <returns>uma String contento o valor ou o valor se Nulo</returns>
     <Extension()>
     Public Function IsNull(Text As String, Optional DefaultValue As String = Nothing, Optional Quotes As Boolean = True) As String
@@ -239,21 +240,23 @@ Public Module Verify
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
     ''' </summary>
     ''' <typeparam name="Type">Tipo da Variavel</typeparam>
-    ''' <param name="Value">Valor</param>
+    ''' <param name="Value">       Valor</param>
     ''' <param name="ValueIfBlank">Valor se estiver em branco</param>
     ''' <returns></returns>
     <Extension()>
     Public Function IfBlank(Of Type)(Value As Type, ValueIfBlank As Type) As Type
+        Dim blankas As Boolean = False
         Select Case GetType(Type)
             Case GetType(String)
-                Return If(Value.ToString().IsBlank, ValueIfBlank, Value)
+                blankas = Value.ToString.IsBlank
             Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
-                Return If(Value.ToString.IsBlank Or Value.ToString.To(Of Long) = 0, ValueIfBlank, Value)
+                blankas = Value.ToString.IsBlank Or Value.ToString.To(Of Long) = 0
             Case GetType(DateTime)
-                Return If(Value.ToString.To(Of Date) = DateTime.MinValue, ValueIfBlank, Value)
+                blankas = Value.ToString.To(Of Date) = DateTime.MinValue
             Case Else
-                Return (If(IsNothing(Value), ValueIfBlank, Value))
+                blankas = IsNothing(Value)
         End Select
+        Return If(blankas, ValueIfBlank, Value)
     End Function
 
     ''' <summary>
@@ -263,7 +266,7 @@ Public Module Verify
     ''' <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
     <Extension>
     Public Function IsBlank(Text As String) As Boolean
-        Return IsNothing(Text) AndAlso String.IsNullOrWhiteSpace(Text)
+        Return IsNothing(Text) OrElse String.IsNullOrWhiteSpace(Text)
     End Function
 
     ''' <summary>

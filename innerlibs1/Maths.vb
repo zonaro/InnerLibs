@@ -1,4 +1,5 @@
 ﻿Imports System.Runtime.CompilerServices
+
 ''' <summary>
 ''' Módulo para calculos
 ''' </summary>
@@ -24,8 +25,8 @@ Public Module Mathematic
     ''' Retorna uma progressão Aritmética com N numeros
     ''' </summary>
     ''' <param name="FirstNumber"></param>
-    ''' <param name="[Constant]"></param>
-    ''' <param name="Length"></param>
+    ''' <param name="[Constant]"> </param>
+    ''' <param name="Length">     </param>
     ''' <returns></returns>
     Public Function ArithmeticProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As List(Of Integer)
         Dim PA As New List(Of Integer)
@@ -40,8 +41,8 @@ Public Module Mathematic
     ''' Retorna uma Progressão Gemoétrica com N numeros
     ''' </summary>
     ''' <param name="FirstNumber"></param>
-    ''' <param name="[Constant]"></param>
-    ''' <param name="Length"></param>
+    ''' <param name="[Constant]"> </param>
+    ''' <param name="Length">     </param>
     ''' <returns></returns>
     Public Function GeometricProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As List(Of Integer)
         Dim PG As New List(Of Integer)
@@ -90,7 +91,6 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero inteiro positivo maior que zero</param>
     ''' <returns>fatorial do numero inteiro</returns>
-    '''
     <Extension>
     Public Function Factorial(Number As Integer) As Integer
         Number = Mathematic.Round(Number)
@@ -106,6 +106,7 @@ Public Module Mathematic
         End While
         Return fact
     End Function
+
     ''' <summary>
     ''' Retorna o percentual de um valor
     ''' </summary>
@@ -121,8 +122,10 @@ Public Module Mathematic
     ''' <summary>
     ''' Retorna o valor de um determinado percentual de um valor total
     ''' </summary>
-    ''' <param name="Percent">Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%</param>
-    ''' <param name="Total">Valor Total (Representa 100%)</param>
+    ''' <param name="Percent">
+    ''' Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
+    ''' </param>
+    ''' <param name="Total">  Valor Total (Representa 100%)</param>
     ''' <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
     <Extension()>
@@ -133,7 +136,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Corta um numero decimal com a quntdade de casas especiicadas
     ''' </summary>
-    ''' <param name="Value">Numero</param>
+    ''' <param name="Value"> Numero</param>
     ''' <param name="Places">Numero de casas apos a virgula</param>
     ''' <returns></returns>
     <Extension>
@@ -163,7 +166,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Arredonda um numero para cima. Ex.: 4,5 -> 5
+    ''' Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
     ''' </summary>
     ''' <param name="Number">Numero a ser arredondado</param>
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
@@ -172,21 +175,42 @@ Public Module Mathematic
     Public Function Ceil(Number As Decimal) As Long
         Return Math.Ceiling(Number)
     End Function
+
     ''' <summary>
-    ''' Arredonda um numero para baixo. Ex.: 4,5 -> 4
+    ''' Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
     ''' </summary>
     ''' <param name="Number">Numero a ser arredondado</param>
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
 
+    <Extension()>
+    Public Function Ceil(Number As Double) As Long
+        Return Math.Ceiling(Number)
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
     <Extension()>
     Public Function Floor(Number As Decimal) As Long
         Return Math.Floor(Number)
     End Function
 
     ''' <summary>
+    ''' Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function Floor(Number As Double) As Long
+        Return Math.Floor(Number)
+    End Function
+
+    ''' <summary>
     ''' Limita o valor Maximo de um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MaxValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
@@ -197,7 +221,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita o valor Maximo de um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MaxValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
@@ -208,7 +232,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita o valor Maximo de um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MaxValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
@@ -219,7 +243,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita o valor minimo de um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MinValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
@@ -230,7 +254,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita o valor minimo de um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MinValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
@@ -241,7 +265,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita o valor minimo de um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MinValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
@@ -252,7 +276,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita um range para um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MinValue">Valor Minimo para o numero</param>
     ''' <param name="MaxValue">Valor máximo para o numero</param>
     ''' <returns></returns>
@@ -270,7 +294,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita um range para um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MinValue">Valor Minimo para o numero</param>
     ''' <param name="MaxValue">Valor máximo para o numero</param>
     ''' <returns></returns>
@@ -282,7 +306,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Limita um range para um numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">  Numero</param>
     ''' <param name="MinValue">Valor Minimo para o numero</param>
     ''' <param name="MaxValue">Valor máximo para o numero</param>
     ''' <returns></returns>
@@ -294,7 +318,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Arredonda um numero para baixo ou para cima de acordo com outro numero
     ''' </summary>
-    ''' <param name="Number">Numero</param>
+    ''' <param name="Number">      Numero</param>
     ''' <param name="MiddleNumber">Numero Médio</param>
     ''' <returns></returns>
     <Extension()> Public Function Round(Number As Decimal, Optional MiddleNumber As Integer = 5) As Integer
@@ -319,8 +343,8 @@ Public Module Mathematic
     ''' <summary>
     ''' Realiza um calculo de interpolação Linear
     ''' </summary>
-    ''' <param name="Start"></param>
-    ''' <param name="[End]"></param>
+    ''' <param name="Start"> </param>
+    ''' <param name="[End]"> </param>
     ''' <param name="Amount"></param>
     ''' <returns></returns>
     <Extension>
@@ -329,6 +353,7 @@ Public Module Mathematic
         Dim adjusted As Single = difference * Amount
         Return Start + adjusted
     End Function
+
     ''' <summary>
     ''' Soma todos os números de um array
     ''' </summary>
@@ -367,7 +392,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Calcula a distancia entre 2 locais
     ''' </summary>
-    ''' <param name="FirstLocation">Primeiro Local</param>
+    ''' <param name="FirstLocation"> Primeiro Local</param>
     ''' <param name="SecondLocation">Segundo Local</param>
     ''' <returns>A distancia em kilometros</returns>
     Public Function CalculateDistance(FirstLocation As Location, SecondLocation As Location) As Double
@@ -393,6 +418,7 @@ Public Module Mathematic
 
         Return distance
     End Function
+
     ''' <summary>
     ''' Calcula a distancia passando por todos os pontos
     ''' </summary>
@@ -414,8 +440,8 @@ Public Module Mathematic
     ''' <summary>
     ''' Verifica se um numero está entre outros 2 números
     ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <param name="FirstNumber">Primeiro numero comparador</param>
+    ''' <param name="Number">      Numero</param>
+    ''' <param name="FirstNumber"> Primeiro numero comparador</param>
     ''' <param name="SecondNumber">Segundo numero comparador</param>
     ''' <returns></returns>
     <Extension()> Public Function Between(Number As Decimal, FirstNumber As Decimal, SecondNumber As Decimal) As Boolean
@@ -432,8 +458,8 @@ Public Module Mathematic
     ''' <summary>
     ''' Verifica se um numero está entre outros 2 números
     ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <param name="FirstNumber">Primeiro numero comparador</param>
+    ''' <param name="Number">      Numero</param>
+    ''' <param name="FirstNumber"> Primeiro numero comparador</param>
     ''' <param name="SecondNumber">Segundo numero comparador</param>
     ''' <returns></returns>
     <Extension()> Public Function Between(Number As Long, FirstNumber As Long, SecondNumber As Long) As Boolean
@@ -443,8 +469,8 @@ Public Module Mathematic
     ''' <summary>
     ''' Verifica se um numero está entre outros 2 números
     ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <param name="FirstNumber">Primeiro numero comparador</param>
+    ''' <param name="Number">      Numero</param>
+    ''' <param name="FirstNumber"> Primeiro numero comparador</param>
     ''' <param name="SecondNumber">Segundo numero comparador</param>
     ''' <returns></returns>
     <Extension()> Public Function Between(Number As Integer, FirstNumber As Integer, SecondNumber As Integer) As Boolean

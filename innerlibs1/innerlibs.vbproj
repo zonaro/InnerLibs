@@ -149,7 +149,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Toggles.vb" />
-    <Compile Include="InnerTable.vb" />
     <Compile Include="vCard.vb" />
     <Compile Include="Stilingue.vb" />
     <Compile Include="Verify.vb" />

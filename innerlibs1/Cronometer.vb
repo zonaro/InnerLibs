@@ -6,9 +6,21 @@ Namespace TimeMachine
     Public Class Cronometer
         Inherits Label
         Private timer As New Timer
-
         Private marks As New List(Of Date)
         Property Format As String = "hh\:mm\:ss\.ffff"
+
+        ''' <summary>
+        ''' Intervalo de atualizaçao do cronometro
+        ''' </summary>
+        ''' <returns></returns>
+        Property Interval As Integer
+            Get
+                Return timer.Interval
+            End Get
+            Set(value As Integer)
+                timer.Interval = value
+            End Set
+        End Property
 
         ''' <summary>
         ''' Texto atual do cronometro
@@ -23,29 +35,50 @@ Namespace TimeMachine
             End Set
         End Property
 
+        ''' <summary>
+        ''' Lista de <see cref="DateTime"/> dos valores de cada Lap
+        ''' </summary>
+        ''' <returns></returns>
         ReadOnly Property Laps As List(Of Date)
             Get
                 Return New List(Of Date)(marks)
             End Get
         End Property
 
+        ''' <summary>
+        ''' Retorna uma lista de strings da extraidas da <see cref="Cronometer.Laps"/> em um formato
+        ''' especifico de data
+        ''' </summary>
+        ''' <param name="Format">Formato de data</param>
+        ''' <returns></returns>
         Function GetLaps(Optional Format As String = "") As List(Of String)
             GetLaps = New List(Of String)
             For Each d In Laps
-                GetLaps.Add(d.ToString(Format.IfBlank(Me.Format)))
+                GetLaps.Add(d.ToString(Format.IfBlank(d.ToSQLDateString)))
             Next
             Return GetLaps
         End Function
 
+        ''' <summary>
+        ''' Retorna um <see cref="TimeFlow"/> calculado para este cronometro. Se
+        ''' <see cref="Cronometer.Laps"/> estiver vazio, este médoto retorna Nothing
+        ''' </summary>
+        ''' <returns></returns>
         ReadOnly Property TotalTime As TimeFlow
             Get
                 If marks.Count > 0 Then
                     Return GetDifference(marks.First, marks.Last)
                 End If
-                Return Nothing
+                Return New TimeFlow(TimeSpan.Zero)
             End Get
         End Property
 
+        ''' <summary>
+        ''' Declara um novo objeto Cronometer
+        ''' </summary>
+        ''' <param name="Format">
+        ''' Formato do Cronometro( <see cref="TimeSpan.ToString(String)"/> )
+        ''' </param>
         Sub New(Optional Format As String = "")
             MyBase.New()
             Me.Visible = False
@@ -80,7 +113,6 @@ Namespace TimeMachine
         ''' Inicia o cronometro
         ''' </summary>
         Public Sub Start()
-
             Reset()
             Dim e = New LapEventArgs With {.Value = Now}
             marks.Add(e.Value)
@@ -103,7 +135,6 @@ Namespace TimeMachine
         ''' Reinicia o cronometro
         ''' </summary>
         Sub Reset()
-
             Me.Text = TimeSpan.Zero.ToString(Format)
             marks = New List(Of Date)
             RaiseEvent OnReset(Me, EventArgs.Empty)
@@ -114,7 +145,6 @@ Namespace TimeMachine
         ''' </summary>
         Public Sub [Stop]()
             If timer.Enabled Then
-
                 Dim e = New LapEventArgs With {.Value = Now}
                 marks.Add(e.Value)
                 timer.Stop()
