@@ -34,7 +34,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Altera os seletores padrão dos campos
         ''' </summary>
-        ''' <param name="OpenSelector">Seletor</param>
+        ''' <param name="OpenSelector"> Seletor</param>
         ''' <param name="CloseSelector"></param>
         Public Sub SetSelector(OpenSelector As String, CloseSelector As String)
             sel(0) = If(OpenSelector.IsBlank, "##", OpenSelector)
@@ -54,7 +54,8 @@ Namespace Templatizer
         ReadOnly Property TemplateDirectory As DirectoryInfo = Nothing
 
         ''' <summary>
-        ''' Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML utilizados como template
+        ''' Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML
+        ''' utilizados como template
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property ApplicationAssembly As Reflection.Assembly = Nothing
@@ -64,7 +65,7 @@ Namespace Templatizer
         ''' </summary>
         ''' <typeparam name="ConnectionType">Tipo de ConnectionString</typeparam>
         ''' <param name="ConnectionString">String de conexão com o banco</param>
-        ''' <param name="Directory">Diretório com os arquivos SQL e os arquivos HTML</param>
+        ''' <param name="Directory">       Diretório com os arquivos SQL e os arquivos HTML</param>
         ''' <returns></returns>
         Public Shared Function Create(Of ConnectionType As DbConnection)(ConnectionString As String, Directory As DirectoryInfo) As Templatizer
             Return New Templatizer(DataBase.Create(Of ConnectionType)(ConnectionString, Directory), Directory)
@@ -74,8 +75,10 @@ Namespace Templatizer
         ''' Cria uma instancia de Templatizer diretamente de um diretório e uma connectionstring
         ''' </summary>
         ''' <typeparam name="ConnectionType">Tipo de ConnectionString</typeparam>
-        ''' <param name="ConnectionString">String de conexão com o banco</param>
-        ''' <param name="ApplicationAssembly">Assembly da aplicação onde estão os arquivos html e sql guardados como resources</param>
+        ''' <param name="ConnectionString">   String de conexão com o banco</param>
+        ''' <param name="ApplicationAssembly">
+        ''' Assembly da aplicação onde estão os arquivos html e sql guardados como resources
+        ''' </param>
         ''' <returns></returns>
         Public Shared Function Create(Of ConnectionType As DbConnection)(ConnectionString As String, ApplicationAssembly As Assembly) As Templatizer
             Return New Templatizer(DataBase.Create(Of ConnectionType)(ConnectionString, ApplicationAssembly))
@@ -97,7 +100,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Instancia um Novo Templatizer utilizando uma Pasta para guardar os templates
         ''' </summary>
-        ''' <param name="DataBase">Conexão com o banco de dados</param>
+        ''' <param name="DataBase">      Conexão com o banco de dados</param>
         ''' <param name="TemplateFolder">Pasta com os arquivos HTML dos templates</param>
         Sub New(DataBase As DataBase, TemplateFolder As DirectoryInfo)
             Me.TemplateDirectory = TemplateFolder
@@ -107,12 +110,15 @@ Namespace Templatizer
         ''' <summary>
         ''' Instancia um Novo Templatizer utilizando uma Assembly para guardas os templates como resources
         ''' </summary>
-        ''' <param name="DataBase">Conexão com o banco de dados</param>
-        ''' <param name="ApplicationAssembly">Assembly da aplicação onde os arquivos HTML dos templates estão compilados</param>
+        ''' <param name="DataBase">           Conexão com o banco de dados</param>
+        ''' <param name="ApplicationAssembly">
+        ''' Assembly da aplicação onde os arquivos HTML dos templates estão compilados
+        ''' </param>
         Sub New(DataBase As DataBase, ApplicationAssembly As Assembly)
             Me.DataBase = DataBase
             Me.ApplicationAssembly = ApplicationAssembly
         End Sub
+
         ''' <summary>
         ''' Traz a lista dos arquivos de template encontrados
         ''' </summary>
@@ -175,8 +181,8 @@ Namespace Templatizer
         ''' <summary>
         ''' Processa o comando SQL e retorna os resultados em HTML utilizando o arquivo de template especificado
         ''' </summary>
-        ''' <param name="SQLQuery">Comando SQL</param>
-        ''' <param name="TemplateFile">Arquivo do Template</param>
+        ''' <param name="SQLQuery">     Comando SQL</param>
+        ''' <param name="TemplateFile"> Arquivo do Template</param>
         ''' <param name="OrderByColumn">Coluna do resultado que será utilizado como ordem</param>
         ''' <returns></returns>
         Public Function LoadQuery(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = "") As TemplateList
@@ -184,10 +190,11 @@ Namespace Templatizer
         End Function
 
         ''' <summary>
-        ''' Processa o comando de um arquivo SQL e retorna os resultados em HTML utilizando o arquivo de template especificado
+        ''' Processa o comando de um arquivo SQL e retorna os resultados em HTML utilizando o arquivo
+        ''' de template especificado
         ''' </summary>
-        ''' <param name="CommandFile">Arquivo de comando SQL</param>
-        ''' <param name="TemplateFile">Arquivo do Template</param>
+        ''' <param name="CommandFile">  Arquivo de comando SQL</param>
+        ''' <param name="TemplateFile"> Arquivo do Template</param>
         ''' <param name="OrderByColumn">Coluna do resultado que será utilizado como ordem</param>
         ''' <returns></returns>
         Public Function LoadFile(CommandFile As String, TemplateFile As String, Optional OrderByColumn As String = "") As TemplateList
@@ -197,7 +204,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Processa um template configurado
         ''' </summary>
-        ''' <param name="TemplateName">Nome do template</param>
+        ''' <param name="TemplateName"> Nome do template</param>
         ''' <param name="OrderByColumn">Coluna utilizada para ordenar</param>
         ''' <returns></returns>
         Default Public ReadOnly Property Load(TemplateName As String, Optional OrderByColumn As String = "") As TemplateList
@@ -243,7 +250,12 @@ Namespace Templatizer
                     Dim copia As String = template
                     'replace nas strings padrão
                     For Each col In reader.GetColumns
-                        copia = copia.Replace(ApplySelector(col), reader(col).ToString())
+                        Dim v = ""
+                        Try
+                            v = reader(col).ToString
+                        Catch ex As Exception
+                        End Try
+                        copia = copia.Replace(ApplySelector(col), v)
                     Next
                     'replace nas procedures
                     For Each templateTag As HtmlTag In copia.GetElementsByTagName("template")
@@ -292,6 +304,7 @@ Namespace Templatizer
             End Select
             Return response
         End Function
+
     End Class
 
     ''' <summary>
@@ -332,6 +345,7 @@ Namespace Templatizer
         Public Sub New()
             MyBase.New()
         End Sub
+
         ''' <summary>
         ''' Retorna uma string HTML com todos os templates processados e o conteúdo do Head
         ''' </summary>
@@ -376,7 +390,8 @@ Namespace Templatizer
         End Function
 
         ''' <summary>
-        ''' Procura valores no <see cref="Template.Data"/> que contenham qualquer um dos termos pesquisados usando comparação fonética
+        ''' Procura valores no <see cref="Template.Data"/> que contenham qualquer um dos termos
+        ''' pesquisados usando comparação fonética
         ''' </summary>
         ''' <param name="SearchTerms">Termos Pesquisados</param>
         ''' <returns></returns>
@@ -395,7 +410,8 @@ Namespace Templatizer
         End Function
 
         ''' <summary>
-        ''' Procura valores nas colunas especificadas do <see cref="Template.Data"/> que contenham qualquer um dos termos pesquisados
+        ''' Procura valores nas colunas especificadas do <see cref="Template.Data"/> que contenham
+        ''' qualquer um dos termos pesquisados
         ''' </summary>
         ''' <param name="SearchTerms">Termos Pesquisados</param>
         ''' <returns></returns>
@@ -414,7 +430,8 @@ Namespace Templatizer
         End Function
 
         ''' <summary>
-        ''' Procura valores nas colunas especificadas do <see cref="Template.Data"/> que contenham qualquer um dos termos pesquisados usando comparação fonética
+        ''' Procura valores nas colunas especificadas do <see cref="Template.Data"/> que contenham
+        ''' qualquer um dos termos pesquisados usando comparação fonética
         ''' </summary>
         ''' <param name="SearchTerms">Termos Pesquisados</param>
         ''' <returns></returns>
@@ -477,7 +494,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Concatena o HTML da lista de templates a string
         ''' </summary>
-        ''' <param name="Text">Texto</param>
+        ''' <param name="Text">        Texto</param>
         ''' <param name="TemplateList">Lista de Template</param>
         ''' <returns></returns>
         Public Shared Operator &(Text As String, TemplateList As TemplateList) As String
@@ -487,7 +504,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Adiciona um template á lista
         ''' </summary>
-        ''' <param name="List">Lista</param>
+        ''' <param name="List">    Lista</param>
         ''' <param name="Template">Template</param>
         ''' <returns></returns>
         Public Shared Operator +(List As TemplateList, Template As Template) As TemplateList
@@ -499,7 +516,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Adiciona os templates de uma lista á outra lista
         ''' </summary>
-        ''' <param name="List">Lista</param>
+        ''' <param name="List">       Lista</param>
         ''' <param name="AnotherList">Outra lista</param>
         ''' <returns></returns>
         Public Shared Operator +(List As TemplateList, AnotherList As TemplateList) As TemplateList
@@ -514,7 +531,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Concatena o HTML da lista de templates a string
         ''' </summary>
-        ''' <param name="Text">Texto</param>
+        ''' <param name="Text">        Texto</param>
         ''' <param name="TemplateList">Lista de Template</param>
         ''' <returns></returns>
         Public Shared Operator +(Text As String, TemplateList As TemplateList) As String
@@ -524,7 +541,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Concatena o HTML da lista de templates a string
         ''' </summary>
-        ''' <param name="Text">Texto</param>
+        ''' <param name="Text">        Texto</param>
         ''' <param name="TemplateList">Lista de Template</param>
         ''' <returns></returns>
         Public Shared Operator +(TemplateList As TemplateList, Text As String) As String
@@ -538,6 +555,7 @@ Namespace Templatizer
     ''' </summary>
     Public Class Template
         Implements IComparable
+
         ''' <summary>
         ''' Conteudo do Template
         ''' </summary>
@@ -569,7 +587,7 @@ Namespace Templatizer
         Public Property OrderByColumn As String
 
         ''' <summary>
-        '''  Valor que define a ordem de apresentação na <see cref="TemplateList"/>
+        ''' Valor que define a ordem de apresentação na <see cref="TemplateList"/>
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property Order As Object
@@ -593,8 +611,8 @@ Namespace Templatizer
         ''' <summary>
         ''' Cria uma nova instrução para contrução de um template
         ''' </summary>
-        ''' <param name="SQLQuery">Query SQL</param>
-        ''' <param name="TemplateFile">Nome do arquivo de template</param>
+        ''' <param name="SQLQuery">     Query SQL</param>
+        ''' <param name="TemplateFile"> Nome do arquivo de template</param>
         ''' <param name="OrderByColumn">Nome da Coluna de Ordem</param>
         Public Sub New(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = Nothing)
             Me.SQLQuery = SQLQuery
@@ -651,7 +669,7 @@ Namespace Templatizer
         ''' <summary>
         ''' cria uma cópia da <see cref="TemplateList"/> e adiciona o <see cref="Template"/> a ela
         ''' </summary>
-        ''' <param name="Template">Template</param>
+        ''' <param name="Template">    Template</param>
         ''' <param name="TemplateList">Lista</param>
         ''' <returns></returns>
         Public Shared Operator +(Template As Template, TemplateList As TemplateList) As TemplateList
@@ -665,7 +683,7 @@ Namespace Templatizer
         ''' <summary>
         ''' cria uma cópia da <see cref="TemplateList"/> e adiciona o <see cref="Template"/> a ela
         ''' </summary>
-        ''' <param name="Template">Template</param>
+        ''' <param name="Template">    Template</param>
         ''' <param name="TemplateList">Lista</param>
         ''' <returns></returns>
         Public Shared Operator +(TemplateList As TemplateList, Template As Template) As TemplateList

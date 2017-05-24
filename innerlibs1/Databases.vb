@@ -13,7 +13,8 @@ Imports System.Xml
 Public NotInheritable Class DataBase
 
     ''' <summary>
-    ''' Estrutura que 'implementa' um DataReader estático copiando o conteudo e permitindo leitura e releitura mesmo após o fechamento da conexão.
+    ''' Estrutura que 'implementa' um DataReader estático copiando o conteudo e permitindo leitura e
+    ''' releitura mesmo após o fechamento da conexão.
     ''' </summary>
     Public NotInheritable Class Reader
         Inherits List(Of List(Of Dictionary(Of String, Object)))
@@ -98,10 +99,11 @@ Public NotInheritable Class DataBase
         End Property
 
         ''' <summary>
-        ''' Retorna o valor da coluna do resultado de uma linha especifica a partir do nome da coluna e o Index da linha
+        ''' Retorna o valor da coluna do resultado de uma linha especifica a partir do nome da coluna
+        ''' e o Index da linha
         ''' </summary>
         ''' <param name="ColumnName">Nome da Coluna</param>
-        ''' <param name="RowIndex">Índice da Linha</param>
+        ''' <param name="RowIndex">  Índice da Linha</param>
         ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnName As String, RowIndex As Integer) As Object
             Get
@@ -140,10 +142,11 @@ Public NotInheritable Class DataBase
         End Property
 
         ''' <summary>
-        ''' Retorna o valor da coluna do resultado de uma linha especifica a partir do nome da coluna e o Index da linha
+        ''' Retorna o valor da coluna do resultado de uma linha especifica a partir do nome da coluna
+        ''' e o Index da linha
         ''' </summary>
         ''' <param name="ColumnIndex">Índice da Coluna</param>
-        ''' <param name="RowIndex">Índice da Linha</param>
+        ''' <param name="RowIndex">   Índice da Linha</param>
         ''' <returns></returns>
         Default Public Shadows ReadOnly Property Item(ColumnIndex As Integer, RowIndex As Integer) As Object
             Get
@@ -246,7 +249,7 @@ Public NotInheritable Class DataBase
                         Dim lista As New Dictionary(Of String, Object)
                         For Each col In columns
                             If Not lista.Keys.Contains(col) Then
-                                lista.Add(col, Reader(col))
+                                lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
                             End If
                         Next
                         listatabela.Add(lista)
@@ -260,7 +263,8 @@ Public NotInheritable Class DataBase
         Private rowindex As Integer = -1
 
         ''' <summary>
-        ''' Reinicia a leitura do Reader retornando os índices para seus valores padrão, é um alias para <see cref="Reset()"/>)
+        ''' Reinicia a leitura do Reader retornando os índices para seus valores padrão, é um alias
+        ''' para <see cref="Reset()"/>)
         ''' </summary>
         Public Sub StartOver()
             resultindex = 0
@@ -339,8 +343,8 @@ Public NotInheritable Class DataBase
         ''' <summary>
         ''' Cria um array de <see cref="ListItem"/> com os Itens de um DataBaseReader
         ''' </summary>
-        ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
-        ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
+        ''' <param name="TextColumn">    Coluna que será usada como Texto do elemento option</param>
+        ''' <param name="ValueColumn">   Coluna que será usada como Value do elemento option</param>
         ''' <param name="SelectedValues">Valores Selecionados</param>
         ''' <returns></returns>
         Public Function ToListItems(TextColumn As String, Optional ValueColumn As String = "", Optional SelectedValues As String() = Nothing) As ListItem()
@@ -358,9 +362,10 @@ Public NotInheritable Class DataBase
         ''' Preenche um <see cref="HtmlSelect"/> com itens do DataBaseReader
         ''' </summary>
         ''' <param name="[SelectControl]">Controle HtmlSelect</param>
-        ''' <param name="TextColumn">Coluna que será usada como Texto do elemento option</param>
-        ''' <param name="ValueColumn">Coluna que será usada como Value do elemento option</param>
-        ''' '<param name="SelectedValues">Valores Selecionados</param>
+        ''' <param name="TextColumn">     Coluna que será usada como Texto do elemento option</param>
+        ''' <param name="ValueColumn">    Coluna que será usada como Value do elemento option</param>
+        ''' '
+        ''' <param name="SelectedValues"> Valores Selecionados</param>
         Public Sub FillSelectControl(ByRef [SelectControl] As HtmlSelect, TextColumn As String, Optional ValueColumn As String = "", Optional SelectedValues As String() = Nothing)
             SelectControl.Items.AddRange(Me.ToListItems(TextColumn, ValueColumn, SelectedValues))
         End Sub
@@ -416,9 +421,9 @@ Public NotInheritable Class DataBase
         ''' <summary>
         ''' Retorna o valor de uma coluna especifica de um resultado de um DataBaseReader
         ''' </summary>
-        ''' <param name="Column">Coluna</param>
+        ''' <param name="Column">     Coluna</param>
         ''' <param name="ResultIndex">Indice do resultado</param>
-        ''' <param name="RowIndex">Indice da linha dor resultado</param>
+        ''' <param name="RowIndex">   Indice da linha dor resultado</param>
         ''' <returns></returns>
         Public Function GetValue(ResultIndex As Integer, RowIndex As Integer, Column As String) As Object
             Return Me.GetResult(ResultIndex).Item(RowIndex).Item(Column)
@@ -428,9 +433,9 @@ Public NotInheritable Class DataBase
         ''' Retorna o valor de uma coluna especifica de um resultado de um DataBaseReader
         ''' </summary>
         ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
-        ''' <param name="Column">Coluna</param>
+        ''' <param name="Column">     Coluna</param>
         ''' <param name="ResultIndex">Indice do resultado</param>
-        ''' <param name="RowIndex">Indice da linha dor resultado</param>
+        ''' <param name="RowIndex">   Indice da linha dor resultado</param>
         ''' <returns></returns>
         Public Function GetValue(Of Type As IConvertible)(ResultIndex As Integer, RowIndex As Integer, Column As String) As Type
             Return DirectCast(Me.GetResult(ResultIndex).Item(RowIndex).Item(Column), Type)
@@ -447,7 +452,7 @@ Public NotInheritable Class DataBase
         ''' <summary>
         ''' Cria um Dictionary a partir de DataBaseReader usando uma coluna como Key e outra como Value
         ''' </summary>
-        ''' <param name="KeyColumn">Coluna que será usada como Key do dicionario</param>
+        ''' <param name="KeyColumn">  Coluna que será usada como Key do dicionario</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
         ''' <returns></returns>
 
@@ -464,7 +469,7 @@ Public NotInheritable Class DataBase
         ''' <summary>
         ''' Cria uma lista de pares com os Itens de um DataBaseReader
         ''' </summary>
-        ''' <param name="TextColumn">Coluna que será usada como Text do item</param>
+        ''' <param name="TextColumn"> Coluna que será usada como Text do item</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do item</param>
         ''' <returns></returns>
         Public Function ToTextValueList(Of TValue)(TextColumn As String, Optional ValueColumn As String = "") As TextValueList(Of TValue)
@@ -498,8 +503,8 @@ Public NotInheritable Class DataBase
         ''' <summary>
         ''' Transforma um DataBaseReader em uma string delimitada por caracteres
         ''' </summary>
-        ''' <param name="ColDelimiter">Delimitador de Coluna</param>
-        ''' <param name="RowDelimiter">Delimitador de Linha</param>
+        ''' <param name="ColDelimiter">  Delimitador de Coluna</param>
+        ''' <param name="RowDelimiter">  Delimitador de Linha</param>
         ''' <param name="TableDelimiter">Delimitador de Tabelas</param>
         ''' <returns>Uma string delimitada</returns>
 
@@ -533,8 +538,9 @@ Public NotInheritable Class DataBase
         ''' <summary>
         ''' Converte um DataBaseReader em XML
         ''' </summary>
-        ''' <param name="ItemName">Nome do nó que representa cada linha</param>
-        ''' '<param name="TableName">Nome do nó principal do documento</param>
+        ''' <param name="ItemName"> Nome do nó que representa cada linha</param>
+        ''' '
+        ''' <param name="TableName">Nome do nó principal do documento</param>
 
         Function ToXML(Optional TableName As String = "Table", Optional ItemName As String = "Row") As XmlDocument
 
@@ -581,10 +587,13 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Copia a primeira linha de um DataBaseReader para uma sessão HttpSessionState usando os nomes das colunas como os nomes dos objetos da sessão
+        ''' Copia a primeira linha de um DataBaseReader para uma sessão HttpSessionState usando os
+        ''' nomes das colunas como os nomes dos objetos da sessão
         ''' </summary>
         ''' <param name="Session">Objeto da sessão</param>
-        ''' <param name="Timeout">Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)</param>
+        ''' <param name="Timeout">
+        ''' Tempo em minutos para a sessão expirar (se não especificado não altera o timeout da sessão)
+        ''' </param>
 
         Public Sub ToSession(Session As HttpSessionState, Optional Timeout As Integer = 0)
             For Each coluna In Me.GetColumns()
@@ -670,7 +679,8 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em inputs com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em inputs com mesmo ID das
+        ''' colunas. Se os inputs não existirem no resultado eles serão ignorados.
         ''' </summary>
         ''' <param name="Inputs">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os inputs manipulados</returns>
@@ -686,7 +696,8 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em selects com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em selects com mesmo ID
+        ''' das colunas. Se os selects não existirem no resultado eles serão ignorados.
         ''' </summary>
         ''' <param name="Selects">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os selects manipulados</returns>
@@ -703,7 +714,9 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de qualquer
+        ''' controle genérico com mesmo ID das colunas. Se os elementos não existirem no resultado
+        ''' eles serão ignorados.
         ''' </summary>
         ''' <param name="Controls">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os controles HTML manipulados</returns>
@@ -720,7 +733,8 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de textareas
+        ''' com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
         ''' </summary>
         ''' <param name="TextAreas">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo as Textareas manipuladas</returns>
@@ -761,8 +775,8 @@ Public NotInheritable Class DataBase
         ''' Preenche um combobox com um TextValueList criado a partir deste DataBase.Reader
         ''' </summary>
         ''' <typeparam name="TValue">Tipo do Valor da coluna</typeparam>
-        ''' <param name="ComboBox"></param>
-        ''' <param name="TextColumn">Coluna usada como Texto do ComboBox</param>
+        ''' <param name="ComboBox">   </param>
+        ''' <param name="TextColumn"> Coluna usada como Texto do ComboBox</param>
         ''' <param name="ValueColumn">Coluna usada como Valor do ComboBox</param>
         ''' <returns></returns>
         Public Function FillComboBox(Of TValue)(ByRef ComboBox As ComboBox, TextColumn As String, Optional ValueColumn As String = Nothing) As ComboBox
@@ -776,7 +790,7 @@ Public NotInheritable Class DataBase
     ''' Cria um parametro de Query SQL a partir de uma variavel convertida para um tipo especifico
     ''' </summary>
     ''' <typeparam name="Type">Tipo</typeparam>
-    ''' <param name="Name">Nome do Parametro</param>
+    ''' <param name="Name"> Nome do Parametro</param>
     ''' <param name="Value">Valor do Parametro</param>
     ''' <returns></returns>
     Function CreateParameter(Of Type)(Name As String, Value As Object) As DbParameter
@@ -786,7 +800,7 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Cria um parametro de Query SQL a partir de uma variavel
     ''' </summary>
-    ''' <param name="Name">Nome do Parametro</param>
+    ''' <param name="Name"> Nome do Parametro</param>
     ''' <param name="Value">Valor do Parametro</param>
     ''' <returns></returns>
     Function CreateParameter(Name As String, Value As Object) As DbParameter
@@ -881,7 +895,7 @@ Public NotInheritable Class DataBase
     ''' Executa o comando de um arquivo SQL configurado
     ''' </summary>
     ''' <param name="CommandFile">Nome do arquivo SQL</param>
-    ''' <param name="Parameters">Parametros do comando SQL</param>
+    ''' <param name="Parameters"> Parametros do comando SQL</param>
     ''' <returns></returns>
     Function OpenFile(CommandFile As String, ParamArray Parameters As DbParameter()) As DataBase.Reader
         Return RunSQL(GetCommand(CommandFile), Parameters)
@@ -934,16 +948,17 @@ Public NotInheritable Class DataBase
     ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString e em um Tipo de Conexão
     ''' </summary>
     ''' <param name="ConnectionString">String de conexão com o banco</param>
-    ''' <param name="Type">Tipo de conexão com o banco</param>
+    ''' <param name="Type">            Tipo de conexão com o banco</param>
     Public Sub New(Type As Type, ByVal ConnectionString As String)
         Me.ConnectionString = ConnectionString
         ConnectionType = Type
     End Sub
 
     ''' <summary>
-    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de arquivos SQL e em um Tipo de Conexão
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de
+    ''' arquivos SQL e em um Tipo de Conexão
     ''' </summary>
-    ''' <param name="Type">Tipo de Conexão</param>
+    ''' <param name="Type">            Tipo de Conexão</param>
     ''' <param name="ConnectionString">String de conexão com o banco</param>
     ''' <param name="CommandDirectory">Diretorio de arquivos SQL</param>
     Public Sub New(Type As Type, ByVal ConnectionString As String, CommandDirectory As DirectoryInfo)
@@ -953,10 +968,11 @@ Public NotInheritable Class DataBase
     End Sub
 
     ''' <summary>
-    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de arquivos SQL e em um Tipo de Conexão
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de
+    ''' arquivos SQL e em um Tipo de Conexão
     ''' </summary>
-    ''' <param name="Type">Tipo de Conexão</param>
-    ''' <param name="ConnectionString">String de conexão com o banco</param>
+    ''' <param name="Type">               Tipo de Conexão</param>
+    ''' <param name="ConnectionString">   String de conexão com o banco</param>
     ''' <param name="ApplicationAssembly">Assembly contendo os arquivos SQL</param>
     Public Sub New(Type As Type, ByVal ConnectionString As String, ApplicationAssembly As Assembly)
         Me.ConnectionString = ConnectionString
@@ -980,7 +996,8 @@ Public NotInheritable Class DataBase
     End Function
 
     ''' <summary>
-    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de arquivos SQL e em um Tipo de Conexão
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, um diretório de
+    ''' arquivos SQL e em um Tipo de Conexão
     ''' </summary>
     ''' <param name="ConnectionString">String de conexão com o banco</param>
     ''' <param name="CommandDirectory">Diretório onde estão guardados os arquivos SQL</param>
@@ -990,9 +1007,10 @@ Public NotInheritable Class DataBase
     End Function
 
     ''' <summary>
-    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de arquivos SQL e em um Tipo de Conexão
+    ''' Cria uma nova instancia de Banco de Dados baseada em uma ConnectionString, Resources de
+    ''' arquivos SQL e em um Tipo de Conexão
     ''' </summary>
-    ''' <param name="ConnectionString">String de conexão com o banco</param>
+    ''' <param name="ConnectionString">   String de conexão com o banco</param>
     ''' <param name="ApplicationAssembly">Diretório onde estão guardados os arquivos SQL</param>
     ''' <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
     Public Shared Function Create(Of Connectiontype As DbConnection)(ConnectionString As String, ApplicationAssembly As Assembly) As DataBase
@@ -1045,7 +1063,7 @@ Public NotInheritable Class DataBase
     ''' Cria um comando SQL utilizando as key e os valores de um <see cref="HttpRequest"/>
     ''' </summary>
     ''' <param name="SQLQuery">Comando SQL</param>
-    ''' <param name="Request">Request de onde serão extraidos os valores</param>
+    ''' <param name="Request"> Request de onde serão extraidos os valores</param>
     ''' <returns></returns>
     Public Function CreateCommandFromRequest(Request As HttpRequest, SQLQuery As String, ParamArray CustomParameters As DbParameter()) As DbCommand
         Dim reg = New Regex("\@(?<param>[^=<>\s\',]+)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(SQLQuery)
@@ -1100,11 +1118,11 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Executa uma procedure para cada item dentro de uma coleção
     ''' </summary>
-    ''' <param name="Procedure">Nome da procedure</param>
-    ''' <param name="ForeignKey">Coluna que representa a chave estrangeira da tabela</param>
+    ''' <param name="Procedure">   Nome da procedure</param>
+    ''' <param name="ForeignKey">  Coluna que representa a chave estrangeira da tabela</param>
     ''' <param name="ForeignValue">Valor que será guardado como chave estrangeira</param>
-    ''' <param name="Items">Coleçao de valores que serão inseridos em cada iteraçao</param>
-    ''' <param name="Keys">as chaves de cada item</param>
+    ''' <param name="Items">       Coleçao de valores que serão inseridos em cada iteraçao</param>
+    ''' <param name="Keys">        as chaves de cada item</param>
     Public Sub RunProcedureForEach(ByVal Procedure As String, ForeignKey As String, ForeignValue As String, Items As NameValueCollection, ParamArray Keys() As String)
         UnsupportedMethod(GetType(OleDb.OleDbDataReader), GetType(SqlClient.SqlDataReader))
         Dim tamanho_loops_comando = Items.GetValues(Keys(0)).Count
@@ -1130,7 +1148,6 @@ Public NotInheritable Class DataBase
         For Each p In BatchProcedure
             Try
                 RunProcedureForEach(p.ProcedureName, BatchProcedure.ForeignKey, BatchProcedure.ForeignValue, BatchProcedure.Items, p.Keys)
-
             Catch ex As Exception
                 BatchProcedure.Errors.Add(ex)
             End Try
@@ -1140,10 +1157,12 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Executa uma série de procedures baseando-se eum uma unica chave estrangeira
     ''' </summary>
-    ''' <param name="ForeignKey">Coluna que representa a chave estrangeira da tabela</param>
-    ''' <param name="ForeignValue">Valor que será guardado como chave estrangeira</param>
-    ''' <param name="Items">Coleçao de valores que serão inseridos em cada iteraçao</param>
-    ''' <param name="ProcedureConfig">Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros</param>
+    ''' <param name="ForeignKey">     Coluna que representa a chave estrangeira da tabela</param>
+    ''' <param name="ForeignValue">   Valor que será guardado como chave estrangeira</param>
+    ''' <param name="Items">          Coleçao de valores que serão inseridos em cada iteraçao</param>
+    ''' <param name="ProcedureConfig">
+    ''' Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros
+    ''' </param>
     Public Sub RunBatchProcedure(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray ProcedureConfig As ProcedureConfig())
         RunBatchProcedure(New BatchProcedure(Items, ForeignKey, ForeignValue, ProcedureConfig))
     End Sub
@@ -1151,9 +1170,9 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Executa uma Query no banco com upload de arquivos.
     ''' </summary>
-    ''' <param name="SQLQuery">Comando SQL a ser executado</param>
+    ''' <param name="SQLQuery">     Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
-    ''' <param name="File">Arquivo</param>
+    ''' <param name="File">         Arquivo</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte()) As Reader
         Log(SQLQuery)
@@ -1170,9 +1189,9 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Executa uma Query no banco com upload de arquivos.
     ''' </summary>
-    ''' <param name="SQLQuery">Comando SQL a ser executado</param>
+    ''' <param name="SQLQuery">     Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
-    ''' <param name="File">Arquivo postado</param>
+    ''' <param name="File">         Arquivo postado</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile) As Reader
         Log(SQLQuery)
@@ -1189,9 +1208,9 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Executa uma Query no banco com upload de arquivos.
     ''' </summary>
-    ''' <param name="SQLQuery">Comando SQL a ser executado</param>
+    ''' <param name="SQLQuery">     Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
-    ''' <param name="File">Arquivo</param>
+    ''' <param name="File">         Arquivo</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo) As Reader
         Log(SQLQuery)
@@ -1223,7 +1242,7 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Executa uma Query no banco. Recomenda-se o uso de procedures.
     ''' </summary>
-    ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
+    ''' <param name="SQLQuery">  Comando SQL parametrizado a ser executado</param>
     ''' <param name="Parameters">Parametros que serão adicionados ao comando</param>
     ''' <returns>Um DataBaseReader com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter) As Reader
@@ -1244,8 +1263,8 @@ Public NotInheritable Class DataBase
     ''' Executa uma Query no banco usando como base um TableQuickConnector
     ''' </summary>
     ''' <param name="TableQuickConnector">TableQuickConnector configurado</param>
-    ''' <param name="Action">Açao que será realizada no banco</param>
-    ''' <param name="WhereConditions">Condições WHERE</param>
+    ''' <param name="Action">             Açao que será realizada no banco</param>
+    ''' <param name="WhereConditions">    Condições WHERE</param>
     ''' <returns></returns>
     Public Function RunSQL(TableQuickConnector As TableQuickConnector, Action As TableQuickConnector.Action, Optional WhereConditions As String = "") As DataBase.Reader
         Dim query As String = ""
@@ -1300,11 +1319,12 @@ Public NotInheritable Class DataBase
         Next
         Return RunSQL(command)
     End Function
+
     ''' <summary>
     ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
     ''' </summary>
     ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
-    ''' <param name="TableName">Nome da tabela</param>
+    ''' <param name="TableName">      Nome da tabela</param>
     Default ReadOnly Property [SELECT](TableName As String, Optional WhereConditions As String = "") As Reader
         Get
             Dim cmd = "SELECT * FROM " & TableName
@@ -1320,7 +1340,7 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <param name="TableName"></param>
-    ''' <param name="[Object]"></param>
+    ''' <param name="[Object]"> </param>
     Public Sub INSERT(Of Type)(TableName As String, [Object] As Type)
         RunAction("INSERT", TableName, [Object])
     End Sub
@@ -1328,9 +1348,9 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Atualiza um registro de uma tabela usando um Objeto
     ''' </summary>
-    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="TableName">      Nome da Tabela</param>
     ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
-    ''' <param name="Object">Objeto com os valores que serão atualizados</param>
+    ''' <param name="Object">         Objeto com os valores que serão atualizados</param>
     Public Sub UPDATE(Of Type)(TableName As String, [Object] As Type, WhereConditions As String)
         RunAction("UPDATE", TableName, [Object], WhereConditions.Trim().RemoveFirstIf("where"))
     End Sub
@@ -1338,7 +1358,7 @@ Public NotInheritable Class DataBase
     ''' <summary>
     ''' Deleta um registro de uma tabela
     ''' </summary>
-    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="TableName">      Nome da Tabela</param>
     ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
     Public Sub DELETE(TableName As String, WhereConditions As String)
         Dim cmd = "DELETE FROM " & TableName
@@ -1388,6 +1408,7 @@ End Class
 ''' Classe utilizada para interligar os campos de um formulário a uma tabela no banco de dados
 ''' </summary>
 Public Class TableQuickConnector
+
     ''' <summary>
     ''' Lista de ações que um TableQuickConnector pode realizar
     ''' </summary>
@@ -1438,7 +1459,7 @@ Public Class TableQuickConnector
     ''' <summary>
     ''' Inicia uma instancia de TableQuickConnector
     ''' </summary>
-    ''' <param name="Table"> Nome da tabela de destino no banco de dados</param>
+    ''' <param name="Table">         Nome da tabela de destino no banco de dados</param>
     ''' <param name="ColumnControls">Campos do formulário que serão utilizados como colunas</param>
     Public Sub New(Table As String, ParamArray ColumnControls() As Control)
         Me.AddColumns(ColumnControls)
@@ -1446,9 +1467,10 @@ Public Class TableQuickConnector
     End Sub
 
     ''' <summary>
-    ''' Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, executa um  UPDATE, caso contrario, executa um INSERT.
+    ''' Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, executa um UPDATE,
+    ''' caso contrario, executa um INSERT.
     ''' </summary>
-    ''' <param name="ID">Valor da coluna de ID da tabela</param>
+    ''' <param name="ID">    Valor da coluna de ID da tabela</param>
     ''' <param name="Column">Coluna de id da tabela</param>
     ''' <returns></returns>
     ReadOnly Property INSERTorUPDATE(ID As Integer, Column As String) As String
@@ -1462,7 +1484,8 @@ Public Class TableQuickConnector
     End Property
 
     ''' <summary>
-    ''' Retorna um comando de INSERT na tabela utilizando os campos como nome das colunas e seus valores como os valores do INSERT
+    ''' Retorna um comando de INSERT na tabela utilizando os campos como nome das colunas e seus
+    ''' valores como os valores do INSERT
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property INSERT As String
@@ -1472,7 +1495,8 @@ Public Class TableQuickConnector
     End Property
 
     ''' <summary>
-    ''' Retorna um comando de UPDATE na tabela utilizando os campos como nome das colunas e seus valores como os valores do UPDATE
+    ''' Retorna um comando de UPDATE na tabela utilizando os campos como nome das colunas e seus
+    ''' valores como os valores do UPDATE
     ''' </summary>
     ''' <param name="WHereConditions">Condiçoes WHERE da Query</param>
     ''' <returns></returns>
@@ -1546,11 +1570,13 @@ Public Class BatchProcedure
     ''' </summary>
     ''' <returns></returns>
     Property Errors As New List(Of Exception)
+
     ''' <summary>
     ''' Coluna de chave estrangeira
     ''' </summary>
     ''' <returns></returns>
     Property ForeignKey As String
+
     ''' <summary>
     ''' Valor da chave estrangeira
     ''' </summary>
@@ -1567,7 +1593,7 @@ Public Class BatchProcedure
     ''' Adciona uma procedure a execuçao atual
     ''' </summary>
     ''' <param name="ProcedureName">Nome da procedure</param>
-    ''' <param name="Keys">Chaves que serão utilizadas como parâmetro da procedure</param>
+    ''' <param name="Keys">         Chaves que serão utilizadas como parâmetro da procedure</param>
     Shadows Sub Add(ProcedureName As String, ParamArray Keys As String())
         MyBase.Add(New ProcedureConfig(ProcedureName, Keys))
     End Sub
@@ -1575,10 +1601,10 @@ Public Class BatchProcedure
     ''' <summary>
     ''' Cria uma nova lista de procedures
     ''' </summary>
-    ''' <param name="Items">Items usados em cada iteração</param>
-    ''' <param name="ForeignKey">Coluna de chave estrangeira</param>
+    ''' <param name="Items">       Items usados em cada iteração</param>
+    ''' <param name="ForeignKey">  Coluna de chave estrangeira</param>
     ''' <param name="ForeignValue">Valor da coluna d chave estrangeira</param>
-    ''' <param name="Procs">Lista contendo as configurações de cada procedure</param>
+    ''' <param name="Procs">       Lista contendo as configurações de cada procedure</param>
     Sub New(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray Procs As ProcedureConfig())
         Me.Items = Me.Items
         Me.ForeignKey = ForeignKey
@@ -1592,6 +1618,7 @@ End Class
 ''' Configuração de procedure para a classe <see cref="BatchProcedure"/>
 ''' </summary>
 Public Class ProcedureConfig
+
     ''' <summary>
     ''' Nome da Procedure
     ''' </summary>
@@ -1608,9 +1635,10 @@ Public Class ProcedureConfig
     ''' Cria uma nova configuração de procedure
     ''' </summary>
     ''' <param name="ProcedureName">Nome da Procedure</param>
-    ''' <param name="Keys">Chaves usadas como parametros da procedure</param>
+    ''' <param name="Keys">         Chaves usadas como parametros da procedure</param>
     Sub New(ProcedureName As String, ParamArray Keys As String())
         Me.ProcedureName = ProcedureName
         Me.Keys = Keys
     End Sub
+
 End Class
