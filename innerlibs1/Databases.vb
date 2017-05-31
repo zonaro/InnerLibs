@@ -52,7 +52,7 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Public Function GetColumns() As List(Of String)
             If HasResults AndAlso HasRows Then
-                Return MyBase.Item(resultindex)(0).Keys.ToList
+                Return MyBase.Item(resultindex)(rowindex.SetMinValue(0)).Keys.ToList
             Else
                 Return New List(Of String)
             End If
@@ -75,10 +75,10 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Public Function CountRows(ResultIndex As Integer) As Integer
-            If HasRows And ResultIndex.Between(0, MyBase.Count - 1) Then
+            If HasRows And ResultIndex.IsBetween(0, MyBase.Count - 1) Then
                 Return MyBase.Item(ResultIndex).Count
             Else
-                Return 0
+                Return -1
             End If
         End Function
 
@@ -115,15 +115,6 @@ Public NotInheritable Class DataBase
                 End Try
             End Get
         End Property
-
-        ''' <summary>
-        ''' Retorna um resultado (tabela) a partir do seu Index.
-        ''' </summary>
-        ''' <param name="ResultIndex">Indice do resultado</param>
-        ''' <returns></returns>
-        Function GetResult(ResultIndex As Integer) As List(Of Dictionary(Of String, Object))
-            Return MyBase.Item(ResultIndex)
-        End Function
 
         ''' <summary>
         ''' Retorna o valor da coluna do resultado e linha atual a partir do índice da coluna
@@ -177,6 +168,15 @@ Public NotInheritable Class DataBase
                 Return MyBase.Count > 0
             End Get
         End Property
+
+        ''' <summary>
+        ''' Retorna um resultado (tabela) a partir do seu Index.
+        ''' </summary>
+        ''' <param name="ResultIndex">Indice do resultado</param>
+        ''' <returns></returns>
+        Function GetResult(ResultIndex As Integer) As List(Of Dictionary(Of String, Object))
+            Return MyBase.Item(ResultIndex)
+        End Function
 
         ''' <summary>
         ''' Retorna uma linha do resultado atual
@@ -810,7 +810,7 @@ Public NotInheritable Class DataBase
             Using command As DbCommand = con.CreateCommand()
                 Dim param = command.CreateParameter()
                 param.DbType = DataManipulation.GetDbType(Value)
-                param.ParameterName = "@" & Name.TrimAny(True, "@", " ")
+                param.ParameterName = "@" & Name.TrimAny("@", " ")
                 Dim valor As Object = DBNull.Value
                 Select Case If(Not IsNothing(Value) AndAlso Not IsNothing(Value.GetType), Value.GetType, GetType(Object))
                     Case GetType(String), GetType(Char())

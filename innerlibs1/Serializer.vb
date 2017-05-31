@@ -1,12 +1,13 @@
 ﻿Imports System.Web.Script.Serialization
 
-' Your Organization serializer. Override the key methods for the desired date format.
-' This example formats the date as MM/dd/yyyy
+' Your Organization serializer. Override the key methods for the desired date format. This example
+' formats the date as MM/dd/yyyy
 Public Class JsonSerializer
     Inherits JavaScriptSerializer
+
     Public Sub New(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss")
         MyBase.New()
-        Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter() With {.DateFormat = DateFormat}})
+        Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter() With {.DateFormat = DateFormat}, New BytesConverter()})
     End Sub
 
     ''' <summary>
@@ -50,7 +51,6 @@ Public Class JsonSerializer
             dicDateTime.Add("Second", dt.Second)
             dicDateTime.Add("Millisecond", dt.Millisecond)
             dicDateTime.Add("Ticks", dt.Ticks)
-
             Return dicDateTime
         End Function
 
@@ -59,11 +59,38 @@ Public Class JsonSerializer
                 Return Me.m_supportedTypes
             End Get
         End Property
+
     End Class
+
+    Private Class BytesConverter
+        Inherits JavaScriptConverter
+        Private m_supportedTypes As List(Of Type)
+
+        Public Sub New()
+            m_supportedTypes = New List(Of Type)(1)
+            m_supportedTypes.Add(GetType(Byte()))
+
+        End Sub
+
+        Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
+            Dim dt As Byte() = Converter.To(Of Byte())(dictionary("Content"))
+            Return dt
+        End Function
+
+        Public Overrides Function Serialize(obj As Object, serializer As JavaScriptSerializer) As IDictionary(Of String, Object)
+            Dim bt = Converter.To(Of Byte())(obj)
+            Dim dicByte As New Dictionary(Of String, Object)
+            dicByte.Add("Size", bt.ToFileSizeString)
+            dicByte.Add("Content", bt)
+            Return dicByte
+        End Function
+
+        Public Overrides ReadOnly Property SupportedTypes() As IEnumerable(Of Type)
+            Get
+                Return Me.m_supportedTypes
+            End Get
+        End Property
+
+    End Class
+
 End Class
-
-' In your xhr layer, replace the standard Javascript serializer with your own.
-' var javaScriptSerializer = new JavaScriptSerializer(); Don't use the standard serializer use below
-
-'var javaScriptSerializer = new YourOrg_JavaScriptSerializer();
-' Serialize your model data: javaScriptSerializer.Serialize(model.Data);

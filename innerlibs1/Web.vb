@@ -427,6 +427,18 @@ Public Module Web
     End Sub
 
     ''' <summary>
+    ''' Escreve um JSON e finaliza um HttpResponse
+    ''' </summary>
+    ''' <param name="HttpResponse">Response</param>
+    ''' <param name="Response">Objeto anexado ao JSON</param>
+    '''<param name="Message">Mensagem</param>
+    '''<param name="Status">Status</param>
+    <Extension>
+    Public Sub WriteJSON(HttpResponse As HttpResponse, Status As String, Message As String, Optional Response As Object = Nothing)
+        HttpResponse.WriteJSON(New AJAX.Response(Status, Message, Response))
+    End Sub
+
+    ''' <summary>
     ''' Escreve um XML e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response">HttpResponse</param>

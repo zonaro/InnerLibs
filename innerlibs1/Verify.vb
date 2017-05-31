@@ -138,7 +138,7 @@ Public Module Verify
     <Extension()>
     Function IsEmail(ByVal Text As String) As Boolean
         Dim emailExpression As New Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])")
-        Return emailExpression.IsMatch(Text)
+        Return Text.IsNotBlank AndAlso emailExpression.IsMatch(Text)
     End Function
 
     ''' <summary>
@@ -244,8 +244,8 @@ Public Module Verify
     ''' <param name="ValueIfBlank">Valor se estiver em branco</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function IfBlank(Of Type)(Value As Type, ValueIfBlank As Type) As Type
-        Dim blankas As Boolean = False
+    Public Function IfBlank(Of Type)(Value As Object, ValueIfBlank As Type) As Type
+        Dim blankas As Boolean = IsNothing(Value)
         Select Case GetType(Type)
             Case GetType(String)
                 blankas = Value.ToString.IsBlank
@@ -256,7 +256,7 @@ Public Module Verify
             Case Else
                 blankas = IsNothing(Value)
         End Select
-        Return If(blankas, ValueIfBlank, Value)
+        Return DirectCast(If(blankas, ValueIfBlank, Value), Type)
     End Function
 
     ''' <summary>

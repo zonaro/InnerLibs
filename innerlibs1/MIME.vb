@@ -4,10 +4,12 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Windows.Forms
+
 ''' <summary>
 ''' Módulo de manipulaçao de MIME Types
 ''' </summary>
 Public Module FileTypeExtensions
+
     ''' <summary>
     ''' Retorna o Mime Type a partir da extensão de um arquivo
     ''' </summary>
@@ -17,8 +19,9 @@ Public Module FileTypeExtensions
     Public Function GetFileType(Extension As String) As List(Of String)
         Return FileType.GetFileType(Extension).MimeTypes
     End Function
+
     ''' <summary>
-    ''' Retorna o Mime Type a partir  de um arquivo
+    ''' Retorna o Mime Type a partir de um arquivo
     ''' </summary>
     ''' <param name="File">Arquivo</param>
     ''' <returns>string mime type</returns>
@@ -78,29 +81,31 @@ Public Module FileTypeExtensions
             Return SystemIcons.WinLogo
         End Try
     End Function
-End Module
 
+End Module
 
 ''' <summary>
 ''' Classe que representa um MIME Type
 ''' </summary>
 Public Class FileType
+
     ''' <summary>
     ''' Extensão do arquivo
     ''' </summary>
     ''' <returns></returns>
     Public Property Extensions As New List(Of String)
+
     ''' <summary>
     ''' Tipo do arquivo (MIME Type String)
     ''' </summary>
     ''' <returns></returns>
     Public Property MimeTypes As New List(Of String)({"application/octet-stream"})
+
     ''' <summary>
     ''' Descrição do tipo de arquivo
     ''' </summary>
     ''' <returns></returns>
     Public Property Description As String = "Unknow File"
-
 
     ''' <summary>
     ''' Retorna uma Lista com todos os MIME Types suportados
@@ -125,7 +130,7 @@ Public Class FileType
     End Function
 
     ''' <summary>
-    ''' Traz uma lista de extensões de acordo com o  MIME type especificado
+    ''' Traz uma lista de extensões de acordo com o MIME type especificado
     ''' </summary>
     ''' <param name="MIME">MIME Type String</param>
     ''' <returns></returns>
@@ -147,7 +152,7 @@ Public Class FileType
         Dim l = GetFileTypeList()
         MimeTypeOrExtension = "." & MimeTypeOrExtension.Trim.RemoveFirstIf(".")
         For Each item As FileType In l
-            If (MimeTypeOrExtension.IsIn(item.Extensions) Or MimeTypeOrExtension.IsIn(item.MimeTypes)) Then
+            If (MimeTypeOrExtension.IsIn(item.Extensions) Or MimeTypeOrExtension.Trim(".").IsIn(item.MimeTypes)) Then
                 Return item
             End If
         Next
@@ -167,6 +172,7 @@ Public Class FileType
     Public Sub New(File As FileInfo)
         Build(File.Extension)
     End Sub
+
     ''' <summary>
     ''' Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
     ''' </summary>
@@ -174,8 +180,6 @@ Public Class FileType
     Public Sub New(MimeTypeOrExtension As String)
         Build(MimeTypeOrExtension)
     End Sub
-
-
 
     Private Sub Build(Extension As String)
         Dim item = GetFileType(Extension)
@@ -208,7 +212,7 @@ Public Class FileType
 End Class
 
 ''' <summary>
-''' Lista com Tipos de arquivo ultilizada para filtro e validação 
+''' Lista com Tipos de arquivo ultilizada para filtro e validação
 ''' </summary>
 Public Class FileTypeList
     Inherits List(Of FileType)
@@ -248,6 +252,7 @@ Public Class FileTypeList
     Public Sub ApplyDialogFilter(ByRef Dialog As OpenFileDialog)
         Dialog.Filter = Me.ToFilterString
     End Sub
+
     ''' <summary>
     ''' Aplica um filtro no SaveFileDialog
     ''' </summary>
@@ -259,7 +264,7 @@ Public Class FileTypeList
     ''' <summary>
     ''' Busca arquivos que correspondam com as extensões desta lista
     ''' </summary>
-    ''' <param name="Directory">Diretório</param>
+    ''' <param name="Directory">   Diretório</param>
     ''' <param name="SearchOption">Tipo de busca</param>
     ''' <returns></returns>
     Public Function SearchFiles(Directory As DirectoryInfo, Optional SearchOption As SearchOption = SearchOption.AllDirectories) As List(Of FileInfo)

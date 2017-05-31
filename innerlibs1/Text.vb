@@ -102,8 +102,8 @@ Public Module Text
     ''' Substitui um valor por outro de acordo com o resultado de uma variavel booliana
     ''' </summary>
     ''' <param name="BooleanValue">Resultado da expressão booliana</param>
-    ''' <param name="TrueValue">Valor retornado se a expressão for verdadeira</param>
-    ''' <param name="FalseValue">Valor retornado se a expressão for falsa</param>
+    ''' <param name="TrueValue">   Valor retornado se a expressão for verdadeira</param>
+    ''' <param name="FalseValue">  Valor retornado se a expressão for falsa</param>
     ''' <returns></returns>
     <Extension()> Public Function ReplaceIf(BooleanValue As Boolean, TrueValue As String, FalseValue As String) As String
         Return If(BooleanValue, TrueValue, FalseValue)
@@ -112,7 +112,7 @@ Public Module Text
     ''' <summary>
     ''' Converte um texo para Leet (1337)
     ''' </summary>
-    ''' <param name="text">TExto original</param>
+    ''' <param name="text">  TExto original</param>
     ''' <param name="degree">Grau de itensidade (0 - 100%)</param>
     ''' <returns>Texto em 1337</returns>
     <Extension>
@@ -788,7 +788,7 @@ Public Module Text
     ''' <summary>
     ''' Verifica se uma string começa com alguma outra string de um array
     ''' </summary>
-    ''' <param name="Text"></param>
+    ''' <param name="Text"> </param>
     ''' <param name="Words"></param>
     ''' <returns></returns>
     <Extension()> Function StarsWithAny(Text As String, ParamArray Words As String()) As Boolean
@@ -797,10 +797,11 @@ Public Module Text
         Next
         Return False
     End Function
+
     ''' <summary>
     ''' Verifica se uma string termina com alguma outra string de um array
     ''' </summary>
-    ''' <param name="Text"></param>
+    ''' <param name="Text"> </param>
     ''' <param name="Words"></param>
     ''' <returns></returns>
     <Extension()> Function EndsWithAny(Text As String, ParamArray Words As String()) As Boolean
@@ -811,10 +812,11 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro caractere desejado) e retorna um valor indicando se o texto precisou ser censurado
+    ''' Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro
+    ''' caractere desejado) e retorna um valor indicando se o texto precisou ser censurado
     ''' </summary>
-    ''' <param name="Text">Texto</param>
-    ''' <param name="BadWords">Lista de palavras indesejadas</param>
+    ''' <param name="Text">               Texto</param>
+    ''' <param name="BadWords">           Lista de palavras indesejadas</param>
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     ''' <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
     <Extension()>
@@ -838,10 +840,11 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna um novo texto censurando as palavras de um texto substituindo as palavras indesejadas por um caractere desejado)
+    ''' Retorna um novo texto censurando as palavras de um texto substituindo as palavras indesejadas
+    ''' por um caractere desejado)
     ''' </summary>
-    ''' <param name="Text">Texto</param>
-    ''' <param name="BadWords">Array de palavras indesejadas</param>
+    ''' <param name="Text">               Texto</param>
+    ''' <param name="BadWords">           Array de palavras indesejadas</param>
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     <Extension()>
     Public Function Censor(ByVal Text As String, CensorshipCharacter As Char, ParamArray BadWords As String()) As String
@@ -853,7 +856,7 @@ Public Module Text
     ''' <summary>
     ''' Remove um texto do inicio de uma string se ele for um outro texto especificado
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">           Texto</param>
     ''' <param name="StartStringTest">Texto inicial que será comparado</param>
     <Extension>
     Function RemoveFirstIf(ByVal Text As String, StartStringTest As String) As String
@@ -866,7 +869,7 @@ Public Module Text
     ''' <summary>
     ''' Remove um texto do final de uma string se ele for um outro texto
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">         Texto</param>
     ''' <param name="EndStringTest">Texto final que será comparado</param>
     <Extension>
     Function RemoveLastIf(ByVal Text As String, EndStringTest As String) As String
@@ -879,49 +882,60 @@ Public Module Text
     ''' <summary>
     ''' Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
     ''' </summary>
-    ''' <param name="Text">Texto</param>
-    ''' <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
-    ''' <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+    ''' <param name="Text">              Texto</param>
+    ''' <param name="ContinuouslyRemove">
+    ''' Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias
+    ''' sejam removidas
+    ''' </param>
+    ''' <param name="EndStringTest">     Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()>
     Public Function RemoveLastAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray EndStringTest As String()) As String
-        While Text.EndsWithAny(EndStringTest)
+        Dim re = Text
+        While re.EndsWithAny(EndStringTest)
             For Each item In EndStringTest
-                If Text.EndsWith(item) Then
-                    Text = Text.RemoveLastIf(item)
-                    If Not ContinuouslyRemove Then Return Text
+                If re.EndsWith(item) Then
+                    re = re.RemoveLastIf(item)
+                    If Not ContinuouslyRemove Then Return re
                 End If
             Next
         End While
-        Return Text
+        Return re
     End Function
 
     ''' <summary>
     ''' Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
     ''' </summary>
-    ''' <param name="Text">Texto</param>
-    ''' <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
-    ''' <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+    ''' <param name="Text">              Texto</param>
+    ''' <param name="ContinuouslyRemove">
+    ''' Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias
+    ''' sejam removidas
+    ''' </param>
+    ''' <param name="StartStringTest">   Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()>
     Public Function RemoveFirstAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StartStringTest As String()) As String
-        While Text.EndsWithAny(StartStringTest)
+        Dim re = Text
+        While re.StarsWithAny(StartStringTest)
             For Each item In StartStringTest
-                If Text.StartsWith(item) Then
-                    Text = Text.RemoveFirstIf(item)
-                    If Not ContinuouslyRemove Then Return Text
+                If re.StartsWith(item) Then
+                    re = re.RemoveFirstIf(item)
+                    If Not ContinuouslyRemove Then Return re
                 End If
             Next
         End While
-        Return Text
+        Return re
     End Function
 
     ''' <summary>
     ''' Remove do começo e do final de uma string qualquer valor que estiver no conjunto
     ''' </summary>
-    ''' <param name="Text">Texto</param>
-    ''' <param name="ContinuouslyRemove">Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias sejam removidas</param>
-    ''' <param name="StringTest">Conjunto de textos que serão comparados</param>
+    ''' <param name="Text">              Texto</param>
+    ''' <param name="ContinuouslyRemove">
+    ''' Parametro que indica se a string deve continuar sendo testada até que todas as ocorrencias
+    ''' sejam removidas
+    ''' </param>
+    ''' <param name="StringTest">        Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()> Public Function TrimAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StringTest As String()) As String
         Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
@@ -932,7 +946,7 @@ Public Module Text
     ''' <summary>
     ''' Remove do começo e do final de uma string qualquer valor que estiver no conjunto
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">      Texto</param>
     ''' <param name="StringTest">Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()> Public Function TrimAny(ByVal Text As String, ParamArray StringTest As String()) As String
@@ -959,9 +973,23 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Cria um <see cref="Stream"/> a partir de uma string
+    ''' </summary>
+    ''' <param name="TExt"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToStream(Text As String) As Stream
+        Dim stream As New MemoryStream()
+        Dim writer As New StreamWriter(stream)
+        writer.Write(Text)
+        writer.Flush()
+        stream.Position = 0
+        Return stream
+    End Function
+
+    ''' <summary>
     ''' Separa um texto em um array de strings a partir de uma outra string
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">     Texto</param>
     ''' <param name="Separator">Texto utilizado como separador</param>
     ''' <returns></returns>
     <Extension>
@@ -998,7 +1026,7 @@ Public Module Text
     ''' <summary>
     ''' Une todos os valores de um objeto em uma unica string
     ''' </summary>
-    ''' <param name="Array">Objeto com os valores</param>
+    ''' <param name="Array">    Objeto com os valores</param>
     ''' <param name="Separator">Separador entre as strings</param>
     ''' <returns>string</returns>
     <Extension()>
@@ -1009,7 +1037,7 @@ Public Module Text
     ''' <summary>
     ''' Une todos os valores de um objeto em uma unica string
     ''' </summary>
-    ''' <param name="Array">Objeto com os valores</param>
+    ''' <param name="Array">    Objeto com os valores</param>
     ''' <param name="Separator">Separador entre as strings</param>
     ''' <returns>string</returns>
     Public Function Join(Of Type)(Separator As String, ParamArray Array() As Type) As String
@@ -1019,7 +1047,7 @@ Public Module Text
     ''' <summary>
     ''' Une todos os valores de um objeto em uma unica string
     ''' </summary>
-    ''' <param name="List">Objeto com os valores</param>
+    ''' <param name="List">     Objeto com os valores</param>
     ''' <param name="Separator">Separador entre as strings</param>
     ''' <returns>string</returns>
     <Extension()>
@@ -1076,9 +1104,9 @@ Public Module Text
     ''' <summary>
     ''' Formata um numero decimal com separador de milhares e 2 casas decimais.
     ''' </summary>
-    ''' <param name="Number">Numero Decimal</param>
+    ''' <param name="Number">           Numero Decimal</param>
     ''' <param name="ThousandSeparator">Separador de milhares</param>
-    ''' <param name="DecimalSeparator">Separador de casas decimais</param>
+    ''' <param name="DecimalSeparator"> Separador de casas decimais</param>
     ''' <returns>Numero formatado em string</returns>
     <Extension>
     Public Function ToNumberString(Number As Decimal, Optional ThousandSeparator As Char = ".", Optional DecimalSeparator As Char = ",") As String
@@ -1087,13 +1115,14 @@ Public Module Text
         NewNumber = NewNumber.Replace("<thousand>", ThousandSeparator).Replace("<decimal>", DecimalSeparator)
         Return NewNumber
     End Function
+
     ''' <summary>
     ''' Formata um numero decimal como moeda
     ''' </summary>
-    ''' <param name="Number">Numero Decimal</param>
-    ''' <param name="Currency">SImbolo de moeda</param>
+    ''' <param name="Number">           Numero Decimal</param>
+    ''' <param name="Currency">         SImbolo de moeda</param>
     ''' <param name="ThousandSeparator">Separador de milhares</param>
-    ''' <param name="DecimalSeparator">Separador de casas decimais</param>
+    ''' <param name="DecimalSeparator"> Separador de casas decimais</param>
     ''' <returns></returns>
     Public Function ToMoney(Number As Decimal, Optional Currency As String = "R$", Optional ThousandSeparator As Char = ".", Optional DecimalSeparator As Char = ",")
         Return Currency & Number.ToNumberString(ThousandSeparator, DecimalSeparator)
@@ -1102,7 +1131,7 @@ Public Module Text
     ''' <summary>
     ''' Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao.
     ''' </summary>
-    ''' <param name="Text">Frase, Texto a ser pontuado</param>
+    ''' <param name="Text">       Frase, Texto a ser pontuado</param>
     ''' <param name="Punctuation">Ponto a ser adicionado na frase se a mesma não estiver com pontuacao</param>
     ''' <returns>Frase corretamente pontuada</returns>
     <Extension>
@@ -1111,21 +1140,25 @@ Public Module Text
         Text = (If(Text.EndsWith(".") OrElse Text.EndsWith("!") OrElse Text.EndsWith("?"), Text, Text & Punctuation))
         Return Text
     End Function
+
     ''' <summary>
-    ''' Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são substituídas por vazio.
+    ''' Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são
+    ''' substituídas por vazio.
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">    Texto</param>
     ''' <param name="OldValue">Valor a ser substituido por vazio</param>
     ''' <returns>String corrigida</returns>
     <Extension>
     Public Function Replace(Text As String, OldValue As String) As String
         Return Text.Replace(OldValue, "")
     End Function
+
     ''' <summary>
-    ''' Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são substituídas por um novo valor.
+    ''' Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são
+    ''' substituídas por um novo valor.
     ''' </summary>
-    ''' <param name="Text">Texto</param>
-    ''' <param name="NewValue">Novo Valor</param>
+    ''' <param name="Text">     Texto</param>
+    ''' <param name="NewValue"> Novo Valor</param>
     ''' <param name="OldValues">Valores a serem substituido por um novo valor</param>
     ''' <returns></returns>
     <Extension>
@@ -1139,10 +1172,13 @@ Public Module Text
     ''' <summary>
     ''' Faz uma busca em todos os elementos do array e aplica um Replace comum
     ''' </summary>
-    ''' <param name="Strings">Array de strings</param>
-    ''' <param name="OldValue">Valor antigo que será substituido</param>
-    ''' <param name="NewValue">Valor utilizado para substituir o valor antigo</param>
-    ''' <param name="ReplaceIfEquals">Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE realiza um Replace em quaisquer valores antigos encontrados dentro do valor do array</param>
+    ''' <param name="Strings">        Array de strings</param>
+    ''' <param name="OldValue">       Valor antigo que será substituido</param>
+    ''' <param name="NewValue">       Valor utilizado para substituir o valor antigo</param>
+    ''' <param name="ReplaceIfEquals">
+    ''' Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE realiza
+    ''' um Replace em quaisquer valores antigos encontrados dentro do valor do array
+    ''' </param>
     ''' <returns></returns>
     <Extension()>
     Public Function Replace(Strings As String(), OldValue As String, NewValue As String, Optional ReplaceIfEquals As Boolean = True) As String()
@@ -1162,10 +1198,13 @@ Public Module Text
     ''' <summary>
     ''' Faz uma busca em todos os elementos de uma lista e aplica um Replace comum
     ''' </summary>
-    ''' <param name="Strings">Array de strings</param>
-    ''' <param name="OldValue">Valor antigo que será substituido</param>
-    ''' <param name="NewValue">Valor utilizado para substituir o valor antigo</param>
-    ''' <param name="ReplaceIfEquals">Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE realiza um Replace em quaisquer valores antigos encontrados dentro do valor do array</param>
+    ''' <param name="Strings">        Array de strings</param>
+    ''' <param name="OldValue">       Valor antigo que será substituido</param>
+    ''' <param name="NewValue">       Valor utilizado para substituir o valor antigo</param>
+    ''' <param name="ReplaceIfEquals">
+    ''' Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE realiza
+    ''' um Replace em quaisquer valores antigos encontrados dentro do valor do array
+    ''' </param>
     ''' <returns></returns>
     <Extension()>
     Public Function Replace(Strings As List(Of String), OldValue As String, NewValue As String, Optional ReplaceIfEquals As Boolean = True) As List(Of String)
@@ -1175,7 +1214,7 @@ Public Module Text
     ''' <summary>
     ''' Remove várias strings de uma string
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">  Texto</param>
     ''' <param name="Values">Strings a serem removidas</param>
     ''' <returns>Uma string com os valores removidos</returns>
     <Extension>
@@ -1185,20 +1224,27 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca espacos por hifen)
+    ''' Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca
+    ''' espacos por hifen)
     ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="UseUnderscore">Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens</param>
+    ''' <param name="Text">         </param>
+    ''' <param name="UseUnderscore">
+    ''' Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
+    ''' </param>
     ''' <returns>string amigavel para URL</returns>
     <Extension()>
     Public Function ToFriendlyURL(Text As String, Optional UseUnderscore As Boolean = False) As String
         Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?").RemoveAccents().ToLower()
     End Function
+
     ''' <summary>
-    ''' Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca espacos por hifen). É um alias para <see cref="ToFriendlyURL(String, Boolean)"/>
+    ''' Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca
+    ''' espacos por hifen). É um alias para <see cref="ToFriendlyURL(String, Boolean)"/>
     ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="UseUnderscore">Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens</param>
+    ''' <param name="Text">         </param>
+    ''' <param name="UseUnderscore">
+    ''' Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
+    ''' </param>
     ''' <returns>string amigavel para URL</returns>
     <Extension()> Function ToSlug(Text As String, Optional UseUnderscore As Boolean = False) As String
         Return Text.ToFriendlyURL(UseUnderscore)
@@ -1207,7 +1253,7 @@ Public Module Text
     ''' <summary>
     ''' Compara se uma string é igual a outras strings
     ''' </summary>
-    ''' <param name="Text">string principal</param>
+    ''' <param name="Text"> string principal</param>
     ''' <param name="Texts">strings para comparar</param>
     ''' <returns>TRUE se alguma das strings for igual a principal</returns>
     <Extension()>
@@ -1253,7 +1299,7 @@ Public Module Text
     ''' <summary>
     ''' Adiciona texto ao final de uma string
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     <Extension()>
     Public Function Append(ByRef Text As String, AppendText As String) As String
@@ -1264,9 +1310,9 @@ Public Module Text
     ''' <summary>
     ''' Adiciona texto ao final de uma string se um criterio for cumprido
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
-    ''' <param name="Test">Teste</param>
+    ''' <param name="Test">      Teste</param>
     <Extension()> Public Function AppendIf(ByRef Text As String, AppendText As String, Test As Boolean) As String
         Return Text.Append(If(Test, AppendText, ""))
     End Function
@@ -1288,7 +1334,7 @@ Public Module Text
     ''' <param name="Number">Numero</param>
     ''' <param name="Amount">QUantidade adicionada</param>
     <Extension()>
-    Public Function Increment(ByRef Number As Long, Optional Amount As Integer = 1) As Integer
+    Public Function Increment(ByRef Number As Long, Optional Amount As Integer = 1) As Long
         Number = Number + Amount.SetMinValue(1)
         Return Number
     End Function
@@ -1296,7 +1342,7 @@ Public Module Text
     ''' <summary>
     ''' Adiciona texto ao começo de uma string
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">       Texto</param>
     ''' <param name="PrependText">Texto adicional</param>
     <Extension()>
     Public Function Prepend(ByRef Text As String, PrependText As String) As String
@@ -1307,9 +1353,9 @@ Public Module Text
     ''' <summary>
     ''' Adiciona texto ao começo de uma string se um criterio for cumprido
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">       Texto</param>
     ''' <param name="PrependText">Texto adicional</param>
-    ''' <param name="Test">Teste</param>
+    ''' <param name="Test">       Teste</param>
     <Extension()> Public Function PrependIf(ByRef Text As String, PrependText As String, Test As Boolean) As String
         Return Text.Prepend(If(Test, PrependText, ""))
     End Function
@@ -1318,7 +1364,8 @@ Public Module Text
     ''' Decrementa em 1 ou mais um numero inteiro
     ''' </summary>
     ''' <param name="Number">Numero</param>
-    ''' `<param name="Amount">QUantidade que será removida</param>
+    ''' `
+    ''' <param name="Amount">QUantidade que será removida</param>
     <Extension()>
     Public Function Decrement(ByRef Number As Integer, Optional Amount As Integer = 1) As Integer
         Number = Number - Amount.SetMinValue(1)
@@ -1329,7 +1376,8 @@ Public Module Text
     ''' Decrementa em 1 ou mais um numero inteiro
     ''' </summary>
     ''' <param name="Number">Numero</param>
-    ''' `<param name="Amount">QUantidade que será removida</param>
+    ''' `
+    ''' <param name="Amount">QUantidade que será removida</param>
     <Extension()>
     Public Function Decrement(ByRef Number As Long, Optional Amount As Integer = 1) As Integer
         Number = Number - Amount.SetMinValue(1)
@@ -1342,28 +1390,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Double) As String
-        Return Size.To(Of Decimal).ToFileSizeString
-    End Function
-
-    ''' <summary>
-    ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
-    ''' </summary>
-    ''' <param name="Size">Tamanho</param>
-    ''' <returns>String com o tamanho + unidade de medida</returns>
-    <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Integer) As String
-        Return Size.To(Of Decimal).ToFileSizeString
-    End Function
-
-    ''' <summary>
-    ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
-    ''' </summary>
-    ''' <param name="Size">Tamanho</param>
-    ''' <returns>String com o tamanho + unidade de medida</returns>
-    <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Long) As String
-        Return Size.To(Of Decimal).ToFileSizeString
+    Public Function ToFileSizeString(ByVal Size As Byte()) As String
+        Return Size.LongLength.ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1373,6 +1401,36 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Decimal) As String
+        Return Size.To(Of Double).ToFileSizeString
+    End Function
+
+    ''' <summary>
+    ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
+    ''' </summary>
+    ''' <param name="Size">Tamanho</param>
+    ''' <returns>String com o tamanho + unidade de medida</returns>
+    <Extension()>
+    Public Function ToFileSizeString(ByVal Size As Integer) As String
+        Return Size.To(Of Double).ToFileSizeString
+    End Function
+
+    ''' <summary>
+    ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
+    ''' </summary>
+    ''' <param name="Size">Tamanho</param>
+    ''' <returns>String com o tamanho + unidade de medida</returns>
+    <Extension()>
+    Public Function ToFileSizeString(ByVal Size As Long) As String
+        Return Size.To(Of Double).ToFileSizeString
+    End Function
+
+    ''' <summary>
+    ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
+    ''' </summary>
+    ''' <param name="Size">Tamanho</param>
+    ''' <returns>String com o tamanho + unidade de medida</returns>
+    <Extension()>
+    Public Function ToFileSizeString(ByVal Size As Double) As String
         Dim KB As Integer = 1024
 
         Dim MB As Integer = KB * KB
@@ -1384,7 +1442,6 @@ Public Module Text
         If Size < KB Then
 
             Return Size.ToString("N") & " bytes"
-
         Else
 
             Select Case Size / KB
@@ -1462,6 +1519,7 @@ Public Module Text
                     Case Else
                         Return InExtensive(Number \ 1000) & " Mil " & InExtensive(Number Mod 1000)
                 End Select
+
 #Region "Milhao"
 
             Case 1000000 To 1999999
@@ -1482,6 +1540,7 @@ Public Module Text
                     Case Else
                         Return InExtensive(Number \ 1000000) & " Milhões " & InExtensive(Number Mod 1000000)
                 End Select
+
 #End Region
 
 #Region "Bilhao"
@@ -1504,6 +1563,7 @@ Public Module Text
                     Case Else
                         Return InExtensive(Number \ 1000000000) & " Bilhões " & InExtensive(Number Mod 1000000000)
                 End Select
+
 #End Region
 
 #Region "Trilhao"
@@ -1526,7 +1586,9 @@ Public Module Text
                     Case Else
                         Return InExtensive(Number \ 1000000000000) & " Trilhões " & InExtensive(Number Mod 1000000000000)
                 End Select
+
 #End Region
+
             Case Else
                 Throw New NotSupportedException("O número nao pode ser maior que 999 trilhões ")
         End Select
@@ -1536,7 +1598,7 @@ Public Module Text
     ''' <summary>
     ''' Transforma um numero em sua forma extensa (com até 3 casas apos a virgula)
     ''' </summary>
-    ''' <param name="Number">Numero decimal</param>
+    ''' <param name="Number">       Numero decimal</param>
     ''' <param name="DecimalPlaces">Numero de casas decimais (de 0 a 3)</param>
     ''' <returns>String contendo o numero por extenso</returns>
     <Extension()> Public Function ToExtensiveForm(ByVal Number As Decimal, Optional DecimalPlaces As Integer = 3) As String
@@ -1578,6 +1640,7 @@ Public Module Text
         Next
         Return dic
     End Function
+
     ''' <summary>
     ''' Cria um dicionário com as palavras de uma lista e a quantidade de cada uma.
     ''' </summary>
@@ -1599,7 +1662,7 @@ Public Module Text
     ''' <summary>
     ''' Remove uma determinada linha de um texto
     ''' </summary>
-    ''' <param name="Text">Texto completo</param>
+    ''' <param name="Text">     Texto completo</param>
     ''' <param name="LineIndex">numero da linha a ser removida (Começando do 0)</param>
     ''' <returns>string sem a linha indicada</returns>
 
@@ -1629,7 +1692,7 @@ Public Module Text
     ''' <summary>
     ''' Remove os X primeiros caracteres
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">    Texto</param>
     ''' <param name="Quantity">Quantidade de Caracteres</param>
     ''' <returns></returns>
     <Extension()>
@@ -1644,7 +1707,7 @@ Public Module Text
     ''' <summary>
     ''' Remove os X ultimos caracteres
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">    Texto</param>
     ''' <param name="Quantity">Quantidade de Caracteres</param>
     ''' <returns></returns>
     <Extension()>
@@ -1655,9 +1718,9 @@ Public Module Text
     ''' <summary>
     ''' Corta uma string em uma determinada posição e completa com reticências.
     ''' </summary>
-    ''' <param name="Text">O Texto a ser Cortado</param>
+    ''' <param name="Text">      O Texto a ser Cortado</param>
     ''' <param name="TextLength">A quantidade de caracteres final da string cortada</param>
-    ''' <param name="Ellipsis">TRUE para reticências, FALSE para apenas a string cortada</param>
+    ''' <param name="Ellipsis">  TRUE para reticências, FALSE para apenas a string cortada</param>
     ''' <returns>string cortada</returns>
 
     <Extension()>
@@ -1691,7 +1754,8 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final da frase
+    ''' Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final
+    ''' da frase
     ''' </summary>
     ''' <param name="Text">Frase a ser manipulada</param>
     ''' <returns>Uma String com a frase corrigida</returns>
@@ -1754,7 +1818,8 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Arruma a ortografia do texto captalizando corretamente, adcionando pontução ao final de frase caso nescessário e removendo espaços excessivos ou incorretos
+    ''' Arruma a ortografia do texto captalizando corretamente, adcionando pontução ao final de frase
+    ''' caso nescessário e removendo espaços excessivos ou incorretos
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
@@ -1764,7 +1829,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma um texto em nome proprio Ex.: igor -> Igor / inner code -> Inner Code
+    ''' Transforma um texto em nome proprio Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
     ''' </summary>
     ''' <param name="Text">Texto a ser manipulado</param>
     ''' <returns>Uma String com o texto em nome próprio</returns>
@@ -1787,7 +1852,7 @@ Public Module Text
     ''' <summary>
     ''' Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">     Texto</param>
     ''' <param name="QuoteChar">Caractere de encapsulamento</param>
     ''' <returns></returns>
     <Extension()>
@@ -1798,7 +1863,7 @@ Public Module Text
     ''' <summary>
     ''' Encapsula um tento entre 2 textos
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">    Texto</param>
     ''' <param name="WrapChar">Caractere de encapsulamento</param>
     ''' <returns></returns>
     <Extension()>
@@ -1809,7 +1874,7 @@ Public Module Text
     ''' <summary>
     ''' Encapsula um texto dentro de um elemento HTML
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">   Texto</param>
     ''' <param name="TagName">Nome da Tag (Exemplo: div)</param>
     ''' <returns>Uma string HTML com seu texto dentro de uma tag</returns>
     <Extension>
@@ -1856,7 +1921,7 @@ Public Module Text
     ''' <summary>
     ''' Retorna os N ultimos caracteres
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
+    ''' <param name="Text">  Texto correspondente</param>
     ''' <param name="Number">Numero de caracteres</param>
     ''' <returns>Uma String com os N ultimos caracteres</returns>
 
@@ -1868,10 +1933,11 @@ Public Module Text
             Return Text.Substring(Text.Length - Number)
         End If
     End Function
+
     ''' <summary>
     ''' Retorna os N primeiros caracteres
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
+    ''' <param name="Text">  Texto correspondente</param>
     ''' <param name="Number">Numero de caracteres</param>
     ''' <returns>Uma String com os N primeiros caracteres</returns>
 
@@ -1896,7 +1962,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna um texto com  entidades HTML convertidas para caracteres
+    ''' Retorna um texto com entidades HTML convertidas para caracteres
     ''' </summary>
     ''' <param name="Text">string HTML</param>
     ''' <returns>String HTML corrigido</returns>
@@ -1980,9 +2046,9 @@ Public Module Text
     ''' <summary>
     ''' Retorna o texto entre dois textos
     ''' </summary>
-    ''' <param name="Text">O texto correspondente</param>
+    ''' <param name="Text">  O texto correspondente</param>
     ''' <param name="Before">O texto Anterior</param>
-    ''' <param name="After">O texto Posterior</param>
+    ''' <param name="After"> O texto Posterior</param>
     ''' <returns>Uma String com o texto entre o texto anterior e posterior</returns>
     <Extension>
     Public Function GetBetween(Text As String, Before As String, After As String) As String
@@ -2075,7 +2141,7 @@ Public Module Text
     ''' <summary>
     ''' Retorna um texto anterior a outro
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
+    ''' <param name="Text"> Texto correspondente</param>
     ''' <param name="Value">Texto Anterior</param>
     ''' <returns>Uma string com o valor anterior ao valor especificado.</returns>
     <Extension>
@@ -2089,7 +2155,7 @@ Public Module Text
     ''' <summary>
     ''' Retorna um texto posterior a outro
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
+    ''' <param name="Text"> Texto correspondente</param>
     ''' <param name="Value">Texto Posterior</param>
     ''' <returns>Uma string com o valor posterior ao valor especificado.</returns>
     <Extension>
@@ -2101,9 +2167,9 @@ Public Module Text
     End Function
 
     ''' <summary>
-    '''  Verifica se uma String contém qualquer um dos valores especificados
+    ''' Verifica se uma String contém qualquer um dos valores especificados
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
+    ''' <param name="Text">  Texto correspondente</param>
     ''' <param name="Values">Lista de valores</param>
     ''' <returns>True se conter algum valor, false se não</returns>
     <Extension>
@@ -2117,10 +2183,10 @@ Public Module Text
     End Function
 
     ''' <summary>
-    '''  Verifica se uma String contém qualquer um dos valores especificados
+    ''' Verifica se uma String contém qualquer um dos valores especificados
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
-    ''' <param name="Values">Lista de valores</param>
+    ''' <param name="Text">          Texto correspondente</param>
+    ''' <param name="Values">        Lista de valores</param>
     ''' <param name="ComparisonType">Tipo de comparacao</param>
     ''' <returns>True se conter algum valor, false se não</returns>
     <Extension>
@@ -2134,9 +2200,9 @@ Public Module Text
     End Function
 
     ''' <summary>
-    '''  Verifica se uma String contém todos os valores especificados
+    ''' Verifica se uma String contém todos os valores especificados
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
+    ''' <param name="Text">  Texto correspondente</param>
     ''' <param name="Values">Lista de valores</param>
     ''' <returns>True se conter todos os valores, false se não</returns>
     <Extension>
@@ -2150,10 +2216,10 @@ Public Module Text
     End Function
 
     ''' <summary>
-    '''  Verifica se uma String contém todos os valores especificados
+    ''' Verifica se uma String contém todos os valores especificados
     ''' </summary>
-    ''' <param name="Text">Texto correspondente</param>
-    ''' <param name="Values">Lista de valores</param>
+    ''' <param name="Text">          Texto correspondente</param>
+    ''' <param name="Values">        Lista de valores</param>
     ''' <param name="ComparisonType">Tipo de comparacao</param>
     ''' <returns>True se conter algum valor, false se não</returns>
     <Extension>
@@ -2169,7 +2235,7 @@ Public Module Text
     ''' <summary>
     ''' Verifica se uma palavra é um Anagrama de outra palavra
     ''' </summary>
-    ''' <param name="Text"></param>
+    ''' <param name="Text">       </param>
     ''' <param name="AnotherText"></param>
     ''' <returns></returns>
     <Extension()>
@@ -2196,9 +2262,10 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da esqueda para direita
+    ''' Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da esqueda
+    ''' para direita
     ''' </summary>
-    ''' <param name="Text">Texto</param>
+    ''' <param name="Text">             Texto</param>
     ''' <param name="IgnoreWhiteSpaces">Ignora os espaços na hora de comparar</param>
     ''' <returns></returns>
     Public Function IsPalindrome(ByVal Text As String, Optional IgnoreWhiteSpaces As Boolean = False) As Boolean
@@ -2318,4 +2385,5 @@ Public Module Text
     <Extension()> Public Function Poopfy(Text As String) As String
         Return Poopfy(Text.Split(" "))
     End Function
+
 End Module

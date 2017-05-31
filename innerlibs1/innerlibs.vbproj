@@ -101,12 +101,19 @@
     <Compile Include="GeoIP.vb" />
     <Compile Include="HtmlParser.vb" />
     <Compile Include="InnerCrypt.vb" />
+    <Compile Include="InnerForm.vb">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="InnerTempletizer.vb" />
+    <Compile Include="INumeric.vb" />
     <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="RiotAPI.vb" />
     <Compile Include="Serializer.vb" />
     <Compile Include="SQLExplorer.vb" />
+    <Compile Include="Stopwatch.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TimeMachine.vb" />
     <Compile Include="Directories.vb" />
     <Compile Include="Encrypt.vb" />

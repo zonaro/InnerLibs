@@ -214,29 +214,7 @@ Public Module Mathematic
     ''' <param name="MaxValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function SetMaxValue(ByRef Number As Decimal, MaxValue As Decimal) As Decimal
-        Return Number.LimitRange(MaxValue:=MaxValue)
-    End Function
-
-    ''' <summary>
-    ''' Limita o valor Maximo de um numero
-    ''' </summary>
-    ''' <param name="Number">  Numero</param>
-    ''' <param name="MaxValue">Valor Maximo</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function SetMaxValue(ByRef Number As Integer, MaxValue As Decimal) As Integer
-        Return Number.LimitRange(MaxValue:=MaxValue)
-    End Function
-
-    ''' <summary>
-    ''' Limita o valor Maximo de um numero
-    ''' </summary>
-    ''' <param name="Number">  Numero</param>
-    ''' <param name="MaxValue">Valor Maximo</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function SetMaxValue(ByRef Number As Double, MaxValue As Double) As Double
+    Public Function SetMaxValue(Of Type As IConvertible)(ByVal Number As Type, MaxValue As Type) As Type
         Return Number.LimitRange(MaxValue:=MaxValue)
     End Function
 
@@ -247,29 +225,7 @@ Public Module Mathematic
     ''' <param name="MinValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function SetMinValue(ByRef Number As Decimal, MinValue As Decimal) As Decimal
-        Return Number.LimitRange(MinValue:=MinValue)
-    End Function
-
-    ''' <summary>
-    ''' Limita o valor minimo de um numero
-    ''' </summary>
-    ''' <param name="Number">  Numero</param>
-    ''' <param name="MinValue">Valor Maximo</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function SetMinValue(ByRef Number As Integer, MinValue As Integer) As Integer
-        Return Number.LimitRange(MinValue:=MinValue)
-    End Function
-
-    ''' <summary>
-    ''' Limita o valor minimo de um numero
-    ''' </summary>
-    ''' <param name="Number">  Numero</param>
-    ''' <param name="MinValue">Valor Maximo</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function SetMinValue(ByRef Number As Double, MinValue As Double) As Double
+    Public Function SetMinValue(Of Type As IConvertible)(ByVal Number As Type, MinValue As Type) As Type
         Return Number.LimitRange(MinValue:=MinValue)
     End Function
 
@@ -281,38 +237,16 @@ Public Module Mathematic
     ''' <param name="MaxValue">Valor máximo para o numero</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function LimitRange(ByRef Number As Decimal, Optional MinValue As Decimal = Nothing, Optional MaxValue As Decimal = Nothing) As Decimal
-        If Not MaxValue = Nothing Then
+    Public Function LimitRange(Of Type As IConvertible)(ByVal Number As Type, Optional MinValue As Object = Nothing, Optional MaxValue As Object = Nothing) As Type
+
+        If Not IsNothing(MaxValue) Then
             Number = If(Number < MaxValue, Number, MaxValue)
         End If
-        If Not MinValue = Nothing Then
+
+        If Not IsNothing(MinValue) Then
             Number = If(Number > MinValue, Number, MinValue)
         End If
         Return Number
-    End Function
-
-    ''' <summary>
-    ''' Limita um range para um numero
-    ''' </summary>
-    ''' <param name="Number">  Numero</param>
-    ''' <param name="MinValue">Valor Minimo para o numero</param>
-    ''' <param name="MaxValue">Valor máximo para o numero</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function LimitRange(ByRef Number As Integer, Optional MinValue As Integer = Nothing, Optional MaxValue As Integer = Nothing) As Integer
-        Return Number.To(Of Decimal).LimitRange(MinValue, MaxValue).To(Of Integer)
-    End Function
-
-    ''' <summary>
-    ''' Limita um range para um numero
-    ''' </summary>
-    ''' <param name="Number">  Numero</param>
-    ''' <param name="MinValue">Valor Minimo para o numero</param>
-    ''' <param name="MaxValue">Valor máximo para o numero</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function LimitRange(ByRef Number As Double, Optional MinValue As Double = Nothing, Optional MaxValue As Double = Nothing) As Double
-        Return Number.To(Of Decimal).LimitRange(MinValue, MaxValue).To(Of Double)
     End Function
 
     ''' <summary>
@@ -444,7 +378,9 @@ Public Module Mathematic
     ''' <param name="FirstNumber"> Primeiro numero comparador</param>
     ''' <param name="SecondNumber">Segundo numero comparador</param>
     ''' <returns></returns>
-    <Extension()> Public Function Between(Number As Decimal, FirstNumber As Decimal, SecondNumber As Decimal) As Boolean
+    <Extension()> Public Function IsBetween(Of Type)(Number As Type, FirstNumber As Object, SecondNumber As Object) As Boolean
+        FirstNumber = FirstNumber.To(Of Type)
+        SecondNumber = SecondNumber.To(Of Type)
         Select Case True
             Case FirstNumber < SecondNumber
                 Return FirstNumber < Number And Number < SecondNumber
@@ -453,28 +389,6 @@ Public Module Mathematic
             Case Else
                 Return FirstNumber = Number And Number = SecondNumber
         End Select
-    End Function
-
-    ''' <summary>
-    ''' Verifica se um numero está entre outros 2 números
-    ''' </summary>
-    ''' <param name="Number">      Numero</param>
-    ''' <param name="FirstNumber"> Primeiro numero comparador</param>
-    ''' <param name="SecondNumber">Segundo numero comparador</param>
-    ''' <returns></returns>
-    <Extension()> Public Function Between(Number As Long, FirstNumber As Long, SecondNumber As Long) As Boolean
-        Return Between(Number.To(Of Decimal), FirstNumber.To(Of Decimal), SecondNumber.To(Of Decimal))
-    End Function
-
-    ''' <summary>
-    ''' Verifica se um numero está entre outros 2 números
-    ''' </summary>
-    ''' <param name="Number">      Numero</param>
-    ''' <param name="FirstNumber"> Primeiro numero comparador</param>
-    ''' <param name="SecondNumber">Segundo numero comparador</param>
-    ''' <returns></returns>
-    <Extension()> Public Function Between(Number As Integer, FirstNumber As Integer, SecondNumber As Integer) As Boolean
-        Return Between(Number.To(Of Decimal), FirstNumber.To(Of Decimal), SecondNumber.To(Of Decimal))
     End Function
 
 End Module

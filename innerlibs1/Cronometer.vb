@@ -1,47 +1,46 @@
-﻿Imports System.Windows.Forms
+﻿Imports System.ComponentModel
+Imports System.Windows.Forms
 Imports InnerLibs
 
 Namespace TimeMachine
 
     Public Class Cronometer
-        Inherits Label
-        Private timer As New Timer
-        Private marks As New List(Of Date)
-        Property Format As String = "hh\:mm\:ss\.ffff"
+        Inherits Timer
+
+        Private marks As New List(Of TimeSpan)
 
         ''' <summary>
-        ''' Intervalo de atualizaçao do cronometro
+        ''' Formato do Cronometro
         ''' </summary>
         ''' <returns></returns>
-        Property Interval As Integer
-            Get
-                Return timer.Interval
-            End Get
-            Set(value As Integer)
-                timer.Interval = value
-            End Set
-        End Property
+        Property Format As String = "hh\:mm\:ss\.fff"
 
         ''' <summary>
         ''' Texto atual do cronometro
         ''' </summary>
         ''' <returns></returns>
-        Public Shadows Property Text(Optional Format As String = "") As String
-            Get
-                Return Value.ToString(Format.IfBlank(Me.Format).IfBlank("hh\:mm\:ss\.ffff"))
-            End Get
-            Set(value As String)
+        Public Overrides Function ToString() As String
+            Return Me.ToString(Format.IfBlank(Me.Format).IfBlank("hh\:mm\:ss\.fff"))
+        End Function
 
-            End Set
-        End Property
+        ''' <summary>
+        ''' Texto atual do cronometro
+        ''' </summary>
+        ''' Formato do Cronometro(
+        ''' <see cref="TimeSpan.ToString(String)"/>
+        ''' )
+        ''' <returns></returns>
+        Public Overloads Function ToString(Format As String) As String
+            Return Value.ToString(Format.IfBlank(Me.Format).IfBlank("hh\:mm\:ss\.fff"))
+        End Function
 
         ''' <summary>
         ''' Lista de <see cref="DateTime"/> dos valores de cada Lap
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property Laps As List(Of Date)
+        ReadOnly Property Laps As List(Of TimeSpan)
             Get
-                Return New List(Of Date)(marks)
+                Return New List(Of TimeSpan)(marks)
             End Get
         End Property
 
@@ -49,27 +48,25 @@ Namespace TimeMachine
         ''' Retorna uma lista de strings da extraidas da <see cref="Cronometer.Laps"/> em um formato
         ''' especifico de data
         ''' </summary>
-        ''' <param name="Format">Formato de data</param>
+        ''' Formato do Cronometro(
+        ''' <see cref="TimeSpan.ToString(String)"/>
+        ''' )
         ''' <returns></returns>
         Function GetLaps(Optional Format As String = "") As List(Of String)
             GetLaps = New List(Of String)
             For Each d In Laps
-                GetLaps.Add(d.ToString(Format.IfBlank(d.ToSQLDateString)))
+                GetLaps.Add(d.ToString(Format.IfBlank(Me.Format)))
             Next
             Return GetLaps
         End Function
 
         ''' <summary>
-        ''' Retorna um <see cref="TimeFlow"/> calculado para este cronometro. Se
-        ''' <see cref="Cronometer.Laps"/> estiver vazio, este médoto retorna Nothing
+        ''' Retorna um <see cref="TimeFlow"/> calculado para este cronometro.
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property TotalTime As TimeFlow
+        ReadOnly Property ToTimeFlow As TimeFlow
             Get
-                If marks.Count > 0 Then
-                    Return GetDifference(marks.First, marks.Last)
-                End If
-                Return New TimeFlow(TimeSpan.Zero)
+                Return New TimeFlow(Value)
             End Get
         End Property
 
@@ -79,13 +76,15 @@ Namespace TimeMachine
         ''' <param name="Format">
         ''' Formato do Cronometro( <see cref="TimeSpan.ToString(String)"/> )
         ''' </param>
-        Sub New(Optional Format As String = "")
+        Sub New(Optional Format As String = "", Optional Interval As Long = 100)
             MyBase.New()
-            Me.Visible = False
-            timer.Interval = 1
-            AddHandler timer.Tick, AddressOf IncrementTick
+            MyBase.Interval = Interval
+            AddHandler Me.Tick, AddressOf IncrementTick
             Me.Format = Format.IfBlank(Me.Format)
-            Me.Text = TimeSpan.Zero.ToString(Format)
+        End Sub
+
+        Protected Friend Sub IncrementTick(sender As Object, e As EventArgs)
+            _value.Increment(MyBase.Interval)
         End Sub
 
         ''' <summary>
@@ -94,95 +93,70 @@ Namespace TimeMachine
         ''' <returns></returns>
         ReadOnly Property Value As TimeSpan
             Get
-                Select Case True
-                    Case timer.Enabled AndAlso marks.Count > 0
-                        Return New TimeSpan(Now.Ticks - marks.First.Ticks)
-                    Case timer.Enabled = False AndAlso marks.Count > 0
-                        Return New TimeSpan(marks.Last.Ticks - marks.First.Ticks)
-                    Case Else
-                        Return TimeSpan.Zero
-                End Select
+                Return TimeSpan.FromMilliseconds(_value)
             End Get
         End Property
 
-        Private Sub IncrementTick(sender As Object, e As EventArgs)
-            RaiseEvent Tick(sender, e)
-        End Sub
+        Protected Friend _value As Long = 0
 
         ''' <summary>
         ''' Inicia o cronometro
         ''' </summary>
-        Public Sub Start()
-            Reset()
-            Dim e = New LapEventArgs With {.Value = Now}
-            marks.Add(e.Value)
-            timer.Start()
+        Public Shadows Sub Start()
+            Dim e = New LapEventArgs With {.Value = TimeSpan.Zero, .DateValue = Now}
+            If marks.Count = 0 Then marks.Add(e.Value)
+            MyBase.Start()
             RaiseEvent OnStart(Me, e)
+        End Sub
+
+        ''' <summary>
+        ''' Renicia o cronometro. é o equivalente em chamar <see cref="Reset"/> e <see cref="Start"/>
+        ''' </summary>
+        Public Shadows Sub StartOver()
+            Me.Reset()
+            Me.Start()
         End Sub
 
         ''' <summary>
         ''' Marca um valor no cronometro
         ''' </summary>
         Public Sub Lap()
-            Dim e = New LapEventArgs With {.Value = Now}
-            If timer.Enabled Then
+            If Me.Enabled Then
+                Dim e = New LapEventArgs With {.Value = Me.Value, .DateValue = Now}
                 marks.Add(e.Value)
+                RaiseEvent OnLap(Me, e)
             End If
-            RaiseEvent OnLap(Me, e)
         End Sub
 
         ''' <summary>
-        ''' Reinicia o cronometro
+        ''' Limpa os valores do cronometro
         ''' </summary>
         Sub Reset()
-            Me.Text = TimeSpan.Zero.ToString(Format)
-            marks = New List(Of Date)
+            _value = 0
+            marks = New List(Of TimeSpan)
             RaiseEvent OnReset(Me, EventArgs.Empty)
         End Sub
 
         ''' <summary>
         ''' Para o cronometro
         ''' </summary>
-        Public Sub [Stop]()
-            If timer.Enabled Then
-                Dim e = New LapEventArgs With {.Value = Now}
+        Public Shadows Sub [Stop]()
+            If Me.Enabled Then
+                Dim e = New LapEventArgs With {.Value = Me.Value, .DateValue = Now}
                 marks.Add(e.Value)
-                timer.Stop()
+                MyBase.Stop()
                 RaiseEvent OnStop(Me, e)
             End If
         End Sub
 
-        Private TickActions As New List(Of EventHandler)
         Private StartActions As New List(Of EventHandler)
         Private StopActions As New List(Of EventHandler)
         Private ResetActions As New List(Of EventHandler)
         Private LapActions As New List(Of EventHandler)
 
-        Public Custom Event Tick As EventHandler
-            AddHandler(ByVal value As EventHandler)
-                If Not TickActions.Contains(value) Then
-                    TickActions.Add(value)
-                End If
-            End AddHandler
-
-            RemoveHandler(ByVal value As EventHandler)
-                If TickActions.Contains(value) Then
-                    TickActions.Remove(value)
-                End If
-            End RemoveHandler
-
-            RaiseEvent(ByVal sender As Object, ByVal e As System.EventArgs)
-                Me.Text = Value.ToString(Format)
-                For Each handler As EventHandler In TickActions
-                    Try
-                        handler.Invoke(sender, e)
-                    Catch ex As Exception
-                        Debug.WriteLine("Exception while invoking event handler: " & ex.ToString())
-                    End Try
-                Next
-            End RaiseEvent
-        End Event
-
+        ''' <summary>
+        ''' ocorre toda vez que a função <see cref="Lap"/> é chamada
+        ''' </summary>
         Public Custom Event OnLap As EventHandler
             AddHandler(ByVal value As EventHandler)
                 If Not LapActions.Contains(value) Then
@@ -197,6 +171,7 @@ Namespace TimeMachine
             End RemoveHandler
 
             RaiseEvent(ByVal sender As Object, ByVal e As System.EventArgs)
+
                 For Each handler As EventHandler In LapActions
                     Try
                         handler.Invoke(sender, e)
@@ -204,9 +179,14 @@ Namespace TimeMachine
                         Debug.WriteLine("Exception while invoking event handler: " & ex.ToString())
                     End Try
                 Next
+                RaiseEvent OnChange(sender, e)
+
             End RaiseEvent
         End Event
 
+        ''' <summary>
+        ''' Ocorre toda vez que o cronometro inicia ( <see cref="Start"/>)
+        ''' </summary>
         Public Custom Event OnStart As EventHandler
             AddHandler(ByVal value As EventHandler)
                 If Not StartActions.Contains(value) Then
@@ -221,6 +201,7 @@ Namespace TimeMachine
             End RemoveHandler
 
             RaiseEvent(ByVal sender As Object, ByVal e As System.EventArgs)
+
                 For Each handler As EventHandler In StartActions
                     Try
                         handler.Invoke(sender, e)
@@ -228,9 +209,14 @@ Namespace TimeMachine
                         Debug.WriteLine("Exception while invoking event handler: " & ex.ToString())
                     End Try
                 Next
+                RaiseEvent OnChange(sender, e)
+
             End RaiseEvent
         End Event
 
+        ''' <summary>
+        ''' Ocorre toda vez que o cronometro para ( <see cref="[Stop]"/>)
+        ''' </summary>
         Public Custom Event OnStop As EventHandler
             AddHandler(ByVal value As EventHandler)
                 If Not StopActions.Contains(value) Then
@@ -245,6 +231,7 @@ Namespace TimeMachine
             End RemoveHandler
 
             RaiseEvent(ByVal sender As Object, ByVal e As System.EventArgs)
+
                 For Each handler As EventHandler In StopActions
                     Try
                         handler.Invoke(sender, e)
@@ -252,9 +239,14 @@ Namespace TimeMachine
                         Debug.WriteLine("Exception while invoking event handler: " & ex.ToString())
                     End Try
                 Next
+                RaiseEvent OnChange(sender, e)
+
             End RaiseEvent
         End Event
 
+        ''' <summary>
+        ''' Ocorre toda vez que o cronometro Reinicia <see cref="Reset"/>)
+        ''' </summary>
         Public Custom Event OnReset As EventHandler
             AddHandler(ByVal value As EventHandler)
                 If Not ResetActions.Contains(value) Then
@@ -276,14 +268,24 @@ Namespace TimeMachine
                         Debug.WriteLine("Exception while invoking event handler: " & ex.ToString())
                     End Try
                 Next
+                RaiseEvent OnChange(sender, e)
+
             End RaiseEvent
         End Event
+
+        ''' <summary>
+        ''' Ocorre toda vez que o cronometro iniciar, mudar de valor, parar, reiniciar ou marcar uma volta
+        ''' </summary>
+        ''' <param name="sender"></param>
+        ''' <param name="e">     </param>
+        Public Event OnChange(ByVal sender As Object, ByVal e As EventArgs)
 
     End Class
 
     Public Class LapEventArgs
         Inherits EventArgs
-        Property Value As DateTime
+        Property Value As TimeSpan
+        Property DateValue As Date
     End Class
 
 End Namespace

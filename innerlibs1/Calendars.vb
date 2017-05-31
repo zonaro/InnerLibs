@@ -1,4 +1,5 @@
 ﻿Imports System.Collections.Specialized
+Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports System.Web
 Imports System.Web.UI.WebControls
@@ -10,10 +11,11 @@ Imports InnerLibs.TimeMachine
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Calendars
+
     ''' <summary>
     ''' Verifica se a Data de hoje é um aniversário
     ''' </summary>
-    ''' <param name="BirthDate">Data de nascimento</param>
+    ''' <param name="BirthDate">  Data de nascimento</param>
     ''' <param name="UseTomorrow">Verifica se o aniversario é Amanha</param>
     ''' <returns></returns>
     <Extension>
@@ -45,7 +47,7 @@ Public Module Calendars
     ''' Retorna uma TimeMachine com a diferença entre 2 Datas
     ''' </summary>
     ''' <param name="InitialDate"></param>
-    ''' <param name="SecondDate"></param>
+    ''' <param name="SecondDate"> </param>
     ''' <returns></returns>
     <Extension>
     Public Function GetDifference(InitialDate As DateTime, SecondDate As DateTime) As TimeFlow
@@ -54,10 +56,12 @@ Public Module Calendars
     End Function
 
     ''' <summary>
-    ''' Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate sempre seja uma data menos que a EndDate, prevenindo que o calculo entre 2 datas de em um TimeSpan negativo
+    ''' Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate
+    ''' sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas de em um
+    ''' <see cref="TimeSpan"/> negativo
     ''' </summary>
     ''' <param name="StartDate">Data Inicial</param>
-    ''' <param name="EndDate">Data Final</param>
+    ''' <param name="EndDate">  Data Final</param>
     Public Sub FixDateOrder(ByRef StartDate As DateTime, ByRef EndDate As DateTime)
         If StartDate > EndDate Then
             Dim temp = StartDate
@@ -69,9 +73,9 @@ Public Module Calendars
     ''' <summary>
     ''' Verifica se uma data se encontra entre 2 datas
     ''' </summary>
-    ''' <param name="MidDate">Data</param>
-    ''' <param name="StartDate">Data Inicial</param>
-    ''' <param name="EndDate">Data final</param>
+    ''' <param name="MidDate">   Data</param>
+    ''' <param name="StartDate"> Data Inicial</param>
+    ''' <param name="EndDate">   Data final</param>
     ''' <param name="IgnoreTime">Indica se o tempo deve ser ignorado na comparação</param>
     ''' <returns></returns>
     <Extension()> Public Function IsBetween(MidDate As DateTime, StartDate As DateTime, EndDate As DateTime, Optional IgnoreTime As Boolean = False) As Boolean
@@ -87,8 +91,8 @@ Public Module Calendars
     ''' Retorna uma lista com as datas de dias especificos da semana entre 2 datas
     ''' </summary>
     ''' <param name="StartDate">Data inicial</param>
-    ''' <param name="EndDate">data Final</param>
-    ''' <param name="Days">Dias da semana</param>
+    ''' <param name="EndDate">  data Final</param>
+    ''' <param name="Days">     Dias da semana</param>
     ''' <returns></returns>
     Public Function GetBetween(StartDate As DateTime, EndDate As DateTime, ParamArray Days() As DayOfWeek) As List(Of Date)
         FixDateOrder(StartDate, EndDate)
@@ -140,46 +144,28 @@ Public Module Calendars
     End Function
 
     ''' <summary>
-    ''' Retorna uma String baseado no numero do Mês Ex.: 1 -> Janeiro
+    ''' Retorna uma String baseado no numero do Mês Ex.: 1 -&gt; Janeiro
     ''' </summary>
     ''' <param name="MonthNumber">Numero do Mês</param>
     ''' <returns>String com nome do Mês</returns>
 
     <Extension()>
     Function ToLongMonthName(MonthNumber As Integer) As String
-        Select Case MonthNumber
-            Case 1
-                Return "Janeiro"
-            Case 2
-                Return "Fevereiro"
-            Case 3
-                Return "Março"
-            Case 4
-                Return "Abril"
-            Case 5
-                Return "Maio"
-            Case 6
-                Return "Junho"
-            Case 7
-                Return "Julho"
-            Case 8
-                Return "Agosto"
-            Case 9
-                Return "Setembro"
-            Case 10
-                Return "Outubro"
-            Case 11
-                Return "Novembro"
-            Case 12
-                Return "Dezembro"
-            Case Else
-                Return "Mês Inválido"
-        End Select
-
+        Return Convert.ToDateTime(String.Format("{0}-{1}-{2}", Now.Year, MonthNumber, Now.Day)).TolongMonthName
     End Function
 
     ''' <summary>
-    ''' Retorna uma String curta baseado no numero do Mês Ex.: 1 -> Jan
+    ''' Retorna uma String com o nome do mes baseado na data
+    ''' </summary>
+    ''' <param name="DateTime">Data</param>
+    ''' <returns>String com nome do Mês</returns>
+    <Extension()>
+    Function TolongMonthName(DateTime As Date)
+        Return DateTime.ToString("MMMM")
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma String curta baseado no numero do Mês Ex.: 1 -&gt; Jan
     ''' </summary>
     ''' <param name="MonthNumber">Numero do Mês</param>
     ''' <returns>String com nome curto do Mês</returns>
@@ -188,37 +174,20 @@ Public Module Calendars
     Public Function ToShortMonthName(MonthNumber As Integer) As String
         Return ToLongMonthName(MonthNumber).GetFirstChars(3)
     End Function
+
     ''' <summary>
-    ''' Retorna uma String  baseado no numero do Dia da Semana Ex.: 2 -> Segunda-Feira
+    ''' Retorna uma String baseado no numero do Dia da Semana Ex.: 2 -&gt; Segunda-Feira
     ''' </summary>
     ''' <param name="DayNumber">Numero do Dia</param>
     ''' <returns>String com nome do Dia</returns>
 
     <Extension()>
     Function ToLongDayOfWeekName(DayNumber As Integer) As String
-
-        Select Case DayNumber
-
-            Case 1
-                Return "Domingo"
-            Case 2
-                Return "Segunda-Feira"
-            Case 3
-                Return "Terça-Feira"
-            Case 4
-                Return "Quarta-Feira"
-            Case 5
-                Return "Quinta-Feira"
-            Case 6
-                Return "Sexta-Feira"
-            Case 7
-                Return "Sábado"
-            Case Else
-                Return "Dia Inválido"
-        End Select
+        Return DateTimeFormatInfo.CurrentInfo.GetDayName(DayNumber)
     End Function
+
     ''' <summary>
-    ''' Retorna uma String  baseado no numero do Dia da Semana Ex.: 2 -> Seg
+    ''' Retorna uma String baseado no numero do Dia da Semana Ex.: 2 -&gt; Seg
     ''' </summary>
     ''' <param name="DayNumber">Numero do Dia</param>
     ''' <returns>String com nome curto do Dia</returns>
@@ -227,6 +196,7 @@ Public Module Calendars
     Public Function ToShortDayOfWeekName(DayNumber As Integer) As String
         Return ToLongDayOfWeekName(DayNumber).GetFirstChars(3)
     End Function
+
     ''' <summary>
     ''' Retorna a data de amanhã
     ''' </summary>
@@ -293,7 +263,7 @@ Public Module Calendars
     ''' <summary>
     ''' Transforma um DateTime em uma despedida (Bom dia, Boa tarde, Boa noite)
     ''' </summary>
-    ''' <param name="Time">Horario</param>
+    ''' <param name="Time">    Horario</param>
     ''' <param name="Language">Idioma da saudação (pt, en, es)</param>
     ''' <returns>Uma string com a despedida</returns>
     <Extension>
@@ -304,7 +274,7 @@ Public Module Calendars
     ''' <summary>
     ''' Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
     ''' </summary>
-    ''' <param name="Time">Horario</param>
+    ''' <param name="Time">    Horario</param>
     ''' <param name="Language">Idioma da saudação (pt, en, es)</param>
     ''' <returns>Uma string com a despedida</returns>
     <Extension>
@@ -322,6 +292,7 @@ Public Module Calendars
             Return Now.ToGreetingFarewell(Language)
         End Get
     End Property
+
     ''' <summary>
     ''' Retorna uma despedida
     ''' </summary>
@@ -418,6 +389,7 @@ Public Module Calendars
     ''' </summary>
 
     Enum TypeOfFill
+
         ''' <summary>
         ''' Numerico
         ''' </summary>
@@ -446,9 +418,9 @@ Public Module Calendars
     ''' <summary>
     ''' Calcula a porcentagem de diferenca entre duas datas de acordo com a data inicial especificada
     ''' </summary>
-    ''' <param name="MidDate">Data do meio a ser verificada (normalmente Now)</param>
+    ''' <param name="MidDate">  Data do meio a ser verificada (normalmente Now)</param>
     ''' <param name="StartDate">Data Inicial</param>
-    ''' <param name="EndDate">Data Final</param>
+    ''' <param name="EndDate">  Data Final</param>
     ''' <returns></returns>
     <Extension()>
     Function CalculatePercent(MidDate As DateTime, StartDate As DateTime, EndDate As DateTime) As Decimal
