@@ -105,7 +105,6 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="InnerTempletizer.vb" />
-    <Compile Include="INumeric.vb" />
     <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="RiotAPI.vb" />

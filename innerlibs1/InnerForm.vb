@@ -81,7 +81,7 @@ Namespace InnerForm
         ''' <returns></returns>
         Property UserSubject As String = ""
 
-        Sub SendForm(sender As Object, e As EventArgs) Handles Me.LoadComplete
+        Sub SendForm(sender As Object, e As EventArgs) Handles Me.Load
             Response.Clear()
             Dim agora = Now
             Dim rep = New AJAX.Response("success", SuccessMessage)

@@ -13,8 +13,9 @@ Imports System.Xml
 Public NotInheritable Class DataBase
 
     ''' <summary>
-    ''' Estrutura que 'implementa' um DataReader estático copiando o conteudo e permitindo leitura e
-    ''' releitura mesmo após o fechamento da conexão.
+    ''' Estrutura que imita um <see cref="DbDataReader"/>, porém é estático. É uma cópia do o
+    ''' conteudo de um <see cref="DbDataReader"/> para um <see cref="Dictionary"/>. Permite a leitura
+    ''' e releitura mesmo após o fechamento da conexão.
     ''' </summary>
     Public NotInheritable Class Reader
         Inherits List(Of List(Of Dictionary(Of String, Object)))
@@ -37,7 +38,7 @@ Public NotInheritable Class DataBase
         End Sub
 
         ''' <summary>
-        ''' Verifica se o Reader está vazio ou fechado (Count = 0)
+        ''' Verifica se o Reader está vazio ou fechado ( <see cref="Count"/> = 0)
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property IsClosed
@@ -237,7 +238,29 @@ Public NotInheritable Class DataBase
             End Try
         End Function
 
-        Friend Sub New(Reader As DbDataReader)
+        ''' <summary>
+        ''' Cria um novo Reader a partir de uma coleçao de listas de Dicionários
+        ''' </summary>
+        ''' <param name="Tables">Conunto de listas de dicionarios</param>
+        Public Sub New(ParamArray Tables As List(Of Dictionary(Of String, Object))())
+            For Each l In Tables
+                Me.Add(l)
+            Next
+        End Sub
+
+        ''' <summary>
+        ''' Cria um novo Reader a partir de uma coleção de dicionários
+        ''' </summary>
+        ''' <param name="Rows">Conunto de Dicionários</param>
+        Public Sub New(ParamArray Rows As Dictionary(Of String, Object)())
+            Me.New(New List(Of Dictionary(Of String, Object))(Rows))
+        End Sub
+
+        ''' <summary>
+        ''' Cria um novo Reader a partir de um <see cref="DbDataReader"/>
+        ''' </summary>
+        ''' <param name="Reader">Reader</param>
+        Public Sub New(Reader As DbDataReader)
             Using Reader
                 Do
                     Dim listatabela As New List(Of Dictionary(Of String, Object))
@@ -341,7 +364,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Cria um array de <see cref="ListItem"/> com os Itens de um DataBaseReader
+        ''' Cria um array de <see cref="ListItem"/> com os Itens de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <param name="TextColumn">    Coluna que será usada como Texto do elemento option</param>
         ''' <param name="ValueColumn">   Coluna que será usada como Value do elemento option</param>
@@ -359,7 +382,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Preenche um <see cref="HtmlSelect"/> com itens do DataBaseReader
+        ''' Preenche um <see cref="HtmlSelect"/> com itens do <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <param name="[SelectControl]">Controle HtmlSelect</param>
         ''' <param name="TextColumn">     Coluna que será usada como Texto do elemento option</param>
@@ -371,7 +394,8 @@ Public NotInheritable Class DataBase
         End Sub
 
         ''' <summary>
-        ''' Cria uma lista de com os Itens de um DataBaseReader
+        ''' Cria uma lista de com os Itens de um <see cref="DataBase.Reader"/> convertendo os valores
+        ''' para uma classe outipo especifico
         ''' </summary>
         ''' <param name="Column">Coluna que será usada</param>
         ''' <returns></returns>
@@ -389,7 +413,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Cria uma lista de uma classe específica com os Itens de um DataBaseReader
+        ''' Cria uma lista de uma classe específica com os Itens de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <returns></returns>
         Public Function ToList(Of TValue)() As List(Of TValue)
@@ -409,7 +433,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Retorna o valor de uma coluna especifica de um DataBaseReader
+        ''' Retorna o valor de uma coluna especifica de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
         ''' <param name="Column">Coluna</param>
@@ -419,7 +443,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Retorna o valor de uma coluna especifica de um resultado de um DataBaseReader
+        ''' Retorna o valor de uma coluna especifica de um resultado de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <param name="Column">     Coluna</param>
         ''' <param name="ResultIndex">Indice do resultado</param>
@@ -430,7 +454,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Retorna o valor de uma coluna especifica de um resultado de um DataBaseReader
+        ''' Retorna o valor de uma coluna especifica de um resultado de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
         ''' <param name="Column">     Coluna</param>
@@ -450,7 +474,8 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Cria um Dictionary a partir de DataBaseReader usando uma coluna como Key e outra como Value
+        ''' Cria um Dictionary a partir de <see cref="DataBase.Reader"/> usando uma coluna como Key e
+        ''' outra como Value
         ''' </summary>
         ''' <param name="KeyColumn">  Coluna que será usada como Key do dicionario</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
@@ -467,7 +492,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Cria uma lista de pares com os Itens de um DataBaseReader
+        ''' Cria uma lista de pares com os Itens de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <param name="TextColumn"> Coluna que será usada como Text do item</param>
         ''' <param name="ValueColumn">Coluna que será usada como Value do item</param>
@@ -484,7 +509,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Transforma o resultado de um DataBaseReader em QueryString
+        ''' Transforma o resultado de um <see cref="DataBase.Reader"/> em QueryString
         ''' </summary>
         ''' <returns></returns>
         Public Function ToQueryString() As String
@@ -501,7 +526,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Transforma um DataBaseReader em uma string delimitada por caracteres
+        ''' Transforma um <see cref="DataBase.Reader"/> em uma string delimitada por caracteres
         ''' </summary>
         ''' <param name="ColDelimiter">  Delimitador de Coluna</param>
         ''' <param name="RowDelimiter">  Delimitador de Linha</param>
@@ -536,13 +561,13 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Converte um DataBaseReader em XML
+        ''' Converte um <see cref="DataBase.Reader"/> em XML
         ''' </summary>
         ''' <param name="ItemName"> Nome do nó que representa cada linha</param>
         ''' '
         ''' <param name="TableName">Nome do nó principal do documento</param>
 
-        Function ToXML(Optional TableName As String = "Table", Optional ItemName As String = "Row") As XmlDocument
+        Public Function ToXML(Optional TableName As String = "Table", Optional ItemName As String = "Row") As XmlDocument
 
             Dim doc As New XmlDocument
             Dim stringas = ""
@@ -567,12 +592,12 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Converte um DataBaseReader em CSV
+        ''' Converte um <see cref="DataBase.Reader"/> em CSV
         ''' </summary>
         ''' <param name="Separator">Separador de valores (vírgula)</param>
         ''' <returns>uma string Comma Separated Values (CSV)</returns>
 
-        Public Function ToCSV(Optional Separator As String = ",") As String
+        Public Function ToCSV(Optional Separator As String = ";") As String
 
             Dim Returned As String = "sep=" & Separator & Environment.NewLine
             If Me.HasRows Then
@@ -587,8 +612,8 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Copia a primeira linha de um DataBaseReader para uma sessão HttpSessionState usando os
-        ''' nomes das colunas como os nomes dos objetos da sessão
+        ''' Copia a primeira linha de um <see cref="DataBase.Reader"/> para uma sessão
+        ''' HttpSessionState usando os nomes das colunas como os nomes dos objetos da sessão
         ''' </summary>
         ''' <param name="Session">Objeto da sessão</param>
         ''' <param name="Timeout">
@@ -610,10 +635,10 @@ Public NotInheritable Class DataBase
         End Sub
 
         ''' <summary>
-        ''' Converte um DataBaseReader para uma tabela em Markdown Pipe
+        ''' Converte um <see cref="DataBase.Reader"/> para uma tabela em Markdown Pipe
         ''' </summary>
         ''' <returns></returns>
-        Public Function ToMarkdown() As String
+        Public Function ToMarkdownTable() As String
             Dim Returned As String = ""
             Do
                 If Me.HasRows Then
@@ -644,7 +669,7 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Converte um DataBaseReader para uma tabela em HTML
+        ''' Converte um <see cref="DataBase.Reader"/> para uma tabela em HTML
         ''' </summary>
         ''' <param name="Attr">Atributos da tabela.</param>
         ''' <returns></returns>
@@ -679,8 +704,8 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em inputs com mesmo ID das
-        ''' colunas. Se os inputs não existirem no resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em inputs
+        ''' com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
         ''' </summary>
         ''' <param name="Inputs">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os inputs manipulados</returns>
@@ -696,8 +721,8 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader em selects com mesmo ID
-        ''' das colunas. Se os selects não existirem no resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em selects
+        ''' com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
         ''' </summary>
         ''' <param name="Selects">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os selects manipulados</returns>
@@ -714,9 +739,9 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de qualquer
-        ''' controle genérico com mesmo ID das colunas. Se os elementos não existirem no resultado
-        ''' eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> como texto
+        ''' de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no
+        ''' resultado eles serão ignorados.
         ''' </summary>
         ''' <param name="Controls">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os controles HTML manipulados</returns>
@@ -733,8 +758,9 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um DataBaseReader como texto de textareas
-        ''' com mesmo ID das colunas. Se os elementos não existirem no resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> como texto
+        ''' de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles
+        ''' serão ignorados.
         ''' </summary>
         ''' <param name="TextAreas">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo as Textareas manipuladas</returns>
@@ -793,7 +819,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Name"> Nome do Parametro</param>
     ''' <param name="Value">Valor do Parametro</param>
     ''' <returns></returns>
-    Function CreateParameter(Of Type)(Name As String, Value As Object) As DbParameter
+    Public Function CreateParameter(Of Type)(Name As String, Value As Object) As DbParameter
         Return CreateParameter(Name, DirectCast(Value, Type))
     End Function
 
@@ -803,7 +829,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Name"> Nome do Parametro</param>
     ''' <param name="Value">Valor do Parametro</param>
     ''' <returns></returns>
-    Function CreateParameter(Name As String, Value As Object) As DbParameter
+    Public Function CreateParameter(Name As String, Value As Object) As DbParameter
         Using con = Activator.CreateInstance(ConnectionType)
             con.ConnectionString = Me.ConnectionString
             con.Open()
@@ -1021,7 +1047,7 @@ Public NotInheritable Class DataBase
     ''' Executa uma Query no banco. Recomenda-se o uso de procedures.
     ''' </summary>
     ''' <param name="SQLQuery">Comando SQL a ser executado</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
 
     Public Function RunSQL(ByVal SQLQuery As String) As Reader
         Log(SQLQuery)
@@ -1041,7 +1067,7 @@ Public NotInheritable Class DataBase
     ''' Executa uma Query no banco partir de um Arquivo.
     ''' </summary>
     ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
     Public Function RunSQL(ByVal File As FileInfo) As Reader
         Using s = File.OpenText
             Return RunSQL(s.ReadToEnd)
@@ -1052,7 +1078,7 @@ Public NotInheritable Class DataBase
     ''' Executa uma Query no banco partir de um Arquivo.
     ''' </summary>
     ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
     Public Function RunSQL(ByVal File As HttpPostedFile) As Reader
         Using s = New StreamReader(File.InputStream)
             Return RunSQL(s.ReadToEnd)
@@ -1173,7 +1199,7 @@ Public NotInheritable Class DataBase
     ''' <param name="SQLQuery">     Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">         Arquivo</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte()) As Reader
         Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
@@ -1192,7 +1218,7 @@ Public NotInheritable Class DataBase
     ''' <param name="SQLQuery">     Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">         Arquivo postado</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile) As Reader
         Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
@@ -1211,7 +1237,7 @@ Public NotInheritable Class DataBase
     ''' <param name="SQLQuery">     Comando SQL a ser executado</param>
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">         Arquivo</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo) As Reader
         Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
@@ -1244,7 +1270,7 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <param name="SQLQuery">  Comando SQL parametrizado a ser executado</param>
     ''' <param name="Parameters">Parametros que serão adicionados ao comando</param>
-    ''' <returns>Um DataBaseReader com as informações da consulta</returns>
+    ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
     Public Function RunSQL(SQLQuery As String, ParamArray Parameters() As DbParameter) As Reader
         Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
