@@ -58,7 +58,8 @@ Public Module DataManipulation
     ''' <param name="Key">nome do parametro</param>
     ''' <param name="Value">valor do parametro</param>
     <Extension>
-    Public Sub AppendSQLParameter(ByRef Command As String, Key As String, Optional Value As String = "")
+    Public Sub AppendSQLParameter(ByRef Command As String, Key As String, Optional Value As String = Nothing)
+        Key = Key.TrimStart("@")
         Dim param = " @" & Key & "=" & Value.IsNull(Quotes:=Not Value.IsNumber)
         If (Command.Contains("@")) Then
             If Command.Trim.EndsWith(",") Then

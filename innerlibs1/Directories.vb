@@ -22,7 +22,6 @@ Public Module Directories
         End If
         Return New DirectoryInfo(DirectoryName & Path.DirectorySeparatorChar)
     End Function
-
     ''' <summary>
     ''' Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
     ''' </summary>
@@ -140,6 +139,48 @@ Public Module Directories
     End Function
 
     ''' <summary>
+    ''' Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas
+    ''' </summary>
+    ''' <param name="Directory">Diretório</param>
+    ''' <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+    ''' <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+    ''' <param name="FirstDate">Data Inicial</param>
+    ''' <param name="SecondDate">Data Final</param>
+    ''' <returns></returns>
+    <Extension> Function SearchBetween(Directory As DirectoryInfo, FirstDate As DateTime, SecondDate As Date, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileSystemInfo)
+        FixDateOrder(FirstDate, SecondDate)
+        Return Directory.Search(SearchOption, Searches).Where(Function(file) file.LastWriteTime >= FirstDate AndAlso file.LastWriteTime <= SecondDate).OrderByDescending(Function(f) If(f.LastWriteTime.Year <= 1601, f.CreationTime, f.LastWriteTime)).ToList
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas
+    ''' </summary>
+    ''' <param name="Directory">Diretório</param>
+    ''' <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+    ''' <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+    ''' <param name="FirstDate">Data Inicial</param>
+    ''' <param name="SecondDate">Data Final</param>
+    ''' <returns></returns>
+    <Extension> Function SearchFilesBetween(Directory As DirectoryInfo, FirstDate As DateTime, SecondDate As Date, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileInfo)
+        FixDateOrder(FirstDate, SecondDate)
+        Return Directory.SearchFiles(SearchOption, Searches).Where(Function(file) file.LastWriteTime >= FirstDate AndAlso file.LastWriteTime <= SecondDate).OrderByDescending(Function(f) If(f.LastWriteTime.Year <= 1601, f.CreationTime, f.LastWriteTime)).ToList
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas
+    ''' </summary>
+    ''' <param name="Directory">Diretório</param>
+    ''' <param name="SearchOption">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</param>
+    ''' <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+    ''' <param name="FirstDate">Data Inicial</param>
+    ''' <param name="SecondDate">Data Final</param>
+    ''' <returns></returns>
+    <Extension> Function SearchDirectoriesBetween(Directory As DirectoryInfo, FirstDate As DateTime, SecondDate As Date, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of DirectoryInfo)
+        FixDateOrder(FirstDate, SecondDate)
+        Return Directory.SearchDirectories(SearchOption, Searches).Where(Function(file) file.LastWriteTime >= FirstDate AndAlso file.LastWriteTime <= SecondDate).OrderByDescending(Function(f) If(f.LastWriteTime.Year <= 1601, f.CreationTime, f.LastWriteTime)).ToList
+    End Function
+
+    ''' <summary>
     ''' Copia um diretório para dentro de outro diretório
     ''' </summary>
     ''' <param name="Directory">Diretório</param>
@@ -149,6 +190,22 @@ Public Module Directories
         If Not DestinationDirectory.Exists Then DestinationDirectory.Create()
         My.Computer.FileSystem.CopyDirectory(Directory.FullName, DestinationDirectory.FullName & Path.DirectorySeparatorChar & Directory.Name)
         Return New DirectoryInfo(DestinationDirectory.FullName & Path.DirectorySeparatorChar & Directory.Name)
+    End Function
+
+    ''' <summary>
+    ''' Copia arquivos para dentro de outro diretório
+    ''' </summary>
+    ''' <param name="List">Arquivos</param>
+    ''' <param name="DestinationDirectory">Diretório de destino</param>
+    ''' <returns></returns>
+    <Extension>
+    Function CopyTo(List As List(Of FileInfo), DestinationDirectory As DirectoryInfo) As List(Of FileInfo)
+        Dim lista As New List(Of FileInfo)
+        If Not DestinationDirectory.Exists Then DestinationDirectory.Create()
+        For Each file In List
+            lista.Add(file.CopyTo(DestinationDirectory.FullName & Path.DirectorySeparatorChar & file.Name))
+        Next
+        Return lista
     End Function
 
     ''' <summary>

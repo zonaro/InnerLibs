@@ -78,6 +78,7 @@ Public Module Converter
         End Try
     End Function
 
+
     ''' <summary>
     ''' Converte um NameValueCollection para Dictionary
     ''' </summary>

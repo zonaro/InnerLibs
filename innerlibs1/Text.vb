@@ -3,20 +3,109 @@ Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Threading
 Imports System.Web
-Imports System.Web.Script.Serialization
 Imports System.Web.UI.HtmlControls
-Imports System.Windows.Forms
 Imports System.Xml
-Imports System
-Imports System.Collections.Generic
 
 ''' <summary>
 ''' Modulo de manipulação de Texto
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Text
+
+    ''' <summary>
+    ''' Extension Method para <see cref="String.Format(String,Object())"/>
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <param name="Args">Objetos de substituição</param>
+    ''' <returns></returns>
+    <Extension> Public Function Format(Text As String, ParamArray Args As Object()) As String
+        Return String.Format(Text, Args)
+    End Function
+
+    ''' <summary>
+    ''' Remove caracteres não numéricos de uma string
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <returns></returns>
+    <Extension()> Function ParseDigits(ByVal Text As String) As String
+        Dim strDigits As String = ""
+        If Text = Nothing Then Return strDigits
+        For Each c As Char In Text.ToCharArray()
+            If Char.IsDigit(c) Then
+                strDigits &= c
+            End If
+        Next c
+        Return strDigits
+    End Function
+
+    ''' <summary>
+    ''' Aplica uma mascara a um numero de telefone
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToTelephone(Number As String) As String
+        Dim mask As String = ""
+        Number = Number.ParseDigits
+        If IsNothing(Number) OrElse Number.IsBlank Then
+            Return ""
+        End If
+        Select Case Number.Length
+            Case Is <= 8
+                mask = "{0:####-####}"
+            Case 9
+                mask = "{0:#####-####}"
+            Case 10
+                mask = "{0:(##) ####-####}"
+            Case 11
+                mask = "{0:(##) #####-####}"
+            Case 12
+                mask = "{0:+## (##) ####-####}"
+            Case 13
+                mask = "{0:+## (##) #####-####}"
+        End Select
+        Return String.Format(mask, Long.Parse(Number))
+    End Function
+
+    ''' <summary>
+    ''' Valida se a string é um telefone
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsTelephone(Text As String) As Boolean
+        Return New Regex("\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", RegexOptions.Singleline + RegexOptions.IgnoreCase).IsMatch(Text.RemoveAny("(", ")"))
+    End Function
+
+    ''' <summary>
+    ''' Procurea numeros de telefone em um texto
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FindTelephoneNumbers(Text As String) As List(Of String)
+        Dim tels As New List(Of String)
+        For Each m As Match In New Regex("\b[\s()\d-]{6,}\d\b", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
+            tels.Add(m.Value.ToTelephone)
+        Next
+        Return tels
+    End Function
+
+    ''' <summary>
+    ''' Aplica uma mascara a um numero de telefone
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToTelephone(Number As Long) As String
+        Return Number.ToString.ToTelephone
+    End Function
+
+    ''' <summary>
+    ''' Aplica uma mascara a um numero de telefone
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToTelephone(Number As Integer) As String
+        Return Number.ToString.ToTelephone
+    End Function
 
     ''' <summary>
     ''' Transforma um XML Document em string

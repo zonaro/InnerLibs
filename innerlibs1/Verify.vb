@@ -236,6 +236,8 @@ Public Module Verify
         End If
     End Function
 
+
+
     ''' <summary>
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
     ''' </summary>
@@ -248,15 +250,17 @@ Public Module Verify
         Dim blankas As Boolean = IsNothing(Value)
         Select Case GetType(Type)
             Case GetType(String)
-                blankas = Value.ToString.IsBlank
+                blankas = IsNothing(Value) OrElse Value.ToString.IsBlank
             Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
-                blankas = Value.ToString.IsBlank Or Value.ToString.To(Of Long) = 0
+                blankas = IsNothing(Value) OrElse Value.ToString.IsBlank Or Value.ToString.To(Of Double) = 0
             Case GetType(DateTime)
-                blankas = Value.ToString.To(Of Date) = DateTime.MinValue
+                blankas = IsNothing(Value) OrElse Value = DateTime.MinValue
+            Case GetType(TimeSpan)
+                blankas = IsNothing(Value) OrElse Value = TimeSpan.MinValue
             Case Else
                 blankas = IsNothing(Value)
         End Select
-        Return DirectCast(If(blankas, ValueIfBlank, Value), Type)
+        Return If(blankas, ValueIfBlank, Value)
     End Function
 
     ''' <summary>

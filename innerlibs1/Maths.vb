@@ -293,12 +293,35 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Values">Array de números</param>
     ''' <returns>Decimal contendo a soma de todos os valores</returns>
+    Public Function Sum(ByVal ParamArray Values As Double()) As Double
+        Return Values.Sum
+    End Function
+
+    ''' <summary>
+    ''' Soma todos os números de um array
+    ''' </summary>
+    ''' <param name="Values">Array de números</param>
+    ''' <returns>Decimal contendo a soma de todos os valores</returns>
+    Public Function Sum(ByVal ParamArray Values As Long()) As Long
+        Return Values.Sum
+    End Function
+
+    ''' <summary>
+    ''' Soma todos os números de um array
+    ''' </summary>
+    ''' <param name="Values">Array de números</param>
+    ''' <returns>Decimal contendo a soma de todos os valores</returns>
+    Public Function Sum(ByVal ParamArray Values As Integer()) As Integer
+        Return Values.Sum
+    End Function
+
+    ''' <summary>
+    ''' Soma todos os números de um array
+    ''' </summary>
+    ''' <param name="Values">Array de números</param>
+    ''' <returns>Decimal contendo a soma de todos os valores</returns>
     Public Function Sum(ByVal ParamArray Values As Decimal()) As Decimal
-        Dim s As Decimal = 0
-        For Each i As Decimal In Values
-            s = s + i
-        Next
-        Return s
+        Return Values.Sum
     End Function
 
     ''' <summary>
@@ -307,17 +330,41 @@ Public Module Mathematic
     ''' <param name="Values">Array de números</param>
     ''' <returns>Decimal contendo</returns>
     Public Function Average(ByVal ParamArray Values As Decimal()) As Decimal
-        Dim avg = 0
-        Dim sum = 0
-        Dim q As Decimal = 0
-        For Each number As Decimal In Values
-            q = q + 1
-            sum = sum + number
-        Next
-        avg = sum / q
-        Return avg
+        Return Values.Average
     End Function
 
+    ''' <summary>
+    ''' Tira a média de todos os números de um Array
+    ''' </summary>
+    ''' <param name="Values">Array de números</param>
+    ''' <returns>Decimal contendo</returns>
+    Public Function Average(ByVal ParamArray Values As Double()) As Double
+        Return Values.Average
+    End Function
+
+    ''' <summary>
+    ''' Tira a média de todos os números de um Array
+    ''' </summary>
+    ''' <param name="Values">Array de números</param>
+    ''' <returns>Decimal contendo</returns>
+    Public Function Average(ByVal ParamArray Values As Integer()) As Integer
+        Return Values.Average
+    End Function
+
+    ''' <summary>
+    ''' Tira a média de todos os números de um Array
+    ''' </summary>
+    ''' <param name="Values">Array de números</param>
+    ''' <returns>Decimal contendo</returns>
+    Public Function Average(ByVal ParamArray Values As Long()) As Long
+        Return Values.Average
+    End Function
+
+    ''' <summary>
+    ''' COnverte graus para radianos
+    ''' </summary>
+    ''' <param name="Degrees"></param>
+    ''' <returns></returns>
     <Extension>
     Public Function ToRadians(Degrees As Double) As Double
         Return Degrees * Math.PI / 180.0
