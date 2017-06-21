@@ -3,7 +3,7 @@ Imports System.IO
 
 Namespace JsonDB
 
-    Public Class JSON
+    Public Class JsonFile
         Inherits Dictionary(Of String, JEntry)
 
         Property File As FileInfo

@@ -5,7 +5,7 @@ Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 
-Public Module ClassManager
+Public Module ClassTools
 
     ''' <summary>
     ''' Traz uma Lista com todas as propriedades de um objeto
@@ -24,6 +24,28 @@ Public Module ClassManager
     ''' <returns></returns>
     Public Function GetValues(Of T)() As List(Of T)
         Return [Enum].GetValues(GetType(T)).Cast(Of T)().ToList
+    End Function
+
+    ''' <summary>
+    ''' Verifica se o tipo é um array de um objeto especifico
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Type"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function IsArrayOf(Of T)(Type As Type) As Boolean
+        Return Type = GetType(T())
+    End Function
+
+    ''' <summary>
+    ''' Verifica se o tipo é um array de um objeto especifico
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Type"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function IsArrayOf(Of T)(Obj As Object) As Boolean
+        Return Obj.GetType.IsArrayOf(Of T)
     End Function
 
     ''' <summary>

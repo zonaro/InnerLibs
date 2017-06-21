@@ -13,9 +13,8 @@ Imports System.Xml
 Public NotInheritable Class DataBase
 
     ''' <summary>
-    ''' Estrutura que imita um <see cref="DbDataReader"/>, porém é estático. É uma cópia do o
-    ''' conteudo de um <see cref="DbDataReader"/> para um <see cref="Dictionary"/>. Permite a leitura
-    ''' e releitura mesmo após o fechamento da conexão.
+    ''' Estrutura que imita um <see cref="DbDataReader"/> usando estruturas de  <see cref="Dictionary"/>. Permite a leitura
+    ''' releitura, atribuição e serialização mesmo após o fechamento da conexão.
     ''' </summary>
     Public NotInheritable Class Reader
         Inherits List(Of List(Of Dictionary(Of String, Object)))
@@ -1150,7 +1149,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Items">       Coleçao de valores que serão inseridos em cada iteraçao</param>
     ''' <param name="Keys">        as chaves de cada item</param>
     Public Sub RunProcedureForEach(ByVal Procedure As String, ForeignKey As String, ForeignValue As String, Items As NameValueCollection, ParamArray Keys() As String)
-        UnsupportedMethod(GetType(OleDb.OleDbDataReader), GetType(SqlClient.SqlDataReader))
+        UnsupportedMethod(GetType(OleDb.OleDbConnection), GetType(SqlClient.SqlConnection))
         Dim tamanho_loops_comando = Items.GetValues(Keys(0)).Count
         For index = 0 To tamanho_loops_comando - 1
             Dim comando = "EXEC " & Procedure & " "

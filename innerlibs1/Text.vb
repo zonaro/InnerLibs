@@ -1049,7 +1049,16 @@ Public Module Text
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
     <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As TypeClass
-        Return New JsonSerializer(DateFormat).Deserialize(Of TypeClass)(JSON)
+        Return New JSON(DateFormat).Deserialize(Of TypeClass)(JSON)
+    End Function
+
+    ''' <summary>
+    ''' Transforma uma JSON String em um Objeto ou Classe
+    ''' </summary>
+    ''' <param name="JSON">String JSON</param>
+    ''' <returns>Um objeto do tipo T</returns>
+    <Extension()> Public Function ParseJSON(JSON As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As Object
+        Return New JSON(DateFormat).Deserialize(Of Object)(JSON)
     End Function
 
     ''' <summary>
@@ -1058,7 +1067,7 @@ Public Module Text
     ''' <param name="[Object]">Objeto</param>
     ''' <returns>Uma String JSON</returns>
     <Extension()> Public Function SerializeJSON([Object] As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
-        Return New JsonSerializer(DateFormat).Serialize([Object])
+        Return New JSON(DateFormat).Serialize([Object])
     End Function
 
     ''' <summary>

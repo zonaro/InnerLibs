@@ -120,10 +120,10 @@ Public Module Verify
     ''' <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
     ''' <returns>TRUE se for um numero, FALSE se não for um numero</returns>
     <Extension()>
-    Public Function IsNumber(Value) As Boolean
+    Public Function IsNumber(Value As Object) As Boolean
         Try
             Convert.ToDecimal(Value)
-            If Value.ToString.IsIP Then Return False Else Return True
+            Return Not Value.ToString.IsIP And Not Value.GetType = GetType(DateTime)
         Catch
             Return False
         End Try
@@ -222,7 +222,7 @@ Public Module Verify
     ''' </summary>
     ''' <param name="Text">        Valor a ser testado</param>
     ''' <param name="DefaultValue">Valor para retornar se o valor testado for Nulo, Vazio ou branco</param>
-    ''' <param name="Quotes">      
+    ''' <param name="Quotes">
     ''' Indica se o valor testado deve ser retornado entre aspas simples (prepara a string para SQL)
     ''' </param>
     ''' <returns>uma String contento o valor ou o valor se Nulo</returns>
@@ -235,8 +235,6 @@ Public Module Verify
             Return DefaultValue
         End If
     End Function
-
-
 
     ''' <summary>
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE

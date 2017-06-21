@@ -173,6 +173,22 @@ End Class
 Public Module Web
 
     ''' <summary>
+    ''' Verifica se o computador está conectado com a internet
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsConnected(Optional Test As String = "http://google.com") As Boolean
+        Try
+            Using client = New WebClient()
+                Using stream = client.OpenRead(Test)
+                    Return True
+                End Using
+            End Using
+        Catch
+            Return False
+        End Try
+    End Function
+
+    ''' <summary>
     ''' Cria um objeto a partir de uma requisiçao AJAX
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>
@@ -590,13 +606,9 @@ Public Module Web
     ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
     <Extension()> Public Sub SelectValues(Control As HtmlSelect, ParamArray Values As String())
-        Dim cnt = 0
+        Control.Multiple = Values.Length > 1
         For Each i As ListItem In Control.Items
-            If Values.Contains(i.Value) Then
-                i.Selected = True
-                cnt.Increment
-            End If
-            If cnt > 1 Then Control.Multiple = True
+            i.Selected = Values.Contains(i.Value)
         Next
     End Sub
 

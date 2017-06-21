@@ -41,30 +41,40 @@ Public Structure Money
     ''' <returns></returns>
     Function ConvertCurrency(Culture As CultureInfo) As Money
         If Culture.Name = Me.Culture.Name Then Return New Money(Me.Value, Me.Culture)
-
+        If Not IsConnected() Then
+            Throw New Exception("Internet is not available to convert currency.")
+        End If
         Dim rep = AJAX.GET(Of Object)("http://api.fixer.io/latest?base=" & Me.ISOCurrencySymbol)
         Dim dic As New Dictionary(Of String, Double)
-        For Each item In rep("rates")
-            dic.Add(item.Key, item.Value)
-        Next
-        Return New Money(Me.Value * dic.Where(Function(y) y.Key = New RegionInfo(Culture.Name).ISOCurrencySymbol).Select(Function(x) x.Value).First, Culture)
+        Try
+            For Each item In rep("rates")
+                dic.Add(item.Key, item.Value)
+            Next
+        Catch ex As Exception
+            Throw New Exception("Fixer.io can't convert from currency " & Me.ISOCurrencySymbol.Quote)
+        End Try
+        Try
+            Return New Money(Me.Value * dic.Where(Function(y) y.Key = New RegionInfo(Culture.Name).ISOCurrencySymbol).Select(Function(x) x.Value).First, Culture)
+        Catch ex As Exception
+            Throw New Exception("Fixer.io can't convert to currency " & New RegionInfo(Culture.Name).ISOCurrencySymbol)
+        End Try
     End Function
 
     ''' <summary>
-    ''' String de moeda, é um alias para <see cref="MoneyString"/>
+    ''' String do valor formatado como moeda, é um alias para <see cref="MoneyString"/>
     ''' </summary>
     ''' <returns></returns>
     Public Overrides Function ToString() As String
-        Return String.Format(Me.Culture, "{0:C}", Me.Value)
+        Return MoneyString
     End Function
 
     ''' <summary>
-    ''' String de moeda
+    ''' String do valor formatado como moeda
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property MoneyString As String
         Get
-            Return ToString()
+            Return String.Format(Me.Culture, "{0:C}", Me.Value)
         End Get
     End Property
 
@@ -101,8 +111,24 @@ Public Structure Money
         .Where(Function(x) (New RegionInfo(x.LCID).ISOCurrencySymbol.Trim = Currency.Trim Or New RegionInfo(x.LCID).CurrencySymbol.Trim = Currency.Trim Or x.Name.Trim = Currency.Trim)).ToList
     End Function
 
+    Public Shared Operator &(Text As String, Value As Money) As String
+        Return Text & Value.MoneyString
+    End Operator
+
+    Public Shared Operator &(Value As Money, Text As String) As String
+        Return Value.MoneyString & Text
+    End Operator
+
     Public Shared Operator Not(Value As Money)
         Return New Money(Value.Value * -1, Value.Culture)
+    End Operator
+
+    Public Shared Operator +(Text As String, Value As Money) As String
+        Return Text & Value.MoneyString
+    End Operator
+
+    Public Shared Operator +(Value As Money, Text As String) As String
+        Return Value.MoneyString & Text
     End Operator
 
     Public Shared Operator +(Value1 As Double, Value2 As Money) As Money

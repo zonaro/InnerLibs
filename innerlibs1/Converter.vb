@@ -4,6 +4,27 @@ Imports System.Runtime.CompilerServices
 Public Module Converter
 
     ''' <summary>
+    ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
+    ''' </summary>
+    ''' <param name="Obj">Objeto</param>
+    ''' <returns></returns>
+    Public Function ForceArray(Obj As Object) As Object()
+        Return ForceArray(Of Object)(Obj)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
+    ''' </summary>
+    ''' <param name="Obj">Objeto</param>
+    ''' <returns></returns>
+    Public Function ForceArray(Of Type)(ByVal Obj As Object) As Type()
+        If Not IsArray(Obj) Then
+            If IsNothing(Obj) OrElse Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
+        End If
+        Return Array.ConvertAll(Of Object, Type)(Obj, Function(x) DirectCast(x, Type))
+    End Function
+
+    ''' <summary>
     ''' Converte uma lista de dicionários para uma tabela HTML
     ''' </summary>
     ''' <param name="Table"></param>
@@ -78,23 +99,89 @@ Public Module Converter
         End Try
     End Function
 
-
     ''' <summary>
-    ''' Converte um NameValueCollection para Dictionary
+    ''' Converte um NameValueCollection para um <see cref="Dictionary(Of String, Object)"/>
     ''' </summary>
     ''' <param name="[NameValueCollection]">Formulario</param>
     ''' <returns></returns>
     <Extension>
-    Public Function ToDictionary([NameValueCollection] As NameValueCollection) As Dictionary(Of String, Object)
+    Public Function ToDictionary([NameValueCollection] As NameValueCollection, ParamArray Keys As String()) As Dictionary(Of String, Object)
         Dim result = New Dictionary(Of String, Object)()
+        If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = NameValueCollection.AllKeys
         For Each key As String In [NameValueCollection].Keys
-            Dim values As String() = [NameValueCollection].GetValues(key)
-            If values.Length = 1 Then
-                result.Add(key, values(0))
-            Else
-                result.Add(key, [NameValueCollection](key))
+            If key.IsIn(Keys) Then
+                Dim values As String() = [NameValueCollection].GetValues(key)
+                If result.ContainsKey(key) Then
+                    Dim l As New List(Of Object)
+                    If IsArray(result(key)) Then
+                        For Each v In result(key)
+                            Select Case True
+                                Case Verify.IsNumber(v)
+                                    l.Add(Convert.ToDouble(v))
+                                    Exit Select
+
+                                Case IsDate(v)
+                                    l.Add(Convert.ToDateTime(v))
+                                    Exit Select
+
+                                Case Else
+                                    l.Add(v)
+                            End Select
+                        Next
+                    Else
+                        Select Case True
+                            Case Verify.IsNumber(result(key))
+                                l.Add(Convert.ToDouble(result(key)))
+                                Exit Select
+
+                            Case IsDate(result(key))
+                                Exit Select
+
+                                l.Add(Convert.ToDateTime(result(key)))
+                            Case Else
+                                l.Add(result(key))
+                        End Select
+                    End If
+                    If l.Count = 1 Then
+                        result(key) = l(0)
+                    Else
+                        result(key) = l.ToArray
+                    End If
+                Else
+                    If values.Length = 1 Then
+                        Select Case True
+                            Case Verify.IsNumber(values(0))
+                                result.Add(key, Convert.ToDouble(values(0)))
+                                Exit Select
+                            Case IsDate(values(0))
+                                result.Add(key, Convert.ToDateTime(values(0)))
+                                Exit Select
+                            Case Else
+                                result.Add(key, values(0))
+                        End Select
+                    Else
+                        Dim ar As New List(Of Object)
+                        For Each v In values
+                            Select Case True
+                                Case Verify.IsNumber(v)
+                                    ar.Add(Convert.ToDouble(v))
+                                    Exit Select
+
+                                Case IsDate(v)
+                                    ar.Add(Convert.ToDateTime(v))
+                                    Exit Select
+
+                                Case Else
+                                    ar.Add(v)
+                            End Select
+                        Next
+                        result.Add(key, ar.ToArray)
+                    End If
+                End If
+
             End If
         Next
+
         Return result
     End Function
 

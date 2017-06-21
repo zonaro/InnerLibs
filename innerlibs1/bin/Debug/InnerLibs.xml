@@ -726,21 +726,37 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassManager.GetProperties(System.Object)">
+<member name="M:InnerLibs.ClassTools.GetProperties(System.Object)">
  <summary>
  Traz uma Lista com todas as propriedades de um objeto
  </summary>
  <param name="MyObject">Objeto</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassManager.GetValues``1">
+<member name="M:InnerLibs.ClassTools.GetValues``1">
  <summary>
  Traz todos os Valores de uma enumeração
  </summary>
  <typeparam name="T"></typeparam>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassManager.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0})">
+<member name="M:InnerLibs.ClassTools.IsArrayOf``1(System.Type)">
+ <summary>
+ Verifica se o tipo é um array de um objeto especifico
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Type"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.IsArrayOf``1(System.Object)">
+ <summary>
+ Verifica se o tipo é um array de um objeto especifico
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Type"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0})">
  <summary>
  Verifica se o objeto existe dentro de uma Lista, coleção ou array.
  </summary>
@@ -749,7 +765,7 @@ InnerLibs
  <param name="List">Lista</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassManager.ContainsAll``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
+<member name="M:InnerLibs.ClassTools.ContainsAll``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
  <summary>
  Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
  </summary>
@@ -758,7 +774,7 @@ InnerLibs
  <param name="List2">Lista2</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassManager.ContainsAny``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
+<member name="M:InnerLibs.ClassTools.ContainsAny``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
  <summary>
  Verifica se uma lista, coleção ou array contem um dos itens de outra lista, coleção ou array.
  </summary>
@@ -767,27 +783,27 @@ InnerLibs
  <param name="List2">Lista2</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassManager.GetResourceFileText(System.Reflection.Assembly,System.String)">
+<member name="M:InnerLibs.ClassTools.GetResourceFileText(System.Reflection.Assembly,System.String)">
  <summary>
  Pega o texto de um arquivo embutido no assembly
  </summary>
  <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassManager.AddFontFromResource(System.Drawing.Text.PrivateFontCollection@,System.Reflection.Assembly,System.String)">
+<member name="M:InnerLibs.ClassTools.AddFontFromResource(System.Drawing.Text.PrivateFontCollection@,System.Reflection.Assembly,System.String)">
  <summary>
  Adiciona uma fonte a uma PrivateFontCollection a partir de um Resource
  </summary>
  <param name="FontCollection">Colecao</param>
  <param name="FileName">Nome do arquivo da fonte</param>
 </member>
-<member name="M:InnerLibs.ClassManager.AddFontFromBytes(System.Drawing.Text.PrivateFontCollection@,System.Byte[])">
+<member name="M:InnerLibs.ClassTools.AddFontFromBytes(System.Drawing.Text.PrivateFontCollection@,System.Byte[])">
  <summary>
  Adiciona uma fonte a uma PrivateFontCollection a partir de um Resource
  </summary>
  <param name="FontCollection">Colecao</param>
 </member>
-<member name="M:InnerLibs.ClassManager.GetResourceBytes(System.Reflection.Assembly,System.String)">
+<member name="M:InnerLibs.ClassTools.GetResourceBytes(System.Reflection.Assembly,System.String)">
  <summary>
  Pega os bytes de um arquivo embutido no assembly
  </summary>
@@ -2163,6 +2179,20 @@ InnerLibs
  <param name="HexadecimalColorString">String Hexadecimal</param>
  <returns>Um objeto color</returns>
 </member>
+<member name="M:InnerLibs.Converter.ForceArray(System.Object)">
+ <summary>
+ Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
+ </summary>
+ <param name="Obj">Objeto</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Converter.ForceArray``1(System.Object)">
+ <summary>
+ Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
+ </summary>
+ <param name="Obj">Objeto</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Converter.ToHtmlTable(System.Collections.Generic.List{System.Collections.Generic.IDictionary{System.String,System.Object}})">
  <summary>
  Converte uma lista de dicionários para uma tabela HTML
@@ -2178,9 +2208,9 @@ InnerLibs
  <param name="Value">Variavel com valor</param>
  <returns>Valor convertido em novo tipo</returns>
 </member>
-<member name="M:InnerLibs.Converter.ToDictionary(System.Collections.Specialized.NameValueCollection)">
+<member name="M:InnerLibs.Converter.ToDictionary(System.Collections.Specialized.NameValueCollection,System.String[])">
  <summary>
- Converte um NameValueCollection para Dictionary
+ Converte um NameValueCollection para um <see cref="T:System.Collections.Generic.Dictionary`2"/>
  </summary>
  <param name="[NameValueCollection]">Formulario</param>
  <returns></returns>
@@ -2201,9 +2231,8 @@ InnerLibs
 </member>
 <member name="T:InnerLibs.DataBase.Reader">
  <summary>
- Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/>, porém é estático. É uma cópia do o
- conteudo de um <see cref="T:System.Data.Common.DbDataReader"/> para um <see cref="T:InnerLibs.Dictionary`1"/>. Permite a leitura
- e releitura mesmo após o fechamento da conexão.
+ Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando estruturas de  <see cref="T:InnerLibs.Dictionary`1"/>. Permite a leitura
+ releitura, atribuição e serialização mesmo após o fechamento da conexão.
  </summary>
 </member>
 <member name="M:InnerLibs.DataBase.Reader.Dispose">
@@ -3375,13 +3404,13 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.Money.ToString">
  <summary>
- String de moeda, é um alias para <see cref="P:InnerLibs.Money.MoneyString"/>
+ String do valor formatado como moeda, é um alias para <see cref="P:InnerLibs.Money.MoneyString"/>
  </summary>
  <returns></returns>
 </member>
 <member name="P:InnerLibs.Money.MoneyString">
  <summary>
- String de moeda
+ String do valor formatado como moeda
  </summary>
  <returns></returns>
 </member>
@@ -3404,7 +3433,7 @@ InnerLibs
  <param name="Currency">Moeda</param>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.JsonSerializer.ToJSON(System.Object)">
+<member name="M:InnerLibs.Json.SerializeJSON(System.Object,System.String)">
  <summary>
  Converte um objeto para JSON
  </summary>
@@ -5720,6 +5749,13 @@ InnerLibs
  <param name="JSON">String JSON</param>
  <returns>Um objeto do tipo T</returns>
 </member>
+<member name="M:InnerLibs.Text.ParseJSON(System.String,System.String)">
+ <summary>
+ Transforma uma JSON String em um Objeto ou Classe
+ </summary>
+ <param name="JSON">String JSON</param>
+ <returns>Um objeto do tipo T</returns>
+</member>
 <member name="M:InnerLibs.Text.SerializeJSON(System.Object,System.String)">
  <summary>
  Transforma um Objeto em JSON
@@ -6845,7 +6881,7 @@ Atualiza a lista de keys
  </summary>
  <param name="Text">        Valor a ser testado</param>
  <param name="DefaultValue">Valor para retornar se o valor testado for Nulo, Vazio ou branco</param>
- <param name="Quotes">      
+ <param name="Quotes">
  Indica se o valor testado deve ser retornado entre aspas simples (prepara a string para SQL)
  </param>
  <returns>uma String contento o valor ou o valor se Nulo</returns>
@@ -7010,6 +7046,12 @@ Atualiza a lista de keys
  Modulo Web
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Web.IsConnected(System.String)">
+ <summary>
+ Verifica se o computador está conectado com a internet
+ </summary>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)">
  <summary>

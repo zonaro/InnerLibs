@@ -41,13 +41,14 @@ Public Module WinForms
     ''' <param name="Size">           Tamanho do Form</param>
     ''' <param name="LifeTimeSeconds">Tempo e que a notificação demora para fechar automaticamente</param>
     ''' <param name="ShowRemainTime"> Exibir/Esconder o contador da notificação</param>
-    Public Function Notify(Text As String, Optional Action As EventHandler = Nothing, Optional OKButtonText As String = "OK", Optional Size As Size = Nothing, Optional LifeTimeSeconds As Integer = 10, Optional ShowRemainTime As Boolean = False, Optional RemainTimeBehavior As RemainTimeBehavior = RemainTimeBehavior.StackTime)
+    Public Function Notify(Text As String, Optional Action As EventHandler = Nothing, Optional OKButtonText As String = "OK", Optional Size As Size = Nothing, Optional LifeTimeSeconds As Integer = 10, Optional ShowRemainTime As Boolean = False, Optional RemainTimeBehavior As RemainTimeBehavior = RemainTimeBehavior.StackTime) As NotificationForm
         Dim n As New NotificationForm()
         n.Text = Text
         n.OKButtonText = OKButtonText
         n.Size = Size
         n.ShowRemainTime = ShowRemainTime
         n.RemainTimeBehavior = RemainTimeBehavior.StackTime
+        n.ShowInputBox = False
         AddHandler n.OnOKButtonClick, Action
         n.Show(LifeTimeSeconds)
         AddHandler n.FormClosing, AddressOf n.Dispose

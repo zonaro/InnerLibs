@@ -2,10 +2,10 @@
 
 ' Your Organization serializer. Override the key methods for the desired date format. This example
 ' formats the date as MM/dd/yyyy
-Public Class JsonSerializer
+Public NotInheritable Class Json
     Inherits JavaScriptSerializer
 
-    Public Sub New(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss")
+    Friend Sub New(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss")
         MyBase.New()
         Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter() With {.DateFormat = DateFormat}, New BytesConverter()})
     End Sub
@@ -15,11 +15,9 @@ Public Class JsonSerializer
     ''' </summary>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    Default ReadOnly Property ToJSON(Obj As Object) As String
-        Get
-            Return Serialize(Obj)
-        End Get
-    End Property
+    Public Shared Function SerializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Return New Json(DateFormat).Serialize(Obj)
+    End Function
 
     Private Class DateStringJSONConverter
         Inherits JavaScriptConverter
