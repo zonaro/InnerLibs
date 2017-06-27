@@ -41,7 +41,7 @@ Public Module ClassTools
     ''' Verifica se o tipo é um array de um objeto especifico
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
-    ''' <param name="Type"></param>
+    ''' <param name="Obj"></param>
     ''' <returns></returns>
     <Extension>
     Public Function IsArrayOf(Of T)(Obj As Object) As Boolean

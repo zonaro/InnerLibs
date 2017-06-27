@@ -1049,7 +1049,7 @@ Public Module Text
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
     <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As TypeClass
-        Return New JSON(DateFormat).Deserialize(Of TypeClass)(JSON)
+        Return New Json(DateFormat).Deserialize(Of TypeClass)(JSON)
     End Function
 
     ''' <summary>
@@ -1058,7 +1058,7 @@ Public Module Text
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
     <Extension()> Public Function ParseJSON(JSON As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As Object
-        Return New JSON(DateFormat).Deserialize(Of Object)(JSON)
+        Return New Json(DateFormat).Deserialize(Of Object)(JSON)
     End Function
 
     ''' <summary>
@@ -1067,7 +1067,7 @@ Public Module Text
     ''' <param name="[Object]">Objeto</param>
     ''' <returns>Uma String JSON</returns>
     <Extension()> Public Function SerializeJSON([Object] As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
-        Return New JSON(DateFormat).Serialize([Object])
+        Return New Json(DateFormat).Serialize([Object])
     End Function
 
     ''' <summary>
@@ -1529,45 +1529,14 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Double) As String
-        Dim KB As Integer = 1024
-
-        Dim MB As Integer = KB * KB
-
-        Dim GB As Integer = MB * KB
-
-        ' Return size of file in kilobytes.
-
-        If Size < KB Then
-
-            Return Size.ToString("N") & " bytes"
-        Else
-
-            Select Case Size / KB
-
-                Case Is < 100
-
-                    Return (Size / KB).ToString("N") & " KB"
-
-                Case Is < 1000000
-
-                    Return (Size / MB).ToString("N") & " MB"
-
-                Case Is < 10000000
-
-                    Return (Size / MB / KB).ToString("N") & " GB"
-
-                Case Is < 10000000
-
-                    Return (Size / GB / MB / KB).ToString("N") & " TB"
-
-                Case Else
-
-                    Return Size.ToString & " bytes"
-
-            End Select
-
-        End If
-
+        Dim sizeTypes() As String = {"B", "KB", "MB", "GB", "TB"}
+        Dim sizeType As Integer = 0
+        Do While Size > 1024
+            Size = Decimal.Round(CType(Size, Decimal) / 1024, 2)
+            sizeType.Increment
+            If sizeType >= sizeTypes.Length - 1 Then Exit Do
+        Loop
+        Return Size.ToString & " " & sizeTypes(sizeType)
     End Function
 
     <Extension()>
