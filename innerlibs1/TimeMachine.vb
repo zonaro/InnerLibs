@@ -1,6 +1,73 @@
-﻿
+﻿Imports System.Collections.ObjectModel
+
 Namespace TimeMachine
 
+    ''' <summary>
+    ''' Lista de dias agrupados em quinzenas
+    ''' </summary>
+    Public Class FortnightGroup
+        Inherits Dictionary(Of String, ReadOnlyCollection(Of DateTime))
+
+        ''' <summary>
+        ''' Retorna a data inicial do periodo
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property StartDate As DateTime
+            Get
+                Return Me.First.Value.First
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Retorna a ultima data do periodo
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property EndDate As DateTime
+            Get
+                Return Me.Last.Value.Last
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Retorna uma lista com todos os dias entre as quinzenas
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property AllDays As List(Of DateTime)
+            Get
+                AllDays = New List(Of Date)
+                For Each Item As ReadOnlyCollection(Of Date) In Me.Values
+                    AllDays.AddRange(Item)
+                Next
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Instancia um novo <see cref="FortnightGroup"/> a partir de uma data e um numero de quinzenas
+        ''' </summary>
+        ''' <param name="StartDate"></param>
+        ''' <param name="FortnightCount"></param>
+        Sub New(Optional StartDate As DateTime = Nothing, Optional FortnightCount As Integer = 1)
+            StartDate = If(IsNothing(StartDate), Now, StartDate)
+            StartDate = New Date(StartDate.Year, StartDate.Month, If(StartDate.Day > 15, 16, 1), StartDate.Hour, StartDate.Minute, StartDate.Second, StartDate.Millisecond, StartDate.Kind)
+
+            Dim EndDate = StartDate
+
+            For index = 1 To FortnightCount.SetMinValue(1)
+                Dim q As String
+                EndDate = EndDate.AddDays(1)
+                If EndDate.Day <= 15 Then
+                    EndDate = New Date(EndDate.Year, EndDate.Month, 15, EndDate.Hour, EndDate.Minute, EndDate.Second, EndDate.Millisecond, EndDate.Kind)
+                    q = New Date(EndDate.Year, EndDate.Month, 1).ToString("d@MM-yyyy")
+                Else
+                    EndDate = EndDate.GetLastDayOfMonth
+                    q = New Date(EndDate.Year, EndDate.Month, 2).ToString("d@MM-yyyy")
+                End If
+                Me.Add(q, New ReadOnlyCollection(Of Date)(Calendars.GetBetween(StartDate, EndDate)))
+                StartDate = EndDate.AddDays(1)
+            Next
+        End Sub
+
+    End Class
 
     ''' <summary>
     ''' Classe para comapração entre 2 Datas com possibilidade de validação de dias Relevantes
@@ -21,11 +88,9 @@ Namespace TimeMachine
             Dim days As Integer = 0
             Dim _phase As Phase = Phase.Years
 
-
             If RelevantDaysOfWeek.Count = 0 Then
                 RelevantDaysOfWeek = {0, 1, 2, 3, 4, 5, 6}
             End If
-
 
             While CurDate <= EndDate
                 If RelevantDaysOfWeek.Contains(CurDate.DayOfWeek) Then
@@ -38,7 +103,6 @@ Namespace TimeMachine
             End While
 
             CurDate = StartDate
-
 
             While _phase <> Phase.Done
                 Select Case _phase
@@ -103,16 +167,19 @@ Namespace TimeMachine
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property StartDate As Date
+
         ''' <summary>
         ''' Data Final
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property EndDate As Date
+
         ''' <summary>
         ''' Dias Relevantes entre as datas Inicial e Final
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property RelevantDays As New List(Of Date)
+
         ''' <summary>
         ''' Todos os dias entre as datas Inicial e Final
         ''' </summary>
@@ -178,18 +245,18 @@ Namespace TimeMachine
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Minutes As Integer
+
         ''' <summary>
         ''' Numero de Segundos
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Seconds As Integer
+
         ''' <summary>
         ''' Numero de milisegundos
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Milliseconds As Integer
-
-
 
         ''' <summary>
         ''' Retorna uma String no formato "X anos, Y meses e Z dias"
@@ -236,44 +303,49 @@ Namespace TimeMachine
             Done
         End Enum
 
-
     End Class
-
 
     ''' <summary>
     ''' Classe base para calculo de demandas
     ''' </summary>
     Public Class TimeDemand
+
         ''' <summary>
         ''' Domingo
         ''' </summary>
         ''' <returns></returns>
         Property Sunday As New Day
+
         ''' <summary>
         ''' Segunda-Feira
         ''' </summary>
         ''' <returns></returns>
         Property Monday As New Day
+
         ''' <summary>
         ''' Terça-Feira
         ''' </summary>
         ''' <returns></returns>
         Property Tuesday As New Day
+
         ''' <summary>
         ''' Quarta-Feira
         ''' </summary>
         ''' <returns></returns>
         Property Wednesday As New Day
+
         ''' <summary>
         ''' Quinta-Feira
         ''' </summary>
         ''' <returns></returns>
         Property Thursday As New Day
+
         ''' <summary>
         ''' Sexta-Feira
         ''' </summary>
         ''' <returns></returns>
         Property Friday As New Day
+
         ''' <summary>
         ''' Sábado
         ''' </summary>
@@ -417,8 +489,6 @@ Namespace TimeMachine
             End Get
         End Property
 
-
-
         ''' <summary>
         ''' Retorna um TimeFlow desta demanda
         ''' </summary>
@@ -452,7 +522,6 @@ Namespace TimeMachine
         Public Sub New()
             StartDate = Now
         End Sub
-
 
         ''' <summary>
         ''' Retorna a porcentagem em relacao a posição de uma data entre a data inicial (0%) e final (100%)
@@ -504,7 +573,6 @@ Namespace TimeMachine
                 Return s
             End Get
         End Property
-
 
         ''' <summary>
         ''' Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as configuracoes desta demanda
@@ -631,7 +699,6 @@ Namespace TimeMachine
             Return DateTime.MinValue
         End Function
 
-
         ''' <summary>
         ''' Retorno a hora de inicio do almoço de uma data de acordo com as configurações desta demanda
         ''' </summary>
@@ -675,7 +742,6 @@ Namespace TimeMachine
                 Return GetWorkTimeBetween(Me.StartDate, Me.EndDate)
             End Get
         End Property
-
 
         ''' <summary>
         ''' Retorna o intervalo de horas trabalhadas entre duas datas baseado nas confuguracoes desta demanda
@@ -752,6 +818,7 @@ Namespace TimeMachine
                 Return JourneyTime + LunchTime
             End Get
         End Property
+
         ''' <summary>
         ''' Hora inicial da jornada
         ''' </summary>
@@ -764,6 +831,7 @@ Namespace TimeMachine
                 s = DateTime.MinValue.Add(New TimeSpan(value.TimeOfDay.Ticks))
             End Set
         End Property
+
         Private s As DateTime
 
         ''' <summary>
@@ -778,6 +846,7 @@ Namespace TimeMachine
                 a = DateTime.MinValue.Add(New TimeSpan(value.TimeOfDay.Ticks))
             End Set
         End Property
+
         Private a As DateTime
 
         ''' <summary>
@@ -803,14 +872,13 @@ Namespace TimeMachine
             Me.LunchTime = If(LunchTime = Nothing, New TimeSpan(0, 0, 0), LunchTime)
         End Sub
 
-
-
     End Class
 
     ''' <summary>
     ''' Item de Uma demanda
     ''' </summary>
     Public Class Item
+
         ''' <summary>
         ''' Quantidade de itens
         ''' </summary>
@@ -825,6 +893,7 @@ Namespace TimeMachine
         End Property
 
         Dim q As Integer = 1
+
         ''' <summary>
         ''' Tempo de produção de 1 item
         ''' </summary>
@@ -846,6 +915,7 @@ Namespace TimeMachine
         ''' </summary>
         ''' <returns></returns>
         Property SingularItem As String = "Item"
+
         ''' <summary>
         ''' string que representa o item quando sua quantidade é maior que 1
         ''' </summary>
@@ -860,8 +930,6 @@ Namespace TimeMachine
             Return Quantity & " " & If(Quantity = 1, SingularItem, MultipleItem)
         End Function
 
-
     End Class
 
 End Namespace
-

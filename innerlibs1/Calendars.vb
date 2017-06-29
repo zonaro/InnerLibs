@@ -13,6 +13,16 @@ Imports InnerLibs.TimeMachine
 Public Module Calendars
 
     ''' <summary>
+    ''' Retorna a ultima data do mes a partir de uma outra data
+    ''' </summary>
+    ''' <param name="[Date]">Data</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetLastDayOfMonth([Date] As DateTime) As DateTime
+        Return New DateTime([Date].Year, [Date].Month, DateTime.DaysInMonth([Date].Year, [Date].Month), [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
+    End Function
+
+    ''' <summary>
     ''' Verifica se a Data de hoje é um aniversário
     ''' </summary>
     ''' <param name="BirthDate">  Data de nascimento</param>
@@ -160,7 +170,7 @@ Public Module Calendars
     ''' <param name="DateTime">Data</param>
     ''' <returns>String com nome do Mês</returns>
     <Extension()>
-    Function TolongMonthName(DateTime As Date)
+    Function TolongMonthName(DateTime As Date) As String
         Return DateTime.ToString("MMMM")
     End Function
 

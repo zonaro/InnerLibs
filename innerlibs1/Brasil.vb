@@ -1,4 +1,6 @@
-﻿Imports System.IO
+﻿Imports System.Collections.ObjectModel
+Imports System.Collections.Specialized
+Imports System.IO
 Imports System.Reflection
 Imports InnerLibs
 
@@ -6,16 +8,19 @@ Imports InnerLibs
 ''' Objeto que representa um estado do Brasil e seus respectivos detalhes
 ''' </summary>
 Public Class State
+
     ''' <summary>
     ''' Sigla do estado
     ''' </summary>
     ''' <returns></returns>
     Public Property Acronym As String
+
     ''' <summary>
     ''' Nome do estado
     ''' </summary>
     ''' <returns></returns>
     Public Property Name As String
+
     ''' <summary>
     ''' Lista de cidades do estado
     ''' </summary>
@@ -46,6 +51,7 @@ Public Class State
         Me.Name = Brasil.GetNameOf(StateCode)
         Me.Cities = Brasil.GetCitiesOf(StateCode)
     End Sub
+
     ''' <summary>
     ''' Retorna a String correspondente ao estado
     ''' </summary>
@@ -62,14 +68,66 @@ Public Class State
     Public Overloads Function ToString(Optional Type As StateString = StateString.Acronym) As String
         Return If(Type = StateString.Name, Name, Acronym)
     End Function
+
 End Class
 
+Public NotInheritable Class BrazilianFact
+
+    ReadOnly Property Fact As String
+        Get
+            Return _fact
+        End Get
+    End Property
+
+    Private _fact As String
+
+    ReadOnly Property Day As Integer
+        Get
+            Return _day
+        End Get
+    End Property
+
+    Private _day As Integer
+
+    ReadOnly Property Month As Integer
+        Get
+            Return _month
+        End Get
+    End Property
+
+    Private _month As Integer
+
+    Friend Sub New(Dia As Integer, Mes As Integer, Fato As String)
+        _day = Dia
+        _month = Mes
+        _fact = Fato
+    End Sub
+
+End Class
 
 ''' <summary>
 ''' Objeto para manipular cidades e estados do Brasil
 ''' </summary>
 Public NotInheritable Class Brasil
 
+    ''' <summary>
+    ''' Retorna um Dicionario com todas as datas comemorativas do Brasil
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared ReadOnly Property AllFacts As List(Of BrazilianFact)
+        Get
+            Dim l As New List(Of BrazilianFact)
+
+            For Each item In [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.facts.json").ParseJSON()
+                l.Add(New BrazilianFact(item("Day"), item("Month"), item("Fact")))
+            Next
+            Return l
+        End Get
+    End Property
+
+    Public Shared Function GetFactsByDate([Date] As Date) As String()
+        Return AllFacts.Where(Function(x) x.Day = [Date].Day And x.Month = [Date].Month).Select(Function(y) y.Fact).ToArray
+    End Function
 
     ''' <summary>
     ''' Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes

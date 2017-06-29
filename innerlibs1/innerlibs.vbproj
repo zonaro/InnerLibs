@@ -176,6 +176,7 @@
   <ItemGroup>
     <EmbeddedResource Include="mimes.json" />
     <EmbeddedResource Include="brasil.json" />
+    <EmbeddedResource Include="facts.json" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>

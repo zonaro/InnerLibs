@@ -1063,6 +1063,16 @@ Public NotInheritable Class DataBase
     End Function
 
     ''' <summary>
+    ''' Executa uma Query no banco criando um comando a partir de um <see cref="IDictionary(Of String,Object)"/>
+    ''' </summary>
+    ''' <param name="SQLQuery">Comando SQL</param>
+    ''' <param name="Values">Dicionario contendo os valores</param>
+    ''' <returns></returns>
+    Public Function RunSQL(ByVal SQLQuery As String, Values As IDictionary(Of String, Object))
+        Return RunSQL(Me.CreateCommandFromDictionary(SQLQuery, Values))
+    End Function
+
+    ''' <summary>
     ''' Executa uma Query no banco partir de um Arquivo.
     ''' </summary>
     ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
@@ -1083,114 +1093,6 @@ Public NotInheritable Class DataBase
             Return RunSQL(s.ReadToEnd)
         End Using
     End Function
-
-    ''' <summary>
-    ''' Cria um comando SQL utilizando as key e os valores de um <see cref="HttpRequest"/>
-    ''' </summary>
-    ''' <param name="SQLQuery">Comando SQL</param>
-    ''' <param name="Request"> Request de onde serão extraidos os valores</param>
-    ''' <returns></returns>
-    Public Function CreateCommandFromRequest(Request As HttpRequest, SQLQuery As String, ParamArray CustomParameters As DbParameter()) As DbCommand
-        Dim reg = New Regex("\@(?<param>[^=<>\s\',]+)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(SQLQuery)
-        Using con = Activator.CreateInstance(ConnectionType)
-            con.ConnectionString = Me.ConnectionString
-            con.Open()
-            Dim command As DbCommand = con.CreateCommand()
-            command.CommandText = SQLQuery
-            Dim nomes As New List(Of String)
-            Try
-                nomes.AddRange(CustomParameters.[Select](Function(x) x.ParameterName.TrimAny(True, "@", " ")).Distinct())
-            Catch ex As Exception
-            End Try
-            For Each p As Match In reg
-                Dim param = p.Groups("param").Value
-                param = param.TrimAny(True, "@", " ", ",")
-                Select Case True
-                    Case nomes.Contains(param)
-                        For Each c In CustomParameters
-                            If c.ParameterName.TrimAny("@", " ", ",") = param Then
-                                command.Parameters.SetParameter(c)
-                            End If
-                        Next
-                        Exit Select
-                    Case Request.Form.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Form(param)))
-                        Exit Select
-
-                    Case Request.QueryString.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.QueryString(param)))
-                        Exit Select
-
-                    Case Request.Files.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Files(param).ToBytes))
-                        Exit Select
-
-                    Case Request.Cookies.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Cookies(param)))
-                        Exit Select
-
-                    Case Request.ServerVariables.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.ServerVariables(param)))
-                        Exit Select
-                    Case Else
-                        command.Parameters.SetParameter(Me.CreateParameter(param, String.Empty))
-                End Select
-            Next
-            Return command
-        End Using
-    End Function
-
-    ''' <summary>
-    ''' Executa uma procedure para cada item dentro de uma coleção
-    ''' </summary>
-    ''' <param name="Procedure">   Nome da procedure</param>
-    ''' <param name="ForeignKey">  Coluna que representa a chave estrangeira da tabela</param>
-    ''' <param name="ForeignValue">Valor que será guardado como chave estrangeira</param>
-    ''' <param name="Items">       Coleçao de valores que serão inseridos em cada iteraçao</param>
-    ''' <param name="Keys">        as chaves de cada item</param>
-    Public Sub RunProcedureForEach(ByVal Procedure As String, ForeignKey As String, ForeignValue As String, Items As NameValueCollection, ParamArray Keys() As String)
-        UnsupportedMethod(GetType(OleDb.OleDbConnection), GetType(SqlClient.SqlConnection))
-        Dim tamanho_loops_comando = Items.GetValues(Keys(0)).Count
-        For index = 0 To tamanho_loops_comando - 1
-            Dim comando = "EXEC " & Procedure & " "
-            If ForeignKey.IsNotBlank Then
-                comando.Append("@" & ForeignKey & "=" & ForeignValue.IsNull & ", ")
-            End If
-            For Each key In Keys
-                Dim valor As String = Items.GetValues(key)(index)
-                comando.Append("@" & key & "=" & valor.IsNull() & ", ")
-            Next
-            RunSQL(comando.Trim.RemoveLastIf(","))
-        Next
-    End Sub
-
-    ''' <summary>
-    ''' Executa uma série de procedures baseando-se em uma unica chave estrangeira
-    ''' </summary>
-    ''' <param name="BatchProcedure">Configuraçoes das procedures</param>
-    Public Sub RunBatchProcedure(BatchProcedure As BatchProcedure)
-        BatchProcedure.Errors = New List(Of Exception)
-        For Each p In BatchProcedure
-            Try
-                RunProcedureForEach(p.ProcedureName, BatchProcedure.ForeignKey, BatchProcedure.ForeignValue, BatchProcedure.Items, p.Keys)
-            Catch ex As Exception
-                BatchProcedure.Errors.Add(ex)
-            End Try
-        Next
-    End Sub
-
-    ''' <summary>
-    ''' Executa uma série de procedures baseando-se eum uma unica chave estrangeira
-    ''' </summary>
-    ''' <param name="ForeignKey">     Coluna que representa a chave estrangeira da tabela</param>
-    ''' <param name="ForeignValue">   Valor que será guardado como chave estrangeira</param>
-    ''' <param name="Items">          Coleçao de valores que serão inseridos em cada iteraçao</param>
-    ''' <param name="ProcedureConfig">
-    ''' Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros
-    ''' </param>
-    Public Sub RunBatchProcedure(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray ProcedureConfig As ProcedureConfig())
-        RunBatchProcedure(New BatchProcedure(Items, ForeignKey, ForeignValue, ProcedureConfig))
-    End Sub
 
     ''' <summary>
     ''' Executa uma Query no banco com upload de arquivos.
@@ -1344,6 +1246,140 @@ Public NotInheritable Class DataBase
         Next
         Return RunSQL(command)
     End Function
+
+    ''' <summary>
+    ''' Cria um comando SQL utilizando as key e os valores de um <see cref="HttpRequest"/>
+    ''' </summary>
+    ''' <param name="SQLQuery">Comando SQL</param>
+    ''' <param name="Request"> Request de onde serão extraidos os valores</param>
+    ''' <returns></returns>
+    Public Function CreateCommandFromRequest(Request As HttpRequest, SQLQuery As String, ParamArray CustomParameters As DbParameter()) As DbCommand
+        Dim reg = New Regex("\@(?<param>[^=<>\s\',]+)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(SQLQuery)
+        Using con = Activator.CreateInstance(ConnectionType)
+            con.ConnectionString = Me.ConnectionString
+            con.Open()
+            Dim command As DbCommand = con.CreateCommand()
+            command.CommandText = SQLQuery
+            Dim nomes As New List(Of String)
+            Try
+                nomes.AddRange(CustomParameters.[Select](Function(x) x.ParameterName.TrimAny(True, "@", " ")).Distinct())
+            Catch ex As Exception
+            End Try
+            For Each p As Match In reg
+                Dim param = p.Groups("param").Value
+                param = param.TrimAny(True, "@", " ", ",")
+                Select Case True
+                    Case nomes.Contains(param)
+                        For Each c In CustomParameters
+                            If c.ParameterName.TrimAny("@", " ", ",") = param Then
+                                command.Parameters.SetParameter(c)
+                            End If
+                        Next
+                        Exit Select
+                    Case Request.Form.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Form(param)))
+                        Exit Select
+
+                    Case Request.QueryString.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.QueryString(param)))
+                        Exit Select
+
+                    Case Request.Files.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Files(param).ToBytes))
+                        Exit Select
+
+                    Case Request.Cookies.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Cookies(param)))
+                        Exit Select
+
+                    Case Request.ServerVariables.AllKeys.Contains(param)
+                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.ServerVariables(param)))
+                        Exit Select
+                    Case Else
+                        command.Parameters.SetParameter(Me.CreateParameter(param, String.Empty))
+                End Select
+            Next
+            Return command
+        End Using
+    End Function
+
+    ''' <summary>
+    ''' Cria um comando SQL utilizando as key e os valores de um <see cref="IDictionary"/>
+    ''' </summary>
+    ''' <param name="SQLQuery">Comando SQL</param>
+    '''<param name="Parameters">Dicionario com os parametros e seus valores</param>
+    ''' <returns></returns>
+    Public Function CreateCommandFromDictionary(SQLQuery As String, Parameters As IDictionary(Of String, Object)) As DbCommand
+        Dim reg = New Regex("\@(?<param>[^=<>\s\',]+)", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(SQLQuery)
+        Using con = Activator.CreateInstance(ConnectionType)
+            con.ConnectionString = Me.ConnectionString
+            con.Open()
+            Dim command As DbCommand = con.CreateCommand()
+            command.CommandText = SQLQuery
+            For Each p As Match In reg
+                Dim param = p.Groups("param").Value
+                param = param.TrimAny(True, "@", " ", ",")
+                Try
+                    command.Parameters.SetParameter(Me.CreateParameter(param, Parameters(param)))
+                Catch ex As Exception
+                    command.Parameters.SetParameter(Me.CreateParameter(param, String.Empty))
+                End Try
+            Next
+            Return command
+        End Using
+    End Function
+
+    ''' <summary>
+    ''' Executa uma procedure para cada item dentro de uma coleção
+    ''' </summary>
+    ''' <param name="Procedure">   Nome da procedure</param>
+    ''' <param name="ForeignKey">  Coluna que representa a chave estrangeira da tabela</param>
+    ''' <param name="ForeignValue">Valor que será guardado como chave estrangeira</param>
+    ''' <param name="Items">       Coleçao de valores que serão inseridos em cada iteraçao</param>
+    ''' <param name="Keys">        as chaves de cada item</param>
+    Public Sub RunProcedureForEach(ByVal Procedure As String, ForeignKey As String, ForeignValue As String, Items As NameValueCollection, ParamArray Keys() As String)
+        UnsupportedMethod(GetType(OleDb.OleDbConnection), GetType(SqlClient.SqlConnection))
+        Dim tamanho_loops_comando = Items.GetValues(Keys(0)).Count
+        For index = 0 To tamanho_loops_comando - 1
+            Dim comando = "EXEC " & Procedure & " "
+            If ForeignKey.IsNotBlank Then
+                comando.Append("@" & ForeignKey & "=" & ForeignValue.IsNull & ", ")
+            End If
+            For Each key In Keys
+                Dim valor As String = Items.GetValues(key)(index)
+                comando.Append("@" & key & "=" & valor.IsNull() & ", ")
+            Next
+            RunSQL(comando.Trim.RemoveLastIf(","))
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' Executa uma série de procedures baseando-se em uma unica chave estrangeira
+    ''' </summary>
+    ''' <param name="BatchProcedure">Configuraçoes das procedures</param>
+    Public Sub RunBatchProcedure(BatchProcedure As BatchProcedure)
+        BatchProcedure.Errors = New List(Of Exception)
+        For Each p In BatchProcedure
+            Try
+                RunProcedureForEach(p.ProcedureName, BatchProcedure.ForeignKey, BatchProcedure.ForeignValue, BatchProcedure.Items, p.Keys)
+            Catch ex As Exception
+                BatchProcedure.Errors.Add(ex)
+            End Try
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' Executa uma série de procedures baseando-se eum uma unica chave estrangeira
+    ''' </summary>
+    ''' <param name="ForeignKey">     Coluna que representa a chave estrangeira da tabela</param>
+    ''' <param name="ForeignValue">   Valor que será guardado como chave estrangeira</param>
+    ''' <param name="Items">          Coleçao de valores que serão inseridos em cada iteraçao</param>
+    ''' <param name="ProcedureConfig">
+    ''' Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros
+    ''' </param>
+    Public Sub RunBatchProcedure(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray ProcedureConfig As ProcedureConfig())
+        RunBatchProcedure(New BatchProcedure(Items, ForeignKey, ForeignValue, ProcedureConfig))
+    End Sub
 
     ''' <summary>
     ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
