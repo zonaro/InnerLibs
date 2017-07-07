@@ -13,6 +13,25 @@ Imports InnerLibs.TimeMachine
 Public Module Calendars
 
     ''' <summary>
+    ''' Retorna um Array de <see cref="DateTime"/> contendo todas as datas entre 2 datas
+    ''' </summary>
+    ''' <param name="StartDate">Data Inicial</param>
+    ''' <param name="EndDate">Data Final</param>
+    ''' <param name="Increment">Valor a ser incrementado (padrão 1 dia)</param>
+    ''' <returns></returns>
+    Public Function DateRange(ByVal StartDate As Date, ByVal EndDate As Date, Optional Increment As TimeSpan = Nothing) As Date()
+        FixDateOrder(StartDate, EndDate)
+        Dim l As New List(Of Date)
+        If IsNothing(Increment) OrElse Increment = TimeSpan.Zero Then Increment = New TimeSpan(1, 0, 0, 0)
+        l.Add(StartDate)
+        While StartDate < EndDate
+            l.Add(l.Last().Add(Increment))
+        End While
+        l.Add(EndDate)
+        Return l.ToArray
+    End Function
+
+    ''' <summary>
     ''' Retorna a ultima data do mes a partir de uma outra data
     ''' </summary>
     ''' <param name="[Date]">Data</param>
@@ -40,17 +59,17 @@ Public Module Calendars
     ''' <returns></returns>
     <Extension()>
     Public Function ToSQLDateString([Date] As DateTime) As String
-        Return [Date].Year & "-" & [Date].Month & "-" & [Date].Day & " " & [Date].Hour & ":" & [Date].Minute & ":" & [Date].Second
+        Return [Date].Year & "-" & [Date].Month & "-" & [Date].Day & " " & [Date].Hour & ":" & [Date].Minute & ":" & [Date].Second & "." & [Date].Millisecond
     End Function
 
     ''' <summary>
-    ''' COnverte uma string dd/mm/aaaa para o formato de string do SQL server ou Mysql
+    ''' Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
     ''' </summary>
     ''' <param name="[Date]">Data</param>
     ''' <returns></returns>
     <Extension>
-    Function ToSQLDateString([Date] As String) As String
-        Return [Date].Split("/").Reverse.ToArray().Join("-")
+    Function ToSQLDateString([Date] As String, Optional FromCulture As String = "pt-BR") As String
+        Return Convert.ToDateTime([Date], New CultureInfo(FromCulture, False).DateTimeFormat).ToSQLDateString
     End Function
 
     ''' <summary>
@@ -136,11 +155,11 @@ Public Module Calendars
     ''' <param name="TimeElapsed">TimeSpan com o intervalo</param>
     ''' <returns>string</returns>
     <Extension()>
-    Public Function ToTimeElapsedString(TimeElapsed As TimeSpan) As String
-        Dim dia As String = (If(TimeElapsed.Days > 0, (If(TimeElapsed.Days = 1, TimeElapsed.Days & " dia ", TimeElapsed.Days & " dias ")), ""))
-        Dim horas As String = (If(TimeElapsed.Hours > 0, (If(TimeElapsed.Hours = 1, TimeElapsed.Hours & " hora ", TimeElapsed.Hours & " horas ")), ""))
-        Dim minutos As String = (If(TimeElapsed.Minutes > 0, (If(TimeElapsed.Minutes = 1, TimeElapsed.Minutes & " minuto ", TimeElapsed.Minutes & " minutos ")), ""))
-        Dim segundos As String = (If(TimeElapsed.Seconds > 0, (If(TimeElapsed.Seconds = 1, TimeElapsed.Seconds & " segundo ", TimeElapsed.Seconds & " segundos ")), ""))
+    Public Function ToTimeElapsedString(TimeElapsed As TimeSpan, Optional DayWord As String = "dia", Optional HourWord As String = "hora", Optional MinuteWord As String = "minuto", Optional SecondWord As String = "segundo") As String
+        Dim dia As String = (If(TimeElapsed.Days > 0, (If(TimeElapsed.Days = 1, TimeElapsed.Days & " " & DayWord & " ", TimeElapsed.Days & " " & DayWord & "s ")), ""))
+        Dim horas As String = (If(TimeElapsed.Hours > 0, (If(TimeElapsed.Hours = 1, TimeElapsed.Hours & " " & HourWord & " ", TimeElapsed.Hours & " " & HourWord & "s ")), ""))
+        Dim minutos As String = (If(TimeElapsed.Minutes > 0, (If(TimeElapsed.Minutes = 1, TimeElapsed.Minutes & " " & MinuteWord & " ", TimeElapsed.Minutes & " " & MinuteWord & "s ")), ""))
+        Dim segundos As String = (If(TimeElapsed.Seconds > 0, (If(TimeElapsed.Seconds = 1, TimeElapsed.Seconds & " " & SecondWord & " ", TimeElapsed.Seconds & " " & SecondWord & "s ")), ""))
 
         dia.AppendIf(",", dia.IsNotBlank And (horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
         horas.AppendIf(",", horas.IsNotBlank And (minutos.IsNotBlank Or segundos.IsNotBlank))

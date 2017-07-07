@@ -426,8 +426,8 @@ Public Module Mathematic
     ''' <param name="SecondNumber">Segundo numero comparador</param>
     ''' <returns></returns>
     <Extension()> Public Function IsBetween(Of Type)(Number As Type, FirstNumber As Object, SecondNumber As Object) As Boolean
-        FirstNumber = FirstNumber.To(Of Type)
-        SecondNumber = SecondNumber.To(Of Type)
+        FirstNumber = DirectCast(FirstNumber, Type)
+        SecondNumber = DirectCast(SecondNumber, Type)
         Select Case True
             Case FirstNumber < SecondNumber
                 Return FirstNumber < Number And Number < SecondNumber

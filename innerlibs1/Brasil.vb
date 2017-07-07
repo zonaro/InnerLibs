@@ -71,9 +71,9 @@ Public Class State
 
 End Class
 
-Public NotInheritable Class BrazilianFact
+Public NotInheritable Class Celebration
 
-    ReadOnly Property Fact As String
+    ReadOnly Property Description As String
         Get
             Return _fact
         End Get
@@ -111,22 +111,35 @@ End Class
 Public NotInheritable Class Brasil
 
     ''' <summary>
-    ''' Retorna um Dicionario com todas as datas comemorativas do Brasil
+    ''' Retorna uma lista com todas as datas comemorativas do Brasil
     ''' </summary>
     ''' <returns></returns>
-    Public Shared ReadOnly Property AllFacts As List(Of BrazilianFact)
+    Public Shared ReadOnly Property Celebrations As List(Of Celebration)
         Get
-            Dim l As New List(Of BrazilianFact)
-
+            Dim l As New List(Of Celebration)
             For Each item In [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.facts.json").ParseJSON()
-                l.Add(New BrazilianFact(item("Day"), item("Month"), item("Fact")))
+                l.Add(New Celebration(item("Day"), item("Month"), item("Fact")))
             Next
             Return l
         End Get
     End Property
 
-    Public Shared Function GetFactsByDate([Date] As Date) As String()
-        Return AllFacts.Where(Function(x) x.Day = [Date].Day And x.Month = [Date].Month).Select(Function(y) y.Fact).ToArray
+    ''' <summary>
+    ''' Retorna todas as comemoracoes de uma data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    Public Shared Function GetCelebrationByDate([Date] As Date) As String()
+        Return Celebrations.Where(Function(x) x.Day = [Date].Day And x.Month = [Date].Month).Select(Function(y) y.Description).ToArray
+    End Function
+
+    ''' <summary>
+    ''' Retorna todas as comemoracoes de um mês
+    ''' </summary>
+    ''' <param name="Month">Numero do Mês</param>
+    ''' <returns></returns>
+    Public Shared Function GetCelebrationByMonth(Month As Integer) As String()
+        Return Celebrations.Where(Function(x) x.Day = x.Month = Month).Select(Function(y) y.Description).ToArray
     End Function
 
     ''' <summary>

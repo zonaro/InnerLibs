@@ -99,6 +99,34 @@ Public NotInheritable Class DataBase
         End Property
 
         ''' <summary>
+        ''' Retorna o valor da coluna do resultado e linha atual a partir do nome da coluna convertendo para um outro tipo
+        ''' </summary>
+        ''' <typeparam name="Type"></typeparam>
+        ''' <param name="ColumnName"></param>
+        ''' <returns></returns>
+        Public Function GetItem(Of Type)(ColumnName As String) As Type
+            Try
+                Return Item(ColumnName)
+            Catch ex As Exception
+                Return Nothing
+            End Try
+        End Function
+
+        ''' <summary>
+        ''' Retorna o valor da coluna do resultado e linha atual a partir do índice da coluna convertendo para um outro tipo
+        ''' </summary>
+        ''' <typeparam name="Type"></typeparam>
+        ''' <param name="ColumnIndex"></param>
+        ''' <returns></returns>
+        Public Function GetItem(Of Type)(ColumnIndex As Integer) As Type
+            Try
+                Return Item(ColumnIndex)
+            Catch ex As Exception
+                Return Nothing
+            End Try
+        End Function
+
+        ''' <summary>
         ''' Retorna o valor da coluna do resultado de uma linha especifica a partir do nome da coluna
         ''' e o Index da linha
         ''' </summary>
@@ -729,7 +757,7 @@ Public NotInheritable Class DataBase
         Public Function ApplyToSelects(ParamArray Selects() As HtmlSelect) As HtmlSelect()
             For Each c In Selects
                 Try
-                    c.Value = Me(c.ID).ToString()
+                    c.Value = (Me(c.ID).ToString())
                 Catch ex As Exception
                 End Try
             Next
@@ -819,7 +847,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Value">Valor do Parametro</param>
     ''' <returns></returns>
     Public Function CreateParameter(Of Type)(Name As String, Value As Object) As DbParameter
-        Return CreateParameter(Name, DirectCast(Value, Type))
+        Return CreateParameter(Name, CType(Value, Type))
     End Function
 
     ''' <summary>
@@ -837,26 +865,32 @@ Public NotInheritable Class DataBase
                 param.DbType = DataManipulation.GetDbType(Value)
                 param.ParameterName = "@" & Name.TrimAny("@", " ")
                 Dim valor As Object = DBNull.Value
-                Select Case If(Not IsNothing(Value) AndAlso Not IsNothing(Value.GetType), Value.GetType, GetType(Object))
+                Select Case If(Not IsNothing(Value) AndAlso Not IsNothing(Value.GetType), Value.GetType, GetType(String))
                     Case GetType(String), GetType(Char())
                         valor = Value.ToString
                     Case GetType(Char)
                         valor = Value.ToString.GetFirstChars
                     Case GetType(Byte), GetType(Byte())
-                        If DirectCast(Value, Byte()).LongLength > 0 Then
+                        If CType(Value, Byte()).LongLength > 0 Then
                             valor = Value
                         End If
                     Case GetType(HttpPostedFile)
-                        If DirectCast(Value, HttpPostedFile).ContentLength > 0 Then
+                        If CType(Value, HttpPostedFile).ContentLength > 0 Then
                             Return Me.CreateParameter(Name, Value.ToBytes())
                         End If
                     Case GetType(FileInfo)
-                        If DirectCast(Value, FileInfo).Length > 0 Then
+                        If CType(Value, FileInfo).Length > 0 Then
                             Return Me.CreateParameter(Name, Value.ToBytes())
                         End If
                     Case GetType(Drawing.Image)
                         If Not IsNothing(Value) Then
                             Return Me.CreateParameter(Name, Value.ToBytes())
+                        End If
+                    Case GetType(Date), GetType(DateTime)
+                        If CType(Value, Date) = DateTime.MinValue Then
+                            Return Me.CreateParameter(Of DateTime)(Name, Nothing)
+                        Else
+                            valor = Value
                         End If
                     Case Else
                         valor = Value
@@ -1224,14 +1258,13 @@ Public NotInheritable Class DataBase
     End Function
 
     ''' <summary>
-    ''' Executa uma Query no banco usando como base um TableQuickConnector
+    ''' Cria um comando usando como base as propriedades de uma classe
     ''' </summary>
     ''' <typeparam name="Type">Tipo da Classe</typeparam>
     ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
     ''' <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
     ''' <returns></returns>
-    Public Function RunSQL(Of Type)(SQLQuery As String, [Object] As Type) As Reader
-        Log(SQLQuery)
+    Public Function CreateCommandFromClass(Of Type)([Object] As Type, SQLQuery As String) As DbCommand
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
@@ -1244,7 +1277,7 @@ Public NotInheritable Class DataBase
             param.ParameterName = "@" & prop.Name
             command.Parameters.Add(param)
         Next
-        Return RunSQL(command)
+        Return command
     End Function
 
     ''' <summary>

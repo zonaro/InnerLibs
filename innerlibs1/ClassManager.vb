@@ -22,7 +22,7 @@ Public Module ClassTools
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
     ''' <returns></returns>
-    Public Function GetValues(Of T)() As List(Of T)
+    Public Function GetEnumValues(Of T)() As List(Of T)
         Return [Enum].GetValues(GetType(T)).Cast(Of T)().ToList
     End Function
 
@@ -57,6 +57,17 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function IsIn(Of Type)(Obj As Type, List As IEnumerable(Of Type)) As Boolean
         Return List.Contains(Obj)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se o objeto existe dentro de um texto
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="Obj">objeto</param>
+    ''' <param name="TExt">Texto</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsIn(Of Type)(Obj As Type, Text As String) As Boolean
+        Return Not IsNothing(Obj) AndAlso Text.Contains(Obj.ToString)
     End Function
 
     ''' <summary>

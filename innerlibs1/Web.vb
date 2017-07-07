@@ -583,6 +583,11 @@ Public Module Web
         Return Url.AbsoluteUri.IsUp()
     End Function
 
+    ''' <summary>
+    ''' Retorna uma string HTML com os options de um <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control">COntrole HTMLSelect</param>
+    ''' <returns></returns>
     <Extension()> Public Function ExtractOptions(Control As HtmlSelect) As String
         Dim options = ""
         For Each item In Control.Items
@@ -606,9 +611,11 @@ Public Module Web
     ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
     <Extension()> Public Sub SelectValues(Control As HtmlSelect, ParamArray Values As String())
-        Control.Multiple = Values.Length > 1
+        If Values.Length > 1 Then
+            Control.Multiple = True
+        End If
         For Each i As ListItem In Control.Items
-            i.Selected = Values.Contains(i.Value)
+            i.Selected = Values.ToArray.Contains(i.Value.ToString)
         Next
     End Sub
 
@@ -619,7 +626,7 @@ Public Module Web
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
     <Extension()> Public Sub DisselectValues(Control As HtmlSelect, ParamArray Values As String())
         For Each i As ListItem In Control.Items
-            If i.Value.IsIn(Values) Then i.Selected = False
+            If Values.LongCount = 0 OrElse i.Value.IsIn(Values) Then i.Selected = False
         Next
     End Sub
 

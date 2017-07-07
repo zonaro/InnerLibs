@@ -27,28 +27,34 @@ Public Module DataManipulation
     ''' <returns></returns>
     <Extension()>
     Public Function GetDbType(Obj As Object) As DbType
-        Select Case Obj.GetType
-            Case GetType(String)
-                Return DbType.String
-            Case GetType(Char)
-                Return DbType.String
-            Case GetType(Short)
-                Return DbType.Int16
-            Case GetType(Integer)
-                Return DbType.Int32
-            Case GetType(Long)
-                Return DbType.Int64
-            Case GetType(Decimal)
-                Return DbType.Decimal
-            Case GetType(Double)
-                Return DbType.Double
-            Case GetType(DateTime), GetType(Date)
-                Return DbType.DateTime
-            Case GetType(Byte), GetType(Byte())
-                Return DbType.Binary
-            Case Else
-                Return DbType.Object
-        End Select
+        Try
+            Select Case Obj.GetType
+                Case GetType(String)
+                    Return DbType.String
+                Case GetType(Char)
+                    Return DbType.String
+                Case GetType(Short)
+                    Return DbType.Int16
+                Case GetType(Integer)
+                    Return DbType.Int32
+                Case GetType(Long)
+                    Return DbType.Int64
+                Case GetType(Decimal)
+                    Return DbType.Decimal
+                Case GetType(Double)
+                    Return DbType.Double
+                Case GetType(DateTime), GetType(Date)
+                    Return DbType.DateTime
+                Case GetType(Byte), GetType(Byte())
+                    Return DbType.Binary
+                Case GetType(Boolean)
+                    Return DbType.Boolean
+                Case Else
+                    Return DbType.Object
+            End Select
+        Catch ex As Exception
+            Return DbType.Object
+        End Try
     End Function
 
     ''' <summary>

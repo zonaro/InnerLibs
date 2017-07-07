@@ -212,6 +212,26 @@ Public Module WinForms
     End Function
 
     ''' <summary>
+    ''' Pega todos os controles filhos de um controle pai
+    ''' </summary>
+    ''' <typeparam name="ControlType">Tipo de controle</typeparam>
+    ''' <param name="Control">Controle Pai</param>
+    ''' <returns>Uma lista com os controles</returns>
+    <Extension()>
+    Public Function GetAllControls(Of ControlType)(Control As System.Web.UI.Control) As List(Of ControlType)
+        Dim lista As New List(Of ControlType)
+        For Each c In Control.Controls
+            If c.GetType = GetType(ControlType) Then
+                lista.Add(c)
+            End If
+            If c.HasChildren Then
+                lista.AddRange(GetAllControls(Of ControlType)(c))
+            End If
+        Next
+        Return lista
+    End Function
+
+    ''' <summary>
     ''' Aplica um valor a um controle dependendo do seu tipo
     ''' </summary>
     ''' <param name="Control">Controle</param>

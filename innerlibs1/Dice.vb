@@ -1,12 +1,12 @@
 ﻿Imports System.Collections.ObjectModel
 Imports InnerLibs
 
-
 ''' <summary>
 ''' Combinação de varios dados de RPG que podem ser rolados ao mesmo tempo
 ''' </summary>
 Public Class DiceRoller
     Inherits List(Of Dice)
+
     ''' <summary>
     ''' Cria uma nova combinação de Dados
     ''' </summary>
@@ -43,7 +43,6 @@ Public Class DiceRoller
         Next
     End Sub
 
-
     ''' <summary>
     ''' Retorna a soma de todos os valores dos dados
     ''' </summary>
@@ -53,6 +52,7 @@ Public Class DiceRoller
             Return _value
         End Get
     End Property
+
     Private _value As Integer
 
     ''' <summary>
@@ -99,7 +99,6 @@ Public Class DiceRoller
         Return New DiceRoller(Combo1, Combo2)
     End Operator
 
-
 End Class
 
 ''' <summary>
@@ -117,14 +116,13 @@ Public Class Dice
         Return New DiceRoller(Dice1, Dice2)
     End Operator
 
-
     ''' <summary>
     ''' Tipo do dado
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property Type As DiceType
         Get
-            For Each i In GetValues(Of DiceType)()
+            For Each i In GetEnumValues(Of DiceType)()
                 If i = Faces.Count Then Return i
             Next
             Return DiceType.Custom
@@ -163,6 +161,7 @@ Public Class Dice
             Return _value
         End Get
     End Property
+
     Private _value As Integer = 0
 
     ''' <summary>
@@ -174,8 +173,8 @@ Public Class Dice
             Return _rolledtimes
         End Get
     End Property
-    Private _rolledtimes As Integer = 0
 
+    Private _rolledtimes As Integer = 0
 
     ''' <summary>
     ''' Rola o dado e retorna seu valor
@@ -208,7 +207,7 @@ Public Class Dice
     ''' Normaliza o peso das faces do dado
     ''' </summary>
     Public Sub NormalizeWeight()
-        For Each f As Face In _faces
+        For Each f As Face In _Faces
             f._weight = 1
         Next
     End Sub
@@ -234,7 +233,6 @@ Public Class Dice
     ''' <returns>Um array com a cópia das faces do dado</returns>
     Public ReadOnly Property Faces As FrozenCollection(Of Face)
 
-
     ''' <summary>
     ''' Cria um novo dado de um tipo especifico
     ''' </summary>
@@ -258,9 +256,6 @@ Public Class Dice
         Me.Roll()
     End Sub
 
-
-
-
     ''' <summary>
     ''' Face de um dado. Pode ser viciada ou não
     ''' </summary>
@@ -281,6 +276,7 @@ Public Class Dice
                 Return _weight
             End Get
         End Property
+
         Protected Friend _weight As Integer = 1
 
         ''' <summary>
@@ -292,6 +288,7 @@ Public Class Dice
                 Return _weightpercent
             End Get
         End Property
+
         Protected Friend _weightpercent As Integer = 1
 
         ''' <summary>
@@ -311,10 +308,10 @@ Public Class Dice
         Public Sub New(FaceNumber As Integer)
             Me.Value = FaceNumber.SetMinValue(1)
         End Sub
+
     End Class
+
 End Class
-
-
 
 ''' <summary>
 ''' Tipos de Dados
@@ -330,35 +327,40 @@ Public Enum DiceType
     ''' Moeda
     ''' </summary>
     Coin = 2
+
     ''' <summary>
     ''' Dado de 4 Lados
     ''' </summary>
     D4 = 4
+
     ''' <summary>
     ''' Dado de 6 Lados
     ''' </summary>
     D6 = 6
+
     ''' <summary>
     ''' Dado de 8 Lados
     ''' </summary>
     D8 = 8
+
     ''' <summary>
     ''' Dado de 10 Lados
     ''' </summary>
     D10 = 10
+
     ''' <summary>
     ''' Dado de 12 Lados
     ''' </summary>
     D12 = 12
+
     ''' <summary>
     ''' Dado de 20 Lados
     ''' </summary>
     D20 = 20
+
     ''' <summary>
     ''' Dado de 100 Lados (Util para porcentagem)
     ''' </summary>
     D100 = 100
+
 End Enum
-
-
-

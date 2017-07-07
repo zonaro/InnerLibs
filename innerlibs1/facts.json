@@ -1420,9 +1420,9 @@
     "Day": "12"
   },
   {
-    "Fact": "Dia dos Pais (festa móvel",
-    "Month": " sempre no 2-º domingo do mês)",
-    "Day": "8"
+    "Fact": "Dia dos Pais (festa móvel sempre no 2-º domingo do mês)",
+    "Month": "8",
+    "Day": "12"
   },
   {
     "Fact": "Dia do Economista",
@@ -2468,8 +2468,6 @@
     "Fact": "Reveillon",
     "Month": "12",
     "Day": "31"
-  },
-  {
-    "Fact": ""
   }
+ 
 ]

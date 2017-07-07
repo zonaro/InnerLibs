@@ -673,6 +673,26 @@ InnerLibs
  Objeto para manipular cidades e estados do Brasil
  </summary>
 </member>
+<member name="P:InnerLibs.Brasil.Celebrations">
+ <summary>
+ Retorna uma lista com todas as datas comemorativas do Brasil
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Brasil.GetCelebrationByDate(System.DateTime)">
+ <summary>
+ Retorna todas as comemoracoes de uma data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Brasil.GetCelebrationByMonth(System.Int32)">
+ <summary>
+ Retorna todas as comemoracoes de um mês
+ </summary>
+ <param name="Month">Numero do Mês</param>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.Brasil.States">
  <summary>
  Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes
@@ -733,7 +753,7 @@ InnerLibs
  <param name="MyObject">Objeto</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassTools.GetValues``1">
+<member name="M:InnerLibs.ClassTools.GetEnumValues``1">
  <summary>
  Traz todos os Valores de uma enumeração
  </summary>
@@ -753,7 +773,7 @@ InnerLibs
  Verifica se o tipo é um array de um objeto especifico
  </summary>
  <typeparam name="T"></typeparam>
- <param name="Type"></param>
+ <param name="Obj"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0})">
@@ -763,6 +783,15 @@ InnerLibs
  <typeparam name="Type">Tipo do objeto</typeparam>
  <param name="Obj">objeto</param>
  <param name="List">Lista</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.IsIn``1(``0,System.String)">
+ <summary>
+ Verifica se o objeto existe dentro de um texto
+ </summary>
+ <typeparam name="Type">Tipo do objeto</typeparam>
+ <param name="Obj">objeto</param>
+ <param name="TExt">Texto</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.ContainsAll``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
@@ -1040,6 +1069,44 @@ InnerLibs
  <summary>
  Ocorre toda vez que o contador chegar a zero
  </summary>
+</member>
+<member name="T:InnerLibs.TimeMachine.FortnightGroup">
+ <summary>
+ Lista de dias agrupados em quinzenas
+ </summary>
+</member>
+<member name="P:InnerLibs.TimeMachine.FortnightGroup.StartDate">
+ <summary>
+ Retorna a data inicial do periodo
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.TimeMachine.FortnightGroup.EndDate">
+ <summary>
+ Retorna a ultima data do periodo
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.TimeMachine.FortnightGroup.AllDays">
+ <summary>
+ Retorna uma lista com todos os dias entre as quinzenas
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.TimeMachine.FortnightGroup.#ctor(System.DateTime,System.Int32)">
+ <summary>
+ Instancia um novo <see cref="T:InnerLibs.TimeMachine.FortnightGroup"/> a partir de uma data e um numero de quinzenas
+ </summary>
+ <param name="StartDate"></param>
+ <param name="FortnightCount"></param>
+</member>
+<member name="M:InnerLibs.TimeMachine.FortnightGroup.CreateRange(System.DateTime,System.DateTime)">
+ <summary>
+ Retorna um <see cref="T:InnerLibs.TimeMachine.FortnightGroup"/> a partir de 2 datas
+ </summary>
+ <param name="StartDate">Data inicial</param>
+ <param name="EndDate">Data Final</param>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.TimeMachine.TimeFlow">
  <summary>
@@ -1877,6 +1944,13 @@ InnerLibs
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfMonth(System.DateTime)">
+ <summary>
+ Retorna a ultima data do mes a partir de uma outra data
+ </summary>
+ <param name="[Date]">Data</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.IsAnniversary(System.DateTime,System.Boolean)">
  <summary>
  Verifica se a Data de hoje é um aniversário
@@ -1892,9 +1966,9 @@ InnerLibs
  <param name="[Date]">Data</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Calendars.ToSQLDateString(System.String)">
+<member name="M:InnerLibs.Calendars.ToSQLDateString(System.String,System.String)">
  <summary>
- COnverte uma string dd/mm/aaaa para o formato de string do SQL server ou Mysql
+ Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
  </summary>
  <param name="[Date]">Data</param>
  <returns></returns>
@@ -1941,7 +2015,7 @@ InnerLibs
  </summary>
  <param name="List">Lista que será alterada</param>
 </member>
-<member name="M:InnerLibs.Calendars.ToTimeElapsedString(System.TimeSpan)">
+<member name="M:InnerLibs.Calendars.ToTimeElapsedString(System.TimeSpan,System.String,System.String,System.String,System.String)">
  <summary>
  Retorna uma String no formato "W dias, X horas, Y minutos e Z segundos"
  </summary>
@@ -2274,6 +2348,22 @@ InnerLibs
  Retorna o valor da coluna do resultado e linha atual a partir do nome da coluna
  </summary>
  <param name="ColumnName">Nome da Coluna</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.GetItem``1(System.String)">
+ <summary>
+ Retorna o valor da coluna do resultado e linha atual a partir do nome da coluna convertendo para um outro tipo
+ </summary>
+ <typeparam name="Type"></typeparam>
+ <param name="ColumnName"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.GetItem``1(System.Int32)">
+ <summary>
+ Retorna o valor da coluna do resultado e linha atual a partir do índice da coluna convertendo para um outro tipo
+ </summary>
+ <typeparam name="Type"></typeparam>
+ <param name="ColumnIndex"></param>
  <returns></returns>
 </member>
 <member name="P:InnerLibs.DataBase.Reader.Item(System.String,System.Int32)">
@@ -2724,6 +2814,14 @@ InnerLibs
  <param name="SQLQuery">Comando SQL a ser executado</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
+<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Executa uma Query no banco criando um comando a partir de um <see cref="T:System.Collections.Generic.IDictionary`2"/>
+ </summary>
+ <param name="SQLQuery">Comando SQL</param>
+ <param name="Values">Dicionario contendo os valores</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.IO.FileInfo)">
  <summary>
  Executa uma Query no banco partir de um Arquivo.
@@ -2737,41 +2835,6 @@ InnerLibs
  </summary>
  <param name="File">Arquivo com o comando SQL a ser executado</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
-</member>
-<member name="M:InnerLibs.DataBase.CreateCommandFromRequest(System.Web.HttpRequest,System.String,System.Data.Common.DbParameter[])">
- <summary>
- Cria um comando SQL utilizando as key e os valores de um <see cref="T:System.Web.HttpRequest"/>
- </summary>
- <param name="SQLQuery">Comando SQL</param>
- <param name="Request"> Request de onde serão extraidos os valores</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataBase.RunProcedureForEach(System.String,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String[])">
- <summary>
- Executa uma procedure para cada item dentro de uma coleção
- </summary>
- <param name="Procedure">   Nome da procedure</param>
- <param name="ForeignKey">  Coluna que representa a chave estrangeira da tabela</param>
- <param name="ForeignValue">Valor que será guardado como chave estrangeira</param>
- <param name="Items">       Coleçao de valores que serão inseridos em cada iteraçao</param>
- <param name="Keys">        as chaves de cada item</param>
-</member>
-<member name="M:InnerLibs.DataBase.RunBatchProcedure(InnerLibs.BatchProcedure)">
- <summary>
- Executa uma série de procedures baseando-se em uma unica chave estrangeira
- </summary>
- <param name="BatchProcedure">Configuraçoes das procedures</param>
-</member>
-<member name="M:InnerLibs.DataBase.RunBatchProcedure(System.Collections.Specialized.NameValueCollection,System.String,System.String,InnerLibs.ProcedureConfig[])">
- <summary>
- Executa uma série de procedures baseando-se eum uma unica chave estrangeira
- </summary>
- <param name="ForeignKey">     Coluna que representa a chave estrangeira da tabela</param>
- <param name="ForeignValue">   Valor que será guardado como chave estrangeira</param>
- <param name="Items">          Coleçao de valores que serão inseridos em cada iteraçao</param>
- <param name="ProcedureConfig">
- Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros
- </param>
 </member>
 <member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.Byte[])">
  <summary>
@@ -2824,14 +2887,57 @@ InnerLibs
  <param name="WhereConditions">    Condições WHERE</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL``1(System.String,``0)">
+<member name="M:InnerLibs.DataBase.CreateCommandFromClass``1(``0,System.String)">
  <summary>
- Executa uma Query no banco usando como base um TableQuickConnector
+ Cria um comando usando como base as propriedades de uma classe
  </summary>
  <typeparam name="Type">Tipo da Classe</typeparam>
  <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
  <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
  <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.CreateCommandFromRequest(System.Web.HttpRequest,System.String,System.Data.Common.DbParameter[])">
+ <summary>
+ Cria um comando SQL utilizando as key e os valores de um <see cref="T:System.Web.HttpRequest"/>
+ </summary>
+ <param name="SQLQuery">Comando SQL</param>
+ <param name="Request"> Request de onde serão extraidos os valores</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.CreateCommandFromDictionary(System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Cria um comando SQL utilizando as key e os valores de um <see cref="T:System.Collections.IDictionary"/>
+ </summary>
+ <param name="SQLQuery">Comando SQL</param>
+<param name="Parameters">Dicionario com os parametros e seus valores</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.RunProcedureForEach(System.String,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String[])">
+ <summary>
+ Executa uma procedure para cada item dentro de uma coleção
+ </summary>
+ <param name="Procedure">   Nome da procedure</param>
+ <param name="ForeignKey">  Coluna que representa a chave estrangeira da tabela</param>
+ <param name="ForeignValue">Valor que será guardado como chave estrangeira</param>
+ <param name="Items">       Coleçao de valores que serão inseridos em cada iteraçao</param>
+ <param name="Keys">        as chaves de cada item</param>
+</member>
+<member name="M:InnerLibs.DataBase.RunBatchProcedure(InnerLibs.BatchProcedure)">
+ <summary>
+ Executa uma série de procedures baseando-se em uma unica chave estrangeira
+ </summary>
+ <param name="BatchProcedure">Configuraçoes das procedures</param>
+</member>
+<member name="M:InnerLibs.DataBase.RunBatchProcedure(System.Collections.Specialized.NameValueCollection,System.String,System.String,InnerLibs.ProcedureConfig[])">
+ <summary>
+ Executa uma série de procedures baseando-se eum uma unica chave estrangeira
+ </summary>
+ <param name="ForeignKey">     Coluna que representa a chave estrangeira da tabela</param>
+ <param name="ForeignValue">   Valor que será guardado como chave estrangeira</param>
+ <param name="Items">          Coleçao de valores que serão inseridos em cada iteraçao</param>
+ <param name="ProcedureConfig">
+ Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros
+ </param>
 </member>
 <member name="P:InnerLibs.DataBase.SELECT(System.String,System.String)">
  <summary>
@@ -7280,6 +7386,13 @@ Atualiza a lista de keys
  <param name="Url">Url</param>
  <returns>False para site fora do Ar</returns>
 </member>
+<member name="M:InnerLibs.Web.ExtractOptions(System.Web.UI.HtmlControls.HtmlSelect)">
+ <summary>
+ Retorna uma string HTML com os options de um <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/>
+ </summary>
+ <param name="Control">COntrole HTMLSelect</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Web.SelectValues(System.Web.UI.HtmlControls.HtmlSelect,System.String[])">
  <summary>
  Seleciona Valores de um <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/>
@@ -7404,6 +7517,14 @@ Atualiza a lista de keys
  <param name="Action"> Ação</param>
 </member>
 <member name="M:InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control)">
+ <summary>
+ Pega todos os controles filhos de um controle pai
+ </summary>
+ <typeparam name="ControlType">Tipo de controle</typeparam>
+ <param name="Control">Controle Pai</param>
+ <returns>Uma lista com os controles</returns>
+</member>
+<member name="M:InnerLibs.WinForms.GetAllControls``1(System.Web.UI.Control)">
  <summary>
  Pega todos os controles filhos de um controle pai
  </summary>

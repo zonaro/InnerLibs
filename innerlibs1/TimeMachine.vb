@@ -67,6 +67,22 @@ Namespace TimeMachine
             Next
         End Sub
 
+        ''' <summary>
+        ''' Retorna um <see cref="FortnightGroup"/> a partir de 2 datas
+        ''' </summary>
+        ''' <param name="StartDate">Data inicial</param>
+        ''' <param name="EndDate">Data Final</param>
+        ''' <returns></returns>
+        Shared Function CreateRange(StartDate As DateTime, EndDate As DateTime) As FortnightGroup
+            FixDateOrder(StartDate, EndDate)
+            Dim fortcount As Integer = 1
+            Dim fort As New FortnightGroup(StartDate, fortcount)
+            While fort.EndDate < EndDate
+                fort = New FortnightGroup(StartDate, fortcount.Increment)
+            End While
+            Return fort
+        End Function
+
     End Class
 
     ''' <summary>

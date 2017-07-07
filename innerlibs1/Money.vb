@@ -194,6 +194,10 @@ Public Structure Money
         Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
+    Public Shared Operator -(Value1 As Money, Value2 As Money) As Money
+        Return New Money(Value1.Value - Value2.Value, Value1.Culture)
+    End Operator
+
     Public Shared Operator *(Value1 As Double, Value2 As Money) As Money
         Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator

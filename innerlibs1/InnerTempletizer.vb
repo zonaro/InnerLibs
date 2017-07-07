@@ -400,8 +400,10 @@ Namespace Templatizer
             For Each t As Template In Me
                 For Each k In t.Data.Keys.ToArray
                     For Each p In SearchTerms
-                        If (p.IsListenedIn(t.Data(k).ToString) Or (t.Data(k).ToString.ContainsAny(p.Word))) And Not t.IsIn(SearchAny) Then
-                            SearchAny.Add(t)
+                        If Not IsNothing(t.Data(k)) Then
+                            If (p.IsListenedIn(t.Data(k).ToString) Or (t.Data(k).ToString.ContainsAny(p.Word))) And Not t.IsIn(SearchAny) Then
+                                SearchAny.Add(t)
+                            End If
                         End If
                     Next
                 Next
@@ -441,8 +443,10 @@ Namespace Templatizer
                 For Each k In t.Data.Keys.ToArray
                     If k.IsIn(Columns) Then
                         For Each p In SearchTerms
-                            If (p.IsListenedIn(t.Data(k).ToString) Or (t.Data(k).ToString.ContainsAny(p.Word))) And Not t.IsIn(SearchIn) Then
-                                SearchIn.Add(t)
+                            If Not IsNothing(t.Data(k)) Then
+                                If (p.IsListenedIn(t.Data(k).ToString) Or (t.Data(k).ToString.ContainsAny(p.Word))) And Not t.IsIn(SearchIn) Then
+                                    SearchIn.Add(t)
+                                End If
                             End If
                         Next
                     End If
