@@ -86,7 +86,7 @@ Public Module Calendars
 
     ''' <summary>
     ''' Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate
-    ''' sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas de em um
+    ''' sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas resulte em um
     ''' <see cref="TimeSpan"/> negativo
     ''' </summary>
     ''' <param name="StartDate">Data Inicial</param>
