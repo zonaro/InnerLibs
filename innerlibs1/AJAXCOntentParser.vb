@@ -15,16 +15,19 @@ Namespace Templatizer
             ''' </summary>
             ''' <returns></returns>
             ReadOnly Property Tag As HtmlTag
+
             ''' <summary>
             ''' Nome da propriedade no qual o resultdado extraído será guardado
             ''' </summary>
             ''' <returns></returns>
             ReadOnly Property Key As String
+
             ''' <summary>
             ''' Instruçao que indica se todos os atirbutos deve ser idênticos para o conteúdo ser extraído.
             ''' </summary>
             ''' <returns></returns>
             ReadOnly Property MatchAllAttributtes As Boolean
+
             ''' <summary>
             ''' Key do atributo que será utilizado para extrair o conteúdo
             ''' </summary>
