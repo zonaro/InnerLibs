@@ -1944,6 +1944,15 @@ InnerLibs
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Calendars.DateRange(System.DateTime,System.DateTime,System.TimeSpan)">
+ <summary>
+ Retorna um Array de <see cref="T:System.DateTime"/> contendo todas as datas entre 2 datas
+ </summary>
+ <param name="StartDate">Data Inicial</param>
+ <param name="EndDate">Data Final</param>
+ <param name="Increment">Valor a ser incrementado (padrão 1 dia)</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetLastDayOfMonth(System.DateTime)">
  <summary>
  Retorna a ultima data do mes a partir de uma outra data
@@ -1984,7 +1993,7 @@ InnerLibs
 <member name="M:InnerLibs.Calendars.FixDateOrder(System.DateTime@,System.DateTime@)">
  <summary>
  Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate
- sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas de em um
+ sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas resulte em um
  <see cref="T:System.TimeSpan"/> negativo
  </summary>
  <param name="StartDate">Data Inicial</param>
@@ -2962,12 +2971,13 @@ InnerLibs
  <param name="WhereConditions">Condições após a clausula WHERE</param>
  <param name="Object">         Objeto com os valores que serão atualizados</param>
 </member>
-<member name="M:InnerLibs.DataBase.DELETE(System.String,System.String)">
+<member name="M:InnerLibs.DataBase.DELETE(System.String,System.String,System.Boolean)">
  <summary>
  Deleta um registro de uma tabela
  </summary>
  <param name="TableName">      Nome da Tabela</param>
  <param name="WhereConditions">Condições após a clausula WHERE</param>
+ <param name="SafeMode">se False, indica se a operação pode ser realizada sem uma clausula WHERE</param>
 </member>
 <member name="T:InnerLibs.TableQuickConnector">
  <summary>

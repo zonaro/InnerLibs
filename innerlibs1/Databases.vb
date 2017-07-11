@@ -893,7 +893,7 @@ Public NotInheritable Class DataBase
                             valor = Value
                         End If
                     Case Else
-                        valor = Value
+                        Return Me.CreateParameter(Of String)(Name, Json.SerializeJSON(Value))
                 End Select
                 If IsNothing(Value) Then valor = DBNull.Value
                 param.Value = valor
@@ -1102,7 +1102,7 @@ Public NotInheritable Class DataBase
     ''' <param name="SQLQuery">Comando SQL</param>
     ''' <param name="Values">Dicionario contendo os valores</param>
     ''' <returns></returns>
-    Public Function RunSQL(ByVal SQLQuery As String, Values As IDictionary(Of String, Object))
+    Public Function RunSQL(ByVal SQLQuery As String, Values As IDictionary(Of String, Object)) As Reader
         Return RunSQL(Me.CreateCommandFromDictionary(SQLQuery, Values))
     End Function
 
@@ -1454,14 +1454,17 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <param name="TableName">      Nome da Tabela</param>
     ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
-    Public Sub DELETE(TableName As String, WhereConditions As String)
+    ''' <param name="SafeMode">se False, indica se a operação pode ser realizada sem uma clausula WHERE</param>
+    Public Sub DELETE(TableName As String, WhereConditions As String, Optional SafeMode As Boolean = True)
         Dim cmd = "DELETE FROM " & TableName
         If WhereConditions.IsNotBlank Then
-            cmd.Append(" where " & WhereConditions)
-        Else
-            Debug.Write("WARNING: WhereConditions is Blank!!")
+            cmd.Append(" where " & WhereConditions.RemoveFirstAny(True, "where", " "))
+            If WhereConditions.IsNotBlank OrElse SafeMode = False Then
+                RunSQL(cmd)
+            Else
+                Debug.Write("WARNING: WhereConditions is Blank, set 'SafeMode' parameter as 'False' to allow DELETE commands without WHERE clausule!!")
+            End If
         End If
-        RunSQL(cmd)
     End Sub
 
     Private Sub RunAction(Of Type)(Action As String, TableName As String, Obj As Type, Optional WhereConditions As String = "")

@@ -16,7 +16,11 @@ Public NotInheritable Class Json
     ''' <param name="Obj"></param>
     ''' <returns></returns>
     Public Shared Function SerializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
-        Return New Json(DateFormat).Serialize(Obj)
+        If IsNothing(Obj) Then
+            Return ""
+        Else
+            Return New Json(DateFormat).Serialize(Obj)
+        End If
     End Function
 
     Private Class DateStringJSONConverter
