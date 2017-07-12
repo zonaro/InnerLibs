@@ -18,10 +18,12 @@ Public Module Converter
     ''' <param name="Obj">Objeto</param>
     ''' <returns></returns>
     Public Function ForceArray(Of Type)(ByVal Obj As Object) As Type()
+        Dim a As New List(Of Type)
+        If IsNothing(Obj) Then Return a.ToArray
         If Not IsArray(Obj) Then
-            If IsNothing(Obj) OrElse Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
+            If Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
         End If
-        Return Array.ConvertAll(Of Object, Type)(Obj, Function(x) DirectCast(x, Type))
+        Return Array.ConvertAll(Of Object, Type)(Obj, Function(x) CType(x, Type))
     End Function
 
     ''' <summary>

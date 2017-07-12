@@ -11,6 +11,21 @@ Imports System.Web
 Public Module Verify
 
     ''' <summary>
+    ''' Verifica se o texto é um JSON valido
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsJson(Of Type)(Text As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As Boolean
+        Try
+            ParseJSON(Of Type)(Text, DateFormat)
+            Return True
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+
+    ''' <summary>
     ''' Verifica se a string é um CPF válido
     ''' </summary>
     ''' <param name="CPF">CPF</param>

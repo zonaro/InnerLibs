@@ -1094,7 +1094,7 @@ Public Module Text
     Public Function Split(Text As String, Separator As String, Optional Options As StringSplitOptions = StringSplitOptions.None) As String()
         Dim l As New List(Of String)
         l.Add(Separator)
-        Return Text.Split(l.ToArray, StringSplitOptions.None)
+        Return If(Text, "").Split(l.ToArray, StringSplitOptions.None)
     End Function
 
     ''' <summary>

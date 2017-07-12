@@ -106,7 +106,7 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Public Function GetItem(Of Type)(ColumnName As String) As Type
             Try
-                Return Item(ColumnName)
+                Return CType(Item(ColumnName), Type)
             Catch ex As Exception
                 Return Nothing
             End Try
@@ -120,7 +120,7 @@ Public NotInheritable Class DataBase
         ''' <returns></returns>
         Public Function GetItem(Of Type)(ColumnIndex As Integer) As Type
             Try
-                Return Item(ColumnIndex)
+                Return CType(Item(ColumnIndex), Type)
             Catch ex As Exception
                 Return Nothing
             End Try
@@ -279,7 +279,7 @@ Public NotInheritable Class DataBase
         ''' Cria um novo Reader a partir de uma coleção de dicionários
         ''' </summary>
         ''' <param name="Rows">Conunto de Dicionários</param>
-        Public Sub New(ParamArray Rows As Dictionary(Of String, Object)())
+        Public Sub New(ParamArray Rows As IDictionary(Of String, Object)())
             Me.New(New List(Of Dictionary(Of String, Object))(Rows))
         End Sub
 
@@ -299,7 +299,15 @@ Public NotInheritable Class DataBase
                         Dim lista As New Dictionary(Of String, Object)
                         For Each col In columns
                             If Not lista.Keys.Contains(col) Then
-                                lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
+                                Try
+                                    lista.Add(col, If(IsDBNull(Reader(col)), Nothing, ParseJSON(Of Object)(Reader(col))))
+                                Catch ex As Exception
+                                    Try
+                                        lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
+                                    Catch ex2 As Exception
+                                        lista.Add(col, Nothing)
+                                    End Try
+                                End Try
                             End If
                         Next
                         listatabela.Add(lista)
@@ -460,16 +468,6 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Retorna o valor de uma coluna especifica de um <see cref="DataBase.Reader"/>
-        ''' </summary>
-        ''' <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
-        ''' <param name="Column">Coluna</param>
-        ''' <returns></returns>
-        Public Function GetCurrentRowColumnValue(Of Type As IConvertible)(Column As String) As Type
-            Return DirectCast(Me(Column), Type)
-        End Function
-
-        ''' <summary>
         ''' Retorna o valor de uma coluna especifica de um resultado de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <param name="Column">     Coluna</param>
@@ -488,8 +486,8 @@ Public NotInheritable Class DataBase
         ''' <param name="ResultIndex">Indice do resultado</param>
         ''' <param name="RowIndex">   Indice da linha dor resultado</param>
         ''' <returns></returns>
-        Public Function GetValue(Of Type As IConvertible)(ResultIndex As Integer, RowIndex As Integer, Column As String) As Type
-            Return DirectCast(Me.GetResult(ResultIndex).Item(RowIndex).Item(Column), Type)
+        Public Function GetValue(Of Type)(ResultIndex As Integer, RowIndex As Integer, Column As String) As Type
+            Return CType(Me.GetResult(ResultIndex).Item(RowIndex).Item(Column), Type)
         End Function
 
         ''' <summary>
@@ -529,7 +527,7 @@ Public NotInheritable Class DataBase
             Dim h As New TextValueList(Of TValue)
             If Me.HasRows Then
                 While Me.Read()
-                    h.Add("" & Me(TextColumn), DirectCast(Me(ValueColumn), TValue))
+                    h.Add("" & Me(TextColumn), CType(Me(ValueColumn), TValue))
                 End While
             End If
             Return h
@@ -566,7 +564,7 @@ Public NotInheritable Class DataBase
                 Dim columns As List(Of String) = Me.GetColumns()
                 While Me.Read()
                     For Each coluna In columns
-                        DelimitedString = DelimitedString & (HttpUtility.HtmlEncode(Me(coluna)) & ColDelimiter)
+                        DelimitedString = DelimitedString & (Me(coluna) & ColDelimiter)
                     Next
                     DelimitedString = DelimitedString & RowDelimiter
                 End While
