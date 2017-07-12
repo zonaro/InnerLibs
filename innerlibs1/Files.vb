@@ -61,7 +61,8 @@ Public Module Files
             Dim br As New BinaryReader(File.InputStream)
             Return br.ReadBytes(CInt(File.InputStream.Length))
         Catch ex As Exception
-            Return Nothing
+            Dim d As New List(Of Byte)
+            Return d.ToArray
         End Try
     End Function
 

@@ -300,7 +300,7 @@ Public NotInheritable Class DataBase
                         For Each col In columns
                             If Not lista.Keys.Contains(col) Then
                                 Try
-                                    lista.Add(col, If(IsDBNull(Reader(col)), Nothing, ParseJSON(Of Object)(Reader(col))))
+                                    lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Json.DeserializeJSON(Reader(col))))
                                 Catch ex As Exception
                                     Try
                                         lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))

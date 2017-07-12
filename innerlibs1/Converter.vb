@@ -1,5 +1,6 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Runtime.CompilerServices
+Imports System.Web
 
 Public Module Converter
 
@@ -88,17 +89,90 @@ Public Module Converter
                 If Value Is Nothing OrElse Value.Equals("") Then
                     Return Nothing
                 End If
-                Return DirectCast(Convert.ChangeType(Value, u), T)
+                Return CType(Convert.ChangeType(Value, u), T)
             Else
                 If Value Is Nothing OrElse Value.Equals("") Then
                     Return Nothing
                 End If
 
-                Return DirectCast(Convert.ChangeType(Value, a), T)
+                Return CType(Convert.ChangeType(Value, a), T)
             End If
         Catch
             Return Nothing
         End Try
+    End Function
+
+    <Extension()> Function Merge(Of Tkey)(Dic1 As Dictionary(Of Tkey, Object), ParamArray Dics As Dictionary(Of Tkey, Object)()) As Dictionary(Of Tkey, Object)
+        Dim result = New Dictionary(Of Tkey, Object)()
+        Dim keys As New List(Of Tkey)
+        For Each k In Dic1.Keys
+            keys.Add(k)
+        Next
+        For Each dic In Dics
+            For Each k In dic.Keys
+                keys.Add(k)
+            Next
+        Next
+
+        For Each dic In Dics
+            For Each key As Object In keys
+                If keys.Contains(key) Then
+                    Dim values = dic.Values.ToArray
+                    If result.ContainsKey(key) Then
+                        Dim l As New List(Of Object)
+                        If IsArray(result(key)) Then
+                            For Each v In result(key)
+                                l.Add(v)
+                            Next
+                        Else
+                            l.Add(result(key))
+                        End If
+                        If l.Count = 1 Then
+                            result(key) = l(0)
+                        Else
+                            result(key) = l.ToArray
+                        End If
+                    Else
+                        If values.LongCount = 1 Then
+                            result.Add(key, values(0))
+                        Else
+                            Dim ar As New List(Of Object)
+                            For Each v In values
+                                ar.Add(v)
+                            Next
+                            result.Add(key, ar.ToArray)
+                        End If
+                    End If
+
+                End If
+            Next
+        Next
+
+        Return result
+
+    End Function
+
+    ''' <summary>
+    ''' Transforma um <see cref="HttpRequest"/> em um <see cref="Dictionary(Of String, Object)"/>
+    ''' </summary>
+    ''' <param name="Request">HttpRequest</param>
+    ''' <param name="Keys">Keys que devem ser incluidas</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToDictionary(Request As HttpRequest, ParamArray keys As String()) As Dictionary(Of String, Object)
+        If IsNothing(keys) OrElse keys.LongCount = 0 Then
+            Dim l As New List(Of String)
+            l.AddRange(Request.Form.AllKeys)
+            l.AddRange(Request.Files.AllKeys)
+            l.AddRange(Request.QueryString.AllKeys)
+            keys = l.Distinct.ToArray
+        End If
+        Dim result = Request.QueryString.ToDictionary(keys)
+        Dim result2 = Request.Form.ToDictionary(keys)
+        result = result.Merge(result2)
+        For Each f As String In Request.Files.AllKeys.Select(Function(k) k.IsIn(keys))
+            result(f) = Request.Files(f).ToBytes
+        Next
+        Return result
     End Function
 
     ''' <summary>

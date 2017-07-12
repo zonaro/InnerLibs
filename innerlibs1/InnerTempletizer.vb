@@ -631,6 +631,7 @@ Namespace Templatizer
         ''' <param name="Template">Template</param>
         ''' <returns></returns>
         Public Function CompareTo(Template As Object) As Integer Implements IComparable.CompareTo
+            If IsNothing(Me.Order) Then Return -1
             If IsNothing(Template) Then Return -1
             If IsNothing(Template.Order) Then Return -1
             If GetType(Template) = Template.GetType Then
@@ -641,7 +642,7 @@ Namespace Templatizer
                             Return -1 * String.Compare(orderToCompare.Order, Order, True)
                         Case GetType(DateTime)
                             Return -1 * DateTime.Compare(orderToCompare.Order, Order)
-                        Case GetType(Integer), GetType(Decimal), GetType(Short), GetType(Long)
+                        Case GetType(Integer), GetType(Decimal), GetType(Short), GetType(Long), GetType(Double)
                             Select Case True
                                 Case orderToCompare.Order < Order
                                     Return -1
@@ -650,7 +651,7 @@ Namespace Templatizer
                                 Case Else
                                     Return 0
                             End Select
-                        Case GetType(Byte())
+                        Case GetType(Byte()), GetType(Byte)
                             Select Case True
                                 Case orderToCompare.Order.Length < Order.Length
                                     Return -1

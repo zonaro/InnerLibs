@@ -2291,6 +2291,14 @@ InnerLibs
  <param name="Value">Variavel com valor</param>
  <returns>Valor convertido em novo tipo</returns>
 </member>
+<member name="M:InnerLibs.Converter.ToDictionary(System.Web.HttpRequest,System.String[])">
+ <summary>
+ Transforma um <see cref="T:System.Web.HttpRequest"/> em um <see cref="T:System.Collections.Generic.Dictionary`2"/>
+ </summary>
+ <param name="Request">HttpRequest</param>
+ <param name="Keys">Keys que devem ser incluidas</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Converter.ToDictionary(System.Collections.Specialized.NameValueCollection,System.String[])">
  <summary>
  Converte um NameValueCollection para um <see cref="T:System.Collections.Generic.Dictionary`2"/>
@@ -2458,7 +2466,7 @@ InnerLibs
  </summary>
  <param name="Tables">Conunto de listas de dicionarios</param>
 </member>
-<member name="M:InnerLibs.DataBase.Reader.#ctor(System.Collections.Generic.Dictionary{System.String,System.Object}[])">
+<member name="M:InnerLibs.DataBase.Reader.#ctor(System.Collections.Generic.IDictionary{System.String,System.Object}[])">
  <summary>
  Cria um novo Reader a partir de uma coleção de dicionários
  </summary>
@@ -2542,14 +2550,6 @@ InnerLibs
  <summary>
  Cria uma lista de uma classe específica com os Itens de um <see cref="T:InnerLibs.DataBase.Reader"/>
  </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataBase.Reader.GetCurrentRowColumnValue``1(System.String)">
- <summary>
- Retorna o valor de uma coluna especifica de um <see cref="T:InnerLibs.DataBase.Reader"/>
- </summary>
- <typeparam name="Type">Tipo para qual o valor será convertido</typeparam>
- <param name="Column">Coluna</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.DataBase.Reader.GetValue(System.Int32,System.Int32,System.String)">
@@ -3552,6 +3552,20 @@ InnerLibs
 <member name="M:InnerLibs.Json.SerializeJSON(System.Object,System.String)">
  <summary>
  Converte um objeto para JSON
+ </summary>
+ <param name="Obj"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Json.DeserializeJSON(System.Object,System.String)">
+ <summary>
+ Converte um JSON para objeto
+ </summary>
+ <param name="Obj"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Json.DeserializeJSON``1(System.Object,System.String)">
+ <summary>
+ Converte um JSON para objeto
  </summary>
  <param name="Obj"></param>
  <returns></returns>
@@ -6886,6 +6900,14 @@ Atualiza a lista de keys
  Verifica determinados valores como Arquivos, Numeros e URLs
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Verify.IsJson``1(System.String,System.String)">
+ <summary>
+ Verifica se o texto é um JSON valido
+ </summary>
+ <typeparam name="Type"></typeparam>
+ <param name="Text"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Verify.IsValidCPF(System.String)">
  <summary>
