@@ -4,12 +4,6 @@ build:
   publish_nuget: true
   verbosity: minimal
 deploy:
-  provider: NuGet
+- provider: NuGet
   api_key:
     secure: 7UVhBBlyrW1vb6+6AgYmQjGP4y+upNse1BJcgDYlIoF87oNVHgEq3tj4CL/g5cFN
-  skip_symbols: false
-artifacts:
-- path: innerlibs1\bin\debug\InnerLibs.dll
-  name: InnerLibs.dll
-- path: innerlibs1\bin\debug\InnerLibs.xml
-  name: InnerLibs.xml
