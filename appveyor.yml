@@ -1,11 +1,11 @@
-version: 1.0.8.{build}
+version: 1.0.9.{build}
+image: Visual Studio 2017
 build:
+  publish_nuget: true
+  publish_nuget_symbols: true 
   verbosity: minimal
-deploy:
-  provider: NuGet
-  server:                 
-  api_key:
-    secure: 7UVhBBlyrW1vb6+6AgYmQjGP4y+upNse1BJcgDYlIoF87oNVHgEq3tj4CL/g5cFN
-  skip_symbols: false
-  symbol_server:          
-  artifact: /.*\.nupkg/
+artifacts:
+- path: bin\debug\InnerLibs.dll
+  name: InnerLibs.dll
+- path: bin\debug\InnerLibs.xml
+  name: InnerLibs.xml
