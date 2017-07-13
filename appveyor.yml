@@ -2,10 +2,9 @@ version: 1.0.9.{build}
 image: Visual Studio 2017
 build:
   publish_nuget: true
-  publish_nuget_symbols: true 
   verbosity: minimal
 artifacts:
-- path: bin\debug\InnerLibs.dll
+- path: innerlibs1\bin\debug\InnerLibs.dll
   name: InnerLibs.dll
-- path: bin\debug\InnerLibs.xml
+- path: innerlibs1\bin\debug\InnerLibs.xml
   name: InnerLibs.xml
