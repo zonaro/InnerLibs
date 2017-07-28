@@ -292,4 +292,9 @@ Public Class HtmlTag
             Me.InnerHtml = t.InnerHtml
         End If
     End Sub
+
+    Public Sub New(Tag As XElement)
+        Me.New(Tag.ToString)
+    End Sub
+
 End Class

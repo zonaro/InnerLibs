@@ -245,21 +245,21 @@ Namespace Templatizer
 
             Using reader As DataBase.Reader = DataBase.RunSQL(SQLQuery.ToString)
                 Dim ordenator As Int64 = 0
+
                 While reader.Read
                     ordenator.Increment
                     Dim copia As String = template
                     'replace nas strings padrão
-                    For Each col In reader.GetColumns
+                    For Each i In reader.GetColumns
                         Dim v = ""
                         Try
-                            v = reader(col).ToString
+                            v = reader(i).ToString
                         Catch ex As Exception
                         End Try
-                        copia = copia.Replace(ApplySelector(col), v)
+                        copia = copia.Replace(ApplySelector(i), v)
                     Next
                     'replace nas procedures
                     For Each templateTag As HtmlTag In copia.GetElementsByTagName("template")
-
                         templateTag.ReplaceIn(copia)
                         Dim tp As String = ""
                         Dim novaquery As String = templateTag("data-sqlquery")

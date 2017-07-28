@@ -260,20 +260,24 @@ Public Module Verify
     ''' <returns></returns>
     <Extension()>
     Public Function IfBlank(Of Type)(Value As Object, ValueIfBlank As Type) As Type
-        Dim blankas As Boolean = IsNothing(Value)
-        Select Case GetType(Type)
-            Case GetType(String)
-                blankas = IsNothing(Value) OrElse Value.ToString.IsBlank
-            Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
-                blankas = IsNothing(Value) OrElse Value.ToString.IsBlank Or Value.ToString.To(Of Double) = 0
-            Case GetType(DateTime)
-                blankas = IsNothing(Value) OrElse Value = DateTime.MinValue
-            Case GetType(TimeSpan)
-                blankas = IsNothing(Value) OrElse Value = TimeSpan.MinValue
-            Case Else
-                blankas = IsNothing(Value)
-        End Select
-        Return If(blankas, ValueIfBlank, Value)
+        If IsNothing(Value) Then
+            Return ValueIfBlank
+        Else
+            Dim blankas As Boolean
+            Select Case GetType(Type)
+                Case GetType(String)
+                    blankas = Value.ToString.IsBlank
+                Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
+                    blankas = Value.ToString.IsBlank Or Value.ToString.To(Of Double) = 0
+                Case GetType(DateTime)
+                    blankas = Value = DateTime.MinValue
+                Case GetType(TimeSpan)
+                    blankas = Value = TimeSpan.MinValue
+                Case Else
+                    blankas = IsNothing(Value)
+            End Select
+            Return If(blankas, ValueIfBlank, Value)
+        End If
     End Function
 
     ''' <summary>

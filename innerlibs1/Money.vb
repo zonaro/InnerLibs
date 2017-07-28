@@ -2,7 +2,7 @@
 
 Public Structure Money
 
-    Public ReadOnly Property Value As Double
+    Public ReadOnly Property Value As Decimal
     Private Culture As CultureInfo
 
     ''' <summary>
@@ -10,7 +10,7 @@ Public Structure Money
     ''' </summary>
     ''' <param name="Value">Valor</param>
     ''' <param name="Culture">Cultura</param>
-    Public Sub New(Value As Double, Culture As CultureInfo)
+    Public Sub New(Value As Decimal, Culture As CultureInfo)
         Me.Value = Value
         Me.Culture = Culture
     End Sub
@@ -20,7 +20,7 @@ Public Structure Money
     ''' </summary>
     ''' <param name="Value">Valor</param>
     ''' <param name="Symbol">Simbolo de moeda, ISO ou nome da cultura</param>
-    Public Sub New(Value As Double, Symbol As String)
+    Public Sub New(Value As Decimal, Symbol As String)
         Me.Value = Value
         Me.Culture = GetCultureInfosByCurrencySymbol(Symbol).FirstOrDefault
     End Sub
@@ -45,7 +45,7 @@ Public Structure Money
             Throw New Exception("Internet is not available to convert currency.")
         End If
         Dim rep = AJAX.GET(Of Object)("http://api.fixer.io/latest?base=" & Me.ISOCurrencySymbol)
-        Dim dic As New Dictionary(Of String, Double)
+        Dim dic As New Dictionary(Of String, Decimal)
         Try
             For Each item In rep("rates")
                 dic.Add(item.Key, item.Value)

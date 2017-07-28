@@ -296,7 +296,7 @@ Public Module Web
     ''' <param name="URL">       URL original</param>
     <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, URL As String) As Boolean
         Dim theurl = App.Request.Path
-        If New Regex(URLPattern).Match(theurl).Success Then
+        If New Regex(URLPattern, RegexOptions.IgnoreCase).Match(theurl).Success Then
             Dim novaurl = If(App.Request.IsSecureConnection, "https://", "http://") & App.Request.Url.GetDomain & "/" & URL.ToString
             novaurl = String.Format(novaurl, App.Request.Url.Segments)
             Dim novauri = New Uri(novaurl)
@@ -615,7 +615,7 @@ Public Module Web
             Control.Multiple = True
         End If
         For Each i As ListItem In Control.Items
-            i.Selected = Values.ToArray.Contains(i.Value.ToString)
+            i.Selected = Values.Select(Function(x) x.ToLower).ToArray.Contains(i.Value.ToLower.ToString)
         Next
     End Sub
 
@@ -640,8 +640,8 @@ Public Module Web
     ''' <returns></returns>
     <Extension()> Public Function AddItem(Control As HtmlSelect, Text As String, Optional Value As String = "", Optional Selected As Boolean = False) As ListItem
         Dim li = New ListItem(Text, Value.IfBlank(Text))
-        If Selected Then Control.SelectValues(Text)
         Control.Items.Add(li)
+        If Selected Then Control.SelectValues(Text)
         Return li
     End Function
 

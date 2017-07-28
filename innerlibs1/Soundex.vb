@@ -163,6 +163,7 @@ Public NotInheritable Class Phonetic
             Me.Word = Word
         End Try
     End Sub
+
     ''' <summary>
     ''' Código SoundExBR que representa o fonema da palavra
     ''' </summary>

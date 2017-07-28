@@ -14,6 +14,51 @@ Imports System.Xml
 Public Module Text
 
     ''' <summary>
+    ''' Retorna um numero com o sinal de porcentagem
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToPercentString(Number As Decimal)
+        Return Number.ToString.Append("%")
+    End Function
+
+    ''' <summary>
+    ''' Retorna um numero com o sinal de porcentagem
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToPercentString(Number As Integer)
+        Return Number.ToString.Append("%")
+    End Function
+
+    ''' <summary>
+    ''' Retorna um numero com o sinal de porcentagem
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToPercentString(Number As Double)
+        Return Number.ToString.Append("%")
+    End Function
+
+    ''' <summary>
+    ''' Retorna um numero com o sinal de porcentagem
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToPercentString(Number As Short)
+        Return Number.ToString.Append("%")
+    End Function
+
+    ''' <summary>
+    ''' Retorna um numero com o sinal de porcentagem
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToPercentString(Number As Long)
+        Return Number.ToString.Append("%")
+    End Function
+
+    ''' <summary>
     ''' Extension Method para <see cref="String.Format(String,Object())"/>
     ''' </summary>
     ''' <param name="Text">Texto</param>
@@ -28,15 +73,20 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
-    <Extension()> Function ParseDigits(ByVal Text As String) As String
+    <Extension()> Function ParseDigits(ByVal Text As String, Optional Culture As CultureInfo = Nothing) As String
+        Culture = If(Culture, CultureInfo.CurrentCulture)
         Dim strDigits As String = ""
         If Text = Nothing Then Return strDigits
         For Each c As Char In Text.ToCharArray()
-            If Char.IsDigit(c) Then
+            If Char.IsDigit(c) Or c = Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator) Then
                 strDigits &= c
             End If
         Next c
         Return strDigits
+    End Function
+
+    <Extension()> Function ParseDigits(Of Type As IConvertible)(ByVal Text As String, Optional Culture As CultureInfo = Nothing) As Type
+        Return CType(CType(Text.ParseDigits(Culture), Object), Type)
     End Function
 
     ''' <summary>
@@ -46,7 +96,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension> Public Function ToTelephone(Number As String) As String
         Dim mask As String = ""
-        Number = Number.ParseDigits
+        Number = Number.ParseDigits.RemoveAny(",", ".")
         If IsNothing(Number) OrElse Number.IsBlank Then
             Return ""
         End If
@@ -1498,8 +1548,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Decimal) As String
-        Return Size.To(Of Double).ToFileSizeString
+    Public Function ToFileSizeString(ByVal Size As Double) As String
+        Return Size.To(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1509,7 +1559,7 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Integer) As String
-        Return Size.To(Of Double).ToFileSizeString
+        Return Size.To(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1519,7 +1569,7 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Long) As String
-        Return Size.To(Of Double).ToFileSizeString
+        Return Size.To(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1528,15 +1578,58 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Double) As String
-        Dim sizeTypes() As String = {"B", "KB", "MB", "GB", "TB"}
+    Public Function ToFileSizeString(ByVal Size As Decimal) As String
+        Dim sizeTypes() As String = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"}
         Dim sizeType As Integer = 0
         Do While Size > 1024
             Size = Decimal.Round(CType(Size, Decimal) / 1024, 2)
             sizeType.Increment
             If sizeType >= sizeTypes.Length - 1 Then Exit Do
         Loop
-        Return Size.ToString & " " & sizeTypes(sizeType)
+        Return Size & " " & sizeTypes(sizeType)
+    End Function
+
+    ''' <summary>
+    ''' Abrevia um numero adicionando o letra da unidade que o representa
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToUnitString(Number As Decimal)
+        Dim sizeTypes() As String = {"", "K", "M", "G", "T", "P", "E"}
+        Dim sizeType As Integer = 0
+        Do While Number > 1000
+            Number = Decimal.Round(CType(Number, Decimal) / 1000, 2)
+            sizeType.Increment
+            If sizeType >= sizeTypes.Length - 1 Then Exit Do
+        Loop
+        Return Number & " " & sizeTypes(sizeType)
+    End Function
+
+    ''' <summary>
+    ''' Abrevia um numero adicionando o letra da unidade que o representa
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToUnitString(Number As Integer)
+        Return Number.To(Of Decimal).ToNumberString
+    End Function
+
+    ''' <summary>
+    ''' Abrevia um numero adicionando o letra da unidade que o representa
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToUnitString(Number As Long)
+        Return Number.To(Of Decimal).ToNumberString
+    End Function
+
+    ''' <summary>
+    ''' Abrevia um numero adicionando o letra da unidade que o representa
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToUnitString(Number As Short)
+        Return Number.To(Of Decimal).ToNumberString
     End Function
 
     <Extension()>
@@ -1994,7 +2087,7 @@ Public Module Text
 
     <Extension()>
     Public Function GetLastChars(Text As String, Optional Number As Integer = 1) As String
-        If Text.Length > Number Or Number < 1 Then
+        If Text.Length < Number Or Number < 1 Then
             Return Text
         Else
             Return Text.Substring(Text.Length - Number)
@@ -2213,8 +2306,9 @@ Public Module Text
     ''' <returns>Uma string com o valor anterior ao valor especificado.</returns>
     <Extension>
     Public Function GetBefore(Text As String, Value As String) As String
-        If Text.IndexOf(Value) = -1 Then
-            Return Text
+        If IsNothing(Value) Then Value = ""
+        If IsNothing(Text) OrElse Text.IndexOf(Value) = -1 Then
+            Return "" & Text
         End If
         Return Text.Substring(0, Text.IndexOf(Value))
     End Function
@@ -2227,8 +2321,9 @@ Public Module Text
     ''' <returns>Uma string com o valor posterior ao valor especificado.</returns>
     <Extension>
     Public Function GetAfter(Text As String, Value As String) As String
-        If Text.IndexOf(Value) = -1 Then
-            Return Text
+        If IsNothing(Value) Then Value = ""
+        If IsNothing(Text) OrElse Text.IndexOf(Value) = -1 Then
+            Return "" & Text
         End If
         Return Text.Substring(Text.IndexOf(Value) + Value.Length)
     End Function

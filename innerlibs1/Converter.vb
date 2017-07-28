@@ -4,6 +4,35 @@ Imports System.Web
 
 Public Module Converter
 
+    ReadOnly Property Units As Dictionary(Of String, Long)
+        Get
+            Dim sizeTypes As New Dictionary(Of String, Long)
+            sizeTypes.Add("", 1)
+            sizeTypes.Add("K", 1000)
+            sizeTypes.Add("M", 1000000)
+            sizeTypes.Add("G", 1000000000)
+            sizeTypes.Add("T", 1000000000000)
+            sizeTypes.Add("P", 1000000000000000)
+            sizeTypes.Add("E", 1000000000000000000)
+            Return sizeTypes
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Converte um numero na sua forma abreviada para um tipo numérico
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function ParseUnitString(Number As String) As Decimal
+        Dim i = Number.AdjustWhiteSpaces.GetLastChars(1).ToUpper()
+        If Units.ContainsKey(i) Then
+            Return Units(i) * Convert.ToDecimal(Number.ParseDigits)
+        Else
+            Return Number.TrimAny(i)
+        End If
+    End Function
+
     ''' <summary>
     ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
     ''' </summary>
@@ -46,6 +75,13 @@ Public Module Converter
         Return New HtmlTag(body)
     End Function
 
+    ''' <summary>
+    ''' Aplica as mesmas keys a todos os dicionarios de uma lista
+    ''' </summary>
+    ''' <typeparam name="TKey">Tipo da key</typeparam>
+    ''' <typeparam name="TValue">Tipo do Valor</typeparam>
+    ''' <param name="Dics">Dicionarios</param>
+    ''' <returns></returns>
     <Extension()> Function Uniform(Of TKey, TValue)(Dics As List(Of IDictionary(Of TKey, TValue))) As List(Of IDictionary(Of TKey, TValue))
         Dim templist = New List(Of IDictionary(Of TKey, TValue))(Dics)
         Dim colunas As New List(Of TKey)
@@ -67,6 +103,13 @@ Public Module Converter
         Return templist
     End Function
 
+    ''' <summary>
+    ''' Aplica as mesmas keys a todos os dicionarios de uma lista
+    ''' </summary>
+    ''' <typeparam name="TKey">Tipo da key</typeparam>
+    ''' <typeparam name="TValue">Tipo do Valor</typeparam>
+    ''' <param name="Dics">Dicionarios</param>
+    ''' <returns></returns>
     Function Uniform(Of TKey, TValue)(ParamArray Dics As IDictionary(Of TKey, TValue)()) As List(Of IDictionary(Of TKey, TValue))
         Dim l As New List(Of IDictionary(Of TKey, TValue))
         l = Uniform(Dics.ToList())

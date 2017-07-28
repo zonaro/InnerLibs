@@ -13,7 +13,7 @@ Public Module DataManipulation
     <Extension()> Sub SetParameter(ByRef Params As DbParameterCollection, Parameter As DbParameter)
         For Each p As DbParameter In Params
             If p.ParameterName.TrimAny("@", " ") = Parameter.ParameterName.TrimAny("@", " ") Then
-                Params(Parameter.ParameterName).Value = If(Parameter.ParameterName, DBNull.Value)
+                Params(Parameter.ParameterName).Value = If(Parameter.Value, DBNull.Value)
                 Exit Sub
             End If
         Next
@@ -35,7 +35,7 @@ Public Module DataManipulation
                     Return DbType.String
                 Case GetType(Short)
                     Return DbType.Int16
-                Case GetType(Integer)
+                Case GetType(Integer), GetType(Byte)
                     Return DbType.Int32
                 Case GetType(Long)
                     Return DbType.Int64
@@ -45,7 +45,7 @@ Public Module DataManipulation
                     Return DbType.Double
                 Case GetType(DateTime), GetType(Date)
                     Return DbType.DateTime
-                Case GetType(Byte), GetType(Byte())
+                Case GetType(Byte())
                     Return DbType.Binary
                 Case GetType(Boolean)
                     Return DbType.Boolean

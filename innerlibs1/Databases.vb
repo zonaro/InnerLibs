@@ -9,6 +9,7 @@ Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
 Imports System.Windows.Forms
 Imports System.Xml
+Imports InnerLibs
 
 Public NotInheritable Class DataBase
 
@@ -19,6 +20,14 @@ Public NotInheritable Class DataBase
     Public NotInheritable Class Reader
         Inherits List(Of List(Of Dictionary(Of String, Object)))
         Implements IDisposable
+
+        ''' <summary>
+        ''' Retorna um Json do objeto
+        ''' </summary>
+        ''' <returns></returns>
+        Public Overrides Function ToString() As String
+            Return Json.SerializeJSON(Me)
+        End Function
 
         ''' <summary>
         ''' Esvazia o reader
@@ -235,7 +244,7 @@ Public NotInheritable Class DataBase
             Try
                 Return Me.SerializeJSON(DateFormat)
             Catch ex As Exception
-                Return Nothing
+                Return ""
             End Try
         End Function
 
@@ -248,7 +257,7 @@ Public NotInheritable Class DataBase
             If HasRows Then
                 Return MyBase.Item(ResultIndex).SerializeJSON(DateFormat)
             Else
-                Return Nothing
+                Return ""
             End If
         End Function
 
@@ -261,7 +270,7 @@ Public NotInheritable Class DataBase
             Try
                 Return MyBase.Item(resultindex).Where(Function(x, y) x.Values(y).ToString().Contains(Value.ToString)).ToList
             Catch ex As Exception
-                Return Nothing
+                Return New List(Of Dictionary(Of String, Object))
             End Try
         End Function
 
@@ -410,7 +419,7 @@ Public NotInheritable Class DataBase
             If Me.HasRows Then
                 While Me.Read()
                     ValueColumn = If(ValueColumn.IsBlank, TextColumn, ValueColumn)
-                    h.Add(New ListItem(Me(TextColumn).ToString, Me(ValueColumn).ToString) With {.Selected = (Not IsNothing(SelectedValues) AndAlso .Value.IsIn(SelectedValues))})
+                    h.Add(New ListItem(Me.GetItem(Of String)(TextColumn), Me.GetItem(Of String)(ValueColumn)) With {.Selected = (Not IsNothing(SelectedValues) AndAlso .Value.IsIn(SelectedValues))})
                 End While
             End If
             Return h.ToArray
@@ -430,7 +439,7 @@ Public NotInheritable Class DataBase
 
         ''' <summary>
         ''' Cria uma lista de com os Itens de um <see cref="DataBase.Reader"/> convertendo os valores
-        ''' para uma classe outipo especifico
+        ''' para uma classe ou tipo especifico
         ''' </summary>
         ''' <param name="Column">Coluna que será usada</param>
         ''' <returns></returns>
@@ -863,37 +872,45 @@ Public NotInheritable Class DataBase
                 param.DbType = DataManipulation.GetDbType(Value)
                 param.ParameterName = "@" & Name.TrimAny("@", " ")
                 Dim valor As Object = DBNull.Value
-                Select Case If(Not IsNothing(Value) AndAlso Not IsNothing(Value.GetType), Value.GetType, GetType(String))
-                    Case GetType(String), GetType(Char())
-                        valor = Value.ToString
-                    Case GetType(Char)
-                        valor = Value.ToString.GetFirstChars
-                    Case GetType(Byte), GetType(Byte())
-                        If CType(Value, Byte()).LongLength > 0 Then
+                If Not IsNothing(Value) AndAlso Not IsNothing(Value.GetType) Then
+                    Select Case Value.GetType()
+                        Case GetType(String), GetType(Char())
+                            valor = Value.ToString
+                        Case GetType(Char)
+                            valor = Value.ToString.GetFirstChars
+                        Case GetType(Byte())
+                            If Value.LongLength > 0 Then
+                                valor = Value
+                            Else
+                                valor = New Byte()
+                            End If
+                        Case GetType(HttpPostedFile)
+                            If CType(Value, HttpPostedFile).ContentLength > 0 Then
+                                Return Me.CreateParameter(Name, Value.ToBytes())
+                            End If
+                        Case GetType(FileInfo)
+                            If CType(Value, FileInfo).Length > 0 Then
+                                Return Me.CreateParameter(Name, Value.ToBytes())
+                            End If
+                        Case GetType(Drawing.Image)
+                            If Not IsNothing(Value) Then
+                                Return Me.CreateParameter(Name, Value.ToBytes())
+                            End If
+                        Case GetType(Date), GetType(DateTime)
+                            If CType(Value, Date) = DateTime.MinValue Then
+                                Return Me.CreateParameter(Of DateTime)(Name, Nothing)
+                            Else
+                                valor = Value
+                            End If
+                        Case GetType(Short), GetType(Integer), GetType(Long), GetType(Decimal), GetType(Double), GetType(Byte)
                             valor = Value
-                        End If
-                    Case GetType(HttpPostedFile)
-                        If CType(Value, HttpPostedFile).ContentLength > 0 Then
-                            Return Me.CreateParameter(Name, Value.ToBytes())
-                        End If
-                    Case GetType(FileInfo)
-                        If CType(Value, FileInfo).Length > 0 Then
-                            Return Me.CreateParameter(Name, Value.ToBytes())
-                        End If
-                    Case GetType(Drawing.Image)
-                        If Not IsNothing(Value) Then
-                            Return Me.CreateParameter(Name, Value.ToBytes())
-                        End If
-                    Case GetType(Date), GetType(DateTime)
-                        If CType(Value, Date) = DateTime.MinValue Then
-                            Return Me.CreateParameter(Of DateTime)(Name, Nothing)
-                        Else
-                            valor = Value
-                        End If
-                    Case Else
-                        Return Me.CreateParameter(Of String)(Name, Json.SerializeJSON(Value))
-                End Select
-                If IsNothing(Value) Then valor = DBNull.Value
+                        Case Else
+                            Return Me.CreateParameter(Of String)(Name, Json.SerializeJSON(Value))
+                    End Select
+                Else
+
+                    valor = DBNull.Value
+                End If
                 param.Value = valor
                 Return param
             End Using
@@ -1322,10 +1339,6 @@ Public NotInheritable Class DataBase
                     Case Request.Cookies.AllKeys.Contains(param)
                         command.Parameters.SetParameter(Me.CreateParameter(param, Request.Cookies(param)))
                         Exit Select
-
-                    Case Request.ServerVariables.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.ServerVariables(param)))
-                        Exit Select
                     Case Else
                         command.Parameters.SetParameter(Me.CreateParameter(param, String.Empty))
                 End Select
@@ -1455,13 +1468,13 @@ Public NotInheritable Class DataBase
     ''' <param name="SafeMode">se False, indica se a operação pode ser realizada sem uma clausula WHERE</param>
     Public Sub DELETE(TableName As String, WhereConditions As String, Optional SafeMode As Boolean = True)
         Dim cmd = "DELETE FROM " & TableName
-        If WhereConditions.IsNotBlank Then
-            cmd.Append(" where " & WhereConditions.RemoveFirstAny(True, "where", " "))
-            If WhereConditions.IsNotBlank OrElse SafeMode = False Then
-                RunSQL(cmd)
-            Else
-                Debug.Write("WARNING: WhereConditions is Blank, set 'SafeMode' parameter as 'False' to allow DELETE commands without WHERE clausule!!")
+        If WhereConditions.IsNotBlank Or SafeMode = False Then
+            If WhereConditions.IsNotBlank Then
+                cmd.Append(" where " & WhereConditions.RemoveFirstAny(True, "where", " "))
             End If
+            RunSQL(cmd)
+        Else
+            Debug.Write("WARNING: WhereConditions is Blank, set 'SafeMode' parameter as 'False' to allow DELETE commands without WHERE clausule!!")
         End If
     End Sub
 

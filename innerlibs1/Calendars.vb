@@ -13,6 +13,20 @@ Imports InnerLibs.TimeMachine
 Public Module Calendars
 
     ''' <summary>
+    ''' Veirifica se existe intersecção entre dois periodos
+    ''' </summary>
+    ''' <param name="StartDate1">Data inicial do primeiro periodo</param>
+    ''' <param name="EndDate1">Data Final do primeiro periodo</param>
+    ''' <param name="StartDate2">Data inicial do segundo periodo</param>
+    ''' <param name="EndDate2">Data Final do primeiro periodo</param>
+    ''' <returns></returns>
+    Public Function IsOverlap(StartDate1 As DateTime, EndDate1 As DateTime, StartDate2 As DateTime, EndDate2 As DateTime) As Boolean
+        FixDateOrder(StartDate1, EndDate1)
+        FixDateOrder(StartDate2, EndDate2)
+        Return (StartDate1 <= EndDate2) And (EndDate1 >= StartDate2)
+    End Function
+
+    ''' <summary>
     ''' Retorna um Array de <see cref="DateTime"/> contendo todas as datas entre 2 datas
     ''' </summary>
     ''' <param name="StartDate">Data Inicial</param>
@@ -453,11 +467,7 @@ Public Module Calendars
     ''' <returns></returns>
     <Extension()>
     Function CalculatePercent(MidDate As DateTime, StartDate As DateTime, EndDate As DateTime) As Decimal
-        If StartDate > EndDate Then
-            Dim temp = StartDate
-            StartDate = EndDate
-            EndDate = temp
-        End If
+        FixDateOrder(StartDate, EndDate)
         If MidDate < StartDate Then Return 0
         If MidDate > EndDate Then Return 100
         Return (MidDate - StartDate).Ticks * 100 / (EndDate - StartDate).Ticks

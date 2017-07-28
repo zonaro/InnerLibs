@@ -97,19 +97,17 @@ Public NotInheritable Class Json
         Public Sub New()
             m_supportedTypes = New List(Of Type)(1)
             m_supportedTypes.Add(GetType(Byte()))
-
         End Sub
 
         Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
-            Dim dt As Byte() = Converter.To(Of Byte())(dictionary("Content"))
-            Return dt
+            Return dictionary("Content").ToString.ToBytes
         End Function
 
         Public Overrides Function Serialize(obj As Object, serializer As JavaScriptSerializer) As IDictionary(Of String, Object)
             Dim bt = Converter.To(Of Byte())(obj)
             Dim dicByte As New Dictionary(Of String, Object)
             dicByte.Add("Size", bt.ToFileSizeString)
-            dicByte.Add("Content", bt)
+            dicByte.Add("Content", bt.ToBase64)
             Return dicByte
         End Function
 

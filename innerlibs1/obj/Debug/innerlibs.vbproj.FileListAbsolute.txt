@@ -59,4 +59,3 @@ C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\i
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.dll
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.xml
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.pdb
-C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbprojResolveAssemblyReference.cache

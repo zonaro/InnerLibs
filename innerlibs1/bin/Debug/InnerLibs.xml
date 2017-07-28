@@ -1944,6 +1944,16 @@ InnerLibs
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Calendars.IsOverlap(System.DateTime,System.DateTime,System.DateTime,System.DateTime)">
+ <summary>
+ Veirifica se existe intersecção entre dois periodos
+ </summary>
+ <param name="StartDate1">Data inicial do primeiro periodo</param>
+ <param name="EndDate1">Data Final do primeiro periodo</param>
+ <param name="StartDate2">Data inicial do segundo periodo</param>
+ <param name="EndDate2">Data Final do primeiro periodo</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.DateRange(System.DateTime,System.DateTime,System.TimeSpan)">
  <summary>
  Retorna um Array de <see cref="T:System.DateTime"/> contendo todas as datas entre 2 datas
@@ -2262,6 +2272,13 @@ InnerLibs
  <param name="HexadecimalColorString">String Hexadecimal</param>
  <returns>Um objeto color</returns>
 </member>
+<member name="M:InnerLibs.Converter.ParseUnitString(System.String)">
+ <summary>
+ Converte um numero na sua forma abreviada para um tipo numérico
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Converter.ForceArray(System.Object)">
  <summary>
  Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
@@ -2325,6 +2342,12 @@ InnerLibs
  Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando estruturas de  <see cref="T:InnerLibs.Dictionary`1"/>. Permite a leitura
  releitura, atribuição e serialização mesmo após o fechamento da conexão.
  </summary>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToString">
+ <summary>
+ Retorna um Json do objeto
+ </summary>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.DataBase.Reader.Dispose">
  <summary>
@@ -2541,7 +2564,7 @@ InnerLibs
 <member name="M:InnerLibs.DataBase.Reader.ToList``1(System.String)">
  <summary>
  Cria uma lista de com os Itens de um <see cref="T:InnerLibs.DataBase.Reader"/> convertendo os valores
- para uma classe outipo especifico
+ para uma classe ou tipo especifico
  </summary>
  <param name="Column">Coluna que será usada</param>
  <returns></returns>
@@ -3490,14 +3513,14 @@ InnerLibs
  <param name="Box">ListBox</param>
  <param name="Source">Lista</param>
 </member>
-<member name="M:InnerLibs.Money.#ctor(System.Double,System.Globalization.CultureInfo)">
+<member name="M:InnerLibs.Money.#ctor(System.Decimal,System.Globalization.CultureInfo)">
  <summary>
  Cria uma nova instancia de moeda
  </summary>
  <param name="Value">Valor</param>
  <param name="Culture">Cultura</param>
 </member>
-<member name="M:InnerLibs.Money.#ctor(System.Double,System.String)">
+<member name="M:InnerLibs.Money.#ctor(System.Decimal,System.String)">
  <summary>
  Cria uma nova instancia de moeda
  </summary>
@@ -5666,6 +5689,41 @@ InnerLibs
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Text.ToPercentString(System.Decimal)">
+ <summary>
+ Retorna um numero com o sinal de porcentagem
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToPercentString(System.Int32)">
+ <summary>
+ Retorna um numero com o sinal de porcentagem
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToPercentString(System.Double)">
+ <summary>
+ Retorna um numero com o sinal de porcentagem
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToPercentString(System.Int16)">
+ <summary>
+ Retorna um numero com o sinal de porcentagem
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToPercentString(System.Int64)">
+ <summary>
+ Retorna um numero com o sinal de porcentagem
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.Format(System.String,System.Object[])">
  <summary>
  Extension Method para <see cref="T:System.String"/>
@@ -5674,7 +5732,7 @@ InnerLibs
  <param name="Args">Objetos de substituição</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ParseDigits(System.String)">
+<member name="M:InnerLibs.Text.ParseDigits(System.String,System.Globalization.CultureInfo)">
  <summary>
  Remove caracteres não numéricos de uma string
  </summary>
@@ -6165,7 +6223,7 @@ InnerLibs
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Decimal)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Double)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
@@ -6186,12 +6244,40 @@ InnerLibs
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Double)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Decimal)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
+</member>
+<member name="M:InnerLibs.Text.ToUnitString(System.Decimal)">
+ <summary>
+ Abrevia um numero adicionando o letra da unidade que o representa
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToUnitString(System.Int32)">
+ <summary>
+ Abrevia um numero adicionando o letra da unidade que o representa
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToUnitString(System.Int64)">
+ <summary>
+ Abrevia um numero adicionando o letra da unidade que o representa
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToUnitString(System.Int16)">
+ <summary>
+ Abrevia um numero adicionando o letra da unidade que o representa
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToExtensiveForm(System.Decimal,System.Int32)">
  <summary>

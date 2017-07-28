@@ -142,9 +142,12 @@ Public Module Mathematic
     <Extension>
     Public Function Slice(Value As Decimal, Optional Places As Integer = 2) As Decimal
         Try
-            Dim f = Value.ToString.Split(",")
-            f(1) = If(f(1).IsNotBlank(), f(1).GetFirstChars(Places), 0)
-            Return f.Join(",").To(Of Decimal)
+            Dim splaces = ""
+            If Places > 0 Then splaces = "."
+            For index = 1 To Places
+                splaces.Append("#")
+            Next
+            Return Value.ToString("###############" & splaces & "}").To(Of Decimal)
         Catch ex As Exception
             Return Value
         End Try
