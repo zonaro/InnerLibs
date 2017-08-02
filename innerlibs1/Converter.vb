@@ -4,9 +4,21 @@ Imports System.Web
 
 Public Module Converter
 
-    ReadOnly Property Units As Dictionary(Of String, Long)
+    ''' <summary>
+    ''' Unidades de medida de yocto a quintilhão
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property Units As Dictionary(Of String, Decimal)
         Get
-            Dim sizeTypes As New Dictionary(Of String, Long)
+            Dim sizeTypes As New Dictionary(Of String, Decimal)
+            sizeTypes.Add("y", 1.0E-24)
+            sizeTypes.Add("z", 1.0E-21)
+            sizeTypes.Add("a", 1.0E-18)
+            sizeTypes.Add("f", 0.000000000000001)
+            sizeTypes.Add("p", 0.000000000001)
+            sizeTypes.Add("n", 0.000000001)
+            sizeTypes.Add("µ", 0.000001)
+            sizeTypes.Add("m", 0.001)
             sizeTypes.Add("", 1)
             sizeTypes.Add("K", 1000)
             sizeTypes.Add("M", 1000000)
@@ -25,7 +37,7 @@ Public Module Converter
     ''' <returns></returns>
     <Extension()>
     Public Function ParseUnitString(Number As String) As Decimal
-        Dim i = Number.AdjustWhiteSpaces.GetLastChars(1).ToUpper()
+        Dim i = Number.AdjustWhiteSpaces.GetLastChars(1)
         If Units.ContainsKey(i) Then
             Return Units(i) * Convert.ToDecimal(Number.ParseDigits)
         Else

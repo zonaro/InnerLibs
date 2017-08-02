@@ -1579,7 +1579,7 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Decimal) As String
-        Dim sizeTypes() As String = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"}
+        Dim sizeTypes() As String = {"B", "KB", "MB", "GB", "TB", "PB", "EB"}
         Dim sizeType As Integer = 0
         Do While Size > 1024
             Size = Decimal.Round(CType(Size, Decimal) / 1024, 2)
@@ -1611,7 +1611,7 @@ Public Module Text
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function ToUnitString(Number As Integer)
-        Return Number.To(Of Decimal).ToNumberString
+        Return Number.To(Of Decimal).ToUnitString
     End Function
 
     ''' <summary>
@@ -1620,7 +1620,7 @@ Public Module Text
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function ToUnitString(Number As Long)
-        Return Number.To(Of Decimal).ToNumberString
+        Return Number.To(Of Decimal).ToUnitString
     End Function
 
     ''' <summary>
@@ -1629,7 +1629,7 @@ Public Module Text
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function ToUnitString(Number As Short)
-        Return Number.To(Of Decimal).ToNumberString
+        Return Number.To(Of Decimal).ToUnitString
     End Function
 
     <Extension()>
@@ -1785,6 +1785,15 @@ Public Module Text
         Dim decimalplaces As Long = Value.GetDecimalPlaces(2)
         Dim num As Long = Value.Floor
         Return (num.To(Of Long).InExtensive & " Reais " & If(decimalplaces = 0, "", " e " & decimalplaces.InExtensive & " Centavos")).ToLower().AdjustWhiteSpaces
+    End Function
+
+    ''' <summary>
+    ''' Transforma um valor monetário em sua forma extensa
+    ''' </summary>
+    ''' <param name="MoneyValue">Numero decimal</param>
+    ''' <returns>String contendo o numero por extenso</returns>
+    <Extension()> Public Function ToExtensiveForm(ByVal MoneyValue As Money) As String
+        Return MoneyValue.Value.ToExtensiveMoneyForm
     End Function
 
     ''' <summary>
@@ -2118,7 +2127,7 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
-        Return HttpUtility.HtmlEncode(Text)
+        Return HttpUtility.HtmlEncode("" & Text)
     End Function
 
     ''' <summary>
@@ -2128,7 +2137,7 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlDecode(ByVal Text As String) As String
-        Return HttpUtility.HtmlDecode(Text)
+        Return HttpUtility.HtmlDecode("" & Text)
     End Function
 
     ''' <summary>
@@ -2138,7 +2147,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function UrlEncode(ByVal Text As String) As String
-        Return HttpUtility.UrlEncode(Text)
+        Return HttpUtility.UrlEncode("" & Text)
     End Function
 
     ''' <summary>
@@ -2148,7 +2157,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function UrlDecode(ByVal Text As String) As String
-        Return HttpUtility.UrlDecode(Text)
+        Return HttpUtility.UrlDecode("" & Text)
     End Function
 
     ''' <summary>

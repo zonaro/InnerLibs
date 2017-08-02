@@ -728,7 +728,7 @@ Public NotInheritable Class DataBase
                         Returned.Append("     </tr>")
                     End While
                     Returned.Append(" </tbody>")
-                    Returned.Append(" </table>")
+
                 End If
             Loop While Me.NextResult()
             Dim tag As New HtmlTag("<table></table>")
@@ -738,76 +738,26 @@ Public NotInheritable Class DataBase
         End Function
 
         ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em inputs
-        ''' com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
-        ''' </summary>
-        ''' <param name="Inputs">Controles que serão Manipulados</param>
-        ''' <returns>Um array contendo os inputs manipulados</returns>
-        Public Function ApplyToInputs(ParamArray Inputs() As HtmlInputControl) As HtmlInputControl()
-            For Each c In Inputs
-                Try
-                    c.Value = Me(c.ID).ToString()
-                Catch ex As Exception
-                End Try
-            Next
-            Return Inputs
-
-        End Function
-
-        ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em selects
-        ''' com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
-        ''' </summary>
-        ''' <param name="Selects">Controles que serão Manipulados</param>
-        ''' <returns>Um array contendo os selects manipulados</returns>
-
-        Public Function ApplyToSelects(ParamArray Selects() As HtmlSelect) As HtmlSelect()
-            For Each c In Selects
-                Try
-                    c.Value = (Me(c.ID).ToString())
-                Catch ex As Exception
-                End Try
-            Next
-            Return Selects
-
-        End Function
-
-        ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> como texto
-        ''' de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no
-        ''' resultado eles serão ignorados.
+        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em controles
+        ''' com mesmo ID das colunas. Se os conroles não existirem no resultado eles serão ignorados.
         ''' </summary>
         ''' <param name="Controls">Controles que serão Manipulados</param>
-        ''' <returns>Um array contendo os controles HTML manipulados</returns>
-
-        Public Function ApplyToControls(ParamArray Controls() As HtmlGenericControl) As HtmlGenericControl()
-
+        ''' <returns>Um array contendo os inputs manipulados</returns>
+        Public Function ApplyToControls(ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
             For Each c In Controls
                 Try
-                    c.InnerText = Me(c.ID).ToString()
+                    Select Case c.TagName.ToLower
+                        Case "input"
+                            CType(c, HtmlInputControl).Value = Me(c.ID)
+                        Case "select"
+                            CType(c, HtmlSelect).SelectValues(Me(c.ID))
+                        Case Else
+                            CType(c, HtmlContainerControl).InnerHtml = Me(c.ID)
+                    End Select
                 Catch ex As Exception
                 End Try
             Next
             Return Controls
-        End Function
-
-        ''' <summary>
-        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> como texto
-        ''' de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles
-        ''' serão ignorados.
-        ''' </summary>
-        ''' <param name="TextAreas">Controles que serão Manipulados</param>
-        ''' <returns>Um array contendo as Textareas manipuladas</returns>
-
-        Public Function ApplyToTextAreas(ParamArray TextAreas() As HtmlTextArea) As HtmlTextArea()
-
-            For Each c In TextAreas
-                Try
-                    c.InnerText = Me(c.ID).ToString()
-                Catch ex As Exception
-                End Try
-            Next
-            Return TextAreas
         End Function
 
         ''' <summary>
@@ -855,6 +805,87 @@ Public NotInheritable Class DataBase
     ''' <returns></returns>
     Public Function CreateParameter(Of Type)(Name As String, Value As Object) As DbParameter
         Return CreateParameter(Name, CType(Value, Type))
+    End Function
+
+    ''' <summary>
+    ''' Cria um comando de INSERT baseado em um <see cref="IDictionary(Of String, Object)"/>
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="Dic">Dicionario contendo os Valores</param>
+    ''' <returns></returns>
+    Public Function CreateInsertCommand(TableName As String, Dic As IDictionary(Of String, Object)) As DbCommand
+        Return Me.CreateCommandFromDictionary(Me.CreateInsertCommandText(TableName, Dic.Keys.ToArray), Dic)
+    End Function
+
+    ''' <summary>
+    ''' Cria um comando de INSERT
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="Columns">Colunas do INSERT</param>
+    ''' <returns></returns>
+    Public Function CreateInsertCommandText(TableName As String, ParamArray Columns As String()) As String
+        Return String.Format("INSERT INTO " & TableName & " ({0}) values (@{1})", Columns.Join(","), Columns.Join(", @").RemoveLastIf("@"))
+    End Function
+
+    ''' <summary>
+    ''' Cria um comando de UPDATE baseado em um <see cref="IDictionary(Of String, Object)"/>
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="Dic">Dicionario contendo os Valores</param>
+    ''' <returns></returns>
+    Public Function CreateUpdateCommand(TableName As String, WhereClausule As String, Dic As IDictionary(Of String, Object)) As DbCommand
+        Return Me.CreateCommandFromDictionary(Me.CreateUpdateCommandText(TableName, WhereClausule, Dic.Keys.ToArray), Dic)
+    End Function
+
+    ''' <summary>
+    ''' Cria um comando de UPDATE
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="Columns">Colunas do INSERT</param>
+    ''' <returns></returns>
+    Public Function CreateUpdateCommandText(TableName As String, WhereClausule As String, ParamArray Columns As String()) As String
+        Dim cmd As String = "UPDATE " & TableName & Environment.NewLine
+        For Each col In Columns
+            cmd.Append(String.Format(" set {0} = @{0},", col) & Environment.NewLine)
+        Next
+        cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
+        Return cmd
+    End Function
+
+    ''' <summary>
+    ''' Faz um INSERT out UPDATE no banco de dados de acordo com o valor da coluna de chave primária especificado em um <see cref="IDictionary"/>
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="Dic">Dicionário contendo os valores</param>
+    ''' <param name="PrimaryKeyColumn">Nome da coluna de chave primária (Ela deve estar dentro do <see cref="IDictionary"/> especificado no parametro <paramref name="Dic"/>, caso contrário será processado como INSERT </param>
+    ''' <returns></returns>
+    Public Function INSERTorUPDATE(TableName As String, PrimaryKeyColumn As String, Dic As IDictionary(Of String, Object)) As DataBase.Reader
+        If Dic.ContainsKey(PrimaryKeyColumn) AndAlso CType(Dic(PrimaryKeyColumn), Decimal) > 0 Then
+            Return UPDATE(TableName, PrimaryKeyColumn & " = " & Dic(PrimaryKeyColumn).ToString.IsNull(Quotes:=False), Dic)
+        Else
+            Return INSERT(TableName, Dic.Where(Function(p) p.Key <> PrimaryKeyColumn).ToDictionary(Function(p) p.Key, Function(p) p.Value))
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Faz um UPDATE no banco de dados de acordo com um <see cref="IDictionary"/>
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="Dic">Dicionário contendo os valores</param>
+    ''' <param name="WhereClausule">Clausula WHERE, condiçoes para realizar o UPDATE</param>
+    ''' <returns></returns>
+    Public Function UPDATE(TableName As String, WhereClausule As String, Dic As IDictionary(Of String, Object)) As DataBase.Reader
+        Return RunSQL(CreateUpdateCommand(TableName, WhereClausule, Dic))
+    End Function
+
+    ''' <summary>
+    ''' Faz um INSERT no banco de dados de acordo com um  <see cref="IDictionary"/>
+    ''' </summary>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <param name="Dic">Dicionário contendo os valores</param>
+    ''' <returns></returns>
+    Public Function INSERT(TableName As String, Dic As IDictionary(Of String, Object)) As DataBase.Reader
+        Return RunSQL(CreateInsertCommand(TableName, Dic))
     End Function
 
     ''' <summary>
@@ -1236,50 +1267,13 @@ Public NotInheritable Class DataBase
     End Function
 
     ''' <summary>
-    ''' Executa uma Query no banco usando como base um TableQuickConnector
-    ''' </summary>
-    ''' <param name="TableQuickConnector">TableQuickConnector configurado</param>
-    ''' <param name="Action">             Açao que será realizada no banco</param>
-    ''' <param name="WhereConditions">    Condições WHERE</param>
-    ''' <returns></returns>
-    Public Function RunSQL(TableQuickConnector As TableQuickConnector, Action As TableQuickConnector.Action, Optional WhereConditions As String = "") As DataBase.Reader
-        Dim query As String = ""
-        Select Case Action
-            Case 0
-                query = TableQuickConnector.SELECT(WhereConditions)
-            Case 1
-                query = TableQuickConnector.INSERT(WhereConditions)
-            Case 2
-                query = TableQuickConnector.UPDATE(WhereConditions)
-            Case 3
-                Dim ID = WhereConditions.Split("=")(1)
-                Dim Column = WhereConditions.Split("=")(0)
-                If Column.ContainsAny(" ") Then
-                    Column = Column.GetBefore(" ")
-                End If
-                query = TableQuickConnector.INSERTorUPDATE(ID, Column)
-            Case 4
-                query = TableQuickConnector.DELETE(WhereConditions)
-            Case Else
-                Throw New ArgumentException("Ação especificada não existe!")
-        End Select
-        Dim reader As Reader = RunSQL(query)
-        While reader.Read
-            For Each col In TableQuickConnector.ColumnControls
-                col.CastControl(reader(col.Name))
-            Next
-        End While
-        Return reader
-    End Function
-
-    ''' <summary>
     ''' Cria um comando usando como base as propriedades de uma classe
     ''' </summary>
     ''' <typeparam name="Type">Tipo da Classe</typeparam>
     ''' <param name="SQLQuery">Comando SQL parametrizado a ser executado</param>
     ''' <param name="[Object]">Objeto de onde serão extraidos os parâmetros e valores</param>
     ''' <returns></returns>
-    Public Function CreateCommandFromClass(Of Type)([Object] As Type, SQLQuery As String) As DbCommand
+    Public Function CreateCommandFromClass(Of Type)(SQLQuery As String, [Object] As Type) As DbCommand
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         con.Open()
@@ -1362,7 +1356,7 @@ Public NotInheritable Class DataBase
             command.CommandText = SQLQuery
             For Each p As Match In reg
                 Dim param = p.Groups("param").Value
-                param = param.TrimAny(True, "@", " ", ",")
+                param = param.TrimAny(True, "@", " ", ",", "(", ")")
                 Try
                     command.Parameters.SetParameter(Me.CreateParameter(param, Parameters(param)))
                 Catch ex As Exception
@@ -1430,35 +1424,15 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
     ''' <param name="TableName">      Nome da tabela</param>
-    Default ReadOnly Property [SELECT](TableName As String, Optional WhereConditions As String = "") As Reader
+    Default ReadOnly Property [SELECT](TableName As String, Optional WhereConditions As String = "", Optional Columns As String() = Nothing) As Reader
         Get
-            Dim cmd = "SELECT * FROM " & TableName
+            Dim cmd = "SELECT " & If(Not IsNothing(Columns) AndAlso Columns.Count > 0, Columns.Join(", ").TrimAny(" ", ","), "*") & " FROM " & TableName
             If WhereConditions.IsNotBlank Then
-                cmd.Append(" where " & WhereConditions.Trim().RemoveFirstIf("where"))
+                cmd.Append(" where " & WhereConditions.TrimAny(" ", "where", "WHERE"))
             End If
             Return RunSQL(cmd)
         End Get
     End Property
-
-    ''' <summary>
-    ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
-    ''' </summary>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
-    ''' <param name="TableName"></param>
-    ''' <param name="[Object]"> </param>
-    Public Sub INSERT(Of Type)(TableName As String, [Object] As Type)
-        RunAction("INSERT", TableName, [Object])
-    End Sub
-
-    ''' <summary>
-    ''' Atualiza um registro de uma tabela usando um Objeto
-    ''' </summary>
-    ''' <param name="TableName">      Nome da Tabela</param>
-    ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
-    ''' <param name="Object">         Objeto com os valores que serão atualizados</param>
-    Public Sub UPDATE(Of Type)(TableName As String, [Object] As Type, WhereConditions As String)
-        RunAction("UPDATE", TableName, [Object], WhereConditions.Trim().RemoveFirstIf("where"))
-    End Sub
 
     ''' <summary>
     ''' Deleta um registro de uma tabela
@@ -1478,191 +1452,14 @@ Public NotInheritable Class DataBase
         End If
     End Sub
 
-    Private Sub RunAction(Of Type)(Action As String, TableName As String, Obj As Type, Optional WhereConditions As String = "")
-        Dim con = Activator.CreateInstance(ConnectionType)
-        con.ConnectionString = Me.ConnectionString
-        con.Open()
-        Dim command As DbCommand = con.CreateCommand()
-        Dim colunas As New List(Of String)
-        For Each prop As PropertyInfo In GetType(Type).GetProperties
-            If Not IsNothing(prop.GetValue(Obj)) Then
-                Dim param As DbParameter = command.CreateParameter
-                param.DbType = prop.GetValue(Obj).GetDbType
-                param.Value = prop.GetValue(Obj)
-                param.ParameterName = "@" & prop.Name
-                colunas.Add(prop.Name)
-                command.Parameters.Add(param)
-            End If
-        Next
-        Select Case Action
-            Case "INSERT"
-                command.CommandText = String.Format("INSERT INTO " & TableName & " ({0}) values (@{1})", colunas.Join(","), colunas.Join(", @").RemoveLastIf("@"))
-            Case "UPDATE"
-                Dim part = ""
-                For index = 0 To colunas.Count - 1
-                    part.Append(colunas(index) & " = @" & colunas(index))
-                Next
-                command.CommandText = "UPDATE " & TableName & " set " & part
-                If WhereConditions.IsNotBlank Then
-                    command.CommandText.Append(" where " & WhereConditions)
-                End If
-        End Select
-        RunSQL(command)
-    End Sub
-
-End Class
-
-''' <summary>
-''' Classe utilizada para interligar os campos de um formulário a uma tabela no banco de dados
-''' </summary>
-Public Class TableQuickConnector
-
     ''' <summary>
-    ''' Lista de ações que um TableQuickConnector pode realizar
+    ''' Seleciona
     ''' </summary>
-    Public Enum Action
-        [SELECT] = 0
-        INSERT = 1
-        UPDATE = 2
-        INSERTorUPDATE = 3
-        DELETE = 4
-    End Enum
-
-    ''' <summary>
-    ''' Nome da tabela de destino no banco de dados
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property Table As String
-
-    ''' <summary>
-    ''' Campos do formulário que serão utilizados como colunas
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property ColumnControls As New List(Of Control)
-
-    ''' <summary>
-    ''' Adiciona controles que serão usados como colunas
-    ''' </summary>
-    ''' <param name="ColumnControls">Controles</param>
-    Public Sub AddColumns(ParamArray ColumnControls() As Control)
-        For Each col In ColumnControls
-            If Not Me.ColumnControls.Contains(col) Then
-                Me.ColumnControls.Add(col)
-            End If
-        Next
-    End Sub
-
-    ''' <summary>
-    ''' Remove controles que seriam usados como colunas
-    ''' </summary>
-    ''' <param name="ColumnControls">Controles</param>
-    Public Sub RemoveColumns(ParamArray ColumnControls() As Control)
-        For Each col In ColumnControls
-            If Me.ColumnControls.Contains(col) Then
-                Me.ColumnControls.Remove(col)
-            End If
-        Next
-    End Sub
-
-    ''' <summary>
-    ''' Inicia uma instancia de TableQuickConnector
-    ''' </summary>
-    ''' <param name="Table">         Nome da tabela de destino no banco de dados</param>
-    ''' <param name="ColumnControls">Campos do formulário que serão utilizados como colunas</param>
-    Public Sub New(Table As String, ParamArray ColumnControls() As Control)
-        Me.AddColumns(ColumnControls)
-        Me.Table = Table
-    End Sub
-
-    ''' <summary>
-    ''' Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, executa um UPDATE,
-    ''' caso contrario, executa um INSERT.
-    ''' </summary>
-    ''' <param name="ID">    Valor da coluna de ID da tabela</param>
-    ''' <param name="Column">Coluna de id da tabela</param>
-    ''' <returns></returns>
-    ReadOnly Property INSERTorUPDATE(ID As Integer, Column As String) As String
-        Get
-            If ID > 0 Then
-                Return UPDATE(Column & " = " & ID)
-            Else
-                Return INSERT()
-            End If
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Retorna um comando de INSERT na tabela utilizando os campos como nome das colunas e seus
-    ''' valores como os valores do INSERT
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property INSERT As String
-        Get
-            Return "INSERT INTO  " & Table & "(" & GetColumnPartOfQuery() & ") values (" & GetValuePartOfQuery() & ")"
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Retorna um comando de UPDATE na tabela utilizando os campos como nome das colunas e seus
-    ''' valores como os valores do UPDATE
-    ''' </summary>
-    ''' <param name="WHereConditions">Condiçoes WHERE da Query</param>
-    ''' <returns></returns>
-    Public ReadOnly Property UPDATE(Optional WhereConditions As String = "") As String
-        Get
-            WhereConditions = If(WhereConditions.IsNotBlank, WhereConditions.Trim.RemoveFirstIf("where").Prepend(" WHERE "), "")
-            Dim cmd = "UPDATE " & Table & " set "
-            For Each c In ColumnControls
-                cmd.Append(c.Name & " = " & c.GetQueryableValue() & ",")
-            Next
-            cmd = cmd.RemoveLastIf(",")
-            cmd.Append(WhereConditions)
-            Return cmd
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Retorna um comando de DELETE na tabela.
-    ''' </summary>
-    ''' <param name="WHereConditions">Condiçoes WHERE da Query</param>
-    ''' <returns></returns>
-    Public ReadOnly Property DELETE(Optional WhereConditions As String = "") As String
-        Get
-            WhereConditions = If(WhereConditions.IsNotBlank, WhereConditions.Trim.RemoveFirstIf("where").Prepend(" WHERE "), "")
-            Dim cmd As String = "DELETE FROM " & Table & WhereConditions
-            Return cmd
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Retorna um comando de SELECT na tabela utilizando os campos como nome das colunas
-    ''' </summary>
-    ''' <param name="WHereConditions">Condiçoes WHERE da Query</param>
-    ''' <returns></returns>
-    Public ReadOnly Property [SELECT](Optional WhereConditions As String = "") As String
-        Get
-            WhereConditions = If(WhereConditions.IsNotBlank, WhereConditions.Trim.RemoveFirstIf("where").Prepend(" WHERE "), "")
-            Dim cmd As String = "SELECT " & GetColumnPartOfQuery() & " FROM " & Table & WhereConditions
-            Return cmd
-        End Get
-    End Property
-
-    Private Function GetColumnPartOfQuery() As String
-        Dim fields As String = ""
-        For Each c In ColumnControls
-            fields.Append(c.Name & ",")
-        Next
-        fields = fields.RemoveLastIf(",")
-        Return fields
-    End Function
-
-    Private Function GetValuePartOfQuery() As String
-        Dim values As String = ""
-        For Each c In ColumnControls
-            values.Append(c.GetQueryableValue() & ",")
-        Next
-        values = values.RemoveLastIf(",")
-        Return values
+    ''' <param name="Controls"></param>
+    Public Function SelectAndFill(TableName As String, WhereConditions As String, ParamArray Controls As HtmlControl()) As DataBase.Reader
+        Dim reader = Me.SELECT(TableName, WhereConditions, Controls.Select(Function(x) x.ID).ToArray)
+        reader.ApplyToControls(Controls)
+        Return reader
     End Function
 
 End Class

@@ -194,7 +194,7 @@ Public Module Calendars
 
     <Extension()>
     Function ToLongMonthName(MonthNumber As Integer) As String
-        Return Convert.ToDateTime(String.Format("{0}-{1}-{2}", Now.Year, MonthNumber, Now.Day)).TolongMonthName
+        Return New Date(Now.Year, MonthNumber, 1).TolongMonthName
     End Function
 
     ''' <summary>
