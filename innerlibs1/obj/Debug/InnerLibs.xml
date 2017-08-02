@@ -2272,6 +2272,12 @@ InnerLibs
  <param name="HexadecimalColorString">String Hexadecimal</param>
  <returns>Um objeto color</returns>
 </member>
+<member name="P:InnerLibs.Converter.Units">
+ <summary>
+ Unidades de medida de yocto a quintilhão
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Converter.ParseUnitString(System.String)">
  <summary>
  Converte um numero na sua forma abreviada para um tipo numérico
@@ -2298,6 +2304,24 @@ InnerLibs
  Converte uma lista de dicionários para uma tabela HTML
  </summary>
  <param name="Table"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Converter.Uniform``2(System.Collections.Generic.List{System.Collections.Generic.IDictionary{``0,``1}})">
+ <summary>
+ Aplica as mesmas keys a todos os dicionarios de uma lista
+ </summary>
+ <typeparam name="TKey">Tipo da key</typeparam>
+ <typeparam name="TValue">Tipo do Valor</typeparam>
+ <param name="Dics">Dicionarios</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Converter.Uniform``2(System.Collections.Generic.IDictionary{``0,``1}[])">
+ <summary>
+ Aplica as mesmas keys a todos os dicionarios de uma lista
+ </summary>
+ <typeparam name="TKey">Tipo da key</typeparam>
+ <typeparam name="TValue">Tipo do Valor</typeparam>
+ <param name="Dics">Dicionarios</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Converter.To``1(System.Object)">
@@ -2670,39 +2694,13 @@ InnerLibs
  <param name="Attr">Atributos da tabela.</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DataBase.Reader.ApplyToInputs(System.Web.UI.HtmlControls.HtmlInputControl[])">
+<member name="M:InnerLibs.DataBase.Reader.ApplyToControls(System.Web.UI.HtmlControls.HtmlControl[])">
  <summary>
- Aplica os valores encontrados nas colunas de um <see cref="T:InnerLibs.DataBase.Reader"/> em inputs
- com mesmo ID das colunas. Se os inputs não existirem no resultado eles serão ignorados.
- </summary>
- <param name="Inputs">Controles que serão Manipulados</param>
- <returns>Um array contendo os inputs manipulados</returns>
-</member>
-<member name="M:InnerLibs.DataBase.Reader.ApplyToSelects(System.Web.UI.HtmlControls.HtmlSelect[])">
- <summary>
- Aplica os valores encontrados nas colunas de um <see cref="T:InnerLibs.DataBase.Reader"/> em selects
- com mesmo ID das colunas. Se os selects não existirem no resultado eles serão ignorados.
- </summary>
- <param name="Selects">Controles que serão Manipulados</param>
- <returns>Um array contendo os selects manipulados</returns>
-</member>
-<member name="M:InnerLibs.DataBase.Reader.ApplyToControls(System.Web.UI.HtmlControls.HtmlGenericControl[])">
- <summary>
- Aplica os valores encontrados nas colunas de um <see cref="T:InnerLibs.DataBase.Reader"/> como texto
- de qualquer controle genérico com mesmo ID das colunas. Se os elementos não existirem no
- resultado eles serão ignorados.
+ Aplica os valores encontrados nas colunas de um <see cref="T:InnerLibs.DataBase.Reader"/> em controles
+ com mesmo ID das colunas. Se os conroles não existirem no resultado eles serão ignorados.
  </summary>
  <param name="Controls">Controles que serão Manipulados</param>
- <returns>Um array contendo os controles HTML manipulados</returns>
-</member>
-<member name="M:InnerLibs.DataBase.Reader.ApplyToTextAreas(System.Web.UI.HtmlControls.HtmlTextArea[])">
- <summary>
- Aplica os valores encontrados nas colunas de um <see cref="T:InnerLibs.DataBase.Reader"/> como texto
- de textareas com mesmo ID das colunas. Se os elementos não existirem no resultado eles
- serão ignorados.
- </summary>
- <param name="TextAreas">Controles que serão Manipulados</param>
- <returns>Um array contendo as Textareas manipuladas</returns>
+ <returns>Um array contendo os inputs manipulados</returns>
 </member>
 <member name="M:InnerLibs.DataBase.Reader.FillDataGridView(System.Windows.Forms.DataGridView@,System.Int32)">
  <summary>
@@ -2728,6 +2726,64 @@ InnerLibs
  <typeparam name="Type">Tipo</typeparam>
  <param name="Name"> Nome do Parametro</param>
  <param name="Value">Valor do Parametro</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.CreateInsertCommand(System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Cria um comando de INSERT baseado em um <see cref="T:System.Collections.Generic.IDictionary`2"/>
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="Dic">Dicionario contendo os Valores</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.CreateInsertCommandText(System.String,System.String[])">
+ <summary>
+ Cria um comando de INSERT
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="Columns">Colunas do INSERT</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.CreateUpdateCommand(System.String,System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Cria um comando de UPDATE baseado em um <see cref="T:System.Collections.Generic.IDictionary`2"/>
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="Dic">Dicionario contendo os Valores</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.CreateUpdateCommandText(System.String,System.String,System.String[])">
+ <summary>
+ Cria um comando de UPDATE
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="Columns">Colunas do INSERT</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.INSERTorUPDATE(System.String,System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Faz um INSERT out UPDATE no banco de dados de acordo com o valor da coluna de chave primária especificado em um <see cref="T:System.Collections.IDictionary"/>
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="Dic">Dicionário contendo os valores</param>
+ <param name="PrimaryKeyColumn">Nome da coluna de chave primária (Ela deve estar dentro do <see cref="T:System.Collections.IDictionary"/> especificado no parametro <paramref name="Dic"/>, caso contrário será processado como INSERT </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.UPDATE(System.String,System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Faz um UPDATE no banco de dados de acordo com um <see cref="T:System.Collections.IDictionary"/>
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="Dic">Dicionário contendo os valores</param>
+ <param name="WhereClausule">Clausula WHERE, condiçoes para realizar o UPDATE</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.INSERT(System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Faz um INSERT no banco de dados de acordo com um  <see cref="T:System.Collections.IDictionary"/>
+ </summary>
+ <param name="TableName">Nome da Tabela</param>
+ <param name="Dic">Dicionário contendo os valores</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.DataBase.CreateParameter(System.String,System.Object)">
@@ -2910,16 +2966,7 @@ InnerLibs
  <param name="Parameters">Parametros que serão adicionados ao comando</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(InnerLibs.TableQuickConnector,InnerLibs.TableQuickConnector.Action,System.String)">
- <summary>
- Executa uma Query no banco usando como base um TableQuickConnector
- </summary>
- <param name="TableQuickConnector">TableQuickConnector configurado</param>
- <param name="Action">             Açao que será realizada no banco</param>
- <param name="WhereConditions">    Condições WHERE</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataBase.CreateCommandFromClass``1(``0,System.String)">
+<member name="M:InnerLibs.DataBase.CreateCommandFromClass``1(System.String,``0)">
  <summary>
  Cria um comando usando como base as propriedades de uma classe
  </summary>
@@ -2971,28 +3018,12 @@ InnerLibs
  Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros
  </param>
 </member>
-<member name="P:InnerLibs.DataBase.SELECT(System.String,System.String)">
+<member name="P:InnerLibs.DataBase.SELECT(System.String,System.String,System.String[])">
  <summary>
  Insere um objeto em uma tabela a partir de suas propriedades e valores
  </summary>
  <param name="WhereConditions">Condições após a clausula WHERE</param>
  <param name="TableName">      Nome da tabela</param>
-</member>
-<member name="M:InnerLibs.DataBase.INSERT``1(System.String,``0)">
- <summary>
- Insere um objeto em uma tabela a partir de suas propriedades e valores
- </summary>
- <typeparam name="Type">Tipo do Objeto</typeparam>
- <param name="TableName"></param>
- <param name="[Object]"> </param>
-</member>
-<member name="M:InnerLibs.DataBase.UPDATE``1(System.String,``0,System.String)">
- <summary>
- Atualiza um registro de uma tabela usando um Objeto
- </summary>
- <param name="TableName">      Nome da Tabela</param>
- <param name="WhereConditions">Condições após a clausula WHERE</param>
- <param name="Object">         Objeto com os valores que serão atualizados</param>
 </member>
 <member name="M:InnerLibs.DataBase.DELETE(System.String,System.String,System.Boolean)">
  <summary>
@@ -3002,84 +3033,11 @@ InnerLibs
  <param name="WhereConditions">Condições após a clausula WHERE</param>
  <param name="SafeMode">se False, indica se a operação pode ser realizada sem uma clausula WHERE</param>
 </member>
-<member name="T:InnerLibs.TableQuickConnector">
+<member name="M:InnerLibs.DataBase.SelectAndFill(System.String,System.String,System.Web.UI.HtmlControls.HtmlControl[])">
  <summary>
- Classe utilizada para interligar os campos de um formulário a uma tabela no banco de dados
+ Seleciona
  </summary>
-</member>
-<member name="T:InnerLibs.TableQuickConnector.Action">
- <summary>
- Lista de ações que um TableQuickConnector pode realizar
- </summary>
-</member>
-<member name="P:InnerLibs.TableQuickConnector.Table">
- <summary>
- Nome da tabela de destino no banco de dados
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.TableQuickConnector.ColumnControls">
- <summary>
- Campos do formulário que serão utilizados como colunas
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.TableQuickConnector.AddColumns(System.Windows.Forms.Control[])">
- <summary>
- Adiciona controles que serão usados como colunas
- </summary>
- <param name="ColumnControls">Controles</param>
-</member>
-<member name="M:InnerLibs.TableQuickConnector.RemoveColumns(System.Windows.Forms.Control[])">
- <summary>
- Remove controles que seriam usados como colunas
- </summary>
- <param name="ColumnControls">Controles</param>
-</member>
-<member name="M:InnerLibs.TableQuickConnector.#ctor(System.String,System.Windows.Forms.Control[])">
- <summary>
- Inicia uma instancia de TableQuickConnector
- </summary>
- <param name="Table">         Nome da tabela de destino no banco de dados</param>
- <param name="ColumnControls">Campos do formulário que serão utilizados como colunas</param>
-</member>
-<member name="P:InnerLibs.TableQuickConnector.INSERTorUPDATE(System.Int32,System.String)">
- <summary>
- Comando de INSERT ou UPDATE dependendo do ID. Se o ID for maior que 0, executa um UPDATE,
- caso contrario, executa um INSERT.
- </summary>
- <param name="ID">    Valor da coluna de ID da tabela</param>
- <param name="Column">Coluna de id da tabela</param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.TableQuickConnector.INSERT">
- <summary>
- Retorna um comando de INSERT na tabela utilizando os campos como nome das colunas e seus
- valores como os valores do INSERT
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.TableQuickConnector.UPDATE(System.String)">
- <summary>
- Retorna um comando de UPDATE na tabela utilizando os campos como nome das colunas e seus
- valores como os valores do UPDATE
- </summary>
- <param name="WHereConditions">Condiçoes WHERE da Query</param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.TableQuickConnector.DELETE(System.String)">
- <summary>
- Retorna um comando de DELETE na tabela.
- </summary>
- <param name="WHereConditions">Condiçoes WHERE da Query</param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.TableQuickConnector.SELECT(System.String)">
- <summary>
- Retorna um comando de SELECT na tabela utilizando os campos como nome das colunas
- </summary>
- <param name="WHereConditions">Condiçoes WHERE da Query</param>
- <returns></returns>
+ <param name="Controls"></param>
 </member>
 <member name="T:InnerLibs.BatchProcedure">
  <summary>
@@ -6299,6 +6257,13 @@ InnerLibs
  Transforma um valor monetário em sua forma extensa
  </summary>
  <param name="Value">Numero decimal</param>
+ <returns>String contendo o numero por extenso</returns>
+</member>
+<member name="M:InnerLibs.Text.ToExtensiveForm(InnerLibs.Money)">
+ <summary>
+ Transforma um valor monetário em sua forma extensa
+ </summary>
+ <param name="MoneyValue">Numero decimal</param>
  <returns>String contendo o numero por extenso</returns>
 </member>
 <member name="M:InnerLibs.Text.DistinctCount(System.Collections.Generic.List{System.String})">

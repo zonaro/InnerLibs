@@ -9,3 +9,16 @@ C:\SVN\innerlibs.net\trunk\innerlibs1\obj\Release\innerlibs.vbproj.GenerateResou
 C:\SVN\innerlibs.net\trunk\innerlibs1\obj\Release\InnerLibs.dll
 C:\SVN\innerlibs.net\trunk\innerlibs1\obj\Release\InnerLibs.xml
 C:\SVN\innerlibs.net\trunk\innerlibs1\obj\Release\InnerLibs.pdb
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Release\InnerLibs.dll
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Release\InnerLibs.pdb
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Release\InnerLibs.xml
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\innerlibs.vbprojResolveAssemblyReference.cache
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\Interop.IWshRuntimeLibrary.dll
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\Interop.MSScriptControl.dll
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\innerlibs.vbproj.ResolveComReference.cache
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\InnerLibs.Resources.resources
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\InnerLibs.NotificationForm.resources
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\innerlibs.vbproj.GenerateResource.Cache
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\InnerLibs.dll
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\InnerLibs.xml
+C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Release\InnerLibs.pdb
