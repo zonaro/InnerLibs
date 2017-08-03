@@ -325,7 +325,7 @@ Public Module Web
         ProcedureName = "EXEC " & ProcedureName & " "
         For Each Key In QueryStringKeys
             If Key.IsNotBlank Then
-                ProcedureName.Append("@" & Key & "=" & Request(Key).IsNull(Quotes:=Not Request(Key).IsNumber()) & ", ")
+                ProcedureName.Append("@" & Key & "=" & If(Request.HttpMethod.ToUpper = "POST", Request(Key), Request(Key).UrlDecode).IsNull(Quotes:=Not Request(Key).IsNumber()) & ", ")
             End If
         Next
         Return ProcedureName.Trim.TrimEnd(",")

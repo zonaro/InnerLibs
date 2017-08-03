@@ -2,6 +2,7 @@
 Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Web
+
 ''' <summary>
 ''' Modulo para manipulação de imagens e Strings Base64
 ''' </summary>
@@ -48,7 +49,7 @@ Public Module Base64
     ''' <returns>Uma DataURI em string</returns>
     <Extension()>
     Public Function ToDataURL(Image As Image) As String
-        Return "data:" & Image.GetFileType.First.ToLower.Replace("application/octet-stream", GetFileType(".jpg").First) & ";base64," & Image.ToBase64()
+        Return "data:" & Image.GetFileType.First.ToLower.Replace("application/octet-stream", GetFileType(".png").First) & ";base64," & Image.ToBase64()
     End Function
 
     ''' <summary>
@@ -76,6 +77,7 @@ Public Module Base64
     <Extension> Public Function ToDataURL(ByVal OriginalImage As Image, ByVal OriginalImageFormat As System.Drawing.Imaging.ImageFormat) As String
         Return OriginalImage.ToBase64(OriginalImageFormat).ToImage().ToDataURL()
     End Function
+
     ''' <summary>
     ''' Converte uma Imagem para String Base64
     ''' </summary>
@@ -107,6 +109,7 @@ Public Module Base64
             Return base64String
         End Using
     End Function
+
     ''' <summary>
     ''' Converte uma Imagem da WEB para String Base64
     ''' </summary>
@@ -210,4 +213,5 @@ Public Module Base64
     <Extension()> Public Function ToBytes(Base64StringOrDataURL As String) As Byte()
         Return Convert.FromBase64String(Base64StringOrDataURL.FixBase64)
     End Function
+
 End Module

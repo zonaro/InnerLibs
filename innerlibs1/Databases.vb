@@ -309,7 +309,15 @@ Public NotInheritable Class DataBase
                         For Each col In columns
                             If Not lista.Keys.Contains(col) Then
                                 Try
-                                    lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Json.DeserializeJSON(Reader(col))))
+                                    If Reader(col).GetType = GetType(String) Then
+                                        lista.Add(col, If(IsDBNull(Reader(col)), "", Json.DeserializeJSON(Reader(col))))
+                                    Else
+                                        Try
+                                            lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
+                                        Catch ex2 As Exception
+                                            lista.Add(col, Nothing)
+                                        End Try
+                                    End If
                                 Catch ex As Exception
                                     Try
                                         lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
@@ -448,7 +456,7 @@ Public NotInheritable Class DataBase
             If Me.HasRows Then
                 While Me.Read()
                     Try
-                        h.Add(DirectCast(Me(Column), TValue))
+                        h.Add(CType(Me(Column), TValue))
                     Catch ex As Exception
                     End Try
                 End While
@@ -557,6 +565,18 @@ Public NotInheritable Class DataBase
             End If
             Return param.RemoveFirstIf("?").Prepend("?")
 
+        End Function
+
+        ''' <summary>
+        ''' Transforma o resultado de um <see cref="DataBase.Reader"/> em uma URL
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ToUrl(BaseUrl As String) As String
+            If BaseUrl.IsURL Then
+                Return BaseUrl.Split("?").First & ToQueryString()
+            Else
+                Throw New ArgumentException("BaseUrl is no a valid URL")
+            End If
         End Function
 
         ''' <summary>
