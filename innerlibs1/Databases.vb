@@ -864,9 +864,9 @@ Public NotInheritable Class DataBase
     ''' <param name="Columns">Colunas do INSERT</param>
     ''' <returns></returns>
     Public Function CreateUpdateCommandText(TableName As String, WhereClausule As String, ParamArray Columns As String()) As String
-        Dim cmd As String = "UPDATE " & TableName & Environment.NewLine
+        Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In Columns
-            cmd.Append(String.Format(" set {0} = @{0},", col) & Environment.NewLine)
+            cmd.Append(String.Format(" {0} = @{0},", col) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Return cmd
