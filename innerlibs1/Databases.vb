@@ -1329,11 +1329,11 @@ Public NotInheritable Class DataBase
             End Try
             For Each p As Match In reg
                 Dim param = p.Groups("param").Value
-                param = param.TrimAny(True, "@", " ", ",")
+                param = param.TrimAny(True, "@", " ", ",", "(", ")")
                 Select Case True
                     Case nomes.Contains(param)
                         For Each c In CustomParameters
-                            If c.ParameterName.TrimAny("@", " ", ",") = param Then
+                            If c.ParameterName.TrimAny("@", " ", ",", "(", ")") = param Then
                                 command.Parameters.SetParameter(c)
                             End If
                         Next
@@ -1473,7 +1473,7 @@ Public NotInheritable Class DataBase
     End Sub
 
     ''' <summary>
-    ''' Seleciona
+    ''' Seleciona a primeira linha de um resultset e aplica no <see cref="HtmlControl"/> equivalente ao nome da coluna
     ''' </summary>
     ''' <param name="Controls"></param>
     Public Function SelectAndFill(TableName As String, WhereConditions As String, ParamArray Controls As HtmlControl()) As DataBase.Reader
