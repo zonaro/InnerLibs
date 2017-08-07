@@ -880,8 +880,8 @@ Public NotInheritable Class DataBase
     ''' <param name="PrimaryKeyColumn">Nome da coluna de chave primária (Ela deve estar dentro do <see cref="IDictionary"/> especificado no parametro <paramref name="Dic"/>, caso contrário será processado como INSERT </param>
     ''' <returns></returns>
     Public Function INSERTorUPDATE(TableName As String, PrimaryKeyColumn As String, Dic As IDictionary(Of String, Object)) As String
-        If Dic.ContainsKey(PrimaryKeyColumn) AndAlso CType(Dic(PrimaryKeyColumn), Decimal) > 0 Then
-            UPDATE(TableName, PrimaryKeyColumn & " = " & Dic(PrimaryKeyColumn).ToString.IsNull(Quotes:=False), Dic)
+        If Dic.ContainsKey(PrimaryKeyColumn) AndAlso CType(Dic(PrimaryKeyColumn).ToString.IfBlank(Of String)(0), Decimal) > 0 Then
+            UPDATE(TableName, PrimaryKeyColumn & " = " & Dic(PrimaryKeyColumn).ToString.IsNull(Quotes:=False), Dic.Where(Function(p) p.Key <> PrimaryKeyColumn).ToDictionary(Function(p) p.Key, Function(p) p.Value))
             Return "UPDATE"
         Else
             INSERT(TableName, Dic.Where(Function(p) p.Key <> PrimaryKeyColumn).ToDictionary(Function(p) p.Key, Function(p) p.Value))
@@ -1481,6 +1481,7 @@ Public NotInheritable Class DataBase
     Public Function SelectAndFill(TableName As String, WhereConditions As String, ParamArray Controls As HtmlControl()) As DataBase.Reader
         Dim reader = Me.SELECT(TableName, WhereConditions, Controls.Select(Function(x) x.ID).ToArray)
         reader.ApplyToControls(Controls)
+        reader.StartOver()
         Return reader
     End Function
 
