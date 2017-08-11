@@ -145,10 +145,7 @@ Public Class Dice
     ''' <returns></returns>
     Public ReadOnly Property IsVicious As Boolean
         Get
-            For Each face In Faces
-                If face.IsVicious Then Return True
-            Next
-            Return False
+            Return Faces.Where(Function(x) x.IsVicious = True).Count > 0
         End Get
     End Property
 

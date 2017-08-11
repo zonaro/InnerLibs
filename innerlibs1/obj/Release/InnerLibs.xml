@@ -2363,7 +2363,7 @@ InnerLibs
 </member>
 <member name="T:InnerLibs.DataBase.Reader">
  <summary>
- Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando estruturas de  <see cref="T:InnerLibs.Dictionary`1"/>. Permite a leitura
+ Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando estruturas de  <see cref="T:System.Collections.Generic.Dictionary`2"/>. Permite a leitura
  releitura, atribuição e serialização mesmo após o fechamento da conexão.
  </summary>
 </member>
@@ -2644,6 +2644,12 @@ InnerLibs
 <member name="M:InnerLibs.DataBase.Reader.ToQueryString">
  <summary>
  Transforma o resultado de um <see cref="T:InnerLibs.DataBase.Reader"/> em QueryString
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.ToUrl(System.String)">
+ <summary>
+ Transforma o resultado de um <see cref="T:InnerLibs.DataBase.Reader"/> em uma URL
  </summary>
  <returns></returns>
 </member>
@@ -3035,7 +3041,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.DataBase.SelectAndFill(System.String,System.String,System.Web.UI.HtmlControls.HtmlControl[])">
  <summary>
- Seleciona
+ Seleciona a primeira linha de um resultset e aplica no <see cref="T:System.Web.UI.HtmlControls.HtmlControl"/> equivalente ao nome da coluna
  </summary>
  <param name="Controls"></param>
 </member>
@@ -7152,7 +7158,7 @@ Atualiza a lista de keys
  Métodos de requisição
  </summary>
 </member>
-<member name="M:InnerLibs.AJAX.Request``1(System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding,System.String)">
+<member name="M:InnerLibs.AJAX.Request``1(System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding,System.String)">
  <summary>
  Retorna o conteúdo de uma página
  </summary>
@@ -7163,14 +7169,13 @@ Atualiza a lista de keys
  <param name="FilePath">   Caminho do arquivo</param>
  <returns>conteudo no formato especificado</returns>
 </member>
-<member name="M:InnerLibs.AJAX.POST``1(System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)">
+<member name="M:InnerLibs.AJAX.POST``1(System.String,System.Collections.Specialized.NameValueCollection,System.Text.Encoding)">
  <summary>
  Realiza um POST em uma URL e retorna um Objeto convertido para o tipo especificado
  </summary>
  <typeparam name="Type">Classe do Tipo</typeparam>
  <param name="URL">        URL do Post</param>
  <param name="Parameters"> Parametros da URL</param>
- <param name="ContentType">Tipo de conteudo que está sendo enviado</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.AJAX.GET``1(System.String,System.Text.Encoding)">
@@ -7180,7 +7185,7 @@ Atualiza a lista de keys
  <param name="URL">URL do Post</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.AJAX.DownloadFile(System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)">
+<member name="M:InnerLibs.AJAX.DownloadFile(System.String,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)">
  <summary>
  Faz o download de um arquivo diretamente em um diretório
  </summary>
@@ -7242,7 +7247,7 @@ Atualiza a lista de keys
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)">
+<member name="M:InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)">
  <summary>
  Cria um objeto a partir de uma requisiçao AJAX
  </summary>
@@ -7425,6 +7430,20 @@ Atualiza a lista de keys
  Captura o Username ou UserID de uma URL do Facebook
  </summary>
  <param name="URL">URL do Facebook</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetYoutubeThumbnail(System.String)">
+ <summary>
+ Captura a Thumbnail de um video do youtube
+ </summary>
+ <param name="URL">Url do Youtube</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetYoutubeThumbnail(System.Uri)">
+ <summary>
+ Captura a Thumbnail de um video do youtube
+ </summary>
+ <param name="URL">Url do Youtube</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.GetYoutubeVideoId(System.String)">

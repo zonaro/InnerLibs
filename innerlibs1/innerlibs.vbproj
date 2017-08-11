@@ -91,7 +91,6 @@
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />
     <Compile Include="Dice.vb" />
-    <Compile Include="Dictionary.vb" />
     <Compile Include="FileLogger.vb" />
     <Compile Include="Files.vb" />
     <Compile Include="Calendars.vb" />
@@ -108,6 +107,7 @@
     <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="Money.vb" />
+    <Compile Include="oEmbed.vb" />
     <Compile Include="RiotAPI.vb" />
     <Compile Include="Serializer.vb" />
     <Compile Include="SQLExplorer.vb" />
@@ -195,6 +195,7 @@
     <Content Include="js\InnerFormValidation.js" />
     <Content Include="js\InnerLibs.js" />
     <Content Include="js\jquery.innerform.js" />
+    <EmbeddedResource Include="providers.json" />
     <None Include="Resources\zsnesw.exe" />
     <EmbeddedResource Include="GoogleMap.html" />
   </ItemGroup>

@@ -26,16 +26,16 @@ Public NotInheritable Class AJAX
     ''' <param name="Encoding">   Codificação</param>
     ''' <param name="FilePath">   Caminho do arquivo</param>
     ''' <returns>conteudo no formato especificado</returns>
-    Public Shared Function Request(Of Type)(URL As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing, Optional FilePath As String = "") As Object
+    Public Shared Function Request(Of Type)(URL As String, Optional Method As String = "GET", Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing, Optional FilePath As String = "") As Object
         If URL.IsURL Then
-            Using client As New WebClient()
-                client.Encoding = If(Encoding, Encoding.UTF8)
-                client.Headers(HttpRequestHeader.ContentType) = ContentType
+            Dim client As New WebClient
+            client.Encoding = If(Encoding, Encoding.UTF8)
+            Using client
                 Dim responsebytes As Byte()
                 If IsNothing(Parameters) Then
                     responsebytes = client.DownloadData(URL)
                 Else
-                    responsebytes = client.UploadValues(URL, Parameters)
+                    responsebytes = client.UploadValues(URL, Method, Parameters)
                 End If
                 Select Case GetType(Type)
                     Case GetType(String)
@@ -69,10 +69,9 @@ Public NotInheritable Class AJAX
     ''' <typeparam name="Type">Classe do Tipo</typeparam>
     ''' <param name="URL">        URL do Post</param>
     ''' <param name="Parameters"> Parametros da URL</param>
-    ''' <param name="ContentType">Tipo de conteudo que está sendo enviado</param>
     ''' <returns></returns>
-    Public Shared Function POST(Of Type)(URL As String, Parameters As NameValueCollection, Optional ContentType As String = "multipart/form-data", Optional Encoding As Encoding = Nothing) As Type
-        Return AJAX.Request(Of Type)(URL, Parameters, ContentType, Encoding)
+    Public Shared Function POST(Of Type)(URL As String, Parameters As NameValueCollection, Optional Encoding As Encoding = Nothing) As Type
+        Return AJAX.Request(Of Type)(URL, "POST", Parameters, Nothing, Encoding)
     End Function
 
     ''' <summary>
@@ -81,7 +80,7 @@ Public NotInheritable Class AJAX
     ''' <param name="URL">URL do Post</param>
     ''' <returns></returns>
     Public Shared Function [GET](Of Type)(URL As String, Optional Encoding As Encoding = Nothing) As Type
-        Return AJAX.Request(Of Type)(URL, Nothing, "application/x-www-form-urlencoded", Encoding)
+        Return AJAX.Request(Of Type)(URL, "GET", Nothing, "application/x-www-form-urlencoded", Encoding)
     End Function
 
     ''' <summary>
@@ -93,8 +92,8 @@ Public NotInheritable Class AJAX
     ''' <param name="Encoding">   Codificação</param>
     ''' <param name="FilePath">   Caminho do arquivo</param>
     ''' <returns></returns>
-    Public Shared Function DownloadFile(URL As String, FilePath As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "multipart/form-data", Optional Encoding As Encoding = Nothing) As FileInfo
-        Return AJAX.Request(Of FileInfo)(URL, Parameters, ContentType, Encoding, FilePath)
+    Public Shared Function DownloadFile(URL As String, FilePath As String, Optional Method As String = "GET", Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "multipart/form-data", Optional Encoding As Encoding = Nothing) As FileInfo
+        Return AJAX.Request(Of FileInfo)(URL, Method, Parameters, ContentType, Encoding, FilePath)
     End Function
 
     ''' <summary>
@@ -198,8 +197,8 @@ Public Module Web
     ''' <param name="ContentType">Conteudo</param>
     ''' <param name="Encoding">   Codificação</param>
     <Extension()>
-    Public Sub CreateFromAjax(Of Type)(ByRef TheObject As Type, URL As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing)
-        TheObject = AJAX.Request(Of Type)(URL, Parameters, ContentType, Encoding)
+    Public Sub CreateFromAjax(Of Type)(ByRef TheObject As Type, URL As String, Method As String, Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing)
+        TheObject = AJAX.Request(Of Type)(URL, Method, Parameters, ContentType, Encoding)
     End Sub
 
     ''' <summary>
@@ -510,6 +509,24 @@ Public Module Web
     ''' <returns></returns>
     <Extension> Public Function GetFacebookUsername(URL As Uri) As String
         Return GetFacebookUsername(URL.AbsoluteUri)
+    End Function
+
+    ''' <summary>
+    ''' Captura a Thumbnail de um video do youtube
+    ''' </summary>
+    ''' <param name="URL">Url do Youtube</param>
+    ''' <returns></returns>
+    Public Function GetYoutubeThumbnail(URL As String) As Drawing.Image
+        Return AJAX.GET(Of Drawing.Image)("http://img.youtube.com/vi/" & GetYoutubeVideoId(URL) & "/hqdefault.jpg")
+    End Function
+
+    ''' <summary>
+    ''' Captura a Thumbnail de um video do youtube
+    ''' </summary>
+    ''' <param name="URL">Url do Youtube</param>
+    ''' <returns></returns>
+    Public Function GetYoutubeThumbnail(URL As Uri) As Drawing.Image
+        Return GetYoutubeThumbnail(URL.AbsoluteUri)
     End Function
 
     ''' <summary>
