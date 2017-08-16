@@ -3536,6 +3536,48 @@ InnerLibs
  <param name="Currency">Moeda</param>
  <returns></returns>
 </member>
+<member name="T:InnerLibs.oEmbed">
+ <summary>
+ Classe para integrar a api oEmbed em aplicações .NET
+ </summary>
+</member>
+<member name="M:InnerLibs.oEmbed.GetProviders">
+ <summary>
+ Retorna uma lista de provedores compativeis com oEmbed
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.oEmbed.#ctor(System.String)">
+ <summary>
+ Cria uma nova <see cref="T:InnerLibs.oEmbed"/> a partir de uma URL utilizando a mesma como <see cref="T:InnerLibs.oEmbed.Endpoint"/>
+ </summary>
+ <param name="URL">Url</param>
+</member>
+<member name="M:InnerLibs.oEmbed.#ctor">
+ <summary>
+ Cria uma nova <see cref="T:InnerLibs.oEmbed"/>
+ </summary>
+</member>
+<member name="P:InnerLibs.oEmbed.Response(System.Int32)">
+ <summary>
+ Retorna o um objeto contendo as informaçoes da URL
+ </summary>
+ <param name="EndPointIndex">Index do <see cref="T:InnerLibs.oEmbed.Endpoint"/> que será usado. Deixe 0 para utilizar o primeiro</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.oEmbed.GetResponse``1(System.Int32)">
+ <summary>
+ Retorna o um objeto convertido para um tipo contendo as informaçoes da URL
+ </summary>
+ <typeparam name="Type">Tipo do objeto</typeparam>
+ <param name="EndPointIndex">Index do <see cref="T:InnerLibs.oEmbed.Endpoint"/> que será usado. Deixe 0 para utilizar o primeiro</param>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.oEmbed.Endpoint">
+ <summary>
+ Informaçoes sobre o endpoint do <see cref="T:InnerLibs.oEmbed"/>
+ </summary>
+</member>
 <member name="M:InnerLibs.Json.SerializeJSON(System.Object,System.String)">
  <summary>
  Converte um objeto para JSON

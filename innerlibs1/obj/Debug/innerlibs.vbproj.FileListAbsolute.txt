@@ -60,3 +60,17 @@ C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\i
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.xml
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.pdb
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbprojResolveAssemblyReference.cache
+R:\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.dll
+R:\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.pdb
+R:\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.xml
+R:\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbprojResolveAssemblyReference.cache
+R:\innerlibs\trunk\innerlibs1\obj\Debug\Interop.IWshRuntimeLibrary.dll
+R:\innerlibs\trunk\innerlibs1\obj\Debug\Interop.MSScriptControl.dll
+R:\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.ResolveComReference.cache
+R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.Resources.resources
+R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.NotificationForm.resources
+R:\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.GenerateResource.Cache
+R:\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.CoreCompileInputs.cache
+R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.dll
+R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.xml
+R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.pdb
