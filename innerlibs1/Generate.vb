@@ -94,9 +94,7 @@ Public Module Generate
     <Extension>
     Function ScreenshotFromWebsite(Url As String, AccessKey As String, Optional FullPage As Boolean = True, Optional Delay As Integer = 1, Optional Viewport As String = "1440x900", Optional ImageWidth As Integer = 500) As Image
         If Url.IsURL Then
-            Dim Client As New WebClient
-            Dim requestUrl As String = "http://api.screenshotlayer.com/api/capture?access_key=" & AccessKey & "&delay=" & Delay & "&url=" & Url & "&fullpage=" & If(FullPage, 1, 0) & "&viewport=" & Viewport & "&width=" & ImageWidth
-            Return Image.FromStream(Client.OpenRead(New Uri(requestUrl).AbsoluteUri))
+            Return AJAX.GET(Of Image)("http://api.screenshotlayer.com/api/capture?access_key=" & AccessKey & "&delay=" & Delay & "&url=" & Url & "&fullpage=" & If(FullPage, 1, 0) & "&viewport=" & Viewport & "&width=" & ImageWidth)
         Else
             Throw New Exception("Url inválida")
         End If

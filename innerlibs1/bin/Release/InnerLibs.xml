@@ -113,7 +113,7 @@ InnerLibs
 </member>
 <member name="P:InnerLibs.Templatizer.Templatizer.ApplicationAssembly">
  <summary>
- Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML
+ Aplicaçao contendo os Resources (arquivos compilados internamente) dos arquivos HTML
  utilizados como template
  </summary>
  <returns></returns>
@@ -235,11 +235,11 @@ InnerLibs
  Cria uma nova Lista vazia
  </summary>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateList.BuildHtml(System.Boolean)">
+<member name="M:InnerLibs.Templatizer.TemplateList.BuildHtml(InnerLibs.Templatizer.TemplateOrder)">
  <summary>
  Retorna uma string HTML com todos os templates processados e o conteúdo do Head
  </summary>
- <param name="AscendingOrder">Se TRUE, Ordem crescente</param>
+ <param name="OrderBy">Se TRUE, Ordem crescente</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Templatizer.TemplateList.ToString">
@@ -279,11 +279,11 @@ InnerLibs
  <param name="SearchTerms">Termos Pesquisados</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Templatizer.TemplateList.ReOrder(System.Object)">
+<member name="M:InnerLibs.Templatizer.TemplateList.ReOrder(InnerLibs.Templatizer.TemplateOrder)">
  <summary>
  Reordena a lista de acordo com a propriedade <see cref="P:InnerLibs.Templatizer.Template.Order"/>
  </summary>
- <param name="AscendingOrder">Se TRUE, Ordem crescente</param>
+ <param name="OrderBy">Se TRUE, Ordem crescente</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Templatizer.TemplateList.AddRange(InnerLibs.Templatizer.TemplateList)">
@@ -423,6 +423,31 @@ InnerLibs
  <param name="Template1"></param>
  <param name="Template2"></param>
  <returns></returns>
+</member>
+<member name="T:InnerLibs.Templatizer.TemplateOrder">
+ <summary>
+ Define o Comportamento de ordenação dos itens do templatizer
+ </summary>
+</member>
+<member name="F:InnerLibs.Templatizer.TemplateOrder.DataBaseDefault">
+ <summary>
+ Ordem Default (definida normalmente na clausula "order by" da query SQL)
+ </summary>
+</member>
+<member name="F:InnerLibs.Templatizer.TemplateOrder.AscendingOrder">
+ <summary>
+ Ordem crescente de acordo com a propriedade <see cref="P:InnerLibs.Templatizer.Template.Order"/>
+ </summary>
+</member>
+<member name="F:InnerLibs.Templatizer.TemplateOrder.DescendingOrder">
+ <summary>
+ Ordem decrescente de acordo com a propriedade <see cref="P:InnerLibs.Templatizer.Template.Order"/>
+ </summary>
+</member>
+<member name="F:InnerLibs.Templatizer.TemplateOrder.RandomOrder">
+ <summary>
+ Ordem aleatória
+ </summary>
 </member>
 <member name="T:InnerLibs.Base64">
  <summary>

@@ -6,19 +6,14 @@
 ''' <remarks></remarks>
 Public Module Mathematic
 
+
     ''' <summary>
     ''' Executa uma Expressão matematica simples
     ''' </summary>
     ''' <param name="Formula">Expressão matematica</param>
     ''' <returns></returns>
-    Public Function EvaluateExpression(Formula As String) As Double
-        Dim SC As New MSScriptControl.ScriptControl
-        SC.Language = "VBSCRIPT"
-        Try
-            Return Convert.ToDouble(SC.Eval(Formula))
-        Catch ex As Exception
-            Throw New Exception("Formula invalida")
-        End Try
+    Public Function EvaluateExpression(Formula As String) As Object
+        Return New Evaluator().Parse(Formula).value
     End Function
 
     ''' <summary>

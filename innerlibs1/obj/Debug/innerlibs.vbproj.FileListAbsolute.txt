@@ -46,7 +46,6 @@ C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.GenerateResource.Ca
 C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.dll
 C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.xml
 C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.pdb
-C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\innerlibs.vbprojResolveAssemblyReference.cache
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.dll
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.pdb
 C:\Users\zonar\OneDrive\Documentos\Visual Studio 2017\Projects\innerlibs\trunk\innerlibs1\bin\Debug\InnerLibs.xml
@@ -74,3 +73,4 @@ R:\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.CoreCompileInputs.cache
 R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.dll
 R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.xml
 R:\innerlibs\trunk\innerlibs1\obj\Debug\InnerLibs.pdb
+C:\SVN\innerlibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.CoreCompileInputs.cache

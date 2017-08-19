@@ -834,7 +834,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Dic">Dicionario contendo os Valores</param>
     ''' <returns></returns>
     Public Function CreateInsertCommand(TableName As String, Dic As IDictionary(Of String, Object)) As DbCommand
-        Return Me.CreateCommandFromDictionary(Me.CreateInsertCommandText(TableName, Dic.Keys.ToArray), Dic)
+        Return Me.CreateCommandFromDictionary(Me.CreateInsertCommandText(TableName, Dic.Where(Function(p) Not IsNothing(p)).Select(Function(p) p.Key).ToArray), Dic)
     End Function
 
     ''' <summary>
@@ -854,7 +854,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Dic">Dicionario contendo os Valores</param>
     ''' <returns></returns>
     Public Function CreateUpdateCommand(TableName As String, WhereClausule As String, Dic As IDictionary(Of String, Object)) As DbCommand
-        Return Me.CreateCommandFromDictionary(Me.CreateUpdateCommandText(TableName, WhereClausule, Dic.Keys.ToArray), Dic)
+        Return Me.CreateCommandFromDictionary(Me.CreateUpdateCommandText(TableName, WhereClausule, Dic.Where(Function(p) Not IsNothing(p)).Select(Function(p) p.Key).ToArray), Dic)
     End Function
 
     ''' <summary>

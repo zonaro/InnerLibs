@@ -54,7 +54,7 @@ Namespace Templatizer
         ReadOnly Property TemplateDirectory As DirectoryInfo = Nothing
 
         ''' <summary>
-        ''' Aplicaçao contendo os Resources (arquivos compilados internamente) dos aruqivos HTML
+        ''' Aplicaçao contendo os Resources (arquivos compilados internamente) dos arquivos HTML
         ''' utilizados como template
         ''' </summary>
         ''' <returns></returns>
@@ -258,6 +258,11 @@ Namespace Templatizer
                         End Try
                         copia = copia.Replace(ApplySelector(i), v)
                     Next
+
+
+
+
+
                     'replace nas procedures
                     For Each templateTag As HtmlTag In copia.GetElementsByTagName("template")
                         templateTag.ReplaceIn(copia)
@@ -283,6 +288,24 @@ Namespace Templatizer
                         End If
                         copia = copia.Replace(templateTag.ToString, tp)
                     Next
+
+                    'replace nos if
+
+                    For Each conditionTag As HtmlTag In copia.GetElementsByTagName("condition")
+                        Dim expression = conditionTag.GetElementsByTagName("expression").First
+                        expression.ReplaceIn(conditionTag.InnerHtml.Trim)
+                        Dim content = conditionTag.GetElementsByTagName("content").First
+                        content.ReplaceIn(conditionTag.InnerHtml)
+                        conditionTag.ReplaceIn(copia)
+                        Dim oldtag = conditionTag.ToString
+
+                        If CType(Mathematic.EvaluateExpression(expression.InnerHtml), Boolean) Then
+                            copia = copia.Replace(oldtag, content.InnerHtml)
+                        Else
+                            copia = copia.Replace(oldtag, "")
+                        End If
+                    Next
+
                     Select Case GetType(Type)
                         Case GetType(String)
                             response = response & copia
@@ -349,10 +372,10 @@ Namespace Templatizer
         ''' <summary>
         ''' Retorna uma string HTML com todos os templates processados e o conteúdo do Head
         ''' </summary>
-        ''' <param name="AscendingOrder">Se TRUE, Ordem crescente</param>
+        ''' <param name="OrderBy">Se TRUE, Ordem crescente</param>
         ''' <returns></returns>
-        Public Function BuildHtml(Optional AscendingOrder As Boolean = True) As String
-            Return ReOrder(AscendingOrder).ToString()
+        Public Function BuildHtml(Optional OrderBy As TemplateOrder = 0) As String
+            Return ReOrder(OrderBy).ToString()
         End Function
 
         ''' <summary>
@@ -458,11 +481,18 @@ Namespace Templatizer
         ''' <summary>
         ''' Reordena a lista de acordo com a propriedade <see cref="Template.Order"/>
         ''' </summary>
-        ''' <param name="AscendingOrder">Se TRUE, Ordem crescente</param>
+        ''' <param name="OrderBy">Se TRUE, Ordem crescente</param>
         ''' <returns></returns>
-        Function ReOrder(Optional AscendingOrder = True) As TemplateList
-            Me.Sort(Function(x, y) If(IsNothing(x), y, x).CompareTo(y))
-            If Not AscendingOrder Then Me.Reverse()
+        Function ReOrder(Optional OrderBy As TemplateOrder = 0) As TemplateList
+            Select Case OrderBy
+                Case TemplateOrder.AscendingOrder, TemplateOrder.DescendingOrder
+                    Me.Sort(Function(x, y) If(IsNothing(x), y, x).CompareTo(y))
+                Case TemplateOrder.DescendingOrder
+                    Me.Reverse()
+                Case TemplateOrder.RandomOrder
+                    Me.Shuffle
+                Case Else
+            End Select
             Return Me
         End Function
 
@@ -706,5 +736,27 @@ Namespace Templatizer
         End Operator
 
     End Class
+
+    ''' <summary>
+    ''' Define o Comportamento de ordenação dos itens do templatizer
+    ''' </summary>
+    Public Enum TemplateOrder
+        ''' <summary>
+        ''' Ordem Default (definida normalmente na clausula "order by" da query SQL)
+        ''' </summary>
+        DataBaseDefault = 0
+        ''' <summary>
+        ''' Ordem crescente de acordo com a propriedade <see cref="Template.Order"/>
+        ''' </summary>
+        AscendingOrder = 1
+        ''' <summary>
+        ''' Ordem decrescente de acordo com a propriedade <see cref="Template.Order"/>
+        ''' </summary>
+        DescendingOrder = 2
+        ''' <summary>
+        ''' Ordem aleatória
+        ''' </summary>
+        RandomOrder = 3
+    End Enum
 
 End Namespace

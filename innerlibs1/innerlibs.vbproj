@@ -91,6 +91,18 @@
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />
     <Compile Include="Dice.vb" />
+    <Compile Include="Evalz\Evaluator.vb" />
+    <Compile Include="Evalz\EvalVariable.vb" />
+    <Compile Include="Evalz\Globals.vb" />
+    <Compile Include="Evalz\interfaces\iEvalFunctions.vb" />
+    <Compile Include="Evalz\interfaces\iEvalHasDescription.vb" />
+    <Compile Include="Evalz\interfaces\iEvalTypedValue.vb" />
+    <Compile Include="Evalz\interfaces\iEvalValue.vb" />
+    <Compile Include="Evalz\interfaces\iVariableBag.vb" />
+    <Compile Include="Evalz\opCode.vb" />
+    <Compile Include="Evalz\Parser.vb" />
+    <Compile Include="Evalz\Tokenizer.vb" />
+    <Compile Include="Evalz\VariableNotFoundException.vb" />
     <Compile Include="FileLogger.vb" />
     <Compile Include="Files.vb" />
     <Compile Include="Calendars.vb" />
@@ -196,7 +208,6 @@
     <Content Include="js\InnerLibs.js" />
     <Content Include="js\jquery.innerform.js" />
     <EmbeddedResource Include="providers.json" />
-    <None Include="Resources\zsnesw.exe" />
     <EmbeddedResource Include="GoogleMap.html" />
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +232,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{94E38DFF-614B-4CBD-B67C-F211BB35CE8B}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
