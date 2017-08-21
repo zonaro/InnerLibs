@@ -165,6 +165,23 @@ Namespace Templatizer
             Return ""
         End Function
 
+
+        ''' <summary>
+        ''' Valores customizados que serão acrescentados as colunas do Templatizer duranto o processamento
+        ''' </summary>
+        Public ReadOnly CustomValues As New Dictionary(Of String, Object)
+
+        ''' <summary>
+        ''' Adiciona um valor customizado ao processamento do templatizer
+        ''' </summary>
+        ''' <param name="Key">Key</param>
+        ''' <param name="Value">Valor</param>
+        ''' <returns>Si prorio</returns>
+        Public Function AddCustomValue(Key As String, Value As Object) As Templatizer
+            CustomValues(Key) = Value
+            Return Me
+        End Function
+
         ''' <summary>
         ''' Processa os comandos SQL de varios templates e cria uma unica lista com todos eles
         ''' </summary>
@@ -290,8 +307,13 @@ Namespace Templatizer
                         copia = copia.Replace(templateTag.ToString, tp)
                     Next
 
-                    'replace nos if
+                    'replace nos custom
+                    For Each item In CustomValues
+                        copia = copia.Replace(Me.ApplySelector(item.Key), item.Value.ToString)
+                    Next
 
+
+                    'replace nos if
                     For Each conditionTag As HtmlTag In copia.GetElementsByTagName("condition")
                         Dim oldtag = ""
                         Try
