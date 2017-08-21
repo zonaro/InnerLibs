@@ -204,6 +204,7 @@ Namespace Templatizer
         ''' <returns></returns>
         Public Function LoadQuery(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = "") As TemplateList
             Return processar(Of TemplateList)(SQLQuery, TemplateFile, OrderByColumn)
+            CustomValues.Clear()
         End Function
 
         ''' <summary>
