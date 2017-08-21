@@ -214,8 +214,9 @@ Namespace Templatizer
             End Get
         End Property
 
-        Friend Function processar(Of Type)(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = "") As Type
+        Friend Function processar(Of Type)(SQLQuery As String, TemplateFile As String, Optional OrderByColumn As String = "", Optional TemplateOrder As TemplateOrder = TemplateOrder.DataBaseDefault) As Type
             Dim response As Object = Nothing
+
 
             Select Case GetType(Type)
                 Case GetType(String)
@@ -292,18 +293,24 @@ Namespace Templatizer
                     'replace nos if
 
                     For Each conditionTag As HtmlTag In copia.GetElementsByTagName("condition")
-                        Dim expression = conditionTag.GetElementsByTagName("expression").First
-                        expression.ReplaceIn(conditionTag.InnerHtml.Trim)
-                        Dim content = conditionTag.GetElementsByTagName("content").First
-                        content.ReplaceIn(conditionTag.InnerHtml)
-                        conditionTag.ReplaceIn(copia)
-                        Dim oldtag = conditionTag.ToString
-
-                        If CType(Mathematic.EvaluateExpression(expression.InnerHtml), Boolean) Then
-                            copia = copia.Replace(oldtag, content.InnerHtml)
-                        Else
+                        Dim oldtag = ""
+                        Try
+                            Dim expression = conditionTag.GetElementsByTagName("expression").First
+                            expression.ReplaceIn(conditionTag.InnerHtml.Trim)
+                            Dim content = conditionTag.GetElementsByTagName("content").First
+                            content.ReplaceIn(conditionTag.InnerHtml)
+                            conditionTag.ReplaceIn(copia)
+                            oldtag = conditionTag.ToString
+                            Dim resultexp = EvaluateExpression(expression.InnerHtml)
+                            If resultexp = True Or resultexp > 0 Then
+                                copia = copia.Replace(oldtag, content.InnerHtml)
+                            Else
+                                copia = copia.Replace(oldtag, "")
+                            End If
+                        Catch ex As Exception
                             copia = copia.Replace(oldtag, "")
-                        End If
+                        End Try
+
                     Next
 
                     Select Case GetType(Type)
