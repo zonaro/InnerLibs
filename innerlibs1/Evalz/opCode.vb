@@ -322,7 +322,7 @@ Friend Class opCodeBinary
                         mValueDelegate = AddressOf BOOL_AND_BOOL
                         mEvalType = EvalType.Boolean
                 End Select
-            Case eTokenType.operator_lt, eTokenType.operator_le, eTokenType.operator_gt, eTokenType.operator_ge, eTokenType.operator_eq
+            Case eTokenType.operator_lt, eTokenType.operator_le, eTokenType.operator_gt, eTokenType.operator_ge, eTokenType.operator_eq, eTokenType.operator_ne
                 Select Case tt
                     Case eTokenType.operator_lt
                         mValueDelegate = AddressOf NUM_LT_NUM
@@ -345,6 +345,17 @@ Friend Class opCodeBinary
                             Case EvalType.Date
                                 mValueDelegate = AddressOf DATE_EQ_DATE
                         End Select
+                        mEvalType = EvalType.Boolean
+                    Case eTokenType.operator_ne
+                        Select Case v1Type
+                            Case EvalType.Number
+                                mValueDelegate = AddressOf NUM_NE_NUM
+                            Case EvalType.String
+                                mValueDelegate = AddressOf STR_NE_STR
+                            Case EvalType.Date
+                                mValueDelegate = AddressOf DATE_NE_DATE
+                        End Select
+
 
                         mEvalType = EvalType.Boolean
                 End Select
@@ -422,12 +433,20 @@ Friend Class opCodeBinary
         Return DirectCast(mParam1.value, Date).Date = (DirectCast(mParam2.value, Date)).Date
     End Function
 
+    Private Function DATE_NE_DATE() As Object
+        Return Not DirectCast(mParam1.value, Date).Date = (DirectCast(mParam2.value, Date)).Date
+    End Function
+
     Private Function STR_CONCAT_STR() As Object
         Return mParam1.value.ToString & mParam2.value.ToString
     End Function
 
     Private Function STR_EQ_STR() As Object
         Return mParam1.value.ToString = mParam2.value.ToString
+    End Function
+
+    Private Function STR_NE_STR() As Object
+        Return mParam1.value.ToString <> mParam2.value.ToString
     End Function
 
     Private Function NUM_DIV_NUM() As Object
