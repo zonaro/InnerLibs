@@ -844,7 +844,7 @@ Public NotInheritable Class DataBase
     ''' <param name="Columns">Colunas do INSERT</param>
     ''' <returns></returns>
     Public Function CreateInsertCommandText(TableName As String, ParamArray Columns As String()) As String
-        Return String.Format("INSERT INTO " & TableName & " ({0}) values (@{1})", Columns.Join(","), Columns.Join(", @").RemoveLastIf("@"))
+        Return String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", Columns.Join(","), Columns.Select(Function(p) "@" & p).ToArray.Join(","))
     End Function
 
     ''' <summary>
