@@ -329,7 +329,6 @@ Public Module Web
         Next
         Return ProcedureName.Trim.TrimEnd(",")
     End Function
-
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de
     ''' uma URL como parametros da procedure
@@ -341,6 +340,58 @@ Public Module Web
     Public Function ToProcedure(Request As HttpRequest, ByVal ProcedureName As String) As String
         Return Request.ToProcedure(ProcedureName, Request.QueryString.AllKeys)
     End Function
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+    ''' uma URL como as colunas da tabela de destino
+    ''' </summary>
+    ''' <param name="Request">        Requisicao HTTP</param>
+    ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
+        Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
+        For Each col In QueryStringKeys
+            cmd.Append(String.Format(" {0} = {1},", col, Request(col).IsNull(Not Request(col).IsNumber)) & Environment.NewLine)
+        Next
+        cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
+        Return cmd
+    End Function
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+    ''' uma URL como as colunas da tabela de destino
+    ''' </summary>
+    ''' <param name="Request">        Requisicao HTTP</param>
+    ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String)
+        Return Request.ToUPDATE(TableName, WhereClausule, Request.QueryString.AllKeys.ToArray)
+    End Function
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+    ''' uma URL como as colunas da tabela de destino
+    ''' </summary>
+    ''' <param name="Request">        Requisicao HTTP</param>
+    ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String, ParamArray QueryStringKeys As String())
+        Return String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).IsNull(Not Request(p).IsNumber)).ToArray.Join(","))
+    End Function
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+    ''' uma URL como as colunas da tabela de destino
+    ''' </summary>
+    ''' <param name="Request">        Requisicao HTTP</param>
+    ''' <param name="TableName">  Nome da Tabela</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String)
+        Return Request.ToINSERT(TableName, Request.QueryString.AllKeys.ToArray)
+    End Function
+
+
 
     ''' <summary>
     ''' Escreve um texto e finaliza um HttpResponse
@@ -484,7 +535,7 @@ Public Module Web
         If ScriptOrURL.IsURL Then
             Response.Write("<script src=" & ScriptOrURL.Quote & " ></script>")
         Else
-            Response.Write("<script>" + ScriptOrURL + "</script>")
+            Response.Write("<script>" & ScriptOrURL & "</script>")
         End If
 
     End Sub
