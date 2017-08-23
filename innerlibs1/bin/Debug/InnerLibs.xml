@@ -173,6 +173,19 @@ InnerLibs
  <param name="Templatefile">Nome do arquivo do template</param>
  <returns></returns>
 </member>
+<member name="F:InnerLibs.Templatizer.Templatizer.CustomValues">
+ <summary>
+ Valores customizados que serão acrescentados as colunas do Templatizer duranto o processamento
+ </summary>
+</member>
+<member name="M:InnerLibs.Templatizer.Templatizer.AddCustomValue(System.String,System.Object)">
+ <summary>
+ Adiciona um valor customizado ao processamento do templatizer
+ </summary>
+ <param name="Key">Key</param>
+ <param name="Value">Valor</param>
+ <returns>Si prorio</returns>
+</member>
 <member name="M:InnerLibs.Templatizer.Templatizer.LoadTemplates(InnerLibs.Templatizer.Template[])">
  <summary>
  Processa os comandos SQL de varios templates e cria uma unica lista com todos eles
@@ -7395,6 +7408,44 @@ Atualiza a lista de keys
  <param name="ProcedureName">Nome da Procedure</param>
  <returns>Uma string com o comando montado</returns>
 </member>
+<member name="M:InnerLibs.Web.ToUPDATE(System.Web.HttpRequest,System.String,System.String,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+ uma URL como as colunas da tabela de destino
+ </summary>
+ <param name="Request">        Requisicao HTTP</param>
+ <param name="TableName">  Nome da Procedure</param>
+ <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToUPDATE(System.Web.HttpRequest,System.String,System.String)">
+ <summary>
+ Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+ uma URL como as colunas da tabela de destino
+ </summary>
+ <param name="Request">        Requisicao HTTP</param>
+ <param name="TableName">  Nome da Procedure</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToINSERT(System.Web.HttpRequest,System.String,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+ uma URL como as colunas da tabela de destino
+ </summary>
+ <param name="Request">        Requisicao HTTP</param>
+ <param name="TableName">  Nome da Procedure</param>
+ <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToINSERT(System.Web.HttpRequest,System.String)">
+ <summary>
+ Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+ uma URL como as colunas da tabela de destino
+ </summary>
+ <param name="Request">        Requisicao HTTP</param>
+ <param name="TableName">  Nome da Tabela</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
 <member name="M:InnerLibs.Web.WriteEnd(System.Web.HttpResponse,System.String)">
  <summary>
  Escreve um texto e finaliza um HttpResponse
@@ -7585,6 +7636,22 @@ Atualiza a lista de keys
  <param name="Value">   Valor do Item</param>
  <param name="Selected">Indica se o item está selecionado ou não</param>
  <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.RangeDownload(System.Web.HttpContext@,System.Byte[]@,InnerLibs.FileType)">
+ <summary>
+ Realiza um download parcial de um <see cref="T:System.Byte"/>
+ </summary>
+ <param name="Context">Context HTTP</param>
+ <param name="Bytes">Byte array</param>
+ <param name="FileType">Tipo do Arquivo</param>
+</member>
+<member name="M:InnerLibs.Web.RangeDownload(System.Web.HttpContext@,System.Byte[]@,System.String)">
+ <summary>
+ Realiza um download parcial de um <see cref="T:System.Byte"/>
+ </summary>
+ <param name="Context">Context HTTP</param>
+ <param name="Bytes">Byte array</param>
+ <param name="ContentType">MIME Type do Download</param>
 </member>
 <member name="T:InnerLibs.WinForms">
  <summary>

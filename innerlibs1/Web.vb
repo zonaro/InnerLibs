@@ -678,25 +678,27 @@ Public Module Web
     ''' </summary>
     ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
-    <Extension()> Public Sub SelectValues(Control As HtmlSelect, ParamArray Values As String())
+    <Extension()> Public Function SelectValues(Control As HtmlSelect, ParamArray Values As String()) As HtmlSelect
         If Values.Length > 1 Then
             Control.Multiple = True
         End If
         For Each i As ListItem In Control.Items
             i.Selected = Values.Select(Function(x) x.ToLower).ToArray.Contains(i.Value.ToLower.ToString)
         Next
-    End Sub
+        Return Control
+    End Function
 
     ''' <summary>
     ''' Desseleciona Valores de um <see cref="HtmlSelect"/>
     ''' </summary>
     ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
-    <Extension()> Public Sub DisselectValues(Control As HtmlSelect, ParamArray Values As String())
+    <Extension()> Public Function DisselectValues(Control As HtmlSelect, ParamArray Values As String()) As HtmlSelect
         For Each i As ListItem In Control.Items
             If Values.LongCount = 0 OrElse i.Value.IsIn(Values) Then i.Selected = False
         Next
-    End Sub
+        Return Control
+    End Function
 
     ''' <summary>
     ''' Adiciona um novo <see cref="ListItem"/> ao <see cref="HtmlSelect"/>
@@ -712,5 +714,114 @@ Public Module Web
         If Selected Then Control.SelectValues(Text)
         Return li
     End Function
+
+    ''' <summary>
+    ''' Realiza um download parcial de um <see cref="Byte()"/>
+    ''' </summary>
+    ''' <param name="Context">Context HTTP</param>
+    ''' <param name="Bytes">Byte array</param>
+    ''' <param name="FileType">Tipo do Arquivo</param>
+    <Extension()> Public Sub RangeDownload(ByRef Context As HttpContext, ByRef Bytes As Byte(), ByVal FileType As FileType)
+        Context.RangeDownload(Bytes, FileType.ToString)
+    End Sub
+
+    ''' <summary>
+    ''' Realiza um download parcial de um <see cref="Byte()"/>
+    ''' </summary>
+    ''' <param name="Context">Context HTTP</param>
+    ''' <param name="Bytes">Byte array</param>
+    ''' <param name="ContentType">MIME Type do Download</param>
+    <Extension()>
+    Public Sub RangeDownload(ByRef Context As HttpContext, ByRef Bytes As Byte(), ByVal ContentType As String)
+        Context.Response.ContentType = ContentType
+        Dim size As Long
+        Dim start As Long
+        Dim theend As Long
+        Dim length As Long
+        Dim fp As Long = 0
+        Using reader As New StreamReader(New MemoryStream(Bytes))
+            size = reader.BaseStream.Length
+            start = 0
+            theend = size - 1
+            length = size
+            '/ Now that we've gotten so far without errors we send the accept range header
+            '* At the moment we only support single ranges.
+            '* Multiple ranges requires some more work to ensure it works correctly
+            '* and comply with the spesifications: http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.2
+            '*
+            '* Multirange support annouces itself with:
+            '* header('Accept-Ranges: bytes');
+            '*
+            '* Multirange content must be sent with multipart/byteranges mediatype,
+            '* (mediatype = mimetype)
+            '* as well as a boundry header to indicate the various chunks of data.
+            '*/
+            Context.Response.AddHeader("Accept-Ranges", "0-" + size)
+            '// header('Accept-Ranges: bytes')
+            '// multipart/byteranges
+            '// http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.2
+
+            If (Not String.IsNullOrEmpty(Context.Request.ServerVariables("HTTP_RANGE"))) Then
+                Dim anotherStart As Long = start
+                Dim anotherEnd As Long = theend
+                Dim arr_split As String() = Context.Request.ServerVariables("HTTP_RANGE").Split("=") 'new char[] { Convert.ToChar("=") })
+                Dim range As String = arr_split(1)
+
+                '// Make sure the client hasn't sent us a multibyte range
+                If (range.IndexOf(",") > -1) Then
+                    '// (?) Shoud this be issued here, or should the first
+                    '// range be used? Or should the header be ignored and
+                    '// we output the whole content?
+                    Context.Response.AddHeader("Content-Range", "bytes " & start & "-" & theend & "/" & size)
+                    Throw New HttpException(416, "Requested Range Not Satisfiable")
+                End If
+
+                '// If the range starts with an '-' we start from the beginning
+                '// If not, we forward the file pointer
+                '// And make sure to get the end byte if spesified
+                If (range.StartsWith("-")) Then
+                    '// The n-number of the last bytes is requested
+                    anotherStart = size - Convert.ToInt64(range.Substring(1))
+                Else
+                    arr_split = range.Split("-")
+                    anotherStart = Convert.ToInt64(arr_split(0))
+                    Dim temp As Long = 0
+                    If (arr_split.Length > 1 AndAlso Int64.TryParse(arr_split(1).ToString(), temp)) Then
+                        anotherEnd = Convert.ToInt64(arr_split(1))
+                    Else
+                        anotherEnd = size
+                    End If
+                End If
+                '/* Check the range and make sure it's treated according to the specs.
+                ' * http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+                ' */
+                '// End bytes can not be larger than $end.
+                If (anotherEnd > theend) Then
+                    anotherEnd = theend
+                Else
+                    anotherEnd = anotherEnd
+                End If
+                '// Validate the requested range and return an error if it's not correct.
+                If (anotherStart > anotherEnd Or anotherStart > size - 1 Or anotherEnd >= size) Then
+                    Context.Response.AddHeader("Content-Range", "bytes " + start + "-" + theend + "/" + size)
+                    Throw New HttpException(416, "Requested Range Not Satisfiable")
+                End If
+
+                start = anotherStart
+                theend = anotherEnd
+
+                length = theend - start + 1 '// Calculate new content length
+                fp = reader.BaseStream.Seek(start, SeekOrigin.Begin)
+                Context.Response.StatusCode = 206
+            End If
+        End Using
+
+        '// Notify the client the byte range we'll be outputting
+        Context.Response.AddHeader("Content-Range", "bytes " & start & "-" & theend & "/" & size)
+        Context.Response.AddHeader("Content-Length", length.ToString())
+        '// Start buffered download
+        Context.Response.OutputStream.Write(Bytes, fp, length)
+        Context.Response.End()
+    End Sub
 
 End Module

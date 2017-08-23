@@ -314,6 +314,7 @@ Namespace Templatizer
                     Next
 
 
+
                     'replace nos if
                     For Each conditionTag As HtmlTag In copia.GetElementsByTagName("condition")
                         Dim oldtag = ""
