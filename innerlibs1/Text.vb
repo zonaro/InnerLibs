@@ -930,11 +930,8 @@ Public Module Text
     ''' <param name="Text"> </param>
     ''' <param name="Words"></param>
     ''' <returns></returns>
-    <Extension()> Function StarsWithAny(Text As String, ParamArray Words As String()) As Boolean
-        For Each w In Words
-            If Text.StartsWith(w) Then Return True
-        Next
-        Return False
+    <Extension()> Function StartsWithAny(Text As String, ParamArray Words As String()) As Boolean
+        Return Words.Select(Function(p) Text.StartsWith(p)).Contains(True)
     End Function
 
     ''' <summary>
@@ -944,10 +941,7 @@ Public Module Text
     ''' <param name="Words"></param>
     ''' <returns></returns>
     <Extension()> Function EndsWithAny(Text As String, ParamArray Words As String()) As Boolean
-        For Each w In Words
-            If Text.EndsWith(w) Then Return True
-        Next
-        Return False
+        Return Words.Select(Function(p) Text.EndsWith(p)).Contains(True)
     End Function
 
     ''' <summary>
@@ -968,7 +962,7 @@ Public Module Text
                 censored.Append(CensorshipCharacter)
             Next
             For index = 0 To words.Length - 1
-                If words(index).RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower = bad.ToLower Then
+                If words(index).RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower = bad.RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower Then
                     words(index) = words(index).ToLower().Replace(bad, censored)
                     IsCensored = True
                 End If
@@ -1055,7 +1049,7 @@ Public Module Text
     <Extension()>
     Public Function RemoveFirstAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StartStringTest As String()) As String
         Dim re = Text
-        While re.StarsWithAny(StartStringTest)
+        While re.StartsWithAny(StartStringTest)
             For Each item In StartStringTest
                 If re.StartsWith(item) Then
                     re = re.RemoveFirstIf(item)
@@ -1077,8 +1071,13 @@ Public Module Text
     ''' <param name="StringTest">        Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()> Public Function TrimAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StringTest As String()) As String
-        Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
-        Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest)
+        While Text.EndsWithAny(StringTest)
+            Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest)
+        End While
+
+        While Text.StartsWithAny(StringTest)
+            Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
+        End While
         Return Text
     End Function
 
