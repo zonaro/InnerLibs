@@ -695,7 +695,7 @@ Public Module Web
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
     <Extension()> Public Function DisselectValues(Control As HtmlSelect, ParamArray Values As String()) As HtmlSelect
         For Each i As ListItem In Control.Items
-            If Values.LongCount = 0 OrElse i.Value.IsIn(Values) Then i.Selected = False
+            If IsNothing(Values) OrElse Values.LongCount = 0 OrElse i.Value.IsIn(Values) Then i.Selected = False
         Next
         Return Control
     End Function

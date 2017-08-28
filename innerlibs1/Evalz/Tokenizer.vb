@@ -193,9 +193,9 @@ Public Class tokenizer
             NextChar()
         End While
         Select Case value.ToString
-            Case "and"
+            Case "and", "&&"
                 type = eTokenType.operator_and
-            Case "or"
+            Case "or", "||"
                 type = eTokenType.operator_or
             Case "not"
                 type = eTokenType.operator_not
