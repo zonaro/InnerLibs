@@ -8,6 +8,18 @@ Imports System.Windows.Forms
 Public Module ClassTools
 
     ''' <summary>
+    ''' Conta de maneira distinta items de uma coleçao
+    ''' </summary>
+    ''' <typeparam name="Type">TIpo de Objeto</typeparam>
+    ''' <param name="Arr">colecao</param>
+    ''' <returns></returns>
+    <Extension()> Public Function DistinctCount(Of Type)(Arr As IEnumerable(Of Type)) As IDictionary(Of Type, Long)
+        Return Arr.Distinct.Select(Function(p) New KeyValuePair(Of Type, Long)(p, Arr.Where(Function(x) x.Equals(p)).LongCount)).OrderByDescending(Function(p) p.Value).ToDictionary(Function(p) p.Key, Function(p) p.Value)
+    End Function
+
+
+
+    ''' <summary>
     ''' Traz uma Lista com todas as propriedades de um objeto
     ''' </summary>
     ''' <param name="MyObject">Objeto</param>

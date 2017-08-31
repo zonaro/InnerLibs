@@ -1140,19 +1140,36 @@ Public Module Text
     ''' <param name="Separator">Texto utilizado como separador</param>
     ''' <returns></returns>
     <Extension>
-    Public Function Split(Text As String, Separator As String, Optional Options As StringSplitOptions = StringSplitOptions.None) As String()
-        Dim l As New List(Of String)
-        l.Add(Separator)
-        Return If(Text, "").Split(l.ToArray, StringSplitOptions.None)
+    Public Function Split(Text As String, Separator As String, Optional Options As StringSplitOptions = StringSplitOptions.RemoveEmptyEntries) As String()
+        Return If(Text, "").Split({Separator}, Options)
     End Function
 
     ''' <summary>
-    ''' Retorna as plavaras contidas em uma frase em ordem alfabética
+    ''' Retorna as plavaras contidas em uma frase em ordem alfabética e sua respectiva quantidade
     ''' </summary>
     ''' <param name="Text">TExto</param>
     ''' <returns></returns>
-    <Extension()> Function GetWords(Text As String) As List(Of String)
-        Return Text.Split(" ", StringSplitOptions.RemoveEmptyEntries).Distinct.OrderBy(Of String)(Function(q) q = q).ToList
+    <Extension()> Function GetWords(Text As String, Optional RemoveDiacritics As Boolean = True) As Dictionary(Of String, Long)
+        Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split({"""", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "|", " ", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries).ToList
+        If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics).ToList
+        Return palavras.DistinctCount()
+    End Function
+
+
+    ''' <summary>
+    ''' Extrai palavras chave de um texto
+    ''' </summary>
+    ''' <param name="Text">TExto principal</param>
+    ''' <param name="MinWordCount">minimo de aparições da palavra no texto</param>
+    ''' <param name="MinWordLenght">minimo de tamanho da palavra</param>
+    ''' <param name="IgnoredWords">palavras ignoradas</param>
+    ''' <param name="RemoveDiacritics">TRUE para remover acentos</param>
+    ''' <returns></returns>
+    <Extension()> Function GetKeyWords(Text As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional ByVal IgnoredWords As String() = Nothing, Optional RemoveDiacritics As Boolean = True) As Dictionary(Of String, Long)
+        Dim palavras = Text.GetWords(RemoveDiacritics)
+        IgnoredWords = If(IgnoredWords, {})
+        If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
+        Return palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).ToDictionary(Function(p) p.Key, Function(p) p.Value)
     End Function
 
     ''' <summary>
@@ -1800,20 +1817,6 @@ Public Module Text
     ''' </summary>
     ''' <param name="List">Lista de palavras</param>
     ''' <returns></returns>
-    <Extension()> Public Function DistinctCount(ByVal List As List(Of String)) As Dictionary(Of String, Integer)
-        Dim dic As New Dictionary(Of String, Integer)
-        List.Sort()
-        For Each name As String In List.Distinct()
-            dic.Add(name, List.Where(Function(x) x = name).Count)
-        Next
-        Return dic
-    End Function
-
-    ''' <summary>
-    ''' Cria um dicionário com as palavras de uma lista e a quantidade de cada uma.
-    ''' </summary>
-    ''' <param name="List">Lista de palavras</param>
-    ''' <returns></returns>
     Public Function DistinctCount(ParamArray List As String()) As Dictionary(Of String, Integer)
         Return List.ToList.DistinctCount
     End Function
@@ -1918,7 +1921,7 @@ Public Module Text
     ''' <returns>String fixada</returns>
     <Extension>
     Public Function FixBreakLines(Text As String) As String
-        Return Text.Replace("<br />", vbCr & vbLf).Replace("<br>", vbCr & vbLf)
+        Return Text.Replace(vbCr & vbLf, "<br/>", "<br />", "<br>")
     End Function
 
     ''' <summary>

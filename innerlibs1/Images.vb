@@ -13,6 +13,39 @@ Imports System.Windows.Forms
 Public Module Images
 
     ''' <summary>
+    ''' Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF)
+    ''' </summary>
+    ''' <param name="Img">Imagem</param>
+    ''' <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
+    <Extension()>
+    Public Function TestAndRotate(ByRef Img As Image) As Boolean
+        Dim rft As RotateFlipType = RotateFlipType.RotateNoneFlipNone
+        Dim properties As PropertyItem() = Img.PropertyItems
+        Dim bReturn As Boolean = False
+        For Each p As PropertyItem In properties
+            If p.Id = 274 Then
+                Dim orientation As Short = BitConverter.ToInt16(p.Value, 0)
+                Select Case orientation
+                    Case 1
+                        rft = RotateFlipType.RotateNoneFlipNone
+                    Case 3
+                        rft = RotateFlipType.Rotate180FlipNone
+                    Case 6
+                        rft = RotateFlipType.Rotate90FlipNone
+                    Case 8
+                        rft = RotateFlipType.Rotate270FlipNone
+                End Select
+            End If
+        Next
+        If rft <> RotateFlipType.RotateNoneFlipNone Then
+            Img.RotateFlip(rft)
+            bReturn = True
+        End If
+        Return bReturn
+
+    End Function
+
+    ''' <summary>
     ''' Insere um texto de marca Dágua na imagem
     ''' </summary>
     ''' <param name="Image">Imagem</param>

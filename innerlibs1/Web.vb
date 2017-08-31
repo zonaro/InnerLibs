@@ -546,7 +546,7 @@ Public Module Web
     ''' <param name="URL">URL do Facebook</param>
     ''' <returns></returns>
     <Extension> Public Function GetFacebookUsername(URL As String) As String
-        If URL.IsURL AndAlso URL.GetDomain.ToLower = "facebook.com" Then
+        If URL.IsURL AndAlso URL.GetDomain.ToLower.IsAny("facebook.com", "fb.com") Then
             Return Regex.Match(URL, "(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups(1).Value
         Else
             Throw New Exception("Invalid Facebook URL")
@@ -568,7 +568,7 @@ Public Module Web
     ''' <param name="URL">Url do Youtube</param>
     ''' <returns></returns>
     Public Function GetYoutubeThumbnail(URL As String) As Drawing.Image
-        Return AJAX.GET(Of Drawing.Image)("http://img.youtube.com/vi/" & GetYoutubeVideoId(URL) & "/hqdefault.jpg")
+        Return AJAX.GET(Of Drawing.Image)("http://img.youtube.com/vi/" & GetVideoId(URL) & "/hqdefault.jpg")
     End Function
 
     ''' <summary>
@@ -580,17 +580,26 @@ Public Module Web
         Return GetYoutubeThumbnail(URL.AbsoluteUri)
     End Function
 
+
+
     ''' <summary>
-    ''' Captura o ID de um video do youtube em uma URL
+    ''' Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
     ''' </summary>
     ''' <param name="URL">URL do video</param>
-    ''' <returns>ID do video do youtube</returns>
+    ''' <returns>ID do video do youtube ou Vimeo</returns>
 
-    Public Function GetYoutubeVideoId(URL As String) As String
-        If URL.IsURL AndAlso URL.GetDomain.ContainsAny("youtube", "youtu") Then
-            Return Regex.Match(URL.Replace("&feature=youtu.be"), "(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups(1).Value
+    Public Function GetVideoId(URL As String) As String
+        If URL.IsURL Then
+            Select Case True
+                Case URL.GetDomain.ContainsAny("youtube", "youtu")
+                    Return Regex.Match(URL.Replace("&feature=youtu.be"), "(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups(1).Value
+                Case URL.GetDomain.ContainsAny("vimeo")
+                    Return Regex.Match(URL, "vimeo\.com/(?:.*#|.*/videos/)?([0-9]+)").Groups(1).Value
+                Case Else
+                    Throw New Exception("Invalid Youtube or Vimeo URL")
+            End Select
         Else
-            Throw New Exception("Invalid Youtube URL")
+            Throw New Exception("Invalid Youtube or Vimeo URL")
         End If
     End Function
 
@@ -600,8 +609,8 @@ Public Module Web
     ''' <param name="URL">URL do video</param>
     ''' <returns>ID do video do youtube</returns>
     <Extension>
-    Public Function GetYoutubeVideoId(URL As Uri) As String
-        Return GetYoutubeVideoId(URL.AbsoluteUri)
+    Public Function GetVideoId(URL As Uri) As String
+        Return GetVideoId(URL.AbsoluteUri)
     End Function
 
     ''' <summary>
