@@ -16,7 +16,7 @@ Public Module Mathematic
         Dim val = Nothing
         Try
             val = New Evaluator().Parse(Formula).value
-            Debug.Write("Evaluated Expression: " & Formula & Environment.NewLine & "with value: " & val)
+            Debug.Write("Evaluated Expression: " & Formula & " with value: " & val & Environment.NewLine)
         Catch ex As Exception
             Debug.Write("Exception on Evaluated Expression: " & Formula & Environment.NewLine & ex.Message)
         End Try
