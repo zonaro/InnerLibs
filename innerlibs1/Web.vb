@@ -206,7 +206,7 @@ Public Module Web
     ''' </summary>
     ''' <param name="Page">Pagina atual</param>
     <Extension()>
-    Public Function DestroySessionAndCookies(Page As Page) As String
+    Public Function DestroySessionAndCookies(Page As HttpApplication) As String
         Try
             For Each key As String In Page.Request.Cookies.AllKeys
                 Dim c = Page.Request.Cookies(key)
@@ -292,11 +292,11 @@ Public Module Web
     ''' </summary>
     ''' <param name="App">       Aplicaçao HTTP</param>
     ''' <param name="URLPattern">REGEX da URL</param>
-    ''' <param name="URL">       URL original</param>
-    <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, URL As String) As Boolean
+    ''' <param name="OriginalURL">       URL original</param>
+    <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, OriginalURL As String) As Boolean
         Dim theurl = App.Request.Path
         If New Regex(URLPattern, RegexOptions.IgnoreCase).Match(theurl).Success Then
-            Dim novaurl = If(App.Request.IsSecureConnection, "https://", "http://") & App.Request.Url.GetDomain & "/" & URL.ToString
+            Dim novaurl = If(App.Request.IsSecureConnection, "https://", "http://") & App.Request.Url.GetDomain & "/" & OriginalURL.ToString
             novaurl = String.Format(novaurl, App.Request.Url.Segments)
             Dim novauri = New Uri(novaurl)
             For Each param In App.Request.QueryString.AllKeys

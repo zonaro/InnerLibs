@@ -17,6 +17,15 @@ Public Module ClassTools
         Return Arr.Distinct.Select(Function(p) New KeyValuePair(Of Type, Long)(p, Arr.Where(Function(x) x.Equals(p)).LongCount)).OrderByDescending(Function(p) p.Value).ToDictionary(Function(p) p.Key, Function(p) p.Value)
     End Function
 
+    ''' <summary>
+    ''' Converte uma classe para um <see cref="Dictionary"/>
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo da classe</typeparam>
+    ''' <param name="Obj">Object</param>
+    ''' <returns></returns>
+    <Extension()> Public Function CreateDictionary(Of Type)(Obj As Type) As Dictionary(Of String, Object)
+        Return Obj.[GetType]().GetProperties(BindingFlags.Instance Or BindingFlags.[Public]).ToDictionary(Function(prop) prop.Name, Function(prop) prop.GetValue(Obj, Nothing))
+    End Function
 
 
     ''' <summary>
