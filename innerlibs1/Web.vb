@@ -462,10 +462,10 @@ Public Module Web
     ''' <param name="Response">HttpResponse</param>
     ''' <param name="Image">   Imagem</param>
     <Extension()>
-    Public Sub WriteImage(Response As HttpResponse, Image As Drawing.Image)
+    Public Sub WriteImage(Response As HttpResponse, Image As Drawing.Image, Optional ImageFormat As Drawing.Imaging.ImageFormat = Nothing)
         Response.Clear()
         Response.ContentType = Image.GetFileType.First
-        Response.BinaryWrite(Image.ToBytes)
+        Response.BinaryWrite(Image.ToBytes(ImageFormat))
         Response.End()
     End Sub
 

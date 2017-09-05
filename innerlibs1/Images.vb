@@ -12,6 +12,28 @@ Imports System.Windows.Forms
 ''' 
 Public Module Images
 
+    <Extension> Public Function CropToSquare(img As Image, WidthHeight As Integer) As Image
+        Return img.Crop(WidthHeight, WidthHeight)
+    End Function
+
+    <Extension()> Public Function CropToCircle(Img As Image, Optional Background As Color? = Nothing) As Image
+        Dim dstImage As Bitmap = New Bitmap(Img.Width, Img.Height)
+        Dim g As Graphics = Graphics.FromImage(dstImage)
+        If Background.HasValue Then
+            Using br As Brush = New SolidBrush(Background)
+                g.FillRectangle(br, 0, 0, dstImage.Width, dstImage.Height)
+            End Using
+        Else
+            'dstImage.MakeTransparent(Color.Transparent)
+        End If
+        Dim path As New GraphicsPath()
+        path.AddEllipse(0, 0, dstImage.Width, dstImage.Height)
+        g.SetClip(path)
+        g.DrawImage(Img, 0, 0)
+        Return dstImage
+    End Function
+
+
     ''' <summary>
     ''' Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF)
     ''' </summary>
@@ -102,6 +124,8 @@ Public Module Images
     ''' <returns></returns>
     <Extension>
     Public Function DrawImage(Text As String, Width As Integer, Height As Integer, Optional Font As Font = Nothing, Optional TextColor As Color? = Nothing, Optional BackColor As Color? = Nothing) As Image
+        Width = Width.SetMinValue(1)
+        Height = Height.SetMinValue(1)
         If Not TextColor.HasValue Then TextColor = Color.Black
         Font = If(Font, New Font("Arial", 12))
         Dim bmp As New Bitmap(Width, Height)
@@ -115,6 +139,66 @@ Public Module Images
         graph.DrawString(Text, Font, BrushForeColor, point)
         Return bmp
     End Function
+
+
+    ''' <summary>
+    ''' Cropa uma imagem a patir do centro
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <param name="maxWidth">Largura maxima</param>
+    ''' <param name="maxHeight">Altura maxima</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Crop(Image As Image, MaxWidth As Integer, MaxHeight As Integer) As Image
+        Dim jpgInfo As ImageCodecInfo = ImageCodecInfo.GetImageEncoders().Where(Function(codecInfo) codecInfo.MimeType = "image/png").First()
+        Dim finalImage As Image = Image
+        Dim bitmap As System.Drawing.Bitmap = Nothing
+
+        Dim left As Integer = 0
+        Dim top As Integer = 0
+        Dim srcWidth As Integer = MaxWidth
+        Dim srcHeight As Integer = MaxHeight
+        bitmap = New System.Drawing.Bitmap(MaxWidth, MaxHeight)
+        Dim croppedHeightToWidth As Double = CDbl(MaxHeight) / MaxWidth
+        Dim croppedWidthToHeight As Double = CDbl(MaxWidth) / MaxHeight
+
+        If Image.Width > Image.Height Then
+            srcWidth = CInt(Math.Round(Image.Height * croppedWidthToHeight))
+            If srcWidth < Image.Width Then
+                srcHeight = Image.Height
+                left = (Image.Width - srcWidth) / 2
+            Else
+                srcHeight = CInt(Math.Round(Image.Height * (CDbl(Image.Width) / srcWidth)))
+                srcWidth = Image.Width
+                top = (Image.Height - srcHeight) / 2
+            End If
+        Else
+            srcHeight = CInt(Math.Round(Image.Width * croppedHeightToWidth))
+            If srcHeight < Image.Height Then
+                srcWidth = Image.Width
+                top = (Image.Height - srcHeight) / 2
+            Else
+                srcWidth = CInt(Math.Round(Image.Width * (CDbl(Image.Height) / srcHeight)))
+                srcHeight = Image.Height
+                left = (Image.Width - srcWidth) / 2
+            End If
+        End If
+        Using g As Graphics = Graphics.FromImage(bitmap)
+            g.SmoothingMode = SmoothingMode.HighQuality
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality
+            g.CompositingQuality = CompositingQuality.HighQuality
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic
+            g.DrawImage(Image, New Rectangle(0, 0, bitmap.Width, bitmap.Height), New Rectangle(left, top, srcWidth, srcHeight), GraphicsUnit.Pixel)
+            finalImage = bitmap
+        End Using
+        Using encParams As New EncoderParameters(1)
+            encParams.Param(0) = New EncoderParameter(Encoder.Quality, CLng(100))
+            Return finalImage
+        End Using
+
+
+    End Function
+
+
 
 
     ''' <summary>
@@ -311,7 +395,7 @@ Public Module Images
     <Extension()>
     Public Function ToBytes(Image As Image, Optional Format As ImageFormat = Nothing) As Byte()
         Using mStream As New MemoryStream()
-            Image.Save(mStream, If(Format, ImageFormat.Jpeg))
+            Image.Save(mStream, If(Format, ImageFormat.Png))
             Return mStream.ToArray()
         End Using
     End Function
