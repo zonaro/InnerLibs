@@ -3,9 +3,11 @@ Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
+Imports System.Threading
 Imports System.Web
 Imports System.Web.UI.HtmlControls
 Imports System.Xml
+Imports mshtml
 
 ''' <summary>
 ''' Modulo de manipulação de Texto
@@ -1165,11 +1167,11 @@ Public Module Text
     ''' <param name="IgnoredWords">palavras ignoradas</param>
     ''' <param name="RemoveDiacritics">TRUE para remover acentos</param>
     ''' <returns></returns>
-    <Extension()> Function GetKeyWords(Text As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional ByVal IgnoredWords As String() = Nothing, Optional RemoveDiacritics As Boolean = True) As Dictionary(Of String, Long)
+    <Extension()> Function GetKeyWords(Text As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional ByVal IgnoredWords As String() = Nothing, Optional RemoveDiacritics As Boolean = True, Optional LimitCollection As Integer = 0) As Dictionary(Of String, Long)
         Dim palavras = Text.GetWords(RemoveDiacritics)
         IgnoredWords = If(IgnoredWords, {})
         If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
-        Return palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).ToDictionary(Function(p) p.Key, Function(p) p.Value)
+        Return palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection)).ToDictionary(Function(p) p.Key, Function(p) p.Value)
     End Function
 
     ''' <summary>
@@ -2193,21 +2195,23 @@ Public Module Text
                     t.selfclosing = True
                 End Try
                 Dim atributos = find.Groups("attributes").Value
-                Dim xml As New XmlDocument()
-                xml.LoadXml("<temp " & atributos.TrimEnd("/") & "></temp>")
-                For Each a As XmlAttribute In xml.DocumentElement.Attributes
-                    Select Case a.Name.ToLower
-                        Case "id"
-                            t.ID = a.Value
-                        Case "class"
-                            t.Class.AddRange(a.Value.Split(" "))
-                        Case "style"
-                            t.Attribute("style") = a.Value
-                        Case Else
-                            t.Attributes.Add(a.Name, a.Value)
-                    End Select
-
-                Next
+                Dim thread As New Thread(Sub()
+                                             Dim wb As New Windows.Forms.WebBrowser
+                                             wb.ScriptErrorsSuppressed = True
+                                             wb.Navigate("about:blank")
+                                             Dim doc = wb.Document
+                                             doc.Write(String.Empty)
+                                             doc.Write("<html><body><" & TagName & " " & atributos.TrimEnd("/") & " ></" & TagName & "></body></html>")
+                                             Dim aElement As IHTMLDOMNode = CType(wb.Document.GetElementsByTagName(TagName)(0).DomElement, IHTMLDOMNode)
+                                             For i = 0 To aElement.attributes.length - 1
+                                                 t.Attribute(aElement.attributes.item(i).name) = aElement.attributes.item(i).value
+                                                 'MsgBox aElement.attributes.item(i).name & "=" & aElement.attributes.item(i).value
+                                             Next i
+                                             wb.Dispose()
+                                         End Sub)
+                thread.SetApartmentState(ApartmentState.STA)
+                thread.Start()
+                thread.Join()
                 lista.Add(t)
             Next
         Next

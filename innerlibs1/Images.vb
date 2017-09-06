@@ -12,10 +12,22 @@ Imports System.Windows.Forms
 ''' 
 Public Module Images
 
-    <Extension> Public Function CropToSquare(img As Image, WidthHeight As Integer) As Image
-        Return img.Crop(WidthHeight, WidthHeight)
+    ''' <summary>
+    ''' Corta uma imagem para um quadrado perfeito a partir do centro
+    ''' </summary>
+    ''' <param name="img">Imagem</param>
+    ''' <param name="WidthHeight">Tamanho do quadrado em pixels</param>
+    ''' <returns></returns>
+    <Extension> Public Function CropToSquare(Img As Image, WidthHeight As Integer) As Image
+        Return Img.Crop(WidthHeight, WidthHeight)
     End Function
 
+    ''' <summary>
+    ''' Corta a imagem em um circulo
+    ''' </summary>
+    ''' <param name="Img">Imagem</param>
+    ''' <param name="Background">Cor do fundo</param>
+    ''' <returns></returns>
     <Extension()> Public Function CropToCircle(Img As Image, Optional Background As Color? = Nothing) As Image
         Dim dstImage As Bitmap = New Bitmap(Img.Width, Img.Height)
         Dim g As Graphics = Graphics.FromImage(dstImage)
@@ -75,8 +87,14 @@ Public Module Images
     ''' <param name="X">Posição X</param>
     ''' <param name="Y">Posição Y</param>
     ''' <returns></returns>
-    Public Function InsertWatermark(Image As Image, Watermark As String, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
-        Return InsertWatermark(Image, Watermark.DrawImage(Image.Width, Image.Height))
+    <Extension()> Public Function InsertWatermark(Image As Image, Watermark As String, Optional Font As String = "Arial", Optional FontColor As Color? = Nothing, Optional BackColor As Color? = Nothing, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
+        BackColor = If(BackColor, New Bitmap(Image).GetPixel(0, 0))
+        Dim _Font = New Font(Font, 8)
+        While TextRenderer.MeasureText(Watermark, _Font).Width.To(Of Decimal).CalculatePercent(Image.Width) <= 70
+            _Font = New Font(_Font.FontFamily.Name, _Font.Size + 1)
+        End While
+        Dim w = Watermark.DrawImage(_Font, If(FontColor, Color.DimGray), BackColor)
+        Return Image.InsertWatermark(w)
     End Function
 
     ''' <summary>
@@ -87,9 +105,10 @@ Public Module Images
     ''' <param name="X">Posição X</param>
     ''' <param name="Y">Posição Y</param>
     ''' <returns></returns>
-    Public Function InsertWatermark(Image As Image, WaterMark As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
+    <Extension()> Public Function InsertWatermark(Image As Image, WaterMark As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         ' a imagem que será usada como marca d'agua
         Dim bm_marcaDagua As New Bitmap(WaterMark)
+
         ' a imagem onde iremos aplicar a marca dágua
         Dim bm_Resultado As New Bitmap(Image)
         If X < 0 Then X = (bm_Resultado.Width - bm_marcaDagua.Width) \ 2   'centraliza a marca d'agua
@@ -111,35 +130,137 @@ Public Module Images
         Return bm_Resultado
     End Function
 
+    ''' <summary>
+    ''' Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
+    ''' </summary>
+    ''' <param name="Img"></param>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function Trim(Img As Image, Color As Color) As Image
+
+        Dim bitmap = New Bitmap(Img)
+        Dim w As Integer = bitmap.Width
+        Dim h As Integer = bitmap.Height
+
+        Dim IsAllWhiteRow As Func(Of Integer, Boolean) = Function(row)
+                                                             For i As Integer = 0 To w - 1
+                                                                 If bitmap.GetPixel(i, row).ToArgb <> Color.ToArgb Then
+                                                                     Return False
+                                                                 End If
+                                                             Next
+                                                             Return True
+
+                                                         End Function
+
+        Dim IsAllWhiteColumn As Func(Of Integer, Boolean) = Function(col)
+                                                                For i As Integer = 0 To h - 1
+                                                                    If bitmap.GetPixel(col, i).ToArgb <> Color.ToArgb Then
+                                                                        Return False
+                                                                    End If
+                                                                Next
+                                                                Return True
+
+                                                            End Function
+
+        Dim leftMost As Integer = 0
+        For col As Integer = 0 To w - 1
+            If IsAllWhiteColumn(col) Then
+                leftMost = col + 1
+            Else
+                Exit For
+            End If
+        Next
+
+        Dim rightMost As Integer = w - 1
+        For col As Integer = rightMost To 1 Step -1
+            If IsAllWhiteColumn(col) Then
+                rightMost = col - 1
+            Else
+                Exit For
+            End If
+        Next
+
+        Dim topMost As Integer = 0
+        For row As Integer = 0 To h - 1
+            If IsAllWhiteRow(row) Then
+                topMost = row + 1
+            Else
+                Exit For
+            End If
+        Next
+
+        Dim bottomMost As Integer = h - 1
+        For row As Integer = bottomMost To 1 Step -1
+            If IsAllWhiteRow(row) Then
+                bottomMost = row - 1
+            Else
+                Exit For
+            End If
+        Next
+
+        If rightMost = 0 AndAlso bottomMost = 0 AndAlso leftMost = w AndAlso topMost = h Then
+            Return bitmap
+        End If
+
+        Dim croppedWidth As Integer = rightMost - leftMost + 1
+        Dim croppedHeight As Integer = bottomMost - topMost + 1
+
+        Try
+            Dim target As New Bitmap(croppedWidth, croppedHeight)
+            Using g As Graphics = Graphics.FromImage(target)
+                g.DrawImage(bitmap, New RectangleF(0, 0, croppedWidth, croppedHeight), New RectangleF(leftMost, topMost, croppedWidth, croppedHeight), GraphicsUnit.Pixel)
+            End Using
+            Return target
+        Catch ex As Exception
+            Throw New Exception(String.Format("Values are top={0} bottom={1} left={2} right={3}", topMost, bottomMost, leftMost, rightMost), ex)
+        End Try
+    End Function
+
+
 
     ''' <summary>
     ''' Escreve uma string em uma imagem
     ''' </summary>
     ''' <param name="Text">Texto</param>
-    ''' <param name="Width">Largura da imagem</param>
-    ''' <param name="Height">Altura da imagem</param>
     ''' <param name="Font">Fonte que será usada</param>
     ''' <param name="TextColor">Cor do texto</param>
     ''' <param name="BackColor">Cor de fundo</param>
     ''' <returns></returns>
     <Extension>
-    Public Function DrawImage(Text As String, Width As Integer, Height As Integer, Optional Font As Font = Nothing, Optional TextColor As Color? = Nothing, Optional BackColor As Color? = Nothing) As Image
-        Width = Width.SetMinValue(1)
-        Height = Height.SetMinValue(1)
+    Public Function DrawImage(Text As String, Optional Font As Font = Nothing, Optional TextColor As Color? = Nothing, Optional BackColor As Color? = Nothing) As Image
+
         If Not TextColor.HasValue Then TextColor = Color.Black
-        Font = If(Font, New Font("Arial", 12))
-        Dim bmp As New Bitmap(Width, Height)
+        Font = If(Font, New Font("Arial", 20))
+        Dim textsize = TextRenderer.MeasureText(Text, Font)
+        textsize.Width = textsize.Width + 1
+        textsize.Height = textsize.Height + 1
+
+        Dim bmp As New Bitmap(textsize.Width, textsize.Height)
         Dim graph As Graphics = Graphics.FromImage(bmp)
-        Dim point As New PointF(5.0F, 5.0F)
+        Dim point As New Point(textsize.Width / 2, textsize.Height / 2)
         Dim BrushForeColor As New SolidBrush(TextColor.Value)
         If BackColor.HasValue Then
             Dim BrushBackColor As New SolidBrush(BackColor.Value)
-            graph.FillRectangle(BrushBackColor, 0, 0, Width, Height)
+            graph.FillRectangle(BrushBackColor, 0, 0, textsize.Width, textsize.Height)
         End If
-        graph.DrawString(Text, Font, BrushForeColor, point)
+
+        Dim stringFormat As New StringFormat()
+        stringFormat.Alignment = StringAlignment.Center
+        stringFormat.LineAlignment = StringAlignment.Center
+
+        graph.DrawString(Text, Font, BrushForeColor, point, stringFormat)
         Return bmp
     End Function
 
+    ''' <summary>
+    ''' Cropa uma imagem a patir do centro
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <param name="Size">Tamanho</param>    '' 
+    ''' <returns></returns>
+    <Extension()> Public Function Crop(Image As Image, Size As Size) As Image
+        Return Image.Crop(Size.Width, Size.Height)
+    End Function
 
     ''' <summary>
     ''' Cropa uma imagem a patir do centro
@@ -234,6 +355,82 @@ Public Module Images
         Return fullsizeImage
     End Function
 
+    ''' <summary>
+    ''' Interperta uma string de diversas formas e a transforma em um <see cref="Size"/>
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToSize(ByVal Text As String) As Size
+        Dim s As New Size
+        Text = Text.Replace("", "px", " ", ";", ":").ToLower.Trim
+        Try
+            Select Case True
+                Case Text.IsNumber
+                    s.Width = Text
+                    s.Height = Text
+                    Exit Select
+                Case Text Like "width*" And Not Text Like "*height*"
+                    s.Width = Text.GetAfter("width")
+                    s.Height = Text.GetAfter("width")
+                    Exit Select
+                Case Text Like "height*" And Not Text Like "*width*"
+                    s.Width = Text.GetAfter("height")
+                    s.Height = Text.GetAfter("height")
+                    Exit Select
+                Case Text Like "w*" And Not Text Like "*h*"
+                    s.Width = Text.GetAfter("w")
+                    s.Height = Text.GetAfter("w")
+                    Exit Select
+                Case Text Like "h*" And Not Text Like "*w*"
+                    s.Width = Text.GetAfter("h")
+                    s.Height = Text.GetAfter("h")
+                    Exit Select
+                Case Text Like "width*height*"
+                    s.Width = Text.GetBetween("width", "height")
+                    s.Height = Text.GetAfter("height")
+                    Exit Select
+
+                Case Text Like "height*width*"
+                    s.Height = Text.GetBetween("height", "width")
+                    s.Width = Text.GetAfter("width")
+                    Exit Select
+
+                Case Text Like "w*h*"
+                    s.Width = Text.GetBetween("w", "h")
+                    s.Height = Text.GetAfter("h")
+                    Exit Select
+
+                Case Text Like "h*w*"
+                    s.Height = Text.GetBetween("h", "w")
+                    s.Width = Text.GetAfter("w")
+                    Exit Select
+
+                Case Text Like "*x*"
+                    s.Width = Text.Split({"x"}, StringSplitOptions.RemoveEmptyEntries)(0)
+                    s.Height = Text.Split({"x"}, StringSplitOptions.RemoveEmptyEntries)(1)
+                    Exit Select
+
+                Case Text Like "*by*"
+                    s.Width = Text.Split({"by"}, StringSplitOptions.RemoveEmptyEntries)(0)
+                    s.Height = Text.Split({"by"}, StringSplitOptions.RemoveEmptyEntries)(1)
+                    Exit Select
+
+                Case Text Like "*por*"
+                    s.Width = Text.Split({"por"}, StringSplitOptions.RemoveEmptyEntries)(0)
+                    s.Height = Text.Split({"por"}, StringSplitOptions.RemoveEmptyEntries)(1)
+                    Exit Select
+                Case Text Like "*,*"
+                    s.Width = Text.Split({","}, StringSplitOptions.RemoveEmptyEntries)(0)
+                    s.Height = Text.Split({","}, StringSplitOptions.RemoveEmptyEntries)(1)
+                    Exit Select
+                Case Else
+            End Select
+        Catch ex As Exception
+
+        End Try
+
+        Return s
+    End Function
 
 
 
@@ -331,7 +528,7 @@ Public Module Images
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColors(Image As Bitmap) As List(Of Color)
+    Public Function GetMostUsedColors(Image As Bitmap, Optional Count As Integer = 10) As List(Of Color)
         Dim TenMostUsedColorIncidences As List(Of Integer)
         Dim TenMostUsedColors As List(Of Color)
         Dim MostUsedColor As Color
@@ -362,13 +559,13 @@ Public Module Images
                 pixelColor = Image.GetPixel(row, col).ToArgb()
 
                 If dctColorIncidence.Keys.Contains(pixelColor) Then
-                    System.Math.Max(System.Threading.Interlocked.Increment(dctColorIncidence(pixelColor)), dctColorIncidence(pixelColor) - 1)
+                    pixelColor.Increment
                 Else
                     dctColorIncidence.Add(pixelColor, 1)
                 End If
-                System.Math.Max(System.Threading.Interlocked.Increment(col), col - 1)
+                col.Increment
             End While
-            System.Math.Max(System.Threading.Interlocked.Increment(row), row - 1)
+            row.Increment
         End While
 
         ' note that there are those who argue that a
@@ -377,7 +574,7 @@ Public Module Images
         Dim dctSortedByValueHighToLow = dctColorIncidence.OrderByDescending(Function(x) x.Value).ToDictionary(Function(x) x.Key, Function(x) x.Value)
 
         ' this should be replaced with some elegant Linq ?
-        For Each kvp As KeyValuePair(Of Integer, Integer) In dctSortedByValueHighToLow.Take(10)
+        For Each kvp As KeyValuePair(Of Integer, Integer) In dctSortedByValueHighToLow.Take(Count)
             TenMostUsedColors.Add(Color.FromArgb(kvp.Key))
             TenMostUsedColorIncidences.Add(kvp.Value)
         Next
