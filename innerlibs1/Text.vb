@@ -2204,8 +2204,13 @@ Public Module Text
                                              doc.Write("<html><body><" & TagName & " " & atributos.TrimEnd("/") & " ></" & TagName & "></body></html>")
                                              Dim aElement As IHTMLDOMNode = CType(wb.Document.GetElementsByTagName(TagName)(0).DomElement, IHTMLDOMNode)
                                              For i = 0 To aElement.attributes.length - 1
-                                                 t.Attribute(aElement.attributes.item(i).name) = aElement.attributes.item(i).value
-                                                 'MsgBox aElement.attributes.item(i).name & "=" & aElement.attributes.item(i).value
+                                                 If aElement.attributes.item(i).value IsNot Nothing Or aElement.attributes.item(i).name.ToString.IsIn(HtmlTag.OnlyKeyAttr) Then
+                                                     If aElement.attributes.item(i).name.ToString.IsIn(HtmlTag.OnlyKeyAttr) Then
+                                                         t.Attribute(aElement.attributes.item(i).name) = ""
+                                                     Else
+                                                         t.Attribute(aElement.attributes.item(i).name) = aElement.attributes.item(i).value
+                                                     End If
+                                                 End If
                                              Next i
                                              wb.Dispose()
                                          End Sub)

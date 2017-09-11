@@ -31,6 +31,8 @@ Public Class HtmlTag
         End Get
     End Property
 
+    Friend Shared OnlyKeyAttr As String() = {"selected", "contenteditable", "disabled", "checked", "multiple"}
+
     ''' <summary>
     ''' Retorna o valor de um atributo da tag
     ''' </summary>
@@ -55,6 +57,12 @@ Public Class HtmlTag
                         r.Append(item.Key & ":" & item.Value & ";")
                     Next
                     Return r & ""
+                Case Key.IsIn(OnlyKeyAttr)
+                    If Me.Attributes.ContainsKey(Key) Then
+                        Return Key
+                    Else
+                        Return ""
+                    End If
                 Case Key.IsNotBlank AndAlso Attributes.ContainsKey(Key)
                     Return Attributes(Key) & ""
                 Case Else
@@ -82,6 +90,16 @@ Public Class HtmlTag
                     Catch ex As Exception
                     End Try
                     Style = New SortedDictionary(Of String, String)(d)
+                Case Key.IsIn(OnlyKeyAttr)
+                    If value.IsBlank Then
+                        If Attributes.ContainsKey(Key) Then
+                            Attributes.Remove(Key)
+                        End If
+                    Else
+                        If value.ToLower.IsIn({"true", "1", Key.ToLower}) Then
+                            Attributes.Item(Key) = Key.ToLower
+                        End If
+                    End If
                 Case Key.IsNotBlank AndAlso Attributes.ContainsKey(Key)
                     Attributes.Item(Key) = value
                 Case Else
@@ -177,7 +195,7 @@ Public Class HtmlTag
 
             For Each a In Attributes
                 If a.Key.IsNotBlank And Not a.Key.IsIn({"innerhtml", "innertext", "id", "style", "class"}) Then
-                    If a.Value.IsBlank Then
+                    If a.Value.IsIn(OnlyKeyAttr) Then
                         attribs.Append(" " & a.Key)
                     Else
                         attribs.Append(" " & a.Key & "=" & a.Value.Replace("'", "\'").Replace("""", "\""").Quote)
