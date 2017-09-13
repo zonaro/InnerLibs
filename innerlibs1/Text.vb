@@ -1159,19 +1159,26 @@ Public Module Text
 
 
     ''' <summary>
-    ''' Extrai palavras chave de um texto
+    ''' Extrai palavras chave de um texto seguindo crit~erios especificos
     ''' </summary>
-    ''' <param name="Text">TExto principal</param>
+    ''' <param name="TextOrURL">Texto principal ou URL</param>
     ''' <param name="MinWordCount">minimo de aparições da palavra no texto</param>
     ''' <param name="MinWordLenght">minimo de tamanho da palavra</param>
     ''' <param name="IgnoredWords">palavras ignoradas</param>
     ''' <param name="RemoveDiacritics">TRUE para remover acentos</param>
     ''' <returns></returns>
-    <Extension()> Function GetKeyWords(Text As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional ByVal IgnoredWords As String() = Nothing, Optional RemoveDiacritics As Boolean = True, Optional LimitCollection As Integer = 0) As Dictionary(Of String, Long)
-        Dim palavras = Text.GetWords(RemoveDiacritics)
+    <Extension()> Function GetKeyWords(TextOrURL As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional LimitCollection As Integer = 0, Optional RemoveDiacritics As Boolean = True, Optional ByVal IgnoredWords As String() = Nothing, Optional ImportantWords As String() = Nothing) As Dictionary(Of String, Long)
+        Dim l As New List(Of String)
+        If TextOrURL.IsURL Then
+            TextOrURL = AJAX.GET(Of String)(TextOrURL)
+            TextOrURL.GetElementsByTagName("head", "script", "style", "meta").ForEach(Sub(p) p.RemoveIn(TextOrURL))
+        End If
+        Dim palavras = TextOrURL.RemoveHTML.GetWords(RemoveDiacritics)
         IgnoredWords = If(IgnoredWords, {})
+        ImportantWords = If(ImportantWords, {})
         If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
-        Return palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection)).ToDictionary(Function(p) p.Key, Function(p) p.Value)
+        If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
+        Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().ToDictionary(Function(p) p.Key, Function(p) p.Value)
     End Function
 
     ''' <summary>
