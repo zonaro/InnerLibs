@@ -1152,30 +1152,52 @@ Public Module Text
     ''' <param name="Text">TExto</param>
     ''' <returns></returns>
     <Extension()> Function GetWords(Text As String, Optional RemoveDiacritics As Boolean = True) As Dictionary(Of String, Long)
-        Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split({"""", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "|", " ", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries).ToList
+        Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split({"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries).ToList
         If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics).ToList
         Return palavras.DistinctCount()
     End Function
 
 
     ''' <summary>
-    ''' Extrai palavras chave de um texto seguindo crit~erios especificos
+    ''' Extrai palavras chave de um texto seguindo critérios especificos.
     ''' </summary>
     ''' <param name="TextOrURL">Texto principal ou URL</param>
-    ''' <param name="MinWordCount">minimo de aparições da palavra no texto</param>
-    ''' <param name="MinWordLenght">minimo de tamanho da palavra</param>
-    ''' <param name="IgnoredWords">palavras ignoradas</param>
+    ''' <param name="MinWordCount">Minimo de aparições da palavra no texto</param>
+    ''' <param name="MinWordLenght">Tamanho minimo da palavra</param>
+    ''' <param name="IgnoredWords">palavras que sempre serão ignoradas</param>
     ''' <param name="RemoveDiacritics">TRUE para remover acentos</param>
+    ''' <param name="ImportantWords">Palavras importantes. elas sempre serão adicionadas a lista de tags desde que não estejam nas <paramref name="IgnoredWords"/></param>
     ''' <returns></returns>
     <Extension()> Function GetKeyWords(TextOrURL As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional LimitCollection As Integer = 0, Optional RemoveDiacritics As Boolean = True, Optional ByVal IgnoredWords As String() = Nothing, Optional ImportantWords As String() = Nothing) As Dictionary(Of String, Long)
         Dim l As New List(Of String)
         If TextOrURL.IsURL Then
             TextOrURL = AJAX.GET(Of String)(TextOrURL)
-            TextOrURL.GetElementsByTagName("head", "script", "style", "meta").ForEach(Sub(p) p.RemoveIn(TextOrURL))
         End If
-        Dim palavras = TextOrURL.RemoveHTML.GetWords(RemoveDiacritics)
-        IgnoredWords = If(IgnoredWords, {})
-        ImportantWords = If(ImportantWords, {})
+        'adiciona as keywords da pagina
+        Dim tg As String = ""
+        TextOrURL.GetElementsByTagName("meta").ForEach(Sub(p) tg.Append(p.Attribute("keywords").Append(",")))
+        l.AddRange(tg.Split(",").Where(Function(p) p.IsNotBlank))
+
+        'limpa os lixos
+        TextOrURL.GetElementsByTagName("head", "script", "style", "meta").ForEach(Sub(p) p.RemoveIn(TextOrURL))
+
+        Select Case True
+            Case TextOrURL.ContainsAll("<article>", "</article>")
+                Dim t = ""
+                TextOrURL.GetElementsByTagName("article").ForEach(Sub(p) t.Append(p.InnerHtml))
+                TextOrURL = t
+            Case TextOrURL.ContainsAll("<body>", "</body>")
+                Dim t = ""
+                TextOrURL.GetElementsByTagName("body").ForEach(Sub(p) t.Append(p.InnerHtml))
+                TextOrURL = t
+            Case Else
+        End Select
+
+
+        'comeca a extrair as palavras por quantidade
+        Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.GetWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber)
+        IgnoredWords = If(IgnoredWords, {}).ToArray
+        ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
         If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
         If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
         Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().ToDictionary(Function(p) p.Key, Function(p) p.Value)
@@ -1920,7 +1942,7 @@ Public Module Text
 
     <Extension()>
     Public Function RemoveHTML(Text As String) As String
-        Return Regex.Replace(Text, "<.*?>", String.Empty)
+        Return Regex.Replace(Text, "<.*?>", String.Empty).HtmlDecode
     End Function
 
     ''' <summary>
@@ -1931,6 +1953,20 @@ Public Module Text
     <Extension>
     Public Function FixBreakLines(Text As String) As String
         Return Text.Replace(vbCr & vbLf, "<br/>", "<br />", "<br>")
+        Return Text.Replace(" ", "&nbsp;")
+    End Function
+
+
+    ''' <summary>
+    ''' Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final (é um alias para <see cref="AdjustWhiteSpaces"/>
+    ''' da frase
+    ''' </summary>
+    ''' <param name="Text">Frase a ser manipulada</param>
+    ''' <returns>Uma String com a frase corrigida</returns>
+
+    <Extension()>
+    Public Function AdjustBlankSpaces(ByVal Text As String) As String
+        Return AdjustBlankSpaces(Text)
     End Function
 
     ''' <summary>
@@ -1941,7 +1977,7 @@ Public Module Text
     ''' <returns>Uma String com a frase corrigida</returns>
 
     <Extension()>
-    Public Function AdjustWhiteSpaces(ByRef Text As String) As String
+    Public Function AdjustWhiteSpaces(ByVal Text As String) As String
         Text = Text & ""
         If Text.IsNotBlank Then
 
@@ -1970,10 +2006,13 @@ Public Module Text
             Text = Text.Replace("[ ", "[")
             Text = Text.Replace("{ ", "{")
             Text = Text.Replace("< ", "<")
-            Text = String.Join(" ", Text.Split(New Char() {}, StringSplitOptions.RemoveEmptyEntries))
+
+
+            Text = String.Join(" ", Text.Split(New String() {" "}, StringSplitOptions.RemoveEmptyEntries))
+            Text = String.Join("&nbsp;", Text.Split(New String() {"&nbsp;"}, StringSplitOptions.RemoveEmptyEntries))
         End If
 
-        Return Text.Trim
+        Return Text.TrimAny("&nbsp;", " ", Environment.NewLine)
 
     End Function
 

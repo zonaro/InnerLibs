@@ -52,6 +52,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -119,6 +120,7 @@
     <Compile Include="InnerTempletizer.vb" />
     <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
+    <Compile Include="LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />
     <Compile Include="RiotAPI.vb" />

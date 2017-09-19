@@ -1,11 +1,58 @@
-﻿Imports System.Drawing.Text
+﻿Imports System.Collections.Specialized
+Imports System.Drawing.Text
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
-Imports System.Windows.Forms
 
 Public Module ClassTools
+
+
+    ''' <summary>
+    ''' Determines if a type is numeric.  Nullable numeric types are considered numeric.
+    ''' </summary>
+    ''' <remarks>
+    ''' Boolean is not considered numeric.
+    ''' </remarks>
+    <Extension> Public Function IsNumericType(Obj As Type) As Boolean
+        If Obj Is Nothing Then
+            Return False
+        End If
+
+        Select Case Type.GetTypeCode(Obj)
+            Case TypeCode.[Byte], TypeCode.[Decimal], TypeCode.[Double], TypeCode.Int16, TypeCode.Int32, TypeCode.Int64,
+            TypeCode.[SByte], TypeCode.[Single], TypeCode.UInt16, TypeCode.UInt32, TypeCode.UInt64
+                Return True
+            Case TypeCode.[Object]
+                If Obj.IsGenericType AndAlso Obj.GetGenericTypeDefinition() = GetType(Nullable(Of )) Then
+                    Return IsNumericType(Nullable.GetUnderlyingType(Obj))
+                End If
+                Return False
+        End Select
+        Return False
+    End Function
+
+
+
+
+
+    ''' <summary>
+    ''' Transforma todas as propriedades String em NULL quando suas estiverem em branco
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function NullifyProperties(Of Type)(Obj As Type) As Type
+        For Each prop In Obj.GetProperties
+            Try
+                If Obj.GetPropertyValue(prop.Name).ToString.IsBlank Then
+                    prop.SetValue(Obj, Nothing)
+                End If
+            Catch ex As Exception
+            End Try
+        Next
+        Return Obj
+    End Function
 
     ''' <summary>
     ''' Conta de maneira distinta items de uma coleçao
@@ -36,6 +83,33 @@ Public Module ClassTools
     <Extension()>
     Public Function GetProperties(MyObject As Object) As List(Of PropertyInfo)
         Return MyObject.GetType().GetProperties().ToList()
+    End Function
+
+    ''' <summary>
+    ''' Traz o valor de uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <param name="PropertyName">Nome da properiedade</param>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetPropertyValue(Of Type)(MyObject As Object, PropertyName As String) As Type
+        Try
+            Return CType(GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.GetValue(MyObject), Type)
+        Catch ex As Exception
+            Return Nothing
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Traz o valor de uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <param name="PropertyName">Nome da properiedade</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetPropertyValue(MyObject As Object, PropertyName As String) As Object
+        Return GetPropertyValue(Of Object)(MyObject, PropertyName)
     End Function
 
     ''' <summary>
@@ -172,6 +246,31 @@ Public Module ClassTools
         resourceStream.Read(fontBytes, 0, CInt(resourceStream.Length))
         resourceStream.Close()
         Return fontBytes
+    End Function
+
+    ''' <summary>
+    ''' Cria um objeto de um tipo especifico a partir de um <see cref="NameValueCollection"/>
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <param name="Collection">Colecao</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function CreateObject(Of Type)(Collection As NameValueCollection, ParamArray Keys As String()) As Type
+        Dim obj = Activator.CreateInstance(Of Type)()
+        Dim PROPS = obj.GetProperties
+        If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = Collection.AllKeys
+        For Each key As String In Collection.Keys
+            If key.IsIn(Keys) And key.IsIn(PROPS.Select(Function(p) p.Name)) Then
+                For Each prop In PROPS
+                    If prop.PropertyType.IsArray Then
+                        prop.SetValue(obj, Conversion.CTypeDynamic(Collection.GetValues(prop.Name), prop.GetType))
+                    Else
+                        prop.SetValue(obj, Conversion.CTypeDynamic(Collection(prop.Name), prop.GetType))
+                    End If
+                Next
+            End If
+        Next
+        Return obj
     End Function
 
 End Module

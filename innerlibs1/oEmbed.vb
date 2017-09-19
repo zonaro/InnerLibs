@@ -89,15 +89,15 @@ Public Class oEmbed
     ''' Informaçoes sobre o endpoint do <see cref="oEmbed"/>
     ''' </summary>
     Public Class Endpoint
-        Public Property schemes As String()
-        Public Property url As String
-        Public Property formats As String()
-        Public Property discovery As Boolean?
+        Public Property Schemes As String()
+        Public Property Url As String
+        Public Property Formats As String()
+        Public Property Discovery As Boolean?
     End Class
 
-    Public Property provider_name As String
-    Public Property provider_url As String
-    Public Property endpoints As Endpoint()
-    Public Property url As String
+    Public Property Provider_name As String
+    Public Property Provider_url As String
+    Public Property Endpoints As Endpoint()
+    Public Property Url As String
 
 End Class

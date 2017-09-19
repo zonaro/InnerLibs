@@ -13,14 +13,11 @@ Public Module Mathematic
     ''' <param name="Formula">Expressão matematica</param>
     ''' <returns></returns>
     Public Function EvaluateExpression(Formula As String) As Object
-        Dim val = Nothing
         Try
-            val = New Evaluator().Parse(Formula).value
-            Debug.Write("Evaluated Expression: " & Formula & " with value: " & val & Environment.NewLine)
+            Return New Evaluator().Parse(Formula).value
         Catch ex As Exception
-            Debug.Write("Exception on Evaluated Expression: " & Formula & Environment.NewLine & ex.Message)
+            Return Nothing
         End Try
-        Return val
     End Function
 
     ''' <summary>

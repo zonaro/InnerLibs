@@ -3,7 +3,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Web
 
-Namespace Templatizer
+Namespace Templatizer.deprecado
 
     ''' <summary>
     ''' Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML
@@ -277,10 +277,6 @@ Namespace Templatizer
                         End Try
                         copia = copia.Replace(ApplySelector(i), v)
                     Next
-
-
-
-
 
                     'replace nas procedures
                     For Each templateTag As HtmlTag In copia.GetElementsByTagName("template")

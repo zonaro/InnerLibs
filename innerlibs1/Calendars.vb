@@ -56,6 +56,26 @@ Public Module Calendars
     End Function
 
     ''' <summary>
+    ''' Retorna a primeira data do mes a partir de uma outra data
+    ''' </summary>
+    ''' <param name="[Date]">Data</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetFirstDayOfMonth([Date] As DateTime) As DateTime
+        Return New DateTime([Date].Year, [Date].Month, 1, [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma data é do mesmo mês e ano que outra data
+    ''' </summary>
+    ''' <param name="[Date]">Primeira data</param>
+    ''' <param name="AnotherDate">Segunda data</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function IsSameMonth([Date] As DateTime, AnotherDate As DateTime) As Boolean
+        Return [Date].IsBetween(AnotherDate.GetFirstDayOfMonth, AnotherDate.GetLastDayOfMonth)
+    End Function
+    ''' <summary>
     ''' Verifica se a Data de hoje é um aniversário
     ''' </summary>
     ''' <param name="BirthDate">  Data de nascimento</param>
