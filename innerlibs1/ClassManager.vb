@@ -1,4 +1,5 @@
 ﻿Imports System.Collections.Specialized
+Imports System.Data.Linq
 Imports System.Drawing.Text
 Imports System.IO
 Imports System.Reflection
@@ -6,6 +7,26 @@ Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
 
 Public Module ClassTools
+
+
+    <Extension>
+    Public Function IsList(obj As Object) As Boolean
+        If obj Is Nothing Then
+            Return False
+        End If
+        Return TypeOf obj Is IList AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(List(Of )))
+    End Function
+
+    <Extension>
+    Public Function IsDictionary(obj As Object) As Boolean
+        If obj Is Nothing Then
+            Return False
+        End If
+        Return TypeOf obj Is IDictionary AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(Dictionary(Of , )))
+    End Function
+
+
+
 
 
     ''' <summary>
@@ -32,7 +53,22 @@ Public Module ClassTools
         Return False
     End Function
 
-
+    ''' <summary>
+    ''' Retorna o <see cref="DataContext"/> utilizado no <see cref="iQueryable"/>
+    ''' </summary>
+    ''' <param name="q">iQueryable</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetContext(q As IQueryable) As DataContext
+        If Not q.[GetType]().FullName.StartsWith("System.Data.Linq.DataQuery`1") Then
+            Return Nothing
+        End If
+        Dim field = q.[GetType]().GetField("context", BindingFlags.NonPublic Or BindingFlags.Instance)
+        If field Is Nothing Then
+            Return Nothing
+        End If
+        Return TryCast(field.GetValue(q), DataContext)
+    End Function
 
 
 

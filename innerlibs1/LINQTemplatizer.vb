@@ -2,19 +2,21 @@
 Imports System.Data.Linq
 Imports System.IO
 Imports System.Reflection
+Imports System.Runtime.CompilerServices
 
 Namespace Templatizer
 
-
-
+    ''' <summary>
+    ''' Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML. Utiliza <see cref="DataContext"/> como ponto de entrada para conexões.
+    ''' </summary>
+    ''' <typeparam name="DataContextType">Tipo da conexão com o banco de dados</typeparam>
     Public Class Templatizer(Of DataContextType As DataContext)
-
 
         Private sel As String() = {"##", "##"}
 
 
         ''' <summary>
-        ''' Seletor dos campos
+        ''' Seletor dos campos do template
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property FieldSelector As String()
@@ -43,7 +45,7 @@ Namespace Templatizer
         End Sub
 
         ''' <summary>
-        ''' Conexão com o Banco de Dados
+        ''' Tipo de <see cref="DataContext"/> utilizado para a comunicação com o banco
         ''' </summary>
         ''' <returns></returns>
         Property DB As DataContextType
@@ -59,13 +61,14 @@ Namespace Templatizer
         ''' utilizados como template
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property ApplicationAssembly As Reflection.Assembly = Nothing
+        ReadOnly Property ApplicationAssembly As Assembly = Nothing
 
 
         ''' <summary>
         ''' Valores customizados que serão acrescentados as colunas do Templatizer duranto o processamento
         ''' </summary>
         Public ReadOnly CustomValues As New Dictionary(Of String, Object)
+
 
         ''' <summary>
         ''' Adiciona valores customizados ao template
@@ -89,46 +92,78 @@ Namespace Templatizer
         End Sub
 
 
-        Default Public ReadOnly Property ExecuteSQL(SQLQuery As String) As IEnumerable
-            Get
-                Return RunSQL(Of Object)(SQLQuery)
-            End Get
-        End Property
-
         ''' <summary>
-        ''' Retorna um <see cref="IEnumerable"/> com os resultados de uma Query SQL
+        ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um alias para <see cref="datacontext.ExecuteQuery(Of TResult)(String, Object())"/>
         ''' </summary>
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
         ''' <param name="SQLQuery"></param>
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
-        Public Function RunSQL(Of T As Class)(SQLQuery As String, ParamArray Parameters As Object()) As IEnumerable(Of T)
+        Public Function ExecuteSQL(Of T As Class)(SQLQuery As String, ParamArray Parameters As Object()) As IEnumerable(Of T)
             Return DB.ExecuteQuery(Of T)(SQLQuery, Parameters)
         End Function
 
+        ''' <summary>
+        ''' Executa um comando diretamente no banco de dados sem retornar resultado (é um alias para <see cref="datacontext.ExecuteCommand(String, Object())"/>)
+        ''' </summary>
+        ''' <param name="Command"></param>
+        ''' <param name="parameters"></param>
+        ''' <returns></returns>
+        Default ReadOnly Property ExecuteCommand(Command As String, ParamArray Parameters As Object()) As Integer
+            Get
+                Return DB.ExecuteCommand(Command, Parameters)
+            End Get
+        End Property
+
 
         ''' <summary>
-        ''' Cria um <see cref="InnerLibs.Templatizer.TemplateList"/> a partir de uma Query SQL
+        ''' Cria um <see cref="TemplateList"/> a partir de uma Query SQL
         ''' </summary>
         ''' <param name="SQLQuery">Query SQL</param>
         ''' <param name="Template">Arquivo ou HTML do template</param>
         ''' <returns></returns>
-        Public Function LoadQuery(Of T As Class)(SQLQuery As String, ByVal Template As String) As TemplateList(Of T)
+        Public Function LoadQuery(Of T As Class)(SQLQuery As String, ByVal Template As String) As TemplateList
             Template = GetTemplateContent(Template)
             Return ApplyTemplate(Of T)(DB.ExecuteQuery(Of T)(SQLQuery), Template)
         End Function
+
+
+        ''' <summary>
+        ''' Cria um <see cref="TemplateList"/> a partir de uma Query SQL
+        ''' </summary>
+        ''' <param name="SQLQuery">Query SQL</param>
+        ''' <param name="Template">Arquivo ou HTML do template</param>
+        ''' <returns></returns>
+        Public Function LoadQuery(Type As Type, SQLQuery As String, ByVal Template As String) As TemplateList
+            Template = GetTemplateContent(Template)
+            Return ApplyTemplate(Type, DB.ExecuteQuery(Type, SQLQuery), Template)
+        End Function
+
 
         ''' <summary>
         ''' Processa um template configurado
         ''' </summary>
         ''' <param name="TemplateName"> Nome do template</param>
         ''' <returns></returns>
-        Public Function Load(Of T As Class)(TemplateName As String) As TemplateList(Of T)
+        Public Function Load(Of T As Class)(TemplateName As String) As TemplateList
             TemplateName = Path.GetFileNameWithoutExtension(TemplateName)
             Return LoadQuery(Of T)(GetCommand(TemplateName & ".sql"), GetTemplateContent(TemplateName & ".html"))
         End Function
 
+        Public Function Load(Of T As Class)() As String
+            Dim d As T
+            Return ApplyTemplate(DB.GetTable(Of T), d.GetType().Name)
+        End Function
 
+        ''' <summary>
+        ''' Aplica um Template a uma lista <see cref="ISingleResult"/> de um objeto do tipo <typeparamref name="T"/>
+        ''' </summary>
+        ''' <param name="Items">Lista de Itens</param>
+        ''' <param name="Template">Arquivo ou HTML do template</param>
+        ''' <returns></returns>
+        Public Function ApplyTemplate(Of T As Class)(Items As ISingleResult(Of T), Template As String) As TemplateList
+            Return ApplyTemplate(Of T)(Items.AsQueryable, Template)
+        End Function
 
         ''' <summary>
         ''' Aplica um Template a uma lista <see cref="IQueryable"/> de um objeto do tipo <typeparamref name="T"/>
@@ -136,9 +171,9 @@ Namespace Templatizer
         ''' <param name="Items">Lista de Itens</param>
         ''' <param name="Template">Arquivo ou HTML do template</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(Items As IQueryable(Of T), Template As String) As TemplateList(Of T)
+        Public Function ApplyTemplate(Of T As Class)(Items As IQueryable(Of T), Template As String) As TemplateList
             Template = GetTemplateContent(Template)
-            Dim output As New TemplateList(Of T)
+            Dim output As New TemplateList
             For Each item In Items
                 output.Add(item, ApplyTemplate(Of T)(item, Template))
             Next
@@ -151,42 +186,37 @@ Namespace Templatizer
         ''' <param name="Items">Lista de itens</param>
         ''' <param name="Template">Arquivo ou HTML do template</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(Items As IEnumerable(Of T), Template As String) As TemplateList(Of T)
+        Public Function ApplyTemplate(Of T As Class)(Items As IEnumerable(Of T), Template As String) As TemplateList
             Template = GetTemplateContent(Template)
-            Dim output As New TemplateList(Of T)
+            Dim output As New TemplateList
             For Each item As T In Items
                 output.Add(item, ApplyTemplate(Of T)(item, Template))
             Next
             Return output
         End Function
 
+        ''' <summary>
+        ''' Aplica um Template a uma lista <see cref="IEnumerable"/> 
+        ''' </summary>
+        ''' <param name="Items">Lista de itens</param>
+        ''' <param name="Template">Arquivo ou HTML do template</param>
+        ''' <returns></returns>
+        Public Function ApplyTemplate(Type As Type, Items As IEnumerable, Template As String) As TemplateList
+            Template = GetTemplateContent(Template)
+            Dim output As New TemplateList
+            For Each item In Items
+                output.Add(Conversion.CTypeDynamic(item, Type), ApplyTemplate(Conversion.CTypeDynamic(item, Type), Template))
+            Next
+            Return output
+        End Function
 
         ''' <summary>
-        ''' Aplica um template HTML a uma classe
+        ''' Processa as TAGS de condicoes
         ''' </summary>
-        ''' <typeparam name="T">Tipo da classe</typeparam>
-        ''' <param name="Item">Objeto</param>
-        ''' <param name="Template">Arquivo de template ou HTML</param>
+        ''' <param name="Template">Template HTML</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(Item As T, ByVal Template As String) As String
+        Public Function ProcessCondidions(Template As String)
             Template = GetTemplateContent(Template)
-
-            For Each i In CustomValues
-                Try
-                    Template = Template.Replace(Me.ApplySelector(i.Key), "" & i.Value)
-                Catch ex As Exception
-                    Template = Template.Replace(Me.ApplySelector(i.Key), "")
-                End Try
-            Next
-            For Each prop In ClassTools.GetProperties(Item)
-                Try
-                    Template = Template.Replace(ApplySelector(prop.Name), "" & prop.GetValue(Item))
-                Catch ex As Exception
-                    Template = Template.Replace(ApplySelector(prop.Name), "")
-                End Try
-            Next
-
-            'replace nos if
             For Each conditionTag As HtmlTag In Template.GetElementsByTagName("condition")
                 Dim oldtag = ""
                 Try
@@ -206,7 +236,80 @@ Namespace Templatizer
                     Template = Template.Replace(oldtag, "")
                 End Try
             Next
+            Return Template
+        End Function
 
+        ''' <summary>
+        ''' Substitui com os valores de um objeto as keys de um Template
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="Item">Objeto</param>
+        ''' <param name="Template">Template HTMl</param>
+        ''' <returns></returns>
+        Public Function ReplaceValues(Of T)(Item As T, Template As String) As String
+            Template = GetTemplateContent(Template)
+
+            If ClassTools.IsDictionary(Item) Then
+                Dim dic = CType(Item, IDictionary)
+                For Each k In dic.Keys
+                    Try
+                        If (ClassTools.IsDictionary(dic(k)) OrElse dic(k).GetType.IsClass) AndAlso Not dic(k).GetType.IsIn(ReplaceableTypes) Then
+                            Template = ReplaceValues(dic(k), Template)
+                        Else
+                            Template = Template.Replace(ApplySelector(k), "" & dic(k))
+                        End If
+
+                    Catch ex As Exception
+                        Template = Template.Replace(Me.ApplySelector(k), "")
+                    End Try
+                Next
+            Else
+                If Item.GetType.IsClass Then
+                    For Each i As PropertyInfo In Item.GetProperties
+                        Try
+                            If (i.GetValue(Item).GetType.IsClass OrElse ClassTools.IsDictionary(i.GetValue(Item))) AndAlso Not i.GetValue(Item).GetType.IsIn(ReplaceableTypes) Then
+                                Template = ReplaceValues(i.GetValue(Item), Template)
+                            Else
+                                Template = Template.Replace(ApplySelector(i.Name), "" & i.GetValue(Item))
+                            End If
+                        Catch ex As Exception
+                            Template = Template.Replace(Me.ApplySelector(i.Name), "")
+                        End Try
+                    Next
+                End If
+            End If
+            Return Template
+        End Function
+
+        Dim ReplaceableTypes As Type() = {GetType(String), GetType(DateTime), GetType(Integer), GetType(Long), GetType(Decimal)}
+
+
+        ''' <summary>
+        ''' Aplica um template HTML a uma classe
+        ''' </summary>
+        ''' <typeparam name="T">Tipo da classe</typeparam>
+        ''' <param name="Item">Objeto</param>
+        ''' <param name="Template">Arquivo de template ou HTML</param>
+        ''' <returns></returns>
+        Public Function ApplyTemplate(Of T As Class)(Item As T, ByVal Template As String) As String
+            Template = GetTemplateContent(Template)
+
+            Template = ReplaceValues(CustomValues, Template)
+
+            'replace nos valores da class
+            Template = ReplaceValues(Of T)(Item, Template)
+            'replace nos if
+            Template = ProcessCondidions(Template)
+            Return Template
+        End Function
+
+        ''' <summary>
+        ''' Processa as TAGs de subtemplate
+        ''' </summary>
+        ''' <param name="Template">Template HTML</param>
+        ''' <returns></returns>
+        Public Function ProcessSubTemplates(Template As String) As String
+            Template = GetTemplateContent(Template)
             'replace nas procedures
             For Each templateTag As HtmlTag In Template.GetElementsByTagName("template")
                 templateTag.ReplaceIn(Template)
@@ -215,13 +318,15 @@ Namespace Templatizer
                     sqltags.ReplaceIn(templateTag.InnerHtml)
                     Dim contenttags = templateTag.GetElementsByTagName("content").First
                     contenttags.ReplaceIn(templateTag.InnerHtml)
-                    Template.Replace(templateTag.ToString, LoadQuery(Of T)(If(sqltags("data-file").IsBlank, sqltags.InnerHtml, GetCommand(sqltags("data-file"))), If(contenttags("data-file").IsBlank, contenttags.InnerHtml, GetTemplateContent(contenttags("data-file")))).BuildHtml)
+                    Dim tipo As Type = Type.GetType(templateTag("type"))
+                    Template.Replace(templateTag.ToString, LoadQuery(tipo, If(sqltags("data-file").IsBlank, sqltags.InnerHtml, GetCommand(sqltags("data-file"))), If(contenttags("data-file").IsBlank, contenttags.InnerHtml, GetTemplateContent(contenttags("data-file")))).BuildHtml)
                 Catch ex As Exception
                     templateTag.RemoveIn(Template)
                 End Try
             Next
             Return Template
         End Function
+
 
         ''' <summary>
         ''' Pega o comando SQL de um arquivo ou resource
@@ -287,53 +392,61 @@ Namespace Templatizer
             End If
             Return TemplateFile
         End Function
+
+
+
     End Class
 
-    Public Class TemplateList(Of T)
-        Inherits List(Of Template(Of T))
+    ''' <summary>
+    ''' Lista de templates processados
+    ''' </summary>
 
+    Public Class TemplateList
+        Inherits List(Of Template)
 
         Sub New()
-
         End Sub
 
 
-        Sub New(ParamArray Templates As TemplateList(Of Object)())
-            For Each I In Templates
-                Me.AddRange(I)
-            Next
-        End Sub
-
-
+        ''' <summary>
+        ''' Conteudo da tag head que será adiconado após o processamento do template
+        ''' </summary>
+        ''' <returns></returns>
         Public Property Head As String
 
+        ''' <summary>
+        ''' Retorna a string do Template processado
+        ''' </summary>
+        ''' <returns></returns>
         Public Overrides Function ToString() As String
             Return Me.BuildHtml()
         End Function
 
+        ''' <summary>
+        ''' Adiciona um template a esta lista
+        ''' </summary>
+        ''' <param name="Data"></param>
+        ''' <param name="Content"></param>
         Public Overloads Sub Add(Data As Object, Content As String)
-            Me.Add(New Template(Of T)(Data, Content))
+            Me.Add(New Template(Data, Content))
         End Sub
 
+        ''' <summary>
+        ''' Retorna a string HTML do Template processado
+        ''' </summary>
+        ''' <returns></returns>
         Public Function BuildHtml() As String
             Return String.Join("", Me.Select(Function(p) p.Content)) & Head
         End Function
 
-        Public Shared Widening Operator CType(v As TemplateList(Of Object)) As TemplateList(Of T)
-            Dim na As New TemplateList(Of T)
-            For Each i In v
-                na.Add(New Template(Of T)(CType(i.Data, T), i.Content))
-            Next
-            Return na
-        End Operator
     End Class
 
     ''' <summary>
     ''' Resultado de uma Query transformada em um template
     ''' </summary>
-    Public Class Template(Of T)
+    Public Class Template
 
-        Public Sub New(Data As T, Content As String)
+        Public Sub New(Data As Object, Content As String)
             Me.Content = Content
             Me.Data = Data
         End Sub
@@ -348,11 +461,17 @@ Namespace Templatizer
         ''' Objeto contendo um resultado da query LINQ
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property Data As T
+        ReadOnly Property Data As Object
 
 
     End Class
 
+
+    Module TemplatizerExtensions
+
+
+
+    End Module
 
 
 End Namespace
