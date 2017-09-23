@@ -727,8 +727,7 @@ Public NotInheritable Class DataBase
         ''' </summary>
         ''' <param name="Attr">Atributos da tabela.</param>
         ''' <returns></returns>
-        Public Function ToHTMLTable(Optional Attr As IDictionary(Of String, String) = Nothing) As HtmlTag
-            If IsNothing(Attr) Then Attr = New SortedDictionary(Of String, String)
+        Public Function ToHTMLTable(Optional Attr As HtmlParser.HtmlAttributeCollection = Nothing) As HtmlParser.HtmlElement
             Dim Returned As String = ""
             Do
                 If Me.HasRows Then
@@ -751,9 +750,9 @@ Public NotInheritable Class DataBase
 
                 End If
             Loop While Me.NextResult()
-            Dim tag As New HtmlTag("<table></table>")
-            tag.Attributes = Attr
-            tag.InnerHtml = Returned
+            Dim tag As New HtmlParser.HtmlElement("table")
+            If IsNothing(Attr) Then Attr = New HtmlParser.HtmlAttributeCollection(tag)
+            tag.InnerHTML = Returned
             Return tag
         End Function
 

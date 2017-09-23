@@ -50,6 +50,8 @@ Public NotInheritable Class AJAX
                             x.Load(ms)
                             Return x
                         End Using
+                    Case GetType(HtmlParser.HtmlDocument)
+                        Return New HtmlParser.HtmlDocument(client.Encoding.GetString(responsebytes))
                     Case GetType(Drawing.Image), GetType(Bitmap)
                         Dim ms As New MemoryStream(responsebytes)
                         Return Drawing.Image.FromStream(ms)
@@ -674,8 +676,8 @@ Public Module Web
     End Function
 
     <Extension()> Public Function ToHtmlString(Control As HtmlSelect) As String
-        Dim t As New HtmlTag("<select></select>")
-        t.InnerHtml = Control.ExtractOptions
+        Dim t As New HtmlParser.HtmlElement("select")
+        t.InnerHTML = Control.ExtractOptions
         For Each att As String In Control.Attributes.Keys
             t.Attribute(att) = Control.Attributes(att)
         Next

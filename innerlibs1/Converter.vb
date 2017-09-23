@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Runtime.CompilerServices
 Imports System.Web
+Imports InnerLibs.HtmlParser
 
 Public Module Converter
 
@@ -73,7 +74,7 @@ Public Module Converter
     ''' </summary>
     ''' <param name="Table"></param>
     ''' <returns></returns>
-    <Extension> Public Function ToHtmlTable(Table As List(Of IDictionary(Of String, Object))) As HtmlTag
+    <Extension> Public Function ToHtmlTable(Table As List(Of IDictionary(Of String, Object))) As HtmlElement
         Dim body = ""
         Table = Table.Uniform
         For Each dic In Table
@@ -84,7 +85,7 @@ Public Module Converter
             body.Append(TableGenerator.TableRow("", l.ToArray))
         Next
         body = TableGenerator.Table(TableHeader(Table.First.Keys.ToArray), body)
-        Return New HtmlTag(body)
+        Return New HtmlElement(body)
     End Function
 
     ''' <summary>

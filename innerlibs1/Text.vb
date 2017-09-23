@@ -3,11 +3,11 @@ Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Threading
 Imports System.Web
 Imports System.Web.UI.HtmlControls
 Imports System.Xml
-Imports mshtml
+Imports System.Linq
+Imports InnerLibs.HtmlParser
 
 ''' <summary>
 ''' Modulo de manipulação de Texto
@@ -1170,28 +1170,27 @@ Public Module Text
     ''' <returns></returns>
     <Extension()> Function GetKeyWords(TextOrURL As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional LimitCollection As Integer = 0, Optional RemoveDiacritics As Boolean = True, Optional ByVal IgnoredWords As String() = Nothing, Optional ImportantWords As String() = Nothing) As Dictionary(Of String, Long)
         Dim l As New List(Of String)
+
+        Dim tg As String = ""
+
         If TextOrURL.IsURL Then
             TextOrURL = AJAX.GET(Of String)(TextOrURL)
         End If
         'adiciona as keywords da pagina
-        Dim tg As String = ""
-        TextOrURL.GetElementsByTagName("meta").ForEach(Sub(p) tg.Append(p.Attribute("keywords").Append(",")))
-        l.AddRange(tg.Split(",").Where(Function(p) p.IsNotBlank))
 
-        'limpa os lixos
-        TextOrURL.GetElementsByTagName("head", "script", "style", "meta").ForEach(Sub(p) p.RemoveIn(TextOrURL))
+        Dim doc = New HtmlDocument(TextOrURL)
 
-        Select Case True
-            Case TextOrURL.ContainsAll("<article>", "</article>")
-                Dim t = ""
-                TextOrURL.GetElementsByTagName("article").ForEach(Sub(p) t.Append(p.InnerHtml))
-                TextOrURL = t
-            Case TextOrURL.ContainsAll("<body>", "</body>")
-                Dim t = ""
-                TextOrURL.GetElementsByTagName("body").ForEach(Sub(p) t.Append(p.InnerHtml))
-                TextOrURL = t
-            Case Else
-        End Select
+        If doc.Nodes.GetElementsByAttributeName("keywords", True).Count > 0 Then
+            l.AddRange(CType(doc.Nodes.GEtElementsByTagName("keywords", True)(0), HtmlParser.HtmlElement).Attribute("keywords").Split(","))
+        End If
+
+        If doc.Nodes.GEtElementsByTagName("article", True).Count > 0 Then
+            TextOrURL = CType(doc.Nodes.GEtElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerHTML
+        ElseIf doc.Nodes.GEtElementsByTagName("body", True).Count > 0 Then
+            TextOrURL = CType(doc.Nodes.GEtElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerHTML
+        Else
+            'texto limpo
+        End If
 
 
         'comeca a extrair as palavras por quantidade
@@ -2210,64 +2209,7 @@ Public Module Text
         Return HttpUtility.UrlDecode("" & Text)
     End Function
 
-    ''' <summary>
-    ''' Procura uma tag especifica em uma string htm e a converte para uma HTMLTag
-    ''' </summary>
-    ''' <param name="HTMLText">String HTML</param>
-    ''' <param name="TagNames">Nomes da tags</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function GetElementsByTagName(HTMLText As String, ParamArray TagNames As String()) As List(Of HtmlTag)
-        Dim lista As New List(Of HtmlTag)
-        For Each TagName In TagNames
-            TagName = TagName.RemoveAny("<", ">", "/").Trim
-            Dim listam As New List(Of Match)
-            For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>(?<innerhtml>.*?)</" & TagName & ">", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
-                listam.Add(m)
-            Next
-            If listam.Count = 0 Then
-                For Each m As Match In New Regex("<" & TagName & "\b(?<attributes>[^>]*)>", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(HTMLText)
-                    listam.Add(m)
-                Next
-            End If
-            For Each find As Match In listam
-                Dim t As New HtmlTag
-                t.stringoriginal = find.Value
-                t.TagName = TagName
-                Try
-                    t.InnerHtml = find.Groups("innerhtml").Value
-                    t.selfclosing = False
-                Catch ex As Exception
-                    t.selfclosing = True
-                End Try
-                Dim atributos = find.Groups("attributes").Value
-                Dim thread As New Thread(Sub()
-                                             Dim wb As New Windows.Forms.WebBrowser
-                                             wb.ScriptErrorsSuppressed = True
-                                             wb.Navigate("about:blank")
-                                             Dim doc = wb.Document
-                                             doc.Write(String.Empty)
-                                             doc.Write("<html><body><" & TagName & " " & atributos.TrimEnd("/") & " ></" & TagName & "></body></html>")
-                                             Dim aElement As IHTMLDOMNode = CType(wb.Document.GetElementsByTagName(TagName)(0).DomElement, IHTMLDOMNode)
-                                             For i = 0 To aElement.attributes.length - 1
-                                                 If aElement.attributes.item(i).value IsNot Nothing Or aElement.attributes.item(i).name.ToString.IsIn(HtmlTag.OnlyKeyAttr) Then
-                                                     If aElement.attributes.item(i).name.ToString.IsIn(HtmlTag.OnlyKeyAttr) Then
-                                                         t.Attribute(aElement.attributes.item(i).name) = ""
-                                                     Else
-                                                         t.Attribute(aElement.attributes.item(i).name) = aElement.attributes.item(i).value
-                                                     End If
-                                                 End If
-                                             Next i
-                                             wb.Dispose()
-                                         End Sub)
-                thread.SetApartmentState(ApartmentState.STA)
-                thread.Start()
-                thread.Join()
-                lista.Add(t)
-            Next
-        Next
-        Return lista
-    End Function
+
 
     ''' <summary>
     ''' Retorna o texto entre dois textos

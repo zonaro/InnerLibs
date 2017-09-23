@@ -610,7 +610,7 @@ Public Class opCodeCallMethod
         Dim o As opCode
         o = New opCodeCallMethod(baseObject, method, params)
 
-        If o.EvalType <> InnerLibs.EvalType.Object _
+        If o.EvalType <> EvalType.Object _
                     AndAlso Not o.systemType Is Globals.GetSystemType(o.EvalType) Then
             Return New opCodeConvert(tokenizer, o, o.EvalType)
         Else

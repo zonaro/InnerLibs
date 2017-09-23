@@ -3,22 +3,21 @@ Imports System.Data.Linq
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
+Imports InnerLibs.HtmlParser
 
 Namespace Templatizer
 
     ''' <summary>
-    ''' Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML. Utiliza <see cref="DataContext"/> como ponto de entrada para conexões.
+    ''' Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML. Utiliza <see cref="Data.Linq.DataContext"/> como ponto de entrada para conexões.
     ''' </summary>
     ''' <typeparam name="DataContextType">Tipo da conexão com o banco de dados</typeparam>
-    Public Class TemplatizerConfig(Of DataContextType As DataContext)
-
-
+    Public Class Templatizer(Of DataContextType As DataContext)
 
         ''' <summary>
-        ''' Tipo de <see cref="DataContext"/> utilizado para a comunicação com o banco
+        ''' Tipo de <see cref="Data.Linq.DataContext"/> utilizado para a comunicação com o banco
         ''' </summary>
         ''' <returns></returns>
-        Property DB As DataContextType
+        Property DataContext As DataContextType
 
         ''' <summary>
         ''' Pasta contendo os arquivos HTML e SQL utilizados como template
@@ -33,19 +32,77 @@ Namespace Templatizer
         ''' <returns></returns>
         ReadOnly Property ApplicationAssembly As Assembly = Nothing
 
+        ''' <summary>
+        ''' Lista contento as associações das classes aso seus arquivos de template
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property TemplateMap As New Dictionary(Of Type, String)
+
+        ''' <summary>
+        ''' Mapeia um template para um tipo
+        ''' </summary>
+        ''' <param name="Type"></param>
+        ''' <returns></returns>
+        Default Public Property MapType(Type As Type) As String
+            Get
+                If TemplateMap.ContainsKey(Type) Then
+                    Return TemplateMap(Type)
+                Else
+                    Return ""
+                End If
+            End Get
+            Set(value As String)
+                TemplateMap(Type) = value
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' Retorna o arquivo de template
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <returns></returns>
+        Function GetTemplate(Of T As Class)() As String
+            Return MapType(GetType(T))
+        End Function
+
+        ''' <summary>
+        ''' Aplica um arquivo de template a um tipo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Template"></param>
+        ''' <returns></returns>
+        Function SetTemplate(Of T As Class)(Template As String) As Templatizer(Of DataContextType)
+            MapType(GetType(T)) = Template
+            Return Me
+        End Function
 
 
         Sub New(TemplateDirectory As DirectoryInfo, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
             Me.DateTimeFormat = If(DateTimeFormat, "dd/MM/yyyy hh:mm:ss")
             Me.TemplateDirectory = TemplateDirectory
-            Me.DB = Activator.CreateInstance(Of DataContextType)
+            Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
 
         Sub New(ApplicationAssembly As Assembly, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
             Me.DateTimeFormat = If(DateTimeFormat, "dd/MM/yyyy hh:mm:ss")
             Me.ApplicationAssembly = ApplicationAssembly
-            Me.DB = Activator.CreateInstance(Of DataContextType)
+            Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
+
+        ''' <summary>
+        ''' Formato das datas apresentadas no template
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property DateTimeFormat As String
+            Get
+                Return _datetimeformat.IfBlank("dd/MM/yyyy hh:mm:ss")
+            End Get
+            Set(value As String)
+                _datetimeformat = value.IfBlank("dd/MM/yyyy hh:mm:ss")
+            End Set
+        End Property
+
+
 
 
         ''' <summary>
@@ -55,64 +112,87 @@ Namespace Templatizer
         ''' <param name="SQLQuery"></param>
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
-        Public Function ExecuteSQL(Of T As Template)(SQLQuery As String, ParamArray Parameters As Object()) As IEnumerable(Of T)
-            Return DB.ExecuteQuery(Of T)(SQLQuery, Parameters)
+        Public Function LoadQuery(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing) As List(Of Template(Of T))
+            Dim list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
+            Return ApplyTemplate(Of T)(list)
         End Function
 
         ''' <summary>
-        ''' Executa um comando diretamente no banco de dados sem retornar resultado (é um alias para <see cref="datacontext.ExecuteCommand(String, Object())"/>)
+        ''' Aplica um template a um unico item
         ''' </summary>
-        ''' <param name="Command"></param>
-        ''' <param name="parameters"></param>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Item"></param>
         ''' <returns></returns>
-        Default ReadOnly Property ExecuteCommand(Command As String, ParamArray Parameters As Object()) As Integer
-            Get
-                Return DB.ExecuteCommand(Command, Parameters)
-            End Get
-        End Property
-
-
-        ''' <summary>
-        ''' Cria um <see cref="IEnumerable"/> a partir de uma Query SQL
-        ''' </summary>
-        ''' <param name="SQLQuery">Query SQL</param>
-        ''' <returns></returns>
-        Public Function LoadQuery(Of T As Template)(SQLQuery As String) As IEnumerable(Of T)
-            Return ApplyTemplate(Of T)(DB.ExecuteQuery(Of T)(SQLQuery))
+        Public Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
+            Dim content = ""
+            content = "" & GetTemplateContent(Template.IfBlank(Me.GetTemplate(Of T)))
+            content = ReplaceValues(Item, content)
+            Return New Template(Of T)(Item, content)
         End Function
 
-        ''' <summary>
-        ''' Carrega um template a partir de uma classe configurada
-        ''' </summary>
-        ''' <typeparam name="T">Tipo da classe</typeparam>
-        ''' <returns></returns>
-        Public Function Load(Of T As Template)() As IQueryable(Of T)
-            Return ApplyTemplate(Of T)(DB.GetTable(Of T))
+
+        Public Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "")
+            Return ApplyTemplate(List.AsEnumerable, Template)
         End Function
 
+        Public Function ApplyTemplate(Of T As Class)(List As Linq.Table(Of T), Optional Template As String = "")
+            Return ApplyTemplate(List.AsEnumerable, Template)
+        End Function
+
+        Public Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "")
+            Return ApplyTemplate(List.AsEnumerable, Template)
+        End Function
+
+        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "")
+            Dim l As New List(Of Template(Of T))
+            For Each item As T In List
+                l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
+            Next
+            Return l
+        End Function
+
+
         ''' <summary>
-        ''' Retorna o Template configurado em uma classe de entidade LINQ
+        ''' Retorna o conteudo estático de um arquivo de template
         ''' </summary>
-        ''' <param name="Type">Tipo da Classe</param>
+        ''' <param name="Templatefile">Nome do arquivo do template</param>
+        ''' <param name="HeadTag">TRUE para trazer o conteudo fixo do template (head), FALSE para trazer o conteudo dinamico do template (body)</param>
         ''' <returns></returns>
-        Function GetTemplateContent(Type As Type)
-            Dim d = Activator.CreateInstance(Type)
-            Dim prop = ClassTools.GetProperties(d).Where(Function(p) p.Name = "TemplateFile")
-            If prop.Count > 0 Then
-                Return GetTemplateContent(prop.First.GetValue(d))
-            Else
-                Return d.GetType().Name
+        Public Function GetTemplateContent(TemplateFile As String, Optional Headtag As Boolean = False) As String
+            If TemplateFile.IsNotBlank Then
+                If TemplateFile.ContainsAny("<", ">") Then
+                    Try
+                        Return New HtmlDocument(TemplateFile).HTML
+                    Catch ex As Exception
+                        Throw New Exception("Error on parsing Template String")
+                    End Try
+                Else
+                    TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
+                    If IsNothing(ApplicationAssembly) Then
+                        Dim filefound = TemplateDirectory.SearchFiles(SearchOption.TopDirectoryOnly, TemplateFile).First
+                        If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
+                        Using file As StreamReader = filefound.OpenText
+                            Try
+                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.FindByName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
+                            Catch ex As Exception
+                                Throw New Exception(If(Headtag, "head", "body") & " not found in " & filefound.Name)
+                            End Try
+                        End Using
+                    Else
+                        Try
+                            Dim txt = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
+                            Try
+                                Return CType(New HtmlDocument(txt).Nodes.FindByName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
+                            Catch ex As Exception
+                                Throw New Exception(If(Headtag, "head", "body") & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
+                            End Try
+                        Catch ex As Exception
+                            Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
+                        End Try
+                    End If
+                End If
             End If
-        End Function
-
-        ''' <summary>
-        ''' Retorna o Template configurado em uma classe de entidade LINQ
-        ''' </summary>
-        ''' <typeparam name="T">Tipo da Classe</typeparam>
-        ''' <returns></returns>
-        Function GetTemplateContent(Of T As Template)() As String
-            Dim d As T = Activator.CreateInstance(Of T)
-            Return GetTemplateContent(d.GetType)
+            Return ""
         End Function
 
         ''' <summary>
@@ -139,202 +219,15 @@ Namespace Templatizer
                     Throw New Exception("ApplicationAssembly or CommandDirectory is not configured!")
             End Select
         End Function
-
-        ''' <summary>
-        ''' Retorna o conteudo estático de um arquivo de template
-        ''' </summary>
-        ''' <param name="Templatefile">Nome do arquivo do template</param>
-        ''' <param name="HeadTag">TRUE para trazer o conteudo fixo do template (head), FALSE para trazer o conteudo dinamico do template (body)</param>
-        ''' <returns></returns>
-        Public Function GetTemplateContent(TemplateFile As String, Optional HeadTag As Boolean = False) As String
-            If TemplateFile.IsNotBlank Then
-                If TemplateFile.ContainsAny("<", ">") Then
-                    If HeadTag Then
-                        Try
-                            Return TemplateFile.GetElementsByTagName("head").First.InnerHtml
-                        Catch ex As Exception
-                            Return ""
-                        End Try
-                    Else
-                        Return TemplateFile
-                    End If
-                Else
-                    TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
-                    If IsNothing(ApplicationAssembly) Then
-                        Dim filefound = TemplateDirectory.SearchFiles(SearchOption.TopDirectoryOnly, TemplateFile).First
-                        If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
-                        Using file As StreamReader = filefound.OpenText
-                            Try
-                                Return file.ReadToEnd.GetElementsByTagName(If(HeadTag, "head", "body")).First.InnerHtml
-                            Catch ex As Exception
-                                Throw New Exception(If(HeadTag, "head", "body") & " not found in " & filefound.Name)
-                            End Try
-                        End Using
-                    Else
-                        Try
-                            Dim txt = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
-                            Try
-                                Return txt.GetElementsByTagName(If(HeadTag, "head", "body")).First.InnerHtml
-                            Catch ex As Exception
-                                Throw New Exception(If(HeadTag, "head", "body") & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
-                            End Try
-                        Catch ex As Exception
-                            Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
-                        End Try
-                    End If
-                End If
-            End If
-            Return TemplateFile
-        End Function
-
-        ''' <summary>
-        ''' Aplica um Template a uma lista <see cref="ISingleResult"/> de um objeto do tipo <typeparamref name="T"/>
-        ''' </summary>
-        ''' <param name="Items">Lista de Itens</param>
-        ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Template)(Items As ISingleResult(Of Template)) As IQueryable(Of T)
-            Return ApplyTemplate(Of T)(Items.AsQueryable)
-        End Function
-
-        ''' <summary>
-        ''' Aplica um Template a uma lista <see cref="IQueryable"/> de um objeto do tipo <typeparamref name="T"/>
-        ''' </summary>
-        ''' <param name="Items">Lista de Itens</param>
-        ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Template)(Items As IQueryable(Of Template)) As IQueryable(Of T)
-            For Each item As Template In Items
-                ApplyTemplate(item)
-            Next
-            Return Items
-        End Function
-
-        ''' <summary>
-        ''' Aplica um Template a uma lista <see cref="IEnumerable"/> de um objeto do tipo <typeparamref name="T"/>
-        ''' </summary>
-        ''' <param name="Items">Lista de itens</param>
-        ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Template)(Items As IEnumerable(Of Template)) As IQueryable(Of T)
-            Return ApplyTemplate(Of T)(Items.AsQueryable)
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template a um unico item
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="Item"></param>
-        ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Template)(Item As T) As T
-            Item._content = GetTemplateContent(ClassTools.GetPropertyValue(Of String)(Item, "TemplateFile"))
-            Item._content = Item.ReplaceValues(Item)
-            Return Item
-        End Function
-
-
-
-
-        ''' <summary>
-        ''' Formato das datas apresentadas no template
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property DateTimeFormat As String
-            Get
-                Return _datetimeformat.IfBlank("dd/MM/yyyy hh:mm:ss")
-            End Get
-            Set(value As String)
-                _datetimeformat = value.IfBlank("dd/MM/yyyy hh:mm:ss")
-            End Set
-        End Property
-
-        Private _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
-
-        ''' <summary>
-        ''' Retorna o formato de data configurado em uma classe ou o default
-        ''' </summary>
-        ''' <typeparam name="T">Tipo da classe</typeparam>
-        ''' <param name="Item">Item</param>
-        ''' <returns></returns>
-        Public Function GetDatetimeFormat(Of T As Template)(Item As Template)
-            Try
-                Return If(Item.DateTimeFormat, Me.DateTimeFormat)
-            Catch ex As Exception
-                Return Me.DateTimeFormat
-            End Try
-        End Function
-
-
-
-        ''' <summary>
-        ''' Processa as TAGs de subtemplate
-        ''' </summary>
-        ''' <param name="Template">Template HTML</param>
-        ''' <returns></returns>
-        Public Function ProcessSubTemplates(Template As String) As String
-            Template = GetTemplateContent(Template)
-            'replace nas procedures
-            For Each templateTag As HtmlTag In Template.GetElementsByTagName("template")
-                templateTag.ReplaceIn(Template)
-                Try
-                    Dim sqltags = templateTag.GetElementsByTagName("sql").First
-                    sqltags.ReplaceIn(templateTag.InnerHtml)
-                    Dim contenttags = templateTag.GetElementsByTagName("content").First
-                    contenttags.ReplaceIn(templateTag.InnerHtml)
-                    Dim tipo As Type = Type.GetType(templateTag("type"))
-                    ' Template.Replace(templateTag.ToString, LoadQuery(tipo, If(sqltags("data-file").IsBlank, sqltags.InnerHtml, GetCommand(sqltags("data-file"))), If(contenttags("data-file").IsBlank, contenttags.InnerHtml, GetTemplateContent(contenttags("data-file")))).BuildHtml)
-                Catch ex As Exception
-                    templateTag.RemoveIn(Template)
-                End Try
-            Next
-            Return Template
-        End Function
-    End Class
-
-
-
-
-    ''' <summary>
-    ''' Resultado de uma Query transformada em um template
-    ''' </summary>
-    Public MustInherit Class Template
-
-        Sub New()
-
-        End Sub
-
-        ''' <summary>
-        ''' Conteudo HTML do Template já processado ou o nome do template se o mesmo ainda não foi processado
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property ProcessedTemplate As String
-            Get
-                Return _content.IfBlank(TemplateFile)
-            End Get
-        End Property
-
-        Friend _content As String = ""
-
-        ''' <summary>
-        ''' Formato de data utilizado neste template
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss"
-
-        ''' <summary>
-        ''' Template HTML utilizado neste Template
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property TemplateFile As String
-
         Private sel As String() = {"##", "##"}
 
         ''' <summary>
         ''' Seletor dos campos do template
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property FieldSelector As String()
-            Get
-                Return sel
-            End Get
-        End Property
+        Function GetFieldSelector() As String()
+            Return sel
+        End Function
 
         ''' <summary>
         ''' Aplica um seletor ao nome do campo
@@ -357,69 +250,107 @@ Namespace Templatizer
 
 
 
+        Friend Function ReplaceValues(Of T As Class)(Item As T, Content As String) As String
+            Content = GetTemplateContent(Content)
+            If Content.IsNotBlank Then
+                For Each i As PropertyInfo In Item.GetProperties
+                    Try
+                        If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
+                            Content = Content.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                        Else
+                            Content = Content.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
+                        End If
+                    Catch ex As Exception
+                        Content = Content.Replace(Me.ApplySelector(i.Name), "")
+                    End Try
+                Next
 
+                Dim doc As New HtmlDocument(Content)
 
-        ''' <summary>
-        ''' Processa as TAGS de condicoes
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function ProcessCondidions() As String
-            For Each conditionTag As HtmlTag In _content.GetElementsByTagName("condition")
-                Dim oldtag = ""
-                Try
-                    Dim expression = conditionTag.GetElementsByTagName("expression").First
-                    expression.ReplaceIn(conditionTag.InnerHtml.Trim)
-                    Dim content = conditionTag.GetElementsByTagName("content").First
-                    content.ReplaceIn(conditionTag.InnerHtml)
-                    conditionTag.ReplaceIn(_content)
-                    oldtag = conditionTag.ToString
-                    Dim resultexp = EvaluateExpression(expression.InnerHtml)
-                    If resultexp = True Or resultexp > 0 Then
-                        _content = _content.Replace(oldtag, _content)
-                    Else
-                        _content = _content.Replace(oldtag, "")
-                    End If
-                Catch ex As Exception
-                    _content = _content.Replace(oldtag, "")
-                End Try
-            Next
-            Return _content
+                For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
+                    Try
+                        Dim expression = CType(conditionTag.Nodes.FindByName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
+                        Dim contenttag = CType(conditionTag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
+                        Dim resultexp = EvaluateExpression(expression)
+
+                        If resultexp = True Or resultexp > 0 Then
+                            conditionTag.Parent.InnerHTML = contenttag
+                        Else
+                            conditionTag.Parent.InnerHTML = ""
+                        End If
+                    Catch ex As Exception
+                        conditionTag.Parent.InnerHTML = ""
+                    End Try
+
+                Next
+
+                For Each templatetag As HtmlElement In doc.Nodes.GetElementsByTagName("template", True)
+                    Try
+                        Dim sql = CType(templatetag.Nodes.FindByName("sql")(0), HtmlElement).InnerHTML.HtmlDecode
+                        Dim conteudo = CType(templatetag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
+                        conteudo = LoadQuery(Of Object)(sql, conteudo).BuildHtml
+                        templatetag.Parent.InnerHTML = conteudo
+                    Catch ex As Exception
+                        templatetag.Parent.InnerHTML = ""
+                    End Try
+                Next
+
+                Content = doc.InnerHTML
+            End If
+            Return Content
         End Function
+        Private _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
 
-        Friend Function ReplaceValues(Item As Template) As String
-            Dim content = ProcessedTemplate
-            For Each i As PropertyInfo In Item.GetProperties
-                Try
-                    If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
-                        content = content.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
-                    Else
-                        content = content.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
-                    End If
-                Catch ex As Exception
-                    content = content.Replace(Me.ApplySelector(i.Name), "")
-                End Try
-            Next
-            Return content
-        End Function
 
 
     End Class
 
 
+
+    ''' <summary>
+    ''' Estrutura de template do templatizer
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    Public Class Template(Of T)
+        ''' <summary>
+        ''' Cria um novo template
+        ''' </summary>
+        ''' <param name="Data"></param>
+        ''' <param name="ProcessedTemplate"></param>
+        Sub New(Data As T, ProcessedTemplate As String)
+            Me.Data = Data
+            Me.ProcessedTemplate = ProcessedTemplate
+        End Sub
+
+        ''' <summary>
+        ''' Informação do template
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Data As T
+        ''' <summary>
+        ''' Template processado
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property ProcessedTemplate As String
+    End Class
+
+
     Public Module TemplatizerExtensions
 
+        ''' <summary>
+        ''' Retorna o HTML de uma lista de templates
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
         <Extension()>
-        Public Function BuildHtml(List As IEnumerable(Of Template)) As String
-            Return String.Join("", List.Select(Function(p) p.ProcessedTemplate))
+        Public Function BuildHtml(Of T As Class)(List As List(Of Template(Of T))) As String
+            Return List.Select(Function(p) p.ProcessedTemplate).ToArray.Join("")
         End Function
 
-        <Extension()>
-        Public Function BuildHtml(List As IQueryable(Of Template)) As String
-            Return String.Join("", List.Select(Function(p) p.ProcessedTemplate))
-        End Function
+
+
     End Module
-
-
 
 End Namespace
 

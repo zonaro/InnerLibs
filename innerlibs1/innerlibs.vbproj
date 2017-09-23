@@ -77,7 +77,6 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AJAXCOntentParser.vb" />
     <Compile Include="AsxFile.vb" />
     <Compile Include="Base64.vb" />
     <Compile Include="bitly.vb" />
@@ -112,12 +111,17 @@
     <Compile Include="Converter.vb" />
     <Compile Include="Databases.vb" />
     <Compile Include="GeoIP.vb" />
-    <Compile Include="HtmlParser.vb" />
+    <Compile Include="htmlparser\HtmlAttribute.vb" />
+    <Compile Include="htmlparser\HtmlDocument.vb" />
+    <Compile Include="htmlparser\HtmlElement.vb" />
+    <Compile Include="htmlparser\HtmlEncoder.vb" />
+    <Compile Include="htmlparser\HtmlNode.vb" />
+    <Compile Include="htmlparser\HtmlParser.vb" />
+    <Compile Include="htmlparser\HtmlText.vb" />
     <Compile Include="InnerCrypt.vb" />
     <Compile Include="InnerForm.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="InnerTempletizer.vb" />
     <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="LINQTemplatizer.vb" />
