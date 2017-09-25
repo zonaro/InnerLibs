@@ -29,6 +29,30 @@ Namespace HtmlParser
         End Sub
 
 
+        Sub Mutate(Element As HtmlElement)
+            Me.Attributes.Clear()
+            mAttributes = Element.Attributes
+            Me.InnerHTML = Element.InnerHTML
+            Me.Name = Element.Name
+        End Sub
+
+
+        Sub Mutate(Html As String)
+            Dim doc = HtmlDocument.Create(Html)
+            If Html.IsBlank Or doc.Nodes.Count = 0 Then
+                Destroy()
+            Else
+                Me.Mutate(doc.Nodes(0))
+            End If
+        End Sub
+
+        ''' <summary>
+        ''' Remove this element from parten element
+        ''' </summary>
+        Sub Destroy()
+            Me.Parent.Nodes.Remove(Me)
+        End Sub
+
 
         Public Property Style(Key As String) As String
             Get

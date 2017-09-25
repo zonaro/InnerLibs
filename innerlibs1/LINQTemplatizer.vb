@@ -57,12 +57,12 @@ Namespace Templatizer
         End Property
 
         ''' <summary>
-        ''' Retorna o arquivo de template
+        ''' Retorna o nome do arquivo de template
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <returns></returns>
-        Function GetTemplate(Of T As Class)() As String
-            Return MapType(GetType(T))
+        Function GetTemplate(Of T As Class)(Optional ProcessFile As Boolean = False) As String
+            Return If(ProcessFile, GetTemplateContent(MapType(GetType(T))), MapType(GetType(T)))
         End Function
 
         ''' <summary>
@@ -101,6 +101,7 @@ Namespace Templatizer
                 _datetimeformat = value.IfBlank("dd/MM/yyyy hh:mm:ss")
             End Set
         End Property
+        Private _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
 
 
 
@@ -145,7 +146,10 @@ Namespace Templatizer
         ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
             Dim content = ""
-            content = "" & GetTemplateContent(Template.IfBlank(Me.GetTemplate(Of T)))
+            If Template.IsBlank Then
+                Template = Me.GetTemplate(Of T)
+            End If
+            content = "" & GetTemplateContent(Template)
             content = ReplaceValues(Item, content)
             Return New Template(Of T)(Item, content)
         End Function
@@ -270,36 +274,36 @@ Namespace Templatizer
 
 
 
-        Friend Function ReplaceValues(Of T As Class)(Item As T, Content As String) As String
-            Content = GetTemplateContent(Content)
-            If Content.IsNotBlank Then
+        Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String) As String
+            Template = GetTemplateContent(Template)
+            If Template.IsNotBlank Then
                 If GetType(T) = GetType(Dictionary(Of String, Object)) Then
                     For Each i In CType(CType(Item, Object), Dictionary(Of String, Object)).Keys.ToArray
                         Try
                             If CType(CType(Item, Object), Dictionary(Of String, Object))(i).GetType.IsIn({GetType(DateTime)}) Then
-                                Content = Content.Replace(ApplySelector(i), CType(CType(CType(Item, Object), Dictionary(Of String, Object))(i), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                                Template = Template.Replace(ApplySelector(i), CType(CType(CType(Item, Object), Dictionary(Of String, Object))(i), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
                             Else
-                                Content = Content.Replace(ApplySelector(i), CType(CType(Item, Object), Dictionary(Of String, Object))(i).ToString())
+                                Template = Template.Replace(ApplySelector(i), CType(CType(Item, Object), Dictionary(Of String, Object))(i).ToString())
                             End If
                         Catch ex As Exception
-                            Content = Content.Replace(Me.ApplySelector(i), "")
+                            Template = Template.Replace(Me.ApplySelector(i), "")
                         End Try
                     Next
                 Else
                     For Each i As PropertyInfo In Item.GetProperties
                         Try
                             If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
-                                Content = Content.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                                Template = Template.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
                             Else
-                                Content = Content.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
+                                Template = Template.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
                             End If
                         Catch ex As Exception
-                            Content = Content.Replace(Me.ApplySelector(i.Name), "")
+                            Template = Template.Replace(Me.ApplySelector(i.Name), "")
                         End Try
                     Next
                 End If
 
-                Dim doc As New HtmlDocument(Content)
+                Dim doc As New HtmlDocument(Template)
 
                 For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
                     Try
@@ -308,12 +312,12 @@ Namespace Templatizer
                         Dim resultexp = EvaluateExpression(expression)
 
                         If resultexp = True Or resultexp > 0 Then
-                            conditionTag.Parent.InnerHTML = contenttag
+                            conditionTag.Mutate(contenttag)
                         Else
-                            conditionTag.Parent.InnerHTML = ""
+                            conditionTag.Destroy()
                         End If
                     Catch ex As Exception
-                        conditionTag.Parent.InnerHTML = ""
+                        conditionTag.Destroy()
                     End Try
 
                 Next
@@ -324,17 +328,16 @@ Namespace Templatizer
                         Dim conteudo = CType(templatetag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
                         Dim lista = LoadQuery(Of Dictionary(Of String, Object))(sql, conteudo)
                         conteudo = lista.BuildHtml
-                        templatetag.Parent.InnerHTML = conteudo
+                        templatetag.Mutate(conteudo)
                     Catch ex As Exception
-                        templatetag.Parent.InnerHTML = ""
+                        templatetag.Destroy()
                     End Try
                 Next
 
-                Content = doc.InnerHTML
+                Template = doc.InnerHTML
             End If
-            Return Content
+            Return Template
         End Function
-        Private _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
 
 
 
@@ -380,7 +383,11 @@ Namespace Templatizer
         ''' <returns></returns>
         <Extension()>
         Public Function BuildHtml(Of T As Class)(List As List(Of Template(Of T))) As String
-            Return List.Select(Function(p) p.ProcessedTemplate).ToArray.Join("")
+            Dim html As String = ""
+            For Each i In List
+                html &= i.ProcessedTemplate
+            Next
+            Return html
         End Function
 
 

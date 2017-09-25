@@ -33,6 +33,9 @@ Namespace HtmlParser
             End Get
         End Property
 
+
+
+
         ''' <summary>
         ''' This will return the next sibling node. If this is the last one, it will return null.
         ''' </summary>
@@ -266,7 +269,15 @@ Namespace HtmlParser
             mParent = parent
         End Sub
 
-
+        ''' <summary>
+        ''' Remove a HtmlNode from Nodes
+        ''' </summary>
+        ''' <param name="HtmlNode"></param>
+        Sub Remove(HtmlNode As HtmlNode)
+            If Me.IndexOf(HtmlNode) > -1 Then
+                Me.RemoveAt(Me.IndexOf(HtmlNode))
+            End If
+        End Sub
 
 
         ''' <summary>

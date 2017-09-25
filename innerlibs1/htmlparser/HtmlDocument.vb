@@ -2,6 +2,7 @@
 Imports System.Text
 Imports System.Collections
 Imports System.ComponentModel
+Imports System.IO
 
 Namespace HtmlParser
     ''' <summary>
@@ -15,16 +16,19 @@ Namespace HtmlParser
         ''' <summary>
         ''' This will create a new document object by parsing the HTML specified.
         ''' </summary>
-        ''' <param name="html">The HTML to parse.</param>
+        ''' <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
 
-        Friend Sub New(html As String, Optional wantSpaces As Boolean = False)
-
+        Public Sub New(UrlOrHTMLString As String, Optional WantSpaces As Boolean = False)
+            If UrlOrHTMLString.IsURL Then
+                UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString)
+            End If
             Dim parser As New HtmlParser()
-
-            parser.RemoveEmptyElementText = Not wantSpaces
-
-            mNodes = parser.Parse(html)
+            parser.RemoveEmptyElementText = Not WantSpaces
+            mNodes = parser.Parse(UrlOrHTMLString)
         End Sub
+
+
+
 
         <Category("General"), Description("This is the DOCTYPE for XHTML production")>
         Public Property DocTypeXHTML() As String
@@ -78,28 +82,6 @@ Namespace HtmlParser
             End Get
         End Property
 
-        ''' <summary>
-        ''' This will create a new document object by parsing the HTML specified.
-        ''' </summary>
-        ''' <param name="html">The HTML to parse.</param>
-        ''' <returns>An instance of the newly created object.</returns>
-        Public Shared Function Create(html As String) As HtmlDocument
-
-            Return New HtmlDocument(html, False)
-
-        End Function
-
-        ''' <summary>
-        ''' This will create a new document object by parsing the HTML specified.
-        ''' </summary>
-        ''' <param name="html">The HTML to parse.</param>
-        ''' <param name="wantSpaces">Set this to true if you want to preserve all whitespace from the input HTML</param>
-        ''' <returns>An instance of the newly created object.</returns>
-        Public Shared Function Create(html As String, wantSpaces As Boolean) As HtmlDocument
-
-            Return New HtmlDocument(html, wantSpaces)
-
-        End Function
 
         ''' <summary>
         ''' This will return the HTML used to represent this document.
@@ -143,6 +125,16 @@ Namespace HtmlParser
 
         Public Overrides Function ToString() As String
             Return HTML
+        End Function
+
+
+        Public Function SaveAs(File As FileInfo) As FileInfo
+            Me.HTML.WriteToFile(File)
+            Return File
+        End Function
+
+        Public Function SaveAs(FileName As String) As FileInfo
+            Return Me.SaveAs(New FileInfo(FileName))
         End Function
 
     End Class
