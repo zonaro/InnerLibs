@@ -38,7 +38,7 @@ Namespace HtmlParser
 
 
         Sub Mutate(Html As String)
-            Dim doc = HtmlDocument.Create(Html)
+            Dim doc = New HtmlDocument(Html)
             If Html.IsBlank Or doc.Nodes.Count = 0 Then
                 Destroy()
             Else
