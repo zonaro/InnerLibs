@@ -113,8 +113,28 @@ Namespace Templatizer
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
         Public Function LoadQuery(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing) As List(Of Template(Of T))
-            Dim list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
-            Return ApplyTemplate(Of T)(list)
+            Dim list As IEnumerable(Of T)
+            If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+                Dim con = Activator.CreateInstance(Me.DataContext.Connection.GetType)
+                con.ConnectionString = Me.DataContext.Connection.ConnectionString
+                con.Open()
+                Dim command As DbCommand = con.CreateCommand()
+                command.CommandText = SQLQuery
+                Using Reader As DbDataReader = command.ExecuteReader()
+                    Dim l As New List(Of Dictionary(Of String, Object))
+                    While Reader.Read
+                        Dim d As New Dictionary(Of String, Object)
+                        For i As Integer = 0 To Reader.FieldCount - 1
+                            d.Add(Reader.GetName(i), Reader(Reader.GetName(i)))
+                        Next
+                        l.Add(d)
+                    End While
+                    list = l.AsEnumerable
+                End Using
+            Else
+                list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
+            End If
+            Return ApplyTemplate(Of T)(list, Template)
         End Function
 
         ''' <summary>
@@ -253,17 +273,31 @@ Namespace Templatizer
         Friend Function ReplaceValues(Of T As Class)(Item As T, Content As String) As String
             Content = GetTemplateContent(Content)
             If Content.IsNotBlank Then
-                For Each i As PropertyInfo In Item.GetProperties
-                    Try
-                        If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
-                            Content = Content.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
-                        Else
-                            Content = Content.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
-                        End If
-                    Catch ex As Exception
-                        Content = Content.Replace(Me.ApplySelector(i.Name), "")
-                    End Try
-                Next
+                If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+                    For Each i In CType(CType(Item, Object), Dictionary(Of String, Object)).Keys.ToArray
+                        Try
+                            If CType(CType(Item, Object), Dictionary(Of String, Object))(i).GetType.IsIn({GetType(DateTime)}) Then
+                                Content = Content.Replace(ApplySelector(i), CType(CType(CType(Item, Object), Dictionary(Of String, Object))(i), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                            Else
+                                Content = Content.Replace(ApplySelector(i), CType(CType(Item, Object), Dictionary(Of String, Object))(i).ToString())
+                            End If
+                        Catch ex As Exception
+                            Content = Content.Replace(Me.ApplySelector(i), "")
+                        End Try
+                    Next
+                Else
+                    For Each i As PropertyInfo In Item.GetProperties
+                        Try
+                            If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
+                                Content = Content.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                            Else
+                                Content = Content.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
+                            End If
+                        Catch ex As Exception
+                            Content = Content.Replace(Me.ApplySelector(i.Name), "")
+                        End Try
+                    Next
+                End If
 
                 Dim doc As New HtmlDocument(Content)
 
@@ -288,7 +322,8 @@ Namespace Templatizer
                     Try
                         Dim sql = CType(templatetag.Nodes.FindByName("sql")(0), HtmlElement).InnerHTML.HtmlDecode
                         Dim conteudo = CType(templatetag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
-                        conteudo = LoadQuery(Of Object)(sql, conteudo).BuildHtml
+                        Dim lista = LoadQuery(Of Dictionary(Of String, Object))(sql, conteudo)
+                        conteudo = lista.BuildHtml
                         templatetag.Parent.InnerHTML = conteudo
                     Catch ex As Exception
                         templatetag.Parent.InnerHTML = ""
