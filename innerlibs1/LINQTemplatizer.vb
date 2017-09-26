@@ -59,11 +59,9 @@ Namespace Templatizer
         End Property
 
 
-        Private CustomValues As Dictionary(Of String, Object)
+        Public Property CustomValues As New Dictionary(Of String, Object)
 
-        Public Sub WithCustomValue(Key As String, Value As Object)
-            CustomValues(Key) = Value
-        End Sub
+
 
 
         ''' <summary>
@@ -194,7 +192,6 @@ Namespace Templatizer
             For Each item As T In List
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
             Next
-            CustomValues.Clear()
             Return l
         End Function
 
