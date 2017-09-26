@@ -59,6 +59,10 @@ Namespace Templatizer
         End Property
 
 
+        ''' <summary>
+        ''' 
+        ''' </summary>
+        ''' <returns></returns>
         Public Property CustomValues As New Dictionary(Of String, Object)
 
 
@@ -153,32 +157,32 @@ Namespace Templatizer
         ''' <param name="Item"></param>
         ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
-            Dim content = ""
             If Template.IsBlank Then
                 Template = Me.GetTemplate(Of T)
             End If
-            content = "" & GetTemplateContent(Template)
-            If content.IsNotBlank Then
-                content = ReplaceValues(Item, content)
-                content = ReplaceValues(CustomValues, content)
-                content = ProccessConditions(Item, content)
-                content = ProccessSubTemplate(Item, content)
+            Template = "" & GetTemplateContent(Template)
+            If Template.IsNotBlank Then
+                Template = ReplaceValues(Item, Template)
+                Template = ReplaceValues(CustomValues, Template)
+                Template = ProccessConditions(Item, Template)
+                Template = ProccessSubTemplate(Item, Template)
             End If
-            Return New Template(Of T)(Item, content)
+            Return New Template(Of T)(Item, Template)
         End Function
 
 
-        Public Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "")
+        Public Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "") As List(Of Template(Of T))
             Return ApplyTemplate(List.AsEnumerable, Template)
         End Function
 
-        Public Function ApplyTemplate(Of T As Class)(List As Linq.Table(Of T), Optional Template As String = "")
+        Public Function ApplyTemplate(Of T As Class)(List As Linq.Table(Of T), Optional Template As String = "") As List(Of Template(Of T))
             Return ApplyTemplate(List.AsEnumerable, Template)
         End Function
 
-        Public Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "")
+        Public Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "") As List(Of Template(Of T))
             Return ApplyTemplate(List.AsEnumerable, Template)
         End Function
+
 
         ''' <summary>
         ''' Aplica um template a uma lista
@@ -187,7 +191,7 @@ Namespace Templatizer
         ''' <param name="List">Lista</param>
         ''' <param name="Template">Nome ou thml do template</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "")
+        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "") As List(Of Template(Of T))
             Dim l As New List(Of Template(Of T))
             For Each item As T In List
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
@@ -293,7 +297,7 @@ Namespace Templatizer
         End Sub
 
 
-        Friend Function ProccessConditions(Of t As Class)(item As t, Template As String) As String
+        Friend Function ProccessConditions(Of t As Class)(Item As t, Template As String) As String
             Dim doc As New HtmlDocument(Template)
             For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
                 Try
@@ -334,7 +338,7 @@ Namespace Templatizer
         Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String) As String
             Template = GetTemplateContent(Template)
             If Template.IsNotBlank Then
-                If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+                If GetType(T) = GetType(Dictionary(Of String, Object)) AndAlso CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
                     For Each i In CType(CType(Item, Object), Dictionary(Of String, Object)).Keys.ToArray
                         Try
                             If CType(CType(Item, Object), Dictionary(Of String, Object))(i).GetType.IsIn({GetType(DateTime)}) Then
@@ -347,17 +351,19 @@ Namespace Templatizer
                         End Try
                     Next
                 Else
-                    For Each i As PropertyInfo In Item.GetProperties
-                        Try
-                            If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
-                                Template = Template.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
-                            Else
-                                Template = Template.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
-                            End If
-                        Catch ex As Exception
-                            Template = Template.Replace(Me.ApplySelector(i.Name), "")
-                        End Try
-                    Next
+                    If Item.GetProperties.Count > 0 Then
+                        For Each i As PropertyInfo In Item.GetProperties
+                            Try
+                                If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
+                                    Template = Template.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                                Else
+                                    Template = Template.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
+                                End If
+                            Catch ex As Exception
+                                Template = Template.Replace(Me.ApplySelector(i.Name), "")
+                            End Try
+                        Next
+                    End If
                 End If
             End If
             Return Template
