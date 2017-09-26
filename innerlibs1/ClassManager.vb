@@ -291,22 +291,9 @@ Public Module ClassTools
     ''' <param name="Collection">Colecao</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function CreateObject(Of Type As Class)(Collection As NameValueCollection, ParamArray Keys As String()) As Type
+    Public Function CreateObject(Of Type As Class)(Collection As NameValueCollection, ParamArray ExceptKeys As String()) As Type
         Dim obj = Activator.CreateInstance(Of Type)()
-        Dim PROPS = obj.GetProperties
-        If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = Collection.AllKeys
-        For Each key As String In Collection.Keys
-            If key.IsIn(Keys) And key.IsIn(PROPS.Select(Function(p) p.Name)) Then
-                For Each prop In PROPS
-                    If prop.PropertyType.IsArray Then
-                        prop.SetValue(obj, Conversion.CTypeDynamic(Collection.GetValues(prop.Name), prop.GetType))
-                    Else
-                        prop.SetValue(obj, Conversion.CTypeDynamic(Collection(prop.Name), prop.GetType))
-                    End If
-                Next
-            End If
-        Next
-        Return obj
+        Return CopyToObject(Of Type)(Collection, obj, ExceptKeys)
     End Function
 
 
@@ -316,16 +303,16 @@ Public Module ClassTools
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <param name="Collection">Colecao</param>
     ''' <returns></returns>
-    Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, Obj As Type, ParamArray Keys As String()) As Type
+    <Extension()> Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, Obj As Type, ParamArray ExceptKeys As String()) As Type
         Dim PROPS = Obj.GetProperties
-        If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = Collection.AllKeys
+        If IsNothing(ExceptKeys) OrElse ExceptKeys.LongCount = 0 Then ExceptKeys = Collection.AllKeys
         For Each key As String In Collection.Keys
-            If key.IsIn(Keys) And key.IsIn(PROPS.Select(Function(p) p.Name)) Then
+            If key.IsIn(ExceptKeys) And key.IsIn(PROPS.Select(Function(p) p.Name)) Then
                 For Each prop In PROPS
                     If prop.PropertyType.IsArray Then
-                        prop.SetValue(Obj, Conversion.CTypeDynamic(Collection.GetValues(prop.Name), prop.GetType))
+                        prop.SetValue(Obj, Conversion.CTypeDynamic(Collection.GetValues(prop.Name), prop.PropertyType))
                     Else
-                        prop.SetValue(Obj, Conversion.CTypeDynamic(Collection(prop.Name), prop.GetType))
+                        prop.SetValue(Obj, Conversion.CTypeDynamic(Collection(prop.Name), prop.PropertyType))
                     End If
                 Next
             End If

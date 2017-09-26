@@ -1,6 +1,8 @@
 ﻿Imports System.Data.Common
 Imports System.Data.Linq
+Imports System.Data.Linq.Mapping
 Imports System.IO
+Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports InnerLibs.HtmlParser
@@ -56,6 +58,14 @@ Namespace Templatizer
             End Set
         End Property
 
+
+        Private CustomValues As Dictionary(Of String, Object)
+
+        Public Sub WithCustomValue(Key As String, Value As Object)
+            CustomValues(Key) = Value
+        End Sub
+
+
         ''' <summary>
         ''' Retorna o nome do arquivo de template
         ''' </summary>
@@ -64,6 +74,8 @@ Namespace Templatizer
         Function GetTemplate(Of T As Class)(Optional ProcessFile As Boolean = False) As String
             Return If(ProcessFile, GetTemplateContent(MapType(GetType(T))), MapType(GetType(T)))
         End Function
+
+
 
         ''' <summary>
         ''' Aplica um arquivo de template a um tipo
@@ -104,16 +116,14 @@ Namespace Templatizer
         Private _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
 
 
-
-
         ''' <summary>
-        ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um alias para <see cref="datacontext.ExecuteQuery(Of TResult)(String, Object())"/>
+        ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um wrapper para <see cref="datacontext.ExecuteQuery(Of TResult)(String, Object())"/> porém aplica os templates automaticamente
         ''' </summary>
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
         ''' <param name="SQLQuery"></param>
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
-        Public Function LoadQuery(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing) As List(Of Template(Of T))
+        Public Function ApplyTemplate(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing) As List(Of Template(Of T))
             Dim list As IEnumerable(Of T)
             If GetType(T) = GetType(Dictionary(Of String, Object)) Then
                 Dim con = Activator.CreateInstance(Me.DataContext.Connection.GetType)
@@ -150,7 +160,12 @@ Namespace Templatizer
                 Template = Me.GetTemplate(Of T)
             End If
             content = "" & GetTemplateContent(Template)
-            content = ReplaceValues(Item, content)
+            If content.IsNotBlank Then
+                content = ReplaceValues(Item, content)
+                content = ReplaceValues(CustomValues, content)
+                content = ProccessConditions(Item, content)
+                content = ProccessSubTemplate(Item, content)
+            End If
             Return New Template(Of T)(Item, content)
         End Function
 
@@ -167,11 +182,19 @@ Namespace Templatizer
             Return ApplyTemplate(List.AsEnumerable, Template)
         End Function
 
+        ''' <summary>
+        ''' Aplica um template a uma lista
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do item</typeparam>
+        ''' <param name="List">Lista</param>
+        ''' <param name="Template">Nome ou thml do template</param>
+        ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "")
             Dim l As New List(Of Template(Of T))
             For Each item As T In List
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
             Next
+            CustomValues.Clear()
             Return l
         End Function
 
@@ -273,6 +296,43 @@ Namespace Templatizer
         End Sub
 
 
+        Friend Function ProccessConditions(Of t As Class)(item As t, Template As String) As String
+            Dim doc As New HtmlDocument(Template)
+            For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
+                Try
+                    Dim expression = CType(conditionTag.Nodes.FindByName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim contenttag = CType(conditionTag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim resultexp = EvaluateExpression(expression)
+
+                    If resultexp = True Or resultexp > 0 Then
+                        conditionTag.Mutate(contenttag)
+                    Else
+                        conditionTag.Destroy()
+                    End If
+                Catch ex As Exception
+                    conditionTag.Destroy()
+                End Try
+            Next
+            Template = doc.InnerHTML
+            Return Template
+        End Function
+
+        Friend Function ProccessSubTemplate(Of t As Class)(item As t, Template As String) As String
+            Dim doc As New HtmlDocument(Template)
+            For Each templatetag As HtmlElement In doc.Nodes.GetElementsByTagName("template", True)
+                Try
+                    Dim sql = CType(templatetag.Nodes.FindByName("sql")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim conteudo = CType(templatetag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo)
+                    conteudo = lista.BuildHtml
+                    templatetag.Mutate(conteudo)
+                Catch ex As Exception
+                    templatetag.Destroy()
+                End Try
+            Next
+            Template = doc.InnerHTML
+            Return Template
+        End Function
 
         Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String) As String
             Template = GetTemplateContent(Template)
@@ -302,39 +362,6 @@ Namespace Templatizer
                         End Try
                     Next
                 End If
-
-                Dim doc As New HtmlDocument(Template)
-
-                For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
-                    Try
-                        Dim expression = CType(conditionTag.Nodes.FindByName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim contenttag = CType(conditionTag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim resultexp = EvaluateExpression(expression)
-
-                        If resultexp = True Or resultexp > 0 Then
-                            conditionTag.Mutate(contenttag)
-                        Else
-                            conditionTag.Destroy()
-                        End If
-                    Catch ex As Exception
-                        conditionTag.Destroy()
-                    End Try
-
-                Next
-
-                For Each templatetag As HtmlElement In doc.Nodes.GetElementsByTagName("template", True)
-                    Try
-                        Dim sql = CType(templatetag.Nodes.FindByName("sql")(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim conteudo = CType(templatetag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim lista = LoadQuery(Of Dictionary(Of String, Object))(sql, conteudo)
-                        conteudo = lista.BuildHtml
-                        templatetag.Mutate(conteudo)
-                    Catch ex As Exception
-                        templatetag.Destroy()
-                    End Try
-                Next
-
-                Template = doc.InnerHTML
             End If
             Return Template
         End Function
@@ -342,6 +369,7 @@ Namespace Templatizer
 
 
     End Class
+
 
 
 
@@ -375,6 +403,9 @@ Namespace Templatizer
 
     Public Module TemplatizerExtensions
 
+
+
+
         ''' <summary>
         ''' Retorna o HTML de uma lista de templates
         ''' </summary>
@@ -389,6 +420,7 @@ Namespace Templatizer
             Next
             Return html
         End Function
+
 
 
 
