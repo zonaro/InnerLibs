@@ -323,13 +323,7 @@ Public Module Web
 
     <Extension()>
     Public Function ToProcedure(Request As HttpRequest, ByVal ProcedureName As String, ParamArray QueryStringKeys() As String) As String
-        ProcedureName = "EXEC " & ProcedureName & " "
-        For Each Key In QueryStringKeys
-            If Key.IsNotBlank Then
-                ProcedureName.Append("@" & Key & "=" & If(Request.HttpMethod.ToUpper = "POST", Request(Key), Request(Key).UrlDecode).IsNull(Quotes:=Not Request(Key).IsNumber()) & ", ")
-            End If
-        Next
-        Return ProcedureName.Trim.TrimEnd(",")
+        Return "EXEC " & ProcedureName & " " & QueryStringKeys.Select(Function(key) " @" & key & "=" & Request(key).IsNull(Quotes:=Not Request(key).IsNumber())).ToArray.Join(",")
     End Function
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de

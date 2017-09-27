@@ -352,8 +352,8 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="name">The name of the element to find</param>
         ''' <returns>A collection of all the nodes that macth.</returns>
-        Public Function FindByName(name As String) As HtmlNodeCollection
-            Return GEtElementsByTagName(name, True)
+        Public Function GetElementsByTagName(name As String) As HtmlNodeCollection
+            Return GetElementsByTagName(name, True)
         End Function
 
         ''' <summary>
@@ -387,7 +387,7 @@ Namespace HtmlParser
         ''' This will search though this collection of nodes for all elements with the an
         ''' attribute with the given name. 
         ''' </summary>
-        ''' <param name="name">The name of the attribute to find</param>
+        ''' <param name="attributeName">The name of the attribute to find</param>
         ''' <returns>A collection of all the nodes that macth.</returns>
         Public Function GetElementsByAttributeName(attributeName As String) As HtmlNodeCollection
             Return GetElementsByAttributeName(attributeName, True)
@@ -397,7 +397,7 @@ Namespace HtmlParser
         ''' This will search though this collection of nodes for all elements with the an
         ''' attribute with the given name. 
         ''' </summary>
-        ''' <param name="name">The name of the attribute to find</param>
+        ''' <param name="attributeName">The name of the attribute to find</param>
         ''' <param name="searchChildren">True if you want to search sub-nodes, False to
         ''' only search this collection.</param>
         ''' <returns>A collection of all the nodes that macth.</returns>

@@ -106,13 +106,17 @@ Public Module Images
     ''' <param name="Y">Posição Y</param>
     ''' <returns></returns>
     <Extension()> Public Function InsertWatermark(Image As Image, WaterMark As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
-        ' a imagem que será usada como marca d'agua
-        Dim bm_marcaDagua As New Bitmap(WaterMark)
-
         ' a imagem onde iremos aplicar a marca dágua
         Dim bm_Resultado As New Bitmap(Image)
+
+        ' a imagem que será usada como marca d'agua
+        Dim bm_marcaDagua As New Bitmap(WaterMark.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5))
+
         If X < 0 Then X = (bm_Resultado.Width - bm_marcaDagua.Width) \ 2   'centraliza a marca d'agua
         If Y < 0 Then Y = (bm_Resultado.Height - bm_marcaDagua.Height) \ 2   'centraliza a marca d'agua
+
+
+
         Const ALPHA As Byte = 128
         ' Define o componente Alpha do pixel
         Dim clr As Color

@@ -127,27 +127,32 @@ Namespace Templatizer
         ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing) As List(Of Template(Of T))
             Dim list As IEnumerable(Of T)
-            If GetType(T) = GetType(Dictionary(Of String, Object)) Then
-                Dim con = Activator.CreateInstance(Me.DataContext.Connection.GetType)
-                con.ConnectionString = Me.DataContext.Connection.ConnectionString
-                con.Open()
-                Dim command As DbCommand = con.CreateCommand()
-                command.CommandText = SQLQuery
-                Using Reader As DbDataReader = command.ExecuteReader()
-                    Dim l As New List(Of Dictionary(Of String, Object))
-                    While Reader.Read
-                        Dim d As New Dictionary(Of String, Object)
-                        For i As Integer = 0 To Reader.FieldCount - 1
-                            d.Add(Reader.GetName(i), Reader(Reader.GetName(i)))
-                        Next
-                        l.Add(d)
-                    End While
-                    list = l.AsEnumerable
-                End Using
-            Else
-                list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
-            End If
-            Return ApplyTemplate(Of T)(list, Template)
+            Me.DataContext = Activator.CreateInstance(Of DataContextType)
+            Using Me.DataContext
+                If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+                    Dim con As DbConnection = Activator.CreateInstance(Me.DataContext.Connection.GetType)
+                    con.ConnectionString = Me.DataContext.Connection.ConnectionString
+                    con.Open()
+                    Dim command As DbCommand = con.CreateCommand()
+                    command.CommandText = SQLQuery
+                    Using Reader As DbDataReader = command.ExecuteReader()
+                        Dim l As New List(Of Dictionary(Of String, Object))
+                        While Reader.Read
+                            Dim d As New Dictionary(Of String, Object)
+                            For i As Integer = 0 To Reader.FieldCount - 1
+                                d.Add(Reader.GetName(i), Reader(Reader.GetName(i)))
+                            Next
+                            l.Add(d)
+                        End While
+                        list = l.AsEnumerable
+                        Reader.Dispose()
+                    End Using
+                    con.Close()
+                Else
+                    list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
+                End If
+                Return ApplyTemplate(Of T)(list, Template)
+            End Using
         End Function
 
         ''' <summary>
@@ -221,7 +226,7 @@ Namespace Templatizer
                         If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
                         Using file As StreamReader = filefound.OpenText
                             Try
-                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.FindByName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(If(Headtag, "head", "body") & " not found in " & filefound.Name)
                             End Try
@@ -230,7 +235,7 @@ Namespace Templatizer
                         Try
                             Dim txt = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             Try
-                                Return CType(New HtmlDocument(txt).Nodes.FindByName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(txt).Nodes.GetElementsByTagName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(If(Headtag, "head", "body") & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             End Try
@@ -301,8 +306,8 @@ Namespace Templatizer
             Dim doc As New HtmlDocument(Template)
             For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
                 Try
-                    Dim expression = CType(conditionTag.Nodes.FindByName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
-                    Dim contenttag = CType(conditionTag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim expression = CType(conditionTag.Nodes.GetElementsByTagName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim contenttag = CType(conditionTag.Nodes.GetElementsByTagName("content")(0), HtmlElement).InnerHTML.HtmlDecode
                     Dim resultexp = EvaluateExpression(expression)
 
                     If resultexp = True Or resultexp > 0 Then
@@ -322,8 +327,8 @@ Namespace Templatizer
             Dim doc As New HtmlDocument(Template)
             For Each templatetag As HtmlElement In doc.Nodes.GetElementsByTagName("template", True)
                 Try
-                    Dim sql = CType(templatetag.Nodes.FindByName("sql")(0), HtmlElement).InnerHTML.HtmlDecode
-                    Dim conteudo = CType(templatetag.Nodes.FindByName("content")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim sql = CType(templatetag.Nodes.GetElementsByTagName("sql")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim conteudo = CType(templatetag.Nodes.GetElementsByTagName("content")(0), HtmlElement).InnerHTML.HtmlDecode
                     Dim lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo)
                     conteudo = lista.BuildHtml
                     templatetag.Mutate(conteudo)

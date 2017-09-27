@@ -105,7 +105,67 @@ Public Class FileType
     ''' Descrição do tipo de arquivo
     ''' </summary>
     ''' <returns></returns>
-    Public Property Description As String = "Unknow File"
+    Public Property Description As String = "Unknown File"
+
+    ''' <summary>
+    ''' Verifica se Tipo de arquivo é de imagem
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsImage() As Boolean
+        Return FirstType.Contains("image")
+    End Function
+
+    ''' <summary>
+    ''' Verifica se Tipo de arquivo é de audio
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsAudio() As Boolean
+        Return FirstType.Contains("audio")
+    End Function
+
+    ''' <summary>
+    ''' Verifica se Tipo de arquivo é de audio
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsVideo() As Boolean
+        Return FirstType.Contains("video")
+    End Function
+
+    ''' <summary>
+    ''' Verifica se Tipo de arquivo é de audio
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsText() As Boolean
+        Return FirstType.Contains("text")
+    End Function
+
+    ''' <summary>
+    ''' Verifica se Tipo de arquivo é de audio
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsApplication() As Boolean
+        Return FirstType.Contains("application")
+    End Function
+
+    ''' <summary>
+    ''' Retorna o tipo do MIME Type (antes da barra)
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property FirstType As List(Of String)
+        Get
+            Return MimeTypes.Select(Function(p) p.ToLower.Trim.Split("/")(0).Trim).Distinct.ToList
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna o subtipo do MIME Type (depois da barra)
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property SubType As List(Of String)
+        Get
+            Return MimeTypes.Select(Function(p) p.ToLower.Trim.Split("/")(1)).Distinct.ToList
+        End Get
+    End Property
 
     ''' <summary>
     ''' Retorna uma Lista com todos os MIME Types suportados
@@ -123,9 +183,7 @@ Public Class FileType
     Public Shared Function GetFileTypeStringList() As List(Of String)
         Dim l As New List(Of String)
         l.AddRange(New FileType().MimeTypes)
-        For Each m In GetFileTypeList()
-            l.AddRange(m.MimeTypes)
-        Next
+        GetFileTypeList.ForEach(Sub(p) l.AddRange(p.MimeTypes))
         Return l
     End Function
 
@@ -150,7 +208,7 @@ Public Class FileType
     ''' <returns></returns>
     Public Shared Function GetFileType(MimeTypeOrExtension As String) As FileType
         Dim l = GetFileTypeList()
-        MimeTypeOrExtension = "." & MimeTypeOrExtension.Trim.RemoveFirstIf(".")
+        MimeTypeOrExtension = "." & MimeTypeOrExtension.TrimAny(" ", ".")
         For Each item As FileType In l
             If (MimeTypeOrExtension.IsIn(item.Extensions) Or MimeTypeOrExtension.Trim(".").IsIn(item.MimeTypes)) Then
                 Return item
@@ -234,6 +292,16 @@ Public Class FileTypeList
     End Sub
 
     ''' <summary>
+    ''' Cria uma nova lista a partir de um critério de filtro
+    ''' </summary>
+    ''' <param name="predicate">Criterio de busca</param>
+    Public Sub New(predicate As Func(Of FileType, Boolean))
+        Me.New(FileType.GetFileTypeList.Where(predicate).ToArray)
+    End Sub
+
+
+
+    ''' <summary>
     ''' Retorna uma string representando um filtro de caixa de dialogo WinForms
     ''' </summary>
     ''' <returns></returns>
@@ -285,9 +353,23 @@ Public Class FileTypeList
         Get
             Dim l As New List(Of String)
             For Each ext In Me
-                l.AddRange(ext.Extensions)
+                l.AddRange(ext.Extensions.Select(Function(p) p.ToLower.Trim))
             Next
-            Return l
+            Return l.Distinct.ToList
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna todas os MIME Types da lista
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property MimeTypes(Optional Filter As String = "") As List(Of String)
+        Get
+            Dim l As New List(Of String)
+            For Each ext In Me
+                l.AddRange(ext.MimeTypes.Where(Function(Y) If(Filter.IsBlank, True, Y.Split("/")(0).Trim.ToLower = Filter.Trim.ToLower)).Select(Function(p) p.ToLower.Trim))
+            Next
+            Return l.Distinct.ToList
         End Get
     End Property
 

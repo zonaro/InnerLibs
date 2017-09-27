@@ -70,6 +70,20 @@ Public Module ClassTools
         Return TryCast(field.GetValue(q), DataContext)
     End Function
 
+    ''' <summary>
+    ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="source"></param>
+    ''' <param name="alternate"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function FirstOr(Of T)(source As IEnumerable(Of T), Alternate As T) As T
+        For Each i As T In source
+            Return i
+        Next
+        Return Alternate
+    End Function
 
 
     ''' <summary>
@@ -303,17 +317,20 @@ Public Module ClassTools
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <param name="Collection">Colecao</param>
     ''' <returns></returns>
-    <Extension()> Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, Obj As Type, ParamArray ExceptKeys As String()) As Type
+    <Extension()> Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, Obj As Type, ParamArray Keys As String()) As Type
         Dim PROPS = Obj.GetProperties
-        If IsNothing(ExceptKeys) OrElse ExceptKeys.LongCount = 0 Then ExceptKeys = Collection.AllKeys
+        If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = Collection.AllKeys
         For Each key As String In Collection.Keys
-            If key.IsIn(ExceptKeys) And key.IsIn(PROPS.Select(Function(p) p.Name)) Then
+            If key.IsIn(Keys) And key.IsIn(PROPS.Select(Function(p) p.Name)) Then
                 For Each prop In PROPS
-                    If prop.PropertyType.IsArray Then
-                        prop.SetValue(Obj, Conversion.CTypeDynamic(Collection.GetValues(prop.Name), prop.PropertyType))
-                    Else
-                        prop.SetValue(Obj, Conversion.CTypeDynamic(Collection(prop.Name), prop.PropertyType))
-                    End If
+                    Try
+                        If prop.PropertyType.IsArray Then
+                            prop.SetValue(Obj, Conversion.CTypeDynamic(Collection.GetValues(prop.Name), prop.PropertyType))
+                        Else
+                            prop.SetValue(Obj, Conversion.CTypeDynamic(Collection(prop.Name), prop.PropertyType))
+                        End If
+                    Catch ex As Exception
+                    End Try
                 Next
             End If
         Next

@@ -24,8 +24,9 @@ Namespace HtmlParser
             mAttributes = New HtmlAttributeCollection(Me)
             mName = name
             mIsTerminated = False
-            Me.InnerHTML = InnerHtml
-
+            If InnerHtml.IsNotBlank Then
+                Me.InnerHTML = InnerHtml
+            End If
         End Sub
 
 

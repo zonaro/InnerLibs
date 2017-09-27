@@ -1172,34 +1172,33 @@ Public Module Text
         Dim l As New List(Of String)
 
         Dim tg As String = ""
+        Dim doc As HtmlDocument
+        Try
+            doc = New HtmlDocument(TextOrURL)
 
-        If TextOrURL.IsURL Then
-            TextOrURL = AJAX.GET(Of String)(TextOrURL)
-        End If
-        'adiciona as keywords da pagina
+            If doc.Nodes.GetElementsByAttributeName("keywords", True).Count > 0 Then
+                l.AddRange(CType(doc.Nodes.GEtElementsByTagName("keywords", True)(0), HtmlParser.HtmlElement).Attribute("keywords").Split(","))
+            End If
 
-        Dim doc = New HtmlDocument(TextOrURL)
+            If doc.Nodes.GEtElementsByTagName("article", True).Count > 0 Then
+                TextOrURL = CType(doc.Nodes.GEtElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerHTML
+            ElseIf doc.Nodes.GEtElementsByTagName("body", True).Count > 0 Then
+                TextOrURL = CType(doc.Nodes.GEtElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerHTML
+            Else
+                'texto limpo
+            End If
 
-        If doc.Nodes.GetElementsByAttributeName("keywords", True).Count > 0 Then
-            l.AddRange(CType(doc.Nodes.GEtElementsByTagName("keywords", True)(0), HtmlParser.HtmlElement).Attribute("keywords").Split(","))
-        End If
-
-        If doc.Nodes.GEtElementsByTagName("article", True).Count > 0 Then
-            TextOrURL = CType(doc.Nodes.GEtElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerHTML
-        ElseIf doc.Nodes.GEtElementsByTagName("body", True).Count > 0 Then
-            TextOrURL = CType(doc.Nodes.GEtElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerHTML
-        Else
-            'texto limpo
-        End If
-
-
-        'comeca a extrair as palavras por quantidade
-        Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.GetWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber)
-        IgnoredWords = If(IgnoredWords, {}).ToArray
-        ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
-        If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
-        If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
-        Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().ToDictionary(Function(p) p.Key, Function(p) p.Value)
+            'comeca a extrair as palavras por quantidade
+            Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.GetWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber)
+            IgnoredWords = If(IgnoredWords, {}).ToArray
+            ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
+            If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
+            If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
+            Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().ToDictionary(Function(p) p.Key, Function(p) p.Value)
+        Catch ex As Exception
+            Debug.Write(ex)
+            Return New Dictionary(Of String, Long)
+        End Try
     End Function
 
     ''' <summary>
