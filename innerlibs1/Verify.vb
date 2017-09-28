@@ -254,29 +254,29 @@ Public Module Verify
     ''' <summary>
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
     ''' </summary>
-    ''' <typeparam name="Type">Tipo da Variavel</typeparam>
+    ''' <typeparam name="T">Tipo da Variavel</typeparam>
     ''' <param name="Value">       Valor</param>
     ''' <param name="ValueIfBlank">Valor se estiver em branco</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function IfBlank(Of Type)(Value As Object, ValueIfBlank As Type) As Type
+    Public Function IfBlank(Of T)(ByVal Value As Object, ValueIfBlank As T) As T
         If IsNothing(Value) Then
             Return ValueIfBlank
         Else
             Dim blankas As Boolean
-            Select Case GetType(Type)
+            Select Case Value.GetType
                 Case GetType(String)
                     blankas = Value.ToString.IsBlank
                 Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
                     blankas = Value.ToString.IsBlank Or Value.ToString.To(Of Double) = 0
                 Case GetType(DateTime)
-                    blankas = Value = DateTime.MinValue
+                    blankas = (Value = DateTime.MinValue)
                 Case GetType(TimeSpan)
-                    blankas = Value = TimeSpan.MinValue
+                    blankas = (Value = TimeSpan.MinValue)
                 Case Else
-                    blankas = IsNothing(Value)
+                    blankas = (IsNothing(Value))
             End Select
-            Return If(blankas, ValueIfBlank, Value)
+            Return If(blankas, CType(ValueIfBlank, T), CType(Value, T))
         End If
     End Function
 
