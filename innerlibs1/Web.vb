@@ -675,7 +675,7 @@ Public Module Web
         For Each att As String In Control.Attributes.Keys
             t.Attribute(att) = Control.Attributes(att)
         Next
-        Return t.ToString()
+        Return t.HTML
     End Function
 
     ''' <summary>
