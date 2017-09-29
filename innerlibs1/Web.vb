@@ -348,7 +348,7 @@ Public Module Web
     <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In QueryStringKeys
-            cmd.Append(String.Format(" {0} = {1},", col, Request(col).IsNull(Not Request(col).IsNumber)) & Environment.NewLine)
+            cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Not Request(col).IsNumber)) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Return cmd

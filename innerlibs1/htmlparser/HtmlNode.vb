@@ -408,7 +408,7 @@ Namespace HtmlParser
             For Each node As HtmlNode In MyBase.List
                 If TypeOf node Is HtmlElement Then
                     For Each attribute As HtmlAttribute In DirectCast(node, HtmlElement).Attributes
-                        If attribute.Name.ToLower().Equals(attributeName.ToLower()) Then
+                        If attribute.Name.ToLower() = attributeName.ToLower() Then
                             results.Add(node)
                             Exit For
                         End If

@@ -1176,14 +1176,24 @@ Public Module Text
         Try
             doc = New HtmlDocument(TextOrURL)
 
-            If doc.Nodes.GetElementsByAttributeName("keywords", True).Count > 0 Then
-                l.AddRange(CType(doc.Nodes.GEtElementsByTagName("keywords", True)(0), HtmlParser.HtmlElement).Attribute("keywords").Split(","))
-            End If
+            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("style", True)
+                node.Destroy()
+            Next
+
+            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("script", True)
+                node.Destroy()
+            Next
+
+            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("meta", True)
+                l.AddRange(node("keywords").Split(","))
+            Next
+
+
 
             If doc.Nodes.GEtElementsByTagName("article", True).Count > 0 Then
-                TextOrURL = CType(doc.Nodes.GetElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerText
+                TextOrURL = CType(doc.Nodes.GetElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerHTML
             ElseIf doc.Nodes.GEtElementsByTagName("body", True).Count > 0 Then
-                TextOrURL = CType(doc.Nodes.GetElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerText
+                TextOrURL = CType(doc.Nodes.GetElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerHTML
             Else
                 'texto limpo
             End If
