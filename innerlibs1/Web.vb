@@ -323,7 +323,7 @@ Public Module Web
 
     <Extension()>
     Public Function ToProcedure(Request As HttpRequest, ByVal ProcedureName As String, ParamArray QueryStringKeys() As String) As String
-        Return "EXEC " & ProcedureName & " " & QueryStringKeys.Select(Function(key) " @" & key & "=" & Request(key).IsNull(Quotes:=Not Request(key).IsNumber())).ToArray.Join(",")
+        Return "EXEC " & ProcedureName & " " & QueryStringKeys.Select(Function(key) " @" & key & "=" & UrlDecode(Request(key)).IsNull(Quotes:=Not UrlDecode(Request(key)).IsNumber())).ToArray.Join(",")
     End Function
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de
@@ -348,7 +348,7 @@ Public Module Web
     <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In QueryStringKeys
-            cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Not Request(col).IsNumber)) & Environment.NewLine)
+            cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Not UrlDecode(Request(col)).IsNumber)) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Return cmd
@@ -373,7 +373,7 @@ Public Module Web
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String, ParamArray QueryStringKeys As String())
-        Return String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).IsNull(Not Request(p).IsNumber)).ToArray.Join(","))
+        Return String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).UrlDecode.IsNull(Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
     End Function
 
     ''' <summary>
