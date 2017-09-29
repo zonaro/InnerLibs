@@ -23,6 +23,8 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public MustOverride Overrides Function ToString() As String
 
+        Public MustOverride ReadOnly Property ElementRepresentation As String
+
         ''' <summary>
         ''' This will return the parent of this node, or null if there is none.
         ''' </summary>

@@ -76,7 +76,6 @@ Namespace HtmlParser
         ''' This is the collection of nodes used to represent this document.
         ''' </summary>
         Public ReadOnly Property Nodes() As HtmlNodeCollection
-
             Get
                 Return mNodes
             End Get

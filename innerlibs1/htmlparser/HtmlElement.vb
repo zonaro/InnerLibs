@@ -54,21 +54,29 @@ Namespace HtmlParser
             Me.Parent.Nodes.Remove(Me)
         End Sub
 
-
-        Public Property Style(Key As String) As String
+        ''' <summary>
+        ''' Add a style to element
+        ''' </summary>
+        ''' <param name="Key"></param>
+        ''' <returns></returns>
+        Public Property Style(Optional Key As String = "") As String
             Get
-                Dim s = Me.Attribute("style")
-                If s.IsNotBlank Then
-                    Dim styledic As New Dictionary(Of String, String)
-                    For Each item In s.Split(";")
-                        Dim n = item.Split(":")
-                        styledic.Add(n(0).ToLower, n(1).ToLower)
-                    Next
-                    If styledic.ContainsKey(Key.ToLower) Then
-                        Return styledic(Key.ToLower)
+                If Key.IsnotBlank Then
+                    Dim s = Me.Attribute("style")
+                    If s.IsNotBlank Then
+                        Dim styledic As New Dictionary(Of String, String)
+                        For Each item In s.Split(";")
+                            Dim n = item.Split(":")
+                            styledic.Add(n(0).ToLower, n(1).ToLower)
+                        Next
+                        If styledic.ContainsKey(Key.ToLower) Then
+                            Return styledic(Key.ToLower)
+                        End If
                     End If
+                    Return ""
+                Else
+                    Return Me.Attribute("style")
                 End If
-                Return ""
             End Get
             Set(value As String)
                 Dim s = Me.Attribute("style")
@@ -92,7 +100,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-
+        <Category("General"), Description("The CSS class of this element")>
         Public Property [Class](ClassName As String) As Boolean
             Get
                 Dim s = Me.Attribute("class")
@@ -133,19 +141,26 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Name"></param>
         ''' <returns></returns>
+        ''' 
+        <Category("General"), Description("An especific attribute of element")>
         Default Property Attribute(Name As String) As String
             Get
-                If Me.Attributes.IndexOf(Name) > -1 Then
-                    Return Me.Attributes.Item(Name).Value
-                Else
-                    Return ""
+                If Name.IsnotBlank Then
+                    If Me.Attributes.IndexOf(Name) > -1 Then
+                        Return Me.Attributes.Item(Name).Value
+                    Else
+                        Return ""
+                    End If
                 End If
+                Return ""
             End Get
             Set(value As String)
-                If Me.Attributes.IndexOf(Name) > -1 Then
-                    Me.Attributes.Item(Name).Value = value
-                Else
-                    Me.Attributes.Add(New HtmlAttribute(Name, value))
+                If Name.IsNotBlank Then
+                    If Me.Attributes.IndexOf(Name) > -1 Then
+                        Me.Attributes.Item(Name).Value = value
+                    Else
+                        Me.Attributes.Add(New HtmlAttribute(Name, value))
+                    End If
                 End If
             End Set
         End Property
@@ -155,7 +170,8 @@ Namespace HtmlParser
         ''' Retorna os nomes dos atributos
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property AttributesNames As IEnumerable(Of String)
+        <Category("General"), Description("All attributes names of this element")>
+        Public ReadOnly Property AttributesNames As IEnumerable(Of String)
             Get
                 Return From itens As HtmlAttribute In Me.Attributes
                        Select itens.Name
@@ -218,9 +234,9 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' This flag indicates that the element is explicitly closed using the "</name>" method.
+        ''' This flag indicates that the element is explicitly closed using the /name method.
         ''' </summary>
-        Friend Property IsExplicitlyTerminated() As Boolean
+        Friend Property IsExplicitlyTerminated As Boolean
             Get
                 Return mIsExplicitlyTerminated
             End Get
@@ -240,24 +256,36 @@ Namespace HtmlParser
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
-            Dim value As String = Convert.ToString("<") & mName
-            For Each attribute As HtmlAttribute In Attributes
-                value += " " + attribute.ToString()
-            Next
-            value += ">"
-            Return value
+            Return HTML
         End Function
 
+        ''' <summary>
+        ''' This will return the HTML representation of this element.
+        ''' </summary>
+        ''' <returns></returns>
+        <Category("General"), Description("The element representation (tag with attributes)")>
+        Public Overrides ReadOnly Property ElementRepresentation As String
+            Get
+                Dim value As String = Convert.ToString("<") & mName
+                For Each attribute As HtmlAttribute In Attributes
+                    value += " " + attribute.ToString()
+                Next
+                value += ">"
+                Return value
+            End Get
 
+        End Property
 
 
         <Category("General"), Description("A concatination of all the text associated with this element")>
-        Public ReadOnly Property Text() As String
+        Public ReadOnly Property InnerText As String
             Get
                 Dim stringBuilder As New StringBuilder()
                 For Each node As HtmlNode In Nodes
                     If TypeOf node Is HtmlText Then
                         stringBuilder.Append(DirectCast(node, HtmlText).Text)
+                    Else
+                        stringBuilder.Append(DirectCast(node, HtmlElement).InnerText)
                     End If
                 Next
                 Return stringBuilder.ToString()
@@ -269,11 +297,17 @@ Namespace HtmlParser
         ''' Return a html string of child nodes
         ''' </summary>
         ''' <returns></returns>
+        ''' 
+        <Category("Output"), Description("The string representation of all childnodes")>
         Public Property InnerHTML As String
             Get
                 Dim s = ""
                 For Each node As HtmlNode In Nodes
-                    s.Append(node.HTML)
+                    If TypeOf node Is HtmlElement Then
+                        s.Append(node.HTML)
+                    Else
+                        s.Append(CType(node, HtmlText).Text)
+                    End If
                 Next
                 Return s
             End Get
@@ -286,20 +320,12 @@ Namespace HtmlParser
             End Set
         End Property
 
-        Public Property InnerText As String
-            Get
-                Return InnerHTML.RemoveHTML
-            End Get
-            Set(value As String)
-                Me.InnerHTML = value.RemoveHTML
-            End Set
-        End Property
 
 
         ''' <summary>
         ''' This will return the HTML for this element and all subnodes.
         ''' </summary>
-        <Category("Output")>
+        <Category("Output"), Description("The HTML string representation of this element and all childnodes")>
         Public Overrides ReadOnly Property HTML() As String
             Get
                 Dim html__1 As New StringBuilder()
@@ -332,7 +358,7 @@ Namespace HtmlParser
         ''' <summary>
         ''' This will return the XHTML for this element and all subnodes.
         ''' </summary>
-        <Category("Output")>
+        <Category("Output"), Description("The XHTML string representation of this element and all childnodes")>
         Public Overrides ReadOnly Property XHTML() As String
             Get
                 If "html".Equals(mName) AndAlso Me.Attributes("xmlns") Is Nothing Then

@@ -38,6 +38,19 @@ Namespace HtmlParser
             Return Text
         End Function
 
+
+        ''' <summary>
+        ''' This will return the text for outputting inside an HTML document.
+        ''' </summary>
+        ''' <returns></returns>
+        <Category("General"), Description("The text associated with this element")>
+        Public Overrides ReadOnly Property ElementRepresentation As String
+            Get
+                Return ToString()
+            End Get
+        End Property
+
+
         Friend ReadOnly Property NoEscaping() As Boolean
             Get
                 If mParent Is Nothing Then

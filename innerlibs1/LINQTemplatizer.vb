@@ -346,8 +346,8 @@ Namespace Templatizer
                 If GetType(T) = GetType(Dictionary(Of String, Object)) AndAlso CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
                     For Each i In CType(CType(Item, Object), Dictionary(Of String, Object)).Keys.ToArray
                         Try
-                            If CType(CType(Item, Object), Dictionary(Of String, Object))(i).GetType.IsIn({GetType(DateTime)}) Then
-                                Template = Template.Replace(ApplySelector(i), CType(CType(CType(Item, Object), Dictionary(Of String, Object))(i), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                            If CType(CType(Item, Object), Dictionary(Of String, Object))(i).GetType.IsIn({GetType(DateTime), GetType(Date)}) Then
+                                Template = Template.Replace(ApplySelector(i), CType(CType(CType(Item, Object), Dictionary(Of String, Object))(i), Date).ToString(DateTimeFormat))
                             Else
                                 Template = Template.Replace(ApplySelector(i), CType(CType(Item, Object), Dictionary(Of String, Object))(i).ToString())
                             End If
@@ -360,7 +360,7 @@ Namespace Templatizer
                         For Each i As PropertyInfo In Item.GetProperties
                             Try
                                 If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
-                                    Template = Template.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(Item.GetPropertyValue("DateTimeFormat")))
+                                    Template = Template.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(DateTimeFormat))
                                 Else
                                     Template = Template.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
                                 End If

@@ -150,8 +150,10 @@ Namespace HtmlParser
                         If Not (element IsNot Nothing AndAlso element.NoEscaping) Then
                             value = HtmlEncoder.DecodeValue(value)
                         End If
-                        Dim node As New HtmlText(value)
-                        nodes.Add(node)
+                        If value.IsNotBlank Then
+                            Dim node As New HtmlText(value)
+                            nodes.Add(node)
+                        End If
                     End If
                     index += 1
                 End If

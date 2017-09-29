@@ -1181,9 +1181,9 @@ Public Module Text
             End If
 
             If doc.Nodes.GEtElementsByTagName("article", True).Count > 0 Then
-                TextOrURL = CType(doc.Nodes.GEtElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerHTML
+                TextOrURL = CType(doc.Nodes.GetElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerText
             ElseIf doc.Nodes.GEtElementsByTagName("body", True).Count > 0 Then
-                TextOrURL = CType(doc.Nodes.GEtElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerHTML
+                TextOrURL = CType(doc.Nodes.GetElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerText
             Else
                 'texto limpo
             End If
