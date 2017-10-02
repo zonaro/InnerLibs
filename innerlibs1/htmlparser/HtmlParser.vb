@@ -1,14 +1,15 @@
-
 Imports System.IO
 Imports System.Text
 Imports System.Collections
 Imports System.Collections.Specialized
+Imports InnerLibs.HtmlParser
 
 Namespace HtmlParser
+
     ''' <summary>
     ''' This is the main HTML parser class. I recommend you don't play around too much in here
     ''' as it's a little fiddly.
-    ''' 
+    '''
     ''' Bascially, this class will build a tree containing HtmlNode elements.
     ''' </summary>
     Friend Class HtmlParser
@@ -201,7 +202,6 @@ Namespace HtmlParser
 #End Region
 
 #Region "HTML clean-up functions"
-
 
         ''' <summary>
         ''' This will remove all HTML comments from the input string. This will
@@ -396,7 +396,6 @@ Namespace HtmlParser
             Return output.ToString()
         End Function
 
-
         Private Shared Function EncodeScript(script As String) As String
             Dim output As String = script.Replace("<", "[MIL-SCRIPT-LT]")
             output = output.Replace(">", "[MIL-SCRIPT-GT]")
@@ -577,7 +576,9 @@ Namespace HtmlParser
         End Function
 
 #End Region
+
     End Class
+
 End Namespace
 
 '=======================================================

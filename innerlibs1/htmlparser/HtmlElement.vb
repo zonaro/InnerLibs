@@ -1,8 +1,8 @@
-
 Imports System.Text
 Imports System.ComponentModel
 
 Namespace HtmlParser
+
     ''' <summary>
     ''' The HtmlElement object represents any HTML element. An element has a name
     ''' and zero or more attributes.
@@ -29,14 +29,12 @@ Namespace HtmlParser
             End If
         End Sub
 
-
         Sub Mutate(Element As HtmlElement)
             Me.Attributes.Clear()
             mAttributes = Element.Attributes
             Me.InnerHTML = Element.InnerHTML
             Me.Name = Element.Name
         End Sub
-
 
         Sub Mutate(Html As String)
             Dim doc = New HtmlDocument(Html)
@@ -61,7 +59,7 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public Property Style(Optional Key As String = "") As String
             Get
-                If Key.IsnotBlank Then
+                If Key.IsNotBlank Then
                     Dim s = Me.Attribute("style")
                     If s.IsNotBlank Then
                         Dim styledic As New Dictionary(Of String, String)
@@ -135,17 +133,16 @@ Namespace HtmlParser
             End Set
         End Property
 
-
         ''' <summary>
         ''' Return de value of specific attibute
         ''' </summary>
         ''' <param name="Name"></param>
         ''' <returns></returns>
-        ''' 
+        '''
         <Category("General"), Description("An especific attribute of element")>
-        Default Property Attribute(Name As String) As String
+        Property Attribute(Name As String) As String
             Get
-                If Name.IsnotBlank Then
+                If Name.IsNotBlank Then
                     If Me.Attributes.IndexOf(Name) > -1 Then
                         Return Me.Attributes.Item(Name).Value
                     Else
@@ -165,7 +162,6 @@ Namespace HtmlParser
             End Set
         End Property
 
-
         ''' <summary>
         ''' Retorna os nomes dos atributos
         ''' </summary>
@@ -177,8 +173,6 @@ Namespace HtmlParser
                        Select itens.Name
             End Get
         End Property
-
-
 
         ''' <summary>
         ''' This is the tag name of the element. e.g. BR, BODY, TABLE etc.
@@ -201,9 +195,15 @@ Namespace HtmlParser
         Public ReadOnly Property Nodes() As HtmlNodeCollection
             Get
                 If IsText() Then
-                    Throw New InvalidOperationException("An HtmlText node does not have child nodes")
+                    Return Nothing
                 End If
                 Return mNodes
+            End Get
+        End Property
+
+        Default ReadOnly Property Node(Name As String) As HtmlNode
+            Get
+                Return Me.Nodes(Name)
             End Get
         End Property
 
@@ -276,7 +276,6 @@ Namespace HtmlParser
 
         End Property
 
-
         <Category("General"), Description("A concatination of all the text associated with this element")>
         Public ReadOnly Property InnerText As String
             Get
@@ -292,12 +291,11 @@ Namespace HtmlParser
             End Get
         End Property
 
-
         ''' <summary>
         ''' Return a html string of child nodes
         ''' </summary>
         ''' <returns></returns>
-        ''' 
+        '''
         <Category("Output"), Description("The string representation of all childnodes")>
         Public Property InnerHTML As String
             Get
@@ -319,8 +317,6 @@ Namespace HtmlParser
                 Next
             End Set
         End Property
-
-
 
         ''' <summary>
         ''' This will return the HTML for this element and all subnodes.
@@ -352,9 +348,6 @@ Namespace HtmlParser
             End Get
         End Property
 
-
-
-
         ''' <summary>
         ''' This will return the XHTML for this element and all subnodes.
         ''' </summary>
@@ -385,7 +378,20 @@ Namespace HtmlParser
                 Return html.ToString()
             End Get
         End Property
+
+        ''' <summary>
+        ''' Search elements in document using predicate
+        ''' </summary>
+        ''' <typeparam name="Type">Tipe of Element (<see cref="HtmlText"/> or <see cref="HtmlElement"/></typeparam>
+        ''' <param name="predicate">Predicate</param>
+        ''' <param name="SearchChildren">Match all child elements</param>
+        ''' <returns></returns>
+        Public Function Find(Of Type As HtmlNode)(predicate As Func(Of Type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            Return Me.Nodes.Get(Of Type)(predicate, SearchChildren)
+        End Function
+
     End Class
+
 End Namespace
 
 '=======================================================

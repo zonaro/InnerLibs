@@ -1157,7 +1157,6 @@ Public Module Text
         Return palavras.DistinctCount()
     End Function
 
-
     ''' <summary>
     ''' Extrai palavras chave de um texto seguindo critérios especificos.
     ''' </summary>
@@ -1185,14 +1184,12 @@ Public Module Text
             Next
 
             For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("meta", True)
-                l.AddRange(node("keywords").Split(","))
+                l.AddRange(node.Attribute("keywords").Split(","))
             Next
 
-
-
-            If doc.Nodes.GEtElementsByTagName("article", True).Count > 0 Then
+            If doc.Nodes.GetElementsByTagName("article", True).Count > 0 Then
                 TextOrURL = CType(doc.Nodes.GetElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerHTML
-            ElseIf doc.Nodes.GEtElementsByTagName("body", True).Count > 0 Then
+            ElseIf doc.Nodes.GetElementsByTagName("body", True).Count > 0 Then
                 TextOrURL = CType(doc.Nodes.GetElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerHTML
             Else
                 'texto limpo
@@ -1964,7 +1961,6 @@ Public Module Text
         Return Text.Replace(" ", "&nbsp;")
     End Function
 
-
     ''' <summary>
     ''' Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final (é um alias para <see cref="AdjustWhiteSpaces"/>
     ''' da frase
@@ -2014,7 +2010,6 @@ Public Module Text
             Text = Text.Replace("[ ", "[")
             Text = Text.Replace("{ ", "{")
             Text = Text.Replace("< ", "<")
-
 
             Text = String.Join(" ", Text.Split(New String() {" "}, StringSplitOptions.RemoveEmptyEntries))
             Text = String.Join("&nbsp;", Text.Split(New String() {"&nbsp;"}, StringSplitOptions.RemoveEmptyEntries))
@@ -2217,8 +2212,6 @@ Public Module Text
     Public Function UrlDecode(ByVal Text As String) As String
         Return HttpUtility.UrlDecode("" & Text)
     End Function
-
-
 
     ''' <summary>
     ''' Retorna o texto entre dois textos

@@ -1,10 +1,11 @@
-
 Imports System.Collections
 Imports System.ComponentModel
+Imports System.Linq
 
 Namespace HtmlParser
+
     ''' <summary>
-    ''' The HtmlNode is the base for all objects that may appear in HTML. Currently, 
+    ''' The HtmlNode is the base for all objects that may appear in HTML. Currently,
     ''' this implemention only supports HtmlText and HtmlElement node types.
     ''' </summary>
     Public MustInherit Class HtmlNode
@@ -34,9 +35,6 @@ Namespace HtmlParser
                 Return mParent
             End Get
         End Property
-
-
-
 
         ''' <summary>
         ''' This will return the next sibling node. If this is the last one, it will return null.
@@ -246,6 +244,7 @@ Namespace HtmlParser
         Public Function IsElement() As Boolean
             Return TypeOf Me Is HtmlElement
         End Function
+
     End Class
 
     ''' <summary>
@@ -254,7 +253,7 @@ Namespace HtmlParser
     ''' to the order in which they appear in the original HTML document.
     ''' </summary>
     Public Class HtmlNodeCollection
-        Inherits CollectionBase
+        Inherits List(Of HtmlNode)
         Private mParent As HtmlElement
 
         ' Public constructor to create an empty collection.
@@ -272,91 +271,15 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
-        ''' Remove a HtmlNode from Nodes
+        ''' Return the firs element with especific name
         ''' </summary>
-        ''' <param name="HtmlNode"></param>
-        Sub Remove(HtmlNode As HtmlNode)
-            If Me.IndexOf(HtmlNode) > -1 Then
-                Me.RemoveAt(Me.IndexOf(HtmlNode))
-            End If
-        End Sub
-
-
-        ''' <summary>
-        ''' This will add a node to the collection.
-        ''' </summary>
-        ''' <param name="node"></param>
+        ''' <param name="Name"></param>
         ''' <returns></returns>
-        Public Function Add(node As HtmlNode) As Integer
-            If mParent IsNot Nothing Then
-                node.SetParent(mParent)
-            End If
-            Return MyBase.List.Add(node)
-        End Function
-
-        ''' <summary>
-        ''' This is used to identify the index of this node as it appears in the collection.
-        ''' </summary>
-        ''' <param name="node">The node to test</param>
-        ''' <returns>The index of the node, or -1 if it is not in this collection</returns>
-        Public Function IndexOf(node As HtmlNode) As Integer
-            Return MyBase.List.IndexOf(node)
-        End Function
-
-        ''' <summary>
-        ''' This will insert a node at the given position
-        ''' </summary>
-        ''' <param name="index">The position at which to insert the node.</param>
-        ''' <param name="node">The node to insert.</param>
-        Public Sub Insert(index As Integer, node As HtmlNode)
-            If mParent IsNot Nothing Then
-                node.SetParent(mParent)
-            End If
-            MyBase.InnerList.Insert(index, node)
-        End Sub
-
-        ''' <summary>
-        ''' This property allows you to change the node at a particular position in the
-        ''' collection.
-        ''' </summary>
-        Default Public Property Item(index As Integer) As HtmlNode
+        Default Overloads ReadOnly Property Item(Name As String) As HtmlElement
             Get
-                Return DirectCast(MyBase.InnerList(index), HtmlNode)
-            End Get
-            Set
-                If mParent IsNot Nothing Then
-                    Value.SetParent(mParent)
-                End If
-                MyBase.InnerList(index) = Value
-            End Set
-        End Property
-
-        ''' <summary>
-        ''' This allows you to directly access the first element in this colleciton with the given name.
-        ''' If the node does not exist, this will return null.
-        ''' </summary>
-        Default Public ReadOnly Property Item(name As String) As HtmlNode
-            Get
-                Dim results As HtmlNodeCollection = GEtElementsByTagName(name, False)
-                If results.Count > 0 Then
-                    Return results(0)
-                Else
-                    Return Nothing
-                End If
+                Return Item(Me.IndexOf(Me.Where(Function(p As HtmlElement) p.Name.ToLower = Name).First))
             End Get
         End Property
-
-        ''' <summary>
-        ''' This will search though this collection of nodes for all elements with the
-        ''' specified name. If you want to search the subnodes recursively, you should
-        ''' pass True as the parameter in searchChildren. This search is guaranteed to
-        ''' return nodes in the order in which they are found in the document.
-        ''' </summary>
-        ''' <param name="name">The name of the element to find</param>
-        ''' <returns>A collection of all the nodes that macth.</returns>
-        Public Function GetElementsByTagName(name As String) As HtmlNodeCollection
-            Return GetElementsByTagName(name, True)
-        End Function
 
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with the
@@ -368,15 +291,15 @@ Namespace HtmlParser
         ''' <param name="searchChildren">True if you want to search sub-nodes, False to
         ''' only search this collection.</param>
         ''' <returns>A collection of all the nodes that macth.</returns>
-        Public Function GetElementsByTagName(name As String, searchChildren As Boolean) As HtmlNodeCollection
+        Public Function GetElementsByTagName(Name As String, Optional SearchChildren As Boolean = True) As HtmlNodeCollection
             Dim results As New HtmlNodeCollection(Nothing)
-            For Each node As HtmlNode In MyBase.List
+            For Each node As HtmlNode In Me
                 If TypeOf node Is HtmlElement Then
-                    If DirectCast(node, HtmlElement).Name.ToLower().Equals(name.ToLower()) Then
+                    If DirectCast(node, HtmlElement).Name.ToLower().Equals(Name.ToLower()) Then
                         results.Add(node)
                     End If
-                    If searchChildren Then
-                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByTagName(name, searchChildren)
+                    If SearchChildren Then
+                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByTagName(Name, SearchChildren)
                             results.Add(matchedChild)
                         Next
                     End If
@@ -387,34 +310,24 @@ Namespace HtmlParser
 
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with the an
-        ''' attribute with the given name. 
-        ''' </summary>
-        ''' <param name="attributeName">The name of the attribute to find</param>
-        ''' <returns>A collection of all the nodes that macth.</returns>
-        Public Function GetElementsByAttributeName(attributeName As String) As HtmlNodeCollection
-            Return GetElementsByAttributeName(attributeName, True)
-        End Function
-
-        ''' <summary>
-        ''' This will search though this collection of nodes for all elements with the an
-        ''' attribute with the given name. 
+        ''' attribute with the given name.
         ''' </summary>
         ''' <param name="attributeName">The name of the attribute to find</param>
         ''' <param name="searchChildren">True if you want to search sub-nodes, False to
         ''' only search this collection.</param>
         ''' <returns>A collection of all the nodes that macth.</returns>
-        Public Function GetElementsByAttributeName(attributeName As String, searchChildren As Boolean) As HtmlNodeCollection
+        Public Function GetElementsByAttributeName(AttributeName As String, Optional SearchChildren As Boolean = True) As HtmlNodeCollection
             Dim results As New HtmlNodeCollection(Nothing)
-            For Each node As HtmlNode In MyBase.List
+            For Each node As HtmlNode In Me
                 If TypeOf node Is HtmlElement Then
                     For Each attribute As HtmlAttribute In DirectCast(node, HtmlElement).Attributes
-                        If attribute.Name.ToLower() = attributeName.ToLower() Then
+                        If attribute.Name.ToLower() = AttributeName.ToLower() Then
                             results.Add(node)
                             Exit For
                         End If
                     Next
-                    If searchChildren Then
-                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeName(attributeName, searchChildren)
+                    If SearchChildren Then
+                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeName(AttributeName, SearchChildren)
                             results.Add(matchedChild)
                         Next
                     End If
@@ -423,24 +336,26 @@ Namespace HtmlParser
             Return results
         End Function
 
-        Public Function GetElementsByAttributeNameValue(attributeName As String, attributeValue As String) As HtmlNodeCollection
-            Return GetElementsByAttributeNameValue(attributeName, attributeValue, True)
-        End Function
-
-        Public Function GetElementsByAttributeNameValue(attributeName As String, attributeValue As String, searchChildren As Boolean) As HtmlNodeCollection
+        ''' <summary>
+        ''' This will search though this collection of nodes for all elements with the an
+        ''' attribute with the given name and value.
+        ''' </summary>
+        ''' <param name="attributeName">The name of the attribute to find</param>
+        ''' <returns>A collection of all the nodes that macth.</returns>
+        Public Function GetElementsByAttributeNameValue(AttributeName As String, AttributeValue As String, Optional searchChildren As Boolean = True) As HtmlNodeCollection
             Dim results As New HtmlNodeCollection(Nothing)
-            For Each node As HtmlNode In MyBase.List
+            For Each node As HtmlNode In Me
                 If TypeOf node Is HtmlElement Then
                     For Each attribute As HtmlAttribute In DirectCast(node, HtmlElement).Attributes
-                        If attribute.Name.ToLower().Equals(attributeName.ToLower()) Then
-                            If attribute.Value.ToLower().Equals(attributeValue.ToLower()) Then
+                        If attribute.Name.ToLower().Equals(AttributeName.ToLower()) Then
+                            If attribute.Value.ToLower().Equals(AttributeValue.ToLower()) Then
                                 results.Add(node)
                             End If
                             Exit For
                         End If
                     Next
                     If searchChildren Then
-                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeNameValue(attributeName, attributeValue, searchChildren)
+                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeNameValue(AttributeName, AttributeValue, searchChildren)
                             results.Add(matchedChild)
                         Next
                     End If
@@ -449,10 +364,40 @@ Namespace HtmlParser
             Return results
         End Function
 
+        ''' <summary>
+        ''' This will search though this collection of nodes for all elements with matchs the predicate.
+        ''' </summary>
+        ''' <typeparam name="type"></typeparam>
+        ''' <param name="predicate"></param>
+        ''' <param name="searchChildren"></param>
+        ''' <returns></returns>
+        Friend Function [Get](Of type As HtmlNode)(predicate As Func(Of type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            Dim results As New HtmlNodeCollection(Nothing)
+            For Each node As HtmlNode In Me
+                If TypeOf node Is type Then
+                    Dim l As New List(Of type)
+                    For Each e In Me.Where(Function(t) TypeOf t Is type)
+                        l.Add(e)
+                    Next
+                    If l.Where(predicate).Contains(node) Then
+                        results.Add(node)
+                        l.Clear()
+                    End If
+                End If
+                If TypeOf node Is HtmlElement Then
+                    If SearchChildren Then
+                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.Get(predicate, SearchChildren)
+                            results.Add(matchedChild)
+                        Next
+                    End If
+                End If
 
-
+            Next
+            Return results
+        End Function
 
     End Class
+
 End Namespace
 
 '=======================================================

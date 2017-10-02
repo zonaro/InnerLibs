@@ -25,7 +25,7 @@ Public Class State
     ''' Lista de cidades do estado
     ''' </summary>
     ''' <returns></returns>
-    Public Property Cities As List(Of String)
+    Public Property Cities As New List(Of String)
 
     ''' <summary>
     ''' Tipo de string representativa do estado (sigla ou nome)

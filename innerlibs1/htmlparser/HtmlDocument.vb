@@ -1,4 +1,3 @@
-
 Imports System.Text
 Imports System.Collections
 Imports System.ComponentModel
@@ -22,13 +21,10 @@ Namespace HtmlParser
             If UrlOrHTMLString.IsURL Then
                 UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString)
             End If
-            Dim parser As New HtmlParser()
+            Dim parser As New HtmlParser
             parser.RemoveEmptyElementText = Not WantSpaces
             mNodes = parser.Parse(UrlOrHTMLString)
         End Sub
-
-
-
 
         <Category("General"), Description("This is the DOCTYPE for XHTML production")>
         Public Property DocTypeXHTML() As String
@@ -81,7 +77,6 @@ Namespace HtmlParser
             End Get
         End Property
 
-
         ''' <summary>
         ''' This will return the HTML used to represent this document.
         ''' </summary>
@@ -126,7 +121,6 @@ Namespace HtmlParser
             Return HTML
         End Function
 
-
         Public Function SaveAs(File As FileInfo) As FileInfo
             Me.HTML.WriteToFile(File)
             Return File
@@ -136,7 +130,24 @@ Namespace HtmlParser
             Return Me.SaveAs(New FileInfo(FileName))
         End Function
 
+        Public Sub LoadInto(Webbrowser As Windows.Forms.WebBrowser)
+            Webbrowser.Navigate("about:blank")
+            Webbrowser.Document.Write(Me.InnerHTML)
+        End Sub
+
+        ''' <summary>
+        ''' Search elements in document using predicate
+        ''' </summary>
+        ''' <typeparam name="Type">Tipe of Element (<see cref="HtmlText"/> or <see cref="HtmlElement"/></typeparam>
+        ''' <param name="predicate">Predicate</param>
+        ''' <param name="SearchChildren">Match all child elements</param>
+        ''' <returns></returns>
+        Public Function Find(Of Type As HtmlNode)(predicate As Func(Of Type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            Return Me.Nodes.Get(Of Type)(predicate, SearchChildren)
+        End Function
+
     End Class
+
 End Namespace
 
 '=======================================================
