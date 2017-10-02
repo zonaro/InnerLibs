@@ -1175,6 +1175,11 @@ Public Module Text
         Try
             doc = New HtmlDocument(TextOrURL)
 
+            Dim kw = doc.FindElements(Function(e As HtmlParser.HtmlElement) e.Name = "meta" AndAlso e.Attribute("name").ToLower = "keywords")
+            For Each item As HtmlParser.HtmlElement In kw
+                l.AddRange(item.Attribute("content").Split(","))
+            Next
+
             For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("style", True)
                 node.Destroy()
             Next
@@ -1183,8 +1188,8 @@ Public Module Text
                 node.Destroy()
             Next
 
-            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("meta", True)
-                l.AddRange(node.Attribute("keywords").Split(","))
+            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("head", True)
+                node.Destroy()
             Next
 
             If doc.Nodes.GetElementsByTagName("article", True).Count > 0 Then
@@ -1199,6 +1204,8 @@ Public Module Text
             Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.GetWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber)
             IgnoredWords = If(IgnoredWords, {}).ToArray
             ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
+            l.AddRange(ImportantWords)
+            ImportantWords = l.ToArray
             If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
             If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
             Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().ToDictionary(Function(p) p.Key, Function(p) p.Value)

@@ -204,12 +204,15 @@ Public Module Web
     End Sub
 
     ''' <summary>
-    ''' Destroi a Sessão e todos os cookies de uma aplicação ASP.NET
+    ''' Destroi a Sessão, cache e cookies de uma aplicação ASP.NET
     ''' </summary>
     ''' <param name="Page">Pagina atual</param>
     <Extension()>
     Public Function DestroySessionAndCookies(Page As HttpApplication) As String
         Try
+            Page.Context.Response.AddHeader("Cache-Control", "no-cache, no-store, must-revalidate")
+            Page.Context.Response.AddHeader("Pragma", "no-cache")
+            Page.Context.Response.AddHeader("Expires", "0")
             For Each key As String In Page.Request.Cookies.AllKeys
                 Dim c = Page.Request.Cookies(key)
                 c.Expires = Now.AddMonths(-1)

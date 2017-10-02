@@ -94,7 +94,7 @@ Namespace HtmlParser
                                 attribute_value = Nothing
                             End If
                             index += 1
-                            Dim attribute As New HtmlAttribute(attribute_name, HtmlEncoder.DecodeValue(attribute_value))
+                            Dim attribute As New HtmlAttribute(attribute_name, System.Net.WebUtility.HtmlDecode(attribute_value))
                             element.Attributes.Add(attribute)
                         ElseIf index < tokens.Count Then
                             ' Null-value attribute
@@ -149,7 +149,7 @@ Namespace HtmlParser
                     If mRemoveEmptyElementText AndAlso value.Length = 0 Then
                     Else
                         If Not (element IsNot Nothing AndAlso element.NoEscaping) Then
-                            value = HtmlEncoder.DecodeValue(value)
+                            value = System.Net.WebUtility.HtmlDecode(value)
                         End If
                         If value.IsNotBlank Then
                             Dim node As New HtmlText(value)

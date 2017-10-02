@@ -69,7 +69,7 @@ Namespace HtmlParser
                 If NoEscaping Then
                     Return Text
                 Else
-                    Return HtmlEncoder.EncodeValue(Text)
+                    Return System.Net.WebUtility.HtmlEncode(Text)
                 End If
             End Get
         End Property
@@ -79,7 +79,7 @@ Namespace HtmlParser
         ''' </summary>
         Public Overrides ReadOnly Property XHTML() As String
             Get
-                Return HtmlEncoder.EncodeValue(Text)
+                Return System.Net.WebUtility.HtmlEncode(Text)
             End Get
         End Property
     End Class

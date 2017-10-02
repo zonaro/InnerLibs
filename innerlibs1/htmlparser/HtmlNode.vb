@@ -277,7 +277,11 @@ Namespace HtmlParser
         ''' <returns></returns>
         Default Overloads ReadOnly Property Item(Name As String) As HtmlElement
             Get
-                Return Item(Me.IndexOf(Me.Where(Function(p As HtmlElement) p.Name.ToLower = Name).First))
+                Try
+                    Return Item(Me.IndexOf(Me.Where(Function(p As HtmlElement) p.Name.ToLower = Name.ToLower).First))
+                Catch ex As Exception
+                    Return Nothing
+                End Try
             End Get
         End Property
 
@@ -371,7 +375,7 @@ Namespace HtmlParser
         ''' <param name="predicate"></param>
         ''' <param name="searchChildren"></param>
         ''' <returns></returns>
-        Friend Function [Get](Of type As HtmlNode)(predicate As Func(Of type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+        Public Function FindElements(Of type As HtmlNode)(predicate As Func(Of type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
             Dim results As New HtmlNodeCollection(Nothing)
             For Each node As HtmlNode In Me
                 If TypeOf node Is type Then
@@ -386,7 +390,7 @@ Namespace HtmlParser
                 End If
                 If TypeOf node Is HtmlElement Then
                     If SearchChildren Then
-                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.Get(predicate, SearchChildren)
+                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.FindElements(predicate, SearchChildren)
                             results.Add(matchedChild)
                         Next
                     End If

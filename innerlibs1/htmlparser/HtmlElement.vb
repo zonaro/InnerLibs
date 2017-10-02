@@ -46,10 +46,21 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
+        ''' Verify if this element has an specific attribute
+        ''' </summary>
+        ''' <param name="Name"></param>
+        ''' <returns></returns>
+        Function HasAttribute(Name As String) As Boolean
+            Return Me.Attributes.Where(Function(a) a.Name.ToLower = Name.ToLower).Count > 0
+        End Function
+
+        ''' <summary>
         ''' Remove this element from parten element
         ''' </summary>
         Sub Destroy()
-            Me.Parent.Nodes.Remove(Me)
+            If Me.Parent IsNot Nothing Then
+                Me.Parent.Nodes.Remove(Me)
+            End If
         End Sub
 
         ''' <summary>
@@ -134,7 +145,7 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Return de value of specific attibute
+        ''' Return the value of specific attibute
         ''' </summary>
         ''' <param name="Name"></param>
         ''' <returns></returns>
@@ -143,20 +154,20 @@ Namespace HtmlParser
         Property Attribute(Name As String) As String
             Get
                 If Name.IsNotBlank Then
-                    If Me.Attributes.IndexOf(Name) > -1 Then
-                        Return Me.Attributes.Item(Name).Value
-                    Else
+                    Try
+                        Return Me.Attributes.Item(Name.ToLower).Value
+                    Catch ex As Exception
                         Return ""
-                    End If
+                    End Try
                 End If
                 Return ""
             End Get
             Set(value As String)
                 If Name.IsNotBlank Then
-                    If Me.Attributes.IndexOf(Name) > -1 Then
-                        Me.Attributes.Item(Name).Value = value
+                    If Me.Attributes.Where(Function(e) e.Name.ToLower = Name.ToLower).Count > 0 Then
+                        Me.Attributes.Item(Name.ToLower).Value = value
                     Else
-                        Me.Attributes.Add(New HtmlAttribute(Name, value))
+                        Me.Attributes.Add(New HtmlAttribute(Name.ToLower, value))
                     End If
                 End If
             End Set
@@ -180,10 +191,10 @@ Namespace HtmlParser
         <Category("General"), Description("The name of the tag/element")>
         Public Property Name() As String
             Get
-                Return mName
+                Return mName.ToLower
             End Get
             Set
-                mName = Value
+                mName = Value.ToLower
             End Set
         End Property
 
@@ -387,7 +398,7 @@ Namespace HtmlParser
         ''' <param name="SearchChildren">Match all child elements</param>
         ''' <returns></returns>
         Public Function Find(Of Type As HtmlNode)(predicate As Func(Of Type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
-            Return Me.Nodes.Get(Of Type)(predicate, SearchChildren)
+            Return Me.Nodes.FindElements(Of Type)(predicate, SearchChildren)
         End Function
 
     End Class

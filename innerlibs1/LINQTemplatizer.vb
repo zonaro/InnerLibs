@@ -170,6 +170,8 @@ Namespace Templatizer
                 Template = ReplaceValues(Item, Template)
                 Template = ReplaceValues(CustomValues, Template)
                 Template = ProccessConditions(Item, Template)
+                Template = Proccessswitch(Item, Template)
+                Template = ProccessIf(Item, Template)
                 Template = ProccessSubTemplate(Item, Template)
             End If
             Return New Template(Of T)(Item, Template)
@@ -306,8 +308,8 @@ Namespace Templatizer
             Dim doc As New HtmlDocument(Template)
             For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
                 Try
-                    Dim expression = CType(conditionTag.Nodes.GetElementsByTagName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
-                    Dim contenttag = CType(conditionTag.Nodes.GetElementsByTagName("content")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim expression = CType(conditionTag.Nodes.GetElementsByTagName("expression", False)(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim contenttag = CType(conditionTag.Nodes.GetElementsByTagName("content", False)(0), HtmlElement).InnerHTML.HtmlDecode
                     Dim resultexp = EvaluateExpression(expression)
 
                     If resultexp = True Or resultexp > 0 Then
@@ -322,6 +324,69 @@ Namespace Templatizer
             Template = doc.InnerHTML
             Return Template
         End Function
+
+        Friend Function ProccessIf(Of t As Class)(Item As t, Template As String) As String
+            Dim doc As New HtmlDocument(Template)
+            For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("IF", True)
+                Try
+                    Dim expression = CType(conditionTag.Nodes.GetElementsByTagName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim truetag = CType(conditionTag.Nodes.GetElementsByTagName("true", False)(0), HtmlElement).InnerHTML.HtmlDecode
+                    Dim falsetag = ""
+                    Try
+                        falsetag = CType(conditionTag.Nodes.GetElementsByTagName("false", False)(0), HtmlElement).InnerHTML.HtmlDecode
+                    Catch
+                    End Try
+                    Dim resultexp = EvaluateExpression(expression)
+                    If resultexp = True Or resultexp > 0 Then
+                        conditionTag.Mutate(truetag)
+                    Else
+                        If falsetag.IsNotBlank Then
+                            conditionTag.Mutate(falsetag)
+                        Else
+                            conditionTag.Destroy()
+                        End If
+                    End If
+                Catch ex As Exception
+                    conditionTag.Destroy()
+                End Try
+            Next
+            Template = doc.InnerHTML
+            Return Template
+        End Function
+
+        Friend Function ProccessSwitch(Of t As Class)(Item As t, Template As String) As String
+            Dim doc As New HtmlDocument(Template)
+            For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("switch", True)
+                Try
+                    Dim othertag = conditionTag.Find(Function(n As HtmlElement) n.Name = "case" AndAlso n.Attribute("value") = conditionTag.Attribute("value"), False)
+                    Dim html = ""
+                    If othertag.Count > 0 Then
+                        For Each node As HtmlElement In othertag
+                            html.Append(node.InnerHTML)
+                            If node.Attribute("break").ToLower.IsIn({"1", "true"}) Then
+                                Exit For
+                            End If
+                        Next
+                    Else
+                        othertag = conditionTag.Find(Function(n As HtmlElement) n.Name = "else", False)
+                        If othertag.Count = 1 Then
+                            html = CType(othertag.First, HtmlElement).InnerHTML
+                        End If
+                    End If
+
+                    If html.IsNotBlank Then
+                        conditionTag.Mutate(html)
+                    Else
+                        conditionTag.Destroy()
+                    End If
+                Catch ex As Exception
+                    conditionTag.Destroy()
+                End Try
+            Next
+            Template = doc.InnerHTML
+            Return Template
+        End Function
+
 
         Friend Function ProccessSubTemplate(Of t As Class)(item As t, Template As String) As String
             Dim doc As New HtmlDocument(Template)

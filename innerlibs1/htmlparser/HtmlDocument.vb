@@ -28,12 +28,10 @@ Namespace HtmlParser
 
         <Category("General"), Description("This is the DOCTYPE for XHTML production")>
         Public Property DocTypeXHTML() As String
-
             Get
                 Return mXhtmlHeader
             End Get
             Set
-
                 mXhtmlHeader = Value
             End Set
         End Property
@@ -59,6 +57,10 @@ Namespace HtmlParser
             End Set
         End Property
 
+        ''' <summary>
+        ''' Returns the text of all child nodes
+        ''' </summary>
+        ''' <returns></returns>
         Public Property InnerText As String
             Get
                 Return InnerHTML.RemoveHTML
@@ -84,13 +86,13 @@ Namespace HtmlParser
         Public ReadOnly Property HTML() As String
 
             Get
-                Dim html__1 As New StringBuilder()
+                Dim html1 As New StringBuilder()
 
                 For Each node As HtmlNode In Nodes
-                    html__1.Append(node.HTML)
+                    html1.Append(node.HTML)
 
                 Next
-                Return html__1.ToString()
+                Return html1.ToString()
             End Get
         End Property
 
@@ -117,22 +119,40 @@ Namespace HtmlParser
             End Get
         End Property
 
+        ''' <summary>
+        ''' Return the HTML of this document
+        ''' </summary>
+        ''' <returns></returns>
         Public Overrides Function ToString() As String
             Return HTML
         End Function
 
+        ''' <summary>
+        ''' Save the document as file
+        ''' </summary>
+        ''' <param name="File">File</param>
+        ''' <returns></returns>
         Public Function SaveAs(File As FileInfo) As FileInfo
             Me.HTML.WriteToFile(File)
             Return File
         End Function
 
+        ''' <summary>
+        ''' Save the document as file
+        ''' </summary>
+        ''' <param name="FileName">Filename</param>
+        ''' <returns></returns>
         Public Function SaveAs(FileName As String) As FileInfo
             Return Me.SaveAs(New FileInfo(FileName))
         End Function
 
-        Public Sub LoadInto(Webbrowser As Windows.Forms.WebBrowser)
-            Webbrowser.Navigate("about:blank")
-            Webbrowser.Document.Write(Me.InnerHTML)
+        ''' <summary>
+        ''' Load the document in <see cref="Windows.Forms.WebBrowser"/> control
+        ''' </summary>
+        ''' <param name="WebBrowser"></param>
+        Public Sub LoadInto(WebBrowser As Windows.Forms.WebBrowser)
+            WebBrowser.Navigate("about:blank")
+            WebBrowser.Document.Write(Me.ToString)
         End Sub
 
         ''' <summary>
@@ -142,9 +162,29 @@ Namespace HtmlParser
         ''' <param name="predicate">Predicate</param>
         ''' <param name="SearchChildren">Match all child elements</param>
         ''' <returns></returns>
-        Public Function Find(Of Type As HtmlNode)(predicate As Func(Of Type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
-            Return Me.Nodes.Get(Of Type)(predicate, SearchChildren)
+        Public Function FindElements(Of Type As HtmlNode)(predicate As Func(Of Type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            Return Me.Nodes.FindElements(Of Type)(predicate, SearchChildren)
         End Function
+
+        ''' <summary>
+        ''' Return the body element if exist
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Body As HtmlElement
+            Get
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "body").FirstOrDefault
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Return the head element if exist
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Head As HtmlElement
+            Get
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOrDefault
+            End Get
+        End Property
 
     End Class
 
