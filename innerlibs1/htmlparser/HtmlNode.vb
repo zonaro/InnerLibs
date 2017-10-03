@@ -384,14 +384,18 @@ Namespace HtmlParser
                         l.Add(e)
                     Next
                     If l.Where(predicate).Contains(node) Then
-                        results.Add(node)
+                        If Not results.Contains(node) Then
+                            results.Add(node)
+                        End If
                         l.Clear()
                     End If
                 End If
                 If TypeOf node Is HtmlElement Then
                     If SearchChildren Then
                         For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.FindElements(predicate, SearchChildren)
-                            results.Add(matchedChild)
+                            If Not results.Contains(matchedChild) Then
+                                results.Add(matchedChild)
+                            End If
                         Next
                     End If
                 End If

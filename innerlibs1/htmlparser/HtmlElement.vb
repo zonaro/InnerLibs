@@ -51,8 +51,17 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Name"></param>
         ''' <returns></returns>
-        Function HasAttribute(Name As String) As Boolean
+        Public Function HasAttribute(Name As String) As Boolean
             Return Me.Attributes.Where(Function(a) a.Name.ToLower = Name.ToLower).Count > 0
+        End Function
+
+        ''' <summary>
+        ''' Verify if this element has an specific attribute
+        ''' </summary>
+        ''' <param name="Name"></param>
+        ''' <returns></returns>
+        Public Function HasClass(ClassName As String) As Boolean
+            Return Me.Class(ClassName)
         End Function
 
         ''' <summary>
@@ -68,9 +77,33 @@ Namespace HtmlParser
         ''' The CSS style of element
         ''' </summary>
         ''' <returns></returns>
+        <Category("General"), Description("The CSS style of this element"), TypeConverter(GetType(ExpandableObjectConverter))>
         Public ReadOnly Property Style As CssProperties
 
 
+        ''' <summary>
+        ''' Return the child elements of this element (excluding HtmlText)
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property ChildElements As HtmlNodeCollection
+            Get
+                Dim l As New HtmlNodeCollection(Parent)
+                l.AddRange(Nodes.Where(Function(p) TypeOf p Is HtmlElement).Select(Function(p) CType(p, HtmlElement)))
+                Return l
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Return the all classes of this element
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetClassList() As IList(Of String)
+            Dim attr = Me.Attribute("class")
+            If attr.IsNotBlank Then
+                Return attr.Split({" "c, ControlChars.Tab}, StringSplitOptions.RemoveEmptyEntries)
+            End If
+            Return New List(Of String)
+        End Function
 
 
         <Category("General"), Description("The CSS class of this element")>

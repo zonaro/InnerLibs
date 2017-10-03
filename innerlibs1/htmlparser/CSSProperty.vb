@@ -1,6 +1,9 @@
-﻿Namespace HtmlParser
+﻿Imports System.ComponentModel
+
+Namespace HtmlParser
 
     Public Class CssProperties
+        Implements IDictionary(Of String, String)
 
         Private mElement As HtmlElement
 
@@ -8,9 +11,108 @@
             Me.mElement = Element
         End Sub
 
-        Function Add(Key As String, Value As String) As CssProperties
-            Item(Key) = Value
-            Return Me
+
+        Public ReadOnly Property Keys As ICollection(Of String) Implements IDictionary(Of String, String).Keys
+            Get
+                Dim s = mElement.Attribute("style")
+                If s.IsNotBlank Then
+                    Dim styledic As New Dictionary(Of String, String)
+                    For Each i In s.Split(";")
+                        Dim n = i.Split(":")
+                        styledic.Add(n(0).ToLower, n(1).ToLower)
+                        Return styledic.Keys
+                    Next
+                End If
+                Return {}
+            End Get
+        End Property
+
+        Public ReadOnly Property Values As ICollection(Of String) Implements IDictionary(Of String, String).Values
+            Get
+                Dim s = mElement.Attribute("style")
+                If s.IsNotBlank Then
+                    Dim styledic As New Dictionary(Of String, String)
+                    For Each i In s.Split(";")
+                        Dim n = i.Split(":")
+                        styledic.Add(n(0).ToLower, n(1).ToLower)
+                        Return styledic.Values
+                    Next
+                End If
+                Return {}
+            End Get
+        End Property
+
+        Public ReadOnly Property Count As Integer Implements ICollection(Of KeyValuePair(Of String, String)).Count
+            Get
+                Dim s = mElement.Attribute("style")
+                If s.IsNotBlank Then
+                    Dim styledic As New Dictionary(Of String, String)
+                    For Each i In s.Split(";")
+                        Dim n = i.Split(":")
+                        styledic.Add(n(0).ToLower, n(1).ToLower)
+                        Return styledic.Count
+                    Next
+                End If
+                Return 0
+            End Get
+        End Property
+
+        Public ReadOnly Property IsReadOnly As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).IsReadOnly
+            Get
+                Return False
+            End Get
+        End Property
+
+        Public Function ContainsKey(key As String) As Boolean Implements IDictionary(Of String, String).ContainsKey
+            Return Me.Item(key).IsNotBlank
+        End Function
+
+        Public Sub Add(key As String, value As String) Implements IDictionary(Of String, String).Add
+            Item(key) = value
+        End Sub
+
+        Private Function Remove(key As String) As Boolean Implements IDictionary(Of String, String).Remove
+            If Me.Item(key).IsNotBlank Then
+                Item(key) = ""
+                Return True
+            End If
+            Return False
+        End Function
+
+        Public Function TryGetValue(key As String, ByRef value As String) As Boolean Implements IDictionary(Of String, String).TryGetValue
+            value = Me.Item(key)
+            Return value
+        End Function
+
+        Public Sub Add(item As KeyValuePair(Of String, String)) Implements ICollection(Of KeyValuePair(Of String, String)).Add
+            Me.Add(item.Key, item.Value)
+        End Sub
+
+        Public Sub ClearStyle() Implements ICollection(Of KeyValuePair(Of String, String)).Clear
+            Try
+                mElement.Attributes.Remove(mElement.Attributes().Where(Function(p) p.Name = "style"))
+            Catch ex As Exception
+            End Try
+        End Sub
+
+        Public Function Contains(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Contains
+            Return Me.Item(item.Key) = item.Value
+        End Function
+
+        Private Sub CopyTo(array() As KeyValuePair(Of String, String), arrayIndex As Integer) Implements ICollection(Of KeyValuePair(Of String, String)).CopyTo
+
+        End Sub
+
+        Public Function Remove(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Remove
+            Return Me.Remove(item.Key)
+        End Function
+
+        Public Function GetEnumerator() As IEnumerator(Of KeyValuePair(Of String, String)) Implements IEnumerable(Of KeyValuePair(Of String, String)).GetEnumerator
+            Throw New NotImplementedException()
+        End Function
+
+        Private Function IEnumerable_GetEnumerator() As IEnumerator Implements IEnumerable.GetEnumerator
+            Throw New NotImplementedException()
         End Function
 
         ''' <summary>
@@ -18,14 +120,14 @@
         ''' </summary>
         ''' <param name="Name">Name of CSS style</param>
         ''' <returns></returns>
-        Default Property Item(Name As String) As String
+        Default Shadows Property Item(Name As String) As String Implements IDictionary(Of String, String).Item
             Get
                 If Name.IsNotBlank Then
                     Dim s = mElement.Attribute("style")
                     If s.IsNotBlank Then
                         Dim styledic As New Dictionary(Of String, String)
-                        For Each Item In s.Split(";")
-                            Dim n = Item.Split(":")
+                        For Each i In s.Split(";")
+                            Dim n = i.Split(":")
                             styledic.Add(n(0).ToLower, n(1).ToLower)
                         Next
                         If styledic.ContainsKey(Name.ToLower) Then
@@ -40,1527 +142,1540 @@
             Set(value As String)
                 Dim s = mElement.Attribute("style")
                 Dim styledic As New Dictionary(Of String, String)
+                If Name.IsNotBlank Then
 
-                If s.IsNotBlank Then
-                    For Each i In s.Split(";")
-                        Dim n = i.Split(":")
-                        styledic.Add(n(0).ToLower, n(1).ToLower)
-                    Next
-                    If styledic.ContainsKey(Name.ToLower) Then
+                    If s.IsNotBlank Then
+                        For Each i In s.Split(";")
+                            Dim n = i.Split(":")
+                            styledic.Add(n(0).ToLower, n(1).ToLower)
+                        Next
                         styledic(Name.ToLower) = value
+                    Else
+                        If value.IsBlank Then
+                            styledic.Remove(Name.ToLower)
+                        Else
+                            styledic(Name.ToLower) = value
+                        End If
                     End If
+                    Dim p = ""
+                    For Each k In styledic.Where(Function(d) d.Value.IsNotBlank)
+                        p.Append(k.Key.ToLower & ":" & k.Value.ToLower & ";")
+                    Next
+                    mElement.Attribute("style") = p
                 End If
-                Dim p = ""
-                For Each k In styledic
-                    p.Append(k.Key.ToLower & ":" & k.Value.ToLower & ";")
-                Next
-                mElement.Attribute("style") = p
+
             End Set
         End Property
 
 
+        Public Overrides Function ToString() As String
+            Return mElement.Attribute("style")
+        End Function
+
+        <Category("Alignment"), Description("Set the align-content attribute")>
         Public Property align_content As String
             Get
-                Return mElement.Style("align-content")
+                Return Me.Item("align-content")
             End Get
             Set(value As String)
-                mElement.Style("align-content") = value
+                Me.Item("align-content") = value
             End Set
         End Property
 
         Public Property align_items As String
             Get
-                Return mElement.Style("align-items")
+                Return Me.Item("align-items")
             End Get
             Set(value As String)
-                mElement.Style("align-items") = value
+                Me.Item("align-items") = value
             End Set
         End Property
 
         Public Property align_self As String
             Get
-                Return mElement.Style("align-self")
+                Return Me.Item("align-self")
             End Get
             Set(value As String)
-                mElement.Style("align-self") = value
+                Me.Item("align-self") = value
             End Set
         End Property
 
         Public Property animation As String
             Get
-                Return mElement.Style("animation")
+                Return Me.Item("animation")
             End Get
             Set(value As String)
-                mElement.Style("animation") = value
+                Me.Item("animation") = value
             End Set
         End Property
 
         Public Property animation_delay As String
             Get
-                Return mElement.Style("animation-delay")
+                Return Me.Item("animation-delay")
             End Get
             Set(value As String)
-                mElement.Style("animation-delay") = value
+                Me.Item("animation-delay") = value
             End Set
         End Property
 
         Public Property animation_direction As String
             Get
-                Return mElement.Style("animation-direction")
+                Return Me.Item("animation-direction")
             End Get
             Set(value As String)
-                mElement.Style("animation-direction") = value
+                Me.Item("animation-direction") = value
             End Set
         End Property
 
         Public Property animation_duration As String
             Get
-                Return mElement.Style("animation-duration")
+                Return Me.Item("animation-duration")
             End Get
             Set(value As String)
-                mElement.Style("animation-duration") = value
+                Me.Item("animation-duration") = value
             End Set
         End Property
 
         Public Property animation_fill_mode As String
             Get
-                Return mElement.Style("animation-fill-mode")
+                Return Me.Item("animation-fill-mode")
             End Get
             Set(value As String)
-                mElement.Style("animation-fill-mode") = value
+                Me.Item("animation-fill-mode") = value
             End Set
         End Property
 
         Public Property animation_iteration_count As String
             Get
-                Return mElement.Style("animation-iteration-count")
+                Return Me.Item("animation-iteration-count")
             End Get
             Set(value As String)
-                mElement.Style("animation-iteration-count") = value
+                Me.Item("animation-iteration-count") = value
             End Set
         End Property
 
         Public Property animation_name As String
             Get
-                Return mElement.Style("animation-name")
+                Return Me.Item("animation-name")
             End Get
             Set(value As String)
-                mElement.Style("animation-name") = value
+                Me.Item("animation-name") = value
             End Set
         End Property
 
         Public Property animation_play_state As String
             Get
-                Return mElement.Style("animation-play-state")
+                Return Me.Item("animation-play-state")
             End Get
             Set(value As String)
-                mElement.Style("animation-play-state") = value
+                Me.Item("animation-play-state") = value
             End Set
         End Property
 
         Public Property animation_timing_function As String
             Get
-                Return mElement.Style("animation-timing-function")
+                Return Me.Item("animation-timing-function")
             End Get
             Set(value As String)
-                mElement.Style("animation-timing-function") = value
+                Me.Item("animation-timing-function") = value
             End Set
         End Property
 
         Public Property backface_visibility As String
             Get
-                Return mElement.Style("backface-visibility")
+                Return Me.Item("backface-visibility")
             End Get
             Set(value As String)
-                mElement.Style("backface-visibility") = value
+                Me.Item("backface-visibility") = value
             End Set
         End Property
 
         Public Property background As String
             Get
-                Return mElement.Style("background")
+                Return Me.Item("background")
             End Get
             Set(value As String)
-                mElement.Style("background") = value
+                Me.Item("background") = value
             End Set
         End Property
 
         Public Property background_attachment As String
             Get
-                Return mElement.Style("background-attachment")
+                Return Me.Item("background-attachment")
             End Get
             Set(value As String)
-                mElement.Style("background-attachment") = value
+                Me.Item("background-attachment") = value
             End Set
         End Property
 
         Public Property background_clip As String
             Get
-                Return mElement.Style("background-clip")
+                Return Me.Item("background-clip")
             End Get
             Set(value As String)
-                mElement.Style("background-clip") = value
+                Me.Item("background-clip") = value
             End Set
         End Property
 
         Public Property background_color As String
             Get
-                Return mElement.Style("background-color")
+                Return Me.Item("background-color")
             End Get
             Set(value As String)
-                mElement.Style("background-color") = value
+                Me.Item("background-color") = value
             End Set
         End Property
 
         Public Property background_image As String
             Get
-                Return mElement.Style("background-image")
+                Return Me.Item("background-image")
             End Get
             Set(value As String)
-                mElement.Style("background-image") = value
+                Me.Item("background-image") = value
             End Set
         End Property
 
         Public Property background_origin As String
             Get
-                Return mElement.Style("background-origin")
+                Return Me.Item("background-origin")
             End Get
             Set(value As String)
-                mElement.Style("background-origin") = value
+                Me.Item("background-origin") = value
             End Set
         End Property
 
         Public Property background_position As String
             Get
-                Return mElement.Style("background-position")
+                Return Me.Item("background-position")
             End Get
             Set(value As String)
-                mElement.Style("background-position") = value
+                Me.Item("background-position") = value
             End Set
         End Property
 
         Public Property background_repeat As String
             Get
-                Return mElement.Style("background-repeat")
+                Return Me.Item("background-repeat")
             End Get
             Set(value As String)
-                mElement.Style("background-repeat") = value
+                Me.Item("background-repeat") = value
             End Set
         End Property
 
         Public Property background_size As String
             Get
-                Return mElement.Style("background-size")
+                Return Me.Item("background-size")
             End Get
             Set(value As String)
-                mElement.Style("background-size") = value
+                Me.Item("background-size") = value
             End Set
         End Property
 
         Public Property border As String
             Get
-                Return mElement.Style("border")
+                Return Me.Item("border")
             End Get
             Set(value As String)
-                mElement.Style("border") = value
+                Me.Item("border") = value
             End Set
         End Property
 
         Public Property border_bottom As String
             Get
-                Return mElement.Style("border-bottom")
+                Return Me.Item("border-bottom")
             End Get
             Set(value As String)
-                mElement.Style("border-bottom") = value
+                Me.Item("border-bottom") = value
             End Set
         End Property
 
         Public Property border_bottom_color As String
             Get
-                Return mElement.Style("border-bottom-color")
+                Return Me.Item("border-bottom-color")
             End Get
             Set(value As String)
-                mElement.Style("border-bottom-color") = value
+                Me.Item("border-bottom-color") = value
             End Set
         End Property
 
         Public Property border_bottom_left_radius As String
             Get
-                Return mElement.Style("border-bottom-left-radius")
+                Return Me.Item("border-bottom-left-radius")
             End Get
             Set(value As String)
-                mElement.Style("border-bottom-left-radius") = value
+                Me.Item("border-bottom-left-radius") = value
             End Set
         End Property
 
         Public Property border_bottom_right_radius As String
             Get
-                Return mElement.Style("border-bottom-right-radius")
+                Return Me.Item("border-bottom-right-radius")
             End Get
             Set(value As String)
-                mElement.Style("border-bottom-right-radius") = value
+                Me.Item("border-bottom-right-radius") = value
             End Set
         End Property
 
         Public Property border_bottom_style As String
             Get
-                Return mElement.Style("border-bottom-style")
+                Return Me.Item("border-bottom-style")
             End Get
             Set(value As String)
-                mElement.Style("border-bottom-style") = value
+                Me.Item("border-bottom-style") = value
             End Set
         End Property
 
         Public Property border_bottom_width As String
             Get
-                Return mElement.Style("border-bottom-width")
+                Return Me.Item("border-bottom-width")
             End Get
             Set(value As String)
-                mElement.Style("border-bottom-width") = value
+                Me.Item("border-bottom-width") = value
             End Set
         End Property
 
         Public Property border_collapse As String
             Get
-                Return mElement.Style("border-collapse")
+                Return Me.Item("border-collapse")
             End Get
             Set(value As String)
-                mElement.Style("border-collapse") = value
+                Me.Item("border-collapse") = value
             End Set
         End Property
 
         Public Property border_color As String
             Get
-                Return mElement.Style("border-color")
+                Return Me.Item("border-color")
             End Get
             Set(value As String)
-                mElement.Style("border-color") = value
+                Me.Item("border-color") = value
             End Set
         End Property
 
         Public Property border_image As String
             Get
-                Return mElement.Style("border-image")
+                Return Me.Item("border-image")
             End Get
             Set(value As String)
-                mElement.Style("border-image") = value
+                Me.Item("border-image") = value
             End Set
         End Property
 
         Public Property border_image_outset As String
             Get
-                Return mElement.Style("border-image-outset")
+                Return Me.Item("border-image-outset")
             End Get
             Set(value As String)
-                mElement.Style("border-image-outset") = value
+                Me.Item("border-image-outset") = value
             End Set
         End Property
 
         Public Property border_image_repeat As String
             Get
-                Return mElement.Style("border-image-repeat")
+                Return Me.Item("border-image-repeat")
             End Get
             Set(value As String)
-                mElement.Style("border-image-repeat") = value
+                Me.Item("border-image-repeat") = value
             End Set
         End Property
 
         Public Property border_image_slice As String
             Get
-                Return mElement.Style("border-image-slice")
+                Return Me.Item("border-image-slice")
             End Get
             Set(value As String)
-                mElement.Style("border-image-slice") = value
+                Me.Item("border-image-slice") = value
             End Set
         End Property
 
         Public Property border_image_source As String
             Get
-                Return mElement.Style("border-image-source")
+                Return Me.Item("border-image-source")
             End Get
             Set(value As String)
-                mElement.Style("border-image-source") = value
+                Me.Item("border-image-source") = value
             End Set
         End Property
 
         Public Property border_image_width As String
             Get
-                Return mElement.Style("border-image-width")
+                Return Me.Item("border-image-width")
             End Get
             Set(value As String)
-                mElement.Style("border-image-width") = value
+                Me.Item("border-image-width") = value
             End Set
         End Property
 
         Public Property border_left As String
             Get
-                Return mElement.Style("border-left")
+                Return Me.Item("border-left")
             End Get
             Set(value As String)
-                mElement.Style("border-left") = value
+                Me.Item("border-left") = value
             End Set
         End Property
 
         Public Property border_left_color As String
             Get
-                Return mElement.Style("border-left-color")
+                Return Me.Item("border-left-color")
             End Get
             Set(value As String)
-                mElement.Style("border-left-color") = value
+                Me.Item("border-left-color") = value
             End Set
         End Property
 
         Public Property border_left_style As String
             Get
-                Return mElement.Style("border-left-style")
+                Return Me.Item("border-left-style")
             End Get
             Set(value As String)
-                mElement.Style("border-left-style") = value
+                Me.Item("border-left-style") = value
             End Set
         End Property
 
         Public Property border_left_width As String
             Get
-                Return mElement.Style("border-left-width")
+                Return Me.Item("border-left-width")
             End Get
             Set(value As String)
-                mElement.Style("border-left-width") = value
+                Me.Item("border-left-width") = value
             End Set
         End Property
 
         Public Property border_radius As String
             Get
-                Return mElement.Style("border-radius")
+                Return Me.Item("border-radius")
             End Get
             Set(value As String)
-                mElement.Style("border-radius") = value
+                Me.Item("border-radius") = value
             End Set
         End Property
 
         Public Property border_right As String
             Get
-                Return mElement.Style("border-right")
+                Return Me.Item("border-right")
             End Get
             Set(value As String)
-                mElement.Style("border-right") = value
+                Me.Item("border-right") = value
             End Set
         End Property
 
         Public Property border_right_color As String
             Get
-                Return mElement.Style("border-right-color")
+                Return Me.Item("border-right-color")
             End Get
             Set(value As String)
-                mElement.Style("border-right-color") = value
+                Me.Item("border-right-color") = value
             End Set
         End Property
 
         Public Property border_right_style As String
             Get
-                Return mElement.Style("border-right-style")
+                Return Me.Item("border-right-style")
             End Get
             Set(value As String)
-                mElement.Style("border-right-style") = value
+                Me.Item("border-right-style") = value
             End Set
         End Property
 
         Public Property border_right_width As String
             Get
-                Return mElement.Style("border-right-width")
+                Return Me.Item("border-right-width")
             End Get
             Set(value As String)
-                mElement.Style("border-right-width") = value
+                Me.Item("border-right-width") = value
             End Set
         End Property
 
         Public Property border_spacing As String
             Get
-                Return mElement.Style("border-spacing")
+                Return Me.Item("border-spacing")
             End Get
             Set(value As String)
-                mElement.Style("border-spacing") = value
+                Me.Item("border-spacing") = value
             End Set
         End Property
 
         Public Property border_style As String
             Get
-                Return mElement.Style("border-style")
+                Return Me.Item("border-style")
             End Get
             Set(value As String)
-                mElement.Style("border-style") = value
+                Me.Item("border-style") = value
             End Set
         End Property
 
         Public Property border_top As String
             Get
-                Return mElement.Style("border-top")
+                Return Me.Item("border-top")
             End Get
             Set(value As String)
-                mElement.Style("border-top") = value
+                Me.Item("border-top") = value
             End Set
         End Property
 
         Public Property border_top_color As String
             Get
-                Return mElement.Style("border-top-color")
+                Return Me.Item("border-top-color")
             End Get
             Set(value As String)
-                mElement.Style("border-top-color") = value
+                Me.Item("border-top-color") = value
             End Set
         End Property
 
         Public Property border_top_left_radius As String
             Get
-                Return mElement.Style("border-top-left-radius")
+                Return Me.Item("border-top-left-radius")
             End Get
             Set(value As String)
-                mElement.Style("border-top-left-radius") = value
+                Me.Item("border-top-left-radius") = value
             End Set
         End Property
 
         Public Property border_top_right_radius As String
             Get
-                Return mElement.Style("border-top-right-radius")
+                Return Me.Item("border-top-right-radius")
             End Get
             Set(value As String)
-                mElement.Style("border-top-right-radius") = value
+                Me.Item("border-top-right-radius") = value
             End Set
         End Property
 
         Public Property border_top_style As String
             Get
-                Return mElement.Style("border-top-style")
+                Return Me.Item("border-top-style")
             End Get
             Set(value As String)
-                mElement.Style("border-top-style") = value
+                Me.Item("border-top-style") = value
             End Set
         End Property
 
         Public Property border_top_width As String
             Get
-                Return mElement.Style("border-top-width")
+                Return Me.Item("border-top-width")
             End Get
             Set(value As String)
-                mElement.Style("border-top-width") = value
+                Me.Item("border-top-width") = value
             End Set
         End Property
 
         Public Property border_width As String
             Get
-                Return mElement.Style("border-width")
+                Return Me.Item("border-width")
             End Get
             Set(value As String)
-                mElement.Style("border-width") = value
+                Me.Item("border-width") = value
             End Set
         End Property
 
         Public Property bottom As String
             Get
-                Return mElement.Style("bottom")
+                Return Me.Item("bottom")
             End Get
             Set(value As String)
-                mElement.Style("bottom") = value
+                Me.Item("bottom") = value
             End Set
         End Property
 
         Public Property box_shadow As String
             Get
-                Return mElement.Style("box-shadow")
+                Return Me.Item("box-shadow")
             End Get
             Set(value As String)
-                mElement.Style("box-shadow") = value
+                Me.Item("box-shadow") = value
             End Set
         End Property
 
         Public Property box_sizing As String
             Get
-                Return mElement.Style("box-sizing")
+                Return Me.Item("box-sizing")
             End Get
             Set(value As String)
-                mElement.Style("box-sizing") = value
+                Me.Item("box-sizing") = value
             End Set
         End Property
 
         Public Property caption_side As String
             Get
-                Return mElement.Style("caption-side")
+                Return Me.Item("caption-side")
             End Get
             Set(value As String)
-                mElement.Style("caption-side") = value
+                Me.Item("caption-side") = value
             End Set
         End Property
 
         Public Property clear As String
             Get
-                Return mElement.Style("clear")
+                Return Me.Item("clear")
             End Get
             Set(value As String)
-                mElement.Style("clear") = value
+                Me.Item("clear") = value
             End Set
         End Property
 
         Public Property clip As String
             Get
-                Return mElement.Style("clip")
+                Return Me.Item("clip")
             End Get
             Set(value As String)
-                mElement.Style("clip") = value
+                Me.Item("clip") = value
             End Set
         End Property
 
         Public Property color As String
             Get
-                Return mElement.Style("color")
+                Return Me.Item("color")
             End Get
             Set(value As String)
-                mElement.Style("color") = value
+                Me.Item("color") = value
             End Set
         End Property
 
         Public Property column_count As String
             Get
-                Return mElement.Style("column-count")
+                Return Me.Item("column-count")
             End Get
             Set(value As String)
-                mElement.Style("column-count") = value
+                Me.Item("column-count") = value
             End Set
         End Property
 
         Public Property column_fill As String
             Get
-                Return mElement.Style("column-fill")
+                Return Me.Item("column-fill")
             End Get
             Set(value As String)
-                mElement.Style("column-fill") = value
+                Me.Item("column-fill") = value
             End Set
         End Property
 
         Public Property column_gap As String
             Get
-                Return mElement.Style("column-gap")
+                Return Me.Item("column-gap")
             End Get
             Set(value As String)
-                mElement.Style("column-gap") = value
+                Me.Item("column-gap") = value
             End Set
         End Property
 
         Public Property column_rule As String
             Get
-                Return mElement.Style("column-rule")
+                Return Me.Item("column-rule")
             End Get
             Set(value As String)
-                mElement.Style("column-rule") = value
+                Me.Item("column-rule") = value
             End Set
         End Property
 
         Public Property column_rule_color As String
             Get
-                Return mElement.Style("column-rule-color")
+                Return Me.Item("column-rule-color")
             End Get
             Set(value As String)
-                mElement.Style("column-rule-color") = value
+                Me.Item("column-rule-color") = value
             End Set
         End Property
 
         Public Property column_rule_style As String
             Get
-                Return mElement.Style("column-rule-style")
+                Return Me.Item("column-rule-style")
             End Get
             Set(value As String)
-                mElement.Style("column-rule-style") = value
+                Me.Item("column-rule-style") = value
             End Set
         End Property
 
         Public Property column_rule_width As String
             Get
-                Return mElement.Style("column-rule-width")
+                Return Me.Item("column-rule-width")
             End Get
             Set(value As String)
-                mElement.Style("column-rule-width") = value
+                Me.Item("column-rule-width") = value
             End Set
         End Property
 
         Public Property column_span As String
             Get
-                Return mElement.Style("column-span")
+                Return Me.Item("column-span")
             End Get
             Set(value As String)
-                mElement.Style("column-span") = value
+                Me.Item("column-span") = value
             End Set
         End Property
 
         Public Property column_width As String
             Get
-                Return mElement.Style("column-width")
+                Return Me.Item("column-width")
             End Get
             Set(value As String)
-                mElement.Style("column-width") = value
+                Me.Item("column-width") = value
             End Set
         End Property
 
         Public Property columns As String
             Get
-                Return mElement.Style("columns")
+                Return Me.Item("columns")
             End Get
             Set(value As String)
-                mElement.Style("columns") = value
+                Me.Item("columns") = value
             End Set
         End Property
 
         Public Property content As String
             Get
-                Return mElement.Style("content")
+                Return Me.Item("content")
             End Get
             Set(value As String)
-                mElement.Style("content") = value
+                Me.Item("content") = value
             End Set
         End Property
 
         Public Property counter_increment As String
             Get
-                Return mElement.Style("counter-increment")
+                Return Me.Item("counter-increment")
             End Get
             Set(value As String)
-                mElement.Style("counter-increment") = value
+                Me.Item("counter-increment") = value
             End Set
         End Property
 
         Public Property counter_reset As String
             Get
-                Return mElement.Style("counter-increment")
+                Return Me.Item("counter-increment")
             End Get
             Set(value As String)
-                mElement.Style("counter-increment") = value
+                Me.Item("counter-increment") = value
             End Set
         End Property
 
         Public Property cursor As String
             Get
-                Return mElement.Style("cursor")
+                Return Me.Item("cursor")
             End Get
             Set(value As String)
-                mElement.Style("cursor") = value
+                Me.Item("cursor") = value
             End Set
         End Property
 
         Public Property direction As String
             Get
-                Return mElement.Style("direction")
+                Return Me.Item("direction")
             End Get
             Set(value As String)
-                mElement.Style("direction") = value
+                Me.Item("direction") = value
             End Set
         End Property
 
         Public Property display As String
             Get
-                Return mElement.Style("display")
+                Return Me.Item("display")
             End Get
             Set(value As String)
-                mElement.Style("display") = value
+                Me.Item("display") = value
             End Set
         End Property
 
         Public Property empty_cells As String
             Get
-                Return mElement.Style("empty-cells")
+                Return Me.Item("empty-cells")
             End Get
             Set(value As String)
-                mElement.Style("empty-cells") = value
+                Me.Item("empty-cells") = value
             End Set
         End Property
 
         Public Property flex As String
             Get
-                Return mElement.Style("flex")
+                Return Me.Item("flex")
             End Get
             Set(value As String)
-                mElement.Style("flex") = value
+                Me.Item("flex") = value
             End Set
         End Property
 
         Public Property flex_basis As String
             Get
-                Return mElement.Style("flex-basis")
+                Return Me.Item("flex-basis")
             End Get
             Set(value As String)
-                mElement.Style("flex-basis") = value
+                Me.Item("flex-basis") = value
             End Set
         End Property
 
         Public Property flex_direction As String
             Get
-                Return mElement.Style("flex-direction")
+                Return Me.Item("flex-direction")
             End Get
             Set(value As String)
-                mElement.Style("flex-direction") = value
+                Me.Item("flex-direction") = value
             End Set
         End Property
 
         Public Property flex_flow As String
             Get
-                Return mElement.Style("flex-flow")
+                Return Me.Item("flex-flow")
             End Get
             Set(value As String)
-                mElement.Style("flex-flow") = value
+                Me.Item("flex-flow") = value
             End Set
         End Property
 
         Public Property flex_grow As String
             Get
-                Return mElement.Style("flex-grow")
+                Return Me.Item("flex-grow")
             End Get
             Set(value As String)
-                mElement.Style("flex-grow") = value
+                Me.Item("flex-grow") = value
             End Set
         End Property
 
         Public Property flex_shrink As String
             Get
-                Return mElement.Style("flex-shrink")
+                Return Me.Item("flex-shrink")
             End Get
             Set(value As String)
-                mElement.Style("flex-shrink") = value
+                Me.Item("flex-shrink") = value
             End Set
         End Property
 
         Public Property flex_wrap As String
             Get
-                Return mElement.Style("flex-wrap")
+                Return Me.Item("flex-wrap")
             End Get
             Set(value As String)
-                mElement.Style("flex-wrap") = value
+                Me.Item("flex-wrap") = value
             End Set
         End Property
 
         Public Property float As String
             Get
-                Return mElement.Style("float")
+                Return Me.Item("float")
             End Get
             Set(value As String)
-                mElement.Style("float") = value
+                Me.Item("float") = value
             End Set
         End Property
 
         Public Property font As String
             Get
-                Return mElement.Style("font")
+                Return Me.Item("font")
             End Get
             Set(value As String)
-                mElement.Style("font") = value
+                Me.Item("font") = value
             End Set
         End Property
 
         Public Property font_family As String
             Get
-                Return mElement.Style("font-family")
+                Return Me.Item("font-family")
             End Get
             Set(value As String)
-                mElement.Style("font-family") = value
+                Me.Item("font-family") = value
             End Set
         End Property
 
         Public Property font_size As String
             Get
-                Return mElement.Style("font-size")
+                Return Me.Item("font-size")
             End Get
             Set(value As String)
-                mElement.Style("font-size") = value
+                Me.Item("font-size") = value
             End Set
         End Property
 
         Public Property font_size_adjust As String
             Get
-                Return mElement.Style("font-size-adjust")
+                Return Me.Item("font-size-adjust")
             End Get
             Set(value As String)
-                mElement.Style("font-size-adjust") = value
+                Me.Item("font-size-adjust") = value
             End Set
         End Property
 
         Public Property font_stretch As String
             Get
-                Return mElement.Style("font-stretch")
+                Return Me.Item("font-stretch")
             End Get
             Set(value As String)
-                mElement.Style("font-stretch") = value
+                Me.Item("font-stretch") = value
             End Set
         End Property
 
         Public Property font_style As String
             Get
-                Return mElement.Style("font-style")
+                Return Me.Item("font-style")
             End Get
             Set(value As String)
-                mElement.Style("font-style") = value
+                Me.Item("font-style") = value
             End Set
         End Property
 
         Public Property font_variant As String
             Get
-                Return mElement.Style("font-variant")
+                Return Me.Item("font-variant")
             End Get
             Set(value As String)
-                mElement.Style("font-variant") = value
+                Me.Item("font-variant") = value
             End Set
         End Property
 
         Public Property font_weight As String
             Get
-                Return mElement.Style("font-weight")
+                Return Me.Item("font-weight")
             End Get
             Set(value As String)
-                mElement.Style("font-weight") = value
+                Me.Item("font-weight") = value
             End Set
         End Property
 
         Public Property height As String
             Get
-                Return mElement.Style("height")
+                Return Me.Item("height")
             End Get
             Set(value As String)
-                mElement.Style("height") = value
+                Me.Item("height") = value
             End Set
         End Property
 
         Public Property justify_content As String
             Get
-                Return mElement.Style("justify-content")
+                Return Me.Item("justify-content")
             End Get
             Set(value As String)
-                mElement.Style("justify-content") = value
+                Me.Item("justify-content") = value
             End Set
         End Property
 
         Public Property left As String
             Get
-                Return mElement.Style("left")
+                Return Me.Item("left")
             End Get
             Set(value As String)
-                mElement.Style("left") = value
+                Me.Item("left") = value
             End Set
         End Property
 
         Public Property letter_spacing As String
             Get
-                Return mElement.Style("letter-spacing")
+                Return Me.Item("letter-spacing")
             End Get
             Set(value As String)
-                mElement.Style("letter-spacing") = value
+                Me.Item("letter-spacing") = value
             End Set
         End Property
 
         Public Property line_height As String
             Get
-                Return mElement.Style("line-height")
+                Return Me.Item("line-height")
             End Get
             Set(value As String)
-                mElement.Style("line-height") = value
+                Me.Item("line-height") = value
             End Set
         End Property
 
         Public Property list_style As String
             Get
-                Return mElement.Style("list-style")
+                Return Me.Item("list-style")
             End Get
             Set(value As String)
-                mElement.Style("list-style") = value
+                Me.Item("list-style") = value
             End Set
         End Property
 
         Public Property list_style_image As String
             Get
-                Return mElement.Style("list-style-image")
+                Return Me.Item("list-style-image")
             End Get
             Set(value As String)
-                mElement.Style("list-style-image") = value
+                Me.Item("list-style-image") = value
             End Set
         End Property
 
         Public Property list_style_position As String
             Get
-                Return mElement.Style("list-style-position")
+                Return Me.Item("list-style-position")
             End Get
             Set(value As String)
-                mElement.Style("list-style-position") = value
+                Me.Item("list-style-position") = value
             End Set
         End Property
 
         Public Property list_style_type As String
             Get
-                Return mElement.Style("list-style-type")
+                Return Me.Item("list-style-type")
             End Get
             Set(value As String)
-                mElement.Style("list-style-type") = value
+                Me.Item("list-style-type") = value
             End Set
         End Property
 
         Public Property margin As String
             Get
-                Return mElement.Style("margin")
+                Return Me.Item("margin")
             End Get
             Set(value As String)
-                mElement.Style("margin") = value
+                Me.Item("margin") = value
             End Set
         End Property
 
         Public Property margin_bottom As String
             Get
-                Return mElement.Style("margin-bottom")
+                Return Me.Item("margin-bottom")
             End Get
             Set(value As String)
-                mElement.Style("margin-bottom") = value
+                Me.Item("margin-bottom") = value
             End Set
         End Property
 
         Public Property margin_left As String
             Get
-                Return mElement.Style("margin-left")
+                Return Me.Item("margin-left")
             End Get
             Set(value As String)
-                mElement.Style("margin-left") = value
+                Me.Item("margin-left") = value
             End Set
         End Property
 
         Public Property margin_right As String
             Get
-                Return mElement.Style("margin-right")
+                Return Me.Item("margin-right")
             End Get
             Set(value As String)
-                mElement.Style("margin-right") = value
+                Me.Item("margin-right") = value
             End Set
         End Property
 
         Public Property margin_top As String
             Get
-                Return mElement.Style("margin-top")
+                Return Me.Item("margin-top")
             End Get
             Set(value As String)
-                mElement.Style("margin-top") = value
+                Me.Item("margin-top") = value
             End Set
         End Property
 
         Public Property max_height As String
             Get
-                Return mElement.Style("max-height")
+                Return Me.Item("max-height")
             End Get
             Set(value As String)
-                mElement.Style("max-height") = value
+                Me.Item("max-height") = value
             End Set
         End Property
 
         Public Property max_width As String
             Get
-                Return mElement.Style("max-width")
+                Return Me.Item("max-width")
             End Get
             Set(value As String)
-                mElement.Style("max-width") = value
+                Me.Item("max-width") = value
             End Set
         End Property
 
         Public Property min_height As String
             Get
-                Return mElement.Style("min-height")
+                Return Me.Item("min-height")
             End Get
             Set(value As String)
-                mElement.Style("min-height") = value
+                Me.Item("min-height") = value
             End Set
         End Property
 
         Public Property min_width As String
             Get
-                Return mElement.Style("min-width")
+                Return Me.Item("min-width")
             End Get
             Set(value As String)
-                mElement.Style("min-width") = value
+                Me.Item("min-width") = value
             End Set
         End Property
 
         Public Property opacity As String
             Get
-                Return mElement.Style("opacity")
+                Return Me.Item("opacity")
             End Get
             Set(value As String)
-                mElement.Style("opacity") = value
+                Me.Item("opacity") = value
             End Set
         End Property
 
         Public Property order As String
             Get
-                Return mElement.Style("order")
+                Return Me.Item("order")
             End Get
             Set(value As String)
-                mElement.Style("order") = value
+                Me.Item("order") = value
             End Set
         End Property
 
         Public Property outline As String
             Get
-                Return mElement.Style("outline")
+                Return Me.Item("outline")
             End Get
             Set(value As String)
-                mElement.Style("outline") = value
+                Me.Item("outline") = value
             End Set
         End Property
 
         Public Property outline_color As String
             Get
-                Return mElement.Style("outline-color")
+                Return Me.Item("outline-color")
             End Get
             Set(value As String)
-                mElement.Style("outline-color") = value
+                Me.Item("outline-color") = value
             End Set
         End Property
 
         Public Property outline_offset As String
             Get
-                Return mElement.Style("outline-offset")
+                Return Me.Item("outline-offset")
             End Get
             Set(value As String)
-                mElement.Style("outline-offset") = value
+                Me.Item("outline-offset") = value
             End Set
         End Property
 
         Public Property outline_style As String
             Get
-                Return mElement.Style("outline-style")
+                Return Me.Item("outline-style")
             End Get
             Set(value As String)
-                mElement.Style("outline-style") = value
+                Me.Item("outline-style") = value
             End Set
         End Property
 
         Public Property outline_width As String
             Get
-                Return mElement.Style("outline-width")
+                Return Me.Item("outline-width")
             End Get
             Set(value As String)
-                mElement.Style("outline-width") = value
+                Me.Item("outline-width") = value
             End Set
         End Property
 
         Public Property overflow As String
             Get
-                Return mElement.Style("overflow")
+                Return Me.Item("overflow")
             End Get
             Set(value As String)
-                mElement.Style("overflow") = value
+                Me.Item("overflow") = value
             End Set
         End Property
 
         Public Property overflow_x As String
             Get
-                Return mElement.Style("overflow-x")
+                Return Me.Item("overflow-x")
             End Get
             Set(value As String)
-                mElement.Style("overflow-x") = value
+                Me.Item("overflow-x") = value
             End Set
         End Property
 
         Public Property overflow_y As String
             Get
-                Return mElement.Style("overflow-y")
+                Return Me.Item("overflow-y")
             End Get
             Set(value As String)
-                mElement.Style("overflow-y") = value
+                Me.Item("overflow-y") = value
             End Set
         End Property
 
         Public Property padding As String
             Get
-                Return mElement.Style("padding")
+                Return Me.Item("padding")
             End Get
             Set(value As String)
-                mElement.Style("padding") = value
+                Me.Item("padding") = value
             End Set
         End Property
 
         Public Property padding_bottom As String
             Get
-                Return mElement.Style("padding-bottom")
+                Return Me.Item("padding-bottom")
             End Get
             Set(value As String)
-                mElement.Style("padding-bottom") = value
+                Me.Item("padding-bottom") = value
             End Set
         End Property
 
         Public Property padding_left As String
             Get
-                Return mElement.Style("padding-left")
+                Return Me.Item("padding-left")
             End Get
             Set(value As String)
-                mElement.Style("padding-left") = value
+                Me.Item("padding-left") = value
             End Set
         End Property
 
         Public Property padding_right As String
             Get
-                Return mElement.Style("padding-right")
+                Return Me.Item("padding-right")
             End Get
             Set(value As String)
-                mElement.Style("padding-right") = value
+                Me.Item("padding-right") = value
             End Set
         End Property
 
         Public Property padding_top As String
             Get
-                Return mElement.Style("padding-top")
+                Return Me.Item("padding-top")
             End Get
             Set(value As String)
-                mElement.Style("padding-top") = value
+                Me.Item("padding-top") = value
             End Set
         End Property
 
         Public Property page_break_after As String
             Get
-                Return mElement.Style("page-break-after")
+                Return Me.Item("page-break-after")
             End Get
             Set(value As String)
-                mElement.Style("page-break-after") = value
+                Me.Item("page-break-after") = value
             End Set
         End Property
 
         Public Property page_break_before As String
             Get
-                Return mElement.Style("page-break-before")
+                Return Me.Item("page-break-before")
             End Get
             Set(value As String)
-                mElement.Style("page-break-before") = value
+                Me.Item("page-break-before") = value
             End Set
         End Property
 
         Public Property page_break_inside As String
             Get
-                Return mElement.Style("page-break-inside")
+                Return Me.Item("page-break-inside")
             End Get
             Set(value As String)
-                mElement.Style("page-break-inside") = value
+                Me.Item("page-break-inside") = value
             End Set
         End Property
 
         Public Property perspective As String
             Get
-                Return mElement.Style("perspective")
+                Return Me.Item("perspective")
             End Get
             Set(value As String)
-                mElement.Style("perspective") = value
+                Me.Item("perspective") = value
             End Set
         End Property
 
         Public Property perspective_origin As String
             Get
-                Return mElement.Style("perspective-origin")
+                Return Me.Item("perspective-origin")
             End Get
             Set(value As String)
-                mElement.Style("perspective-origin") = value
+                Me.Item("perspective-origin") = value
             End Set
         End Property
 
         Public Property position As String
             Get
-                Return mElement.Style("position")
+                Return Me.Item("position")
             End Get
             Set(value As String)
-                mElement.Style("position") = value
+                Me.Item("position") = value
             End Set
         End Property
 
         Public Property quotes As String
             Get
-                Return mElement.Style("quotes")
+                Return Me.Item("quotes")
             End Get
             Set(value As String)
-                mElement.Style("quotes") = value
+                Me.Item("quotes") = value
             End Set
         End Property
 
         Public Property resize As String
             Get
-                Return mElement.Style("resize")
+                Return Me.Item("resize")
             End Get
             Set(value As String)
-                mElement.Style("resize") = value
+                Me.Item("resize") = value
             End Set
         End Property
 
         Public Property right As String
             Get
-                Return mElement.Style("right")
+                Return Me.Item("right")
             End Get
             Set(value As String)
-                mElement.Style("right") = value
+                Me.Item("right") = value
             End Set
         End Property
 
         Public Property tab_size As String
             Get
-                Return mElement.Style("tab-size")
+                Return Me.Item("tab-size")
             End Get
             Set(value As String)
-                mElement.Style("tab-size") = value
+                Me.Item("tab-size") = value
             End Set
         End Property
 
         Public Property table_layout As String
             Get
-                Return mElement.Style("table-layout")
+                Return Me.Item("table-layout")
             End Get
             Set(value As String)
-                mElement.Style("table-layout") = value
+                Me.Item("table-layout") = value
             End Set
         End Property
 
         Public Property text_align As String
             Get
-                Return mElement.Style("text-align")
+                Return Me.Item("text-align")
             End Get
             Set(value As String)
-                mElement.Style("text-align") = value
+                Me.Item("text-align") = value
             End Set
         End Property
 
         Public Property text_align_last As String
             Get
-                Return mElement.Style("text-align-last")
+                Return Me.Item("text-align-last")
             End Get
             Set(value As String)
-                mElement.Style("text-align-last") = value
+                Me.Item("text-align-last") = value
             End Set
         End Property
 
         Public Property text_decoration As String
             Get
-                Return mElement.Style("text-decoration")
+                Return Me.Item("text-decoration")
             End Get
             Set(value As String)
-                mElement.Style("text-decoration") = value
+                Me.Item("text-decoration") = value
             End Set
         End Property
 
         Public Property text_decoration_color As String
             Get
-                Return mElement.Style("text-decoration-color")
+                Return Me.Item("text-decoration-color")
             End Get
             Set(value As String)
-                mElement.Style("text-decoration-color") = value
+                Me.Item("text-decoration-color") = value
             End Set
         End Property
 
         Public Property text_decoration_line As String
             Get
-                Return mElement.Style("text-decoration-line")
+                Return Me.Item("text-decoration-line")
             End Get
             Set(value As String)
-                mElement.Style("text-decoration-line") = value
+                Me.Item("text-decoration-line") = value
             End Set
         End Property
 
         Public Property text_decoration_style As String
             Get
-                Return mElement.Style("text-decoration-style")
+                Return Me.Item("text-decoration-style")
             End Get
             Set(value As String)
-                mElement.Style("text-decoration-style") = value
+                Me.Item("text-decoration-style") = value
             End Set
         End Property
 
         Public Property text_indent As String
             Get
-                Return mElement.Style("text-indent")
+                Return Me.Item("text-indent")
             End Get
             Set(value As String)
-                mElement.Style("text-indent") = value
+                Me.Item("text-indent") = value
             End Set
         End Property
 
         Public Property text_justify As String
             Get
-                Return mElement.Style("text-justify")
+                Return Me.Item("text-justify")
             End Get
             Set(value As String)
-                mElement.Style("text-justify") = value
+                Me.Item("text-justify") = value
             End Set
         End Property
 
         Public Property text_overflow As String
             Get
-                Return mElement.Style("text-overflow")
+                Return Me.Item("text-overflow")
             End Get
             Set(value As String)
-                mElement.Style("text-overflow") = value
+                Me.Item("text-overflow") = value
             End Set
         End Property
 
         Public Property text_shadow As String
             Get
-                Return mElement.Style("text-shadow")
+                Return Me.Item("text-shadow")
             End Get
             Set(value As String)
-                mElement.Style("text-shadow") = value
+                Me.Item("text-shadow") = value
             End Set
         End Property
 
         Public Property text_transform As String
             Get
-                Return mElement.Style("text-transform")
+                Return Me.Item("text-transform")
             End Get
             Set(value As String)
-                mElement.Style("text-transform") = value
+                Me.Item("text-transform") = value
             End Set
         End Property
 
         Public Property top As String
             Get
-                Return mElement.Style("top")
+                Return Me.Item("top")
             End Get
             Set(value As String)
-                mElement.Style("top") = value
+                Me.Item("top") = value
             End Set
         End Property
 
         Public Property transform As String
             Get
-                Return mElement.Style("transform")
+                Return Me.Item("transform")
             End Get
             Set(value As String)
-                mElement.Style("transform") = value
+                Me.Item("transform") = value
             End Set
         End Property
 
         Public Property transform_origin As String
             Get
-                Return mElement.Style("transform-origin")
+                Return Me.Item("transform-origin")
             End Get
             Set(value As String)
-                mElement.Style("transform-origin") = value
+                Me.Item("transform-origin") = value
             End Set
         End Property
 
         Public Property transform_style As String
             Get
-                Return mElement.Style("transform-style")
+                Return Me.Item("transform-style")
             End Get
             Set(value As String)
-                mElement.Style("transform-style") = value
+                Me.Item("transform-style") = value
             End Set
         End Property
 
         Public Property transition As String
             Get
-                Return mElement.Style("transition")
+                Return Me.Item("transition")
             End Get
             Set(value As String)
-                mElement.Style("transition") = value
+                Me.Item("transition") = value
             End Set
         End Property
 
         Public Property transition_delay As String
             Get
-                Return mElement.Style("transition-delay")
+                Return Me.Item("transition-delay")
             End Get
             Set(value As String)
-                mElement.Style("transition-delay") = value
+                Me.Item("transition-delay") = value
             End Set
         End Property
 
         Public Property transition_duration As String
             Get
-                Return mElement.Style("transition-duration")
+                Return Me.Item("transition-duration")
             End Get
             Set(value As String)
-                mElement.Style("transition-duration") = value
+                Me.Item("transition-duration") = value
             End Set
         End Property
 
         Public Property transition_property As String
             Get
-                Return mElement.Style("transition-property")
+                Return Me.Item("transition-property")
             End Get
             Set(value As String)
-                mElement.Style("transition-property") = value
+                Me.Item("transition-property") = value
             End Set
         End Property
 
         Public Property transition_timing_function As String
             Get
-                Return mElement.Style("transition-timing-function")
+                Return Me.Item("transition-timing-function")
             End Get
             Set(value As String)
-                mElement.Style("transition-timing-function") = value
+                Me.Item("transition-timing-function") = value
             End Set
         End Property
 
         Public Property vertical_align As String
             Get
-                Return mElement.Style("vertical-align")
+                Return Me.Item("vertical-align")
             End Get
             Set(value As String)
-                mElement.Style("vertical-align") = value
+                Me.Item("vertical-align") = value
             End Set
         End Property
 
         Public Property visibility As String
             Get
-                Return mElement.Style("visibility")
+                Return Me.Item("visibility")
             End Get
             Set(value As String)
-                mElement.Style("visibility") = value
+                Me.Item("visibility") = value
             End Set
         End Property
 
         Public Property white_space As String
             Get
-                Return mElement.Style("white-space")
+                Return Me.Item("white-space")
             End Get
             Set(value As String)
-                mElement.Style("white-space") = value
+                Me.Item("white-space") = value
             End Set
         End Property
 
         Public Property width As String
             Get
-                Return mElement.Style("width")
+                Return Me.Item("width")
             End Get
             Set(value As String)
-                mElement.Style("width") = value
+                Me.Item("width") = value
             End Set
         End Property
 
         Public Property word_break As String
             Get
-                Return mElement.Style("word-break")
+                Return Me.Item("word-break")
             End Get
             Set(value As String)
-                mElement.Style("word-break") = value
+                Me.Item("word-break") = value
             End Set
         End Property
 
         Public Property word_spacing As String
             Get
-                Return mElement.Style("word-spacing")
+                Return Me.Item("word-spacing")
             End Get
             Set(value As String)
-                mElement.Style("word-spacing") = value
+                Me.Item("word-spacing") = value
             End Set
         End Property
 
         Public Property word_wrap As String
             Get
-                Return mElement.Style("word-wrap")
+                Return Me.Item("word-wrap")
             End Get
             Set(value As String)
-                mElement.Style("word-wrap") = value
+                Me.Item("word-wrap") = value
             End Set
         End Property
 
         Public Property z_index As String
             Get
-                Return mElement.Style("z-index")
+                Return Me.Item("z-index")
             End Get
             Set(value As String)
-                mElement.Style("z-index") = value
+                Me.Item("z-index") = value
             End Set
         End Property
+
 
     End Class
 

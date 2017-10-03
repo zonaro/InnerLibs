@@ -150,9 +150,39 @@ Namespace HtmlParser
         ''' Load the document in <see cref="Windows.Forms.WebBrowser"/> control
         ''' </summary>
         ''' <param name="WebBrowser"></param>
-        Public Sub LoadInto(WebBrowser As Windows.Forms.WebBrowser)
+        Public Sub LoadInto(ByRef WebBrowser As Windows.Forms.WebBrowser)
             WebBrowser.Navigate("about:blank")
             WebBrowser.Document.Write(Me.ToString)
+        End Sub
+
+        ''' <summary>
+        ''' Load the nodes of document in <see cref="Windows.Forms.Treeview"/> control
+        ''' </summary>
+        ''' <param name="TreeView"></param>
+        Public Sub LoadInto(ByRef TreeView As Windows.Forms.TreeView)
+            TreeView.Nodes.Clear()
+            BuildTree(Me.Nodes, TreeView.Nodes)
+        End Sub
+
+
+        Private Sub BuildTree(ByVal nodes As HtmlNodeCollection, ByVal treeNodes As Windows.Forms.TreeNodeCollection)
+            Dim value As String = ""
+
+            Dim node As HtmlNode
+            For Each node In nodes
+                Dim treeNode As New Windows.Forms.TreeNode(node.ElementRepresentation)
+                treeNode.Tag = node ' Keep the HtmlNode object in the tag (for when the user clicks on it)
+                treeNodes.Add(treeNode)
+                If TypeOf (node) Is HtmlElement Then
+                    treeNode.SelectedImageIndex = 0
+                    treeNode.ImageIndex = 0
+                    Me.BuildTree(CType(node, HtmlElement).Nodes, treeNode.Nodes)
+                Else
+                    treeNode.Text = "(text)" ' This probably has carriage returns in, so don't render the actual HTML here
+                    treeNode.SelectedImageIndex = 1
+                    treeNode.ImageIndex = 1
+                End If
+            Next
         End Sub
 
         ''' <summary>
@@ -172,7 +202,7 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public ReadOnly Property Body As HtmlElement
             Get
-                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "body").FirstOrDefault
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "body").FirstOrDefault(Function(p) p.Index = 0)
             End Get
         End Property
 
@@ -182,7 +212,7 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public ReadOnly Property Head As HtmlElement
             Get
-                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOrDefault
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOrDefault(Function(p) p.Index = 0)
             End Get
         End Property
 
