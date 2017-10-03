@@ -24,6 +24,7 @@ Namespace HtmlParser
             mAttributes = New HtmlAttributeCollection(Me)
             mName = name
             mIsTerminated = False
+            Style = New CssProperties(Me)
             If InnerHtml.IsNotBlank Then
                 Me.InnerHTML = InnerHtml
             End If
@@ -64,50 +65,13 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
-        ''' Add a style to element
+        ''' The CSS style of element
         ''' </summary>
-        ''' <param name="Key"></param>
         ''' <returns></returns>
-        Public Property Style(Optional Key As String = "") As String
-            Get
-                If Key.IsNotBlank Then
-                    Dim s = Me.Attribute("style")
-                    If s.IsNotBlank Then
-                        Dim styledic As New Dictionary(Of String, String)
-                        For Each item In s.Split(";")
-                            Dim n = item.Split(":")
-                            styledic.Add(n(0).ToLower, n(1).ToLower)
-                        Next
-                        If styledic.ContainsKey(Key.ToLower) Then
-                            Return styledic(Key.ToLower)
-                        End If
-                    End If
-                    Return ""
-                Else
-                    Return Me.Attribute("style")
-                End If
-            End Get
-            Set(value As String)
-                Dim s = Me.Attribute("style")
-                Dim styledic As New Dictionary(Of String, String)
+        Public ReadOnly Property Style As CssProperties
 
-                If s.IsNotBlank Then
-                    For Each item In s.Split(";")
-                        Dim n = item.Split(":")
-                        styledic.Add(n(0).ToLower, n(1).ToLower)
-                    Next
-                    If styledic.ContainsKey(Key.ToLower) Then
-                        styledic(Key.ToLower) = value
-                    End If
-                End If
-                Dim p = ""
-                For Each k In styledic
-                    p.Append(k.Key.ToLower & ":" & k.Value.ToLower & ";")
-                Next
-                Me.Attribute("style") = p
 
-            End Set
-        End Property
+
 
         <Category("General"), Description("The CSS class of this element")>
         Public Property [Class](ClassName As String) As Boolean
@@ -140,7 +104,6 @@ Namespace HtmlParser
                     p.Append(k.ToLower & " ")
                 Next
                 Me.Attribute("class") = p
-
             End Set
         End Property
 

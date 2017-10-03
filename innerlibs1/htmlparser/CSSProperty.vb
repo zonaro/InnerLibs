@@ -4,27 +4,32 @@
 
         Private mElement As HtmlElement
 
-        Public Sub New(Element As HtmlElement)
+        Friend Sub New(Element As HtmlElement)
             Me.mElement = Element
         End Sub
 
         Function Add(Key As String, Value As String) As CssProperties
-            SetStyle(Key) = Value
+            Item(Key) = Value
             Return Me
         End Function
 
-        Default Property SetStyle(Key As String) As String
+        ''' <summary>
+        ''' Gets or sets the style of element
+        ''' </summary>
+        ''' <param name="Name">Name of CSS style</param>
+        ''' <returns></returns>
+        Default Property Item(Name As String) As String
             Get
-                If Key.IsNotBlank Then
+                If Name.IsNotBlank Then
                     Dim s = mElement.Attribute("style")
                     If s.IsNotBlank Then
                         Dim styledic As New Dictionary(Of String, String)
-                        For Each item In s.Split(";")
-                            Dim n = item.Split(":")
+                        For Each Item In s.Split(";")
+                            Dim n = Item.Split(":")
                             styledic.Add(n(0).ToLower, n(1).ToLower)
                         Next
-                        If styledic.ContainsKey(Key.ToLower) Then
-                            Return styledic(Key.ToLower)
+                        If styledic.ContainsKey(Name.ToLower) Then
+                            Return styledic(Name.ToLower)
                         End If
                     End If
                     Return ""
@@ -37,12 +42,12 @@
                 Dim styledic As New Dictionary(Of String, String)
 
                 If s.IsNotBlank Then
-                    For Each item In s.Split(";")
-                        Dim n = item.Split(":")
+                    For Each i In s.Split(";")
+                        Dim n = i.Split(":")
                         styledic.Add(n(0).ToLower, n(1).ToLower)
                     Next
-                    If styledic.ContainsKey(Key.ToLower) Then
-                        styledic(Key.ToLower) = value
+                    If styledic.ContainsKey(Name.ToLower) Then
+                        styledic(Name.ToLower) = value
                     End If
                 End If
                 Dim p = ""
@@ -52,6 +57,7 @@
                 mElement.Attribute("style") = p
             End Set
         End Property
+
 
         Public Property align_content As String
             Get
@@ -1369,190 +1375,190 @@
 
         Public Property text_justify As String
             Get
-
+                Return mElement.Style("text-justify")
             End Get
             Set(value As String)
-
+                mElement.Style("text-justify") = value
             End Set
         End Property
 
         Public Property text_overflow As String
             Get
-
+                Return mElement.Style("text-overflow")
             End Get
             Set(value As String)
-
+                mElement.Style("text-overflow") = value
             End Set
         End Property
 
         Public Property text_shadow As String
             Get
-
+                Return mElement.Style("text-shadow")
             End Get
             Set(value As String)
-
+                mElement.Style("text-shadow") = value
             End Set
         End Property
 
         Public Property text_transform As String
             Get
-
+                Return mElement.Style("text-transform")
             End Get
             Set(value As String)
-
+                mElement.Style("text-transform") = value
             End Set
         End Property
 
         Public Property top As String
             Get
-
+                Return mElement.Style("top")
             End Get
             Set(value As String)
-
+                mElement.Style("top") = value
             End Set
         End Property
 
         Public Property transform As String
             Get
-
+                Return mElement.Style("transform")
             End Get
             Set(value As String)
-
+                mElement.Style("transform") = value
             End Set
         End Property
 
         Public Property transform_origin As String
             Get
-
+                Return mElement.Style("transform-origin")
             End Get
             Set(value As String)
-
+                mElement.Style("transform-origin") = value
             End Set
         End Property
 
         Public Property transform_style As String
             Get
-
+                Return mElement.Style("transform-style")
             End Get
             Set(value As String)
-
+                mElement.Style("transform-style") = value
             End Set
         End Property
 
         Public Property transition As String
             Get
-
+                Return mElement.Style("transition")
             End Get
             Set(value As String)
-
+                mElement.Style("transition") = value
             End Set
         End Property
 
         Public Property transition_delay As String
             Get
-
+                Return mElement.Style("transition-delay")
             End Get
             Set(value As String)
-
+                mElement.Style("transition-delay") = value
             End Set
         End Property
 
         Public Property transition_duration As String
             Get
-
+                Return mElement.Style("transition-duration")
             End Get
             Set(value As String)
-
+                mElement.Style("transition-duration") = value
             End Set
         End Property
 
-        Public Property transition_Property As String
+        Public Property transition_property As String
             Get
-
+                Return mElement.Style("transition-property")
             End Get
             Set(value As String)
-
+                mElement.Style("transition-property") = value
             End Set
         End Property
 
-        Public Property transition_timing_Function As String
+        Public Property transition_timing_function As String
             Get
-
+                Return mElement.Style("transition-timing-function")
             End Get
             Set(value As String)
-
+                mElement.Style("transition-timing-function") = value
             End Set
         End Property
 
         Public Property vertical_align As String
             Get
-
+                Return mElement.Style("vertical-align")
             End Get
             Set(value As String)
-
+                mElement.Style("vertical-align") = value
             End Set
         End Property
 
         Public Property visibility As String
             Get
-
+                Return mElement.Style("visibility")
             End Get
             Set(value As String)
-
+                mElement.Style("visibility") = value
             End Set
         End Property
 
         Public Property white_space As String
             Get
-
+                Return mElement.Style("white-space")
             End Get
             Set(value As String)
-
+                mElement.Style("white-space") = value
             End Set
         End Property
 
         Public Property width As String
             Get
-
+                Return mElement.Style("width")
             End Get
             Set(value As String)
-
+                mElement.Style("width") = value
             End Set
         End Property
 
         Public Property word_break As String
             Get
-
+                Return mElement.Style("word-break")
             End Get
             Set(value As String)
-
+                mElement.Style("word-break") = value
             End Set
         End Property
 
         Public Property word_spacing As String
             Get
-
+                Return mElement.Style("word-spacing")
             End Get
             Set(value As String)
-
+                mElement.Style("word-spacing") = value
             End Set
         End Property
 
         Public Property word_wrap As String
             Get
-
+                Return mElement.Style("word-wrap")
             End Get
             Set(value As String)
-
+                mElement.Style("word-wrap") = value
             End Set
         End Property
 
         Public Property z_index As String
             Get
-
+                Return mElement.Style("z-index")
             End Get
             Set(value As String)
-
+                mElement.Style("z-index") = value
             End Set
         End Property
 

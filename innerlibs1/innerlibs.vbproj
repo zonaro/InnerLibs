@@ -111,6 +111,7 @@
     <Compile Include="Converter.vb" />
     <Compile Include="Databases.vb" />
     <Compile Include="GeoIP.vb" />
+    <Compile Include="htmlparser\CSSProperty.vb" />
     <Compile Include="htmlparser\HtmlAttribute.vb" />
     <Compile Include="htmlparser\HtmlDocument.vb" />
     <Compile Include="htmlparser\HtmlElement.vb" />
