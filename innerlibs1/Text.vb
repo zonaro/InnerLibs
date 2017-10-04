@@ -1883,7 +1883,7 @@ Public Module Text
     <Extension()>
     Public Function DeleteLine(ByRef Text As String, LineIndex As Integer) As String
         Dim parts As New List(Of String)
-        Dim strReader = New System.IO.StringReader(Text)
+        Dim strReader = New StringReader(Text)
         Dim NewText As String = ""
         While True
             NewText = strReader.ReadLine()
@@ -2087,6 +2087,17 @@ Public Module Text
     <Extension()>
     Function Quote(Text As String, Optional QuoteChar As String = """") As String
         Return QuoteChar & Text & QuoteChar.GetOppositeWrapChar
+    End Function
+
+    ''' <summary>
+    ''' Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes) se uma condiçao for cumprida
+    ''' </summary>
+    ''' <param name="Text">     Texto</param>
+    ''' <param name="QuoteChar">Caractere de encapsulamento</param>
+    ''' <returns></returns>
+    <Extension()>
+    Function QuoteIf(Text As String, Condition As Boolean, Optional QuoteChar As String = """") As String
+        Return If(Condition, Text.Quote(QuoteChar), Text)
     End Function
 
     ''' <summary>

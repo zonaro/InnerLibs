@@ -19,7 +19,7 @@ Namespace Templatizer
         ''' Tipo de <see cref="Data.Linq.DataContext"/> utilizado para a comunicação com o banco
         ''' </summary>
         ''' <returns></returns>
-        Property DataContext As DataContextType
+        Private DataContext As DataContextType
 
         ''' <summary>
         ''' Pasta contendo os arquivos HTML e SQL utilizados como template
@@ -170,7 +170,7 @@ Namespace Templatizer
                 Template = ReplaceValues(Item, Template)
                 Template = ReplaceValues(CustomValues, Template)
                 Template = ProccessConditions(Item, Template)
-                Template = Proccessswitch(Item, Template)
+                Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
                 Template = ProccessSubTemplate(Item, Template)
             End If
@@ -358,7 +358,15 @@ Namespace Templatizer
             Dim doc As New HtmlDocument(Template)
             For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("switch", True)
                 Try
-                    Dim othertag = conditionTag.Find(Function(n As HtmlElement) n.Name = "case" AndAlso n.Attribute("value") = conditionTag.Attribute("value"), False)
+                    Dim othertag = conditionTag.Find(Function(n As HtmlElement)
+                                                         Dim value1 = conditionTag.Attribute("value").HtmlDecode
+                                                         Dim value2 = n.Attribute("value").HtmlDecode
+                                                         Dim op = n.Attribute("operator").HtmlDecode.IfBlank("=")
+                                                         value1 = value1.QuoteIf(Not value1.IsNumber)
+                                                         value2 = value2.QuoteIf(Not value2.IsNumber)
+                                                         Return n.Name = "case" AndAlso (EvaluateExpression(value1 & op & value2) = True)
+                                                     End Function, False)
+                    'Dim othertag = conditionTag.Find(Function(n As HtmlElement) n.Name = "case" AndAlso n.Attribute("value") = conditionTag.Attribute("value"), False)
                     Dim html = ""
                     If othertag.Count > 0 Then
                         For Each node As HtmlElement In othertag

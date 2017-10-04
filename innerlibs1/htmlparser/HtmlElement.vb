@@ -30,6 +30,23 @@ Namespace HtmlParser
             End If
         End Sub
 
+        ''' <summary>
+        ''' Transform the current element into a new set of elements
+        ''' </summary>
+        ''' <param name="Elements">Collection of new elements</param>
+        Sub Mutate(Elements As HtmlNodeCollection)
+            Dim idx = Me.Index
+            Me.Mutate(Elements.First)
+            For i = 1 To Elements.Count - 1
+                Me.Parent.Nodes.Insert(idx + i, Elements(i))
+            Next
+        End Sub
+
+
+        ''' <summary>
+        ''' Transform the current element into a new  element
+        ''' </summary>
+        ''' <param name="Element">New element</param>
         Sub Mutate(Element As HtmlElement)
             Me.Attributes.Clear()
             mAttributes = Element.Attributes
@@ -37,12 +54,16 @@ Namespace HtmlParser
             Me.Name = Element.Name
         End Sub
 
+        ''' <summary>
+        ''' Transform the current element into a new  element or set of elements using a html string as source
+        ''' </summary>
+        ''' <param name="Html">Html String</param>
         Sub Mutate(Html As String)
             Dim doc = New HtmlDocument(Html)
             If Html.IsBlank Or doc.Nodes.Count = 0 Then
                 Destroy()
             Else
-                Me.Mutate(doc.Nodes(0))
+                Me.Mutate(doc.Nodes)
             End If
         End Sub
 
