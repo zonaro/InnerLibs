@@ -371,7 +371,7 @@ Namespace Templatizer
                     If othertag.Count > 0 Then
                         For Each node As HtmlElement In othertag
                             html.Append(node.InnerHTML)
-                            If node.Attribute("break").ToLower.IsIn({"1", "true"}) Then
+                            If node.HasAttribute("break") Then
                                 Exit For
                             End If
                         Next
