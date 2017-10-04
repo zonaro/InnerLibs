@@ -11,7 +11,6 @@ Namespace HtmlParser
             Me.mElement = Element
         End Sub
 
-
         Public ReadOnly Property Keys As ICollection(Of String) Implements IDictionary(Of String, String).Keys
             Get
                 Dim s = mElement.Attribute("style")
@@ -167,12 +166,11 @@ Namespace HtmlParser
             End Set
         End Property
 
-
         Public Overrides Function ToString() As String
             Return mElement.Attribute("style")
         End Function
 
-        <Category("Alignment"), Description("Set the align-content attribute")>
+        <Category("Alignment"), Description("Specifies the alignment of flexible container's items within the flex container.")>
         Public Property align_content As String
             Get
                 Return Me.Item("align-content")
@@ -182,6 +180,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Position"), Description("Specifies the default alignment for items within the flex container.")>
         Public Property align_items As String
             Get
                 Return Me.Item("align-items")
@@ -191,6 +190,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property align_self As String
             Get
                 Return Me.Item("align-self")
@@ -200,6 +200,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation As String
             Get
                 Return Me.Item("animation")
@@ -209,6 +210,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_delay As String
             Get
                 Return Me.Item("animation-delay")
@@ -218,6 +220,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_direction As String
             Get
                 Return Me.Item("animation-direction")
@@ -227,6 +230,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_duration As String
             Get
                 Return Me.Item("animation-duration")
@@ -236,6 +240,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_fill_mode As String
             Get
                 Return Me.Item("animation-fill-mode")
@@ -245,6 +250,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_iteration_count As String
             Get
                 Return Me.Item("animation-iteration-count")
@@ -254,6 +260,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_name As String
             Get
                 Return Me.Item("animation-name")
@@ -263,6 +270,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_play_state As String
             Get
                 Return Me.Item("animation-play-state")
@@ -272,6 +280,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property animation_timing_function As String
             Get
                 Return Me.Item("animation-timing-function")
@@ -281,6 +290,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property backface_visibility As String
             Get
                 Return Me.Item("backface-visibility")
@@ -290,6 +300,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background As String
             Get
                 Return Me.Item("background")
@@ -299,6 +310,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_attachment As String
             Get
                 Return Me.Item("background-attachment")
@@ -308,6 +320,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_clip As String
             Get
                 Return Me.Item("background-clip")
@@ -317,6 +330,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_color As String
             Get
                 Return Me.Item("background-color")
@@ -326,6 +340,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_image As String
             Get
                 Return Me.Item("background-image")
@@ -335,6 +350,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_origin As String
             Get
                 Return Me.Item("background-origin")
@@ -344,6 +360,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_position As String
             Get
                 Return Me.Item("background-position")
@@ -353,6 +370,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_repeat As String
             Get
                 Return Me.Item("background-repeat")
@@ -362,6 +380,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property background_size As String
             Get
                 Return Me.Item("background-size")
@@ -371,6 +390,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border As String
             Get
                 Return Me.Item("border")
@@ -380,6 +400,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_bottom As String
             Get
                 Return Me.Item("border-bottom")
@@ -389,6 +410,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_bottom_color As String
             Get
                 Return Me.Item("border-bottom-color")
@@ -398,6 +420,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_bottom_left_radius As String
             Get
                 Return Me.Item("border-bottom-left-radius")
@@ -407,6 +430,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_bottom_right_radius As String
             Get
                 Return Me.Item("border-bottom-right-radius")
@@ -416,6 +440,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_bottom_style As String
             Get
                 Return Me.Item("border-bottom-style")
@@ -425,6 +450,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_bottom_width As String
             Get
                 Return Me.Item("border-bottom-width")
@@ -434,6 +460,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_collapse As String
             Get
                 Return Me.Item("border-collapse")
@@ -443,6 +470,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_color As String
             Get
                 Return Me.Item("border-color")
@@ -452,6 +480,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_image As String
             Get
                 Return Me.Item("border-image")
@@ -461,6 +490,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_image_outset As String
             Get
                 Return Me.Item("border-image-outset")
@@ -470,6 +500,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_image_repeat As String
             Get
                 Return Me.Item("border-image-repeat")
@@ -479,6 +510,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_image_slice As String
             Get
                 Return Me.Item("border-image-slice")
@@ -488,6 +520,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_image_source As String
             Get
                 Return Me.Item("border-image-source")
@@ -497,6 +530,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_image_width As String
             Get
                 Return Me.Item("border-image-width")
@@ -506,6 +540,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_left As String
             Get
                 Return Me.Item("border-left")
@@ -515,6 +550,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_left_color As String
             Get
                 Return Me.Item("border-left-color")
@@ -524,6 +560,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_left_style As String
             Get
                 Return Me.Item("border-left-style")
@@ -542,6 +579,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_radius As String
             Get
                 Return Me.Item("border-radius")
@@ -551,6 +589,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_right As String
             Get
                 Return Me.Item("border-right")
@@ -560,6 +599,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_right_color As String
             Get
                 Return Me.Item("border-right-color")
@@ -569,6 +609,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_right_style As String
             Get
                 Return Me.Item("border-right-style")
@@ -578,6 +619,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_right_width As String
             Get
                 Return Me.Item("border-right-width")
@@ -587,6 +629,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_spacing As String
             Get
                 Return Me.Item("border-spacing")
@@ -596,6 +639,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_style As String
             Get
                 Return Me.Item("border-style")
@@ -605,6 +649,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_top As String
             Get
                 Return Me.Item("border-top")
@@ -614,6 +659,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_top_color As String
             Get
                 Return Me.Item("border-top-color")
@@ -623,6 +669,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_top_left_radius As String
             Get
                 Return Me.Item("border-top-left-radius")
@@ -632,6 +679,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_top_right_radius As String
             Get
                 Return Me.Item("border-top-right-radius")
@@ -641,6 +689,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_top_style As String
             Get
                 Return Me.Item("border-top-style")
@@ -650,6 +699,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_top_width As String
             Get
                 Return Me.Item("border-top-width")
@@ -659,6 +709,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property border_width As String
             Get
                 Return Me.Item("border-width")
@@ -668,6 +719,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property bottom As String
             Get
                 Return Me.Item("bottom")
@@ -677,6 +729,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property box_shadow As String
             Get
                 Return Me.Item("box-shadow")
@@ -686,6 +739,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property box_sizing As String
             Get
                 Return Me.Item("box-sizing")
@@ -695,6 +749,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property caption_side As String
             Get
                 Return Me.Item("caption-side")
@@ -704,6 +759,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property clear As String
             Get
                 Return Me.Item("clear")
@@ -713,6 +769,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property clip As String
             Get
                 Return Me.Item("clip")
@@ -722,6 +779,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property color As String
             Get
                 Return Me.Item("color")
@@ -731,6 +789,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_count As String
             Get
                 Return Me.Item("column-count")
@@ -740,6 +799,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_fill As String
             Get
                 Return Me.Item("column-fill")
@@ -749,6 +809,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_gap As String
             Get
                 Return Me.Item("column-gap")
@@ -758,6 +819,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_rule As String
             Get
                 Return Me.Item("column-rule")
@@ -767,6 +829,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_rule_color As String
             Get
                 Return Me.Item("column-rule-color")
@@ -776,6 +839,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_rule_style As String
             Get
                 Return Me.Item("column-rule-style")
@@ -785,6 +849,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_rule_width As String
             Get
                 Return Me.Item("column-rule-width")
@@ -794,6 +859,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_span As String
             Get
                 Return Me.Item("column-span")
@@ -803,6 +869,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property column_width As String
             Get
                 Return Me.Item("column-width")
@@ -812,6 +879,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property columns As String
             Get
                 Return Me.Item("columns")
@@ -821,6 +889,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property content As String
             Get
                 Return Me.Item("content")
@@ -830,6 +899,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property counter_increment As String
             Get
                 Return Me.Item("counter-increment")
@@ -839,6 +909,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property counter_reset As String
             Get
                 Return Me.Item("counter-increment")
@@ -848,6 +919,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property cursor As String
             Get
                 Return Me.Item("cursor")
@@ -857,6 +929,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property direction As String
             Get
                 Return Me.Item("direction")
@@ -866,6 +939,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property display As String
             Get
                 Return Me.Item("display")
@@ -875,6 +949,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property empty_cells As String
             Get
                 Return Me.Item("empty-cells")
@@ -884,6 +959,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property flex As String
             Get
                 Return Me.Item("flex")
@@ -893,6 +969,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property flex_basis As String
             Get
                 Return Me.Item("flex-basis")
@@ -902,6 +979,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property flex_direction As String
             Get
                 Return Me.Item("flex-direction")
@@ -911,6 +989,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property flex_flow As String
             Get
                 Return Me.Item("flex-flow")
@@ -920,6 +999,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property flex_grow As String
             Get
                 Return Me.Item("flex-grow")
@@ -929,6 +1009,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property flex_shrink As String
             Get
                 Return Me.Item("flex-shrink")
@@ -938,6 +1019,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property flex_wrap As String
             Get
                 Return Me.Item("flex-wrap")
@@ -947,6 +1029,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property float As String
             Get
                 Return Me.Item("float")
@@ -956,6 +1039,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font As String
             Get
                 Return Me.Item("font")
@@ -965,6 +1049,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font_family As String
             Get
                 Return Me.Item("font-family")
@@ -974,6 +1059,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font_size As String
             Get
                 Return Me.Item("font-size")
@@ -983,6 +1069,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font_size_adjust As String
             Get
                 Return Me.Item("font-size-adjust")
@@ -992,6 +1079,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font_stretch As String
             Get
                 Return Me.Item("font-stretch")
@@ -1001,6 +1089,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font_style As String
             Get
                 Return Me.Item("font-style")
@@ -1010,6 +1099,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font_variant As String
             Get
                 Return Me.Item("font-variant")
@@ -1019,6 +1109,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property font_weight As String
             Get
                 Return Me.Item("font-weight")
@@ -1028,6 +1119,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property height As String
             Get
                 Return Me.Item("height")
@@ -1037,6 +1129,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property justify_content As String
             Get
                 Return Me.Item("justify-content")
@@ -1046,6 +1139,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property left As String
             Get
                 Return Me.Item("left")
@@ -1055,6 +1149,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property letter_spacing As String
             Get
                 Return Me.Item("letter-spacing")
@@ -1064,6 +1159,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property line_height As String
             Get
                 Return Me.Item("line-height")
@@ -1073,6 +1169,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property list_style As String
             Get
                 Return Me.Item("list-style")
@@ -1082,6 +1179,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property list_style_image As String
             Get
                 Return Me.Item("list-style-image")
@@ -1091,6 +1189,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property list_style_position As String
             Get
                 Return Me.Item("list-style-position")
@@ -1100,6 +1199,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property list_style_type As String
             Get
                 Return Me.Item("list-style-type")
@@ -1109,6 +1209,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property margin As String
             Get
                 Return Me.Item("margin")
@@ -1118,6 +1219,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property margin_bottom As String
             Get
                 Return Me.Item("margin-bottom")
@@ -1127,6 +1229,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property margin_left As String
             Get
                 Return Me.Item("margin-left")
@@ -1136,6 +1239,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property margin_right As String
             Get
                 Return Me.Item("margin-right")
@@ -1145,6 +1249,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property margin_top As String
             Get
                 Return Me.Item("margin-top")
@@ -1154,6 +1259,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property max_height As String
             Get
                 Return Me.Item("max-height")
@@ -1163,6 +1269,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property max_width As String
             Get
                 Return Me.Item("max-width")
@@ -1172,6 +1279,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property min_height As String
             Get
                 Return Me.Item("min-height")
@@ -1181,6 +1289,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property min_width As String
             Get
                 Return Me.Item("min-width")
@@ -1190,6 +1299,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property opacity As String
             Get
                 Return Me.Item("opacity")
@@ -1199,6 +1309,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property order As String
             Get
                 Return Me.Item("order")
@@ -1208,6 +1319,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property outline As String
             Get
                 Return Me.Item("outline")
@@ -1217,6 +1329,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property outline_color As String
             Get
                 Return Me.Item("outline-color")
@@ -1226,6 +1339,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property outline_offset As String
             Get
                 Return Me.Item("outline-offset")
@@ -1235,6 +1349,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property outline_style As String
             Get
                 Return Me.Item("outline-style")
@@ -1244,6 +1359,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property outline_width As String
             Get
                 Return Me.Item("outline-width")
@@ -1253,6 +1369,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property overflow As String
             Get
                 Return Me.Item("overflow")
@@ -1262,6 +1379,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property overflow_x As String
             Get
                 Return Me.Item("overflow-x")
@@ -1271,6 +1389,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property overflow_y As String
             Get
                 Return Me.Item("overflow-y")
@@ -1280,6 +1399,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property padding As String
             Get
                 Return Me.Item("padding")
@@ -1289,6 +1409,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property padding_bottom As String
             Get
                 Return Me.Item("padding-bottom")
@@ -1298,6 +1419,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property padding_left As String
             Get
                 Return Me.Item("padding-left")
@@ -1307,6 +1429,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property padding_right As String
             Get
                 Return Me.Item("padding-right")
@@ -1316,6 +1439,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property padding_top As String
             Get
                 Return Me.Item("padding-top")
@@ -1325,6 +1449,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property page_break_after As String
             Get
                 Return Me.Item("page-break-after")
@@ -1334,6 +1459,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property page_break_before As String
             Get
                 Return Me.Item("page-break-before")
@@ -1343,6 +1469,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property page_break_inside As String
             Get
                 Return Me.Item("page-break-inside")
@@ -1352,6 +1479,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property perspective As String
             Get
                 Return Me.Item("perspective")
@@ -1361,6 +1489,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property perspective_origin As String
             Get
                 Return Me.Item("perspective-origin")
@@ -1370,6 +1499,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property position As String
             Get
                 Return Me.Item("position")
@@ -1388,6 +1518,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property resize As String
             Get
                 Return Me.Item("resize")
@@ -1397,6 +1528,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property right As String
             Get
                 Return Me.Item("right")
@@ -1406,6 +1538,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property tab_size As String
             Get
                 Return Me.Item("tab-size")
@@ -1415,6 +1548,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property table_layout As String
             Get
                 Return Me.Item("table-layout")
@@ -1424,6 +1558,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_align As String
             Get
                 Return Me.Item("text-align")
@@ -1433,6 +1568,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_align_last As String
             Get
                 Return Me.Item("text-align-last")
@@ -1442,6 +1578,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_decoration As String
             Get
                 Return Me.Item("text-decoration")
@@ -1451,6 +1588,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_decoration_color As String
             Get
                 Return Me.Item("text-decoration-color")
@@ -1460,6 +1598,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_decoration_line As String
             Get
                 Return Me.Item("text-decoration-line")
@@ -1469,6 +1608,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_decoration_style As String
             Get
                 Return Me.Item("text-decoration-style")
@@ -1478,6 +1618,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_indent As String
             Get
                 Return Me.Item("text-indent")
@@ -1487,6 +1628,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_justify As String
             Get
                 Return Me.Item("text-justify")
@@ -1496,6 +1638,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_overflow As String
             Get
                 Return Me.Item("text-overflow")
@@ -1505,6 +1648,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_shadow As String
             Get
                 Return Me.Item("text-shadow")
@@ -1514,6 +1658,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property text_transform As String
             Get
                 Return Me.Item("text-transform")
@@ -1523,6 +1668,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property top As String
             Get
                 Return Me.Item("top")
@@ -1532,6 +1678,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transform As String
             Get
                 Return Me.Item("transform")
@@ -1541,6 +1688,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transform_origin As String
             Get
                 Return Me.Item("transform-origin")
@@ -1550,6 +1698,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transform_style As String
             Get
                 Return Me.Item("transform-style")
@@ -1559,6 +1708,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transition As String
             Get
                 Return Me.Item("transition")
@@ -1568,6 +1718,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transition_delay As String
             Get
                 Return Me.Item("transition-delay")
@@ -1577,6 +1728,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transition_duration As String
             Get
                 Return Me.Item("transition-duration")
@@ -1586,6 +1738,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transition_property As String
             Get
                 Return Me.Item("transition-property")
@@ -1595,6 +1748,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property transition_timing_function As String
             Get
                 Return Me.Item("transition-timing-function")
@@ -1604,6 +1758,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property vertical_align As String
             Get
                 Return Me.Item("vertical-align")
@@ -1613,6 +1768,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property visibility As String
             Get
                 Return Me.Item("visibility")
@@ -1622,6 +1778,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property white_space As String
             Get
                 Return Me.Item("white-space")
@@ -1631,6 +1788,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property width As String
             Get
                 Return Me.Item("width")
@@ -1640,6 +1798,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property word_break As String
             Get
                 Return Me.Item("word-break")
@@ -1649,6 +1808,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property word_spacing As String
             Get
                 Return Me.Item("word-spacing")
@@ -1658,6 +1818,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property word_wrap As String
             Get
                 Return Me.Item("word-wrap")
@@ -1667,6 +1828,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+        <Category("Alignment"), Description()>
         Public Property z_index As String
             Get
                 Return Me.Item("z-index")
@@ -1675,7 +1837,6 @@ Namespace HtmlParser
                 Me.Item("z-index") = value
             End Set
         End Property
-
 
     End Class
 

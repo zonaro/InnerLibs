@@ -80,7 +80,6 @@ Namespace HtmlParser
         <Category("General"), Description("The CSS style of this element"), TypeConverter(GetType(ExpandableObjectConverter))>
         Public ReadOnly Property Style As CssProperties
 
-
         ''' <summary>
         ''' Return the child elements of this element (excluding HtmlText)
         ''' </summary>
@@ -105,7 +104,11 @@ Namespace HtmlParser
             Return New List(Of String)
         End Function
 
-
+        ''' <summary>
+        ''' Gets os sets a boolean value for an specific class
+        ''' </summary>
+        ''' <param name="ClassName"></param>
+        ''' <returns></returns>
         <Category("General"), Description("The CSS class of this element")>
         Public Property [Class](ClassName As String) As Boolean
             Get

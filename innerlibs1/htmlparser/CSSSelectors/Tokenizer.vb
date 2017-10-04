@@ -1,10 +1,10 @@
-﻿
-Imports System.Collections.Generic
+﻿Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Text
 Imports System.Threading.Tasks
 
 Namespace HtmlParser
+
     Public Class Tokenizer
 
         Public Shared Function GetTokens(cssFilter As String) As IEnumerable(Of Token)
@@ -20,7 +20,6 @@ Namespace HtmlParser
 
                 End If
 
-
                 Dim c As Char = Chr(v)
 
                 If c = ">"c Then
@@ -31,13 +30,11 @@ Namespace HtmlParser
 
                 End If
 
-
                 If c = " "c OrElse c = ControlChars.Tab Then
 
                     Continue While
 
                 End If
-
 
                 Dim word As String = c & ReadWord(reader)
 
@@ -47,7 +44,6 @@ Namespace HtmlParser
             Return tk
         End Function
 
-
         Private Shared Function ReadWord(reader As System.IO.StringReader) As String
 
             Dim sb As New StringBuilder()
@@ -56,13 +52,11 @@ Namespace HtmlParser
 
                 Dim v As Integer = reader.Read()
 
-
                 If v < 0 Then
                     Exit While
                 End If
 
-                Dim c As Char = CChar(v.ToString)
-
+                Dim c As Char = Chr(v)
 
                 If c = " "c OrElse c = ControlChars.Tab Then
 
@@ -70,13 +64,14 @@ Namespace HtmlParser
 
                 End If
 
-
                 sb.Append(c)
             End While
 
             Return sb.ToString()
         End Function
+
     End Class
+
 End Namespace
 
 '=======================================================
