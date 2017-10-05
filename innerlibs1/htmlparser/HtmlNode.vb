@@ -359,6 +359,16 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
+        ''' Perform an action on each node and returns the same list
+        ''' </summary>
+        ''' <param name="action"></param>
+        ''' <returns></returns>
+        Public Function [Do](action As Action(Of HtmlNode)) As HtmlNodeCollection
+            Me.ForEach(action)
+            Return Me
+        End Function
+
+        ''' <summary>
         ''' This will search though this collection of nodes for all elements with matchs the predicate.
         ''' </summary>
         ''' <typeparam name="type"></typeparam>
@@ -369,30 +379,20 @@ Namespace HtmlParser
             Dim results As New HtmlNodeCollection(Nothing)
             For Each node As HtmlNode In Me
                 If TypeOf node Is type Then
-                    Dim l As New List(Of type)
-                    For Each e In Me.Where(Function(t) TypeOf t Is type)
-                        l.Add(e)
-                    Next
-                    If l.Where(predicate).Contains(node) Then
-                        If Not results.Contains(node) Then
-                            results.Add(node)
-                        End If
-                        l.Clear()
+                    If predicate(node) Then
+                        results.Add(node)
                     End If
-                End If
-                If TypeOf node Is HtmlElement Then
-                    If SearchChildren Then
+                    If TypeOf node Is HtmlElement AndAlso SearchChildren Then
                         For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.FindElements(predicate, SearchChildren)
-                            If Not results.Contains(matchedChild) Then
-                                results.Add(matchedChild)
-                            End If
+                            results.Add(matchedChild)
                         Next
                     End If
                 End If
-
             Next
             Return results
         End Function
+
+
 
         ''' <summary>
         ''' Return elements thats match the current CSS selector

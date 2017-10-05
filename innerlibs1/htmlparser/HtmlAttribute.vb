@@ -155,8 +155,29 @@ Namespace HtmlParser
 
         End Property
 
+        ''' <summary>
+        ''' Add an attribute to element
+        ''' </summary>
+        ''' <param name="Name">Name of attribute</param>
+        ''' <param name="Value">Value of attribute, fro Wired attributes just leave Nothing</param>
         Public Overloads Sub Add(Name As String, Optional Value As String = Nothing)
+            If Me.Contains(Name) Then
+                Me.Remove(Name)
+            End If
             Me.Add(New HtmlAttribute(Name, Value))
+        End Sub
+
+        Public Overloads Function Contains(Name As String) As Boolean
+            If Me.Count = 0 Then Return False
+            Return Me.Where(Function(p) p.Name.ToLower = Name.ToLower).Count > 0
+        End Function
+
+        Public Overloads Sub Remove(Name As String)
+            For Each attr In Me
+                If attr.Name.ToLower = Name.ToLower Then
+                    Me.Remove(attr)
+                End If
+            Next
         End Sub
 
     End Class

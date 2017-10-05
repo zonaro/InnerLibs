@@ -25,6 +25,7 @@ Namespace HtmlParser
             mName = name
             mIsTerminated = False
             Style = New CssProperties(Me)
+            [Class] = New ClassList(Me)
             If InnerHtml.IsNotBlank Then
                 Me.InnerHTML = InnerHtml
             End If
@@ -72,7 +73,7 @@ Namespace HtmlParser
         ''' <param name="Name"></param>
         ''' <returns></returns>
         Public Function HasAttribute(Name As String) As Boolean
-            Return Me.Attributes.Where(Function(a) a.Name.ToLower = Name.ToLower).Count > 0
+            Return Me.Attributes.Contains(Name)
         End Function
 
         ''' <summary>
@@ -152,41 +153,9 @@ Namespace HtmlParser
         ''' <summary>
         ''' Gets os sets a boolean value for an specific class
         ''' </summary>
-        ''' <param name="ClassName"></param>
         ''' <returns></returns>
         <Category("General"), Description("The CSS class of this element")>
-        Public Property [Class](ClassName As String) As Boolean
-            Get
-                Dim s = Me.Attribute("class")
-                If s.IsNotBlank Then
-                    Dim styledic As New List(Of String)
-                    For Each item In s.Split(" ")
-                        styledic.Add(item.ToLower)
-                    Next
-                    If styledic.Contains(ClassName.ToLower) Then
-                        Return True
-                    Else
-                        Return False
-                    End If
-                End If
-                Return False
-            End Get
-            Set(value As Boolean)
-                Dim s = Me.Attribute("class")
-                Dim styledic As New List(Of String)
-                If s.IsNotBlank Then
-                    For Each item In s.Split(" ")
-                        styledic.Add(item)
-                    Next
-                    styledic.Add(ClassName)
-                End If
-                Dim p = ""
-                For Each k In styledic.Distinct
-                    p.Append(k.ToLower & " ")
-                Next
-                Me.Attribute("class") = p
-            End Set
-        End Property
+        Public ReadOnly Property [Class] As ClassList
 
         ''' <summary>
         ''' Return the value of specific attibute
@@ -278,6 +247,23 @@ Namespace HtmlParser
             Get
                 Return mAttributes
             End Get
+        End Property
+
+        ''' <summary>
+        ''' Gets os sets a value indicating thats element is disabled
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Disabled As Boolean
+            Get
+                Return Me.HasAttribute("disabled")
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    Me.Attributes.Add("disabled")
+                Else
+                    Me.Attributes.Remove("disabled")
+                End If
+            End Set
         End Property
 
         ''' <summary>

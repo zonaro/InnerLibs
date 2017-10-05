@@ -73,10 +73,7 @@ Namespace HtmlParser
         End Sub
 
         Public Sub ClearStyle() Implements ICollection(Of KeyValuePair(Of String, String)).Clear
-            Try
-                mElement.Attributes.Remove(mElement.Attributes().Where(Function(p) p.Name = "style"))
-            Catch ex As Exception
-            End Try
+            mElement.Attributes.Remove("style")
         End Sub
 
         Public Function Contains(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Contains
