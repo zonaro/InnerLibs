@@ -67,6 +67,7 @@ Public Class TestForm
     Friend WithEvents MenuItem4 As MenuItem
     Friend WithEvents MenuItem5 As MenuItem
     Friend WithEvents MenuItem6 As MenuItem
+    Friend WithEvents MenuItem7 As MenuItem
     Friend WithEvents MenuItem1 As System.Windows.Forms.MenuItem
 
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
@@ -95,6 +96,7 @@ Public Class TestForm
         Me.objSliderBottom = New System.Windows.Forms.PictureBox()
         Me.txtHTML = New System.Windows.Forms.TextBox()
         Me.SaveHtmlFileDialog = New System.Windows.Forms.SaveFileDialog()
+        Me.MenuItem7 = New System.Windows.Forms.MenuItem()
         CType(Me.objSlider, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pnlBottom.SuspendLayout()
         CType(Me.objSliderBottom, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -168,7 +170,7 @@ Public Class TestForm
         'MenuItem3
         '
         Me.MenuItem3.Index = 1
-        Me.MenuItem3.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuItem4, Me.MenuItem6})
+        Me.MenuItem3.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuItem4, Me.MenuItem6, Me.MenuItem7})
         Me.MenuItem3.Text = "Inspect"
         '
         'MenuItem4
@@ -249,6 +251,11 @@ Public Class TestForm
         '
         Me.SaveHtmlFileDialog.FileName = "doc1"
         Me.SaveHtmlFileDialog.Filter = "HTML Files|*.html;*.htm|XHTML Files|*.xml"
+        '
+        'MenuItem7
+        '
+        Me.MenuItem7.Index = 2
+        Me.MenuItem7.Text = "Run LINQ"
         '
         'TestForm
         '
@@ -470,22 +477,7 @@ Public Class TestForm
 
     End Sub
 
-    Private Sub SelectNodeByElement(Nodes As TreeNodeCollection, HtmlNode As HtmlNodeCollection, index As Integer)
 
-        For Each node As TreeNode In Nodes
-            If node.Tag Is HtmlNode(index) Then
-                If node.IsSelected Then
-                    SelectNodeByElement(Nodes, HtmlNode, index + 1)
-                Else
-                    tvwDOM.SelectedNode = node
-                    Exit Sub
-                End If
-            Else
-                SelectNodeByElement(node.Nodes, HtmlNode, index)
-            End If
-
-        Next
-    End Sub
 
     Private Sub Form1_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles MyBase.KeyDown
 
@@ -515,9 +507,15 @@ Public Class TestForm
     Private Function SearchSelector() As Boolean
         If latest_selector.IsNotBlank Then
             Try
+                tvwDOM.ExpandAll()
+                tvwDOM.GetAllNodes.ForEach(Sub(i) i.ForeColor = Color.Black)
                 Dim l As HtmlNodeCollection = mDocument(latest_selector)
                 If l.Count > 0 Then
-                    SelectNodeByElement(tvwDOM.Nodes, l, 0)
+                    For Each node As TreeNode In tvwDOM.GetAllNodes
+                        If l.Contains(node.Tag) Then
+                            node.ForeColor = Color.Red
+                        End If
+                    Next
                     Return True
                 Else
                     Return False
@@ -534,4 +532,10 @@ Public Class TestForm
         SearchSelector()
     End Sub
 
+    Private Sub MenuItem7_Click(sender As Object, e As EventArgs) Handles MenuItem7.Click
+        For Each element As HtmlNode In mDocument.FindElements(Function(h As HtmlParser.HtmlText) h.Text.IsNotBlank)
+            Notify(element.ElementRepresentation)
+        Next
+
+    End Sub
 End Class
