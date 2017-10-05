@@ -197,22 +197,22 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' Return the body element if exist
+        ''' Return the body element if exist, otherwise, the first node
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Body As HtmlElement
             Get
-                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "body").FirstOrDefault(Function(p) p.Index = 0)
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "body").FirstOr(Me.Nodes.First)
             End Get
         End Property
 
         ''' <summary>
-        ''' Return the head element if exist
+        ''' Return the body element if exist, otherwise, the first node
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Head As HtmlElement
             Get
-                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOrDefault(Function(p) p.Index = 0)
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOr(Me.Nodes.First)
             End Get
         End Property
 
