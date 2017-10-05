@@ -42,7 +42,6 @@ Namespace HtmlParser
             Next
         End Sub
 
-
         ''' <summary>
         ''' Transform the current element into a new  element
         ''' </summary>
@@ -77,12 +76,12 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' Verify if this element has an specific attribute
+        ''' Verify if this element has an specific class
         ''' </summary>
-        ''' <param name="Name"></param>
+        ''' <param name="ClassName"></param>
         ''' <returns></returns>
         Public Function HasClass(ClassName As String) As Boolean
-            Return Me.Class(ClassName)
+            Return If(ClassName.IsBlank, Me.Attribute("class").IsNotBlank, Me.Class(ClassName))
         End Function
 
         ''' <summary>
@@ -95,6 +94,17 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
+        ''' Travesse element with a CSS selector an retireve nodes
+        ''' </summary>
+        ''' <param name="CssSelector">Teh CSS selector</param>
+        ''' <returns></returns>
+        Default ReadOnly Property QuerySelectorAll(CssSelector As String) As HtmlNodeCollection
+            Get
+                Return Me.Nodes(CssSelector)
+            End Get
+        End Property
+
+        ''' <summary>
         ''' The CSS style of element
         ''' </summary>
         ''' <returns></returns>
@@ -105,10 +115,24 @@ Namespace HtmlParser
         ''' Return the child elements of this element (excluding HtmlText)
         ''' </summary>
         ''' <returns></returns>
+        <Category("General"), Description("The Child Elements of this element. Exclude Text Nodes")>
         ReadOnly Property ChildElements As HtmlNodeCollection
             Get
                 Dim l As New HtmlNodeCollection(Parent)
                 l.AddRange(Nodes.Where(Function(p) TypeOf p Is HtmlElement).Select(Function(p) CType(p, HtmlElement)))
+                Return l
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Return the text elements of this element (excluding HtmlElement)
+        ''' </summary>
+        ''' <returns></returns>
+        <Category("General"), Description("The associated text to this element. Exclude HTML Nodes")>
+        ReadOnly Property ContentText As HtmlNodeCollection
+            Get
+                Dim l As New HtmlNodeCollection(Parent)
+                l.AddRange(Nodes.Where(Function(p) TypeOf p Is HtmlText).Select(Function(p) CType(p, HtmlText)))
                 Return l
             End Get
         End Property
@@ -219,6 +243,20 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
+        ''' The ID of element
+        ''' </summary>
+        ''' <returns></returns>
+        <Category("General"), Description("The ID of the tag/element")>
+        Public Property ID As String
+            Get
+                Return Me.Attribute("id")
+            End Get
+            Set(value As String)
+                Me.Attribute("id") = value
+            End Set
+        End Property
+
+        ''' <summary>
         ''' This is the collection of all child nodes of this one. If this node is actually
         ''' a text node, this will throw an InvalidOperationException exception.
         ''' </summary>
@@ -229,12 +267,6 @@ Namespace HtmlParser
                     Return Nothing
                 End If
                 Return mNodes
-            End Get
-        End Property
-
-        Default ReadOnly Property Node(Name As String) As HtmlNode
-            Get
-                Return Me.Nodes(Name)
             End Get
         End Property
 
@@ -344,6 +376,7 @@ Namespace HtmlParser
                 Dim d As New HtmlDocument(value)
                 Me.Nodes.Clear()
                 For Each n As HtmlNode In d.Nodes
+                    n.mParent = Me
                     Me.Nodes.Add(n)
                 Next
             End Set

@@ -1,4 +1,3 @@
-
 Imports System.Collections
 Imports System.ComponentModel
 
@@ -82,7 +81,6 @@ Namespace HtmlParser
                 If mValue Is Nothing Then
 
                     Return mName
-
                 Else
                     Return (mName & Convert.ToString("=""")) & System.Net.WebUtility.HtmlEncode(mValue) & """"
                 End If
@@ -98,7 +96,6 @@ Namespace HtmlParser
                 If mValue Is Nothing Then
 
                     Return mName.ToLower()
-
                 Else
                     Return (mName & Convert.ToString("=""")) & System.Net.WebUtility.HtmlEncode(mValue) & """"
                 End If
@@ -130,7 +127,6 @@ Namespace HtmlParser
             mElement = element
         End Sub
 
-
         ''' <summary>
         ''' This will search the collection for the named attribute. If it is not found, this
         ''' will return null.
@@ -147,8 +143,6 @@ Namespace HtmlParser
             End If
         End Function
 
-
-
         ''' <summary>
         ''' This overload allows you to have direct access to an attribute by providing
         ''' its name. If the attribute does not exist, null is returned.
@@ -161,13 +155,11 @@ Namespace HtmlParser
 
         End Property
 
-
-
+        Public Overloads Sub Add(Name As String, Optional Value As String = Nothing)
+            Me.Add(New HtmlAttribute(Name, Value))
+        End Sub
 
     End Class
-
-
-
 
 End Namespace
 

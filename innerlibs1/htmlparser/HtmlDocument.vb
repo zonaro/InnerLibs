@@ -164,7 +164,6 @@ Namespace HtmlParser
             BuildTree(Me.Nodes, TreeView.Nodes)
         End Sub
 
-
         Private Sub BuildTree(ByVal nodes As HtmlNodeCollection, ByVal treeNodes As Windows.Forms.TreeNodeCollection)
             Dim value As String = ""
 
@@ -213,6 +212,17 @@ Namespace HtmlParser
         Public ReadOnly Property Head As HtmlElement
             Get
                 Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOrDefault(Function(p) p.Index = 0)
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Travesse DOM with a CSS selector an retireve nodes
+        ''' </summary>
+        ''' <param name="CssSelector">Teh CSS selector</param>
+        ''' <returns></returns>
+        Default ReadOnly Property QuerySelectorAll(CssSelector As String) As HtmlNodeCollection
+            Get
+                Return Me.Nodes(CssSelector)
             End Get
         End Property
 

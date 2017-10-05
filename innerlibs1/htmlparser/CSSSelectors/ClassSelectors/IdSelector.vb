@@ -1,13 +1,14 @@
-﻿
-Imports System.Collections.Generic
+﻿Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Text
 Imports System.Threading.Tasks
 Imports InnerLibs.HtmlParser
 
 Namespace HtmlParser.Selectors
+
     Friend Class IdSelector
         Inherits CssSelector
+
         Public Overrides ReadOnly Property Token() As String
             Get
                 Return "#"
@@ -15,10 +16,14 @@ Namespace HtmlParser.Selectors
         End Property
 
         Protected Friend Overrides Function FilterCore(currentNodes As HtmlNodeCollection) As HtmlNodeCollection
-            Return currentNodes.FindElements(Function(node As HtmlElement) node.Attribute("id").ToLower = Me.Selector.ToLower)
+            Dim l As New HtmlNodeCollection
+            l.AddRange(
+            currentNodes.Where(Function(node As HtmlElement) node.Attribute("id").Equals(Me.Selector, StringComparison.InvariantCultureIgnoreCase)))
+            Return l
         End Function
 
     End Class
+
 End Namespace
 
 '=======================================================

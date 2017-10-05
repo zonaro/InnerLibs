@@ -11,48 +11,33 @@ Namespace HtmlParser
             Me.mElement = Element
         End Sub
 
+        Private Function CreateStyleDictionary() As Dictionary(Of String, String)
+            Dim s = mElement.Attribute("style")
+            Dim styledic As New Dictionary(Of String, String)
+            If s.IsNotBlank Then
+                For Each i In s.Split(";")
+                    Dim n = i.Split(":")
+                    styledic.Add(n(0).ToLower, n(1).ToLower)
+                Next
+            End If
+            Return styledic
+        End Function
+
         Public ReadOnly Property Keys As ICollection(Of String) Implements IDictionary(Of String, String).Keys
             Get
-                Dim s = mElement.Attribute("style")
-                If s.IsNotBlank Then
-                    Dim styledic As New Dictionary(Of String, String)
-                    For Each i In s.Split(";")
-                        Dim n = i.Split(":")
-                        styledic.Add(n(0).ToLower, n(1).ToLower)
-                        Return styledic.Keys
-                    Next
-                End If
-                Return {}
+                Return CreateStyleDictionary().Keys
             End Get
         End Property
 
         Public ReadOnly Property Values As ICollection(Of String) Implements IDictionary(Of String, String).Values
             Get
-                Dim s = mElement.Attribute("style")
-                If s.IsNotBlank Then
-                    Dim styledic As New Dictionary(Of String, String)
-                    For Each i In s.Split(";")
-                        Dim n = i.Split(":")
-                        styledic.Add(n(0).ToLower, n(1).ToLower)
-                        Return styledic.Values
-                    Next
-                End If
-                Return {}
+                Return CreateStyleDictionary().Values
             End Get
         End Property
 
         Public ReadOnly Property Count As Integer Implements ICollection(Of KeyValuePair(Of String, String)).Count
             Get
-                Dim s = mElement.Attribute("style")
-                If s.IsNotBlank Then
-                    Dim styledic As New Dictionary(Of String, String)
-                    For Each i In s.Split(";")
-                        Dim n = i.Split(":")
-                        styledic.Add(n(0).ToLower, n(1).ToLower)
-                        Return styledic.Count
-                    Next
-                End If
-                Return 0
+                Return CreateStyleDictionary().Count
             End Get
         End Property
 
@@ -99,7 +84,7 @@ Namespace HtmlParser
         End Function
 
         Private Sub CopyTo(array() As KeyValuePair(Of String, String), arrayIndex As Integer) Implements ICollection(Of KeyValuePair(Of String, String)).CopyTo
-
+            array = Me.CreateStyleDictionary.ToArray
         End Sub
 
         Public Function Remove(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Remove
@@ -107,11 +92,11 @@ Namespace HtmlParser
         End Function
 
         Public Function GetEnumerator() As IEnumerator(Of KeyValuePair(Of String, String)) Implements IEnumerable(Of KeyValuePair(Of String, String)).GetEnumerator
-            Throw New NotImplementedException()
+            Return CreateStyleDictionary().GetEnumerator
         End Function
 
         Private Function IEnumerable_GetEnumerator() As IEnumerator Implements IEnumerable.GetEnumerator
-            Throw New NotImplementedException()
+            Return CreateStyleDictionary().GetEnumerator
         End Function
 
         ''' <summary>

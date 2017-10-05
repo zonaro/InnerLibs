@@ -1,10 +1,10 @@
-﻿
-Imports System.Collections.Generic
+﻿Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Text
 Imports System.Threading.Tasks
 
 Namespace HtmlParser.Selectors
+
     Friend Class TagNameSelector
 
         Inherits CssSelector
@@ -18,11 +18,12 @@ Namespace HtmlParser.Selectors
         Protected Friend Overrides Function FilterCore(currentNodes As HtmlNodeCollection) As HtmlNodeCollection
             Dim l As New HtmlNodeCollection
             l.AddRange(
-              currentNodes.Where(Function(node As HtmlElement) node.Name.Equals(Me.Selector, StringComparison.InvariantCultureIgnoreCase)))
+            currentNodes.Where(Function(node As HtmlElement) node.Name.Equals(Me.Selector, StringComparison.InvariantCultureIgnoreCase)))
             Return l
         End Function
 
     End Class
+
 End Namespace
 
 '=======================================================

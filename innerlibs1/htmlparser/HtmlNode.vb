@@ -9,7 +9,7 @@ Namespace HtmlParser
     ''' this implemention only supports HtmlText and HtmlElement node types.
     ''' </summary>
     Public MustInherit Class HtmlNode
-        Protected mParent As HtmlElement
+        Protected Friend mParent As HtmlElement
 
         ''' <summary>
         ''' This constructor is used by the subclasses.
@@ -270,20 +270,10 @@ Namespace HtmlParser
             mParent = parent
         End Sub
 
-        ''' <summary>
-        ''' Return the firs element with especific name
-        ''' </summary>
-        ''' <param name="Name"></param>
-        ''' <returns></returns>
-        Default Overloads ReadOnly Property Item(Name As String) As HtmlElement
-            Get
-                Try
-                    Return Item(Me.IndexOf(Me.Where(Function(p As HtmlElement) p.Name.ToLower = Name.ToLower).First))
-                Catch ex As Exception
-                    Return Nothing
-                End Try
-            End Get
-        End Property
+        Public Shadows Sub Insert(Index As Integer, Element As HtmlNode)
+            Element.mParent = Me.mParent
+            MyBase.Insert(Index, Element)
+        End Sub
 
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with the
@@ -402,6 +392,86 @@ Namespace HtmlParser
 
             Next
             Return results
+        End Function
+
+        ''' <summary>
+        ''' Return elements thats match the current CSS selector
+        ''' </summary>
+        ''' <param name="CssSelector">CSS selector</param>
+        ''' <returns></returns>
+        Default Public Overloads ReadOnly Property Item(CssSelector As String) As HtmlNodeCollection
+            Get
+                Dim l As New HtmlNodeCollection
+
+                If CssSelector Is Nothing OrElse CssSelector.IsBlank Then
+                    Return Me
+                End If
+
+                If CssSelector.Contains(","c) Then
+                    Dim combinedSelectors = CssSelector.Split(","c)
+                    Dim rt = Me.Item(combinedSelectors(0))
+                    For Each s In combinedSelectors.Skip(1)
+                        For Each n In Me.Item(s)
+                            If Not rt.Contains(n) Then
+                                rt.Add(n)
+                            End If
+
+                        Next
+                    Next
+
+                    Return rt
+
+                End If
+
+                CssSelector = CssSelector.Trim()
+
+                Dim selectors = InnerLibs.HtmlParser.CssSelector.Parse(CssSelector)
+
+                Dim allowTraverse As Boolean = True
+
+                For Each selector In selectors
+
+                    If allowTraverse AndAlso selector.AllowTraverse Then
+                        l = Traverse(Me)
+
+                    End If
+
+                    l = selector.Filter(l)
+
+                    allowTraverse = selector.AllowTraverse
+
+                Next
+                Return l
+            End Get
+        End Property
+
+        Private Function Traverse(nodes As HtmlNodeCollection) As HtmlNodeCollection
+            Dim l As New HtmlNodeCollection
+
+            For Each node As HtmlElement In nodes
+                For Each n As HtmlElement In Traverse(node).Where(Function(i) TypeOf i Is HtmlElement)
+                    If n IsNot Nothing Then
+                        l.Add(n)
+                    End If
+                Next
+
+            Next
+            Return l
+        End Function
+
+        Private Function Traverse(node As HtmlElement) As HtmlNodeCollection
+
+            Dim l As New HtmlNodeCollection
+            l.Add(node)
+
+            For Each child As HtmlElement In node.ChildElements
+                ''aqui é os node de verdade'
+                For Each n As HtmlElement In Traverse(child)
+                    l.Add(n)
+                Next
+
+            Next
+            Return l
         End Function
 
     End Class
