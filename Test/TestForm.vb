@@ -1,4 +1,3 @@
-
 '
 ' This is an example application to demonstrate the usage of the MIL.Html library.
 '
@@ -43,9 +42,10 @@ Public Class TestForm
     Private components As System.ComponentModel.IContainer
 
     'NOTE: The following procedure is required by the Windows Form Designer
-    'It can be modified using the Windows Form Designer.  
+    'It can be modified using the Windows Form Designer.
     'Do not modify it using the code editor.
     Friend WithEvents tvwDOM As System.Windows.Forms.TreeView
+
     Friend WithEvents objSlider As System.Windows.Forms.PictureBox
     Friend WithEvents MainMenu1 As System.Windows.Forms.MainMenu
     Friend WithEvents mnuFile As System.Windows.Forms.MenuItem
@@ -68,6 +68,7 @@ Public Class TestForm
     Friend WithEvents MenuItem5 As MenuItem
     Friend WithEvents MenuItem6 As MenuItem
     Friend WithEvents MenuItem1 As System.Windows.Forms.MenuItem
+
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(TestForm))
@@ -83,6 +84,7 @@ Public Class TestForm
         Me.mnuExit = New System.Windows.Forms.MenuItem()
         Me.MenuItem3 = New System.Windows.Forms.MenuItem()
         Me.MenuItem4 = New System.Windows.Forms.MenuItem()
+        Me.MenuItem6 = New System.Windows.Forms.MenuItem()
         Me.OpenHtmlFileDialog = New System.Windows.Forms.OpenFileDialog()
         Me.TreeNodeMenu = New System.Windows.Forms.ContextMenu()
         Me.mnuViewHTML = New System.Windows.Forms.MenuItem()
@@ -93,7 +95,6 @@ Public Class TestForm
         Me.objSliderBottom = New System.Windows.Forms.PictureBox()
         Me.txtHTML = New System.Windows.Forms.TextBox()
         Me.SaveHtmlFileDialog = New System.Windows.Forms.SaveFileDialog()
-        Me.MenuItem6 = New System.Windows.Forms.MenuItem()
         CType(Me.objSlider, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pnlBottom.SuspendLayout()
         CType(Me.objSliderBottom, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -175,6 +176,11 @@ Public Class TestForm
         Me.MenuItem4.Index = 0
         Me.MenuItem4.Text = "Get Keywords"
         '
+        'MenuItem6
+        '
+        Me.MenuItem6.Index = 1
+        Me.MenuItem6.Text = "QuerySelector"
+        '
         'OpenHtmlFileDialog
         '
         Me.OpenHtmlFileDialog.Filter = "HTML Files|*.html;*.htm"
@@ -244,11 +250,6 @@ Public Class TestForm
         Me.SaveHtmlFileDialog.FileName = "doc1"
         Me.SaveHtmlFileDialog.Filter = "HTML Files|*.html;*.htm|XHTML Files|*.xml"
         '
-        'MenuItem6
-        '
-        Me.MenuItem6.Index = 1
-        Me.MenuItem6.Text = "QuerySelector"
-        '
         'TestForm
         '
         Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
@@ -256,6 +257,7 @@ Public Class TestForm
         Me.Controls.Add(Me.pnlBottom)
         Me.Controls.Add(Me.objSlider)
         Me.Controls.Add(Me.tvwDOM)
+        Me.KeyPreview = True
         Me.Menu = Me.MainMenu1
         Me.Name = "TestForm"
         Me.Text = "Test Form"
@@ -268,9 +270,6 @@ Public Class TestForm
     End Sub
 
 #End Region
-
-
-
 
     ' ProcessHTML(html)
     '
@@ -366,7 +365,7 @@ Public Class TestForm
 
         ' I'm just converting the HtmlNode to a string here, but you could easily
         ' use Typeof to determine its type, and then cast it to either HtmlText or
-        ' HtmlElement. That way, you could present each of the attributes in a 
+        ' HtmlElement. That way, you could present each of the attributes in a
         ' properties control, for example.
 
         Dim node As HtmlNode = CType(tvwDOM.SelectedNode.Tag, HtmlNode)
@@ -431,10 +430,8 @@ Public Class TestForm
         End If
     End Sub
 
-
-
     Private Sub MenuItem2_Click(sender As Object, e As EventArgs) Handles MenuItem2.Click
-        Dim text As String = Prompt("Type the URL to open", Clipboard.GetText)
+        Dim text As String = Prompt("Type the URL to open", If(Clipboard.GetText.IsURL, Clipboard.GetText, ""))
         If text.IsURL Then
             Try
                 ProcessHTML(text)
@@ -461,8 +458,6 @@ Public Class TestForm
         Next
         d.Show()
 
-
-
     End Sub
 
     Private Sub MenuItem5_Click(sender As Object, e As EventArgs) Handles MenuItem5.Click
@@ -475,29 +470,68 @@ Public Class TestForm
 
     End Sub
 
-    Private Sub MenuItem6_Click(sender As Object, e As EventArgs) Handles MenuItem6.Click
-        Dim el As HtmlParser.HtmlElement
-        Try
-            el = tvwDOM.SelectedNode.Tag
-        Catch ex As Exception
-            Exit Sub
-        End Try
+    Private Sub SelectNodeByElement(Nodes As TreeNodeCollection, HtmlNode As HtmlNodeCollection, index As Integer)
 
-        Dim d As New Form
-        d.TopMost = True
-        Dim grid As New DataGridView
-        grid.Dock = DockStyle.Fill
-        d.Controls.Add(grid)
-        d.ShowInTaskbar = False
-        grid.Columns.Add("Element", "Element")
+        For Each node As TreeNode In Nodes
+            If node.Tag Is HtmlNode(index) Then
+                If node.IsSelected Then
+                    SelectNodeByElement(Nodes, HtmlNode, index + 1)
+                Else
+                    tvwDOM.SelectedNode = node
+                    Exit Sub
+                End If
+            Else
+                SelectNodeByElement(node.Nodes, HtmlNode, index)
+            End If
 
-
-        Dim l As HtmlNodeCollection = el.QuerySelectorAll(Prompt("Type the CSS Selector"))
-
-        For Each o As HtmlParser.HtmlElement In l
-            grid.Rows.Add(o.ElementRepresentation)
         Next
-        d.Show()
+    End Sub
+
+    Private Sub Form1_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles MyBase.KeyDown
+
+        Select Case e.KeyCode
+            Case Keys.F2
+                If latest_selector.IsBlank OrElse SearchSelector() = False Then
+                    MenuItem6.PerformClick()
+                End If
+            Case Keys.F3
+                MenuItem6.PerformClick()
+            Case Keys.O
+                If e.Control Then
+                    mnuOpenFile.PerformClick()
+                End If
+            Case Keys.U
+                If e.Control Then
+                    MenuItem2.PerformClick()
+                End If
+        End Select
+
+        e.Handled = False
 
     End Sub
+
+    Private latest_selector As String = ""
+
+    Private Function SearchSelector() As Boolean
+        If latest_selector.IsNotBlank Then
+            Try
+                Dim l As HtmlNodeCollection = mDocument(latest_selector)
+                If l.Count > 0 Then
+                    SelectNodeByElement(tvwDOM.Nodes, l, 0)
+                    Return True
+                Else
+                    Return False
+                End If
+            Catch ex As Exception
+                Return False
+            End Try
+        End If
+        Return True
+    End Function
+
+    Private Sub MenuItem6_Click(sender As Object, e As EventArgs) Handles MenuItem6.Click
+        latest_selector = Prompt("Type the CSS Selector", latest_selector)
+        SearchSelector()
+    End Sub
+
 End Class
