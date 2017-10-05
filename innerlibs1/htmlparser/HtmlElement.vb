@@ -138,23 +138,13 @@ Namespace HtmlParser
             End Get
         End Property
 
-        ''' <summary>
-        ''' Return the all classes of this element
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function GetClassList() As IList(Of String)
-            Dim attr = Me.Attribute("class")
-            If attr.IsNotBlank Then
-                Return attr.Split({" "c, ControlChars.Tab}, StringSplitOptions.RemoveEmptyEntries)
-            End If
-            Return New List(Of String)
-        End Function
+
 
         ''' <summary>
         ''' Gets os sets a boolean value for an specific class
         ''' </summary>
         ''' <returns></returns>
-        <Category("General"), Description("The CSS class of this element")>
+        <Category("General"), Description("The CSS class of this element"), TypeConverter(GetType(ExpandableObjectConverter))>
         Public ReadOnly Property [Class] As ClassList
 
         ''' <summary>
