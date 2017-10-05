@@ -533,9 +533,10 @@ Public Class TestForm
     End Sub
 
     Private Sub MenuItem7_Click(sender As Object, e As EventArgs) Handles MenuItem7.Click
-        For Each element As HtmlNode In mDocument.FindElements(Function(h As HtmlParser.HtmlText) h.Text.IsNotBlank)
-            Notify(element.ElementRepresentation)
-        Next
+
+        mDocument.FindElements(Function(h As HtmlParser.HtmlText) h.Text.IsNotBlank).Do(Sub(d As HtmlText) Notify(d.ElementRepresentation))
+
+
 
     End Sub
 End Class
