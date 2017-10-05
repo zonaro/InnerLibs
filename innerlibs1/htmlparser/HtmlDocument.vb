@@ -184,15 +184,16 @@ Namespace HtmlParser
             Next
         End Sub
 
+
         ''' <summary>
-        ''' Search elements in document using predicate
+        ''' This will search though this collection of nodes for all elements with matchs the predicate.
         ''' </summary>
-        ''' <typeparam name="Type">Tipe of Element (<see cref="HtmlText"/> or <see cref="HtmlElement"/></typeparam>
-        ''' <param name="predicate">Predicate</param>
-        ''' <param name="SearchChildren">Match all child elements</param>
+        ''' <typeparam name="NodeType">Type of Node (<see cref="HtmlElement"/> or <see cref="HtmlText"/>)</typeparam>
+        ''' <param name="predicate">The predicate to match the nodes</param>
+        ''' <param name="SearchChildren">Travesse the child nodes</param>
         ''' <returns></returns>
-        Public Function FindElements(Of Type As HtmlNode)(predicate As Func(Of Type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
-            Return Me.Nodes.FindElements(Of Type)(predicate, SearchChildren)
+        Public Function FindElements(Of NodeType As HtmlNode)(predicate As Func(Of NodeType, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            Return Me.Nodes.FindElements(Of NodeType)(predicate, SearchChildren)
         End Function
 
         ''' <summary>

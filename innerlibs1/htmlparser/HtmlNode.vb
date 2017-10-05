@@ -371,22 +371,22 @@ Namespace HtmlParser
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with matchs the predicate.
         ''' </summary>
-        ''' <typeparam name="type"></typeparam>
-        ''' <param name="predicate"></param>
-        ''' <param name="searchChildren"></param>
+        ''' <typeparam name="NodeType">Type of Node (<see cref="HtmlElement"/> or <see cref="HtmlText"/>)</typeparam>
+        ''' <param name="predicate">The predicate to match the nodes</param>
+        ''' <param name="SearchChildren">Travesse the child nodes</param>
         ''' <returns></returns>
-        Public Function FindElements(Of type As HtmlNode)(predicate As Func(Of type, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+        Public Function FindElements(Of NodeType As HtmlNode)(predicate As Func(Of NodeType, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
             Dim results As New HtmlNodeCollection(Nothing)
             For Each node As HtmlNode In Me
-                If TypeOf node Is type Then
+                If TypeOf node Is NodeType Then
                     If predicate(node) Then
                         results.Add(node)
                     End If
-                    If TypeOf node Is HtmlElement AndAlso SearchChildren Then
-                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.FindElements(predicate, SearchChildren)
-                            results.Add(matchedChild)
-                        Next
-                    End If
+                End If
+                If TypeOf node Is HtmlElement AndAlso SearchChildren Then
+                    For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.FindElements(predicate, SearchChildren)
+                        results.Add(matchedChild)
+                    Next
                 End If
             Next
             Return results
