@@ -363,10 +363,8 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="action"></param>
         ''' <returns></returns>
-        Public Function [Do](Of NodeType As HtmlNode)(action As Action(Of NodeType)) As HtmlNodeCollection
-            Dim la As New HtmlNodeCollection()
-            la.AddRange(Me.Where(Function(i) TypeOf i Is NodeType))
-            la.ForEach(action)
+        Public Function [Do](action As Action(Of HtmlNode)) As HtmlNodeCollection
+            Me.ForEach(action)
             Return Me
         End Function
 
