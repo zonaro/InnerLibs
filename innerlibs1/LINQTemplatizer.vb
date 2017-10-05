@@ -358,14 +358,14 @@ Namespace Templatizer
             Dim doc As New HtmlDocument(Template)
             For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("switch", True)
                 Try
-                    Dim othertag = conditionTag.Find(Function(n As HtmlElement)
-                                                         Dim value1 = conditionTag.Attribute("value").HtmlDecode
-                                                         Dim value2 = n.Attribute("value").HtmlDecode
-                                                         Dim op = n.Attribute("operator").HtmlDecode.IfBlank("=")
-                                                         value1 = value1.QuoteIf(Not value1.IsNumber)
-                                                         value2 = value2.QuoteIf(Not value2.IsNumber)
-                                                         Return n.Name = "case" AndAlso (EvaluateExpression(value1 & op & value2) = True)
-                                                     End Function, False)
+                    Dim othertag = conditionTag.FindElements(Function(n As HtmlElement)
+                                                                 Dim value1 = conditionTag.Attribute("value").HtmlDecode
+                                                                 Dim value2 = n.Attribute("value").HtmlDecode
+                                                                 Dim op = n.Attribute("operator").HtmlDecode.IfBlank("=")
+                                                                 value1 = value1.QuoteIf(Not value1.IsNumber)
+                                                                 value2 = value2.QuoteIf(Not value2.IsNumber)
+                                                                 Return n.Name = "case" AndAlso (EvaluateExpression(value1 & op & value2) = True)
+                                                             End Function, False)
                     'Dim othertag = conditionTag.Find(Function(n As HtmlElement) n.Name = "case" AndAlso n.Attribute("value") = conditionTag.Attribute("value"), False)
                     Dim html = ""
                     If othertag.Count > 0 Then
@@ -376,7 +376,7 @@ Namespace Templatizer
                             End If
                         Next
                     Else
-                        othertag = conditionTag.Find(Function(n As HtmlElement) n.Name = "else", False)
+                        othertag = conditionTag.FindElements(Function(n As HtmlElement) n.Name = "else", False)
                         If othertag.Count = 1 Then
                             html = CType(othertag.First, HtmlElement).InnerHTML
                         End If
