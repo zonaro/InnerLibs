@@ -12,14 +12,19 @@ Namespace TimeMachine
         ''' <returns></returns>
         Property InitialTime As TimeSpan
 
+        Public Sub New()
+            MyBase.New()
+            Me.InitialTime = New TimeSpan(0, 1, 0)
+        End Sub
+
         ''' <summary>
         ''' Declara um novo objeto Stopwatch
         ''' </summary>
         ''' <param name="InitialTime">Tempo inicial</param>
-        ''' <param name="Format">     
+        ''' <param name="Format">
         ''' Formato do Contador( <see cref="TimeSpan.ToString(String)"/> )
         ''' </param>
-        Sub New(InitialTime As TimeSpan, Optional Format As String = "", Optional Interval As Long = 100)
+        Public Sub New(InitialTime As TimeSpan, Optional Format As String = "", Optional Interval As Long = 100)
             MyBase.New(Format, Interval)
             Me.InitialTime = InitialTime
         End Sub
