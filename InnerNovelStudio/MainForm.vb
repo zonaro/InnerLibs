@@ -1,8 +1,17 @@
 ﻿Imports System.IO
+Imports System.Runtime.CompilerServices
 Imports InnerLibs
 Imports WeifenLuo.WinFormsUI.Docking
 
 Public Class MainForm
+
+
+    Public Shared ReadOnly Property Instance As MainForm
+        Get
+            Return CType(Application.OpenForms("MainForm"), MainForm)
+        End Get
+
+    End Property
 
     Property ProjectFolder As DirectoryInfo
 
@@ -11,6 +20,8 @@ Public Class MainForm
             Return (ProjectFolder.FullName & Path.DirectorySeparatorChar & "char").ToDirectory
         End Get
     End Property
+
+
 
     Shared ReadOnly Property Filetypes As FileTypeList
         Get
@@ -39,21 +50,33 @@ Public Class MainForm
     End Sub
 
     Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem1.Click
+        openfiles()
+    End Sub
+
+
+    Private Sub ToolStripMenuItem3_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem3.Click
+        Dim per As New CharacterEditor
+        per.Show(DockPanel, DockState.Document)
+    End Sub
+
+    Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        MenuStrip1.Enabled = False
+        openfiles()
+    End Sub
+
+    Sub openfiles()
         FileMenu.Show(DockPanel, DockState.DockLeft)
         Theme.ApplyTo(FileMenu.ToolStrip1)
     End Sub
 
-    Private Sub EditorDePersonagemToolStripMenuItem_Click(sender As Object, e As EventArgs)
-
+    Sub Salvar(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
+        Select Case Me.ActiveMdiChild.GetType
+            Case GetType(CharacterEditor)
+                CType(Me.ActiveMdiChild, CharacterEditor).Salvar()
+        End Select
+        Me.ProjectFolder.CleanDirectory()
+        FileMenu.PopulateTreeView(ProjectFolder)
     End Sub
 
-    Private Sub NewToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles NewToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub ToolStripMenuItem3_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem3.Click
-        Dim per As New Character
-        per.Show(DockPanel, DockState.Document)
-    End Sub
 
 End Class
