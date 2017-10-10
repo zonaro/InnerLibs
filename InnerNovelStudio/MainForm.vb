@@ -6,6 +6,12 @@ Public Class MainForm
 
     Property ProjectFolder As DirectoryInfo
 
+    ReadOnly Property CharPath As DirectoryInfo
+        Get
+            Return (ProjectFolder.FullName & Path.DirectorySeparatorChar & "char").ToDirectory
+        End Get
+    End Property
+
     Shared ReadOnly Property Filetypes As FileTypeList
         Get
             Dim lista As New FileTypeList
@@ -28,20 +34,26 @@ Public Class MainForm
 
         DockPanel.Theme = Theme
 
+        Theme.ApplyTo(MenuStrip1)
+
     End Sub
-
-
 
     Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem1.Click
         FileMenu.Show(DockPanel, DockState.DockLeft)
         Theme.ApplyTo(FileMenu.ToolStrip1)
     End Sub
 
-    Private Sub EditorDePersonagemToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EditorDePersonagemToolStripMenuItem.Click
+    Private Sub EditorDePersonagemToolStripMenuItem_Click(sender As Object, e As EventArgs)
 
     End Sub
 
     Private Sub NewToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles NewToolStripMenuItem.Click
 
     End Sub
+
+    Private Sub ToolStripMenuItem3_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem3.Click
+        Dim per As New Character
+        per.Show(DockPanel, DockState.Document)
+    End Sub
+
 End Class
