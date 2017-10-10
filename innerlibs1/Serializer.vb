@@ -59,9 +59,11 @@ Public NotInheritable Class Json
             m_supportedTypes = New List(Of Type)(1)
             m_supportedTypes.Add(GetType(DateTime))
         End Sub
+        '<Runtime.Serialization.IgnoreDataMember()>
 
         Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
-            Dim dt As DateTime = dictionary("DateString").ToString().To(Of Date)
+            Dim dt As New DateTime
+            dt = New DateTime(dictionary("Year").ToString.To(Of Integer), dictionary("Month").ToString.To(Of Integer), dictionary("Day").ToString.To(Of Integer), dictionary("Hour").ToString.To(Of Integer), dictionary("Minute").ToString.To(Of Integer), dictionary("Second").ToString.To(Of Integer), dictionary("Millisecond").ToString.To(Of Integer))
             Return dt
         End Function
 

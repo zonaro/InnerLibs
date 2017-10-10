@@ -1208,7 +1208,7 @@ Public Module Text
             ImportantWords = l.ToArray
             If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
             If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
-            Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().ToDictionary(Function(p) p.Key, Function(p) p.Value)
+            Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().OrderByDescending(Function(p) p.Value).ToDictionary(Function(p) p.Key, Function(p) p.Value)
         Catch ex As Exception
             Debug.Write(ex)
             Return New Dictionary(Of String, Long)
@@ -2198,17 +2198,17 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
-        Return HttpUtility.HtmlEncode("" & Text)
+        Return System.Web.HttpUtility.HtmlEncode("" & Text)
     End Function
 
     ''' <summary>
-    ''' Retorna um texto com entidades HTML convertidas para caracteres
+    ''' Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines 
     ''' </summary>
     ''' <param name="Text">string HTML</param>
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlDecode(ByVal Text As String) As String
-        Return HttpUtility.HtmlDecode("" & Text)
+        Return System.Web.HttpUtility.HtmlDecode("" & Text).Replace(vbCr & vbLf, "<br/>", "<br />", "<br>")
     End Function
 
     ''' <summary>
@@ -2218,7 +2218,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function UrlEncode(ByVal Text As String) As String
-        Return HttpUtility.UrlEncode("" & Text)
+        Return System.Web.HttpUtility.UrlEncode("" & Text)
     End Function
 
     ''' <summary>

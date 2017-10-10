@@ -130,12 +130,18 @@ Namespace HtmlParser
         ''' </summary>
         ''' <returns></returns>
         <Category("General"), Description("The associated text to this element. Exclude HTML Nodes")>
-        ReadOnly Property ContentText As HtmlNodeCollection
+        Property ContentText As HtmlNodeCollection
             Get
                 Dim l As New HtmlNodeCollection(Parent)
                 l.AddRange(Nodes.Where(Function(p) TypeOf p Is HtmlText).Select(Function(p) CType(p, HtmlText)))
                 Return l
             End Get
+            Set(value As HtmlNodeCollection)
+                If value.Count > 0 Then
+                    Me.InnerText = value.Select(Function(p) p.ToString)
+                End If
+
+            End Set
         End Property
 
 
@@ -316,7 +322,7 @@ Namespace HtmlParser
         End Property
 
         <Category("General"), Description("A concatination of all the text associated with this element")>
-        Public ReadOnly Property InnerText As String
+        Public Property InnerText As String
             Get
                 Dim stringBuilder As New StringBuilder()
                 For Each node As HtmlNode In Nodes
@@ -328,6 +334,10 @@ Namespace HtmlParser
                 Next
                 Return stringBuilder.ToString()
             End Get
+            Set(value As String)
+                Me.Nodes.Clear()
+                Me.InnerHTML = value.RemoveHTML
+            End Set
         End Property
 
         ''' <summary>

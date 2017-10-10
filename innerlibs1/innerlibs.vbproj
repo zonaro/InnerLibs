@@ -141,7 +141,6 @@
     <Compile Include="InnerForm.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="JsonDB.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />

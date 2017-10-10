@@ -317,7 +317,7 @@ Public Module ClassTools
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <param name="Collection">Colecao</param>
     ''' <returns></returns>
-    <Extension()> Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, Obj As Type, ParamArray Keys As String()) As Type
+    <Extension()> Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, ByRef Obj As Type, ParamArray Keys As String()) As Type
         Dim PROPS = Obj.GetProperties
         If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = Collection.AllKeys
         For Each key As String In Collection.Keys

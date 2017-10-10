@@ -126,6 +126,7 @@ Namespace Templatizer
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing) As List(Of Template(Of T))
+            Debug.WriteLine(Environment.NewLine & SQLQuery)
             Dim list As IEnumerable(Of T)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
             Using Me.DataContext
