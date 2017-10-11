@@ -8,12 +8,40 @@ Imports System.Text.RegularExpressions
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Directories
+
+    ''' <summary>
+    ''' Deleta um arquivo ou diretório se o mesmo existir e retorna um valor boolean 
+    ''' </summary>
+    ''' <param name="Path">Camingo</param>
+    ''' <returns></returns>
+    <Extension()>
+    Function DeleteIfExist(Path As String) As Boolean
+        Try
+            If Path.IsDirectoryPath Then
+                Dim d As New DirectoryInfo(Path)
+                If d.Exists Then
+                    d.Delete(True)
+                End If
+                Return True
+            End If
+            If Path.IsFilePath Then
+                Dim d As New FileInfo(Path)
+                If d.Exists Then
+                    d.Delete()
+                End If
+                Return True
+            End If
+            Return False
+        Catch
+            Return False
+        End Try
+    End Function
+
     ''' <summary>
     ''' Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório
     ''' </summary>
     ''' <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
-    ''' <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
-
+    ''' <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns> 
     <Extension()>
     Function ToDirectory(DirectoryName As String) As DirectoryInfo
         DirectoryName = Path.GetFullPath(DirectoryName)

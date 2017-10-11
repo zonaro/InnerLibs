@@ -59,7 +59,7 @@ Public Module Verify
             Return True
         End If
         ' if has extension then its a file; directory otherwise
-        Return Not Text.EndsWith(Path.DirectorySeparatorChar) And String.IsNullOrWhiteSpace(Path.GetExtension(Text))
+        Return Not Text.EndsWith(Path.DirectorySeparatorChar) And Path.GetExtension(Text).IsNotBlank
     End Function
 
     ''' <summary>
