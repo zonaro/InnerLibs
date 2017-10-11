@@ -80,3 +80,12 @@ Public Class MainForm
 
 
 End Class
+
+Public Module utils
+
+    Public Function ImageName(img As Image, Name As String)
+        Dim tipo = img.
+
+    End Function
+
+End Module

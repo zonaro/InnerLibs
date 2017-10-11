@@ -31,11 +31,11 @@ Public Class CharacterEditor
 
     Public Sub Salvar()
         Me.Propriedades.SerializeJSON.WriteToFile(MyPath.FullName.Append("\prop.json"))
-        Me.Propriedades.Sprite.Save(MyPath.FullName.Append("\MainSprite.png"))
+        Me.Propriedades.Sprite.Save(MyPath.FullName.Append("\MainSprite").Append())
         SourceCode.SaveToFile(MyPath.FullName.Append("\code.js"), Encoding.UTF8)
 
         For Each h In Me.Propriedades.Humor
-            h.Sprite.Save(MyHumorPath.FullName.Append(Path.DirectorySeparatorChar).Append(h.ToString & ".png"))
+            h.Sprite.Save(MyHumorPath.FullName.Append(Path.DirectorySeparatorChar).Append(h.ToString & ".png"), Imaging.ImageFormat.Png)
         Next
 
     End Sub
@@ -64,13 +64,17 @@ Public Class CharacterEditor
 
     Private Sub CharacterEditor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         PropertyGrid1.SelectedObject = Me.Propriedades
-    End Sub
-
-    Private Sub PropertyGrid1_PropertyValueChanged(s As Object, e As PropertyValueChangedEventArgs) Handles PropertyGrid1.PropertyValueChanged, Me.Load
         SourceCode.Text = Me.Propriedades.Code
         Me.Text = Me.Propriedades.Nome
-
     End Sub
+
+    Private Sub PropertyGrid1_PropertyValueChanged(s As Object, e As PropertyValueChangedEventArgs) Handles PropertyGrid1.PropertyValueChanged
+        SourceCode.Text = Me.Propriedades.Code
+        Me.Text = Me.Propriedades.Nome
+    End Sub
+
+
+
 End Class
 
 
