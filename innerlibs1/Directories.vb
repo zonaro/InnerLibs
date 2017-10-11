@@ -15,7 +15,7 @@ Public Module Directories
     ''' <param name="Path">Camingo</param>
     ''' <returns></returns>
     <Extension()>
-    Function DeleteIfExist(Path As String) As Boolean
+    Public Function DeleteIfExist(Path As String) As Boolean
         Try
             If Path.IsDirectoryPath Then
                 Dim d As New DirectoryInfo(Path)
@@ -41,6 +41,16 @@ Public Module Directories
         Catch
             Return False
         End Try
+    End Function
+
+    ''' <summary>
+    ''' Deleta um arquivo ou diretório se o mesmo existir e retorna TURE se o arquivo puder ser criado novamente
+    ''' </summary>
+    ''' <param name="Path">Camingo</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function DeleteIfExist(Path As FileSystemInfo) As Boolean
+        Return DeleteIfExist(Path.FullName)
     End Function
 
     ''' <summary>
@@ -82,7 +92,7 @@ Public Module Directories
     <Extension()>
     Public Function ToZipFile(FilesDirectory As DirectoryInfo, OutputFile As String, Optional CompressionLevel As CompressionLevel = CompressionLevel.Optimal) As FileInfo
         If OutputFile.IsBlank Then
-            OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") + FilesDirectory.Name
+            OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") & FilesDirectory.Name
         End If
         OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
         ZipFile.CreateFromDirectory(FilesDirectory.FullName, OutputFile, CompressionLevel, True)
