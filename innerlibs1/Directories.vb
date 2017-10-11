@@ -10,7 +10,7 @@ Imports System.Text.RegularExpressions
 Public Module Directories
 
     ''' <summary>
-    ''' Deleta um arquivo ou diretório se o mesmo existir e retorna um valor boolean 
+    ''' Deleta um arquivo ou diretório se o mesmo existir e retorna TURE se o arquivo puder ser criado novamente
     ''' </summary>
     ''' <param name="Path">Camingo</param>
     ''' <returns></returns>
@@ -20,16 +20,22 @@ Public Module Directories
             If Path.IsDirectoryPath Then
                 Dim d As New DirectoryInfo(Path)
                 If d.Exists Then
-                    d.Delete(True)
+                    Try
+                        d.Delete(True)
+                    Catch ex As Exception
+                    End Try
                 End If
-                Return True
+                Return Not d.Exists
             End If
             If Path.IsFilePath Then
                 Dim d As New FileInfo(Path)
                 If d.Exists Then
-                    d.Delete()
+                    Try
+                        d.Delete()
+                    Catch ex As Exception
+                    End Try
                 End If
-                Return True
+                Return Not d.Exists
             End If
             Return False
         Catch
