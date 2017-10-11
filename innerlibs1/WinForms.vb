@@ -1,4 +1,5 @@
-﻿Imports System.Drawing
+﻿Imports System.ComponentModel
+Imports System.Drawing
 Imports System.Drawing.Text
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
@@ -49,7 +50,11 @@ Public Module WinForms
         n.ShowRemainTime = ShowRemainTime
         n.RemainTimeBehavior = RemainTimeBehavior.StackTime
         n.ShowInputBox = False
-        AddHandler n.OnOKButtonClick, Action
+        If Action IsNot Nothing Then
+            AddHandler n.OnOKButtonClick, Action
+        Else
+            AddHandler n.OnOKButtonClick, AddressOf n.Close
+        End If
         n.Show(LifeTimeSeconds)
         AddHandler n.FormClosing, AddressOf n.Dispose
         Return n
@@ -249,46 +254,144 @@ Public Module WinForms
             Case GetType(RadioButton), GetType(CheckBox)
                 Control.Checked = Convert.ToBoolean(Value)
             Case GetType(String)
-                Control = DirectCast(Value, String)
+                Control = CType(Value, String)
             Case GetType(Long)
-                Control = DirectCast(Value, Long)
+                Control = CType(Value, Long)
             Case GetType(Integer)
-                Control = DirectCast(Value, Integer)
+                Control = CType(Value, Integer)
             Case GetType(Decimal)
-                Control = DirectCast(Value, Decimal)
+                Control = CType(Value, Decimal)
             Case GetType(Short)
-                Control = DirectCast(Value, Short)
+                Control = CType(Value, Short)
             Case GetType(DateTime)
-                Control = DirectCast(Value, DateTime)
+                Control = CType(Value, DateTime)
             Case GetType(Char)
-                Control = DirectCast(Value, Char)
+                Control = CType(Value, Char)
             Case GetType(Char)
-                Control = DirectCast(Value, Char)
+                Control = CType(Value, Char)
             Case Else
                 Throw New ArgumentException("O controle ou tipo " & Control.GetType.Name & " não é suportado")
         End Select
     End Sub
 
-    ''' <summary>
-    ''' Retorna uma string contendo o valor do controle pronto para uma Query SQL dependendo do seu tipo
-    ''' </summary>
-    ''' <param name="Control">Controle</param>
-    ''' <returns></returns>
-    <Extension> Public Function GetQueryableValue(ByRef Control As Object) As String
-        Select Case Control.GetType
-            Case GetType(NumericUpDown), GetType(TrackBar)
-                Return Control.Value.ToString
-            Case GetType(MonthCalendar)
-                Return Convert.ToDateTime(Control.SelectionStart).ToSQLDateString.IsNull
-            Case GetType(DateTimePicker)
-                Return Convert.ToDateTime(Control.Value).ToSQLDateString.IsNull
-            Case GetType(TextBox), GetType(MaskedTextBox), GetType(Form), GetType(RichTextBox), GetType(Label), GetType(ComboBox)
-                Return Control.Text.ToString.IsNull
-            Case GetType(RadioButton), GetType(CheckBox)
-                Return If(Control.Checked, 1, 0)
-            Case Else
-                Throw New ArgumentException("O controle " & Control.ToString() & " não é suportado")
-        End Select
-    End Function
+
 
 End Module
+
+
+Public Class DictionaryPropertyGridAdapter
+    Implements ICustomTypeDescriptor
+    Private _dictionary As IDictionary
+
+    Public Sub New(d As IDictionary)
+        _dictionary = d
+    End Sub
+
+    Public Function GetComponentName() As String Implements ICustomTypeDescriptor.GetComponentName
+        Return TypeDescriptor.GetComponentName(Me, True)
+    End Function
+
+    Public Function GetDefaultEvent() As EventDescriptor Implements ICustomTypeDescriptor.GetDefaultEvent
+        Return TypeDescriptor.GetDefaultEvent(Me, True)
+    End Function
+
+    Public Function GetClassName() As String Implements ICustomTypeDescriptor.GetClassName
+        Return TypeDescriptor.GetClassName(Me, True)
+    End Function
+
+    Public Function GetEvents(attributes As Attribute()) As EventDescriptorCollection Implements ICustomTypeDescriptor.GetEvents
+        Return TypeDescriptor.GetEvents(Me, attributes, True)
+    End Function
+
+    Private Function System_ComponentModel_ICustomTypeDescriptor_GetEvents() As EventDescriptorCollection Implements System.ComponentModel.ICustomTypeDescriptor.GetEvents
+        Return TypeDescriptor.GetEvents(Me, True)
+    End Function
+
+    Public Function GetConverter() As TypeConverter Implements ICustomTypeDescriptor.GetConverter
+        Return TypeDescriptor.GetConverter(Me, True)
+    End Function
+
+    Public Function GetPropertyOwner(pd As PropertyDescriptor) As Object Implements ICustomTypeDescriptor.GetPropertyOwner
+        Return _dictionary
+    End Function
+
+    Public Function GetAttributes() As AttributeCollection Implements ICustomTypeDescriptor.GetAttributes
+        Return TypeDescriptor.GetAttributes(Me, True)
+    End Function
+
+    Public Function GetEditor(editorBaseType As Type) As Object Implements ICustomTypeDescriptor.GetEditor
+        Return TypeDescriptor.GetEditor(Me, editorBaseType, True)
+    End Function
+
+    Public Function GetDefaultProperty() As PropertyDescriptor Implements ICustomTypeDescriptor.GetDefaultProperty
+        Return Nothing
+    End Function
+
+    Private Function System_ComponentModel_ICustomTypeDescriptor_GetProperties() As PropertyDescriptorCollection Implements System.ComponentModel.ICustomTypeDescriptor.GetProperties
+        Return DirectCast(Me, ICustomTypeDescriptor).GetProperties(New Attribute(-1) {})
+    End Function
+
+    Public Function GetProperties(attributes As Attribute()) As PropertyDescriptorCollection Implements ICustomTypeDescriptor.GetProperties
+        Dim properties As New ArrayList()
+        For Each e As DictionaryEntry In _dictionary
+            properties.Add(New DictionaryPropertyDescriptor(_dictionary, e.Key))
+        Next
+
+        Dim props As PropertyDescriptor() = DirectCast(properties.ToArray(GetType(PropertyDescriptor)), PropertyDescriptor())
+
+        Return New PropertyDescriptorCollection(props)
+    End Function
+End Class
+
+Class DictionaryPropertyDescriptor
+    Inherits PropertyDescriptor
+    Private _dictionary As IDictionary
+    Private _key As Object
+
+    Friend Sub New(d As IDictionary, key As Object)
+        MyBase.New(key.ToString(), Nothing)
+        _dictionary = d
+        _key = key
+    End Sub
+
+    Public Overrides ReadOnly Property PropertyType() As Type
+        Get
+            Return _dictionary(_key).[GetType]()
+        End Get
+    End Property
+
+    Public Overrides Sub SetValue(component As Object, value As Object)
+        _dictionary(_key) = value
+    End Sub
+
+    Public Overrides Function GetValue(component As Object) As Object
+        Return _dictionary(_key)
+    End Function
+
+    Public Overrides ReadOnly Property IsReadOnly() As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property ComponentType() As Type
+        Get
+            Return Nothing
+        End Get
+    End Property
+
+    Public Overrides Function CanResetValue(component As Object) As Boolean
+        Return False
+    End Function
+
+    Public Overrides Sub ResetValue(component As Object)
+    End Sub
+
+    Public Overrides Function ShouldSerializeValue(component As Object) As Boolean
+        Return False
+    End Function
+End Class
+
+
+
+

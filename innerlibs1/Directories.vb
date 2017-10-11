@@ -253,19 +253,19 @@ Public Module Directories
     ''' </summary>
     ''' <param name="TopDirectory">Diretorio da operação</param>
     <Extension>
-    Public Sub CleanDirectory(TopDirectory As DirectoryInfo)
+    Public Sub CleanDirectory(TopDirectory As DirectoryInfo, Optional DeleteTopDirectoryIfEmpty As Boolean = True)
         For Each diretorio In TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly)
             For Each subdiretorio In diretorio.GetDirectories()
-                CleanDirectory(subdiretorio)
+                CleanDirectory(subdiretorio, True)
             Next
             If diretorio.HasDirectories Then
-                CleanDirectory(diretorio)
+                CleanDirectory(diretorio, True)
             End If
             If diretorio.IsEmpty Then
                 diretorio.Delete()
             End If
         Next
-        If TopDirectory.Exists AndAlso TopDirectory.IsEmpty Then
+        If DeleteTopDirectoryIfEmpty AndAlso TopDirectory.Exists AndAlso TopDirectory.IsEmpty Then
             TopDirectory.Delete()
         End If
     End Sub
