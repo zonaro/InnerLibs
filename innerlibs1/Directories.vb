@@ -191,7 +191,17 @@ Public Module Directories
     ''' <returns></returns>
     <Extension>
     Public Function Find(Of FindType As FileSystemInfo)(Directory As DirectoryInfo, predicate As Func(Of FindType, Boolean), Optional SearchOption As SearchOption = SearchOption.AllDirectories) As IEnumerable(Of FindType)
-        Return Directory.GetFileSystemInfos("*", SearchOption).Where(predicate)
+        Select Case GetType(FindType)
+            Case GetType(FileInfo)
+                Return Directory.GetFiles("*", SearchOption).Where(predicate)
+                Exit Select
+            Case GetType(DirectoryInfo)
+                Return Directory.GetDirectories("*", SearchOption).Where(predicate)
+                Exit Select
+            Case Else
+                Return Directory.GetFileSystemInfos("*", SearchOption).Where(predicate)
+                Exit Select
+        End Select
     End Function
 
     ''' <summary>

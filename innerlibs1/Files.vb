@@ -98,7 +98,7 @@ Public Module Files
     ''' </summary>
     ''' <param name="Path">Caminho do arquivo</param>
     ''' <returns>o nome do diretório sem o caminho</returns>
-    <Extension()> Public Function GetLatestDirectoryName(Path As FileInfo)
+    <Extension()> Public Function GetLatestDirectoryName(Path As FileInfo) As String
         Return IO.Path.GetDirectoryName(Path.DirectoryName)
     End Function
 
