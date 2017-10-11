@@ -110,7 +110,7 @@ Public Module Directories
     ''' <returns></returns>
     <Extension()> Public Function ToZipFile(FilesDirectory As DirectoryInfo, OutputFile As String, CompressionLevel As CompressionLevel, SearchOption As SearchOption, ParamArray Searches As String()) As FileInfo
         If OutputFile.IsBlank Then
-            OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") + FilesDirectory.Name
+            OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") & FilesDirectory.Name
         End If
         OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
         For Each arq In FilesDirectory.SearchFiles(SearchOption, Searches)
@@ -183,6 +183,18 @@ Public Module Directories
     End Function
 
     ''' <summary>
+    ''' Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
+    ''' </summary>
+    ''' <param name="Directory">Diretório</param>
+    ''' <param name="predicate">Funcao LINQ utilizada para a busca</param>
+    ''' <param name="SearchOption">Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function Find(Of FindType As FileSystemInfo)(Directory As DirectoryInfo, predicate As Func(Of FindType, Boolean), Optional SearchOption As SearchOption = SearchOption.AllDirectories) As IEnumerable(Of FindType)
+        Return Directory.GetFileSystemInfos("*", SearchOption).Where(predicate)
+    End Function
+
+    ''' <summary>
     ''' Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas
     ''' </summary>
     ''' <param name="Directory">Diretório</param>
@@ -223,6 +235,9 @@ Public Module Directories
         FixDateOrder(FirstDate, SecondDate)
         Return Directory.SearchDirectories(SearchOption, Searches).Where(Function(file) file.LastWriteTime >= FirstDate AndAlso file.LastWriteTime <= SecondDate).OrderByDescending(Function(f) If(f.LastWriteTime.Year <= 1601, f.CreationTime, f.LastWriteTime)).ToList
     End Function
+
+
+
 
     ''' <summary>
     ''' Copia um diretório para dentro de outro diretório
