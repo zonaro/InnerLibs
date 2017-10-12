@@ -52,6 +52,7 @@ Namespace HtmlParser
         Sub Mutate(Element As HtmlElement)
             Me.Attributes.Clear()
             mAttributes = Element.Attributes
+            Me.IsExplicitlyTerminated = Element.IsExplicitlyTerminated
             Me.InnerHTML = Element.InnerHTML
             Me.Name = Element.Name
         End Sub
@@ -61,11 +62,11 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Html">Html String</param>
         Sub Mutate(Html As String)
-            Dim doc = New HtmlDocument(Html)
-            If Html.IsBlank Or doc.Nodes.Count = 0 Then
-                Destroy()
-            Else
+            If Html.IsNotBlank Then
+                Dim doc = New HtmlDocument(Html)
                 Me.Mutate(doc.Nodes)
+            Else
+                Me.Destroy()
             End If
         End Sub
 
@@ -88,7 +89,7 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' Remove this element from parten element
+        ''' Remove this element from parten element. If parent element is null, nothing happens
         ''' </summary>
         Sub Destroy()
             If Me.Parent IsNot Nothing Then
@@ -140,7 +141,13 @@ Namespace HtmlParser
             End Get
             Set(value As HtmlNodeCollection)
                 If value.Count > 0 Then
-                    Me.InnerText = value.Select(Function(p) p.ToString)
+                    Me.InnerText = value.Select(Function(p)
+                                                    If TypeOf p Is HtmlText Then
+                                                        Return p.ToString
+                                                    Else
+                                                        Return CType(p, HtmlElement).InnerText
+                                                    End If
+                                                End Function).ToArray.Join("")
                 End If
 
             End Set
@@ -562,6 +569,7 @@ Namespace HtmlParser
                 Dim opts = Me("option")
                 For Each group In Groups
                     Dim d As New HtmlElement("optgroup")
+                    d.IsExplicitlyTerminated = True
                     d.Attribute("label") = group
                     Me.Nodes.Add(d)
                 Next
@@ -631,7 +639,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Text"></param>
         Public Sub Add(Text As String)
-            Me.Nodes.Add(New HtmlElement("li", Text))
+            Me.Nodes.Add(New HtmlElement("li", Text) With {.IsExplicitlyTerminated = True})
         End Sub
 
         ''' <summary>
@@ -640,6 +648,7 @@ Namespace HtmlParser
         ''' <param name="Content"></param>
         Public Sub Add(ParamArray Content As HtmlNode())
             Dim d = New HtmlElement("li")
+            d.IsExplicitlyTerminated = True
             For Each i In Content
                 i.Move(d)
             Next

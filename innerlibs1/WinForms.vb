@@ -278,7 +278,6 @@ Public Module WinForms
 
 End Module
 
-
 Public Class DictionaryPropertyGridAdapter
     Implements ICustomTypeDescriptor
     Private _dictionary As IDictionary
@@ -341,6 +340,7 @@ Public Class DictionaryPropertyGridAdapter
 
         Return New PropertyDescriptorCollection(props)
     End Function
+
 End Class
 
 Class DictionaryPropertyDescriptor
@@ -390,8 +390,5 @@ Class DictionaryPropertyDescriptor
     Public Overrides Function ShouldSerializeValue(component As Object) As Boolean
         Return False
     End Function
+
 End Class
-
-
-
-

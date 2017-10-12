@@ -76,11 +76,15 @@ Namespace TimeMachine
         ''' <param name="Format">
         ''' Formato do Cronometro( <see cref="TimeSpan.ToString(String)"/> )
         ''' </param>
-        Public Sub New(Optional Format As String = "", Optional Interval As Long = 100)
+        Public Sub New(Format As String, Optional Interval As Long = 100)
             MyBase.New()
             MyBase.Interval = Interval
             AddHandler Me.Tick, AddressOf IncrementTick
             Me.Format = Format.IfBlank(Me.Format)
+        End Sub
+
+        Public Sub New()
+            Me.New("", 100)
         End Sub
 
         Protected Friend Sub IncrementTick(sender As Object, e As EventArgs)

@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Drawing
 Imports System.IO
+Imports System.Web.Script.Serialization
 Imports InnerLibs.HtmlParser
 
 Namespace QuestionTest
@@ -10,6 +11,10 @@ Namespace QuestionTest
     ''' </summary>
     Public Class QuestionTest
         Inherits List(Of Question)
+
+        Public Overrides Function tostring() As String
+            Return Me.Title
+        End Function
 
         ''' <summary>
         ''' Titulo da Avaliação
@@ -28,6 +33,7 @@ Namespace QuestionTest
             Return Question
         End Function
 
+        <ScriptIgnore>
         ReadOnly Property Questions As QuestionTest
             Get
                 Return Me
@@ -39,11 +45,11 @@ Namespace QuestionTest
         End Sub
 
         Public Shadows Function Insert()
-            Throw New NotSupportedException("Cannot add multiple Questions")
+            Throw New NotSupportedException("Cannot add Questions directly")
         End Function
 
         Public Shadows Function InsertAt()
-            Throw New NotSupportedException("Cannot add multiple Questions")
+            Throw New NotSupportedException("Cannot add Questions directly")
         End Function
 
         ''' <summary>
@@ -279,8 +285,17 @@ Namespace QuestionTest
 
         MustOverride ReadOnly Property HTML As String
 
+        ''' <summary>
+        ''' Indica se esta questão foi revisada pelo professor
+        ''' </summary>
+        ''' <returns></returns>
+        Property Reviewed As Boolean
+
     End Class
 
+    ''' <summary>
+    ''' Imagens adicionada a um enuncidado
+    ''' </summary>
     Public Class StatementImages
         Inherits List(Of StatementImage)
 
@@ -307,6 +322,10 @@ Namespace QuestionTest
                 Return Me.Select(Function(i) i.HTML).ToArray().Join("").WrapInTag("ul")
             End Get
         End Property
+
+        Public Overrides Function ToString() As String
+            Return Me.Count
+        End Function
 
     End Class
 
@@ -712,12 +731,20 @@ Namespace QuestionTest
             Throw New NotSupportedException("Cannot insert alternatives")
         End Sub
 
+        Public Overrides Function ToString() As String
+            Return Me.Count
+        End Function
+
     End Class
 
     ''' <summary>
     ''' Objeto que representa uma alternativa de uma pergunta de alternativas
     ''' </summary>
     Public Class Alternative
+
+        Public Overrides Function ToString() As String
+            Return Me.Text
+        End Function
 
         ''' <summary>
         ''' ID da alternativa
