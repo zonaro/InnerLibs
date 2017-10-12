@@ -8,7 +8,6 @@ Imports System.Runtime.InteropServices
 
 Public Module ClassTools
 
-
     <Extension>
     Public Function IsList(obj As Object) As Boolean
         If obj Is Nothing Then
@@ -24,10 +23,6 @@ Public Module ClassTools
         End If
         Return TypeOf obj Is IDictionary AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(Dictionary(Of , )))
     End Function
-
-
-
-
 
     ''' <summary>
     ''' Determines if a type is numeric.  Nullable numeric types are considered numeric.
@@ -85,7 +80,6 @@ Public Module ClassTools
         Return Alternate
     End Function
 
-
     ''' <summary>
     ''' Transforma todas as propriedades String em NULL quando suas estiverem em branco
     ''' </summary>
@@ -123,7 +117,6 @@ Public Module ClassTools
     <Extension()> Public Function CreateDictionary(Of Type)(Obj As Type) As Dictionary(Of String, Object)
         Return Obj.[GetType]().GetProperties(BindingFlags.Instance Or BindingFlags.[Public]).ToDictionary(Function(prop) prop.Name, Function(prop) prop.GetValue(Obj, Nothing))
     End Function
-
 
     ''' <summary>
     ''' Traz uma Lista com todas as propriedades de um objeto
@@ -168,7 +161,31 @@ Public Module ClassTools
     ''' <typeparam name="T"></typeparam>
     ''' <returns></returns>
     Public Function GetEnumValues(Of T)() As List(Of T)
+        If Not GetType(T).IsEnum Then
+            Throw New Exception("T must be an Enumeration type.")
+        End If
         Return [Enum].GetValues(GetType(T)).Cast(Of T)().ToList
+    End Function
+
+    ''' <summary>
+    ''' Traz o   Valore de uma enumeração a partir de uma string
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <returns></returns>
+    Public Function GetEnumValue(Of T)(Name As String) As T
+        If Not GetType(T).IsEnum Then
+            Throw New Exception("T must be an Enumeration type.")
+        End If
+        Dim val As T = DirectCast([Enum].GetValues(GetType(T)), T())(0)
+        If Not String.IsNullOrEmpty(Name) Then
+            For Each enumValue As T In DirectCast([Enum].GetValues(GetType(T)), T())
+                If enumValue.ToString().ToUpper().Equals(Name.ToUpper()) Then
+                    val = enumValue
+                    Exit For
+                End If
+            Next
+        End If
+        Return val
     End Function
 
     ''' <summary>
@@ -309,7 +326,6 @@ Public Module ClassTools
         Dim obj = Activator.CreateInstance(Of Type)()
         Return CopyToObject(Of Type)(Collection, obj, ExceptKeys)
     End Function
-
 
     ''' <summary>
     ''' Copia os valores de um <see cref="NameValueCollection"/> para um objeto de um tipo especifico

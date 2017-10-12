@@ -16,6 +16,41 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
+    ''' Return a Idented XML string
+    ''' </summary>
+    ''' <param name="Document"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function PreetyPrint(Document As XmlDocument) As String
+        Dim Result As [String] = ""
+
+        Dim mStream As New MemoryStream()
+        Dim writer As New XmlTextWriter(mStream, Encoding.Unicode)
+        Try
+            writer.Formatting = Formatting.Indented
+
+            ' Write the XML into a formatting XmlTextWriter
+            Document.WriteContentTo(writer)
+            writer.Flush()
+            mStream.Flush()
+
+            ' Have to rewind the MemoryStream in order to read
+            ' its contents.
+            mStream.Position = 0
+
+            ' Read MemoryStream contents into a StreamReader.
+            Dim sReader As New StreamReader(mStream)
+
+            ' Extract the text from the StreamReader.
+            Return sReader.ReadToEnd()
+        Catch generatedExceptionName As XmlException
+        End Try
+
+        mStream.Close()
+        writer.Close()
+        Return ""
+    End Function
+
+    ''' <summary>
     ''' Retorna um numero com o sinal de porcentagem
     ''' </summary>
     ''' <param name="Number"></param>
@@ -2202,7 +2237,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines 
+    ''' Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines
     ''' </summary>
     ''' <param name="Text">string HTML</param>
     ''' <returns>String HTML corrigido</returns>

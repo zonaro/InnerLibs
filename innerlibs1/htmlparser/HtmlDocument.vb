@@ -2,6 +2,7 @@ Imports System.Text
 Imports System.Collections
 Imports System.ComponentModel
 Imports System.IO
+Imports System.Xml
 
 Namespace HtmlParser
     ''' <summary>
@@ -9,6 +10,9 @@ Namespace HtmlParser
     ''' </summary>
 
     Public Class HtmlDocument
+
+        Public Const Html5Structure As String = "<html><head><meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"" /><title></title></head><body></body></html>"
+
         Private mNodes As New HtmlNodeCollection(Nothing)
         Private mXhtmlHeader As String = "<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"">"
 
@@ -17,7 +21,10 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
 
-        Public Sub New(UrlOrHTMLString As String, Optional WantSpaces As Boolean = False)
+        Public Sub New(Optional UrlOrHTMLString As String = "", Optional WantSpaces As Boolean = False)
+            If UrlOrHTMLString.IsBlank Then
+                UrlOrHTMLString = Html5Structure
+            End If
             If UrlOrHTMLString.IsURL Then
                 UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString)
             End If
@@ -63,7 +70,15 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public Property InnerText As String
             Get
-                Return InnerHTML.RemoveHTML
+                Dim txt = ""
+                For Each n In Nodes
+                    If TypeOf n Is HtmlText Then
+                        txt &= CType(n, HtmlText).Text
+                    Else
+                        txt &= CType(n, HtmlElement).InnerText
+                    End If
+                Next
+                Return txt
             End Get
             Set(value As String)
                 Me.InnerHTML = value.RemoveHTML
@@ -118,6 +133,16 @@ Namespace HtmlParser
                 Return html.ToString()
             End Get
         End Property
+
+        ''' <summary>
+        ''' Return the <see cref="XmlDocument"/> equivalent to this document
+        ''' </summary>
+        ''' <returns></returns>
+        Function ToXmlDocument() As XmlDocument
+            Dim doc As New XmlDocument
+            doc.LoadXml(XHTML)
+            Return doc
+        End Function
 
         ''' <summary>
         ''' Return the HTML of this document
@@ -184,7 +209,6 @@ Namespace HtmlParser
             Next
         End Sub
 
-
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with matchs the predicate.
         ''' </summary>
@@ -226,6 +250,10 @@ Namespace HtmlParser
                 Return Me.Nodes(CssSelector)
             End Get
         End Property
+
+        Public Function QuerySelector(CssSelector As String) As HtmlElement
+            Return Me(CssSelector).First
+        End Function
 
     End Class
 

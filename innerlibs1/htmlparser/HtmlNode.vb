@@ -30,10 +30,13 @@ Namespace HtmlParser
         ''' This will return the parent of this node, or null if there is none.
         ''' </summary>
         <Category("Navigation"), Description("The parent node of this one")>
-        Public ReadOnly Property Parent() As HtmlElement
+        Public Property Parent As HtmlElement
             Get
                 Return mParent
             End Get
+            Set(value As HtmlElement)
+                Move(value)
+            End Set
         End Property
 
         ''' <summary>
@@ -109,6 +112,15 @@ Namespace HtmlParser
                 End If
             End Get
         End Property
+
+        ''' <summary>
+        ''' Transfer the element to another element
+        ''' </summary>
+        ''' <param name="Destination"></param>
+        Sub Move(Destination As HtmlElement, Optional Index As Integer = 0)
+            Me.Remove()
+            Destination.Nodes.Insert(Index, Me)
+        End Sub
 
         ''' <summary>
         ''' This will return the index position within the parent's nodes that this one resides.
@@ -210,8 +222,10 @@ Namespace HtmlParser
         ''' </summary>
         <Category("General")>
         Public Sub Remove()
-            If mParent IsNot Nothing Then
-                mParent.Nodes.RemoveAt(Me.Index)
+            If mParent IsNot Nothing AndAlso mParent.Nodes.Count > 0 Then
+                If Me.Index > -1 Then
+                    mParent.Nodes.RemoveAt(Me.Index)
+                End If
             End If
         End Sub
 
@@ -254,7 +268,7 @@ Namespace HtmlParser
     ''' </summary>
     Public Class HtmlNodeCollection
         Inherits List(Of HtmlNode)
-        Private mParent As HtmlElement
+        Friend mParent As HtmlElement
 
         ' Public constructor to create an empty collection.
         Public Sub New()
@@ -270,9 +284,40 @@ Namespace HtmlParser
             mParent = parent
         End Sub
 
-        Public Shadows Sub Insert(Index As Integer, Element As HtmlNode)
-            Element.mParent = Me.mParent
-            MyBase.Insert(Index, Element)
+        ''' <summary>
+        ''' Insert a element in specific index
+        ''' </summary>
+        ''' <param name="Index"></param>
+        ''' <param name="Node"></param>
+        Public Shadows Sub Insert(Index As Integer, Node As HtmlNode)
+            Node.Remove()
+            Node.mParent = Me.mParent
+            MyBase.Insert(Index, Node)
+        End Sub
+
+        ''' <summary>
+        ''' Add a Node to colleciton
+        ''' </summary>
+        ''' <param name="Node"></param>
+        Public Shadows Sub Add(Node As HtmlNode)
+            Node.Remove()
+            Node.mParent = Me.mParent
+            MyBase.Add(Node)
+        End Sub
+
+        ''' <summary>
+        ''' Add a Node to colleciton
+        ''' </summary>
+        ''' <param name="Node"></param>
+        Public Shadows Sub Add(Of T As HtmlNode)(Node As String)
+            Dim n As HtmlNode
+            If GetType(T) = GetType(HtmlElement) Then
+                n = New HtmlElement("element")
+                CType(n, HtmlElement).Mutate(Node)
+            Else
+                n = New HtmlText(Node)
+            End If
+            Me.Add(n)
         End Sub
 
         ''' <summary>
@@ -391,8 +436,6 @@ Namespace HtmlParser
             Next
             Return results
         End Function
-
-
 
         ''' <summary>
         ''' Return elements thats match the current CSS selector

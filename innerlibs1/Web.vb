@@ -51,10 +51,11 @@ Public NotInheritable Class AJAX
                             Return x
                         End Using
                     Case GetType(HtmlParser.HtmlDocument)
-                        Return New HtmlParser.HtmlDocument(client.Encoding.GetString(responsebytes))
+                        Return New HtmlParser.HtmlDocument(URL)
                     Case GetType(Drawing.Image), GetType(Bitmap)
-                        Dim ms As New MemoryStream(responsebytes)
-                        Return Drawing.Image.FromStream(ms)
+                        Using ms As New MemoryStream(responsebytes)
+                            Return Drawing.Image.FromStream(ms)
+                        End Using
                     Case Else
                         Return client.Encoding.GetString(responsebytes).ParseJSON(Of Type)
                 End Select
@@ -328,6 +329,7 @@ Public Module Web
     Public Function ToProcedure(Request As HttpRequest, ByVal ProcedureName As String, ParamArray QueryStringKeys() As String) As String
         Return "EXEC " & ProcedureName & " " & QueryStringKeys.Select(Function(key) " @" & key & "=" & UrlDecode(Request(key)).IsNull(Quotes:=Not UrlDecode(Request(key)).IsNumber())).ToArray.Join(",")
     End Function
+
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de
     ''' uma URL como parametros da procedure
@@ -356,6 +358,7 @@ Public Module Web
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Return cmd
     End Function
+
     ''' <summary>
     ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
     ''' uma URL como as colunas da tabela de destino
@@ -389,8 +392,6 @@ Public Module Web
     <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String)
         Return Request.ToINSERT(TableName, Request.QueryString.AllKeys.ToArray)
     End Function
-
-
 
     ''' <summary>
     ''' Escreve um texto e finaliza um HttpResponse
@@ -578,8 +579,6 @@ Public Module Web
     Public Function GetYoutubeThumbnail(URL As Uri) As Drawing.Image
         Return GetYoutubeThumbnail(URL.AbsoluteUri)
     End Function
-
-
 
     ''' <summary>
     ''' Captura o ID de um video do YOUTUBE ou VIMEO em uma URL

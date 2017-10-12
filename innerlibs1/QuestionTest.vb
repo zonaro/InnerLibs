@@ -1,27 +1,57 @@
-﻿
+﻿Imports System.ComponentModel
 Imports System.Drawing
-Namespace QuestionTest
+Imports System.IO
+Imports InnerLibs.HtmlParser
 
+Namespace QuestionTest
 
     ''' <summary>
     ''' Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     ''' </summary>
     Public Class QuestionTest
+        Inherits List(Of Question)
+
         ''' <summary>
         ''' Titulo da Avaliação
         ''' </summary>
         ''' <returns></returns>
         Public Property Title As String = ""
+
         ''' <summary>
-        ''' Lista de Questões da avaliação
+        ''' Adiciona uma nova questão a avaliação.
         ''' </summary>
-        ''' <returns></returns>
-        Public Property Questions As New QuestionList
+        Public Shadows Function Add(Of QuestionType As Question)() As QuestionType
+            Dim Question = CType(Activator.CreateInstance(GetType(QuestionType), Me), QuestionType)
+            If Not MyBase.Contains(Question) Then
+                MyBase.Add(Question)
+            End If
+            Return Question
+        End Function
+
+        ReadOnly Property Questions As QuestionTest
+            Get
+                Return Me
+            End Get
+        End Property
+
+        Public Shadows Sub AddRange(Questions As IEnumerable(Of Question))
+            Throw New NotSupportedException("Cannot add multiple Questions")
+        End Sub
+
+        Public Shadows Function Insert()
+            Throw New NotSupportedException("Cannot add multiple Questions")
+        End Function
+
+        Public Shadows Function InsertAt()
+            Throw New NotSupportedException("Cannot add multiple Questions")
+        End Function
+
         ''' <summary>
         ''' Valor Minimo da nota para aprovação (Normalmente 6)
         ''' </summary>
         ''' <returns></returns>
         Public Property MinimumWeightAllowed As Decimal = 6
+
         ''' <summary>
         ''' Peso da Avaliação (Normalmente 10)
         ''' </summary>
@@ -33,6 +63,7 @@ Namespace QuestionTest
         ''' </summary>
         ''' <returns></returns>
         Public Property Header As String = ""
+
         ''' <summary>
         ''' Rodapé da prova. Texto adicional que ficará após as questões
         ''' </summary>
@@ -56,7 +87,7 @@ Namespace QuestionTest
         Public ReadOnly Property Hits As Integer
             Get
                 Dim c = 0
-                For Each q In Questions
+                For Each q In Me
                     If q.IsCorrect Then c.Increment
                 Next
                 Return c
@@ -64,15 +95,14 @@ Namespace QuestionTest
         End Property
 
         ''' <summary>
-        ''' Numeor de questões que o usuário errou
+        ''' Numero de questões que o usuário errou
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Fails As Integer
             Get
-                Return Questions.Count - Hits
+                Return Me.Count - Hits
             End Get
         End Property
-
 
         ''' <summary>
         ''' Média da Avaliação
@@ -84,11 +114,11 @@ Namespace QuestionTest
                     Dim correct = 0
                     Dim somapesos = 0
                     Dim somaquestoes = 0
-                    For Each q In Questions
+                    For Each q In Me
                         somapesos = somapesos + q.Weight
                         somaquestoes = somaquestoes + If(q.IsCorrect, q.Hits, 0)
                     Next
-                    Return (Weight * somaquestoes / Questions.Count)
+                    Return (Weight * somaquestoes / Me.Count)
                 Catch ex As Exception
                     Return 0
                 End Try
@@ -110,7 +140,6 @@ Namespace QuestionTest
                 Return Average + Bonus
             End Get
         End Property
-
 
         ''' <summary>
         ''' Porcentagem de Acertos do Usuário
@@ -136,11 +165,9 @@ Namespace QuestionTest
         ''' Instancia uma nova avaliação com titulo
         ''' </summary>
         ''' <param name="Title">Titulo da avaliação</param>
-        Public Sub New(Optional Title As String = Nothing)
+        Public Sub New(Optional Title As String = "New Test")
             Me.Title = Title
         End Sub
-
-
 
         ''' <summary>
         ''' Configura o valor minimo permitido para aprovação como metade do peso da avaliação
@@ -168,106 +195,61 @@ Namespace QuestionTest
         End Sub
 
         ''' <summary>
-        ''' Monta Uma prova HTML
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function BuildHtml() As String
-            Dim a As New List(Of String)
-            Return BuildHtml(a.ToArray)
-        End Function
-
-        ''' <summary>
         ''' Monta uma prova HTML
         ''' </summary>
-        ''' <param name="CssClass">Lista de classes CSS que devem ser adiciondas ao elemento que contém toda a prova</param>
         ''' <returns></returns>
-        Public Function BuildHtml(ParamArray CssClass() As String) As String
-            Dim html = ""
-            html.Append("<h2>" & Title & "</h2>")
-            html.Append(Header.WrapInTag("header"))
-            html.Append("<ol>")
-            For Each question In Questions
-                html.Append("    <li> ")
-                html.Append("        <h3>" & question.Statement.Text & "</h3> ")
-                If question.Statement.Images.Count > 0 Then
-                    html.Append("        <ul class='StatementImageList'>")
-                    Dim imagecount As Integer = 0
-                    For Each img In question.Statement.Images
-                        html.Append("<li><img src=" & img.Image.ToDataURL.Quote & " alt= " & img.Subtitle.Quote & "/><small>Imagem " & imagecount.Increment.ToString & ": " & img.Subtitle & "</small></li>")
-                    Next
-                    html.Append("        </ul>")
-                End If
+        ReadOnly Property HTML As HtmlDocument
+            Get
+                Dim head = ""
+                head &= Title.WrapInTag("title").WrapInTag("head")
 
-                Dim derived As Object = question
-                Select Case question.Type
-                    Case "SingleAlternativeQuestion", "MultipleAlternativeQuestion"
-                        html.Append("<ul> ")
-                        For Each a As Alternative In derived.Alternatives
-                            Dim asid As String = (question.ID & a.ID).ToString
-                            html.Append(WrapInTag("<input type=" & If(question.Type = "SingleAlternativeQuestion", "radio", "checkbox").ToString.Quote & " ID=" & asid.Quote & " name=" & question.ID.Quote & "   value=" & a.ID.Quote & " /><label for=" & asid.Quote & ">" & a.Text & "</label>", "li", "class=" & question.CssClass.Join(" ").Quote))
-                        Next
-                        html.Append("</ul> ")
-                    Case "DissertativeQuestion"
-                        html.Append(WrapInTag("<textarea rows=" & derived.Lines & " ID=" & derived.ID.ToString().Quote & " name=" & derived.ID.ToString().Quote & " ></textarea>", "div", "class=" & question.CssClass.Join(" ").Quote))
-                    Case "NumericQuestion"
-                        html.Append(WrapInTag("<input type='number' min=" & derived.MinValue.ToString.Quote & " max=" & derived.MaxValue.ToString.Quote & " ID=" & question.ID.Quote & " name=" & question.ID.Quote & "   value=" & (derived.MaxValue / 2).ToString.Quote & " />", "div", "class=" & question.CssClass.Join(" ").Quote))
-                End Select
-            Next
-            html.Append("</ol> ")
-            html.Append(Footer.WrapInTag("footer"))
-            Return html.WrapInTag("article", "class=" & CssClass.Join(" ").Quote)
-        End Function
+                Dim body = (Title.WrapInTag("h1").Append(Header.WrapInTag("header")))
 
+                body &= Me.Select(Function(q) q.HTML).ToArray.Join("").WrapInTag("ol").WrapInTag("article", "class='Questions'")
 
-
+                Dim foot = Footer.WrapInTag("footer")
+                Return New HtmlDocument(head & body & foot)
+            End Get
+        End Property
 
     End Class
-
-
-    ''' <summary>
-    ''' Lista de questões da avaliação
-    ''' </summary>
-    Public Class QuestionList
-        Inherits List(Of Question)
-
-        ''' <summary>
-        ''' Adiciona uma questão a avaliação. A questão é ignorada se já existir na lista
-        ''' </summary>
-        ''' <param name="Question">Questão</param>
-        Public Overloads Sub Add(Question As Question)
-            If Not MyBase.Contains(Question) Then
-                Question.ID = If(Question.ID = Nothing, (Me.Count + 1).ToString.Prepend("Q"), Question.ID)
-                MyBase.Add(Question)
-            End If
-        End Sub
-
-
-        ''' <summary>
-        ''' Adiciona um conjunto de questões a avaliação
-        ''' </summary>
-        ''' <param name="Questions">Questões</param>
-        Public Overloads Sub AddRange(Questions As IEnumerable(Of Question))
-            For Each q In Questions
-                Me.Add(q)
-            Next
-        End Sub
-    End Class
-
-
-
 
     ''' <summary>
     ''' Classe Base para as questões de uma avaliação
     ''' </summary>
     Public MustInherit Class Question
 
-        Public Property ID As String = Nothing
+        Friend Sub New(Test As QuestionTest)
+            Me.Test = Test
+        End Sub
+
+        ''' <summary>
+        ''' Tipo da QUestão
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property QuestionType As String
+            Get
+                Return Me.GetType.Name
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Teste a qual esta questão pertence
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Test As QuestionTest
+
+        Public ReadOnly Property ID As String
+            Get
+                Return Test.IndexOf(Me).Increment.ToString.Prepend("Q")
+            End Get
+        End Property
 
         ''' <summary>
         ''' Enunciado da questão (texto da pergunta)
         ''' </summary>
         ''' <returns></returns>
-        Public Property Statement As New QuestionStatement
+        Public Property Statement As New QuestionStatement(Me)
 
         ''' <summary>
         ''' Peso da Pergunta
@@ -280,36 +262,64 @@ Namespace QuestionTest
         ''' </summary>
         ''' <returns></returns>
         Public Overridable ReadOnly Property Hits As Decimal = 0
+
         ''' <summary>
         ''' Verifica se a pergunta está corretamente assinalada
         ''' </summary>
         ''' <returns></returns>
-        Public Overridable ReadOnly Property IsCorrect As Boolean = False
-        ''' <summary>
-        ''' Tipo da Pergunta
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property Type As String = "Question"
+        Public MustOverride ReadOnly Property IsCorrect As Boolean
 
         ''' <summary>
-        ''' Classes CSS para a pergunta. Utilizado na construção de provas HTML
+        ''' Return the statment text for this question
         ''' </summary>
         ''' <returns></returns>
-        Public Property CssClass As New List(Of String)
+        Public Overrides Function ToString() As String
+            Return Me.Statement.Text
+        End Function
 
-        ''' <summary>
-        ''' Instancia uma questão
-        ''' </summary>
-        Public Sub New()
-            Type = Me.GetType.Name
-            CssClass.Add(Type)
+        MustOverride ReadOnly Property HTML As String
+
+    End Class
+
+    Public Class StatementImages
+        Inherits List(Of StatementImage)
+
+        ReadOnly Property Statement As QuestionStatement
+
+        Friend Sub New(Statement As QuestionStatement)
+            Me.Statement = Statement
         End Sub
+
+        Shadows Sub Add(Image As Image, Optional Subtitle As String = "")
+            Dim i As New StatementImage(Me)
+            i.Image = Image
+            i.Subtitle = Subtitle
+        End Sub
+
+        Shadows Sub Add(ImagePath As String, Optional Subtitle As String = "")
+            Dim i As New StatementImage(Me)
+            i.Image = File.ReadAllBytes(ImagePath).ToImage
+            i.Subtitle = Subtitle
+        End Sub
+
+        ReadOnly Property HTML As String
+            Get
+                Return Me.Select(Function(i) i.HTML).ToArray().Join("").WrapInTag("ul")
+            End Get
+        End Property
+
     End Class
 
     ''' <summary>
     ''' Enunciado de uma pergunta
     ''' </summary>
     Public Class QuestionStatement
+
+        ReadOnly Property Question As Question
+
+        Friend Sub New(Question As Question)
+            Me.Question = Question
+        End Sub
 
         ''' <summary>
         ''' Texto do enunciado
@@ -321,42 +331,54 @@ Namespace QuestionTest
         ''' Imagens adicionadas ao enunciado (com legenda)
         ''' </summary>
         ''' <returns></returns>
-        Public Property Images As New List(Of StatementImages)
-
-        ''' <summary>
-        ''' Instancia umm novo enunciado com um texto
-        ''' </summary>
-        ''' <param name="Text">Texto da pergunta</param>
-        Public Sub New(Optional Text As String = "")
-            Me.Text = Text
-        End Sub
+        Public Property Images As New StatementImages(Me)
 
         Public Overrides Function ToString() As String
             Return Me.Text
         End Function
+
+        ReadOnly Property HTML As String
+            Get
+                HTML = ""
+                HTML.Append(Text.WrapInTag("h3"))
+                If Images.Count > 0 Then
+                    HTML.Append(Images.HTML)
+                End If
+                Return HTML.WrapInTag("label", "for='" & Me.Question.ID & "' class='Statement'")
+            End Get
+        End Property
 
     End Class
 
     ''' <summary>
     ''' Imagem com legenda de um enunciado
     ''' </summary>
-    Public Class StatementImages
+    Public Class StatementImage
 
         ''' <summary>
         ''' Imagem do enunciado
         ''' </summary>
         ''' <returns></returns>
         Public Property Image As Image
+
         ''' <summary>
         ''' Legenda da Imagem
         ''' </summary>
         ''' <returns></returns>
         Public Property Subtitle As String = ""
 
-        Public Sub New(Optional Image As Image = Nothing, Optional Subtitle As String = "")
-            Me.Image = Image
-            Me.Subtitle = Subtitle
+        Friend Sub New(l As StatementImages)
+            Me.StatementImages = l
         End Sub
+
+        ReadOnly Property StatementImages As StatementImages
+
+        Public ReadOnly Property HTML As String
+            Get
+                Return "<li class='Image'><img src=" & Image.ToDataURL.Quote & " alt= " & Subtitle.Quote & "/><small>Imagem " & StatementImages.IndexOf(Me).Increment.ToString & ": " & Subtitle & "</small></li>"
+            End Get
+        End Property
+
     End Class
 
     ''' <summary>
@@ -364,8 +386,9 @@ Namespace QuestionTest
     ''' </summary>
     Public Class NumericQuestion
         Inherits Question
+
         ''' <summary>
-        ''' Pontos que o usuario fez nessa questão
+        ''' Pontos que o usuario atribuiu a esta questão
         ''' </summary>
         ''' <returns></returns>
         Public Property Answer As Decimal
@@ -376,13 +399,19 @@ Namespace QuestionTest
                 a = Value.LimitRange(MinValue, MaxValue)
             End Set
         End Property
+
         Private a As Decimal = 0
+
+        Public Sub New(Test As QuestionTest)
+            MyBase.New(Test)
+        End Sub
 
         ''' <summary>
         ''' Menor valor permitido pela questão
         ''' </summary>
         ''' <returns></returns>
         Public Property MinValue As Decimal = 1
+
         ''' <summary>
         ''' Maior valor permitido pela questão
         ''' </summary>
@@ -409,24 +438,61 @@ Namespace QuestionTest
             End Get
         End Property
 
+        Public Overrides ReadOnly Property HTML As String
+            Get
+                Dim mElement = New HtmlInput(HtmlInput.HtmlInputType.number)
+                mElement.Value = Me.Answer
+                mElement.ID = ID
+                mElement.Attribute("name") = ID
+                mElement.Attribute("min") = MinValue
+                mElement.Attribute("max") = MaxValue
+                mElement.Class.Add("Numeric")
+                Return (Statement.HTML & mElement.ToString.WrapInTag("div")).WrapInTag("li", "class='Question'")
+            End Get
+        End Property
+
     End Class
 
     ''' <summary>
-    ''' Questão Dissertativa
+    ''' Questão Dissertativa. Deve ser corrigida manualmente
     ''' </summary>
     Public Class DissertativeQuestion
         Inherits Question
+
+        Public Sub New(Test As QuestionTest)
+            MyBase.New(Test)
+        End Sub
+
+        Overrides ReadOnly Property HTML As String
+            Get
+                Dim mElement = New HtmlElement("textarea")
+                mElement.Attribute("rows") = Lines
+                mElement.ID = ID
+                mElement.Attribute("name") = ID
+                mElement.Class.Add("Dissertative")
+                mElement.IsExplicitlyTerminated = True
+                Return (Statement.HTML & mElement.ToString.WrapInTag("div")).WrapInTag("li", "class='Question'")
+            End Get
+        End Property
 
         ''' <summary>
         ''' Resposta dissertativa da pergunta
         ''' </summary>
         ''' <returns></returns>
         Public Property Answer As String
+
         ''' <summary>
         ''' Valor que indica se a questão está de alguma forma correta
         ''' </summary>
         ''' <returns></returns>
-        Public Property Correct As Boolean = False
+        Public Property Correct As Boolean
+            Get
+                Return Me.Assertiveness > 0
+            End Get
+            Set(value As Boolean)
+                Me.Assertiveness = If(value, Me.Weight, 0)
+            End Set
+        End Property
 
         ''' <summary>
         ''' Numero de linhas que devem ser impressas para esta questão
@@ -461,13 +527,12 @@ Namespace QuestionTest
         Public Property Assertiveness As Decimal
             Set(value As Decimal)
                 ass = value.LimitRange(0, Me.Weight)
-                Correct = (ass > 0)
             End Set
             Get
-                Correct = (ass > 0)
                 Return ass.LimitRange(0, Me.Weight)
             End Get
         End Property
+
         Private ass As Decimal
     End Class
 
@@ -476,52 +541,23 @@ Namespace QuestionTest
     ''' </summary>
     Public MustInherit Class AlternativeQuestion
         Inherits Question
+
+        Friend Sub New(Test As QuestionTest)
+            MyBase.New(Test)
+        End Sub
+
         ''' <summary>
         ''' Lista de alternativas da questão
         ''' </summary>
         ''' <returns></returns>
-        Public Property Alternatives As New AlternativeList
-
-    End Class
-
-    ''' <summary>
-    ''' Lista de Alternativas de uma questão de alternativas
-    ''' </summary>
-    Public Class AlternativeList
-        Inherits List(Of Alternative)
-        ''' <summary>
-        ''' Adiciona uma alternativa a questão. A alternativa é ignorada se já existir na lista
-        ''' </summary>
-        ''' <param name="Alternative">Alternativa</param>
-        Public Overloads Sub Add(Alternative As Alternative)
-            If Not MyBase.Contains(Alternative) Then
-                Alternative.ID = If(Alternative.ID = Nothing, (Me.Count + 1).ToString.Prepend("A"), Alternative.ID)
-                MyBase.Add(Alternative)
-            End If
-        End Sub
+        Public ReadOnly Property Alternatives As New AlternativeList(Me)
 
         ''' <summary>
-        ''' Adiciona uma alternativa a questão. A alternativa é ignorada se já existir na lista
+        ''' Indica se esta alternativa deve ser renderizada no HTML como um <see cref="HtmlSelectElement"/>. Caso Contrario, serão renderizadas como Check Box ou Radio Button
         ''' </summary>
-        ''' <param name="Text">Texto da alternativa</param>
-        ''' <param name="Correct">Parametro que indica se esta alternativa é correta ou verdadeira</param>
-        Public Overloads Sub Add(Text As String, Correct As Boolean)
-            Dim c As New Alternative(Text, Correct)
-            c.ID = If(c.ID = Nothing, (Me.Count + 1).ToString.Prepend("A"), c.ID)
-            If Not MyBase.Contains(c) Then
-                MyBase.Add(c)
-            End If
-        End Sub
+        ''' <returns></returns>
+        Public Property RenderAsSelect As Boolean = False
 
-        ''' <summary>
-        ''' Adiciona um conjunto de alternativas a questão
-        ''' </summary>
-        ''' <param name="Alternatives">Alternativas</param>
-        Public Overloads Sub AddRange(Alternatives As IEnumerable(Of Alternative))
-            For Each q In Alternatives
-                Me.Add(q)
-            Next
-        End Sub
     End Class
 
     ''' <summary>
@@ -529,6 +565,11 @@ Namespace QuestionTest
     ''' </summary>
     Public Class SingleAlternativeQuestion
         Inherits AlternativeQuestion
+
+        Public Sub New(Test As QuestionTest)
+            MyBase.New(Test)
+        End Sub
+
         ''' <summary>
         ''' Retorna um numero que representa o quanto o usuario acertou essa pergunta
         ''' </summary>
@@ -538,7 +579,6 @@ Namespace QuestionTest
                 Return If(IsCorrect, Me.Weight, 0)
             End Get
         End Property
-
 
         ''' <summary>
         ''' Verifica se a pergunta está corretamente assinalada. Anula a questão automaticamente se estiver mal formada (com mais de uma alternativa correta ou nenhuma alternativa correta)
@@ -555,6 +595,12 @@ Namespace QuestionTest
                     Next
                 End If
                 Return True
+            End Get
+        End Property
+
+        Public Overrides ReadOnly Property HTML As String
+            Get
+                Return (Statement.HTML & Alternatives.HTML).WrapInTag("li", "class='Question'")
             End Get
         End Property
 
@@ -579,6 +625,11 @@ Namespace QuestionTest
     ''' </summary>
     Public Class MultipleAlternativeQuestion
         Inherits AlternativeQuestion
+
+        Public Sub New(Test As QuestionTest)
+            MyBase.New(Test)
+        End Sub
+
         ''' <summary>
         ''' Retorna um numero que representa o quanto o usuario acertou essa pergunta
         ''' </summary>
@@ -603,9 +654,64 @@ Namespace QuestionTest
         ''' <returns></returns>
         Public Overrides ReadOnly Property IsCorrect As Boolean
             Get
-                Return True
+                Return Hits > 0
             End Get
         End Property
+
+        Public Overrides ReadOnly Property HTML As String
+            Get
+                Return (Statement.HTML & Alternatives.HTML).WrapInTag("li", "class='Question'")
+            End Get
+        End Property
+
+    End Class
+
+    ''' <summary>
+    ''' Lista de Alternativas de uma questão de alternativas
+    ''' </summary>
+    Public Class AlternativeList
+        Inherits List(Of Alternative)
+
+        ReadOnly Property Question As AlternativeQuestion
+
+        Public ReadOnly Property HTML As String
+            Get
+                Return Me.Select(Function(p) p.HTML).ToArray.Join("").WrapInTag("ol", "class='Alternatives'")
+            End Get
+        End Property
+
+        Friend Sub New(l As AlternativeQuestion)
+            Me.Question = l
+        End Sub
+
+        ''' <summary>
+        ''' Adiciona uma alternativa a questão. A alternativa é ignorada se já existir na lista
+        ''' </summary>
+        ''' <param name="Text">Texto da alternativa</param>
+        ''' <param name="Correct">Parametro que indica se esta alternativa é correta ou verdadeira</param>
+        Public Shadows Sub Add(Text As String, Correct As Boolean)
+            Dim c As New Alternative(Me.Question) With {.Text = Text}
+            If Not MyBase.Contains(c) Then
+                If TypeOf Me.Question Is SingleAlternativeQuestion And Correct Then
+                    Me.Question.Alternatives.ForEach(Sub(i) i.Correct = False)
+                End If
+                c.Correct = Correct
+                MyBase.Add(c)
+            End If
+        End Sub
+
+        Public Shadows Sub AddRange(Alternatives As IEnumerable(Of Alternative))
+            Throw New NotSupportedException("Cannot add multiple alternatives at same time")
+        End Sub
+
+        Public Shadows Sub Insert()
+            Throw New NotSupportedException("Cannot insert alternatives")
+        End Sub
+
+        Public Shadows Sub InsertAt()
+            Throw New NotSupportedException("Cannot insert alternatives")
+        End Sub
+
     End Class
 
     ''' <summary>
@@ -617,13 +723,18 @@ Namespace QuestionTest
         ''' ID da alternativa
         ''' </summary>
         ''' <returns></returns>
-        Public Property ID As String = Nothing
+        Public ReadOnly Property ID As String
+            Get
+                Return Me.Question.ID.Append("A").Append(Question.Alternatives.IndexOf(Me).Increment)
+            End Get
+        End Property
 
         ''' <summary>
         ''' Texto da alternativa
         ''' </summary>
         ''' <returns></returns>
         Public Property Text As String
+
         ''' <summary>
         ''' Valor que indica se a alternativa está correta ou verdadeira
         ''' </summary>
@@ -646,17 +757,18 @@ Namespace QuestionTest
             End Get
         End Property
 
+        ReadOnly Property HTML As String
+            Get
+                Return "<li class='Alternative " & If(Question.GetType Is GetType(SingleAlternativeQuestion), "Single", "Multiple") & "'><input type=" & If(Question.GetType Is GetType(SingleAlternativeQuestion), "radio", "checkbox").ToString.Quote & " ID=" & ID.Quote & " name=" & Question.ID.Quote & "   value=" & ID.Quote & " /><label for=" & ID.Quote & ">" & Text & "</label></li>"
+            End Get
+        End Property
 
+        Property Question As AlternativeQuestion
 
-        ''' <summary>
-        ''' Cria uma instancia de Alternativa
-        ''' </summary>
-        ''' <param name="Text">Texto da Pergunta</param>
-        ''' <param name="Correct">Valor que indica se a alternativa é correta ou verdadeira</param>
-        Public Sub New(Text As String, Correct As Boolean)
-            Me.Text = Text
-            Me.Correct = Correct
+        Friend Sub New(Question As AlternativeQuestion)
+            Me.Question = Question
         End Sub
-    End Class
-End Namespace
 
+    End Class
+
+End Namespace

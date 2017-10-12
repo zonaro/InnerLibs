@@ -104,7 +104,6 @@ Namespace HtmlParser
             mElement.Attributes.Remove("class")
         End Sub
 
-
         Public Shadows Sub CopyTo(array() As String, arrayIndex As Integer)
             CreateClassList.CopyTo(array, arrayIndex)
         End Sub
@@ -141,10 +140,14 @@ Namespace HtmlParser
             Return CreateClassList.GetEnumerator
         End Function
 
-
         Private Function IEnumerable_GetEnumerator() As IEnumerator
             Return CreateClassList.GetEnumerator
         End Function
+
+        Public Overrides Function ToString() As String
+            Return Me.mElement.Attribute("class")
+        End Function
+
     End Class
 
 End Namespace
