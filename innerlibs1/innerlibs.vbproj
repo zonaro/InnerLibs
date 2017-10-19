@@ -92,6 +92,7 @@
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />
     <Compile Include="Dice.vb" />
+    <Compile Include="DOT Language.vb" />
     <Compile Include="Evalz\Evaluator.vb" />
     <Compile Include="Evalz\EvalVariable.vb" />
     <Compile Include="Evalz\Globals.vb" />
@@ -141,7 +142,6 @@
     <Compile Include="InnerForm.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="JsonViewer.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
