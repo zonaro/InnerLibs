@@ -26,7 +26,7 @@ Public Class DotNode
 
     Public Property ID As String
 
-    Public Property Relations As New Dictionary(Of DotEge, DotNode)
+    Public Property Relations As New Dictionary(Of DotEdge, DotNode)
 
     Public Overrides Function ToString() As String
         Dim dotstring As String = ""
@@ -48,7 +48,7 @@ End Class
 ''' <summary>
 ''' Representa uma ligação entre nós de um grafico em DOT Language
 ''' </summary>
-Public Class DotEge
+Public Class DotEdge
     Inherits Dictionary(Of String, String)
 
     Sub New(Optional Oriented As Boolean = True)
@@ -57,7 +57,7 @@ Public Class DotEge
 
     Property Oriented As Boolean = True
 
-    Property Group As Boolean = True
+
 
     Public Overrides Function ToString() As String
         Dim propstring = ""
