@@ -1265,6 +1265,18 @@ Public Module Text
         Return Text.Trim()
     End Function
 
+
+    ''' <summary>
+    ''' Une todos os valores de um objeto em uma unica string
+    ''' </summary>
+    ''' <param name="Array">    Objeto com os valores</param>
+    ''' <param name="Separator">Separador entre as strings</param>
+    ''' <returns>string</returns>
+    <Extension()>
+    Public Function Join(Of Type)(Array As IEnumerable(Of Type), Optional Separator As String = ";") As String
+        Return String.Join(Separator, Array)
+    End Function
+
     ''' <summary>
     ''' Une todos os valores de um objeto em uma unica string
     ''' </summary>
