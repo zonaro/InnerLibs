@@ -671,6 +671,12 @@ Public Module Web
         Return options
     End Function
 
+
+    ''' <summary>
+    ''' Retorna uma string HTML de um <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control">COntrole HTMLSelect</param>
+    ''' <returns></returns>
     <Extension()> Public Function ToHtmlString(Control As HtmlSelect) As String
         Dim t As New HtmlParser.HtmlElement("select")
         t.InnerHTML = Control.ExtractOptions

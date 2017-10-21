@@ -290,8 +290,10 @@ Namespace HtmlParser
         ''' <param name="Index"></param>
         ''' <param name="Node"></param>
         Public Shadows Sub Insert(Index As Integer, Node As HtmlNode)
-            Node.Remove()
-            Node.mParent = Me.mParent
+            If Me.mParent IsNot Nothing Then
+                Node.Remove()
+                Node.mParent = Me.mParent
+            End If
             MyBase.Insert(Index, Node)
         End Sub
 
@@ -300,8 +302,10 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Node"></param>
         Public Shadows Sub Add(Node As HtmlNode)
-            Node.Remove()
-            Node.mParent = Me.mParent
+            If Me.mParent IsNot Nothing Then
+                Node.Remove()
+                Node.mParent = Me.mParent
+            End If
             MyBase.Add(Node)
         End Sub
 
