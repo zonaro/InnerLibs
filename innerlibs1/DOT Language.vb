@@ -9,6 +9,8 @@ Public Class Digraph
     Inherits List(Of DotNode)
 
 
+    Property Clusters As List(Of Cluster)
+
 
     ''' <summary>
     ''' Tipo do Grafico
@@ -33,6 +35,13 @@ Public Class Digraph
         Return GraphType & " " & Name.ToSlug(True) & " " & s.Wrap("{")
     End Function
 
+
+End Class
+
+Public Class Cluster
+    Inherits Digraph
+
+    Shadows ReadOnly Property GraphType = "graph"
 
 End Class
 

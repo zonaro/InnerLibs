@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Data.Linq
 Imports System.Drawing.Text
+Imports System.Dynamic
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
@@ -8,6 +9,34 @@ Imports System.Runtime.InteropServices
 
 Public Module ClassTools
 
+    ''' <summary>
+    ''' Mescla varios tipos de objeto em um unico dicionario a partir de suas propriedades
+    ''' </summary>
+    ''' <param name="Items"></param>
+    ''' <returns></returns>
+    Public Function MergeProperties(ParamArray Items As Object()) As Dictionary(Of String, Object)
+        Dim result As New Dictionary(Of String, Object)
+        For Each item In Items
+            If IsDictionary(item) Then
+                Dim dic = CType(item, IDictionary)
+                For Each k In dic.Keys
+                    result(k) = dic(k)
+                Next
+            Else
+                For Each fi As PropertyInfo In GetProperties(item)
+                    result(fi.Name) = GetPropertyValue(item, fi.Name)
+                Next
+            End If
+        Next
+        Return result
+    End Function
+
+
+    ''' <summary>
+    ''' Verifica se o objeto é uma lista
+    ''' </summary>
+    ''' <param name="obj"></param>
+    ''' <returns></returns>
     <Extension>
     Public Function IsList(obj As Object) As Boolean
         If obj Is Nothing Then
@@ -16,6 +45,11 @@ Public Module ClassTools
         Return TypeOf obj Is IList AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(List(Of )))
     End Function
 
+    ''' <summary>
+    ''' Verifica se o objeto é um iDictionary
+    ''' </summary>
+    ''' <param name="obj"></param>
+    ''' <returns></returns>
     <Extension>
     Public Function IsDictionary(obj As Object) As Boolean
         If obj Is Nothing Then
@@ -25,7 +59,7 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Determines if a type is numeric.  Nullable numeric types are considered numeric.
+    '''Verifica se o objeto é do tipo numério.
     ''' </summary>
     ''' <remarks>
     ''' Boolean is not considered numeric.
