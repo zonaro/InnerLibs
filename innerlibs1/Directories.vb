@@ -44,7 +44,7 @@ Public Module Directories
     End Function
 
     ''' <summary>
-    ''' Deleta um arquivo ou diretório se o mesmo existir e retorna TURE se o arquivo puder ser criado novamente
+    ''' Deleta um arquivo ou diretório se o mesmo existir e retorna TRUE se o arquivo puder ser criado novamente
     ''' </summary>
     ''' <param name="Path">Camingo</param>
     ''' <returns></returns>

@@ -148,6 +148,7 @@
     <Compile Include="oEmbed.vb" />
     <Compile Include="RiotAPI.vb" />
     <Compile Include="Serializer.vb" />
+    <Compile Include="SlackClient.vb" />
     <Compile Include="SQLExplorer.vb" />
     <Compile Include="Stopwatch.vb">
       <SubType>Component</SubType>
