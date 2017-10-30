@@ -40,6 +40,8 @@ Public NotInheritable Class AJAX
                 Select Case GetType(Type)
                     Case GetType(String)
                         Return client.Encoding.GetString(responsebytes)
+                    Case GetType(Integer), GetType(Long), GetType(Decimal), GetType(Short), GetType(Double)
+                        Return client.Encoding.GetString(responsebytes).To(Of Type)
                     Case GetType(FileInfo)
                         Return responsebytes.WriteToFile(FilePath)
                     Case GetType(Byte), GetType(Byte())
@@ -290,7 +292,8 @@ Public Module Web
         Dim query = HttpUtility.ParseQueryString(UriBuilder.Query)
         query(Key) = Value
         UriBuilder.Query = query.ToString()
-        Return New Uri(UriBuilder.ToString())
+        Url = New Uri(UriBuilder.ToString())
+        Return Url
     End Function
 
     ''' <summary>
