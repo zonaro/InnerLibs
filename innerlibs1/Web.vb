@@ -359,6 +359,7 @@ Public Module Web
             cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Not UrlDecode(Request(col)).IsNumber)) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
+        Debug.WriteLine(cmd.Wrap(Environment.NewLine))
         Return cmd
     End Function
 
@@ -382,7 +383,9 @@ Public Module Web
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String, ParamArray QueryStringKeys As String())
-        Return String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).UrlDecode.IsNull(Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
+        Dim s = String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).UrlDecode.IsNull(Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
+        Debug.WriteLine(s.Wrap(Environment.NewLine))
+        Return s
     End Function
 
     ''' <summary>
