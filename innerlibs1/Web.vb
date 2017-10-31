@@ -359,7 +359,7 @@ Public Module Web
         End If
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In QueryStringKeys
-            cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Not UrlDecode(Request(col)).IsNumber)) & Environment.NewLine)
+            cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Quotes:=Not UrlDecode(Request(col)).IsNumber)) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Debug.WriteLine(cmd.Wrap(Environment.NewLine))
@@ -402,7 +402,7 @@ Public Module Web
         If QueryStringKeys Is Nothing OrElse QueryStringKeys.Length = 0 Then
             QueryStringKeys = Request.AllKeys
         End If
-        Dim s = String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).UrlDecode.IsNull(Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
+        Dim s = String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).UrlDecode.IsNull(Quotes:=Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
         Debug.WriteLine(s.Wrap(Environment.NewLine))
         Return s
     End Function
