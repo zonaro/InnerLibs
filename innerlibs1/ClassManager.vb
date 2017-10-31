@@ -32,19 +32,21 @@ Public Module ClassTools
         Return result
     End Function
 
-
+    ''' <summary>
+    ''' Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
+    ''' </summary>
+    ''' <param name="NVC"></param>
+    ''' <returns></returns>
     Public Function Merge(ParamArray NVC As NameValueCollection()) As NameValueCollection
-        Dim all = New NameValueCollection(NVC(0))
-        For index = 1 To NVC.Length - 1
-            For Each el In NVC(index).AllKeys
-                all(el) = NVC(index)(el)
-            Next
+        Dim all = New NameValueCollection()
+        For Each i In NVC
+            all.Add(i)
         Next
         Return all
     End Function
 
     ''' <summary>
-    ''' Cria um unico <see cref="NamevalueCollection"/> a partir de um <see cref="HttpRequest.QueryString"/> e  <see cref="HttpRequest.Form"/>
+    ''' Cria um unico <see cref="NamevalueCollection"/> a partir de um <see cref="HttpRequest.QueryString"/> e um <see cref="HttpRequest.Form"/>
     ''' </summary>
     ''' <param name="Request">HttpRequest</param>
     ''' <returns></returns>
@@ -80,7 +82,7 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    '''Verifica se o objeto é do tipo numério.
+    '''Verifica se o objeto é do tipo numérico.
     ''' </summary>
     ''' <remarks>
     ''' Boolean is not considered numeric.
@@ -103,22 +105,7 @@ Public Module ClassTools
         Return False
     End Function
 
-    ''' <summary>
-    ''' Retorna o <see cref="DataContext"/> utilizado no <see cref="iQueryable"/>
-    ''' </summary>
-    ''' <param name="q">iQueryable</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function GetContext(q As IQueryable) As DataContext
-        If Not q.[GetType]().FullName.StartsWith("System.Data.Linq.DataQuery`1") Then
-            Return Nothing
-        End If
-        Dim field = q.[GetType]().GetField("context", BindingFlags.NonPublic Or BindingFlags.Instance)
-        If field Is Nothing Then
-            Return Nothing
-        End If
-        Return TryCast(field.GetValue(q), DataContext)
-    End Function
+
 
     ''' <summary>
     ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
@@ -131,6 +118,7 @@ Public Module ClassTools
     Public Function FirstOr(Of T)(source As IEnumerable(Of T), Alternate As T) As T
         For Each i As T In source
             Return i
+            Exit For
         Next
         Return Alternate
     End Function
@@ -223,7 +211,7 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Traz o   Valore de uma enumeração a partir de uma string
+    ''' Traz o valor de uma enumeração a partir de uma string
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
     ''' <returns></returns>
