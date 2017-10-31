@@ -353,7 +353,10 @@ Public Module Web
     ''' <param name="TableName">  Nome da Procedure</param>
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
-    <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
+    <Extension()> Public Function ToUPDATE(Request As NameValueCollection, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
+        If QueryStringKeys Is Nothing OrElse QueryStringKeys.Length = 0 Then
+            QueryStringKeys = Request.AllKeys
+        End If
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In QueryStringKeys
             cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Not UrlDecode(Request(col)).IsNumber)) & Environment.NewLine)
@@ -369,9 +372,10 @@ Public Module Web
     ''' </summary>
     ''' <param name="Request">        Requisicao HTTP</param>
     ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
-    <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String)
-        Return Request.ToUPDATE(TableName, WhereClausule, Request.QueryString.AllKeys.ToArray)
+    <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
+        Return Request.flat.ToUPDATE(TableName, WhereClausule, QueryStringKeys)
     End Function
 
     ''' <summary>
@@ -383,9 +387,7 @@ Public Module Web
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String, ParamArray QueryStringKeys As String())
-        Dim s = String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).UrlDecode.IsNull(Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
-        Debug.WriteLine(s.Wrap(Environment.NewLine))
-        Return s
+        Return Request.Flat.ToINSERT(TableName, QueryStringKeys)
     End Function
 
     ''' <summary>
@@ -393,11 +395,18 @@ Public Module Web
     ''' uma URL como as colunas da tabela de destino
     ''' </summary>
     ''' <param name="Request">        Requisicao HTTP</param>
-    ''' <param name="TableName">  Nome da Tabela</param>
+    ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
-    <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String)
-        Return Request.ToINSERT(TableName, Request.QueryString.AllKeys.ToArray)
+    <Extension()> Public Function ToINSERT(Request As NameValueCollection, ByVal TableName As String, ParamArray QueryStringKeys As String())
+        If QueryStringKeys Is Nothing OrElse QueryStringKeys.Length = 0 Then
+            QueryStringKeys = Request.AllKeys
+        End If
+        Dim s = String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", QueryStringKeys.Join(","), QueryStringKeys.Select(Function(p) Request(p).UrlDecode.IsNull(Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
+        Debug.WriteLine(s.Wrap(Environment.NewLine))
+        Return s
     End Function
+
 
     ''' <summary>
     ''' Escreve um texto e finaliza um HttpResponse

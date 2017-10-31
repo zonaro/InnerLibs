@@ -6,6 +6,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
+Imports System.Web
 
 Public Module ClassTools
 
@@ -29,6 +30,26 @@ Public Module ClassTools
             End If
         Next
         Return result
+    End Function
+
+
+    Public Function Merge(ParamArray NVC As NameValueCollection()) As NameValueCollection
+        Dim all = New NameValueCollection(NVC(0))
+        For index = 1 To NVC.Length - 1
+            For Each el In NVC(index).AllKeys
+                all(el) = NVC(index)(el)
+            Next
+        Next
+        Return all
+    End Function
+
+    ''' <summary>
+    ''' Cria um unico <see cref="NamevalueCollection"/> a partir de um <see cref="HttpRequest.QueryString"/> e  <see cref="HttpRequest.Form"/>
+    ''' </summary>
+    ''' <param name="Request">HttpRequest</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Flat(Request As HttpRequest) As NameValueCollection
+        Return ClassTools.Merge(Request.QueryString, Request.Form)
     End Function
 
 
