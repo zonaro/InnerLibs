@@ -113,6 +113,7 @@
     <Compile Include="Converter.vb" />
     <Compile Include="Databases.vb" />
     <Compile Include="GeoIP.vb" />
+    <Compile Include="HashID.vb" />
     <Compile Include="htmlparser\ClassProperty.vb" />
     <Compile Include="htmlparser\CSSProperty.vb" />
     <Compile Include="htmlparser\CSSSelectors\ClassSelectors\AllSelector.vb" />
