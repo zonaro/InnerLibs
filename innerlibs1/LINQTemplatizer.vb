@@ -60,7 +60,7 @@ Namespace Templatizer
 
 
         ''' <summary>
-        ''' 
+        ''' Valores adicionados ao processamento do template que não vem do banco
         ''' </summary>
         ''' <returns></returns>
         Public Property CustomValues As New Dictionary(Of String, Object)
@@ -208,6 +208,9 @@ Namespace Templatizer
         End Function
 
 
+
+
+
         ''' <summary>
         ''' Retorna o conteudo estático de um arquivo de template
         ''' </summary>
@@ -275,6 +278,8 @@ Namespace Templatizer
                     Throw New Exception("ApplicationAssembly or CommandDirectory is not configured!")
             End Select
         End Function
+
+
         Private sel As String() = {"##", "##"}
 
         ''' <summary>
@@ -286,7 +291,7 @@ Namespace Templatizer
         End Function
 
         ''' <summary>
-        ''' Aplica um seletor ao nome do campo
+        ''' Aplica os seletores deste Templatizer a uma string (nome do campo)
         ''' </summary>
         ''' <param name="Name"></param>
         ''' <returns></returns>
@@ -483,7 +488,10 @@ Namespace Templatizer
     End Class
 
 
+
+
     Public Module TemplatizerExtensions
+
 
 
 
