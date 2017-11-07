@@ -228,7 +228,7 @@ Public Module Verify
     ''' <param name="HttpRequest">Requisição HTTP</param>
     ''' <returns>TRUE para desktops, FALSE para mobile</returns>
 
-    Public Function IsDesktop(HttpRequest As HttpRequest) As Boolean
+    <Extension()> Public Function IsDesktop(HttpRequest As HttpRequest) As Boolean
         Return Not HttpRequest.IsMobile()
     End Function
 

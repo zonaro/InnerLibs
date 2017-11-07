@@ -21,6 +21,28 @@ Public Module DataManipulation
     End Sub
 
     ''' <summary>
+    ''' Executa um Comando SQL e retorna uma estrutura estatica com os dados (<see cref="DataBase.Reader"/>)
+    ''' </summary>
+    ''' <param name="Context"></param>
+    ''' <param name="SQLQuery"></param>
+    ''' <param name="Parameters"></param>
+    ''' <returns></returns>
+    <Extension()> Function RunSQL(Context As Linq.DataContext, SQLQuery As String, ParamArray Parameters As DbParameter()) As DataBase.Reader
+        Dim con = Activator.CreateInstance(Context.Connection.GetType)
+        con.ConnectionString = Context.Connection.ConnectionString
+        con.Open()
+        Dim command As DbCommand = con.CreateCommand()
+        command.CommandText = SQLQuery
+        For Each param In Parameters
+            command.Parameters.Add(param)
+        Next
+        Dim Reader As DbDataReader = command.ExecuteReader()
+        Return New DataBase.Reader(Reader)
+    End Function
+
+
+
+    ''' <summary>
     ''' Retorna o DbType de acordo com o tipo do objeto
     ''' </summary>
     ''' <param name="Obj"></param>

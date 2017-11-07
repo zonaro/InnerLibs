@@ -13,8 +13,9 @@ Imports InnerLibs
 
 Public NotInheritable Class DataBase
 
+
     ''' <summary>
-    ''' Estrutura que imita um <see cref="DbDataReader"/> usando estruturas de  <see cref="Dictionary"/>. Permite a leitura
+    ''' Estrutura que imita um <see cref="DbDataReader"/> usando <see cref="List"/> de  <see cref="Dictionary"/>. Permite a leitura
     ''' releitura, atribuição e serialização mesmo após o fechamento da conexão.
     ''' </summary>
     Public NotInheritable Class Reader
@@ -332,6 +333,7 @@ Public NotInheritable Class DataBase
                     Me.Add(listatabela)
                 Loop While Reader.NextResult
             End Using
+
         End Sub
 
         Private resultindex As Integer = 0
@@ -563,13 +565,30 @@ Public NotInheritable Class DataBase
                     Next
                 End While
             End If
-            Return param.RemoveFirstIf("?").Prepend("?")
+            Return param
+        End Function
 
+        ''' <summary>
+        ''' Retorna uma url com os itens como parametros
+        ''' </summary>
+        ''' <param name="BaseUrl">Url Base</param>
+        ''' <returns></returns>
+        Public Function ToUrl(BaseUrl As Uri) As Uri
+            Dim Url = New Uri(BaseUrl.AbsoluteUri)
+            If Me.HasRows Then
+                While Me.Read()
+                    For Each it In Me.GetColumns()
+                        Url = Url.AddParameter(it, Me(it))
+                    Next
+                End While
+            End If
+            Return Url
         End Function
 
         ''' <summary>
         ''' Transforma o resultado de um <see cref="DataBase.Reader"/> em uma URL
         ''' </summary>
+        ''' <param name="BaseUrl">Url Base</param>
         ''' <returns></returns>
         Public Function ToUrl(BaseUrl As String) As String
             If BaseUrl.IsURL Then
@@ -602,6 +621,10 @@ Public NotInheritable Class DataBase
             Return DelimitedString
         End Function
 
+        ''' <summary>
+        ''' Cria uma DataTable com os dados deste reader
+        ''' </summary>
+        ''' <returns></returns>
         Public Function ToDataTable() As DataTable
             Dim result As New DataTable()
             If MyBase.Item(resultindex).Count = 0 Then
@@ -755,6 +778,8 @@ Public NotInheritable Class DataBase
             tag.InnerHTML = Returned
             Return tag
         End Function
+
+
 
         ''' <summary>
         ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em controles

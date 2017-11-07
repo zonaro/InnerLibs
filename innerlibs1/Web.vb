@@ -420,6 +420,19 @@ Public Module Web
     End Sub
 
     ''' <summary>
+    ''' Esreve um script de Redirect na pagina e finaliza um HttpResponse
+    ''' </summary>
+    ''' <param name="Response"></param>
+    ''' <param name="Url">Url de Redirect</param>
+    ''' <param name="Message">Mensagem na pagina</param>
+    ''' <param name="RefreshTime">Tempo em segundos para dar Redirect</param>
+    <Extension> Public Sub WriteRedirect(Response As HttpResponse, Url As Uri, Optional Message As String = "", Optional RefreshTime As Integer = 1)
+        Response.Clear()
+        Response.ContentType = New FileType(".html").ToString
+        Response.WriteEnd("<html><head><META http-equiv=""refresh"" content=""" & RefreshTime.SetMinValue(1) & ";URL=" & Url.AbsoluteUri & """></head><body>" & Message & "</body></html>")
+    End Sub
+
+    ''' <summary>
     ''' Escreve um arquivo CSV e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response"> HttpResponse</param>
