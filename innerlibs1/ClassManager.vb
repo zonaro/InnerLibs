@@ -265,6 +265,17 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="Obj">objeto</param>
+    ''' <param name="List">Lista</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsNotIn(Of Type)(Obj As Type, List As IEnumerable(Of Type)) As Boolean
+        Return Not List.Contains(Obj)
+    End Function
+
+    ''' <summary>
     ''' Verifica se o objeto existe dentro de um texto
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>
@@ -273,6 +284,17 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function IsIn(Of Type)(Obj As Type, Text As String) As Boolean
         Return Not IsNothing(Obj) AndAlso Text.Contains(Obj.ToString)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se o objeto existe não dentro de um texto
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="Obj">objeto</param>
+    ''' <param name="TExt">Texto</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsNotIn(Of Type)(Obj As Type, Text As String) As Boolean
+        Return IsNothing(Obj) OrElse Not Text.Contains(Obj.ToString)
     End Function
 
     ''' <summary>
