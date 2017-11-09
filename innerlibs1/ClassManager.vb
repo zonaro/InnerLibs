@@ -260,8 +260,12 @@ Public Module ClassTools
     ''' <param name="Obj">objeto</param>
     ''' <param name="List">Lista</param>
     ''' <returns></returns>
-    <Extension()> Public Function IsIn(Of Type)(Obj As Type, List As IEnumerable(Of Type)) As Boolean
-        Return List.Contains(Obj)
+    <Extension()> Public Function IsIn(Of Type)(Obj As Type, List As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
+        If Comparer Is Nothing Then
+            Return List.Contains(Obj)
+        Else
+            Return List.Contains(Obj, Comparer)
+        End If
     End Function
 
     ''' <summary>
@@ -271,8 +275,12 @@ Public Module ClassTools
     ''' <param name="Obj">objeto</param>
     ''' <param name="List">Lista</param>
     ''' <returns></returns>
-    <Extension()> Public Function IsNotIn(Of Type)(Obj As Type, List As IEnumerable(Of Type)) As Boolean
-        Return Not List.Contains(Obj)
+    <Extension()> Public Function IsNotIn(Of Type)(Obj As Type, List As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
+        If Comparer Is Nothing Then
+            Return Not List.Contains(Obj)
+        Else
+            Return Not List.Contains(Obj, Comparer)
+        End If
     End Function
 
     ''' <summary>
@@ -282,19 +290,27 @@ Public Module ClassTools
     ''' <param name="Obj">objeto</param>
     ''' <param name="TExt">Texto</param>
     ''' <returns></returns>
-    <Extension()> Public Function IsIn(Of Type)(Obj As Type, Text As String) As Boolean
-        Return Not IsNothing(Obj) AndAlso Text.Contains(Obj.ToString)
+    <Extension()> Public Function IsIn(Of Type)(Obj As Type, Text As String, Optional Comparer As IEqualityComparer(Of Char) = Nothing) As Boolean
+        If Comparer Is Nothing Then
+            Return Not IsNothing(Obj) AndAlso Text.Contains(Obj.ToString)
+        Else
+            Return Not IsNothing(Obj) AndAlso Text.Contains(Obj.ToString, Comparer)
+        End If
     End Function
 
     ''' <summary>
-    ''' Verifica se o objeto existe não dentro de um texto
+    ''' Verifica se o objeto não existe dentro de um texto
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>
     ''' <param name="Obj">objeto</param>
     ''' <param name="TExt">Texto</param>
     ''' <returns></returns>
-    <Extension()> Public Function IsNotIn(Of Type)(Obj As Type, Text As String) As Boolean
-        Return IsNothing(Obj) OrElse Not Text.Contains(Obj.ToString)
+    <Extension()> Public Function IsNotIn(Of Type)(Obj As Type, Text As String, Optional Comparer As IEqualityComparer(Of Char) = Nothing) As Boolean
+        If Comparer Is Nothing Then
+            Return IsNothing(Obj) OrElse Text.Contains(Obj.ToString)
+        Else
+            Return IsNothing(Obj) OrElse Text.Contains(Obj.ToString, Comparer)
+        End If
     End Function
 
     ''' <summary>
@@ -304,11 +320,18 @@ Public Module ClassTools
     ''' <param name="List1">Lista 1</param>
     ''' <param name="List2">Lista2</param>
     ''' <returns></returns>
-    <Extension()> Public Function ContainsAll(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type)) As Boolean
+    <Extension()> Public Function ContainsAll(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
         For Each value As Type In List2
-            If IsNothing(List1) OrElse IsNothing(List2) OrElse Not List1.Contains(value) Then
-                Return False
+            If Comparer Is Nothing Then
+                If IsNothing(List1) OrElse IsNothing(List2) OrElse Not List1.Contains(value) Then
+                    Return False
+                End If
+            Else
+                If IsNothing(List1) OrElse IsNothing(List2) OrElse Not List1.Contains(value, Comparer) Then
+                    Return False
+                End If
             End If
+
         Next
         Return True
     End Function
@@ -320,10 +343,16 @@ Public Module ClassTools
     ''' <param name="List1">Lista 1</param>
     ''' <param name="List2">Lista2</param>
     ''' <returns></returns>
-    <Extension()> Public Function ContainsAny(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type)) As Boolean
+    <Extension()> Public Function ContainsAny(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
         For Each value As Type In List2
-            If Not IsNothing(List1) AndAlso List1.Contains(value) Then
-                Return True
+            If Comparer Is Nothing Then
+                If Not IsNothing(List1) AndAlso List1.Contains(value) Then
+                    Return True
+                End If
+            Else
+                If Not IsNothing(List1) AndAlso List1.Contains(value, Comparer) Then
+                    Return True
+                End If
             End If
         Next
         Return False
@@ -387,9 +416,9 @@ Public Module ClassTools
     ''' <param name="Collection">Colecao</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function CreateObject(Of Type As Class)(Collection As NameValueCollection, ParamArray ExceptKeys As String()) As Type
+    Public Function CreateObject(Of Type As Class)(Collection As NameValueCollection, ParamArray Keys As String()) As Type
         Dim obj = Activator.CreateInstance(Of Type)()
-        Return CopyToObject(Of Type)(Collection, obj, ExceptKeys)
+        Return CopyToObject(Of Type)(Collection, obj, Keys)
     End Function
 
     ''' <summary>
