@@ -2,6 +2,7 @@ Imports System.Text
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Xml
+Imports System.Web.UI.HtmlControls
 
 Namespace HtmlParser
 
@@ -32,6 +33,8 @@ Namespace HtmlParser
                 Me.InnerHTML = InnerHtml
             End If
         End Sub
+
+
 
         ''' <summary>
         ''' Transform the current element into a new set of elements

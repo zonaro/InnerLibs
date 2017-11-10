@@ -41,6 +41,19 @@ Public Module DataManipulation
     End Function
 
 
+    ''' <summary>
+    ''' Cria um <see cref="DataBase.Reader"/> a partir de um comando SELECT
+    ''' </summary>
+    ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
+    ''' <param name="TableName">      Nome da tabela</param>
+    <Extension()> Public Function [SELECT](Context As Linq.DataContext, TableName As String, Optional WhereConditions As String = "", Optional Columns As String() = Nothing) As DataBase.Reader
+        Dim cmd = "SELECT " & If(Columns.IsEmpty, "*", Columns.Join(",")) & " FROM " & TableName
+        If WhereConditions.IsNotBlank Then
+            cmd.Append(" where " & WhereConditions.TrimAny(" ", "where", "WHERE"))
+        End If
+        Return Context.RunSQL(cmd)
+    End Function
+
 
     ''' <summary>
     ''' Retorna o DbType de acordo com o tipo do objeto
