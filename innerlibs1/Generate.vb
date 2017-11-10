@@ -82,22 +82,13 @@ Public Module Generate
 
     End Function
     ''' <summary>
-    ''' Tira uma screenshot usando o serviço Screenshotlayer.com
+    ''' Tira uma screenshot de um site usando o servico ATS
     ''' </summary>
     ''' <param name="Url">Url do site</param>
-    ''' <param name="FullPage">Valor indicando se o screenshot deverá ser da pagina inteira</param>
-    ''' <param name="Delay">Atraso em segundos</param>
-    ''' <param name="Viewport">Tamanho da tela</param>
-    ''' <param name="ImageWidth">Largura da Imagem</param>
-    ''' <param name="AccessKey">Chave de acesso (gratuita ou paga) do ScreenshotLayer.com</param>
     ''' <returns>Um objeto Image() contendo o screenshot do site</returns>
     <Extension>
-    Function ScreenshotFromWebsite(Url As String, AccessKey As String, Optional FullPage As Boolean = True, Optional Delay As Integer = 1, Optional Viewport As String = "1440x900", Optional ImageWidth As Integer = 500) As Image
-        If Url.IsURL Then
-            Return AJAX.GET(Of Image)("http://api.screenshotlayer.com/api/capture?access_key=" & AccessKey & "&delay=" & Delay & "&url=" & Url & "&fullpage=" & If(FullPage, 1, 0) & "&viewport=" & Viewport & "&width=" & ImageWidth)
-        Else
-            Throw New Exception("Url inválida")
-        End If
+    Function ScreenshotFromWebsite(Url As Uri) As Image
+        Return AJAX.GET(Of Image)("https://screenshot-demo.atslab.io/?url=" & Url.AbsoluteUri.UrlEncode)
     End Function
 
     ''' <summary>
