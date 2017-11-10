@@ -1,4 +1,5 @@
-﻿Imports System.Runtime.CompilerServices
+﻿Imports System.Reflection
+Imports System.Runtime.CompilerServices
 Imports System.Xml
 ''' <summary>
 ''' Representa um deteminado local com suas Informações
@@ -37,6 +38,12 @@ Public Class Location
     End Sub
 
     ''' <summary>
+    ''' Tipo do Endereço
+    ''' </summary>
+    ''' <returns></returns>
+    Property AddressType As String
+
+    ''' <summary>
     ''' Endereco
     ''' </summary>
     ''' <value></value>
@@ -71,6 +78,8 @@ Public Class Location
     ''' <returns>CEP</returns>
 
     Property PostalCode As String
+
+
     ''' <summary>
     ''' Cidade
     ''' </summary>
@@ -125,20 +134,74 @@ Public Class Location
     ''' Retorna o endereço completo (logradouro)
     ''' </summary>
     ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
-    Function FullAddress() As String
-        Dim retorno As String = Address
-        If (String.IsNullOrWhiteSpace(Number) = False) Then retorno = retorno & ", " & Number
-        If (String.IsNullOrWhiteSpace(Complement) = False) Then retorno = retorno & ", " & Complement
-        If (String.IsNullOrWhiteSpace(Neighborhood) = False) Then retorno = retorno & " - " & Neighborhood
-        If (String.IsNullOrWhiteSpace(City) = False) Then retorno = retorno & " - " & City
-        If (String.IsNullOrWhiteSpace(StateCode) = False) Then
-            retorno = retorno & " - " & StateCode
-        Else
-            If (String.IsNullOrWhiteSpace(State) = False) Then retorno = retorno & " - " & State
-        End If
-        If (String.IsNullOrWhiteSpace(PostalCode) = False) Then retorno = retorno & " - " & PostalCode
-        Return retorno
-    End Function
+    ReadOnly Property FullAddress() As String
+        Get
+            Dim retorno As String = Address
+            If (String.IsNullOrWhiteSpace(Number) = False) Then retorno = retorno & ", " & Number
+            If (String.IsNullOrWhiteSpace(Complement) = False) Then retorno = retorno & ", " & Complement
+            If (String.IsNullOrWhiteSpace(Neighborhood) = False) Then retorno = retorno & " - " & Neighborhood
+            If (String.IsNullOrWhiteSpace(City) = False) Then retorno = retorno & " - " & City
+            If (String.IsNullOrWhiteSpace(StateCode) = False) Then
+                retorno = retorno & " - " & StateCode
+            Else
+                If (String.IsNullOrWhiteSpace(State) = False) Then retorno = retorno & " - " & State
+            End If
+            If (String.IsNullOrWhiteSpace(PostalCode) = False) Then retorno = retorno & " - " & PostalCode
+            Return retorno
+        End Get
+    End Property
+
+    Private Sub ParseType()
+        Dim pal = Me.Address.GetWords.First.Key.ToProper
+        Select Case pal
+            Case "Aeroporto", "Ar", "Aero"
+                Me.AddressType = "Aeroporto"
+                Me.Address.Trim(pal)
+            Case "Alameda", "Al", "Alm"
+                Me.AddressType = "Alameda"
+                Me.Address.Trim(pal)
+
+            Case "Area", "Área", "Ar"
+                Me.AddressType = "Área"
+                Me.Address.Trim(pal)
+
+            Case "Avenida", "Av"
+                Me.AddressType = "Avenida"
+                Me.Address.Trim(pal)
+
+            Case "Campo", "Cmp", "Camp"
+                Me.AddressType = "Campo"
+                Me.Address.Trim(pal)
+            Case "Chácara", "Chacara", "Ch", "Chac", "Chr"
+                Me.AddressType = "Chácara"
+                Me.Address.Trim(pal)
+            Case "Colônia", "Col"
+                Me.AddressType = "Colônia"
+                Me.Address.Trim(pal)
+            Case "Condomínio", "Cond"
+                Me.AddressType = "Condomínio"
+                Me.Address.Trim(pal)
+            Case "Conjunto", "Conj"
+                Me.AddressType = "Conjunto"
+                Me.Address.Trim(pal)
+            Case "Distrito", "Dist", "Ds", "Dst"
+                Me.AddressType = "Distrito"
+                Me.Address.Trim(pal)
+            Case "Esplanada", "Esp"
+                Me.AddressType = "Esplanada"
+                Me.Address.Trim(pal)
+            Case "Estação",
+                Me.AddressType = "Estação"
+                Me.Address.Trim(pal)
+            Case "Estrada", "Est"
+                Me.AddressType = "Estrada"
+                Me.Address.Trim(pal)
+            Case Else
+
+        End Select
+    End Sub
+
+
 
     ''' <summary>
     ''' Retorna uma String contendo as informações do Local
@@ -232,6 +295,8 @@ Public Class Location
             Catch ex As Exception
 
             End Try
+
+
         End If
         Me.GoogleMapsURL = Me.ToGoogleMapsURL(True)
     End Sub
@@ -243,4 +308,57 @@ Public Class Location
         Me.SearchOnGoogleMaps(Me.FullAddress)
     End Sub
 
+
+
+
+
+
+
 End Class
+
+Friend Class Logradouro
+    Public Property Aeroporto As String() = {"Aeroporto", "Ar", "Aero"}
+    Public Property Alameda As String() = {"Alameda", "Al", "Alm"}
+    Public Property Área As String() = {"Área", "Area"}
+    Public Property Avenida As String() = {}
+    Public Property Campo As String() = {}
+    Public Property Chácara As String() = {}
+    Public Property Colônia As String() = {}
+    Public Property Condomínio As String() = {}
+    Public Property Conjunto As String() = {}
+    Public Property Distrito As String() = {}
+    Public Property Esplanada As String() = {}
+    Public Property Estação As String() = {}
+    Public Property Estrada As String() = {}
+    Public Property Favela As String() = {}
+    Public Property Feira As String() = {}
+    Public Property Jardim As String() = {}
+    Public Property Ladeira As String() = {}
+    Public Property Lago As String() = {}
+    Public Property Lagoa As String() = {}
+    Public Property Largo As String() = {}
+    Public Property Loteamento As String() = {}
+    Public Property Morro As String() = {}
+    Public Property Núcleo As String() = {}
+    Public Property Parque As String() = {}
+    Public Property Passarela As String() = {}
+    Public Property Pátio As String() = {}
+    Public Property Praça As String() = {}
+    Public Property Quadra As String() = {}
+    Public Property Recanto As String() = {}
+    Public Property Residencial As String() = {"Residencial", "Residencia", "Res", "Resid"}
+    Public Property Rodovia As String() = {"Rodovia", "Rod"}
+    Public Property Rua As String() = {"Rua", "R"}
+    Public Property Setor As String() = {}
+    Public Property Sítio As String() = {}
+    Public Property Travessa As String() = {}
+    Public Property Trecho As String() = {}
+    Public Property Trevo As String() = {}
+    Public Property Vale As String() = {}
+    Public Property Vereda As String() = {}
+    Public Property Via As String() = {}
+    Public Property Viaduto As String() = {}
+    Public Property Viela As String() = {}
+    Public Property Vila As String()
+End Class
+

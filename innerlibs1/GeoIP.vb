@@ -6,6 +6,7 @@
 Public Class GeoIP
 
     Public ReadOnly Property IP As String
+    Public ReadOnly Property Domain As String
     Public ReadOnly Property CountryCode As String
     Public ReadOnly Property CountryName As String
     Public ReadOnly Property RegionCode As String
@@ -16,6 +17,8 @@ Public Class GeoIP
     Public ReadOnly Property Latitude As String
     Public ReadOnly Property Longitude As String
     Public ReadOnly Property MetroCode As Integer
+
+
     ''' <summary>
     ''' Declara uma instancia de GeoIP usando umma string contendo o IP ou URL
     ''' </summary>
@@ -24,8 +27,8 @@ Public Class GeoIP
         URLorIP.AdjustWhiteSpaces
         If URLorIP.IsURL Or URLorIP.IsIP Or URLorIP.IsBlank Then
             Try
-                If URLorIP.IsURL Then URLorIP = New Uri(URLorIP).GetDomain
-                Dim c = AJAX.GET(Of Object)("http://freegeoip.net/json/" & URLorIP)
+                If URLorIP.IsURL Then Me.Domain = New Uri(URLorIP).GetDomain
+                Dim c = AJAX.GET(Of Object)("http://freegeoip.net/json/" & Me.Domain)
                 Me.IP = c("ip") & ""
                 Me.CountryCode = c("country_code") & ""
                 Me.CountryName = c("country_name") & ""
