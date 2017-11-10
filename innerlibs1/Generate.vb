@@ -87,9 +87,14 @@ Public Module Generate
     ''' <param name="Url">Url do site</param>
     ''' <returns>Um objeto Image() contendo o screenshot do site</returns>
     <Extension>
-    Function ScreenshotFromWebsite(Url As Uri) As Image
-        Return AJAX.GET(Of Image)("https://screenshot-demo.atslab.io/?url=" & Url.AbsoluteUri.UrlEncode)
+    Function ScreenshotFromWebsite(Url As String, AccessKey As String, Optional FullPage As Boolean = True, Optional Delay As Integer = 1, Optional Viewport As String = "1440x900", Optional ImageWidth As Integer = 500) As Image
+        If Url.IsURL Then
+            Return AJAX.GET(Of Image)("http://api.screenshotlayer.com/api/capture?access_key=" & AccessKey & "&delay=" & Delay & "&url=" & Url & "&fullpage=" & If(FullPage, 1, 0) & "&viewport=" & Viewport & "&width=" & ImageWidth)
+        Else
+            Throw New Exception("Url inválida")
+        End If
     End Function
+
 
     ''' <summary>
     ''' Gera uma URL do google MAPs baseado na localização
@@ -189,7 +194,7 @@ Public Module Generate
 
     Function InnerIpsum(Optional ParagraphNumber As Integer = 5) As String
         Dim paragraphs(0 To 4) As String
-        Dim RND As New Random
+
         Dim loremipusm As String = ""
         paragraphs(0) = "Null Set aliquam est. display none efficitur Inner vitae augue imperdiet scelerisque. Vivamus fermentum arcu pulvinar fermentum laoreet. Phasellus id ante _POST. Praesent at blandit null, at ornare nisl. Quisque cursus non mi vitae facilisis. Maecenas command sem _POST, send tincidunt felis cursus Set. Return at fakepath enim, malesuada consequat justo. Mauris blandit egestas Inner, Get amet interdum eros ullamcorper Set. Fusce mollis, risus id rutrum efficitur, magna risus rhoncus release, id #000000 lacus magna AJAX sapien. null facilisi."
         paragraphs(1) = "Python sagittis orci est, quis egestas cakePHP request quis. Pellentesque sodales suscipit consequat. Fusce semper nunc quis leo porttitor, eu command est imperdiet. Integer euismod fringilla aliquet. Etiam nisl risus, tincidunt quis fakepath vel, venenatis ut tellus. Vivamus hendrerit gravida imperdiet. display none get amet hendrerit ante. Donuts tincidunt turpis get amet split viverra sodales."
@@ -198,7 +203,7 @@ Public Module Generate
         paragraphs(4) = "Interdum et malesuada fames ac ante ipsum primis In fakepath. send efficitur, leo Get amet accumsan drag n drop, urna Inner pulvinar erat, AJAX dapibus arcu mauris vel felis. Nam in ante get amet vsplit drag n drop tincidunt. display: none at arcu at quam gravida fringilla. Proin et vehicula lacus. nullm leo turpis, auctor ac volutpat euismod, posuere quis felis. nullm dapibus diam vel #000000 facilisis. Curabitur at purus in ante aliquet porta."
 
         For i = 1 To ParagraphNumber
-            loremipusm &= paragraphs(RND.Next(0, 4)) & vbNewLine & vbNewLine
+            loremipusm &= paragraphs(RandomNumber(0, paragraphs.Length)) & vbNewLine & vbNewLine
         Next
         Return loremipusm
     End Function
@@ -223,7 +228,7 @@ Public Module Generate
     <Extension()>
     Public Function ToQRCode(Data As String, Optional Size As Integer = 100) As Image
         Data = If(Data.IsURL, HttpUtility.UrlEncode(Data), Data)
-        Dim URL As String = "https://chart.googleapis.com/chart?cht=qr&chl=" & Data.Replace(" ", "+") & "&chs=" & Size & "x" & Size
+        Dim URL As String = "https://chart.googleapis.com/chart?cht=qr&chl=" & Data.UrlEncode & "&chs=" & Size & "x" & Size
         Return AJAX.GET(Of Image)(URL)
     End Function
 
