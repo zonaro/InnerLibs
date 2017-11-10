@@ -188,6 +188,32 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Seta o valor de uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <param name="PropertyName">Nome da properiedade</param>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <param name="Value">Valor da propriedade definida por <paramref name="PropertyName"/></param>
+    ''' <typeparam name="Type2">Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/></typeparam>
+    <Extension()>
+    Public Sub SetPropertyValue(Of Type, Type2)(MyObject As Object, PropertyName As String, Value As Type2)
+        GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.SetValue(MyObject, Value)
+    End Sub
+
+    ''' <summary>
+    ''' Seta o valor de uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <param name="PropertyName">Nome da properiedade</param>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <param name="Collection">Coleçao contendo um INDEX definido pelo nome da propriedade <paramref name="PropertyName"/></param>
+
+    <Extension()>
+    Public Sub SetPropertyValueFromCollection(Of Type)(MyObject As Object, PropertyName As String, Collection As CollectionBase)
+        GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.SetValue(MyObject, Collection(PropertyName))
+    End Sub
+
+    ''' <summary>
     ''' Traz o valor de uma propriedade de um objeto
     ''' </summary>
     ''' <param name="MyObject">Objeto</param>
