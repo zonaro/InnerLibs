@@ -63,7 +63,7 @@ Public NotInheritable Class Json
 
         Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
             Dim dt As New DateTime
-            dt = New DateTime(dictionary("Year").ToString.To(Of Integer), dictionary("Month").ToString.To(Of Integer), dictionary("Day").ToString.To(Of Integer), dictionary("Hour").ToString.To(Of Integer), dictionary("Minute").ToString.To(Of Integer), dictionary("Second").ToString.To(Of Integer), dictionary("Millisecond").ToString.To(Of Integer))
+            dt = New DateTime(dictionary("Year").ToString.ChangeType(Of Integer), dictionary("Month").ToString.ChangeType(Of Integer), dictionary("Day").ToString.ChangeType(Of Integer), dictionary("Hour").ToString.ChangeType(Of Integer), dictionary("Minute").ToString.ChangeType(Of Integer), dictionary("Second").ToString.ChangeType(Of Integer), dictionary("Millisecond").ToString.ChangeType(Of Integer))
             Return dt
         End Function
 
@@ -106,7 +106,7 @@ Public NotInheritable Class Json
         End Function
 
         Public Overrides Function Serialize(obj As Object, serializer As JavaScriptSerializer) As IDictionary(Of String, Object)
-            Dim bt = Converter.To(Of Byte())(obj)
+            Dim bt = Converter.ChangeType(Of Byte())(obj)
             Dim dicByte As New Dictionary(Of String, Object)
             dicByte.Add("Size", bt.ToFileSizeString)
             dicByte.Add("Content", bt.ToBase64)

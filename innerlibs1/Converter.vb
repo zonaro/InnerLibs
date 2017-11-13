@@ -136,10 +136,19 @@ Public Module Converter
     ''' <param name="Value">Variavel com valor</param>
     ''' <returns>Valor convertido em novo tipo</returns>
     <Extension>
-    Public Function [To](Of T)(Value As Object) As T
+    Public Function ChangeType(Of T)(Value As Object) As T
         Try
             Dim a As Type = GetType(T)
             Dim u As Type = Nullable.GetUnderlyingType(a)
+
+            If IsArray(Value) Then
+                Dim b As Object = {}
+                For index = 0 To Value.Length
+                    b(index) = ChangeType(Of T)(Value(index))
+                Next
+                Return CType(b, T)
+            End If
+
 
             If Not (u Is Nothing) Then
                 If Value Is Nothing OrElse Value.Equals("") Then
@@ -150,7 +159,6 @@ Public Module Converter
                 If Value Is Nothing OrElse Value.Equals("") Then
                     Return Nothing
                 End If
-
                 Return CType(Convert.ChangeType(Value, a), T)
             End If
         Catch

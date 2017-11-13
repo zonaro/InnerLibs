@@ -1655,7 +1655,7 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Double) As String
-        Return Size.To(Of Decimal).ToFileSizeString
+        Return Size.ChangeType(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1665,7 +1665,7 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Integer) As String
-        Return Size.To(Of Decimal).ToFileSizeString
+        Return Size.ChangeType(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1675,7 +1675,7 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Long) As String
-        Return Size.To(Of Decimal).ToFileSizeString
+        Return Size.ChangeType(Of Decimal).ToFileSizeString
     End Function
 
     ''' <summary>
@@ -1717,7 +1717,7 @@ Public Module Text
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function ToUnitString(Number As Integer)
-        Return Number.To(Of Decimal).ToUnitString
+        Return Number.ChangeType(Of Decimal).ToUnitString
     End Function
 
     ''' <summary>
@@ -1726,7 +1726,7 @@ Public Module Text
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function ToUnitString(Number As Long)
-        Return Number.To(Of Decimal).ToUnitString
+        Return Number.ChangeType(Of Decimal).ToUnitString
     End Function
 
     ''' <summary>
@@ -1735,7 +1735,7 @@ Public Module Text
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function ToUnitString(Number As Short)
-        Return Number.To(Of Decimal).ToUnitString
+        Return Number.ChangeType(Of Decimal).ToUnitString
     End Function
 
     <Extension()>
@@ -1879,7 +1879,7 @@ Public Module Text
     ''' <param name="Number">Numero decimal</param>
     ''' <returns>String contendo o numero por extenso</returns>
     <Extension()> Public Function ToExtensiveForm(ByVal Number As Integer) As String
-        Return ToExtensiveForm(Number.To(Of Decimal), 0)
+        Return ToExtensiveForm(Number.ChangeType(Of Decimal), 0)
     End Function
 
     ''' <summary>
@@ -1890,7 +1890,7 @@ Public Module Text
     <Extension()> Public Function ToExtensiveMoneyForm(ByVal Value As Decimal) As String
         Dim decimalplaces As Long = Value.GetDecimalPlaces(2)
         Dim num As Long = Value.Floor
-        Return (num.To(Of Long).InExtensive & " Reais " & If(decimalplaces = 0, "", " e " & decimalplaces.InExtensive & " Centavos")).ToLower().AdjustWhiteSpaces
+        Return (num.ChangeType(Of Long).InExtensive & " Reais " & If(decimalplaces = 0, "", " e " & decimalplaces.InExtensive & " Centavos")).ToLower().AdjustWhiteSpaces
     End Function
 
     ''' <summary>
@@ -2607,7 +2607,7 @@ Public Module Text
             Dim l As Decimal = Text.Length / 2
             l = l.Floor
             If Not Text.GetFirstChars(l).Last.ToString.ToLower.IsIn({"a", "e", "i", "o", "u"}) Then
-                l = l.To(Of Integer).Decrement
+                l = l.ChangeType(Of Integer).Decrement
             End If
             p.Add(Text.GetFirstChars(l).Trim & Text.GetFirstChars(l).Reverse.ToList.Join.ToLower.Trim)
         Next

@@ -235,7 +235,7 @@ Public Class Dice
     ''' </summary>
     ''' <param name="Type">Tipo de dado</param>
     Public Sub New(Optional Type As DiceType = DiceType.D6)
-        Me.New(Type.To(Of Integer))
+        Me.New(Type.ChangeType(Of Integer))
     End Sub
 
     ''' <summary>

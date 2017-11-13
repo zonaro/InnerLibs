@@ -90,7 +90,7 @@ Public Module Images
     <Extension()> Public Function InsertWatermark(Image As Image, Watermark As String, Optional Font As String = "Arial", Optional FontColor As Color? = Nothing, Optional BackColor As Color? = Nothing, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         BackColor = If(BackColor, New Bitmap(Image).GetPixel(0, 0))
         Dim _Font = New Font(Font, 8)
-        While TextRenderer.MeasureText(Watermark, _Font).Width.To(Of Decimal).CalculatePercent(Image.Width) <= 70
+        While TextRenderer.MeasureText(Watermark, _Font).Width.ChangeType(Of Decimal).CalculatePercent(Image.Width) <= 70
             _Font = New Font(_Font.FontFamily.Name, _Font.Size + 1)
         End While
         Dim w = Watermark.DrawImage(_Font, If(FontColor, Color.DimGray), BackColor)

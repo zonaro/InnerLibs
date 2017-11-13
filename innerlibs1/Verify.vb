@@ -268,7 +268,7 @@ Public Module Verify
                 Case GetType(String)
                     blankas = Value.ToString.IsBlank
                 Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
-                    blankas = Value.ToString.IsBlank Or Value.ToString.To(Of Double) = 0
+                    blankas = Value.ToString.IsBlank Or Value.ToString.ChangeType(Of Double) = 0
                 Case GetType(DateTime)
                     blankas = (Value = DateTime.MinValue)
                 Case GetType(TimeSpan)
@@ -327,7 +327,7 @@ Public Module Verify
     ''' <returns></returns>
     <Extension()>
     Public Function IsEven(Value As Integer) As Boolean
-        Return Value.To(Of Decimal).IsEven()
+        Return Value.ChangeType(Of Decimal).IsEven()
     End Function
 
     ''' <summary>
@@ -337,7 +337,7 @@ Public Module Verify
     ''' <returns></returns>
     <Extension()>
     Public Function IsEven(Value As Long) As Boolean
-        Return Value.To(Of Decimal).IsEven()
+        Return Value.ChangeType(Of Decimal).IsEven()
     End Function
 
     ''' <summary>
@@ -347,7 +347,7 @@ Public Module Verify
     ''' <returns></returns>
     <Extension()>
     Public Function IsEven(Value As Double) As Boolean
-        Return Value.To(Of Decimal).IsEven()
+        Return Value.ChangeType(Of Decimal).IsEven()
     End Function
 
     ''' <summary>

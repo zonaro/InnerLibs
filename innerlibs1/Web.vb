@@ -41,7 +41,7 @@ Public NotInheritable Class AJAX
                     Case GetType(String)
                         Return client.Encoding.GetString(responsebytes)
                     Case GetType(Integer), GetType(Long), GetType(Decimal), GetType(Short), GetType(Double)
-                        Return client.Encoding.GetString(responsebytes).To(Of Type)
+                        Return client.Encoding.GetString(responsebytes).ChangeType(Of Type)
                     Case GetType(FileInfo)
                         Return responsebytes.WriteToFile(FilePath)
                     Case GetType(Byte), GetType(Byte())

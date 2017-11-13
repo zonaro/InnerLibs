@@ -14,7 +14,7 @@ Public Module InnerCrypt
         Dim letras = Text.ToArray()
         Dim num As New List(Of String)
         For Each c In letras
-            Dim i As Integer = Asc(c).ToString.GetFirstChars(2).To(Of Integer)
+            Dim i As Integer = Asc(c).ToString.GetFirstChars(2).ChangeType(Of Integer)
             i = i.LimitRange(1, letrasc.Length - 1)
             num.Add(letrasc(i) & (Asc(c) * Asc(c)))
         Next

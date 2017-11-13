@@ -146,7 +146,7 @@ Public Module Mathematic
             For index = 1 To Places
                 splaces.Append("#")
             Next
-            Return Value.ToString("###############" & splaces & "}").To(Of Decimal)
+            Return Value.ToString("###############" & splaces & "}").ChangeType(Of Decimal)
         Catch ex As Exception
             Return Value
         End Try
@@ -161,7 +161,7 @@ Public Module Mathematic
     Public Function GetDecimalPlaces(Value As Decimal, Optional DecimalPlaces As Integer = 0) As Long
         Dim f = Value.ToString.Split(",")
         Try
-            Return If(f(1).IsNotBlank(), f(1).Slice(If(DecimalPlaces > 0, DecimalPlaces, f(1).Length).To(Of Integer)), 0)
+            Return If(f(1).IsNotBlank(), f(1).Slice(If(DecimalPlaces > 0, DecimalPlaces, f(1).Length).ChangeType(Of Integer)), 0)
         Catch ex As Exception
             Return 0
         End Try
@@ -260,7 +260,7 @@ Public Module Mathematic
     <Extension()> Public Function Round(Number As Decimal, Optional MiddleNumber As Integer = 5) As Integer
         MiddleNumber.LimitRange(1, 10)
         Dim split = Number.ToString.Replace(".", ",").Split(",")
-        If split(1).GetFirstChars(1).To(Of Integer) > MiddleNumber Then
+        If split(1).GetFirstChars(1).ChangeType(Of Integer) > MiddleNumber Then
             Return Number.Ceil
         Else
             Return Number.Floor
