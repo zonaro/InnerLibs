@@ -1,6 +1,7 @@
-﻿# InnerLibs - 
-
-Uma biblioteca de classes e métodos para .NET. Opções flexiveis e fáceis de usar para simplificar e manter seu código limpo. O projeto nasceu a partir da nescessidade de repetir os códigos em diversos projetos. No início era uma classe com alguns métodos que precisavam sempre ser modificados em cada projeto. Hoje InnerLibs conta com mais de 120 métodos de extensão para as mais diversas operaçoes comuns em ASP.NET e Aplicações Windows Forms. Entre as funções, você pode encontrar manipuladores de texto, manipuladores de imagem, conexão de banco de dados genérica, criação de vCards,integrações com API de terceiros (como o goqr.me, ViaCEP e o Google Maps) etc.
+﻿# InnerLibs
+ ### Uma biblioteca de classes e métodos para .NET. Opções flexiveis e fáceis de usar para simplificar e manter seu código limpo.
+ 
+O projeto nasceu a partir da nescessidade de repetir os códigos em diversos projetos. No início era uma classe com alguns métodos que precisavam sempre ser modificados em cada projeto. Hoje InnerLibs conta com mais de 120 métodos de extensão para as mais diversas operaçoes comuns em ASP.NET e Aplicações Windows Forms. Entre as funções, você pode encontrar manipuladores de texto, manipuladores de imagem, conexão de banco de dados genérica, criação de vCards,integrações com API de terceiros (como o goqr.me, ViaCEP e o Google Maps) etc.
 
 ## Sobre o Projeto
 
