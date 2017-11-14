@@ -89,6 +89,7 @@
     <Compile Include="Cronometer.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="DatabaseReader.vb" />
     <Compile Include="DataGridViewManager.vb" />
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />

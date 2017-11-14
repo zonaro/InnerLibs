@@ -375,7 +375,7 @@ Public Module Web
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
-        Return Request.flat.ToUPDATE(TableName, WhereClausule, QueryStringKeys)
+        Return Request.Flat.ToUPDATE(TableName, WhereClausule, QueryStringKeys)
     End Function
 
     ''' <summary>
@@ -730,10 +730,52 @@ Public Module Web
     End Function
 
     ''' <summary>
+    ''' Seleciona Valores de um <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
+    ''' <param name="predicate"> Predicado que filtra os valores que devem receber a propriedade select</param>
+    <Extension()> Public Function SelectValues(Control As HtmlSelect, Predicate As Func(Of ListItem, Boolean)) As HtmlSelect
+        Dim values As New List(Of ListItem)
+        For Each item In Control.Items
+            If Predicate(item) = True Then
+                values.Add(item)
+            End If
+        Next
+        If values.Count > 1 Then
+            Control.Multiple = True
+        End If
+        For Each i As ListItem In values
+            i.Selected = True
+        Next
+        Return Control
+    End Function
+
+    ''' <summary>
+    ''' Seleciona Valores de um <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
+    ''' <param name="predicate"> Predicado que filtra os valores que devem receber a propriedade select</param>
+    <Extension()> Public Function DisselectValues(Control As HtmlSelect, Predicate As Func(Of ListItem, Boolean)) As HtmlSelect
+        Dim values As New List(Of ListItem)
+        For Each item In Control.Items
+            If Predicate(item) = True Then
+                values.Add(item)
+            End If
+        Next
+        If values.Count > 1 Then
+            Control.Multiple = True
+        End If
+        For Each i As ListItem In values
+            i.Selected = False
+        Next
+        Return Control
+    End Function
+
+    ''' <summary>
     ''' Desseleciona Valores de um <see cref="HtmlSelect"/>
     ''' </summary>
     ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
-    ''' <param name="Values"> Valores que devem receber a propriedade select</param>
+    ''' <param name="Values"> Valores que serao desselecionados</param>
     <Extension()> Public Function DisselectValues(Control As HtmlSelect, ParamArray Values As String()) As HtmlSelect
         For Each i As ListItem In Control.Items
             If IsNothing(Values) OrElse Values.LongCount = 0 OrElse i.Value.IsIn(Values) Then i.Selected = False

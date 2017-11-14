@@ -188,4 +188,31 @@ Public Module DataManipulation
         Return New DataBase.Reader(Reader)
     End Function
 
+    ''' <summary>
+    ''' Cria uma string com um comando de INSERT a partir dos dados do dicionario
+    ''' </summary>
+    ''' <typeparam name="T">Tipo dos dados</typeparam>
+    ''' <param name="Dic">Dicionario</param>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToINSERT(Of T)(Dic As IDictionary(Of String, T), TableName As String) As String
+        Return String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", Dic.Keys.Join(","), Dic.Keys.Select(Function(p) Dic(p).ToString.IsNull(Quotes:=Not Dic(p).ToString.IsNumber)).ToArray.Join(","))
+    End Function
+
+    ''' <summary>
+    ''' Cria uma string com um comando de UPDATE a partir dos dados do dicionario
+    ''' </summary>
+    ''' <typeparam name="T">Tipo dos dados</typeparam>
+    ''' <param name="Dic">Dicionario</param>
+    ''' <param name="TableName">Nome da Tabela</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToUPDATE(Of T)(Dic As IDictionary(Of String, T), TableName As String, WhereClausule As String) As String
+        Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
+        For Each col In Dic.Keys
+            cmd.Append(String.Format(" {0} = {1},", col, Dic(col).ToString.IsNull(Quotes:=Not Dic(col).ToString.IsNumber)) & Environment.NewLine)
+        Next
+        cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
+        Return cmd
+    End Function
+
 End Module

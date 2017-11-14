@@ -156,46 +156,46 @@ Public Class Location
         Select Case pal
             Case "Aeroporto", "Ar", "Aero"
                 Me.AddressType = "Aeroporto"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Alameda", "Al", "Alm"
                 Me.AddressType = "Alameda"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
 
             Case "Area", "Área", "Ar"
                 Me.AddressType = "Área"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
 
             Case "Avenida", "Av"
                 Me.AddressType = "Avenida"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
 
             Case "Campo", "Cmp", "Camp"
                 Me.AddressType = "Campo"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Chácara", "Chacara", "Ch", "Chac", "Chr"
                 Me.AddressType = "Chácara"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Colônia", "Col"
                 Me.AddressType = "Colônia"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Condomínio", "Cond"
                 Me.AddressType = "Condomínio"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Conjunto", "Conj"
                 Me.AddressType = "Conjunto"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Distrito", "Dist", "Ds", "Dst"
                 Me.AddressType = "Distrito"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Esplanada", "Esp"
                 Me.AddressType = "Esplanada"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Estação",
                 Me.AddressType = "Estação"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case "Estrada", "Est"
                 Me.AddressType = "Estrada"
-                Me.Address.Trim(pal)
+                Me.Address.RemoveFirstIf(pal)
             Case Else
 
         End Select
