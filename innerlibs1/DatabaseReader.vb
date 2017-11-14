@@ -41,10 +41,12 @@ Partial Public Class DataBase
         ''' Retorna todas as colunas deste result
         ''' </summary>
         ''' <returns></returns>
-        Public Function GetColumns()
+        Public Function GetColumns() As List(Of String)
             Dim cols As New List(Of String)
-            cols.AddRange(Me.Select(Function(x) x.Columns))
-            Return cols.Distinct
+            For Each c In Me.Select(Function(x) x.Columns)
+                cols.AddRange(c)
+            Next
+            Return cols.Distinct.ToList
         End Function
 
 
@@ -101,8 +103,10 @@ Partial Public Class DataBase
         Public Function GetColumns() As List(Of String)
             If HasResults AndAlso HasRows Then
                 Dim cols As New List(Of String)
-                cols.AddRange(Me.Select(Function(x) x.GetColumns))
-                Return cols.Distinct
+                For Each c In Me.Select(Function(x) x.GetColumns)
+                    cols.AddRange(c)
+                Next
+                Return cols.Distinct.ToList
             Else
                 Return New List(Of String)
             End If
