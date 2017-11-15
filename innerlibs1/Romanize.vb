@@ -1,5 +1,6 @@
 ﻿Imports System.Runtime.CompilerServices
 Imports System.Text
+
 ''' <summary>
 ''' Modulo para manipulação de numeros romanos
 ''' </summary>
@@ -46,6 +47,7 @@ Public Module Romanize
 
         M = 1000
     End Enum
+
     ''' <summary>
     ''' Converte uma String contendo um numero romano para seu valor arabico
     ''' </summary>
@@ -60,14 +62,14 @@ Public Module Romanize
             Return 0
         End If
 
-        ' Os numerais que representam números que começam com um '5'(V, L e D) podem 
+        ' Os numerais que representam números que começam com um '5'(V, L e D) podem
         ' aparecer apenas uma vez em cada numeral romano. Esta regra permite XVI, mas não VIV.
         If RomanNumber.Split("V"c).Length > 2 OrElse RomanNumber.Split("L"c).Length > 2 OrElse RomanNumber.Split("D"c).Length > 2 Then
             Throw New ArgumentException("Número romano com algarismos inválidos. O número possui um algarismo V,L ou D repetido.")
         End If
 
-        ' Uma única letra pode ser repetida até três vezes consecutivamente sendo 
-        ' que cada ocorrência será somanda. Isto significa que I é um, II e III 
+        ' Uma única letra pode ser repetida até três vezes consecutivamente sendo
+        ' que cada ocorrência será somanda. Isto significa que I é um, II e III
         ' significa dois é três. No entanto, IIII não é permitido.
         Dim contador As Integer = 1
         Dim ultimo As Char = "Z"c
@@ -129,10 +131,10 @@ Public Module Romanize
             ptr += 1
         End While
 
-        ' Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da esquerda para a direita. 
-        ' O valor nunca deve aumentar a partir de uma letra para a próxima. 
-        ' Onde houver um numeral subtractivo, esta regra se aplica ao valor 
-        ' combinado dos dois algarismos envolvidos na subtração quando comparado com a letra anterior. 
+        ' Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da esquerda para a direita.
+        ' O valor nunca deve aumentar a partir de uma letra para a próxima.
+        ' Onde houver um numeral subtractivo, esta regra se aplica ao valor
+        ' combinado dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
         ' Isto significa que XIX é aceitável, mas XIM e IIV não são.
         For i As Integer = 0 To valores.Count - 2
             If CInt(valores(i)) < CInt(valores(i + 1)) Then
@@ -140,7 +142,7 @@ Public Module Romanize
             End If
         Next
 
-        ' Numerais maiores devem ser colocados à esquerda dos números menores para 
+        ' Numerais maiores devem ser colocados à esquerda dos números menores para
         ' continuar a combinação aditiva. Assim VI é igual a seis e MDCLXI é 1.661.
         Dim total As Integer = 0
         For Each digito As Integer In valores
@@ -158,10 +160,10 @@ Public Module Romanize
 
     <Extension()>
     Public Function ToRoman(ByVal ArabicNumber As Integer) As String
-
         ' valida : aceita somente valores entre 1 e 3999
-        If ArabicNumber < 0 OrElse ArabicNumber > 3999 OrElse ArabicNumber = 0 Then
-            Throw New ArgumentException("O valor numérico deve estar entre 1 e 3999.", "ArabicNumber")
+        If ArabicNumber < 1 OrElse ArabicNumber > 3999 Then
+            ArabicNumber = ArabicNumber.LimitRange(1, 3999)
+            Debug.Write("O valor numérico deve estar entre 1 e 3999.", "ArabicNumber")
         End If
 
         Dim algarismosArabicos As Integer() = New Integer() {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
@@ -184,4 +186,5 @@ Public Module Romanize
         Return resultado.ToString()
 
     End Function
+
 End Module
