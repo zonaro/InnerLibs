@@ -132,39 +132,47 @@ Public Module Converter
     ''' <summary>
     ''' Converte um tipo para outro
     ''' </summary>
-    ''' <typeparam name="T">Tipo</typeparam>
+    ''' <typeparam name="ToType">Tipo</typeparam>
     ''' <param name="Value">Variavel com valor</param>
     ''' <returns>Valor convertido em novo tipo</returns>
     <Extension>
-    Public Function ChangeType(Of T)(Value As Object) As T
+    Public Function ChangeType(Of ToType, FromType)(Value As FromType) As ToType
         Try
-            Dim a As Type = GetType(T)
+            Dim a As Type = GetType(ToType)
             Dim u As Type = Nullable.GetUnderlyingType(a)
-
-            If IsArray(Value) Then
-                Dim b As Object = {}
-                For index = 0 To Value.Length
-                    b(index) = ChangeType(Of T)(Value(index))
-                Next
-                Return CType(b, T)
-            End If
-
 
             If Not (u Is Nothing) Then
                 If Value Is Nothing OrElse Value.Equals("") Then
                     Return Nothing
                 End If
-                Return CType(Convert.ChangeType(Value, u), T)
+                Return CType(Convert.ChangeType(Value, u), ToType)
             Else
                 If Value Is Nothing OrElse Value.Equals("") Then
                     Return Nothing
                 End If
-                Return CType(Convert.ChangeType(Value, a), T)
+                Return CType(Convert.ChangeType(Value, a), ToType)
             End If
-        Catch
+        Catch ex As Exception
+            Debug.WriteLine(ex)
             Return Nothing
         End Try
     End Function
+
+    ''' <summary>
+    ''' Converte um array de um tipo para outro
+    ''' </summary>
+    ''' <typeparam name="ToType">Tipo do array</typeparam>
+    ''' <param name="Value">Array com elementos</param>
+    ''' <returns>Array convertido em novo tipo</returns>
+    <Extension>
+    Public Function ChangeArrayType(Of ToType, FromType)(Value As FromType()) As ToType()
+        Dim d As New List(Of ToType)
+        For Each el As FromType In Value
+            d.Add(el.ChangeType(Of ToType))
+        Next
+        Return d.ToArray
+    End Function
+
 
     <Extension()> Function Merge(Of Tkey)(Dic1 As Dictionary(Of Tkey, Object), ParamArray Dics As Dictionary(Of Tkey, Object)()) As Dictionary(Of Tkey, Object)
         Dim result = New Dictionary(Of Tkey, Object)()

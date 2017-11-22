@@ -106,7 +106,7 @@ Public NotInheritable Class Json
         End Function
 
         Public Overrides Function Serialize(obj As Object, serializer As JavaScriptSerializer) As IDictionary(Of String, Object)
-            Dim bt = Converter.ChangeType(Of Byte())(obj)
+            Dim bt = Converter.ChangeType(Of Byte(), Object)(obj)
             Dim dicByte As New Dictionary(Of String, Object)
             dicByte.Add("Size", bt.ToFileSizeString)
             dicByte.Add("Content", bt.ToBase64)

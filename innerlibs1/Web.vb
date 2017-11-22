@@ -708,6 +708,7 @@ Public Module Web
     <Extension()> Public Function ToHtmlString(Control As HtmlSelect) As String
         Dim t As New HtmlParser.HtmlElement("select")
         t.InnerHTML = Control.ExtractOptions
+        t.ID = Control.ID
         For Each att As String In Control.Attributes.Keys
             t.Attribute(att) = Control.Attributes(att)
         Next
@@ -720,7 +721,7 @@ Public Module Web
     ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
     <Extension()> Public Function SelectValues(Control As HtmlSelect, ParamArray Values As String()) As HtmlSelect
-        If Values.Length > 1 Then
+        If Values IsNot Nothing AndAlso Values.Length > 1 Then
             Control.Multiple = True
         End If
         For Each i As ListItem In Control.Items
