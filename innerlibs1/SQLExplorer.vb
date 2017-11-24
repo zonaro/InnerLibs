@@ -118,11 +118,11 @@ Namespace SQLExplorer
                                 Case New FileInfo(intofile).Extension.IsAny(".html")
                                     Dim html As String = ""
                                     For Each f In Me
-                                        html.Append(f.FullName.WrapInTag("li"))
+                                        html.Append(f.FullName.WrapInTag("li").ToString)
                                     Next
-                                    html = html.WrapInTag("ul")
-                                    html.Prepend(WrapInTag("Result of " & SQLQuery.Quote, "h1"))
-                                    html = html.WrapInTag("body")
+                                    html = html.WrapInTag("ul").ToString
+                                    html.Prepend(WrapInTag("Result of " & SQLQuery.Quote, "h1").ToString)
+                                    html = html.WrapInTag("body").ToString
                                     html.WriteToFile(intofile)
                                 Case Else
                             End Select

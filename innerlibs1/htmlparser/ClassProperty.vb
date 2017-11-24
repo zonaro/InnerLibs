@@ -93,9 +93,10 @@ Namespace HtmlParser
         ''' Add a class to element
         ''' </summary>
         ''' <param name="ClassName"></param>
-        Public Shadows Sub Add(ClassName As String)
+        Public Shadows Function Add(ClassName As String) As HtmlElement
             Me.Item(ClassName) = True
-        End Sub
+            Return Me.mElement
+        End Function
 
         ''' <summary>
         ''' Remove the class attribute from element

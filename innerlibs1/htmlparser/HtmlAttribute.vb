@@ -160,12 +160,24 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Name">Name of attribute</param>
         ''' <param name="Value">Value of attribute, fro Wired attributes just leave Nothing</param>
-        Public Overloads Sub Add(Name As String, Optional Value As String = Nothing)
-            If Me.Contains(Name) Then
-                Me.Remove(Name)
+        Public Shadows Function Add(Name As String, Optional Value As String = Nothing) As HtmlElement
+            If Name.IsNotBlank Then
+                If Me.Contains(Name) Then
+                    Me.Remove(Name)
+                End If
+                Me.Add(New HtmlAttribute(Name, Value))
             End If
-            Me.Add(New HtmlAttribute(Name, Value))
-        End Sub
+            Return mElement
+        End Function
+
+        ''' <summary>
+        ''' Add an attribute to element
+        ''' </summary>
+        ''' <param name="Attribute">attribute</param>
+        Public Shadows Function Add(Attribute As HtmlAttribute) As HtmlElement
+            MyBase.Add(Attribute)
+            Return mElement
+        End Function
 
         Public Overloads Function Contains(Name As String) As Boolean
             If Me.Count = 0 Then Return False

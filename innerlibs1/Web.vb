@@ -790,12 +790,10 @@ Public Module Web
     ''' <param name="Control"> Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Text">    Texto do Item</param>
     ''' <param name="Value">   Valor do Item</param>
-    ''' <param name="Selected">Indica se o item está selecionado ou não</param>
     ''' <remarks>A mudança de estado do item (selected) é aplicada apoós a inserção do item no select</remarks>
     ''' <returns></returns>
-    <Extension()> Public Function AddItem(Control As HtmlSelect, Text As String, Optional Value As String = "", Optional Selected As Boolean = False) As ListItem
+    <Extension()> Public Function AddItem(Control As HtmlSelect, Text As String, Optional Value As String = "") As ListItem
         Dim li = New ListItem(Text, Value.IfBlank(Text))
-        If Selected Then Control.SelectValues(Value.IfBlank(Text))
         Control.Items.Add(li)
         Return li
     End Function

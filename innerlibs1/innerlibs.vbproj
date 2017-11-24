@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllinClient.vb" />
+    <Compile Include="Alphabet.vb" />
     <Compile Include="AsxFile.vb" />
     <Compile Include="Base64.vb" />
     <Compile Include="bitly.vb" />
@@ -116,7 +117,6 @@
     <Compile Include="Converter.vb" />
     <Compile Include="Databases.vb" />
     <Compile Include="GeoIP.vb" />
-    <Compile Include="HashID.vb" />
     <Compile Include="htmlparser\ClassProperty.vb" />
     <Compile Include="htmlparser\CSSProperty.vb" />
     <Compile Include="htmlparser\CSSSelectors\ClassSelectors\AllSelector.vb" />

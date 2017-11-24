@@ -11,6 +11,32 @@ Imports System.Web
 Public Module ClassTools
 
     ''' <summary>
+    ''' Remove de um dicionario as respectivas Keys se as mesmas existirem
+    ''' </summary>
+    ''' <typeparam name="TKey"></typeparam>
+    ''' <typeparam name="Tvalue"></typeparam>
+    ''' <param name="dic"></param>
+    ''' <param name="Keys"></param>
+    <Extension()> Public Sub RemoveIfExist(Of TKey, TValue)(dic As IDictionary(Of TKey, TValue), ParamArray Keys As TKey())
+        For Each k In Keys
+            If dic.ContainsKey(k) Then
+                dic.Remove(k)
+            End If
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' Remove de um dicionario os valores encontrados pelo predicate
+    ''' </summary>
+    ''' <typeparam name="TKey"></typeparam>
+    ''' <typeparam name="Tvalue"></typeparam>
+    ''' <param name="dic"></param>
+    ''' <param name="predicate"></param>
+    <Extension()> Public Sub RemoveIfExist(Of TKey, TValue)(dic As IDictionary(Of TKey, TValue), predicate As Func(Of KeyValuePair(Of TKey, TValue), Boolean))
+        dic.RemoveIfExist(dic.Where(predicate).Select(Function(x) x.Key).ToArray)
+    End Sub
+
+    ''' <summary>
     ''' Mescla varios tipos de objeto em um unico dicionario a partir de suas propriedades
     ''' </summary>
     ''' <param name="Items"></param>

@@ -59,7 +59,7 @@ Public Module FileTypeExtensions
     End Function
 
     ''' <summary>
-    ''' Retorna um Objeto FileType a partir de uma string FileType ou Extensão de Arquivo
+    ''' Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
     ''' </summary>
     ''' <param name="MimeTypeOrExtension"></param>
     ''' <returns></returns>
@@ -208,9 +208,13 @@ Public Class FileType
     ''' <returns></returns>
     Public Shared Function GetFileType(MimeTypeOrExtension As String) As FileType
         Dim l = GetFileTypeList()
+        Try
+            MimeTypeOrExtension = Path.GetExtension(MimeTypeOrExtension)
+        Catch ex As Exception
+        End Try
         MimeTypeOrExtension = "." & MimeTypeOrExtension.TrimAny(" ", ".")
         For Each item As FileType In l
-            If (MimeTypeOrExtension.IsIn(item.Extensions) Or MimeTypeOrExtension.Trim(".").IsIn(item.MimeTypes)) Then
+            If (MimeTypeOrExtension.IsIn(item.Extensions) Or MimeTypeOrExtension.IsIn(item.MimeTypes)) Then
                 Return item
             End If
         Next

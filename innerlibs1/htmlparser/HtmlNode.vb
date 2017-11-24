@@ -352,6 +352,14 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
+        ''' Return only <see cref="HtmlElement"/> from this <see cref="HtmlNodeCollection"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetElements() As IEnumerable(Of HtmlElement)
+            Return Me.Where(Function(x) x.GetType = GetType(HtmlElement)).Select(Function(x) CType(x, HtmlElement))
+        End Function
+
+        ''' <summary>
         ''' This will search though this collection of nodes for all elements with the an
         ''' attribute with the given name.
         ''' </summary>

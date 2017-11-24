@@ -1977,19 +1977,19 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Corta uma string em uma determinada posição e completa com reticências.
+    ''' Corta uma string em uma determinada posição e completa com reticências ou outro caractere.
     ''' </summary>
     ''' <param name="Text">      O Texto a ser Cortado</param>
     ''' <param name="TextLength">A quantidade de caracteres final da string cortada</param>
-    ''' <param name="Ellipsis">  TRUE para reticências, FALSE para apenas a string cortada</param>
+    ''' <param name="Ellipsis">  Caracteres adicionados caso a mensagem for cortada, normalmente '...'</param>
     ''' <returns>string cortada</returns>
 
     <Extension()>
-    Public Function Slice(Text As String, Optional TextLength As Integer = 0, Optional Ellipsis As Boolean = True) As String
+    Public Function Slice(Text As String, Optional TextLength As Integer = 0, Optional Ellipsis As String = "...") As String
         If Text.Length <= TextLength OrElse TextLength < 1 Then
             Return Text
         Else
-            Return Text.GetFirstChars(TextLength) & If(Ellipsis, "...", "")
+            Return Text.GetFirstChars(TextLength) & Ellipsis
         End If
     End Function
 
@@ -2165,9 +2165,9 @@ Public Module Text
     ''' <param name="TagName">Nome da Tag (Exemplo: div)</param>
     ''' <returns>Uma string HTML com seu texto dentro de uma tag</returns>
     <Extension>
-    Function WrapInTag(Text As String, TagName As String, Optional Attr As String = "") As String
+    Function WrapInTag(Text As String, TagName As String) As HtmlParser.HtmlElement
         TagName = TagName.RemoveAny("<", ">", "/").ToLower()
-        Return "<" & TagName & " " & Attr.Trim() & " >" & Text & "</" & TagName & ">"
+        Return New HtmlParser.HtmlElement(TagName, Text)
     End Function
 
     ''' <summary>
@@ -2196,13 +2196,13 @@ Public Module Text
     ''' <returns></returns>
     <Extension>
     Public Function ToHtmlString(Control As HtmlGenericControl) As String
-        Dim attr = ""
+        Dim c As New HtmlParser.HtmlElement(Control.TagName, Control.InnerHtml)
         For Each k In Control.Attributes.Keys
             If Not k = "innerhtml" Then
-                attr.Append(" " & k & "=" & Control.Attributes(k).Quote)
+                c.Attributes.Add(k, Control.Attributes(k))
             End If
         Next
-        Return Control.InnerHtml.WrapInTag(Control.TagName, attr)
+        Return c.ToString
     End Function
 
     ''' <summary>

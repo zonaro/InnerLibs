@@ -3,6 +3,7 @@ Imports System.Collections
 Imports System.ComponentModel
 Imports System.IO
 Imports System.Xml
+Imports System.IO.Packaging
 
 Namespace HtmlParser
     ''' <summary>
@@ -152,15 +153,25 @@ Namespace HtmlParser
             Return HTML
         End Function
 
+
+        Public Function GetBytes() As Byte()
+            Return Encoding.UTF8.GetBytes(Me.HTML)
+        End Function
+
         ''' <summary>
         ''' Save the document as file
         ''' </summary>
         ''' <param name="File">File</param>
         ''' <returns></returns>
         Public Function SaveAs(File As FileInfo) As FileInfo
+
             Me.HTML.WriteToFile(File)
+
             Return File
         End Function
+
+
+
 
         ''' <summary>
         ''' Save the document as file
@@ -244,16 +255,45 @@ Namespace HtmlParser
         ''' Travesse DOM with a CSS selector an retireve nodes
         ''' </summary>
         ''' <param name="CssSelector">Teh CSS selector</param>
-        ''' <returns></returns>
+        ''' <returns>The <see cref="HtmlNodeCollection"/> with matched elements</returns>
+
         Default ReadOnly Property QuerySelectorAll(CssSelector As String) As HtmlNodeCollection
             Get
                 Return Me.Nodes(CssSelector)
             End Get
         End Property
 
+        ''' <summary>
+        ''' Execute an <see cref="Action"/> for each <see cref="HtmlElement"/> matched with <paramref name="CssSelector"/>
+        ''' </summary>
+        ''' <param name="CssSelector">The CSS Selector</param>
+        ''' <param name="Actions">Actions</param>
+        ''' <returns>The <see cref="HtmlNodeCollection"/> with matched elements</returns>
+        Default Public ReadOnly Property QuerySelectorAll(CssSelector As String, ParamArray Actions As Action(Of HtmlElement)()) As HtmlNodeCollection
+            Get
+                Dim col = Me(CssSelector).GetElements
+                For Each action In Actions
+                    For Each a In col
+                        action(a)
+                    Next
+                Next
+                Dim d As New HtmlNodeCollection
+                d.AddRange(col)
+                Return d
+            End Get
+        End Property
+
+
+        ''' <summary>
+        ''' Travesse DOM with a CSS selector an retireve the first node
+        ''' </summary>
+        ''' <param name="CssSelector">Teh CSS selector</param>
+        ''' <returns>The <see cref="HtmlElement"/> matched</returns>
         Public Function QuerySelector(CssSelector As String) As HtmlElement
             Return Me(CssSelector).First
         End Function
+
+
 
     End Class
 

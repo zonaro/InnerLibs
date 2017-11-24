@@ -260,13 +260,13 @@ Namespace QuestionTest
         ReadOnly Property HTML As HtmlDocument
             Get
                 Dim head = ""
-                head &= Title.WrapInTag("title").WrapInTag("head")
+                head &= Title.WrapInTag("title").ToString.WrapInTag("head").ToString
 
-                Dim body = (Title.WrapInTag("h1").Append(Header.WrapInTag("header")))
+                Dim body = (Title.WrapInTag("h1").ToString.Append(Header.WrapInTag("header").ToString))
 
-                body &= Me.Select(Function(q) q.HTML).ToArray.Join("").WrapInTag("ol").WrapInTag("article", "class='Questions'")
+                body &= Me.Select(Function(q) q.HTML).ToArray.Join("").WrapInTag("ol").ToString.WrapInTag("article").Class.Add("Questions").ToString
 
-                Dim foot = Footer.WrapInTag("footer")
+                Dim foot = Footer.WrapInTag("footer").ToString
                 Return New HtmlDocument(head & body & foot)
             End Get
         End Property
@@ -419,7 +419,7 @@ Namespace QuestionTest
         <ScriptIgnore>
         ReadOnly Property HTML As String
             Get
-                Return Me.Select(Function(i) i.HTML).ToArray().Join("").WrapInTag("ul")
+                Return Me.Select(Function(i) i.HTML).ToArray().Join("").WrapInTag("ul").ToString
             End Get
         End Property
 
@@ -474,11 +474,11 @@ Namespace QuestionTest
             Get
                 HTML = ""
                 If Question IsNot Nothing Then
-                    HTML.Append(Text.WrapInTag("h3"))
+                    HTML.Append(Text.WrapInTag("h3").ToString)
                     If Images.Count > 0 Then
                         HTML.Append(Images.HTML)
                     End If
-                    HTML = HTML.WrapInTag("label", "for='" & Me.Question.ID & "' class='Statement'")
+                    HTML = HTML.WrapInTag("label").Class.Add("Statement").Attributes.Add("for", Me.Question.ID).ToString
                 End If
                 Return HTML
             End Get
@@ -586,7 +586,7 @@ Namespace QuestionTest
                     mElement.Attribute("min") = MinValue
                     mElement.Attribute("max") = MaxValue
                     mElement.Class.Add("Numeric")
-                    Return (Statement.HTML & mElement.ToString.WrapInTag("div")).WrapInTag("li", "class='Question'")
+                    Return (Statement.HTML & mElement.ToString.WrapInTag("div").ToString).WrapInTag("li").Class.Add("Question").ToString
                 End If
                 Return ""
             End Get
@@ -610,7 +610,7 @@ Namespace QuestionTest
                     mElement.Attribute("name") = ID
                     mElement.Class.Add("Dissertative")
                     mElement.IsExplicitlyTerminated = True
-                    Return (Statement.HTML & mElement.ToString.WrapInTag("div")).WrapInTag("li", "class='Question'")
+                    Return (Statement.HTML & mElement.ToString.WrapInTag("div").ToString).WrapInTag("li").Class.Add("Question").ToString
                 End If
                 Return ""
             End Get
@@ -755,7 +755,7 @@ Namespace QuestionTest
         Public Overrides ReadOnly Property HTML As String
             Get
                 If Test IsNot Nothing Then
-                    Return (Statement.HTML & Alternatives.HTML).WrapInTag("li", "class='Question'")
+                    Return (Statement.HTML & Alternatives.HTML).WrapInTag("li").Class.Add("Question").ToString
                 End If
                 Return ""
             End Get
@@ -824,7 +824,7 @@ Namespace QuestionTest
         Public Overrides ReadOnly Property HTML As String
             Get
                 If Test IsNot Nothing Then
-                    Return (Statement.HTML & Alternatives.HTML).WrapInTag("li", "class='Question'")
+                    Return (Statement.HTML & Alternatives.HTML).WrapInTag("li").Class.Add("Question").ToString
                 End If
                 Return ""
             End Get
@@ -863,7 +863,7 @@ Namespace QuestionTest
         Public ReadOnly Property HTML As String
             Get
                 If Question IsNot Nothing Then
-                    Return Me.Select(Function(p) p.HTML).ToArray.Join("").WrapInTag(If(Question.RenderAsSelect, "select", "ol"), If(Question.RenderAsSelect AndAlso Question.AllowMultiple, "multiple", "") & " class='Alternatives'")
+                    Return Me.Select(Function(p) p.HTML).ToArray.Join("").WrapInTag(If(Question.RenderAsSelect, "select", "ol")).Attributes.Add(If(Question.RenderAsSelect AndAlso Question.AllowMultiple, "multiple", "")).Class.Add("Alternatives").ToString
                 End If
                 Return ""
             End Get
