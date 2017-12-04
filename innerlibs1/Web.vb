@@ -177,6 +177,23 @@ End Class
 Public Module Web
 
     ''' <summary>
+    ''' Minifica uma folha de estilo CSS
+    ''' </summary>
+    ''' <param name="CSS">String contendo o CSS</param>
+    ''' <returns></returns>
+    Public Function MinifyCSS(CSS As String) As String
+        CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#")
+        CSS = Regex.Replace(CSS, "[\n\r]+\s*", String.Empty)
+        CSS = Regex.Replace(CSS, "\s+", " ")
+        CSS = Regex.Replace(CSS, "\s?([:,;{}])\s?", "$1")
+        CSS = CSS.Replace(";}", "}")
+        CSS = Regex.Replace(CSS, "([\s:]0)(px|pt|%|em)", "$1")
+        ' Remove comments from CSS
+        CSS = Regex.Replace(CSS, "/\*[\d\D]*?\*/", String.Empty)
+        Return CSS
+    End Function
+
+    ''' <summary>
     ''' Verifica se o computador está conectado com a internet
     ''' </summary>
     ''' <returns></returns>
@@ -567,6 +584,16 @@ Public Module Web
         End If
 
     End Sub
+
+    ''' <summary>
+    ''' Escreve um <see cref="htmlparser.HtmlDocument"/> e finaliza um HttpResponse
+    ''' </summary>
+    ''' <param name="HttpResponse">Response</param>
+    <Extension>
+    Public Sub WriteJSON(HttpResponse As HttpResponse, Document As HtmlParser.HtmlDocument)
+        HttpResponse.WriteEnd(Document.ToString)
+    End Sub
+
 
     ''' <summary>
     ''' Captura o Username ou UserID de uma URL do Facebook

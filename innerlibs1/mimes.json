@@ -480,25 +480,11 @@
     "Description": "Java Source File"
   },
   {
-    "Extensions": [ ".jfif" ],
+    "Extensions": [ ".jpeg", ".jpg", ".jfif", ".jpe" ],
     "MimeTypes": [ "image/jpeg", "image/pjpeg" ],
     "Description": "Jpeg Image"
   },
-  {
-    "Extensions": [ ".jpe" ],
-    "MimeTypes": [ "image/jpeg", "image/pjpeg" ],
-    "Description": "Jpeg Image"
-  },
-  {
-    "Extensions": [ ".jpeg" ],
-    "MimeTypes": [ "image/jpeg", "image/pjpeg" ],
-    "Description": "Jpeg Image"
-  },
-  {
-    "Extensions": [ ".jpg" ],
-    "MimeTypes": [ "image/jpeg", "image/pjpeg" ],
-    "Description": "Jpeg Image"
-  },
+
   {
     "Extensions": [ ".js" ],
     "MimeTypes": [ "text/javascript", "application/javascript", " application/x-javascript", " application/x-js" ],
@@ -824,11 +810,7 @@
     "MimeTypes": [ "image/x-pict", "image/pict", " image/x-macpict" ],
     "Description": "Macintosh Quickdraw Image"
   },
-  {
-    "Extensions": [ ".pjpeg" ],
-    "MimeTypes": [ "image/jpeg", "image/pjpeg" ],
-    "Description": "Jpeg Image"
-  },
+
   {
     "Extensions": [ ".pl" ],
     "MimeTypes": [ "application/x-perl", "text/x-perl" ],
@@ -857,7 +839,7 @@
   {
     "Extensions": [ ".png" ],
     "MimeTypes": [ "image/png", "image/x-png" ],
-    "Description": "Png Image"
+    "Description": "Portable Network Graphics Image"
   },
   {
     "Extensions": [ ".pnm" ],

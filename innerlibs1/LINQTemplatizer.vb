@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
+Imports System.Text.RegularExpressions
 Imports InnerLibs.HtmlParser
 
 Namespace Templatizer
@@ -18,7 +19,7 @@ Namespace Templatizer
         ''' <summary>
         ''' Tipo de <see cref="Data.Linq.DataContext"/> utilizado para a comunicação com o banco
         ''' </summary>
-        ''' <returns></returns>
+
         Private DataContext As DataContextType
 
         ''' <summary>
@@ -173,7 +174,10 @@ Namespace Templatizer
                 Template = ProccessConditions(Item, Template)
                 Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
+                Template = ProcessSubClass(Item, Template)
                 Template = ProccessSubTemplate(Item, Template)
+                Dim re As New Regex(GetRegexPattern, RegexOptions.Compiled)
+                re.Replace(Template, "")
             End If
             Return New Template(Of T)(Item, Template)
         End Function
@@ -419,42 +423,74 @@ Namespace Templatizer
             Return Template
         End Function
 
-        Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String) As String
-            Template = GetTemplateContent(Template)
-            If Template.IsNotBlank Then
-                If GetType(T) = GetType(Dictionary(Of String, Object)) AndAlso CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
-                    For Each i In CType(CType(Item, Object), Dictionary(Of String, Object)).Keys.ToArray
-                        Try
-                            If CType(CType(Item, Object), Dictionary(Of String, Object))(i).GetType.IsIn({GetType(DateTime), GetType(Date)}) Then
-                                Template = Template.Replace(ApplySelector(i), CType(CType(CType(Item, Object), Dictionary(Of String, Object))(i), Date).ToString(DateTimeFormat))
-                            Else
-                                Template = Template.Replace(ApplySelector(i), CType(CType(Item, Object), Dictionary(Of String, Object))(i).ToString())
-                            End If
-                        Catch ex As Exception
-                            Template = Template.Replace(Me.ApplySelector(i), "")
-                        End Try
-                    Next
-                Else
-                    If Item.GetProperties.Count > 0 Then
-                        For Each i As PropertyInfo In Item.GetProperties
-                            Try
-                                If i.GetValue(Item).GetType.IsIn({GetType(DateTime)}) Then
-                                    Template = Template.Replace(ApplySelector(i.Name), CType(i.GetValue(Item), Date).ToString(DateTimeFormat))
-                                Else
-                                    Template = Template.Replace(ApplySelector(i.Name), i.GetValue(Item).ToString())
-                                End If
-                            Catch ex As Exception
-                                Template = Template.Replace(Me.ApplySelector(i.Name), "")
-                            End Try
+
+        Friend Function ProcessSubClass(Of T As Class)(Item As T, Template As String) As String
+            Dim doc As New HtmlDocument(Template)
+            For Each class_tag As HtmlElement In doc("[templatizer-source]")
+                Try
+                    Dim newcontent = ""
+                    Dim lis = Item.GetPropertyValue(class_tag.Attribute("templatizer-source"))
+                    If lis IsNot Nothing Then
+                        For Each el In lis
+                            newcontent = ReplaceValues(el, class_tag.InnerHTML)
                         Next
                     End If
-                End If
-            End If
+                    class_tag.Mutate(newcontent)
+                Catch ex As Exception
+                    class_tag.Destroy()
+                End Try
+            Next
+            Template = doc.InnerHTML
             Return Template
         End Function
 
+        Private Function GetRegexPattern() As String
+            Dim open = Me.sel(0).ToArray.Join("\").Prepend("\")
+            Dim close = Me.sel(1).ToArray.Join("\").Prepend("\")
+            Return open & "(.*?)" & close
+        End Function
 
-
+        Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String, Optional subclass As Boolean = False) As String
+            Template = GetTemplateContent(Template)
+            If Template.IsNotBlank Then
+                Dim ff As MatchEvaluator
+                Dim pt = GetRegexPattern()
+                If subclass Then
+                    pt = pt.Replace("_", sel(0), sel(1))
+                End If
+                Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
+                If GetType(T) = GetType(Dictionary(Of String, Object)) AndAlso CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
+                    ff = Function(match)
+                             Dim s As String
+                             Try
+                                 s = CType(Item, IDictionary)(match.Groups(1).Value)
+                             Catch ex As Exception
+                                 s = ApplySelector(match.Groups(1).Value)
+                             End Try
+                             Return s
+                         End Function
+                Else
+                    If Item.GetProperties.Count > 0 Then
+                        ff = Function(match As Match) As String
+                                 Dim val = Item.GetPropertyValue(match.Groups(1).Value)
+                                 If val Is Nothing Then Return ApplySelector(match.Groups(1).Value)
+                                 If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
+                                     Dim d As Date? = val
+                                     If d.HasValue Then
+                                         Return d.Value.ToString(DateTimeFormat)
+                                     Else
+                                         Return ""
+                                     End If
+                                 Else
+                                     Return val.ToString
+                                 End If
+                             End Function
+                    End If
+                End If
+                Template = re.Replace(Template, ff)
+            End If
+            Return Template
+        End Function
     End Class
 
 

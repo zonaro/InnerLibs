@@ -208,11 +208,18 @@ Public Class FileType
     ''' <returns></returns>
     Public Shared Function GetFileType(MimeTypeOrExtension As String) As FileType
         Dim l = GetFileTypeList()
+        Dim ismime As Boolean = True
         Try
-            MimeTypeOrExtension = Path.GetExtension(MimeTypeOrExtension)
+            Dim newmime = Path.GetExtension(MimeTypeOrExtension)
+            If newmime.IsNotBlank Then
+                MimeTypeOrExtension = newmime
+                ismime = False
+            End If
         Catch ex As Exception
         End Try
-        MimeTypeOrExtension = "." & MimeTypeOrExtension.TrimAny(" ", ".")
+        If Not ismime Then
+            MimeTypeOrExtension = "." & MimeTypeOrExtension.TrimAny(" ", ".")
+        End If
         For Each item As FileType In l
             If (MimeTypeOrExtension.IsIn(item.Extensions) Or MimeTypeOrExtension.IsIn(item.MimeTypes)) Then
                 Return item

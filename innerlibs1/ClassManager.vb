@@ -194,7 +194,11 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()>
     Public Function GetProperties(MyObject As Object) As List(Of PropertyInfo)
-        Return MyObject.GetType().GetProperties().ToList()
+        If MyObject IsNot Nothing Then
+            Return MyObject.GetType().GetProperties().ToList()
+        Else
+            Return New List(Of PropertyInfo)
+        End If
     End Function
 
     ''' <summary>
@@ -207,11 +211,27 @@ Public Module ClassTools
     <Extension()>
     Public Function GetPropertyValue(Of Type)(MyObject As Object, PropertyName As String) As Type
         Try
-            Return CType(GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.GetValue(MyObject), Type)
+            Dim obj = MyObject
+            For Each part As String In PropertyName.Split("."c)
+                If MyObject Is Nothing Then
+                    Return Nothing
+                End If
+                Dim t = obj.[GetType]()
+                If t.IsValueType Or t = GetType(String) Then
+                    Return MyObject
+                End If
+                Dim info As PropertyInfo = t.GetProperties.Where(Function(x) x.Name = part).First
+                If info Is Nothing Then
+                    Return Nothing
+                End If
+                obj = info.GetValue(obj)
+            Next
+            Return CType(obj, Type)
         Catch ex As Exception
             Return Nothing
         End Try
     End Function
+
 
     ''' <summary>
     ''' Seta o valor de uma propriedade de um objeto
@@ -249,6 +269,12 @@ Public Module ClassTools
     Public Function GetPropertyValue(MyObject As Object, PropertyName As String) As Object
         Return GetPropertyValue(Of Object)(MyObject, PropertyName)
     End Function
+
+
+
+
+
+
 
     ''' <summary>
     ''' Traz todos os Valores de uma enumeração

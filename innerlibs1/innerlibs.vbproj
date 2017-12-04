@@ -118,6 +118,7 @@
     <Compile Include="Databases.vb" />
     <Compile Include="GeoIP.vb" />
     <Compile Include="htmlparser\ClassProperty.vb" />
+    <Compile Include="htmlparser\CssParser.vb" />
     <Compile Include="htmlparser\CSSProperty.vb" />
     <Compile Include="htmlparser\CSSSelectors\ClassSelectors\AllSelector.vb" />
     <Compile Include="htmlparser\CSSSelectors\ClassSelectors\AttributeSelector.vb" />
@@ -149,6 +150,7 @@
     </Compile>
     <Compile Include="JsonViewer.vb" />
     <Compile Include="LimitedCollection.vb" />
+    <Compile Include="LinqPagination.vb" />
     <Compile Include="LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />

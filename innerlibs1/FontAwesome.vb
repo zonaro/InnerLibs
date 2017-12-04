@@ -19,8 +19,8 @@ Public Module FontAwesome
     ''' <param name="MIME">MIME Type do Arquivo</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetIconByFileType(MIME As FileType)
-        Return MIME.Extensions.First.GetIconByFileExtension()
+    Public Function GetIconByFileType(MIME As FileType) As String
+        Return MIME.Extensions.FirstOr("").GetIconByFileExtension()
     End Function
 
     ''' <summary>

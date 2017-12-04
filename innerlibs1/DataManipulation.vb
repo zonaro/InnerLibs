@@ -99,7 +99,7 @@ Public Module DataManipulation
     ''' <param name="Key">nome do parametro</param>
     ''' <param name="Value">valor do parametro</param>
     <Extension>
-    Public Sub AppendSQLParameter(ByRef Command As String, Key As String, Optional Value As String = Nothing)
+    Public Function AppendSQLParameter(ByRef Command As String, Key As String, Optional Value As String = Nothing)
         Key = Key.TrimStart("@")
         Dim param = " @" & Key & "=" & Value.IsNull(Quotes:=Not Value.IsNumber)
         If (Command.Contains("@")) Then
@@ -111,7 +111,8 @@ Public Module DataManipulation
         Else
             Command.Append(param)
         End If
-    End Sub
+        Return Command
+    End Function
 
     ''' <summary>
     ''' Converte um Array para um DataTableReader de 1 Coluna
