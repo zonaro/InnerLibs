@@ -4,6 +4,7 @@ Imports System.ComponentModel
 Imports System.IO
 Imports System.Xml
 Imports System.IO.Packaging
+Imports System.Web
 
 Namespace HtmlParser
     ''' <summary>
@@ -22,17 +23,48 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
 
-        Public Sub New(Optional UrlOrHTMLString As String = "", Optional WantSpaces As Boolean = False)
+        Public Sub New(Optional UrlOrHTMLString As String = "", Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
+            Build(UrlOrHTMLString, WantSpaces, Encoding)
+        End Sub
+
+        Private Sub Build(Optional UrlOrHTMLString As String = "", Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
+            If Encoding IsNot Nothing Then
+                Me.Encoding = Encoding
+            End If
             If UrlOrHTMLString.IsBlank Then
                 UrlOrHTMLString = Html5Structure
             End If
             If UrlOrHTMLString.IsURL Then
-                UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString)
+                UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString, Me.Encoding)
             End If
             Dim parser As New HtmlParser
             parser.RemoveEmptyElementText = Not WantSpaces
             mNodes = parser.Parse(UrlOrHTMLString)
         End Sub
+
+        ''' <summary>
+        ''' This will create a new document object direct from Byte Array.
+        ''' </summary>
+        ''' <param name="Content">The byte array with URL or HTML to parse.</param>
+        Public Sub New(Content As Byte(), Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
+            Build(If(Encoding, Encoding.UTF8).GetString(Content), WantSpaces, Encoding)
+        End Sub
+
+        ''' <summary>
+        ''' The Encoding used to export this document as file
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Encoding As Encoding = Encoding.UTF8
+
+        ''' <summary>
+        ''' Merge all STYLE tags and minify it
+        ''' </summary>
+        Public Sub MinifyCSS()
+            Dim styles As HtmlNodeCollection = Me.QuerySelectorAll("style", Sub(x) x.InnerHTML = Web.MinifyCSS(x.InnerHTML))
+        End Sub
+
+
+
 
         <Category("General"), Description("This is the DOCTYPE for XHTML production")>
         Public Property DocTypeXHTML() As String
@@ -153,9 +185,12 @@ Namespace HtmlParser
             Return HTML
         End Function
 
-
+        ''' <summary>
+        ''' Return the byte array for this document
+        ''' </summary>
+        ''' <returns></returns>
         Public Function GetBytes() As Byte()
-            Return Encoding.UTF8.GetBytes(Me.HTML)
+            Return Me.Encoding.GetBytes(Me.HTML)
         End Function
 
         ''' <summary>
@@ -164,13 +199,19 @@ Namespace HtmlParser
         ''' <param name="File">File</param>
         ''' <returns></returns>
         Public Function SaveAs(File As FileInfo) As FileInfo
-
-            Me.HTML.WriteToFile(File)
-
+            Me.GetBytes.WriteToFile(File.FullName)
             Return File
         End Function
 
-
+        ''' <summary>
+        ''' Copy this document to stream
+        ''' </summary>
+        ''' <param name="s"></param>
+        Public Sub CopyTo(S As Stream)
+            Using m As New MemoryStream(Me.GetBytes)
+                m.CopyTo(S)
+            End Using
+        End Sub
 
 
         ''' <summary>
@@ -199,6 +240,10 @@ Namespace HtmlParser
             TreeView.Nodes.Clear()
             BuildTree(Me.Nodes, TreeView.Nodes)
         End Sub
+
+
+
+
 
         Private Sub BuildTree(ByVal nodes As HtmlNodeCollection, ByVal treeNodes As Windows.Forms.TreeNodeCollection)
             Dim value As String = ""
@@ -271,15 +316,13 @@ Namespace HtmlParser
         ''' <returns>The <see cref="HtmlNodeCollection"/> with matched elements</returns>
         Default Public ReadOnly Property QuerySelectorAll(CssSelector As String, ParamArray Actions As Action(Of HtmlElement)()) As HtmlNodeCollection
             Get
-                Dim col = Me(CssSelector).GetElements
+                Dim col = Me(CssSelector)
                 For Each action In Actions
                     For Each a In col
                         action(a)
                     Next
                 Next
-                Dim d As New HtmlNodeCollection
-                d.AddRange(col)
-                Return d
+                Return col
             End Get
         End Property
 

@@ -1,6 +1,7 @@
 Imports System.Collections
 Imports System.ComponentModel
 Imports System.Linq
+Imports System.Web.UI.HtmlControls
 
 Namespace HtmlParser
 
@@ -270,6 +271,16 @@ Namespace HtmlParser
         Inherits List(Of HtmlNode)
         Friend mParent As HtmlElement
 
+        ''' <summary>
+        ''' Retuns all html text from this collection
+        ''' </summary>
+        ''' <returns></returns>
+        Public Overrides Function ToString() As String
+            Dim html As String = ""
+            Me.ForEach(Function(x) html.Append(x.ToString))
+            Return html
+        End Function
+
         ' Public constructor to create an empty collection.
         Public Sub New()
             mParent = Nothing
@@ -289,8 +300,8 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Index"></param>
         ''' <param name="Node"></param>
-        Public Shadows Sub Insert(Index As Integer, Node As HtmlNode)
-            If Me.mParent IsNot Nothing Then
+        Public Shadows Sub Insert(Index As Integer, Node As HtmlNode, Optional ChangeParent As Boolean = True)
+            If Me.mParent IsNot Nothing AndAlso ChangeParent Then
                 Node.Remove()
                 Node.mParent = Me.mParent
             End If
@@ -301,12 +312,23 @@ Namespace HtmlParser
         ''' Add a Node to colleciton
         ''' </summary>
         ''' <param name="Node"></param>
-        Public Shadows Sub Add(Node As HtmlNode)
-            If Me.mParent IsNot Nothing Then
+        Public Shadows Sub Add(Node As HtmlNode, Optional ChangeParent As Boolean = True)
+            If Me.mParent IsNot Nothing AndAlso ChangeParent Then
                 Node.Remove()
                 Node.mParent = Me.mParent
             End If
             MyBase.Add(Node)
+        End Sub
+
+        Public Shadows Sub AddRange(Nodes As IEnumerable(Of HtmlNode), Optional ChangeParent As Boolean = True)
+            MyBase.AddRange(Nodes)
+            For Each el In Nodes
+                el.mParent = Me.mParent
+            Next
+        End Sub
+
+        Public Shadows Sub AddRange(ChangeParent As Boolean, ParamArray Nodes As HtmlNode())
+            Me.AddRange(Nodes, ChangeParent)
         End Sub
 
         ''' <summary>
@@ -322,6 +344,14 @@ Namespace HtmlParser
                 n = New HtmlText(Node)
             End If
             Me.Add(n)
+        End Sub
+
+        ''' <summary>
+        ''' Add a Node to colleciton
+        ''' </summary>
+        ''' <param name="Control"></param>
+        Public Shadows Sub Add(Control As HtmlGenericControl)
+            Me.Add(New HtmlElement(Control))
         End Sub
 
         ''' <summary>
@@ -468,7 +498,7 @@ Namespace HtmlParser
                     For Each s In combinedSelectors.Skip(1)
                         For Each n In Me.Item(s)
                             If Not rt.Contains(n) Then
-                                rt.Add(n)
+                                rt.Add(n, False)
                             End If
 
                         Next
@@ -506,7 +536,7 @@ Namespace HtmlParser
             For Each node As HtmlElement In nodes
                 For Each n As HtmlElement In Traverse(node).Where(Function(i) TypeOf i Is HtmlElement)
                     If n IsNot Nothing Then
-                        l.Add(n)
+                        l.Add(n, False)
                     End If
                 Next
 
@@ -522,7 +552,7 @@ Namespace HtmlParser
             For Each child As HtmlElement In node.ChildElements
                 ''aqui é os node de verdade'
                 For Each n As HtmlElement In Traverse(child)
-                    l.Add(n)
+                    l.Add(n, False)
                 Next
 
             Next
@@ -532,10 +562,3 @@ Namespace HtmlParser
     End Class
 
 End Namespace
-
-'=======================================================
-'Service provided by Telerik (www.telerik.com)
-'Conversion powered by NRefactory.
-'Twitter: @telerik
-'Facebook: facebook.com/telerik
-'=======================================================

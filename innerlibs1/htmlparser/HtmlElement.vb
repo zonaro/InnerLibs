@@ -34,7 +34,30 @@ Namespace HtmlParser
             End If
         End Sub
 
+        ''' <summary>
+        ''' This constructs a new HTML element using a <see cref="HtmlGenericControl"/> as source.
+        ''' </summary>
+        ''' <param name="HtmlControl">The server control</param>
+        Public Sub New(HtmlControl As HtmlGenericControl)
+            Me.New(HtmlControl.TagName, HtmlControl.InnerHtml)
+            For Each a In HtmlControl.Attributes.Keys
+                If Not a.tolower = "innerhtml" Then Me.Attribute(a) = HtmlControl.Attributes(a)
+            Next
+        End Sub
 
+        ''' <summary>
+        ''' Create a <see cref="HtmlControl"/> using this <see cref="HtmlElement"/> as source
+        ''' </summary>
+        ''' <typeparam name="Type"></typeparam>
+        ''' <returns></returns>
+        Public Function CreateWebFormControl(Of Type As HtmlControl)() As Type
+            Dim d As New HtmlGenericControl(Me.Name)
+            For Each a In Me.Attributes
+                d.Attributes(a.Name) = a.Value
+            Next
+            d.InnerHtml = Me.InnerHTML
+            Return CType(CType(d, Object), Type)
+        End Function
 
         ''' <summary>
         ''' Transform the current element into a new set of elements
@@ -92,13 +115,16 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' Remove this element from parten element. If parent element is null, nothing happens
+        ''' Remove this element from parent element. If parent element is null, nothing happens
         ''' </summary>
-        Sub Destroy()
+        Function Destroy() As Boolean
             If Me.Parent IsNot Nothing Then
                 Me.Parent.Nodes.Remove(Me)
+                Return Me.Parent.Nodes.Contains(Me)
+            Else
+                Return False
             End If
-        End Sub
+        End Function
 
         ''' <summary>
         ''' Travesse element with a CSS selector an retireve nodes
