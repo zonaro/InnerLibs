@@ -193,6 +193,20 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
+    Public Function GetProperties(MyObject As Object, BindAttr As BindingFlags) As List(Of PropertyInfo)
+        If MyObject IsNot Nothing Then
+            Return MyObject.GetType().GetProperties(BindAttr).ToList()
+        Else
+            Return New List(Of PropertyInfo)
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Traz uma Lista com todas as propriedades de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
     Public Function GetProperties(MyObject As Object) As List(Of PropertyInfo)
         If MyObject IsNot Nothing Then
             Return MyObject.GetType().GetProperties().ToList()
@@ -209,7 +223,7 @@ Public Module ClassTools
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetPropertyValue(Of Type)(MyObject As Object, PropertyName As String) As Type
+    Public Function GetPropertyValue(Of Type)(MyObject As Object, PropertyName As String, Optional GetPrivate As Boolean = False) As Type
         Try
             Dim obj = MyObject
             For Each part As String In PropertyName.Split("."c)
@@ -220,7 +234,13 @@ Public Module ClassTools
                 If t.IsValueType Or t = GetType(String) Then
                     Return MyObject
                 End If
-                Dim info As PropertyInfo = t.GetProperties.Where(Function(x) x.Name = part).First
+                Dim info As PropertyInfo
+                If GetPrivate Then
+                    info = ClassTools.GetProperties(obj, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance).Where(Function(x) x.Name.ToLower = part.ToLower).First
+                Else
+                    info = ClassTools.GetProperties(obj).Where(Function(x) x.Name.ToLower = part.ToLower).First
+
+                End If
                 If info Is Nothing Then
                     Return Nothing
                 End If

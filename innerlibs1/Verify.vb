@@ -281,6 +281,46 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Anula o valor de um objeto se ele for igual a outro objeto
+    ''' </summary>
+    ''' <param name="Value">Valor</param>
+    ''' <param name="TestValue">Outro Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function NullIf(Of T As Class)(ByVal Value As T, TestValue As T) As T
+        If Value.Equals(TestValue) Then Return Nothing
+        Return Value
+    End Function
+
+    ''' <summary>
+    ''' Anula o valor de um objeto se ele for igual a outro objeto
+    ''' </summary>
+    ''' <param name="Value">Valor</param>
+    ''' <param name="TestValue">Outro Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function NullIf(Of T As Structure)(ByVal Value As T?, TestValue As T?) As T?
+        If Value.HasValue Then
+            If Value.Equals(TestValue) Then
+                Value = Nothing
+            End If
+        End If
+        Return Value
+    End Function
+
+    ''' <summary>
+    ''' Anula o valor de um objeto se ele for igual a outro objeto
+    ''' </summary>
+    ''' <param name="Value">Valor</param>
+    ''' <param name="TestValue">Outro Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function NullIf(ByVal Value As String, TestValue As String) As String
+        If Value.Equals(TestValue) Then Return Nothing
+        Return Value
+    End Function
+
+    ''' <summary>
     ''' Verifica se um <see cref="IEnumerable"/> é nulo ou está vazio
     ''' </summary>
     ''' <typeparam name="T">Tipo dos objetos do <see cref="IEnumerable"/></typeparam>

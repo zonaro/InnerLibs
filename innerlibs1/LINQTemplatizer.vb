@@ -472,7 +472,7 @@ Namespace Templatizer
                 Else
                     If Item.GetProperties.Count > 0 Then
                         ff = Function(match As Match) As String
-                                 Dim val = Item.GetPropertyValue(match.Groups(1).Value)
+                                 Dim val = Item.GetPropertyValue(Of Object)(match.Groups(1).Value, True)
                                  If val Is Nothing Then Return ApplySelector(match.Groups(1).Value)
                                  If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
                                      Dim d As Date? = val
@@ -537,14 +537,15 @@ Namespace Templatizer
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="List"></param>
+        ''' <param name="EmptyList">String que será retornada caso a lista esteja vazia</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function BuildHtml(Of T As Class)(List As List(Of Template(Of T))) As String
+        Public Function BuildHtml(Of T As Class)(List As List(Of Template(Of T)), Optional EmptyList As String = "") As String
             Dim html As String = ""
             For Each i In List
                 html &= i.ProcessedTemplate
             Next
-            Return html
+            Return html.IfBlank(EmptyList)
         End Function
 
 

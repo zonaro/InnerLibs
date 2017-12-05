@@ -1488,7 +1488,7 @@ Public Module Text
     ''' <returns>string amigavel para URL</returns>
     <Extension()>
     Public Function ToFriendlyURL(Text As String, Optional UseUnderscore As Boolean = False) As String
-        Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?", "/", "#", "\", "<", ">", "(", ")", "{", "}", "[", "]").RemoveAccents().ToLower()
+        Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?", "/", "#", "\", "<", ">", "(", ")", "{", "}", "[", "]", "|").RemoveAccents().ToLower()
     End Function
 
     ''' <summary>
