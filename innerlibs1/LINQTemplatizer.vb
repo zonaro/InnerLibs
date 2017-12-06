@@ -1,4 +1,5 @@
-﻿Imports System.Data.Common
+﻿Imports System.Collections.ObjectModel
+Imports System.Data.Common
 Imports System.Data.Linq
 Imports System.Data.Linq.Mapping
 Imports System.IO
@@ -126,7 +127,7 @@ Namespace Templatizer
         ''' <param name="SQLQuery"></param>
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing) As List(Of Template(Of T))
+        Public Function ApplyTemplate(Of T As Class)(SQLQuery As String, Optional Template As String = "", Optional Parameters As Object() = Nothing, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Debug.WriteLine(Environment.NewLine & SQLQuery)
             Dim list As IEnumerable(Of T)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
@@ -153,7 +154,7 @@ Namespace Templatizer
                 Else
                     list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
                 End If
-                Return ApplyTemplate(Of T)(list, Template)
+                Return ApplyTemplate(Of T)(list, Template, PageNumber, PageSize)
             End Using
         End Function
 
@@ -182,19 +183,23 @@ Namespace Templatizer
             Return New Template(Of T)(Item, Template)
         End Function
 
-
-        Public Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "") As List(Of Template(Of T))
-            Return ApplyTemplate(List.AsEnumerable, Template)
+        Public Function ApplyTemplate(Of T As Class)(List As Data.Linq.Table(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
-        Public Function ApplyTemplate(Of T As Class)(List As Linq.Table(Of T), Optional Template As String = "") As List(Of Template(Of T))
-            Return ApplyTemplate(List.AsEnumerable, Template)
+        Public Function ApplyTemplate(Of T As Class)(List As Data.Linq.ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
-        Public Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "") As List(Of Template(Of T))
-            Return ApplyTemplate(List.AsEnumerable, Template)
+        Public Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Dim total = List.Count
+            If PageSize < 1 Then PageSize = total
+            Dim l As New List(Of Template(Of T))
+            For Each item As T In List.Page(PageNumber, PageSize)
+                l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
+            Next
+            Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
         End Function
-
 
         ''' <summary>
         ''' Aplica um template a uma lista
@@ -203,12 +208,14 @@ Namespace Templatizer
         ''' <param name="List">Lista</param>
         ''' <param name="Template">Nome ou thml do template</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "") As List(Of Template(Of T))
+        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Dim total = List.Count
+            If PageSize < 1 Then PageSize = total
             Dim l As New List(Of Template(Of T))
-            For Each item As T In List
+            For Each item As T In List.Page(PageNumber, PageSize)
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
             Next
-            Return l
+            Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
         End Function
 
 
@@ -525,33 +532,69 @@ Namespace Templatizer
 
 
 
+    Public Class TemplateList(Of T As Class)
+        Inherits ReadOnlyCollection(Of Template(Of T))
 
-    Public Module TemplatizerExtensions
+        Friend Sub New(lista As List(Of Template(Of T)), Pagesize As Integer, PageNumber As Integer, Total As Integer)
+            MyBase.New(lista)
+            Me.PageSize = Pagesize
+            Me.PageNumber = PageNumber
+            Me.Total = Total
+        End Sub
 
+        Property EmptyListPlaceholder As String = ""
 
+        ''' <summary>
+        ''' Numero de Itens por pagina
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property PageSize As Integer
 
+        ''' <summary>
+        ''' Numero da pagina que corresponde a esta instancia
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property PageNumber As Integer
 
+        ''' <summary>
+        ''' Total de Itens para este template
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Total As Integer
+
+        ''' <summary>
+        ''' Numero de Paginas deste template
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property PageCount As Integer
+            Get
+                Return CType(Total / PageSize, Decimal).Round.ChangeType(Of Integer)
+            End Get
+        End Property
 
         ''' <summary>
         ''' Retorna o HTML de uma lista de templates
         ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="List"></param>
-        ''' <param name="EmptyList">String que será retornada caso a lista esteja vazia</param>
         ''' <returns></returns>
-        <Extension()>
-        Public Function BuildHtml(Of T As Class)(List As List(Of Template(Of T)), Optional EmptyList As String = "") As String
+        Public Overrides Function ToString() As String
             Dim html As String = ""
-            For Each i In List
+            For Each i In Me
                 html &= i.ProcessedTemplate
             Next
-            Return html.IfBlank(EmptyList)
+            Return html.IfBlank(EmptyListPlaceholder)
+        End Function
+
+        ''' <summary>
+        ''' Retorna o HTML de uma lista de templates
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function BuildHtml()
+            Return Me.ToString
         End Function
 
 
+    End Class
 
-
-    End Module
 
 End Namespace
 

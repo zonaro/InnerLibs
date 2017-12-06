@@ -239,7 +239,6 @@ Public Module ClassTools
                     info = ClassTools.GetProperties(obj, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance).Where(Function(x) x.Name.ToLower = part.ToLower).First
                 Else
                     info = ClassTools.GetProperties(obj).Where(Function(x) x.Name.ToLower = part.ToLower).First
-
                 End If
                 If info Is Nothing Then
                     Return Nothing
