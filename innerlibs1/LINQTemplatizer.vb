@@ -177,8 +177,7 @@ Namespace Templatizer
                 Template = ProccessIf(Item, Template)
                 Template = ProcessSubClass(Item, Template)
                 Template = ProccessSubTemplate(Item, Template)
-                Dim re As New Regex(GetRegexPattern, RegexOptions.Compiled)
-                re.Replace(Template, "")
+                Template = ClearValues(Item, Template)
             End If
             Return New Template(Of T)(Item, Template)
         End Function
@@ -457,14 +456,11 @@ Namespace Templatizer
             Return open & "(.*?)" & close
         End Function
 
-        Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String, Optional subclass As Boolean = False) As String
+        Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String) As String
             Template = GetTemplateContent(Template)
             If Template.IsNotBlank Then
                 Dim ff As MatchEvaluator
                 Dim pt = GetRegexPattern()
-                If subclass Then
-                    pt = pt.Replace("_", sel(0), sel(1))
-                End If
                 Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
                 If GetType(T) = GetType(Dictionary(Of String, Object)) AndAlso CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
                     ff = Function(match)
@@ -498,7 +494,23 @@ Namespace Templatizer
             End If
             Return Template
         End Function
+
+        Friend Function ClearValues(Of T As Class)(Item As T, Template As String)
+            Template = GetTemplateContent(Template)
+            If Template.IsNotBlank Then
+                Dim ff As MatchEvaluator
+                Dim pt = GetRegexPattern()
+                Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
+                ff = Function(match)
+                         Return ""
+                     End Function
+                Template = re.Replace(Template, ff)
+            End If
+            Return Template
+        End Function
     End Class
+
+
 
 
 
@@ -588,7 +600,7 @@ Namespace Templatizer
         ''' Retorna o HTML de uma lista de templates
         ''' </summary>
         ''' <returns></returns>
-        Public Function BuildHtml()
+        Public Function BuildHtml() As String
             Return Me.ToString
         End Function
 
