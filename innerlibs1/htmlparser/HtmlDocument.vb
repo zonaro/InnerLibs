@@ -27,6 +27,14 @@ Namespace HtmlParser
             Build(UrlOrHTMLString, WantSpaces, Encoding)
         End Sub
 
+        ''' <summary>
+        ''' This will create a new document object by parsing the HTML specified.
+        ''' </summary>
+        ''' <param name="Source">The HTML Source as Xnode.</param>
+        Public Sub New(Source As XNode, Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
+            Build(Source.ToString, WantSpaces, Encoding)
+        End Sub
+
         Private Sub Build(Optional UrlOrHTMLString As String = "", Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
             If Encoding IsNot Nothing Then
                 Me.Encoding = Encoding

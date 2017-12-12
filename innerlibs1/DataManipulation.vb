@@ -27,7 +27,7 @@ Public Module DataManipulation
     ''' <param name="SQLQuery"></param>
     ''' <param name="Parameters"></param>
     ''' <returns></returns>
-    <Extension()> Function RunSQL(Context As Linq.DataContext, SQLQuery As String, ParamArray Parameters As DbParameter()) As DataBase.Reader
+    <Extension()> Function RunSQL(Context As Data.Linq.DataContext, SQLQuery As String, ParamArray Parameters As DbParameter()) As DataBase.Reader
         Dim con = Activator.CreateInstance(Context.Connection.GetType)
         con.ConnectionString = Context.Connection.ConnectionString
         con.Open()
@@ -46,7 +46,7 @@ Public Module DataManipulation
     ''' </summary>
     ''' <param name="WhereConditions">Condições após a clausula WHERE</param>
     ''' <param name="TableName">      Nome da tabela</param>
-    <Extension()> Public Function [SELECT](Context As Linq.DataContext, TableName As String, Optional WhereConditions As String = "", Optional Columns As String() = Nothing) As DataBase.Reader
+    <Extension()> Public Function [SELECT](Context As Data.Linq.DataContext, TableName As String, Optional WhereConditions As String = "", Optional Columns As String() = Nothing) As DataBase.Reader
         Dim cmd = "SELECT " & If(Columns.IsEmpty, "*", Columns.Join(",")) & " FROM " & TableName
         If WhereConditions.IsNotBlank Then
             cmd.Append(" where " & WhereConditions.TrimAny(" ", "where", "WHERE"))

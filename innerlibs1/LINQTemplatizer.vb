@@ -9,18 +9,17 @@ Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
 Imports InnerLibs.HtmlParser
 
-Namespace Templatizer
+Namespace LINQ
 
     ''' <summary>
     ''' Gera HTML dinâmico a partir de uma conexão com banco de dados e um template HTML. Utiliza <see cref="Data.Linq.DataContext"/> como ponto de entrada para conexões.
     ''' </summary>
     ''' <typeparam name="DataContextType">Tipo da conexão com o banco de dados</typeparam>
-    Public Class Templatizer(Of DataContextType As DataContext)
+    Public Class Triforce(Of DataContextType As DataContext)
 
         ''' <summary>
         ''' Tipo de <see cref="Data.Linq.DataContext"/> utilizado para a comunicação com o banco
         ''' </summary>
-
         Private DataContext As DataContextType
 
         ''' <summary>
@@ -62,12 +61,10 @@ Namespace Templatizer
 
 
         ''' <summary>
-        ''' Valores adicionados ao processamento do template que não vem do banco
+        ''' Valores adicionados ao processamento do template que não vem do banco de dados.
         ''' </summary>
         ''' <returns></returns>
         Public Property CustomValues As New Dictionary(Of String, Object)
-
-
 
 
         ''' <summary>
@@ -82,23 +79,33 @@ Namespace Templatizer
 
 
         ''' <summary>
-        ''' Aplica um arquivo de template a um tipo
+        ''' Configura um arquivo de template para um tipo especifico de objeto. 
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Template"></param>
         ''' <returns></returns>
-        Function SetTemplate(Of T As Class)(Template As String) As Templatizer(Of DataContextType)
+        Function SetTemplate(Of T As Class)(Template As String) As Triforce(Of DataContextType)
             MapType(GetType(T)) = Template
             Return Me
         End Function
 
-
+        ''' <summary>
+        ''' Instancia um novo <see cref="LINQ"/> a partir de um Diretório
+        ''' </summary>
+        ''' <param name="TemplateDirectory">Diretório contendo os arquivos HTML</param>
+        ''' <param name="DateTimeFormat"></param>
         Sub New(TemplateDirectory As DirectoryInfo, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
             Me.DateTimeFormat = If(DateTimeFormat, "dd/MM/yyyy hh:mm:ss")
             Me.TemplateDirectory = TemplateDirectory
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
 
+
+        ''' <summary>
+        ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
+        ''' </summary>
+        ''' <param name="ApplicationAssembly">Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE</param>
+        ''' <param name="DateTimeFormat"></param>
         Sub New(ApplicationAssembly As Assembly, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
             Me.DateTimeFormat = If(DateTimeFormat, "dd/MM/yyyy hh:mm:ss")
             Me.ApplicationAssembly = ApplicationAssembly
@@ -158,11 +165,13 @@ Namespace Templatizer
             End Using
         End Function
 
+
         ''' <summary>
-        ''' Aplica um template a um unico item
+        ''' Aplica um template HTML a um unico objeto
         ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="Item"></param>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <param name="Item">Objeto</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>
         ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
             If Template.IsBlank Then
@@ -182,14 +191,42 @@ Namespace Templatizer
             Return New Template(Of T)(Item, Template)
         End Function
 
+        ''' <summary>
+        ''' Aplica um template HTML a um objeto <see cref="Data.Linq.Table(Of TEntity)"/>
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <param name="List">Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>
+        ''' <param name="PageNumber">Pagina que será processada.</param>
+        ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
+        ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(List As Data.Linq.Table(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
+
+        ''' <summary>
+        ''' Aplica um template HTML a um objeto <see cref="ISingleResult"/>
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <param name="List">Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>
+        ''' <param name="PageNumber">Pagina que será processada.</param>
+        ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
+        ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(List As Data.Linq.ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
+        ''' <summary>
+        ''' Aplica um template HTML a um objeto <see cref="IQueryable"/>
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <param name="List">Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>
+        ''' <param name="PageNumber">Pagina que será processada.</param>
+        ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
+        ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
@@ -201,12 +238,15 @@ Namespace Templatizer
             Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
         End Function
 
+
         ''' <summary>
-        ''' Aplica um template a uma lista
+        ''' Aplica um template HTML a um objeto <see cref="IEnumerable"/>
         ''' </summary>
-        ''' <typeparam name="T">Tipo do item</typeparam>
-        ''' <param name="List">Lista</param>
-        ''' <param name="Template">Nome ou thml do template</param>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <param name="List">Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>
+        ''' <param name="PageNumber">Pagina que será processada.</param>
+        ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
         Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
@@ -218,10 +258,6 @@ Namespace Templatizer
             Next
             Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
         End Function
-
-
-
-
 
         ''' <summary>
         ''' Retorna o conteudo estático de um arquivo de template
@@ -384,7 +420,6 @@ Namespace Templatizer
                                                                  value2 = value2.QuoteIf(Not value2.IsNumber)
                                                                  Return n.Name = "case" AndAlso (EvaluateExpression(value1 & op & value2) = True)
                                                              End Function, False)
-                    'Dim othertag = conditionTag.Find(Function(n As HtmlElement) n.Name = "case" AndAlso n.Attribute("value") = conditionTag.Attribute("value"), False)
                     Dim html = ""
                     If othertag.Count > 0 Then
                         For Each node As HtmlElement In othertag
@@ -452,7 +487,7 @@ Namespace Templatizer
             Return Template
         End Function
 
-        Private Function GetRegexPattern() As String
+        Friend Function GetRegexPattern() As String
             Dim open = Me.sel(0).ToArray.Join("\").Prepend("\")
             Dim close = Me.sel(1).ToArray.Join("\").Prepend("\")
             Return open & "(.*?)" & close
@@ -513,27 +548,24 @@ Namespace Templatizer
     End Class
 
 
-
-
-
-
     ''' <summary>
     ''' Estrutura de template do templatizer
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
     Public Class Template(Of T)
+
         ''' <summary>
         ''' Cria um novo template
         ''' </summary>
         ''' <param name="Data"></param>
         ''' <param name="ProcessedTemplate"></param>
-        Sub New(Data As T, ProcessedTemplate As String)
+        Friend Sub New(Data As T, ProcessedTemplate As String)
             Me.Data = Data
             Me.ProcessedTemplate = ProcessedTemplate
         End Sub
 
         ''' <summary>
-        ''' Informação do template
+        ''' Objeto de onde são extraidos as informações do template
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property Data As T
@@ -545,7 +577,11 @@ Namespace Templatizer
     End Class
 
 
-
+    ''' <summary>
+    ''' Lista paginada contendo <see cref="Template(Of T)"/> previamente processados
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <remarks>Apenas os templates da pagina atual são processados</remarks>
     Public Class TemplateList(Of T As Class)
         Inherits ReadOnlyCollection(Of Template(Of T))
 
@@ -556,6 +592,10 @@ Namespace Templatizer
             Me.Total = Total
         End Sub
 
+        ''' <summary>
+        ''' HTML retornado quando não houver itens na lista ou na página atual
+        ''' </summary>
+        ''' <returns></returns>
         Property EmptyListPlaceholder As String = ""
 
         ''' <summary>
@@ -565,13 +605,13 @@ Namespace Templatizer
         ReadOnly Property PageSize As Integer
 
         ''' <summary>
-        ''' Numero da pagina que corresponde a esta instancia
+        ''' Pagina atual. Corresponde ao grupo de itens que foram processados
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property PageNumber As Integer
 
         ''' <summary>
-        ''' Total de Itens para este template
+        ''' Total de Itens encontrados na <see cref="IQueryable"/>
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property Total As Integer
@@ -587,7 +627,7 @@ Namespace Templatizer
         End Property
 
         ''' <summary>
-        ''' Retorna o HTML de uma lista de templates
+        ''' Retorna o HTML da pagina atual da lista de templates 
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
@@ -599,7 +639,7 @@ Namespace Templatizer
         End Function
 
         ''' <summary>
-        ''' Retorna o HTML de uma lista de templates
+        ''' Retorna o HTML da pagina atual da lista de templates 
         ''' </summary>
         ''' <returns></returns>
         Public Function BuildHtml() As String

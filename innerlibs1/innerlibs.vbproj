@@ -57,6 +57,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
@@ -97,6 +98,9 @@
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />
     <Compile Include="Dice.vb" />
+    <Compile Include="DocumentationPage\DocumentationPage.vb">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="DOT Language.vb" />
     <Compile Include="Evalz\Evaluator.vb" />
     <Compile Include="Evalz\EvalVariable.vb" />
@@ -116,6 +120,7 @@
     <Compile Include="ColorConvert.vb" />
     <Compile Include="Converter.vb" />
     <Compile Include="Databases.vb" />
+    <Compile Include="FileTree.vb" />
     <Compile Include="GeoIP.vb" />
     <Compile Include="htmlparser\ClassProperty.vb" />
     <Compile Include="htmlparser\CssParser.vb" />
@@ -238,6 +243,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="DocumentationPage\DocumentationPage.html" />
     <Content Include="help.shfbproj" />
     <Content Include="js\InnerFormValidation.js" />
     <Content Include="js\InnerLibs.js" />
