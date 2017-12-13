@@ -592,6 +592,7 @@ Namespace LINQ
             Me.Total = Total
         End Sub
 
+
         ''' <summary>
         ''' HTML retornado quando não houver itens na lista ou na página atual
         ''' </summary>
