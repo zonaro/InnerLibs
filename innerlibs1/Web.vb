@@ -392,7 +392,7 @@ Public Module Web
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
-        Return Request.Flat.ToUPDATE(TableName, WhereClausule, QueryStringKeys)
+        Return Request.FlatRequest.ToUPDATE(TableName, WhereClausule, QueryStringKeys)
     End Function
 
     ''' <summary>
@@ -404,7 +404,7 @@ Public Module Web
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToINSERT(Request As HttpRequest, ByVal TableName As String, ParamArray QueryStringKeys As String())
-        Return Request.Flat.ToINSERT(TableName, QueryStringKeys)
+        Return Request.FlatRequest.ToINSERT(TableName, QueryStringKeys)
     End Function
 
     ''' <summary>

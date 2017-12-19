@@ -195,6 +195,24 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Aplica uma mascara a um numero de telefone
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToTelephone(Number As Decimal) As String
+        Return Number.ToString.ToTelephone
+    End Function
+
+    ''' <summary>
+    ''' Aplica uma mascara a um numero de telefone
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToTelephone(Number As Double) As String
+        Return Number.ToString.ToTelephone
+    End Function
+
+    ''' <summary>
     ''' Transforma um XML Document em string
     ''' </summary>
     ''' <param name="XML">Documento XML</param>
@@ -260,7 +278,7 @@ Public Module Text
     ''' <param name="Array">Matriz</param>
     ''' <returns>Um valor do tipo especificado</returns>
     <Extension>
-    Public Function GetRandomItem(Of Type)(ByVal Array() As Type) As Type
+    Public Function GetRandomItem(Of Type)(ByVal Array As Type()) As Type
         Return Array.Shuffle()(0)
     End Function
 
@@ -270,20 +288,11 @@ Public Module Text
     ''' <typeparam name="Type">Tipo da Matriz</typeparam>
     ''' <param name="Array">Matriz</param>
     ''' <returns>Um valor do tipo especificado</returns>
-    Public Function RandomItem(Of Type)(ParamArray Array() As Type) As Type
+    Public Function RandomItem(Of Type)(ParamArray Array As Type()) As Type
         Return Array.GetRandomItem
     End Function
 
-    ''' <summary>
-    ''' Substitui um valor por outro de acordo com o resultado de uma variavel booliana
-    ''' </summary>
-    ''' <param name="BooleanValue">Resultado da expressão booliana</param>
-    ''' <param name="TrueValue">   Valor retornado se a expressão for verdadeira</param>
-    ''' <param name="FalseValue">  Valor retornado se a expressão for falsa</param>
-    ''' <returns></returns>
-    <Extension()> Public Function ReplaceIf(BooleanValue As Boolean, TrueValue As String, FalseValue As String) As String
-        Return If(BooleanValue, TrueValue, FalseValue)
-    End Function
+
 
     ''' <summary>
     ''' Converte um texo para Leet (1337)
@@ -1883,7 +1892,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma um valor monetário em sua forma extensa
+    ''' Transforma um valor monetário R$ em sua forma extensa
     ''' </summary>
     ''' <param name="Value">Numero decimal</param>
     ''' <returns>String contendo o numero por extenso</returns>
@@ -1916,7 +1925,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Phrase">Lista de palavras</param>
     ''' <returns></returns>
-    Function DistinctCount(Phrase As String) As Dictionary(Of String, Integer)
+    <Extension()> Function DistinctCount(Phrase As String) As Dictionary(Of String, Integer)
         Return Phrase.Split(" ").ToList.DistinctCount
     End Function
 
@@ -2024,7 +2033,7 @@ Public Module Text
 
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String
-        Return AdjustBlankSpaces(Text)
+        Return AdjustWhiteSpaces(Text)
     End Function
 
     ''' <summary>
@@ -2064,12 +2073,10 @@ Public Module Text
             Text = Text.Replace("[ ", "[")
             Text = Text.Replace("{ ", "{")
             Text = Text.Replace("< ", "<")
-
             Text = String.Join(" ", Text.Split(New String() {" "}, StringSplitOptions.RemoveEmptyEntries))
-            Text = String.Join("&nbsp;", Text.Split(New String() {"&nbsp;"}, StringSplitOptions.RemoveEmptyEntries))
         End If
 
-        Return Text.TrimAny("&nbsp;", " ", Environment.NewLine)
+        Return Text.TrimAny(" ", Environment.NewLine)
 
     End Function
 
@@ -2126,14 +2133,14 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)
+    ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
     ''' </summary>
     ''' <param name="Text">     Texto</param>
     ''' <param name="QuoteChar">Caractere de encapsulamento</param>
     ''' <returns></returns>
     <Extension()>
-    Function Quote(Text As String, Optional QuoteChar As String = """") As String
-        Return QuoteChar & Text & QuoteChar.GetOppositeWrapChar
+    Function Quote(Text As String, Optional QuoteChar As Char = """"c) As String
+        Return QuoteChar & Text & QuoteChar.ToString.GetOppositeWrapChar
     End Function
 
     ''' <summary>
@@ -2151,11 +2158,11 @@ Public Module Text
     ''' Encapsula um tento entre 2 textos
     ''' </summary>
     ''' <param name="Text">    Texto</param>
-    ''' <param name="WrapChar">Caractere de encapsulamento</param>
+    ''' <param name="WrapText">Caractere de encapsulamento</param>
     ''' <returns></returns>
     <Extension()>
-    Function Wrap(Text As String, Optional WrapChar As String = """") As String
-        Return Text.Quote(WrapChar)
+    Function Wrap(Text As String, Optional WrapText As String = """") As String
+        Return WrapText & Text & WrapText
     End Function
 
     ''' <summary>
@@ -2333,7 +2340,7 @@ Public Module Text
 
         For Each a As Match In New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
             If ExcludeWrapChars Then
-                lista.Add(a.Value.Trim(Character).Trim(GetOppositeWrapChar(Character)))
+                lista.Add(a.Value.TrimStart(Character).TrimEnd(GetOppositeWrapChar(Character)))
             Else
                 lista.Add(a.Value)
             End If
@@ -2368,6 +2375,18 @@ Public Module Text
                 Return ">"
             Case ">"
                 Return "<"
+            Case "\"
+                Return "/"
+            Case "/"
+                Return "\"
+            Case "¿"
+                Return "?"
+            Case "?"
+                Return "¿"
+            Case "!"
+                Return "¡"
+            Case "¡"
+                Return "!"
             Case Else
                 Return Text.GetFirstChars()
         End Select

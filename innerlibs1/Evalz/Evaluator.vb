@@ -59,6 +59,7 @@ Public Class Evaluator
         ElseIf TypeOf value Is Object Then
             Return value.ToString
         End If
+        Return ""
     End Function
 
     Public Class parserException

@@ -11,6 +11,98 @@ Imports System.Web
 Public Module ClassTools
 
     ''' <summary>
+    ''' Escolhe um valor de acordo com o resultado de uma variavel booliana
+    ''' </summary>
+    ''' <param name="BooleanValue">Resultado da expressão booliana</param>
+    ''' <param name="ChooseIfTrue">   Valor retornado se a expressão for verdadeira</param>
+    ''' <param name="ChooseIfFalse">  Valor retornado se a expressão for falsa</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Choose(Of T)(BooleanValue As Boolean, ChooseIfTrue As T, ChooseIfFalse As T) As T
+        Return If(BooleanValue, ChooseIfTrue, ChooseIfFalse)
+    End Function
+
+    ''' <summary>
+    ''' Escolhe um valor de acordo com o resultado de uma expressão
+    ''' </summary>
+    ''' <param name="Expression">Resultado da expressão booliana</param>
+    ''' <param name="ChooseIfTrue">   Valor retornado se a expressão for verdadeira</param>
+    ''' <param name="ChooseIfFalse">  Valor retornado se a expressão for falsa</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Choose(Of T)(Expression As String, ChooseIfTrue As T, ChooseIfFalse As T) As T
+        Try
+            Dim vv = EvaluateExpression(Expression)
+            Select Case vv.GetType
+                Case GetType(Integer), GetType(Decimal), GetType(Short), GetType(Long)
+                    Return CType(vv > 0, Boolean).Choose(ChooseIfTrue, ChooseIfFalse)
+                Case GetType(Boolean)
+                    CType(vv, Boolean).Choose(ChooseIfTrue, ChooseIfFalse)
+                Case GetType(String)
+                    Return (vv.ToString.ToLower = "true" OrElse vv.ToString.ChangeType(Of Integer) > 0).Choose(ChooseIfTrue, ChooseIfFalse)
+                Case Else
+                    Return ChooseIfFalse
+            End Select
+        Catch ex As Exception
+            Return ChooseIfFalse
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que possuir um valor
+    ''' </summary>
+    ''' <param name="First">Primeiro Item</param>
+    ''' <param name="N">Outros itens</param>
+    ''' <returns></returns>
+    <Extension> Public Function BlankCoalesce(First As String, ParamArray N() As String) As String
+        Dim l As New List(Of String)
+        l.Add(First)
+        l.AddRange(N)
+        For Each item In l
+            If item.IsNotBlank Then
+                Return item
+            End If
+        Next
+        Return ""
+    End Function
+
+    ''' <summary>
+    ''' Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+    ''' </summary>
+    ''' <typeparam name="T">Tipo</typeparam>
+    ''' <param name="First">Primeiro Item</param>
+    ''' <param name="N">Outros itens</param>
+    ''' <returns></returns>
+    <Extension> Public Function NullCoalesce(Of T As Structure)(First As T?, ParamArray N() As T?) As T
+        Dim l As New List(Of T?)
+        l.Add(First)
+        l.AddRange(N)
+        For Each item In l
+            If item.HasValue Then
+                Return item
+            End If
+        Next
+        Return Nothing
+    End Function
+
+    ''' <summary>
+    ''' Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+    ''' </summary>
+    ''' <typeparam name="T">Tipo</typeparam>
+    ''' <param name="First">Primeiro Item</param>
+    ''' <param name="N">Outros itens</param>
+    ''' <returns></returns>
+    <Extension> Public Function NullCoalesce(Of T As Class)(First As T, ParamArray N() As T) As T
+        Dim l As New List(Of T)
+        l.Add(First)
+        l.AddRange(N)
+        For Each item In l
+            If item IsNot Nothing Then
+                Return item
+            End If
+        Next
+        Return Nothing
+    End Function
+
+    ''' <summary>
     ''' Remove de um dicionario as respectivas Keys se as mesmas existirem
     ''' </summary>
     ''' <typeparam name="TKey"></typeparam>
@@ -76,7 +168,7 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="Request">HttpRequest</param>
     ''' <returns></returns>
-    <Extension()> Public Function Flat(Request As HttpRequest) As NameValueCollection
+    <Extension()> Public Function FlatRequest(Request As HttpRequest) As NameValueCollection
         Return ClassTools.Merge(Request.QueryString, Request.Form)
     End Function
 

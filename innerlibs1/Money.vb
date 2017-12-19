@@ -1,9 +1,14 @@
 ﻿Imports System.Globalization
 
+''' <summary>
+''' Estrutura que representa valores em dinheiro de uma determinada <see cref="CultureInfo"/>. Utiliza uma API (http://fixer.io) para conversão de moedas.
+''' </summary>
 Public Structure Money
+
 
     Public ReadOnly Property Value As Decimal
     Private Culture As CultureInfo
+
 
     ''' <summary>
     ''' Cria uma nova instancia de moeda
@@ -104,7 +109,7 @@ Public Structure Money
     ''' <param name="Currency">Moeda</param>
     ''' <returns></returns>
     Public Shared Function GetCultureInfosByCurrencySymbol(Currency As String) As List(Of CultureInfo)
-        If Currency Is Nothing Or Currency.IsBlank Then
+        If Currency Is Nothing OrElse Currency.IsBlank Then
             Throw New ArgumentNullException("Currency is blank")
         End If
         Return CultureInfo.GetCultures(CultureTypes.SpecificCultures) _
@@ -124,11 +129,15 @@ Public Structure Money
     End Operator
 
     Public Shared Operator +(Text As String, Value As Money) As String
-        Return Text & Value.MoneyString
+        If Text.IsNumber Then
+            Return (Text.ChangeType(Of Decimal) + Value.Value).ToString
+        Else
+            Return Text & Value.MoneyString
+        End If
     End Operator
 
     Public Shared Operator +(Value As Money, Text As String) As String
-        Return Value.MoneyString & Text
+        Return Text + Value
     End Operator
 
     Public Shared Operator +(Value1 As Double, Value2 As Money) As Money
@@ -485,7 +494,18 @@ Public Structure Money
 
     Public Shared Operator <(Value1 As Long, Value2 As Money) As Boolean
         Return Value1 < Value2.Value
-
     End Operator
+
+    ''' <summary>
+    ''' Verifica se 2 valores sao da mesma moeda
+    ''' </summary>
+    ''' <param name="Value1"></param>
+    ''' <param name="Value2"></param>
+    ''' <returns></returns>
+    Public Shared Operator Like(Value1 As Money, Value2 As Money) As Boolean
+        Return Value1.CurrencySymbol = Value2.CurrencySymbol
+    End Operator
+
+
 
 End Structure

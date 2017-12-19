@@ -1,4 +1,5 @@
-﻿Imports System.Runtime.CompilerServices
+﻿Imports System.Globalization
+Imports System.Runtime.CompilerServices
 
 ''' <summary>
 ''' Módulo para calculos
@@ -18,6 +19,16 @@ Public Module Mathematic
         Catch ex As Exception
             Return Nothing
         End Try
+    End Function
+
+
+    ''' <summary>
+    ''' Executa uma Expressão matematica simples
+    ''' </summary>
+    ''' <param name="Formula">Expressão matematica</param>
+    ''' <returns></returns>
+    Public Function EvaluateExpression(Of T As Structure)(Formula As String) As T
+        Return CType(EvaluateExpression(Formula), T)
     End Function
 
     ''' <summary>
@@ -153,13 +164,14 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Retorna um numero inteiro representando as casas decimais de um numero decimal
+    ''' Retorna um numero inteiro representando a parte decimal de um numero decimal
     ''' </summary>
     ''' <param name="Value">Valor decimal</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetDecimalPlaces(Value As Decimal, Optional DecimalPlaces As Integer = 0) As Long
-        Dim f = Value.ToString.Split(",")
+    Public Function GetDecimalPlaces(Value As Decimal, Optional DecimalPlaces As Integer = 0, Optional Culture As CultureInfo = Nothing) As Long
+        Culture = If(Culture, CultureInfo.CurrentCulture)
+        Dim f = Value.ToString.Split(Culture.NumberFormat.NumberDecimalSeparator)
         Try
             Return If(f(1).IsNotBlank(), f(1).Slice(If(DecimalPlaces > 0, DecimalPlaces, f(1).Length).ChangeType(Of Integer)), 0)
         Catch ex As Exception
