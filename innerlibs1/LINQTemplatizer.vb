@@ -12,7 +12,7 @@ Imports InnerLibs.HtmlParser
 Namespace LINQ
 
 
-    Public Class Triforce(Of DataContextType As DataContext)
+    Public NotInheritable Class Triforce(Of DataContextType As DataContext)
         Inherits Triforce
 
         ''' <summary>
@@ -232,7 +232,7 @@ Namespace LINQ
                     End If
 
                     Dim lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo)
-                    conteudo = lista.BuildHtml
+                    conteudo = lista.ToString
                     templatetag.Mutate(conteudo)
                 Catch ex As Exception
                     templatetag.Destroy()
@@ -708,7 +708,7 @@ Namespace LINQ
         ''' <param name="ProcessedTemplate"></param>
         Friend Sub New(Data As T, ProcessedTemplate As String)
             Me.Data = Data
-            Me.ProcessedTemplate = ProcessedTemplate
+            Me.ProcessedTemplate = New HtmlDocument(ProcessedTemplate)
         End Sub
 
         ''' <summary>
@@ -720,7 +720,9 @@ Namespace LINQ
         ''' Template processado
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property ProcessedTemplate As String
+        ReadOnly Property ProcessedTemplate As HtmlDocument
+
+
     End Class
 
 
@@ -739,8 +741,6 @@ Namespace LINQ
             Me.Total = Total
         End Sub
 
-
-        ReadOnly Property Keys As String()
 
         ''' <summary>
         ''' HTML retornado quando não houver itens na lista ou na página atual
@@ -781,24 +781,20 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
-            Dim html As String = ""
-            For Each i In Me
-                html &= i.ProcessedTemplate
-            Next
-            Return html.IfBlank(EmptyListPlaceholder)
+            Return BuildHtml.ToString()
         End Function
 
         ''' <summary>
         ''' Retorna o HTML da pagina atual da lista de templates 
         ''' </summary>
         ''' <returns></returns>
-        Public Function BuildHtml() As String
-            Return Me.ToString
+        Public Function BuildHtml() As HtmlDocument
+            Dim html As String = ""
+            For Each i In Me
+                html &= i.ProcessedTemplate.ToString
+            Next
+            Return New HtmlDocument(html.IfBlank(EmptyListPlaceholder))
         End Function
-
-
-
-
 
     End Class
 
