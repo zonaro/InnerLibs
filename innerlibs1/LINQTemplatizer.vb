@@ -11,7 +11,10 @@ Imports InnerLibs.HtmlParser
 
 Namespace LINQ
 
-
+    ''' <summary>
+    ''' Permite integrar <see cref="Triforce"/> a objetos LINQ to SQL
+    ''' </summary>
+    ''' <typeparam name="DataContextType">Objeto LINQ to SQL gerado</typeparam>
     Public NotInheritable Class Triforce(Of DataContextType As DataContext)
         Inherits Triforce
 
@@ -199,6 +202,7 @@ Namespace LINQ
         Public Overloads Function ApplyTemplate(Of T As Class)(List As Data.Linq.ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
+
         ''' <summary>
         ''' Aplica um template HTML a um objeto <see cref="ISingleResult"/>
         ''' </summary>
@@ -332,7 +336,7 @@ Namespace LINQ
 
 
         ''' <summary>
-        ''' Valores adicionados ao processamento do template que não vem do banco de dados ou do objeto. Particulamente Util para dados de sessão
+        ''' Valores adicionados ao processamento do template que não vem do banco de dados ou do objeto. Particulamente Util para dados de sessão.
         ''' </summary>
         ''' <returns></returns>
         Public Property CustomValues As New Dictionary(Of String, Object)
