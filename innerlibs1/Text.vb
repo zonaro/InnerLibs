@@ -1245,14 +1245,15 @@ Public Module Text
             End If
 
             'comeca a extrair as palavras por quantidade
-            Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.GetWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber)
+            Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.GetWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber).ToArray
             IgnoredWords = If(IgnoredWords, {}).ToArray
             ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
             l.AddRange(ImportantWords)
             ImportantWords = l.ToArray
             If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
             If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
-            Return palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().OrderByDescending(Function(p) p.Value).ToDictionary(Function(p) p.Key, Function(p) p.Value)
+            palavras = palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().OrderByDescending(Function(p) p.Value).ToArray
+            Return palavras.ToDictionary(Function(p) p.Key, Function(p) p.Value)
         Catch ex As Exception
             Debug.Write(ex)
             Return New Dictionary(Of String, Long)
