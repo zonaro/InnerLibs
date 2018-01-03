@@ -225,6 +225,18 @@ Public Module Converter
     End Function
 
     ''' <summary>
+    ''' Returna um <see cref=" Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
+    ''' </summary>
+    ''' <typeparam name="TKey"></typeparam>
+    ''' <typeparam name="TValue"></typeparam>
+    ''' <param name="groupings"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function ToDictionary(Of TKey, TValue)(ByVal groupings As IEnumerable(Of IGrouping(Of TKey, TValue))) As Dictionary(Of TKey, List(Of TValue))
+        Return groupings.ToDictionary(Function(group) group.Key, Function(group) group.ToList())
+    End Function
+
+    ''' <summary>
     ''' Transforma um <see cref="HttpRequest"/> em um <see cref="Dictionary(Of String, Object)"/>
     ''' </summary>
     ''' <param name="Request">HttpRequest</param>
