@@ -157,7 +157,8 @@ Public Module Mathematic
             For index = 1 To Places
                 splaces.Append("#")
             Next
-            Return Value.ToString("###############" & splaces & "}").ChangeType(Of Decimal)
+
+            Return Value.ToString("###############" & splaces).ChangeType(Of Decimal)
         Catch ex As Exception
             Return Value
         End Try

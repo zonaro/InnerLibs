@@ -92,9 +92,28 @@ Public Structure Money
     ''' <returns></returns>
     Public ReadOnly Property MoneyString As String
         Get
-            Return CurrencySymbol & " " & Me.Value.ToString(GetCultureInfosByCurrencySymbol(Me.ISOCurrencySymbol).First)
+            Return Me.ToString(0)
         End Get
     End Property
+
+    ''' <summary>
+    ''' String do valor formatado como moeda
+    ''' </summary>
+    ''' <param name="Precision">Precisao de casas decimais</param>
+    ''' <returns></returns>
+    Public Overloads Function ToString(Precision As Integer)
+        Dim c = GetCultureInfosByCurrencySymbol(Me.ISOCurrencySymbol).First
+        If c.Equals(CultureInfo.InvariantCulture) Then
+            c = CultureInfo.CurrentCulture
+        End If
+        Dim ss = CurrencySymbol & " " & If(Precision > 0, Me.Value.Slice(Precision.SetMinValue(2)), Me.Value).ToString(c)
+        If Not (Me.Value Mod 1) = 0 AndAlso Me.Value > 0 Then
+            While ss.EndsWith("0")
+                ss = ss.TrimEnd("0")
+            End While
+        End If
+        Return ss.IfBlank("0")
+    End Function
 
     ''' <summary>
     ''' Simbolo de moeda
