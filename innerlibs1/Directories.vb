@@ -2,6 +2,7 @@
 Imports System.IO.Compression
 Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
+Imports System.Web
 
 ''' <summary>
 ''' Funções para trabalhar com diretorios
@@ -80,6 +81,7 @@ Public Module Directories
         End If
         Return New FileInfo(FileName)
     End Function
+
 
     ''' <summary>
     ''' Cria um arquivo .ZIP de um diretório

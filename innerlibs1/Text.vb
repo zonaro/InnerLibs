@@ -16,6 +16,17 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
+    ''' Conta os caracters especificos de uma string
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <param name="Character">Caractere</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function CountCharacter(ByVal Text As String, ByVal Character As Char) As Integer
+        Return Text.Count(Function(c As Char) c = Character)
+    End Function
+
+    ''' <summary>
     ''' Return a Idented XML string
     ''' </summary>
     ''' <param name="Document"></param>
@@ -1498,7 +1509,7 @@ Public Module Text
     ''' <returns>string amigavel para URL</returns>
     <Extension()>
     Public Function ToFriendlyURL(Text As String, Optional UseUnderscore As Boolean = False) As String
-        Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?", "/", "#", "\", "<", ">", "(", ")", "{", "}", "[", "]", "|").RemoveAccents().ToLower()
+        Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?", "/", "#", "\", "<", ">", "(", ")", "{", "}", "[", "]", "|", """", "'", vbTab, Environment.NewLine).Trim.RemoveAccents().ToLower()
     End Function
 
     ''' <summary>
@@ -1664,6 +1675,16 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
+    Public Function ToFileSizeString(ByVal Size As FileInfo) As String
+        Return Size.Length.ToFileSizeString
+    End Function
+
+    ''' <summary>
+    ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
+    ''' </summary>
+    ''' <param name="Size">Tamanho</param>
+    ''' <returns>String com o tamanho + unidade de medida</returns>
+    <Extension()>
     Public Function ToFileSizeString(ByVal Size As Double) As String
         Return Size.ChangeType(Of Decimal).ToFileSizeString
     End Function
@@ -1710,7 +1731,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function ToUnitString(Number As Decimal)
+    <Extension()> Public Function ToUnitString(Number As Decimal) As String
         Dim sizeTypes() As String = {"", "K", "M", "G", "T", "P", "E"}
         Dim sizeType As Integer = 0
         Do While Number > 1000

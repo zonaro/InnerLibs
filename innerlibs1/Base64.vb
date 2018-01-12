@@ -100,8 +100,8 @@ Public Module Base64
     ''' <returns>Uma string em formato Base64</returns>
 
     <Extension()>
-    Public Function ToBase64(ImageURL As String) As String
-        Dim imagem As System.Drawing.Image = AJAX.GET(Of Image)(ImageURL)
+    Public Function ToBase64(ImageURL As Uri) As String
+        Dim imagem As System.Drawing.Image = AJAX.GET(Of Image)(ImageURL.AbsoluteUri)
         Using m As New MemoryStream()
             imagem.Save(m, imagem.RawFormat)
             Dim imageBytes As Byte() = m.ToArray()
@@ -181,7 +181,7 @@ Public Module Base64
     ''' <summary>
     ''' Converte um arquivo em HttpPostedFile para String Base64
     ''' </summary>
-    ''' <param name="PostedFile">Arquivo de Imagem</param>
+    ''' <param name="PostedFile">Arquivo</param>
     ''' <param name="DataUrl">Especifica se a resposta deve ser em DataURI ou apenas a Base64</param>
     ''' <returns>Uma string em formato Base64</returns>
     <Extension>
@@ -212,6 +212,16 @@ Public Module Base64
     ''' <returns></returns>
     <Extension()> Public Function ToBytes(Base64StringOrDataURL As String) As Byte()
         Return Convert.FromBase64String(Base64StringOrDataURL.FixBase64)
+    End Function
+
+    ''' <summary>
+    ''' Cria um arquivo fisico a partir de uma Base64 ou DataURL
+    ''' </summary>
+    ''' <param name="Base64StringOrDataURL"></param>
+    ''' <param name="FilePath"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CreateFileFromDataURL(Base64StringOrDataURL As String, FilePath As String) As FileInfo
+        Return Base64StringOrDataURL.ToBytes.WriteToFile(FilePath)
     End Function
 
 End Module

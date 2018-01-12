@@ -27,9 +27,9 @@ Partial Public Class DataBase
                 Return Me.Keys.ToArray
             End Get
         End Property
-
-
     End Class
+
+
 
     ''' <summary>
     ''' Resultado de uma query no banco de dados
@@ -48,6 +48,9 @@ Partial Public Class DataBase
             Next
             Return cols.Distinct.ToList
         End Function
+
+
+
 
 
     End Class
@@ -100,13 +103,13 @@ Partial Public Class DataBase
         ''' Retorna as colunas do resultado atual
         ''' </summary>
         ''' <returns></returns>
-        Public Function GetColumns() As List(Of String)
+        Public Function GetColumns() As IEnumerable(Of String)
             If HasResults AndAlso HasRows Then
                 Dim cols As New List(Of String)
                 For Each c In Me.Select(Function(x) x.GetColumns)
                     cols.AddRange(c)
                 Next
-                Return cols.Distinct.ToList
+                Return cols.Distinct
             Else
                 Return New List(Of String)
             End If
@@ -116,9 +119,9 @@ Partial Public Class DataBase
         ''' Retorna apenas as colunas que o resultado atual possuir
         ''' </summary>
         ''' <returns></returns>
-        Public Function GetCurrentRowColumns() As List(Of String)
+        Public Function GetCurrentRowColumns() As IEnumerable(Of String)
             If HasResults AndAlso HasRows Then
-                Return Me(resultindex)(rowindex).Keys.ToArray.ToList
+                Return Me(resultindex)(rowindex).Keys.ToArray
             Else
                 Return New List(Of String)
             End If
@@ -285,7 +288,7 @@ Partial Public Class DataBase
         ''' </summary>
         ''' <param name="RowIndex"></param>
         ''' <returns></returns>
-        Public Function GetRow(RowIndex As Integer) As Dictionary(Of String, Object)
+        Public Function GetRow(RowIndex As Integer) As Row
             If HasRows Then
                 Return MyBase.Item(resultindex)(RowIndex)
             Else
@@ -297,7 +300,7 @@ Partial Public Class DataBase
         ''' Retorna a linha atual do resultado atual
         ''' </summary>
         ''' <returns></returns>
-        Public Function GetCurrentRow() As Dictionary(Of String, Object)
+        Public Function GetCurrentRow() As Row
             Return GetRow(rowindex)
         End Function
 
@@ -540,7 +543,7 @@ Partial Public Class DataBase
         ''' Cria uma lista de uma classe específica com os Itens de um <see cref="DataBase.Reader"/>
         ''' </summary>
         ''' <returns></returns>
-        Public Function ToList(Of TValue)() As List(Of TValue)
+        Public Function ToList(Of TValue As Class)() As List(Of TValue)
             Dim h As New List(Of TValue)
             If Me.HasRows Then
                 While Me.Read()
@@ -585,6 +588,20 @@ Partial Public Class DataBase
         ''' <returns></returns>
         Public Function GetCurrentRowValues() As Object()
             Return MyBase.Item(resultindex).Item(rowindex).Values.ToArray
+        End Function
+
+        ''' <summary>
+        ''' Retorna um Array de Valores da linha atual
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetCurrentRowAs(Of Type As Class)() As Type
+            Dim i = Activator.CreateInstance(Of Type)
+            For Each prop As PropertyInfo In GetType(Type).GetProperties
+                If prop.CanWrite Then
+                    prop.SetValue(i, Me(prop.Name))
+                End If
+            Next
+            Return i
         End Function
 
         ''' <summary>

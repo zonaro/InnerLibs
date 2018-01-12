@@ -14,29 +14,28 @@ Public Class oEmbed
     End Function
 
     ''' <summary>
-    ''' Cria uma nova <see cref="oEmbed"/> a partir de uma URL utilizando a mesma como <see cref="EndPoint"/>
+    ''' Cria uma nova <see cref="oEmbed"/> a partir de uma URL utilizando o dominio da mesma como <see cref="EndPoint"/>
     ''' </summary>
     ''' <param name="URL">Url</param>
     Sub New(URL As String)
         If URL.IsURL Then
             Try
-                Dim provider As oEmbed = GetProviders().Where(Function(x) x.provider_url.Contains(URL.GetDomain)).First
-                Me.provider_name = provider.provider_name
-                Me.provider_url = provider.provider_url
-                Me.endpoints = provider.endpoints
-                Me.url = URL
+                Dim provider As oEmbed = GetProviders().Where(Function(x) x.Provider_url.Contains(URL.GetDomain)).First
+                Me.Provider_name = provider.Provider_name
+                Me.Provider_url = provider.Provider_url
+                Me.Endpoints = provider.Endpoints
+                Me.Url = URL
             Catch ex As Exception
                 isdefault = True
-                Me.provider_name = GetTitle(URL.GetDomain)
-                Me.provider_url = URL.GetDomain.Prepend("http://")
-                Me.endpoints = {New Endpoint With {
-                    .discovery = False,
-                    .formats = {"json", "xml"},
-                    .schemes = {},
-                    .url = URL
+                Me.Provider_name = GetTitle(URL.GetDomain)
+                Me.Provider_url = URL.GetDomain.Prepend("http://")
+                Me.Endpoints = {New Endpoint With {
+                    .Discovery = False,
+                    .Formats = {"json", "xml"},
+                    .Schemes = {},
+                    .Url = URL
                 }}
             End Try
-
         Else
             Throw New ArgumentException("Invalid URL")
         End If
@@ -52,25 +51,12 @@ Public Class oEmbed
     End Sub
 
     ''' <summary>
-    ''' Retorna o um objeto contendo as informaçoes da URL
+    ''' Retorna o um <see cref="Object"/> contendo as informaçoes da URL
     ''' </summary>
-    ''' <param name="EndPointIndex">Index do <see cref="Endpoint"/> que será usado. Deixe 0 para utilizar o primeiro</param>
     ''' <returns></returns>
-    Public ReadOnly Property Response(Optional EndPointIndex As Integer = 0) As Object
+    Public ReadOnly Property Response As Object
         Get
-            EndPointIndex = EndPointIndex.LimitRange(0, Me.endpoints.Count)
-            If isdefault Then
-                Dim o As New Object
-                o("title") = GetTitle(Me.url)
-                o("html") = "<a href=" & Me.url.Quote & " target=""_blank"">" & o("title") & "</a>"
-                Return o
-            Else
-                If Me.endpoints(EndPointIndex).url.Contains("{format}") Then
-                    Return AJAX.GET(Of Object)(Me.endpoints(EndPointIndex).url.Replace("{format}", "json") & "?url=" & Me.url.UrlEncode)
-                Else
-                    Return AJAX.GET(Of Object)(Me.endpoints(EndPointIndex).url & "?url=" & Me.url.UrlEncode & "&format=json")
-                End If
-            End If
+            Return GetResponse(Of Object)(0)
         End Get
     End Property
 
@@ -78,11 +64,24 @@ Public Class oEmbed
     ''' <summary>
     ''' Retorna o um objeto convertido para um tipo contendo as informaçoes da URL
     ''' </summary>
-    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <typeparam name="Type">Tipo do objeto (utilize <see cref="Object"/> quando nao houver certeza do formato do Response</typeparam>
     ''' <param name="EndPointIndex">Index do <see cref="Endpoint"/> que será usado. Deixe 0 para utilizar o primeiro</param>
     ''' <returns></returns>
-    Public Function GetResponse(Of Type)(Optional EndPointIndex As Integer = 0) As Type
-        Return CType(Response(EndPointIndex), Type)
+    Public Function GetResponse(Of Type As Class)(Optional EndPointIndex As Integer = 0) As Type
+
+        EndPointIndex = EndPointIndex.LimitRange(0, Me.Endpoints.Count)
+        If isdefault Then
+            Dim o As New Object
+            o("title") = GetTitle(Me.Url)
+            o("html") = "<a href=" & Me.Url.Quote & " title=" & o("title").ToString.Quote & " target=""_blank"">" & o("title") & "</a>"
+            Return o
+        Else
+            If Me.Endpoints(EndPointIndex).Url.Contains("{format}") Then
+                Return AJAX.GET(Of Type)(Me.Endpoints(EndPointIndex).Url.Replace("{format}", "json") & "?url=" & Me.Url.UrlEncode)
+            Else
+                Return AJAX.GET(Of Type)(Me.Endpoints(EndPointIndex).Url & "?url=" & Me.Url.UrlEncode & "&format=json")
+            End If
+        End If
     End Function
 
     ''' <summary>

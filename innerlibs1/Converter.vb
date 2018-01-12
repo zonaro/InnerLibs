@@ -70,11 +70,27 @@ Public Module Converter
     End Function
 
     ''' <summary>
+    ''' Converte um <see cref="Ienumerable"/> para uma tabela HTML
+    ''' </summary>
+    ''' <param name="Table">Itens</param>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <returns></returns>
+    <Extension()> Public Function ToHtmlTable(Of Type As Class)(Table As IEnumerable(Of Type)) As HtmlElement
+        Dim keys = Table.First.GetProperties.Select(Function(x) x.Name)
+        Dim body = ""
+        For Each it In Table
+            body.Append(TableGenerator.TableRow("", it.GetProperties.Select(Function(p) p.GetValue(it).ToString).ToArray))
+        Next
+        body = TableGenerator.Table(TableHeader(keys.ToArray), body)
+        Return New HtmlElement(body)
+    End Function
+
+    ''' <summary>
     ''' Converte uma lista de dicionários para uma tabela HTML
     ''' </summary>
     ''' <param name="Table"></param>
     ''' <returns></returns>
-    <Extension> Public Function ToHtmlTable(Table As List(Of IDictionary(Of String, Object))) As HtmlElement
+    <Extension> Public Function ToHtmlTable(Table As IEnumerable(Of IDictionary(Of String, Object))) As HtmlElement
         Dim body = ""
         Table = Table.Uniform
         For Each dic In Table
@@ -95,7 +111,7 @@ Public Module Converter
     ''' <typeparam name="TValue">Tipo do Valor</typeparam>
     ''' <param name="Dics">Dicionarios</param>
     ''' <returns></returns>
-    <Extension()> Function Uniform(Of TKey, TValue)(Dics As List(Of IDictionary(Of TKey, TValue))) As List(Of IDictionary(Of TKey, TValue))
+    <Extension()> Function Uniform(Of TKey, TValue)(Dics As IEnumerable(Of IDictionary(Of TKey, TValue))) As List(Of IDictionary(Of TKey, TValue))
         Dim templist = New List(Of IDictionary(Of TKey, TValue))(Dics)
         Dim colunas As New List(Of TKey)
         For Each dic In templist
