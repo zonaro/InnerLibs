@@ -94,6 +94,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="DatabaseReader.vb" />
+    <Compile Include="Databases.vb" />
     <Compile Include="DataGridViewManager.vb" />
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />
@@ -119,7 +120,6 @@
     <Compile Include="Calendars.vb" />
     <Compile Include="ColorConvert.vb" />
     <Compile Include="Converter.vb" />
-    <Compile Include="Databases.vb" />
     <Compile Include="FileTree.vb" />
     <Compile Include="GeoIP.vb" />
     <Compile Include="htmlparser\ClassProperty.vb" />

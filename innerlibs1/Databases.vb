@@ -610,33 +610,8 @@ Public NotInheritable Class DataBase
         Next
     End Sub
 
-    ''' <summary>
-    ''' Executa uma série de procedures baseando-se em uma unica chave estrangeira
-    ''' </summary>
-    ''' <param name="BatchProcedure">Configuraçoes das procedures</param>
-    Public Sub RunBatchProcedure(BatchProcedure As BatchProcedure)
-        BatchProcedure.Errors = New List(Of Exception)
-        For Each p In BatchProcedure
-            Try
-                RunProcedureForEach(p.ProcedureName, BatchProcedure.ForeignKey, BatchProcedure.ForeignValue, BatchProcedure.Items, p.Keys)
-            Catch ex As Exception
-                BatchProcedure.Errors.Add(ex)
-            End Try
-        Next
-    End Sub
 
-    ''' <summary>
-    ''' Executa uma série de procedures baseando-se eum uma unica chave estrangeira
-    ''' </summary>
-    ''' <param name="ForeignKey">     Coluna que representa a chave estrangeira da tabela</param>
-    ''' <param name="ForeignValue">   Valor que será guardado como chave estrangeira</param>
-    ''' <param name="Items">          Coleçao de valores que serão inseridos em cada iteraçao</param>
-    ''' <param name="ProcedureConfig">
-    ''' Informaçoes sobre qual procedure será executada e quais keys deverão ser usadas como parametros
-    ''' </param>
-    Public Sub RunBatchProcedure(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray ProcedureConfig As ProcedureConfig())
-        RunBatchProcedure(New BatchProcedure(Items, ForeignKey, ForeignValue, ProcedureConfig))
-    End Sub
+
 
     ''' <summary>
     ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
@@ -685,86 +660,3 @@ Public NotInheritable Class DataBase
 
 End Class
 
-''' <summary>
-''' Conjunto de configuraçoes de procedures para ser executado em sequencia
-''' </summary>
-Public Class BatchProcedure
-    Inherits List(Of ProcedureConfig)
-
-    ''' <summary>
-    ''' Erros enxontrados ao executar procedures
-    ''' </summary>
-    ''' <returns></returns>
-    Property Errors As New List(Of Exception)
-
-    ''' <summary>
-    ''' Coluna de chave estrangeira
-    ''' </summary>
-    ''' <returns></returns>
-    Property ForeignKey As String
-
-    ''' <summary>
-    ''' Valor da chave estrangeira
-    ''' </summary>
-    ''' <returns></returns>
-    Property ForeignValue As String
-
-    ''' <summary>
-    ''' Items usados na iteraçao
-    ''' </summary>
-    ''' <returns></returns>
-    Property Items As NameValueCollection
-
-    ''' <summary>
-    ''' Adciona uma procedure a execuçao atual
-    ''' </summary>
-    ''' <param name="ProcedureName">Nome da procedure</param>
-    ''' <param name="Keys">         Chaves que serão utilizadas como parâmetro da procedure</param>
-    Shadows Sub Add(ProcedureName As String, ParamArray Keys As String())
-        MyBase.Add(New ProcedureConfig(ProcedureName, Keys))
-    End Sub
-
-    ''' <summary>
-    ''' Cria uma nova lista de procedures
-    ''' </summary>
-    ''' <param name="Items">       Items usados em cada iteração</param>
-    ''' <param name="ForeignKey">  Coluna de chave estrangeira</param>
-    ''' <param name="ForeignValue">Valor da coluna d chave estrangeira</param>
-    ''' <param name="Procs">       Lista contendo as configurações de cada procedure</param>
-    Sub New(Items As NameValueCollection, ForeignKey As String, ForeignValue As String, ParamArray Procs As ProcedureConfig())
-        Me.Items = Me.Items
-        Me.ForeignKey = ForeignKey
-        Me.ForeignValue = ForeignValue
-        MyBase.AddRange(Procs)
-    End Sub
-
-End Class
-
-''' <summary>
-''' Configuração de procedure para a classe <see cref="BatchProcedure"/>
-''' </summary>
-Public Class ProcedureConfig
-
-    ''' <summary>
-    ''' Nome da Procedure
-    ''' </summary>
-    ''' <returns></returns>
-    Property ProcedureName As String
-
-    ''' <summary>
-    ''' Chaves usadas como parametros da procedure
-    ''' </summary>
-    ''' <returns></returns>
-    Property Keys As String()
-
-    ''' <summary>
-    ''' Cria uma nova configuração de procedure
-    ''' </summary>
-    ''' <param name="ProcedureName">Nome da Procedure</param>
-    ''' <param name="Keys">         Chaves usadas como parametros da procedure</param>
-    Sub New(ProcedureName As String, ParamArray Keys As String())
-        Me.ProcedureName = ProcedureName
-        Me.Keys = Keys
-    End Sub
-
-End Class
