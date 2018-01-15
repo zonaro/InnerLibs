@@ -86,7 +86,7 @@ Public Module Converter
             body = TableGenerator.Table(TableHeader(keys.ToArray), body)
             Return New HtmlElement(body)
         Else
-            Return New HtmlElement("<table></table>")
+            Return New HtmlElement("table")
         End If
     End Function
 
