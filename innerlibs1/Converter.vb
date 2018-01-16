@@ -77,14 +77,12 @@ Public Module Converter
     ''' <returns></returns>
     <Extension()> Public Function ToHtmlTable(Of Type As Class)(Table As IEnumerable(Of Type)) As HtmlElement
         If Table.Count > 0 Then
-
             Dim keys = Table.First.GetProperties.Select(Function(x) x.Name)
             Dim body = ""
             For Each it In Table
                 body.Append(TableGenerator.TableRow("", it.GetProperties.Select(Function(p) p.GetValue(it).ToString).ToArray))
             Next
-            body = TableGenerator.Table(TableHeader(keys.ToArray), body)
-            Return New HtmlElement(body)
+            Return New HtmlElement("table", TableHeader(keys.ToArray) & body.WrapInTag("tbody").HTML)
         Else
             Return New HtmlElement("table")
         End If
