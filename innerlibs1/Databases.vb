@@ -85,6 +85,23 @@ Public NotInheritable Class DataBase
             Return "INSERT"
         End If
     End Function
+    ''' <summary>
+    ''' Faz um INSERT out UPDATE no banco de dados de acordo com o valor da coluna de chave primária especificado em um <see cref="IDictionary"/>
+    '''</summary>
+    Public Function INSERTorUPDATE(TableName As String, PrimaryKeyColumn As String, Columns As NameValueCollection) As String
+        Return INSERTorUPDATE(TableName, PrimaryKeyColumn, Columns.ToDictionary)
+    End Function
+    ''' <summary>
+    ''' Faz um INSERT out UPDATE no banco de dados de acordo com o valor da coluna de chave primária especificado em um <see cref="IDictionary"/>
+    '''</summary>
+    Public Function INSERTorUPDATE(Request As HttpRequest, TableName As String, PrimaryKeyColumn As String, ParamArray Columns As String()) As String
+        Dim cmd As String = Request.ToINSERTorUPDATE(TableName, PrimaryKeyColumn, Columns)
+        If cmd.StartsWith("INSERT") Then
+            Return "INSERT"
+        Else
+            Return "UPDATE"
+        End If
+    End Function
 
     ''' <summary>
     ''' Faz um UPDATE no banco de dados de acordo com um <see cref="IDictionary"/>

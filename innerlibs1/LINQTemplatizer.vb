@@ -625,7 +625,7 @@ Namespace LINQ
             For Each class_tag As HtmlElement In doc("[triforce-source]")
                 Try
                     Dim newcontent = ""
-                    Dim lis = Item.GetPropertyValue(class_tag.Attribute("triforce-source"))
+                    Dim lis = Item.GetPropertyValue(Of Object)(class_tag.Attribute("triforce-source"), True)
                     If lis IsNot Nothing Then
                         For Each el In lis
                             newcontent = ReplaceValues(el, class_tag.InnerHTML)

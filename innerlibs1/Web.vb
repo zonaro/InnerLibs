@@ -362,12 +362,49 @@ Public Module Web
         Return Request.ToProcedure(ProcedureName, Request.QueryString.AllKeys)
     End Function
 
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de
+    ''' uma URL como as colunas da tabela de destino
+    ''' </summary>
+    ''' <param name="Request"> Requisicao HTTP</param>
+    ''' <param name="TableName">  Nome da Tabela</param>
+    ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+    ''' <param name="QueryStringPrimaryKey">Parametro que representa a chave primaria da Tabela</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()> Public Function ToINSERTorUPDATE(Request As HttpRequest, TableName As String, QueryStringPrimaryKey As String, ParamArray QueryStringKeys As String()) As String
+        Return Request.FlatRequest.ToINSERTorUPDATE(TableName, QueryStringPrimaryKey, QueryStringKeys)
+    End Function
+
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de
+    ''' uma URL como as colunas da tabela de destino
+    ''' </summary>
+    ''' <param name="Request"> Requisicao HTTP</param>
+    ''' <param name="TableName">  Nome da Tabela</param>
+    ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+    ''' <param name="QueryStringPrimaryKey">Parametro que representa a chave primaria da Tabela</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()> Public Function ToINSERTorUPDATE(Request As NameValueCollection, TableName As String, QueryStringPrimaryKey As String, ParamArray QueryStringKeys As String()) As String
+        Dim pk = Request(QueryStringPrimaryKey).ifblank(0)
+        If QueryStringKeys Is Nothing OrElse QueryStringKeys.Count = 0 Then
+            QueryStringKeys = Request.AllKeys
+        End If
+        QueryStringKeys = QueryStringKeys.Where(Function(x) x.ToLower <> QueryStringPrimaryKey.ToLower).ToArray
+        If pk > 0 Then
+            Return Request.ToUPDATE(TableName, "where " & QueryStringPrimaryKey & " = " & Request(QueryStringPrimaryKey), QueryStringKeys)
+        Else
+            Return Request.ToINSERT(TableName, QueryStringKeys)
+        End If
+    End Function
+
     ''' <summary>
     ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
     ''' uma URL como as colunas da tabela de destino
     ''' </summary>
     ''' <param name="Request">        Requisicao HTTP</param>
-    ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <param name="TableName">  Nome da tabela</param>
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToUPDATE(Request As NameValueCollection, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
@@ -388,7 +425,7 @@ Public Module Web
     ''' uma URL como as colunas da tabela de destino
     ''' </summary>
     ''' <param name="Request">        Requisicao HTTP</param>
-    ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <param name="TableName">  Nome da tabela</param>
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToUPDATE(Request As HttpRequest, ByVal TableName As String, WhereClausule As String, ParamArray QueryStringKeys As String())
@@ -412,7 +449,7 @@ Public Module Web
     ''' uma URL como as colunas da tabela de destino
     ''' </summary>
     ''' <param name="Request">        Requisicao HTTP</param>
-    ''' <param name="TableName">  Nome da Procedure</param>
+    ''' <param name="TableName">  Nome da tabela</param>
     ''' <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToINSERT(Request As NameValueCollection, ByVal TableName As String, ParamArray QueryStringKeys As String())
