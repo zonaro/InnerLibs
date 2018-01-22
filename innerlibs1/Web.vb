@@ -1,4 +1,5 @@
 ﻿Imports System.Collections.Specialized
+Imports System.Data.Linq
 Imports System.Drawing
 Imports System.IO
 Imports System.Net
@@ -113,7 +114,7 @@ Public NotInheritable Class AJAX
         Property status As String = ""
 
         ''' <summary>
-        ''' Mensagem retornada ao ciente
+        ''' Mensagem retornada ao cliente
         ''' </summary>
         ''' <returns></returns>
         Property message As String = ""
@@ -142,6 +143,7 @@ Public NotInheritable Class AJAX
             Me.response = Response
         End Sub
 
+
         ''' <summary>
         ''' Processa a resposta e retorna um JSON deste objeto. É um alias para <see cref="Response.ToJSON(String)"/>
         ''' </summary>
@@ -167,6 +169,10 @@ Public NotInheritable Class AJAX
         End Function
 
     End Class
+
+
+
+
 
 End Class
 
@@ -387,7 +393,7 @@ Public Module Web
     ''' <param name="QueryStringPrimaryKey">Parametro que representa a chave primaria da Tabela</param>
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()> Public Function ToINSERTorUPDATE(Request As NameValueCollection, TableName As String, QueryStringPrimaryKey As String, ParamArray QueryStringKeys As String()) As String
-        Dim pk = Request(QueryStringPrimaryKey).ifblank(0)
+        Dim pk = Request(QueryStringPrimaryKey).IfBlank(0)
         If QueryStringKeys Is Nothing OrElse QueryStringKeys.Count = 0 Then
             QueryStringKeys = Request.AllKeys
         End If
@@ -585,6 +591,30 @@ Public Module Web
     Public Sub WriteJSON(HttpResponse As HttpResponse, Status As String, Message As String, Optional Response As Object = Nothing)
         HttpResponse.WriteJSON(New AJAX.Response(Status, Message, Response))
     End Sub
+
+    ''' <summary>
+    ''' Escreve um JSON e finaliza um HttpResponse
+    ''' </summary>
+    ''' <param name="HttpResponse">Response</param>
+    ''' <param name="ActResponse">Função Anexada que dará origem ao response</param>
+    ''' <param name="ErrorMessage">Mensagem de Erro</param>
+    ''' <param name="SuccessMessage">Mensagem de Sucesso</param>
+    <Extension()> Public Sub WriteJSON(Of Type)(HttpResponse As HttpResponse, ActResponse As Func(Of Type), Optional SuccessMessage As String = "", Optional ErrorMessage As String = "")
+        Dim t = Now.Ticks
+        Dim d = New With {.response = Nothing, .status = "success", .message = ""}
+        Try
+            d.response = ActResponse()
+            d.status = "success"
+            d.message = SuccessMessage
+            HttpResponse.WriteJSON(d)
+        Catch ex As Exception
+            d.status = "error"
+            d.message = ErrorMessage.IfBlank(ex.Message)
+            d.response = Nothing
+            HttpResponse.WriteJSON(d)
+        End Try
+    End Sub
+
 
     ''' <summary>
     ''' Escreve um XML e finaliza um HttpResponse

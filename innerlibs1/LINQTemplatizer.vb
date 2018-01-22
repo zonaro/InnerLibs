@@ -7,9 +7,13 @@ Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
+Imports System.Web
+Imports System.Web.Script.Serialization
+Imports System.Xml.Serialization
 Imports InnerLibs.HtmlParser
 
 Namespace LINQ
+
 
     ''' <summary>
     ''' Permite integrar <see cref="Triforce"/> a objetos LINQ to SQL
@@ -21,8 +25,7 @@ Namespace LINQ
         ''' <summary>
         ''' Tipo de <see cref="Data.Linq.DataContext"/> utilizado para a comunicação com o banco
         ''' </summary>
-        Private DataContext As DataContextType
-
+        Friend DataContext As DataContextType
 
         ''' <summary>
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Diretório
@@ -44,6 +47,37 @@ Namespace LINQ
             MyBase.New(ApplicationAssembly, DateTimeFormat)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
+
+        ''' <summary>
+        ''' Aplica um template a uma busca determinada pelo tipo de objeto
+        ''' </summary>
+        ''' <typeparam name="T">Tipo de objeto</typeparam>
+        ''' <param name="PageNumber">Pagina atual</param>
+        ''' <param name="PageSize">Numero de itens por pagina</param>
+        ''' <param name="predicade">Filtro da busca</param>
+        ''' <returns></returns>
+        Public Overloads Function ApplyTemplate(Of T As Class)(Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Return ApplyTemplate(Of T)(GetTemplate(Of T), predicade, PageNumber, PageSize)
+        End Function
+        ''' <summary>
+        ''' Aplica um template a uma busca determinada pelo tipo de objeto
+        ''' </summary>
+        ''' <typeparam name="T">Tipo de objeto</typeparam>
+        ''' <param name="PageNumber">Pagina atual</param>
+        ''' <param name="PageSize">Numero de itens por pagina</param>
+        ''' <param name="predicade">Filtro da busca</param>
+        ''' <returns></returns>
+        Public Overrides Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Me.DataContext = Activator.CreateInstance(Of DataContextType)
+            Using Me.DataContext
+                Dim d As IQueryable(Of T) = Me.DataContext.GetTable(Of T).AsQueryable
+                If predicade IsNot Nothing Then
+                    d = d.Where(predicade)
+                End If
+                Return ApplyTemplate(d, Template, PageNumber, PageSize)
+            End Using
+        End Function
+
 
         ''' <summary>
         ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um wrapper para <see cref="DataContext.ExecuteQuery(Of TResult)(String, Object())"/> porém aplica os templates automaticamente
@@ -172,7 +206,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As Data.Linq.Table(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Overloads Function ApplyTemplate(Of T As Class)(List As Table(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
@@ -185,7 +219,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As Data.Linq.Table(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Overloads Function ApplyTemplate(Of T As Class)(List As Table(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -199,7 +233,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As Data.Linq.ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Overloads Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
@@ -212,7 +246,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As Data.Linq.ISingleResult(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Overloads Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -267,9 +301,11 @@ Namespace LINQ
                         Throw New FileNotFoundException(CommandFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
                     End Try
                 Case Else
-                    Throw New Exception("ApplicationAssembly or CommandDirectory is not configured!")
+                    Throw New Exception("ApplicationAssembly or TemplateDirectory is not configured!")
             End Select
         End Function
+
+
 
     End Class
 
@@ -278,6 +314,18 @@ Namespace LINQ
     ''' Gerador de HTML dinâmico a partir de objetos LINQ e arquivos HTML.
     ''' </summary>
     Public Class Triforce
+
+        ''' <summary>
+        ''' Aplica um template a uma busca determinada pelo tipo de objeto
+        ''' </summary>
+        ''' <typeparam name="T">Tipo de objeto</typeparam>
+        ''' <param name="PageNumber">Pagina atual</param>
+        ''' <param name="PageSize">Numero de itens por pagina</param>
+        ''' <param name="predicade">Filtro da busca</param>
+        ''' <returns></returns>
+        Public Overridable Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Throw New NotImplementedException("This function works only with LINQ to SQL")
+        End Function
 
         ''' <summary>
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
@@ -298,6 +346,7 @@ Namespace LINQ
             Me.DateTimeFormat = If(DateTimeFormat, "dd/MM/yyyy hh:mm:ss")
             Me.TemplateDirectory = TemplateDirectory
         End Sub
+
 
 
         ''' <summary>
