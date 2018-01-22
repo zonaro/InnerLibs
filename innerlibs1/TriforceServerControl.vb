@@ -9,13 +9,11 @@ Namespace LINQ
 
     <DefaultProperty("Template")>
     <ToolboxBitmap(GetType(ListView))>
-    <ToolboxData("<{0}:TriforceWriter Template="""" PageParameter=""Page"" PageSize=""12"" runat=""server"" />")>
+    <ToolboxData("<{0}:TriforceWriter RenderAs=""Div"" Template="""" PageParameter=""Page"" PageSize=""12"" runat=""server"" />")>
     Public Class TriforceWriter
         Inherits WebControl
-
-
-
         Private tgkey As HtmlTextWriterTag
+
         Protected Overrides ReadOnly Property TagKey As HtmlTextWriterTag
             Get
                 Return tgkey
@@ -28,11 +26,30 @@ Namespace LINQ
             End Get
         End Property
 
-        Public Sub RenderAs(Tag As HtmlTextWriterTag)
-            tgkey = Tag
-        End Sub
+        ''' <summary>
+        ''' Tag que dará forma como o TriforceWriter será renderizado. Default: Div
+        ''' </summary>
+        ''' <returns></returns>
+        <Bindable(True)>
+        <Category("Appearance")>
+        <DefaultValue("Div")>
+        <Localizable(True)>
+        Public Property RenderAs As String
+            Get
+                Return TagName
+            End Get
+            Set(ByVal value As String)
+                tgkey = GetEnumValue(Of HtmlTextWriterTag)(value)
+            End Set
+        End Property
 
 
+
+
+        ''' <summary>
+        ''' Nome do Template que será utilizado para este TriforceWriter
+        ''' </summary>
+        ''' <returns></returns>
         <Bindable(True)>
         <Category("Appearance")>
         <DefaultValue("")>
@@ -48,7 +65,10 @@ Namespace LINQ
             End Set
         End Property
 
-
+        ''' <summary>
+        ''' Numero de itens por página
+        ''' </summary>
+        ''' <returns></returns>
         <Bindable(True)>
         <Category("Pagination")>
         <DefaultValue("12")>
@@ -63,6 +83,10 @@ Namespace LINQ
             End Set
         End Property
 
+        ''' <summary>
+        ''' Numero da Página
+        ''' </summary>
+        ''' <returns></returns>
         <Bindable(True)>
         <Category("Pagination")>
         <DefaultValue("")>
