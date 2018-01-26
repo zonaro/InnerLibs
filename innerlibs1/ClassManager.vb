@@ -10,6 +10,8 @@ Imports System.Web
 
 Public Module ClassTools
 
+
+
     <Extension()>
     Function GetValueOr(Of tkey, Tvalue)(Dic As IDictionary(Of tkey, Tvalue), Key As tkey, Optional ReplaceValue As Tvalue = Nothing) As Tvalue
         Try
