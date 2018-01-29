@@ -152,7 +152,7 @@ Public Class Location
     End Property
 
     Private Sub ParseType()
-        Dim pal = Me.Address.GetWords.First.Key.ToProper
+        Dim pal = Me.Address.CountWords.First.Key.ToProper
         Select Case pal
             Case "Aeroporto", "Ar", "Aero"
                 Me.AddressType = "Aeroporto"

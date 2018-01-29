@@ -1205,11 +1205,55 @@ Public Module Text
     ''' Retorna as plavaras contidas em uma frase em ordem alfabética e sua respectiva quantidade
     ''' </summary>
     ''' <param name="Text">TExto</param>
+    ''' <param name="RemoveDiacritics">indica se os acentos devem ser removidos das palavras</param>
+    ''' <param name="Words">Desconsidera outras palavras e busca a quantidadade de cada palavra</param>
     ''' <returns></returns>
-    <Extension()> Function GetWords(Text As String, Optional RemoveDiacritics As Boolean = True) As Dictionary(Of String, Long)
-        Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split({"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries).ToList
-        If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics).ToList
-        Return palavras.DistinctCount()
+    <Extension()> Function CountWords(Text As String, Optional RemoveDiacritics As Boolean = True, Optional Words As String() = Nothing) As Dictionary(Of String, Long)
+        If Words Is Nothing Then Words = {}
+        Dim palavras = Text.GetWords
+        If Words.Count > 0 Then
+            palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x))
+        End If
+        If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics)
+        Dim dic As Dictionary(Of String, Long) = palavras.DistinctCount()
+
+        For Each w In Words.Where(Function(x) Not dic.Keys.Contains(x))
+            dic.Add(w, 0)
+        Next
+        Return dic
+    End Function
+
+    ''' <summary>
+    ''' Strings utilizadas para descobrir as palavras em uma string 
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}
+
+    ''' <summary>
+    ''' Retorna uma lista de palavras encontradas no texto, sejam elas repetidas ou nao.
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Function GetWords(Text As String) As String()
+        Dim txt As New List(Of String)
+        Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).ToList
+        For Each w In palavras
+            txt.Add(w)
+        Next
+        Return txt.ToArray
+    End Function
+
+    ''' <summary>
+    ''' limpa um texto deixando apenas os caracteres alfanumericos.
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Function MakeClean(Text As String) As String
+        Dim l As New List(Of String)
+        For Each item In Text.Split(" ", StringSplitOptions.RemoveEmptyEntries)
+            l.Add(Regex.Replace(item, "[^A-Za-z0-9]", ""))
+        Next
+        Return l.Join(" ")
     End Function
 
     ''' <summary>
@@ -1256,7 +1300,7 @@ Public Module Text
             End If
 
             'comeca a extrair as palavras por quantidade
-            Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.GetWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber).ToArray
+            Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.CountWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber).ToArray
             IgnoredWords = If(IgnoredWords, {}).ToArray
             ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
             l.AddRange(ImportantWords)
