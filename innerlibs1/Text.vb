@@ -1212,11 +1212,10 @@ Public Module Text
         If Words Is Nothing Then Words = {}
         Dim palavras = Text.GetWords
         If Words.Count > 0 Then
-            palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x))
+            palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x)).ToArray
         End If
-        If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics)
+        If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics).ToArray
         Dim dic As Dictionary(Of String, Long) = palavras.DistinctCount()
-
         For Each w In Words.Where(Function(x) Not dic.Keys.Contains(x))
             dic.Add(w, 0)
         Next
@@ -1305,8 +1304,12 @@ Public Module Text
             ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
             l.AddRange(ImportantWords)
             ImportantWords = l.ToArray
-            If RemoveDiacritics Then IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
-            If RemoveDiacritics Then ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
+
+            If RemoveDiacritics Then
+                IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
+                ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
+            End If
+
             palavras = palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().OrderByDescending(Function(p) p.Value).ToArray
             Return palavras.ToDictionary(Function(p) p.Key, Function(p) p.Value)
         Catch ex As Exception
