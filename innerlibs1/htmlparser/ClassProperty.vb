@@ -93,9 +93,20 @@ Namespace HtmlParser
         ''' Add a class to element
         ''' </summary>
         ''' <param name="ClassName"></param>
-        Public Shadows Function Add(ClassName As String) As HtmlElement
-            Me.Item(ClassName) = True
+        Public Shadows Function Add(ParamArray ClassName As String()) As HtmlElement
+            For Each c In ClassName
+                Me.Item(c) = True
+            Next
             Return Me.mElement
+        End Function
+
+        ''' <summary>
+        ''' Add a class to element
+        ''' </summary>
+        ''' <param name="ClassName"></param>
+        ''' <returns></returns>
+        Public Shadows Function AddRange(ParamArray ClassName As String()) As HtmlElement
+            Return Me.Add(ClassName)
         End Function
 
         ''' <summary>

@@ -699,7 +699,7 @@ Partial Public Class DataBase
                 Dim columns As List(Of String) = Me.GetColumns()
                 While Me.Read()
                     For Each coluna In columns
-                        DelimitedString = DelimitedString & (Me(coluna) & ColDelimiter)
+                        DelimitedString = DelimitedString & Json.SerializeJSON(Me(coluna)) & ColDelimiter
                     Next
                     DelimitedString = DelimitedString & RowDelimiter
                 End While
@@ -820,7 +820,7 @@ Partial Public Class DataBase
 
                     While Me.Read()
                         For Each item As String In Me.GetColumns()
-                            Returned.Append("|" & Me(item))
+                            Returned.Append("|" & Json.SerializeJSON(Me(item)))
                         Next
                         Returned.Append("|" & Environment.NewLine)
                     End While
@@ -835,16 +835,16 @@ Partial Public Class DataBase
         ''' <summary>
         ''' Converte um <see cref="DataBase.Reader"/> para uma tabela em HTML
         ''' </summary>
-        ''' <param name="Attr">Atributos da tabela.</param>
+        ''' <param name="BeautfyColumnNames">Embeleza nomes de colunas</param>
         ''' <returns></returns>
-        Public Function ToHTMLTable(Optional Attr As HtmlParser.HtmlAttributeCollection = Nothing) As HtmlParser.HtmlElement
+        Public Function ToHTMLTable(Optional BeautfyColumnNames As Boolean = False) As HtmlParser.HtmlElement
             Dim Returned As String = ""
             Do
                 If Me.HasRows Then
                     Returned.Append(" <thead>")
                     Returned.Append("     <tr>")
                     For Each item As String In Me.GetColumns()
-                        Returned.Append("         <th>" & item & "</th>")
+                        Returned.Append("         <th>" & If(BeautfyColumnNames, item.ToProper.Replace("_", " ").AdjustBlankSpaces, item) & "</th>")
                     Next
                     Returned.Append("     </tr>")
                     Returned.Append(" </thead>")
@@ -852,7 +852,11 @@ Partial Public Class DataBase
                     While Me.Read()
                         Returned.Append("     <tr>")
                         For Each item As String In Me.GetColumns()
-                            Returned.Append(" <td>" & Me(item) & "</td>")
+                            If Me(item).GetType.IsIn({GetType(String), GetType(DateTime), GetType(Integer), GetType(Long), GetType(Short), GetType(Double), GetType(Decimal)}) Then
+                                Returned.Append(" <td>" & Me(item).ToString & "</td>")
+                            Else
+                                Returned.Append(" <td>" & Json.SerializeJSON(Me(item)) & "</td>")
+                            End If
                         Next
                         Returned.Append("     </tr>")
                     End While
@@ -861,7 +865,6 @@ Partial Public Class DataBase
                 End If
             Loop While Me.NextResult()
             Dim tag As New HtmlParser.HtmlElement("table")
-            If IsNothing(Attr) Then Attr = New HtmlParser.HtmlAttributeCollection(tag)
             tag.InnerHTML = Returned
             Return tag
         End Function
