@@ -48,6 +48,32 @@ Namespace LINQ
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
 
+
+        ''' <summary>
+        ''' Aplica um template HTML se uma expressão retornar verdadeiro, caso contrário aplica um outro template
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <returns></returns>
+        Public Overloads Function ApplyAlternatingTemplates(Of T As Class)(Item As T, condition As Func(Of T, Boolean), FirsTemplate As String, AlternateTemplate As String) As Template(Of T)
+            Return ApplyTemplate(Item, If(condition(Item), FirsTemplate, AlternateTemplate))
+        End Function
+
+        ''' <summary>
+        ''' Aplica um template HTML se uma expressão retornar verdadeiro, caso contrário aplica um outro template
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <returns></returns>
+        Public Overloads Function ApplyAlternatingtemplates(Of T As Class)(List As IQueryable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Dim total = List.Count
+            If PageSize < 1 Then PageSize = total
+            PageNumber = PageNumber.LimitRange(1, (total / PageSize).ChangeType(Of Decimal).Ceil())
+            Dim l As New List(Of Template(Of T))
+            For Each item As T In List.Page(PageNumber, PageSize)
+                l.Add(ApplyTemplate(Of T)(CType(item, T), If(condition(item), FirstTemplate, AlternateTemplate)))
+            Next
+            Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
+        End Function
+
         ''' <summary>
         ''' Aplica um template a uma busca determinada pelo tipo de objeto
         ''' </summary>
@@ -428,6 +454,32 @@ Namespace LINQ
         End Property
         Friend _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
 
+
+
+        ''' <summary>
+        ''' Aplica um template HTML se uma expressão retornar verdadeiro, caso contrário aplica um outro template
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <returns></returns>
+        Public Overloads Function ApplyAlternatingTemplates(Of T As Class)(Item As T, condition As Func(Of T, Boolean), FirsTemplate As String, AlternateTemplate As String) As Template(Of T)
+            Return ApplyTemplate(Item, If(condition(Item), FirsTemplate, AlternateTemplate))
+        End Function
+
+        ''' <summary>
+        ''' Aplica um template HTML se uma expressão retornar verdadeiro, caso contrário aplica um outro template
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <returns></returns>
+        Public Overloads Function ApplyAlternatingtemplates(Of T As Class)(List As IEnumerable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Dim total = List.Count
+            If PageSize < 1 Then PageSize = total
+            PageNumber = PageNumber.LimitRange(1, (total / PageSize).ChangeType(Of Decimal).Ceil())
+            Dim l As New List(Of Template(Of T))
+            For Each item As T In List.Page(PageNumber, PageSize)
+                l.Add(ApplyTemplate(Of T)(CType(item, T), If(condition(item), FirstTemplate, AlternateTemplate)))
+            Next
+            Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
+        End Function
 
 
 

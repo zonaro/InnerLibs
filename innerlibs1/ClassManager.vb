@@ -7,10 +7,26 @@ Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
 Imports System.Web
+Imports InnerLibs.HtmlParser
 
 Public Module ClassTools
 
-
+    ''' <summary>
+    ''' Retorna o objeto em seu formato padrão de String, ou serializa o objeto em Json se o mesmo não possuir formato em string
+    ''' </summary>
+    ''' <param name="obj"></param>
+    ''' <param name="DateFormat"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToFlatString(Obj As Object, Optional DateFormat As String = "") As String
+        Select Case Obj.GetType
+            Case GetType(DateTime), GetType(Date)
+                Return CType(Obj, Date).ToString(DateFormat.IfBlank("yyyy-MM-dd hh:mm:ss"))
+            Case GetType(String), GetType(Integer), GetType(Long), GetType(Short), GetType(Double), GetType(Decimal), GetType(Money), GetType(HtmlDocument), GetType(HtmlElement)
+                Return Obj.ToString
+            Case Else
+                Return Json.SerializeJSON(Obj, DateFormat.IfBlank("yyyy-MM-dd hh:mm:ss"))
+        End Select
+    End Function
 
     <Extension()>
     Function GetValueOr(Of tkey, Tvalue)(Dic As IDictionary(Of tkey, Tvalue), Key As tkey, Optional ReplaceValue As Tvalue = Nothing) As Tvalue

@@ -852,11 +852,8 @@ Partial Public Class DataBase
                     While Me.Read()
                         Returned.Append("     <tr>")
                         For Each item As String In Me.GetColumns()
-                            If Me(item).GetType.IsIn({GetType(String), GetType(DateTime), GetType(Integer), GetType(Long), GetType(Short), GetType(Double), GetType(Decimal)}) Then
-                                Returned.Append(" <td>" & Me(item).ToString & "</td>")
-                            Else
-                                Returned.Append(" <td>" & Json.SerializeJSON(Me(item)) & "</td>")
-                            End If
+                            Returned.Append(" <td>" & ToFlatString(Me(item)) & "</td>")
+
                         Next
                         Returned.Append("     </tr>")
                     End While

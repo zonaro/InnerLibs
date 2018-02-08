@@ -75,16 +75,19 @@ Public Module Converter
     ''' <param name="Table">Itens</param>
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <returns></returns>
-    <Extension()> Public Function ToHtmlTable(Of Type As Class)(Table As IEnumerable(Of Type)) As HtmlElement
+    <Extension()> Public Function ToHtmlTable(Of Type As Class)(Table As IEnumerable(Of Type), Optional BeautifyHeaders As Boolean = False) As HtmlElement
         If Table.Count > 0 Then
             Dim keys = Table.First.GetProperties.Select(Function(x) x.Name)
             Dim body = ""
             For Each it In Table
                 body.Append(TableGenerator.TableRow("", it.GetProperties.Select(Function(p) p.GetValue(it).ToString).ToArray))
             Next
-            Return New HtmlElement("table", TableHeader(keys.ToArray) & body.WrapInTag("tbody").HTML)
-        Else
-            Return New HtmlElement("table")
+            If BeautifyHeaders Then
+                keys = keys.Select(Function(x) x.Replace("_", " ").ToProper.AdjustBlankSpaces)
+            End If
+            Return New HtmlElement("table", TableHeader(keys.ToArray) & body.WrapInTag("tbody").ToString)
+            Else
+                Return New HtmlElement("table")
         End If
     End Function
 
