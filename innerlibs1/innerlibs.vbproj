@@ -160,6 +160,7 @@
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />
     <Compile Include="RiotAPI.vb" />
+    <Compile Include="Select2Data.vb" />
     <Compile Include="Serializer.vb" />
     <Compile Include="SlackClient.vb" />
     <Compile Include="SQLExplorer.vb" />
