@@ -323,7 +323,25 @@ Public Module Images
 
     End Function
 
-
+    ''' <summary>
+    ''' Converte uma Imagem para Escala de cinza
+    ''' </summary>
+    ''' <param name="source">imagem original</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ConvertToGrayscale(ByVal source As Image) As Bitmap
+        Dim source_bit = New Bitmap(source)
+        Dim bm As Bitmap = New Bitmap(source.Width, source.Height)
+        For y As Integer = 0 To bm.Height - 1
+            For x As Integer = 0 To bm.Width - 1
+                Dim c As Color = source_bit.GetPixel(x, y)
+                If Not c = Color.Transparent Then
+                    Dim average As Integer = (Convert.ToInt32(c.R) + Convert.ToInt32(c.G) + Convert.ToInt32(c.B)) / 3
+                    bm.SetPixel(x, y, Color.FromArgb(average, average, average))
+                End If
+            Next
+        Next
+        Return bm
+    End Function
 
 
     ''' <summary>

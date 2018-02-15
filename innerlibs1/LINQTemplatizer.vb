@@ -158,7 +158,8 @@ Namespace LINQ
             If PageSize < 1 Then PageSize = total
             PageNumber = PageNumber.LimitRange(1, (total / PageSize).ChangeType(Of Decimal).Ceil())
             Dim l As New List(Of Template(Of T))
-            For Each item As T In List.Page(PageNumber, PageSize)
+            Dim ll = List.Page(PageNumber, PageSize)
+            For Each item As T In ll
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
             Next
             Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
@@ -173,7 +174,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Template As HtmlDocument, PageNumber As Integer , PageSize As Integer ) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -560,7 +561,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Template As HtmlDocument, PageNumber As Integer, PageSize As Integer) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -576,7 +577,7 @@ Namespace LINQ
                     Try
                         Return New HtmlDocument(TemplateFile).HTML
                     Catch ex As Exception
-                        Throw New Exception("Error on parsing Template String")
+                        Throw New Exception("Error on parsing Template String: " & ex.Message)
                     End Try
                 Else
                     TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
@@ -767,7 +768,7 @@ Namespace LINQ
                              Dim s As String
                              Try
                                  s = CType(Item, IDictionary)(match.Groups(1).Value)
-                                 If s Is Nothing Then Return ApplySelector(match.Groups(1).Value)
+                                 If s Is Nothing Then Throw New KeyNotFoundException(ApplySelector(match.Groups(1).Value) & " not found")
                              Catch ex As Exception
                                  s = ApplySelector(match.Groups(1).Value)
                              End Try
