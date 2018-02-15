@@ -758,6 +758,7 @@ Namespace LINQ
                              Dim s As String
                              Try
                                  s = CType(Item, IDictionary)(match.Groups(1).Value)
+                                 If s Is Nothing Then Return ApplySelector(match.Groups(1).Value)
                              Catch ex As Exception
                                  s = ApplySelector(match.Groups(1).Value)
                              End Try

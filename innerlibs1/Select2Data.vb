@@ -4,15 +4,11 @@ Namespace Select2Data
     Public Class Result
         Public Property id As String
         Public Property text As String
+        Public Property otherdata As Object
     End Class
 
     Public Class Pagination
         Public Property more As Boolean = False
-    End Class
-
-    Public Class Child
-        Public Property id As Integer
-        Public Property text As String
     End Class
 
     Public Class Group
