@@ -296,10 +296,19 @@ Namespace LINQ
                     End If
 
                     Dim lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo)
-                    conteudo = lista.ToString
-                    templatetag.Mutate(conteudo)
+                    If lista.Count > 0 Then
+                        conteudo = lista.ToString
+                        templatetag.Mutate(conteudo)
+                    Else
+                        Throw New Exception("Empty results")
+                    End If
                 Catch ex As Exception
-                    templatetag.Destroy()
+                    Dim plc = templatetag.FindElements(Of HtmlElement)(Function(x) x.Name.ToLower = "nocontent")
+                    If plc.Count > 0 Then
+                        templatetag.Mutate(CType(plc.First, HtmlElement).InnerHTML)
+                    Else
+                        templatetag.Destroy()
+                    End If
                 End Try
             Next
             Template = doc.InnerHTML
