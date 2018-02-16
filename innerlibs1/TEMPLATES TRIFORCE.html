@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <!--Coisas do head-->    
+</head>
+<body>
+
+    <!--coisas do body-->
+    <!--Estrutura switch-->
+
+    <switch value="5">
+        <case value="0">
+            <!--conteudo html-->
+        </case>
+        <case value="1" break>
+            <!--conteudo html-->
+        </case>
+        <case value="2" operator=">">
+            <!--conteudo html-->
+        </case>
+        <else>
+            <!--conteudo se nenhum valor for valido-->
+        </else>
+    </switch>
+
+
+    <!--Estrutura if Else-->
+    <if>
+        <expression>
+            2 > 3
+        </expression>
+        <true>
+            <!--Conteudo se true-->
+        </true>
+        <false>
+            <!--Conteudo se false-->
+        </false>
+    </if>
+
+    <!--Estrutura condition-->
+    <condition>
+        <expression>
+            2 > 3
+        </expression>
+        <content>
+            <!--Conteudo se true-->
+        </content>
+    </condition>
+
+    <!--Estrutura template inline-->
+    <template>
+        <sql>
+            SELECT * FROM TABLE
+        </sql>
+        <content>
+            <!--conteudo html-->
+        </content>
+        <nocontent>
+            <!--conteudo se a lista nao possui itens-->
+        </nocontent>
+    </template>
+
+
+    <!--Estrutura template de arquivo-->
+
+    <template>
+        <sql file="query.sql" />
+        <content file="temp.html" />
+        <nocontent file="no_temp.html" />
+    </template>
+
+</body>
+</html>

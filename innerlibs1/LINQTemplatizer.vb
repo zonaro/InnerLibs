@@ -71,7 +71,8 @@ Namespace LINQ
             For Each item As T In List.Page(PageNumber, PageSize)
                 l.Add(ApplyTemplate(Of T)(CType(item, T), If(condition(item), FirstTemplate, AlternateTemplate)))
             Next
-            Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
+            Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
+            Return tpl
         End Function
 
         ''' <summary>
@@ -162,7 +163,10 @@ Namespace LINQ
             For Each item As T In ll
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
             Next
-            Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
+            Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
+            tpl.Header = GetTemplateContent(Template, "head")
+            tpl.Footer = GetTemplateContent(Template, "footer")
+            Return tpl
         End Function
 
         ''' <summary>
@@ -291,7 +295,7 @@ Namespace LINQ
                     Dim conteudo = ""
                     Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content")(0), HtmlElement)
                     If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
-                        conteudo = GetCommand(el_cont.Attribute("file"))
+                        conteudo = GetTemplateContent(el_cont.Attribute("file"))
                     Else
                         conteudo = el_cont.InnerHTML.HtmlDecode
                     End If
@@ -304,9 +308,19 @@ Namespace LINQ
                         Throw New Exception("Empty results")
                     End If
                 Catch ex As Exception
-                    Dim plc = templatetag.FindElements(Of HtmlElement)(Function(x) x.Name.ToLower = "nocontent")
-                    If plc.Count > 0 Then
-                        templatetag.Mutate(CType(plc.First, HtmlElement).InnerHTML)
+                    Dim plc As HtmlElement = Nothing
+                    Try
+                        plc = CType(templatetag.FindElements(Of HtmlElement)(Function(x) x.Name.ToLower = "nocontent").FirstOrDefault, HtmlElement)
+                    Catch
+                    End Try
+                    If plc IsNot Nothing Then
+                        Dim conteudo = ""
+                        If plc.HasAttribute("file") AndAlso plc.Attribute("file").IsNotBlank Then
+                            conteudo = GetTemplateContent(plc.Attribute("file"))
+                        Else
+                            conteudo = plc.InnerHTML.HtmlDecode
+                        End If
+                        templatetag.Mutate(conteudo)
                     Else
                         templatetag.Destroy()
                     End If
@@ -548,7 +562,10 @@ Namespace LINQ
             For Each item As T In List.Page(PageNumber, PageSize)
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
             Next
-            Return New TemplateList(Of T)(l, PageSize, PageNumber, total)
+            Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
+            tpl.Header = GetTemplateContent(Template, "head")
+            tpl.Footer = GetTemplateContent(Template, "footer")
+            Return tpl
         End Function
 
 
@@ -569,9 +586,9 @@ Namespace LINQ
         ''' Retorna o conteudo estático de um arquivo de template
         ''' </summary>
         ''' <param name="Templatefile">Nome do arquivo do template</param>
-        ''' <param name="HeadTag">TRUE para trazer o conteudo fixo do template (head), FALSE para trazer o conteudo dinamico do template (body)</param>
+        ''' <param name="Tag">Indica qual tag dve ser capturada, head, body ou footer</param>
         ''' <returns></returns>
-        Public Function GetTemplateContent(TemplateFile As String, Optional Headtag As Boolean = False) As String
+        Public Function GetTemplateContent(TemplateFile As String, Optional Tag As String = "body") As String
             If TemplateFile.IsNotBlank Then
                 If TemplateFile.ContainsAny("<", ">") Then
                     Try
@@ -586,18 +603,18 @@ Namespace LINQ
                         If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
                         Using file As StreamReader = filefound.OpenText
                             Try
-                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
                             Catch ex As Exception
-                                Throw New Exception(If(Headtag, "head", "body") & " not found in " & filefound.Name)
+                                Throw New Exception(Tag & " not found in " & filefound.Name)
                             End Try
                         End Using
                     Else
                         Try
                             Dim txt = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             Try
-                                Return CType(New HtmlDocument(txt).Nodes.GetElementsByTagName(If(Headtag, "head", "body"))(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(txt).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
                             Catch ex As Exception
-                                Throw New Exception(If(Headtag, "head", "body") & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
+                                Throw New Exception(Tag & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             End Try
                         Catch ex As Exception
                             Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
@@ -865,6 +882,18 @@ Namespace LINQ
         Property EmptyListPlaceholder As String = ""
 
         ''' <summary>
+        ''' Html adcionado antes do template
+        ''' </summary>
+        ''' <returns></returns>
+        Property Header As String = ""
+
+        ''' <summary>
+        ''' html adicionado após os template
+        ''' </summary>
+        ''' <returns></returns>
+        Property Footer As String = ""
+
+        ''' <summary>
         ''' Numero de Itens por pagina
         ''' </summary>
         ''' <returns></returns>
@@ -909,8 +938,11 @@ Namespace LINQ
             For Each i In Me
                 html &= i.ProcessedTemplate.ToString
             Next
-            Return New HtmlDocument(html.IfBlank(EmptyListPlaceholder))
+            Return New HtmlDocument(Header & html.IfBlank(EmptyListPlaceholder) & Footer)
         End Function
+
+
+
 
     End Class
 
