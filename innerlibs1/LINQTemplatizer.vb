@@ -54,16 +54,7 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
         ''' <returns></returns>
-        Public Overloads Function ApplyAlternatingTemplates(Of T As Class)(Item As T, condition As Func(Of T, Boolean), FirsTemplate As String, AlternateTemplate As String) As Template(Of T)
-            Return ApplyTemplate(Item, If(condition(Item), FirsTemplate, AlternateTemplate))
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML se uma expressão retornar verdadeiro, caso contrário aplica um outro template
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <returns></returns>
-        Public Overloads Function ApplyAlternatingtemplates(Of T As Class)(List As IQueryable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Overloads Function ApplyAlternatingTemplates(Of T As Class)(List As IQueryable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
             PageNumber = PageNumber.LimitRange(1, (total / PageSize).ChangeType(Of Decimal).Ceil())
@@ -364,19 +355,6 @@ Namespace LINQ
     ''' Gerador de HTML dinâmico a partir de objetos LINQ e arquivos HTML.
     ''' </summary>
     Public Class Triforce
-
-        ''' <summary>
-        ''' Aplica um template a uma busca determinada pelo tipo de objeto
-        ''' </summary>
-        ''' <typeparam name="T">Tipo de objeto</typeparam>
-        ''' <param name="PageNumber">Pagina atual</param>
-        ''' <param name="PageSize">Numero de itens por pagina</param>
-        ''' <param name="predicade">Filtro da busca</param>
-        ''' <returns></returns>
-        Public Overridable Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
-            Throw New NotImplementedException("This function works only with LINQ to SQL")
-        End Function
-
         ''' <summary>
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
         ''' </summary>
@@ -485,7 +463,7 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
         ''' <returns></returns>
-        Public Overloads Function ApplyAlternatingTemplates(Of T As Class)(Item As T, condition As Func(Of T, Boolean), FirsTemplate As String, AlternateTemplate As String) As Template(Of T)
+        Public Function ApplyAlternatingTemplates(Of T As Class)(Item As T, condition As Func(Of T, Boolean), FirsTemplate As String, AlternateTemplate As String) As Template(Of T)
             Return ApplyTemplate(Item, If(condition(Item), FirsTemplate, AlternateTemplate))
         End Function
 
@@ -494,7 +472,7 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
         ''' <returns></returns>
-        Public Overloads Function ApplyAlternatingtemplates(Of T As Class)(List As IEnumerable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Function ApplyAlternatingtemplates(Of T As Class)(List As IEnumerable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
             PageNumber = PageNumber.LimitRange(1, (total / PageSize).ChangeType(Of Decimal).Ceil())
@@ -506,6 +484,18 @@ Namespace LINQ
         End Function
 
 
+
+        ''' <summary>
+        ''' Aplica um template a uma busca determinada pelo tipo de objeto
+        ''' </summary>
+        ''' <typeparam name="T">Tipo de objeto</typeparam>
+        ''' <param name="PageNumber">Pagina atual</param>
+        ''' <param name="PageSize">Numero de itens por pagina</param>
+        ''' <param name="predicade">Filtro da busca</param>
+        ''' <returns></returns>
+        Public Overridable Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+            Throw New NotImplementedException("This function works only with LINQ to SQL")
+        End Function
 
         ''' <summary>
         ''' Aplica um template HTML a um unico objeto
@@ -657,7 +647,7 @@ Namespace LINQ
         End Sub
 
 
-        Friend Function ProccessConditions(Of t As Class)(Item As t, Template As String) As String
+        Friend Function ProccessConditions(Of T As Class)(Item As T, Template As String) As String
             Dim doc As New HtmlDocument(Template)
             For Each conditionTag As HtmlElement In doc.Nodes.GetElementsByTagName("condition", True)
                 Try
@@ -747,19 +737,36 @@ Namespace LINQ
             Return Template
         End Function
 
+        Friend Function ProcessRepeat(Of t As Class)(item As t, Template As String) As String
+            Dim doc As New HtmlDocument(Template)
+            For Each repeattag As HtmlElement In doc.Nodes.GetElementsByTagName("repeat", True)
+                If repeattag.HasAttribute("value") Then
+                    Dim base = repeattag.InnerHTML
+                    repeattag.InnerHTML = ""
+                    For index = 1 To repeattag.Attribute("value").ChangeType(Of Integer)
+                        repeattag.InnerHTML &= base.Replace("_index", index)
+                    Next
+                Else
+                    repeattag.Destroy()
+                End If
+            Next
+            Template = doc.InnerHTML
+            Return Template
+        End Function
 
         Friend Function ProcessSubClass(Of T As Class)(Item As T, Template As String) As String
             Dim doc As New HtmlDocument(Template)
             For Each class_tag As HtmlElement In doc("[triforce-source]")
                 Try
                     Dim newcontent = ""
-                    Dim lis = Item.GetPropertyValue(Of Object)(class_tag.Attribute("triforce-source"), True)
+                    Dim lis = Item.GetPropertyValue(Of IEnumerable(Of Object))(class_tag.Attribute("triforce-source"), True)
                     If lis IsNot Nothing Then
                         For Each el In lis
                             newcontent = ReplaceValues(el, class_tag.InnerHTML)
                         Next
                     End If
-                    class_tag.Mutate(newcontent)
+                    class_tag.InnerHTML = newcontent
+                    class_tag.Attributes.Remove("triforce-source")
                 Catch ex As Exception
                     class_tag.Destroy()
                 End Try

@@ -7,6 +7,65 @@ Imports System.Runtime.CompilerServices
 ''' <remarks></remarks>
 Public Module Mathematic
 
+    ''' <summary>
+    ''' retorna o numeor em sua forma ordinal (inglês)
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToOrdinalNumber(Number As Integer) As String
+        Return ToOrdinalNumber(CType(Number, Long))
+
+    End Function
+
+    ''' <summary>
+    ''' retorna o numeor em sua forma ordinal (inglês)
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToOrdinalNumber(Number As Long) As String
+        If Number > 0 Then
+            Select Case Number
+                Case 1
+                    Return Number & "st"
+                Case 2
+                    Return Number & "nd"
+                Case 3
+                    Return Number & "rd"
+                Case Else
+                    Return Number & "th"
+            End Select
+        End If
+        Return ""
+    End Function
+
+    ''' <summary>
+    ''' retorna o numeor em sua forma ordinal (inglês)
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToOrdinalNumber(Number As Short) As String
+        Return ToOrdinalNumber(CType(Number, Long))
+
+    End Function
+
+    ''' <summary>
+    ''' retorna o numeor em sua forma ordinal (inglês)
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToOrdinalNumber(Number As Double) As String
+        Return ToOrdinalNumber(CType(Number, Long))
+
+    End Function
+
+    ''' <summary>
+    ''' retorna o numeor em sua forma ordinal (inglês)
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToOrdinalNumber(Number As Decimal) As String
+        Return ToOrdinalNumber(CType(Number, Long))
+    End Function
 
     ''' <summary>
     ''' Executa uma Expressão matematica simples
