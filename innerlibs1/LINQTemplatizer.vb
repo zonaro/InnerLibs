@@ -165,6 +165,11 @@ Namespace LINQ
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
+            Try
+                tpl.EmptyListPlaceholder = GetTemplateContent(Template, "empty")
+            Catch ex As Exception
+                Debug.WriteLine(ex)
+            End Try
             Return tpl
         End Function
 
