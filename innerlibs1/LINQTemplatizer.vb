@@ -155,8 +155,16 @@ Namespace LINQ
                 l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
             Next
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
-            tpl.Header = GetTemplateContent(Template, "head")
-            tpl.Footer = GetTemplateContent(Template, "footer")
+            Try
+                tpl.Header = GetTemplateContent(Template, "head")
+            Catch ex As Exception
+                Debug.WriteLine(ex)
+            End Try
+            Try
+                tpl.Footer = GetTemplateContent(Template, "footer")
+            Catch ex As Exception
+                Debug.WriteLine(ex)
+            End Try
             Return tpl
         End Function
 
