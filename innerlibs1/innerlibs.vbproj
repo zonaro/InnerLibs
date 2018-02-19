@@ -245,6 +245,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TEMPLATES TRIFORCE.html" />
     <EmbeddedResource Include="DocumentationPage\DocumentationPage.html" />
     <Content Include="help.shfbproj" />
     <Content Include="js\InnerFormValidation.js" />

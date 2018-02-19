@@ -19,7 +19,7 @@ Public Class vCard
     Public Property Role As String = ""   'MS Outlook calls this the profession
     Public Property JobTitle As String = ""
     Public Property Note As String = ""
-    Public Property Birthday As Date
+    Public Property Birthday As Date? = Nothing
 
     'Collections
     Public Property URLs As New vURLs()
@@ -40,7 +40,7 @@ Public Class vCard
         result.AppendFormat("N:{0};{1};{2};{3};{4}{5}", LastName, FirstName, MiddleName, Title, Suffix, System.Environment.NewLine)
         If isNotBlank(FormattedName) Then result.AppendFormat("FN:{0}{1}", FormattedName, System.Environment.NewLine)
         If isNotBlank(Nickname) Then result.AppendFormat("NICKNAME:{0}{1}", Nickname, System.Environment.NewLine)
-        If Birthday > Date.MinValue Then result.AppendFormat("BDAY:{0}{1}", Birthday.ToUniversalTime.ToString("yyyyMMdd"), System.Environment.NewLine)
+        If Birthday.HasValue AndAlso Birthday.Value > Date.MinValue Then result.AppendFormat("BDAY:{0}{1}", Birthday.Value.ToUniversalTime.ToString("yyyyMMdd"), System.Environment.NewLine)
         If isNotBlank(Note) Then result.AppendFormat("NOTE;ENCODING=QUOTED-PRINTABLE:{0}{1}", Note.Replace(System.Environment.NewLine, "=0D=0A"), System.Environment.NewLine)
         result.AppendFormat("ORG:{0};{1}{2}", Organization, OrganizationalUnit, System.Environment.NewLine)
         If isNotBlank(JobTitle) Then result.AppendFormat("TITLE:{0}{1}", JobTitle, System.Environment.NewLine)
