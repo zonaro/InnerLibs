@@ -1534,6 +1534,18 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>
+    ''' </summary>
+    <Extension> Public Function Replace(Text As String, Dic As IDictionary(Of String, String)) As String
+        If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
+            For Each p In Dic
+                Text = Text.Replace(p.Key, p.Value)
+            Next
+        End If
+        Return Text
+    End Function
+
+    ''' <summary>
     ''' Remove várias strings de uma string
     ''' </summary>
     ''' <param name="Text">  Texto</param>

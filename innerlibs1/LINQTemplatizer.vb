@@ -156,7 +156,7 @@ Namespace LINQ
             Next
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
             Try
-                tpl.Header = GetTemplateContent(Template, "head")
+                tpl.Head = GetTemplateContent(Template, "head")
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
@@ -166,7 +166,13 @@ Namespace LINQ
                 Debug.WriteLine(ex)
             End Try
             Try
-                tpl.EmptyListPlaceholder = GetTemplateContent(Template, "empty")
+                tpl.Empty = GetTemplateContent(Template, "empty")
+            Catch ex As Exception
+                Debug.WriteLine(ex)
+            End Try
+
+            Try
+                tpl.Pagination = GetTemplateContent(Template, "pagination")
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
@@ -182,7 +188,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Template As HtmlDocument, PageNumber As Integer , PageSize As Integer ) As TemplateList(Of T)
+        Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Template As HtmlDocument, PageNumber As Integer, PageSize As Integer) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -567,7 +573,7 @@ Namespace LINQ
             Next
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
             Try
-                tpl.Header = GetTemplateContent(Template, "head")
+                tpl.Head = GetTemplateContent(Template, "head")
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
@@ -577,7 +583,7 @@ Namespace LINQ
                 Debug.WriteLine(ex)
             End Try
             Try
-                tpl.EmptyListPlaceholder = GetTemplateContent(Template, "empty")
+                tpl.Empty = GetTemplateContent(Template, "empty")
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
@@ -763,13 +769,15 @@ Namespace LINQ
             Return Template
         End Function
 
-        Friend Function ProcessRepeat(Of t As Class)(item As t, Template As String) As String
+        Friend Function ProcessRepeat(Of T As Class)(item As T, Template As String) As String
             Dim doc As New HtmlDocument(Template)
             For Each repeattag As HtmlElement In doc.Nodes.GetElementsByTagName("repeat", True)
                 If repeattag.HasAttribute("value") Then
                     Dim base = repeattag.InnerHTML
                     repeattag.InnerHTML = ""
-                    For index = 1 To repeattag.Attribute("value").ChangeType(Of Integer)
+                    Dim n = repeattag.Attribute("value")
+                    If Not n.IsNumber Then n = n.Length
+                    For index = 1 To n.ChangeType(Of Integer)
                         repeattag.InnerHTML &= base.Replace("_index", index)
                     Next
                 Else
@@ -806,6 +814,8 @@ Namespace LINQ
             Dim close = Me.sel(1).ToArray.Join("\").Prepend("\")
             Return open & "(.*?)" & close
         End Function
+
+
 
         Friend Function ReplaceValues(Of T As Class)(Item As T, Template As String) As String
             Template = GetTemplateContent(Template)
@@ -888,6 +898,11 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property ProcessedTemplate As HtmlDocument
 
+        ''' <summary>
+        ''' Nome do template utilizado para este processamento.
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property TemplateName As String = ""
 
     End Class
 
@@ -907,18 +922,109 @@ Namespace LINQ
             Me.Total = Total
         End Sub
 
+        ''' <summary>
+        ''' HTML da paginaçao dos itens
+        ''' </summary>
+        ''' <returns></returns>
+        Property Pagination As String
+            Get
+                Dim paginationdoc As New HtmlDocument
+                Dim p As New HtmlDocument(_pagination)
+                Dim first As HtmlElement
+                Dim last As HtmlElement
+                Dim page As HtmlElement
+                Dim active As HtmlElement
+                Try
+                    page = p("page")(0)
+                Catch ex As Exception
+                    Return ""
+                End Try
+                Try
+                    active = p("active")(0)
+                Catch ex As Exception
+                    active = p("page")(0)
+                End Try
+                Try
+                    first = p("first")(0)
+                Catch ex As Exception
+                    first = p("page")(0)
+
+                End Try
+                Try
+                    last = p("last")(0)
+                Catch ex As Exception
+                    last = p("page")(0)
+                End Try
+
+                If Me.PageCount > 1 Then
+                    Dim limit = page.Attribute("limit")
+
+                    If Not limit.IsNumber Then
+                        limit = PageCount - 2
+                    End If
+
+                    Dim dic As New Dictionary(Of String, String)
+                    dic("##PAGE##") = PageNumber
+                    dic("##COUNT##") = PageCount
+                    dic("##SIZE##") = PageSize
+                    dic("##RESULTCOUNT##") = Me.Count
+
+                    paginationdoc = New HtmlDocument(p.ToString)
+                    Try
+                        paginationdoc.QuerySelector("first").Mutate(first.ToString.Replace(dic))
+                    Catch ex As Exception
+                    End Try
+
+
+                    Dim beforeafter As Decimal = (limit - 1) / 2
+                    If beforeafter.IsEven Then beforeafter = (beforeafter + 1).Floor
+                    Dim before = PageNumber
+                    Dim after = PageNumber
+                    Dim pagestring = active.ToString.Replace(dic)
+
+                    For c = 0 To beforeafter
+                        before = before - 1
+                        after = after + 1
+
+                        If before > 1 Then
+                            dic("##PAGE##") = before
+                            pagestring.Prepend(page.ToString.Replace(dic))
+                        End If
+
+                        If after < PageCount Then
+                            dic("##PAGE##") = after
+                            pagestring.Append(page.ToString.Replace(dic))
+                        End If
+                    Next
+
+                    paginationdoc.QuerySelector("page").Mutate(pagestring)
+                    Try
+                        paginationdoc.QuerySelector("last").Mutate(last.ToString.Replace(dic))
+                    Catch ex As Exception
+                    End Try
+
+                    Return paginationdoc.ToString
+                End If
+                Return ""
+            End Get
+            Set(value As String)
+                _pagination = value
+            End Set
+        End Property
+        Friend _pagination As String = ""
+
 
         ''' <summary>
         ''' HTML retornado quando não houver itens na lista ou na página atual
         ''' </summary>
         ''' <returns></returns>
-        Property EmptyListPlaceholder As String = ""
+        Property Empty As String = ""
 
         ''' <summary>
         ''' Html adcionado antes do template
         ''' </summary>
         ''' <returns></returns>
-        Property Header As String = ""
+        Property Head As String = ""
 
         ''' <summary>
         ''' html adicionado após os template
@@ -971,7 +1077,7 @@ Namespace LINQ
             For Each i In Me
                 html &= i.ProcessedTemplate.ToString
             Next
-            Return New HtmlDocument(Header & html.IfBlank(EmptyListPlaceholder) & Footer)
+            Return New HtmlDocument(Head & html.IfBlank(Empty) & Footer)
         End Function
 
 
