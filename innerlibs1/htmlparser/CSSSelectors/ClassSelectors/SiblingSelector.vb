@@ -34,7 +34,7 @@ Namespace HtmlParser.Selectors
             l.AddRange(currentNodes.Select(Function(node)
                                                Dim idx = node.Index
                                                Return node.Parent.Nodes.Where(Function(i) TypeOf i Is HtmlElement).Skip(idx + 1)
-                                           End Function))
+                                           End Function), False)
             Return l
         End Function
     End Class

@@ -121,7 +121,7 @@
 
 
             If selector Is Nothing Then
-                Throw New InvalidOperationException("Token inválido: " + token.Filter)
+                Throw New InvalidOperationException("Invalid token: " + token.Filter)
 
             End If
 

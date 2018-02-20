@@ -67,7 +67,7 @@ Namespace HtmlParser
             Dim idx = Me.Index
             Me.Mutate(Elements.First)
             For i = 1 To Elements.Count - 1
-                Me.Parent.Nodes.Insert(idx + i, Elements(i))
+                Me.Parent.Nodes.Insert(idx + i, Elements(i), True)
             Next
         End Sub
 
@@ -119,7 +119,10 @@ Namespace HtmlParser
         ''' </summary>
         Function Destroy() As Boolean
             If Me.Parent IsNot Nothing Then
-                Me.Parent.Nodes.Remove(Me)
+                Try
+                    Me.Parent.Nodes.Remove(Me)
+                Catch ex As Exception
+                End Try
                 Return Me.Parent.Nodes.Contains(Me)
             Else
                 Return False

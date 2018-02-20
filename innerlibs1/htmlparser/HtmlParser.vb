@@ -102,7 +102,7 @@ Namespace HtmlParser
                             element.Attributes.Add(attribute)
                         End If
                     End While
-                    nodes.Add(element)
+                    nodes.Add(element, True)
                     If index < tokens.Count AndAlso "/>".Equals(tokens(index)) Then
                         element.IsTerminated = True
                         index += 1

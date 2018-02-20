@@ -933,32 +933,42 @@ Namespace LINQ
         ''' <returns></returns>
         Property Pagination As String
             Get
-                Dim paginationdoc As New HtmlDocument
+                Dim paginationdoc As New HtmlDocument(_pagination)
                 Dim p As New HtmlDocument(_pagination)
                 Dim first As HtmlElement
                 Dim last As HtmlElement
                 Dim page As HtmlElement
                 Dim active As HtmlElement
+                Dim back As HtmlElement
+                Dim nex As HtmlElement
                 Try
-                    page = p("page")(0)
+                    page = p.Nodes.GetElementsByTagName("page").First
                 Catch ex As Exception
                     Return ""
                 End Try
                 Try
-                    active = p("active")(0)
+                    active = p.Nodes.GetElementsByTagName("active").First
                 Catch ex As Exception
-                    active = p("page")(0)
+                    active = p.Nodes.GetElementsByTagName("page").First
                 End Try
                 Try
-                    first = p("first")(0)
+                    first = p.Nodes.GetElementsByTagName("first").First
                 Catch ex As Exception
-                    first = p("page")(0)
+                    first = p.Nodes.GetElementsByTagName("page").First
 
                 End Try
                 Try
-                    last = p("last")(0)
+                    last = p.Nodes.GetElementsByTagName("last").First
                 Catch ex As Exception
-                    last = p("page")(0)
+                    last = p.Nodes.GetElementsByTagName("page").First
+                End Try
+                Try
+                    back = p.Nodes.GetElementsByTagName("back").First
+                Catch ex As Exception
+                End Try
+                Try
+                    nex = p.Nodes.GetElementsByTagName("next").First
+                Catch ex As Exception
                 End Try
 
                 If Me.PageCount > 1 Then
@@ -969,46 +979,46 @@ Namespace LINQ
                     End If
 
                     Dim dic As New Dictionary(Of String, String)
+                    dic("##ACTIVEPAGE##") = PageNumber
                     dic("##PAGE##") = PageNumber
                     dic("##COUNT##") = PageCount
                     dic("##SIZE##") = PageSize
-                    dic("##RESULTCOUNT##") = Me.Count
-
-                    paginationdoc = New HtmlDocument(p.ToString)
-                    Try
-                        paginationdoc.QuerySelector("first").Mutate(first.ToString.Replace(dic))
-                    Catch ex As Exception
-                    End Try
-
+                    dic("##TOTAL##") = Total
 
                     Dim beforeafter As Decimal = (limit - 1) / 2
-                    If beforeafter.IsEven Then beforeafter = (beforeafter + 1).Floor
+                    If beforeafter.IsOdd Then beforeafter = (beforeafter + 1).Floor
                     Dim before = PageNumber
                     Dim after = PageNumber
-                    Dim pagestring = active.ToString.Replace(dic)
+                    Dim pagestring = active.InnerHTML.Replace(dic)
 
                     For c = 0 To beforeafter
                         before = before - 1
                         after = after + 1
 
-                        If before > 1 Then
+                        If before > 1 And before < PageCount Then
                             dic("##PAGE##") = before
-                            pagestring.Prepend(page.ToString.Replace(dic))
+                            pagestring.Prepend(page.InnerHTML.Replace(dic))
                         End If
 
-                        If after < PageCount Then
+                        If after > 1 And after < PageCount Then
                             dic("##PAGE##") = after
-                            pagestring.Append(page.ToString.Replace(dic))
+                            pagestring.Append(page.InnerHTML.Replace(dic))
                         End If
                     Next
+                    dic("##PAGE##") = PageNumber - 1
+                    pagestring.PrependIf(back.InnerHTML.Replace(dic), back IsNot Nothing AndAlso PageNumber > 1)
 
-                    paginationdoc.QuerySelector("page").Mutate(pagestring)
-                    Try
-                        paginationdoc.QuerySelector("last").Mutate(last.ToString.Replace(dic))
-                    Catch ex As Exception
-                    End Try
+                    dic("##PAGE##") = 1
+                    pagestring.PrependIf(first.InnerHTML.Replace(dic), PageNumber > 1)
 
-                    Return paginationdoc.ToString
+                    dic("##PAGE##") = PageNumber + 1
+                    pagestring.AppendIf(nex.InnerHTML.Replace(dic), nex IsNot Nothing AndAlso PageNumber < PageCount)
+
+                    dic("##PAGE##") = PageCount
+                    pagestring.AppendIf(last.InnerHTML.Replace(dic), PageNumber < PageCount)
+
+                    paginationdoc.Nodes.GetElementsByTagName("page").First.Parent.InnerHTML = pagestring
+                    Return paginationdoc.InnerHTML.Replace(dic)
                 End If
                 Return ""
             End Get

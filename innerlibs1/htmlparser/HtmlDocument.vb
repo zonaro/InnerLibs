@@ -290,7 +290,7 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public ReadOnly Property Body As HtmlElement
             Get
-                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "body").FirstOr(Me.Nodes.First)
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "body").FirstOr(Nothing)
             End Get
         End Property
 
@@ -300,7 +300,7 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public ReadOnly Property Head As HtmlElement
             Get
-                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOr(Me.Nodes.First)
+                Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOr(Nothing)
             End Get
         End Property
 

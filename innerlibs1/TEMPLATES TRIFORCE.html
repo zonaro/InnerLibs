@@ -92,21 +92,34 @@
 </body>
 
 
-    <!--paginacao dos itens-->
+<!--paginacao dos itens-->
 <pagination>
+    <div class="paginas">
+        <div>
+            Exibindo pagina ##ACTIVEPAGE## de ##COUNT## / ##SIZE## resultados de ##TOTAL##
+        </div>
+        <div>
+            <first>
+                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-left"></i><i class="fa fa-arrow-left"></i></a>
+            </first>
+            <back>
+                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-left"></i></a>
+            </back>
+            <page limit="5">
+                <a href="/caminho?PAGINA=##PAGE##" class="btn">##PAGE##</a>
+            </page>
+            <active>
+                <a href="/caminho?PAGINA=##PAGE##" class="btn active">##PAGE##</a>
+            </active>
+            <next>
+                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-right"></i></a>
+            </next>
+            <last>
+                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-right"></i><i class="fa fa-arrow-right"></i></a>
+            </last>
+        </div>
+    </div>
 
-    <first>
-
-    </first>
-    <page limit="3">
-        <a href="##PAGE##">content</a>
-    </page>
-    <active>
-        <a href="##PAGE##">content</a>
-    </active>
-    <last>
-
-    </last>
 </pagination>
 
 

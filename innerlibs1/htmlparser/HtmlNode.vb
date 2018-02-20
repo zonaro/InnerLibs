@@ -315,7 +315,7 @@ Namespace HtmlParser
         Public Shadows Sub Add(Node As HtmlNode, Optional ChangeParent As Boolean = True)
             If Me.mParent IsNot Nothing AndAlso ChangeParent Then
                 Node.Remove()
-                Node.mParent = Me.mParent
+                Node.SetParent(Me.mParent)
             End If
             MyBase.Add(Node)
         End Sub
@@ -329,6 +329,10 @@ Namespace HtmlParser
 
         Public Shadows Sub AddRange(ChangeParent As Boolean, ParamArray Nodes As HtmlNode())
             Me.AddRange(Nodes, ChangeParent)
+        End Sub
+
+        Public Shadows Sub AddRange(ParamArray Nodes As HtmlNode())
+            Me.AddRange(Nodes, True)
         End Sub
 
         ''' <summary>
@@ -486,7 +490,7 @@ Namespace HtmlParser
         ''' <returns></returns>
         Default Public Overloads ReadOnly Property Item(CssSelector As String) As HtmlNodeCollection
             Get
-                Dim l As New HtmlNodeCollection
+                Dim l As New HtmlNodeCollection(mParent)
 
                 If CssSelector Is Nothing OrElse CssSelector.IsBlank Then
                     Return Me

@@ -1536,7 +1536,7 @@ Public Module Text
     ''' <summary>
     ''' aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>
     ''' </summary>
-    <Extension> Public Function Replace(Text As String, Dic As IDictionary(Of String, String)) As String
+    <Extension> Public Function Replace(ByVal Text As String, Dic As IDictionary(Of String, String)) As String
         If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
             For Each p In Dic
                 Text = Text.Replace(p.Key, p.Value)
@@ -1648,7 +1648,10 @@ Public Module Text
     ''' <param name="AppendText">Texto adicional</param>
     ''' <param name="Test">      Teste</param>
     <Extension()> Public Function AppendIf(ByRef Text As String, AppendText As String, Test As Boolean) As String
-        Return Text.Append(If(Test, AppendText, ""))
+        If Test Then
+            Text.Append(AppendText)
+        End If
+        Return Text
     End Function
 
     ''' <summary>
@@ -1691,7 +1694,10 @@ Public Module Text
     ''' <param name="PrependText">Texto adicional</param>
     ''' <param name="Test">       Teste</param>
     <Extension()> Public Function PrependIf(ByRef Text As String, PrependText As String, Test As Boolean) As String
-        Return Text.Prepend(If(Test, PrependText, ""))
+        If Test Then
+            Text.Prepend(PrependText)
+        End If
+        Return Text
     End Function
 
     ''' <summary>
