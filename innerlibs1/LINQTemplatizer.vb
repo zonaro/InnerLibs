@@ -49,22 +49,7 @@ Namespace LINQ
         End Sub
 
 
-        ''' <summary>
-        ''' Aplica um template HTML se uma expressão retornar verdadeiro, caso contrário aplica um outro template
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <returns></returns>
-        Public Overloads Function ApplyAlternatingTemplates(Of T As Class)(List As IQueryable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
-            Dim total = List.Count
-            If PageSize < 1 Then PageSize = total
-            PageNumber = PageNumber.LimitRange(1, (total / PageSize).ChangeType(Of Decimal).Ceil())
-            Dim l As New List(Of Template(Of T))
-            For Each item As T In List.Page(PageNumber, PageSize)
-                l.Add(ApplyTemplate(Of T)(CType(item, T), If(condition(item), FirstTemplate, AlternateTemplate)))
-            Next
-            Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
-            Return tpl
-        End Function
+
 
         ''' <summary>
         ''' Aplica um template a uma busca determinada pelo tipo de objeto
@@ -156,23 +141,23 @@ Namespace LINQ
             Next
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
             Try
-                tpl.Head = GetTemplateContent(Template, "head")
+                tpl.Head = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "head"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
             Try
-                tpl.Footer = GetTemplateContent(Template, "footer")
+                tpl.Footer = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "footer"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
             Try
-                tpl.Empty = GetTemplateContent(Template, "empty")
+                tpl.Empty = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "empty"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
 
             Try
-                tpl.Pagination = GetTemplateContent(Template, "pagination")
+                tpl.Pagination = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "pagination"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
@@ -483,15 +468,6 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
         ''' <returns></returns>
-        Public Function ApplyAlternatingTemplates(Of T As Class)(Item As T, condition As Func(Of T, Boolean), FirsTemplate As String, AlternateTemplate As String) As Template(Of T)
-            Return ApplyTemplate(Item, If(condition(Item), FirsTemplate, AlternateTemplate))
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML se uma expressão retornar verdadeiro, caso contrário aplica um outro template
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <returns></returns>
         Public Function ApplyAlternatingtemplates(Of T As Class)(List As IEnumerable(Of T), condition As Func(Of T, Boolean), FirstTemplate As String, AlternateTemplate As String, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
@@ -575,22 +551,23 @@ Namespace LINQ
             Next
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
             Try
-                tpl.Head = GetTemplateContent(Template, "head")
+                tpl.Head = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "head"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
             Try
-                tpl.Footer = GetTemplateContent(Template, "footer")
+                tpl.Footer = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "footer"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
             Try
-                tpl.Empty = GetTemplateContent(Template, "empty")
+                tpl.Empty = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "empty"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
+
             Try
-                tpl.Pagination = GetTemplateContent(Template, "pagination")
+                tpl.Pagination = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "pagination"))
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
