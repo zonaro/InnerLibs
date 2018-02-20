@@ -935,12 +935,12 @@ Namespace LINQ
             Get
                 Dim paginationdoc As New HtmlDocument(_pagination)
                 Dim p As New HtmlDocument(_pagination)
-                Dim first As HtmlElement
-                Dim last As HtmlElement
-                Dim page As HtmlElement
-                Dim active As HtmlElement
-                Dim back As HtmlElement
-                Dim nex As HtmlElement
+                Dim first As HtmlElement = Nothing
+                Dim last As HtmlElement = Nothing
+                Dim page As HtmlElement = Nothing
+                Dim active As HtmlElement = Nothing
+                Dim back As HtmlElement = Nothing
+                Dim nex As HtmlElement = Nothing
                 Try
                     page = p.Nodes.GetElementsByTagName("page").First
                 Catch ex As Exception

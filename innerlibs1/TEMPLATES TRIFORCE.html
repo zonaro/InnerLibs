@@ -1,15 +1,16 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <!--Coisas do head-->
+    <!--Coisas do head (adicionado uma vez antes de todos os itens)-->
 </head>
 <body>
 
-    <!--coisas do body-->
+    <!--coisas do body (conteudo do template, replicado para cada item da lista)-->
 
 
+    <!--estrutura de repeticao crua (repete X vezes)-->
     <repeat value="2">
-        <!--conteudo-->
+        <!--conteudo, use _index para exibir o numero da replicacao atual-->
         <span>_index</span>
     </repeat>
 
@@ -20,9 +21,6 @@
     </ul>
 
 
-
-
-
     <!--Estrutura switch-->
 
     <switch value="5">
@@ -30,10 +28,10 @@
             <!--conteudo html-->
         </case>
         <case value="1" break>
-            <!--conteudo html-->
+            <!--conteudo html, break para as verificacoes seguintes-->
         </case>
         <case value="2" operator=">">
-            <!--conteudo html-->
+            <!--conteudo html, operator define qual operador usado na comparacao. default é "=" -->
         </case>
         <else>
             <!--conteudo se nenhum valor for valido-->
@@ -47,10 +45,10 @@
             2 > 3
         </expression>
         <true>
-            <!--Conteudo se true-->
+            <!--Conteudo se expressão for = true-->
         </true>
         <false>
-            <!--Conteudo se false-->
+            <!--Conteudo se expressão for = false-->
         </false>
     </if>
 
@@ -60,14 +58,15 @@
             2 > 3
         </expression>
         <content>
-            <!--Conteudo se true-->
+            <!--Conteudo se expressão retornar true-->
         </content>
     </condition>
 
     <!--Estrutura template inline-->
     <template>
         <sql>
-            SELECT * FROM TABLE
+            SELECT * FROM TABLE 
+            <!--query sql apenas para LINQ to SQL-->
         </sql>
         <content>
             <!--conteudo html-->
@@ -99,21 +98,27 @@
             Exibindo pagina ##ACTIVEPAGE## de ##COUNT## / ##SIZE## resultados de ##TOTAL##
         </div>
         <div>
+            <!--primeiro elemento da paginacao-->
             <first>
                 <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-left"></i><i class="fa fa-arrow-left"></i></a>
             </first>
+            <!--elemento anterior da paginacao-->
             <back>
                 <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-left"></i></a>
             </back>
+            <!--elemento replicado para cada pagina, atributo limit é o numero de paginas visiveis na paginacao-->
             <page limit="5">
                 <a href="/caminho?PAGINA=##PAGE##" class="btn">##PAGE##</a>
             </page>
+            <!--elemento ativo da paginacao (pagina atual)-->
             <active>
                 <a href="/caminho?PAGINA=##PAGE##" class="btn active">##PAGE##</a>
             </active>
+            <!--elemento proximo da paginacao-->
             <next>
                 <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-right"></i></a>
             </next>
+            <!--ultimo elemento da paginacao-->
             <last>
                 <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-right"></i><i class="fa fa-arrow-right"></i></a>
             </last>
