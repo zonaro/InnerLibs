@@ -587,6 +587,11 @@ Namespace LINQ
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
+            Try
+                tpl.Pagination = GetTemplateContent(Template, "pagination")
+            Catch ex As Exception
+                Debug.WriteLine(ex)
+            End Try
             Return tpl
         End Function
 
@@ -1077,7 +1082,8 @@ Namespace LINQ
             For Each i In Me
                 html &= i.ProcessedTemplate.ToString
             Next
-            Return New HtmlDocument(Head & html.IfBlank(Empty) & Footer)
+            Dim pg = Pagination
+            Return New HtmlDocument(Head.Replace("#_PAGINATION_#", pg) & html.IfBlank(Empty) & Footer.Replace("#_PAGINATION_#", pg))
         End Function
 
 
