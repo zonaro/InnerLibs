@@ -230,6 +230,7 @@ Namespace LINQ
                 Template = ProccessConditions(Item, Template)
                 Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
+                Template = ProcessRepeat(Template)
                 Template = ProcessSubClass(Item, Template)
                 Template = ProcessSubTemplate(Item, Template)
                 Template = ClearValues(Item, Template)
@@ -546,6 +547,7 @@ Namespace LINQ
                 Template = ProccessConditions(Item, Template)
                 Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
+                Template = ProcessRepeat(Template)
                 Template = ProcessSubClass(Item, Template)
                 Template = ClearValues(Item, Template)
             End If
@@ -774,7 +776,7 @@ Namespace LINQ
             Return Template
         End Function
 
-        Friend Function ProcessRepeat(Of T As Class)(item As T, Template As String) As String
+        Friend Function ProcessRepeat(Template As String) As String
             Dim doc As New HtmlDocument(Template)
             For Each repeattag As HtmlElement In doc.Nodes.GetElementsByTagName("repeat", True)
                 If repeattag.HasAttribute("value") Then

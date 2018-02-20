@@ -7,6 +7,8 @@
 
     <!--coisas do body (conteudo do template, replicado para cada item da lista)-->
 
+    ##NOME_DA_PROPRIEDADE## <!--utilize ## entre os nomes das propriedades e elas serão substituidas-->
+    ##PRORIEDADE.SUBPRORPRIEDADE## <!--você pode acessar propriedades de outras propriedades da sua classe usando ponto-->
 
     <!--estrutura de repeticao crua (repete X vezes)-->
     <repeat value="2">
@@ -15,9 +17,9 @@
     </repeat>
 
 
-    <!--estrutura de repeticao a partir de propriedade-->
+    <!--estrutura de repeticao a partir de propriedade, não use ## neste caso. o Elemento pai permanecerá intacto e apenas seu conteudo será replicado-->
     <ul triforce-source="TheClass.TheList">
-        <li>##ELEMENT##</li>
+        <li>##PROPRIEDADE##</li>
     </ul>
 
 
@@ -65,7 +67,7 @@
     <!--Estrutura template inline-->
     <template>
         <sql>
-            SELECT * FROM TABLE 
+            SELECT * FROM TABLE
             <!--query sql apenas para LINQ to SQL-->
         </sql>
         <content>
