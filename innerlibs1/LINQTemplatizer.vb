@@ -216,7 +216,7 @@ Namespace LINQ
                 Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
                 Template = ProcessRepeat(Template)
-                Template = ProcessSubClass(Item, Template)
+
                 Template = ProcessSubTemplate(Item, Template)
                 Template = ClearValues(Item, Template)
             End If
@@ -524,7 +524,6 @@ Namespace LINQ
                 Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
                 Template = ProcessRepeat(Template)
-                Template = ProcessSubClass(Item, Template)
                 Template = ClearValues(Item, Template)
             End If
             Return New Template(Of T)(Item, Template)
@@ -772,26 +771,6 @@ Namespace LINQ
             Return Template
         End Function
 
-        Friend Function ProcessSubClass(Of T As Class)(Item As T, Template As String) As String
-            Dim doc As New HtmlDocument(Template)
-            For Each class_tag As HtmlElement In doc("[triforce-source]")
-                Try
-                    Dim newcontent = ""
-                    Dim lis = Item.GetPropertyValue(Of IEnumerable(Of Object))(class_tag.Attribute("triforce-source"), True)
-                    If lis IsNot Nothing Then
-                        For Each el In lis
-                            newcontent = ReplaceValues(el, class_tag.InnerHTML)
-                        Next
-                    End If
-                    class_tag.InnerHTML = newcontent
-                    class_tag.Attributes.Remove("triforce-source")
-                Catch ex As Exception
-                    class_tag.Destroy()
-                End Try
-            Next
-            Template = doc.InnerHTML
-            Return Template
-        End Function
 
         Friend Function GetRegexPattern() As String
             Dim open = Me.sel(0).ToArray.Join("\").Prepend("\")
@@ -1075,9 +1054,9 @@ Namespace LINQ
             Return New HtmlDocument(Head.Replace("#_PAGINATION_#", pg) & html.IfBlank(Empty) & Footer.Replace("#_PAGINATION_#", pg))
         End Function
 
-
-
-
+        Public Shared Widening Operator CType(v As TemplateList(Of T)) As String
+            Return v.ToString
+        End Operator
     End Class
 
 

@@ -8,23 +8,50 @@ Imports System.Web.UI.WebControls
 Namespace LINQ
 
     <DefaultProperty("Template")>
-    <ToolboxBitmap(GetType(ListView))>
+    <ToolboxBitmap(GetType(ListBox))>
     <ToolboxData("<{0}:TriforceWriter RenderAs=""Div"" Template="""" PageParameter=""Page"" PageSize=""12"" runat=""server"" />")>
     Public Class TriforceWriter
         Inherits WebControl
-        Private tgkey As HtmlTextWriterTag
+        Private tgkey As HtmlTextWriterTag = HtmlTextWriterTag.Div
 
+        ''' <summary>
+        ''' TagKey, como o triforce será rendereizado
+        ''' </summary>
+        ''' <returns></returns>
         Protected Overrides ReadOnly Property TagKey As HtmlTextWriterTag
             Get
                 Return tgkey
             End Get
         End Property
 
+        ''' <summary>
+        ''' Nome da tag, como o triforce será renderizado
+        ''' </summary>
+        ''' <returns></returns>
         Protected Overrides ReadOnly Property TagName As String
             Get
                 Return [Enum].GetName(GetType(HtmlTextWriterTag), tgkey)
             End Get
         End Property
+
+
+        ''' <summary>
+        ''' Troca diretamente o valor do <ref cref="TriforceWriter.TriforceEngine"/>. Metodo util para setar o Engine e chamar logo em segida o <see cref="BuildFrom"/>
+        ''' </summary>
+        ''' <param name="Engine"></param>
+        ''' <returns></returns>
+        Default Public ReadOnly Property LoadEngine(Engine As Triforce) As TriforceWriter
+            Get
+                Me.TriforceEngine = Engine
+                Return Me
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Motor <see cref="LINQ.Triforce"/> utilizado para este TriforceWriter
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property TriforceEngine As Triforce
 
         ''' <summary>
         ''' Tag que dará forma como o TriforceWriter será renderizado. Default: Div
@@ -126,29 +153,27 @@ Namespace LINQ
         ''' Processa um <see cref="IEnumerable(Of T)"/> usando um objeto <see cref="LINQ.Triforce"/>
         ''' </summary>
         ''' <typeparam name="Entity"></typeparam>
-        ''' <param name="Triforce"></param>
         ''' <param name="Items"></param>
-        ''' <returns></returns>
-        Public Function BuildFrom(Of Entity As Class)(Triforce As Triforce, Items As IEnumerable(Of Entity)) As TemplateList(Of Entity)
+
+        Public Sub BuildFrom(Of Entity As Class)(Items As IEnumerable(Of Entity))
             Me.PageNumber = Page.Request(PageParameter).IfBlank(1).SetMinValue(1)
-            Dim l = Triforce.ApplyTemplate(Items, Template, PageNumber, PageSize)
+            Dim l = TriforceEngine.ApplyTemplate(Items, Template, PageNumber, PageSize)
             _s = l.ToString
-            Return l
-        End Function
+        End Sub
 
         ''' <summary>
         ''' Processa uma <see cref="System.Data.Linq.Table(Of TEntity)"/> usando um <see name="LINQ.Triforce"/> e um <paramref name="predicate"/> como filtro
         ''' </summary>
         ''' <typeparam name="Entity">Tipo do objeto</typeparam>
-        ''' <param name="Triforce">Objeto Triforce usado para o processamento</param>
         ''' <param name="predicate">filtro do processamento</param>
-        ''' <returns></returns>
-        Public Function BuildFrom(Of Entity As Class)(Triforce As Triforce, Optional predicate As System.Linq.Expressions.Expression(Of Func(Of Entity, Boolean)) = Nothing) As TemplateList(Of Entity)
+
+        Public Sub BuildFrom(Of Entity As Class)(Optional predicate As System.Linq.Expressions.Expression(Of Func(Of Entity, Boolean)) = Nothing)
             Me.PageNumber = Page.Request(PageParameter).IfBlank(1).SetMinValue(1)
-            Dim l = Triforce.ApplyTemplate(Of Entity)(Triforce.GetTemplate(Of Entity), predicate, PageNumber, PageSize)
+            Dim l = TriforceEngine.ApplyTemplate(Of Entity)(TriforceEngine.GetTemplate(Of Entity), predicate, PageNumber, PageSize)
             _s = l.ToString
-            Return l
-        End Function
+        End Sub
+
+
 
         Protected Overrides Sub RenderContents(ByVal output As HtmlTextWriter)
             output.Write(_s)
