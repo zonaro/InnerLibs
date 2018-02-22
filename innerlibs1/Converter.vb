@@ -296,7 +296,7 @@ Public Module Converter
         Dim result = New Dictionary(Of String, Object)()
         If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = NameValueCollection.AllKeys
         For Each key As String In [NameValueCollection].Keys
-            If key.IsIn(Keys) Then
+            If key.IsNotBlank AndAlso key.IsIn(Keys) Then
                 Dim values As String() = [NameValueCollection].GetValues(key)
                 If result.ContainsKey(key) Then
                     Dim l As New List(Of Object)
