@@ -133,7 +133,7 @@ Namespace LINQ
         Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
-            PageNumber = PageNumber.LimitRange(1, (total / PageSize).ChangeType(Of Decimal).Ceil())
+            PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
             Dim l As New List(Of Template(Of T))
             Dim ll = List.Page(PageNumber, PageSize)
             For Each item As T In ll
@@ -211,14 +211,15 @@ Namespace LINQ
             Template = "" & GetTemplateContent(Template)
             If Template.IsNotBlank Then
                 Template = ReplaceValues(Item, Template)
+                Template = ProcessSubTemplate(Item, Template)
                 Template = ReplaceValues(CustomValues, Template)
+                Template = ClearValues(Item, Template)
+
+                'processar logica
                 Template = ProccessConditions(Item, Template)
                 Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
                 Template = ProcessRepeat(Template)
-
-                Template = ProcessSubTemplate(Item, Template)
-                Template = ClearValues(Item, Template)
             End If
             Return New Template(Of T)(Item, Template)
         End Function
@@ -518,13 +519,16 @@ Namespace LINQ
             End If
             Template = "" & GetTemplateContent(Template)
             If Template.IsNotBlank Then
+                'este nao processa subtemplates
                 Template = ReplaceValues(Item, Template)
                 Template = ReplaceValues(CustomValues, Template)
+                Template = ClearValues(Item, Template)
+
+                'processar logica
                 Template = ProccessConditions(Item, Template)
                 Template = ProccessSwitch(Item, Template)
                 Template = ProccessIf(Item, Template)
                 Template = ProcessRepeat(Template)
-                Template = ClearValues(Item, Template)
             End If
             Return New Template(Of T)(Item, Template)
         End Function
@@ -695,7 +699,7 @@ Namespace LINQ
                     Catch
                     End Try
                     Dim resultexp = EvaluateExpression(expression)
-                    If resultexp = True Or resultexp > 0 Then
+                    If resultexp = True OrElse resultexp > 0 Then
                         conditionTag.Mutate(truetag)
                     Else
                         If falsetag.IsNotBlank Then
