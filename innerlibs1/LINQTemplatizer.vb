@@ -209,23 +209,23 @@ Namespace LINQ
             If Template.IsBlank Then
                 Template = Me.GetTemplate(Of T)
             End If
-            Me.doc = New HtmlDocument(GetTemplateContent(Template))
+            Dim doc = New HtmlDocument(GetTemplateContent(Template))
 
             'replace nos valores
             TravesseAndReplace(doc.Nodes, Item)
             TravesseAndReplace(doc.Nodes, CustomValues)
 
             'processa subtemplates
-            ProccessSubClass(Item)
-            ProcessSubTemplate(Item)
+            ProccessSubClass(Item, doc)
+            ProcessSubTemplate(Item, doc)
 
             doc = New HtmlDocument(ClearValues(doc.ToString))
 
             'processar logica
-            ProccessConditions(Item)
-            ProccessSwitch(Item)
-            ProccessIf(Item)
-            ProcessRepeat()
+            ProccessConditions(Item, doc)
+            ProccessSwitch(Item, doc)
+            ProccessIf(Item, doc)
+            ProcessRepeat(doc)
 
             Return New Template(Of T)(Item, doc.ToString)
         End Function
@@ -288,7 +288,7 @@ Namespace LINQ
 
 
 #Region "Processors"
-        Friend Sub ProcessSubTemplate(Of T As Class)(item As T)
+        Friend Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
 
             Dim listat = doc.Nodes.GetElementsByTagName("template", True)
             For index = 0 To listat.Count - 1
@@ -299,6 +299,7 @@ Namespace LINQ
                 End If
                 Try
                     If templatetag.Name = "template" Then
+
                         Dim sql = ""
                         Dim el_sql = CType(templatetag.Nodes.GetElementsByTagName("sql").First, HtmlElement)
                         If el_sql.HasAttribute("file") AndAlso el_sql.Attribute("file").IsNotBlank Then
@@ -306,6 +307,8 @@ Namespace LINQ
                         Else
                             sql = el_sql.InnerHTML.HtmlDecode
                         End If
+                        el_sql.Destroy()
+
                         Dim conteudo = ""
                         Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
                         If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
@@ -313,11 +316,12 @@ Namespace LINQ
                         Else
                             conteudo = el_cont.InnerHTML.HtmlDecode
                         End If
-
+                        el_cont.Destroy()
                         Dim lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo, {})
                         If lista.Count > 0 Then
                             conteudo = lista.ToString
-                            templatetag.Mutate(conteudo)
+                            templatetag.InnerHTML = conteudo
+                            templatetag.Name = If(templatetag.HasAttribute("renderas"), templatetag.Attribute("renderas"), "span")
                         Else
                             Throw New Exception("Empty results")
                         End If
@@ -338,7 +342,6 @@ Namespace LINQ
                         templatetag.Mutate(conteudo)
                     Else
                         templatetag.Destroy()
-                        ' index.Decrement
                     End If
                 End Try
             Next
@@ -457,7 +460,7 @@ Namespace LINQ
 
         Friend _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
         Friend sel As String() = {"##", "##"}
-        Friend doc As HtmlDocument 'documento em processamento
+
         Friend TemplateMap As New Dictionary(Of Type, String)
 
         ''' <summary>
@@ -524,6 +527,7 @@ Namespace LINQ
         End Function
 
 
+
         ''' <summary>
         ''' Aplica um template HTML a um unico objeto
         ''' </summary>
@@ -535,7 +539,8 @@ Namespace LINQ
             If Template.IsBlank Then
                 Template = Me.GetTemplate(Of T)
             End If
-            Me.doc = New HtmlDocument(GetTemplateContent(Template))
+
+            Dim doc = New HtmlDocument(GetTemplateContent(Template))
 
             'replace nos valores
             TravesseAndReplace(doc.Nodes, Item)
@@ -543,14 +548,14 @@ Namespace LINQ
 
             'processa subtemplates
             'este nao tem 
-            ProccessSubClass(Item)
+            ProccessSubClass(Item, doc)
 
             doc = New HtmlDocument(ClearValues(doc.ToString))
             'processar logica
-            ProccessConditions(Item)
-            ProccessSwitch(Item)
-            ProccessIf(Item)
-            ProcessRepeat()
+            ProccessConditions(Item, doc)
+            ProccessSwitch(Item, doc)
+            ProccessIf(Item, doc)
+            ProcessRepeat(doc)
 
             Return New Template(Of T)(Item, doc.ToString)
         End Function
@@ -685,7 +690,7 @@ Namespace LINQ
 #Region "Processors"
 
 
-        Friend Sub ProccessSubClass(Of T As Class)(item As T)
+        Friend Sub ProccessSubClass(Of T As Class)(item As T, doc As HtmlDocument)
             Dim lista = doc.Nodes.GetElementsByAttributeName("triforce-source", True)
             For index = 0 To lista.Count - 1
                 Dim conditiontag As HtmlElement = lista(index)
@@ -703,7 +708,7 @@ Namespace LINQ
             Next
         End Sub
 
-        Friend Sub ProccessConditions(Of T As Class)(Item As T)
+        Friend Sub ProccessConditions(Of T As Class)(Item As T, doc As HtmlDocument)
 
             Dim lista = doc.Nodes.GetElementsByTagName("condition", True)
             For index = 0 To lista.Count - 1
@@ -730,7 +735,7 @@ Namespace LINQ
             Next
         End Sub
 
-        Friend Sub ProccessIf(Of T As Class)(Item As T)
+        Friend Sub ProccessIf(Of T As Class)(Item As T, doc As HtmlDocument)
             Dim lista = doc.Nodes.GetElementsByTagName("IF", True)
             For index = 0 To lista.Count - 1
                 Dim conditiontag As HtmlElement = lista(index)
@@ -764,7 +769,7 @@ Namespace LINQ
             Next
         End Sub
 
-        Friend Sub ProccessSwitch(Of T As Class)(Item As T)
+        Friend Sub ProccessSwitch(Of T As Class)(Item As T, doc As HtmlDocument)
             Dim lista = doc.Nodes.GetElementsByTagName("switch", True)
             For index = 0 To lista.Count - 1
                 Dim conditiontag As HtmlElement = lista(index)
@@ -811,7 +816,7 @@ Namespace LINQ
             Next
         End Sub
 
-        Friend Sub ProcessRepeat()
+        Friend Sub ProcessRepeat(doc As HtmlDocument)
             Dim lista = doc.Nodes.GetElementsByTagName("repeat", True)
             For index = 0 To lista.Count - 1
                 Dim repeattag As HtmlElement = lista(index)
@@ -952,11 +957,7 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property ProcessedTemplate As HtmlDocument
 
-        ''' <summary>
-        ''' Nome do template utilizado para este processamento.
-        ''' </summary>
-        ''' <returns></returns>
-        ReadOnly Property TemplateName As String = ""
+
 
     End Class
 

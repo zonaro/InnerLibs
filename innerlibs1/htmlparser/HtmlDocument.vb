@@ -285,7 +285,7 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' Return the body element if exist, otherwise, the first node
+        ''' Return the body element if exist 
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Body As HtmlElement
@@ -295,7 +295,7 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Return the body element if exist, otherwise, the first node
+        ''' Return the Head element if exist 
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Head As HtmlElement
