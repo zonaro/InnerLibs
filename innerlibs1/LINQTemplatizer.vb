@@ -461,7 +461,7 @@ Namespace LINQ
         Friend TemplateMap As New Dictionary(Of Type, String)
 
         ''' <summary>
-        ''' Retorna o nome do arquivo de template
+        ''' Retorna o nome do arquivo de template, ou o template processado se ProccessFile estiver True
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <returns></returns>
