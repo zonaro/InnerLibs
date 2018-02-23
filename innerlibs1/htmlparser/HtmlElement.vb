@@ -64,11 +64,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Elements">Collection of new elements</param>
         Sub Mutate(Elements As HtmlNodeCollection)
-            Dim idx = Me.Index
-            Me.Mutate(Elements.First)
-            For i = 1 To Elements.Count - 1
-                Me.Parent.Nodes.Insert(idx + i, Elements(i), True)
-            Next
+            Me.Parent.Nodes.ReplaceElement(Me, Elements)
         End Sub
 
         ''' <summary>

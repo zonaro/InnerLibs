@@ -271,6 +271,22 @@ Namespace HtmlParser
         Inherits List(Of HtmlNode)
         Friend mParent As HtmlElement
 
+        Public Sub ReplaceElement(Element As HtmlNode, Items As IEnumerable(Of HtmlNode))
+            Dim indexo = Me.IndexOf(Element)
+            Dim index_append = 1
+            If indexo > -1 Then
+                For Each el In Items
+                    Me.Insert(indexo + index_append, el)
+                    index_append.Increment
+                Next
+                Me.RemoveAt(Me.IndexOf(Element))
+            Else
+                Debug.Write("Element not found in List!")
+            End If
+        End Sub
+
+
+
         ''' <summary>
         ''' Retuns all html text from this collection
         ''' </summary>
@@ -393,6 +409,10 @@ Namespace HtmlParser
             Return Me.Where(Function(x) x.GetType = GetType(HtmlElement)).Select(Function(x) CType(x, HtmlElement))
         End Function
 
+
+
+
+
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with the an
         ''' attribute with the given name.
@@ -482,6 +502,16 @@ Namespace HtmlParser
             Next
             Return results
         End Function
+
+        ''' <summary>
+        ''' Return all elements and child elements in a single list of NodeType
+        ''' </summary>
+        ''' <typeparam name="NodeType"></typeparam>
+        ''' <returns></returns>
+        Public Function FindElements(Of NodeType As HtmlNode)() As HtmlNodeCollection
+            Return FindElements(Of NodeType)(Function(x) x IsNot Nothing, True)
+        End Function
+
 
         ''' <summary>
         ''' Return elements thats match the current CSS selector
