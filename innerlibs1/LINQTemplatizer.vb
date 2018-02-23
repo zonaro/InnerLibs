@@ -321,6 +321,8 @@ Namespace LINQ
                         If lista.Count > 0 Then
                             conteudo = lista.ToString
                             If templatetag.HasAttribute("renderas") Then
+                                templatetag.Name = templatetag.Attribute("renderas")
+                                templatetag.Attributes.Remove("renderas")
                                 templatetag.InnerHTML = conteudo
                             Else
                                 templatetag.Mutate(conteudo)
@@ -342,9 +344,15 @@ Namespace LINQ
                         Else
                             conteudo = plc.InnerHTML.HtmlDecode
                         End If
-                        templatetag.Mutate(conteudo)
+                        If plc.HasAttribute("renderas") Then
+                            templatetag.Name = templatetag.Attribute("renderas")
+                            templatetag.Attributes.Remove("renderas")
+                            templatetag.InnerHTML = conteudo
+                        Else
+                            templatetag.Mutate(conteudo)
+                        End If
                     Else
-                        templatetag.Destroy()
+                            templatetag.Destroy()
                     End If
                 End Try
             Next
@@ -741,9 +749,22 @@ Namespace LINQ
                         Dim resultexp = EvaluateExpression(expression)
 
                         If resultexp = True Or resultexp > 0 Then
-                            conditiontag.Mutate(contenttag)
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Attributes.Remove("renderas")
+                                conditiontag.InnerHTML = contenttag
+                            Else
+                                conditiontag.Mutate(contenttag)
+                            End If
+
                         Else
-                            conditiontag.Destroy()
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Attributes.Remove("renderas")
+                                conditiontag.InnerHTML = ""
+                            Else
+                                conditiontag.Destroy()
+                            End If
                         End If
                     End If
                 Catch ex As Exception
@@ -771,12 +792,30 @@ Namespace LINQ
                         End Try
                         Dim resultexp = EvaluateExpression(expression)
                         If resultexp = True OrElse resultexp > 0 Then
-                            conditiontag.Mutate(truetag)
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Attributes.Remove("renderas")
+                                conditiontag.InnerHTML = truetag
+                            Else
+                                conditiontag.Mutate(truetag)
+                            End If
                         Else
                             If falsetag.IsNotBlank Then
-                                conditiontag.Mutate(falsetag)
+                                If conditiontag.HasAttribute("renderas") Then
+                                    conditiontag.Name = conditiontag.Attribute("renderas")
+                                    conditiontag.Attributes.Remove("renderas")
+                                    conditiontag.InnerHTML = falsetag
+                                Else
+                                    conditiontag.Mutate(falsetag)
+                                End If
                             Else
-                                conditiontag.Destroy()
+                                If conditiontag.HasAttribute("renderas") Then
+                                    conditiontag.Name = conditiontag.Attribute("renderas")
+                                    conditiontag.Attributes.Remove("renderas")
+                                    conditiontag.InnerHTML = ""
+                                Else
+                                    conditiontag.Destroy()
+                                End If
                             End If
                         End If
                     End If
@@ -821,9 +860,21 @@ Namespace LINQ
                         End If
 
                         If html.IsNotBlank Then
-                            conditiontag.Mutate(html)
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Attributes.Remove("renderas")
+                                conditiontag.InnerHTML = html
+                            Else
+                                conditiontag.Mutate(html)
+                            End If
                         Else
-                            conditiontag.Destroy()
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Attributes.Remove("renderas")
+                                conditiontag.InnerHTML = ""
+                            Else
+                                conditiontag.Destroy()
+                            End If
                         End If
                     End If
 
