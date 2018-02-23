@@ -12,6 +12,25 @@ Imports InnerLibs.HtmlParser
 Public Module ClassTools
 
     ''' <summary>
+    ''' Verifica se um tipo possui uma propriedade
+    ''' </summary>
+    ''' <param name="type"></param>
+    ''' <param name="Name"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function HasProperty(Type As Type, Name As String) As Boolean
+        Return Type.GetProperty(Name) IsNot Nothing
+    End Function
+    ''' <summary>
+    ''' Verifica se um tipo possui uma propriedade
+    ''' </summary>
+    ''' <param name="Obj"></param>
+    ''' <param name="Name"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function HasProperty(Of T As Class)(Obj As T, Name As String) As Boolean
+        Return GetType(T).HasProperty(Name)
+    End Function
+
+    ''' <summary>
     ''' Retorna o objeto em seu formato padrão de String, ou serializa o objeto em Json se o mesmo não possuir formato em string
     ''' </summary>
     ''' <param name="obj"></param>

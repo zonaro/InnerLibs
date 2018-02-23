@@ -466,7 +466,23 @@ Namespace LINQ
         ''' <typeparam name="T"></typeparam>
         ''' <returns></returns>
         Function GetTemplate(Of T As Class)(Optional ProcessFile As Boolean = False) As String
-            Return If(ProcessFile, GetTemplateContent(MapType(GetType(T))), MapType(GetType(T)))
+            Dim tmp = ""
+            If GetType(T).HasProperty("TriforceTemplate") Then
+                tmp = Activator.CreateInstance(Of T).GetPropertyValue("TriforceTemplate").ToString
+                If tmp.IsBlank Then
+                    tmp = MapType(GetType(T))
+                End If
+            Else
+                tmp = MapType(GetType(T))
+            End If
+            If tmp.IsNotBlank Then
+                If ProcessFile Then
+                    tmp = GetTemplateContent(tmp)
+                End If
+            Else
+                Throw New FileNotFoundException("Template not found in Triforce MapType or 'TriforceTemplate' property in class " & GetType(T).Name.Quote)
+            End If
+            Return tmp
         End Function
 
         ''' <summary>
@@ -609,11 +625,7 @@ Namespace LINQ
         Public Function GetTemplateContent(TemplateFile As String, Optional Tag As String = "body") As String
             If TemplateFile.IsNotBlank Then
                 If TemplateFile.ContainsAny("<", ">") Then
-                    Try
-                        Return New HtmlDocument(TemplateFile).HTML
-                    Catch ex As Exception
-                        Throw New Exception("Error on parsing Template String: " & ex.Message)
-                    End Try
+                    Return TemplateFile
                 Else
                     TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
                     If IsNothing(ApplicationAssembly) Then
@@ -642,6 +654,7 @@ Namespace LINQ
             End If
             Return ""
         End Function
+
         ''' <summary>
         ''' Seletor dos campos do template
         ''' </summary>
