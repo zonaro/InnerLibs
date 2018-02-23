@@ -60,7 +60,7 @@ Namespace LINQ
         ''' <param name="PageSize">Numero de itens por pagina</param>
         ''' <param name="predicade">Filtro da busca</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(Of T)(GetTemplate(Of T), predicade, PageNumber, PageSize)
         End Function
         ''' <summary>
@@ -71,7 +71,7 @@ Namespace LINQ
         ''' <param name="PageSize">Numero de itens por pagina</param>
         ''' <param name="predicade">Filtro da busca</param>
         ''' <returns></returns>
-        Public Overrides Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
             Using Me.DataContext
                 Dim d As IQueryable(Of T) = Me.DataContext.GetTable(Of T).AsQueryable
@@ -90,7 +90,7 @@ Namespace LINQ
         ''' <param name="SQLQuery"></param>
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(SQLQuery As String, Template As String, ParamArray Parameters As Object()) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(SQLQuery As String, Template As String, Parameters As Object()) As TemplateList(Of T)
             Debug.WriteLine(Environment.NewLine & SQLQuery)
             Dim list As IEnumerable(Of T)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
@@ -117,7 +117,7 @@ Namespace LINQ
                 Else
                     list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
                 End If
-                Return ApplyTemplate(Of T)(list, Template, 1, -1)
+                Return ApplyTemplate(Of T)(list.AsQueryable, Template, 1, -1)
             End Using
         End Function
 
@@ -131,7 +131,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
             PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
@@ -174,7 +174,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Template As HtmlDocument, PageNumber As Integer, PageSize As Integer) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Template As HtmlDocument, PageNumber As Integer, PageSize As Integer) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -185,7 +185,7 @@ Namespace LINQ
         ''' <param name="TemplateName">Nome do Template configurado</param>
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(TemplateName As String, ParamArray Parameters As Object()) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(TemplateName As String, ParamArray Parameters As Object()) As TemplateList(Of T)
             Return ApplyTemplate(Of T)(GetCommand(TemplateName), TemplateName, Parameters)
         End Function
 
@@ -194,7 +194,7 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)() As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)() As TemplateList(Of T)
             Return ApplyTemplate(Of T)(GetCommand(GetType(T).Name), GetTemplate(Of T))
         End Function
 
@@ -205,7 +205,7 @@ Namespace LINQ
         ''' <param name="Item">Objeto</param>
         ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>)
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
             If Template.IsBlank Then
                 Template = Me.GetTemplate(Of T)
             End If
@@ -240,7 +240,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As Table(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As Table(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
@@ -253,7 +253,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As Table(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As Table(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -267,7 +267,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
         End Function
 
@@ -280,7 +280,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
         End Function
 
@@ -320,8 +320,11 @@ Namespace LINQ
                         Dim lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo, {})
                         If lista.Count > 0 Then
                             conteudo = lista.ToString
-                            templatetag.InnerHTML = conteudo
-                            templatetag.Name = If(templatetag.HasAttribute("renderas"), templatetag.Attribute("renderas"), "span")
+                            If templatetag.HasAttribute("renderas") Then
+                                templatetag.InnerHTML = conteudo
+                            Else
+                                templatetag.Mutate(conteudo)
+                            End If
                         Else
                             Throw New Exception("Empty results")
                         End If
@@ -578,7 +581,7 @@ Namespace LINQ
             If total > 0 Then
                 PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
                 For Each item As T In List.Page(PageNumber, PageSize)
-                    l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
+                    l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template))
                 Next
             End If
 
@@ -630,6 +633,20 @@ Namespace LINQ
         Public Function GetTemplateContent(TemplateFile As String, Optional Tag As String = "body") As String
             If TemplateFile.IsNotBlank Then
                 If TemplateFile.ContainsAny("<", ">") Then
+                    Select Case Tag
+                        Case "body"
+                            Try
+                                Return CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement).InnerHTML
+                            Catch ex As Exception
+                                Return TemplateFile
+                            End Try
+                        Case Else
+                            Try
+                                Return CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                            Catch ex As Exception
+                                Return ""
+                            End Try
+                    End Select
                     Return TemplateFile
                 Else
                     TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
