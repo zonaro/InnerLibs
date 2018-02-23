@@ -321,7 +321,7 @@ Namespace LINQ
                         If lista.Count > 0 Then
                             conteudo = lista.ToString
                             If templatetag.HasAttribute("renderas") Then
-                                templatetag.Name = templatetag.Attribute("renderas")
+                                templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
                                 templatetag.Attributes.Remove("renderas")
                                 templatetag.InnerHTML = conteudo
                             Else
@@ -345,7 +345,7 @@ Namespace LINQ
                             conteudo = plc.InnerHTML.HtmlDecode
                         End If
                         If plc.HasAttribute("renderas") Then
-                            templatetag.Name = templatetag.Attribute("renderas")
+                            templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
                             templatetag.Attributes.Remove("renderas")
                             templatetag.InnerHTML = conteudo
                         Else
@@ -750,7 +750,7 @@ Namespace LINQ
 
                         If resultexp = True Or resultexp > 0 Then
                             If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
                                 conditiontag.Attributes.Remove("renderas")
                                 conditiontag.InnerHTML = contenttag
                             Else
@@ -759,7 +759,7 @@ Namespace LINQ
 
                         Else
                             If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
                                 conditiontag.Attributes.Remove("renderas")
                                 conditiontag.InnerHTML = ""
                             Else
@@ -802,7 +802,7 @@ Namespace LINQ
                         Else
                             If falsetag.IsNotBlank Then
                                 If conditiontag.HasAttribute("renderas") Then
-                                    conditiontag.Name = conditiontag.Attribute("renderas")
+                                    conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
                                     conditiontag.Attributes.Remove("renderas")
                                     conditiontag.InnerHTML = falsetag
                                 Else
@@ -810,7 +810,7 @@ Namespace LINQ
                                 End If
                             Else
                                 If conditiontag.HasAttribute("renderas") Then
-                                    conditiontag.Name = conditiontag.Attribute("renderas")
+                                    conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
                                     conditiontag.Attributes.Remove("renderas")
                                     conditiontag.InnerHTML = ""
                                 Else
@@ -861,7 +861,7 @@ Namespace LINQ
 
                         If html.IsNotBlank Then
                             If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
                                 conditiontag.Attributes.Remove("renderas")
                                 conditiontag.InnerHTML = html
                             Else
@@ -869,7 +869,7 @@ Namespace LINQ
                             End If
                         Else
                             If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
                                 conditiontag.Attributes.Remove("renderas")
                                 conditiontag.InnerHTML = ""
                             Else
