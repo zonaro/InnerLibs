@@ -553,9 +553,9 @@ Namespace LINQ
         Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
+            Dim l As New List(Of Template(Of T))
             If total > 0 Then
                 PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
-                Dim l As New List(Of Template(Of T))
                 For Each item As T In List.Page(PageNumber, PageSize)
                     l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
                 Next
