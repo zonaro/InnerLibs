@@ -21,17 +21,25 @@
      Atributo disabled -> Impede o processamento da tag e remove a mesma do documento
      Atributo renderas -> Auando especificado, renderiza a tag de estrutura com o nome da tag espicificado por ele.
                           Se nao especificado, a tag sera substituida pelo seu conteudo-->
+    <!--exemplo-->
+    <nome_tag disabled>
 
-    <nome_tag disabled renderas="div">
+        <!--esta tag não sera incluida no resultado final do template-->
 
+    </nome_tag>
+
+    <!--exemplo-->
+    <nome_tag renderas="div" class="classe">
+
+        <!--esta tag será transformada em uma <div class="classe"></div> após o processamento de seu conteudo-->
 
     </nome_tag>
 
 
     <!--estrutura de repeticao crua (repete X vezes, igual a um For)-->
-    <repeat value="2">
+    <repeat value="2" renderas="ul">
         <!--conteudo, use _index para exibir o numero da replicacao atual-->
-        <span>_index</span>
+        <li>_index</li>
     </repeat>
 
 
