@@ -1,19 +1,38 @@
 ﻿
 <head>
     <!--Coisas do head (adicionado uma vez antes de todos os itens)-->
+    #_PAGINATION_#  <!--utilize esta Marcacao para incluir a paginacao no html do Head ou Footer-->
 </head>
 <body>
 
     <!--coisas do body (conteudo do template, replicado para cada item da lista)-->
     ##NOME_DA_PROPRIEDADE## <!--utilize ## entre os nomes das propriedades e elas serão substituidas-->
     ##Propriedade.Subpropriedade## <!--você pode acessar propriedades de outras propriedades da sua classe usando ponto-->
-    <!--estrutura de repeticao crua (repete X vezes)-->
+    <!--Tags de estrutura do Triforce
+
+     - template
+     - if
+     - condition
+     - switch
+     - repeat
+
+    Alguns atributos se aplicam a qualquer tag de estrutura do Triforce
+
+     Atributo disabled -> Impede o processamento da tag e remove a mesma do documento
+     Atributo renderas -> Auando especificado, renderiza a tag de estrutura com o nome da tag espicificado por ele.
+                          Se nao especificado, a tag sera substituida pelo seu conteudo-->
+
+    <nome_tag disabled renderas="div">
+
+
+    </nome_tag>
+
+
+    <!--estrutura de repeticao crua (repete X vezes, igual a um For)-->
     <repeat value="2">
         <!--conteudo, use _index para exibir o numero da replicacao atual-->
         <span>_index</span>
     </repeat>
-
- 
 
 
     <!--Estrutura switch-->
@@ -44,10 +63,11 @@
         </true>
         <false>
             <!--Conteudo se expressão for = false-->
+            <!--esta tag nao é obrigatoria, se nela nao existir, o conteudo é apenas descartado-->
         </false>
     </if>
 
-    <!--Estrutura condition-->
+    <!--Estrutura condition, possui o mesmo comportamento de um IF, porém sem false-->
     <condition>
         <expression>
             2 > 3
@@ -64,7 +84,7 @@
             <!--query sql apenas para LINQ to SQL-->
         </sql>
         <content>
-            <!--conteudo html-->
+            <!--conteudo html cru ou template estruturado. Para tempaltes estruturados, aplicam-se as mesmas regras de estutura do template normalmente (tag head, footer, body, empty e pagination)-->
         </content>
         <nocontent>
             <!--conteudo se a lista nao possui itens-->
@@ -80,13 +100,17 @@
         <nocontent file="no_temp.html" />
     </template>
 
-
+    <!--Atributo de repeticao a partir de uma propriedade enumeravel-->
+    <ul triforce-source="NomeDaPropriedadeDeColecao">
+        <!--template de cada repeticao-->
+        <li>##ITEM_DA_COLECAO##</li>
+    </ul>
 
 
 </body>
 
 
-<!--paginacao dos itens-->
+<!--template da paginacao dos itens aplicado ao templatelist-->
 <pagination>
     <div class="paginas">
         <div>
@@ -129,7 +153,7 @@
 
 
 <footer>
-    <!--coisas do footer, por exemplo a Paginação-->
-    #_PAGINATION_#
+    <!--Coisas do head (adicionado uma vez antes após todos os itens)-->
+    #_PAGINATION_#  <!--utilize esta Marcacao para incluir a paginacao no html do Head ou Footer-->
 </footer>
 
