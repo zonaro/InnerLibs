@@ -247,7 +247,11 @@ Public Module Mathematic
 
     <Extension()>
     Public Function Ceil(Number As Decimal) As Long
-        Return Math.Ceiling(Number)
+        Try
+            Return Math.Ceiling(Number)
+        Catch ex As Exception
+            Return 0
+        End Try
     End Function
 
     ''' <summary>
@@ -258,7 +262,11 @@ Public Module Mathematic
 
     <Extension()>
     Public Function Ceil(Number As Double) As Long
-        Return Math.Ceiling(Number)
+        Try
+            Return Math.Ceiling(Number)
+        Catch ex As Exception
+            Return 0
+        End Try
     End Function
 
     ''' <summary>
@@ -268,7 +276,11 @@ Public Module Mathematic
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
     <Extension()>
     Public Function Floor(Number As Decimal) As Long
-        Return Math.Floor(Number)
+        Try
+            Return Math.Floor(Number)
+        Catch ex As Exception
+            Return 0
+        End Try
     End Function
 
     ''' <summary>
@@ -278,7 +290,11 @@ Public Module Mathematic
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
     <Extension()>
     Public Function Floor(Number As Double) As Long
-        Return Math.Floor(Number)
+        Try
+            Return Math.Floor(Number)
+        Catch ex As Exception
+            Return 0
+        End Try
     End Function
 
     ''' <summary>
