@@ -85,7 +85,7 @@
         </content>
     </condition>
 
-    <!--Estrutura template inline-->
+    <!--Estrutura template inline com SQL-->
     <template>
         <sql>
             SELECT * FROM TABLE
@@ -94,26 +94,26 @@
         <content>
             <!--conteudo html cru ou template estruturado. Para tempaltes estruturados, aplicam-se as mesmas regras de estutura do template normalmente (tag head, footer, body, empty e pagination)-->
         </content>
-        <nocontent>
-            <!--conteudo se a lista nao possui itens-->
-        </nocontent>
+    </template>
+
+    <!--Estrutura template inline com propriedade enumeravel-->
+    <template>
+        <property name="Lista" page="1" size="20" /> <!--voce pode especificar a quantidade de itens por pagina e o numero da pagina (nao obrigatório) -->
+        <content>
+            <!--conteudo html cru ou template estruturado. Para tempaltes estruturados, aplicam-se as mesmas regras de estutura do template normalmente (tag head, footer, body, empty e pagination)-->
+        </content>
     </template>
 
 
     <!--Estrutura template de arquivo-->
 
     <template>
-        <sql file="query.sql" />
+        <sql file="query.sql" /> <!--para SQL-->
+        <property name="lista" /> <!--para propriedade enumeravel-->
         <content file="temp.html" />
-        <nocontent file="no_temp.html" />
     </template>
 
 
-    <!--Atributo de repeticao a partir de uma propriedade enumeravel-->
-    <ul triforce-source="NomeDaPropriedadeDeColecao">
-        <!--template de cada repeticao-->
-        <li>##ITEM_DA_COLECAO##</li>
-    </ul>
 
 
 </body>

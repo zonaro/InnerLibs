@@ -84,6 +84,18 @@ Namespace LINQ
 
 
         ''' <summary>
+        ''' Aplica um template HTML a um unico objeto
+        ''' </summary>
+        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+        ''' <param name="Item">Objeto</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>)
+        ''' <returns></returns>
+
+        Public Shadows Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
+            Return MyBase.ApplyTemplate(Item, Template)
+        End Function
+
+        ''' <summary>
         ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um wrapper para <see cref="DataContext.ExecuteQuery(Of TResult)(String, Object())"/> porém aplica os templates automaticamente
         ''' </summary>
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
@@ -91,7 +103,7 @@ Namespace LINQ
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
         Public Shadows Function ApplyTemplate(Of T As Class)(SQLQuery As String, Template As String, Parameters As Object()) As TemplateList(Of T)
-            Debug.WriteLine(Environment.NewLine & SQLQuery)
+            Debug.WriteLine(SQLQuery.Wrap(Environment.NewLine))
             Dim list As IEnumerable(Of T)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
             Using Me.DataContext
@@ -138,7 +150,7 @@ Namespace LINQ
             Dim l As New List(Of Template(Of T))
             Dim ll = List.Page(PageNumber, PageSize)
             For Each item As T In ll
-                l.Add(ApplyTemplate(Of T)(CType(item, T), Template))
+                l.Add(MyBase.ApplyTemplate(Of T)(CType(item, T), Template))
             Next
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
             Try
@@ -185,7 +197,7 @@ Namespace LINQ
         ''' <param name="TemplateName">Nome do Template configurado</param>
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(TemplateName As String, ParamArray Parameters As Object()) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(TemplateName As String, Parameters As Object()) As TemplateList(Of T)
             Return ApplyTemplate(Of T)(GetCommand(TemplateName), TemplateName, Parameters)
         End Function
 
@@ -195,40 +207,10 @@ Namespace LINQ
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
         ''' <returns></returns>
         Public Shadows Function ApplyTemplate(Of T As Class)() As TemplateList(Of T)
-            Return ApplyTemplate(Of T)(GetCommand(GetType(T).Name), GetTemplate(Of T))
+            Return ApplyTemplate(Of T)(GetCommand(GetType(T).Name), GetTemplate(Of T), {})
         End Function
 
-        ''' <summary>
-        ''' Aplica um template HTML a um unico objeto
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="Item">Objeto</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>)
-        ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
-            If Template.IsBlank Then
-                Template = Me.GetTemplate(Of T)
-            End If
-            Dim doc = New HtmlDocument(GetTemplateContent(Template))
 
-            'replace nos valores
-            TravesseAndReplace(doc.Nodes, Item)
-            TravesseAndReplace(doc.Nodes, CustomValues)
-
-            'processa subtemplates
-            ProccessSubClass(Item, doc)
-            ProcessSubTemplate(Item, doc)
-
-            doc = New HtmlDocument(ClearValues(doc.ToString))
-
-            'processar logica
-            ProccessConditions(Item, doc)
-            ProccessSwitch(Item, doc)
-            ProccessIf(Item, doc)
-            ProcessRepeat(doc)
-
-            Return New Template(Of T)(Item, doc.ToString)
-        End Function
 
 
         ''' <summary>
@@ -286,9 +268,8 @@ Namespace LINQ
 
 
 
-
 #Region "Processors"
-        Friend Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
+        Friend Overrides Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
 
             Dim listat = doc.Nodes.GetElementsByTagName("template", True)
             For index = 0 To listat.Count - 1
@@ -300,58 +281,81 @@ Namespace LINQ
                 Try
                     If templatetag.Name = "template" Then
 
-                        Dim sql = ""
-                        Dim el_sql = CType(templatetag.Nodes.GetElementsByTagName("sql").First, HtmlElement)
-                        If el_sql.HasAttribute("file") AndAlso el_sql.Attribute("file").IsNotBlank Then
-                            sql = GetCommand(el_sql.Attribute("file"))
-                        Else
-                            sql = el_sql.InnerHTML.HtmlDecode
-                        End If
-                        el_sql.Destroy()
-
                         Dim conteudo = ""
                         Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
-                        If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
-                            conteudo = GetTemplateContent(el_cont.Attribute("file"))
-                        Else
-                            conteudo = el_cont.InnerHTML.HtmlDecode
-                        End If
-                        el_cont.Destroy()
-                        Dim lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo, {})
-                        If lista.Count > 0 Then
-                            conteudo = lista.ToString
-                            If templatetag.HasAttribute("renderas") Then
-                                templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
-                                templatetag.InnerHTML = conteudo
+                        If el_cont IsNot Nothing Then
+                            If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
+                                conteudo = GetTemplateContent(el_cont.Attribute("file"))
                             Else
-                                templatetag.Mutate(conteudo)
+                                conteudo = el_cont.InnerHTML.HtmlDecode
                             End If
-                        Else
-                            Throw New Exception("Empty results")
+                            el_cont.Destroy()
                         End If
-                    End If
-                Catch ex As Exception
-                    Dim plc As HtmlElement = Nothing
-                    Try
-                        plc = CType(templatetag.FindElements(Of HtmlElement)(Function(x) x.Name.ToLower = "nocontent").FirstOrDefault, HtmlElement)
-                    Catch
-                    End Try
-                    If plc IsNot Nothing Then
-                        Dim conteudo = ""
-                        If plc.HasAttribute("file") AndAlso plc.Attribute("file").IsNotBlank Then
-                            conteudo = GetTemplateContent(plc.Attribute("file"))
-                        Else
-                            conteudo = plc.InnerHTML.HtmlDecode
+
+
+
+                        Dim sql = ""
+                        Dim el_sql = CType(templatetag.Nodes.GetElementsByTagName("sql").FirstOrDefault, HtmlElement)
+                        If el_sql IsNot Nothing Then
+                            If el_sql.HasAttribute("file") AndAlso el_sql.Attribute("file").IsNotBlank Then
+                                sql = GetCommand(el_sql.Attribute("file"))
+                            Else
+                                sql = el_sql.InnerHTML.HtmlDecode
+                            End If
+                            el_sql.Destroy()
                         End If
-                        If plc.HasAttribute("renderas") Then
+
+
+
+                        Dim source = ""
+                        Dim pg As Integer = 0
+                        Dim n_item As Integer = 0
+                        Dim el_source = CType(templatetag.Nodes.GetElementsByTagName("property").FirstOrDefault, HtmlElement)
+                        If el_source IsNot Nothing Then
+                            If el_source.HasAttribute("name") AndAlso el_source.Attribute("name").IsNotBlank Then
+                                source = el_source.Attribute("name")
+                                Try
+                                    pg = el_source.Attribute("page")
+                                Catch ex As Exception
+                                End Try
+                                Try
+                                    n_item = el_source.Attribute("size")
+                                Catch ex As Exception
+                                End Try
+                            End If
+                            el_source.Destroy()
+                        End If
+
+
+                        Dim lista As IEnumerable(Of Object) = Nothing
+
+
+                        If sql.IsNotBlank Then
+                            lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo, {})
+                        End If
+
+                        If source.IsNotBlank Then
+                            Dim classe As IEnumerable(Of Object) = ClassTools.GetPropertyValue(item, source)
+                            If classe.Count > 0 AndAlso conteudo.IsBlank Then
+                                conteudo = GetTemplate(classe(0).GetType, True)
+                            End If
+                            lista = ApplyTemplate(Of Object)(classe.AsQueryable, conteudo, pg, n_item)
+                        End If
+
+                        If lista Is Nothing Then
+                            Throw New NullReferenceException("Property tag or SQL tag not specified in template.")
+                        End If
+
+                        conteudo = lista.ToString
+                        If templatetag.HasAttribute("renderas") Then
                             templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
                             templatetag.InnerHTML = conteudo
                         Else
                             templatetag.Mutate(conteudo)
                         End If
-                    Else
-                            templatetag.Destroy()
                     End If
+                Catch ex As Exception
+                    templatetag.Destroy()
                 End Try
             Next
         End Sub
@@ -478,24 +482,30 @@ Namespace LINQ
         ''' <typeparam name="T"></typeparam>
         ''' <returns></returns>
         Function GetTemplate(Of T As Class)(Optional ProcessFile As Boolean = False) As String
+            Return GetTemplate(GetType(T), ProcessFile)
+        End Function
+
+        Function GetTemplate(Type As Type, Optional ProcessFile As Boolean = False) As String
             Dim tmp = ""
-            If GetType(T).HasProperty("TriforceTemplate") Then
-                tmp = Activator.CreateInstance(Of T).GetPropertyValue("TriforceTemplate").ToString
+
+            If Type.HasProperty("TriforceTemplate") Then
+                tmp = ClassTools.GetPropertyValue(Activator.CreateInstance(Type), "TriforceTemplate").ToString
                 If tmp.IsBlank Then
-                    tmp = MapType(GetType(T))
+                    tmp = MapType(Type)
                 End If
             Else
-                tmp = MapType(GetType(T))
+                tmp = MapType(Type)
             End If
             If tmp.IsNotBlank Then
                 If ProcessFile Then
                     tmp = GetTemplateContent(tmp)
                 End If
             Else
-                Throw New FileNotFoundException("Template not found in Triforce MapType or 'TriforceTemplate' property in class " & GetType(T).Name.Quote)
+                Throw New FileNotFoundException("Template not found in Triforce MapType or 'TriforceTemplate' property in class " & Type.Name.Quote)
             End If
             Return tmp
         End Function
+
 
         ''' <summary>
         ''' Configura um arquivo de template para um tipo especifico de objeto. 
@@ -556,8 +566,8 @@ Namespace LINQ
             TravesseAndReplace(doc.Nodes, CustomValues)
 
             'processa subtemplates
-            'este nao tem 
-            ProccessSubClass(Item, doc)
+            Me.ProcessSubTemplate(Item, doc)
+
 
             doc = New HtmlDocument(ClearValues(doc.ToString))
             'processar logica
@@ -712,21 +722,76 @@ Namespace LINQ
 
 #Region "Processors"
 
+        Friend Overridable Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
 
-        Friend Sub ProccessSubClass(Of T As Class)(item As T, doc As HtmlDocument)
-            Dim lista = doc.Nodes.GetElementsByAttributeName("triforce-source", True)
-            For index = 0 To lista.Count - 1
-                Dim conditiontag As HtmlElement = lista(index)
-                If conditiontag.HasAttribute("disabled") Then
-                    conditiontag.Destroy()
+            Dim listat = doc.Nodes.GetElementsByTagName("template", True)
+            For index = 0 To listat.Count - 1
+                Dim templatetag As HtmlElement = listat(index)
+                If templatetag.HasAttribute("disabled") Then
+                    templatetag.Destroy()
                     Continue For
                 End If
                 Try
-                    Dim classe As IEnumerable(Of Object) = ClassTools.GetPropertyValue(item, conditiontag.Attribute("triforce-source"))
-                    Dim template = conditiontag.InnerHTML
-                    ApplyTemplate(Of Object)(classe, template, 0, 0)
+                    If templatetag.Name = "template" Then
+
+                        Dim conteudo = ""
+                        Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
+                        If el_cont IsNot Nothing Then
+                            If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
+                                conteudo = GetTemplateContent(el_cont.Attribute("file"))
+                            Else
+                                conteudo = el_cont.InnerHTML.HtmlDecode
+                            End If
+                            el_cont.Destroy()
+                        End If
+
+
+                        Dim source = ""
+                        Dim pg As Integer = 0
+                        Dim n_item As Integer = 0
+                        Dim el_source = CType(templatetag.Nodes.GetElementsByTagName("property").FirstOrDefault, HtmlElement)
+                        If el_source IsNot Nothing Then
+                            If el_source.HasAttribute("name") AndAlso el_source.Attribute("name").IsNotBlank Then
+                                source = el_source.Attribute("name")
+                                Try
+                                    pg = el_source.Attribute("page")
+                                Catch ex As Exception
+                                End Try
+                                Try
+                                    n_item = el_source.Attribute("size")
+                                Catch ex As Exception
+                                End Try
+                            End If
+                            el_source.Destroy()
+                        End If
+
+
+
+
+                        Dim lista As IEnumerable(Of Object) = Nothing
+
+                        If source.IsNotBlank Then
+                            Dim classe As IEnumerable(Of Object) = ClassTools.GetPropertyValue(item, source)
+                            If classe.Count > 0 AndAlso conteudo.IsBlank Then
+                                conteudo = GetTemplate(classe(0).GetType, True)
+                            End If
+                            lista = ApplyTemplate(Of Object)(classe, conteudo, pg, n_item)
+                        End If
+
+                        If lista Is Nothing Then
+                            Throw New NullReferenceException("Property tag not specified in template.")
+                        End If
+
+                        conteudo = lista.ToString
+                        If templatetag.HasAttribute("renderas") Then
+                            templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
+                            templatetag.InnerHTML = conteudo
+                        Else
+                            templatetag.Mutate(conteudo)
+                        End If
+                    End If
                 Catch ex As Exception
-                    conditiontag.Destroy()
+                    templatetag.Destroy()
                 End Try
             Next
         End Sub
