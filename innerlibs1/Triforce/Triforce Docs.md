@@ -199,17 +199,25 @@ Cada uma para um tipo de objeto diferente ou situaçao especifica, entre elas:
 ```
 
 
-
-
-O metodo `ApplyTemplate` tem suporte nativo a paginação de coleções do tipo IQueryable e IEnumerable. Basta passar os parametro opcionais de Pagina e tamanho da pagina:
+OBS.: O metodo `ApplyTemplate` tem suporte nativo a paginação de coleções do tipo IQueryable e IEnumerable. Basta passar os parametro opcionais de Pagina e tamanho da pagina:
 
 ```vb
 
  'considere a variavel colecao como um IEnumerable(Of NomeClasse) ou IQueryable(Of NomeClasse)  
 
-  Dim lista as TemplateList(Of NomeClasse) = Engine.ApplyTemplate(Of NomeClasse)(colecao)
-
+  Dim lista as TemplateList(Of NomeClasse) = Engine.ApplyTemplate(Of NomeClasse)(colecao,"nome_template.html",1,10)
+  'Aqui teremos uma TemplateList representando a pagina 1, com 10 elementos.
+  'O Segundo parametro pode ser passado como Nulo, vazio ou em branco se o template estiver definido na propriedade TriforceTemplate da classe NomeClasse.
 
 ```
 
 
+### Utilizando as TriforceTags para criar templates dinâmicos
+
+O Triforce possui a capacidade de interpretar algumas expressões simples e processar tags específicas de um template. São Elas:
+
+- Tag Repeat - Repete seu conteudo X vezes, igual a um `For` porém sem uma coleção para iterar.
+- Tag Switch - Realiza operações de Switch Case diretamente no template,  permitindo conteúdos diferentes no template dependendo das condições.
+- Tag If - Realiza operações de If Else diretamente no template, permitindo conteúdos diferentes no template dependendo das condições.
+- Tag Condition - Realiza operação If Else. Diferente da tag If, esta se auto-destrói quando a condiçao não for atendida.
+- Tag Template - Permite que um template tenha subtemplates (ideal para mostrar relações de entidade). As regras desta tag são as mesmas de um template Pai (permite Head, Body, Footer, Empty e Pagination). Pode ser aplicado a partir de uma propriedade da classe do template pai ou diretamente de uma Query SQL.
