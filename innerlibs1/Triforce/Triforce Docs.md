@@ -43,17 +43,19 @@ Declarando um objeto Triforce utilizando um Diretório (`DirectoryInfo`)
 
 Dim dir as new DirectoryInfo("e:\exemplo\templates")
 
-Dim Engine as new Triforce(Of SeuDataContext)(dir)
+Dim Engine as new Triforce(Of   SeuDataContext)(dir)
 
 ```
 
-
+ 
 Declarando um objeto Triforce utilizando um Assembly
 ```vb 
 
 Dim Engine as new Triforce(Of SeuDataContext)(Assembly.GetCurrentExecutionAssembly())
 
 ```
+
+**ATENÇÃO Não esqueça de marcar alterar o Build Action arquivo .html e .sql para Embedded Resource caso esteja usando o método de Assembly**      
 
 OBS.: Lembre-se de substituir o `SeuDataContext` pelo nome gerado pelo Visual Studio usando o assistente do LINQ to SQL.
 
