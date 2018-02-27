@@ -66,7 +66,8 @@ Public Partial Class NomeClasse
     Public Property Prop1 as String
     Public Property Prop2 as String
 
-    'Esta propriedade define qual arquivo de template é aplicado para esta classe
+    'Esta propriedade define qual arquivo de template é aplicado para esta classe.
+    'Voce também pode criar a string do template diretamente aqui, desde que ela contenha no minimo 1 tag ou até mesmo criar um XmlNode ou HtmlDocument (da própria Innerlibs)
     Public Property TriforceTemplate as String = "template_usuario.html"
 
 End Class
