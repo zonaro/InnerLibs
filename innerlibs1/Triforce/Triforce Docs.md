@@ -1,6 +1,8 @@
 ﻿ 
 
-![Logo Triforce](http://innercode.com.br/wp-content/uploads/2018/02/g4595.png =50x)
+ 
+<center><img src="http://innercode.com.br/wp-content/uploads/2018/02/g4595.png" style="width:50%"></center>
+<br>
 
 # Triforce For LINQ
 
