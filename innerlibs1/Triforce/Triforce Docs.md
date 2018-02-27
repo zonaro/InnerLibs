@@ -1,4 +1,8 @@
-﻿ # Triforce For LINQ
+﻿ 
+
+![Logo Triforce](http://innercode.com.br/wp-content/uploads/2018/02/g4595.png =50x)
+
+# Triforce For LINQ
 
 
 ##### Criação de HTML dinâmico a partir de coleções e arquivos HTML estáticos. Pode operar com ou sem um banco de dados. 
