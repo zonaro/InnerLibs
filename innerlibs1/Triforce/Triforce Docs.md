@@ -1,7 +1,7 @@
 ﻿ 
 
  
-<center><img src="http://innercode.com.br/wp-content/uploads/2018/02/g4595.png" style="width:50%"></center>
+<center><img src="http://innercode.com.br/wp-content/uploads/2018/02/g4595.png" style="width:40%"></center>
 <br>
 
 # Triforce For LINQ
