@@ -1084,7 +1084,9 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property ProcessedTemplate As HtmlDocument
 
-
+        Public Overrides Function ToString() As String
+            Return Me.ProcessedTemplate.ToString
+        End Function
 
     End Class
 
