@@ -156,7 +156,7 @@
     <Compile Include="JsonViewer.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="LinqPagination.vb" />
-    <Compile Include="LINQTemplatizer.vb" />
+    <Compile Include="Triforce\LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />
     <Compile Include="RiotAPI.vb" />
@@ -240,6 +240,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="Triforce\Triforce Docs.md" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
