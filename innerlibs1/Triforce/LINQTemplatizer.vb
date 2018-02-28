@@ -1280,7 +1280,7 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property PageCount As Integer
             Get
-                Return (Total / PageSize).ChangeType(Of Decimal).Ceil
+                Return (Total / PageSize).Ceil
             End Get
         End Property
 
@@ -1299,10 +1299,10 @@ Namespace LINQ
         Public Function BuildHtml() As HtmlDocument
             Dim html As String = ""
             For Each i In Me
-                html &= i.ProcessedTemplate.ToString
+                html &= i.ToString
             Next
-            Dim pg = "" & Pagination
-            Return New HtmlDocument(Head.Replace("#_PAGINATION_#", pg) & html.IfBlank(Empty) & Footer.Replace("#_PAGINATION_#", pg))
+            html = html.Trim.IfBlank(Empty)
+            Return New HtmlDocument(Head.Replace("#_PAGINATION_#", Pagination) & html & Footer.Replace("#_PAGINATION_#", Pagination))
         End Function
 
         Public Shared Widening Operator CType(v As TemplateList(Of T)) As String
