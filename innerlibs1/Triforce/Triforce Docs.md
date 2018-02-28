@@ -179,18 +179,35 @@ processado de cada item-->
 
 ```
 
+### Templates De Multiplos Arquivos
+
+Em certos casos, você pode re-utilizar o Head, Footer, Empty ou Pagination de outro template. Você apenas precisa indicar qual usando o Atributo `file` na tag correspondente
+
+```html
+
+<head file="cabecalho.html" />
+<body>
+ <!--conteudo do body-->
+</body>
+<footer file="rodape.html" />
+<empty file="vazio.html" />
+<pagination file="paginacao.html">
+
+
+```
+
 ### Entendendo o Template de Paginação (Tag)
 
 #### SubTags
-É a base para todos os botões de paginacão. É gerado a partir de tags simples:
+É a base para todos os botões de paginacão. É gerado a partir de Subtags:
 
-- First - Representa o botão de "pular para o primeiro"
-- Back - Representa o botão de "voltar uma página"
-- Page - Representa o botão de uma página especifica
+- Tag First - Representa o botão de "pular para o primeiro"
+- Tag  Back - Representa o botão de "voltar uma página"
+- Tag Page - Representa o botão de uma página especifica
     - Atributo **Limit** - Indica quantas paginas devem ser exibidas. incuindo a pagina ativa (que ficará na maioria das vezes, no meio)
-- Active - Representa o botão da página ativa.
-- Next - Representa o botão de "avançar uma página"
-- Last - Representa o botão de "pular para o ultimo"
+- Tag Active - Representa o botão da página ativa.
+- Tag Next - Representa o botão de "avançar uma página"
+- Tag Last - Representa o botão de "pular para o ultimo"
 
 #### Marcação
 

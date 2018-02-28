@@ -146,38 +146,14 @@ Namespace LINQ
         Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
-            PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
             Dim l As New List(Of Template(Of T))
             If total > 0 Then
-                Dim ll = List.Page(PageNumber, PageSize)
-                For Each item As T In ll
-                    l.Add(MyBase.ApplyTemplate(Of T)(CType(item, T), Template))
+                PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
+                For Each item As T In List.Page(PageNumber, PageSize)
+                    l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template))
                 Next
             End If
-
-            Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
-            Try
-                tpl.Head = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "head"))
-            Catch ex As Exception
-                Debug.WriteLine(ex)
-            End Try
-            Try
-                tpl.Footer = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "footer"))
-            Catch ex As Exception
-                Debug.WriteLine(ex)
-            End Try
-            Try
-                tpl.Empty = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "empty"))
-            Catch ex As Exception
-                Debug.WriteLine(ex)
-            End Try
-
-            Try
-                tpl.Pagination = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "pagination"))
-            Catch ex As Exception
-                Debug.WriteLine(ex)
-            End Try
-            Return tpl
+            Return CreateTemplateList(Template, l, PageSize, PageNumber, total)
         End Function
 
         ''' <summary>
@@ -603,8 +579,11 @@ Namespace LINQ
                     l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template))
                 Next
             End If
+            Return CreateTemplateList(Template, l, PageSize, PageNumber, total)
+        End Function
 
-            Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
+        Friend Function CreateTemplateList(Of T As Class)(Template As String, l As List(Of Template(Of T)), PageSize As Integer, PageNumber As Integer, Total As Integer) As TemplateList(Of T)
+            Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, Total)
             Try
                 tpl.Head = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "head"))
             Catch ex As Exception
@@ -620,7 +599,6 @@ Namespace LINQ
             Catch ex As Exception
                 Debug.WriteLine(ex)
             End Try
-
             Try
                 tpl.Pagination = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "pagination"))
             Catch ex As Exception
@@ -655,13 +633,23 @@ Namespace LINQ
                     Select Case Tag
                         Case "body"
                             Try
-                                Return CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement).InnerHTML
+                                Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
+                                If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
+                                    Return GetTemplateContent(el.Attribute("file"), Tag)
+                                Else
+                                    Return el.InnerHTML
+                                End If
                             Catch ex As Exception
                                 Return TemplateFile
                             End Try
                         Case Else
                             Try
-                                Return CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                                Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
+                                If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
+                                    Return GetTemplateContent(el.Attribute("file"), Tag)
+                                Else
+                                    Return el.InnerHTML
+                                End If
                             Catch ex As Exception
                                 Return ""
                             End Try
@@ -1123,6 +1111,7 @@ Namespace LINQ
                 Dim active As HtmlElement = Nothing
                 Dim back As HtmlElement = Nothing
                 Dim nex As HtmlElement = Nothing
+
                 Try
                     page = p.Nodes.GetElementsByTagName("page").First
                 Catch ex As Exception
