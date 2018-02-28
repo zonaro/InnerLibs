@@ -148,10 +148,13 @@ Namespace LINQ
             If PageSize < 1 Then PageSize = total
             PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
             Dim l As New List(Of Template(Of T))
-            Dim ll = List.Page(PageNumber, PageSize)
-            For Each item As T In ll
-                l.Add(MyBase.ApplyTemplate(Of T)(CType(item, T), Template))
-            Next
+            If total > 0 Then
+                Dim ll = List.Page(PageNumber, PageSize)
+                For Each item As T In ll
+                    l.Add(MyBase.ApplyTemplate(Of T)(CType(item, T), Template))
+                Next
+            End If
+
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, total)
             Try
                 tpl.Head = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "head"))
@@ -1158,11 +1161,11 @@ Namespace LINQ
                     End If
 
                     Dim dic As New Dictionary(Of String, String)
-                    dic("##ACTIVEPAGE##") = PageNumber
-                    dic("##PAGE##") = PageNumber
-                    dic("##COUNT##") = PageCount
-                    dic("##SIZE##") = PageSize
-                    dic("##TOTAL##") = Total
+                    dic("##ActivePage##") = PageNumber
+                    dic("##PageNumber##") = PageNumber
+                    dic("##PageCount##") = PageCount
+                    dic("##PageSize##") = PageSize
+                    dic("##Total##") = Total
 
                     Dim beforeafter As Decimal = (limit - 1) / 2
                     If beforeafter.IsOdd Then beforeafter = (beforeafter + 1).Floor
@@ -1175,25 +1178,25 @@ Namespace LINQ
                         after = after + 1
 
                         If before > 1 And before < PageCount Then
-                            dic("##PAGE##") = before
+                            dic("##PageNumber##") = before
                             pagestring.Prepend(page.InnerHTML.Replace(dic))
                         End If
 
                         If after > 1 And after < PageCount Then
-                            dic("##PAGE##") = after
+                            dic("##PageNumber##") = after
                             pagestring.Append(page.InnerHTML.Replace(dic))
                         End If
                     Next
-                    dic("##PAGE##") = PageNumber - 1
+                    dic("##PageNumber##") = PageNumber - 1
                     pagestring.PrependIf(back.InnerHTML.Replace(dic), back IsNot Nothing AndAlso PageNumber > 1)
 
-                    dic("##PAGE##") = 1
+                    dic("##PageNumber##") = 1
                     pagestring.PrependIf(first.InnerHTML.Replace(dic), PageNumber > 1)
 
-                    dic("##PAGE##") = PageNumber + 1
+                    dic("##PageNumber##") = PageNumber + 1
                     pagestring.AppendIf(nex.InnerHTML.Replace(dic), nex IsNot Nothing AndAlso PageNumber < PageCount)
 
-                    dic("##PAGE##") = PageCount
+                    dic("##PageNumber##") = PageCount
                     pagestring.AppendIf(last.InnerHTML.Replace(dic), PageNumber < PageCount)
 
                     paginationdoc.Nodes.GetElementsByTagName("page").First.Parent.InnerHTML = pagestring

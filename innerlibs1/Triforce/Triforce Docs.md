@@ -145,32 +145,32 @@ processado de cada item-->
 <pagination>
     <div class="paginas">
         <div>
-            Exibindo pagina ##ACTIVEPAGE## de ##COUNT## / ##SIZE## resultados de ##TOTAL##
+            Exibindo pagina ##ActivePage## de ##PageCount## / ##PageSize## resultados de ##Total##
         </div>
         <div>
             <!--primeiro elemento da paginacao-->
             <first>
-                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-left"></i><i class="fa fa-arrow-left"></i></a>
+                <a href="/caminho?PAGINA=##PageNumber##" class="btn"><i class="fa fa-arrow-left"></i><i class="fa fa-arrow-left"></i></a>
             </first>
             <!--elemento anterior da paginacao-->
             <back>
-                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-left"></i></a>
+                <a href="/caminho?PAGINA=##PageNumber##" class="btn"><i class="fa fa-arrow-left"></i></a>
             </back>
             <!--elemento replicado para cada pagina, atributo limit é o numero de paginas visiveis na paginacao-->
             <page limit="5">
-                <a href="/caminho?PAGINA=##PAGE##" class="btn">##PAGE##</a>
+                <a href="/caminho?PAGINA=##PageNumber##" class="btn">##PageNumber##</a>
             </page>
             <!--elemento ativo da paginacao (pagina atual)-->
             <active>
-                <a href="/caminho?PAGINA=##PAGE##" class="btn active">##PAGE##</a>
+                <a href="/caminho?PAGINA=##PageNumber##" class="btn active">##PageNumber##</a>
             </active>
             <!--elemento proximo da paginacao-->
             <next>
-                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-right"></i></a>
+                <a href="/caminho?PAGINA=##PageNumber##" class="btn"><i class="fa fa-arrow-right"></i></a>
             </next>
             <!--ultimo elemento da paginacao-->
             <last>
-                <a href="/caminho?PAGINA=##PAGE##" class="btn"><i class="fa fa-arrow-right"></i><i class="fa fa-arrow-right"></i></a>
+                <a href="/caminho?PAGINA=##PageNumber##" class="btn"><i class="fa fa-arrow-right"></i><i class="fa fa-arrow-right"></i></a>
             </last>
         </div>
     </div>
@@ -194,12 +194,11 @@ processado de cada item-->
 
 #### Marcação
 
- - ##PAGE## - Será trocado pelo numero da página correspondente (Usando o index da iteração)
- - ##ACTIVEPAGE## - Será trocado pelo numero da página atual. (ignorando completamente a Iteração)
- - ##COUNT## - Será trocado pelo número total de páginas.
- - ##TOTAL## Será trocado pelo número total de resultados.
- - ##SIZE## Será trocado pelo tamanho da página (numero de itens por página).
-
+ - ##PageNumber## - Será trocado pelo numero da página correspondente (Usando o index da iteração)
+ - ##ActivePage## - Será trocado pelo numero da página atual. (ignorando completamente a Iteração)
+ - ##PageCount## - Será trocado pelo número total de páginas.
+ - ##PageSize## Será trocado pelo tamanho da página (numero de itens por página).
+ - ##Total## Será trocado pelo número total de resultados.
 
 
 
@@ -213,8 +212,8 @@ Cada uma para um tipo de objeto diferente ou situaçao especifica, entre elas:
 
 
 
- - Aplicar um template a um objeto IEnumerable(of Tipo) - coleções estáticas
- - Aplicar um template a um objeto IQueryable(of Tipo) - coleções que normalmente vem do banco de dados
+ - Aplicar um template a um objeto IEnumerable(Of NomeClasse) - coleções estáticas
+ - Aplicar um template a um objeto IQueryable(Of NomeClasse) - coleções que normalmente vem do banco de dados
 
 ```vb
 
@@ -275,7 +274,7 @@ OBS.: O metodo `ApplyTemplate` tem suporte nativo a paginação de coleções do
 São classes que guardam os templates após o processamento. Elas recebem também o tipo da coleção.
 
 
-##### Template(Of Tipo)
+##### Template(Of NomeClasse)
 
 Possui 2 Propriedades:
 
@@ -286,9 +285,9 @@ Possui 2 Propriedades:
 OBS.: Utilize a função ToString para retornar uma string HTML deste template
 
 
-##### TemplateList(Of Tipo)
+##### TemplateList(Of NomeClasse)
 
-É uma coleçao somente leitura que guarda varios Template(of Tipo) e dá acesso a algumas propriedades e funcões.
+É uma coleçao somente leitura que guarda varios Template(Of NomeClasse) e dá acesso a algumas propriedades e funções.
 
 Possui 8 Propriedades:
 
@@ -299,7 +298,7 @@ Possui 8 Propriedades:
  - PageSize - QUantidade de itens por página.
  - PageNumber - Número da página atual.
  - Total - Total de itens encontrados na coleção.
- - PageCount - QUantidade total de páginas.
+ - PageCount - Quantidade total de páginas.
 
 
 
