@@ -347,7 +347,7 @@ O Triforce possui a capacidade de interpretar algumas expressões simples e proc
 - Tag If - Realiza operações de If Else diretamente no template, permitindo conteúdos diferentes no template dependendo das condições.
 - Tag Condition - Realiza operação If Else. Diferente da tag If, esta se auto-destrói quando a condiçao não for atendida.
 - Tag Template - Permite que um template tenha subtemplates (ideal para mostrar relações de entidade). As regras desta tag são as mesmas de um template Pai (permite Head, Body, Footer, Empty e Pagination). Pode ser aplicado a partir de uma propriedade da classe do template pai ou diretamente de uma Query SQL.
-
+- Tag Get - Realiza uma requisição do tipo GET e insere conteudo HTML externo diretamente no template.
 
 OBS.: Todas as tags podem ser renderizadas como uma Tag HML comum ou podem simplesmente serem substituidas pelo seu conteudo processado.
 
@@ -376,9 +376,32 @@ OBS.: Todas as tags podem ser renderizadas como uma Tag HML comum ou podem simpl
 
 ```
 
+#### Tag Get
+
+ - Atributo **URL** - Url de onde será extraido o HTML
+ - Atributo **Selector** - Quando especificado, busca elementos usando um CssSelector dentro do documento, retornando apenas o HTML destes.
+
+
+##### Aplicação no Body do Template
+
+```html
+
+<get url="http://teste.com" selector=".teste" />
+<!--retornará o HTML concatenado de todos os elementos que possuirem a classe "teste" na ordem que forem encontrados-->
+ 
+
+```
 
 #### Tag Repeat
 
+ - Atributo **value** - Numero de vezes que será repetido seu conteudo
+
+##### Marcação
+
+ - _\_index_ - Será substituido pelo numero da replicacao atual (começando por 1)
+ 
+
+##### Aplicação no Body do Template
 ```html
 
 <repeat value="2" renderas="ul">
@@ -418,7 +441,7 @@ OBS.: Todas as tags podem ser renderizadas como uma Tag HML comum ou podem simpl
     </switch>
 
 ```
-#### Tag Switch
+#### Tag If
 
 ##### SubTags
 

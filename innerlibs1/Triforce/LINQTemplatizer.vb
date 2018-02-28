@@ -540,6 +540,8 @@ Namespace LINQ
 
             Dim doc = New HtmlDocument(GetTemplateContent(Template))
 
+            ProccessGet(doc)
+
             'replace nos valores
             TravesseAndReplace(doc.Nodes, Item)
             TravesseAndReplace(doc.Nodes, CustomValues)
@@ -549,11 +551,13 @@ Namespace LINQ
 
 
             doc = New HtmlDocument(ClearValues(doc.ToString))
+
             'processar logica
             ProccessConditions(Item, doc)
             ProccessSwitch(Item, doc)
             ProccessIf(Item, doc)
             ProcessRepeat(doc)
+
 
             Return New Template(Of T)(Item, doc.ToString)
         End Function
@@ -783,6 +787,40 @@ Namespace LINQ
                     End If
                 Catch ex As Exception
                     templatetag.Destroy()
+                End Try
+            Next
+        End Sub
+
+
+        Friend Sub ProccessGet(doc As HtmlDocument)
+
+            Dim lista = doc.Nodes.GetElementsByTagName("get", True)
+            For index = 0 To lista.Count - 1
+                Dim conditiontag As HtmlElement = lista(index)
+                If conditiontag.HasAttribute("disabled") Then
+                    conditiontag.Destroy()
+                    Continue For
+                End If
+                Try
+                    If conditiontag.Name = "get" Then
+                        Dim contenttag As String = ""
+                        If conditiontag.HasAttribute("url") AndAlso conditiontag.Attribute("url").IsURL Then
+                            If conditiontag.HasAttribute("selector") AndAlso conditiontag.Attribute("selector").IsNotBlank Then
+                                contenttag = New HtmlDocument(conditiontag.Attribute("url")).Nodes(conditiontag.Attribute("selector")).Select(Function(x) x.HTML).Join("")
+                            Else
+                                contenttag = New HtmlDocument(conditiontag.Attribute("url")).HTML
+                            End If
+                        End If
+
+                        If conditiontag.HasAttribute("renderas") Then
+                            conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
+                            conditiontag.InnerHTML = contenttag
+                        Else
+                            conditiontag.Mutate(contenttag)
+                        End If
+                    End If
+                Catch ex As Exception
+                    conditiontag.Destroy()
                 End Try
             Next
         End Sub
