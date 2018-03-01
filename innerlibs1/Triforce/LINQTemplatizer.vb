@@ -588,25 +588,25 @@ Namespace LINQ
 
         Friend Function CreateTemplateList(Of T As Class)(Template As String, l As List(Of Template(Of T)), PageSize As Integer, PageNumber As Integer, Total As Integer) As TemplateList(Of T)
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, Total)
+            If Template.IsBlank Then
+                Template = GetTemplate(Of T)()
+            End If
+
             Try
                 tpl.Head = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "head"))
             Catch ex As Exception
-                Debug.WriteLine(ex)
             End Try
             Try
                 tpl.Footer = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "footer"))
             Catch ex As Exception
-                Debug.WriteLine(ex)
             End Try
             Try
                 tpl.Empty = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "empty"))
             Catch ex As Exception
-                Debug.WriteLine(ex)
             End Try
             Try
                 tpl.Pagination = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "pagination"))
             Catch ex As Exception
-                Debug.WriteLine(ex)
             End Try
             Return tpl
         End Function
@@ -1298,11 +1298,14 @@ Namespace LINQ
         ''' <returns></returns>
         Public Function BuildHtml() As HtmlDocument
             Dim html As String = ""
-            For Each i In Me
-                html &= i.ToString
-            Next
-            html = html.Trim.IfBlank(Empty)
-            Return New HtmlDocument(Head.Replace("#_PAGINATION_#", Pagination) & html & Footer.Replace("#_PAGINATION_#", Pagination))
+            If Me.Count > 0 Then
+                For Each i In Me
+                    html &= i.ToString
+                Next
+            Else
+                html = Empty
+            End If
+            Return New HtmlDocument(Head.Replace("#_PAGINATION_#", Pagination) & html.IfBlank(Empty) & Footer.Replace("#_PAGINATION_#", Pagination))
         End Function
 
         Public Shared Widening Operator CType(v As TemplateList(Of T)) As String

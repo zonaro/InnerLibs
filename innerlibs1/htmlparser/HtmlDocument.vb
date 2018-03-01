@@ -35,11 +35,11 @@ Namespace HtmlParser
             Build(Source.ToString, WantSpaces, Encoding)
         End Sub
 
-        Private Sub Build(Optional UrlOrHTMLString As String = "", Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
+        Private Sub Build(Optional UrlOrHTMLString As String = Nothing, Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
             If Encoding IsNot Nothing Then
                 Me.Encoding = Encoding
             End If
-            If UrlOrHTMLString.IsBlank Then
+            If UrlOrHTMLString Is Nothing Then
                 UrlOrHTMLString = Html5Structure
             End If
             If UrlOrHTMLString.IsURL Then

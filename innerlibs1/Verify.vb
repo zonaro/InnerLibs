@@ -268,7 +268,21 @@ Public Module Verify
                 Case GetType(String)
                     blankas = Value.ToString.IsBlank
                 Case GetType(Long), GetType(Integer), GetType(Decimal), GetType(Short), GetType(Double)
-                    blankas = Value.ToString.IsBlank Or Value.ToString.ChangeType(Of Double) = 0
+                    blankas = Value.ToString.IsBlank OrElse Value.ToString.ChangeType(Of Double) = 0
+                Case GetType(Date?)
+                    blankas = Not CType(Value, Date?).HasValue
+                Case GetType(Integer?)
+                    blankas = Not CType(Value, Integer?).HasValue
+                Case GetType(Double?)
+                    blankas = Not CType(Value, Double?).HasValue
+                Case GetType(Long?)
+                    blankas = Not CType(Value, Long?).HasValue
+                Case GetType(Decimal?)
+                    blankas = Not CType(Value, Decimal?).HasValue
+                Case GetType(Short?)
+                    blankas = Not CType(Value, Short?).HasValue
+                Case GetType(Money)
+                    blankas = CType(Value, Money).Value = 0
                 Case GetType(DateTime)
                     blankas = (Value = DateTime.MinValue)
                 Case GetType(TimeSpan)
