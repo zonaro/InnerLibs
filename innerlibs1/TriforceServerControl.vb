@@ -161,19 +161,6 @@ Namespace LINQ
             _s = l.ToString
         End Sub
 
-        ''' <summary>
-        ''' Processa uma <see cref="System.Data.Linq.Table(Of TEntity)"/> usando um <see name="LINQ.Triforce"/> e um <paramref name="predicate"/> como filtro
-        ''' </summary>
-        ''' <typeparam name="Entity">Tipo do objeto</typeparam>
-        ''' <param name="predicate">filtro do processamento</param>
-
-        Public Sub BuildFrom(Of Entity As Class)(Optional predicate As System.Linq.Expressions.Expression(Of Func(Of Entity, Boolean)) = Nothing)
-            Me.PageNumber = Page.Request(PageParameter).IfBlank(1).SetMinValue(1)
-            Dim l = TriforceEngine.ApplyTemplate(Of Entity)(TriforceEngine.GetTemplate(Of Entity), predicate, PageNumber, PageSize)
-            _s = l.ToString
-        End Sub
-
-
 
         Protected Overrides Sub RenderContents(ByVal output As HtmlTextWriter)
             output.Write(_s)

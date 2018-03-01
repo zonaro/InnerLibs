@@ -499,20 +499,6 @@ Namespace LINQ
 
 
 
-
-
-        ''' <summary>
-        ''' Aplica um template a uma busca determinada pelo tipo de objeto
-        ''' </summary>
-        ''' <typeparam name="T">Tipo de objeto</typeparam>
-        ''' <param name="PageNumber">Pagina atual</param>
-        ''' <param name="PageSize">Numero de itens por pagina</param>
-        ''' <param name="predicade">Filtro da busca</param>
-        ''' <returns></returns>
-        Public Overridable Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
-            Throw New NotImplementedException("This function works only with LINQ to SQL")
-        End Function
-
         ''' <summary>
         ''' Aplica um template HTML a um unico objeto
         ''' </summary>
