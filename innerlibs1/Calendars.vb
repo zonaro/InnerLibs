@@ -82,8 +82,9 @@ Public Module Calendars
     ''' <param name="UseTomorrow">Verifica se o aniversario é Amanha</param>
     ''' <returns></returns>
     <Extension>
-    Public Function IsAnniversary(BirthDate As Date, Optional UseTomorrow As Boolean = False) As Boolean
-        Return If(UseTomorrow, (BirthDate.Day & "/" & BirthDate.Month) = (Tomorrow.Day & "/" & Tomorrow.Month), (BirthDate.Day & "/" & BirthDate.Month) = (DateTime.Today.Day & "/" & DateTime.Today.Month))
+    Public Function IsAnniversary(BirthDate As Date, Optional CompareWith As Date? = Nothing) As Boolean
+        If Not CompareWith.HasValue Then CompareWith = Today
+        Return (BirthDate.Day & "/" & BirthDate.Month) = (CompareWith.Value.Day & "/" & CompareWith.Value.Month)
     End Function
 
     ''' <summary>

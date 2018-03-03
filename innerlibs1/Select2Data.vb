@@ -159,7 +159,7 @@ Namespace Select2Data
         ''' Serializa um Json para o Select2
         ''' </summary>
         ''' <returns></returns>
-        Public Function toJSON()
+        Public Function ToJSON() As String
             Return Json.SerializeJSON(Me)
         End Function
 

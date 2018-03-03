@@ -139,7 +139,20 @@ Public NotInheritable Class Brasil
     ''' <param name="Month">Numero do Mês</param>
     ''' <returns></returns>
     Public Shared Function GetCelebrationByMonth(Month As Integer) As String()
-        Return Celebrations.Where(Function(x) x.Day = x.Month = Month).Select(Function(y) y.Description).ToArray
+        Return Celebrations.Where(Function(x) x.Month = Month).Select(Function(y) y.Description).ToArray
+    End Function
+
+    ''' <summary>
+    ''' Retorna todas as comemoracoes entre 2 datas
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared Function GetCelebrationBetween(FirstDate As Date, SecondDate As Date) As String()
+        Dim l = Calendars.GetBetween(FirstDate, SecondDate)
+        Dim ss As New List(Of String)
+        For Each i In l
+            ss.AddRange(GetCelebrationByDate(i))
+        Next
+        Return ss.Distinct.ToArray
     End Function
 
     ''' <summary>
