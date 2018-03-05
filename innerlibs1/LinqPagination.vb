@@ -49,7 +49,7 @@ Namespace LINQ
         ''' <param name="CreateIfNotExists">Se true, cria o objeto e coloca o status de INSERT pendente para este</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False) As T
+        Public Function GetByPrimaryKey(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal ID As PKType, Optional CreateIfNotExists As Boolean = False) As T
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
             Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
