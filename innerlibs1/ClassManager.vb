@@ -11,6 +11,11 @@ Imports InnerLibs.HtmlParser
 
 Public Module ClassTools
 
+
+    <Extension()>
+    Public Function AsIf(Of T)(Bool As Boolean, TrueValue As T, Optional FalseValue As T = Nothing) As T
+        Return If(Bool, TrueValue, FalseValue)
+    End Function
     ''' <summary>
     ''' Verifica se um tipo possui uma propriedade
     ''' </summary>
@@ -20,6 +25,7 @@ Public Module ClassTools
     <Extension()> Public Function HasProperty(Type As Type, Name As String) As Boolean
         Return Type.GetProperty(Name) IsNot Nothing
     End Function
+
     ''' <summary>
     ''' Verifica se um tipo possui uma propriedade
     ''' </summary>
