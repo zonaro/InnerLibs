@@ -127,12 +127,23 @@ Public Module ClassTools
         Dim l As New List(Of T?)
         l.Add(First)
         l.AddRange(N)
-        For Each item In l
+        If First IsNot Nothing Then Return First
+        Return NullCoalesce(Of T)(N)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+    ''' </summary>
+    ''' <typeparam name="T">Tipo</typeparam>
+    ''' <param name="List">Outros itens</param>
+    ''' <returns></returns>
+    <Extension()> Function NullCoalesce(Of T As Structure)(List As IEnumerable(Of T?)) As T
+        For Each item In List
             If item.HasValue Then
-                Return item
+                Return item.Value
             End If
         Next
-        Return Nothing
+        Return New Nullable(Of T)
     End Function
 
     ''' <summary>
@@ -146,7 +157,18 @@ Public Module ClassTools
         Dim l As New List(Of T)
         l.Add(First)
         l.AddRange(N)
-        For Each item In l
+        If First IsNot Nothing Then Return First
+        Return NullCoalesce(Of T)(N)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+    ''' </summary>
+    ''' <typeparam name="T">Tipo</typeparam>
+    ''' <param name="List">Outros itens</param>
+    ''' <returns></returns>
+    <Extension()> Function NullCoalesce(Of T As Class)(List As IEnumerable(Of T)) As T
+        For Each item In List
             If item IsNot Nothing Then
                 Return item
             End If
