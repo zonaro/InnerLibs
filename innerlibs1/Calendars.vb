@@ -145,9 +145,9 @@ Public Module Calendars
     <Extension()> Public Function IsBetween(MidDate As DateTime, StartDate As DateTime, EndDate As DateTime, Optional IgnoreTime As Boolean = False) As Boolean
         FixDateOrder(StartDate, EndDate)
         If IgnoreTime Then
-            Return StartDate.Date < MidDate.Date And MidDate.Date < EndDate.Date
+            Return StartDate.Date <= MidDate.Date And MidDate.Date <= EndDate.Date
         Else
-            Return StartDate < MidDate And MidDate < EndDate
+            Return StartDate <= MidDate And MidDate <= EndDate
         End If
     End Function
 

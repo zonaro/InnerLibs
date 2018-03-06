@@ -1,12 +1,108 @@
 ﻿Imports System.Collections.ObjectModel
-
+Imports InnerLibs.LINQ
 Namespace TimeMachine
+
+    Public Class FortnightGroup(Of DataType)
+        Inherits FortnightGroup
+
+        Property DataCollection As New List(Of DataType)
+
+        Property StartDateSelector As Func(Of DataType, DateTime)
+
+        Property EndDateSelector As Func(Of DataType, DateTime) = Nothing
+
+
+        Public Function GetGroupedData(Key As String) As IEnumerable(Of DataType)
+            Dim lista As New List(Of DataType)
+            For Each ii In DataCollection
+                Dim data As Date = StartDateSelector(ii)
+                Dim fim_data As Date = Nothing
+
+                Dim q1 As Date = Me(Key).First
+                Dim q2 As Date = Me(Key).Last
+
+                If data.IsBetween(q1, q2, False) Then
+                    lista.Add(ii)
+                End If
+
+                If EndDateSelector IsNot Nothing Then
+                    fim_data = EndDateSelector(ii)
+                    If fim_data.IsBetween(q1, q2, False) Then
+                        lista.Add(ii)
+                    End If
+                End If
+
+            Next
+            Return lista.Distinct
+        End Function
+
+
+        Public Shared Function CreateFromDataGroup(Data As IEnumerable(Of DataType), StartDateSelector As Func(Of DataType, DateTime), EndDateSelector As Func(Of DataType, DateTime)) As FortnightGroup(Of DataType)
+
+            Dim stdate1 As Date? = Nothing
+            Dim stdate2 As Date? = Nothing
+            Dim edate1 As Date? = Nothing
+            Dim edate2 As Date? = Nothing
+
+            If StartDateSelector Is Nothing Then
+                Throw New NoNullAllowedException("StartDateSelector is Nothing")
+            Else
+                stdate1 = Data.OrderBy(StartDateSelector).Select(StartDateSelector).First
+                stdate2 = Data.OrderBy(StartDateSelector).Select(StartDateSelector).Last
+            End If
+
+            If EndDateSelector IsNot Nothing Then
+                edate1 = Data.OrderByDescending(EndDateSelector).Select(EndDateSelector).First
+                edate2 = Data.OrderByDescending(EndDateSelector).Select(EndDateSelector).Last
+            Else
+                edate1 = Data.OrderByDescending(StartDateSelector).Select(StartDateSelector).First
+                edate2 = Data.OrderByDescending(StartDateSelector).Select(StartDateSelector).Last
+            End If
+
+            Dim arrdata = {stdate1, stdate2, edate1, edate2}.Where(Function(x) x.HasValue).OrderBy(Function(x) x)
+
+            Dim fort = CreateFromDateRange(arrdata.First, arrdata.Last)
+
+            fort = CType(fort, FortnightGroup(Of DataType))
+
+            CType(fort, FortnightGroup(Of DataType)).DataCollection = Data.ToList
+            CType(fort, FortnightGroup(Of DataType)).StartDateSelector = StartDateSelector
+            CType(fort, FortnightGroup(Of DataType)).EndDateSelector = EndDateSelector
+
+            Return fort
+        End Function
+
+        Public Shared Shadows Function CreateFromDateRange(StartDate As DateTime, EndDate As DateTime) As FortnightGroup(Of DataType)
+            FixDateOrder(StartDate, EndDate)
+            Dim fortcount As Integer = 1
+            Dim fort As New FortnightGroup(Of DataType)(StartDate, fortcount)
+            While fort.EndDate < EndDate
+                fort = New FortnightGroup(Of DataType)(StartDate, fortcount.Increment)
+            End While
+            Return fort
+        End Function
+
+        Sub New(Optional StartDate As DateTime = Nothing, Optional FortnightCount As Integer = 1)
+            MyBase.New(StartDate, FortnightCount)
+        End Sub
+
+    End Class
+
 
     ''' <summary>
     ''' Lista de dias agrupados em quinzenas
     ''' </summary>
     Public Class FortnightGroup
         Inherits Dictionary(Of String, ReadOnlyCollection(Of DateTime))
+
+
+        Public Shared Function PrintFortnightName(Key As String, Format As String) As String
+            Dim dia = Key.Split("@")(0)
+            Dim mes = Key.Split("@")(1).Split("-")(0)
+            Dim ano = Key.Split("@")(1).Split("-")(1)
+            Return New Date(ano, mes, dia).ToString(Format)
+        End Function
+
 
         ''' <summary>
         ''' Retorna a data inicial do periodo
@@ -32,12 +128,9 @@ Namespace TimeMachine
         ''' Retorna uma lista com todos os dias entre as quinzenas
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property AllDays As List(Of DateTime)
+        ReadOnly Property AllDays As IEnumerable(Of Date)
             Get
-                AllDays = New List(Of Date)
-                For Each Item As ReadOnlyCollection(Of Date) In Me.Values
-                    AllDays.AddRange(Item)
-                Next
+                Return Me.Values.SelectMany(Function(x) x.Select(Function(d) d))
             End Get
         End Property
 
@@ -67,14 +160,7 @@ Namespace TimeMachine
             Next
         End Sub
 
-
-        ''' <summary>
-        ''' Retorna um <see cref="FortnightGroup"/> a partir de 2 datas
-        ''' </summary>
-        ''' <param name="StartDate">Data inicial</param>
-        ''' <param name="EndDate">Data Final</param>
-        ''' <returns></returns>
-        Public Shared Function CreateRange(StartDate As DateTime, EndDate As DateTime) As FortnightGroup
+        Public Shared Function CreateFromDateRange(StartDate As DateTime, EndDate As DateTime) As FortnightGroup
             FixDateOrder(StartDate, EndDate)
             Dim fortcount As Integer = 1
             Dim fort As New FortnightGroup(StartDate, fortcount)
@@ -83,6 +169,9 @@ Namespace TimeMachine
             End While
             Return fort
         End Function
+
+
+
 
     End Class
 

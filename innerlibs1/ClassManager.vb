@@ -401,11 +401,10 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="MyObject">Objeto</param>
     ''' <param name="PropertyName">Nome da properiedade</param>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <param name="Value">Valor da propriedade definida por <paramref name="PropertyName"/></param>
-    ''' <typeparam name="Type2">Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/></typeparam>
+    ''' <typeparam name="Type">Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/></typeparam>
     <Extension()>
-    Public Sub SetPropertyValue(Of Type, Type2)(MyObject As Object, PropertyName As String, Value As Type2)
+    Public Sub SetPropertyValue(Of Type)(MyObject As Object, PropertyName As String, Value As Type)
         GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.SetValue(MyObject, Value)
     End Sub
 
