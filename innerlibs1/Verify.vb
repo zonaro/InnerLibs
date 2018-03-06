@@ -106,6 +106,15 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Valida se a string é um telefone
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsTelephone(Text As String) As Boolean
+        Return New Regex("\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", RegexOptions.Singleline + RegexOptions.IgnoreCase).IsMatch(Text.RemoveAny("(", ")"))
+    End Function
+
+    ''' <summary>
     ''' Verifica se a aplicação está rodando como administrador
     ''' </summary>
     ''' <returns>TRUE ou FALSE</returns>
