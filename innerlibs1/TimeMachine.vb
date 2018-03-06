@@ -107,7 +107,9 @@ Namespace TimeMachine
             Format = Format.Replace("{mmm}", mes.ToLongMonthName)
             Format = Format.Replace("{mmmm}", mes.ToLongMonthName)
             Format = Format.Replace("{y}", ano.ToString.GetLastChars(2))
-            Format = Format.Replace("{yy}", ano)
+            Format = Format.Replace("{yy}", ano.ToString.GetLastChars(2))
+            Format = Format.Replace("{yyy}", ano)
+            Format = Format.Replace("{yyyy}", ano)
             Return Format
         End Function
 
