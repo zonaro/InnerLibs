@@ -95,21 +95,27 @@ Namespace TimeMachine
     Public Class FortnightGroup
         Inherits Dictionary(Of String, ReadOnlyCollection(Of DateTime))
 
-
-        Public Function FortnightName(Key As String, Format As String) As String
+        ''' <summary>
+        ''' Formata uma Key de um <see cref="FortnightGroup"/> para uma string especifica
+        ''' </summary>
+        ''' <param name="Key">Valor da Key (q@MM-YYYY)</param>
+        ''' <param name="Format">Formato da string</param>
+        ''' <returns></returns>
+        Public Shared Function FormatName(Key As String, Optional Format As String = "{q}{o} - {mmmm}/{yyyy} ") As String
             Dim dia As Integer = Key.Split("@")(0)
             Dim mes As Integer = Key.Split("@")(1).Split("-")(0)
             Dim ano As Integer = Key.Split("@")(1).Split("-")(1)
-            Format = Format.Replace("{d}", dia.ToString.TrimStart("0"))
-            Format = Format.Replace("{dd}", dia)
-            Format = Format.Replace("{m}", mes.ToString().TrimStart("0"))
-            Format = Format.Replace("{mm}", mes)
+            Format = Format.Replace("{q}", dia.ToString("#"))
+            Format = Format.Replace("{qq}", dia.ToString("##"))
+            Format = Format.Replace("{m}", mes.ToString("#"))
+            Format = Format.Replace("{mm}", mes.ToString("##"))
             Format = Format.Replace("{mmm}", mes.ToLongMonthName)
             Format = Format.Replace("{mmmm}", mes.ToLongMonthName)
             Format = Format.Replace("{y}", ano.ToString.GetLastChars(2))
             Format = Format.Replace("{yy}", ano.ToString.GetLastChars(2))
-            Format = Format.Replace("{yyy}", ano)
-            Format = Format.Replace("{yyyy}", ano)
+            Format = Format.Replace("{yyy}", ano.ToString)
+            Format = Format.Replace("{yyyy}", ano.ToString)
+            Format = Format.Replace("{o}", dia.ToOrdinalNumber)
             Return Format
         End Function
 
