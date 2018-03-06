@@ -96,11 +96,19 @@ Namespace TimeMachine
         Inherits Dictionary(Of String, ReadOnlyCollection(Of DateTime))
 
 
-        Public Shared Function PrintFortnightName(Key As String, Format As String) As String
-            Dim dia = Key.Split("@")(0)
-            Dim mes = Key.Split("@")(1).Split("-")(0)
-            Dim ano = Key.Split("@")(1).Split("-")(1)
-            Return New Date(ano, mes, dia).ToString(Format)
+        Public Function FortnightName(Key As String, Format As String) As String
+            Dim dia As Integer = Key.Split("@")(0)
+            Dim mes As Integer = Key.Split("@")(1).Split("-")(0)
+            Dim ano As Integer = Key.Split("@")(1).Split("-")(1)
+            Format = Format.Replace("{d}", dia.ToString.TrimStart("0"))
+            Format = Format.Replace("{dd}", dia)
+            Format = Format.Replace("{m}", mes.ToString().TrimStart("0"))
+            Format = Format.Replace("{mm}", mes)
+            Format = Format.Replace("{mmm}", mes.ToLongMonthName)
+            Format = Format.Replace("{mmmm}", mes.ToLongMonthName)
+            Format = Format.Replace("{y}", ano.ToString.GetLastChars(2))
+            Format = Format.Replace("{yy}", ano)
+            Return Format
         End Function
 
 
