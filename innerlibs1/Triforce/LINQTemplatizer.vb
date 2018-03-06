@@ -573,6 +573,7 @@ Namespace LINQ
         End Function
 
         Friend Function CreateTemplateList(Of T As Class)(Template As String, l As List(Of Template(Of T)), PageSize As Integer, PageNumber As Integer, Total As Integer) As TemplateList(Of T)
+
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, Total)
             If Template.IsBlank Then
                 Template = GetTemplate(Of T)()
