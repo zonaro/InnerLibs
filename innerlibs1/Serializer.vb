@@ -5,7 +5,7 @@
 Public NotInheritable Class Json
     Inherits JavaScriptSerializer
 
-    Friend Sub New(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss")
+    Friend Sub New(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss")
         MyBase.New()
         Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter() With {.DateFormat = DateFormat}, New BytesConverter()})
     End Sub
@@ -15,7 +15,7 @@ Public NotInheritable Class Json
     ''' </summary>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    Public Shared Function SerializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+    Public Shared Function SerializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
         If IsNothing(Obj) Then
             Return ""
         Else
@@ -28,7 +28,7 @@ Public NotInheritable Class Json
     ''' </summary>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    Public Shared Function DeserializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As Object
+    Public Shared Function DeserializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Object
         If IsNothing(Obj) Then
             Return Nothing
         Else
@@ -41,7 +41,7 @@ Public NotInheritable Class Json
     ''' </summary>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    Public Shared Function DeserializeJSON(Of Type)(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As Type
+    Public Shared Function DeserializeJSON(Of Type)(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Type
         If IsNothing(Obj) Then
             Return Nothing
         Else
@@ -53,7 +53,7 @@ Public NotInheritable Class Json
         Inherits JavaScriptConverter
         Private m_supportedTypes As List(Of Type)
 
-        Public DateFormat As String = "yyyy-MM-dd hh:mm:ss"
+        Public DateFormat As String = "yyyy-MM-dd HH:mm:ss"
 
         Public Sub New()
             m_supportedTypes = New List(Of Type)(1)
@@ -63,7 +63,7 @@ Public NotInheritable Class Json
 
         Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
             Dim dt As New DateTime
-            dt = New DateTime(dictionary("Year").ToString.ChangeType(Of Integer), dictionary("Month").ToString.ChangeType(Of Integer), dictionary("Day").ToString.ChangeType(Of Integer), dictionary("Hour").ToString.ChangeType(Of Integer), dictionary("Minute").ToString.ChangeType(Of Integer), dictionary("Second").ToString.ChangeType(Of Integer), dictionary("Millisecond").ToString.ChangeType(Of Integer))
+            dt = New DateTime(dictionary("Ticks"))
             Return dt
         End Function
 

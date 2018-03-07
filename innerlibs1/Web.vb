@@ -147,14 +147,14 @@ Public NotInheritable Class AJAX
         ''' <summary>
         ''' Processa a resposta e retorna um JSON deste objeto. É um alias para <see cref="Response.ToJSON(String)"/>
         ''' </summary>
-        Public Function SerializeJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Public Function SerializeJSON(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
             Return ToJSON(DateFormat)
         End Function
 
         ''' <summary>
         ''' Processa a resposta e retorna um JSON deste objeto
         ''' </summary>
-        Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
             Try
                 Me.status = If(status.IsBlank, "success", status)
                 t = Now.Ticks - t

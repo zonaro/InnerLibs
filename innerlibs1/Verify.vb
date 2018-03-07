@@ -16,7 +16,7 @@ Public Module Verify
     ''' <typeparam name="Type"></typeparam>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function IsJson(Of Type)(Text As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As Boolean
+    <Extension()> Public Function IsJson(Of Type)(Text As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Boolean
         Try
             ParseJSON(Of Type)(Text, DateFormat)
             Return True

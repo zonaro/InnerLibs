@@ -378,7 +378,7 @@ Public Module Converter
     ''' <param name="[NameValueCollection]">Formulário</param>
     ''' <returns></returns>
     <Extension>
-    Public Function ToJSON([NameValueCollection] As NameValueCollection, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+    Public Function ToJSON([NameValueCollection] As NameValueCollection, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
         Return NameValueCollection.ToDictionary.SerializeJSON(DateFormat)
     End Function
 
@@ -388,7 +388,7 @@ Public Module Converter
     ''' <param name="Request">Request GET ou POST</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function ToJSON(Request As System.Web.HttpRequest, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+    Public Function ToJSON(Request As System.Web.HttpRequest, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
         Dim d As New Dictionary(Of String, Object)
         d.Add("QueryString", Request.QueryString.ToDictionary)
         d.Add("Form", Request.Form.ToDictionary)

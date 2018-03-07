@@ -45,11 +45,11 @@ Public Module ClassTools
     <Extension()> Public Function ToFlatString(Obj As Object, Optional DateFormat As String = "") As String
         Select Case Obj.GetType
             Case GetType(DateTime), GetType(Date)
-                Return CType(Obj, Date).ToString(DateFormat.IfBlank("yyyy-MM-dd hh:mm:ss"))
+                Return CType(Obj, Date).ToString(DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss"))
             Case GetType(String), GetType(Integer), GetType(Long), GetType(Short), GetType(Double), GetType(Decimal), GetType(Money), GetType(HtmlDocument), GetType(HtmlElement)
                 Return Obj.ToString
             Case Else
-                Return Json.SerializeJSON(Obj, DateFormat.IfBlank("yyyy-MM-dd hh:mm:ss"))
+                Return Json.SerializeJSON(Obj, DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss"))
         End Select
     End Function
 

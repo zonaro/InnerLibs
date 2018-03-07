@@ -308,7 +308,7 @@ Partial Public Class DataBase
         ''' Retorna um Json do Reader
         ''' </summary>
         ''' <returns></returns>
-        Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
             Try
                 Return Me.SerializeJSON(DateFormat)
             Catch ex As Exception
@@ -321,7 +321,7 @@ Partial Public Class DataBase
         ''' </summary>
         ''' <param name="ResultIndex">Índice do resultado</param>
         ''' <returns></returns>
-        Function ToJSON(ResultIndex As Integer, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+        Function ToJSON(ResultIndex As Integer, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
             If HasRows Then
                 Return MyBase.Item(ResultIndex).SerializeJSON(DateFormat)
             Else

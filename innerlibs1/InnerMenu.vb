@@ -17,7 +17,7 @@ Public Class MenuBuilder
     ''' Transforma a classe em um json
     ''' </summary>
     ''' <returns></returns>
-    Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+    Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
         Return Me.SerializeJSON(DateFormat)
     End Function
 

@@ -1147,7 +1147,7 @@ Public Module Text
     ''' <typeparam name="TypeClass">Objeto ou Classe</typeparam>
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
-    <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As TypeClass
+    <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As TypeClass
         Return New Json(DateFormat).Deserialize(Of TypeClass)(JSON)
     End Function
 
@@ -1156,7 +1156,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
-    <Extension()> Public Function ParseJSON(JSON As String, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As Object
+    <Extension()> Public Function ParseJSON(JSON As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Object
         Return New Json(DateFormat).Deserialize(Of Object)(JSON)
     End Function
 
@@ -1165,7 +1165,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="[Object]">Objeto</param>
     ''' <returns>Uma String JSON</returns>
-    <Extension()> Public Function SerializeJSON([Object] As Object, Optional DateFormat As String = "yyyy-MM-dd hh:mm:ss") As String
+    <Extension()> Public Function SerializeJSON([Object] As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
         Return New Json(DateFormat).Serialize([Object])
     End Function
 
@@ -2203,6 +2203,32 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Transforma um texto em Titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
+    ''' </summary>
+    ''' <param name="Text">Texto a ser manipulado</param>
+    ''' <returns>Uma String com o texto em nome próprio</returns>
+    <Extension()>
+    Public Function ToCamel(Text As String) As String
+        Return ToProper(Text)
+    End Function
+
+    ''' <summary>
+    ''' Transforma um texto em titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
+    ''' </summary>
+    ''' <param name="Text">Texto a ser manipulado</param>
+    ''' <returns>Uma String com o texto em nome próprio</returns>
+    <Extension()>
+    Public Function ToTitle(Text As String) As String
+        Return ToProper(Text)
+    End Function
+
+
+    <Extension()>
+    Public Function ToSnake(Text As String) As String
+        Return Text.Replace(" ", "_")
+    End Function
+
+    ''' <summary>
     ''' Prepara uma string com aspas simples para uma Query TransactSQL
     ''' </summary>
     ''' <param name="Text">Texto a ser tratado</param>
@@ -2395,37 +2421,34 @@ Public Module Text
     ''' <returns></returns>
     <Extension> Public Function GetWrappedText(Text As String, Optional Character As String = """", Optional ExcludeWrapChars As Boolean = True) As List(Of String)
         Dim lista As New List(Of String)
-        Dim regx = ""
-        Select Case Character
-            Case """"
-                regx = "\""(.*?)\"""
-            Case "'"
-                regx = "\'(.*?)\'"
-            Case "(", ")"
-                Character = "("
-                regx = "\((.*?)\)"
-            Case "[", "]"
-                Character = "["
-                regx = "\[(.*?)\]"
-            Case "{", "}"
-                Character = "{"
-                regx = "\{(.*?)\}"
-            Case "<", ">"
-                Character = "<"
-                regx = "\<(.*?)\>"
-            Case Else
-                Character = Character.GetFirstChars
-                regx = "\" & Character & "(.*?)\" & Character
-        End Select
-
+        Dim regx = Character.RegexEscape & "(.*?)" & Character.ToString.GetOppositeWrapChar.RegexEscape
         For Each a As Match In New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
             If ExcludeWrapChars Then
-                lista.Add(a.Value.TrimStart(Character).TrimEnd(GetOppositeWrapChar(Character)))
+                lista.Add(a.Value.RemoveFirstIf(Character).RemoveLastIf(GetOppositeWrapChar(Character)))
             Else
                 lista.Add(a.Value)
             End If
         Next
         Return lista
+    End Function
+
+    ''' <summary>
+    ''' Escapa caracteres exclusivos de uma regex
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function RegexEscape(Text As String) As String
+        Dim chars = {"."c, "$"c, "^"c, "{"c, "["c, "("c, "|"c, ")"c, "*"c, "+"c, "?"c, "|"c}
+        Dim newstring As String = ""
+        For Each c In Text.ToArray
+            If c.IsIn(chars) Then
+                newstring.Append("\" & c)
+            Else
+                newstring.Append(c)
+            End If
+        Next
+        Return newstring
     End Function
 
     ''' <summary>
@@ -2467,8 +2490,16 @@ Public Module Text
                 Return "¡"
             Case "¡"
                 Return "!"
+            Case "."
+                Return "."
+            Case ":"
+                Return ":"
+            Case ";"
+                Return ";"
+            Case "_"
+                Return "_"
             Case Else
-                Return Text.GetFirstChars()
+                Return Text
         End Select
     End Function
 
