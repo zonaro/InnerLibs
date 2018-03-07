@@ -18,7 +18,6 @@ Namespace TimeMachine
         Public Function GetData(Key As String) As IEnumerable(Of DataType)
             Dim lista As New List(Of DataType)
             For Each ii In DataCollection
-
                 Dim datas As New List(Of Date)
                 For Each sel In DateSelector
                     datas.Add(sel(ii))
@@ -32,7 +31,10 @@ Namespace TimeMachine
                     lista.Add(ii)
                 End If
             Next
-            Return lista.OrderBy(Function(x) DateSelector.NullCoalesce).Distinct
+            If lista.Count > 0 Then
+                lista = lista.OrderBy(Function(x) DateSelector.NullCoalesce).Distinct.ToList
+            End If
+            Return lista
         End Function
 
         ''' <summary>
@@ -57,6 +59,11 @@ Namespace TimeMachine
                 End If
             Next
             Return d
+        End Function
+
+
+        Public Function ToJSON(Optional IncludeFortnightsWithoutData As Boolean = True)
+            Return Me.ToDataDictionary(IncludeFortnightsWithoutData).SerializeJSON
         End Function
 
         ''' <summary>
