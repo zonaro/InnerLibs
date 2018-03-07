@@ -15,6 +15,11 @@ Public Class DateRange
     Public Property StartDate As Date
     Public Property EndDate As Date
 
+    ''' <summary>
+    ''' Instancia um novo periodo entre 2 datas
+    ''' </summary>
+    ''' <param name="StartDate"></param>
+    ''' <param name="EndDate"></param>
     Sub New(StartDate As Date, EndDate As Date)
         FixDateOrder(StartDate, EndDate)
         Me.StartDate = StartDate
@@ -198,7 +203,7 @@ Public Module Calendars
     End Function
 
     ''' <summary>
-    ''' Retorna uma TimeMachine com a diferença entre 2 Datas
+    ''' Retorna uma <see cref="TimeFlow"/> com a diferença entre 2 Datas
     ''' </summary>
     ''' <param name="InitialDate"></param>
     ''' <param name="SecondDate"> </param>
