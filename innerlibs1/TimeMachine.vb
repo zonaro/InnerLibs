@@ -7,7 +7,7 @@ Namespace TimeMachine
 
         Property DataCollection As New List(Of DataType)
 
-        Property DateSelector As List(Of Func(Of DataType, DateTime))
+        Property DateSelector As New List(Of Func(Of DataType, DateTime))
 
 
         ''' <summary>
@@ -18,27 +18,40 @@ Namespace TimeMachine
         Public Function GetData(Key As String) As IEnumerable(Of DataType)
             Dim lista As New List(Of DataType)
             For Each ii In DataCollection
+
+                Dim datas As New List(Of Date)
                 For Each sel In DateSelector
-                    Dim data As Date = sel(ii)
-                    Dim fim_data As Date = Nothing
-                    Dim q1 As Date = Me(Key).First
-                    Dim q2 As Date = Me(Key).Last
-                    If data.IsBetween(q1, q2, False) Then
-                        lista.Add(ii)
-                    End If
+                    datas.Add(sel(ii))
                 Next
+
+                datas = datas.OrderBy(Function(x) x).ToList
+                Dim periodo1 As New DateRange(datas.First, datas.Last)
+                Dim periodo2 As New DateRange(Me(Key).Period.StartDate, Me(Key).Period.EndDate)
+
+                If periodo1.MatchAny(periodo2) Then
+                    lista.Add(ii)
+                End If
             Next
             Return lista.OrderBy(Function(x) DateSelector.NullCoalesce).Distinct
+        End Function
+
+        ''' <summary>
+        ''' Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada
+        ''' </summary>
+        ''' <param name="Fort">Quinzena</param>
+        ''' <returns></returns>
+        Public Function GetData(Fort As Fortnight) As IEnumerable(Of DataType)
+            Return Me.GetData(Fort.Key)
         End Function
 
         ''' <summary>
         ''' Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informaçoes agrupadas por quinzena
         ''' </summary>
         ''' <returns></returns>
-        Public Function ToDataDictionary(Optional IncludeFortnightsWithoutData As Boolean = True) As Dictionary(Of String, IEnumerable(Of DataType))
-            Dim d As New Dictionary(Of String, IEnumerable(Of DataType))
-            For Each k In Me.Keys
-                Dim dt = Me.GetData(k)
+        Public Function ToDataDictionary(Optional IncludeFortnightsWithoutData As Boolean = True) As Dictionary(Of Fortnight, IEnumerable(Of DataType))
+            Dim d As New Dictionary(Of Fortnight, IEnumerable(Of DataType))
+            For Each k In Me
+                Dim dt = Me.GetData(k.Key)
                 If dt.Count > 0 Or IncludeFortnightsWithoutData Then
                     d.Add(k, dt)
                 End If
@@ -105,19 +118,23 @@ Namespace TimeMachine
     End Class
 
 
-    ''' <summary>
-    ''' Lista de dias agrupados em quinzenas
-    ''' </summary>
-    Public Class FortnightGroup
-        Inherits Dictionary(Of String, ReadOnlyCollection(Of DateTime))
+    Public Class Fortnight
+
+        Friend Sub New(Key As String, Range As DateRange)
+            Me.Key = Key
+            Me.Period = Range
+        End Sub
+
+        Public ReadOnly Property Key As String
+        Public ReadOnly Property Period As DateRange
+
 
         ''' <summary>
         ''' Formata uma Key de um <see cref="FortnightGroup"/> para uma string especifica
         ''' </summary>
-        ''' <param name="Key">Valor da Key (q@MM-YYYY)</param>
         ''' <param name="Format">Formato da string</param>
         ''' <returns></returns>
-        Public Shared Function FormatName(Key As String, Optional Format As String = "{q}{o} - {mmmm}/{yyyy} ") As String
+        Public Function FormatName(Optional Format As String = "{q}{o} - {mmmm}/{yyyy} ") As String
             Dim dia As Integer = Key.Split("@")(0)
             Dim mes As Integer = Key.Split("@")(1).Split("-")(0)
             Dim ano As Integer = Key.Split("@")(1).Split("-")(1)
@@ -135,6 +152,31 @@ Namespace TimeMachine
             Return Format
         End Function
 
+        Public Overrides Function ToString() As String
+            Return FormatName()
+        End Function
+
+    End Class
+
+    ''' <summary>
+    ''' Lista de dias agrupados em quinzenas
+    ''' </summary>
+    Public Class FortnightGroup
+        Inherits ReadOnlyCollection(Of Fortnight)
+
+
+
+        ''' <summary>
+        ''' Retorna uma quinzena a partir da sua Key
+        ''' </summary>
+        ''' <param name="Key"></param>
+        ''' <returns></returns>
+        Default Public Overloads ReadOnly Property Item(Key As String) As Fortnight
+            Get
+                Return MyBase.Item(MyBase.IndexOf(Me.Where(Function(x) x.Key = Key).SingleOrDefault))
+            End Get
+        End Property
+
 
         ''' <summary>
         ''' Retorna a data inicial do periodo
@@ -142,7 +184,7 @@ Namespace TimeMachine
         ''' <returns></returns>
         ReadOnly Property StartDate As DateTime
             Get
-                Return Me.First.Value.First
+                Return Me.First.Period.StartDate
             End Get
         End Property
 
@@ -152,7 +194,7 @@ Namespace TimeMachine
         ''' <returns></returns>
         ReadOnly Property EndDate As DateTime
             Get
-                Return Me.Last.Value.Last
+                Return Me.Last.Period.EndDate
             End Get
         End Property
 
@@ -162,7 +204,17 @@ Namespace TimeMachine
         ''' <returns></returns>
         ReadOnly Property AllDays As IEnumerable(Of Date)
             Get
-                Return Me.Values.SelectMany(Function(x) x.Select(Function(d) d))
+                Return Me.SelectMany(Function(x) x.Period.ToList())
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Retorna um periodo equivalente a este grupo de quinzena
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Period As DateRange
+            Get
+                Return New DateRange(Me.StartDate, Me.EndDate)
             End Get
         End Property
 
@@ -171,7 +223,8 @@ Namespace TimeMachine
         ''' </summary>
         ''' <param name="StartDate"></param>
         ''' <param name="FortnightCount"></param>
-        Sub New(Optional StartDate As DateTime = Nothing, Optional FortnightCount As Integer = 1)
+        Private Shared Function GerarLista(Optional StartDate As DateTime = Nothing, Optional FortnightCount As Integer = 1) As List(Of Fortnight)
+            Dim l = New List(Of Fortnight)
             StartDate = If(IsNothing(StartDate), Now, StartDate)
             StartDate = New Date(StartDate.Year, StartDate.Month, If(StartDate.Day > 15, 16, 1), StartDate.Hour, StartDate.Minute, StartDate.Second, StartDate.Millisecond, StartDate.Kind)
 
@@ -187,10 +240,21 @@ Namespace TimeMachine
                     EndDate = EndDate.GetLastDayOfMonth
                     q = New Date(EndDate.Year, EndDate.Month, 2).ToString("d@MM-yyyy")
                 End If
-                Me.Add(q, New ReadOnlyCollection(Of Date)(Calendars.GetBetween(StartDate, EndDate)))
+                l.Add(New Fortnight(q, New DateRange(StartDate, EndDate)))
                 StartDate = EndDate.AddDays(1)
             Next
+            Return l
+        End Function
+
+        ''' <summary>
+        ''' Instancia um novo <see cref="FortnightGroup"/> a partir de uma data e um numero de quinzenas
+        ''' </summary>
+        ''' <param name="StartDate"></param>
+        ''' <param name="FortnightCount"></param>
+        Sub New(Optional StartDate As DateTime = Nothing, Optional FortnightCount As Integer = 1)
+            MyBase.New(GerarLista(StartDate, FortnightCount))
         End Sub
+
 
         Public Shared Function CreateFromDateRange(StartDate As DateTime, EndDate As DateTime) As FortnightGroup
             FixDateOrder(StartDate, EndDate)

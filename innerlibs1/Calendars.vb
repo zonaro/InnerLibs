@@ -6,6 +6,96 @@ Imports System.Web.UI.WebControls
 Imports System.Windows.Forms
 Imports InnerLibs.TimeMachine
 
+
+''' <summary>
+''' Classe que representa um periodo entre 2 datas
+''' </summary>
+Public Class DateRange
+
+    Public Property StartDate As Date
+    Public Property EndDate As Date
+
+    Sub New(StartDate As Date, EndDate As Date)
+        FixDateOrder(StartDate, EndDate)
+        Me.StartDate = StartDate
+        Me.EndDate = EndDate
+    End Sub
+
+    Function Difference() As TimeFlow
+        Return StartDate.GetDifference(EndDate)
+    End Function
+
+    Public Function CreateFortnightGroup() As FortnightGroup
+        Return FortnightGroup.CreateFromDateRange(Me.StartDate, Me.EndDate)
+    End Function
+
+    Public Overrides Function ToString() As String
+        Return Difference.ToString
+    End Function
+
+    ''' <summary>
+    ''' Cria uma lista de datas contendo todas as datas entre os periodos
+    ''' </summary>
+    ''' <param name="Interval">Intervalo que deverá ser incrementado</param>
+    ''' <returns></returns>
+    Public Function ToList(Optional Interval As DateInterval = DateInterval.Day) As List(Of Date)
+        FixDateOrder(StartDate, EndDate)
+        Dim curdate = StartDate
+        Dim l As New List(Of Date)
+        Do
+            l.Add(curdate.Date)
+            curdate = DateAdd(Interval, 1, curdate)
+        Loop While curdate <= EndDate
+        Return l
+    End Function
+
+    ''' <summary>
+    ''' Verifica se 2 periodos possuem interseção de datas
+    ''' </summary>
+    ''' <param name="Period">Periodo</param>
+    ''' <returns></returns>
+    Public Function Overlaps(Period As DateRange) As Boolean
+        Select Case True
+            Case Period.StartDate <= Me.EndDate And Period.StartDate >= Me.StartDate
+                Return True
+            Case Me.StartDate <= Period.EndDate And Me.StartDate >= Period.StartDate
+                Return True
+            Case Else
+                Return False
+        End Select
+    End Function
+
+    ''' <summary>
+    ''' Verifica se 2 periodos coincidem datas (interseção, esta dentro de um periodo de ou contém um periodo)
+    ''' </summary>
+    ''' <param name="Period"></param>
+    ''' <returns></returns>
+    ''' 
+    Public Function MatchAny(Period As DateRange) As Boolean
+        Return Me.Overlaps(Period) Or Me.Contains(Period) Or Me.IsIn(Period)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se este periodo contém um outro periodo
+    ''' </summary>
+    ''' <param name="Period"></param>
+    ''' <returns></returns>
+    Public Function Contains(Period As DateRange) As Boolean
+        Return Me.StartDate <= Period.StartDate And Period.EndDate <= Me.EndDate
+    End Function
+
+    ''' <summary>
+    ''' Verifica se este periodo está dentro de outro periodo
+    ''' </summary>
+    ''' <param name="Period"></param>
+    ''' <returns></returns>
+    Public Function IsIn(Period As DateRange) As Boolean
+        Return Period.Contains(Me)
+    End Function
+
+End Class
+
+
 ''' <summary>
 ''' Modulo para manipulação de calendário
 ''' </summary>
@@ -158,30 +248,17 @@ Public Module Calendars
     ''' <param name="EndDate">  data Final</param>
     ''' <param name="Days">     Dias da semana</param>
     ''' <returns></returns>
-    Public Function GetBetween(StartDate As DateTime, EndDate As DateTime, ParamArray Days() As DayOfWeek) As List(Of Date)
-        FixDateOrder(StartDate, EndDate)
-        If Days.Length = 0 Then Days = {0, 1, 2, 3, 4, 5, 6}
-        Dim curdate = StartDate.Date
-        Dim l As New List(Of Date)
-        Do
-            If Days.Contains(curdate.DayOfWeek) Then
-                l.Add(curdate.Date)
-            End If
-            curdate = curdate.AddDays(1)
-        Loop While curdate <= EndDate.Date
-        Return l.ClearTime
+    <Extension()> Public Function GetBetween(StartDate As DateTime, EndDate As DateTime, ParamArray Days() As DayOfWeek) As List(Of Date)
+        Dim dt As New DateRange(StartDate, EndDate)
+        dt.ToList.Where(Function(x) x.DayOfWeek.IsIn(Days)).Select(Function(x) x.Date)
     End Function
 
     ''' <summary>
-    ''' Remove o tempo de todas as datas de uma lista (retorna uma nova lista)
+    ''' Remove o tempo de todas as datas de uma lista e retorna uma nova lista
     ''' </summary>
     ''' <param name="List">Lista que será alterada</param>
     <Extension()> Function ClearTime(List As List(Of Date)) As List(Of Date)
-        Dim h As New List(Of Date)
-        For Each i In List
-            h.Add(i.Date)
-        Next
-        Return h
+        Return List.Select(Function(x) x.Date).ToList
     End Function
 
     ''' <summary>
