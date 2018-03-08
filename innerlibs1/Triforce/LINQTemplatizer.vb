@@ -15,6 +15,31 @@ Imports InnerLibs.HtmlParser
 
 Namespace LINQ
 
+    ''' <summary>
+    ''' Lista com as TemplateTags 
+    ''' </summary>
+    Public Enum TemplateTag
+        ''' <summary>
+        ''' Cabeçalho do template, aplicado uma vez antes do body
+        ''' </summary>
+        Head = 0
+        ''' <summary>
+        ''' Corpo do template, replicado para cada objeto
+        ''' </summary>
+        Body = 1
+        ''' <summary>
+        ''' Rodapé do template, aplicado uma vez apos o body
+        ''' </summary>
+        Footer = 2
+        ''' <summary>
+        ''' template de paginacao
+        ''' </summary>
+        Pagination = 3
+        ''' <summary>
+        ''' Placeholder aplicado no lugar do body quando a lista não conter resultados
+        ''' </summary>
+        Empty = 4
+    End Enum
 
     ''' <summary>
     ''' Permite integrar <see cref="Triforce"/> a objetos LINQ to SQL
@@ -33,7 +58,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="TemplateDirectory">Diretório contendo os arquivos HTML</param>
         ''' <param name="DateTimeFormat"></param>
-        Sub New(TemplateDirectory As DirectoryInfo, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
+        Sub New(TemplateDirectory As DirectoryInfo, Optional DateTimeFormat As String = "dd/MM/yyyy HH:mm:ss")
             MyBase.New(TemplateDirectory, DateTimeFormat)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
@@ -44,7 +69,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="ApplicationAssembly">Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE</param>
         ''' <param name="DateTimeFormat"></param>
-        Sub New(ApplicationAssembly As Assembly, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
+        Sub New(ApplicationAssembly As Assembly, Optional DateTimeFormat As String = "dd/MM/yyyy HH:mm:ss")
             MyBase.New(ApplicationAssembly, DateTimeFormat)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
@@ -60,7 +85,7 @@ Namespace LINQ
         ''' <param name="PageSize">Numero de itens por pagina</param>
         ''' <param name="predicade">Filtro da busca</param>
         ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(predicade As Expression(Of Func(Of T, Boolean)), Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplateList(Of T)
             Return ApplyTemplate(Of T)(GetTemplate(Of T), predicade, PageNumber, PageSize)
         End Function
         ''' <summary>
@@ -238,7 +263,7 @@ Namespace LINQ
                         Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
                         If el_cont IsNot Nothing Then
                             If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
-                                conteudo = GetTemplateContent(el_cont.Attribute("file"))
+                                conteudo = pegartemplate(el_cont.Attribute("file"))
                             Else
                                 conteudo = el_cont.InnerHTML.HtmlDecode
                             End If
@@ -296,7 +321,7 @@ Namespace LINQ
                         End If
 
                         If lista Is Nothing Then
-                            Throw New NullReferenceException("Property tag or SQL tag not specified in template.")
+                            Throw New NullReferenceException("'Property' tag or 'SQL' tag not specified in template.")
                         End If
 
                         conteudo = lista.ToString
@@ -451,7 +476,7 @@ Namespace LINQ
             End If
             If tmp.IsNotBlank Then
                 If ProcessFile Then
-                    tmp = GetTemplateContent(tmp)
+                    tmp = pegartemplate(tmp)
                 End If
             Else
                 Throw New FileNotFoundException("Template not found in Triforce MapType or 'TriforceTemplate' property in class " & Type.Name.Quote)
@@ -498,7 +523,7 @@ Namespace LINQ
                 Template = Me.GetTemplate(Of T)
             End If
 
-            Dim doc = New HtmlDocument(GetTemplateContent(Template))
+            Dim doc = New HtmlDocument(pegartemplate(Template))
 
             ProccessGet(doc)
 
@@ -533,7 +558,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
             Dim l As New List(Of Template(Of T))
@@ -546,6 +571,8 @@ Namespace LINQ
             Return CreateTemplateList(Template, l, PageSize, PageNumber, total)
         End Function
 
+
+
         Friend Function CreateTemplateList(Of T As Class)(Template As String, l As List(Of Template(Of T)), PageSize As Integer, PageNumber As Integer, Total As Integer) As TemplateList(Of T)
 
             Dim tpl = New TemplateList(Of T)(l, PageSize, PageNumber, Total)
@@ -554,19 +581,19 @@ Namespace LINQ
             End If
 
             Try
-                tpl.Head = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "head"))
+                tpl.Head = ReplaceValues(Me.CustomValues, pegartemplate(Template, "head"))
             Catch ex As Exception
             End Try
             Try
-                tpl.Footer = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "footer"))
+                tpl.Footer = ReplaceValues(Me.CustomValues, pegartemplate(Template, "footer"))
             Catch ex As Exception
             End Try
             Try
-                tpl.Empty = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "empty"))
+                tpl.Empty = ReplaceValues(Me.CustomValues, pegartemplate(Template, "empty"))
             Catch ex As Exception
             End Try
             Try
-                tpl.Pagination = ReplaceValues(Me.CustomValues, GetTemplateContent(Template, "pagination"))
+                tpl.Pagination = ReplaceValues(Me.CustomValues, pegartemplate(Template, "pagination"))
             Catch ex As Exception
             End Try
             Return tpl
@@ -582,17 +609,37 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Template As HtmlDocument, PageNumber As Integer, PageSize As Integer) As TemplateList(Of T)
-            Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
+        Public Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Template As HtmlDocument) As TemplateList(Of T)
+            Return ApplyTemplate(List, PageNumber, PageSize, Template.ToString)
         End Function
+
+
+
 
         ''' <summary>
         ''' Retorna o conteudo estático de um arquivo de template
         ''' </summary>
         ''' <param name="Templatefile">Nome do arquivo do template</param>
-        ''' <param name="Tag">Indica qual tag dve ser capturada, head, body ou footer</param>
+        ''' <param name="Tag">Indica qual tag dve ser capturada, head, body ou footer ou pagination</param>
         ''' <returns></returns>
-        Public Function GetTemplateContent(TemplateFile As String, Optional Tag As String = "body") As String
+        Public Function GetTemplateContent(TemplateFile As String, Tag As TemplateTag) As String
+            Select Case Tag
+                Case 0
+                    Return pegartemplate(TemplateFile, "head")
+                Case 1
+                    Return pegartemplate(TemplateFile, "body")
+                Case 2
+                    Return pegartemplate(TemplateFile, "footer")
+                Case 3
+                    Return pegartemplate(TemplateFile, "pagination")
+                Case 4
+                    Return pegartemplate(TemplateFile, "empty")
+                Case Else
+                    Return pegartemplate(TemplateFile, "body")
+            End Select
+        End Function
+
+        Friend Function pegartemplate(TemplateFile As String, Optional Tag As String = "body") As String
             If TemplateFile.IsNotBlank Then
                 If TemplateFile.ContainsAny("<", ">") Then
                     Select Case Tag
@@ -600,7 +647,7 @@ Namespace LINQ
                             Try
                                 Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
                                 If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
-                                    Return GetTemplateContent(el.Attribute("file"), Tag)
+                                    Return pegartemplate(el.Attribute("file"), Tag)
                                 Else
                                     Return el.InnerHTML
                                 End If
@@ -611,7 +658,7 @@ Namespace LINQ
                             Try
                                 Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
                                 If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
-                                    Return GetTemplateContent(el.Attribute("file"), Tag)
+                                    Return pegartemplate(el.Attribute("file"), Tag)
                                 Else
                                     Return el.InnerHTML
                                 End If
@@ -694,7 +741,7 @@ Namespace LINQ
                         Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
                         If el_cont IsNot Nothing Then
                             If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
-                                conteudo = GetTemplateContent(el_cont.Attribute("file"))
+                                conteudo = pegartemplate(el_cont.Attribute("file"))
                             Else
                                 conteudo = el_cont.InnerHTML.HtmlDecode
                             End If
