@@ -1200,6 +1200,7 @@ Namespace LINQ
                     dic("##PageNumber##") = PageNumber
                     dic("##PageCount##") = PageCount
                     dic("##PageSize##") = PageSize
+                    dic("##Count##") = Me.Count
                     dic("##Total##") = Total
 
                     Dim beforeafter As Decimal = (limit - 1) / 2
