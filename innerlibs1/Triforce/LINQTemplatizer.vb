@@ -78,7 +78,7 @@ Namespace LINQ
                 If predicade IsNot Nothing Then
                     d = d.Where(predicade)
                 End If
-                Return ApplyTemplate(d, Template, PageNumber, PageSize)
+                Return ApplyTemplate(d, PageNumber, PageSize, Template)
             End Using
         End Function
 
@@ -129,7 +129,7 @@ Namespace LINQ
                 Else
                     list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}))
                 End If
-                Return ApplyTemplate(Of T)(list.AsQueryable, Template, 1, -1)
+                Return ApplyTemplate(Of T)(list.AsQueryable, 1, -1, Template)
             End Using
         End Function
 
@@ -143,7 +143,7 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplateList(Of T)
             Dim total = List.Count
             If PageSize < 1 Then PageSize = total
             Dim l As New List(Of Template(Of T))
@@ -165,8 +165,8 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Template As HtmlDocument, PageNumber As Integer, PageSize As Integer) As TemplateList(Of T)
-            Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), PageNumber As Integer, PageSize As Integer, Template As HtmlDocument) As TemplateList(Of T)
+            Return ApplyTemplate(List, PageNumber, PageSize, Template.ToString)
         End Function
 
         ''' <summary>
@@ -201,8 +201,8 @@ Namespace LINQ
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(List As Table(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
-            Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
+        Public Shadows Function ApplyTemplate(Of T As Class)(List As Table(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplateList(Of T)
+            Return ApplyTemplate(List.AsQueryable, PageNumber, PageSize, Template)
         End Function
 
         ''' <summary>
@@ -215,35 +215,9 @@ Namespace LINQ
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
         Public Shadows Function ApplyTemplate(Of T As Class)(List As Table(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
-            Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
+            Return ApplyTemplate(List.AsQueryable, Template.ToString, PageNumber, PageSize)
         End Function
 
-
-        ''' <summary>
-        ''' Aplica um template HTML a um objeto <see cref="ISingleResult"/>
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>)
-        ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
-        ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional Template As String = "", Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
-            Return ApplyTemplate(List.AsQueryable, Template, PageNumber, PageSize)
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML a um objeto <see cref="ISingleResult"/>
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML previamente configurado pelo metodo (<see cref="SetTemplate"/></param>)
-        ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
-        ''' <returns></returns>
-        Public Shadows Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Template As HtmlDocument, Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplateList(Of T)
-            Return ApplyTemplate(List, Template.ToString, PageNumber, PageSize)
-        End Function
 
 
 
@@ -318,7 +292,7 @@ Namespace LINQ
                             If classe.Count > 0 AndAlso conteudo.IsBlank Then
                                 conteudo = GetTemplate(classe(0).GetType, True)
                             End If
-                            lista = ApplyTemplate(Of Object)(classe.AsQueryable, conteudo, pg, n_item)
+                            lista = ApplyTemplate(Of Object)(classe.AsQueryable, pg, n_item, conteudo)
                         End If
 
                         If lista Is Nothing Then
