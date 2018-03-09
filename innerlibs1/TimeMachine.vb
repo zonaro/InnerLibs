@@ -73,28 +73,30 @@ Namespace TimeMachine
         ''' <param name="DateSelector">Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada</param>
         ''' <returns></returns>
         Public Shared Function CreateFromDataGroup(Data As IEnumerable(Of DataType), ParamArray DateSelector As Func(Of DataType, DateTime)()) As FortnightGroup(Of DataType)
+            If Not (Data Is Nothing OrElse Data.Count = 0) Then
+                Dim datas As New List(Of Date?)
 
-            Dim datas As New List(Of Date?)
+                If DateSelector Is Nothing OrElse DateSelector.Count = 0 Then
+                    Throw New ArgumentNullException("DateSelector is Nothing or Empty")
+                Else
+                    For Each dd In DateSelector
+                        datas.Add(Data.OrderBy(dd).Select(dd).First)
+                        datas.Add(Data.OrderBy(dd).Select(dd).Last)
+                    Next
 
-            If DateSelector Is Nothing Or DateSelector.Count = 0 Then
-                Throw New NoNullAllowedException("DateSelector is Nothing or empty")
+                End If
+
+                Dim arrdata = datas.Distinct.Where(Function(x) x.HasValue).OrderBy(Function(x) x)
+
+                Dim fort = CreateFromDateRange(arrdata.First, arrdata.Last)
+
+                fort.DataCollection = Data.ToList
+                fort.DateSelector = DateSelector.ToList
+                Return fort
             Else
-                For Each dd In DateSelector
-                    datas.Add(Data.OrderBy(dd).Select(dd).First)
-                    datas.Add(Data.OrderBy(dd).Select(dd).Last)
-                Next
-
+                Throw New ArgumentNullException("Data Is Nothing or Empty")
             End If
 
-            Dim arrdata = datas.Distinct.Where(Function(x) x.HasValue).OrderBy(Function(x) x)
-
-            Dim fort = CreateFromDateRange(arrdata.First, arrdata.Last)
-
-            fort.DataCollection = Data.ToList
-            fort.DateSelector = DateSelector.ToList
-
-
-            Return fort
         End Function
 
         ''' <summary>
