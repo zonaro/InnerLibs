@@ -700,7 +700,7 @@ Namespace LINQ
         ''' Seletor dos campos do template
         ''' </summary>
         ''' <returns></returns>
-        Function GetFieldSelector() As String()
+        Private Function GetFieldSelector() As String()
             Return sel
         End Function
 
@@ -1344,8 +1344,8 @@ Namespace LINQ
         ''' Declara um novo <see cref="MixedTemplatePage(Of T)"/> a partir de varias paginas de Template com ordenacao especifica
         ''' </summary>
         ''' <param name="List"></param>
-        Sub New(OrderSelectors As Func(Of T, Object)(), List As TemplatePage(Of T)())
-            MyBase.New(criar(List, OrderSelectors))
+        Sub New(OrderSelectors As Func(Of T, Object)(), ParamArray List As TemplatePage(Of T)())
+            MyBase.New(Criar(List, OrderSelectors))
             Me.Head = List.First.Head
             Me.Footer = List.First.Footer
             Me.Empty = List.First.Empty
@@ -1410,6 +1410,10 @@ Namespace LINQ
             End If
             Return New HtmlDocument(Head & html.IfBlank(Empty) & Footer)
         End Function
+
+        Public Shared Widening Operator CType(v As MixedTemplatePage(Of T)) As String
+            Return v.ToString
+        End Operator
 
     End Class
 
