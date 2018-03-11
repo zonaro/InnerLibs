@@ -308,11 +308,28 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function FirstOr(Of T)(source As IEnumerable(Of T), Alternate As T) As T
-        For Each i As T In source
-            Return i
-            Exit For
-        Next
-        Return Alternate
+        If source IsNot Nothing AndAlso source.Count > 0 Then
+            Return source.First
+        Else
+            Return Alternate
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="source"></param>
+    ''' <param name="alternate"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function LastOr(Of T)(source As IEnumerable(Of T), Alternate As T) As T
+        If source IsNot Nothing AndAlso source.Count > 0 Then
+            Return source.Last
+        Else
+            Return Alternate
+        End If
+
     End Function
 
     ''' <summary>

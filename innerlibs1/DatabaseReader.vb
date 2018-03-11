@@ -370,45 +370,47 @@ Partial Public Class DataBase
         ''' <param name="Reader">Reader</param>
         Public Sub New(Reader As DbDataReader)
             Using Reader
-                Do
-                    Dim listatabela As New Result
-                    Dim columns = New List(Of String)
-                    For i As Integer = 0 To Reader.FieldCount - 1
-                        columns.Add(Reader.GetName(i))
-                    Next
-                    If Reader.HasRows Then
-                        While Reader.Read
-                            Dim lista As New DataBase.Row
-                            For Each col In columns
-                                If Not lista.Columns.Contains(col) Then
-                                    Try
-                                        If Reader(col).GetType = GetType(String) Then
-                                            lista.Add(col, If(IsDBNull(Reader(col)), "", Json.DeserializeJSON(Reader(col))))
-                                        Else
+                Try
+                    Do
+                        Dim listatabela As New Result
+                        Dim columns = New List(Of String)
+                        For i As Integer = 0 To Reader.FieldCount - 1
+                            columns.Add(Reader.GetName(i))
+                        Next
+                        If Reader.HasRows Then
+                            While Reader.Read
+                                Dim lista As New DataBase.Row
+                                For Each col In columns
+                                    If Not lista.Columns.Contains(col) Then
+                                        Try
+                                            If Reader(col).GetType = GetType(String) Then
+                                                lista.Add(col, If(IsDBNull(Reader(col)), "", Json.DeserializeJSON(Reader(col))))
+                                            Else
+                                                Try
+                                                    lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
+                                                Catch ex2 As Exception
+                                                    lista.Add(col, Nothing)
+                                                End Try
+                                            End If
+                                        Catch ex As Exception
                                             Try
                                                 lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
                                             Catch ex2 As Exception
                                                 lista.Add(col, Nothing)
                                             End Try
-                                        End If
-                                    Catch ex As Exception
-                                        Try
-                                            lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
-                                        Catch ex2 As Exception
-                                            lista.Add(col, Nothing)
                                         End Try
-                                    End Try
-                                Else
+                                    Else
 
-                                End If
-                            Next
-                            listatabela.Add(lista)
-                        End While
-                    End If
-                    Me.Add(listatabela)
-                Loop While Reader.NextResult
+                                    End If
+                                Next
+                                listatabela.Add(lista)
+                            End While
+                        End If
+                        Me.Add(listatabela)
+                    Loop While Reader.NextResult
+                Catch ex As Exception
+                End Try
             End Using
-
         End Sub
 
         Private resultindex As Integer = 0
