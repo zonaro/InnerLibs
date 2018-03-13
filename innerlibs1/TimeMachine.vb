@@ -159,7 +159,11 @@ Namespace TimeMachine
 
         Public ReadOnly Property Key As String
         Public ReadOnly Property Period As DateRange
-
+        Public ReadOnly Property Number As Integer
+            Get
+                Return Key.GetFirstChars(1).ChangeType(Of Integer)
+            End Get
+        End Property
 
         ''' <summary>
         ''' Formata uma Key de um <see cref="FortnightGroup"/> para uma string especifica
