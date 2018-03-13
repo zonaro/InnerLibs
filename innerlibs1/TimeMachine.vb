@@ -7,15 +7,32 @@ Namespace TimeMachine
 
         Property DataCollection As New List(Of DataType)
 
-        Property DateSelector As New List(Of Func(Of DataType, DateTime))
+        Property DateSelector As New List(Of Func(Of DataType, Date))
 
+
+        ''' <summary>
+        ''' Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada
+        ''' </summary>
+        ''' <param name="Fort">Quinzena</param>
+        ''' <returns></returns>
+        Default Public Shadows ReadOnly Property GetData(Fort As Fortnight) As IEnumerable(Of DataType)
+            Get
+                Return _getdata(Fort.Key)
+            End Get
+        End Property
 
         ''' <summary>
         ''' Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada em <paramref name="Key"/>
         ''' </summary>
         ''' <param name="Key">Key da quinzena q@MM-YYYY</param>
         ''' <returns></returns>
-        Public Function GetData(Key As String) As IEnumerable(Of DataType)
+        Default Public Shadows ReadOnly Property GetData(Key As String) As IEnumerable(Of DataType)
+            Get
+                Return _getdata(Key)
+            End Get
+        End Property
+
+        Private Function _getdata(Key As String) As IEnumerable(Of DataType)
             Dim lista As New List(Of DataType)
             For Each ii In DataCollection
                 Dim datas As New List(Of Date)
@@ -25,7 +42,7 @@ Namespace TimeMachine
 
                 datas = datas.OrderBy(Function(x) x).ToList
                 Dim periodo1 As New DateRange(datas.First, datas.Last)
-                Dim periodo2 As New DateRange(Me(Key).Period.StartDate, Me(Key).Period.EndDate)
+                Dim periodo2 As New DateRange(Me.Item(Key).Period.StartDate, Me.Item(Key).Period.EndDate)
 
                 If periodo1.MatchAny(periodo2) Then
                     lista.Add(ii)
@@ -37,14 +54,6 @@ Namespace TimeMachine
             Return lista
         End Function
 
-        ''' <summary>
-        ''' Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada
-        ''' </summary>
-        ''' <param name="Fort">Quinzena</param>
-        ''' <returns></returns>
-        Public Function GetData(Fort As Fortnight) As IEnumerable(Of DataType)
-            Return Me.GetData(Fort.Key)
-        End Function
 
         ''' <summary>
         ''' Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informaçoes agrupadas por quinzena
@@ -69,13 +78,34 @@ Namespace TimeMachine
         ''' <summary>
         ''' Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
         ''' </summary>
+        ''' <param name="Range">Periodo especifico que este grupo irá abranger idependentemente das datas em <paramref name="DateSelector"/></param>
         ''' <param name="Data">Coleção de objetos</param>
         ''' <param name="DateSelector">Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada</param>
         ''' <returns></returns>
-        Public Shared Function CreateFromDataGroup(Data As IEnumerable(Of DataType), ParamArray DateSelector As Func(Of DataType, DateTime)()) As FortnightGroup(Of DataType)
+        Public Shared Function CreateFromDataGroup(Data As IEnumerable(Of DataType), Range As DateRange, ParamArray DateSelector As Func(Of DataType, Date)()) As FortnightGroup(Of DataType)
+            Dim fort As FortnightGroup(Of DataType)
+            If Not (Data Is Nothing OrElse Data.Count = 0) Then
+                If DateSelector Is Nothing OrElse DateSelector.Count = 0 Then
+                    Throw New ArgumentNullException("DateSelector is Nothing or Empty")
+                End If
+                fort = CreateFromDateRange(Range.StartDate, Range.EndDate)
+                fort.DataCollection = Data.ToList
+                fort.DateSelector = DateSelector.ToList
+            Else
+                Throw New ArgumentNullException("Data Is Nothing or Empty")
+            End If
+            Return fort
+        End Function
+
+        ''' <summary>
+        ''' Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
+        ''' </summary>
+        ''' <param name="Data">Coleção de objetos</param>
+        ''' <param name="DateSelector">Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada</param>
+        ''' <returns></returns>
+        Public Shared Function CreateFromDataGroup(Data As IEnumerable(Of DataType), ParamArray DateSelector As Func(Of DataType, Date)()) As FortnightGroup(Of DataType)
             If Not (Data Is Nothing OrElse Data.Count = 0) Then
                 Dim datas As New List(Of Date?)
-
                 If DateSelector Is Nothing OrElse DateSelector.Count = 0 Then
                     Throw New ArgumentNullException("DateSelector is Nothing or Empty")
                 Else
@@ -83,16 +113,9 @@ Namespace TimeMachine
                         datas.Add(Data.OrderBy(dd).Select(dd).First)
                         datas.Add(Data.OrderBy(dd).Select(dd).Last)
                     Next
-
+                    datas = datas.Distinct.Where(Function(x) x.HasValue).OrderBy(Function(x) x).ToList
+                    Return CreateFromDataGroup(Data, New DateRange(datas.First, datas.Last), DateSelector)
                 End If
-
-                Dim arrdata = datas.Distinct.Where(Function(x) x.HasValue).OrderBy(Function(x) x)
-
-                Dim fort = CreateFromDateRange(arrdata.First, arrdata.Last)
-
-                fort.DataCollection = Data.ToList
-                fort.DateSelector = DateSelector.ToList
-                Return fort
             Else
                 Throw New ArgumentNullException("Data Is Nothing or Empty")
             End If
@@ -264,7 +287,12 @@ Namespace TimeMachine
             MyBase.New(GerarLista(StartDate, FortnightCount))
         End Sub
 
-
+        ''' <summary>
+        ''' Cria um grupo de quinzenas entre 2 datas
+        ''' </summary>
+        ''' <param name="StartDate"></param>
+        ''' <param name="EndDate"></param>
+        ''' <returns></returns>
         Public Shared Function CreateFromDateRange(StartDate As DateTime, EndDate As DateTime) As FortnightGroup
             FixDateOrder(StartDate, EndDate)
             Dim fortcount As Integer = 1
