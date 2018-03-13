@@ -5,6 +5,11 @@
     "Description": "Internet Telephony"
   },
   {
+    "Extensions": [ ".amr" ],
+    "MimeTypes": [ "audio/amr" ],
+    "Description": "Adaptive Multi-Rate ACELP Codec"
+  },
+  {
     "Extensions": [ ".aac" ],
     "MimeTypes": [ "audio/aac" ],
     "Description": "Aac Audio File"
