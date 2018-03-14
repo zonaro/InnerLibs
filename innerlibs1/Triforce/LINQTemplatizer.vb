@@ -1047,7 +1047,9 @@ Namespace LINQ
                     ff = Function(match)
                              Dim s As String
                              Try
-                                 s = CType(Item, IDictionary)(match.Groups(1).Value)
+                                 's = CType(Item, IDictionary)(match.Groups(1).Value)
+                                 s = ClassTools.GetPropertyValue(CType(Item, IDictionary)(match.Groups(1).Value),)
+
                                  If s Is Nothing Then Throw New KeyNotFoundException(ApplySelector(match.Groups(1).Value) & " not found")
                              Catch ex As Exception
                                  s = ApplySelector(match.Groups(1).Value)
@@ -1056,7 +1058,14 @@ Namespace LINQ
                          End Function
                 Else
                     ff = Function(match As Match) As String
-                             Dim val = Item.GetPropertyValue(Of Object)(match.Groups(1).Value, True)
+                             Dim val
+
+                             If match.Groups(1).Value.ContainsAny("(", ")") Then
+                                 val = Item.GetPropertyValue(Of Object)(ReplaceValues(Item, match.Groups(1).Value), True)
+                             Else
+                                 val = Item.GetPropertyValue(Of Object)(match.Groups(1).Value, True)
+                             End If
+
                              If val Is Nothing Then Return ApplySelector(match.Groups(1).Value)
                              If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
                                  Dim d As Date? = val

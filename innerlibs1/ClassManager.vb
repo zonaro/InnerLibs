@@ -6,6 +6,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
+Imports System.Text.RegularExpressions
 Imports System.Web
 Imports InnerLibs.HtmlParser
 
@@ -403,10 +404,10 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="MyObject">Objeto</param>
     ''' <param name="PropertyName">Nome da properiedade</param>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <param name="Type">Tipo do Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetPropertyValue(Of Type)(MyObject As Object, PropertyName As String, Optional GetPrivate As Boolean = False) As Type
+    Public Function GetPropertyValue(MyObject As Object, PropertyName As String, Type As Type, Optional GetPrivate As Boolean = False)
         Try
             Dim obj = MyObject
             For Each part As String In PropertyName.Split("."c)
@@ -419,21 +420,72 @@ Public Module ClassTools
                 End If
                 Dim info As PropertyInfo
                 If GetPrivate Then
-                    info = ClassTools.GetProperties(obj, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance).Where(Function(x) x.Name.ToLower = part.ToLower).First
+                    info = ClassTools.GetProperties(obj, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).First
                 Else
-                    info = ClassTools.GetProperties(obj).Where(Function(x) x.Name.ToLower = part.ToLower).First
+                    info = ClassTools.GetProperties(obj).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).First
                 End If
                 If info Is Nothing Then
                     Return Nothing
                 End If
-                obj = info.GetValue(obj)
+
+                If part.RemoveFirstIf(info.Name).StartsWith("(") Then
+                    obj = info.GetValue(obj, obj.GetType().GetPropertyParametersFromString(part))
+                Else
+                    obj = info.GetValue(obj)
+                End If
             Next
-            Return CType(obj, Type)
+            Return Convert.ChangeType(obj, Type)
         Catch ex As Exception
             Return Nothing
         End Try
     End Function
 
+    ''' <summary>
+    ''' Traz o valor de uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <param name="PropertyName">Nome da properiedade</param>
+    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetPropertyValue(Of Type)(MyObject As Object, PropertyName As String, Optional GetPrivate As Boolean = False) As Type
+        Return GetPropertyValue(MyObject, PropertyName, GetType(Type), GetPrivate)
+    End Function
+
+    ''' <summary>
+    ''' Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Public Function GetPropertyParametersFromString(Type As Type, Text As String) As Object()
+        Dim props = Type.GetProperties(BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
+        Dim name As String = Text.GetBefore("(")
+        Dim params = Regex.Split(Text.RemoveFirstIf(name).RemoveFirstIf("(").RemoveLastIf(")"), ",(?=(?:[^""]*""[^""]*"")*[^""]*$)")
+
+        Dim info = props.Where(Function(x) x.Name.ToLower = name.ToLower AndAlso x.GetIndexParameters.Count = params.Count).FirstOrDefault
+
+        If info IsNot Nothing Then
+            Dim oParam = info.GetIndexParameters()
+            Dim arr As New List(Of Object)(oParam.Count)
+            For index = 0 To oParam.Count - 1
+                Try
+                    arr.Add(Convert.ChangeType(params(index).GetWrappedText.FirstOr(params(index)), oParam(index).ParameterType))
+                Catch ex As Exception
+                End Try
+            Next
+            Return arr.ToArray
+        End If
+        Return {}
+    End Function
+
+    ''' <summary>
+    ''' Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetPropertyParameterFromString(Of Type)(Text As String) As Object()
+        Return GetType(Type).GetPropertyParametersFromString(Text)
+    End Function
 
     ''' <summary>
     ''' Seta o valor de uma propriedade de um objeto

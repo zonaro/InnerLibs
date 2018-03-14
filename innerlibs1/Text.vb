@@ -2422,7 +2422,8 @@ Public Module Text
     <Extension> Public Function GetWrappedText(Text As String, Optional Character As String = """", Optional ExcludeWrapChars As Boolean = True) As List(Of String)
         Dim lista As New List(Of String)
         Dim regx = Character.RegexEscape & "(.*?)" & Character.ToString.GetOppositeWrapChar.RegexEscape
-        For Each a As Match In New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
+        Dim mm = New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
+        For Each a As Match In mm
             If ExcludeWrapChars Then
                 lista.Add(a.Value.RemoveFirstIf(Character).RemoveLastIf(GetOppositeWrapChar(Character)))
             Else
