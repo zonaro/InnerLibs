@@ -164,7 +164,7 @@ Namespace TimeMachine
         ''' </summary>
         ''' <param name="Format">Formato da string</param>
         ''' <returns></returns>
-        Public Function FormatName(Optional Format As String = "{q}{o} - {mmmm}/{yyyy} ") As String
+        Public Function FormatName(Optional Format As String = "{q}{o} - {mmmm}/{yyyy}") As String
             Dim dia As Integer = Key.Split("@")(0)
             Dim mes As Integer = Key.Split("@")(1).Split("-")(0)
             Dim ano As Integer = Key.Split("@")(1).Split("-")(1)
@@ -172,7 +172,7 @@ Namespace TimeMachine
             Format = Format.Replace("{qq}", dia.ToString("##"))
             Format = Format.Replace("{m}", mes.ToString("#"))
             Format = Format.Replace("{mm}", mes.ToString("##"))
-            Format = Format.Replace("{mmm}", mes.ToLongMonthName)
+            Format = Format.Replace("{mmm}", mes.ToShortMonthName)
             Format = Format.Replace("{mmmm}", mes.ToLongMonthName)
             Format = Format.Replace("{y}", ano.ToString.GetLastChars(2))
             Format = Format.Replace("{yy}", ano.ToString.GetLastChars(2))
@@ -195,7 +195,6 @@ Namespace TimeMachine
         Inherits ReadOnlyCollection(Of Fortnight)
 
 
-
         ''' <summary>
         ''' Retorna uma quinzena a partir da sua Key
         ''' </summary>
@@ -204,6 +203,17 @@ Namespace TimeMachine
         Default Public Overloads ReadOnly Property Item(Key As String) As Fortnight
             Get
                 Return MyBase.Item(MyBase.IndexOf(Me.Where(Function(x) x.Key = Key).SingleOrDefault))
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Retorna uma quinzena a partir da sua Index
+        ''' </summary>
+        ''' <param name="Index"></param>
+        ''' <returns></returns>
+        Default Public Overloads ReadOnly Property Item(Index As Integer) As Fortnight
+            Get
+                Return MyBase.Item(Index)
             End Get
         End Property
 

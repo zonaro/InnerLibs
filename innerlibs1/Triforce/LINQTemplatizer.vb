@@ -437,6 +437,12 @@ Namespace LINQ
         Public Property CustomValues As New Dictionary(Of String, Object)
 
         ''' <summary>
+        ''' Propriedades retiradas diretamente de um objeto com indexadores
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property CustomProperties As New Dictionary(Of String, TemplatePropertySelector)
+
+        ''' <summary>
         ''' Formato das datas apresentadas no template
         ''' </summary>
         ''' <returns></returns>
@@ -523,6 +529,13 @@ Namespace LINQ
                 Template = Me.GetTemplate(Of T)
             End If
 
+            Dim post_proccess As New Dictionary(Of String, Object)
+
+            For Each pp In CustomProperties
+                Dim oo As New TemplatePropertySelector(pp.Value.Obj, ReplaceValues(Item, pp.Value.PropertyString))
+                post_proccess.Add(pp.Key, oo.Proccess)
+            Next
+
             Dim doc = New HtmlDocument(pegartemplate(Template))
 
             ProccessGet(doc)
@@ -530,6 +543,7 @@ Namespace LINQ
             'replace nos valores
             TravesseAndReplace(doc.Nodes, Item)
             TravesseAndReplace(doc.Nodes, CustomValues)
+            TravesseAndReplace(doc.Nodes, post_proccess)
 
             'processa subtemplates
             Me.ProcessSubTemplate(Item, doc)
@@ -1047,9 +1061,7 @@ Namespace LINQ
                     ff = Function(match)
                              Dim s As String
                              Try
-                                 's = CType(Item, IDictionary)(match.Groups(1).Value)
-                                 s = ClassTools.GetPropertyValue(CType(Item, IDictionary)(match.Groups(1).Value),)
-
+                                 s = CType(Item, IDictionary)(match.Groups(1).Value)
                                  If s Is Nothing Then Throw New KeyNotFoundException(ApplySelector(match.Groups(1).Value) & " not found")
                              Catch ex As Exception
                                  s = ApplySelector(match.Groups(1).Value)
@@ -1426,6 +1438,28 @@ Namespace LINQ
 
     End Class
 
+
+
+
+    Public Class TemplatePropertySelector
+        Property Obj As Object
+        Property PropertyString As String
+
+
+        Sub New(Obj As Object, PropertyString As String)
+            Me.Obj = Obj
+            Me.PropertyString = PropertyString
+        End Sub
+
+        Public Function Proccess() As Object
+            If PropertyString.IsNotBlank Then
+                Return ClassTools.GetPropertyValue(Of Object)(Obj, PropertyString, True)
+            Else
+                Return Obj
+            End If
+        End Function
+
+    End Class
 
 End Namespace
 
