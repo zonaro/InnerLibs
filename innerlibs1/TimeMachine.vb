@@ -84,15 +84,12 @@ Namespace TimeMachine
         ''' <returns></returns>
         Public Shared Function CreateFromDataGroup(Data As IEnumerable(Of DataType), Range As DateRange, ParamArray DateSelector As Func(Of DataType, Date)()) As FortnightGroup(Of DataType)
             Dim fort As FortnightGroup(Of DataType)
-            If Not (Data Is Nothing OrElse Data.Count = 0) Then
-                If DateSelector Is Nothing OrElse DateSelector.Count = 0 Then
-                    Throw New ArgumentNullException("DateSelector is Nothing or Empty")
-                End If
-                fort = CreateFromDateRange(Range.StartDate, Range.EndDate)
+            fort = CreateFromDateRange(Range.StartDate, Range.EndDate)
+            If Data IsNot Nothing AndAlso Data.Count > 0 Then
                 fort.DataCollection = Data.ToList
+            End If
+            If DateSelector IsNot Nothing AndAlso DateSelector.Count > 0 Then
                 fort.DateSelector = DateSelector.ToList
-            Else
-                Throw New ArgumentNullException("Data Is Nothing or Empty")
             End If
             Return fort
         End Function
@@ -104,20 +101,17 @@ Namespace TimeMachine
         ''' <param name="DateSelector">Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada</param>
         ''' <returns></returns>
         Public Shared Function CreateFromDataGroup(Data As IEnumerable(Of DataType), ParamArray DateSelector As Func(Of DataType, Date)()) As FortnightGroup(Of DataType)
-            If Not (Data Is Nothing OrElse Data.Count = 0) Then
-                Dim datas As New List(Of Date?)
-                If DateSelector Is Nothing OrElse DateSelector.Count = 0 Then
-                    Throw New ArgumentNullException("DateSelector is Nothing or Empty")
-                Else
-                    For Each dd In DateSelector
-                        datas.Add(Data.OrderBy(dd).Select(dd).First)
-                        datas.Add(Data.OrderBy(dd).Select(dd).Last)
-                    Next
-                    datas = datas.Distinct.Where(Function(x) x.HasValue).OrderBy(Function(x) x).ToList
-                    Return CreateFromDataGroup(Data, New DateRange(datas.First, datas.Last), DateSelector)
-                End If
+
+            Dim datas As New List(Of Date?)
+            If DateSelector Is Nothing OrElse DateSelector.Count = 0 Then
+                Throw New ArgumentNullException("DateSelector is Nothing or Empty")
             Else
-                Throw New ArgumentNullException("Data Is Nothing or Empty")
+                For Each dd In DateSelector
+                    datas.Add(Data.OrderBy(dd).Select(dd).First)
+                    datas.Add(Data.OrderBy(dd).Select(dd).Last)
+                Next
+                datas = datas.Distinct.Where(Function(x) x.HasValue).OrderBy(Function(x) x).ToList
+                Return CreateFromDataGroup(Data, New DateRange(datas.First, datas.Last), DateSelector)
             End If
 
         End Function
