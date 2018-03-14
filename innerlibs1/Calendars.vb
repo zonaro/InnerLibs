@@ -255,7 +255,11 @@ Public Module Calendars
     ''' <returns></returns>
     <Extension()> Public Function GetBetween(StartDate As DateTime, EndDate As DateTime, ParamArray Days() As DayOfWeek) As List(Of Date)
         Dim dt As New DateRange(StartDate, EndDate)
-        Return dt.ToList.Where(Function(x) x.DayOfWeek.IsIn(Days)).Select(Function(x) x.Date).ToList
+        If Days IsNot Nothing AndAlso Days.Count > 0 Then
+            Return dt.ToList.Where(Function(x) x.DayOfWeek.IsIn(Days)).Select(Function(x) x.Date).ToList
+        Else
+            Return dt.ToList.Select(Function(x) x.Date).ToList
+        End If
     End Function
 
     ''' <summary>
