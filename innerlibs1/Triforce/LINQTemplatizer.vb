@@ -628,6 +628,21 @@ Namespace LINQ
         End Function
 
 
+        ''' <summary>
+        ''' Aplica um array de objetos em um template e retorna um Template(Of Dictionary(Of String, Object)) do resultado
+        ''' </summary>
+        ''' <param name="Template">Template</param>
+        ''' <param name="Items">Items na ordem que serão substituidos</param>
+        ''' <returns></returns>
+        Public Function ApplyArrayTemplate(Template As String, ParamArray Items As Object()) As Template(Of Dictionary(Of Integer, Object))
+            Dim stringas As New Dictionary(Of Integer, Object)
+            Template = GetTemplateContent(Template, TemplateTag.Body)
+            For Each item In Items
+                stringas.Add(Array.IndexOf(Items, item), item)
+            Next
+            Return ApplyTemplate(stringas, Template)
+        End Function
+
 
 
         ''' <summary>

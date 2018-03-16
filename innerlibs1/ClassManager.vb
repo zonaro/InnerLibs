@@ -701,6 +701,17 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Pega o texto de um arquivo embutido no assembly
+    ''' </summary>
+    ''' <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetResourceHtmlDocument(Assembly As Assembly, FileName As String) As HtmlDocument
+        Using d As New StreamReader(Assembly.GetManifestResourceStream(FileName))
+            Return New HtmlDocument(d.ReadToEnd)
+        End Using
+    End Function
+
+    ''' <summary>
     ''' Adiciona uma fonte a uma PrivateFontCollection a partir de um Resource
     ''' </summary>
     ''' <param name="FontCollection">Colecao</param>

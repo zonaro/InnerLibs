@@ -154,6 +154,15 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se o valor não é um numero
+    ''' </summary>
+    ''' <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
+    ''' <returns>FALSE se for um numero, TRUE se não for um numero</returns>
+    <Extension()> Public Function IsNotNumber(Value As Object) As Boolean
+        Return Not IsNumber(Value)
+    End Function
+
+    ''' <summary>
     ''' Verifica se um determinado texto é um email
     ''' </summary>
     ''' <param name="Text">Texto a ser validado</param>
