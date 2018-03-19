@@ -86,8 +86,8 @@ Public Module Converter
                 keys = keys.Select(Function(x) x.Replace("_", " ").ToProper.AdjustBlankSpaces)
             End If
             Return New HtmlElement("table", TableHeader(keys.ToArray) & body.WrapInTag("tbody").ToString)
-            Else
-                Return New HtmlElement("table")
+        Else
+            Return New HtmlElement("table")
         End If
     End Function
 
@@ -281,8 +281,31 @@ Public Module Converter
         Return result
     End Function
 
+    ''' <summary>
+    ''' Seta as propriedades de uma classe a partir de um dictionary
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Dic"></param>
+    ''' <param name="Obj"></param>
+    <Extension()>
+    Public Sub SetPropertiesIn(Of T As Class)(Dic As IDictionary(Of String, Object), Obj As T)
+        For Each k In Dic
+            If Obj.HasProperty(k.Key) Then
+                Obj.SetPropertyValue(k.Key, k.Value)
+            End If
+        Next
+    End Sub
 
-
+    ''' <summary>
+    ''' Seta as propriedades de uma classe a partir de um HttpRequest
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Request"></param>
+    ''' <param name="Obj"></param>
+    <Extension()>
+    Public Sub SetPropertiesIn(Of T As Class)(Request As HttpRequest, ByRef Obj As T, ParamArray Keys As String())
+        Request.ToDictionary(Keys).SetPropertiesIn(Of T)(Obj)
+    End Sub
 
 
 

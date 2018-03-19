@@ -1,6 +1,7 @@
 ﻿Imports System.Data.Linq
 Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
+Imports System.Web
 
 Namespace LINQ
 
@@ -64,6 +65,45 @@ Namespace LINQ
             Return obj
         End Function
 
+        ''' <summary>
+        ''' Atualiza um objeto de entidade a partir de valores em um Dictionary
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <typeparam name="PKType"></typeparam>
+        ''' <param name="Context"></param>
+        ''' <param name="Dic"></param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function UpdateObjectFromDictionary(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Dic As IDictionary(Of String, Object)) As T
+            Dim table = Context.GetTable(Of T)()
+            Dim mapping = Context.Mapping.GetTable(GetType(T))
+            Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
+            If pkfield Is Nothing Then Throw New Exception(String.Format("Table {0} does not contain a Primary Key field", mapping.TableName))
+            Dim ID As PKType = CType(Dic(pkfield.Name), PKType)
+            Dim param = Expression.Parameter(GetType(T), "e")
+            Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(ID)), param)
+            Dim obj = table.SingleOrDefault(predicate)
+            If obj Is Nothing Then
+                obj = Activator.CreateInstance(Of T)
+                Context.GetTable(Of T).InsertOnSubmit(obj)
+            End If
+            Dic.SetPropertiesIn(obj)
+            Return obj
+        End Function
+
+        ''' <summary>
+        ''' Atualiza um objeto de entidade a partir de valores em um HttpRequest
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <typeparam name="PKType"></typeparam>
+        ''' <param name="Context"></param>
+        ''' <param name="Request"></param>
+        ''' <param name="Keys"></param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function UpdateObjectFromRequest(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Request As HttpRequest, ParamArray Keys As String()) As T
+            Return Context.UpdateObjectFromDictionary(Of T, PKType)(Request.ToDictionary(Keys))
+        End Function
 
     End Module
 
