@@ -16,6 +16,47 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
+    ''' Retorna a palavra especificada no singular ou plural de acordo com um numero
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Count"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function Singularize(Text As String, Count As Integer) As String
+        Dim phrase As String() = Text.GetWords
+        For index = 0 To phrase.Count - 1
+            If Count.IsIn({-1, 1}) Then
+                Select Case True
+                    Case phrase(index).EndsWith("ões")
+                        phrase(index) = phrase(index).RemoveLastIf("ões").Append("ão")
+                        Exit Select
+                    Case phrase(index).EndsWith("ães")
+                        phrase(index) = phrase(index).RemoveLastIf("ães").Append("ão")
+                        Exit Select
+                    Case phrase(index).EndsWith("ns")
+                        phrase(index) = phrase(index).RemoveLastIf("ns").Append("m")
+                    Case phrase(index).EndsWith("s")
+                        phrase(index) = phrase(index).RemoveLastIf("s")
+
+                    Case Else
+                        'ja esta no singular
+                End Select
+            Else
+                Select Case True
+                    Case phrase(index).EndsWith("ão")
+                        phrase(index) = phrase(index).RemoveLastIf("ão").Append("ães")
+                        Exit Select
+                    Case phrase(index).EndsWith("ães"), phrase(index).EndsWith("ãos"), phrase(index).EndsWith("ões"), phrase(index).EndsWith("ns"), phrase(index).EndsWith("s")
+                        'ja esta no plural
+                        Exit Select
+                    Case Else
+                        phrase(index) = phrase(index) & "s"
+                End Select
+            End If
+        Next
+        Return phrase.Join(" ")
+    End Function
+
+    ''' <summary>
     ''' Conta os caracters especificos de uma string
     ''' </summary>
     ''' <param name="Text">Texto</param>
