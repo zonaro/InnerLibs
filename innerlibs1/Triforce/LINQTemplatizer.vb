@@ -40,6 +40,7 @@ Namespace LINQ
         ''' Placeholder aplicado no lugar do body quando a lista não conter resultados
         ''' </summary>
         Empty = 4
+
     End Enum
 
     ''' <summary>
@@ -470,7 +471,6 @@ Namespace LINQ
 
         Function GetTemplate(Type As Type, Optional ProcessFile As Boolean = False) As String
             Dim tmp = ""
-
             If Type.HasProperty("TriforceTemplate") Then
                 tmp = ClassTools.GetPropertyValue(Activator.CreateInstance(Type), "TriforceTemplate").ToString
                 If tmp.IsBlank Then
@@ -497,7 +497,7 @@ Namespace LINQ
         ''' <param name="Template"></param>
         ''' <returns></returns>
         Function SetTemplate(Of T As Class)(Template As String) As Triforce
-            MapType(GetType(T)) = Template
+            MapType(GetType(T)) = Template.IfBlank(GetTemplate(Of T))
             Return Me
         End Function
 
@@ -556,9 +556,6 @@ Namespace LINQ
             ProccessIf(Item, doc)
             ProcessRepeat(doc)
 
-            'remover att do triforce
-            doc.FindElements(Of HtmlElement)(Function(x) x.HasAttribute("renderas")).ForEach(Sub(x As HtmlElement) x.RemoveAttribute("renderas"))
-            doc.FindElements(Of HtmlElement)(Function(x) x.HasAttribute("triforce-quantify")).ForEach(Sub(x As HtmlElement) x.RemoveAttribute("triforce-quantify"))
 
             Return New Template(Of T)(Item, doc.ToString)
         End Function
@@ -1059,20 +1056,21 @@ Namespace LINQ
                             at.Value = at.Value.QuantifyText(Culture)
                         End If
                     Next
-
                     If cel.Nodes.Count > 0 Then
-                        TravesseAndReplace(CType(el, HtmlElement).Nodes, item)
+                        TravesseAndReplace(cel.Nodes, item)
                     End If
                 Else
                     Dim ctx = CType(el, HtmlText)
-
                     Dim txt = ReplaceValues(item, ctx.Text)
                     nodes.ReplaceElement(el, New HtmlParser.HtmlParser().Parse(txt))
 
                     If ctx.Parent IsNot Nothing AndAlso ctx.Parent.HasAttribute("triforce-quantify") Then
                         If Not ctx.Parent.Attribute("triforce-quantify") = "false" Then
-                            ctx.Text = ctx.Text.QuantifyText(Me.Culture)
+                            For Each node As HtmlText In ctx.Parent.FindElements(Of HtmlText)(Function(x) True, False)
+                                node.Text = node.Text.QuantifyText(Me.Culture)
+                            Next
                         End If
+                        ctx.Parent.RemoveAttribute("triforce-quantify")
                     End If
                 End If
             Next
@@ -1110,7 +1108,16 @@ Namespace LINQ
                              If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
                                  Dim d As Date? = val
                                  If d.HasValue Then
-                                     Return d.Value.ToString(Culture.DateTimeFormat)
+                                     Select Case True
+                                         Case Item.HasProperty(match.Groups(1).Value & "_Format")
+                                             Dim format = Item.GetPropertyValue(Of String)(match.Groups(1).Value & "_Format", True)
+                                             Return d.Value.ToString(format.ToString)
+                                         Case Item.HasProperty("TriforceDateTimeFormat")
+                                             Dim format = Item.GetPropertyValue(Of String)("TriforceDateTimeFormat", True)
+                                             Return d.Value.ToString(format.ToString)
+                                         Case Else
+                                             Return d.Value.ToString(Culture.DateTimeFormat)
+                                     End Select
                                  Else
                                      Return ""
                                  End If

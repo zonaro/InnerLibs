@@ -15,22 +15,24 @@ Public Class DateRange
     Public Property StartDate As Date
     Public Property EndDate As Date
 
+
     ''' <summary>
     ''' Instancia um novo periodo entre 2 datas
     ''' </summary>
     ''' <param name="StartDate"></param>
     ''' <param name="EndDate"></param>
     Sub New(StartDate As Date, EndDate As Date)
-        FixDateOrder(StartDate, EndDate)
         Me.StartDate = StartDate
         Me.EndDate = EndDate
     End Sub
 
     Function Difference() As TimeFlow
+        FixDateOrder(StartDate, EndDate)
         Return StartDate.GetDifference(EndDate)
     End Function
 
     Public Function CreateFortnightGroup() As FortnightGroup
+        FixDateOrder(StartDate, EndDate)
         Return FortnightGroup.CreateFromDateRange(Me.StartDate, Me.EndDate)
     End Function
 
@@ -60,6 +62,7 @@ Public Class DateRange
     ''' <param name="Period">Periodo</param>
     ''' <returns></returns>
     Public Function Overlaps(Period As DateRange) As Boolean
+        FixDateOrder(StartDate, EndDate)
         Select Case True
             Case Period.StartDate <= Me.EndDate And Period.StartDate >= Me.StartDate
                 Return True
@@ -77,6 +80,7 @@ Public Class DateRange
     ''' <returns></returns>
     ''' 
     Public Function MatchAny(Period As DateRange) As Boolean
+        FixDateOrder(StartDate, EndDate)
         Return Me.Overlaps(Period) Or Me.Contains(Period) Or Me.IsIn(Period)
     End Function
 
@@ -86,6 +90,7 @@ Public Class DateRange
     ''' <param name="Period"></param>
     ''' <returns></returns>
     Public Function Contains(Period As DateRange) As Boolean
+        FixDateOrder(StartDate, EndDate)
         Return Me.StartDate <= Period.StartDate And Period.EndDate <= Me.EndDate
     End Function
 
@@ -95,6 +100,7 @@ Public Class DateRange
     ''' <param name="Period"></param>
     ''' <returns></returns>
     Public Function IsIn(Period As DateRange) As Boolean
+        FixDateOrder(StartDate, EndDate)
         Return Period.Contains(Me)
     End Function
 
