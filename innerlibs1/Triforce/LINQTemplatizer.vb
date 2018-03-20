@@ -2,6 +2,7 @@
 Imports System.Data.Common
 Imports System.Data.Linq
 Imports System.Data.Linq.Mapping
+Imports System.Globalization
 Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
@@ -57,9 +58,9 @@ Namespace LINQ
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Diretório
         ''' </summary>
         ''' <param name="TemplateDirectory">Diretório contendo os arquivos HTML</param>
-        ''' <param name="DateTimeFormat"></param>
-        Sub New(TemplateDirectory As DirectoryInfo, Optional DateTimeFormat As String = "dd/MM/yyyy HH:mm:ss")
-            MyBase.New(TemplateDirectory, DateTimeFormat)
+
+        Sub New(TemplateDirectory As DirectoryInfo)
+            MyBase.New(TemplateDirectory)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
 
@@ -68,9 +69,8 @@ Namespace LINQ
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
         ''' </summary>
         ''' <param name="ApplicationAssembly">Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE</param>
-        ''' <param name="DateTimeFormat"></param>
-        Sub New(ApplicationAssembly As Assembly, Optional DateTimeFormat As String = "dd/MM/yyyy HH:mm:ss")
-            MyBase.New(ApplicationAssembly, DateTimeFormat)
+        Sub New(ApplicationAssembly As Assembly)
+            MyBase.New(ApplicationAssembly)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
 
@@ -380,9 +380,7 @@ Namespace LINQ
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
         ''' </summary>
         ''' <param name="ApplicationAssembly">Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE</param>
-        ''' <param name="DateTimeFormat"></param>
-        Sub New(ApplicationAssembly As Assembly, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
-            Me.DateTimeFormat = If(DateTimeFormat, "dd/MM/yyyy hh:mm:ss")
+        Sub New(ApplicationAssembly As Assembly)
             Me.ApplicationAssembly = ApplicationAssembly
         End Sub
 
@@ -390,9 +388,7 @@ Namespace LINQ
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
         ''' </summary>
         ''' <param name="TemplateDirectory">Diretorio contendo os arquivos HTML</param>
-        ''' <param name="DateTimeFormat"></param>
-        Sub New(TemplateDirectory As DirectoryInfo, Optional DateTimeFormat As String = "dd/MM/yyyy hh:mm:ss")
-            Me.DateTimeFormat = If(DateTimeFormat, "dd/MM/yyyy hh:mm:ss")
+        Sub New(TemplateDirectory As DirectoryInfo)
             Me.TemplateDirectory = TemplateDirectory
         End Sub
 
@@ -442,20 +438,23 @@ Namespace LINQ
         ''' <returns></returns>
         Public Property CustomProperties As New Dictionary(Of String, TemplatePropertySelector)
 
+
+
         ''' <summary>
-        ''' Formato das datas apresentadas no template
+        ''' Especifica a cultura utilizda para este Triforce
         ''' </summary>
         ''' <returns></returns>
-        Public Property DateTimeFormat As String
+        Public Property Culture As CultureInfo
             Get
-                Return _datetimeformat.IfBlank("dd/MM/yyyy hh:mm:ss")
+                Return If(_cult, CultureInfo.CurrentCulture)
             End Get
-            Set(value As String)
-                _datetimeformat = value.IfBlank("dd/MM/yyyy hh:mm:ss")
+            Set(value As CultureInfo)
+                _cult = value
             End Set
         End Property
 
-        Friend _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
+        Friend _cult As CultureInfo
+        'Friend _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
         Friend sel As String() = {"##", "##"}
 
         Friend TemplateMap As New Dictionary(Of Type, String)
@@ -557,6 +556,9 @@ Namespace LINQ
             ProccessIf(Item, doc)
             ProcessRepeat(doc)
 
+            'remover att do triforce
+            doc.FindElements(Of HtmlElement)(Function(x) x.HasAttribute("renderas")).ForEach(Sub(x As HtmlElement) x.RemoveAttribute("renderas"))
+            doc.FindElements(Of HtmlElement)(Function(x) x.HasAttribute("triforce-quantify")).ForEach(Sub(x As HtmlElement) x.RemoveAttribute("triforce-quantify"))
 
             Return New Template(Of T)(Item, doc.ToString)
         End Function
@@ -1052,15 +1054,26 @@ Namespace LINQ
                     For Each at In cel.Attributes
                         at.Name = ReplaceValues(item, at.Name)
                         at.Value = ReplaceValues(item, at.Value)
+                        If at.Name.StartsWith("triforce-quantify-") Then
+                            at.Name = at.Name.RemoveFirstIf("triforce-quantify-")
+                            at.Value = at.Value.QuantifyText(Culture)
+                        End If
                     Next
 
                     If cel.Nodes.Count > 0 Then
                         TravesseAndReplace(CType(el, HtmlElement).Nodes, item)
                     End If
                 Else
-                    Dim ctx = CType(el, HtmlText).Text
-                    Dim txt = ReplaceValues(item, ctx)
+                    Dim ctx = CType(el, HtmlText)
+
+                    Dim txt = ReplaceValues(item, ctx.Text)
                     nodes.ReplaceElement(el, New HtmlParser.HtmlParser().Parse(txt))
+
+                    If ctx.Parent IsNot Nothing AndAlso ctx.Parent.HasAttribute("triforce-quantify") Then
+                        If Not ctx.Parent.Attribute("triforce-quantify") = "false" Then
+                            ctx.Text = ctx.Text.QuantifyText(Me.Culture)
+                        End If
+                    End If
                 End If
             Next
         End Sub
@@ -1097,7 +1110,7 @@ Namespace LINQ
                              If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
                                  Dim d As Date? = val
                                  If d.HasValue Then
-                                     Return d.Value.ToString(DateTimeFormat)
+                                     Return d.Value.ToString(Culture.DateTimeFormat)
                                  Else
                                      Return ""
                                  End If

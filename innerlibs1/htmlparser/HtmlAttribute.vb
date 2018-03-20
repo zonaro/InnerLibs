@@ -159,24 +159,28 @@ Namespace HtmlParser
         ''' Add an attribute to element
         ''' </summary>
         ''' <param name="Name">Name of attribute</param>
-        ''' <param name="Value">Value of attribute, fro Wired attributes just leave Nothing</param>
-        Public Shadows Function Add(Name As String, Optional Value As String = Nothing) As HtmlElement
+        ''' <param name="Value">Value of attribute, for Wired attributes just leave Nothing</param>
+        Public Shadows Function Add(Name As String, Optional Value As String = Nothing) As HtmlAttribute
             If Name.IsNotBlank Then
                 If Me.Contains(Name) Then
                     Me.Remove(Name)
                 End If
-                Me.Add(New HtmlAttribute(Name, Value))
+                Return Me.Add(New HtmlAttribute(Name, Value))
             End If
-            Return mElement
+            Return Nothing
         End Function
 
         ''' <summary>
         ''' Add an attribute to element
         ''' </summary>
         ''' <param name="Attribute">attribute</param>
-        Public Shadows Function Add(Attribute As HtmlAttribute) As HtmlElement
-            MyBase.Add(Attribute)
-            Return mElement
+        Public Shadows Function Add(Attribute As HtmlAttribute) As HtmlAttribute
+            If Not Me.Contains(Attribute.Name) Then
+                MyBase.Add(Attribute)
+            Else
+                Me(Attribute.Name).Value = Attribute.Value
+            End If
+            Return Me(Attribute.Name)
         End Function
 
         Public Overloads Function Contains(Name As String) As Boolean
@@ -184,11 +188,11 @@ Namespace HtmlParser
             Return Me.Where(Function(p) p.Name.ToLower = Name.ToLower).Count > 0
         End Function
 
-        Public Overloads Sub Remove(Name As String)
-            For Each attr In Me
-                If attr.Name.ToLower = Name.ToLower Then
-                    Me.Remove(attr)
-                End If
+
+        Public Overloads Sub Remove(ParamArray Name As String())
+            For Each n In Name
+                Dim attr = Me(n)
+                Me.Remove(attr)
             Next
         End Sub
 

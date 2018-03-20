@@ -16,6 +16,22 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em {q}.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="culture">Cultura</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(PluralText As String, Optional Culture As CultureInfo = Nothing) As String
+        Dim q As String = PluralText.GetBetween("{q=", "}")
+        PluralText = PluralText.Replace("{q=" + q + "}", "{q}")
+        If Not q.IsNumber Then
+            q = q.Length
+        End If
+        Return PluralText.QuantifyText(q.Trim, Culture)
+    End Function
+
+
+    ''' <summary>
     ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>

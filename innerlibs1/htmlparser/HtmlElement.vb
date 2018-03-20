@@ -208,17 +208,43 @@ Namespace HtmlParser
             End Get
             Set(value As String)
                 If Name.IsNotBlank Then
-                    If Me.Attributes.Where(Function(e) e.Name.ToLower = Name.ToLower).Count > 0 Then
-                        Me.Attributes.Item(Name.ToLower).Value = value
+                    If value Is Nothing Then
+                        Me.AddAttribute(Name)
                     Else
-                        Me.Attributes.Add(New HtmlAttribute(Name.ToLower, value))
+                        If Me.HasAttribute(Name) Then
+                            Me.Attributes.Item(Name.ToLower).Value = value
+                        Else
+                            Me.AddAttribute(Name, value)
+                        End If
                     End If
                 End If
             End Set
         End Property
 
         ''' <summary>
-        ''' Retorna os nomes dos atributos
+        ''' Remove an attribute from element
+        ''' </summary>
+        ''' <param name="Name"></param>
+        Public Function RemoveAttribute(Name As String) As HtmlElement
+            If Me.HasAttribute(Name) Then
+                Me.Attributes.Remove(Name)
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Add a attribute to this element
+        ''' </summary>
+        ''' <param name="Name"></param>
+        ''' <param name="Value"></param>
+        ''' <returns></returns>
+        Public Function AddAttribute(Name As String, Optional Value As String = Nothing) As HtmlElement
+            Me.Attributes.Add(Name, Value)
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Return the name of al attributes
         ''' </summary>
         ''' <returns></returns>
         <Category("General"), Description("All attributes names of this element")>

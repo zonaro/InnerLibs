@@ -863,7 +863,7 @@ Namespace QuestionTest
         Public ReadOnly Property HTML As String
             Get
                 If Question IsNot Nothing Then
-                    Return Me.Select(Function(p) p.HTML).ToArray.Join("").WrapInTag(If(Question.RenderAsSelect, "select", "ol")).Attributes.Add(If(Question.RenderAsSelect AndAlso Question.AllowMultiple, "multiple", "")).Class.Add("Alternatives").ToString
+                    Return Me.Select(Function(p) p.HTML).ToArray.Join("").WrapInTag(If(Question.RenderAsSelect, "select", "ol")).AddAttribute(If(Question.RenderAsSelect AndAlso Question.AllowMultiple, "multiple", "")).Class.Add("Alternatives").ToString
                 End If
                 Return ""
             End Get
@@ -994,7 +994,7 @@ Namespace QuestionTest
         Public Sub New(t As Type)
             MyBase.New(t)
 
-            MyBase.FormCaption = "Editor of Questions"
+            MyBase.FormCaption = "Question Editor"
             MyBase.ShowPropGridHelp = False
             MyBase.AllowMultipleSelect = False
 
