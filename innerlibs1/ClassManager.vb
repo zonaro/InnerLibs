@@ -434,7 +434,7 @@ Public Module ClassTools
                     obj = info.GetValue(obj)
                 End If
             Next
-            Return Convert.ChangeType(obj, Type)
+            Return Conversion.CTypeDynamic(obj, Type)
         Catch ex As Exception
             Return Nothing
         End Try

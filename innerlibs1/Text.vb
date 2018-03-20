@@ -16,44 +16,123 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
-    ''' Retorna a palavra especificada no singular ou plural de acordo com um numero
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="Quantity">Quantidade de Itens</param>
+    ''' <param name="culture">Cultura</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object, Optional culture As CultureInfo = Nothing) As String
+        If culture Is Nothing Then culture = CultureInfo.CurrentCulture
+        Dim nums As Integer() = {}
+        Dim numero As Decimal = 0
+
+
+        Select Case True
+            Case GetType(String) Is Quantity.GetType AndAlso CType(Quantity, String).IsNumber
+                numero = CType(Quantity, Decimal)
+                Exit Select
+            Case GetType(IList).IsAssignableFrom(Quantity.GetType)
+                numero = CType(Quantity, IList).Count
+                Exit Select
+            Case GetType(IDictionary).IsAssignableFrom(Quantity.GetType)
+                numero = CType(Quantity, IDictionary).Count
+                Exit Select
+            Case Else
+                numero = CType(Quantity, Decimal)
+        End Select
+
+        PluralText = PluralText.Replace("{q}", numero)
+
+        If CultureInfo.GetCultureInfo("pt-BR").Equals(culture) Then
+            nums = {-1, 0, 1}
+        Else
+            nums = {-1, 1}
+        End If
+        If nums.Contains(numero) Then
+            Return PluralText.Singularize()
+        Else
+            Return PluralText.Pluralize()
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Retorna a frase especificada em sua forma singular
+    ''' </summary>
+    ''' <param name="Text">Texto no pluiral</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Singularize(Text As String) As String
+        Dim phrase As String() = Text.ApplySpaceOnWrapChars.Split(" ")
+        For index = 0 To phrase.Count - 1
+
+            Select Case True
+                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordWrappers)
+                    'nao alterar estes tipos
+                    Exit Select
+                Case phrase(index).EndsWith("ões")
+                    phrase(index) = phrase(index).RemoveLastIf("ões").Append("ão")
+                    Exit Select
+                Case phrase(index).EndsWith("ães")
+                    phrase(index) = phrase(index).RemoveLastIf("ães").Append("ão")
+                    Exit Select
+                Case phrase(index).EndsWith("es")
+                    phrase(index) = phrase(index).RemoveLastIf("es")
+                    Exit Select
+                Case phrase(index).EndsWith("ns")
+                    phrase(index) = phrase(index).RemoveLastIf("ns").Append("m")
+                    Exit Select
+                Case phrase(index).EndsWith("s")
+                    phrase(index) = phrase(index).RemoveLastIf("s")
+                    Exit Select
+                Case Else
+                    'ja esta no singular
+            End Select
+
+        Next
+        Return phrase.Join(" ").AdjustWhiteSpaces
+    End Function
+
+    ''' <summary>
+    ''' Retorna a frase especificada em sua forma composta
+    ''' </summary>
+    ''' <param name="Text">Texto no singular</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Pluralize(Text As String) As String
+        Dim phrase As String() = Text.ApplySpaceOnWrapChars.Split(" ")
+        For index = 0 To phrase.Count - 1
+
+            Select Case True
+                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordWrappers)
+                    'nao alterar estes tipos
+                    Exit Select
+                Case phrase(index).EndsWith("ão")
+                    phrase(index) = phrase(index).RemoveLastIf("ão").Append("ães")
+                    Exit Select
+                Case phrase(index).EndsWithAny("r", "z")
+                    phrase(index) = phrase(index).Append("es")
+                    Exit Select
+                Case phrase(index).EndsWith("ães"), phrase(index).EndsWith("ãos"), phrase(index).EndsWith("ões"), phrase(index).EndsWith("ns"), phrase(index).EndsWith("s")
+                    'ja esta no plural
+                    Exit Select
+                Case Else
+                    phrase(index) = phrase(index) & "s"
+            End Select
+
+
+        Next
+        Return phrase.Join(" ").AdjustWhiteSpaces
+    End Function
+
+    ''' <summary>
+    ''' Aplica espacos em todos os caracteres de encapsulamento
     ''' </summary>
     ''' <param name="Text"></param>
-    ''' <param name="Count"></param>
     ''' <returns></returns>
-    <Extension()> Public Function Singularize(Text As String, Count As Integer) As String
-        Dim phrase As String() = Text.GetWords
-        For index = 0 To phrase.Count - 1
-            If Count.IsIn({-1, 1}) Then
-                Select Case True
-                    Case phrase(index).EndsWith("ões")
-                        phrase(index) = phrase(index).RemoveLastIf("ões").Append("ão")
-                        Exit Select
-                    Case phrase(index).EndsWith("ães")
-                        phrase(index) = phrase(index).RemoveLastIf("ães").Append("ão")
-                        Exit Select
-                    Case phrase(index).EndsWith("ns")
-                        phrase(index) = phrase(index).RemoveLastIf("ns").Append("m")
-                    Case phrase(index).EndsWith("s")
-                        phrase(index) = phrase(index).RemoveLastIf("s")
-
-                    Case Else
-                        'ja esta no singular
-                End Select
-            Else
-                Select Case True
-                    Case phrase(index).EndsWith("ão")
-                        phrase(index) = phrase(index).RemoveLastIf("ão").Append("ães")
-                        Exit Select
-                    Case phrase(index).EndsWith("ães"), phrase(index).EndsWith("ãos"), phrase(index).EndsWith("ões"), phrase(index).EndsWith("ns"), phrase(index).EndsWith("s")
-                        'ja esta no plural
-                        Exit Select
-                    Case Else
-                        phrase(index) = phrase(index) & "s"
-                End Select
-            End If
+    <Extension> Function ApplySpaceOnWrapChars(Text As String) As String
+        For Each c In WordWrappers
+            Text = Text.Replace(c, " " & c & " ")
         Next
-        Return phrase.Join(" ")
+        Return Text
     End Function
 
     ''' <summary>
@@ -1240,16 +1319,20 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">TExto</param>
     ''' <param name="RemoveDiacritics">indica se os acentos devem ser removidos das palavras</param>
-    ''' <param name="Words">Desconsidera outras palavras e busca a quantidadade de cada palavra</param>
+    ''' <param name="Words">Desconsidera outras palavras e busca a quantidadade de cada palavra especificada em um array</param>
     ''' <returns></returns>
     <Extension()> Function CountWords(Text As String, Optional RemoveDiacritics As Boolean = True, Optional Words As String() = Nothing) As Dictionary(Of String, Long)
         If Words Is Nothing Then Words = {}
-        Dim palavras = Text.GetWords
+        Dim palavras = Text.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).ToArray
+
         If Words.Count > 0 Then
             palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x)).ToArray
         End If
+
         If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics).ToArray
+
         Dim dic As Dictionary(Of String, Long) = palavras.DistinctCount()
+
         For Each w In Words.Where(Function(x) Not dic.Keys.Contains(x))
             dic.Add(w, 0)
         Next
@@ -1260,20 +1343,26 @@ Public Module Text
     ''' Strings utilizadas para descobrir as palavras em uma string 
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}
+    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}
 
     ''' <summary>
-    ''' Retorna uma lista de palavras encontradas no texto, sejam elas repetidas ou nao.
+    ''' Caracteres usado para encapsular palavras em textos
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property WordWrappers As String() = {"""", "'", "(", ")", "{", "}", "[", "]", "<", ">"}
+
+    ''' <summary>
+    ''' Retorna uma lista de palavras encontradas no texto em ordem alfabetica
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Function GetWords(Text As String) As String()
+    <Extension()> Function GetWords(Text As String) As IOrderedEnumerable(Of String)
         Dim txt As New List(Of String)
         Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).ToList
         For Each w In palavras
             txt.Add(w)
         Next
-        Return txt.ToArray
+        Return txt.Distinct.OrderBy(Function(x) x)
     End Function
 
     ''' <summary>
