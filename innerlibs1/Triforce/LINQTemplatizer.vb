@@ -435,7 +435,7 @@ Namespace LINQ
         Public Property CustomValues As New Dictionary(Of String, Object)
 
         ''' <summary>
-        ''' Propriedades retiradas diretamente de um objeto com indexadores
+        ''' Propriedades retiradas diretamente de um objeto com indexadores durante o processamento do template. Particulamente util para propriedades de objetos que nao vem do banco, mas que necessitam de um parametro que vem do banco
         ''' </summary>
         ''' <returns></returns>
         Public Property CustomProperties As New Dictionary(Of String, TemplatePropertySelector)

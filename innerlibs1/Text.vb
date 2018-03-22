@@ -118,7 +118,7 @@ Public Module Text
         For index = 0 To phrase.Count - 1
 
             Select Case True
-                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordWrappers)
+                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordWrappers) OrElse phrase(index) = "não"
                     'nao alterar estes tipos
                     Exit Select
                 Case phrase(index).EndsWith("ão")

@@ -6,6 +6,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
+Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Web
 Imports InnerLibs.HtmlParser
@@ -410,7 +411,22 @@ Public Module ClassTools
     Public Function GetPropertyValue(MyObject As Object, PropertyName As String, Type As Type, Optional GetPrivate As Boolean = False)
         Try
             Dim obj = MyObject
-            For Each part As String In PropertyName.Split("."c)
+            Dim parts = New List(Of String)()
+            Dim [stop] = False
+            Dim current = New StringBuilder()
+
+            For i As Integer = 0 To PropertyName.Length - 1
+                If PropertyName(i) <> "."c Then current.Append(PropertyName(i))
+                If PropertyName(i) = "("c Then [stop] = True
+                If PropertyName(i) = ")"c Then [stop] = False
+                If (PropertyName(i) = "."c AndAlso Not [stop]) OrElse i = PropertyName.Length - 1 Then
+                    parts.Add(current.ToString())
+                    current.Length = 0
+                End If
+            Next
+
+            For Each part As String In parts
+                Debug.WriteLine("Getting " & part)
                 If MyObject Is Nothing Then
                     Return Nothing
                 End If
