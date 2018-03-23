@@ -203,6 +203,19 @@ Public Module Calendars
     End Function
 
     ''' <summary>
+    ''' Retorna o numero da semana relativa ao ano
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <param name="Culture"></param>
+    ''' <param name="FirstDayOfWeek"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function GetWeekOfYear(ByVal [Date] As DateTime, Optional Culture As CultureInfo = Nothing, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As Integer
+        Return If(Culture, CultureInfo.InvariantCulture).Calendar.GetWeekOfYear([Date], CalendarWeekRule.FirstFourDayWeek, FirstDayOfWeek)
+    End Function
+
+
+    ''' <summary>
     ''' Verifica se uma data é do mesmo mês e ano que outra data
     ''' </summary>
     ''' <param name="[Date]">Primeira data</param>
