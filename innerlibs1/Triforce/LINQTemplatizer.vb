@@ -170,7 +170,7 @@ Namespace LINQ
         ''' <param name="PageSize">Quantidade de itens por página. Passar o valor 0 para trazer todos os itens</param>
         ''' <returns></returns>
         Public Shadows Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
-            Dim total = List.Count
+            Dim total = If(List IsNot Nothing, List.Count, 0)
             If PageSize < 1 Then PageSize = total
             Dim l As New List(Of Template(Of T))
             If total > 0 Then
