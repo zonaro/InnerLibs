@@ -13,11 +13,37 @@ Imports InnerLibs.HtmlParser
 
 Public Module ClassTools
 
-
+    ''' <summary>
+    ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Bool">Valor boolean</param>
+    ''' <param name="TrueValue">Valor se verdadeiro</param>
+    ''' <param name="FalseValue">valor se falso</param>
+    ''' <returns></returns>
     <Extension()>
     Public Function AsIf(Of T)(Bool As Boolean, TrueValue As T, Optional FalseValue As T = Nothing) As T
         Return If(Bool, TrueValue, FalseValue)
     End Function
+
+    ''' <summary>
+    ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Bool">Valor boolean</param>
+    ''' <param name="TrueValue">Valor se verdadeiro</param>
+    ''' <param name="FalseValue">valor se falso</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function AsIf(Of T)(Bool As Boolean?, TrueValue As T, Optional FalseValue As T = Nothing) As T
+        If Bool.HasValue Then
+            Return Bool.Value.AsIf(TrueValue, FalseValue)
+        Else
+            Return FalseValue
+        End If
+    End Function
+
+
     ''' <summary>
     ''' Verifica se um tipo possui uma propriedade
     ''' </summary>
