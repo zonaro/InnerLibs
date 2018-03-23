@@ -147,6 +147,42 @@ Public Module Calendars
     End Function
 
     ''' <summary>
+    ''' Retorna o primeiro dia da semana da data especificada
+    ''' </summary>
+    ''' <param name="[Date]">Data</param>
+    ''' <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetFirstDateOfWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateTime
+        While [Date].DayOfWeek > FirstDayOfWeek
+            [Date] = [Date].AddDays(-1)
+        End While
+        Return [Date]
+    End Function
+
+    ''' <summary>
+    ''' Retorna o primeiro dia da semana da data especificada
+    ''' </summary>
+    ''' <param name="[Date]">Data</param>
+    ''' <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetLastDateOfWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateTime
+        Return [Date].GetFirstDateOfWeek(FirstDayOfWeek).AddDays(6)
+    End Function
+
+    ''' <summary>
+    ''' Retorna um DateRange equivalente a semana de uma data especifica
+    ''' </summary>
+    ''' <param name="[Date]">Data</param>
+    ''' <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é domingo)</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function GetWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateRange
+        Return New DateRange([Date].GetFirstDateOfWeek(FirstDayOfWeek), [Date].GetLastDateOfWeek(FirstDayOfWeek))
+    End Function
+
+    ''' <summary>
     ''' Retorna a ultima data do mes a partir de uma outra data
     ''' </summary>
     ''' <param name="[Date]">Data</param>
@@ -180,7 +216,6 @@ Public Module Calendars
     ''' Verifica se a Data de hoje é um aniversário
     ''' </summary>
     ''' <param name="BirthDate">  Data de nascimento</param>
-    ''' <param name="UseTomorrow">Verifica se o aniversario é Amanha</param>
     ''' <returns></returns>
     <Extension>
     Public Function IsAnniversary(BirthDate As Date, Optional CompareWith As Date? = Nothing) As Boolean
