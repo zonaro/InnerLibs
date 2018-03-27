@@ -106,7 +106,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="ClassName"></param>
         ''' <returns></returns>
-        Public Function HasClass(ClassName As String) As Boolean
+        Public Function HasClass(Optional ClassName As String = "") As Boolean
             Return If(ClassName.IsBlank, Me.Attribute("class").IsNotBlank, Me.Class(ClassName))
         End Function
 

@@ -2,6 +2,7 @@
 Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 Imports System.Web
+Imports System.Web.UI.HtmlControls
 
 Namespace LINQ
 
@@ -103,6 +104,31 @@ Namespace LINQ
         <Extension()>
         Public Function UpdateObjectFromRequest(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Request As HttpRequest, ParamArray Keys As String()) As T
             Return Context.UpdateObjectFromDictionary(Of T, PKType)(Request.ToDictionary(Keys))
+        End Function
+
+
+
+        ''' <summary>
+        ''' Aplica os valores encontrados nas propriedades de uma entidade em controles
+        ''' com mesmo ID das colunas. Se os conroles não existirem no resultado eles serão ignorados.
+        ''' </summary>
+        ''' <param name="Controls">Controles que serão Manipulados</param>
+        ''' <returns>Um array contendo os inputs manipulados</returns>
+        <Extension()> Public Function ApplyToControls(Of T As Class)(Obj As T, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
+            For Each c In Controls
+                Try
+                    Select Case c.TagName.ToLower
+                        Case "input"
+                            CType(c, HtmlInputControl).Value = Obj.GetPropertyValue(c.ID)
+                        Case "select"
+                            CType(c, HtmlSelect).SelectValues(Obj.GetPropertyValue(c.ID).ToString)
+                        Case Else
+                            CType(c, HtmlContainerControl).InnerHtml = Obj.GetPropertyValue(c.ID)
+                    End Select
+                Catch ex As Exception
+                End Try
+            Next
+            Return Controls
         End Function
 
     End Module

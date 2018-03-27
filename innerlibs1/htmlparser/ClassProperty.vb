@@ -29,12 +29,12 @@ Namespace HtmlParser
         ''' <returns></returns>
         Default Public Shadows Property Item(ClassName As String) As Boolean
             Get
-                Return CreateClassList.ContainsAll(ClassName.Split(" ", StringSplitOptions.RemoveEmptyEntries))
+                Return CreateClassList.ContainsAll(ClassName.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries))
             End Get
             Set(value As Boolean)
                 Dim styledic As List(Of String) = CreateClassList()
                 If ClassName.IsNotBlank Then
-                    For Each i As String In ClassName.Split(" ")
+                    For Each i As String In ClassName.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries)
                         If value Then
                             styledic.Add(i)
                         Else
@@ -48,7 +48,7 @@ Namespace HtmlParser
                 For Each k In styledic.Distinct
                     p.Append(k.ToLower & " ")
                 Next
-                mElement.Attribute("class") = p
+                mElement.Attribute("class") = p.Trim
             End Set
         End Property
 
@@ -145,7 +145,6 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public Shadows Function Remove(ClassName As String) As Boolean
             Return Me.Item(ClassName) = False
-            Return True
         End Function
 
         Public Shadows Function GetEnumerator() As IEnumerator(Of String)
@@ -156,8 +155,33 @@ Namespace HtmlParser
             Return CreateClassList.GetEnumerator
         End Function
 
+        ''' <summary>
+        ''' Returns the class attribute of element
+        ''' </summary>
+        ''' <returns></returns>
         Public Overrides Function ToString() As String
             Return Me.mElement.Attribute("class")
+        End Function
+
+        ''' <summary>
+        ''' Proccess a set of objects and apply class names according to the boolean properties, keyvaluepairs or strings
+        ''' </summary>
+        ''' <param name="ClassEx"></param>
+        ''' <returns></returns>
+        Public Function ClassExpression(ParamArray ClassEx As Object()) As String
+            For Each ooo In ClassEx.ToArray
+                Select Case ooo.GetType()
+                    Case GetType(String)
+                        Me.Add(ooo)
+                    Case GetType(KeyValuePair(Of String, Boolean))
+                        Me.Item(ooo.Key) = ooo.Value
+                    Case Else
+                        For Each prop In ClassTools.GetProperties(ooo).Where(Function(x) x.GetType Is GetType(Boolean))
+                            Me.Item(prop.Name) = If(prop.GetValue(ooo), False)
+                        Next
+                End Select
+            Next
+            Return Me.ToString
         End Function
 
     End Class

@@ -136,23 +136,23 @@ Public Class Location
     ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
     ReadOnly Property FullAddress() As String
         Get
-            Dim retorno As String = Address
-            If (String.IsNullOrWhiteSpace(Number) = False) Then retorno = retorno & ", " & Number
-            If (String.IsNullOrWhiteSpace(Complement) = False) Then retorno = retorno & ", " & Complement
-            If (String.IsNullOrWhiteSpace(Neighborhood) = False) Then retorno = retorno & " - " & Neighborhood
-            If (String.IsNullOrWhiteSpace(City) = False) Then retorno = retorno & " - " & City
-            If (String.IsNullOrWhiteSpace(StateCode) = False) Then
-                retorno = retorno & " - " & StateCode
+            Dim retorno As String = Me.AddressType & " " & Address
+            If Number.IsNotBlank Then retorno.Append(", " & Number)
+            If Complement.IsNotBlank Then retorno.Append(", " & Complement)
+            If Neighborhood.IsNotBlank Then retorno.Append(" - " & Neighborhood)
+            If City.IsNotBlank Then retorno.Append(" - " & City)
+            If StateCode.IsNotBlank Then
+                retorno.Append(" - " & StateCode)
             Else
-                If (String.IsNullOrWhiteSpace(State) = False) Then retorno = retorno & " - " & State
+                If State.IsNotBlank Then retorno.Append(" - " & State)
             End If
-            If (String.IsNullOrWhiteSpace(PostalCode) = False) Then retorno = retorno & " - " & PostalCode
+            If PostalCode.IsNotBlank Then retorno.Append(" - " & PostalCode)
             Return retorno
         End Get
     End Property
 
     Private Sub ParseType()
-        Dim pal = Me.Address.CountWords.First.Key.ToProper
+        Dim pal = Me.Address.Split(" ").First.ToProper
         Select Case pal
             Case "Aeroporto", "Ar", "Aero"
                 Me.AddressType = "Aeroporto"

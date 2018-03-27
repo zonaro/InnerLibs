@@ -10,6 +10,15 @@ Namespace Select2Data
     Public Class Result
         Inherits Select2ResultType
 
+        Sub New()
+
+        End Sub
+
+        Sub New(Text As String, Optional Id As String = Nothing)
+            Me.text = Text
+            Me.id = Id
+        End Sub
+
         ''' <summary>
         ''' Campo utilizado como value
         ''' </summary>
@@ -73,6 +82,14 @@ Namespace Select2Data
         ''' <returns></returns>
         Public Property children As IEnumerable(Of Result)
 
+
+        Public Sub New()
+
+        End Sub
+
+        Public Sub New(Text As String)
+            Me.text = Text
+        End Sub
 
         Public Overrides Function ToHtmlElement() As HtmlElement
             Dim d As New HtmlElement("optgroup")
@@ -169,7 +186,7 @@ Namespace Select2Data
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
-            Return Me.ToJson
+            Return Me.ToJSON
         End Function
 
     End Class
