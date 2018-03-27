@@ -195,39 +195,63 @@ Public Module Converter
         Return d.ToArray
     End Function
 
+    ''' <summary>
+    ''' Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um dicionario os valores sao agrupados em arrays
+    ''' </summary>
+    ''' <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
+    ''' <param name="Dic1">Dicionario Principal</param>
+    ''' <param name="Dics">Outros dicionarios</param>
+    ''' <returns></returns>
 
-    <Extension()> Function Merge(Of Tkey)(Dic1 As Dictionary(Of Tkey, Object), ParamArray Dics As Dictionary(Of Tkey, Object)()) As Dictionary(Of Tkey, Object)
+    <Extension()> Function Merge(Of Tkey)(FirstDictionary As Dictionary(Of Tkey, Object), ParamArray Dictionaries As Dictionary(Of Tkey, Object)()) As Dictionary(Of Tkey, Object)
+
+        'dicionario que está sendo gerado a partir dos outros
         Dim result As New Dictionary(Of Tkey, Object)
-        Dim keys As New List(Of Tkey)
 
-        Dics = Dics.Union({Dic1}).Where(Function(x) x.Count > 0).ToArray
+        'adiciona o primeiro dicionario ao array principal e exclui dicionarios vazios
+        Dictionaries = Dictionaries.Union({FirstDictionary}).Where(Function(x) x.Count > 0).ToArray
 
-        For Each dic In Dics
-            keys.AddRange(dic.Keys)
-        Next
+        'cria um array de keys unicas a partir de todos os dicionarios
+        Dim keys = Dictionaries.SelectMany(Function(x) x.Keys.ToArray).Distinct
 
-        keys = keys.Distinct.ToList
-
+        'para cada chave encontrada
         For Each key In keys
-            For Each dic In Dics
+            'para cada dicionario a ser mesclado
+            For Each dic In Dictionaries
+                'dicionario tem a chave?
                 If dic.ContainsKey(key) Then
+                    'resultado ja tem a chave atual adicionada?
                     If result.ContainsKey(key) Then
+                        'lista que vai mesclar tudo
                         Dim lista As New List(Of Object)
 
+                        'chave do resultado é um array?
                         If IsArray(result(key)) Then
                             lista.AddRange(result(key))
                         Else
                             lista.Add(result(key))
                         End If
-
+                        'chave do dicionario é um array?
                         If IsArray(dic(key)) Then
                             lista.AddRange(dic(key))
                         Else
                             lista.Add(dic(key))
                         End If
-                        result(key) = lista.ToArray
+
+                        'transforma a lista em um resultado
+                        If lista.Count > 0 Then
+                            If lista.Count > 1 Then
+                                result(key) = lista.ToArray
+                            Else
+                                result(key) = lista.First
+                            End If
+                        End If
                     Else
-                        result.Add(key, dic(key))
+                        If dic(key).GetType IsNot GetType(String) AndAlso (IsArray(dic(key)) OrElse IsList(dic(key))) Then
+                            result.Add(key, dic(key).ToArray)
+                        Else
+                            result.Add(key, dic(key))
+                        End If
                     End If
                 End If
             Next
