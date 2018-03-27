@@ -197,51 +197,41 @@ Public Module Converter
 
 
     <Extension()> Function Merge(Of Tkey)(Dic1 As Dictionary(Of Tkey, Object), ParamArray Dics As Dictionary(Of Tkey, Object)()) As Dictionary(Of Tkey, Object)
-        Dim result = New Dictionary(Of Tkey, Object)()
+        Dim result As New Dictionary(Of Tkey, Object)
         Dim keys As New List(Of Tkey)
-        For Each k In Dic1.Keys
-            keys.Add(k)
-        Next
-        For Each dic In Dics
-            For Each k In dic.Keys
-                keys.Add(k)
-            Next
-        Next
+
+        Dics = Dics.Union({Dic1}).Where(Function(x) x.Count > 0).ToArray
 
         For Each dic In Dics
-            For Each key As Object In keys
-                If keys.Contains(key) Then
-                    Dim values = dic.Values.ToArray
+            keys.AddRange(dic.Keys)
+        Next
+
+        keys = keys.Distinct.ToList
+
+        For Each key In keys
+            For Each dic In Dics
+                If dic.ContainsKey(key) Then
                     If result.ContainsKey(key) Then
-                        Dim l As New List(Of Object)
-                        If IsArray(result(key)) Then
-                            For Each v In result(key)
-                                l.Add(v)
-                            Next
-                        Else
-                            l.Add(result(key))
-                        End If
-                        If l.Count = 1 Then
-                            result(key) = l(0)
-                        Else
-                            result(key) = l.ToArray
-                        End If
-                    Else
-                        If values.LongCount = 1 Then
-                            result.Add(key, values(0))
-                        Else
-                            Dim ar As New List(Of Object)
-                            For Each v In values
-                                ar.Add(v)
-                            Next
-                            result.Add(key, ar.ToArray)
-                        End If
-                    End If
+                        Dim lista As New List(Of Object)
 
+                        If IsArray(result(key)) Then
+                            lista.AddRange(result(key))
+                        Else
+                            lista.Add(result(key))
+                        End If
+
+                        If IsArray(dic(key)) Then
+                            lista.AddRange(dic(key))
+                        Else
+                            lista.Add(dic(key))
+                        End If
+                        result(key) = lista.ToArray
+                    Else
+                        result.Add(key, dic(key))
+                    End If
                 End If
             Next
         Next
-
         Return result
 
     End Function
@@ -275,16 +265,10 @@ Public Module Converter
         Dim result = Request.QueryString.ToDictionary(keys)
         Dim result2 = Request.Form.ToDictionary(keys)
         result = result.Merge(result2)
-
-        For Each f As String In Request.Files.AllKeys
-            If keys.Contains(f) Then
-                If Request.Files(f) IsNot Nothing AndAlso Request.Files(f).ContentLength > 0 Then
-                    If result.ContainsKey(f) Then
-                        result.Remove(f)
-                    End If
-                    result(f) = Request.Files(f).ToBytes
-                    End If
-                End If
+        For Each f As String In Request.Files.AllKeys.Where(Function(k) k.IsIn(keys))
+            If Request.Files(f).ContentLength > 0 Then
+                result(f) = Request.Files(f).ToBytes
+            End If
         Next
         Return result
     End Function
