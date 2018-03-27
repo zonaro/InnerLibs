@@ -820,7 +820,7 @@ Public Module Web
             Control.Multiple = True
         End If
         For Each i As ListItem In Control.Items
-            i.Selected = Values.Select(Function(x) x.ToLower).ToArray.Contains(i.Value.ToLower.ToString)
+            i.Selected = Values.Select(Function(x) x.IfBlank("").ToLower).ToArray.Contains(i.Value.ToLower.ToString)
         Next
         Return Control
     End Function

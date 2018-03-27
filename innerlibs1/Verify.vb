@@ -270,6 +270,34 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
+    ''' <param name="Arr">Array</param>
+    ''' <param name="Index">Posicao</param>
+    ''' <param name="ValueIfNoIndex">Valor se o mesmo nao existir</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IfNoIndex(Of T)(Arr As IEnumerable(Of T), Index As Integer, Optional ValueIfNoIndex As T = Nothing) As T
+        Try
+            Return Arr(Index)
+        Catch ex As Exception
+            Return ValueIfNoIndex
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir ou seu valor for branco ou nothing
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
+    ''' <param name="Arr">Array</param>
+    ''' <param name="Index">Posicao</param>
+    ''' <param name="ValueIfBlankOrNoIndex">Valor se o mesmo nao existir</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IfBlankOrNoIndex(Of T)(Arr As IEnumerable(Of T), Index As Integer, ValueIfBlankOrNoIndex As T) As T
+        Return Arr.IfNoIndex(Index).IfBlank(Of T)(ValueIfBlankOrNoIndex)
+    End Function
+
+    ''' <summary>
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
     ''' </summary>
     ''' <typeparam name="T">Tipo da Variavel</typeparam>
