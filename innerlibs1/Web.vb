@@ -858,9 +858,6 @@ Public Module Web
                 values.Add(item)
             End If
         Next
-        If values.Count > 1 Then
-            Control.Multiple = True
-        End If
         For Each i As ListItem In values
             i.Selected = False
         Next
@@ -889,6 +886,11 @@ Public Module Web
     ''' <returns></returns>
     <Extension()> Public Function AddItem(Control As HtmlSelect, Text As String, Optional Value As String = "") As ListItem
         Dim li = New ListItem(Text, Value.IfBlank(Text))
+        For Each item As ListItem In Control.Items
+            If item.Text = li.Text AndAlso item.Value = li.Value Then
+                Return li
+            End If
+        Next
         Control.Items.Add(li)
         Return li
     End Function
