@@ -275,8 +275,16 @@ Public Module Converter
         Dim result = Request.QueryString.ToDictionary(keys)
         Dim result2 = Request.Form.ToDictionary(keys)
         result = result.Merge(result2)
-        For Each f As String In Request.Files.AllKeys.Select(Function(k) k.IsIn(keys))
-            result(f) = Request.Files(f).ToBytes
+
+        For Each f As String In Request.Files.AllKeys
+            If keys.Contains(f) Then
+                If Request.Files(f) IsNot Nothing AndAlso Request.Files(f).ContentLength > 0 Then
+                    If result.ContainsKey(f) Then
+                        result.Remove(f)
+                    End If
+                    result(f) = Request.Files(f).ToBytes
+                    End If
+                End If
         Next
         Return result
     End Function
