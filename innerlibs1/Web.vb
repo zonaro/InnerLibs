@@ -877,18 +877,17 @@ Public Module Web
     End Function
 
     ''' <summary>
-    ''' Adiciona um novo <see cref="ListItem"/> ao <see cref="HtmlSelect"/>
+    ''' Adiciona um novo <see cref="ListItem"/> ao <see cref="HtmlSelect"/> se um item identico nao existir no mesmo
     ''' </summary>
     ''' <param name="Control"> Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Text">    Texto do Item</param>
     ''' <param name="Value">   Valor do Item</param>
-    ''' <remarks>A mudança de estado do item (selected) é aplicada apoós a inserção do item no select</remarks>
-    ''' <returns></returns>
+    ''' <returns>o objeto ListItem adicionado ou existente</returns>
     <Extension()> Public Function AddItem(Control As HtmlSelect, Text As String, Optional Value As String = "") As ListItem
         Dim li = New ListItem(Text, Value.IfBlank(Text))
         For Each item As ListItem In Control.Items
             If item.Text = li.Text AndAlso item.Value = li.Value Then
-                Return li
+                Return item
             End If
         Next
         Control.Items.Add(li)
