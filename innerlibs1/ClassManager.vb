@@ -60,8 +60,8 @@ Public Module ClassTools
     ''' <param name="Obj"></param>
     ''' <param name="Name"></param>
     ''' <returns></returns>
-    <Extension()> Public Function HasProperty(Of T As Class)(Obj As T, Name As String) As Boolean
-        Return GetType(T).HasProperty(Name)
+    <Extension()> Public Function HasProperty(Obj As Object, Name As String) As Boolean
+        Return Obj.GetType.HasProperty(Name)
     End Function
 
     ''' <summary>
@@ -71,13 +71,18 @@ Public Module ClassTools
     ''' <param name="DateFormat"></param>
     ''' <returns></returns>
     <Extension()> Public Function ToFlatString(Obj As Object, Optional DateFormat As String = "") As String
+
         Select Case Obj.GetType
             Case GetType(DateTime), GetType(Date)
                 Return CType(Obj, Date).ToString(DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss"))
             Case GetType(String), GetType(Integer), GetType(Long), GetType(Short), GetType(Double), GetType(Decimal), GetType(Money), GetType(HtmlDocument), GetType(HtmlElement)
                 Return Obj.ToString
             Case Else
-                Return Json.SerializeJSON(Obj, DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss"))
+                If (Obj.GetType.GetMethod("ToString").DeclaringType IsNot GetType(Object)) Then
+                    Return Obj.ToString
+                Else
+                    Return Json.SerializeJSON(Obj, DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss"))
+                End If
         End Select
     End Function
 
