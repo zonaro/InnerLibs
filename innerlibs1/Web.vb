@@ -816,8 +816,11 @@ Public Module Web
     ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
     ''' <param name="Values"> Valores que devem receber a propriedade select</param>
     <Extension()> Public Function SelectValues(Control As HtmlSelect, ParamArray Values As String()) As HtmlSelect
-        If Values IsNot Nothing AndAlso Values.Length > 1 Then
+        If (Values IsNot Nothing AndAlso Values.Length > 1) Then
             Control.Multiple = True
+        End If
+        If Control.Multiple = False AndAlso Values.Count = 1 Then
+            Control.DisselectValues
         End If
         For Each i As ListItem In Control.Items
             i.Selected = Values.Select(Function(x) x.IfBlank("").ToLower).ToArray.Contains(i.Value.ToLower.ToString)
