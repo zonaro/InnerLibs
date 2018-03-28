@@ -245,9 +245,6 @@ Namespace LINQ
         End Function
 
 
-
-
-#Region "Processors"
         Friend Overrides Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
 
             Dim listat = doc.Nodes.GetElementsByTagName("template", True)
@@ -339,10 +336,6 @@ Namespace LINQ
                 End Try
             Next
         End Sub
-
-#End Region
-
-
 
         ''' <summary>
         ''' Pega o comando SQL de um arquivo ou resource
@@ -540,7 +533,6 @@ Namespace LINQ
 
             ProccessGet(doc)
 
-
             'replace nos valores do template pai sem afetar os filhos
             TravesseAndReplace(doc.Nodes, Item, True)
 
@@ -554,16 +546,7 @@ Namespace LINQ
             TravesseAndReplace(doc.Nodes, CustomValues, False)
             TravesseAndReplace(doc.Nodes, post_proccess, False)
 
-
-            'processar logica
-            ProccessConditions(Item, doc)
-            ProccessSwitch(Item, doc)
-            ProccessIf(Item, doc)
-            ProcessRepeat(doc)
-
-            'quantifica as strings quando houver propriedade
-            QuantifyStrings(doc.Nodes)
-            Return New Template(Of T)(Item, doc.ToString)
+            Return New Template(Of T)(Item, doc.ToString, Me.Culture)
         End Function
 
 
@@ -875,178 +858,6 @@ Namespace LINQ
             End While
         End Sub
 
-        Friend Sub ProccessConditions(Of T As Class)(Item As T, doc As HtmlDocument)
-
-            Dim lista = doc.Nodes.GetElementsByTagName("condition", True)
-            For index = 0 To lista.Count - 1
-                Dim conditiontag As HtmlElement = lista(index)
-                If conditiontag.HasAttribute("disabled") Then
-                    conditiontag.Destroy()
-                    Continue For
-                End If
-                Try
-                    If conditiontag.Name = "condition" Then
-                        Dim expression = CType(conditiontag.Nodes.GetElementsByTagName("expression", False)(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim contenttag = CType(conditiontag.Nodes.GetElementsByTagName("content", False)(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim resultexp = EvaluateExpression(expression)
-
-                        If resultexp = True Or resultexp > 0 Then
-                            If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
-                                conditiontag.RemoveAttribute("renderas")
-                                conditiontag.InnerHTML = contenttag
-                            Else
-                                conditiontag.Mutate(contenttag)
-                            End If
-
-                        Else
-                            If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
-                                conditiontag.RemoveAttribute("renderas")
-                                conditiontag.InnerHTML = ""
-                            Else
-                                conditiontag.Destroy()
-                            End If
-                        End If
-                    End If
-                Catch ex As Exception
-                    conditiontag.Destroy()
-                End Try
-            Next
-        End Sub
-
-        Friend Sub ProccessIf(Of T As Class)(Item As T, doc As HtmlDocument)
-            Dim lista = doc.Nodes.GetElementsByTagName("IF", True)
-            For index = 0 To lista.Count - 1
-                Dim conditiontag As HtmlElement = lista(index)
-                If conditiontag.HasAttribute("disabled") Then
-                    conditiontag.Destroy()
-                    Continue For
-                End If
-                Try
-                    If conditiontag.Name = "if" Then
-                        Dim expression = CType(conditiontag.Nodes.GetElementsByTagName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim truetag = CType(conditiontag.Nodes.GetElementsByTagName("true", False)(0), HtmlElement).InnerHTML.HtmlDecode
-                        Dim falsetag = ""
-                        Try
-                            falsetag = CType(conditiontag.Nodes.GetElementsByTagName("false", False)(0), HtmlElement).InnerHTML.HtmlDecode
-                        Catch
-                        End Try
-                        Dim resultexp = EvaluateExpression(expression)
-                        If resultexp = True OrElse resultexp > 0 Then
-                            If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas")
-                                conditiontag.RemoveAttribute("renderas")
-                                conditiontag.InnerHTML = truetag
-                            Else
-                                conditiontag.Mutate(truetag)
-                            End If
-                        Else
-                            If falsetag.IsNotBlank Then
-                                If conditiontag.HasAttribute("renderas") Then
-                                    conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
-                                    conditiontag.RemoveAttribute("renderas")
-                                    conditiontag.InnerHTML = falsetag
-                                Else
-                                    conditiontag.Mutate(falsetag)
-                                End If
-                            Else
-                                If conditiontag.HasAttribute("renderas") Then
-                                    conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
-                                    conditiontag.RemoveAttribute("renderas")
-                                    conditiontag.InnerHTML = ""
-                                Else
-                                    conditiontag.Destroy()
-                                End If
-                            End If
-                        End If
-                    End If
-                Catch ex As Exception
-                    conditiontag.Destroy()
-                End Try
-            Next
-        End Sub
-
-        Friend Sub ProccessSwitch(Of T As Class)(Item As T, doc As HtmlDocument)
-            Dim lista = doc.Nodes.GetElementsByTagName("switch", True)
-            For index = 0 To lista.Count - 1
-                Dim conditiontag As HtmlElement = lista(index)
-                If conditiontag.HasAttribute("disabled") Then
-                    conditiontag.Destroy()
-                    Continue For
-                End If
-                Try
-                    If conditiontag.Name = "switch" Then
-
-                        Dim othertag = conditiontag.FindElements(Function(n As HtmlElement)
-                                                                     Dim value1 = conditiontag.Attribute("value").HtmlDecode
-                                                                     Dim value2 = n.Attribute("value").HtmlDecode
-                                                                     Dim op = n.Attribute("operator").HtmlDecode.IfBlank("=")
-                                                                     value1 = value1.QuoteIf(Not value1.IsNumber)
-                                                                     value2 = value2.QuoteIf(Not value2.IsNumber)
-                                                                     Return n.Name = "case" AndAlso (EvaluateExpression(value1 & op & value2) = True)
-                                                                 End Function, False)
-                        Dim html = ""
-                        If othertag.Count > 0 Then
-                            For Each node As HtmlElement In othertag
-                                html.Append(node.InnerHTML)
-                                If node.HasAttribute("break") Then
-                                    Exit For
-                                End If
-                            Next
-                        Else
-                            othertag = conditiontag.FindElements(Function(n As HtmlElement) n.Name = "else", False)
-                            If othertag.Count = 1 Then
-                                html = CType(othertag.First, HtmlElement).InnerHTML
-                            End If
-                        End If
-
-                        If html.IsNotBlank Then
-                            If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
-                                conditiontag.RemoveAttribute("renderas")
-                                conditiontag.InnerHTML = html
-                            Else
-                                conditiontag.Mutate(html)
-                            End If
-                        Else
-                            If conditiontag.HasAttribute("renderas") Then
-                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
-                                conditiontag.RemoveAttribute("renderas")
-                                conditiontag.InnerHTML = ""
-                            Else
-                                conditiontag.Destroy()
-                            End If
-                        End If
-                    End If
-
-                Catch ex As Exception
-                    conditiontag.Destroy()
-                End Try
-            Next
-        End Sub
-
-        Friend Sub ProcessRepeat(doc As HtmlDocument)
-            Dim lista = doc.Nodes.GetElementsByTagName("repeat", True)
-            For index = 0 To lista.Count - 1
-                Dim repeattag As HtmlElement = lista(index)
-                If repeattag.HasAttribute("disabled") Then
-                    repeattag.Destroy()
-                    Continue For
-                End If
-                If repeattag.HasAttribute("value") Then
-                    Dim base = repeattag.InnerHTML
-                    repeattag.InnerHTML = ""
-                    Dim n = repeattag.Attribute("value")
-                    If Not n.IsNumber Then n = n.Length
-                    For index2 = 1 To n.ChangeType(Of Integer)
-                        repeattag.InnerHTML &= base.Replace("_index", index2)
-                    Next
-                Else
-                    repeattag.Destroy()
-                End If
-            Next
-        End Sub
 #End Region
 
 
@@ -1100,34 +911,7 @@ Namespace LINQ
             Next
         End Sub
 
-        Friend Sub QuantifyStrings(nodes As HtmlNodeCollection)
-            For index_el = 0 To nodes.Count - 1
-                Dim el As HtmlNode = nodes(index_el)
-                If TypeOf el Is HtmlElement Then
-                    Dim cel = CType(el, HtmlElement)
 
-                    For Each at In cel.Attributes
-                        If at.Name.StartsWith("triforce-quantify-") Then
-                            at.Name = at.Name.RemoveFirstIf("triforce-quantify-")
-                            at.Value = at.Value.QuantifyText(Culture)
-                        End If
-                    Next
-                    If cel.Nodes.Count > 0 Then
-                        QuantifyStrings(cel.Nodes)
-                    End If
-                Else
-                    Dim ctx = CType(el, HtmlText)
-                    If ctx.Parent IsNot Nothing AndAlso ctx.Parent.HasAttribute("triforce-quantify") Then
-                        If Not ctx.Parent.Attribute("triforce-quantify") = "false" Then
-                            For Each node As HtmlText In ctx.Parent.FindElements(Of HtmlText)(Function(x) True, False)
-                                node.Text = node.Text.QuantifyText(Me.Culture)
-                            Next
-                        End If
-                        ctx.Parent.RemoveAttribute("triforce-quantify")
-                    End If
-                End If
-            Next
-        End Sub
 
         Friend Function ReplaceValues(Of T As Class)(Item As T, StringToReplace As String) As String
 
@@ -1221,10 +1005,18 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="Data"></param>
         ''' <param name="ProcessedTemplate"></param>
-        Friend Sub New(Data As T, ProcessedTemplate As String)
+        Friend Sub New(Data As T, ProcessedTemplate As String, Culture As CultureInfo)
             Me.Data = Data
-            Me.ProcessedTemplate = New HtmlDocument(ProcessedTemplate)
+            Dim doc As New HtmlDocument(ProcessedTemplate)
+            QuantifyStrings(doc.Nodes)
+            Me.ProccessConditions(doc)
+            Me.ProccessSwitch(doc)
+            Me.ProccessIf(doc)
+            Me.ProccessRepeat(doc)
+            Me.ProcessedTemplate = doc
         End Sub
+
+        ReadOnly Property Culture As CultureInfo
 
         ''' <summary>
         ''' Objeto de onde são extraidos as informações do template
@@ -1236,6 +1028,208 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property ProcessedTemplate As HtmlDocument
+
+        Friend Sub QuantifyStrings(nodes As HtmlNodeCollection)
+            For index_el = 0 To nodes.Count - 1
+                Dim el As HtmlNode = nodes(index_el)
+                If TypeOf el Is HtmlElement Then
+                    Dim cel = CType(el, HtmlElement)
+
+                    For Each at In cel.Attributes
+                        If at.Name.StartsWith("triforce-quantify-") Then
+                            at.Name = at.Name.RemoveFirstIf("triforce-quantify-")
+                            at.Value = at.Value.QuantifyText(Culture)
+                        End If
+                    Next
+                    If cel.Nodes.Count > 0 Then
+                        QuantifyStrings(cel.Nodes)
+                    End If
+                Else
+                    Dim ctx = CType(el, HtmlText)
+                    If ctx.Parent IsNot Nothing AndAlso ctx.Parent.HasAttribute("triforce-quantify") Then
+                        If Not ctx.Parent.Attribute("triforce-quantify") = "false" Then
+                            For Each node As HtmlText In ctx.Parent.FindElements(Of HtmlText)(Function(x) True, False)
+                                node.Text = node.Text.QuantifyText(Culture)
+                            Next
+                        End If
+                        ctx.Parent.RemoveAttribute("triforce-quantify")
+                    End If
+                End If
+            Next
+        End Sub
+
+        Friend Sub ProccessConditions(doc As HtmlDocument)
+
+            Dim lista = doc.Nodes.GetElementsByTagName("condition", True)
+            For index = 0 To lista.Count - 1
+                Dim conditiontag As HtmlElement = lista(index)
+                If conditiontag.HasAttribute("disabled") Then
+                    conditiontag.Destroy()
+                    Continue For
+                End If
+                Try
+                    If conditiontag.Name = "condition" Then
+                        Dim expression = CType(conditiontag.Nodes.GetElementsByTagName("expression", False)(0), HtmlElement).InnerHTML.HtmlDecode
+                        Dim contenttag = CType(conditiontag.Nodes.GetElementsByTagName("content", False)(0), HtmlElement).InnerHTML.HtmlDecode
+                        Dim resultexp = EvaluateExpression(expression)
+
+                        If resultexp = True Or resultexp > 0 Then
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
+                                conditiontag.RemoveAttribute("renderas")
+                                conditiontag.InnerHTML = contenttag
+                            Else
+                                conditiontag.Mutate(contenttag)
+                            End If
+
+                        Else
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
+                                conditiontag.RemoveAttribute("renderas")
+                                conditiontag.InnerHTML = ""
+                            Else
+                                conditiontag.Destroy()
+                            End If
+                        End If
+                    End If
+                Catch ex As Exception
+                    conditiontag.Destroy()
+                End Try
+            Next
+        End Sub
+
+        Friend Sub ProccessIf(doc As HtmlDocument)
+            Dim lista = doc.Nodes.GetElementsByTagName("IF", True)
+            For index = 0 To lista.Count - 1
+                Dim conditiontag As HtmlElement = lista(index)
+                If conditiontag.HasAttribute("disabled") Then
+                    conditiontag.Destroy()
+                    Continue For
+                End If
+                Try
+                    If conditiontag.Name = "if" Then
+                        Dim expression = CType(conditiontag.Nodes.GetElementsByTagName("expression")(0), HtmlElement).InnerHTML.HtmlDecode
+                        Dim truetag = CType(conditiontag.Nodes.GetElementsByTagName("true", False)(0), HtmlElement).InnerHTML.HtmlDecode
+                        Dim falsetag = ""
+                        Try
+                            falsetag = CType(conditiontag.Nodes.GetElementsByTagName("false", False)(0), HtmlElement).InnerHTML.HtmlDecode
+                        Catch
+                        End Try
+                        Dim resultexp = EvaluateExpression(expression)
+                        If resultexp = True OrElse resultexp > 0 Then
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas")
+                                conditiontag.RemoveAttribute("renderas")
+                                conditiontag.InnerHTML = truetag
+                            Else
+                                conditiontag.Mutate(truetag)
+                            End If
+                        Else
+                            If falsetag.IsNotBlank Then
+                                If conditiontag.HasAttribute("renderas") Then
+                                    conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
+                                    conditiontag.RemoveAttribute("renderas")
+                                    conditiontag.InnerHTML = falsetag
+                                Else
+                                    conditiontag.Mutate(falsetag)
+                                End If
+                            Else
+                                If conditiontag.HasAttribute("renderas") Then
+                                    conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
+                                    conditiontag.RemoveAttribute("renderas")
+                                    conditiontag.InnerHTML = ""
+                                Else
+                                    conditiontag.Destroy()
+                                End If
+                            End If
+                        End If
+                    End If
+                Catch ex As Exception
+                    conditiontag.Destroy()
+                End Try
+            Next
+        End Sub
+
+        Friend Sub ProccessSwitch(doc As HtmlDocument)
+            Dim lista = doc.Nodes.GetElementsByTagName("switch", True)
+            For index = 0 To lista.Count - 1
+                Dim conditiontag As HtmlElement = lista(index)
+                If conditiontag.HasAttribute("disabled") Then
+                    conditiontag.Destroy()
+                    Continue For
+                End If
+                Try
+                    If conditiontag.Name = "switch" Then
+
+                        Dim othertag = conditiontag.FindElements(Function(n As HtmlElement)
+                                                                     Dim value1 = conditiontag.Attribute("value").HtmlDecode
+                                                                     Dim value2 = n.Attribute("value").HtmlDecode
+                                                                     Dim op = n.Attribute("operator").HtmlDecode.IfBlank("=")
+                                                                     value1 = value1.QuoteIf(Not value1.IsNumber)
+                                                                     value2 = value2.QuoteIf(Not value2.IsNumber)
+                                                                     Return n.Name = "case" AndAlso (EvaluateExpression(value1 & op & value2) = True)
+                                                                 End Function, False)
+                        Dim html = ""
+                        If othertag.Count > 0 Then
+                            For Each node As HtmlElement In othertag
+                                html.Append(node.InnerHTML)
+                                If node.HasAttribute("break") Then
+                                    Exit For
+                                End If
+                            Next
+                        Else
+                            othertag = conditiontag.FindElements(Function(n As HtmlElement) n.Name = "else", False)
+                            If othertag.Count = 1 Then
+                                html = CType(othertag.First, HtmlElement).InnerHTML
+                            End If
+                        End If
+
+                        If html.IsNotBlank Then
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
+                                conditiontag.RemoveAttribute("renderas")
+                                conditiontag.InnerHTML = html
+                            Else
+                                conditiontag.Mutate(html)
+                            End If
+                        Else
+                            If conditiontag.HasAttribute("renderas") Then
+                                conditiontag.Name = conditiontag.Attribute("renderas").IfBlank("span")
+                                conditiontag.RemoveAttribute("renderas")
+                                conditiontag.InnerHTML = ""
+                            Else
+                                conditiontag.Destroy()
+                            End If
+                        End If
+                    End If
+
+                Catch ex As Exception
+                    conditiontag.Destroy()
+                End Try
+            Next
+        End Sub
+
+        Friend Sub ProccessRepeat(doc As HtmlDocument)
+            Dim lista = doc.Nodes.GetElementsByTagName("repeat", True)
+            For index = 0 To lista.Count - 1
+                Dim repeattag As HtmlElement = lista(index)
+                If repeattag.HasAttribute("disabled") Then
+                    repeattag.Destroy()
+                    Continue For
+                End If
+                If repeattag.HasAttribute("value") Then
+                    Dim base = repeattag.InnerHTML
+                    repeattag.InnerHTML = ""
+                    Dim n = repeattag.Attribute("value")
+                    If Not n.IsNumber Then n = n.Length
+                    For index2 = 1 To n.ChangeType(Of Integer)
+                        repeattag.InnerHTML &= base.Replace("_index", index2)
+                    Next
+                Else
+                    repeattag.Destroy()
+                End If
+            Next
+        End Sub
 
         Public Overrides Function ToString() As String
             Return Me.ProcessedTemplate.ToString
@@ -1258,6 +1252,8 @@ Namespace LINQ
             Me.PageNumber = PageNumber
             Me.Total = Total
         End Sub
+
+
 
         ''' <summary>
         ''' HTML da paginaçao dos itens
