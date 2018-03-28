@@ -15,8 +15,6 @@ Namespace HtmlParser
     Friend Class HtmlParser
         Private Shared WHITESPACE_CHARS As Char() = " " & vbTab & vbCr & vbLf.ToCharArray()
 
-        Private mRemoveEmptyElementText As Boolean = False
-
         ''' <summary>
         ''' Internal FSM to represent the state of the parser
         ''' </summary>
@@ -41,14 +39,8 @@ Namespace HtmlParser
         ''' parsing, these are useless and only serve to complicate matters. Therefore, this
         ''' option exists to automatically remove those empty text nodes.
         ''' </summary>
-        Public Property RemoveEmptyElementText() As Boolean
-            Get
-                Return mRemoveEmptyElementText
-            End Get
-            Set
-                mRemoveEmptyElementText = Value
-            End Set
-        End Property
+        Public Property RemoveEmptyElementText As Boolean = True
+
 
 #Region "The main parser"
 
@@ -140,13 +132,13 @@ Namespace HtmlParser
                 Else
                     ' Read text
                     Dim value As String = tokens(index)
-                    If mRemoveEmptyElementText Then
+                    If RemoveEmptyElementText Then
                         value = AdjustWhiteSpaces(value)
                     End If
                     value = DecodeScript(value)
 
                     ' We do nothing
-                    If mRemoveEmptyElementText AndAlso value.Length = 0 Then
+                    If RemoveEmptyElementText AndAlso value.Length = 0 Then
                     Else
                         If Not (element IsNot Nothing AndAlso element.NoEscaping) Then
                             value = System.Net.WebUtility.HtmlDecode(value)

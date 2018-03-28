@@ -536,20 +536,24 @@ Namespace LINQ
                 post_proccess.Add(pp.Key, oo.Proccess)
             Next
 
-            Dim doc = New HtmlDocument(pegartemplate(Template))
+            Dim doc = New HtmlDocument(pegartemplate(Template), True)
 
             ProccessGet(doc)
 
-            'replace nos valores
-            TravesseAndReplace(doc.Nodes, Item)
-            TravesseAndReplace(doc.Nodes, CustomValues)
-            TravesseAndReplace(doc.Nodes, post_proccess)
+
+            'replace nos valores do template pai sem afetar os filhos
+            TravesseAndReplace(doc.Nodes, Item, True)
 
             'processa subtemplates
             Me.ProcessSubTemplate(Item, doc)
 
+            'e entao replace nos valores do template pai novamente pra cobrir os valores dos templates filhos que nao foram replaceados
+            TravesseAndReplace(doc.Nodes, Item, False)
 
-            doc = New HtmlDocument(ClearValues(doc.ToString))
+            'Replace nos valores fixos e propriedades
+            TravesseAndReplace(doc.Nodes, CustomValues, False)
+            TravesseAndReplace(doc.Nodes, post_proccess, False)
+
 
             'processar logica
             ProccessConditions(Item, doc)
@@ -557,7 +561,8 @@ Namespace LINQ
             ProccessIf(Item, doc)
             ProcessRepeat(doc)
 
-
+            'quantifica as strings quando houver propriedade
+            QuantifyStrings(doc.Nodes)
             Return New Template(Of T)(Item, doc.ToString)
         End Function
 
@@ -586,14 +591,12 @@ Namespace LINQ
         End Function
 
 
-
         Friend Function CreateTemplateList(Of T As Class)(Template As String, l As List(Of Template(Of T)), PageSize As Integer, PageNumber As Integer, Total As Integer) As TemplatePage(Of T)
 
             Dim tpl = New TemplatePage(Of T)(l, PageSize, PageNumber, Total)
             If Template.IsBlank Then
                 Template = GetTemplate(Of T)()
             End If
-
             Try
                 tpl.Head = ReplaceValues(Me.CustomValues, pegartemplate(Template, "head"))
             Catch ex As Exception
@@ -674,7 +677,7 @@ Namespace LINQ
                     Select Case Tag
                         Case "body"
                             Try
-                                Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
+                                Dim el = CType(New HtmlDocument(TemplateFile, True).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
                                 If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
                                     Return pegartemplate(el.Attribute("file"), Tag)
                                 Else
@@ -685,7 +688,7 @@ Namespace LINQ
                             End Try
                         Case Else
                             Try
-                                Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
+                                Dim el = CType(New HtmlDocument(TemplateFile, True).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
                                 If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
                                     Return pegartemplate(el.Attribute("file"), Tag)
                                 Else
@@ -703,7 +706,7 @@ Namespace LINQ
                         If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
                         Using file As StreamReader = filefound.OpenText
                             Try
-                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(file.ReadToEnd, True).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(Tag & " not found in " & filefound.Name)
                             End Try
@@ -712,7 +715,7 @@ Namespace LINQ
                         Try
                             Dim txt = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             Try
-                                Return CType(New HtmlDocument(txt).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(txt, True).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(Tag & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             End Try
@@ -798,8 +801,6 @@ Namespace LINQ
                         End If
 
 
-
-
                         Dim lista As IEnumerable(Of Object) = Nothing
 
                         If source.IsNotBlank Then
@@ -862,6 +863,16 @@ Namespace LINQ
                     conditiontag.Destroy()
                 End Try
             Next
+        End Sub
+
+
+        Friend Sub ReplaceExpressionVariables(Of T As Class)(Item As T, extag As HtmlElement)
+            While extag.Attributes.Count > 0
+                Dim attr = extag.Attributes.First
+                attr.Value = ReplaceValues(Item, attr.Value)
+                extag.InnerHTML = extag.InnerHTML.Replace(attr.Name, attr.Value)
+                extag.RemoveAttribute(attr.Name)
+            End While
         End Sub
 
         Friend Sub ProccessConditions(Of T As Class)(Item As T, doc As HtmlDocument)
@@ -1049,11 +1060,24 @@ Namespace LINQ
         End Function
 
 
-        Friend Sub TravesseAndReplace(Of T As Class)(nodes As HtmlNodeCollection, item As T)
+        Friend Sub TravesseAndReplace(Of T As Class)(nodes As HtmlNodeCollection, item As T, SkipTemplates As Boolean)
             For index_el = 0 To nodes.Count - 1
                 Dim el As HtmlNode = nodes(index_el)
                 If TypeOf el Is HtmlElement Then
                     Dim cel = CType(el, HtmlElement)
+
+                    'pula tag content do template (apenas o prorio template pode dar replace em si mesmo)
+                    If SkipTemplates Then
+                        If cel.Parent IsNot Nothing AndAlso cel.Parent.Name = "template" AndAlso cel.Name = "content" Then
+                            Continue For
+                        End If
+                    End If
+
+                    If cel.Name = "expression" Then
+                        'substitui as variaveis
+                        ReplaceExpressionVariables(item, cel)
+                    End If
+
                     'Replace no nome da tag
                     cel.Name = ReplaceValues(item, cel.Name)
 
@@ -1061,19 +1085,38 @@ Namespace LINQ
                     For Each at In cel.Attributes
                         at.Name = ReplaceValues(item, at.Name)
                         at.Value = ReplaceValues(item, at.Value)
+                    Next
+
+                    If cel.Nodes.Count > 0 Then
+                        TravesseAndReplace(cel.Nodes, item, SkipTemplates)
+                    End If
+                Else
+                    Dim ctx = CType(el, HtmlText)
+                    Dim txt = ReplaceValues(item, ctx.Text)
+                    Dim parser = New HtmlParser.HtmlParser()
+                    parser.RemoveEmptyElementText = False
+                    nodes.ReplaceElement(el, parser.Parse(txt))
+                End If
+            Next
+        End Sub
+
+        Friend Sub QuantifyStrings(nodes As HtmlNodeCollection)
+            For index_el = 0 To nodes.Count - 1
+                Dim el As HtmlNode = nodes(index_el)
+                If TypeOf el Is HtmlElement Then
+                    Dim cel = CType(el, HtmlElement)
+
+                    For Each at In cel.Attributes
                         If at.Name.StartsWith("triforce-quantify-") Then
                             at.Name = at.Name.RemoveFirstIf("triforce-quantify-")
                             at.Value = at.Value.QuantifyText(Culture)
                         End If
                     Next
                     If cel.Nodes.Count > 0 Then
-                        TravesseAndReplace(cel.Nodes, item)
+                        QuantifyStrings(cel.Nodes)
                     End If
                 Else
                     Dim ctx = CType(el, HtmlText)
-                    Dim txt = ReplaceValues(item, ctx.Text)
-                    nodes.ReplaceElement(el, New HtmlParser.HtmlParser().Parse(txt))
-
                     If ctx.Parent IsNot Nothing AndAlso ctx.Parent.HasAttribute("triforce-quantify") Then
                         If Not ctx.Parent.Attribute("triforce-quantify") = "false" Then
                             For Each node As HtmlText In ctx.Parent.FindElements(Of HtmlText)(Function(x) True, False)
@@ -1085,7 +1128,6 @@ Namespace LINQ
                 End If
             Next
         End Sub
-
 
         Friend Function ReplaceValues(Of T As Class)(Item As T, StringToReplace As String) As String
 
@@ -1109,12 +1151,20 @@ Namespace LINQ
                              Dim val
 
                              If match.Groups(1).Value.ContainsAny("(", ")") Then
-                                 val = Item.GetPropertyValue(Of Object)(ReplaceValues(Item, match.Groups(1).Value), True)
+                                 If Item.HasProperty(match.Groups(1).Value.GetBefore("(")) Then
+                                     val = Item.GetPropertyValue(Of Object)(ReplaceValues(Item, match.Groups(1).Value), True)
+                                 Else
+                                     Return ApplySelector(match.Groups(1).Value)
+                                 End If
                              Else
-                                 val = Item.GetPropertyValue(Of Object)(match.Groups(1).Value, True)
+                                 If Item.HasProperty(match.Groups(1).Value) Then
+                                     val = Item.GetPropertyValue(Of Object)(match.Groups(1).Value, True)
+                                 Else
+                                     Return ApplySelector(match.Groups(1).Value)
+                                 End If
                              End If
 
-                             If val Is Nothing Then Return ApplySelector(match.Groups(1).Value)
+                             If val Is Nothing Then Return ""
                              If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
                                  Dim d As Date? = val
                                  If d.HasValue Then
@@ -1215,8 +1265,8 @@ Namespace LINQ
         ''' <returns></returns>
         Property Pagination As String
             Get
-                Dim paginationdoc As New HtmlDocument(_pagination)
-                Dim p As New HtmlDocument(_pagination)
+                Dim paginationdoc As New HtmlDocument(_pagination, True)
+                Dim p As New HtmlDocument(_pagination, True)
                 Dim first As HtmlElement = Nothing
                 Dim last As HtmlElement = Nothing
                 Dim page As HtmlElement = Nothing

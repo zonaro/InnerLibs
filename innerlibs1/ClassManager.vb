@@ -47,11 +47,38 @@ Public Module ClassTools
     ''' <summary>
     ''' Verifica se um tipo possui uma propriedade
     ''' </summary>
-    ''' <param name="type"></param>
-    ''' <param name="Name"></param>
+    ''' <param name="Type"></param>
+    ''' <param name="PropertyName"></param>
     ''' <returns></returns>
-    <Extension()> Public Function HasProperty(Type As Type, Name As String) As Boolean
-        Return Type.GetProperty(Name) IsNot Nothing
+    <Extension()> Public Function HasProperty(Type As Type, PropertyName As String, Optional GetPrivate As Boolean = False) As Boolean
+
+        Dim parts = New List(Of String)()
+        Dim [stop] = False
+        Dim current = New StringBuilder()
+
+        For i As Integer = 0 To PropertyName.Length - 1
+            If PropertyName(i) <> "."c Then current.Append(PropertyName(i))
+            If PropertyName(i) = "("c Then [stop] = True
+            If PropertyName(i) = ")"c Then [stop] = False
+            If (PropertyName(i) = "."c AndAlso Not [stop]) OrElse i = PropertyName.Length - 1 Then
+                parts.Add(current.ToString())
+                current.Length = 0
+            End If
+        Next
+
+        Dim prop As PropertyInfo
+        If GetPrivate Then
+            prop = Type.GetProperty(parts.First, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
+        Else
+            prop = Type.GetProperty(parts.First)
+        End If
+
+        Dim exist As Boolean = prop IsNot Nothing
+        parts.RemoveAt(0)
+        If exist AndAlso parts.Count > 0 Then
+            exist = prop.PropertyType.HasProperty(parts.First, GetPrivate)
+        End If
+        Return exist
     End Function
 
     ''' <summary>
@@ -61,7 +88,7 @@ Public Module ClassTools
     ''' <param name="Name"></param>
     ''' <returns></returns>
     <Extension()> Public Function HasProperty(Obj As Object, Name As String) As Boolean
-        Return Obj.GetType.HasProperty(Name)
+        Return ClassTools.HasProperty(Obj.GetType, Name, True)
     End Function
 
     ''' <summary>
@@ -430,6 +457,8 @@ Public Module ClassTools
             Return New List(Of PropertyInfo)
         End If
     End Function
+
+
 
     ''' <summary>
     ''' Traz o valor de uma propriedade de um objeto
