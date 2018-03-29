@@ -529,7 +529,7 @@ Namespace LINQ
                 post_proccess.Add(pp.Key, oo.Proccess)
             Next
 
-            Dim doc = New HtmlDocument(pegartemplate(Template), True)
+            Dim doc = New HtmlDocument(pegartemplate(Template))
 
             ProccessGet(doc)
 
@@ -660,7 +660,7 @@ Namespace LINQ
                     Select Case Tag
                         Case "body"
                             Try
-                                Dim el = CType(New HtmlDocument(TemplateFile, True).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
+                                Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
                                 If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
                                     Return pegartemplate(el.Attribute("file"), Tag)
                                 Else
@@ -671,7 +671,7 @@ Namespace LINQ
                             End Try
                         Case Else
                             Try
-                                Dim el = CType(New HtmlDocument(TemplateFile, True).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
+                                Dim el = CType(New HtmlDocument(TemplateFile).Nodes.GetElementsByTagName(Tag, False)(0), HtmlElement)
                                 If el.HasAttribute("file") AndAlso el.Attribute("file").IsNotBlank Then
                                     Return pegartemplate(el.Attribute("file"), Tag)
                                 Else
@@ -689,7 +689,7 @@ Namespace LINQ
                         If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
                         Using file As StreamReader = filefound.OpenText
                             Try
-                                Return CType(New HtmlDocument(file.ReadToEnd, True).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(Tag & " not found in " & filefound.Name)
                             End Try
@@ -698,7 +698,7 @@ Namespace LINQ
                         Try
                             Dim txt = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             Try
-                                Return CType(New HtmlDocument(txt, True).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(txt).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(Tag & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             End Try
@@ -905,7 +905,6 @@ Namespace LINQ
                     Dim ctx = CType(el, HtmlText)
                     Dim txt = ReplaceValues(item, ctx.Text)
                     Dim parser = New HtmlParser.HtmlParser()
-                    parser.RemoveEmptyElementText = False
                     nodes.ReplaceElement(el, parser.Parse(txt))
                 End If
             Next
@@ -972,7 +971,7 @@ Namespace LINQ
                 End If
                 StringToReplace = re.Replace(StringToReplace, ff)
             End If
-            Return StringToReplace
+            Return StringToReplace.AdjustBlankSpaces
         End Function
 
 
@@ -1261,8 +1260,8 @@ Namespace LINQ
         ''' <returns></returns>
         Property Pagination As String
             Get
-                Dim paginationdoc As New HtmlDocument(_pagination, True)
-                Dim p As New HtmlDocument(_pagination, True)
+                Dim paginationdoc As New HtmlDocument(_pagination)
+                Dim p As New HtmlDocument(_pagination)
                 Dim first As HtmlElement = Nothing
                 Dim last As HtmlElement = Nothing
                 Dim page As HtmlElement = Nothing

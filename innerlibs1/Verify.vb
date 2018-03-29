@@ -397,7 +397,7 @@ Public Module Verify
     ''' <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
     <Extension>
     Public Function IsBlank(Text As String) As Boolean
-        Return IsNothing(Text) OrElse String.IsNullOrWhiteSpace(Text)
+        Return IsNothing(Text) OrElse String.IsNullOrWhiteSpace(Text.RemoveAny(Environment.NewLine))
     End Function
 
     ''' <summary>

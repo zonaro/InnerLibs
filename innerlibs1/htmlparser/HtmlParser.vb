@@ -33,14 +33,6 @@ Namespace HtmlParser
         Public Sub New()
         End Sub
 
-        ''' <summary>
-        ''' The default mechanism will extract a pure DOM tree, which will contain many text
-        ''' nodes containing just whitespace (carriage returns etc.) However, with normal
-        ''' parsing, these are useless and only serve to complicate matters. Therefore, this
-        ''' option exists to automatically remove those empty text nodes.
-        ''' </summary>
-        Public Property RemoveEmptyElementText As Boolean = True
-
 
 #Region "The main parser"
 
@@ -132,13 +124,10 @@ Namespace HtmlParser
                 Else
                     ' Read text
                     Dim value As String = tokens(index)
-                    If RemoveEmptyElementText Then
-                        value = AdjustWhiteSpaces(value)
-                    End If
                     value = DecodeScript(value)
 
                     ' We do nothing
-                    If RemoveEmptyElementText AndAlso value.Length = 0 Then
+                    If value.IsBlank Then
                     Else
                         If Not (element IsNot Nothing AndAlso element.NoEscaping) Then
                             value = System.Net.WebUtility.HtmlDecode(value)

@@ -23,19 +23,19 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
 
-        Public Sub New(Optional UrlOrHTMLString As String = "", Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
-            Build(UrlOrHTMLString, WantSpaces, Encoding)
+        Public Sub New(Optional UrlOrHTMLString As String = "", Optional Encoding As Encoding = Nothing)
+            Build(UrlOrHTMLString, Encoding)
         End Sub
 
         ''' <summary>
         ''' This will create a new document object by parsing the HTML specified.
         ''' </summary>
         ''' <param name="Source">The HTML Source as Xnode.</param>
-        Public Sub New(Source As XNode, Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
-            Build(Source.ToString, WantSpaces, Encoding)
+        Public Sub New(Source As XNode, Optional Encoding As Encoding = Nothing)
+            Build(Source.ToString, Encoding)
         End Sub
 
-        Private Sub Build(Optional UrlOrHTMLString As String = Nothing, Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
+        Private Sub Build(Optional UrlOrHTMLString As String = Nothing, Optional Encoding As Encoding = Nothing)
             If Encoding IsNot Nothing Then
                 Me.Encoding = Encoding
             End If
@@ -46,7 +46,6 @@ Namespace HtmlParser
                 UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString, Me.Encoding)
             End If
             Dim parser As New HtmlParser
-            parser.RemoveEmptyElementText = Not WantSpaces
             mNodes = parser.Parse(UrlOrHTMLString)
         End Sub
 
@@ -54,8 +53,8 @@ Namespace HtmlParser
         ''' This will create a new document object direct from Byte Array.
         ''' </summary>
         ''' <param name="Content">The byte array with URL or HTML to parse.</param>
-        Public Sub New(Content As Byte(), Optional WantSpaces As Boolean = False, Optional Encoding As Encoding = Nothing)
-            Build(If(Encoding, Encoding.UTF8).GetString(Content), WantSpaces, Encoding)
+        Public Sub New(Content As Byte(), Optional Encoding As Encoding = Nothing)
+            Build(If(Encoding, Encoding.UTF8).GetString(Content), If(Encoding, Encoding.UTF8))
         End Sub
 
         ''' <summary>
