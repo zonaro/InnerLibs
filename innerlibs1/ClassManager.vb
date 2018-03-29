@@ -68,9 +68,9 @@ Public Module ClassTools
 
         Dim prop As PropertyInfo
         If GetPrivate Then
-            prop = Type.GetProperty(parts.First, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
+            prop = Type.GetProperty(parts.First.GetBefore("("), BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
         Else
-            prop = Type.GetProperty(parts.First)
+            prop = Type.GetProperty(parts.First.GetBefore("("))
         End If
 
         Dim exist As Boolean = prop IsNot Nothing
@@ -598,8 +598,8 @@ Public Module ClassTools
     ''' <param name="PropertyName">Nome da properiedade</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetPropertyValue(MyObject As Object, PropertyName As String) As Object
-        Return GetPropertyValue(Of Object)(MyObject, PropertyName)
+    Public Function GetPropertyValue(MyObject As Object, PropertyName As String, Optional GetPrivate As Boolean = True) As Object
+        Return GetPropertyValue(Of Object)(MyObject, PropertyName, GetPrivate)
     End Function
 
 

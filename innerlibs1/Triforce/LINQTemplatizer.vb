@@ -918,23 +918,14 @@ Namespace LINQ
                                  Dim val
                                  Dim key = match.Groups(1).Value
                                  Debug.WriteLine("Found TemplateKey: " & key.Wrap(selector))
-                                 If key.ContainsAny("(", ")") Then
-                                     If Item.HasProperty(key) Then
-                                         val = Item.GetPropertyValue(Of Object)(ReplaceValues(Item, match.Groups(1).Value), True)
-                                         Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
-                                     Else
-                                         Debug.WriteLine("Indexed Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap(selector).Quote)
-                                         Return ApplySelector(key, selector)
-                                     End If
+                                 If Item.HasProperty(key) Then
+                                     val = ClassTools.GetPropertyValue(Item, key)
+                                     Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
                                  Else
-                                     If Item.HasProperty(key) Then
-                                         val = Item.GetPropertyValue(Of Object)(key, True)
-                                         Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
-                                     Else
-                                         Debug.WriteLine("Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap(selector).Quote)
-                                         Return ApplySelector(key, selector)
-                                     End If
+                                     Debug.WriteLine("Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap(selector).Quote)
+                                     Return ApplySelector(key, selector)
                                  End If
+
 
                                  If val Is Nothing Then Return ""
                                  If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
