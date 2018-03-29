@@ -450,7 +450,7 @@ Namespace LINQ
 
         Friend _cult As CultureInfo
         'Friend _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
-        Friend sel As String() = {"##", "##"}
+
 
         Friend TemplateMap As New Dictionary(Of Type, String)
 
@@ -711,34 +711,12 @@ Namespace LINQ
             Return ""
         End Function
 
-        ''' <summary>
-        ''' Seletor dos campos do template
-        ''' </summary>
-        ''' <returns></returns>
-        Private Function GetFieldSelector() As String()
-            Return sel
+
+        Friend Function ApplySelector(Name As String, Selector As String) As String
+            Return Selector & Name & Selector
         End Function
 
-        ''' <summary>
-        ''' Aplica os seletores deste Triforce a uma string (nome do campo)
-        ''' </summary>
-        ''' <param name="Name"></param>
-        ''' <returns></returns>
-        Public Function ApplySelector(Name As String) As String
-            Return sel(0) & Name & sel(1)
-        End Function
 
-        ''' <summary>
-        ''' Altera os seletores padrão dos campos
-        ''' </summary>
-        ''' <param name="OpenSelector"> Seletor</param>
-        ''' <param name="CloseSelector"></param>
-        Public Sub SetSelector(OpenSelector As String, CloseSelector As String)
-            sel(0) = If(OpenSelector.IsBlank, "##", OpenSelector)
-            sel(1) = If(CloseSelector.IsBlank, "##", CloseSelector)
-        End Sub
-
-#Region "Processors"
 
         Friend Overridable Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
 
@@ -858,16 +836,9 @@ Namespace LINQ
             End While
         End Sub
 
-#End Region
 
-
-
-
-
-        Friend Function GetRegexPattern() As String
-            Dim open = Me.sel(0).ToArray.Join("\").Prepend("\")
-            Dim close = Me.sel(1).ToArray.Join("\").Prepend("\")
-            Return open & "(.*?)" & close
+        Friend Function GetRegexPattern(Selector As String) As String
+            Return Selector.RegexEscape & "(.*?)" & Selector.RegexEscape
         End Function
 
 
@@ -877,16 +848,11 @@ Namespace LINQ
                 If TypeOf el Is HtmlElement Then
                     Dim cel = CType(el, HtmlElement)
 
-                    'pula tag content do template (apenas o prorio template pode dar replace em si mesmo)
+                    'pula tag content do template (assim, apenas o prorio template pode dar replace em si mesmo na primeira vez)
                     If SkipTemplates Then
                         If cel.Parent IsNot Nothing AndAlso cel.Parent.Name = "template" AndAlso cel.Name = "content" Then
                             Continue For
                         End If
-                    End If
-
-                    If cel.Name = "expression" Then
-                        'substitui as variaveis
-                        ReplaceExpressionVariables(item, cel)
                     End If
 
                     'Replace no nome da tag
@@ -901,6 +867,12 @@ Namespace LINQ
                     If cel.Nodes.Count > 0 Then
                         TravesseAndReplace(cel.Nodes, item, SkipTemplates)
                     End If
+
+                    'por ultimo, replace nas variaveis de expressoes
+                    If cel.Name = "expression" Then
+                        'substitui as variaveis
+                        ReplaceExpressionVariables(item, cel)
+                    End If
                 Else
                     Dim ctx = CType(el, HtmlText)
                     Dim txt = ReplaceValues(item, ctx.Text)
@@ -910,103 +882,109 @@ Namespace LINQ
             Next
         End Sub
 
-
+        ''' <summary>
+        ''' Seletores de Template.
+        ''' </summary>
+        Public Property Selectors As String() = {"##"}
 
         Friend Function ReplaceValues(Of T As Class)(Item As T, StringToReplace As String) As String
-            If StringToReplace.IsNotBlank AndAlso Item IsNot Nothing Then
-                Dim ff As MatchEvaluator = Nothing
-                Dim pt = GetRegexPattern()
-                Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
-                If GetType(T) = GetType(Dictionary(Of String, Object)) Then
-                    If CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
-                        ff = Function(match)
-                                 Dim s As String
-                                 Dim key As String = match.Groups(1).Value
-                                 Try
-                                     s = CType(Item, IDictionary)(key)
-                                     If s IsNot Nothing Then
-                                         Debug.WriteLine("Property " & key.Quote & " found with value: " & s.ToString.Quote)
+            For Each selector In Selectors
+                If StringToReplace.IsNotBlank AndAlso Item IsNot Nothing Then
+                    Dim ff As MatchEvaluator = Nothing
+                    Dim pt = GetRegexPattern(selector)
+                    Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
+                    If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+                        If CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
+                            ff = Function(match)
+                                     Dim s As String
+                                     Dim key As String = match.Groups(1).Value
+                                     Debug.WriteLine("Found TemplateKey: " & key.Wrap(selector))
+                                     Try
+                                         s = CType(Item, IDictionary)(key)
+                                         If s IsNot Nothing Then
+                                             Debug.WriteLine("Property " & key.Quote & " found with value: " & s.ToString.Quote)
+                                         Else
+                                             Throw New KeyNotFoundException(ApplySelector(key, selector) & " not found")
+                                         End If
+                                     Catch ex As Exception
+                                         Debug.WriteLine("Key " & key.Quote & " not found in Dictionary. Restoring the original Key: " & key.Wrap(selector).Quote)
+                                         s = ApplySelector(key, selector)
+                                     End Try
+                                     Return s
+                                 End Function
+                        End If
+                    Else
+                        ff = Function(match As Match) As String
+                                 Dim val
+                                 Dim key = match.Groups(1).Value
+                                 Debug.WriteLine("Found TemplateKey: " & key.Wrap(selector))
+                                 If key.ContainsAny("(", ")") Then
+                                     If Item.HasProperty(key) Then
+                                         val = Item.GetPropertyValue(Of Object)(ReplaceValues(Item, match.Groups(1).Value), True)
+                                         Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
                                      Else
-                                         Throw New KeyNotFoundException(ApplySelector(key) & " not found")
+                                         Debug.WriteLine("Indexed Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap(selector).Quote)
+                                         Return ApplySelector(key, selector)
                                      End If
-                                 Catch ex As Exception
-                                     Debug.WriteLine("Key " & key.Quote & " not found in Dictionary. Restoring the original Key: " & key.Wrap("##").Quote)
-                                     s = ApplySelector(key)
-                                 End Try
-                                 Return s
+                                 Else
+                                     If Item.HasProperty(key) Then
+                                         val = Item.GetPropertyValue(Of Object)(key, True)
+                                         Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
+                                     Else
+                                         Debug.WriteLine("Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap(selector).Quote)
+                                         Return ApplySelector(key, selector)
+                                     End If
+                                 End If
+
+                                 If val Is Nothing Then Return ""
+                                 If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
+                                     Dim d As Date? = val
+                                     If d.HasValue Then
+                                         Select Case True
+                                             Case Item.HasProperty(key & "_Format")
+                                                 Dim format = Item.GetPropertyValue(Of String)(key & "_Format", True)
+                                                 Debug.WriteLine("Formating " & key.Quote & " with " & (key & "_Format").Quote & " -> " & format)
+                                                 Return d.Value.ToString(format.ToString)
+                                             Case Item.HasProperty("TriforceDateTimeFormat")
+                                                 Dim format = Item.GetPropertyValue(Of String)("TriforceDateTimeFormat", True)
+                                                 Debug.WriteLine("Formating " & key.Quote & " with TriforceDateTimeFormat -> " & format)
+                                                 Return d.Value.ToString(format.ToString)
+                                             Case Else
+                                                 Debug.WriteLine("Formating " & key.Quote & " with Specific Culture (" & Culture.Name & ")  -> " & Culture.DateTimeFormat.ShortDatePattern)
+                                                 Return d.Value.ToString(Culture.DateTimeFormat)
+                                         End Select
+                                     Else
+                                         Debug.WriteLine("Value Is Nothing")
+                                         Return ""
+                                     End If
+                                 Else
+                                     Return val.ToString
+                                 End If
                              End Function
                     End If
-                Else
-                    ff = Function(match As Match) As String
-                             Dim val
-                             Dim key = match.Groups(1).Value
-                             Debug.WriteLine("Found TemplateKey: " & key)
-                             If key.ContainsAny("(", ")") Then
-                                 If Item.HasProperty(key) Then
-                                     val = Item.GetPropertyValue(Of Object)(ReplaceValues(Item, match.Groups(1).Value), True)
-                                     Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
-                                 Else
-                                     Debug.WriteLine("Indexed Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap("##").Quote)
-                                     Return ApplySelector(key)
-                                 End If
-                             Else
-                                 If Item.HasProperty(key) Then
-                                     val = Item.GetPropertyValue(Of Object)(key, True)
-                                     Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
-                                 Else
-                                     Debug.WriteLine("Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap("##").Quote)
-                                     Return ApplySelector(key)
-                                 End If
-                             End If
-
-                             If val Is Nothing Then Return ""
-                             If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
-                                 Dim d As Date? = val
-                                 If d.HasValue Then
-                                     Select Case True
-                                         Case Item.HasProperty(key & "_Format")
-                                             Dim format = Item.GetPropertyValue(Of String)(key & "_Format", True)
-                                             Debug.WriteLine("Formating " & key.Quote & " with " & (key & "_Format").Quote & " -> " & format)
-                                             Return d.Value.ToString(format.ToString)
-                                         Case Item.HasProperty("TriforceDateTimeFormat")
-                                             Dim format = Item.GetPropertyValue(Of String)("TriforceDateTimeFormat", True)
-                                             Debug.WriteLine("Formating " & key.Quote & " with TriforceDateTimeFormat -> " & format)
-                                             Return d.Value.ToString(format.ToString)
-                                         Case Else
-                                             Debug.WriteLine("Formating " & key.Quote & " with Specific Culture (" & Culture.Name & ")  -> " & Culture.DateTimeFormat.ShortDatePattern)
-                                             Return d.Value.ToString(Culture.DateTimeFormat)
-                                     End Select
-                                 Else
-                                     Debug.WriteLine("Value Is Nothing")
-                                     Return ""
-                                 End If
-                             Else
-                                 Return val.ToString
-                             End If
-                         End Function
+                    If ff IsNot Nothing Then
+                        StringToReplace = re.Replace(StringToReplace, ff)
+                    End If
                 End If
-                If ff IsNot Nothing Then
-                    StringToReplace = re.Replace(StringToReplace, ff)
-                End If
-            End If
+            Next
             Return If(StringToReplace, "")
         End Function
 
 
-        Friend Function ClearValues(StringToClear As String) As String
-            If StringToClear.IsNotBlank Then
-                Dim ff As MatchEvaluator
-                Dim pt = GetRegexPattern()
-                Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
-                ff = Function(match)
-                         Return ""
-                     End Function
-                StringToClear = re.Replace(StringToClear, ff)
-            End If
-            Return StringToClear
+        Public Function ClearNotFoundValues(StringToClear As String) As String
+            For Each selector In Selectors
+                If StringToClear.IsNotBlank Then
+                    Dim ff As MatchEvaluator
+                    Dim pt = GetRegexPattern(selector)
+                    Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
+                    ff = Function(match)
+                             Return ""
+                         End Function
+                    StringToClear = re.Replace(StringToClear, ff)
+                End If
+            Next
+            Return If(StringToClear, "")
         End Function
-
-
 
     End Class
 
