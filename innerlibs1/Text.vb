@@ -1359,13 +1359,29 @@ Public Module Text
     ''' Strings utilizadas para descobrir as palavras em uma string 
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine}
+    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine, vbCr, vbCrLf}
 
     ''' <summary>
     ''' Caracteres usado para encapsular palavras em textos
     ''' </summary>
     ''' <returns></returns>
     ReadOnly Property WordWrappers As String() = {"""", "'", "(", ")", "{", "}", "[", "]", "<", ">"}
+
+    ''' <summary>
+    ''' Caracteres em branco
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property WhiteSpaceChars As String() = {Environment.NewLine, " ", vbTab, vbLf, vbCr, vbCrLf}
+
+
+    ''' <summary>
+    ''' Remove continuamente caracteres em branco do começo e fim de uma string
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Function TrimCarriage(Text As String) As String
+        Return Text.TrimAny(WhiteSpaceChars)
+    End Function
 
     ''' <summary>
     ''' Retorna uma lista de palavras encontradas no texto em ordem alfabetica

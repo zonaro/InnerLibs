@@ -486,7 +486,7 @@ Public Module ClassTools
             Next
 
             For Each part As String In parts
-                Debug.WriteLine("Getting " & part)
+                Debug.WriteLine("Getting property " & part.RemoveLastIf("(").Quote & " from " & obj.GetType.Name.Quote)
                 If MyObject Is Nothing Then
                     Return Nothing
                 End If
@@ -505,13 +505,16 @@ Public Module ClassTools
                 End If
 
                 If part.RemoveFirstIf(info.Name).StartsWith("(") Then
-                    obj = info.GetValue(obj, obj.GetType().GetPropertyParametersFromString(part))
+                    Dim allparams = obj.GetType().GetPropertyParametersFromString(part)
+                    obj = info.GetValue(obj, allparams)
                 Else
+
                     obj = info.GetValue(obj)
                 End If
             Next
             Return Conversion.CTypeDynamic(obj, Type)
         Catch ex As Exception
+            Debug.WriteLine(ex)
             Return Nothing
         End Try
     End Function

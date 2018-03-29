@@ -13,7 +13,7 @@ Namespace HtmlParser
     ''' Bascially, this class will build a tree containing HtmlNode elements.
     ''' </summary>
     Friend Class HtmlParser
-        Private Shared WHITESPACE_CHARS As Char() = " " & vbTab & vbCr & vbLf.ToCharArray()
+
 
         ''' <summary>
         ''' Internal FSM to represent the state of the parser
@@ -430,7 +430,7 @@ Namespace HtmlParser
                     End If
                 ElseIf status = ParseStatus.ReadStartTag Then
                     ' Skip leading whitespace in tag
-                    While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                    While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                         i += 1
                     End While
                     ' Read tag name
@@ -440,7 +440,7 @@ Namespace HtmlParser
                     End While
                     tokens.Add(input.Substring(tag_name_start, i - tag_name_start))
                     ' Skip trailing whitespace in tag
-                    While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                    While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                         i += 1
                     End While
                     If i + 1 < input.Length AndAlso input.Substring(i, 1).Equals("/>") Then
@@ -456,7 +456,7 @@ Namespace HtmlParser
                     End If
                 ElseIf status = ParseStatus.ReadEndTag Then
                     ' Skip leading whitespace in tag
-                    While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                    While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                         i += 1
                     End While
                     ' Read tag name
@@ -466,7 +466,7 @@ Namespace HtmlParser
                     End While
                     tokens.Add(input.Substring(tag_name_start, i - tag_name_start))
                     ' Skip trailing whitespace in tag
-                    While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                    While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                         i += 1
                     End While
                     If i < input.Length AndAlso input.Substring(i, 1).Equals(">") Then
@@ -476,7 +476,7 @@ Namespace HtmlParser
                     End If
                 ElseIf status = ParseStatus.ReadAttributeName Then
                     ' Read attribute name
-                    While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                    While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                         i += 1
                     End While
                     Dim attribute_name_start As Integer = i
@@ -484,7 +484,7 @@ Namespace HtmlParser
                         i += 1
                     End While
                     tokens.Add(input.Substring(attribute_name_start, i - attribute_name_start))
-                    While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                    While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                         i += 1
                     End While
                     If i + 1 < input.Length AndAlso input.Substring(i, 2).Equals("/>") Then
@@ -504,7 +504,7 @@ Namespace HtmlParser
                     End If
                 ElseIf status = ParseStatus.ReadAttributeValue Then
                     ' Read the attribute value
-                    While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                    While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                         i += 1
                     End While
                     If i < input.Length AndAlso input.Substring(i, 1).Equals("""") Then
@@ -535,7 +535,7 @@ Namespace HtmlParser
                             i += 1
                         End While
                         tokens.Add(input.Substring(value_start, i - value_start))
-                        While i < input.Length AndAlso input.Substring(i, 1).IndexOfAny(WHITESPACE_CHARS) <> -1
+                        While i < input.Length AndAlso input.Substring(i, 1).ContainsAny(WhiteSpaceChars)
                             i += 1
                         End While
                         status = ParseStatus.ReadAttributeName

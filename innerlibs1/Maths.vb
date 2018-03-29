@@ -74,12 +74,15 @@ Public Module Mathematic
     ''' <returns></returns>
     Public Function EvaluateExpression(Formula As String) As Object
         Try
+            Formula = Formula.TrimCarriage
             Formula.IfBlank(Of String)(False)
             If Formula.IsAny("True", "true", "False", "false") Then
                 Return Formula.ChangeType(Of Boolean)
-            Else
-                Return New Evaluator().Parse(Formula).value
             End If
+            If Formula.IsNumber Then
+                Return Formula.ChangeType(Of Long)
+            End If
+            Return New Evaluator().Parse(Formula).value
         Catch ex As Exception
             Return Nothing
         End Try

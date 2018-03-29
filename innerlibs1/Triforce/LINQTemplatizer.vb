@@ -913,37 +913,49 @@ Namespace LINQ
 
 
         Friend Function ReplaceValues(Of T As Class)(Item As T, StringToReplace As String) As String
-
-            If StringToReplace.IsNotBlank Then
-                Dim ff As MatchEvaluator
+            If StringToReplace.IsNotBlank AndAlso Item IsNot Nothing Then
+                Dim ff As MatchEvaluator = Nothing
                 Dim pt = GetRegexPattern()
                 Dim re As Regex = New Regex(pt, RegexOptions.Compiled)
-                If GetType(T) = GetType(Dictionary(Of String, Object)) AndAlso CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
-                    ff = Function(match)
-                             Dim s As String
-                             Try
-                                 s = CType(Item, IDictionary)(match.Groups(1).Value)
-                                 If s Is Nothing Then Throw New KeyNotFoundException(ApplySelector(match.Groups(1).Value) & " not found")
-                             Catch ex As Exception
-                                 s = ApplySelector(match.Groups(1).Value)
-                             End Try
-                             Return s
-                         End Function
+                If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+                    If CType(CType(Item, Object), Dictionary(Of String, Object)).Count > 0 Then
+                        ff = Function(match)
+                                 Dim s As String
+                                 Dim key As String = match.Groups(1).Value
+                                 Try
+                                     s = CType(Item, IDictionary)(key)
+                                     If s IsNot Nothing Then
+                                         Debug.WriteLine("Property " & key.Quote & " found with value: " & s.ToString.Quote)
+                                     Else
+                                         Throw New KeyNotFoundException(ApplySelector(key) & " not found")
+                                     End If
+                                 Catch ex As Exception
+                                     Debug.WriteLine("Key " & key.Quote & " not found in Dictionary. Restoring the original Key: " & key.Wrap("##").Quote)
+                                     s = ApplySelector(key)
+                                 End Try
+                                 Return s
+                             End Function
+                    End If
                 Else
                     ff = Function(match As Match) As String
                              Dim val
-
-                             If match.Groups(1).Value.ContainsAny("(", ")") Then
-                                 If Item.HasProperty(match.Groups(1).Value.GetBefore("(")) Then
+                             Dim key = match.Groups(1).Value
+                             Debug.WriteLine("Found TemplateKey: " & key)
+                             If key.ContainsAny("(", ")") Then
+                                 If Item.HasProperty(key) Then
                                      val = Item.GetPropertyValue(Of Object)(ReplaceValues(Item, match.Groups(1).Value), True)
+                                     Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
                                  Else
-                                     Return ApplySelector(match.Groups(1).Value)
+                                     Debug.WriteLine("Indexed Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap("##").Quote)
+                                     Return ApplySelector(key)
                                  End If
                              Else
-                                 If Item.HasProperty(match.Groups(1).Value) Then
-                                     val = Item.GetPropertyValue(Of Object)(match.Groups(1).Value, True)
+                                 If Item.HasProperty(key) Then
+                                     val = Item.GetPropertyValue(Of Object)(key, True)
+                                     Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
                                  Else
-                                     Return ApplySelector(match.Groups(1).Value)
+                                     Debug.WriteLine("Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap("##").Quote)
+                                     Return ApplySelector(key)
                                  End If
                              End If
 
@@ -952,16 +964,20 @@ Namespace LINQ
                                  Dim d As Date? = val
                                  If d.HasValue Then
                                      Select Case True
-                                         Case Item.HasProperty(match.Groups(1).Value & "_Format")
-                                             Dim format = Item.GetPropertyValue(Of String)(match.Groups(1).Value & "_Format", True)
+                                         Case Item.HasProperty(key & "_Format")
+                                             Dim format = Item.GetPropertyValue(Of String)(key & "_Format", True)
+                                             Debug.WriteLine("Formating " & key.Quote & " with " & (key & "_Format").Quote & " -> " & format)
                                              Return d.Value.ToString(format.ToString)
                                          Case Item.HasProperty("TriforceDateTimeFormat")
                                              Dim format = Item.GetPropertyValue(Of String)("TriforceDateTimeFormat", True)
+                                             Debug.WriteLine("Formating " & key.Quote & " with TriforceDateTimeFormat -> " & format)
                                              Return d.Value.ToString(format.ToString)
                                          Case Else
+                                             Debug.WriteLine("Formating " & key.Quote & " with Specific Culture (" & Culture.Name & ")  -> " & Culture.DateTimeFormat.ShortDatePattern)
                                              Return d.Value.ToString(Culture.DateTimeFormat)
                                      End Select
                                  Else
+                                     Debug.WriteLine("Value Is Nothing")
                                      Return ""
                                  End If
                              Else
@@ -969,9 +985,11 @@ Namespace LINQ
                              End If
                          End Function
                 End If
-                StringToReplace = re.Replace(StringToReplace, ff)
+                If ff IsNot Nothing Then
+                    StringToReplace = re.Replace(StringToReplace, ff)
+                End If
             End If
-            Return StringToReplace.AdjustBlankSpaces
+            Return If(StringToReplace, "")
         End Function
 
 
@@ -1432,12 +1450,11 @@ Namespace LINQ
             Return v.ToString
         End Operator
 
-
     End Class
 
 
     ''' <summary>
-    ''' Classe que mescla paginas de um mesmo tipo de template. Particulamente util para união de diferentes resultados filtrados de um mesmo objeto
+    ''' Classe que mescla paginas de um mesmo tipo de template. Particulamente util para união de diferentes resultados filtrados de um mesmo tipo de objeto
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
     Public Class MixedTemplatePage(Of T As Class)
@@ -1530,17 +1547,28 @@ Namespace LINQ
 
 
 
-
+    ''' <summary>
+    ''' Classe que permite pegar propriedades de outras classes durante o processamento de um template
+    ''' </summary>
     Public Class TemplatePropertySelector
+
         Property Obj As Object
         Property PropertyString As String
 
-
+        ''' <summary>
+        ''' Declara um novo TemplatePropertySelector a partir de um objeto e uma String de Propriedade
+        ''' </summary>
+        ''' <param name="Obj"></param>
+        ''' <param name="PropertyString"></param>
         Sub New(Obj As Object, PropertyString As String)
             Me.Obj = Obj
             Me.PropertyString = PropertyString
         End Sub
 
+        ''' <summary>
+        ''' Retorna o valor daquela propriedade do objeto definido
+        ''' </summary>
+        ''' <returns></returns>
         Public Function Proccess() As Object
             If PropertyString.IsNotBlank Then
                 Return ClassTools.GetPropertyValue(Of Object)(Obj, PropertyString, True)
