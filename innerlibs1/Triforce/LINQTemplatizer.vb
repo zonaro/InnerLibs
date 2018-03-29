@@ -920,14 +920,13 @@ Namespace LINQ
                                  Debug.WriteLine("Found TemplateKey: " & key.Wrap(selector))
                                  If Item.HasProperty(key) Then
                                      val = ClassTools.GetPropertyValue(Item, key)
+                                     val = If(val, "")
                                      Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
                                  Else
                                      Debug.WriteLine("Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap(selector).Quote)
                                      Return ApplySelector(key, selector)
                                  End If
 
-
-                                 If val Is Nothing Then Return ""
                                  If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
                                      Dim d As Date? = val
                                      If d.HasValue Then
