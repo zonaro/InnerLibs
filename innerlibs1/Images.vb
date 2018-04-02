@@ -18,7 +18,10 @@ Public Module Images
     ''' <param name="img">Imagem</param>
     ''' <param name="WidthHeight">Tamanho do quadrado em pixels</param>
     ''' <returns></returns>
-    <Extension> Public Function CropToSquare(Img As Image, WidthHeight As Integer) As Image
+    <Extension> Public Function CropToSquare(Img As Image, Optional WidthHeight As Integer = 0) As Image
+        If WidthHeight < 1 Then
+            WidthHeight = If(Img.Height > Img.Width, Img.Width, Img.Height)
+        End If
         Return Img.Crop(WidthHeight, WidthHeight)
     End Function
 
@@ -256,11 +259,14 @@ Public Module Images
         Return bmp
     End Function
 
+
+
+
     ''' <summary>
     ''' Cropa uma imagem a patir do centro
     ''' </summary>
     ''' <param name="Image">Imagem</param>
-    ''' <param name="Size">Tamanho</param>    '' 
+    ''' <param name="Size">Tamanho</param>    
     ''' <returns></returns>
     <Extension()> Public Function Crop(Image As Image, Size As Size) As Image
         Return Image.Crop(Size.Width, Size.Height)
@@ -454,17 +460,29 @@ Public Module Images
         Return s
     End Function
 
+    ''' <summary>
+    ''' Lista com todos os formatos de imagem
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property ImageTypes As Imaging.ImageFormat() = {Drawing.Imaging.ImageFormat.Bmp, Drawing.Imaging.ImageFormat.Emf, Drawing.Imaging.ImageFormat.Exif, Drawing.Imaging.ImageFormat.Gif, Drawing.Imaging.ImageFormat.Icon, Drawing.Imaging.ImageFormat.Jpeg, Drawing.Imaging.ImageFormat.Png, Drawing.Imaging.ImageFormat.Tiff, Drawing.Imaging.ImageFormat.Wmf}
 
+    ''' <summary>
+    ''' Retorna o formato da imagem correspondente a aquela imagem
+    ''' </summary>
+    ''' <param name="OriginalImage"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetImageFormat(OriginalImage As Image) As Imaging.ImageFormat
+        Return ImageTypes.Where(Function(p) p.Guid = OriginalImage.RawFormat.Guid).FirstOr(Imaging.ImageFormat.Png)
+    End Function
 
     ''' <summary>
     ''' Pega o encoder a partir de um formato de imagem
     ''' </summary>
     ''' <param name="RawFormat">Image format</param>
     ''' <returns>image codec info.</returns>
-
     <Runtime.CompilerServices.Extension>
-    Private Function GetEncoderInfo(RawFormat As ImageFormat) As ImageCodecInfo
-        Return ImageCodecInfo.GetImageDecoders().SingleOrDefault(Function(c) c.FormatID = RawFormat.Guid)
+    Public Function GetEncoderInfo(RawFormat As ImageFormat) As ImageCodecInfo
+        Return ImageCodecInfo.GetImageDecoders().Where(Function(c) c.FormatID = RawFormat.Guid).FirstOr(ImageCodecInfo.GetImageDecoders().Where(Function(c) c.FormatID = ImageFormat.Png.Guid).First)
     End Function
 
     ''' <summary>

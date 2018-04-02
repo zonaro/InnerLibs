@@ -87,11 +87,12 @@ Public Module Base64
     <Extension()>
     Public Function ToBase64(ByVal OriginalImage As Image) As String
         Using ms As New MemoryStream
-            OriginalImage.Save(ms, OriginalImage.RawFormat)
+            OriginalImage.Save(ms, GetImageFormat(OriginalImage))
             Dim imageBytes As Byte() = ms.ToArray()
             Return Convert.ToBase64String(imageBytes)
         End Using
     End Function
+
 
     ''' <summary>
     ''' Converte uma Imagem da WEB para String Base64
@@ -165,6 +166,8 @@ Public Module Base64
     Public Function ToImage(PostedFile As HttpPostedFile) As Image
         Return Image.FromStream(PostedFile.InputStream)
     End Function
+
+
 
     ''' <summary>
     ''' Converte um array de bytes para imagem
