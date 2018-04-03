@@ -23,7 +23,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
 
-        Public Sub New(Optional UrlOrHTMLString As String = "", Optional Encoding As Encoding = Nothing)
+        Public Sub New(Optional UrlOrHTMLString As String = Nothing, Optional Encoding As Encoding = Nothing)
             Build(UrlOrHTMLString, Encoding)
         End Sub
 

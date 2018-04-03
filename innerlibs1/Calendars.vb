@@ -13,8 +13,26 @@ Imports InnerLibs.TimeMachine
 Public Class DateRange
 
     Public Property StartDate As Date
+        Get
+            FixDateOrder(_startDate, _enddate)
+            Return _startDate
+        End Get
+        Set(value As Date)
+            _startDate = value
+        End Set
+    End Property
     Public Property EndDate As Date
+        Get
+            FixDateOrder(_startDate, _enddate)
+            Return _enddate
+        End Get
+        Set(value As Date)
+            _enddate = value
+        End Set
+    End Property
 
+    Private _startDate As Date
+    Private _enddate As Date
 
     ''' <summary>
     ''' Instancia um novo periodo entre 2 datas
@@ -27,12 +45,10 @@ Public Class DateRange
     End Sub
 
     Function Difference() As TimeFlow
-        FixDateOrder(StartDate, EndDate)
         Return StartDate.GetDifference(EndDate)
     End Function
 
     Public Function CreateFortnightGroup() As FortnightGroup
-        FixDateOrder(StartDate, EndDate)
         Return FortnightGroup.CreateFromDateRange(Me.StartDate, Me.EndDate)
     End Function
 
@@ -46,7 +62,6 @@ Public Class DateRange
     ''' <param name="Interval">Intervalo que deverá ser incrementado</param>
     ''' <returns></returns>
     Public Function ToList(Optional Interval As DateInterval = DateInterval.Day) As List(Of Date)
-        FixDateOrder(StartDate, EndDate)
         Dim curdate = StartDate
         Dim l As New List(Of Date)
         Do
@@ -62,7 +77,6 @@ Public Class DateRange
     ''' <param name="Period">Periodo</param>
     ''' <returns></returns>
     Public Function Overlaps(Period As DateRange) As Boolean
-        FixDateOrder(StartDate, EndDate)
         Select Case True
             Case Period.StartDate <= Me.EndDate And Period.StartDate >= Me.StartDate
                 Return True
@@ -200,6 +214,27 @@ Public Module Calendars
     <Extension()>
     Public Function GetFirstDayOfMonth([Date] As DateTime) As DateTime
         Return New DateTime([Date].Year, [Date].Month, 1, [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
+    End Function
+
+
+    ''' <summary>
+    ''' Retorna a primeira data da quinzena a partir de uma outra data
+    ''' </summary>
+    ''' <param name="[Date]">Data</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetFirstDayOfFortnight([Date] As DateTime) As DateTime
+        Return New DateTime([Date].Year, [Date].Month, If([Date].Day <= 15, 1, 16), [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
+    End Function
+
+    ''' <summary>
+    ''' Retorna a primeira ultima da quinzena a partir de uma outra data
+    ''' </summary>
+    ''' <param name="[Date]">Data</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetLastDayOfFortnight([Date] As DateTime) As DateTime
+        Return New DateTime([Date].Year, [Date].Month, If([Date].Day <= 15, 15, [Date].GetLastDayOfMonth().Day), [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
     End Function
 
     ''' <summary>
@@ -414,6 +449,9 @@ Public Module Calendars
     ''' <returns>Data de ontem</returns>
 
     Public ReadOnly Property Yesterday() As DateTime = DateTime.Now.AddDays(-1)
+
+
+
 
     ''' <summary>
     ''' Verifica se o dia se encontra no fim de semana

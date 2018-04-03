@@ -1428,6 +1428,10 @@ Namespace LINQ
     Public Class MixedTemplatePage(Of T As Class)
         Inherits List(Of Template(Of T))
 
+        Sub New()
+            MyBase.New()
+        End Sub
+
         ''' <summary>
         ''' Declara um novo <see cref="MixedTemplatePage(Of T)"/> a partir de varias paginas de Template 
         ''' </summary>

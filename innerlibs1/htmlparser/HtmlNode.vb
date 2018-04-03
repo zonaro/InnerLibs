@@ -329,17 +329,18 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Node"></param>
         Public Shadows Sub Add(Node As HtmlNode, Optional ChangeParent As Boolean = True)
-            If Me.mParent IsNot Nothing AndAlso ChangeParent Then
-                Node.Remove()
-                Node.SetParent(Me.mParent)
+            If Node IsNot Nothing Then
+                If Me.mParent IsNot Nothing AndAlso ChangeParent Then
+                    Node.Remove()
+                    Node.SetParent(Me.mParent)
+                End If
+                MyBase.Add(Node)
             End If
-            MyBase.Add(Node)
         End Sub
 
         Public Shadows Sub AddRange(Nodes As IEnumerable(Of HtmlNode), Optional ChangeParent As Boolean = True)
-            MyBase.AddRange(Nodes)
-            For Each el In Nodes
-                el.mParent = Me.mParent
+            For Each n In Nodes
+                Me.Add(n, ChangeParent)
             Next
         End Sub
 

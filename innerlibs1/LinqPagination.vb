@@ -18,13 +18,14 @@ Namespace LINQ
             Return source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
 
-        Function CreateExpression(Of T)(Optional DefaultReturnValue As Boolean = False) As Expression(Of Func(Of T, Boolean))
-            If DefaultReturnValue Then
-                Return Function(f) True
-            Else
-                Return Function(f) False
-            End If
+        Function CreateExpression(Of T)(Optional DefaultReturnValue As Boolean = True) As Expression(Of Func(Of T, Boolean))
+            Return Function(f) DefaultReturnValue
         End Function
+
+        Function CreateExpression(Of T)(predicate As Func(Of T, Boolean)) As Expression(Of Func(Of T, Boolean))
+            Return Function(f) predicate(f)
+        End Function
+
 
         <Extension()>
         Function [Or](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))

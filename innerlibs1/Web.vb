@@ -886,7 +886,7 @@ Public Module Web
     ''' <param name="Text">    Texto do Item</param>
     ''' <param name="Value">   Valor do Item</param>
     ''' <returns>o objeto ListItem adicionado ou existente</returns>
-    <Extension()> Public Function AddItem(Control As HtmlSelect, Text As String, Optional Value As String = "") As ListItem
+    <Extension()> Public Function SetItem(Control As HtmlSelect, Text As String, Optional Value As String = "") As ListItem
         Dim li = New ListItem(Text, Value.IfBlank(Text))
         For Each item As ListItem In Control.Items
             If item.Text = li.Text AndAlso item.Value = li.Value Then
