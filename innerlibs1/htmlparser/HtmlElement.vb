@@ -391,7 +391,7 @@ Namespace HtmlParser
                     If TypeOf node Is HtmlText Then
                         stringBuilder.Append(DirectCast(node, HtmlText).Text)
                     Else
-                        If Not Nodes.mParent.Name.IsIn({"script", "style", "head"}) AndAlso DirectCast(node, HtmlElement).Name.IsIn({"script", "style", "head"}) Then
+                        If Not Nodes.mParent.Name.IsIn({"script", "style", "head"}) AndAlso Not DirectCast(node, HtmlElement).Name.IsIn({"script", "style", "head"}) Then
                             stringBuilder.Append(DirectCast(node, HtmlElement).InnerText)
                         End If
                     End If
