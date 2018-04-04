@@ -69,16 +69,14 @@ Namespace LINQ
         ''' <param name="Value"></param>
         ''' <param name="Selected"></param>
         ''' <returns></returns>
-        <Extension()> Public Function GetAsListItems(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal IDs As PKType(), Text As Func(Of T, String), Optional Value As Func(Of T, String) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of UI.WebControls.ListItem)
+        <Extension()> Public Function GetAsListItems(Of T As Class, PKType As Structure, TextType, ValueType)(ByVal Context As DataContext, ByVal IDs As PKType(), Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of UI.WebControls.ListItem)
             If Value Is Nothing Then
                 Dim table = Context.GetTable(Of T)()
                 Dim mapping = Context.Mapping.GetTable(GetType(T))
                 Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
-                If pkfield Is Nothing Then
-                    Value = Text
-                Else
+                If pkfield IsNot Nothing Then
                     Dim param = Expression.Parameter(GetType(T), "e")
-                    Value = ConvertGeneric(Of T, PKType, T, String)(Expression.Lambda(Of Func(Of T, PKType))(Expression.Property(param, pkfield.Name), param)).Compile
+                    Value = ConvertGeneric(Of T, PKType, T, ValueType)(Expression.Lambda(Of Func(Of T, PKType))(Expression.Property(param, pkfield.Name), param)).Compile
                 End If
             End If
             Return Context.GetByPrimaryKeys(Of T, PKType)(IDs).ToListItems(Text, Value, Selected)

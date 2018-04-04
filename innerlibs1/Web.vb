@@ -2,6 +2,7 @@
 Imports System.Data.Linq
 Imports System.Drawing
 Imports System.IO
+Imports System.Linq.Expressions
 Imports System.Net
 Imports System.Runtime.CompilerServices
 Imports System.Text
@@ -916,7 +917,7 @@ Public Module Web
     ''' <param name="TExt">Texto do Listitem</param>
     ''' <param name="Value">Valor do ListItem</param>
     ''' <returns></returns>
-    <Extension()> Public Function AsListItem(Of T As Class)(Obj As T, Text As Func(Of T, Object), Optional Value As Func(Of T, Object) = Nothing) As ListItem
+    <Extension()> Public Function AsListItem(Of T As Class, TextType, ValueType)(Obj As T, Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing) As ListItem
         Value = If(Value, Text)
         Return New ListItem(Text(Obj).ToString, Value(Obj).ToString)
     End Function
@@ -929,7 +930,7 @@ Public Module Web
     ''' <param name="TExt">Texto do Listitem</param>
     ''' <param name="Value">Valor do ListItem</param>
     <Extension()>
-    Public Function ToListItems(Of T As Class)(List As IEnumerable(Of T), Text As Func(Of T, Object), Optional Value As Func(Of T, Object) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of ListItem)
+    Public Function ToListItems(Of T As Class, TextType, ValueType)(List As IEnumerable(Of T), Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of ListItem)
         Selected = If(Selected, Function(x) False)
         Dim arr As New List(Of ListItem)
         For Each element In List
@@ -949,7 +950,7 @@ Public Module Web
     ''' <param name="List">Lista de itens que serão adicionados</param>
     ''' <param name="Selected">QUais valores devem ser selecionados</param>
     ''' <returns>o objeto ListItem adicionado ou existente</returns>
-    <Extension()> Public Function SetItems(Of T As Class)(Control As HtmlSelect, List As IEnumerable(Of T), Text As Func(Of T, Object), Optional Value As Func(Of T, Object) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing)
+    <Extension()> Public Function SetItems(Of T As Class, TextType, ValueType)(Control As HtmlSelect, List As IEnumerable(Of T), Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing)
         Selected = If(Selected, Function(x) False)
         Dim lis = List.ToListItems(Text, Value)
         If List.Count(Selected) > 1 Then
