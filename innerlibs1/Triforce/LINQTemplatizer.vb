@@ -47,12 +47,9 @@ Namespace LINQ
     ''' Permite integrar <see cref="Triforce"/> a objetos LINQ to SQL
     ''' </summary>
     ''' <typeparam name="DataContextType">Objeto LINQ to SQL gerado</typeparam>
-    Public NotInheritable Class Triforce(Of DataContextType As DataContext)
+    Public Class Triforce(Of DataContextType As DataContext)
         Inherits Triforce
 
-        ''' <summary>
-        ''' Tipo de <see cref="Data.Linq.DataContext"/> utilizado para a comunicação com o banco
-        ''' </summary>
         Friend DataContext As DataContextType
 
         ''' <summary>
@@ -494,6 +491,50 @@ Namespace LINQ
             MapType(GetType(T)) = Template.IfBlank(GetTemplate(Of T))
             Return Me
         End Function
+
+        ''' <summary>
+        ''' Cria um template de URL a partir de uma url base e parâmetros especificos 
+        ''' </summary>
+        ''' <param name="Url"></param>
+        ''' <param name="FilterParams"></param>
+        ''' 
+        Function CreatePaginarionUrlTemplate(Url As String, ParamArray FilterParams As String()) As String
+            If Url.IsURL Then
+                Dim urls As String = New Uri(Url).GetLeftPart(UriPartial.Path)
+                If FilterParams.Count > 0 Then
+                    Dim querystring = "?"
+                    For Each k In FilterParams
+                        If querystring <> "?" Then
+                            querystring.Append("&")
+                        End If
+                        querystring.Append(k & "=" & ApplySelector(k, Selectors.FirstOr("##")))
+                    Next
+                    urls.Append(querystring)
+                End If
+                Return Url
+            End If
+            Return ""
+        End Function
+
+
+
+
+        ''' <summary>
+        ''' Processa a uma string URL com marcaçoes de template e retorna uma URI
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="UrlTemplate"></param>
+        ''' <param name="Obj"></param>
+        ''' <returns></returns>
+        Function CreateUrl(Of T As Class)(Obj As T, UrlTemplate As String) As Uri
+            UrlTemplate = ReplaceValues(Of T)(Obj, UrlTemplate)
+            If UrlTemplate.IsURL Then
+                Return New Uri(UrlTemplate)
+            End If
+            Throw New ArgumentException("Generated URL is not a valid URL")
+            Return Nothing
+        End Function
+
 
 
 
@@ -1302,6 +1343,7 @@ Namespace LINQ
                     dic("##Count##") = Me.Count
                     dic("##Total##") = Total
 
+
                     Dim beforeafter As Decimal = (limit - 1) / 2
                     If beforeafter.IsOdd Then beforeafter = (beforeafter + 1).Floor
                     Dim before = PageNumber
@@ -1344,6 +1386,9 @@ Namespace LINQ
             End Set
         End Property
         Friend _pagination As String = ""
+
+
+
 
 
         ''' <summary>
@@ -1391,6 +1436,12 @@ Namespace LINQ
                 Return (Total / PageSize).Ceil
             End Get
         End Property
+
+        ''' <summary>
+        ''' Template aplicado a URL de paginação
+        ''' </summary>
+        ''' <returns></returns>
+        Property PaginationUrlTemplate As String
 
         ''' <summary>
         ''' Retorna o HTML da pagina atual da lista de templates 
