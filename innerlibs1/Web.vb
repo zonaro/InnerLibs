@@ -942,6 +942,19 @@ Public Module Web
     End Function
 
     ''' <summary>
+    ''' Retorna uma lista de <see cref="ListItem"/> a partir de uma coleçao de objetos
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do objeto</typeparam>
+    ''' <param name="List">Lista</param>
+    ''' <param name="TExt">Texto do Listitem</param>
+    ''' <param name="Value">Valor do ListItem</param>
+    <Extension()>
+    Public Function ToListItems(Of T As Class, TextType, ValueType)(List As IEnumerable(Of T), Text As Func(Of T, TextType), Value As Func(Of T, ValueType), ParamArray SelectedValues As ValueType()) As List(Of ListItem)
+        Return List.ToListItems(Text, Value, Function(x) x.IsIn(If(SelectedValues, {})))
+    End Function
+
+
+    ''' <summary>
     ''' Adiciona varios <see cref="ListItem"/> ao <see cref="HtmlSelect"/> se estes nao existirem no mesmo
     ''' </summary>
     ''' <param name="Control"> Controle <see cref="HtmlSelect"/></param>
@@ -950,7 +963,7 @@ Public Module Web
     ''' <param name="List">Lista de itens que serão adicionados</param>
     ''' <param name="Selected">QUais valores devem ser selecionados</param>
     ''' <returns>o objeto ListItem adicionado ou existente</returns>
-    <Extension()> Public Function SetItems(Of T As Class, TextType, ValueType)(Control As HtmlSelect, List As IEnumerable(Of T), Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing)
+    <Extension()> Public Function SetItems(Of T As Class, TextType, ValueType)(Control As HtmlSelect, List As IEnumerable(Of T), Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As HtmlSelect
         Selected = If(Selected, Function(x) False)
         Dim lis = List.ToListItems(Text, Value)
         If List.Count(Selected) > 1 Then
@@ -963,6 +976,23 @@ Public Module Web
         Next
         Return Control
     End Function
+
+    ''' <summary>
+    ''' Adiciona varios <see cref="ListItem"/> ao <see cref="HtmlSelect"/> se estes nao existirem no mesmo
+    ''' </summary>
+    ''' <param name="Control"> Controle <see cref="HtmlSelect"/></param>
+    ''' <param name="Text">    Texto do Item</param>
+    ''' <param name="Value">   Valor do Item</param>
+    ''' <param name="List">Lista de itens que serão adicionados</param>
+    ''' <param name="SelectedValues">QUais valores devem ser selecionados</param>
+    ''' <returns>o objeto ListItem adicionado ou existente</returns>
+    <Extension()> Public Function SetItems(Of T As Class, TextType, ValueType)(Control As HtmlSelect, List As IEnumerable(Of T), Text As Func(Of T, TextType), Value As Func(Of T, ValueType), ParamArray SelectedValues As ValueType()) As HtmlSelect
+        For Each li In List.ToListItems(Text, Value, SelectedValues)
+            Control.SetItem(li)
+        Next
+        Return Control
+    End Function
+
 
     ''' <summary>
     ''' Adiciona varios <see cref="ListItem"/> ao <see cref="HtmlSelect"/> se estes nao existirem no mesmo
@@ -1089,3 +1119,5 @@ Public Module Web
     End Sub
 
 End Module
+
+
