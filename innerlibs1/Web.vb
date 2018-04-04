@@ -842,6 +842,8 @@ Public Module Web
         Next
         If values.Count > 1 Then
             Control.Multiple = True
+        Else
+            Control.Multiple = Control.Multiple
         End If
         For Each i As ListItem In values
             i.Selected = True
@@ -950,7 +952,11 @@ Public Module Web
     <Extension()> Public Function SetItems(Of T As Class)(Control As HtmlSelect, List As IEnumerable(Of T), Text As Func(Of T, Object), Optional Value As Func(Of T, Object) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing)
         Selected = If(Selected, Function(x) False)
         Dim lis = List.ToListItems(Text, Value)
-        Control.Multiple = List.Count(Selected) > 1
+        If List.Count(Selected) > 1 Then
+            Control.Multiple = True
+        Else
+            Control.Multiple = Control.Multiple
+        End If
         For Each li In lis
             Control.SetItem(li.Text, li.Value).Selected = li.Selected
         Next
