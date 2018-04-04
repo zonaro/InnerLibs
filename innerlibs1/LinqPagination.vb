@@ -40,6 +40,51 @@ Namespace LINQ
         End Function
 
 
+        ''' <summary>
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
+        ''' <param name="ID">Valor da chave primária</param>
+        '''  <param name="CreateIfNotExists">Se true, cria o objeto e coloca o status de INSERT pendente para este</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function GetByPrimaryKey(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal ID As PKType, Optional CreateIfNotExists As Boolean = False) As T
+            Dim obj = Context.GetByPrimaryKeys(Of T, PKType)({ID}).SingleOrDefault
+            If obj Is Nothing AndAlso CreateIfNotExists Then
+                obj = Activator.CreateInstance(Of T)
+                Context.GetTable(Of T).InsertOnSubmit(obj)
+            End If
+            Return obj
+        End Function
+
+        ''' <summary>
+        ''' Retorna uma lista de listitem as partir de uma tabela especifcica e suas chaves primárias
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <typeparam name="PKType"></typeparam>
+        ''' <param name="Context"></param>
+        ''' <param name="IDs"></param>
+        ''' <param name="Text"></param>
+        ''' <param name="Value"></param>
+        ''' <param name="Selected"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function GetAsListItems(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal IDs As PKType(), Text As Func(Of T, String), Optional Value As Func(Of T, String) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of UI.WebControls.ListItem)
+            Dim predi As Func(Of T, PKType) = Nothing
+            If Value Is Nothing Then
+                Dim table = Context.GetTable(Of T)()
+                Dim mapping = Context.Mapping.GetTable(GetType(T))
+                Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
+                If pkfield Is Nothing Then
+                    Value = Text
+                Else
+                    Dim param = Expression.Parameter(GetType(T), "e")
+                    Value = ConvertGeneric(Of T, PKType, T, String)(Expression.Lambda(Of Func(Of T, PKType))(Expression.Property(param, pkfield.Name), param)).Compile
+                End If
+            End If
+            Return Context.GetByPrimaryKeys(Of T, PKType)(IDs).ToListItems(Text, If(predi, Text), Selected)
+        End Function
+
 
 
 
@@ -48,24 +93,57 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">Tipo do objeto</typeparam>
         ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
-        ''' <param name="ID">Valor da chave primária</param>
-        ''' <param name="CreateIfNotExists">Se true, cria o objeto e coloca o status de INSERT pendente para este</param>
+        ''' <param name="IDs">Valor da chave primárias</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal ID As PKType, Optional CreateIfNotExists As Boolean = False) As T
+        Public Function GetByPrimaryKeys(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal IDs As PKType()) As IQueryable(Of T)
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
             Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
             If pkfield Is Nothing Then Throw New Exception(String.Format("Table {0} does not contain a Primary Key field", mapping.TableName))
             Dim param = Expression.Parameter(GetType(T), "e")
-            Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(ID)), param)
-            Dim obj = table.SingleOrDefault(predicate)
-            If obj Is Nothing AndAlso CreateIfNotExists Then
-                obj = Activator.CreateInstance(Of T)
-                Context.GetTable(Of T).InsertOnSubmit(obj)
-            End If
-            Return obj
+            Dim l As New List(Of T)
+            For Each ID In IDs
+                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(ID)), param)
+                Dim obj = table.SingleOrDefault(predicate)
+                If obj IsNot Nothing Then
+                    l.Add(obj)
+                End If
+            Next
+            Return l.AsQueryable
         End Function
+
+        Public Function ConvertGeneric(Of TParm, TReturn, TTargetParm, TTargetReturn)(ByVal input As Expression(Of Func(Of TParm, TReturn))) As Expression(Of Func(Of TTargetParm, TTargetReturn))
+            Dim parm = Expression.Parameter(GetType(TTargetParm))
+            Dim castParm = Expression.Convert(parm, GetType(TParm))
+            Dim body = ReplaceExpression(input.Body, input.Parameters(0), castParm)
+            body = Expression.Convert(body, GetType(Object))
+            body = Expression.Convert(body, GetType(TTargetReturn))
+            Return Expression.Lambda(Of Func(Of TTargetParm, TTargetReturn))(body, parm)
+        End Function
+
+        Private Function ReplaceExpression(ByVal body As Expression, ByVal source As Expression, ByVal dest As Expression) As Expression
+            Dim replacer = New ExpressionReplacer(source, dest)
+            Return replacer.Visit(body)
+        End Function
+
+        Friend Class ExpressionReplacer
+            Inherits ExpressionVisitor
+
+            Private _source As Expression
+
+            Private _dest As Expression
+
+            Public Sub New(ByVal source As Expression, ByVal dest As Expression)
+                _source = source
+                _dest = dest
+            End Sub
+
+            Public Overrides Function Visit(ByVal node As Expression) As Expression
+                If node.Equals(_source) Then Return _dest
+                Return MyBase.Visit(node)
+            End Function
+        End Class
 
         ''' <summary>
         ''' Atualiza um objeto de entidade a partir de valores em um Dictionary

@@ -844,40 +844,42 @@ Namespace LINQ
 
         Friend Sub TravesseAndReplace(Of T As Class)(nodes As HtmlNodeCollection, item As T, SkipTemplates As Boolean)
             For index_el = 0 To nodes.Count - 1
-                Dim el As HtmlNode = nodes(index_el)
-                If TypeOf el Is HtmlElement Then
-                    Dim cel = CType(el, HtmlElement)
+                If nodes.ElementAtOrDefault(index_el) IsNot Nothing Then
+                    Dim el As HtmlNode = nodes.Item(index_el)
+                    If TypeOf el Is HtmlElement Then
+                        Dim cel = CType(el, HtmlElement)
 
-                    'pula tag content do template (assim, apenas o prorio template pode dar replace em si mesmo na primeira vez)
-                    If SkipTemplates Then
-                        If cel.Parent IsNot Nothing AndAlso cel.Parent.Name = "template" AndAlso cel.Name = "content" Then
-                            Continue For
+                        'pula tag content do template (assim, apenas o prorio template pode dar replace em si mesmo na primeira vez)
+                        If SkipTemplates Then
+                            If cel.Parent IsNot Nothing AndAlso cel.Parent.Name = "template" AndAlso cel.Name = "content" Then
+                                Continue For
+                            End If
                         End If
+
+                        'Replace no nome da tag
+                        cel.Name = ReplaceValues(item, cel.Name)
+
+                        'replace dos atributos
+                        For Each at In cel.Attributes
+                            at.Name = ReplaceValues(item, at.Name)
+                            at.Value = ReplaceValues(item, at.Value)
+                        Next
+
+                        If cel.Nodes.Count > 0 Then
+                            TravesseAndReplace(cel.Nodes, item, SkipTemplates)
+                        End If
+
+                        'por ultimo, replace nas variaveis de expressoes
+                        If cel.Name = "expression" Then
+                            'substitui as variaveis
+                            ReplaceExpressionVariables(item, cel)
+                        End If
+                    Else
+                        Dim ctx = CType(el, HtmlText)
+                        Dim txt = ReplaceValues(item, ctx.Text)
+                        Dim parser = New HtmlParser.HtmlParser()
+                        nodes.ReplaceElement(el, parser.Parse(txt))
                     End If
-
-                    'Replace no nome da tag
-                    cel.Name = ReplaceValues(item, cel.Name)
-
-                    'replace dos atributos
-                    For Each at In cel.Attributes
-                        at.Name = ReplaceValues(item, at.Name)
-                        at.Value = ReplaceValues(item, at.Value)
-                    Next
-
-                    If cel.Nodes.Count > 0 Then
-                        TravesseAndReplace(cel.Nodes, item, SkipTemplates)
-                    End If
-
-                    'por ultimo, replace nas variaveis de expressoes
-                    If cel.Name = "expression" Then
-                        'substitui as variaveis
-                        ReplaceExpressionVariables(item, cel)
-                    End If
-                Else
-                    Dim ctx = CType(el, HtmlText)
-                    Dim txt = ReplaceValues(item, ctx.Text)
-                    Dim parser = New HtmlParser.HtmlParser()
-                    nodes.ReplaceElement(el, parser.Parse(txt))
                 End If
             Next
         End Sub

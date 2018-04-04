@@ -82,6 +82,7 @@ Namespace Select2Data
         ''' <returns></returns>
         Public Property children As IEnumerable(Of Result)
 
+        Public Property id As String = ""
 
         Public Sub New()
 
