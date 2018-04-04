@@ -567,14 +567,12 @@ Namespace HtmlParser
 
         Private Function Traverse(nodes As HtmlNodeCollection) As HtmlNodeCollection
             Dim l As New HtmlNodeCollection
-
-            For Each node As HtmlNode In nodes
-                For Each n As HtmlElement In Traverse(node).Where(Function(i) TypeOf i Is HtmlElement)
+            For Each node In nodes.Where(Function(i) TypeOf i Is HtmlElement)
+                For Each n In Traverse(node).Where(Function(i) TypeOf i Is HtmlElement)
                     If n IsNot Nothing Then
                         l.Add(n, False)
                     End If
                 Next
-
             Next
             Return l
         End Function
@@ -584,9 +582,9 @@ Namespace HtmlParser
             Dim l As New HtmlNodeCollection
             l.Add(node)
 
-            For Each child As HtmlElement In node.ChildElements
+            For Each child In node.ChildElements
                 ''aqui é os node de verdade'
-                For Each n As HtmlElement In Traverse(child)
+                For Each n In Traverse(child)
                     l.Add(n, False)
                 Next
 
