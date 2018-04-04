@@ -49,8 +49,8 @@ Namespace LINQ
         '''  <param name="CreateIfNotExists">Se true, cria o objeto e coloca o status de INSERT pendente para este</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal ID As PKType, Optional CreateIfNotExists As Boolean = False) As T
-            Dim obj = Context.GetByPrimaryKeys(Of T, PKType)({ID}).SingleOrDefault
+        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False) As T
+            Dim obj = Context.GetByPrimaryKeys(Of T)({ID}.AsEnumerable).SingleOrDefault
             If obj Is Nothing AndAlso CreateIfNotExists Then
                 obj = Activator.CreateInstance(Of T)
                 Context.GetTable(Of T).InsertOnSubmit(obj)
@@ -62,26 +62,24 @@ Namespace LINQ
         ''' Retorna uma lista de listitem as partir de uma tabela especifcica e suas chaves primárias
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
-        ''' <typeparam name="PKType"></typeparam>
         ''' <param name="Context"></param>
         ''' <param name="IDs"></param>
         ''' <param name="Text"></param>
         ''' <param name="Value"></param>
         ''' <param name="Selected"></param>
         ''' <returns></returns>
-        <Extension()> Public Function GetAsListItems(Of T As Class, PKType As Structure, TextType, ValueType)(ByVal Context As DataContext, ByVal IDs As PKType(), Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of UI.WebControls.ListItem)
+        <Extension()> Public Function GetAsListItems(Of T As Class, TextType, ValueType)(ByVal Context As DataContext, ByVal IDs As IEnumerable, Text As Func(Of T, TextType), Optional Value As Func(Of T, ValueType) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of UI.WebControls.ListItem)
             If Value Is Nothing Then
                 Dim table = Context.GetTable(Of T)()
                 Dim mapping = Context.Mapping.GetTable(GetType(T))
                 Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
                 If pkfield IsNot Nothing Then
                     Dim param = Expression.Parameter(GetType(T), "e")
-                    Value = ConvertGeneric(Of T, PKType, T, ValueType)(Expression.Lambda(Of Func(Of T, PKType))(Expression.Property(param, pkfield.Name), param)).Compile
+                    Value = (Expression.Lambda(Of Func(Of T, ValueType))(Expression.Property(param, pkfield.Name), param)).Compile
                 End If
             End If
-            Return Context.GetByPrimaryKeys(Of T, PKType)(IDs).ToListItems(Text, Value, Selected)
+            Return Context.GetByPrimaryKeys(Of T)(IDs).ToListItems(Text, Value, Selected)
         End Function
-
 
 
 
@@ -93,7 +91,7 @@ Namespace LINQ
         ''' <param name="IDs">Valor da chave primárias</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKeys(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal IDs As PKType()) As IQueryable(Of T)
+        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ByVal IDs As IEnumerable) As IQueryable(Of T)
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
             Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
@@ -101,7 +99,7 @@ Namespace LINQ
             Dim param = Expression.Parameter(GetType(T), "e")
             Dim l As New List(Of T)
             For Each ID In IDs
-                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(ID)), param)
+                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(CTypeDynamic(ID, pkfield.Type))), param)
                 Dim obj = table.SingleOrDefault(predicate)
                 If obj IsNot Nothing Then
                     l.Add(obj)
@@ -109,6 +107,8 @@ Namespace LINQ
             Next
             Return l.AsQueryable
         End Function
+
+
 
         Public Function ConvertGeneric(Of TParm, TReturn, TTargetParm, TTargetReturn)(ByVal input As Expression(Of Func(Of TParm, TReturn))) As Expression(Of Func(Of TTargetParm, TTargetReturn))
             Dim parm = Expression.Parameter(GetType(TTargetParm))
@@ -124,23 +124,7 @@ Namespace LINQ
             Return replacer.Visit(body)
         End Function
 
-        Friend Class ExpressionReplacer
-            Inherits ExpressionVisitor
 
-            Private _source As Expression
-
-            Private _dest As Expression
-
-            Public Sub New(ByVal source As Expression, ByVal dest As Expression)
-                _source = source
-                _dest = dest
-            End Sub
-
-            Public Overrides Function Visit(ByVal node As Expression) As Expression
-                If node.Equals(_source) Then Return _dest
-                Return MyBase.Visit(node)
-            End Function
-        End Class
 
         ''' <summary>
         ''' Atualiza um objeto de entidade a partir de valores em um Dictionary
@@ -156,10 +140,13 @@ Namespace LINQ
             Dim mapping = Context.Mapping.GetTable(GetType(T))
             Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
             If pkfield Is Nothing Then Throw New Exception(String.Format("Table {0} does not contain a Primary Key field", mapping.TableName))
-            Dim ID As PKType = CType(Dic(pkfield.Name), PKType)
-            Dim param = Expression.Parameter(GetType(T), "e")
-            Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(ID)), param)
-            Dim obj = table.SingleOrDefault(predicate)
+            Dim obj As T = Nothing
+            If Dic.ContainsKey(pkfield.Name) Then
+                Dim ID As PKType = CType(Dic(pkfield.Name), PKType)
+                Dim param = Expression.Parameter(GetType(T), "e")
+                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(ID)), param)
+                obj = table.SingleOrDefault(predicate)
+            End If
             If obj Is Nothing Then
                 obj = Activator.CreateInstance(Of T)
                 Context.GetTable(Of T).InsertOnSubmit(obj)
@@ -208,6 +195,24 @@ Namespace LINQ
         End Function
 
     End Module
+
+    Friend Class ExpressionReplacer
+        Inherits ExpressionVisitor
+
+        Private _source As Expression
+
+        Private _dest As Expression
+
+        Public Sub New(ByVal source As Expression, ByVal dest As Expression)
+            _source = source
+            _dest = dest
+        End Sub
+
+        Public Overrides Function Visit(ByVal node As Expression) As Expression
+            If node.Equals(_source) Then Return _dest
+            Return MyBase.Visit(node)
+        End Function
+    End Class
 
 End Namespace
 
