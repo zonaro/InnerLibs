@@ -970,7 +970,7 @@ Public Module Web
     ''' <param name="List">Lista de itens que serão adicionados</param>
     ''' <returns>o objeto ListItem adicionado ou existente</returns>
     <Extension()> Public Function SetItems(Control As HtmlSelect, List As List(Of ListItem)) As HtmlSelect
-        Control.Multiple = List.Where(Function(x) x.Selected).Count > 1
+        Control.Multiple = List.Where(Function(x) x.Selected).Count > 1 OrElse Control.Multiple
         For Each li In List
             Control.SetItem(li).Selected = li.Selected
         Next

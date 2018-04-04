@@ -70,7 +70,6 @@ Namespace LINQ
         ''' <param name="Selected"></param>
         ''' <returns></returns>
         <Extension()> Public Function GetAsListItems(Of T As Class, PKType As Structure)(ByVal Context As DataContext, ByVal IDs As PKType(), Text As Func(Of T, String), Optional Value As Func(Of T, String) = Nothing, Optional Selected As Func(Of T, Boolean) = Nothing) As List(Of UI.WebControls.ListItem)
-            Dim predi As Func(Of T, PKType) = Nothing
             If Value Is Nothing Then
                 Dim table = Context.GetTable(Of T)()
                 Dim mapping = Context.Mapping.GetTable(GetType(T))
@@ -82,7 +81,7 @@ Namespace LINQ
                     Value = ConvertGeneric(Of T, PKType, T, String)(Expression.Lambda(Of Func(Of T, PKType))(Expression.Property(param, pkfield.Name), param)).Compile
                 End If
             End If
-            Return Context.GetByPrimaryKeys(Of T, PKType)(IDs).ToListItems(Text, If(predi, Text), Selected)
+            Return Context.GetByPrimaryKeys(Of T, PKType)(IDs).ToListItems(Text, Value, Selected)
         End Function
 
 
