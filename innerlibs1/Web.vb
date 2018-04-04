@@ -950,7 +950,7 @@ Public Module Web
     ''' <param name="Value">Valor do ListItem</param>
     <Extension()>
     Public Function ToListItems(Of T As Class, TextType, ValueType)(List As IEnumerable(Of T), Text As Func(Of T, TextType), Value As Func(Of T, ValueType), ParamArray SelectedValues As ValueType()) As List(Of ListItem)
-        Return List.ToListItems(Text, Value, Function(x) x.IsIn(If(SelectedValues, {})))
+        Return List.ToListItems(Text, Value, Function(x) Value(x).IsIn(If(SelectedValues, {})))
     End Function
 
 

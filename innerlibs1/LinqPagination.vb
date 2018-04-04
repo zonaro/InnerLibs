@@ -67,7 +67,7 @@ Namespace LINQ
         ''' <param name="IDs">Valor da chave primárias</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ByVal IDs As IEnumerable) As IQueryable(Of T)
+        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ByVal IDs As IEnumerable) As IEnumerable(Of T)
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
             Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
@@ -81,7 +81,7 @@ Namespace LINQ
                     l.Add(obj)
                 End If
             Next
-            Return l.AsQueryable
+            Return l.AsEnumerable
         End Function
 
 
