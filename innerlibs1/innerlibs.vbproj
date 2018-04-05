@@ -156,6 +156,7 @@
     <Compile Include="JsonViewer.vb" />
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="LinqPagination.vb" />
+    <Compile Include="OnlineList.vb" />
     <Compile Include="Triforce\LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />
