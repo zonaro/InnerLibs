@@ -34,11 +34,16 @@ Public Module Text
                 numero = numero.Length
             End If
             Dim texto = q.GetAfter(" ")
+            Dim has_number As Boolean = texto.ContainsAny("{q}")
             texto = texto.QuantifyText(numero, Culture)
+            Dim newtxt = numero & " " & texto
+            If has_number Then
+                newtxt = texto
+            End If
             If no_wrap Then
-                PluralText = numero & " " & texto
+                PluralText = newtxt
             Else
-                PluralText = PluralText.Replace("{q=" + q + "}", numero & " " & texto)
+                PluralText = PluralText.Replace("{q=" + q + "}", newtxt)
             End If
         Next
         Return PluralText
