@@ -22,12 +22,26 @@ Public Module Text
     ''' <param name="culture">Cultura</param>
     ''' <returns></returns>
     <Extension()> Public Function QuantifyText(PluralText As String, Optional Culture As CultureInfo = Nothing) As String
-        Dim q As String = PluralText.GetBetween("{q=", "}")
-        PluralText = PluralText.Replace("{q=" + q + "}", "{q}")
-        If Not q.IsNumber Then
-            q = q.Length
+        Dim inst = PluralText.GetAllBetween("{q=", "}")
+        Dim no_wrap As Boolean = False
+        If inst.Length = 0 Then
+            no_wrap = True
+            inst = {PluralText}
         End If
-        Return PluralText.QuantifyText(q.Trim, Culture)
+        For Each q In inst
+            Dim numero = q.GetBefore(" ")
+            If Not numero.IsNumber Then
+                numero = numero.Length
+            End If
+            Dim texto = q.GetAfter(" ")
+            texto = texto.QuantifyText(numero, Culture)
+            If no_wrap Then
+                PluralText = numero & " " & texto
+            Else
+                PluralText = PluralText.Replace("{q=" + q + "}", numero & " " & texto)
+            End If
+        Next
+        Return PluralText
     End Function
 
 
@@ -42,8 +56,6 @@ Public Module Text
         If culture Is Nothing Then culture = CultureInfo.CurrentCulture
         Dim nums As Integer() = {}
         Dim numero As Decimal = 0
-
-
         Select Case True
             Case GetType(String) Is Quantity.GetType AndAlso CType(Quantity, String).IsNumber
                 numero = CType(Quantity, Decimal)
@@ -2554,6 +2566,23 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Retorna todas as ocorrencias de um texto entre dois textos
+    ''' </summary>
+    ''' <param name="Text">  O texto correspondente</param>
+    ''' <param name="Before">O texto Anterior</param>
+    ''' <param name="After"> O texto Posterior</param>
+    ''' <returns>Uma String com o texto entre o texto anterior e posterior</returns>
+    <Extension()> Public Function GetAllBetween(Text As String, Before As String, Optional After As String = "") As String()
+        Dim lista As New List(Of String)
+        Dim regx = Before.RegexEscape & "(.*?)" & After.IfBlank(Of String)(Before).RegexEscape
+        Dim mm = New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
+        For Each a As Match In mm
+            lista.Add(a.Value.RemoveFirstIf(Before).RemoveLastIf(After))
+        Next
+        Return lista.ToArray
+    End Function
+
+    ''' <summary>
     ''' Retorna o texto entre dois textos
     ''' </summary>
     ''' <param name="Text">  O texto correspondente</param>
@@ -2581,7 +2610,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
-    <Extension> Public Function GetWrappedText(Text As String, Optional Character As String = """", Optional ExcludeWrapChars As Boolean = True) As List(Of String)
+    <Extension> Public Function GetWrappedText(Text As String, Optional Character As String = """", Optional ExcludeWrapChars As Boolean = True) As String()
         Dim lista As New List(Of String)
         Dim regx = Character.RegexEscape & "(.*?)" & Character.ToString.GetOppositeWrapChar.RegexEscape
         Dim mm = New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
@@ -2592,7 +2621,7 @@ Public Module Text
                 lista.Add(a.Value)
             End If
         Next
-        Return lista
+        Return lista.ToArray
     End Function
 
     ''' <summary>

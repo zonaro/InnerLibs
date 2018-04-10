@@ -1064,8 +1064,7 @@ Namespace LINQ
                     Dim cel = CType(el, HtmlElement)
 
                     For Each at In cel.Attributes
-                        If at.Name.StartsWith("triforce-quantify-") Then
-                            at.Name = at.Name.RemoveFirstIf("triforce-quantify-")
+                        If at.Value.ContainsAll("{q=", "}") Then
                             at.Value = at.Value.QuantifyText(Culture)
                         End If
                     Next
@@ -1074,13 +1073,12 @@ Namespace LINQ
                     End If
                 Else
                     Dim ctx = CType(el, HtmlText)
-                    If ctx.Parent IsNot Nothing AndAlso ctx.Parent.HasAttribute("triforce-quantify") Then
-                        If Not ctx.Parent.Attribute("triforce-quantify") = "false" Then
-                            For Each node As HtmlText In ctx.Parent.FindElements(Of HtmlText)(Function(x) True, False)
+                    If ctx.Parent IsNot Nothing Then
+                        For Each node As HtmlText In ctx.Parent.FindElements(Of HtmlText)(Function(x) True, False)
+                            If node.Text.ContainsAll("{q=", "}") Then
                                 node.Text = node.Text.QuantifyText(Culture)
-                            Next
-                        End If
-                        ctx.Parent.RemoveAttribute("triforce-quantify")
+                            End If
+                        Next
                     End If
                 End If
             Next
