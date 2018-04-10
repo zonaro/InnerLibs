@@ -113,6 +113,9 @@ Friend Enum ePriority
     muldiv = 7
     percent = 8
     unaryminus = 9
+    [like] = 10
+    [contains] = 11
+    [in] = 12
 End Enum
 
 Public Enum VariableComplexity
@@ -126,6 +129,7 @@ Public Enum EvalType
     [String]
     [Date]
     [Object]
+    [Array]
 End Enum
 
 Public Enum eParserSyntax
@@ -157,6 +161,13 @@ Public Enum eTokenType
     operator_concat
     operator_if
 
+
+    operator_like
+    operator_contains
+    operator_in
+
+
+
     value_identifier
     value_true
     value_false
@@ -165,5 +176,9 @@ Public Enum eTokenType
     value_date
     open_bracket
     close_bracket
+
+    open_array
+    close_array
+
 
 End Enum

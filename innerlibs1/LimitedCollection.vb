@@ -81,60 +81,6 @@ Public Class LimitedCollection(Of TypeCollection)
 
 End Class
 
-''' <summary>
-''' Coleção congelada (não permite adição nem remoção de itens após sua criação
-''' </summary>
-''' <typeparam name="TypeCollection">Tipo dos itens da lista</typeparam>
-Public Class FrozenCollection(Of TypeCollection)
-    Inherits Collection(Of TypeCollection)
-
-    Private Created As Boolean = False
-
-    Protected Overrides Sub InsertItem(ByVal index As Integer, ByVal item As TypeCollection)
-        If Created Then
-            Throw New InvalidOperationException("You cannot insert new items to a FrozenCollection. Use a Collection or LimitedCollection instead.")
-        Else
-            MyBase.InsertItem(index, item)
-        End If
-
-    End Sub
-
-    Protected Overrides Sub RemoveItem(ByVal index As Integer)
-        Throw New InvalidOperationException("You cannot remove items of a FrozenCollection. Use a Collection or LimitedCollection instead.")
-    End Sub
-
-    ''' <summary>
-    ''' Cria uma coleção congelada baseada em uma outra coleção
-    ''' </summary>
-    ''' <param name="Collection">coleção</param>
-    Public Sub New(Collection As Collection(Of TypeCollection))
-        For Each f In Collection
-            Add(f)
-        Next
-        Created = True
-    End Sub
-
-    ''' <summary>
-    ''' Cria uma coleção congelada baseada em uma outra lista
-    ''' </summary>
-    ''' <param name="List">Lista</param>
-    Public Sub New(List As List(Of TypeCollection))
-        For Each f In List
-            Add(f)
-        Next
-        Created = True
-    End Sub
-
-    ''' <summary>
-    ''' Cria uma coleção congelada baseada em uma matriz de itens
-    ''' </summary>
-    ''' <param name="Items">Matriz de Intens</param>
-    Public Sub New(ParamArray Items() As TypeCollection)
-        Me.New(Items.ToList)
-    End Sub
-
-
-End Class
 
 ''' <summary>
 ''' Lista de Valores Duplos

@@ -83,9 +83,11 @@ Public Class OnlineList(Of UserType, IdType)
 End Class
 
 Public Class OnlineUser(Of UserType, IdType)
+
     Friend Sub New(Data As UserType)
         Me.Data = Data
     End Sub
+
     Property LastOnline As DateTime = Now
     Property LastUrl As String
     <ScriptIgnore>
@@ -93,4 +95,49 @@ Public Class OnlineUser(Of UserType, IdType)
     Property LastActivity As String
     <ScriptIgnore>
     ReadOnly Property Data As UserType
+End Class
+
+
+
+
+Public Class UserChat(Of UserType, IdType)
+    Inherits List(Of UserConversation(Of UserType))
+
+
+    Private idgetter As Func(Of UserType, IdType)
+
+
+    Function Send(FromUser As UserType, ToUser As UserType, Message As String) As UserConversation(Of UserType)
+        Dim i = New UserConversation(Of UserType) With {.Message = Message, .User = FromUser, .WithUser = ToUser}
+        Me.Add(i)
+        Return i
+    End Function
+
+
+    Function GetConversation(User As UserType, WithUser As UserType) As IEnumerable(Of UserConversation(Of UserType))
+        Return Me.Where(Function(x)
+                            Return (idgetter(User).Equals(idgetter(x.User)) AndAlso idgetter(WithUser).Equals(idgetter(x.WithUser))) Or (idgetter(User).Equals(idgetter(x.WithUser)) AndAlso idgetter(WithUser).Equals(idgetter(x.User)))
+                        End Function).OrderBy(Function(x) x.SentDate)
+    End Function
+End Class
+
+Public Class UserConversation(Of Usertype)
+
+    Friend Sub New()
+
+    End Sub
+
+    Property User As Usertype
+    Property WithUser As Usertype
+
+    Property Message As String
+    Property SentDate As DateTime
+
+    Property Attachments As IEnumerable(Of ConversationAttachment)
+
+End Class
+
+Public Class ConversationAttachment
+    Property Name As String
+    Property Data As Object
 End Class

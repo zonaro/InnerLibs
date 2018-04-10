@@ -56,7 +56,7 @@ Public Class DiceRoller
     Private _value As Integer
 
     ''' <summary>
-    ''' Rola todos os dados e retorna a soma de seus valores
+    ''' Rola todos os dados (não travados) e retorna a soma de seus valores
     ''' </summary>
     ''' <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
     Public Function Roll() As Integer
@@ -145,18 +145,27 @@ Public Class Dice
     ''' <returns></returns>
     Public ReadOnly Property IsVicious As Boolean
         Get
-            Return Faces.Where(Function(x) x.IsVicious = True).Count > 0
+            Return Faces.AsEnumerable.Count(Function(x) x.IsVicious) > 0
         End Get
     End Property
+
+    ''' <summary>
+    ''' Se TRUE, Impede este dado de ser rolado
+    ''' </summary>
+    ''' <returns></returns>
+    Property Locked As Boolean = False
 
     ''' <summary>
     ''' Valor atual deste dado
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property Value As Integer
+    Public Property Value As Integer
         Get
             Return _value
         End Get
+        Set(value As Integer)
+            Me._value = value.LimitRange(1, Faces.Last.Value)
+        End Set
     End Property
 
     Private _value As Integer = 0
@@ -178,39 +187,42 @@ Public Class Dice
     ''' </summary>
     ''' <returns>Integer</returns>
     Public Function Roll() As Integer
-        _rolledtimes.Increment
-        Dim numfaces As New List(Of Integer)
-        For Each f In Faces
-            For index = 1 To f.Weight
-                numfaces.Add(f.Value)
+        If Not Locked Then
+            _rolledtimes.Increment
+            Dim numfaces As New List(Of DiceFace)
+            For Each f In Faces
+                For index = 1 To f.Weight
+                    numfaces.Add(f)
+                Next
             Next
-        Next
-        _value = numfaces.GetRandomItem
+            Value = numfaces.GetRandomItem.Value
+        End If
         Return Value
     End Function
 
     ''' <summary>
-    ''' Altera o Peso de uma face do dado (Vicia o dado)
+    ''' Retorna a face correspondente ao numero
     ''' </summary>
     ''' <param name="FaceNumber">Numero da face</param>
-    ''' <param name="Weight">Peso da Face</param>
-    Public Sub SetFaceWeight(FaceNumber As Integer, Weight As Integer)
-        FaceNumber = FaceNumber.LimitRange(1, Faces.Count)
-        Faces(FaceNumber - 1)._weight = Weight
-        ApplyPercent()
-    End Sub
+    ''' <returns></returns>
+    Default ReadOnly Property Face(FaceNumber As Integer) As DiceFace
+        Get
+            Return Me.Faces.Item(FaceNumber.LimitRange(1, Faces.Count) - 1)
+        End Get
+    End Property
+
 
     ''' <summary>
     ''' Normaliza o peso das faces do dado
     ''' </summary>
     Public Sub NormalizeWeight()
-        For Each f As Face In _Faces
-            f._weight = 1
+        For Each f As DiceFace In _Faces
+            f.Weight = 1
         Next
     End Sub
 
     Private Function GetChancePercent(Face As Integer) As Integer
-        Face.LimitRange(1, Faces.Count)
+        Face = Face.LimitRange(1, Faces.Count)
         Dim ptotal = 0
         For Each f In Faces
             ptotal.Increment(f.Weight)
@@ -228,7 +240,7 @@ Public Class Dice
     ''' Faces do dado
     ''' </summary>
     ''' <returns>Um array com a cópia das faces do dado</returns>
-    Public ReadOnly Property Faces As FrozenCollection(Of Face)
+    Public ReadOnly Property Faces As ReadOnlyCollection(Of DiceFace)
 
     ''' <summary>
     ''' Cria um novo dado de um tipo especifico
@@ -236,6 +248,7 @@ Public Class Dice
     ''' <param name="Type">Tipo de dado</param>
     Public Sub New(Optional Type As DiceType = DiceType.D6)
         Me.New(Type.ChangeType(Of Integer))
+
     End Sub
 
     ''' <summary>
@@ -244,19 +257,29 @@ Public Class Dice
     ''' <param name="CustomFaces">Numero de faces do dado (Minimo de 2 faces)</param>
     Public Sub New(CustomFaces As Integer)
         CustomFaces = CustomFaces.SetMinValue(2)
-        Dim f As New List(Of Face)
+        Dim f As New List(Of DiceFace)
         For index = 1 To CustomFaces
-            f.Add(New Face(index))
+            f.Add(New DiceFace(Me, index))
         Next
-        Faces = New FrozenCollection(Of Face)(f)
+        Faces = New ReadOnlyCollection(Of DiceFace)(f)
         ApplyPercent()
-        Me.Roll()
     End Sub
 
     ''' <summary>
     ''' Face de um dado. Pode ser viciada ou não
     ''' </summary>
-    Class Face
+    Class DiceFace
+
+        Public Shared Widening Operator CType(v As DiceFace) As Integer
+            Return v.Value
+        End Operator
+
+        Friend Sub New(d As Dice, FaceNumber As Integer)
+            Me.Value = FaceNumber.SetMinValue(1)
+            Me.dice = d
+        End Sub
+
+        Friend dice As Dice = Nothing
 
         ''' <summary>
         ''' Valor Da Face (numero)
@@ -264,20 +287,25 @@ Public Class Dice
         ''' <returns></returns>
         ReadOnly Property Value As Integer
 
+
         ''' <summary>
         ''' Peso da face (vicia o dado)
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property Weight As Integer
+        Public Property Weight As Decimal
             Get
                 Return _weight
             End Get
+            Set(Value As Decimal)
+                _weight = Value.LimitRange(1, dice.Faces.Count - 1)
+                dice.ApplyPercent()
+            End Set
         End Property
 
-        Protected Friend _weight As Integer = 1
+        Private _weight As Decimal = 1
 
         ''' <summary>
-        ''' Peso da face (vicia o dado)
+        ''' Porcetagem do peso da face (vicia o dado)
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property WeightPercent As Integer
@@ -297,15 +325,6 @@ Public Class Dice
                 Return Weight > 1
             End Get
         End Property
-
-        ''' <summary>
-        ''' Cria uma nova Face
-        ''' </summary>
-        ''' <param name="FaceNumber">Numero da face</param>
-        Public Sub New(FaceNumber As Integer)
-            Me.Value = FaceNumber.SetMinValue(1)
-        End Sub
-
     End Class
 
 End Class
@@ -326,37 +345,37 @@ Public Enum DiceType
     Coin = 2
 
     ''' <summary>
-    ''' Dado de 4 Lados
+    ''' Dado de 4 Lados (Tetraedro/Pirâmide)
     ''' </summary>
     D4 = 4
 
     ''' <summary>
-    ''' Dado de 6 Lados
+    ''' Dado de 6 Lados (Pentalátero/Cubo/Dado Tradicional)
     ''' </summary>
     D6 = 6
 
     ''' <summary>
-    ''' Dado de 8 Lados
+    ''' Dado de 8 Lados (Octaedro)
     ''' </summary>
     D8 = 8
 
     ''' <summary>
-    ''' Dado de 10 Lados
+    ''' Dado de 10 Lados (Decaedro)
     ''' </summary>
     D10 = 10
 
     ''' <summary>
-    ''' Dado de 12 Lados
+    ''' Dado de 12 Lados (Dodecaedro)
     ''' </summary>
     D12 = 12
 
     ''' <summary>
-    ''' Dado de 20 Lados
+    ''' Dado de 20 Lados (Icosaedro)
     ''' </summary>
     D20 = 20
 
     ''' <summary>
-    ''' Dado de 100 Lados (Util para porcentagem)
+    ''' Dado de 100 Lados (Esfera/Bola - Particulamente util para porcentagem)
     ''' </summary>
     D100 = 100
 

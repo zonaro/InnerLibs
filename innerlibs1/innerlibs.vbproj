@@ -99,6 +99,7 @@
     <Compile Include="DataGridViewProgressCell.vb" />
     <Compile Include="DataManipulation.vb" />
     <Compile Include="Dice.vb" />
+    <Compile Include="DictionarySelector.vb" />
     <Compile Include="DocumentationPage\DocumentationPage.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -157,6 +158,7 @@
     <Compile Include="LimitedCollection.vb" />
     <Compile Include="LinqPagination.vb" />
     <Compile Include="OnlineList.vb" />
+    <Compile Include="Reme.vb" />
     <Compile Include="Triforce\LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />

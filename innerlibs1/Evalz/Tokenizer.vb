@@ -141,6 +141,12 @@ Public Class tokenizer
                 Case "]"c
                     NextChar()
                     type = eTokenType.close_bracket
+                Case "{"c
+                    NextChar()
+                    type = eTokenType.open_array
+                Case "}"c
+                    NextChar()
+                    type = eTokenType.close_array
                 Case Chr(0) To " "c
                     ' do nothing
                 Case Else
@@ -192,7 +198,7 @@ Public Class tokenizer
             value.Append(mCurChar)
             NextChar()
         End While
-        Select Case value.ToString
+        Select Case value.ToString.ToLower
             Case "and", "&&"
                 type = eTokenType.operator_and
             Case "or", "||"
@@ -201,6 +207,12 @@ Public Class tokenizer
                 type = eTokenType.operator_not
             Case "true", "yes"
                 type = eTokenType.value_true
+            Case "in"
+                type = eTokenType.operator_in
+            Case "contains"
+                type = eTokenType.operator_contains
+            Case "like"
+                type = eTokenType.operator_like
             Case "if"
                 type = eTokenType.operator_if
             Case "false", "no"

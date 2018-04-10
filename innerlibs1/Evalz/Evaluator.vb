@@ -27,6 +27,14 @@ Public Class Evaluator
     End Sub
 
     Public Function Parse(ByVal str As String) As opCode
+        str = str.TrimCarriage
+        str.IfBlank(Of String)(False)
+        If str.IsAny("True", "true", "False", "false") Then
+            Return New opCodeImmediate(EvalType.Boolean, str.ChangeType(Of Boolean))
+        End If
+        If str.IsNumber Then
+            Return New opCodeImmediate(EvalType.Number, str.ChangeType(Of Long))
+        End If
         Return New parser(Me).Parse(str)
     End Function
 

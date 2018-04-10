@@ -32,13 +32,13 @@ Public MustInherit Class opCode
         End Get
     End Property
 
-    Public Overridable ReadOnly Property value() As Object Implements iEvalTypedValue.value
+    Public Overridable ReadOnly Property value() As Object Implements iEvalTypedValue.Value
         Get
             Return mValueDelegate()
         End Get
     End Property
 
-    Public Overridable ReadOnly Property systemType() As System.Type Implements iEvalTypedValue.systemType
+    Public Overridable ReadOnly Property systemType() As System.Type Implements iEvalTypedValue.SystemType
         Get
             Return Globals.GetSystemType(Me.EvalType)
         End Get
@@ -322,6 +322,15 @@ Friend Class opCodeBinary
                         mValueDelegate = AddressOf BOOL_AND_BOOL
                         mEvalType = EvalType.Boolean
                 End Select
+            Case eTokenType.operator_like
+                mValueDelegate = AddressOf STR_LIKE_STR
+                mEvalType = EvalType.Boolean
+            Case eTokenType.operator_contains
+                mValueDelegate = AddressOf OBJ_CONTAINS_OBJ
+                mEvalType = EvalType.Boolean
+            Case eTokenType.operator_in
+                mValueDelegate = AddressOf OBJ_IN_OBJ
+                mEvalType = EvalType.Boolean
             Case eTokenType.operator_lt, eTokenType.operator_le, eTokenType.operator_gt, eTokenType.operator_ge, eTokenType.operator_eq, eTokenType.operator_ne
                 Select Case tt
                     Case eTokenType.operator_lt
@@ -355,16 +364,16 @@ Friend Class opCodeBinary
                             Case EvalType.Date
                                 mValueDelegate = AddressOf DATE_NE_DATE
                         End Select
-
-
                         mEvalType = EvalType.Boolean
+
                 End Select
+
         End Select
 
         If mValueDelegate Is Nothing Then
-            tokenizer.RaiseError( _
-                "Cannot apply the operator " & tt.ToString.Replace("operator_", "") & _
-                " on " & v1Type.ToString & _
+            tokenizer.RaiseError(
+                "Cannot apply the operator " & tt.ToString.Replace("operator_", "") &
+                " on " & v1Type.ToString &
                 " and " & v2Type.ToString)
         End If
     End Sub
@@ -437,12 +446,19 @@ Friend Class opCodeBinary
         Return Not DirectCast(mParam1.value, Date).Date = (DirectCast(mParam2.value, Date)).Date
     End Function
 
+
     Private Function STR_CONCAT_STR() As Object
         Return mParam1.value.ToString & mParam2.value.ToString
     End Function
 
     Private Function STR_EQ_STR() As Object
         Return mParam1.value.ToString = mParam2.value.ToString
+    End Function
+
+
+
+    Private Function STR_LIKE_STR() As Object
+        Return mParam1.value.ToString Like mParam2.value.ToString
     End Function
 
     Private Function STR_NE_STR() As Object
@@ -455,6 +471,14 @@ Friend Class opCodeBinary
 
     Private Function NUM_PERCENT_NUM() As Object
         Return DirectCast(mParam2.value, Double) * (DirectCast(mParam1.value, Double) / 100)
+    End Function
+
+    Private Function OBJ_CONTAINS_OBJ() As Object
+        Return CType(mParam1.value, IEnumerable(Of Object)).Contains(mParam2.value)
+    End Function
+
+    Private Function OBJ_IN_OBJ() As Object
+        Return CType(mParam2.value, IEnumerable(Of Object)).Contains(mParam1.value)
     End Function
 
     Public Overrides ReadOnly Property EvalType() As EvalType
@@ -601,8 +625,8 @@ Public Class opCodeCallMethod
                 End If
             End If
         Else
-            mResultSystemType = systemType
-            mResultEvalType = Globals.GetEvalType(systemType)
+            mResultSystemType = SystemType
+            mResultEvalType = Globals.GetEvalType(SystemType)
         End If
     End Sub
 

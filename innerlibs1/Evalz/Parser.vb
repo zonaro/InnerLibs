@@ -5,11 +5,11 @@ Friend Class parser
     Private mTokenizer As tokenizer
     Private mEvaluator As Evaluator
 
-    Public Sub New(ByVal evaluator As Evaluator)
+    Friend Sub New(ByVal evaluator As Evaluator)
         mEvaluator = evaluator
     End Sub
 
-    Public Function Parse(ByVal str As String) As opCode
+    Friend Function Parse(ByVal str As String) As opCode
         If str Is Nothing Then str = String.Empty
         mTokenizer = New tokenizer(Me, str)
         mTokenizer.NextToken()
@@ -24,6 +24,7 @@ Friend Class parser
 
     Private Function ParseExpr(ByVal Acc As opCode, ByVal priority As ePriority) As opCode
         Dim ValueLeft, valueRight As opCode
+        Dim parameters As New ArrayList
         Do
             Select Case mTokenizer.type
                 Case eTokenType.operator_minus
@@ -44,55 +45,60 @@ Friend Class parser
                     ParseIdentifier(ValueLeft)
                     Exit Do
                 Case eTokenType.value_true
-                        ValueLeft = New opCodeImmediate(EvalType.Boolean, True)
-                        mTokenizer.NextToken()
-                        Exit Do
+                    ValueLeft = New opCodeImmediate(EvalType.Boolean, True)
+                    mTokenizer.NextToken()
+                    Exit Do
                 Case eTokenType.value_false
-                        ValueLeft = New opCodeImmediate(EvalType.Boolean, False)
-                        mTokenizer.NextToken()
-                        Exit Do
+                    ValueLeft = New opCodeImmediate(EvalType.Boolean, False)
+                    mTokenizer.NextToken()
+                    Exit Do
                 Case eTokenType.value_string
-                        ValueLeft = New opCodeImmediate(EvalType.String, mTokenizer.value.ToString)
-                        mTokenizer.NextToken()
-                        Exit Do
+                    ValueLeft = New opCodeImmediate(EvalType.String, mTokenizer.value.ToString)
+                    mTokenizer.NextToken()
+                    Exit Do
                 Case eTokenType.value_number
-                        Try
-                            ValueLeft = New opCodeImmediate(EvalType.Number, Double.Parse( _
-                                mTokenizer.value.ToString, _
-                                Globalization.NumberStyles.Float, _
-                                System.Globalization.CultureInfo.InvariantCulture))
-                        Catch ex As Exception
-                            mTokenizer.RaiseError(String.Format("Invalid number {0}", mTokenizer.value.ToString))
-                        End Try
-                        mTokenizer.NextToken()
-                        Exit Do
+                    Try
+                        ValueLeft = New opCodeImmediate(EvalType.Number, Double.Parse(
+                            mTokenizer.value.ToString,
+                            Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.InvariantCulture))
+                    Catch ex As Exception
+                        mTokenizer.RaiseError(String.Format("Invalid number {0}", mTokenizer.value.ToString))
+                    End Try
+                    mTokenizer.NextToken()
+                    Exit Do
                 Case eTokenType.value_date
-                        Try
-                            ValueLeft = New opCodeImmediate(EvalType.Date, mTokenizer.value.ToString)
-                        Catch ex As Exception
-                            mTokenizer.RaiseError(String.Format("Invalid date {0}, it should be #DD/MM/YYYY hh:mm:ss#", mTokenizer.value.ToString))
-                        End Try
-                        mTokenizer.NextToken()
-                        Exit Do
+                    Try
+                        ValueLeft = New opCodeImmediate(EvalType.Date, mTokenizer.value.ToString)
+                    Catch ex As Exception
+                        mTokenizer.RaiseError(String.Format("Invalid date {0}, it should be #DD/MM/YYYY hh:mm:ss#", mTokenizer.value.ToString))
+                    End Try
+                    mTokenizer.NextToken()
+                    Exit Do
                 Case eTokenType.open_parenthesis
+                    mTokenizer.NextToken()
+                    ValueLeft = ParseExpr(Nothing, ePriority.none)
+                    If mTokenizer.type = eTokenType.close_parenthesis Then
+                        ' good we eat the end parenthesis and continue ...
                         mTokenizer.NextToken()
-                        ValueLeft = ParseExpr(Nothing, ePriority.none)
-                        If mTokenizer.type = eTokenType.close_parenthesis Then
-                            ' good we eat the end parenthesis and continue ...
-                            mTokenizer.NextToken()
-                            Exit Do
-                        Else
-                            mTokenizer.RaiseUnexpectedToken("End parenthesis not found")
-                        End If
+                        Exit Do
+                    Else
+                        mTokenizer.RaiseUnexpectedToken("End parenthesis not found")
+                    End If
+                Case eTokenType.open_array
+                    parameters = New ArrayList
+                    parameters = ParseParameters(False)
+                    ValueLeft = New opCodeImmediate(EvalType.Array, parameters.ToArray.Select(Function(x) x.value).ToArray)
+                    mTokenizer.NextToken()
+                    Exit Do
                 Case eTokenType.operator_if
-                        ' first check functions
-                        Dim parameters As New ArrayList  ' parameters... 
-                        mTokenizer.NextToken()
-
-                        parameters = ParseParameters(False)
-                        Exit Do
+                    ' first check functions
+                    parameters = New ArrayList  ' parameters... 
+                    mTokenizer.NextToken()
+                    parameters = ParseParameters(False)
+                    Exit Do
                 Case Else
-                        Exit Do
+                    Exit Do
             End Select
         Loop
         If ValueLeft Is Nothing Then
@@ -107,7 +113,7 @@ Friend Class parser
                     ' end of line
                     Return ValueLeft
                 Case eTokenType.value_number
-                    mTokenizer.RaiseUnexpectedToken("Unexpected number without previous opterator")
+                    mTokenizer.RaiseUnexpectedToken("Unexpected number without previous operator")
                 Case eTokenType.operator_plus
                     If priority < ePriority.plusminus Then
                         mTokenizer.NextToken()
@@ -163,6 +169,22 @@ Friend Class parser
                     Else
                         Exit Do
                     End If
+                Case eTokenType.operator_like
+                    If priority < ePriority.like Then
+                        mTokenizer.NextToken()
+                        valueRight = ParseExpr(ValueLeft, ePriority.like)
+                        ValueLeft = New opCodeBinary(mTokenizer, ValueLeft, tt, valueRight)
+                    Else
+                        Exit Do
+                    End If
+                Case eTokenType.operator_contains, eTokenType.operator_in
+                    If priority < ePriority.contains Or priority < ePriority.in Then
+                        mTokenizer.NextToken()
+                        valueRight = ParseExpr(ValueLeft, ePriority.contains)
+                        ValueLeft = New opCodeBinary(mTokenizer, ValueLeft, tt, valueRight)
+                    Else
+                        Exit Do
+                    End If
                 Case eTokenType.operator_ne, eTokenType.operator_gt, eTokenType.operator_ge, eTokenType.operator_eq, eTokenType.operator_le, eTokenType.operator_lt
                     If priority < ePriority.equality Then
                         tt = mTokenizer.type
@@ -172,14 +194,16 @@ Friend Class parser
                     Else
                         Exit Do
                     End If
-                Case Else
 
+                Case Else
                     Exit Do
             End Select
         Loop
 
         Return ValueLeft
     End Function
+
+
 
     <Flags()> Private Enum eCallType
         [field] = 1
@@ -401,14 +425,16 @@ Friend Class parser
         Dim valueleft As opCode
         Dim lClosing As eTokenType
 
-        If mTokenizer.type = eTokenType.open_parenthesis _
-            OrElse (mTokenizer.type = eTokenType.open_bracket And mEvaluator.Syntax = eParserSyntax.cSharp) Then
+        If mTokenizer.type = eTokenType.open_parenthesis OrElse eTokenType.open_array OrElse mTokenizer.type = eTokenType.open_bracket Then
             Select Case mTokenizer.type
                 Case eTokenType.open_bracket
                     lClosing = eTokenType.close_bracket
                     brackets = True
                 Case eTokenType.open_parenthesis
                     lClosing = eTokenType.close_parenthesis
+                Case eTokenType.open_array
+                    lClosing = eTokenType.close_array
+                    brackets = True
             End Select
             parameters = New ArrayList
             mTokenizer.NextToken() 'eat the parenthesis

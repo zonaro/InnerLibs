@@ -68,34 +68,27 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Executa uma Expressão matematica simples
+    ''' Executa uma Expressão matematica/lógica simples
     ''' </summary>
     ''' <param name="Formula">Expressão matematica</param>
     ''' <returns></returns>
-    Public Function EvaluateExpression(Formula As String) As Object
+    Public Function EvaluateExpression(Formula As String, Optional Exception As Boolean = False) As Object
         Try
-            Formula = Formula.TrimCarriage
-            Formula.IfBlank(Of String)(False)
-            If Formula.IsAny("True", "true", "False", "false") Then
-                Return Formula.ChangeType(Of Boolean)
-            End If
-            If Formula.IsNumber Then
-                Return Formula.ChangeType(Of Long)
-            End If
             Return New Evaluator().Parse(Formula).value
         Catch ex As Exception
+            If Exception Then Throw ex
             Return Nothing
         End Try
     End Function
 
 
     ''' <summary>
-    ''' Executa uma Expressão matematica simples
+    ''' Executa uma Expressão matematica/lógica simples
     ''' </summary>
     ''' <param name="Formula">Expressão matematica</param>
     ''' <returns></returns>
-    Public Function EvaluateExpression(Of T As Structure)(Formula As String) As T
-        Return CType(EvaluateExpression(Formula), T)
+    Public Function EvaluateExpression(Of T As Structure)(Formula As String, Optional Exception As Boolean = False) As T
+        Return CType(EvaluateExpression(Formula, Exception), T)
     End Function
 
     ''' <summary>
