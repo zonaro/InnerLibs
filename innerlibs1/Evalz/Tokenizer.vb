@@ -217,6 +217,8 @@ Public Class tokenizer
                 type = eTokenType.operator_if
             Case "false", "no"
                 type = eTokenType.value_false
+            Case ""
+                type = eTokenType.end_of_formula
             Case Else
                 type = eTokenType.value_identifier
         End Select
