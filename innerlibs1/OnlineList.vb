@@ -7,7 +7,7 @@ Public Class OnlineList(Of UserType, IdType)
     Inherits Dictionary(Of IdType, OnlineUser(Of UserType, IdType))
 
     Private idgetter As Func(Of UserType, IdType)
-    Private _ToleranceTime As TimeSpan = New TimeSpan(0, 0, -15)
+    Private _ToleranceTime As TimeSpan = New TimeSpan(0, 1, 0)
 
     Private Sub Online()
         Dim offline = Me.Where(Function(x) x.Value.LastOnline < Now.Add(ToleranceTime)).Select(Function(x) x.Value.Data)
