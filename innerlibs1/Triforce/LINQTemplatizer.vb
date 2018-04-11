@@ -1065,7 +1065,7 @@ Namespace LINQ
 
                     For Each at In cel.Attributes
                         If at.Value.ContainsAll("{q=", "}") Then
-                            at.Value = at.Value.QuantifyText(Culture)
+                            at.Value = at.Value.QuantifyText(Culture, "q")
                         End If
                     Next
                     If cel.Nodes.Count > 0 Then
@@ -1076,7 +1076,7 @@ Namespace LINQ
                     If ctx.Parent IsNot Nothing Then
                         For Each node As HtmlText In ctx.Parent.FindElements(Of HtmlText)(Function(x) True, False)
                             If node.Text.ContainsAll("{q=", "}") Then
-                                node.Text = node.Text.QuantifyText(Culture)
+                                node.Text = node.Text.QuantifyText(Culture, "q")
                             End If
                         Next
                     End If

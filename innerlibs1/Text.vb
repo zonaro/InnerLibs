@@ -16,13 +16,14 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
-    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em {q}.
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em <paramref name="Identifier"/>.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>
-    ''' <param name="culture">Cultura</param>
+    ''' <param name="Culture">Cultura</param>
+    ''' <param name="Identifier">Identificador da variavel quantificadora</param>
     ''' <returns></returns>
-    <Extension()> Public Function QuantifyText(PluralText As String, Optional Culture As CultureInfo = Nothing) As String
-        Dim inst = PluralText.GetAllBetween("{q=", "}")
+    <Extension()> Public Function QuantifyText(PluralText As String, Optional Culture As CultureInfo = Nothing, Optional Identifier As String = "Quantify") As String
+        Dim inst = PluralText.GetAllBetween("{" & Identifier & "=", "}")
         Dim no_wrap As Boolean = False
         If inst.Length = 0 Then
             no_wrap = True
@@ -34,7 +35,7 @@ Public Module Text
                 numero = numero.Length
             End If
             Dim texto = q.GetAfter(" ")
-            Dim has_number As Boolean = texto.ContainsAny("{q}")
+            Dim has_number As Boolean = texto.ContainsAny("_" & Identifier & "_")
             texto = texto.QuantifyText(numero, Culture)
             Dim newtxt = numero & " " & texto
             If has_number Then
@@ -43,7 +44,7 @@ Public Module Text
             If no_wrap Then
                 PluralText = newtxt
             Else
-                PluralText = PluralText.Replace("{q=" + q + "}", newtxt)
+                PluralText = PluralText.Replace("{" & Identifier & "=" + q + "}", newtxt)
             End If
         Next
         Return PluralText
@@ -75,18 +76,21 @@ Public Module Text
                 numero = CType(Quantity, Decimal)
         End Select
 
-        PluralText = PluralText.Replace("{q}", numero)
+        PluralText = PluralText.Replace("_q_", numero)
 
         If CultureInfo.GetCultureInfo("pt-BR").Equals(culture) Then
             nums = {-1, 0, 1}
         Else
             nums = {-1, 1}
         End If
+
         If nums.Contains(numero) Then
-            Return PluralText.Singularize()
-        Else
-            Return PluralText.Pluralize()
-        End If
+                Return PluralText.Singularize()
+            Else
+                Return PluralText.Pluralize()
+            End If
+
+        Return PluralText
     End Function
 
     ''' <summary>
@@ -98,8 +102,13 @@ Public Module Text
         Dim phrase As String() = Text.ApplySpaceOnWrapChars.Split(" ")
         For index = 0 To phrase.Count - 1
 
+            Dim endchar As String = phrase(index).GetLastChars
+            If endchar.IsAny(WordSplitters) Then
+                phrase(index) = phrase(index).RemoveLastIf(endchar)
+            End If
+
             Select Case True
-                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordWrappers)
+                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordSplitters)
                     'nao alterar estes tipos
                     Exit Select
                 Case phrase(index).EndsWith("ões")
@@ -120,7 +129,9 @@ Public Module Text
                 Case Else
                     'ja esta no singular
             End Select
-
+            If endchar.IsAny(WordSplitters) Then
+                phrase(index).Append(endchar)
+            End If
         Next
         Return phrase.Join(" ").AdjustWhiteSpaces
     End Function
@@ -134,8 +145,13 @@ Public Module Text
         Dim phrase As String() = Text.ApplySpaceOnWrapChars.Split(" ")
         For index = 0 To phrase.Count - 1
 
+            Dim endchar As String = phrase(index).GetLastChars
+            If endchar.IsAny(WordSplitters) Then
+                phrase(index) = phrase(index).RemoveLastIf(endchar)
+            End If
+
             Select Case True
-                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordWrappers) OrElse phrase(index) = "não"
+                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordSplitters) OrElse phrase(index) = "não"
                     'nao alterar estes tipos
                     Exit Select
                 Case phrase(index).EndsWith("ão")
@@ -151,6 +167,9 @@ Public Module Text
                     phrase(index) = phrase(index) & "s"
             End Select
 
+            If endchar.IsAny(WordSplitters) Then
+                phrase(index).Append(endchar)
+            End If
 
         Next
         Return phrase.Join(" ").AdjustWhiteSpaces
