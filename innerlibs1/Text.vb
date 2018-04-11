@@ -22,7 +22,10 @@ Public Module Text
     ''' <param name="Culture">Cultura</param>
     ''' <param name="Identifier">Identificador da variavel quantificadora</param>
     ''' <returns></returns>
-    <Extension()> Public Function QuantifyText(PluralText As String, Optional Culture As CultureInfo = Nothing, Optional Identifier As String = "Quantify") As String
+    ''' <example>
+    ''' texto = "total de {q=2 pães}"
+    ''' </example>
+    <Extension()> Public Function QuantifyText(PluralText As String, Optional Culture As CultureInfo = Nothing, Optional Identifier As String = "q") As String
         Dim inst = PluralText.GetAllBetween("{" & Identifier & "=", "}")
         Dim no_wrap As Boolean = False
         If inst.Length = 0 Then
@@ -35,10 +38,12 @@ Public Module Text
                 numero = numero.Length
             End If
             Dim texto = q.GetAfter(" ")
-            Dim has_number As Boolean = texto.ContainsAny("_" & Identifier & "_")
+            Dim has_number As Boolean = texto.ContainsAny("[" & Identifier & "]")
+
             texto = texto.QuantifyText(numero, Culture)
             Dim newtxt = numero & " " & texto
             If has_number Then
+                texto = texto.Replace("[" & Identifier & "]", numero)
                 newtxt = texto
             End If
             If no_wrap Then
@@ -58,8 +63,8 @@ Public Module Text
     ''' <param name="Quantity">Quantidade de Itens</param>
     ''' <param name="culture">Cultura</param>
     ''' <returns></returns>
-    <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object, Optional culture As CultureInfo = Nothing) As String
-        If culture Is Nothing Then culture = CultureInfo.CurrentCulture
+    <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object, Optional Culture As CultureInfo = Nothing) As String
+        If Culture Is Nothing Then Culture = CultureInfo.CurrentCulture
         Dim nums As Integer() = {}
         Dim numero As Decimal = 0
         Select Case True
@@ -76,19 +81,17 @@ Public Module Text
                 numero = CType(Quantity, Decimal)
         End Select
 
-        PluralText = PluralText.Replace("_q_", numero)
-
-        If CultureInfo.GetCultureInfo("pt-BR").Equals(culture) Then
+        If CultureInfo.GetCultureInfo("pt-BR").Equals(Culture) Then
             nums = {-1, 0, 1}
         Else
             nums = {-1, 1}
         End If
 
         If nums.Contains(numero) Then
-                Return PluralText.Singularize()
-            Else
-                Return PluralText.Pluralize()
-            End If
+            Return PluralText.Singularize()
+        Else
+            Return PluralText.Pluralize()
+        End If
 
         Return PluralText
     End Function
