@@ -1652,7 +1652,7 @@ Public Module Text
     ''' <returns>Frase corretamente pontuada</returns>
     <Extension>
     Public Function FixPunctuation(ByRef Text As String, Optional Punctuation As String = ".", Optional ForceSpecificPunctuation As Boolean = False) As String
-        Text = Text.Trim.RemoveLastAny(True, ",")
+        Text = Text.RemoveLastAny(True, ",", " ")
         Dim pts = {".", "!", "?", ":", ";"}
         If ForceSpecificPunctuation Then
             Text = Text.RemoveLastAny(True, pts).Trim & Punctuation
@@ -2375,13 +2375,13 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function FixCaptalization(ByRef Text As String) As String
-        Text = Text.Trim().GetFirstChars().ToUpper() & Text.RemoveFirstChars()
+        Text = Text.Trim().GetFirstChars(1).ToUpper() & Text.RemoveFirstChars(1)
         Dim dots As String() = {". ", "? ", "! ", "; "}
         Dim sentences As String()
         For Each dot In dots
             sentences = Text.Split(dot)
             For index = 0 To sentences.Length - 1
-                sentences(index) = "" & sentences(index).Trim().GetFirstChars().ToUpper() & sentences(index).RemoveFirstChars()
+                sentences(index) = "" & sentences(index).Trim().GetFirstChars(1).ToUpper() & sentences(index).RemoveFirstChars(1)
             Next
             Text = sentences.Join(dot)
         Next
@@ -2395,7 +2395,7 @@ Public Module Text
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
     <Extension()> Public Function FixText(ByRef Text As String) As String
-        Text = Text.AdjustWhiteSpaces.FixCaptalization.FixPunctuation()
+        Text = Text.AdjustWhiteSpaces.FixPunctuation().FixCaptalization
         Return Text
     End Function
 

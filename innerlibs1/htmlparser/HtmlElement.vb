@@ -50,9 +50,10 @@ Namespace HtmlParser
         ''' Fix the punctuation, white spaces and captalization of the child text elements
         ''' </summary>
         Public Overrides Sub FixText()
+            Dim l As New List(Of HtmlNode)
             For Each el As HtmlText In Me.GetTextElements
                 If el.Parent IsNot Nothing Then
-                    If el.Text.IsBlank Then el.Remove()
+                    If el.Text.IsBlank Then l.Add(el)
                     Dim txt = el.Text.HtmlDecode
                     Select Case el.Parent.Name.ToLower
                         Case "h1", "h2", "h3", "h4", "h5", "h6"
@@ -72,8 +73,8 @@ Namespace HtmlParser
                 Else
                     el.FixText()
                 End If
-
             Next
+            l.ForEach(Sub(b) b.Remove())
         End Sub
 
 

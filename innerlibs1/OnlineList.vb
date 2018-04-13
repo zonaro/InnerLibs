@@ -1,12 +1,14 @@
 ﻿
+Imports System.Net.Mail
 Imports System.Web
 Imports System.Web.Script.Serialization
 Imports System.Web.UI
+Imports InnerLibs.LINQ
 
 Public Class OnlineList(Of UserType, IdType)
     Inherits Dictionary(Of IdType, OnlineUser(Of UserType, IdType))
 
-    Private idgetter As Func(Of UserType, IdType)
+    Friend idgetter As Func(Of UserType, IdType)
     Private _ToleranceTime As TimeSpan = New TimeSpan(0, 1, 0)
 
     Private Sub Online()
@@ -42,7 +44,7 @@ Public Class OnlineList(Of UserType, IdType)
             Dim ID = Me.idgetter(Obj)
 
             If Not Me.ContainsKey(ID) Then
-                MyBase.Item(ID) = New OnlineUser(Of UserType, IdType)(Obj)
+                MyBase.Item(ID) = New OnlineUser(Of UserType, IdType)(Obj, Me)
             End If
 
             MyBase.Item(ID).LastOnline = Now
@@ -79,14 +81,18 @@ Public Class OnlineList(Of UserType, IdType)
         Me.RemoveIfExist(Obj.Select(Function(x) idgetter(x)).ToArray)
     End Sub
 
+    ReadOnly Property Chat As New UserChat(Of UserType, IdType)(Function(x) idgetter(x))
 
 End Class
 
 Public Class OnlineUser(Of UserType, IdType)
 
-    Friend Sub New(Data As UserType)
+    Friend Sub New(Data As UserType, list As OnlineList(Of UserType, IdType))
         Me.Data = Data
+        Me.list = list
     End Sub
+
+    Private list As OnlineList(Of UserType, IdType)
 
     Property LastOnline As DateTime = Now
     Property LastUrl As String
@@ -95,6 +101,17 @@ Public Class OnlineUser(Of UserType, IdType)
     Property LastActivity As String
     <ScriptIgnore>
     ReadOnly Property Data As UserType
+
+    ReadOnly Property Conversations(Optional WithUser As UserType = Nothing) As UserConversation(Of UserType)()
+        Get
+            If WithUser IsNot Nothing Then
+                Return list.Chat.GetConversation(Me.Data, WithUser)
+            Else
+                Return list.Chat.Where(Function(x) list.idgetter(x.User).Equals(list.idgetter(Me.Data)) Or list.idgetter(x.WithUser).Equals(list.idgetter(Me.Data))).ToArray
+            End If
+        End Get
+    End Property
+
 End Class
 
 
@@ -103,6 +120,10 @@ End Class
 Public Class UserChat(Of UserType, IdType)
     Inherits List(Of UserConversation(Of UserType))
 
+    Sub New(IdProperty As Func(Of UserType, IdType))
+        MyBase.New
+        Me.idgetter = IdProperty
+    End Sub
 
     Private idgetter As Func(Of UserType, IdType)
 
@@ -114,30 +135,33 @@ Public Class UserChat(Of UserType, IdType)
     End Function
 
 
-    Function GetConversation(User As UserType, WithUser As UserType) As IEnumerable(Of UserConversation(Of UserType))
-        Return Me.Where(Function(x)
-                            Return (idgetter(User).Equals(idgetter(x.User)) AndAlso idgetter(WithUser).Equals(idgetter(x.WithUser))) Or (idgetter(User).Equals(idgetter(x.WithUser)) AndAlso idgetter(WithUser).Equals(idgetter(x.User)))
-                        End Function).OrderBy(Function(x) x.SentDate)
+    Function GetConversation(User As UserType, Optional WithUser As UserType = Nothing) As UserConversation(Of UserType)()
+
+        Dim lista As IEnumerable(Of UserConversation(Of UserType))
+        If WithUser IsNot Nothing Then
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.User)) AndAlso idgetter(WithUser).Equals(idgetter(x.WithUser))) Or (idgetter(User).Equals(idgetter(x.WithUser)) AndAlso idgetter(WithUser).Equals(idgetter(x.User))))
+        Else
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.User))) Or (idgetter(User).Equals(idgetter(x.WithUser))))
+        End If
+
+        Return lista.Distinct.OrderByDescending(Function(x) x.SentDate).ToArray
     End Function
 End Class
 
-Public Class UserConversation(Of Usertype)
+Public Class UserConversation(Of UserType)
 
     Friend Sub New()
 
     End Sub
 
-    Property User As Usertype
-    Property WithUser As Usertype
+    Property User As UserType
+    Property WithUser As UserType
 
     Property Message As String
-    Property SentDate As DateTime
+    Property SentDate As DateTime = Now
 
-    Property Attachments As IEnumerable(Of ConversationAttachment)
+    Property Attachments As New List(Of Attachment)
 
 End Class
 
-Public Class ConversationAttachment
-    Property Name As String
-    Property Data As Object
-End Class
+
