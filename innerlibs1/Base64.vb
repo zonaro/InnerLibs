@@ -1,6 +1,7 @@
 ﻿Imports System.Drawing
 Imports System.IO
 Imports System.Runtime.CompilerServices
+Imports System.Text
 Imports System.Web
 
 ''' <summary>
@@ -8,6 +9,26 @@ Imports System.Web
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Base64
+
+    ''' <summary>
+    ''' Encoda uma string em Base64
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Encoding"></param>
+    ''' <returns></returns>
+    Public Function Btoa(Text As String, Optional Encoding As Encoding = Nothing) As String
+        Return Convert.ToBase64String(If(Encoding, Encoding.UTF8).GetBytes(Text))
+    End Function
+
+    ''' <summary>
+    ''' Decoda uma string em Base64
+    ''' </summary>
+    ''' <param name="Base"></param>
+    ''' <param name="Encoding"></param>
+    ''' <returns></returns>
+    Public Function Atob(Base As String, Optional Encoding As Encoding = Nothing) As String
+        Return If(Encoding, Encoding.UTF8).GetString(Convert.FromBase64String(Base))
+    End Function
 
     ''' <summary>
     ''' Arruma os caracteres de uma string Base64
