@@ -45,6 +45,46 @@ Namespace HtmlParser
             Next
         End Sub
 
+
+        ''' <summary>
+        ''' Fix the punctuation, white spaces and captalization of the child text elements
+        ''' </summary>
+        Public Overrides Sub FixText()
+            For Each el As HtmlText In Me.GetTextElements
+                If el.Parent IsNot Nothing Then
+                    If el.Text.IsBlank Then el.Remove()
+                    Dim txt = el.Text.HtmlDecode
+                    Select Case el.Parent.Name.ToLower
+                        Case "h1", "h2", "h3", "h4", "h5", "h6"
+                            el.Text = txt.AdjustBlankSpaces.ToCamel.TrimAny("!", ",", ".", "?", " ")
+                        Case "pre", "code"
+                            'do nothing
+
+                        Case "style"
+                            el.Text = MinifyCSS(txt)
+                        Case "p"
+                            el.Text = "&nbsp;&nbsp;&nbsp;&nbsp;" & txt.TrimAny(True, "&nbsp;", " ").FixText
+                        Case "li"
+                            el.Text = txt.FixText.FixPunctuation(";", True)
+                        Case Else
+                            el.Text = txt.FixText
+                    End Select
+                Else
+                    el.FixText()
+                End If
+
+            Next
+        End Sub
+
+
+
+        ''' <summary>
+        ''' Returns all Text elements excluding style and script elements
+        ''' </summary>
+        Public Function GetTextElements(Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            Return Me.FindElements(Of HtmlText)(Function(x) x.Parent IsNot Nothing AndAlso x.Parent.Name.ToLower.IsNotIn({"style", "script"}), SearchChildren)
+        End Function
+
         ''' <summary>
         ''' Create a <see cref="HtmlControl"/> using this <see cref="HtmlElement"/> as source
         ''' </summary>

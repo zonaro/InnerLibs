@@ -50,7 +50,7 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension()>
         Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False) As T
-            Dim obj = Context.GetByPrimaryKeys(Of T)({ID}.AsEnumerable).SingleOrDefault
+            Dim obj = Context.GetByPrimaryKeys(Of T)({ID}.ToArray).SingleOrDefault
             If obj Is Nothing AndAlso CreateIfNotExists Then
                 obj = Activator.CreateInstance(Of T)
                 Context.GetTable(Of T).InsertOnSubmit(obj)
@@ -67,7 +67,7 @@ Namespace LINQ
         ''' <param name="IDs">Valor da chave primárias</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ByVal IDs As IEnumerable) As IEnumerable(Of T)
+        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ParamArray IDs As Object()) As IEnumerable(Of T)
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
             Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)

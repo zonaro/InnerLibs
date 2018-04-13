@@ -70,8 +70,21 @@ Namespace HtmlParser
             Dim styles As HtmlNodeCollection = Me.QuerySelectorAll("style", Sub(x) x.InnerHTML = Web.MinifyCSS(x.InnerHTML))
         End Sub
 
+        ''' <summary>
+        '''  Fix tehe captalization, white spaces and punctuation of text elements
+        ''' </summary>
+        Public Sub FixText()
+            For Each el In Me.Nodes
+                el.FixText()
+            Next
+        End Sub
 
-
+        ''' <summary>
+        ''' Returns all Text elements excluding style and script elements
+        ''' </summary>
+        Public Function GetTextElements(Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            Return Me.FindElements(Of HtmlText)(Function(x) x.Parent IsNot Nothing AndAlso x.Parent.Name.ToLower.IsNotIn({"style", "script"}), SearchChildren)
+        End Function
 
         <Category("General"), Description("This is the DOCTYPE for XHTML production")>
         Public Property DocTypeXHTML() As String
@@ -214,9 +227,9 @@ Namespace HtmlParser
         ''' Copy this document to stream
         ''' </summary>
         ''' <param name="s"></param>
-        Public Sub CopyTo(S As Stream)
+        Public Sub CopyTo(ByRef s As Stream)
             Using m As New MemoryStream(Me.GetBytes)
-                m.CopyTo(S)
+                m.CopyTo(s)
             End Using
         End Sub
 
@@ -279,7 +292,8 @@ Namespace HtmlParser
         ''' <param name="predicate">The predicate to match the nodes</param>
         ''' <param name="SearchChildren">Travesse the child nodes</param>
         ''' <returns></returns>
-        Public Function FindElements(Of NodeType As HtmlNode)(predicate As Func(Of NodeType, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+        Public Function FindElements(Of NodeType As HtmlNode)(Optional predicate As Func(Of NodeType, Boolean) = Nothing, Optional SearchChildren As Boolean = True) As HtmlNodeCollection
+            predicate = If(predicate, Function(x) True)
             Return Me.Nodes.FindElements(Of NodeType)(predicate, SearchChildren)
         End Function
 

@@ -311,6 +311,16 @@ Namespace TimeMachine
             Return fort
         End Function
 
+        ''' <summary>
+        ''' Cria um grupo de quinzenas entre 2 datas
+        ''' </summary>
+        ''' <param name="StartDate"></param>
+        ''' <param name="EndDate"></param>
+        ''' <returns></returns>
+        Public Shared Function CreateFromDateRange(Range As DateRange) As FortnightGroup
+            Return CreateFromDateRange(Range.StartDate, Range.EndDate)
+        End Function
+
 
 
 

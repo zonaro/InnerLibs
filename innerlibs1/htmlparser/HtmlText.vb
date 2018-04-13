@@ -13,8 +13,15 @@ Namespace HtmlParser
         ''' This constructs a new node with the given text content.
         ''' </summary>
         ''' <param name="text"></param>
-        Public Sub New(text As String)
-            mText = text
+        Public Sub New(Text As String)
+            mText = Text
+        End Sub
+
+        ''' <summary>
+        ''' Fix the punctuation, white spaces and captalization of text
+        ''' </summary>
+        Public Overrides Sub FixText()
+            Me.Text = Me.Text.FixText
         End Sub
 
         ''' <summary>

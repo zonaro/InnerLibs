@@ -25,6 +25,8 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public MustOverride Overrides Function ToString() As String
 
+        Public MustOverride Sub FixText()
+
         Public MustOverride ReadOnly Property ElementRepresentation As String
 
         ''' <summary>
@@ -492,12 +494,12 @@ Namespace HtmlParser
             For Each node As HtmlNode In Me
                 If TypeOf node Is NodeType Then
                     If predicate(node) Then
-                        results.Add(node)
+                        results.Add(node, False)
                     End If
                 End If
                 If TypeOf node Is HtmlElement AndAlso SearchChildren Then
                     For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.FindElements(predicate, SearchChildren)
-                        results.Add(matchedChild)
+                        results.Add(matchedChild, False)
                     Next
                 End If
             Next

@@ -1651,9 +1651,16 @@ Public Module Text
     ''' <param name="Punctuation">Ponto a ser adicionado na frase se a mesma não estiver com pontuacao</param>
     ''' <returns>Frase corretamente pontuada</returns>
     <Extension>
-    Public Function FixPunctuation(ByRef Text As String, Optional Punctuation As String = ".") As String
-        Text = Text.Trim().TrimEnd(",")
-        Text = (If(Text.EndsWith(".") OrElse Text.EndsWith("!") OrElse Text.EndsWith("?"), Text, Text & Punctuation))
+    Public Function FixPunctuation(ByRef Text As String, Optional Punctuation As String = ".", Optional ForceSpecificPunctuation As Boolean = False) As String
+        Text = Text.Trim.RemoveLastAny(True, ",")
+        Dim pts = {".", "!", "?", ":", ";"}
+        If ForceSpecificPunctuation Then
+            Text = Text.RemoveLastAny(True, pts).Trim & Punctuation
+        Else
+            If Not Text.EndsWithAny(pts) Then
+                Text = Text & Punctuation
+            End If
+        End If
         Return Text
     End Function
 
@@ -2369,7 +2376,7 @@ Public Module Text
     <Extension()>
     Public Function FixCaptalization(ByRef Text As String) As String
         Text = Text.Trim().GetFirstChars().ToUpper() & Text.RemoveFirstChars()
-        Dim dots As String() = {". ", "? ", "! "}
+        Dim dots As String() = {". ", "? ", "! ", "; "}
         Dim sentences As String()
         For Each dot In dots
             sentences = Text.Split(dot)
@@ -2391,6 +2398,8 @@ Public Module Text
         Text = Text.AdjustWhiteSpaces.FixCaptalization.FixPunctuation()
         Return Text
     End Function
+
+
 
     ''' <summary>
     ''' Transforma um texto em nome proprio Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
