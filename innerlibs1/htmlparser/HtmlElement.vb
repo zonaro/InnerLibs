@@ -463,9 +463,9 @@ Namespace HtmlParser
                 Return s
             End Get
             Set(value As String)
-                Dim d As New HtmlDocument(value)
+                Dim d = New InnerLibs.HtmlParser.HtmlParser().Parse(value)
                 Me.Nodes.Clear()
-                For Each n As HtmlNode In d.Nodes
+                For Each n As HtmlNode In d
                     n.mParent = Me
                     Me.Nodes.Add(n)
                 Next
