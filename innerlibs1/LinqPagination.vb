@@ -48,7 +48,7 @@ Namespace LINQ
         ''' <param name="ID">Valor da chave primária</param>
         '''  <param name="CreateIfNotExists">Se true, cria o objeto e coloca o status de INSERT pendente para este</param>
         ''' <returns></returns>
-                                         <Extension()>
+        <Extension()>
         Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False) As T
             Dim obj = Context.GetByPrimaryKeys(Of T)({ID}.ToArray).SingleOrDefault
             If obj Is Nothing AndAlso CreateIfNotExists Then
@@ -59,6 +59,8 @@ Namespace LINQ
         End Function
 
 
+
+
         ''' <summary>
         ''' Retorna um objeto de uma tabela especifica de acordo com sua chave primaria. Pode opcionalmente criar o objeto se o mesmo não existir
         ''' </summary>
@@ -66,7 +68,7 @@ Namespace LINQ
         ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
         ''' <param name="IDs">Valor da chave primárias</param>
         ''' <returns></returns>
-                                             <Extension()>
+        <Extension()>
         Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ParamArray IDs As Object()) As IEnumerable(Of T)
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
