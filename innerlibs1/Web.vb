@@ -482,6 +482,17 @@ Public Module Web
     End Sub
 
     ''' <summary>
+    ''' Escreve um texto e finaliza um HttpResponse
+    ''' </summary>
+    ''' <param name="Response">HttpResponse</param>
+    ''' <param name="Text">    Texto</param>
+    <Extension>
+    Public Sub WriteEnd(Response As HttpResponse, Text As HtmlParser.HtmlDocument)
+        Response.Write(Text.ToString)
+        Response.[End]()
+    End Sub
+
+    ''' <summary>
     ''' Esreve um script de Redirect na pagina e finaliza um HttpResponse
     ''' </summary>
     ''' <param name="Response"></param>

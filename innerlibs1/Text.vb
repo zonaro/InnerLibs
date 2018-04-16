@@ -16,6 +16,17 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
+    ''' Transforma uma lista em uma lista HTML (OL ou UL)
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="OrdenedList"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToHtmlList(Of T)(List As IEnumerable(Of T), Optional OrdenedList As Boolean = False) As HtmlParser.HtmlElement
+        Return List.Select(Function(x) x.ToString.WrapInTag("li").ToString).Join("").WrapInTag(If(OrdenedList, "ol", "ul"))
+    End Function
+
+    ''' <summary>
     ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em <paramref name="Identifier"/>.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>

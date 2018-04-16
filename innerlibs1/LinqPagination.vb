@@ -22,8 +22,8 @@ Namespace LINQ
             Return Function(f) DefaultReturnValue
         End Function
 
-        Function CreateExpression(Of T)(predicate As Func(Of T, Boolean)) As Expression(Of Func(Of T, Boolean))
-            Return Function(f) predicate(f)
+        Function CreateExpression(Of T)(predicate As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
+            Return predicate
         End Function
 
 
@@ -48,7 +48,7 @@ Namespace LINQ
         ''' <param name="ID">Valor da chave primária</param>
         '''  <param name="CreateIfNotExists">Se true, cria o objeto e coloca o status de INSERT pendente para este</param>
         ''' <returns></returns>
-        <Extension()>
+                                         <Extension()>
         Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False) As T
             Dim obj = Context.GetByPrimaryKeys(Of T)({ID}.ToArray).SingleOrDefault
             If obj Is Nothing AndAlso CreateIfNotExists Then
@@ -66,7 +66,7 @@ Namespace LINQ
         ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
         ''' <param name="IDs">Valor da chave primárias</param>
         ''' <returns></returns>
-        <Extension()>
+                                             <Extension()>
         Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ParamArray IDs As Object()) As IEnumerable(Of T)
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
@@ -110,7 +110,7 @@ Namespace LINQ
         ''' <param name="Context"></param>
         ''' <param name="Dic"></param>
         ''' <returns></returns>
-        <Extension()>
+                                                 <Extension()>
         Public Function UpdateObjectFromDictionary(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Dic As IDictionary(Of String, Object)) As T
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
@@ -140,7 +140,7 @@ Namespace LINQ
         ''' <param name="Request"></param>
         ''' <param name="Keys"></param>
         ''' <returns></returns>
-        <Extension()>
+                                                     <Extension()>
         Public Function UpdateObjectFromRequest(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Request As HttpRequest, ParamArray Keys As String()) As T
             Return Context.UpdateObjectFromDictionary(Of T, PKType)(Request.ToDictionary(Keys))
         End Function
@@ -153,7 +153,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="Controls">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os inputs manipulados</returns>
-        <Extension()> Public Function ApplyToControls(Of T As Class)(Obj As T, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
+                                                         <Extension()> Public Function ApplyToControls(Of T As Class)(Obj As T, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
             For Each c In Controls
                 Try
                     Select Case c.TagName.ToLower

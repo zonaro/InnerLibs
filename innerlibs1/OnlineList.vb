@@ -9,26 +9,19 @@ Public Class OnlineList(Of UserType, IdType)
     Inherits Dictionary(Of IdType, OnlineUser(Of UserType, IdType))
 
     Friend idgetter As Func(Of UserType, IdType)
-    Private _ToleranceTime As TimeSpan = New TimeSpan(0, 1, 0)
 
     Private Sub Online()
+        If ToleranceTime.Ticks > 0 Then
+            ToleranceTime = ToleranceTime.Negate
+        End If
         Dim offline = Me.Where(Function(x) x.Value.LastOnline <= Now.Add(ToleranceTime)).Select(Function(x) x.Value.Data)
         Me.Remove(offline.ToArray)
     End Sub
 
     Private WithEvents Timer As New System.Timers.Timer
 
-    Public Property ToleranceTime As TimeSpan
-        Get
-            Return _ToleranceTime
-        End Get
-        Set(value As TimeSpan)
-            If value.Ticks > 0 Then
-                value = value.Negate
-            End If
-            _ToleranceTime = value
-        End Set
-    End Property
+    Public Property ToleranceTime As TimeSpan = New TimeSpan(0, 1, 0)
+
 
     Sub New(IdProperty As Func(Of UserType, IdType), Optional Interval As Double = 10000)
         idgetter = IdProperty
