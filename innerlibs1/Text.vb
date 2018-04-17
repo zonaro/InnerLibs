@@ -2406,7 +2406,9 @@ Public Module Text
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
     <Extension()> Public Function FixText(ByRef Text As String) As String
-        Text = Text.AdjustWhiteSpaces.FixPunctuation().FixCaptalization
+        If Text.IsNotBlank Then
+            Text = Text.AdjustWhiteSpaces.FixPunctuation().FixCaptalization
+        End If
         Return Text
     End Function
 
