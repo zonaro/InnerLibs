@@ -1003,7 +1003,11 @@ Namespace LINQ
             Return If(StringToReplace, "")
         End Function
 
-
+        ''' <summary>
+        ''' Limpa dos resultados dos templates as chaves que não foram encontradas
+        ''' </summary>
+        ''' <param name="StringToClear"></param>
+        ''' <returns></returns>
         Public Function ClearNotFoundValues(StringToClear As String) As String
             For Each selector In Selectors
                 If StringToClear.IsNotBlank Then

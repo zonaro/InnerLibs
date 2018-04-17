@@ -33,48 +33,55 @@ Public Class OnlineList(Of UserType, IdType)
     End Sub
 
     Public Function SetOnline(Obj As UserType, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
-        Return Me.Add(Obj, Activity)
+        Return Me.Add(Obj, True, Activity)
     End Function
 
-    Public Shadows Function Add(Obj As UserType, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
+    Public Function SetOffline(Obj As UserType) As OnlineUser(Of UserType, IdType)
+        Return Me.Add(Obj, False)
+    End Function
+
+    Public Shadows Function Add(Obj As UserType, Online As Boolean, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
         If Obj IsNot Nothing Then
             Dim ID = Me.idgetter(Obj)
-
             If Not Me.ContainsKey(ID) Then
                 MyBase.Item(ID) = New OnlineUser(Of UserType, IdType)(Obj, Me)
             End If
+            If Online Then
+                MyBase.Item(ID).LastOnline = Now
+                If Activity.IsNotBlank Then
+                    MyBase.Item(ID).LastActivity = Activity
+                End If
+                If HttpContext.Current IsNot Nothing Then
+                    MyBase.Item(ID).LastUrl = HttpContext.Current.Request.Url.AbsoluteUri
+                    Dim Page = HttpContext.Current.Handler
+                    If Page IsNot Nothing AndAlso Page.GetType Is GetType(Page) Then
+                        Dim title = CType(Page, Page).Title
+                        If title.IsNotBlank Then
+                            MyBase.Item(ID).LastPage = Page
+                        End If
 
-            MyBase.Item(ID).LastOnline = Now
-
-            If Activity.IsNotBlank Then
-                MyBase.Item(ID).LastActivity = Activity
-            End If
-            If HttpContext.Current IsNot Nothing Then
-                MyBase.Item(ID).LastUrl = HttpContext.Current.Request.Url.AbsoluteUri
-                Dim Page = HttpContext.Current.Handler
-                If Page IsNot Nothing AndAlso Page.GetType Is GetType(Page) Then
-                    Dim title = CType(Page, Page).Title
-                    If title.IsNotBlank Then
-                        MyBase.Item(ID).LastPage = Page
                     End If
-
                 End If
             End If
+            MyBase.Item(ID).IsOnline = Online
             Return MyBase.Item(ID)
         End If
         Return Nothing
     End Function
 
-    Default Shadows Property Item(User As UserType) As OnlineUser(Of UserType, IdType)
+    Default Shadows ReadOnly Property Item(User As UserType) As OnlineUser(Of UserType, IdType)
         Get
-            Return MyBase.Item(idgetter(User))
+            If Me.ContainsUser(User) Then
+                Return MyBase.Item(idgetter(User))
+            Else
+                Return Me.Add(User, False)
+            End If
         End Get
-        Set(value As OnlineUser(Of UserType, IdType))
-            MyBase.Item(idgetter(User)) = value
-        End Set
     End Property
 
-
+    Public Function ContainsUser(User As UserType) As Boolean
+        Return Me.ContainsKey(idgetter(User))
+    End Function
 
     Public Shadows Sub Remove(ParamArray Obj As UserType())
         Obj = If(Obj, {})
@@ -96,17 +103,21 @@ Public Class OnlineUser(Of UserType, IdType)
     Private list As OnlineList(Of UserType, IdType)
 
     Property LastOnline As DateTime = Now
+
     Property LastUrl As String
 
     Property IsOnline As Boolean
         Get
-            If online Then
-                online = LastOnline >= Now.Add(list.ToleranceTime)
+            If list.ContainsUser(Me.Data) Then
                 If online Then
-                    LastOnline = Now
+                    online = LastOnline >= Now.Add(list.ToleranceTime)
+                    If online Then
+                        LastOnline = Now
+                    End If
                 End If
+                Return online
             End If
-            Return online
+            Return False
         End Get
         Set(value As Boolean)
             online = value
@@ -117,8 +128,7 @@ Public Class OnlineUser(Of UserType, IdType)
 
     Private online As Boolean = True
 
-    Property LastActivity As String
-
+    Property LastActivity As String = "Offline"
 
     <ScriptIgnore> ReadOnly Property Data As UserType
 
