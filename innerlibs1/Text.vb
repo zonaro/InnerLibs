@@ -2491,7 +2491,10 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Function Wrap(Text As String, Optional WrapText As String = """") As String
-        Return WrapText & Text & WrapText
+        If Text.IsNotBlank Then
+            Return WrapText & Text & WrapText
+        End If
+        Return Text
     End Function
 
     ''' <summary>

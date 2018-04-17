@@ -120,6 +120,9 @@ Public Class OnlineUser(Of UserType, IdType)
             Return False
         End Get
         Set(value As Boolean)
+            If online Then
+                LastOnline = Now
+            End If
             online = value
         End Set
     End Property
