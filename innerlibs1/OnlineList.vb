@@ -216,6 +216,17 @@ Public Class UserConversation(Of UserType)
 
     Property ViewedDate As DateTime
 
+    Property Viewed As Boolean
+        Get
+            Return ViewedDate <= Now
+        End Get
+        Set(value As Boolean)
+            If value Then
+                ViewedDate = Now
+            End If
+        End Set
+    End Property
+
     Property Attachments As New List(Of Attachment)
 
 End Class
