@@ -123,7 +123,7 @@ Public Class OnlineUser(Of UserType, IdType)
         Get
             If list.ContainsUser(Me.Data) Then
                 If online Then
-                    online = LastOnline >= Now.Add(list.ToleranceTime)
+                    online = LastOnline.HasValue AndAlso LastOnline >= Now.Add(list.ToleranceTime)
                     If online Then
                         LastOnline = Now
                     End If
