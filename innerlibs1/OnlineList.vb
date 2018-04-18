@@ -237,7 +237,7 @@ Public Class UserConversation(Of UserType, IdType)
     Property Attachments As New List(Of Attachment)
 
     Function IsFrom(User As UserType) As Boolean
-        Return chatlist.list(User).Equals(FromUser.Data)
+        Return chatlist.list.idgetter(User).Equals(chatlist.list.idgetter(FromUser.Data))
     End Function
 
     Function GetOtherUser(Myself As UserType) As OnlineUser(Of UserType, IdType)
