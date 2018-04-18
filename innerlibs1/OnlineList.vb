@@ -40,32 +40,42 @@ Public Class OnlineList(Of UserType, IdType)
         Return Me.Add(Obj, False)
     End Function
 
-    Public Shadows Function Add(Obj As UserType, Optional Online As Boolean? = Nothing, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
+    Public Shadows Function Add(Obj As UserType)
+        If Obj IsNot Nothing Then
+            Dim ID = Me.idgetter(Obj)
+            If Not Me.ContainsKey(ID) Then
+                MyBase.Item(ID) = New OnlineUser(Of UserType, IdType)(Obj, Me)
+                MyBase.Item(ID).IsOnline = False
+            End If
+            Return MyBase.Item(ID)
+        End If
+        Return Nothing
+    End Function
+
+    Public Shadows Function Add(Obj As UserType, Optional Online As Boolean = False, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
         If Obj IsNot Nothing Then
             Dim ID = Me.idgetter(Obj)
             If Not Me.ContainsKey(ID) Then
                 MyBase.Item(ID) = New OnlineUser(Of UserType, IdType)(Obj, Me)
             End If
-            If Online.HasValue Then
-                If Online Then
-                    MyBase.Item(ID).LastOnline = Now
-                    If Activity.IsNotBlank Then
-                        MyBase.Item(ID).LastActivity = Activity
-                    End If
-                    If HttpContext.Current IsNot Nothing Then
-                        MyBase.Item(ID).LastUrl = HttpContext.Current.Request.Url.AbsoluteUri
-                        Dim Page = HttpContext.Current.Handler
-                        If Page IsNot Nothing AndAlso Page.GetType Is GetType(Page) Then
-                            Dim title = CType(Page, Page).Title
-                            If title.IsNotBlank Then
-                                MyBase.Item(ID).LastPage = Page
-                            End If
-
+            If Online Then
+                MyBase.Item(ID).LastOnline = Now
+                If Activity.IsNotBlank Then
+                    MyBase.Item(ID).LastActivity = Activity
+                End If
+                If HttpContext.Current IsNot Nothing Then
+                    MyBase.Item(ID).LastUrl = HttpContext.Current.Request.Url.AbsoluteUri
+                    Dim Page = HttpContext.Current.Handler
+                    If Page IsNot Nothing AndAlso Page.GetType Is GetType(Page) Then
+                        Dim title = CType(Page, Page).Title
+                        If title.IsNotBlank Then
+                            MyBase.Item(ID).LastPage = Page
                         End If
+
                     End If
                 End If
-                MyBase.Item(ID).IsOnline = Online
             End If
+            MyBase.Item(ID).IsOnline = Online
             Return MyBase.Item(ID)
         End If
         Return Nothing
@@ -99,12 +109,13 @@ Public Class OnlineUser(Of UserType, IdType)
     Friend Sub New(Data As UserType, list As OnlineList(Of UserType, IdType))
         Me.Data = Data
         Me.list = list
+        Me.IsOnline = False
     End Sub
 
 
     Friend list As OnlineList(Of UserType, IdType)
 
-    Property LastOnline As DateTime = Now
+    Property LastOnline As Date? = Nothing
 
     Property LastUrl As String
 

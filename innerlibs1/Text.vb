@@ -2309,7 +2309,10 @@ Public Module Text
 
     <Extension()>
     Public Function RemoveHTML(Text As String) As String
-        Return Regex.Replace(Text, "<.*?>", String.Empty).HtmlDecode
+        If Text.IsNotBlank Then
+            Return Regex.Replace(Text, "<.*?>", String.Empty).HtmlDecode
+        End If
+        Return ""
     End Function
 
     ''' <summary>
