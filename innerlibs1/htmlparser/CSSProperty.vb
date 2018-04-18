@@ -76,6 +76,10 @@ Namespace HtmlParser
             mElement.Attributes.Remove("style")
         End Sub
 
+        Public Function Contains(ParamArray AttKey As String()) As Boolean
+            Return Me.Keys.ContainsAny(AttKey)
+        End Function
+
         Public Function Contains(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Contains
             Return Me.Item(item.Key) = item.Value
         End Function
@@ -147,6 +151,11 @@ Namespace HtmlParser
 
             End Set
         End Property
+
+        Function [Set](StyleString As String) As CssProperties
+            mElement.Attribute("style") = StyleString
+            Return Me
+        End Function
 
         Public Overrides Function ToString() As String
             Return mElement.Attribute("style")

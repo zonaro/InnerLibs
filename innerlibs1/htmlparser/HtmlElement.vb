@@ -77,7 +77,11 @@ Namespace HtmlParser
             l.ForEach(Sub(b) b.Remove())
         End Sub
 
-
+        Public ReadOnly Property IsVisible As Boolean
+            Get
+                Return Me.Style.display.IsAny("none") Or Me.Style.visibility.IsAny("hidden")
+            End Get
+        End Property
 
         ''' <summary>
         ''' Returns all Text elements excluding style and script elements
