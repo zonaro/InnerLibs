@@ -164,7 +164,7 @@ Public Class UserChat(Of UserType, IdType)
 
 
     Function Send(FromUser As UserType, ToUser As UserType, Message As String) As UserConversation(Of UserType)
-        Dim i = New UserConversation(Of UserType) With {.Message = Message, .FromUser = FromUser, .ToUser = ToUser}
+        Dim i = New UserConversation(Of UserType) With {.Message = Message, .FromUser = FromUser, .ToUser = ToUser, .ViewedDate = Nothing}
         Me.Add(i)
         Return i
     End Function
@@ -214,15 +214,17 @@ Public Class UserConversation(Of UserType)
     Property Message As String
     Property SentDate As DateTime = Now
 
-    Property ViewedDate As DateTime
+    Property ViewedDate As Date? = Nothing
 
     Property Viewed As Boolean
         Get
-            Return ViewedDate <= Now
+            Return ViewedDate.HasValue AndAlso ViewedDate <= Now
         End Get
         Set(value As Boolean)
             If value Then
                 ViewedDate = Now
+            Else
+                ViewedDate = Nothing
             End If
         End Set
     End Property
