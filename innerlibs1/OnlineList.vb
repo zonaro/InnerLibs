@@ -40,30 +40,32 @@ Public Class OnlineList(Of UserType, IdType)
         Return Me.Add(Obj, False)
     End Function
 
-    Public Shadows Function Add(Obj As UserType, Online As Boolean, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
+    Public Shadows Function Add(Obj As UserType, Optional Online As Boolean? = Nothing, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
         If Obj IsNot Nothing Then
             Dim ID = Me.idgetter(Obj)
             If Not Me.ContainsKey(ID) Then
                 MyBase.Item(ID) = New OnlineUser(Of UserType, IdType)(Obj, Me)
             End If
-            If Online Then
-                MyBase.Item(ID).LastOnline = Now
-                If Activity.IsNotBlank Then
-                    MyBase.Item(ID).LastActivity = Activity
-                End If
-                If HttpContext.Current IsNot Nothing Then
-                    MyBase.Item(ID).LastUrl = HttpContext.Current.Request.Url.AbsoluteUri
-                    Dim Page = HttpContext.Current.Handler
-                    If Page IsNot Nothing AndAlso Page.GetType Is GetType(Page) Then
-                        Dim title = CType(Page, Page).Title
-                        If title.IsNotBlank Then
-                            MyBase.Item(ID).LastPage = Page
-                        End If
+            If Online.HasValue Then
+                If Online Then
+                    MyBase.Item(ID).LastOnline = Now
+                    If Activity.IsNotBlank Then
+                        MyBase.Item(ID).LastActivity = Activity
+                    End If
+                    If HttpContext.Current IsNot Nothing Then
+                        MyBase.Item(ID).LastUrl = HttpContext.Current.Request.Url.AbsoluteUri
+                        Dim Page = HttpContext.Current.Handler
+                        If Page IsNot Nothing AndAlso Page.GetType Is GetType(Page) Then
+                            Dim title = CType(Page, Page).Title
+                            If title.IsNotBlank Then
+                                MyBase.Item(ID).LastPage = Page
+                            End If
 
+                        End If
                     End If
                 End If
+                MyBase.Item(ID).IsOnline = Online
             End If
-            MyBase.Item(ID).IsOnline = Online
             Return MyBase.Item(ID)
         End If
         Return Nothing
@@ -74,7 +76,7 @@ Public Class OnlineList(Of UserType, IdType)
             If Me.ContainsUser(User) Then
                 Return MyBase.Item(idgetter(User))
             Else
-                Return Me.Add(User, False)
+                Return Me.Add(User)
             End If
         End Get
     End Property
@@ -88,7 +90,7 @@ Public Class OnlineList(Of UserType, IdType)
         Me.RemoveIfExist(Obj.Select(Function(x) idgetter(x)).ToArray)
     End Sub
 
-    ReadOnly Property Chat As New UserChat(Of UserType, IdType)(Function(x) idgetter(x))
+    ReadOnly Property Chat As New UserChat(Of UserType, IdType)(Function(x) idgetter(x), Me)
 
 End Class
 
@@ -100,7 +102,7 @@ Public Class OnlineUser(Of UserType, IdType)
     End Sub
 
 
-    Private list As OnlineList(Of UserType, IdType)
+    Friend list As OnlineList(Of UserType, IdType)
 
     Property LastOnline As DateTime = Now
 
@@ -137,12 +139,12 @@ Public Class OnlineUser(Of UserType, IdType)
 
     <ScriptIgnore> Property LastPage As Page
 
-    ReadOnly Property Conversations(Optional WithUser As UserType = Nothing) As UserConversation(Of UserType)()
+    ReadOnly Property Conversations(Optional WithUser As UserType = Nothing) As UserConversation(Of UserType, IdType)()
         Get
             If WithUser IsNot Nothing Then
                 Return list.Chat.GetConversation(Me.Data, WithUser)
             Else
-                Return list.Chat.Where(Function(x) list.idgetter(x.FromUser).Equals(list.idgetter(Me.Data)) Or list.idgetter(x.ToUser).Equals(list.idgetter(Me.Data))).ToArray
+                Return list.Chat.Where(Function(x) list.idgetter(x.FromUser.Data).Equals(list.idgetter(Me.Data)) Or list.idgetter(x.ToUser.Data).Equals(list.idgetter(Me.Data))).ToArray
             End If
         End Get
     End Property
@@ -153,63 +155,55 @@ End Class
 
 
 Public Class UserChat(Of UserType, IdType)
-    Inherits List(Of UserConversation(Of UserType))
+    Inherits List(Of UserConversation(Of UserType, IdType))
 
-    Sub New(IdProperty As Func(Of UserType, IdType))
+    Friend Sub New(IdProperty As Func(Of UserType, IdType), List As OnlineList(Of UserType, IdType))
         MyBase.New
         Me.idgetter = IdProperty
+        Me.list = List
     End Sub
 
     Private idgetter As Func(Of UserType, IdType)
+    Friend list As OnlineList(Of UserType, IdType)
 
-
-    Function Send(FromUser As UserType, ToUser As UserType, Message As String) As UserConversation(Of UserType)
-        Dim i = New UserConversation(Of UserType) With {.Message = Message, .FromUser = FromUser, .ToUser = ToUser, .ViewedDate = Nothing}
+    Function Send(FromUser As UserType, ToUser As UserType, Message As String) As UserConversation(Of UserType, IdType)
+        Dim i = New UserConversation(Of UserType, IdType)(Me) With {.Message = Message, .FromUser = list(FromUser), .ToUser = list(ToUser), .ViewedDate = Nothing}
         Me.Add(i)
         Return i
     End Function
 
 
-    Function GetConversation(User As UserType, Optional WithUser As UserType = Nothing) As IEnumerable(Of UserConversation(Of UserType))
 
-        Dim lista As IEnumerable(Of UserConversation(Of UserType))
+    Function GetConversation(User As UserType, Optional WithUser As UserType = Nothing) As IEnumerable(Of UserConversation(Of UserType, IdType))
+
+        Dim lista As IEnumerable(Of UserConversation(Of UserType, IdType))
         If WithUser IsNot Nothing Then
-            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser)) AndAlso idgetter(WithUser).Equals(idgetter(x.ToUser))) Or (idgetter(User).Equals(idgetter(x.ToUser)) AndAlso idgetter(WithUser).Equals(idgetter(x.FromUser))))
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.ToUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.FromUser.Data))))
         Else
-            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser))) Or (idgetter(User).Equals(idgetter(x.ToUser))))
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data))))
         End If
 
-        Return lista.Distinct.OrderByDescending(Function(x) x.SentDate).AsEnumerable
+        Return lista.OrderByDescending(Function(x) x.SentDate).AsEnumerable
     End Function
 
 
-    Sub ChangeViewed(User As UserType, Optional WithUser As UserType = Nothing)
-        For Each i In GetConversation(User, WithUser).Where(Function(x) x.ToUser.Equals(User))
-            i.ViewedDate = Now
-        Next
-    End Sub
 
-    Function GetChangedConversation(User As UserType)
 
-    End Function
+
 End Class
 
-Public Enum ChangeStatus
-    CloseWindow = -1
-    Same = 0
-    OpenWindow = 1
-End Enum
 
-Public Class UserConversation(Of UserType)
 
-    Friend Sub New()
+Public Class UserConversation(Of UserType, IdType)
 
+    Friend Sub New(chatlist As UserChat(Of UserType, IdType))
+        Me.chatlist = chatlist
     End Sub
 
-    Property WindowStatus As ChangeStatus = ChangeStatus.Same
+    Friend chatlist As UserChat(Of UserType, IdType)
 
-    Property FromUser As UserType
-    Property ToUser As UserType
+    Property FromUser As OnlineUser(Of UserType, IdType)
+    Property ToUser As OnlineUser(Of UserType, IdType)
 
     Property Message As String
     Property SentDate As DateTime = Now
@@ -230,6 +224,26 @@ Public Class UserConversation(Of UserType)
     End Property
 
     Property Attachments As New List(Of Attachment)
+
+    Function IsFrom(User As UserType) As Boolean
+        Return chatlist.list(User).Equals(FromUser.Data)
+    End Function
+
+    Function GetOtherUser(Myself As UserType) As OnlineUser(Of UserType, IdType)
+        If IsFrom(Myself) Then
+            Return ToUser
+        Else
+            Return FromUser
+        End If
+    End Function
+
+    Function GetMyUser(Myself As UserType) As OnlineUser(Of UserType, IdType)
+        If IsFrom(Myself) Then
+            Return FromUser
+        Else
+            Return ToUser
+        End If
+    End Function
 
 End Class
 
