@@ -241,8 +241,8 @@ Public Module Web
             Page.Context.Response.AddHeader("Cache-Control", "no-cache, no-store, must-revalidate")
             Page.Context.Response.AddHeader("Pragma", "no-cache")
             Page.Context.Response.AddHeader("Expires", "0")
-            For Each key As String In Page.Request.Cookies.AllKeys
-                Dim c = Page.Request.Cookies(key)
+            For index = 0 To Page.Request.Cookies.Count - 1
+                Dim c = Page.Request.Cookies(index)
                 c.Expires = Now.AddMonths(-1)
                 Page.Response.AppendCookie(c)
             Next

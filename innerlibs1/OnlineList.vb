@@ -176,14 +176,14 @@ Public Class UserChat(Of UserType, IdType)
 
     Function GetConversation(User As UserType, Optional WithUser As UserType = Nothing) As IEnumerable(Of UserConversation(Of UserType, IdType))
 
-        Dim lista As IEnumerable(Of UserConversation(Of UserType, IdType))
+        Dim lista As UserConversation(Of UserType, IdType)()
         If WithUser IsNot Nothing Then
-            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.ToUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.FromUser.Data))))
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.ToUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.FromUser.Data)))).ToArray
         Else
-            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data))))
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)))).ToArray
         End If
-
-        Return lista.OrderByDescending(Function(x) x.SentDate).AsEnumerable
+        lista = lista.OrderByDescending(Function(x) x.SentDate).ToArray
+        Return lista
     End Function
 
 

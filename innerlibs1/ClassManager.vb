@@ -496,9 +496,9 @@ Public Module ClassTools
                 End If
                 Dim info As PropertyInfo
                 If GetPrivate Then
-                    info = ClassTools.GetProperties(obj, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).First
+                    info = ClassTools.GetProperties(obj, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).FirstOrDefault
                 Else
-                    info = ClassTools.GetProperties(obj).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).First
+                    info = ClassTools.GetProperties(obj).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).FirstOrDefault
                 End If
                 If info Is Nothing Then
                     Return Nothing
