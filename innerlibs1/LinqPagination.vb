@@ -8,6 +8,43 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+        ''' <summary>
+        ''' Verifica se uma instancia de uma classe possui propriedades especificas com valores igual as de outra instancia da mesma classe
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Obj1">Instancia 1</param>
+        ''' <param name="Obj2">Instancia 2</param>
+        ''' <param name="Properties">Propriedades</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function HasSamePropertyValues(Of T)(Obj1 As T, Obj2 As T, ParamArray Properties As Func(Of T, Object)())
+            Return Properties.All(Function(x) x(Obj1).Equals(x(Obj2)))
+        End Function
+
+        ''' <summary>
+        ''' Distingui os items de uma lista a partir de uma propriedade da classe
+        ''' </summary>
+        ''' <typeparam name="T">Tipo da classe</typeparam>
+        ''' <typeparam name="TKey">Tipo da propriedade</typeparam>
+        ''' <param name="items">Lista</param>
+        ''' <param name="[property]">Propriedade</param>
+        ''' <returns></returns>
+        <Extension()> Public Function DistinctBy(Of T, TKey)(ByVal Items As IEnumerable(Of T), ByVal [Property] As Func(Of T, TKey)) As IEnumerable(Of T)
+            Return Items.GroupBy([Property]).[Select](Function(x) x.First())
+        End Function
+
+        ''' <summary>
+        ''' Distingui os items de uma lista a partir de uma propriedade da classe
+        ''' </summary>
+        ''' <typeparam name="T">Tipo da classe</typeparam>
+        ''' <typeparam name="TKey">Tipo da propriedade</typeparam>
+        ''' <param name="items">Lista</param>
+        ''' <param name="[property]">Propriedade</param>
+        ''' <returns></returns>
+        <Extension()> Public Function DistinctBy(Of T, TKey)(ByVal Items As IQueryable(Of T), ByVal [Property] As Expression(Of Func(Of T, TKey))) As IQueryable(Of T)
+            Return Items.GroupBy([Property]).[Select](Function(x) x.First())
+        End Function
+
         <Extension()> Function Page(Of TSource)(ByVal source As IQueryable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IQueryable(Of TSource)
             Return source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
@@ -27,8 +64,7 @@ Namespace LINQ
         End Function
 
 
-        <Extension()>
-        Function [Or](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
+        <Extension()> Function [Or](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
             Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
             Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](expr1.Body, invokedExpr), expr1.Parameters)
         End Function
@@ -116,7 +152,7 @@ Namespace LINQ
         ''' <param name="Context"></param>
         ''' <param name="Dic"></param>
         ''' <returns></returns>
-                                                 <Extension()>
+        <Extension()>
         Public Function UpdateObjectFromDictionary(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Dic As IDictionary(Of String, Object)) As T
             Dim table = Context.GetTable(Of T)()
             Dim mapping = Context.Mapping.GetTable(GetType(T))
@@ -146,7 +182,7 @@ Namespace LINQ
         ''' <param name="Request"></param>
         ''' <param name="Keys"></param>
         ''' <returns></returns>
-                                                     <Extension()>
+        <Extension()>
         Public Function UpdateObjectFromRequest(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Request As HttpRequest, ParamArray Keys As String()) As T
             Return Context.UpdateObjectFromDictionary(Of T, PKType)(Request.ToDictionary(Keys))
         End Function
@@ -159,7 +195,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="Controls">Controles que serão Manipulados</param>
         ''' <returns>Um array contendo os inputs manipulados</returns>
-                                                         <Extension()> Public Function ApplyToControls(Of T As Class)(Obj As T, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
+        <Extension()> Public Function ApplyToControls(Of T As Class)(Obj As T, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
             For Each c In Controls
                 Try
                     Select Case c.TagName.ToLower

@@ -4,7 +4,7 @@ Imports System.Web
 Imports System.Web.Script.Serialization
 Imports System.Web.UI
 
-Public Class OnlineList(Of UserType, IdType)
+Public Class OnlineList(Of UserType As Class, IdType As Structure)
     Inherits Dictionary(Of IdType, OnlineUser(Of UserType, IdType))
 
     Friend idgetter As Func(Of UserType, IdType)
@@ -111,7 +111,7 @@ Public Class OnlineList(Of UserType, IdType)
 
 End Class
 
-Public Class OnlineUser(Of UserType, IdType)
+Public Class OnlineUser(Of UserType As Class, IdType As Structure)
 
     Friend list As OnlineList(Of UserType, IdType)
 
@@ -169,7 +169,7 @@ Public Class OnlineUser(Of UserType, IdType)
 
 End Class
 
-Public Class UserChat(Of UserType, IdType)
+Public Class UserChat(Of UserType As Class, IdType As Structure)
     Inherits List(Of UserConversation(Of UserType, IdType))
 
     Friend WithEvents BackupTimer As New System.Timers.Timer
@@ -245,13 +245,19 @@ Public Class UserChat(Of UserType, IdType)
 
 End Class
 
-Public Class UserConversation(Of UserType, IdType)
+Public Class UserConversation(Of UserType As Class, IdType As Structure)
 
     Friend chatlist As UserChat(Of UserType, IdType)
 
     Friend Sub New(chatlist As UserChat(Of UserType, IdType))
         Me.chatlist = chatlist
     End Sub
+
+    ReadOnly Property ID As String
+        Get
+            Return {"F", FromUser.ID.ToString, "T", ToUser.ID.ToString, "@", SentDate.Ticks}.Join("")
+        End Get
+    End Property
 
     Property Viewed As Boolean
         Get
@@ -294,11 +300,17 @@ Public Class UserConversation(Of UserType, IdType)
 
 End Class
 
-Friend Class UserConversationBackup(Of IdType)
+Friend Class UserConversationBackup(Of IdType As Structure)
     Property FromId As IdType
     Property Message As String
     Property SentDate As Long
     Property ToId As IdType
     Property ViewedDate As Long
+
+    ReadOnly Property ID As String
+        Get
+            Return {"F", FromId.ToString, "T", ToId.ToString, "@", SentDate}.Join("")
+        End Get
+    End Property
 
 End Class
