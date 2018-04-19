@@ -104,7 +104,6 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="DOT Language.vb" />
-    <Compile Include="EmojiAPI.vb" />
     <Compile Include="Evalz\Evaluator.vb" />
     <Compile Include="Evalz\EvalVariable.vb" />
     <Compile Include="Evalz\Globals.vb" />

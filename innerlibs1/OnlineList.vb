@@ -1,18 +1,21 @@
-﻿
-Imports System.Net.Mail
+﻿Imports System.IO
+Imports System.Text
 Imports System.Web
 Imports System.Web.Script.Serialization
 Imports System.Web.UI
-Imports InnerLibs.LINQ
 
 Public Class OnlineList(Of UserType, IdType)
     Inherits Dictionary(Of IdType, OnlineUser(Of UserType, IdType))
 
     Friend idgetter As Func(Of UserType, IdType)
 
-    Public Function OnlineUsers() As IEnumerable(Of OnlineUser(Of UserType, IdType))
-        Return Me.Where(Function(x) x.Value.IsOnline).Select(Function(x) x.Value)
-    End Function
+    Private _tolerancetime As TimeSpan = New TimeSpan(0, 1, 0)
+
+    Sub New(IdProperty As Func(Of UserType, IdType))
+        idgetter = IdProperty
+    End Sub
+
+    ReadOnly Property Chat As New UserChat(Of UserType, IdType)(Function(x) idgetter(x), Me)
 
     Public Property ToleranceTime As TimeSpan
         Get
@@ -26,19 +29,16 @@ Public Class OnlineList(Of UserType, IdType)
             _tolerancetime = value
         End Set
     End Property
-    Private _tolerancetime As TimeSpan = New TimeSpan(0, 1, 0)
 
-    Sub New(IdProperty As Func(Of UserType, IdType))
-        idgetter = IdProperty
-    End Sub
-
-    Public Function SetOnline(Obj As UserType, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
-        Return Me.Add(Obj, True, Activity)
-    End Function
-
-    Public Function SetOffline(Obj As UserType) As OnlineUser(Of UserType, IdType)
-        Return Me.Add(Obj, False)
-    End Function
+    Default Shadows ReadOnly Property Item(User As UserType) As OnlineUser(Of UserType, IdType)
+        Get
+            If Me.ContainsUser(User) Then
+                Return MyBase.Item(idgetter(User))
+            Else
+                Return Me.Add(User)
+            End If
+        End Get
+    End Property
 
     Public Shadows Function Add(Obj As UserType)
         If Obj IsNot Nothing Then
@@ -81,18 +81,12 @@ Public Class OnlineList(Of UserType, IdType)
         Return Nothing
     End Function
 
-    Default Shadows ReadOnly Property Item(User As UserType) As OnlineUser(Of UserType, IdType)
-        Get
-            If Me.ContainsUser(User) Then
-                Return MyBase.Item(idgetter(User))
-            Else
-                Return Me.Add(User)
-            End If
-        End Get
-    End Property
-
     Public Function ContainsUser(User As UserType) As Boolean
         Return Me.ContainsKey(idgetter(User))
+    End Function
+
+    Public Function OnlineUsers() As IEnumerable(Of OnlineUser(Of UserType, IdType))
+        Return Me.Where(Function(x) x.Value.IsOnline).Select(Function(x) x.Value)
     End Function
 
     Public Shadows Sub Remove(ParamArray Obj As UserType())
@@ -100,11 +94,28 @@ Public Class OnlineList(Of UserType, IdType)
         Me.RemoveIfExist(Obj.Select(Function(x) idgetter(x)).ToArray)
     End Sub
 
-    ReadOnly Property Chat As New UserChat(Of UserType, IdType)(Function(x) idgetter(x), Me)
+    Public Function SetOffline(Obj As UserType) As OnlineUser(Of UserType, IdType)
+        Return Me.Add(Obj, False)
+    End Function
+
+    Public Function SetOnline(Obj As UserType, Optional Activity As String = Nothing) As OnlineUser(Of UserType, IdType)
+        Return Me.Add(Obj, True, Activity)
+    End Function
+
+    Function UserById(Key As IdType) As UserType
+        If Me.ContainsKey(Key) Then
+            Return MyBase.Item(Key).Data
+        End If
+        Return Nothing
+    End Function
 
 End Class
 
 Public Class OnlineUser(Of UserType, IdType)
+
+    Friend list As OnlineList(Of UserType, IdType)
+
+    Private online As Boolean = True
 
     Friend Sub New(Data As UserType, list As OnlineList(Of UserType, IdType))
         Me.Data = Data
@@ -112,12 +123,11 @@ Public Class OnlineUser(Of UserType, IdType)
         Me.IsOnline = False
     End Sub
 
-
-    Friend list As OnlineList(Of UserType, IdType)
-
-    Property LastOnline As Date? = Nothing
-
-    Property LastUrl As String
+    ReadOnly Property ID As IdType
+        Get
+            Return list.idgetter(Me.Data)
+        End Get
+    End Property
 
     Property IsOnline As Boolean
         Get
@@ -140,15 +150,12 @@ Public Class OnlineUser(Of UserType, IdType)
         End Set
     End Property
 
-
-
-    Private online As Boolean = True
-
-    Property LastActivity As String = "Offline"
-
     <ScriptIgnore> ReadOnly Property Data As UserType
+    Property LastActivity As String = "Offline"
+    Property LastOnline As Date? = Nothing
 
     <ScriptIgnore> Property LastPage As Page
+    Property LastUrl As String
 
     ReadOnly Property Conversations(Optional WithUser As UserType = Nothing) As UserConversation(Of UserType, IdType)()
         Get
@@ -162,31 +169,34 @@ Public Class OnlineUser(Of UserType, IdType)
 
 End Class
 
-
-
-
 Public Class UserChat(Of UserType, IdType)
     Inherits List(Of UserConversation(Of UserType, IdType))
+
+    Friend WithEvents BackupTimer As New System.Timers.Timer
+    Friend BackupPath As FileInfo
+    Friend list As OnlineList(Of UserType, IdType)
+
+    Private idgetter As Func(Of UserType, IdType)
 
     Friend Sub New(IdProperty As Func(Of UserType, IdType), List As OnlineList(Of UserType, IdType))
         MyBase.New
         Me.idgetter = IdProperty
         Me.list = List
+        Me.BackupTimer = New Timers.Timer
     End Sub
 
-    Private idgetter As Func(Of UserType, IdType)
-    Friend list As OnlineList(Of UserType, IdType)
+    Property Encoding As Encoding = Encoding.UTF8
 
-    Function Send(FromUser As UserType, ToUser As UserType, Message As String) As UserConversation(Of UserType, IdType)
-        Dim i = New UserConversation(Of UserType, IdType)(Me) With {.Message = Message, .FromUser = list(FromUser), .ToUser = list(ToUser), .ViewedDate = Nothing}
-        Me.Add(i)
-        Return i
+    Function Backup() As Byte()
+        Dim str = Me.Select(Function(x) New UserConversationBackup(Of IdType) With {.FromId = list.idgetter(x.FromUser.Data), .ToId = list.idgetter(x.ToUser.Data), .Message = x.Message.InnCrypt, .SentDate = x.SentDate.Ticks, .ViewedDate = If(x.ViewedDate.HasValue, x.ViewedDate.Value.Ticks, -1)}).SerializeJSON
+        Return Encoding.GetBytes(str)
     End Function
 
-
+    Function Backup(Path As String) As FileInfo
+        Return Backup().WriteToFile(Path)
+    End Function
 
     Function GetConversation(User As UserType, Optional WithUser As UserType = Nothing) As IEnumerable(Of UserConversation(Of UserType, IdType))
-
         Dim lista As UserConversation(Of UserType, IdType)()
         If WithUser IsNot Nothing Then
             lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.ToUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.FromUser.Data)))).ToArray
@@ -197,29 +207,51 @@ Public Class UserChat(Of UserType, IdType)
         Return lista
     End Function
 
+    Sub Restore(Backup As Byte())
+        Dim backupstring = Encoding.GetString(Backup)
+        Dim obj = backupstring.ParseJSON(Of IEnumerable(Of UserConversationBackup(Of IdType)))
+        Dim conversas = obj.Where(Function(x) Me.list.ContainsKey(x.FromId) AndAlso Me.list.ContainsKey(x.ToId)).Select(Function(x) New UserConversation(Of UserType, IdType)(Me) With {.FromUser = Me.list(Me.list.UserById(x.FromId)), .ToUser = Me.list(Me.list.UserById(x.ToId)), .Message = x.Message.UnnCrypt, .SentDate = New Date(x.SentDate), .ViewedDate = If(x.ViewedDate = -1, Nothing, New Date(x.ViewedDate))})
+        Dim ids = (conversas.Select(Function(x) x.FromUser).Union(conversas.Select(Function(x) x.ToUser))).Select(Function(x) idgetter(x.Data)).Distinct
+        Dim datafinal = conversas.OrderByDescending(Function(x) x.SentDate).Select(Function(x) x.SentDate).First
+        Me.RemoveAll(Function(x) x.SentDate < datafinal AndAlso x.FromUser.ID.IsIn(ids) AndAlso x.ToUser.ID.IsIn(ids))
+        Me.AddRange(conversas)
+    End Sub
 
+    Sub Restore(File As FileInfo)
+        Restore(IO.File.ReadAllBytes(File.FullName))
+    End Sub
 
+    Function Send(FromUser As UserType, ToUser As UserType, Message As String) As UserConversation(Of UserType, IdType)
+        Dim i = New UserConversation(Of UserType, IdType)(Me) With {.Message = Message, .FromUser = list(FromUser), .ToUser = list(ToUser), .ViewedDate = Nothing}
+        Me.Add(i)
+        Return i
+    End Function
 
+    Sub SetPeriodicBackup(Path As String, Interval As Double)
+        BackupTimer.Interval = Interval
+        BackupPath = New FileInfo(Path)
+        AddHandler BackupTimer.Elapsed, AddressOf periodic
+        BackupTimer.Enabled = True
+    End Sub
+
+    Sub StopPeriodicBackup()
+        RemoveHandler BackupTimer.Elapsed, AddressOf periodic
+        BackupTimer.Enabled = False
+    End Sub
+
+    Private Sub periodic(sender As Object, e As EventArgs)
+        Backup(BackupPath.FullName)
+    End Sub
 
 End Class
 
-
-
 Public Class UserConversation(Of UserType, IdType)
+
+    Friend chatlist As UserChat(Of UserType, IdType)
 
     Friend Sub New(chatlist As UserChat(Of UserType, IdType))
         Me.chatlist = chatlist
     End Sub
-
-    Friend chatlist As UserChat(Of UserType, IdType)
-
-    Property FromUser As OnlineUser(Of UserType, IdType)
-    Property ToUser As OnlineUser(Of UserType, IdType)
-
-    Property Message As String
-    Property SentDate As DateTime = Now
-
-    Property ViewedDate As Date? = Nothing
 
     Property Viewed As Boolean
         Get
@@ -234,10 +266,18 @@ Public Class UserConversation(Of UserType, IdType)
         End Set
     End Property
 
-    Property Attachments As New List(Of Attachment)
+    Property FromUser As OnlineUser(Of UserType, IdType)
+    Property Message As String
+    Property SentDate As DateTime = Now
+    Property ToUser As OnlineUser(Of UserType, IdType)
+    Property ViewedDate As Date? = Nothing
 
-    Function IsFrom(User As UserType) As Boolean
-        Return chatlist.list.idgetter(User).Equals(chatlist.list.idgetter(FromUser.Data))
+    Function GetMyUser(Myself As UserType) As OnlineUser(Of UserType, IdType)
+        If IsFrom(Myself) Then
+            Return FromUser
+        Else
+            Return ToUser
+        End If
     End Function
 
     Function GetOtherUser(Myself As UserType) As OnlineUser(Of UserType, IdType)
@@ -248,14 +288,17 @@ Public Class UserConversation(Of UserType, IdType)
         End If
     End Function
 
-    Function GetMyUser(Myself As UserType) As OnlineUser(Of UserType, IdType)
-        If IsFrom(Myself) Then
-            Return FromUser
-        Else
-            Return ToUser
-        End If
+    Function IsFrom(User As UserType) As Boolean
+        Return chatlist.list.idgetter(User).Equals(chatlist.list.idgetter(FromUser.Data))
     End Function
 
 End Class
 
+Friend Class UserConversationBackup(Of IdType)
+    Property FromId As IdType
+    Property Message As String
+    Property SentDate As Long
+    Property ToId As IdType
+    Property ViewedDate As Long
 
+End Class
