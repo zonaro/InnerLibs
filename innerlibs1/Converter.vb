@@ -2,6 +2,7 @@
 Imports System.Runtime.CompilerServices
 Imports System.Web
 Imports InnerLibs.HtmlParser
+Imports InnerLibs.LINQ
 
 Public Module Converter
 
@@ -323,6 +324,16 @@ Public Module Converter
         Request.ToDictionary(Keys).SetPropertiesIn(Of T)(Obj)
     End Sub
 
+    ''' <summary>
+    ''' Transforma uma lista de pares em um Dictionary
+    ''' </summary>
+    ''' <typeparam name="TKey"></typeparam>
+    ''' <typeparam name="TValue"></typeparam>
+    ''' <param name="items"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToDictionary(Of TKey, TValue)(items As IEnumerable(Of KeyValuePair(Of TKey, TValue))) As Dictionary(Of TKey, TValue)
+        Return items.DistinctBy(Function(x) x.Key).ToDictionary(Of TKey, TValue)(Function(x) x.Key, Function(x) x.Value)
+    End Function
 
 
     ''' <summary>

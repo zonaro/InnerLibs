@@ -150,6 +150,7 @@
     <Compile Include="htmlparser\HtmlNode.vb" />
     <Compile Include="htmlparser\HtmlParser.vb" />
     <Compile Include="htmlparser\HtmlText.vb" />
+    <Compile Include="htmlparser\MentionParser.vb" />
     <Compile Include="InnerCrypt.vb" />
     <Compile Include="InnerForm.vb">
       <SubType>ASPXCodeBehind</SubType>

@@ -9,6 +9,19 @@ Namespace LINQ
     Public Module LINQExtensions
 
         ''' <summary>
+        ''' Realiza uma acão para cada item de uma lista.
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Items"></param>
+        ''' <param name="Action"></param>
+        <Extension()> Public Function ForEach(Of T)(Items As IEnumerable(Of T), Action As Action(Of T)) As IEnumerable(Of T)
+            For Each item In Items
+                Action(item)
+            Next
+            Return Items
+        End Function
+
+        ''' <summary>
         ''' Verifica se uma instancia de uma classe possui propriedades especificas com valores igual as de outra instancia da mesma classe
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
@@ -17,7 +30,7 @@ Namespace LINQ
         ''' <param name="Properties">Propriedades</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function HasSamePropertyValues(Of T)(Obj1 As T, Obj2 As T, ParamArray Properties As Func(Of T, Object)())
+        Public Function HasSamePropertyValues(Of T As Class)(Obj1 As T, Obj2 As T, ParamArray Properties As Func(Of T, Object)())
             Return Properties.All(Function(x) x(Obj1).Equals(x(Obj2)))
         End Function
 

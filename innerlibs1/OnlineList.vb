@@ -3,6 +3,7 @@ Imports System.Text
 Imports System.Web
 Imports System.Web.Script.Serialization
 Imports System.Web.UI
+Imports InnerLibs.LINQ
 
 Public Class OnlineList(Of UserType As Class, IdType As Structure)
     Inherits Dictionary(Of IdType, OnlineUser(Of UserType, IdType))
@@ -213,8 +214,8 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
         Dim conversas = obj.Where(Function(x) Me.list.ContainsKey(x.FromId) AndAlso Me.list.ContainsKey(x.ToId)).Select(Function(x) New UserConversation(Of UserType, IdType)(Me) With {.FromUser = Me.list(Me.list.UserById(x.FromId)), .ToUser = Me.list(Me.list.UserById(x.ToId)), .Message = x.Message.UnnCrypt, .SentDate = New Date(x.SentDate), .ViewedDate = If(x.ViewedDate = -1, Nothing, New Date(x.ViewedDate))})
         Dim ids = (conversas.Select(Function(x) x.FromUser).Union(conversas.Select(Function(x) x.ToUser))).Select(Function(x) idgetter(x.Data)).Distinct
         Dim datafinal = conversas.OrderByDescending(Function(x) x.SentDate).Select(Function(x) x.SentDate).First
-        Me.RemoveAll(Function(x) x.SentDate < datafinal AndAlso x.FromUser.ID.IsIn(ids) AndAlso x.ToUser.ID.IsIn(ids))
         Me.AddRange(conversas)
+        Me.RemoveAll(Function(x) x.IsNotIn(Me.DistinctBy(Function(y) y.ID)))
     End Sub
 
     Sub Restore(File As FileInfo)
