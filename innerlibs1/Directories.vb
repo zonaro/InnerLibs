@@ -73,7 +73,7 @@ Public Module Directories
     ''' <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
     ''' <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
     <Extension()>
-    Function ToFile(FileName As String, Optional Type As FileType = Nothing) As FileInfo
+    Function ToFile(FileName As String, Type As FileType) As FileInfo
         Type = If(Type, New FileType(".txt"))
         FileName = Path.GetFullPath(FileName.RemoveAny(Path.GetExtension(FileName))) & Type.Extensions(0)
         If File.Exists(FileName) = False Then
@@ -82,6 +82,18 @@ Public Module Directories
         Return New FileInfo(FileName)
     End Function
 
+    ''' <summary>
+    ''' Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
+    ''' </summary>
+    ''' <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
+    ''' <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
+    <Extension()>
+    Function ToFile(FileName As String) As FileInfo
+        If File.Exists(FileName) = False Then
+            File.Create(FileName).Dispose()
+        End If
+        Return New FileInfo(FileName)
+    End Function
 
     ''' <summary>
     ''' Cria um arquivo .ZIP de um diretório
