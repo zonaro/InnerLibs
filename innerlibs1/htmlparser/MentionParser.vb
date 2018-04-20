@@ -7,6 +7,15 @@ Namespace HtmlParser
     Public Class HtmlAnchor
         Inherits HtmlElement
 
+        Overrides Property Name As String
+            Get
+                Return "a"
+            End Get
+            Set(value As String)
+                MyBase.Name = "a"
+            End Set
+        End Property
+
         Sub New()
             MyBase.New("a")
         End Sub
@@ -23,11 +32,10 @@ Namespace HtmlParser
             End Get
             Set(value As String)
                 If value Is Nothing Then
-                    Me.veemoat
+                    Me.RemoveAttribute("target")
                 Else
-
+                    Me.Attribute("target") = value
                 End If
-                Me.Attribute("target") = value
             End Set
         End Property
 
@@ -44,6 +52,15 @@ Namespace HtmlParser
 
     Public Class HtmlImage
         Inherits HtmlElement
+
+        Overrides Property Name As String
+            Get
+                Return "img"
+            End Get
+            Set(value As String)
+                MyBase.Name = "img"
+            End Set
+        End Property
 
         Sub New()
             MyBase.New("img")
@@ -64,6 +81,9 @@ Namespace HtmlParser
                 Return Me.Attribute("src")
             End Get
             Set(value As String)
+                If value Is Nothing Then
+                    Me.RemoveAttribute("src")
+                End If
                 Me.Attribute("src") = value
             End Set
         End Property
@@ -74,6 +94,14 @@ Namespace HtmlParser
     Public Class HtmlInput
         Inherits HtmlElement
 
+        Overrides Property Name As String
+            Get
+                Return "input"
+            End Get
+            Set(value As String)
+                MyBase.Name = "input"
+            End Set
+        End Property
         Enum HtmlInputType
             text
             button
@@ -99,7 +127,7 @@ Namespace HtmlParser
             week
         End Enum
 
-        Sub New(Type As HtmlInputType, Optional Value As Object = Nothing)
+        Sub New(Type As HtmlInputType, Optional Value As String = Nothing)
             MyBase.New("input")
             mIsExplicitlyTerminated = True
             Me.Value = Value
@@ -123,11 +151,11 @@ Namespace HtmlParser
         ''' Value of Input
         ''' </summary>
         ''' <returns></returns>
-        Property Value As Object
+        Property Value As String
             Get
                 Return Me.Attribute("value")
             End Get
-            Set(value As Object)
+            Set(value As String)
                 Me.Attribute("value") = ("" & value)
             End Set
         End Property
@@ -141,7 +169,7 @@ Namespace HtmlParser
         ''' Returns the name of element (OL or UL)
         ''' </summary>
         ''' <returns></returns>
-        Shadows Property Name As String
+        Overrides Property Name As String
             Get
                 Return "select"
             End Get
@@ -282,8 +310,9 @@ Namespace HtmlParser
         ''' <param name="Method"></param>
 
         <Extension()>
-        Function ParseEmoji(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text, "(:)((?:[A-Za-z0-9-_]*))(:)", New MatchEvaluator(Function(x) Method(x.ToString)))
+        Function ParseEmoji(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
+            Method = If(Method, Function(x) Emoji.GetByName(x))
+            Return Regex.Replace(Text, "(:)((?:[A-Za-z0-9-_]*))(:)", New MatchEvaluator(Function(x) Method(x.ToString.GetBetween(":", ":"))))
         End Function
 
         ''' <summary>
@@ -295,7 +324,7 @@ Namespace HtmlParser
 
         <Extension()>
         Function ParseUsername(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text, "(@)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString)))
+            Return Regex.Replace(Text, "(@)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("@"))))
         End Function
 
         ''' <summary>
@@ -307,7 +336,7 @@ Namespace HtmlParser
 
         <Extension()>
         Function ParseHashtag(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text.ToString, "(#)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString)))
+            Return Regex.Replace(Text.ToString, "(#)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("#"))))
         End Function
 
         ''' <summary>
@@ -321,12 +350,12 @@ Namespace HtmlParser
         Function CreateAnchor(URL As String, Optional Target As String = "_blank") As HtmlAnchor
             If URL.IsURL Then
                 Try
-                    Return New HtmlAnchor(URL, BrowserClipper.GetTitle(URL))
+                    Return New HtmlAnchor(URL, BrowserClipper.GetTitle(URL)) With {.Target = Target}
                 Catch ex As Exception
-                    Return New HtmlAnchor(URL, URL)
+                    Return New HtmlAnchor(URL, URL) With {.Target = Target}
                 End Try
             End If
-            Return New HtmlAnchor("javascript:void(0);", URL) With {}
+            Return New HtmlAnchor("javascript:void(0);", URL) With {.Target = Target}
         End Function
 
     End Module
@@ -340,9 +369,66 @@ Namespace HtmlParser
 
         Public Shared Function GetByName(Name As String) As String
             GetByName = ""
-            GetList.TryGetValue(Name.ToLower.Replace("_"), GetByName)
+            GetList.TryGetValue(Name.ToLower.Replacenone("_"), GetByName)
             Return GetByName & ""
         End Function
+
+        Public Shared Function ReplaceFaces(ByRef Tag As HtmlElement, Optional Method As Func(Of String, String) = Nothing)
+            Tag.GetTextElements.ForEach(Sub(b As HtmlText) b.Text = Emoji.ReplaceFaces(b.Text))
+            Return Tag.InnerHTML
+        End Function
+
+        Public Shared Function ReplaceFaces(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
+            Dim dic As New Dictionary(Of String(), String)
+
+            Text = Text.ParseEmoji(Method)
+
+            dic.Add({"0=)", "0=)", "0:)", "0:)"}, ":innocent:")
+            dic.Add({"=)", ":)"}, ":smile:")
+            dic.Add({";)"}, ":wink:")
+            dic.Add({"¬¬"}, ":unamused:")
+            dic.Add({";P"}, ":stuckouttonguewinkingeye:")
+            dic.Add({"=D", ":D"}, ":smiley:")
+            dic.Add({"=B", ":B"}, ":grimacing:")
+            dic.Add({"XD", "xD"}, ":laughing:")
+            dic.Add({"=O", ":O"}, ":openmouth:")
+            dic.Add({"=(", ":("}, ":frowning:")
+            dic.Add({"'-'", "`-`", ":|", "=|"}, ":neutralface:")
+            dic.Add({"{<3}"}, ":heartbeat:")
+            dic.Add({"[<3]"}, ":giftheart:")
+            dic.Add({"<3<3"}, ":twohearts:")
+            dic.Add({"<3b"}, ":blueheart:")
+            dic.Add({"<3g"}, ":greenheart:")
+            dic.Add({"<3y"}, ":yellowheart:")
+            dic.Add({"<3p"}, ":purpleheart:")
+            dic.Add({"<3p"}, ":purpleheart:")
+            dic.Add({"</3"}, ":brokenheart:")
+            dic.Add({"<i3"}, ":cupid:")
+            dic.Add({"<3"}, ":heart:")
+            dic.Add({"=p", ":p"}, ":yum:")
+            dic.Add({"=P", ":P"}, ":stuckouttongue:")
+            dic.Add({"=*"}, ":kissingheart:")
+            dic.Add({":*"}, ":kissing:")
+            dic.Add({":@", "=@"}, ":angry:")
+            dic.Add({":'("}, ":cry:")
+            dic.Add({"='O"}, ":sob:")
+            dic.Add({"$$"}, ":heavydollarsign:")
+            dic.Add({"zzzz"}, ":sleeping:")
+            dic.Add({"zzz"}, ":zzz:")
+            dic.Add({"zz"}, ":sleepy:")
+            dic.Add({"*-*"}, ":dizzyface:")
+            dic.Add({"-_-"}, ":expressionless:")
+            dic.Add({"=/", ":/"}, ":confused:")
+            dic.Add({"B)"}, ":sunglasses:")
+            dic.Add({"kkk"}, ":laughing:")
+            dic.Add({"8O"}, ":astonished:")
+            dic.Add({":E"}, ":grin:")
+            dic.Add({"(y)"}, ":thumbsup:")
+            dic.Add({"(8)"}, ":musicalnote:")
+
+            Return Text.ReplaceFrom(dic, StringComparison.InvariantCulture).ParseEmoji(Method)
+        End Function
+
 
         Public Const Hash As String = "#"
 

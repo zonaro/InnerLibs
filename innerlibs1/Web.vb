@@ -725,7 +725,7 @@ Public Module Web
         If URL.IsURL Then
             Select Case True
                 Case URL.GetDomain.ContainsAny("youtube", "youtu")
-                    Return Regex.Match(URL.Replace("&feature=youtu.be"), "(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups(1).Value
+                    Return Regex.Match(URL.ReplaceNone("&feature=youtu.be"), "(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups(1).Value
                 Case URL.GetDomain.ContainsAny("vimeo")
                     Return Regex.Match(URL, "vimeo\.com/(?:.*#|.*/videos/)?([0-9]+)").Groups(1).Value
                 Case Else

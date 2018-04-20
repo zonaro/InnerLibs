@@ -16,6 +16,49 @@ Imports InnerLibs.HtmlParser
 Public Module Text
 
     ''' <summary>
+    ''' Realiza um replace em uma string usando um tipo especifico de comparacao
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="NewValue"></param>
+    ''' <param name="OldValue"></param>
+    ''' <param name="ComparisonType"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function SensitiveReplace(ByVal Text As String, ByVal NewValue As String, ByVal OldValue As String, Optional ComparisonType As StringComparison = StringComparison.InvariantCulture) As String
+        Return SensitiveReplace(Text, NewValue, {OldValue}, ComparisonType)
+    End Function
+
+
+    ''' <summary>
+    ''' Realiza um replace em uma string usando um tipo especifico de comparacao
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="NewValue"></param>
+    ''' <param name="OldValues"></param>
+    ''' <param name="ComparisonType"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function SensitiveReplace(ByVal Text As String, ByVal NewValue As String, ByVal OldValues As IEnumerable(Of String), Optional ComparisonType As StringComparison = StringComparison.InvariantCulture) As String
+        If Text.IsNotBlank Then
+            For Each oldvalue In If(OldValues, {""})
+                NewValue = If(NewValue, String.Empty)
+                If Not oldvalue.Equals(NewValue, ComparisonType) Then
+                    Dim foundAt As Integer
+                    Do
+                        foundAt = Text.IndexOf(oldvalue, 0, ComparisonType)
+                        If foundAt > -1 Then
+                            Text = Text.Remove(foundAt, oldvalue.Length).Insert(foundAt, NewValue)
+                        End If
+                    Loop While foundat <> -1
+                End If
+            Next
+        End If
+        Return Text
+    End Function
+
+
+
+    ''' <summary>
     ''' Transforma uma lista em uma lista HTML (OL ou UL)
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
@@ -1532,7 +1575,7 @@ Public Module Text
     Public Function RemoveNonPrintable(Text As String) As String
         For Each c As Char In Text.ToCharArray()
             If Char.IsControl(c) Then
-                Text = Text.Replace(c)
+                Text = Text.ReplaceNone(c)
             End If
         Next
         Return Text.Trim()
@@ -1683,7 +1726,7 @@ Public Module Text
     ''' <param name="OldValue">Valor a ser substituido por vazio</param>
     ''' <returns>String corrigida</returns>
     <Extension>
-    Public Function Replace(Text As String, OldValue As String) As String
+    Public Function ReplaceNone(Text As String, OldValue As String) As String
         Return Text.Replace(OldValue, "")
     End Function
 
@@ -1696,7 +1739,7 @@ Public Module Text
     ''' <param name="OldValues">Valores a serem substituido por um novo valor</param>
     ''' <returns></returns>
     <Extension>
-    Public Function Replace(ByVal Text As String, NewValue As String, ParamArray OldValues As String()) As String
+    Public Function ReplaceMany(ByVal Text As String, NewValue As String, ParamArray OldValues As String()) As String
         For Each word In OldValues
             Text = Text.Replace(word, NewValue)
         Next
@@ -1704,14 +1747,14 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Faz uma busca em todos os elementos do array e aplica um Replace comum
+    ''' Faz uma busca em todos os elementos do array e aplica um ReplaceFrom comum
     ''' </summary>
     ''' <param name="Strings">        Array de strings</param>
     ''' <param name="OldValue">       Valor antigo que será substituido</param>
     ''' <param name="NewValue">       Valor utilizado para substituir o valor antigo</param>
     ''' <param name="ReplaceIfEquals">
     ''' Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE realiza
-    ''' um Replace em quaisquer valores antigos encontrados dentro do valor do array
+    ''' um ReplaceFrom em quaisquer valores antigos encontrados dentro do valor do array
     ''' </param>
     ''' <returns></returns>
     <Extension()>
@@ -1730,14 +1773,14 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Faz uma busca em todos os elementos de uma lista e aplica um Replace comum
+    ''' Faz uma busca em todos os elementos de uma lista e aplica um ReplaceFrom comum
     ''' </summary>
     ''' <param name="Strings">        Array de strings</param>
     ''' <param name="OldValue">       Valor antigo que será substituido</param>
     ''' <param name="NewValue">       Valor utilizado para substituir o valor antigo</param>
     ''' <param name="ReplaceIfEquals">
     ''' Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE realiza
-    ''' um Replace em quaisquer valores antigos encontrados dentro do valor do array
+    ''' um ReplaceFrom em quaisquer valores antigos encontrados dentro do valor do array
     ''' </param>
     ''' <returns></returns>
     <Extension()>
@@ -1748,10 +1791,53 @@ Public Module Text
     ''' <summary>
     ''' aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>
     ''' </summary>
-    <Extension> Public Function Replace(ByVal Text As String, Dic As IDictionary(Of String, String)) As String
+    <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String, String)) As String
         If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
             For Each p In Dic
                 Text = Text.Replace(p.Key, p.Value)
+            Next
+        End If
+        Return Text
+    End Function
+
+    ''' <summary>
+    ''' Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>. 
+    ''' </summary>
+    <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String, String()), Optional Comparison As StringComparison = StringComparison.InvariantCultureIgnoreCase) As String
+        If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
+            For Each p In Dic
+                Text = Text.SensitiveReplace(p.Key, p.Value)
+            Next
+        End If
+        Return Text
+    End Function
+
+    ''' <summary>
+    ''' Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>. 
+    ''' </summary>
+    <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String(), String), Optional Comparison As StringComparison = StringComparison.InvariantCultureIgnoreCase) As String
+        If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
+            For Each p In Dic
+                Text = Text.SensitiveReplace(p.Value, p.Key.ToArray)
+            Next
+        End If
+        Return Text
+    End Function
+
+    ''' <summary>
+    ''' Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>. 
+    ''' </summary>
+    <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String(), String()), Optional Comparison As StringComparison = StringComparison.InvariantCultureIgnoreCase) As String
+        If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
+            For Each p In Dic
+                Dim froms = p.Key.ToList
+                Dim tos = p.Value.ToList
+                While froms.Count > tos.Count
+                    tos.Add(String.Empty)
+                End While
+                For i = 0 To froms.Count - 1
+                    Text = Text.SensitiveReplace(froms(i), tos(i))
+                Next
             Next
         End If
         Return Text
@@ -1765,7 +1851,7 @@ Public Module Text
     ''' <returns>Uma string com os valores removidos</returns>
     <Extension>
     Public Function RemoveAny(ByRef Text As String, ParamArray Values() As String) As String
-        Text = Text.Replace("", Values)
+        Text = Text.ReplaceMany("", Values)
         Return Text
     End Function
 
@@ -2322,7 +2408,7 @@ Public Module Text
     ''' <returns>String fixada</returns>
     <Extension>
     Public Function FixBreakLines(Text As String) As String
-        Return Text.Replace(vbCr & vbLf, "<br/>", "<br />", "<br>")
+        Return Text.ReplaceMany(vbCr & vbLf, "<br/>", "<br />", "<br>")
         Return Text.Replace(" ", "&nbsp;")
     End Function
 
@@ -2597,7 +2683,7 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlDecode(ByVal Text As String) As String
-        Return System.Web.HttpUtility.HtmlDecode("" & Text).Replace(vbCr & vbLf, "<br/>", "<br />", "<br>")
+        Return System.Web.HttpUtility.HtmlDecode("" & Text).ReplaceMany(vbCr & vbLf, "<br/>", "<br />", "<br>")
     End Function
 
     ''' <summary>

@@ -390,7 +390,7 @@ Public Module Images
     ''' <returns></returns>
     <Extension> Public Function ToSize(ByVal Text As String) As Size
         Dim s As New Size
-        Text = Text.Replace("", "px", " ", ";", ":").ToLower.Trim
+        Text = Text.Replacemany("", "px", " ", ";", ":").ToLower.Trim
         Try
             Select Case True
                 Case Text.IsNumber

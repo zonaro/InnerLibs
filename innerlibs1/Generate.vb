@@ -35,7 +35,7 @@ Public Module Generate
                     word += "qu"
                 Else
                     While consonant = "q"
-                        ' Replace an orphaned "q"
+                        ' ReplaceFrom an orphaned "q"
                         consonant = GetRandomLetter(rnd, consonants)
                     End While
 

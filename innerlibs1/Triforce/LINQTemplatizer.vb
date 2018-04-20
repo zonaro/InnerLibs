@@ -470,7 +470,7 @@ Namespace LINQ
                     If beforeafter.IsOdd Then beforeafter = (beforeafter + 1).Floor
                     Dim before = PageNumber
                     Dim after = PageNumber
-                    Dim pagestring = active.InnerHTML.Replace(dic)
+                    Dim pagestring = active.InnerHTML.ReplaceFrom(dic)
 
                     For c = 0 To beforeafter
                         before = before - 1
@@ -478,28 +478,28 @@ Namespace LINQ
 
                         If before > 1 And before < PageCount Then
                             dic("##PageNumber##") = before
-                            pagestring.Prepend(page.InnerHTML.Replace(dic))
+                            pagestring.Prepend(page.InnerHTML.ReplaceFrom(dic))
                         End If
 
                         If after > 1 And after < PageCount Then
                             dic("##PageNumber##") = after
-                            pagestring.Append(page.InnerHTML.Replace(dic))
+                            pagestring.Append(page.InnerHTML.ReplaceFrom(dic))
                         End If
                     Next
                     dic("##PageNumber##") = PageNumber - 1
-                    pagestring.PrependIf(back.InnerHTML.Replace(dic), back IsNot Nothing AndAlso PageNumber > 1)
+                    pagestring.PrependIf(back.InnerHTML.ReplaceFrom(dic), back IsNot Nothing AndAlso PageNumber > 1)
 
                     dic("##PageNumber##") = 1
-                    pagestring.PrependIf(first.InnerHTML.Replace(dic), PageNumber > 1)
+                    pagestring.PrependIf(first.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
 
                     dic("##PageNumber##") = PageNumber + 1
-                    pagestring.AppendIf(nex.InnerHTML.Replace(dic), nex IsNot Nothing AndAlso PageNumber < PageCount)
+                    pagestring.AppendIf(nex.InnerHTML.ReplaceFrom(dic), nex IsNot Nothing AndAlso PageNumber < PageCount)
 
                     dic("##PageNumber##") = PageCount
-                    pagestring.AppendIf(last.InnerHTML.Replace(dic), PageNumber < PageCount)
+                    pagestring.AppendIf(last.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
 
                     paginationdoc.Nodes.GetElementsByTagName("page").First.Parent.InnerHTML = pagestring
-                    Return paginationdoc.InnerHTML.Replace(dic)
+                    Return paginationdoc.InnerHTML.ReplaceFrom(dic)
                 End If
                 Return ""
             End Get
@@ -1101,7 +1101,7 @@ Namespace LINQ
             'e entao replace nos valores do template pai novamente pra cobrir os valores dos templates filhos que nao foram replaceados
             TravesseAndReplace(doc.Nodes, Item, False)
 
-            'Replace nos valores fixos e propriedades
+            'ReplaceFrom nos valores fixos e propriedades
             TravesseAndReplace(doc.Nodes, CustomValues, False)
             TravesseAndReplace(doc.Nodes, post_proccess, False)
 
@@ -1551,7 +1551,7 @@ Namespace LINQ
                             End If
                         End If
 
-                        'Replace no nome da tag
+                        'ReplaceFrom no nome da tag
                         cel.Name = ReplaceValues(item, cel.Name)
 
                         'replace dos atributos

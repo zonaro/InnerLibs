@@ -129,7 +129,7 @@ Public Module Directories
         OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
         For Each arq In FilesDirectory.SearchFiles(SearchOption, Searches)
             Using archive As ZipArchive = ZipFile.Open(OutputFile, If(File.Exists(OutputFile), ZipArchiveMode.Update, ZipArchiveMode.Create))
-                Dim arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).Replace("/", Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), CompressionLevel)
+                Dim arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).ReplaceMany("/", Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), CompressionLevel)
                 Debug.WriteLine("Adding: " & arqz.FullName)
             End Using
         Next

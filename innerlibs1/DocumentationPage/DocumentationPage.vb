@@ -35,7 +35,7 @@ Public MustInherit Class DocumentationPage
                 Case Else
                     fname = "OpenHtml"
             End Select
-            n.href = "javascript:" & fname & "('/" & x.Path.Replace(Request.PhysicalApplicationPath) & "');"
+            n.href = "javascript:" & fname & "('/" & x.Path.ReplaceNone(Request.PhysicalApplicationPath) & "');"
             n.href = n.href.Replace("\", "/").Replace(" ", "%20")
             While n.href.Contains("//")
                 n.href = n.href.Replace("//", "/")

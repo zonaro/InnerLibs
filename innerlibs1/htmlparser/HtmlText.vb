@@ -1,7 +1,7 @@
-
 Imports System.ComponentModel
 
 Namespace HtmlParser
+
     ''' <summary>
     ''' The HtmlText node represents a simple piece of text from the document.
     ''' </summary>
@@ -18,35 +18,6 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
-        ''' Fix the punctuation, white spaces and captalization of text
-        ''' </summary>
-        Public Overrides Sub FixText()
-            Me.Text = Me.Text.FixText
-        End Sub
-
-        ''' <summary>
-        ''' This is the text associated with this node.
-        ''' </summary>
-        <Category("General"), Description("The text located in this text node")>
-        Public Property Text() As String
-            Get
-                Return mText
-            End Get
-            Set
-                mText = Value
-            End Set
-        End Property
-
-        ''' <summary>
-        ''' This will return the text for outputting inside an HTML document.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Overrides Function ToString() As String
-            Return Text
-        End Function
-
-
-        ''' <summary>
         ''' This will return the text for outputting inside an HTML document.
         ''' </summary>
         ''' <returns></returns>
@@ -54,17 +25,6 @@ Namespace HtmlParser
         Public Overrides ReadOnly Property ElementRepresentation As String
             Get
                 Return ToString()
-            End Get
-        End Property
-
-
-        Friend ReadOnly Property NoEscaping() As Boolean
-            Get
-                If mParent Is Nothing Then
-                    Return False
-                Else
-                    Return DirectCast(mParent, HtmlElement).NoEscaping
-                End If
             End Get
         End Property
 
@@ -82,6 +42,19 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
+        ''' This is the text associated with this node.
+        ''' </summary>
+        <Category("General"), Description("The text located in this text node")>
+        Public Property Text() As String
+            Get
+                Return mText
+            End Get
+            Set
+                mText = Value
+            End Set
+        End Property
+
+        ''' <summary>
         ''' This will return the XHTML to represent this text object.
         ''' </summary>
         Public Overrides ReadOnly Property XHTML() As String
@@ -89,7 +62,49 @@ Namespace HtmlParser
                 Return System.Net.WebUtility.HtmlEncode(Text)
             End Get
         End Property
+
+        Friend ReadOnly Property NoEscaping() As Boolean
+            Get
+                If mParent Is Nothing Then
+                    Return False
+                Else
+                    Return mParent.NoEscaping
+                End If
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' ReplaceFrom Badwords in text.
+        ''' </summary>
+        ''' <param name="CensorChar"></param>
+        ''' <param name="BadWords">  </param>
+        ''' <returns></returns>
+        Public Overrides Function Censor(CensorChar As Char, ParamArray BadWords As String()) As Boolean
+            Dim cs = Me.Text.Censor(CensorChar, BadWords)
+            If cs <> Me.Text Then
+                Me.Text = cs
+                Return True
+            End If
+            Return False
+        End Function
+
+        ''' <summary>
+        ''' Fix the punctuation, white spaces and captalization of text
+        ''' </summary>
+        Public Overrides Sub FixText()
+            Me.Text = Me.Text.FixText
+        End Sub
+
+        ''' <summary>
+        ''' This will return the text for outputting inside an HTML document.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Overrides Function ToString() As String
+            Return Text
+        End Function
+
     End Class
+
 End Namespace
 
 '=======================================================

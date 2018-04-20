@@ -83,7 +83,7 @@ Namespace GoogleMaps
                 contador.Increment
             Next
             html = html.Replace("[marker_area]", mk)
-            html = html.Replace("innermap", "map_" & MAP_ID.Replace(" "))
+            html = html.Replace("innermap", "map_" & MAP_ID.ReplaceNone(" "))
 
             Return html
         End Function

@@ -211,11 +211,9 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
     Sub Restore(Backup As Byte())
         Dim backupstring = Encoding.GetString(Backup)
         Dim obj = backupstring.ParseJSON(Of IEnumerable(Of UserConversationBackup(Of IdType)))
-        Dim conversas = obj.Where(Function(x) Me.list.ContainsKey(x.FromId) AndAlso Me.list.ContainsKey(x.ToId)).Select(Function(x) New UserConversation(Of UserType, IdType)(Me) With {.FromUser = Me.list(Me.list.UserById(x.FromId)), .ToUser = Me.list(Me.list.UserById(x.ToId)), .Message = x.Message.UnnCrypt, .SentDate = New Date(x.SentDate), .ViewedDate = If(x.ViewedDate = -1, Nothing, New Date(x.ViewedDate))})
-        Dim ids = (conversas.Select(Function(x) x.FromUser).Union(conversas.Select(Function(x) x.ToUser))).Select(Function(x) idgetter(x.Data)).Distinct
-        Dim datafinal = conversas.OrderByDescending(Function(x) x.SentDate).Select(Function(x) x.SentDate).First
-        Me.AddRange(conversas)
-        Me.RemoveAll(Function(x) x.IsNotIn(Me.DistinctBy(Function(y) y.ID)))
+        Dim conversas = obj.Where(Function(x) Me.list.ContainsKey(x.FromId) AndAlso Me.list.ContainsKey(x.ToId)).Select(Function(x) New UserConversation(Of UserType, IdType)(Me) With {.FromUser = Me.list(Me.list.UserById(x.FromId)), .ToUser = Me.list(Me.list.UserById(x.ToId)), .Message = x.Message.UnnCrypt, .SentDate = New Date(x.SentDate), .ViewedDate = If(x.ViewedDate = -1, Nothing, New Date(x.ViewedDate))}).ToArray
+        Dim datafinal = conversas.Max(Function(x) x.SentDate)
+        Me.AddRange(conversas.Where(Function(x) x.ID.IsNotIn(Me.Select(Function(y) y.ID))).ToArray)
     End Sub
 
     Sub Restore(File As FileInfo)
