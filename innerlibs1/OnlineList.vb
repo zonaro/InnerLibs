@@ -124,6 +124,10 @@ Public Class OnlineUser(Of UserType As Class, IdType As Structure)
         Me.IsOnline = False
     End Sub
 
+    Function SendMessage(ToUser As UserType, Message As String) As UserConversation(Of UserType, IdType)
+        Return Me.list.Chat.Send(Me.Data, ToUser, Message)
+    End Function
+
     ReadOnly Property ID As IdType
         Get
             Return list.idgetter(Me.Data)
