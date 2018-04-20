@@ -90,7 +90,6 @@ Namespace HtmlParser
 
     End Class
 
-
     Public Class HtmlInput
         Inherits HtmlElement
 
@@ -102,6 +101,7 @@ Namespace HtmlParser
                 MyBase.Name = "input"
             End Set
         End Property
+
         Enum HtmlInputType
             text
             button
@@ -295,7 +295,6 @@ Namespace HtmlParser
 
     End Class
 
-
     Public Module MentionParser
 
         <Extension()>
@@ -369,12 +368,12 @@ Namespace HtmlParser
 
         Public Shared Function GetByName(Name As String) As String
             GetByName = ""
-            GetList.TryGetValue(Name.ToLower.Replacenone("_"), GetByName)
+            GetList.TryGetValue(Name.ToLower.ReplaceNone("_"), GetByName)
             Return GetByName & ""
         End Function
 
         Public Shared Function ReplaceFaces(ByRef Tag As HtmlElement, Optional Method As Func(Of String, String) = Nothing)
-            Tag.GetTextElements.ForEach(Sub(b As HtmlText) b.Text = Emoji.ReplaceFaces(b.Text))
+            Tag.GetTextElements.ForEach(Sub(b As HtmlText) b.Text = Emoji.ReplaceFaces(b.Text, Method))
             Return Tag.InnerHTML
         End Function
 
@@ -429,6 +428,7 @@ Namespace HtmlParser
             Return Text.ReplaceFrom(dic, StringComparison.InvariantCulture).ParseEmoji(Method)
         End Function
 
+#Region "Emojis"
 
         Public Const Hash As String = "#"
 
@@ -2121,6 +2121,9 @@ Namespace HtmlParser
         Public Const Neutral_Face As String = "😐"
 
         Public Const Clock1230 As String = "🕧"
+
+#End Region
+
     End Class
 
 End Namespace
