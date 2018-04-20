@@ -15,6 +15,23 @@ Imports InnerLibs.HtmlParser
 ''' <remarks></remarks>
 Public Module Text
 
+    Function SyllableCount(ByVal word As String) As Integer
+        word = word.ToLower().Trim()
+        Dim lastWasVowel As Boolean
+        Dim vowels = {"a"c, "e"c, "i"c, "o"c, "u"c, "y"c}.ToList()
+        Dim count As Integer
+        For Each c In word
+            If vowels.Contains(c) Then
+                If Not lastWasVowel Then count += 1
+                lastWasVowel = True
+            Else
+                lastWasVowel = False
+            End If
+        Next
+        If (word.EndsWith("e") OrElse (word.EndsWith("es") OrElse word.EndsWith("ed"))) AndAlso Not word.EndsWith("le") Then count -= 1
+        Return count
+    End Function
+
     ''' <summary>
     ''' Realiza um replace em uma string usando um tipo especifico de comparacao
     ''' </summary>
@@ -49,7 +66,7 @@ Public Module Text
                         If foundAt > -1 Then
                             Text = Text.Remove(foundAt, oldvalue.Length).Insert(foundAt, NewValue)
                         End If
-                    Loop While foundat <> -1
+                    Loop While foundAt <> -1
                 End If
             Next
         End If
@@ -1234,20 +1251,22 @@ Public Module Text
     <Extension()>
     Public Function Censor(ByRef Text As String, BadWords As List(Of String), Optional CensorshipCharacter As Char = "*") As Boolean
         Dim IsCensored As Boolean = False
-        Dim words As String() = Text.AdjustWhiteSpaces().Split(" ")
-        For Each bad In BadWords
-            Dim censored = ""
-            For index = 1 To bad.Length
-                censored.Append(CensorshipCharacter)
+        Dim words As String() = Text.Split(" ", StringSplitOptions.None)
+        If words.ContainsAny(BadWords) Then
+            For Each bad In BadWords
+                Dim censored = ""
+                For index = 1 To bad.Length
+                    censored.Append(CensorshipCharacter)
+                Next
+                For index = 0 To words.Length - 1
+                    If words(index).RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower = bad.RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower Then
+                        words(index) = words(index).ToLower().Replace(bad, censored)
+                        IsCensored = True
+                    End If
+                Next
             Next
-            For index = 0 To words.Length - 1
-                If words(index).RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower = bad.RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower Then
-                    words(index) = words(index).ToLower().Replace(bad, censored)
-                    IsCensored = True
-                End If
-            Next
-        Next
-        Text = words.Join(" ")
+            Text = words.Join(" ")
+        End If
         Return IsCensored
     End Function
 
