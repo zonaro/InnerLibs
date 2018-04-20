@@ -4,7 +4,7 @@ Imports System.Text.RegularExpressions
 
 Namespace HtmlParser
 
-    Public Class HtmlAnchor
+    Public Class HtmlAnchorElement
         Inherits HtmlElement
 
         Overrides Property Name As String
@@ -50,7 +50,7 @@ Namespace HtmlParser
 
     End Class
 
-    Public Class HtmlImage
+    Public Class HtmlImageElement
         Inherits HtmlElement
 
         Overrides Property Name As String
@@ -346,14 +346,14 @@ Namespace HtmlParser
         ''' <param name="URL">URL</param>
         ''' <returns></returns>
         <Extension()>
-        Function CreateAnchor(URL As String, Optional Target As String = "_blank") As HtmlAnchor
+        Function CreateAnchor(URL As String, Optional Target As String = "_blank") As HtmlAnchorElement
             Try
                 If URL.IsURL Then
-                    Return New HtmlAnchor(URL, BrowserClipper.GetTitle(URL)) With {.Target = Target}
+                    Return New HtmlAnchorElement(URL, BrowserClipper.GetTitle(URL)) With {.Target = Target}
                 End If
                 Throw New Exception
             Catch ex As Exception
-                Return New HtmlAnchor(URL, URL) With {.Target = Target}
+                Return New HtmlAnchorElement(URL, URL) With {.Target = Target}
             End Try
         End Function
 

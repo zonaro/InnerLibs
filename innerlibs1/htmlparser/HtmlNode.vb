@@ -250,6 +250,18 @@ Namespace HtmlParser
             Return TypeOf Me Is HtmlText
         End Function
 
+        Public Function IsAnchor() As Boolean
+            Return TypeOf Me Is HtmlAnchorElement
+        End Function
+
+        Public Function IsSelect() As Boolean
+            Return TypeOf Me Is HtmlSelectElement
+        End Function
+
+        Public Function IsImage() As Boolean
+            Return TypeOf Me Is HtmlImageElement
+        End Function
+
         ''' <summary>
         ''' Transfer the element to another element
         ''' </summary>
