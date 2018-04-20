@@ -189,7 +189,7 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
     Property Encoding As Encoding = Encoding.UTF8
 
     Function Backup() As Byte()
-        Dim str = Me.Select(Function(x) New UserConversationBackup(Of IdType) With {.FromId = list.idgetter(x.FromUser.Data), .ToId = list.idgetter(x.ToUser.Data), .Message = x.Message.InnCrypt, .SentDate = x.SentDate.Ticks, .ViewedDate = If(x.ViewedDate.HasValue, x.ViewedDate.Value.Ticks, -1)}).SerializeJSON
+        Dim str = Me.Select(Function(x) New UserConversationBackup(Of IdType) With {.FromId = x.FromUser.ID, .ToId = x.ToUser.ID, .Message = x.Message.InnCrypt, .SentDate = x.SentDate.Ticks, .ViewedDate = If(x.ViewedDate.HasValue, x.ViewedDate.Value.Ticks, -1)}).SerializeJSON
         Return Encoding.GetBytes(str)
     End Function
 
