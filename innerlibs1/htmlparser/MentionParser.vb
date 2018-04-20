@@ -347,14 +347,14 @@ Namespace HtmlParser
         ''' <returns></returns>
         <Extension()>
         Function CreateAnchor(URL As String, Optional Target As String = "_blank") As HtmlAnchor
-            If URL.IsURL Then
-                Try
+            Try
+                If URL.IsURL Then
                     Return New HtmlAnchor(URL, BrowserClipper.GetTitle(URL)) With {.Target = Target}
-                Catch ex As Exception
-                    Return New HtmlAnchor(URL, URL) With {.Target = Target}
-                End Try
-            End If
-            Return New HtmlAnchor("javascript:void(0);", URL) With {.Target = Target}
+                End If
+                Throw New Exception
+            Catch ex As Exception
+                Return New HtmlAnchor(URL, URL) With {.Target = Target}
+            End Try
         End Function
 
     End Module

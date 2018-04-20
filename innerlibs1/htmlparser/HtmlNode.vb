@@ -184,6 +184,12 @@ Namespace HtmlParser
             Return Nothing
         End Function
 
+
+        Public Function AppendTo(Element As HtmlElement) As HtmlNode
+            Element.Nodes.Add(Me, True)
+            Return Me
+        End Function
+
         Public MustOverride Sub FixText()
 
         ''' <summary>
@@ -399,10 +405,10 @@ Namespace HtmlParser
         ''' Add node (or nodes) to collection from string
         ''' </summary>
         ''' <param name="Html"></param>
-        Public Shadows Sub Add(Html As String)
+        Public Shadows Sub Add(Html As String, Optional Index As Integer = 0)
             Dim d As New HtmlParser
             For Each i In d.Parse(Html)
-                Me.Add(i, True)
+                Me.Insert(Index, i, True)
             Next
         End Sub
 
@@ -579,6 +585,10 @@ Namespace HtmlParser
             Else
                 Debug.Write("Element not found in List!")
             End If
+        End Sub
+        Public Sub ReplaceElement(Element As HtmlNode, Html As String)
+            Dim n = New InnerLibs.HtmlParser.HtmlParser().Parse(Html)
+            ReplaceElement(Element, n)
         End Sub
 
         ''' <summary>

@@ -525,7 +525,11 @@ Namespace HtmlParser
         End Sub
 
         Public Sub ParseHashTags(Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
-            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Text = x.Text.ParseHashtag(Method))
+            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText)
+                                                           x.Parent.Nodes.Add(x.Text.ParseHashtag(Method))
+                                                           x.Remove()
+                                                       End Sub
+                                                           )
         End Sub
 
         ''' <summary>
@@ -546,8 +550,7 @@ Namespace HtmlParser
             For Each x As HtmlText In l
                 Dim txt = x.Text.ParseURL(Function(y) y.CreateAnchor(Target).HTML)
                 If x.Text <> txt Then
-                    x.Parent.Nodes.Add(txt)
-                    x.Remove()
+                    x.Parent.Nodes.ReplaceElement(x, txt)
                 End If
             Next
         End Sub
@@ -558,7 +561,7 @@ Namespace HtmlParser
         ''' <param name="Method">        </param>
         ''' <param name="SearchChildren"></param>
         Public Sub ParseUsername(Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
-            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Text = x.Text.ParseUsername(Method))
+            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseUsername(Method)))
         End Sub
 
         ''' <summary>
