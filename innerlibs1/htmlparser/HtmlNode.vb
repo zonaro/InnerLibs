@@ -20,6 +20,41 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
+        ''' Returns the most top parent of this node
+        ''' </summary>
+        ''' <returns></returns>
+        Function TopParent() As HtmlElement
+            If Me.Parent IsNot Nothing Then
+                Dim el = Me.Parent
+                While el IsNot Nothing
+                    el = el.Parent
+                End While
+                Return el
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Returns the most closest parent matching the css selector
+        ''' </summary>
+        ''' <param name="CssSelector"></param>
+        ''' <returns></returns>
+        Function Closest(CssSelector As String) As HtmlElement
+            Dim father = TopParent()
+            If father IsNot Nothing AndAlso father IsNot Me Then
+                Dim l = father(CssSelector)
+                Dim elm = Me.Parent
+                While elm IsNot Nothing
+                    If elm.IsIn(l) Then
+                        Return elm
+                    End If
+                    elm = elm.Parent
+                End While
+            End If
+            Return Nothing
+        End Function
+
+        ''' <summary>
         ''' This will render the node as it would appear in HTML.
         ''' </summary>
         ''' <returns></returns>
@@ -358,14 +393,10 @@ Namespace HtmlParser
         ''' Add a Node to colleciton
         ''' </summary>
         ''' <param name="Node"></param>
-        Public Shadows Sub Add(Of T As HtmlNode)(Node As String)
+        Public Shadows Sub Add(Node As String)
             Dim n As HtmlNode
-            If GetType(T) = GetType(HtmlElement) Then
-                n = New HtmlElement("element")
-                CType(n, HtmlElement).Mutate(Node)
-            Else
-                n = New HtmlText(Node)
-            End If
+            n = New HtmlElement("element", Node)
+            n = CType(n, HtmlElement).FirstChild
             Me.Add(n)
         End Sub
 

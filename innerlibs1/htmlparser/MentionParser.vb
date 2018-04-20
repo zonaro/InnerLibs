@@ -17,6 +17,20 @@ Namespace HtmlParser
             Me.InnerHTML = Text
         End Sub
 
+        Property Target As String
+            Get
+                Return Me.Attribute("target")
+            End Get
+            Set(value As String)
+                If value Is Nothing Then
+                    Me.veemoat
+                Else
+
+                End If
+                Me.Attribute("target") = value
+            End Set
+        End Property
+
         Property Href As String
             Get
                 Return Me.Attribute("href")
@@ -56,11 +70,209 @@ Namespace HtmlParser
 
     End Class
 
+
+    Public Class HtmlInput
+        Inherits HtmlElement
+
+        Enum HtmlInputType
+            text
+            button
+            checkbox
+            color
+            [date]
+            datetime_local
+            email
+            file
+            hidden
+            image
+            month
+            number
+            password
+            radio
+            range
+            reset
+            search
+            submit
+            tel
+            time
+            url
+            week
+        End Enum
+
+        Sub New(Type As HtmlInputType, Optional Value As Object = Nothing)
+            MyBase.New("input")
+            mIsExplicitlyTerminated = True
+            Me.Value = Value
+            Me.Type = Type
+        End Sub
+
+        ''' <summary>
+        ''' Type of Input
+        ''' </summary>
+        ''' <returns></returns>
+        Property Type As HtmlInputType
+            Get
+                Return GetEnumValue(Of HtmlInputType)(Me.Attribute("type"))
+            End Get
+            Set(value As HtmlInputType)
+                Me.Attribute("type") = [Enum].GetName(GetType(HtmlInputType), value)
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' Value of Input
+        ''' </summary>
+        ''' <returns></returns>
+        Property Value As Object
+            Get
+                Return Me.Attribute("value")
+            End Get
+            Set(value As Object)
+                Me.Attribute("value") = ("" & value)
+            End Set
+        End Property
+
+    End Class
+
+    Public Class HtmlSelectElement
+        Inherits HtmlElement
+
+        ''' <summary>
+        ''' Returns the name of element (OL or UL)
+        ''' </summary>
+        ''' <returns></returns>
+        Shadows Property Name As String
+            Get
+                Return "select"
+            End Get
+            Set(value As String)
+                MyBase.Name = "select"
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' Create a select element
+        ''' </summary>
+        Sub New()
+            MyBase.New("select")
+        End Sub
+
+        ''' <summary>
+        ''' Add a option to this list
+        ''' </summary>
+        ''' <param name="Option"></param>
+        Public Sub AddOption([Option] As HtmlOptionElement)
+            Me.Nodes.Add([Option])
+        End Sub
+
+        Public ReadOnly Property Groups As IEnumerable(Of String)
+            Get
+                Return Me("option").Select(Function(a As HtmlOptionElement) a.Group).Distinct
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Redefines the node elements
+        ''' </summary>
+        Public Sub Organize()
+            If Groups.Count > 0 Then
+                Dim opts = Me("option")
+                For Each group In Groups
+                    Dim d As New HtmlElement("optgroup")
+                    d.IsExplicitlyTerminated = True
+                    d.Attribute("label") = group
+                    Me.Nodes.Add(d)
+                Next
+                For Each opt In Me("option")
+                    Dim o = CType(opt, HtmlOptionElement)
+                    If o.Group.IsNotBlank Then
+                        Dim destination = Me("optgroup[label=" & CType(opt, HtmlOptionElement).Group.Quote & "]").First
+                        o.Move(destination)
+                    Else
+                        o.Move(Me)
+                    End If
+                Next
+            End If
+        End Sub
+
+    End Class
+
+    Public Class HtmlOptionElement
+        Inherits HtmlElement
+
+        Sub New()
+            MyBase.New("option")
+        End Sub
+
+        Sub New(Text As String)
+            MyBase.New("option", Text.RemoveHTML)
+        End Sub
+
+        Sub New(Text As String, Value As String)
+            MyBase.New("option", Text.RemoveHTML)
+            Me.Attribute("value") = Value
+        End Sub
+
+        Property Group As String = ""
+
+    End Class
+
+    Public Class HtmlListElement
+        Inherits HtmlElement
+
+        Property IsOrdenedList As Boolean
+
+        ''' <summary>
+        ''' Returns the name of element (OL or UL)
+        ''' </summary>
+        ''' <returns></returns>
+        Shadows Property Name As String
+            Get
+                Return MyBase.Name
+            End Get
+            Set(value As String)
+                MyBase.Name = If(IsOrdenedList, "ol", "ul")
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' Create a List element (OL or UL)
+        ''' </summary>
+        ''' <param name="OrdenedList"></param>
+        Sub New(Optional OrdenedList As Boolean = False)
+            MyBase.New(If(OrdenedList, "ol", "ul"))
+            IsOrdenedList = OrdenedList
+        End Sub
+
+        ''' <summary>
+        ''' Add a LI to this list
+        ''' </summary>
+        ''' <param name="Text"></param>
+        Public Sub Add(Text As String)
+            Me.Nodes.Add(New HtmlElement("li", Text) With {.IsExplicitlyTerminated = True})
+        End Sub
+
+        ''' <summary>
+        ''' Add a LI to this list
+        ''' </summary>
+        ''' <param name="Content"></param>
+        Public Sub Add(ParamArray Content As HtmlNode())
+            Dim d = New HtmlElement("li")
+            d.IsExplicitlyTerminated = True
+            For Each i In Content
+                i.Move(d)
+            Next
+            Me.Nodes.Add(d)
+        End Sub
+
+    End Class
+
+
     Public Module MentionParser
 
         <Extension()>
-        Function ParseURL(ByVal Text As HtmlNode, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text.HTML, "(http(s)?://)?([\w-]+\.)+[\w-]+(/\S\w[\w- ;,./?%&=]\S*)?", New MatchEvaluator(Function(x) Method(x.ToString)))
+        Function ParseURL(ByVal Text As String, Method As Func(Of String, String)) As String
+            Return Regex.Replace(Text, "(http(s)?://)?([\w-]+\.)+[\w-]+(/\S\w[\w- ;,./?%&=]\S*)?", New MatchEvaluator(Function(x) Method(x.ToString)))
         End Function
 
         ''' <summary>
@@ -68,10 +280,10 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Text">  Texto</param>
         ''' <param name="Method"></param>
-        ''' <returns></returns>
+
         <Extension()>
-        Function ParseEmoji(ByVal Text As HtmlNode, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text.ToString, "(:)((?:[A-Za-z0-9-_]*))(:)", New MatchEvaluator(Function(x) Method(x.ToString)))
+        Function ParseEmoji(ByVal Text As String, Method As Func(Of String, String)) As String
+            Return Regex.Replace(Text, "(:)((?:[A-Za-z0-9-_]*))(:)", New MatchEvaluator(Function(x) Method(x.ToString)))
         End Function
 
         ''' <summary>
@@ -80,10 +292,10 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Text">  Texto</param>
         ''' <param name="Method"></param>
-        ''' <returns></returns>
+
         <Extension()>
-        Function ParseUsername(ByVal Text As HtmlNode, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text.ToString, "(@)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString)))
+        Function ParseUsername(ByVal Text As String, Method As Func(Of String, String)) As String
+            Return Regex.Replace(Text, "(@)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString)))
         End Function
 
         ''' <summary>
@@ -92,9 +304,9 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Text">  Texto</param>
         ''' <param name="Method"></param>
-        ''' <returns></returns>
+
         <Extension()>
-        Function ParseHashtag(ByVal Text As HtmlElement, Method As Func(Of String, String)) As String
+        Function ParseHashtag(ByVal Text As String, Method As Func(Of String, String)) As String
             Return Regex.Replace(Text.ToString, "(#)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString)))
         End Function
 
@@ -106,7 +318,7 @@ Namespace HtmlParser
         ''' <param name="URL">URL</param>
         ''' <returns></returns>
         <Extension()>
-        Function CreateAnchor(URL As String) As HtmlAnchor
+        Function CreateAnchor(URL As String, Optional Target As String = "_blank") As HtmlAnchor
             If URL.IsURL Then
                 Try
                     Return New HtmlAnchor(URL, BrowserClipper.GetTitle(URL))
@@ -114,7 +326,7 @@ Namespace HtmlParser
                     Return New HtmlAnchor(URL, URL)
                 End Try
             End If
-            Return New HtmlAnchor("javascript:void(0);", URL)
+            Return New HtmlAnchor("javascript:void(0);", URL) With {}
         End Function
 
     End Module
@@ -122,1705 +334,1707 @@ Namespace HtmlParser
     Public NotInheritable Class Emoji
 
         Public Shared Function GetList() As Dictionary(Of String, String)
-            Return GetType(Emoji).GetProperties.ToDictionary(Function(x) x.Name.RemoveAny("_").ToLower, Function(x) x.GetRawConstantValue.ToString)
+            Dim l = GetType(Emoji).GetFields
+            Return l.Select(Function(x) New KeyValuePair(Of String, String)(x.Name.RemoveAny("_").ToLower, x.GetValue(Nothing).ToString)).ToDictionary
         End Function
 
         Public Shared Function GetByName(Name As String) As String
-            GetList.TryGetValue(Name.ToLower, GetByName)
+            GetByName = ""
+            GetList.TryGetValue(Name.ToLower.Replace("_"), GetByName)
             Return GetByName & ""
         End Function
 
-        Public ReadOnly Property Hash As String = "#"
+        Public Const Hash As String = "#"
 
-        Public ReadOnly Property Zero As String = "0"
+        Public Const Zero As String = "0"
 
-        Public ReadOnly Property One As String = "1"
+        Public Const One As String = "1"
 
-        Public ReadOnly Property Two As String = "2"
+        Public Const Two As String = "2"
 
-        Public ReadOnly Property Three As String = "3"
+        Public Const Three As String = "3"
 
-        Public ReadOnly Property Four As String = "4"
+        Public Const Four As String = "4"
 
-        Public ReadOnly Property Five As String = "5"
+        Public Const Five As String = "5"
 
-        Public ReadOnly Property Six As String = "6"
+        Public Const Six As String = "6"
 
-        Public ReadOnly Property Seven As String = "7"
+        Public Const Seven As String = "7"
 
-        Public ReadOnly Property Eight As String = "8"
+        Public Const Eight As String = "8"
 
-        Public ReadOnly Property Nine As String = "9"
+        Public Const Nine As String = "9"
 
-        Public ReadOnly Property Copyright As String = "©"
+        Public Const Copyright As String = "©"
 
-        Public ReadOnly Property Registered As String = "®"
+        Public Const Registered As String = "®"
 
-        Public ReadOnly Property Bangbang As String = "‼"
+        Public Const Bangbang As String = "‼"
 
-        Public ReadOnly Property Interrobang As String = "⁉"
+        Public Const Interrobang As String = "⁉"
 
-        Public ReadOnly Property Tm As String = "™"
+        Public Const Tm As String = "™"
 
-        Public ReadOnly Property Information_Source As String = "ℹ"
+        Public Const Information_Source As String = "ℹ"
 
-        Public ReadOnly Property Left_Right_Arrow As String = "↔"
+        Public Const Left_Right_Arrow As String = "↔"
 
-        Public ReadOnly Property Arrow_Up_Down As String = "↕"
+        Public Const Arrow_Up_Down As String = "↕"
 
-        Public ReadOnly Property Arrow_Upper_Left As String = "↖"
+        Public Const Arrow_Upper_Left As String = "↖"
 
-        Public ReadOnly Property Arrow_Upper_Right As String = "↗"
+        Public Const Arrow_Upper_Right As String = "↗"
 
-        Public ReadOnly Property Arrow_Lower_Right As String = "↘"
+        Public Const Arrow_Lower_Right As String = "↘"
 
-        Public ReadOnly Property Arrow_Lower_Left As String = "↙"
+        Public Const Arrow_Lower_Left As String = "↙"
 
-        Public ReadOnly Property Leftwards_Arrow_With_Hook As String = "↩"
+        Public Const Leftwards_Arrow_With_Hook As String = "↩"
 
-        Public ReadOnly Property Arrow_Right_Hook As String = "↪"
+        Public Const Arrow_Right_Hook As String = "↪"
 
-        Public ReadOnly Property Watch As String = "⌚"
+        Public Const Watch As String = "⌚"
 
-        Public ReadOnly Property Hourglass As String = "⌛"
+        Public Const Hourglass As String = "⌛"
 
-        Public ReadOnly Property Fast_Forward As String = ChrW(9193)
+        Public Const Fast_Forward As String = ChrW(9193)
 
-        Public ReadOnly Property Rewind As String = ChrW(9194)
+        Public Const Rewind As String = ChrW(9194)
 
-        Public ReadOnly Property Arrow_Double_Up As String = ChrW(9195)
+        Public Const Arrow_Double_Up As String = ChrW(9195)
 
-        Public ReadOnly Property Arrow_Double_Down As String = ChrW(9196)
+        Public Const Arrow_Double_Down As String = ChrW(9196)
 
-        Public ReadOnly Property Alarm_Clock As String = ChrW(9200)
+        Public Const Alarm_Clock As String = ChrW(9200)
 
-        Public ReadOnly Property Hourglass_Flowing_Sand As String = ChrW(9203)
+        Public Const Hourglass_Flowing_Sand As String = ChrW(9203)
 
-        Public ReadOnly Property M As String = "Ⓜ"
+        Public Const M As String = "Ⓜ"
 
-        Public ReadOnly Property Black_Small_Square As String = "▪"
+        Public Const Black_Small_Square As String = "▪"
 
-        Public ReadOnly Property White_Small_Square As String = "▫"
+        Public Const White_Small_Square As String = "▫"
 
-        Public ReadOnly Property Arrow_Forward As String = "▶"
+        Public Const Arrow_Forward As String = "▶"
 
-        Public ReadOnly Property Arrow_Backward As String = "◀"
+        Public Const Arrow_Backward As String = "◀"
 
-        Public ReadOnly Property White_Medium_Square As String = "◻"
+        Public Const White_Medium_Square As String = "◻"
 
-        Public ReadOnly Property Black_Medium_Square As String = "◼"
+        Public Const Black_Medium_Square As String = "◼"
 
-        Public ReadOnly Property White_Medium_Small_Square As String = "◽"
+        Public Const White_Medium_Small_Square As String = "◽"
 
-        Public ReadOnly Property Black_Medium_Small_Square As String = "◾"
+        Public Const Black_Medium_Small_Square As String = "◾"
 
-        Public ReadOnly Property Sunny As String = "☀"
+        Public Const Sunny As String = "☀"
 
-        Public ReadOnly Property Cloud As String = "☁"
+        Public Const Cloud As String = "☁"
 
-        Public ReadOnly Property Telephone As String = "☎"
+        Public Const Telephone As String = "☎"
 
-        Public ReadOnly Property Ballot_Box_With_Check As String = "☑"
+        Public Const Ballot_Box_With_Check As String = "☑"
 
-        Public ReadOnly Property Umbrella As String = "☔"
+        Public Const Umbrella As String = "☔"
 
-        Public ReadOnly Property Coffee As String = "☕"
+        Public Const Coffee As String = "☕"
 
-        Public ReadOnly Property Point_Up As String = "☝"
+        Public Const Point_Up As String = "☝"
 
-        Public ReadOnly Property Relaxed As String = "☺"
+        Public Const Relaxed As String = "☺"
 
-        Public ReadOnly Property Aries As String = "♈"
+        Public Const Aries As String = "♈"
 
-        Public ReadOnly Property Taurus As String = "♉"
+        Public Const Taurus As String = "♉"
 
-        Public ReadOnly Property Gemini As String = "♊"
+        Public Const Gemini As String = "♊"
 
-        Public ReadOnly Property Cancer As String = "♋"
+        Public Const Cancer As String = "♋"
 
-        Public ReadOnly Property Leo As String = "♌"
+        Public Const Leo As String = "♌"
 
-        Public ReadOnly Property Virgo As String = "♍"
+        Public Const Virgo As String = "♍"
 
-        Public ReadOnly Property Libra As String = "♎"
+        Public Const Libra As String = "♎"
 
-        Public ReadOnly Property Scorpius As String = "♏"
+        Public Const Scorpius As String = "♏"
 
-        Public ReadOnly Property Sagittarius As String = "♐"
+        Public Const Sagittarius As String = "♐"
 
-        Public ReadOnly Property Capricorn As String = "♑"
+        Public Const Capricorn As String = "♑"
 
-        Public ReadOnly Property Aquarius As String = "♒"
+        Public Const Aquarius As String = "♒"
 
-        Public ReadOnly Property Pisces As String = "♓"
+        Public Const Pisces As String = "♓"
 
-        Public ReadOnly Property Spades As String = "♠"
+        Public Const Spades As String = "♠"
 
-        Public ReadOnly Property Clubs As String = "♣"
+        Public Const Clubs As String = "♣"
 
-        Public ReadOnly Property Hearts As String = "♥"
+        Public Const Hearts As String = "♥"
 
-        Public ReadOnly Property Diamonds As String = "♦"
+        Public Const Diamonds As String = "♦"
 
-        Public ReadOnly Property Hotsprings As String = "♨"
+        Public Const Hotsprings As String = "♨"
 
-        Public ReadOnly Property Recycle As String = "♻"
+        Public Const Recycle As String = "♻"
 
-        Public ReadOnly Property Wheelchair As String = "♿"
+        Public Const Wheelchair As String = "♿"
 
-        Public ReadOnly Property Anchor As String = "⚓"
+        Public Const Anchor As String = "⚓"
 
-        Public ReadOnly Property Warning As String = "⚠"
+        Public Const Warning As String = "⚠"
 
-        Public ReadOnly Property Zap As String = "⚡"
+        Public Const Zap As String = "⚡"
 
-        Public ReadOnly Property White_Circle As String = "⚪"
+        Public Const White_Circle As String = "⚪"
 
-        Public ReadOnly Property Black_Circle As String = "⚫"
+        Public Const Black_Circle As String = "⚫"
 
-        Public ReadOnly Property Soccer As String = ChrW(9917)
+        Public Const Soccer As String = ChrW(9917)
 
-        Public ReadOnly Property Baseball As String = ChrW(9918)
+        Public Const Baseball As String = ChrW(9918)
 
-        Public ReadOnly Property Snowman As String = ChrW(9924)
+        Public Const Snowman As String = ChrW(9924)
 
-        Public ReadOnly Property Partly_Sunny As String = ChrW(9925)
+        Public Const Partly_Sunny As String = ChrW(9925)
 
-        Public ReadOnly Property Ophiuchus As String = ChrW(9934)
+        Public Const Ophiuchus As String = ChrW(9934)
 
-        Public ReadOnly Property No_Entry As String = ChrW(9940)
+        Public Const No_Entry As String = ChrW(9940)
 
-        Public ReadOnly Property Church As String = ChrW(9962)
+        Public Const Church As String = ChrW(9962)
 
-        Public ReadOnly Property Fountain As String = ChrW(9970)
+        Public Const Fountain As String = ChrW(9970)
 
-        Public ReadOnly Property Golf As String = ChrW(9971)
+        Public Const Golf As String = ChrW(9971)
 
-        Public ReadOnly Property Sailboat As String = ChrW(9973)
+        Public Const Sailboat As String = ChrW(9973)
 
-        Public ReadOnly Property Tent As String = ChrW(9978)
+        Public Const Tent As String = ChrW(9978)
 
-        Public ReadOnly Property Fuelpump As String = ChrW(9981)
+        Public Const Fuelpump As String = ChrW(9981)
 
-        Public ReadOnly Property Scissors As String = "✂"
+        Public Const Scissors As String = "✂"
 
-        Public ReadOnly Property White_Check_Mark As String = ChrW(9989)
+        Public Const White_Check_Mark As String = ChrW(9989)
 
-        Public ReadOnly Property Airplane As String = "✈"
+        Public Const Airplane As String = "✈"
 
-        Public ReadOnly Property Envelope As String = "✉"
+        Public Const Envelope As String = "✉"
 
-        Public ReadOnly Property Fist As String = ChrW(9994)
+        Public Const Fist As String = ChrW(9994)
 
-        Public ReadOnly Property Raised_Hand As String = ChrW(9995)
+        Public Const Raised_Hand As String = ChrW(9995)
 
-        Public ReadOnly Property V As String = "✌"
+        Public Const V As String = "✌"
 
-        Public ReadOnly Property Pencil2 As String = "✏"
+        Public Const Pencil2 As String = "✏"
 
-        Public ReadOnly Property Black_Nib As String = "✒"
+        Public Const Black_Nib As String = "✒"
 
-        Public ReadOnly Property Heavy_Check_Mark As String = "✔"
+        Public Const Heavy_Check_Mark As String = "✔"
 
-        Public ReadOnly Property Heavy_Multiplication_X As String = "✖"
+        Public Const Heavy_Multiplication_X As String = "✖"
 
-        Public ReadOnly Property Sparkles As String = ChrW(10024)
+        Public Const Sparkles As String = ChrW(10024)
 
-        Public ReadOnly Property Eight_Spoked_Asterisk As String = "✳"
+        Public Const Eight_Spoked_Asterisk As String = "✳"
 
-        Public ReadOnly Property Eight_Pointed_Black_Star As String = "✴"
+        Public Const Eight_Pointed_Black_Star As String = "✴"
 
-        Public ReadOnly Property Snowflake As String = "❄"
+        Public Const Snowflake As String = "❄"
 
-        Public ReadOnly Property Sparkle As String = "❇"
+        Public Const Sparkle As String = "❇"
 
-        Public ReadOnly Property X As String = ChrW(10060)
+        Public Const X As String = ChrW(10060)
 
-        Public ReadOnly Property Negative_Squared_Cross_Mark As String = ChrW(10062)
+        Public Const Negative_Squared_Cross_Mark As String = ChrW(10062)
 
-        Public ReadOnly Property Question As String = ChrW(10067)
+        Public Const Question As String = ChrW(10067)
 
-        Public ReadOnly Property Grey_Question As String = ChrW(10068)
+        Public Const Grey_Question As String = ChrW(10068)
 
-        Public ReadOnly Property Grey_Exclamation As String = ChrW(10069)
+        Public Const Grey_Exclamation As String = ChrW(10069)
 
-        Public ReadOnly Property Exclamation As String = ChrW(10071)
+        Public Const Exclamation As String = ChrW(10071)
 
-        Public ReadOnly Property Heart As String = "❤"
+        Public Const Heart As String = "❤"
 
-        Public ReadOnly Property Heavy_Plus_Sign As String = ChrW(10133)
+        Public Const Heavy_Plus_Sign As String = ChrW(10133)
 
-        Public ReadOnly Property Heavy_Minus_Sign As String = ChrW(10134)
+        Public Const Heavy_Minus_Sign As String = ChrW(10134)
 
-        Public ReadOnly Property Heavy_Division_Sign As String = ChrW(10135)
+        Public Const Heavy_Division_Sign As String = ChrW(10135)
 
-        Public ReadOnly Property Arrow_Right As String = "➡"
+        Public Const Arrow_Right As String = "➡"
 
-        Public ReadOnly Property Curly_Loop As String = ChrW(10160)
+        Public Const Curly_Loop As String = ChrW(10160)
 
-        Public ReadOnly Property Arrow_Heading_Up As String = "⤴"
+        Public Const Arrow_Heading_Up As String = "⤴"
 
-        Public ReadOnly Property Arrow_Heading_Down As String = "⤵"
+        Public Const Arrow_Heading_Down As String = "⤵"
 
-        Public ReadOnly Property Arrow_Left As String = "⬅"
+        Public Const Arrow_Left As String = "⬅"
 
-        Public ReadOnly Property Arrow_Up As String = "⬆"
+        Public Const Arrow_Up As String = "⬆"
 
-        Public ReadOnly Property Arrow_Down As String = "⬇"
+        Public Const Arrow_Down As String = "⬇"
 
-        Public ReadOnly Property Black_Large_Square As String = "⬛"
+        Public Const Black_Large_Square As String = "⬛"
 
-        Public ReadOnly Property White_Large_Square As String = "⬜"
+        Public Const White_Large_Square As String = "⬜"
 
-        Public ReadOnly Property Star As String = "⭐"
+        Public Const Star As String = "⭐"
 
-        Public ReadOnly Property O As String = ChrW(11093)
+        Public Const O As String = ChrW(11093)
 
-        Public ReadOnly Property Wavy_Dash As String = "〰"
+        Public Const Wavy_Dash As String = "〰"
 
-        Public ReadOnly Property Part_Alternation_Mark As String = "〽"
+        Public Const Part_Alternation_Mark As String = "〽"
 
-        Public ReadOnly Property Congratulations As String = "㊗"
+        Public Const Congratulations As String = "㊗"
 
-        Public ReadOnly Property Secret As String = "㊙"
+        Public Const Secret As String = "㊙"
 
-        Public ReadOnly Property Mahjong As String = "🀄"
+        Public Const Mahjong As String = "🀄"
 
-        Public ReadOnly Property Black_Joker As String = "🃏"
+        Public Const Black_Joker As String = "🃏"
 
-        Public ReadOnly Property A As String = "🅰"
+        Public Const A As String = "🅰"
 
-        Public ReadOnly Property B As String = "🅱"
+        Public Const B As String = "🅱"
 
-        Public ReadOnly Property O2 As String = "🅾"
+        Public Const O2 As String = "🅾"
 
-        Public ReadOnly Property Parking As String = "🅿"
+        Public Const Parking As String = "🅿"
 
-        Public ReadOnly Property Ab As String = "🆎"
+        Public Const Ab As String = "🆎"
 
-        Public ReadOnly Property Cl As String = "🆑"
+        Public Const Cl As String = "🆑"
 
-        Public ReadOnly Property Cool As String = "🆒"
+        Public Const Cool As String = "🆒"
 
-        Public ReadOnly Property Free As String = "🆓"
+        Public Const Free As String = "🆓"
 
-        Public ReadOnly Property Id As String = "🆔"
+        Public Const Id As String = "🆔"
 
-        Public ReadOnly Property [New] As String = "🆕"
+        Public Const [New] As String = "🆕"
 
-        Public ReadOnly Property Ng As String = "🆖"
+        Public Const Ng As String = "🆖"
 
-        Public ReadOnly Property Ok As String = "🆗"
+        Public Const Ok As String = "🆗"
 
-        Public ReadOnly Property Sos As String = "🆘"
+        Public Const Sos As String = "🆘"
 
-        Public ReadOnly Property Up As String = "🆙"
+        Public Const Up As String = "🆙"
 
-        Public ReadOnly Property Vs As String = "🆚"
+        Public Const Vs As String = "🆚"
 
-        Public ReadOnly Property Cn As String = "🇨 🇳"
+        Public Const Cn As String = "🇨 🇳"
 
-        Public ReadOnly Property De As String = "🇩 🇪"
+        Public Const De As String = "🇩 🇪"
 
-        Public ReadOnly Property Es As String = "🇪 🇸"
+        Public Const Es As String = "🇪 🇸"
 
-        Public ReadOnly Property Fr As String = "🇫 🇷"
+        Public Const Fr As String = "🇫 🇷"
 
-        Public ReadOnly Property Uk As String = "🇬 🇧"
+        Public Const Uk As String = "🇬 🇧"
 
-        Public ReadOnly Property It As String = "🇮 🇹"
+        Public Const It As String = "🇮 🇹"
 
-        Public ReadOnly Property Jp As String = "🇯 🇵"
+        Public Const Jp As String = "🇯 🇵"
 
-        Public ReadOnly Property Kr As String = "🇰 🇷"
+        Public Const Kr As String = "🇰 🇷"
 
-        Public ReadOnly Property Ru As String = "🇷 🇺"
+        Public Const Ru As String = "🇷 🇺"
 
-        Public ReadOnly Property Us As String = "🇺 🇸"
+        Public Const Us As String = "🇺 🇸"
 
-        Public ReadOnly Property Koko As String = "🈁"
+        Public Const Koko As String = "🈁"
 
-        Public ReadOnly Property Sa As String = "🈂"
+        Public Const Sa As String = "🈂"
 
-        Public ReadOnly Property U7121 As String = "🈚"
+        Public Const U7121 As String = "🈚"
 
-        Public ReadOnly Property U6307 As String = "🈯"
+        Public Const U6307 As String = "🈯"
 
-        Public ReadOnly Property U7981 As String = "🈲"
+        Public Const U7981 As String = "🈲"
 
-        Public ReadOnly Property U7A7A As String = "🈳"
+        Public Const U7A7A As String = "🈳"
 
-        Public ReadOnly Property U5408 As String = "🈴"
+        Public Const U5408 As String = "🈴"
 
-        Public ReadOnly Property U6E80 As String = "🈵"
+        Public Const U6E80 As String = "🈵"
 
-        Public ReadOnly Property U6709 As String = "🈶"
+        Public Const U6709 As String = "🈶"
 
-        Public ReadOnly Property U6708 As String = "🈷"
+        Public Const U6708 As String = "🈷"
 
-        Public ReadOnly Property U7533 As String = "🈸"
+        Public Const U7533 As String = "🈸"
 
-        Public ReadOnly Property U5272 As String = "🈹"
+        Public Const U5272 As String = "🈹"
 
-        Public ReadOnly Property U55B6 As String = "🈺"
+        Public Const U55B6 As String = "🈺"
 
-        Public ReadOnly Property Ideograph_Advantage As String = "🉐"
+        Public Const Ideograph_Advantage As String = "🉐"
 
-        Public ReadOnly Property Accept As String = "🉑"
+        Public Const Accept As String = "🉑"
 
-        Public ReadOnly Property Cyclone As String = "🌀"
+        Public Const Cyclone As String = "🌀"
 
-        Public ReadOnly Property Foggy As String = "🌁"
+        Public Const Foggy As String = "🌁"
 
-        Public ReadOnly Property Closed_Umbrella As String = "🌂"
+        Public Const Closed_Umbrella As String = "🌂"
 
-        Public ReadOnly Property Night_With_Stars As String = "🌃"
+        Public Const Night_With_Stars As String = "🌃"
 
-        Public ReadOnly Property Sunrise_Over_Mountains As String = "🌄"
+        Public Const Sunrise_Over_Mountains As String = "🌄"
 
-        Public ReadOnly Property Sunrise As String = "🌅"
+        Public Const Sunrise As String = "🌅"
 
-        Public ReadOnly Property City_Sunset As String = "🌆"
+        Public Const City_Sunset As String = "🌆"
 
-        Public ReadOnly Property City_Sunrise As String = "🌇"
+        Public Const City_Sunrise As String = "🌇"
 
-        Public ReadOnly Property Rainbow As String = "🌈"
+        Public Const Rainbow As String = "🌈"
 
-        Public ReadOnly Property Bridge_At_Night As String = "🌉"
+        Public Const Bridge_At_Night As String = "🌉"
 
-        Public ReadOnly Property Ocean As String = "🌊"
+        Public Const Ocean As String = "🌊"
 
-        Public ReadOnly Property Volcano As String = "🌋"
+        Public Const Volcano As String = "🌋"
 
-        Public ReadOnly Property Milky_Way As String = "🌌"
+        Public Const Milky_Way As String = "🌌"
 
-        Public ReadOnly Property Earth_Asia As String = "🌏"
+        Public Const Earth_Asia As String = "🌏"
 
-        Public ReadOnly Property New_Moon As String = "🌑"
+        Public Const New_Moon As String = "🌑"
 
-        Public ReadOnly Property First_Quarter_Moon As String = "🌓"
+        Public Const First_Quarter_Moon As String = "🌓"
 
-        Public ReadOnly Property Waxing_Gibbous_Moon As String = "🌔"
+        Public Const Waxing_Gibbous_Moon As String = "🌔"
 
-        Public ReadOnly Property Full_Moon As String = "🌕"
+        Public Const Full_Moon As String = "🌕"
 
-        Public ReadOnly Property Crescent_Moon As String = "🌙"
+        Public Const Crescent_Moon As String = "🌙"
 
-        Public ReadOnly Property First_Quarter_Moon_With_Face As String = "🌛"
+        Public Const First_Quarter_Moon_With_Face As String = "🌛"
 
-        Public ReadOnly Property Star2 As String = "🌟"
+        Public Const Star2 As String = "🌟"
 
-        Public ReadOnly Property Stars As String = "🌠"
+        Public Const Stars As String = "🌠"
 
-        Public ReadOnly Property Chestnut As String = "🌰"
+        Public Const Chestnut As String = "🌰"
 
-        Public ReadOnly Property Seedling As String = "🌱"
+        Public Const Seedling As String = "🌱"
 
-        Public ReadOnly Property Palm_Tree As String = "🌴"
+        Public Const Palm_Tree As String = "🌴"
 
-        Public ReadOnly Property Cactus As String = "🌵"
+        Public Const Cactus As String = "🌵"
 
-        Public ReadOnly Property Tulip As String = "🌷"
+        Public Const Tulip As String = "🌷"
 
-        Public ReadOnly Property Cherry_Blossom As String = "🌸"
+        Public Const Cherry_Blossom As String = "🌸"
 
-        Public ReadOnly Property Rose As String = "🌹"
+        Public Const Rose As String = "🌹"
 
-        Public ReadOnly Property Hibiscus As String = "🌺"
+        Public Const Hibiscus As String = "🌺"
 
-        Public ReadOnly Property Sunflower As String = "🌻"
+        Public Const Sunflower As String = "🌻"
 
-        Public ReadOnly Property Blossom As String = "🌼"
+        Public Const Blossom As String = "🌼"
 
-        Public ReadOnly Property Corn As String = "🌽"
+        Public Const Corn As String = "🌽"
 
-        Public ReadOnly Property Ear_Of_Rice As String = "🌾"
+        Public Const Ear_Of_Rice As String = "🌾"
 
-        Public ReadOnly Property Herb As String = "🌿"
+        Public Const Herb As String = "🌿"
 
-        Public ReadOnly Property Four_Leaf_Clover As String = "🍀"
+        Public Const Four_Leaf_Clover As String = "🍀"
 
-        Public ReadOnly Property Maple_Leaf As String = "🍁"
+        Public Const Maple_Leaf As String = "🍁"
 
-        Public ReadOnly Property Fallen_Leaf As String = "🍂"
+        Public Const Fallen_Leaf As String = "🍂"
 
-        Public ReadOnly Property Leaves As String = "🍃"
+        Public Const Leaves As String = "🍃"
 
-        Public ReadOnly Property Mushroom As String = "🍄"
+        Public Const Mushroom As String = "🍄"
 
-        Public ReadOnly Property Tomato As String = "🍅"
+        Public Const Tomato As String = "🍅"
 
-        Public ReadOnly Property Eggplant As String = "🍆"
+        Public Const Eggplant As String = "🍆"
 
-        Public ReadOnly Property Grapes As String = "🍇"
+        Public Const Grapes As String = "🍇"
 
-        Public ReadOnly Property Melon As String = "🍈"
+        Public Const Melon As String = "🍈"
 
-        Public ReadOnly Property Watermelon As String = "🍉"
+        Public Const Watermelon As String = "🍉"
 
-        Public ReadOnly Property Tangerine As String = "🍊"
+        Public Const Tangerine As String = "🍊"
 
-        Public ReadOnly Property Banana As String = "🍌"
+        Public Const Banana As String = "🍌"
 
-        Public ReadOnly Property Pineapple As String = "🍍"
+        Public Const Pineapple As String = "🍍"
 
-        Public ReadOnly Property Apple As String = "🍎"
+        Public Const Apple As String = "🍎"
 
-        Public ReadOnly Property Green_Apple As String = "🍏"
+        Public Const Green_Apple As String = "🍏"
 
-        Public ReadOnly Property Peach As String = "🍑"
+        Public Const Peach As String = "🍑"
 
-        Public ReadOnly Property Cherries As String = "🍒"
+        Public Const Cherries As String = "🍒"
 
-        Public ReadOnly Property Strawberry As String = "🍓"
+        Public Const Strawberry As String = "🍓"
 
-        Public ReadOnly Property Hamburger As String = "🍔"
+        Public Const Hamburger As String = "🍔"
 
-        Public ReadOnly Property Pizza As String = "🍕"
+        Public Const Pizza As String = "🍕"
 
-        Public ReadOnly Property Meat_On_Bone As String = "🍖"
+        Public Const Meat_On_Bone As String = "🍖"
 
-        Public ReadOnly Property Poultry_Leg As String = "🍗"
+        Public Const Poultry_Leg As String = "🍗"
 
-        Public ReadOnly Property Rice_Cracker As String = "🍘"
+        Public Const Rice_Cracker As String = "🍘"
 
-        Public ReadOnly Property Rice_Ball As String = "🍙"
+        Public Const Rice_Ball As String = "🍙"
 
-        Public ReadOnly Property Rice As String = "🍚"
+        Public Const Rice As String = "🍚"
 
-        Public ReadOnly Property Curry As String = "🍛"
+        Public Const Curry As String = "🍛"
 
-        Public ReadOnly Property Ramen As String = "🍜"
+        Public Const Ramen As String = "🍜"
 
-        Public ReadOnly Property Spaghetti As String = "🍝"
+        Public Const Spaghetti As String = "🍝"
 
-        Public ReadOnly Property Bread As String = "🍞"
+        Public Const Bread As String = "🍞"
 
-        Public ReadOnly Property Fries As String = "🍟"
+        Public Const Fries As String = "🍟"
 
-        Public ReadOnly Property Sweet_Potato As String = "🍠"
+        Public Const Sweet_Potato As String = "🍠"
 
-        Public ReadOnly Property Dango As String = "🍡"
+        Public Const Dango As String = "🍡"
 
-        Public ReadOnly Property Oden As String = "🍢"
+        Public Const Oden As String = "🍢"
 
-        Public ReadOnly Property Sushi As String = "🍣"
+        Public Const Sushi As String = "🍣"
 
-        Public ReadOnly Property Fried_Shrimp As String = "🍤"
+        Public Const Fried_Shrimp As String = "🍤"
 
-        Public ReadOnly Property Fish_Cake As String = "🍥"
+        Public Const Fish_Cake As String = "🍥"
 
-        Public ReadOnly Property Icecream As String = "🍦"
+        Public Const Icecream As String = "🍦"
 
-        Public ReadOnly Property Shaved_Ice As String = "🍧"
+        Public Const Shaved_Ice As String = "🍧"
 
-        Public ReadOnly Property Ice_Cream As String = "🍨"
+        Public Const Ice_Cream As String = "🍨"
 
-        Public ReadOnly Property Doughnut As String = "🍩"
+        Public Const Doughnut As String = "🍩"
 
-        Public ReadOnly Property Cookie As String = "🍪"
+        Public Const Cookie As String = "🍪"
 
-        Public ReadOnly Property Chocolate_Bar As String = "🍫"
+        Public Const Chocolate_Bar As String = "🍫"
 
-        Public ReadOnly Property Candy As String = "🍬"
+        Public Const Candy As String = "🍬"
 
-        Public ReadOnly Property Lollipop As String = "🍭"
+        Public Const Lollipop As String = "🍭"
 
-        Public ReadOnly Property Custard As String = "🍮"
+        Public Const Custard As String = "🍮"
 
-        Public ReadOnly Property Honey_Pot As String = "🍯"
+        Public Const Honey_Pot As String = "🍯"
 
-        Public ReadOnly Property Cake As String = "🍰"
+        Public Const Cake As String = "🍰"
 
-        Public ReadOnly Property Bento As String = "🍱"
+        Public Const Bento As String = "🍱"
 
-        Public ReadOnly Property Stew As String = "🍲"
+        Public Const Stew As String = "🍲"
 
-        Public ReadOnly Property Egg As String = "🍳"
+        Public Const Egg As String = "🍳"
 
-        Public ReadOnly Property Fork_And_Knife As String = "🍴"
+        Public Const Fork_And_Knife As String = "🍴"
 
-        Public ReadOnly Property Tea As String = "🍵"
+        Public Const Tea As String = "🍵"
 
-        Public ReadOnly Property Sake As String = "🍶"
+        Public Const Sake As String = "🍶"
 
-        Public ReadOnly Property Wine_Glass As String = "🍷"
+        Public Const Wine_Glass As String = "🍷"
 
-        Public ReadOnly Property Cocktail As String = "🍸"
+        Public Const Cocktail As String = "🍸"
 
-        Public ReadOnly Property Tropical_Drink As String = "🍹"
+        Public Const Tropical_Drink As String = "🍹"
 
-        Public ReadOnly Property Beer As String = "🍺"
+        Public Const Beer As String = "🍺"
 
-        Public ReadOnly Property Beers As String = "🍻"
+        Public Const Beers As String = "🍻"
 
-        Public ReadOnly Property Ribbon As String = "🎀"
+        Public Const Ribbon As String = "🎀"
 
-        Public ReadOnly Property Gift As String = "🎁"
+        Public Const Gift As String = "🎁"
 
-        Public ReadOnly Property Birthday As String = "🎂"
+        Public Const Birthday As String = "🎂"
 
-        Public ReadOnly Property Jack_O_Lantern As String = "🎃"
+        Public Const Jack_O_Lantern As String = "🎃"
 
-        Public ReadOnly Property Christmas_Tree As String = "🎄"
+        Public Const Christmas_Tree As String = "🎄"
 
-        Public ReadOnly Property Santa As String = "🎅"
+        Public Const Santa As String = "🎅"
 
-        Public ReadOnly Property Fireworks As String = "🎆"
+        Public Const Fireworks As String = "🎆"
 
-        Public ReadOnly Property Sparkler As String = "🎇"
+        Public Const Sparkler As String = "🎇"
 
-        Public ReadOnly Property Balloon As String = "🎈"
+        Public Const Balloon As String = "🎈"
 
-        Public ReadOnly Property Tada As String = "🎉"
+        Public Const Tada As String = "🎉"
 
-        Public ReadOnly Property Confetti_Ball As String = "🎊"
+        Public Const Confetti_Ball As String = "🎊"
 
-        Public ReadOnly Property Tanabata_Tree As String = "🎋"
+        Public Const Tanabata_Tree As String = "🎋"
 
-        Public ReadOnly Property Crossed_Flags As String = "🎌"
+        Public Const Crossed_Flags As String = "🎌"
 
-        Public ReadOnly Property Bamboo As String = "🎍"
+        Public Const Bamboo As String = "🎍"
 
-        Public ReadOnly Property Dolls As String = "🎎"
+        Public Const Dolls As String = "🎎"
 
-        Public ReadOnly Property Flags As String = "🎏"
+        Public Const Flags As String = "🎏"
 
-        Public ReadOnly Property Wind_Chime As String = "🎐"
+        Public Const Wind_Chime As String = "🎐"
 
-        Public ReadOnly Property Rice_Scene As String = "🎑"
+        Public Const Rice_Scene As String = "🎑"
 
-        Public ReadOnly Property School_Satchel As String = "🎒"
+        Public Const School_Satchel As String = "🎒"
 
-        Public ReadOnly Property Mortar_Board As String = "🎓"
+        Public Const Mortar_Board As String = "🎓"
 
-        Public ReadOnly Property Carousel_Horse As String = "🎠"
+        Public Const Carousel_Horse As String = "🎠"
 
-        Public ReadOnly Property Ferris_Wheel As String = "🎡"
+        Public Const Ferris_Wheel As String = "🎡"
 
-        Public ReadOnly Property Roller_Coaster As String = "🎢"
+        Public Const Roller_Coaster As String = "🎢"
 
-        Public ReadOnly Property Fishing_Pole_And_Fish As String = "🎣"
+        Public Const Fishing_Pole_And_Fish As String = "🎣"
 
-        Public ReadOnly Property Microphone As String = "🎤"
+        Public Const Microphone As String = "🎤"
 
-        Public ReadOnly Property Movie_Camera As String = "🎥"
+        Public Const Movie_Camera As String = "🎥"
 
-        Public ReadOnly Property Cinema As String = "🎦"
+        Public Const Cinema As String = "🎦"
 
-        Public ReadOnly Property Headphones As String = "🎧"
+        Public Const Headphones As String = "🎧"
 
-        Public ReadOnly Property Art As String = "🎨"
+        Public Const Art As String = "🎨"
 
-        Public ReadOnly Property Tophat As String = "🎩"
+        Public Const Tophat As String = "🎩"
 
-        Public ReadOnly Property Circus_Tent As String = "🎪"
+        Public Const Circus_Tent As String = "🎪"
 
-        Public ReadOnly Property Ticket As String = "🎫"
+        Public Const Ticket As String = "🎫"
 
-        Public ReadOnly Property Clapper As String = "🎬"
+        Public Const Clapper As String = "🎬"
 
-        Public ReadOnly Property Performing_Arts As String = "🎭"
+        Public Const Performing_Arts As String = "🎭"
 
-        Public ReadOnly Property Video_Game As String = "🎮"
+        Public Const Video_Game As String = "🎮"
 
-        Public ReadOnly Property Dart As String = "🎯"
+        Public Const Dart As String = "🎯"
 
-        Public ReadOnly Property Slot_Machine As String = "🎰"
+        Public Const Slot_Machine As String = "🎰"
 
-        Public ReadOnly Property _8Ball As String = "🎱"
+        Public Const _8Ball As String = "🎱"
 
-        Public ReadOnly Property Game_Die As String = "🎲"
+        Public Const Game_Die As String = "🎲"
 
-        Public ReadOnly Property Bowling As String = "🎳"
+        Public Const Bowling As String = "🎳"
 
-        Public ReadOnly Property Flower_Playing_Cards As String = "🎴"
+        Public Const Flower_Playing_Cards As String = "🎴"
 
-        Public ReadOnly Property Musical_Note As String = "🎵"
+        Public Const Musical_Note As String = "🎵"
 
-        Public ReadOnly Property Notes As String = "🎶"
+        Public Const Notes As String = "🎶"
 
-        Public ReadOnly Property Saxophone As String = "🎷"
+        Public Const Saxophone As String = "🎷"
 
-        Public ReadOnly Property Guitar As String = "🎸"
+        Public Const Guitar As String = "🎸"
 
-        Public ReadOnly Property Musical_Keyboard As String = "🎹"
+        Public Const Musical_Keyboard As String = "🎹"
 
-        Public ReadOnly Property Trumpet As String = "🎺"
+        Public Const Trumpet As String = "🎺"
 
-        Public ReadOnly Property Violin As String = "🎻"
+        Public Const Violin As String = "🎻"
 
-        Public ReadOnly Property Musical_Score As String = "🎼"
+        Public Const Musical_Score As String = "🎼"
 
-        Public ReadOnly Property Running_Shirt_With_Sash As String = "🎽"
+        Public Const Running_Shirt_With_Sash As String = "🎽"
 
-        Public ReadOnly Property Tennis As String = "🎾"
+        Public Const Tennis As String = "🎾"
 
-        Public ReadOnly Property Ski As String = "🎿"
+        Public Const Ski As String = "🎿"
 
-        Public ReadOnly Property Basketball As String = "🏀"
+        Public Const Basketball As String = "🏀"
 
-        Public ReadOnly Property Checkered_Flag As String = "🏁"
+        Public Const Checkered_Flag As String = "🏁"
 
-        Public ReadOnly Property Snowboarder As String = "🏂"
+        Public Const Snowboarder As String = "🏂"
 
-        Public ReadOnly Property Runner As String = "🏃"
+        Public Const Runner As String = "🏃"
 
-        Public ReadOnly Property Surfer As String = "🏄"
+        Public Const Surfer As String = "🏄"
 
-        Public ReadOnly Property Trophy As String = "🏆"
+        Public Const Trophy As String = "🏆"
 
-        Public ReadOnly Property Football As String = "🏈"
+        Public Const Football As String = "🏈"
 
-        Public ReadOnly Property Swimmer As String = "🏊"
+        Public Const Swimmer As String = "🏊"
 
-        Public ReadOnly Property House As String = "🏠"
+        Public Const House As String = "🏠"
 
-        Public ReadOnly Property House_With_Garden As String = "🏡"
+        Public Const House_With_Garden As String = "🏡"
 
-        Public ReadOnly Property Office As String = "🏢"
+        Public Const Office As String = "🏢"
 
-        Public ReadOnly Property Post_Office As String = "🏣"
+        Public Const Post_Office As String = "🏣"
 
-        Public ReadOnly Property Hospital As String = "🏥"
+        Public Const Hospital As String = "🏥"
 
-        Public ReadOnly Property Bank As String = "🏦"
+        Public Const Bank As String = "🏦"
 
-        Public ReadOnly Property Atm As String = "🏧"
+        Public Const Atm As String = "🏧"
 
-        Public ReadOnly Property Hotel As String = "🏨"
+        Public Const Hotel As String = "🏨"
 
-        Public ReadOnly Property Love_Hotel As String = "🏩"
+        Public Const Love_Hotel As String = "🏩"
 
-        Public ReadOnly Property Convenience_Store As String = "🏪"
+        Public Const Convenience_Store As String = "🏪"
 
-        Public ReadOnly Property School As String = "🏫"
+        Public Const School As String = "🏫"
 
-        Public ReadOnly Property Department_Store As String = "🏬"
+        Public Const Department_Store As String = "🏬"
 
-        Public ReadOnly Property Factory As String = "🏭"
+        Public Const Factory As String = "🏭"
 
-        Public ReadOnly Property Izakaya_Lantern As String = "🏮"
+        Public Const Izakaya_Lantern As String = "🏮"
 
-        Public ReadOnly Property Japanese_Castle As String = "🏯"
+        Public Const Japanese_Castle As String = "🏯"
 
-        Public ReadOnly Property European_Castle As String = "🏰"
+        Public Const European_Castle As String = "🏰"
 
-        Public ReadOnly Property Snail As String = "🐌"
+        Public Const Snail As String = "🐌"
 
-        Public ReadOnly Property Snake As String = "🐍"
+        Public Const Snake As String = "🐍"
 
-        Public ReadOnly Property Racehorse As String = "🐎"
+        Public Const Racehorse As String = "🐎"
 
-        Public ReadOnly Property Sheep As String = "🐑"
+        Public Const Sheep As String = "🐑"
 
-        Public ReadOnly Property Monkey As String = "🐒"
+        Public Const Monkey As String = "🐒"
 
-        Public ReadOnly Property Chicken As String = "🐔"
+        Public Const Chicken As String = "🐔"
 
-        Public ReadOnly Property Boar As String = "🐗"
+        Public Const Boar As String = "🐗"
 
-        Public ReadOnly Property Elephant As String = "🐘"
+        Public Const Elephant As String = "🐘"
 
-        Public ReadOnly Property Octopus As String = "🐙"
+        Public Const Octopus As String = "🐙"
 
-        Public ReadOnly Property Shell As String = "🐚"
+        Public Const Shell As String = "🐚"
 
-        Public ReadOnly Property Bug As String = "🐛"
+        Public Const Bug As String = "🐛"
 
-        Public ReadOnly Property Ant As String = "🐜"
+        Public Const Ant As String = "🐜"
 
-        Public ReadOnly Property Bee As String = "🐝"
+        Public Const Bee As String = "🐝"
 
-        Public ReadOnly Property Beetle As String = "🐞"
+        Public Const Beetle As String = "🐞"
 
-        Public ReadOnly Property Fish As String = "🐟"
+        Public Const Fish As String = "🐟"
 
-        Public ReadOnly Property Tropical_Fish As String = "🐠"
+        Public Const Tropical_Fish As String = "🐠"
 
-        Public ReadOnly Property Blowfish As String = "🐡"
+        Public Const Blowfish As String = "🐡"
 
-        Public ReadOnly Property Turtle As String = "🐢"
+        Public Const Turtle As String = "🐢"
 
-        Public ReadOnly Property Hatching_Chick As String = "🐣"
+        Public Const Hatching_Chick As String = "🐣"
 
-        Public ReadOnly Property Baby_Chick As String = "🐤"
+        Public Const Baby_Chick As String = "🐤"
 
-        Public ReadOnly Property Hatched_Chick As String = "🐥"
+        Public Const Hatched_Chick As String = "🐥"
 
-        Public ReadOnly Property Bird As String = "🐦"
+        Public Const Bird As String = "🐦"
 
-        Public ReadOnly Property Penguin As String = "🐧"
+        Public Const Penguin As String = "🐧"
 
-        Public ReadOnly Property Koala As String = "🐨"
+        Public Const Koala As String = "🐨"
 
-        Public ReadOnly Property Poodle As String = "🐩"
+        Public Const Poodle As String = "🐩"
 
-        Public ReadOnly Property Camel As String = "🐫"
+        Public Const Camel As String = "🐫"
 
-        Public ReadOnly Property Dolphin As String = "🐬"
+        Public Const Dolphin As String = "🐬"
 
-        Public ReadOnly Property Mouse As String = "🐭"
+        Public Const Mouse As String = "🐭"
 
-        Public ReadOnly Property Cow As String = "🐮"
+        Public Const Cow As String = "🐮"
 
-        Public ReadOnly Property Tiger As String = "🐯"
+        Public Const Tiger As String = "🐯"
 
-        Public ReadOnly Property Rabbit As String = "🐰"
+        Public Const Rabbit As String = "🐰"
 
-        Public ReadOnly Property Cat As String = "🐱"
+        Public Const Cat As String = "🐱"
 
-        Public ReadOnly Property Dragon_Face As String = "🐲"
+        Public Const Dragon_Face As String = "🐲"
 
-        Public ReadOnly Property Whale As String = "🐳"
+        Public Const Whale As String = "🐳"
 
-        Public ReadOnly Property Horse As String = "🐴"
+        Public Const Horse As String = "🐴"
 
-        Public ReadOnly Property Monkey_Face As String = "🐵"
+        Public Const Monkey_Face As String = "🐵"
 
-        Public ReadOnly Property Dog As String = "🐶"
+        Public Const Dog As String = "🐶"
 
-        Public ReadOnly Property Pig As String = "🐷"
+        Public Const Pig As String = "🐷"
 
-        Public ReadOnly Property Frog As String = "🐸"
+        Public Const Frog As String = "🐸"
 
-        Public ReadOnly Property Hamster As String = "🐹"
+        Public Const Hamster As String = "🐹"
 
-        Public ReadOnly Property Wolf As String = "🐺"
+        Public Const Wolf As String = "🐺"
 
-        Public ReadOnly Property Bear As String = "🐻"
+        Public Const Bear As String = "🐻"
 
-        Public ReadOnly Property Panda_Face As String = "🐼"
+        Public Const Panda_Face As String = "🐼"
 
-        Public ReadOnly Property Pig_Nose As String = "🐽"
+        Public Const Pig_Nose As String = "🐽"
 
-        Public ReadOnly Property Feet As String = "🐾"
+        Public Const Feet As String = "🐾"
 
-        Public ReadOnly Property Eyes As String = "👀"
+        Public Const Eyes As String = "👀"
 
-        Public ReadOnly Property Ear As String = "👂"
+        Public Const Ear As String = "👂"
 
-        Public ReadOnly Property Nose As String = "👃"
+        Public Const Nose As String = "👃"
 
-        Public ReadOnly Property Lips As String = "👄"
+        Public Const Lips As String = "👄"
 
-        Public ReadOnly Property Tongue As String = "👅"
+        Public Const Tongue As String = "👅"
 
-        Public ReadOnly Property Point_Up_2 As String = "👆"
+        Public Const Point_Up_2 As String = "👆"
 
-        Public ReadOnly Property Point_Down As String = "👇"
+        Public Const Point_Down As String = "👇"
 
-        Public ReadOnly Property Point_Left As String = "👈"
+        Public Const Point_Left As String = "👈"
 
-        Public ReadOnly Property Point_Right As String = "👉"
+        Public Const Point_Right As String = "👉"
 
-        Public ReadOnly Property Punch As String = "👊"
+        Public Const Punch As String = "👊"
 
-        Public ReadOnly Property Wave As String = "👋"
+        Public Const Wave As String = "👋"
 
-        Public ReadOnly Property Ok_Hand As String = "👌"
+        Public Const Ok_Hand As String = "👌"
 
-        Public ReadOnly Property Thumbsup As String = "👍"
+        Public Const Thumbsup As String = "👍"
 
-        Public ReadOnly Property Thumbsdown As String = "👎"
+        Public Const Thumbsdown As String = "👎"
 
-        Public ReadOnly Property Clap As String = "👏"
+        Public Const Clap As String = "👏"
 
-        Public ReadOnly Property Open_Hands As String = "👐"
+        Public Const Open_Hands As String = "👐"
 
-        Public ReadOnly Property Crown As String = "👑"
+        Public Const Crown As String = "👑"
 
-        Public ReadOnly Property Womans_Hat As String = "👒"
+        Public Const Womans_Hat As String = "👒"
 
-        Public ReadOnly Property Eyeglasses As String = "👓"
+        Public Const Eyeglasses As String = "👓"
 
-        Public ReadOnly Property Necktie As String = "👔"
+        Public Const Necktie As String = "👔"
 
-        Public ReadOnly Property Shirt As String = "👕"
+        Public Const Shirt As String = "👕"
 
-        Public ReadOnly Property Jeans As String = "👖"
+        Public Const Jeans As String = "👖"
 
-        Public ReadOnly Property Dress As String = "👗"
+        Public Const Dress As String = "👗"
 
-        Public ReadOnly Property Kimono As String = "👘"
+        Public Const Kimono As String = "👘"
 
-        Public ReadOnly Property Bikini As String = "👙"
+        Public Const Bikini As String = "👙"
 
-        Public ReadOnly Property Womans_Clothes As String = "👚"
+        Public Const Womans_Clothes As String = "👚"
 
-        Public ReadOnly Property Purse As String = "👛"
+        Public Const Purse As String = "👛"
 
-        Public ReadOnly Property Handbag As String = "👜"
+        Public Const Handbag As String = "👜"
 
-        Public ReadOnly Property Pouch As String = "👝"
+        Public Const Pouch As String = "👝"
 
-        Public ReadOnly Property Mans_Shoe As String = "👞"
+        Public Const Mans_Shoe As String = "👞"
 
-        Public ReadOnly Property Athletic_Shoe As String = "👟"
+        Public Const Athletic_Shoe As String = "👟"
 
-        Public ReadOnly Property High_Heel As String = "👠"
+        Public Const High_Heel As String = "👠"
 
-        Public ReadOnly Property Sandal As String = "👡"
+        Public Const Sandal As String = "👡"
 
-        Public ReadOnly Property Boot As String = "👢"
+        Public Const Boot As String = "👢"
 
-        Public ReadOnly Property Footprints As String = "👣"
+        Public Const Footprints As String = "👣"
 
-        Public ReadOnly Property Bust_In_Silhouette As String = "👤"
+        Public Const Bust_In_Silhouette As String = "👤"
 
-        Public ReadOnly Property Boy As String = "👦"
+        Public Const Boy As String = "👦"
 
-        Public ReadOnly Property Girl As String = "👧"
+        Public Const Girl As String = "👧"
 
-        Public ReadOnly Property Man As String = "👨"
+        Public Const Man As String = "👨"
 
-        Public ReadOnly Property Woman As String = "👩"
+        Public Const Woman As String = "👩"
 
-        Public ReadOnly Property Family As String = "👪"
+        Public Const Family As String = "👪"
 
-        Public ReadOnly Property Couple As String = "👫"
+        Public Const Couple As String = "👫"
 
-        Public ReadOnly Property Cop As String = "👮"
+        Public Const Cop As String = "👮"
 
-        Public ReadOnly Property Dancers As String = "👯"
+        Public Const Dancers As String = "👯"
 
-        Public ReadOnly Property Bride_With_Veil As String = "👰"
+        Public Const Bride_With_Veil As String = "👰"
 
-        Public ReadOnly Property Person_With_Blond_Hair As String = "👱"
+        Public Const Person_With_Blond_Hair As String = "👱"
 
-        Public ReadOnly Property Man_With_Gua_Pi_Mao As String = "👲"
+        Public Const Man_With_Gua_Pi_Mao As String = "👲"
 
-        Public ReadOnly Property Man_With_Turban As String = "👳"
+        Public Const Man_With_Turban As String = "👳"
 
-        Public ReadOnly Property Older_Man As String = "👴"
+        Public Const Older_Man As String = "👴"
 
-        Public ReadOnly Property Older_Woman As String = "👵"
+        Public Const Older_Woman As String = "👵"
 
-        Public ReadOnly Property Baby As String = "👶"
+        Public Const Baby As String = "👶"
 
-        Public ReadOnly Property Construction_Worker As String = "👷"
+        Public Const Construction_Worker As String = "👷"
 
-        Public ReadOnly Property Princess As String = "👸"
+        Public Const Princess As String = "👸"
 
-        Public ReadOnly Property Japanese_Ogre As String = "👹"
+        Public Const Japanese_Ogre As String = "👹"
 
-        Public ReadOnly Property Japanese_Goblin As String = "👺"
+        Public Const Japanese_Goblin As String = "👺"
 
-        Public ReadOnly Property Ghost As String = "👻"
+        Public Const Ghost As String = "👻"
 
-        Public ReadOnly Property Angel As String = "👼"
+        Public Const Angel As String = "👼"
 
-        Public ReadOnly Property Alien As String = "👽"
+        Public Const Alien As String = "👽"
 
-        Public ReadOnly Property Space_Invader As String = "👾"
+        Public Const Space_Invader As String = "👾"
 
-        Public ReadOnly Property Robot_Face As String = "🤖"
+        Public Const Robot_Face As String = "🤖"
 
-        Public ReadOnly Property Imp As String = "👿"
+        Public Const Imp As String = "👿"
 
-        Public ReadOnly Property Skull As String = "💀"
+        Public Const Skull As String = "💀"
 
-        Public ReadOnly Property Information_Desk_Person As String = "💁"
+        Public Const Information_Desk_Person As String = "💁"
 
-        Public ReadOnly Property Guardsman As String = "💂"
+        Public Const Guardsman As String = "💂"
 
-        Public ReadOnly Property Dancer As String = "💃"
+        Public Const Dancer As String = "💃"
 
-        Public ReadOnly Property Lipstick As String = "💄"
+        Public Const Lipstick As String = "💄"
 
-        Public ReadOnly Property Nail_Care As String = "💅"
+        Public Const Nail_Care As String = "💅"
 
-        Public ReadOnly Property Massage As String = "💆"
+        Public Const Massage As String = "💆"
 
-        Public ReadOnly Property Haircut As String = "💇"
+        Public Const Haircut As String = "💇"
 
-        Public ReadOnly Property Barber As String = "💈"
+        Public Const Barber As String = "💈"
 
-        Public ReadOnly Property Syringe As String = "💉"
+        Public Const Syringe As String = "💉"
 
-        Public ReadOnly Property Pill As String = "💊"
+        Public Const Pill As String = "💊"
 
-        Public ReadOnly Property Kiss As String = "💋"
+        Public Const Kiss As String = "💋"
 
-        Public ReadOnly Property Love_Letter As String = "💌"
+        Public Const Love_Letter As String = "💌"
 
-        Public ReadOnly Property Ring As String = "💍"
+        Public Const Ring As String = "💍"
 
-        Public ReadOnly Property Gem As String = "💎"
+        Public Const Gem As String = "💎"
 
-        Public ReadOnly Property Couplekiss As String = "💏"
+        Public Const Couplekiss As String = "💏"
 
-        Public ReadOnly Property Bouquet As String = "💐"
+        Public Const Bouquet As String = "💐"
 
-        Public ReadOnly Property Couple_With_Heart As String = "💑"
+        Public Const Couple_With_Heart As String = "💑"
 
-        Public ReadOnly Property Wedding As String = "💒"
+        Public Const Wedding As String = "💒"
 
-        Public ReadOnly Property Heartbeat As String = "💓"
+        Public Const Heartbeat As String = "💓"
 
-        Public ReadOnly Property Broken_Heart As String = "💔"
+        Public Const Broken_Heart As String = "💔"
 
-        Public ReadOnly Property Two_Hearts As String = "💕"
+        Public Const Two_Hearts As String = "💕"
 
-        Public ReadOnly Property Sparkling_Heart As String = "💖"
+        Public Const Sparkling_Heart As String = "💖"
 
-        Public ReadOnly Property Heartpulse As String = "💗"
+        Public Const Heartpulse As String = "💗"
 
-        Public ReadOnly Property Cupid As String = "💘"
+        Public Const Cupid As String = "💘"
 
-        Public ReadOnly Property Blue_Heart As String = "💙"
+        Public Const Blue_Heart As String = "💙"
 
-        Public ReadOnly Property Green_Heart As String = "💚"
+        Public Const Green_Heart As String = "💚"
 
-        Public ReadOnly Property Yellow_Heart As String = "💛"
+        Public Const Yellow_Heart As String = "💛"
 
-        Public ReadOnly Property Purple_Heart As String = "💜"
+        Public Const Purple_Heart As String = "💜"
 
-        Public ReadOnly Property Gift_Heart As String = "💝"
+        Public Const Gift_Heart As String = "💝"
 
-        Public ReadOnly Property Revolving_Hearts As String = "💞"
+        Public Const Revolving_Hearts As String = "💞"
 
-        Public ReadOnly Property Heart_Decoration As String = "💟"
+        Public Const Heart_Decoration As String = "💟"
 
-        Public ReadOnly Property Diamond_Shape_With_A_Dot_Inside As String = "💠"
+        Public Const Diamond_Shape_With_A_Dot_Inside As String = "💠"
 
-        Public ReadOnly Property Bulb As String = "💡"
+        Public Const Bulb As String = "💡"
 
-        Public ReadOnly Property Anger As String = "💢"
+        Public Const Anger As String = "💢"
 
-        Public ReadOnly Property Bomb As String = "💣"
+        Public Const Bomb As String = "💣"
 
-        Public ReadOnly Property Zzz As String = "💤"
+        Public Const Zzz As String = "💤"
 
-        Public ReadOnly Property Boom As String = "💥"
+        Public Const Boom As String = "💥"
 
-        Public ReadOnly Property Sweat_Drops As String = "💦"
+        Public Const Sweat_Drops As String = "💦"
 
-        Public ReadOnly Property Droplet As String = "💧"
+        Public Const Droplet As String = "💧"
 
-        Public ReadOnly Property Dash As String = "💨"
+        Public Const Dash As String = "💨"
 
-        Public ReadOnly Property Poop As String = "💩"
+        Public Const Poop As String = "💩"
 
-        Public ReadOnly Property Muscle As String = "💪"
+        Public Const Muscle As String = "💪"
 
-        Public ReadOnly Property Dizzy As String = "💫"
+        Public Const Dizzy As String = "💫"
 
-        Public ReadOnly Property Speech_Balloon As String = "💬"
+        Public Const Speech_Balloon As String = "💬"
 
-        Public ReadOnly Property White_Flower As String = "💮"
+        Public Const White_Flower As String = "💮"
 
-        Public ReadOnly Property _100 As String = "💯"
+        Public Const _100 As String = "💯"
 
-        Public ReadOnly Property Moneybag As String = "💰"
+        Public Const Moneybag As String = "💰"
 
-        Public ReadOnly Property Currency_Exchange As String = "💱"
+        Public Const Currency_Exchange As String = "💱"
 
-        Public ReadOnly Property Heavy_Dollar_Sign As String = "💲"
+        Public Const Heavy_Dollar_Sign As String = "💲"
 
-        Public ReadOnly Property Credit_Card As String = "💳"
+        Public Const Credit_Card As String = "💳"
 
-        Public ReadOnly Property Yen As String = "💴"
+        Public Const Yen As String = "💴"
 
-        Public ReadOnly Property Dollar As String = "💵"
+        Public Const Dollar As String = "💵"
 
-        Public ReadOnly Property Money_With_Wings As String = "💸"
+        Public Const Money_With_Wings As String = "💸"
 
-        Public ReadOnly Property Chart As String = "💹"
+        Public Const Chart As String = "💹"
 
-        Public ReadOnly Property Seat As String = "💺"
+        Public Const Seat As String = "💺"
 
-        Public ReadOnly Property Computer As String = "💻"
+        Public Const Computer As String = "💻"
 
-        Public ReadOnly Property Briefcase As String = "💼"
+        Public Const Briefcase As String = "💼"
 
-        Public ReadOnly Property Minidisc As String = "💽"
+        Public Const Minidisc As String = "💽"
 
-        Public ReadOnly Property Floppy_Disk As String = "💾"
+        Public Const Floppy_Disk As String = "💾"
 
-        Public ReadOnly Property Cd As String = "💿"
+        Public Const Cd As String = "💿"
 
-        Public ReadOnly Property Dvd As String = "📀"
+        Public Const Dvd As String = "📀"
 
-        Public ReadOnly Property File_Folder As String = "📁"
+        Public Const File_Folder As String = "📁"
 
-        Public ReadOnly Property Open_File_Folder As String = "📂"
+        Public Const Open_File_Folder As String = "📂"
 
-        Public ReadOnly Property Page_With_Curl As String = "📃"
+        Public Const Page_With_Curl As String = "📃"
 
-        Public ReadOnly Property Page_Facing_Up As String = "📄"
+        Public Const Page_Facing_Up As String = "📄"
 
-        Public ReadOnly Property [Date] As String = "📅"
+        Public Const [Date] As String = "📅"
 
-        Public ReadOnly Property Calendar As String = "📆"
+        Public Const Calendar As String = "📆"
 
-        Public ReadOnly Property Card_Index As String = "📇"
+        Public Const Card_Index As String = "📇"
 
-        Public ReadOnly Property Chart_With_Upwards_Trend As String = "📈"
+        Public Const Chart_With_Upwards_Trend As String = "📈"
 
-        Public ReadOnly Property Chart_With_Downwards_Trend As String = "📉"
+        Public Const Chart_With_Downwards_Trend As String = "📉"
 
-        Public ReadOnly Property Bar_Chart As String = "📊"
+        Public Const Bar_Chart As String = "📊"
 
-        Public ReadOnly Property Clipboard As String = "📋"
+        Public Const Clipboard As String = "📋"
 
-        Public ReadOnly Property Pushpin As String = "📌"
+        Public Const Pushpin As String = "📌"
 
-        Public ReadOnly Property Round_Pushpin As String = "📍"
+        Public Const Round_Pushpin As String = "📍"
 
-        Public ReadOnly Property Paperclip As String = "📎"
+        Public Const Paperclip As String = "📎"
 
-        Public ReadOnly Property Straight_Ruler As String = "📏"
+        Public Const Straight_Ruler As String = "📏"
 
-        Public ReadOnly Property Triangular_Ruler As String = "📐"
+        Public Const Triangular_Ruler As String = "📐"
 
-        Public ReadOnly Property Bookmark_Tabs As String = "📑"
+        Public Const Bookmark_Tabs As String = "📑"
 
-        Public ReadOnly Property Ledger As String = "📒"
+        Public Const Ledger As String = "📒"
 
-        Public ReadOnly Property Notebook As String = "📓"
+        Public Const Notebook As String = "📓"
 
-        Public ReadOnly Property Notebook_With_Decorative_Cover As String = "📔"
+        Public Const Notebook_With_Decorative_Cover As String = "📔"
 
-        Public ReadOnly Property Closed_Book As String = "📕"
+        Public Const Closed_Book As String = "📕"
 
-        Public ReadOnly Property Book As String = "📖"
+        Public Const Book As String = "📖"
 
-        Public ReadOnly Property Green_Book As String = "📗"
+        Public Const Green_Book As String = "📗"
 
-        Public ReadOnly Property Blue_Book As String = "📘"
+        Public Const Blue_Book As String = "📘"
 
-        Public ReadOnly Property Orange_Book As String = "📙"
+        Public Const Orange_Book As String = "📙"
 
-        Public ReadOnly Property Books As String = "📚"
+        Public Const Books As String = "📚"
 
-        Public ReadOnly Property Name_Badge As String = "📛"
+        Public Const Name_Badge As String = "📛"
 
-        Public ReadOnly Property Scroll As String = "📜"
+        Public Const Scroll As String = "📜"
 
-        Public ReadOnly Property Pencil As String = "📝"
+        Public Const Pencil As String = "📝"
 
-        Public ReadOnly Property Telephone_Receiver As String = "📞"
+        Public Const Telephone_Receiver As String = "📞"
 
-        Public ReadOnly Property Pager As String = "📟"
+        Public Const Pager As String = "📟"
 
-        Public ReadOnly Property Fax As String = "📠"
+        Public Const Fax As String = "📠"
 
-        Public ReadOnly Property Satellite As String = "📡"
+        Public Const Satellite As String = "📡"
 
-        Public ReadOnly Property Loudspeaker As String = "📢"
+        Public Const Loudspeaker As String = "📢"
 
-        Public ReadOnly Property Mega As String = "📣"
+        Public Const Mega As String = "📣"
 
-        Public ReadOnly Property Outbox_Tray As String = "📤"
+        Public Const Outbox_Tray As String = "📤"
 
-        Public ReadOnly Property Inbox_Tray As String = "📥"
+        Public Const Inbox_Tray As String = "📥"
 
-        Public ReadOnly Property Package As String = "📦"
+        Public Const Package As String = "📦"
 
-        Public ReadOnly Property E_Mail As String = "📧"
+        Public Const E_Mail As String = "📧"
 
-        Public ReadOnly Property Incoming_Envelope As String = "📨"
+        Public Const Incoming_Envelope As String = "📨"
 
-        Public ReadOnly Property Envelope_With_Arrow As String = "📩"
+        Public Const Envelope_With_Arrow As String = "📩"
 
-        Public ReadOnly Property Mailbox_Closed As String = "📪"
+        Public Const Mailbox_Closed As String = "📪"
 
-        Public ReadOnly Property Mailbox As String = "📫"
+        Public Const Mailbox As String = "📫"
 
-        Public ReadOnly Property Postbox As String = "📮"
+        Public Const Postbox As String = "📮"
 
-        Public ReadOnly Property Newspaper As String = "📰"
+        Public Const Newspaper As String = "📰"
 
-        Public ReadOnly Property Iphone As String = "📱"
+        Public Const Iphone As String = "📱"
 
-        Public ReadOnly Property Calling As String = "📲"
+        Public Const Calling As String = "📲"
 
-        Public ReadOnly Property Vibration_Mode As String = "📳"
+        Public Const Vibration_Mode As String = "📳"
 
-        Public ReadOnly Property Mobile_Phone_Off As String = "📴"
+        Public Const Mobile_Phone_Off As String = "📴"
 
-        Public ReadOnly Property Signal_Strength As String = "📶"
+        Public Const Signal_Strength As String = "📶"
 
-        Public ReadOnly Property Camera As String = "📷"
+        Public Const Camera As String = "📷"
 
-        Public ReadOnly Property Video_Camera As String = "📹"
+        Public Const Video_Camera As String = "📹"
 
-        Public ReadOnly Property Tv As String = "📺"
+        Public Const Tv As String = "📺"
 
-        Public ReadOnly Property Radio As String = "📻"
+        Public Const Radio As String = "📻"
 
-        Public ReadOnly Property Vhs As String = "📼"
+        Public Const Vhs As String = "📼"
 
-        Public ReadOnly Property Arrows_Clockwise As String = "🔃"
+        Public Const Arrows_Clockwise As String = "🔃"
 
-        Public ReadOnly Property Loud_Sound As String = "🔊"
+        Public Const Loud_Sound As String = "🔊"
 
-        Public ReadOnly Property Battery As String = "🔋"
+        Public Const Battery As String = "🔋"
 
-        Public ReadOnly Property Electric_Plug As String = "🔌"
+        Public Const Electric_Plug As String = "🔌"
 
-        Public ReadOnly Property Mag As String = "🔍"
+        Public Const Mag As String = "🔍"
 
-        Public ReadOnly Property Mag_Right As String = "🔎"
+        Public Const Mag_Right As String = "🔎"
 
-        Public ReadOnly Property Lock_With_Ink_Pen As String = "🔏"
+        Public Const Lock_With_Ink_Pen As String = "🔏"
 
-        Public ReadOnly Property Closed_Lock_With_Key As String = "🔐"
+        Public Const Closed_Lock_With_Key As String = "🔐"
 
-        Public ReadOnly Property Key As String = "🔑"
+        Public Const Key As String = "🔑"
 
-        Public ReadOnly Property Lock As String = "🔒"
+        Public Const Lock As String = "🔒"
 
-        Public ReadOnly Property Unlock As String = "🔓"
+        Public Const Unlock As String = "🔓"
 
-        Public ReadOnly Property Bell As String = "🔔"
+        Public Const Bell As String = "🔔"
 
-        Public ReadOnly Property Bookmark As String = "🔖"
+        Public Const Bookmark As String = "🔖"
 
-        Public ReadOnly Property Link As String = "🔗"
+        Public Const Link As String = "🔗"
 
-        Public ReadOnly Property Radio_Button As String = "🔘"
+        Public Const Radio_Button As String = "🔘"
 
-        Public ReadOnly Property Back As String = "🔙"
+        Public Const Back As String = "🔙"
 
-        Public ReadOnly Property [End] As String = "🔚"
+        Public Const [End] As String = "🔚"
 
-        Public ReadOnly Property [On] As String = "🔛"
+        Public Const [On] As String = "🔛"
 
-        Public ReadOnly Property Soon As String = "🔜"
+        Public Const Soon As String = "🔜"
 
-        Public ReadOnly Property Top As String = "🔝"
+        Public Const Top As String = "🔝"
 
-        Public ReadOnly Property Underage As String = "🔞"
+        Public Const Underage As String = "🔞"
 
-        Public ReadOnly Property Keycap_Ten As String = "🔟"
+        Public Const Keycap_Ten As String = "🔟"
 
-        Public ReadOnly Property Capital_Abcd As String = "🔠"
+        Public Const Capital_Abcd As String = "🔠"
 
-        Public ReadOnly Property Abcd As String = "🔡"
+        Public Const Abcd As String = "🔡"
 
-        Public ReadOnly Property _1234 As String = "🔢"
+        Public Const _1234 As String = "🔢"
 
-        Public ReadOnly Property Symbols As String = "🔣"
+        Public Const Symbols As String = "🔣"
 
-        Public ReadOnly Property Abc As String = "🔤"
+        Public Const Abc As String = "🔤"
 
-        Public ReadOnly Property Fire As String = "🔥"
+        Public Const Fire As String = "🔥"
 
-        Public ReadOnly Property Flashlight As String = "🔦"
+        Public Const Flashlight As String = "🔦"
 
-        Public ReadOnly Property Wrench As String = "🔧"
+        Public Const Wrench As String = "🔧"
 
-        Public ReadOnly Property Hammer As String = "🔨"
+        Public Const Hammer As String = "🔨"
 
-        Public ReadOnly Property Nut_And_Bolt As String = "🔩"
+        Public Const Nut_And_Bolt As String = "🔩"
 
-        Public ReadOnly Property Knife As String = "🔪"
+        Public Const Knife As String = "🔪"
 
-        Public ReadOnly Property Gun As String = "🔫"
+        Public Const Gun As String = "🔫"
 
-        Public ReadOnly Property Crystal_Ball As String = "🔮"
+        Public Const Crystal_Ball As String = "🔮"
 
-        Public ReadOnly Property Six_Pointed_Star As String = "🔯"
+        Public Const Six_Pointed_Star As String = "🔯"
 
-        Public ReadOnly Property Beginner As String = "🔰"
+        Public Const Beginner As String = "🔰"
 
-        Public ReadOnly Property Trident As String = "🔱"
+        Public Const Trident As String = "🔱"
 
-        Public ReadOnly Property Black_Square_Button As String = "🔲"
+        Public Const Black_Square_Button As String = "🔲"
 
-        Public ReadOnly Property White_Square_Button As String = "🔳"
+        Public Const White_Square_Button As String = "🔳"
 
-        Public ReadOnly Property Red_Circle As String = "🔴"
+        Public Const Red_Circle As String = "🔴"
 
-        Public ReadOnly Property Large_Blue_Circle As String = "🔵"
+        Public Const Large_Blue_Circle As String = "🔵"
 
-        Public ReadOnly Property Large_Orange_Diamond As String = "🔶"
+        Public Const Large_Orange_Diamond As String = "🔶"
 
-        Public ReadOnly Property Large_Blue_Diamond As String = "🔷"
+        Public Const Large_Blue_Diamond As String = "🔷"
 
-        Public ReadOnly Property Small_Orange_Diamond As String = "🔸"
+        Public Const Small_Orange_Diamond As String = "🔸"
 
-        Public ReadOnly Property Small_Blue_Diamond As String = "🔹"
+        Public Const Small_Blue_Diamond As String = "🔹"
 
-        Public ReadOnly Property Small_Red_Triangle As String = "🔺"
+        Public Const Small_Red_Triangle As String = "🔺"
 
-        Public ReadOnly Property Small_Red_Triangle_Down As String = "🔻"
+        Public Const Small_Red_Triangle_Down As String = "🔻"
 
-        Public ReadOnly Property Arrow_Up_Small As String = "🔼"
+        Public Const Arrow_Up_Small As String = "🔼"
 
-        Public ReadOnly Property Arrow_Down_Small As String = "🔽"
+        Public Const Arrow_Down_Small As String = "🔽"
 
-        Public ReadOnly Property Clock1 As String = "🕐"
+        Public Const Clock1 As String = "🕐"
 
-        Public ReadOnly Property Clock2 As String = "🕑"
+        Public Const Clock2 As String = "🕑"
 
-        Public ReadOnly Property Clock3 As String = "🕒"
+        Public Const Clock3 As String = "🕒"
 
-        Public ReadOnly Property Clock4 As String = "🕓"
+        Public Const Clock4 As String = "🕓"
 
-        Public ReadOnly Property Clock5 As String = "🕔"
+        Public Const Clock5 As String = "🕔"
 
-        Public ReadOnly Property Clock6 As String = "🕕"
+        Public Const Clock6 As String = "🕕"
 
-        Public ReadOnly Property Clock7 As String = "🕖"
+        Public Const Clock7 As String = "🕖"
 
-        Public ReadOnly Property Clock8 As String = "🕗"
+        Public Const Clock8 As String = "🕗"
 
-        Public ReadOnly Property Clock9 As String = "🕘"
+        Public Const Clock9 As String = "🕘"
 
-        Public ReadOnly Property Clock10 As String = "🕙"
+        Public Const Clock10 As String = "🕙"
 
-        Public ReadOnly Property Clock11 As String = "🕚"
+        Public Const Clock11 As String = "🕚"
 
-        Public ReadOnly Property Clock12 As String = "🕛"
+        Public Const Clock12 As String = "🕛"
 
-        Public ReadOnly Property Mount_Fuji As String = "🗻"
+        Public Const Mount_Fuji As String = "🗻"
 
-        Public ReadOnly Property Tokyo_Tower As String = "🗼"
+        Public Const Tokyo_Tower As String = "🗼"
 
-        Public ReadOnly Property Statue_Of_Liberty As String = "🗽"
+        Public Const Statue_Of_Liberty As String = "🗽"
 
-        Public ReadOnly Property Japan As String = "🗾"
+        Public Const Japan As String = "🗾"
 
-        Public ReadOnly Property Moyai As String = "🗿"
+        Public Const Moyai As String = "🗿"
 
-        Public ReadOnly Property Grin As String = "😁"
+        Public Const Grin As String = "😁"
 
-        Public ReadOnly Property Joy As String = "😂"
+        Public Const Joy As String = "😂"
 
-        Public ReadOnly Property Smiley As String = "😃"
+        Public Const Smiley As String = "😃"
 
-        Public ReadOnly Property Smile As String = "😄"
+        Public Const Smile As String = "😄"
 
-        Public ReadOnly Property Sweat_Smile As String = "😅"
+        Public Const Sweat_Smile As String = "😅"
 
-        Public ReadOnly Property Laughing As String = "😆"
+        Public Const Laughing As String = "😆"
 
-        Public ReadOnly Property Wink As String = "😉"
+        Public Const Wink As String = "😉"
 
-        Public ReadOnly Property Blush As String = "😊"
+        Public Const Blush As String = "😊"
 
-        Public ReadOnly Property Yum As String = "😋"
+        Public Const Yum As String = "😋"
 
-        Public ReadOnly Property Relieved As String = "😌"
+        Public Const Relieved As String = "😌"
 
-        Public ReadOnly Property Heart_Eyes As String = "😍"
+        Public Const Heart_Eyes As String = "😍"
 
-        Public ReadOnly Property Smirk As String = "😏"
+        Public Const Smirk As String = "😏"
 
-        Public ReadOnly Property Unamused As String = "😒"
+        Public Const Unamused As String = "😒"
 
-        Public ReadOnly Property Sweat As String = "😓"
+        Public Const Sweat As String = "😓"
 
-        Public ReadOnly Property Pensive As String = "😔"
+        Public Const Pensive As String = "😔"
 
-        Public ReadOnly Property Confounded As String = "😖"
+        Public Const Confounded As String = "😖"
 
-        Public ReadOnly Property Kissing_Heart As String = "😘"
+        Public Const Kissing_Heart As String = "😘"
 
-        Public ReadOnly Property Kissing_Closed_Eyes As String = "😚"
+        Public Const Kissing_Closed_Eyes As String = "😚"
 
-        Public ReadOnly Property Stuck_Out_Tongue_Winking_Eye As String = "😜"
+        Public Const Stuck_Out_Tongue_Winking_Eye As String = "😜"
 
-        Public ReadOnly Property Stuck_Out_Tongue_Closed_Eyes As String = "😝"
+        Public Const Stuck_Out_Tongue_Closed_Eyes As String = "😝"
 
-        Public ReadOnly Property Disappointed As String = "😞"
+        Public Const Disappointed As String = "😞"
 
-        Public ReadOnly Property Angry As String = "😠"
+        Public Const Angry As String = "😠"
 
-        Public ReadOnly Property Rage As String = "😡"
+        Public Const Rage As String = "😡"
 
-        Public ReadOnly Property Cry As String = "😢"
+        Public Const Cry As String = "😢"
 
-        Public ReadOnly Property Persevere As String = "😣"
+        Public Const Persevere As String = "😣"
 
-        Public ReadOnly Property Triumph As String = "😤"
+        Public Const Triumph As String = "😤"
 
-        Public ReadOnly Property Disappointed_Relieved As String = "😥"
+        Public Const Disappointed_Relieved As String = "😥"
 
-        Public ReadOnly Property Fearful As String = "😨"
+        Public Const Fearful As String = "😨"
 
-        Public ReadOnly Property Weary As String = "😩"
+        Public Const Weary As String = "😩"
 
-        Public ReadOnly Property Sleepy As String = "😪"
+        Public Const Sleepy As String = "😪"
 
-        Public ReadOnly Property Tired_Face As String = "😫"
+        Public Const Tired_Face As String = "😫"
 
-        Public ReadOnly Property Sob As String = "😭"
+        Public Const Sob As String = "😭"
 
-        Public ReadOnly Property Cold_Sweat As String = "😰"
+        Public Const Cold_Sweat As String = "😰"
 
-        Public ReadOnly Property Scream As String = "😱"
+        Public Const Scream As String = "😱"
 
-        Public ReadOnly Property Astonished As String = "😲"
+        Public Const Astonished As String = "😲"
 
-        Public ReadOnly Property Flushed As String = "😳"
+        Public Const Flushed As String = "😳"
 
-        Public ReadOnly Property Dizzy_Face As String = "😵"
+        Public Const Dizzy_Face As String = "😵"
 
-        Public ReadOnly Property Mask As String = "😷"
+        Public Const Mask As String = "😷"
 
-        Public ReadOnly Property Smile_Cat As String = "😸"
+        Public Const Smile_Cat As String = "😸"
 
-        Public ReadOnly Property Joy_Cat As String = "😹"
+        Public Const Joy_Cat As String = "😹"
 
-        Public ReadOnly Property Smiley_Cat As String = "😺"
+        Public Const Smiley_Cat As String = "😺"
 
-        Public ReadOnly Property Heart_Eyes_Cat As String = "😻"
+        Public Const Heart_Eyes_Cat As String = "😻"
 
-        Public ReadOnly Property Smirk_Cat As String = "😼"
+        Public Const Smirk_Cat As String = "😼"
 
-        Public ReadOnly Property Kissing_Cat As String = "😽"
+        Public Const Kissing_Cat As String = "😽"
 
-        Public ReadOnly Property Pouting_Cat As String = "😾"
+        Public Const Pouting_Cat As String = "😾"
 
-        Public ReadOnly Property Crying_Cat_Face As String = "😿"
+        Public Const Crying_Cat_Face As String = "😿"
 
-        Public ReadOnly Property Scream_Cat As String = "🙀"
+        Public Const Scream_Cat As String = "🙀"
 
-        Public ReadOnly Property No_Good As String = "🙅"
+        Public Const No_Good As String = "🙅"
 
-        Public ReadOnly Property Ok_Woman As String = "🙆"
+        Public Const Ok_Woman As String = "🙆"
 
-        Public ReadOnly Property Bow As String = "🙇"
+        Public Const Bow As String = "🙇"
 
-        Public ReadOnly Property See_No_Evil As String = "🙈"
+        Public Const See_No_Evil As String = "🙈"
 
-        Public ReadOnly Property Hear_No_Evil As String = "🙉"
+        Public Const Hear_No_Evil As String = "🙉"
 
-        Public ReadOnly Property Speak_No_Evil As String = "🙊"
+        Public Const Speak_No_Evil As String = "🙊"
 
-        Public ReadOnly Property Raising_Hand As String = "🙋"
+        Public Const Raising_Hand As String = "🙋"
 
-        Public ReadOnly Property Raised_Hands As String = "🙌"
+        Public Const Raised_Hands As String = "🙌"
 
-        Public ReadOnly Property Person_Frowning As String = "🙍"
+        Public Const Person_Frowning As String = "🙍"
 
-        Public ReadOnly Property Person_With_Pouting_Face As String = "🙎"
+        Public Const Person_With_Pouting_Face As String = "🙎"
 
-        Public ReadOnly Property Pray As String = "🙏"
+        Public Const Pray As String = "🙏"
 
-        Public ReadOnly Property Rocket As String = "🚀"
+        Public Const Rocket As String = "🚀"
 
-        Public ReadOnly Property Railway_Car As String = "🚃"
+        Public Const Railway_Car As String = "🚃"
 
-        Public ReadOnly Property Bullettrain_Side As String = "🚄"
+        Public Const Bullettrain_Side As String = "🚄"
 
-        Public ReadOnly Property Bullettrain_Front As String = "🚅"
+        Public Const Bullettrain_Front As String = "🚅"
 
-        Public ReadOnly Property Metro As String = "🚇"
+        Public Const Metro As String = "🚇"
 
-        Public ReadOnly Property Station As String = "🚉"
+        Public Const Station As String = "🚉"
 
-        Public ReadOnly Property Bus As String = "🚌"
+        Public Const Bus As String = "🚌"
 
-        Public ReadOnly Property Busstop As String = "🚏"
+        Public Const Busstop As String = "🚏"
 
-        Public ReadOnly Property Ambulance As String = "🚑"
+        Public Const Ambulance As String = "🚑"
 
-        Public ReadOnly Property Fire_Engine As String = "🚒"
+        Public Const Fire_Engine As String = "🚒"
 
-        Public ReadOnly Property Police_Car As String = "🚓"
+        Public Const Police_Car As String = "🚓"
 
-        Public ReadOnly Property Taxi As String = "🚕"
+        Public Const Taxi As String = "🚕"
 
-        Public ReadOnly Property Red_Car As String = "🚗"
+        Public Const Red_Car As String = "🚗"
 
-        Public ReadOnly Property Blue_Car As String = "🚙"
+        Public Const Blue_Car As String = "🚙"
 
-        Public ReadOnly Property Truck As String = "🚚"
+        Public Const Truck As String = "🚚"
 
-        Public ReadOnly Property Ship As String = "🚢"
+        Public Const Ship As String = "🚢"
 
-        Public ReadOnly Property Speedboat As String = "🚤"
+        Public Const Speedboat As String = "🚤"
 
-        Public ReadOnly Property Traffic_Light As String = "🚥"
+        Public Const Traffic_Light As String = "🚥"
 
-        Public ReadOnly Property Construction As String = "🚧"
+        Public Const Construction As String = "🚧"
 
-        Public ReadOnly Property Rotating_Light As String = "🚨"
+        Public Const Rotating_Light As String = "🚨"
 
-        Public ReadOnly Property Triangular_Flag_On_Post As String = "🚩"
+        Public Const Triangular_Flag_On_Post As String = "🚩"
 
-        Public ReadOnly Property Door As String = "🚪"
+        Public Const Door As String = "🚪"
 
-        Public ReadOnly Property No_Entry_Sign As String = "🚫"
+        Public Const No_Entry_Sign As String = "🚫"
 
-        Public ReadOnly Property Smoking As String = "🚬"
+        Public Const Smoking As String = "🚬"
 
-        Public ReadOnly Property No_Smoking As String = "🚭"
+        Public Const No_Smoking As String = "🚭"
 
-        Public ReadOnly Property Bike As String = "🚲"
+        Public Const Bike As String = "🚲"
 
-        Public ReadOnly Property Walking As String = "🚶"
+        Public Const Walking As String = "🚶"
 
-        Public ReadOnly Property Mens As String = "🚹"
+        Public Const Mens As String = "🚹"
 
-        Public ReadOnly Property Womens As String = "🚺"
+        Public Const Womens As String = "🚺"
 
-        Public ReadOnly Property Restroom As String = "🚻"
+        Public Const Restroom As String = "🚻"
 
-        Public ReadOnly Property Baby_Symbol As String = "🚼"
+        Public Const Baby_Symbol As String = "🚼"
 
-        Public ReadOnly Property Toilet As String = "🚽"
+        Public Const Toilet As String = "🚽"
 
-        Public ReadOnly Property Wc As String = "🚾"
+        Public Const Wc As String = "🚾"
 
-        Public ReadOnly Property Bath As String = "🛀"
+        Public Const Bath As String = "🛀"
 
-        Public ReadOnly Property Articulated_Lorry As String = "🚛"
+        Public Const Articulated_Lorry As String = "🚛"
 
-        Public ReadOnly Property Kissing_Smiling_Eyes As String = "😙"
+        Public Const Kissing_Smiling_Eyes As String = "😙"
 
-        Public ReadOnly Property Pear As String = "🍐"
+        Public Const Pear As String = "🍐"
 
-        Public ReadOnly Property Bicyclist As String = "🚴"
+        Public Const Bicyclist As String = "🚴"
 
-        Public ReadOnly Property Rabbit2 As String = "🐇"
+        Public Const Rabbit2 As String = "🐇"
 
-        Public ReadOnly Property Clock830 As String = "🕣"
+        Public Const Clock830 As String = "🕣"
 
-        Public ReadOnly Property Train As String = "🚋"
+        Public Const Train As String = "🚋"
 
-        Public ReadOnly Property Oncoming_Automobile As String = "🚘"
+        Public Const Oncoming_Automobile As String = "🚘"
 
-        Public ReadOnly Property Expressionless As String = "😑"
+        Public Const Expressionless As String = "😑"
 
-        Public ReadOnly Property Smiling_Imp As String = "😈"
+        Public Const Smiling_Imp As String = "😈"
 
-        Public ReadOnly Property Frowning As String = "😦"
+        Public Const Frowning As String = "😦"
 
-        Public ReadOnly Property No_Mouth As String = "😶"
+        Public Const No_Mouth As String = "😶"
 
-        Public ReadOnly Property Baby_Bottle As String = "🍼"
+        Public Const Baby_Bottle As String = "🍼"
 
-        Public ReadOnly Property Non_Potable_Water As String = "🚱"
+        Public Const Non_Potable_Water As String = "🚱"
 
-        Public ReadOnly Property Open_Mouth As String = "😮"
+        Public Const Open_Mouth As String = "😮"
 
-        Public ReadOnly Property Last_Quarter_Moon_With_Face As String = "🌜"
+        Public Const Last_Quarter_Moon_With_Face As String = "🌜"
 
-        Public ReadOnly Property Do_Not_Litter As String = "🚯"
+        Public Const Do_Not_Litter As String = "🚯"
 
-        Public ReadOnly Property Sunglasses As String = "😎"
+        Public Const Sunglasses As String = "😎"
 
-        Public ReadOnly Property [Loop] As String = ChrW(10175)
+        Public Const [Loop] As String = ChrW(10175)
 
-        Public ReadOnly Property Last_Quarter_Moon As String = "🌗"
+        Public Const Last_Quarter_Moon As String = "🌗"
 
-        Public ReadOnly Property Grinning As String = "😀"
+        Public Const Grinning As String = "😀"
 
-        Public ReadOnly Property Euro As String = "💶"
+        Public Const Euro As String = "💶"
 
-        Public ReadOnly Property Clock330 As String = "🕞"
+        Public Const Clock330 As String = "🕞"
 
-        Public ReadOnly Property Telescope As String = "🔭"
+        Public Const Telescope As String = "🔭"
 
-        Public ReadOnly Property Globe_With_Meridians As String = "🌐"
+        Public Const Globe_With_Meridians As String = "🌐"
 
-        Public ReadOnly Property Postal_Horn As String = "📯"
+        Public Const Postal_Horn As String = "📯"
 
-        Public ReadOnly Property Stuck_Out_Tongue As String = "😛"
+        Public Const Stuck_Out_Tongue As String = "😛"
 
-        Public ReadOnly Property Clock1030 As String = "🕥"
+        Public Const Clock1030 As String = "🕥"
 
-        Public ReadOnly Property Pound As String = "💷"
+        Public Const Pound As String = "💷"
 
-        Public ReadOnly Property Two_Men_Holding_Hands As String = "👬"
+        Public Const Two_Men_Holding_Hands As String = "👬"
 
-        Public ReadOnly Property Tiger2 As String = "🐅"
+        Public Const Tiger2 As String = "🐅"
 
-        Public ReadOnly Property Anguished As String = "😧"
+        Public Const Anguished As String = "😧"
 
-        Public ReadOnly Property Vertical_Traffic_Light As String = "🚦"
+        Public Const Vertical_Traffic_Light As String = "🚦"
 
-        Public ReadOnly Property Confused As String = "😕"
+        Public Const Confused As String = "😕"
 
-        Public ReadOnly Property Repeat As String = "🔁"
+        Public Const Repeat As String = "🔁"
 
-        Public ReadOnly Property Oncoming_Police_Car As String = "🚔"
+        Public Const Oncoming_Police_Car As String = "🚔"
 
-        Public ReadOnly Property Tram As String = "🚊"
+        Public Const Tram As String = "🚊"
 
-        Public ReadOnly Property Dragon As String = "🐉"
+        Public Const Dragon As String = "🐉"
 
-        Public ReadOnly Property Earth_Americas As String = "🌎"
+        Public Const Earth_Americas As String = "🌎"
 
-        Public ReadOnly Property Rugby_Football As String = "🏉"
+        Public Const Rugby_Football As String = "🏉"
 
-        Public ReadOnly Property Left_Luggage As String = "🛅"
+        Public Const Left_Luggage As String = "🛅"
 
-        Public ReadOnly Property Sound As String = "🔉"
+        Public Const Sound As String = "🔉"
 
-        Public ReadOnly Property Clock630 As String = "🕡"
+        Public Const Clock630 As String = "🕡"
 
-        Public ReadOnly Property Dromedary_Camel As String = "🐪"
+        Public Const Dromedary_Camel As String = "🐪"
 
-        Public ReadOnly Property Oncoming_Bus As String = "🚍"
+        Public Const Oncoming_Bus As String = "🚍"
 
-        Public ReadOnly Property Horse_Racing As String = "🏇"
+        Public Const Horse_Racing As String = "🏇"
 
-        Public ReadOnly Property Rooster As String = "🐓"
+        Public Const Rooster As String = "🐓"
 
-        Public ReadOnly Property Rowboat As String = "🚣"
+        Public Const Rowboat As String = "🚣"
 
-        Public ReadOnly Property Customs As String = "🛃"
+        Public Const Customs As String = "🛃"
 
-        Public ReadOnly Property Repeat_One As String = "🔂"
+        Public Const Repeat_One As String = "🔂"
 
-        Public ReadOnly Property Waxing_Crescent_Moon As String = "🌒"
+        Public Const Waxing_Crescent_Moon As String = "🌒"
 
-        Public ReadOnly Property Mountain_Railway As String = "🚞"
+        Public Const Mountain_Railway As String = "🚞"
 
-        Public ReadOnly Property Clock930 As String = "🕤"
+        Public Const Clock930 As String = "🕤"
 
-        Public ReadOnly Property Put_Litter_In_Its_Place As String = "🚮"
+        Public Const Put_Litter_In_Its_Place As String = "🚮"
 
-        Public ReadOnly Property Arrows_Counterclockwise As String = "🔄"
+        Public Const Arrows_Counterclockwise As String = "🔄"
 
-        Public ReadOnly Property Clock130 As String = "🕜"
+        Public Const Clock130 As String = "🕜"
 
-        Public ReadOnly Property Goat As String = "🐐"
+        Public Const Goat As String = "🐐"
 
-        Public ReadOnly Property Pig2 As String = "🐖"
+        Public Const Pig2 As String = "🐖"
 
-        Public ReadOnly Property Innocent As String = "😇"
+        Public Const Innocent As String = "😇"
 
-        Public ReadOnly Property No_Bicycles As String = "🚳"
+        Public Const No_Bicycles As String = "🚳"
 
-        Public ReadOnly Property Light_Rail As String = "🚈"
+        Public Const Light_Rail As String = "🚈"
 
-        Public ReadOnly Property Whale2 As String = "🐋"
+        Public Const Whale2 As String = "🐋"
 
-        Public ReadOnly Property Train2 As String = "🚆"
+        Public Const Train2 As String = "🚆"
 
-        Public ReadOnly Property Earth_Africa As String = "🌍"
+        Public Const Earth_Africa As String = "🌍"
 
-        Public ReadOnly Property Shower As String = "🚿"
+        Public Const Shower As String = "🚿"
 
-        Public ReadOnly Property Waning_Gibbous_Moon As String = "🌖"
+        Public Const Waning_Gibbous_Moon As String = "🌖"
 
-        Public ReadOnly Property Steam_Locomotive As String = "🚂"
+        Public Const Steam_Locomotive As String = "🚂"
 
-        Public ReadOnly Property Cat2 As String = "🐈"
+        Public Const Cat2 As String = "🐈"
 
-        Public ReadOnly Property Tractor As String = "🚜"
+        Public Const Tractor As String = "🚜"
 
-        Public ReadOnly Property Thought_Balloon As String = "💭"
+        Public Const Thought_Balloon As String = "💭"
 
-        Public ReadOnly Property Two_Women_Holding_Hands As String = "👭"
+        Public Const Two_Women_Holding_Hands As String = "👭"
 
-        Public ReadOnly Property Full_Moon_With_Face As String = "🌝"
+        Public Const Full_Moon_With_Face As String = "🌝"
 
-        Public ReadOnly Property Mouse2 As String = "🐁"
+        Public Const Mouse2 As String = "🐁"
 
-        Public ReadOnly Property Clock430 As String = "🕟"
+        Public Const Clock430 As String = "🕟"
 
-        Public ReadOnly Property Worried As String = "😟"
+        Public Const Worried As String = "😟"
 
-        Public ReadOnly Property Rat As String = "🐀"
+        Public Const Rat As String = "🐀"
 
-        Public ReadOnly Property Ram As String = "🐏"
+        Public Const Ram As String = "🐏"
 
-        Public ReadOnly Property Dog2 As String = "🐕"
+        Public Const Dog2 As String = "🐕"
 
-        Public ReadOnly Property Kissing As String = "😗"
+        Public Const Kissing As String = "😗"
 
-        Public ReadOnly Property Helicopter As String = "🚁"
+        Public Const Helicopter As String = "🚁"
 
-        Public ReadOnly Property Clock1130 As String = "🕦"
+        Public Const Clock1130 As String = "🕦"
 
-        Public ReadOnly Property No_Mobile_Phones As String = "📵"
+        Public Const No_Mobile_Phones As String = "📵"
 
-        Public ReadOnly Property European_Post_Office As String = "🏤"
+        Public Const European_Post_Office As String = "🏤"
 
-        Public ReadOnly Property Ox As String = "🐂"
+        Public Const Ox As String = "🐂"
 
-        Public ReadOnly Property Mountain_Cableway As String = "🚠"
+        Public Const Mountain_Cableway As String = "🚠"
 
-        Public ReadOnly Property Sleeping As String = "😴"
+        Public Const Sleeping As String = "😴"
 
-        Public ReadOnly Property Cow2 As String = "🐄"
+        Public Const Cow2 As String = "🐄"
 
-        Public ReadOnly Property Minibus As String = "🚐"
+        Public Const Minibus As String = "🚐"
 
-        Public ReadOnly Property Clock730 As String = "🕢"
+        Public Const Clock730 As String = "🕢"
 
-        Public ReadOnly Property Aerial_Tramway As String = "🚡"
+        Public Const Aerial_Tramway As String = "🚡"
 
-        Public ReadOnly Property Speaker As String = "🔈"
+        Public Const Speaker As String = "🔈"
 
-        Public ReadOnly Property No_Bell As String = "🔕"
+        Public Const No_Bell As String = "🔕"
 
-        Public ReadOnly Property Mailbox_With_Mail As String = "📬"
+        Public Const Mailbox_With_Mail As String = "📬"
 
-        Public ReadOnly Property No_Pedestrians As String = "🚷"
+        Public Const No_Pedestrians As String = "🚷"
 
-        Public ReadOnly Property Microscope As String = "🔬"
+        Public Const Microscope As String = "🔬"
 
-        Public ReadOnly Property Bathtub As String = "🛁"
+        Public Const Bathtub As String = "🛁"
 
-        Public ReadOnly Property Suspension_Railway As String = "🚟"
+        Public Const Suspension_Railway As String = "🚟"
 
-        Public ReadOnly Property Crocodile As String = "🐊"
+        Public Const Crocodile As String = "🐊"
 
-        Public ReadOnly Property Mountain_Bicyclist As String = "🚵"
+        Public Const Mountain_Bicyclist As String = "🚵"
 
-        Public ReadOnly Property Waning_Crescent_Moon As String = "🌘"
+        Public Const Waning_Crescent_Moon As String = "🌘"
 
-        Public ReadOnly Property Monorail As String = "🚝"
+        Public Const Monorail As String = "🚝"
 
-        Public ReadOnly Property Children_Crossing As String = "🚸"
+        Public Const Children_Crossing As String = "🚸"
 
-        Public ReadOnly Property Clock230 As String = "🕝"
+        Public Const Clock230 As String = "🕝"
 
-        Public ReadOnly Property Busts_In_Silhouette As String = "👥"
+        Public Const Busts_In_Silhouette As String = "👥"
 
-        Public ReadOnly Property Mailbox_With_No_Mail As String = "📭"
+        Public Const Mailbox_With_No_Mail As String = "📭"
 
-        Public ReadOnly Property Leopard As String = "🐆"
+        Public Const Leopard As String = "🐆"
 
-        Public ReadOnly Property Deciduous_Tree As String = "🌳"
+        Public Const Deciduous_Tree As String = "🌳"
 
-        Public ReadOnly Property Oncoming_Taxi As String = "🚖"
+        Public Const Oncoming_Taxi As String = "🚖"
 
-        Public ReadOnly Property Lemon As String = "🍋"
+        Public Const Lemon As String = "🍋"
 
-        Public ReadOnly Property Mute As String = "🔇"
+        Public Const Mute As String = "🔇"
 
-        Public ReadOnly Property Baggage_Claim As String = "🛄"
+        Public Const Baggage_Claim As String = "🛄"
 
-        Public ReadOnly Property Twisted_Rightwards_Arrows As String = "🔀"
+        Public Const Twisted_Rightwards_Arrows As String = "🔀"
 
-        Public ReadOnly Property Sun_With_Face As String = "🌞"
+        Public Const Sun_With_Face As String = "🌞"
 
-        Public ReadOnly Property Trolleybus As String = "🚎"
+        Public Const Trolleybus As String = "🚎"
 
-        Public ReadOnly Property Evergreen_Tree As String = "🌲"
+        Public Const Evergreen_Tree As String = "🌲"
 
-        Public ReadOnly Property Passport_Control As String = "🛂"
+        Public Const Passport_Control As String = "🛂"
 
-        Public ReadOnly Property New_Moon_With_Face As String = "🌚"
+        Public Const New_Moon_With_Face As String = "🌚"
 
-        Public ReadOnly Property Potable_Water As String = "🚰"
+        Public Const Potable_Water As String = "🚰"
 
-        Public ReadOnly Property High_Brightness As String = "🔆"
+        Public Const High_Brightness As String = "🔆"
 
-        Public ReadOnly Property Low_Brightness As String = "🔅"
+        Public Const Low_Brightness As String = "🔅"
 
-        Public ReadOnly Property Clock530 As String = "🕠"
+        Public Const Clock530 As String = "🕠"
 
-        Public ReadOnly Property Hushed As String = "😯"
+        Public Const Hushed As String = "😯"
 
-        Public ReadOnly Property Grimacing As String = "😬"
+        Public Const Grimacing As String = "😬"
 
-        Public ReadOnly Property Water_Buffalo As String = "🐃"
+        Public Const Water_Buffalo As String = "🐃"
 
-        Public ReadOnly Property Neutral_Face As String = "😐"
+        Public Const Neutral_Face As String = "😐"
 
-        Public ReadOnly Property Clock1230 As String = "🕧"
+        Public Const Clock1230 As String = "🕧"
     End Class
 
 End Namespace
