@@ -263,7 +263,7 @@ Public Module Verify
     Public Function IsNull(Text As String, Optional DefaultValue As String = Nothing, Optional Quotes As Boolean = True) As String
         DefaultValue = If(DefaultValue, "NULL")
         If Not String.IsNullOrWhiteSpace(Text) Then
-            Return If(Quotes, Text.FixQuotesToQuery.Quote("'"), Text)
+            Return If(Quotes, Text.EscapeQuotesToQuery.Quote("'"), Text)
         Else
             Return DefaultValue
         End If

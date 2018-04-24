@@ -474,7 +474,7 @@ Public Module Text
     ''' <param name="Text">Texto a ser tratado</param>
     ''' <returns>String pornta para a query</returns>
     <Extension()>
-    Public Function FixQuotesToQuery(Text As String) As String
+    Public Function EscapeQuotesToQuery(Text As String) As String
         Return Text.Replace("'", "''")
     End Function
 
