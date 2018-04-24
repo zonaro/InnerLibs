@@ -1572,8 +1572,7 @@ Namespace LINQ
                     Else
                         Dim ctx = CType(el, HtmlText)
                         Dim txt = ReplaceValues(item, ctx.Text)
-                        Dim parser = New HtmlParser.HtmlParser()
-                        nodes.ReplaceElement(el, parser.Parse(txt))
+                        nodes.ReplaceElement(el, txt)
                     End If
                 End If
             Next

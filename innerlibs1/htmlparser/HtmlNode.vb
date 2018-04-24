@@ -418,10 +418,10 @@ Namespace HtmlParser
         ''' Add node (or nodes) to collection from string
         ''' </summary>
         ''' <param name="Html"></param>
-        Public Shadows Sub Add(Html As String, Optional Index As Integer = 0)
+        Public Shadows Sub Add(Html As String)
             Dim d As New HtmlParser
             For Each i In d.Parse(Html)
-                Me.Insert(Index, i, True)
+                Me.Add(i, True)
             Next
         End Sub
 
@@ -598,7 +598,7 @@ Namespace HtmlParser
             If mParent IsNot Nothing Then
                 mParent.IsTerminated = False
             End If
-            MyBase.Insert(Index, Node)
+            MyBase.Insert(Index.LimitRange(0, MyBase.Count - 1), Node)
         End Sub
 
 
@@ -623,7 +623,12 @@ Namespace HtmlParser
             Dim index_append = 1
             If indexo > -1 Then
                 For Each el In Items
-                    Me.Insert(indexo + index_append, el)
+                    Dim ap_index = indexo + index_append
+                    If ap_index < Me.Count Then
+                        Me.Insert(ap_index, el)
+                    Else
+                        Me.Add(el)
+                    End If
                     index_append.Increment
                 Next
                 Me.RemoveAt(Element.Index)
