@@ -90,7 +90,7 @@ Namespace HtmlParser
 
     End Class
 
-    Public Class HtmlInput
+    Public Class HtmlInputElement
         Inherits HtmlElement
 
         Overrides Property Name As String
@@ -127,7 +127,8 @@ Namespace HtmlParser
             week
         End Enum
 
-        Sub New(Type As HtmlInputType, Optional Value As String = Nothing)
+
+        Sub New(Optional Type As HtmlInputType = HtmlInputType.text, Optional Value As String = Nothing)
             MyBase.New("input")
             mIsExplicitlyTerminated = True
             Me.Value = Value
@@ -248,7 +249,7 @@ Namespace HtmlParser
     Public Class HtmlListElement
         Inherits HtmlElement
 
-        Property IsOrdenedList As Boolean
+        Property IsOrdenedList As Boolean = False
 
         ''' <summary>
         ''' Returns the name of element (OL or UL)
@@ -259,6 +260,7 @@ Namespace HtmlParser
                 Return MyBase.Name
             End Get
             Set(value As String)
+                IsOrdenedList = (value.ToLower = "ol")
                 MyBase.Name = If(IsOrdenedList, "ol", "ul")
             End Set
         End Property
@@ -283,12 +285,20 @@ Namespace HtmlParser
         ''' <summary>
         ''' Add a LI to this list
         ''' </summary>
-        ''' <param name="Content"></param>
+        ''' <param name="Content">Htmlnodes (Will be wrapped into a LI element)</param>
         Public Sub Add(ParamArray Content As HtmlNode())
             Dim d = New HtmlElement("li")
             d.IsExplicitlyTerminated = True
             For Each i In Content
-                i.Move(d)
+                If TypeOf i Is HtmlElement Then
+                    If CType(i, HtmlElement).Name = "li" Then
+                        d = i
+                    Else
+                        i.Parent = d
+                    End If
+                Else
+                    i.Parent = d
+                End If
             Next
             Me.Nodes.Add(d)
         End Sub
@@ -297,6 +307,12 @@ Namespace HtmlParser
 
     Public Module MentionParser
 
+        ''' <summary>
+        ''' Localiza urls em um texto e executa uma funçao de replace para cada url encontrada
+        ''' </summary>
+        ''' <param name="Text"></param>
+        ''' <param name="Method"></param>
+        ''' <returns></returns>
         <Extension()>
         Function ParseURL(ByVal Text As String, Method As Func(Of String, String)) As String
             Return Regex.Replace(Text, "(http(s)?://)?([\w-]+\.)+[\w-]+(/\S\w[\w- ;,./?%&=]\S*)?", New MatchEvaluator(Function(x) Method(x.ToString)))
@@ -323,7 +339,7 @@ Namespace HtmlParser
 
         <Extension()>
         Function ParseUsername(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text, "(@)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("@"))))
+            Return Regex.Replace(Text, "(\W|^)@(\b\S+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("@"))))
         End Function
 
         ''' <summary>
@@ -335,7 +351,7 @@ Namespace HtmlParser
 
         <Extension()>
         Function ParseHashtag(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text.ToString, "(#)((?:[A-Za-z0-9-_]*))", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("#"))))
+            Return Regex.Replace(Text.ToString, "(\W|^)#(\b\S+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("#"))))
         End Function
 
         ''' <summary>
@@ -382,7 +398,7 @@ Namespace HtmlParser
 
             Text = Text.HtmlDecode.ParseEmoji(Method)
 
-            dic.Add({"0=)", "0=)", "0:)", "0:)"}, ":innocent:")
+            dic.Add({"0=)", "0:)"}, ":innocent:")
             dic.Add({"=)", ":)"}, ":smile:")
             dic.Add({";)"}, ":wink:")
             dic.Add({"¬¬"}, ":unamused:")
@@ -395,7 +411,7 @@ Namespace HtmlParser
             dic.Add({"'-'", "`-`", ":|", "=|"}, ":neutralface:")
             dic.Add({"{<3}"}, ":heartbeat:")
             dic.Add({"[<3]"}, ":giftheart:")
-            dic.Add({"<3<3"}, ":twohearts:")
+            dic.Add({"<3<3", "(LL)", "(ll)"}, ":twohearts:")
             dic.Add({"<3b"}, ":blueheart:")
             dic.Add({"<3g"}, ":greenheart:")
             dic.Add({"<3y"}, ":yellowheart:")
@@ -403,7 +419,7 @@ Namespace HtmlParser
             dic.Add({"<3p"}, ":purpleheart:")
             dic.Add({"</3"}, ":brokenheart:")
             dic.Add({"<i3"}, ":cupid:")
-            dic.Add({"<3"}, ":heart:")
+            dic.Add({"<3", "(l)", "(L)"}, ":heart:")
             dic.Add({"=p", ":p"}, ":yum:")
             dic.Add({"=P", ":P"}, ":stuckouttongue:")
             dic.Add({"=*"}, ":kissingheart:")

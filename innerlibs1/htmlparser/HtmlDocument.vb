@@ -46,7 +46,29 @@ Namespace HtmlParser
                 UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString, Me.Encoding)
             End If
             Dim parser As New HtmlParser
-            mNodes = parser.Parse(UrlOrHTMLString)
+            Dim list = parser.Parse(UrlOrHTMLString)
+
+            For Each node In list
+                If TypeOf node Is HtmlElement Then
+                    Select Case CType(node, HtmlElement).Name
+                        Case "a"
+                            mNodes.Add(CType(node, HtmlAnchorElement))
+                        Case "select"
+                            mNodes.Add(CType(node, HtmlSelectElement))
+                        Case "option"
+                            mNodes.Add(CType(node, HtmlOptionElement))
+                        Case "img"
+                            mNodes.Add(CType(node, HtmlImageElement))
+                        Case "ol", "ul"
+                            mNodes.Add(CType(node, HtmlListElement))
+                        Case Else
+                            mNodes.Add(node)
+                    End Select
+                Else
+                    mNodes.Add(node)
+                End If
+            Next
+
         End Sub
 
         ''' <summary>

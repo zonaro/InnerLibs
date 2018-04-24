@@ -134,10 +134,9 @@ Namespace HtmlParser
                 Return mParent
             End Get
             Set(value As HtmlElement)
-                Move(value)
+                value.Nodes.Insert(Index, Me, True)
             End Set
         End Property
-
 
         ''' <summary>
         ''' This will return the previous sibling node. If this is the first one, it will return null.
@@ -162,7 +161,6 @@ Namespace HtmlParser
         ''' </summary>
         <Category("Output"), Description("The XHTML that represents this node and all the children")>
         Public MustOverride ReadOnly Property XHTML() As String
-
 
         Public Function AppendTo(Element As HtmlElement, Optional Copy As Boolean = False) As HtmlNode
             If Copy Then
@@ -269,14 +267,7 @@ Namespace HtmlParser
             Return TypeOf Me Is HtmlText
         End Function
 
-        ''' <summary>
-        ''' Transfer the element to another element
-        ''' </summary>
-        ''' <param name="Destination"></param>
-        Sub Move(Destination As HtmlElement, Optional Index As Integer = 0)
-            Me.Remove()
-            Destination.Nodes.Insert(Index, Me)
-        End Sub
+
 
         ''' <summary>
         ''' This will remove this node and all child nodes from the tree. If this is a root node,
@@ -414,9 +405,12 @@ Namespace HtmlParser
             If Node IsNot Nothing Then
                 If Me.mParent IsNot Nothing AndAlso ChangeParent Then
                     Node.Remove()
-                    Node.SetParent(Me.mParent)
+                    Node.Parent = Me.mParent
                 End If
                 MyBase.Add(Node)
+                If mParent IsNot Nothing Then
+                    mParent.IsTerminated = False
+                End If
             End If
         End Sub
 
@@ -439,16 +433,28 @@ Namespace HtmlParser
             Me.Add(New HtmlElement(Control))
         End Sub
 
+        ''' <summary>
+        ''' Add multiple nodes to this node
+        ''' </summary>
         Public Shadows Sub AddRange(Nodes As IEnumerable(Of HtmlNode), Optional ChangeParent As Boolean = True)
             For Each n In Nodes
                 Me.Add(n, ChangeParent)
             Next
         End Sub
 
+        ''' <summary>
+        ''' Add multiple nodes to this node
+        ''' </summary>
+        ''' <param name="ChangeParent"></param>
+        ''' <param name="Nodes"></param>
         Public Shadows Sub AddRange(ChangeParent As Boolean, ParamArray Nodes As HtmlNode())
             Me.AddRange(Nodes, ChangeParent)
         End Sub
 
+        ''' <summary>
+        ''' Add multiple nodes to this node
+        ''' </summary>
+        ''' <param name="Nodes"></param>
         Public Shadows Sub AddRange(ParamArray Nodes As HtmlNode())
             Me.AddRange(Nodes, True)
         End Sub
@@ -491,7 +497,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <returns></returns>
         Public Function GetElements() As IEnumerable(Of HtmlElement)
-            Return Me.Where(Function(x) x.GetType = GetType(HtmlElement)).Select(Function(x) CType(x, HtmlElement))
+            Return Me.Where(Function(x) TypeOf x Is HtmlElement).Select(Function(x) CType(x, HtmlElement))
         End Function
 
         ''' <summary>
@@ -509,13 +515,13 @@ Namespace HtmlParser
                 If TypeOf node Is HtmlElement Then
                     For Each attribute As HtmlAttribute In DirectCast(node, HtmlElement).Attributes
                         If attribute.Name.ToLower() = AttributeName.ToLower() Then
-                            results.Add(node)
+                            results.Add(node, False)
                             Exit For
                         End If
                     Next
                     If SearchChildren Then
                         For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeName(AttributeName, SearchChildren)
-                            results.Add(matchedChild)
+                            results.Add(matchedChild, False)
                         Next
                     End If
                 End If
@@ -536,14 +542,14 @@ Namespace HtmlParser
                     For Each attribute As HtmlAttribute In DirectCast(node, HtmlElement).Attributes
                         If attribute.Name.ToLower().Equals(AttributeName.ToLower()) Then
                             If attribute.Value.ToLower().Equals(AttributeValue.ToLower()) Then
-                                results.Add(node)
+                                results.Add(node, False)
                             End If
                             Exit For
                         End If
                     Next
                     If searchChildren Then
                         For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeNameValue(AttributeName, AttributeValue, searchChildren)
-                            results.Add(matchedChild)
+                            results.Add(matchedChild, False)
                         Next
                     End If
                 End If
@@ -567,11 +573,11 @@ Namespace HtmlParser
             For Each node As HtmlNode In Me
                 If TypeOf node Is HtmlElement Then
                     If DirectCast(node, HtmlElement).Name.ToLower().Equals(Name.ToLower()) Then
-                        results.Add(node)
+                        results.Add(node, False)
                     End If
                     If SearchChildren Then
                         For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByTagName(Name, SearchChildren)
-                            results.Add(matchedChild)
+                            results.Add(matchedChild, False)
                         Next
                     End If
                 End If
@@ -589,8 +595,14 @@ Namespace HtmlParser
                 Node.Remove()
                 Node.mParent = Me.mParent
             End If
+            If mParent IsNot Nothing Then
+                mParent.IsTerminated = False
+            End If
             MyBase.Insert(Index, Node)
         End Sub
+
+
+
 
         ''' <summary>
         ''' Insert a element in specific index
@@ -601,6 +613,11 @@ Namespace HtmlParser
             Me.Insert(Index, New HtmlParser().Parse(Nodes).AsEnumerable, True)
         End Sub
 
+        ''' <summary>
+        ''' Replace a element to elements in list
+        ''' </summary>
+        ''' <param name="Element"></param>
+        ''' <param name="Items">  </param>
         Public Sub ReplaceElement(Element As HtmlNode, Items As IEnumerable(Of HtmlNode))
             Dim indexo = Element.Index
             Dim index_append = 1
@@ -615,6 +632,11 @@ Namespace HtmlParser
             End If
         End Sub
 
+        ''' <summary>
+        ''' Replace a element to elements on html string
+        ''' </summary>
+        ''' <param name="Element"></param>
+        ''' <param name="Html">   </param>
         Public Sub ReplaceElement(Element As HtmlNode, Html As String)
             Dim n = New InnerLibs.HtmlParser.HtmlParser().Parse(Html)
             ReplaceElement(Element, n)
@@ -645,7 +667,7 @@ Namespace HtmlParser
         Private Function Traverse(node As HtmlElement) As HtmlNodeCollection
 
             Dim l As New HtmlNodeCollection
-            l.Add(node)
+            l.Add(node, False)
 
             For Each child In node.ChildElements
                 ''aqui é os node de verdade'

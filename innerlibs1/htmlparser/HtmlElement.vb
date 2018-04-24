@@ -502,6 +502,15 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
+        ''' Move this element into new element
+        ''' </summary>
+        ''' <param name="Destination"></param>
+        Function Move(Destination As HtmlElement) As HtmlElement
+            Me.Parent = Destination
+            Return Me
+        End Function
+
+        ''' <summary>
         ''' Transform the current element into a new set of elements
         ''' </summary>
         ''' <param name="Elements">Collection of new elements</param>
@@ -535,10 +544,6 @@ Namespace HtmlParser
             End If
         End Sub
 
-        Public Sub ParseHashTags(Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
-            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseHashtag(Method)))
-        End Sub
-
         ''' <summary>
         ''' Find :emoji: and replace then using specific method
         ''' </summary>
@@ -546,6 +551,10 @@ Namespace HtmlParser
         ''' <param name="SearchChildren"></param>
         Public Sub ParseEmoji(Optional Method As Func(Of String, String) = Nothing, Optional SearchChildren As Boolean = True)
             Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseEmoji(Method)))
+        End Sub
+
+        Public Sub ParseHashTags(Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
+            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseHashtag(Method)))
         End Sub
 
         ''' <summary>

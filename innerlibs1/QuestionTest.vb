@@ -579,7 +579,7 @@ Namespace QuestionTest
         Public Overrides ReadOnly Property HTML As String
             Get
                 If Test IsNot Nothing Then
-                    Dim mElement = New HtmlInput(HtmlInput.HtmlInputType.number)
+                    Dim mElement = New HtmlInputElement(HtmlInputElement.HtmlInputType.number)
                     mElement.Value = Me.Answer
                     mElement.ID = ID
                     mElement.Attribute("name") = ID
