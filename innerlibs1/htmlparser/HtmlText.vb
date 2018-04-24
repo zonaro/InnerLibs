@@ -92,7 +92,7 @@ Namespace HtmlParser
         ''' Fix the punctuation, white spaces and captalization of text
         ''' </summary>
         Public Overrides Sub FixText()
-            Me.Text = Me.Text.FixText
+            Me.Text = Me.Text.HtmlDecode.FixText.HtmlEncode
         End Sub
 
         ''' <summary>

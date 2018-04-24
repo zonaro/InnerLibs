@@ -380,7 +380,7 @@ Namespace HtmlParser
         Public Shared Function ReplaceFaces(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
             Dim dic As New Dictionary(Of String(), String)
 
-            Text = Text.ParseEmoji(Method)
+            Text = Text.HtmlDecode.ParseEmoji(Method)
 
             dic.Add({"0=)", "0=)", "0:)", "0:)"}, ":innocent:")
             dic.Add({"=)", ":)"}, ":smile:")

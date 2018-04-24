@@ -160,6 +160,7 @@
     <Compile Include="LinqPagination.vb" />
     <Compile Include="OnlineList.vb" />
     <Compile Include="Reme.vb" />
+    <Compile Include="TextCleaner.vb" />
     <Compile Include="Triforce\LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />

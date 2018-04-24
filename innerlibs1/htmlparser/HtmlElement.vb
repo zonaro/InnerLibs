@@ -34,6 +34,17 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
+        ''' This constructs a new HTML element using a <see cref="HtmlElement"/> as source.
+        ''' </summary>
+        ''' <param name="Element">The htmlelement</param>
+        Public Sub New(Element As HtmlElement)
+            Me.New(Element.Name, Element.InnerHTML)
+            For Each a In Element.Attributes
+                Me.AddAttribute(a.Name, a.Value)
+            Next
+        End Sub
+
+        ''' <summary>
         ''' This constructs a new HTML element using a <see cref="HtmlGenericControl"/> as source.
         ''' </summary>
         ''' <param name="HtmlControl">The server control</param>
@@ -525,11 +536,7 @@ Namespace HtmlParser
         End Sub
 
         Public Sub ParseHashTags(Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
-            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText)
-                                                           x.Parent.Nodes.Add(x.Text.ParseHashtag(Method))
-                                                           x.Remove()
-                                                       End Sub
-                                                           )
+            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseHashtag(Method)))
         End Sub
 
         ''' <summary>
@@ -538,7 +545,7 @@ Namespace HtmlParser
         ''' <param name="Method">        </param>
         ''' <param name="SearchChildren"></param>
         Public Sub ParseEmoji(Optional Method As Func(Of String, String) = Nothing, Optional SearchChildren As Boolean = True)
-            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Text = x.Text.ParseEmoji(Method))
+            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseEmoji(Method)))
         End Sub
 
         ''' <summary>

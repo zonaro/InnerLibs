@@ -138,6 +138,7 @@ Namespace HtmlParser
             End Set
         End Property
 
+
         ''' <summary>
         ''' This will return the previous sibling node. If this is the first one, it will return null.
         ''' </summary>
@@ -162,6 +163,18 @@ Namespace HtmlParser
         <Category("Output"), Description("The XHTML that represents this node and all the children")>
         Public MustOverride ReadOnly Property XHTML() As String
 
+
+        Public Function AppendTo(Element As HtmlElement, Optional Copy As Boolean = False) As HtmlNode
+            If Copy Then
+                Dim el As New HtmlElement(Element)
+                Element.Nodes.Add(el)
+                Return el
+            Else
+                Element.Nodes.Add(Me, True)
+                Return Me
+            End If
+        End Function
+
         Public MustOverride Function Censor(CensorChar As Char, ParamArray BadWords As String()) As Boolean
 
         ''' <summary>
@@ -182,12 +195,6 @@ Namespace HtmlParser
                 End While
             End If
             Return Nothing
-        End Function
-
-
-        Public Function AppendTo(Element As HtmlElement) As HtmlNode
-            Element.Nodes.Add(Me, True)
-            Return Me
         End Function
 
         Public MustOverride Sub FixText()
@@ -223,6 +230,10 @@ Namespace HtmlParser
             Return node.IsDescendentOf(Me)
         End Function
 
+        Public Function IsAnchor() As Boolean
+            Return TypeOf Me Is HtmlAnchorElement
+        End Function
+
         ''' <summary>
         ''' This will return true if the node passed is a descendent of this node.
         ''' </summary>
@@ -245,21 +256,17 @@ Namespace HtmlParser
             Return TypeOf Me Is HtmlElement
         End Function
 
-        <Category("General"), Description("This is true if this is a text node")>
-        Public Function IsText() As Boolean
-            Return TypeOf Me Is HtmlText
-        End Function
-
-        Public Function IsAnchor() As Boolean
-            Return TypeOf Me Is HtmlAnchorElement
+        Public Function IsImage() As Boolean
+            Return TypeOf Me Is HtmlImageElement
         End Function
 
         Public Function IsSelect() As Boolean
             Return TypeOf Me Is HtmlSelectElement
         End Function
 
-        Public Function IsImage() As Boolean
-            Return TypeOf Me Is HtmlImageElement
+        <Category("General"), Description("This is true if this is a text node")>
+        Public Function IsText() As Boolean
+            Return TypeOf Me Is HtmlText
         End Function
 
         ''' <summary>
@@ -585,19 +592,29 @@ Namespace HtmlParser
             MyBase.Insert(Index, Node)
         End Sub
 
+        ''' <summary>
+        ''' Insert a element in specific index
+        ''' </summary>
+        ''' <param name="Index"></param>
+        ''' <param name="Nodes"></param>
+        Public Shadows Sub Insert(Index As Integer, Nodes As String)
+            Me.Insert(Index, New HtmlParser().Parse(Nodes).AsEnumerable, True)
+        End Sub
+
         Public Sub ReplaceElement(Element As HtmlNode, Items As IEnumerable(Of HtmlNode))
-            Dim indexo = Me.IndexOf(Element)
+            Dim indexo = Element.Index
             Dim index_append = 1
             If indexo > -1 Then
                 For Each el In Items
                     Me.Insert(indexo + index_append, el)
                     index_append.Increment
                 Next
-                Me.RemoveAt(Me.IndexOf(Element))
+                Me.RemoveAt(Element.Index)
             Else
                 Debug.Write("Element not found in List!")
             End If
         End Sub
+
         Public Sub ReplaceElement(Element As HtmlNode, Html As String)
             Dim n = New InnerLibs.HtmlParser.HtmlParser().Parse(Html)
             ReplaceElement(Element, n)

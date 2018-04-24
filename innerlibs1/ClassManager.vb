@@ -679,6 +679,17 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays.
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="Obj">objeto</param>
+    ''' <param name="List">Lista</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsInAny(Of Type)(Obj As Type, List As IEnumerable(Of Type)(), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
+        Return List.Any(Function(x) Obj.IsIn(x, Comparer))
+    End Function
+
+    ''' <summary>
     ''' Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>

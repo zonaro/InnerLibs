@@ -1,0 +1,212 @@
+﻿Imports System.Text.RegularExpressions
+Imports System.Web.Script.Serialization
+
+Public Class Paragraph
+    Inherits List(Of Sentence)
+
+    Friend Sub New(Text As String, StructuredText As StructuredText)
+        Me.StructuredText = StructuredText
+        Dim sep0 As Char = "."c, sep1 As Char = "!"c, sep2 As Char = "?"c
+        Dim pattern As String = String.Format("[{0}{1}{2}]|[^{0}{1}{2}]+", sep0, sep1, sep2)
+        Dim regex As Regex = New Regex(pattern)
+        Dim matches As MatchCollection = regex.Matches(Text)
+
+        For Each match As Match In matches
+            Me.Add(New Sentence(match.ToString(), Me))
+        Next
+
+    End Sub
+
+    Property Ident As Integer = 0
+
+    Public Overrides Function ToString() As String
+        Dim ss = ""
+        For Each s In Me
+            ss.Append(s.ToString & " ")
+        Next
+        Return ss.Trim
+    End Function
+
+    <ScriptIgnore>
+    Property StructuredText As StructuredText
+End Class
+
+Public Class Sentence
+    Inherits List(Of SentencePart)
+
+    Friend Sub New(Text As String, Paragraph As Paragraph)
+        Me.Paragraph = Paragraph
+        Dim charlist = Text.Trim.ToArray.ToList
+        Dim palavra As String = ""
+        Dim listabase As New List(Of String)
+
+        'remove quaisquer caracteres nao desejados do inicio da frase
+        While charlist.Count > 0 AndAlso charlist.First.ToString.IsIn(EndOfSentencePunctuation)
+            charlist.Remove(charlist.First)
+        End While
+
+        'processa caractere a caractere
+        For Each p In charlist
+            Select Case True
+                'caso for algum tipo de pontuacao, wrapper ou virgula
+                Case OpenWrappers.Contains(p), CloseWrappers.Contains(p), EndOfSentencePunctuation.Contains(p), MidSentencePunctuation.Contains(p)
+                    If palavra.IsNotBlank Then
+                        listabase.Add(palavra) 'adiciona a plavra atual
+                        palavra = ""
+                    End If
+                    listabase.Add(p) 'adiciona a virgula, wrapper ou pontuacao
+                'caso for espaco
+                Case p = " "
+                    If palavra.IsNotBlank Then
+                        listabase.Add(palavra) 'adiciona a plavra atual
+                        palavra = ""
+                    End If
+                    palavra = ""
+                    'senao, adiciona o proximo caractere a palavra atual
+                Case Else
+                    palavra &= p
+            End Select
+        Next
+
+        'e entao adiciona ultima palavra se existir
+        If palavra.IsNotBlank Then
+            listabase.Add(palavra)
+            palavra = ""
+        End If
+
+
+        If listabase.Count > 0 Then
+            If listabase.Last = "," Then 'se a ultima sentenca for uma virgula, substituimos ela por ponto
+                listabase.RemoveAt(listabase.Count - 1)
+                listabase.Add(".")
+            End If
+
+            'se a ultima sentecao nao for nenhum tipo de pontuacao, adicionamos um ponto a ela
+            If Not listabase.Last.IsInAny({EndOfSentencePunctuation, MidSentencePunctuation}) Then
+                listabase.Add(".")
+            End If
+
+            'processar palavra a palavra
+            For index = 0 To listabase.Count - 1
+                Me.Add(New SentencePart(listabase(index), Me))
+            Next
+        Else
+            Me.Paragraph.Remove(Me)
+        End If
+    End Sub
+
+    Public Overrides Function ToString() As String
+        Dim sent = ""
+        For Each s In Me
+            sent.Append(s.ToString)
+            If s.Next IsNot Nothing Then
+                If s.NeedSpaceOnNext Then
+                    sent.Append(" ")
+                End If
+            End If
+        Next
+        Return sent
+    End Function
+
+    <ScriptIgnore>
+    ReadOnly Property Paragraph As Paragraph
+End Class
+
+Public Class SentencePart
+
+    Function IsWord() As Boolean
+        Return Not IsNotWord()
+    End Function
+
+    Function IsNotWord() As Boolean
+        Return IsOpenWrapChar() OrElse IsCloseWrapChar() OrElse IsComma() OrElse IsEndOfSentencePunctuation() OrElse IsMidSentencePunctuation()
+    End Function
+
+    Function IsOpenWrapChar() As Boolean
+        Return OpenWrappers.Contains(Me.Text)
+    End Function
+
+    Function IsCloseWrapChar() As Boolean
+        Return CloseWrappers.Contains(Me.Text)
+    End Function
+
+    Function IsComma() As Boolean
+        Return Me.Text = ","
+    End Function
+
+    Function IsEndOfSentencePunctuation() As Boolean
+        Return EndOfSentencePunctuation.Contains(Me.Text)
+    End Function
+
+    Function IsMidSentencePunctuation() As Boolean
+        Return MidSentencePunctuation.Contains(Me.Text)
+    End Function
+
+    Function IsPunctuation() As Boolean
+        Return IsPunctuation Or IsMidSentencePunctuation()
+    End Function
+
+    Friend Sub New(Text As String, Sentence As Sentence)
+        Me.Text = Text.Trim
+        Me.Sentence = Sentence
+    End Sub
+
+    <ScriptIgnore>
+    ReadOnly Property Sentence As Sentence
+
+    Public Property Text As String
+
+    Public Overrides Function ToString() As String
+
+        Dim indexo = Sentence.IndexOf(Me)
+
+        If indexo < 0 Then
+            Return ""
+        End If
+
+        If indexo = 0 OrElse (indexo = 1 AndAlso OpenWrappers.Contains(Sentence(0).Text)) Then
+            Return Text.ToProper
+        End If
+
+        Return Text
+    End Function
+
+
+    Public Function Previous() As SentencePart
+        Return Sentence.IfNoIndex(Sentence.IndexOf(Me) - 1)
+    End Function
+
+    Public Function [Next]() As SentencePart
+        Return Sentence.IfNoIndex(Sentence.IndexOf(Me) + 1)
+    End Function
+
+    Public Function NeedSpaceOnNext() As Boolean
+        Return Me.Next IsNot Nothing AndAlso (Me.Next.IsWord OrElse Me.Next.IsOpenWrapChar)
+    End Function
+
+End Class
+
+Public Class StructuredText
+    Inherits List(Of Paragraph)
+
+
+
+    Public Overrides Function ToString() As String
+        Dim par As String = ""
+        For Each p In Me
+            For i = 1 To p.Ident
+                par.Append(vbTab)
+            Next
+            par.Append(p.ToString & Environment.NewLine)
+        Next
+        Return par
+    End Function
+
+
+    Public Sub New(OriginalText As String)
+        For Each p In OriginalText.Split(BreakLineChars, StringSplitOptions.RemoveEmptyEntries)
+            Me.Add(New Paragraph(p, Me))
+        Next
+    End Sub
+
+End Class
