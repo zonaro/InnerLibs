@@ -6,52 +6,6 @@ Imports InnerLibs.LINQ
 
 Namespace HtmlParser
 
-    Public Class HtmlAnchorElement
-        Inherits HtmlElement
-
-        Sub New()
-            MyBase.New("a")
-        End Sub
-
-        Sub New(Url As String, Text As String)
-            MyBase.New("a")
-            Me.Href = Url
-            Me.InnerHTML = Text
-        End Sub
-
-        Property Href As String
-            Get
-                Return Me.Attribute("href")
-            End Get
-            Set(value As String)
-                Me.Attribute("href") = value
-            End Set
-        End Property
-
-        Property Target As String
-            Get
-                Return Me.Attribute("target")
-            End Get
-            Set(value As String)
-                If value Is Nothing Then
-                    Me.RemoveAttribute("target")
-                Else
-                    Me.Attribute("target") = value
-                End If
-            End Set
-        End Property
-
-        Overrides Property Name As String
-            Get
-                Return "a"
-            End Get
-            Set(value As String)
-                MyBase.Name = "a"
-            End Set
-        End Property
-
-    End Class
-
     ''' <summary>
     ''' The HtmlElement object represents any HTML element. An element has a name and zero or more attributes.
     ''' </summary>
@@ -287,7 +241,8 @@ Namespace HtmlParser
                 Dim d = New HtmlParser().Parse(value)
                 Me.Nodes.Clear()
                 For Each n As HtmlNode In d
-                    Me.Nodes.Add(n, True)
+                    n.mParent = Me
+                    Me.Nodes.Add(n)
                 Next
             End Set
         End Property
@@ -547,15 +502,6 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' Move this element into new element
-        ''' </summary>
-        ''' <param name="Destination"></param>
-        Function Move(Destination As HtmlElement) As HtmlElement
-            Me.Parent = Destination
-            Return Me
-        End Function
-
-        ''' <summary>
         ''' Transform the current element into a new set of elements
         ''' </summary>
         ''' <param name="Elements">Collection of new elements</param>
@@ -589,6 +535,10 @@ Namespace HtmlParser
             End If
         End Sub
 
+        Public Sub ParseHashTags(Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
+            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseHashtag(Method)))
+        End Sub
+
         ''' <summary>
         ''' Find :emoji: and replace then using specific method
         ''' </summary>
@@ -596,10 +546,6 @@ Namespace HtmlParser
         ''' <param name="SearchChildren"></param>
         Public Sub ParseEmoji(Optional Method As Func(Of String, String) = Nothing, Optional SearchChildren As Boolean = True)
             Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseEmoji(Method)))
-        End Sub
-
-        Public Sub ParseHashTags(Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
-            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseHashtag(Method)))
         End Sub
 
         ''' <summary>
@@ -653,268 +599,6 @@ Namespace HtmlParser
             doc.LoadXml(XHTML)
             Return doc.DocumentElement
         End Function
-
-    End Class
-
-    Public Class HtmlImageElement
-        Inherits HtmlElement
-
-        Sub New()
-            MyBase.New("img")
-        End Sub
-
-        Sub New(Url As String)
-            Me.New
-            Me.Src = Url
-        End Sub
-
-        Sub New(Image As Drawing.Image)
-            Me.New
-            Me.Src = Image.ToDataURL
-        End Sub
-
-        Property Src As String
-            Get
-                Return Me.Attribute("src")
-            End Get
-            Set(value As String)
-                If value Is Nothing Then
-                    Me.RemoveAttribute("src")
-                End If
-                Me.Attribute("src") = value
-            End Set
-        End Property
-
-        Overrides Property Name As String
-            Get
-                Return "img"
-            End Get
-            Set(value As String)
-                MyBase.Name = "img"
-            End Set
-        End Property
-
-    End Class
-
-    Public Class HtmlInputElement
-        Inherits HtmlElement
-
-        Sub New(Optional Type As HtmlInputType = HtmlInputType.text, Optional Value As String = Nothing)
-            MyBase.New("input")
-            mIsExplicitlyTerminated = True
-            Me.Value = Value
-            Me.Type = Type
-        End Sub
-
-        Enum HtmlInputType
-            text
-            button
-            checkbox
-            color
-            [date]
-            datetime_local
-            email
-            file
-            hidden
-            image
-            month
-            number
-            password
-            radio
-            range
-            reset
-            search
-            submit
-            tel
-            time
-            url
-            week
-        End Enum
-
-        ''' <summary>
-        ''' Type of Input
-        ''' </summary>
-        ''' <returns></returns>
-        Property Type As HtmlInputType
-            Get
-                Return GetEnumValue(Of HtmlInputType)(Me.Attribute("type"))
-            End Get
-            Set(value As HtmlInputType)
-                Me.Attribute("type") = [Enum].GetName(GetType(HtmlInputType), value)
-            End Set
-        End Property
-
-        ''' <summary>
-        ''' Value of Input
-        ''' </summary>
-        ''' <returns></returns>
-        Property Value As String
-            Get
-                Return Me.Attribute("value")
-            End Get
-            Set(value As String)
-                Me.Attribute("value") = ("" & value)
-            End Set
-        End Property
-
-        Overrides Property Name As String
-            Get
-                Return "input"
-            End Get
-            Set(value As String)
-                MyBase.Name = "input"
-            End Set
-        End Property
-
-    End Class
-
-    Public Class HtmlListElement
-        Inherits HtmlElement
-
-        ''' <summary>
-        ''' Create a List element (OL or UL)
-        ''' </summary>
-        ''' <param name="OrdenedList"></param>
-        Sub New(Optional OrdenedList As Boolean = False)
-            MyBase.New(If(OrdenedList, "ol", "ul"))
-            IsOrdenedList = OrdenedList
-        End Sub
-
-        Property IsOrdenedList As Boolean = False
-
-        ''' <summary>
-        ''' Returns the name of element (OL or UL)
-        ''' </summary>
-        ''' <returns></returns>
-        Shadows Property Name As String
-            Get
-                Return MyBase.Name
-            End Get
-            Set(value As String)
-                IsOrdenedList = (value.ToLower = "ol")
-                MyBase.Name = If(IsOrdenedList, "ol", "ul")
-            End Set
-        End Property
-
-        ''' <summary>
-        ''' Add a LI to this list
-        ''' </summary>
-        ''' <param name="Text"></param>
-        Public Sub Add(Text As String)
-            Me.Nodes.Add(New HtmlElement("li", Text) With {.IsExplicitlyTerminated = True})
-        End Sub
-
-        ''' <summary>
-        ''' Add a LI to this list
-        ''' </summary>
-        ''' <param name="Content">Htmlnodes (Will be wrapped into a LI element)</param>
-        Public Sub Add(ParamArray Content As HtmlNode())
-            Dim d = New HtmlElement("li")
-            d.IsExplicitlyTerminated = True
-            For Each i In Content
-                If TypeOf i Is HtmlElement Then
-                    If CType(i, HtmlElement).Name = "li" Then
-                        d = i
-                    Else
-                        i.Parent = d
-                    End If
-                Else
-                    i.Parent = d
-                End If
-            Next
-            Me.Nodes.Add(d)
-        End Sub
-
-    End Class
-
-    Public Class HtmlOptionElement
-        Inherits HtmlElement
-
-        Sub New()
-            MyBase.New("option")
-        End Sub
-
-        Sub New(Text As String)
-            MyBase.New("option", Text.RemoveHTML)
-        End Sub
-
-        Sub New(Text As String, Value As String)
-            MyBase.New("option", Text.RemoveHTML)
-            Me.Attribute("value") = Value
-        End Sub
-
-        Property Group As String = ""
-
-    End Class
-
-    Public Class HtmlSelectElement
-        Inherits HtmlElement
-
-        ''' <summary>
-        ''' Create a select element
-        ''' </summary>
-        Sub New()
-            MyBase.New("select")
-        End Sub
-
-        ''' <summary>
-        ''' Returns the name of element (OL or UL)
-        ''' </summary>
-        ''' <returns></returns>
-        Overrides Property Name As String
-            Get
-                Return "select"
-            End Get
-            Set(value As String)
-                MyBase.Name = "select"
-            End Set
-        End Property
-
-        Public ReadOnly Property Groups As IEnumerable(Of String)
-            Get
-                Return Me("option").Select(Function(a As HtmlOptionElement) a.Group).Distinct
-            End Get
-        End Property
-
-        ''' <summary>
-        ''' Add a option to this list
-        ''' </summary>
-        ''' <param name="Option"></param>
-        Public Function AddOption([Option] As HtmlOptionElement)
-            Me.Nodes.Add([Option])
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Add a option to this list
-        ''' </summary>
-        Public Function AddOption(Text As String, Value As String)
-            Return Me.AddOption(New HtmlOptionElement(Text, Value))
-        End Function
-
-        ''' <summary>
-        ''' Redefines the node elements
-        ''' </summary>
-        Public Sub Organize()
-            If Groups.Count > 0 Then
-                Dim opts = Me("option")
-                For Each group In Groups
-                    Dim d As New HtmlElement("optgroup")
-                    d.IsExplicitlyTerminated = True
-                    d.Attribute("label") = group
-                    Me.Nodes.Add(d)
-                Next
-                For Each opt In Me("option")
-                    Dim o = CType(opt, HtmlOptionElement)
-                    If o.Group.IsNotBlank Then
-                        Dim destination = Me("optgroup[label=" & CType(opt, HtmlOptionElement).Group.Quote & "]").First
-                        o.Move(destination)
-                    Else
-                        o.Move(Me)
-                    End If
-                Next
-            End If
-        End Sub
 
     End Class
 

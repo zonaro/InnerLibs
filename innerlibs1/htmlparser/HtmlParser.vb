@@ -153,7 +153,7 @@ Namespace HtmlParser
         Private Sub MoveNodesDown(ByRef nodes As HtmlNodeCollection, node_index As Integer, new_parent As HtmlElement)
             For i As Integer = node_index To nodes.Count - 1
                 DirectCast(new_parent, HtmlElement).Nodes.Add(nodes(i))
-                nodes(i).Parent = new_parent
+                nodes(i).SetParent(new_parent)
             Next
             Dim c As Integer = nodes.Count
             For i As Integer = node_index To c - 1
