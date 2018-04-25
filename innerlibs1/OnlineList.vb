@@ -208,7 +208,7 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
         Else
             lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)))).ToArray
         End If
-        lista = lista.OrderByDescending(Function(x) x.SentDate).ToArray
+        lista = lista.DistinctBy(Function(x) x.ID).OrderByDescending(Function(x) x.SentDate).ToArray
         Return lista
     End Function
 

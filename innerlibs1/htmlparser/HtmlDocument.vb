@@ -54,7 +54,8 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="Content">The byte array with URL or HTML to parse.</param>
         Public Sub New(Content As Byte(), Optional Encoding As Encoding = Nothing)
-            Build(If(Encoding, Encoding.UTF8).GetString(Content), If(Encoding, Encoding.UTF8))
+            Encoding = If(Encoding, Encoding.UTF8)
+            Build(Encoding.GetString(Content), Encoding)
         End Sub
 
         ''' <summary>

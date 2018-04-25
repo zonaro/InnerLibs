@@ -1,6 +1,7 @@
 Imports System.ComponentModel
 Imports System.Text
 Imports System.Web.UI.HtmlControls
+Imports System.Web.UI.WebControls
 Imports System.Xml
 Imports InnerLibs.LINQ
 
@@ -241,10 +242,32 @@ Namespace HtmlParser
 
         Sub New(Text As String, Value As String)
             MyBase.New("option", Text.RemoveHTML)
-            Me.Attribute("value") = Value
+            Me.Value = Value
         End Sub
 
         Property Group As String = ""
+
+        Property Text As String
+            Get
+                Return Me.GetTextElements.FirstOrDefault.IfBlank("")
+            End Get
+            Set(value As String)
+                Me.InnerText = value.RemoveHTML
+            End Set
+        End Property
+
+        Property Value As String
+            Get
+                Return Me.Attribute("value")
+            End Get
+            Set(value As String)
+                Me.Attribute("value") = value
+            End Set
+        End Property
+
+        Function AsListItem() As ListItem
+            Return New ListItem(Me.Text, Me.Value)
+        End Function
 
     End Class
 
@@ -257,7 +280,7 @@ Namespace HtmlParser
         ''' Returns the name of element (OL or UL)
         ''' </summary>
         ''' <returns></returns>
-        Shadows Property Name As String
+        Overrides Property Name As String
             Get
                 Return MyBase.Name
             End Get
