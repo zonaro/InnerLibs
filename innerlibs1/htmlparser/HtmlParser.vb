@@ -63,7 +63,22 @@ Namespace HtmlParser
                     End If
                     Dim tag_name As String = tokens(index)
                     index += 1
-                    element = New HtmlElement(tag_name)
+
+                    Select Case tag_name.ToLower
+                        Case "img"
+                            element = New HtmlImageElement()
+                        Case "a"
+                            element = New HtmlAnchorElement()
+                        Case "select"
+                            element = New HtmlSelectElement()
+                        Case "option"
+                            element = New HtmlOptionElement()
+                        Case "ol", "ul"
+                            element = New HtmlListElement(tag_name = "ol")
+                        Case Else
+                            element = New HtmlElement(tag_name)
+                    End Select
+
                     ' read the attributes and values
 
                     While index < tokens.Count AndAlso Not ">".Equals(tokens(index)) AndAlso Not "/>".Equals(tokens(index))
