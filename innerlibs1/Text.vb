@@ -1843,18 +1843,12 @@ Public Module Text
     <Extension> Public Function ToAlternateCase(Text As String) As String
         Dim ch = Text.ToArray
         For index = 0 To ch.Length - 1
-            If index.IsEven Then
-                If ch.IfNoIndex(index - 1, "").ToString.IsBlank Then
-                    ch(index) = Char.ToLower(ch(index))
-                Else
-                    ch(index) = Char.ToUpper(ch(index))
-                End If
+            Dim antec = ch.IfNoIndex(index - 1, "")
+
+            If antec.ToString.IsBlank OrElse Char.IsLower(antec) OrElse antec = vbNullChar Then
+                ch(index) = Char.ToUpper(ch(index))
             Else
-                If ch.IfNoIndex(index - 1, "").ToString.IsBlank Then
-                    ch(index) = Char.ToUpper(ch(index))
-                Else
-                    ch(index) = Char.ToLower(ch(index))
-                End If
+                ch(index) = Char.ToLower(ch(index))
             End If
         Next
         Return New String(ch)
