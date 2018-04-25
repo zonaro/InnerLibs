@@ -1821,6 +1821,46 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToRandomCase(Text As String) As String
+        Dim ch = Text.ToArray
+        Dim times = ch.Length
+        For index = 1 To times
+            Dim newindex = RandomNumber(0, ch.Length - 1)
+            ch(newindex) = Char.ToUpper(ch(newindex))
+        Next
+        Return New String(ch)
+    End Function
+
+    ''' <summary>
+    ''' Alterna maiusculas e minusculas para cada letra de uma string
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToAlternateCase(Text As String) As String
+        Dim ch = Text.ToArray
+        For index = 0 To ch.Length - 1
+            If index.IsEven Then
+                If ch.IfNoIndex(index - 1, "").ToString.IsBlank Then
+                    ch(index) = Char.ToLower(ch(index))
+                Else
+                    ch(index) = Char.ToUpper(ch(index))
+                End If
+            Else
+                If ch.IfNoIndex(index - 1, "").ToString.IsBlank Then
+                    ch(index) = Char.ToUpper(ch(index))
+                Else
+                    ch(index) = Char.ToLower(ch(index))
+                End If
+            End If
+        Next
+        Return New String(ch)
+    End Function
+
+    ''' <summary>
     ''' Transforma um numero em sua forma extensa (com até 3 casas apos a virgula)
     ''' </summary>
     ''' <param name="Number">       Numero decimal</param>

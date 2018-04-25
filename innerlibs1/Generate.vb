@@ -179,13 +179,15 @@ Public Module Generate
     ''' <returns>Um numero Inteiro (Integer ou Int)</returns>
 
     Function RandomNumber(Optional Min As Long = 0, Optional Max As Long = 999999) As Integer
-        Dim r = New Random()
         Dim v = 0
         For index = Min To Max
-            v = r.Next(Min, Max + 1)
+            v = init_rnd.Next(Min, Max + 1)
         Next
         Return v
     End Function
+
+    Private init_rnd = New Random()
+
     ''' <summary>
     ''' Gera um InnerIpsum (InnerIpsum é uma modificação do classico Lorem Ipsum)
     ''' </summary>
