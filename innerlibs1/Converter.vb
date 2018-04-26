@@ -308,6 +308,7 @@ Public Module Converter
     Public Sub SetPropertiesIn(Of T As Class)(Dic As IDictionary(Of String, Object), Obj As T)
         For Each k In Dic
             If Obj.HasProperty(k.Key) Then
+
                 Obj.SetPropertyValue(k.Key, k.Value)
             End If
         Next

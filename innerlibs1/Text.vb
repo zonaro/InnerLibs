@@ -485,9 +485,6 @@ Public Module Text
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
     <Extension()> Public Function FixText(ByVal Text As String) As String
-        'If Text.IsNotBlank Then
-        '    Text = Text.AdjustWhiteSpaces.FixPunctuation().FixCaptalization
-        'End If
         Return New StructuredText(Text).ToString
     End Function
 
