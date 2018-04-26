@@ -7,8 +7,9 @@ Namespace HtmlParser
     Public Module MentionParser
 
         <Extension()>
-        Function ParseURL(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text, "(http(s)?://)?([\w-]+\.)+[\w-]+(/\S\w[\w- ;,./?%&=]\S*)?", New MatchEvaluator(Function(x) Method(x.ToString)))
+        Function ParseURL(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
+            Method = If(Method, Function(x) x)
+            Return Regex.Replace(Text, "https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)", New MatchEvaluator(Function(x) Method(x.ToString.Trim)))
         End Function
 
         ''' <summary>
@@ -31,8 +32,9 @@ Namespace HtmlParser
         ''' <param name="Method"></param>
 
         <Extension()>
-        Function ParseUsername(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text, "(\W|^)@(\b\S+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("@").Trim)))
+        Function ParseUsername(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
+            Method = If(Method, Function(x) x)
+            Return Regex.Replace(Text, "(?<= |^)@([^@ ]+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("@").Trim)))
         End Function
 
         ''' <summary>
@@ -43,8 +45,9 @@ Namespace HtmlParser
         ''' <param name="Method"></param>
 
         <Extension()>
-        Function ParseHashtag(ByVal Text As String, Method As Func(Of String, String)) As String
-            Return Regex.Replace(Text.ToString, "(\W|^)#(\b\S+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("#").Trim)))
+        Function ParseHashtag(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
+            Method = If(Method, Function(x) x)
+            Return Regex.Replace(Text.ToString, "(?<= |^)#([^@ ]+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("#").Trim)))
         End Function
 
         ''' <summary>
@@ -55,14 +58,14 @@ Namespace HtmlParser
         ''' <param name="URL">URL</param>
         ''' <returns></returns>
         <Extension()>
-        Function CreateAnchor(URL As String, Optional Target As String = "_blank") As HtmlAnchorElement
+        Function CreateAnchor(URL As String, Optional Target As String = "_blank", Optional Title As String = "") As HtmlAnchorElement
             Try
                 If URL.IsURL Then
-                    Return New HtmlAnchorElement(URL, BrowserClipper.GetTitle(URL)) With {.Target = Target}
+                    Return New HtmlAnchorElement(URL, Title.IfBlank(BrowserClipper.GetTitle(URL))) With {.Target = Target}
                 End If
                 Throw New Exception
             Catch ex As Exception
-                Return New HtmlAnchorElement(URL, URL) With {.Target = Target}
+                Return New HtmlAnchorElement(URL, Title.IfBlank(URL)) With {.Target = Target}
             End Try
         End Function
 
