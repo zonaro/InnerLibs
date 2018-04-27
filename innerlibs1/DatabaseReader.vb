@@ -1,5 +1,4 @@
-﻿
-Imports System.Data.Common
+﻿Imports System.Data.Common
 Imports System.IO
 Imports System.Reflection
 Imports System.Web
@@ -30,7 +29,6 @@ Partial Public Class DataBase
     End Class
 
 
-
     ''' <summary>
     ''' Resultado de uma query no banco de dados
     ''' </summary>
@@ -52,10 +50,7 @@ Partial Public Class DataBase
 
 
 
-
     End Class
-
-
 
     ''' <summary>
     ''' Estrutura que imita um <see cref="DbDataReader"/> usando <see cref="List"/> de  <see cref="Dictionary"/>. Permite a leitura
@@ -126,8 +121,6 @@ Partial Public Class DataBase
                 Return New List(Of String)
             End If
         End Function
-
-
 
         ''' <summary>
         ''' Retorna o numero de linhas do resultado atual
@@ -361,8 +354,6 @@ Partial Public Class DataBase
             r.AddRange(Rows)
             Me.Add(r)
         End Sub
-
-
 
         ''' <summary>
         ''' Cria um novo Reader a partir de um <see cref="DbDataReader"/>
@@ -870,7 +861,21 @@ Partial Public Class DataBase
             Return tag
         End Function
 
-
+        ''' <summary>
+        ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em controles
+        ''' com mesmo ID das colunas. Se os conroles não existirem no resultado eles serão ignorados.
+        ''' </summary>
+        ''' <param name="Controls">Controles que serão Manipulados</param>
+        ''' <returns>Um array contendo os inputs manipulados</returns>
+        Public Function ApplyToControls(ParamArray Controls As System.Windows.Forms.Control()) As System.Windows.Forms.Control()
+            For Each c In Controls
+                Try
+                    c.CastValueForControl(Me(c.Name))
+                Catch ex As Exception
+                End Try
+            Next
+            Return Controls
+        End Function
 
         ''' <summary>
         ''' Aplica os valores encontrados nas colunas de um <see cref="DataBase.Reader"/> em controles
@@ -930,6 +935,5 @@ Partial Public Class DataBase
         End Function
 
     End Class
-
 
 End Class

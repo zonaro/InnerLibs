@@ -145,11 +145,16 @@ Public Module WinForms
     ''' <param name="Form">     O formulario</param>
     ''' <param name="TheScreen">Qual tela o form será aplicado</param>
     <System.Runtime.CompilerServices.Extension>
-    Public Sub ToFullScreen(Form As Form, Optional TheScreen As Integer = 0)
-        Form.WindowState = FormWindowState.Maximized
+    Public Function ToFullScreen(Form As Form, Optional TheScreen As Integer = 0) As Form
+        TheScreen = TheScreen.LimitRange(0, Screen.AllScreens.Count - 1)
+        Form.WindowState = FormWindowState.Normal
         Form.StartPosition = FormStartPosition.Manual
-        Form.Bounds = Screen.AllScreens(TheScreen).Bounds
-    End Sub
+        Form.Location = Screen.AllScreens(TheScreen).Bounds.Location
+        Form.Show()
+        Form.Size = Screen.AllScreens(TheScreen).Bounds.Size
+        Form.Focus()
+        Return Form
+    End Function
 
     ''' <summary>
     ''' Aplica máscara de telefone com ou sem o nono dígito automaticamente de acordo com o número
@@ -203,7 +208,7 @@ Public Module WinForms
     ''' <param name="Control">Controle Pai</param>
     ''' <returns>Uma lista com os controles</returns>
     <Extension()>
-    Public Function GetAllControls(Of ControlType)(Control As System.Windows.Forms.Control) As List(Of ControlType)
+    Public Function GetAllControls(Of ControlType As Control)(Control As System.Windows.Forms.Control) As IEnumerable(Of ControlType)
         Dim lista As New List(Of ControlType)
         For Each c In Control.Controls
             If c.GetType = GetType(ControlType) Then
@@ -213,7 +218,7 @@ Public Module WinForms
                 lista.AddRange(GetAllControls(Of ControlType)(c))
             End If
         Next
-        Return lista
+        Return lista.AsEnumerable
     End Function
 
     ''' <summary>
@@ -223,7 +228,7 @@ Public Module WinForms
     ''' <param name="Control">Controle Pai</param>
     ''' <returns>Uma lista com os controles</returns>
     <Extension()>
-    Public Function GetAllControls(Of ControlType)(Control As System.Web.UI.Control) As List(Of ControlType)
+    Public Function GetAllControls(Of ControlType As System.Web.UI.Control)(Control As System.Web.UI.Control) As IEnumerable(Of ControlType)
         Dim lista As New List(Of ControlType)
         For Each c In Control.Controls
             If c.GetType = GetType(ControlType) Then
@@ -233,15 +238,64 @@ Public Module WinForms
                 lista.AddRange(GetAllControls(Of ControlType)(c))
             End If
         Next
-        Return lista
+        Return lista.AsEnumerable
     End Function
 
     ''' <summary>
-    ''' Aplica um valor a um controle dependendo do seu tipo
+    ''' Retorna uma lista de controles a partir de um predicado
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <param name="Control"></param>
+    ''' <param name="predicate"></param>
+    ''' <returns></returns>
+    Public Function GetAllControls(Of Type As Control)(Control As Control, predicate As Func(Of Control, Boolean)) As Type
+        Return Control.GetAllControls(Of Type).Where(predicate)
+    End Function
+
+    ''' <summary>
+    ''' Retorna o valor de um Controle de formulário ou variavel de acordo com seu tipo
+    ''' </summary>
+    ''' <param name="Control">Controle</param>
+    ''' <returns></returns>
+    <Extension> Public Function GetCastedValue(Control As Object) As Object
+        Select Case Control.GetType
+            Case GetType(NumericUpDown), GetType(TrackBar)
+                Return CType(Control.Value, Decimal)
+            Case GetType(MonthCalendar)
+                Return CType(Control.SelectionStart, DateTime)
+            Case GetType(DateTimePicker)
+                Return CType(Control.Value, DateTime)
+            Case GetType(TextBox), GetType(MaskedTextBox), GetType(Form), GetType(RichTextBox), GetType(Label), GetType(ComboBox)
+                Return CType(Control.Text, String)
+            Case GetType(RadioButton), GetType(CheckBox)
+                Return CType(Control.Checked, Boolean)
+            Case GetType(String)
+                Return CType(Control, String)
+            Case GetType(Long)
+                Return CType(Control, Long)
+            Case GetType(Integer)
+                Return CType(Control, Integer)
+            Case GetType(Decimal)
+                Return CType(Control, Decimal)
+            Case GetType(Short)
+                Return CType(Control, Short)
+            Case GetType(Double)
+                Return CType(Control, Double)
+            Case GetType(DateTime)
+                Return CType(Control, DateTime)
+            Case GetType(Char)
+                Return CType(Control, Char)
+            Case Else
+                Throw New ArgumentException("O controle ou tipo " & Control.GetType.Name & " não é suportado")
+        End Select
+    End Function
+
+    ''' <summary>
+    ''' Aplica um valor a um controle ou variavel dependendo do seu tipo
     ''' </summary>
     ''' <param name="Control">Controle</param>
     ''' <param name="Value">  Valor</param>
-    <Extension()> Public Sub CastControl(ByRef Control As Object, Value As Object)
+    <Extension()> Public Sub CastValueForControl(ByRef Control As Object, Value As Object)
         Select Case Control.GetType
             Case GetType(NumericUpDown), GetType(TrackBar)
                 Control.Value = Convert.ToDecimal(Value)
@@ -263,10 +317,10 @@ Public Module WinForms
                 Control = CType(Value, Decimal)
             Case GetType(Short)
                 Control = CType(Value, Short)
+            Case GetType(Double)
+                Control = CType(Value, Double)
             Case GetType(DateTime)
                 Control = CType(Value, DateTime)
-            Case GetType(Char)
-                Control = CType(Value, Char)
             Case GetType(Char)
                 Control = CType(Value, Char)
             Case Else
@@ -274,7 +328,18 @@ Public Module WinForms
         End Select
     End Sub
 
-
+    ''' <summary>
+    ''' Cria um <see cref="Dictionary(Of String, Object)"/> a partir de uma lista de controles onde a KEY será o nome do controle e Value será extraido do valor de acordo com seu tipo
+    ''' </summary>
+    ''' <param name="Controls"></param>
+    ''' <returns></returns>
+    <Extension> Public Function CreateDictionary(Controls As IEnumerable(Of Windows.Forms.Control)) As Dictionary(Of String, Object)
+        Dim dic As New Dictionary(Of String, Object)
+        For Each c In Controls
+            dic(c.Name) = c.GetCastedValue
+        Next
+        Return dic
+    End Function
 
 End Module
 
