@@ -164,7 +164,7 @@ Namespace LINQ
             Return items.OrderBy(Function(x) Guid.NewGuid)
         End Function
 
-        <Extension()> Public Function OrderByRandom(Of T)(items As IQueryable(Of T)) As IOrderedEnumerable(Of T)
+        <Extension()> Public Function OrderByRandom(Of T)(items As IQueryable(Of T)) As IOrderedQueryable(Of T)
             Return items.OrderBy(Function(x) Guid.NewGuid)
         End Function
 
