@@ -168,13 +168,32 @@ Namespace LINQ
             Return items.OrderBy(Function(x) Guid.NewGuid)
         End Function
 
-        <Extension()> Function Page(Of TSource)(ByVal source As IQueryable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IQueryable(Of TSource)
-            Return source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
+        <Extension()> Function Page(Of TSource)(ByVal Source As IQueryable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IQueryable(Of TSource)
+            Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
 
         <Extension()>
-        Function Page(Of TSource)(ByVal source As IEnumerable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IEnumerable(Of TSource)
-            Return source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
+        Function Page(Of TSource)(ByVal Source As IEnumerable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IEnumerable(Of TSource)
+            Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
+        End Function
+
+
+        <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
+            Selector = If(Selector, Function(x) x.ToString)
+            Return Source.Select(Selector).Join(Separator)
+        End Function
+
+        <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
+            Return Source.AsEnumerable.SelectJoin(Selector, Separator)
+        End Function
+
+        <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = ";") As String
+            Selector = If(Selector, Function(x) {x.ToString})
+            Return Source.SelectMany(Selector).Join(Separator)
+        End Function
+
+        <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = ";") As String
+            Return Source.AsEnumerable.SelectManyJoin(Selector, Separator)
         End Function
 
         ''' <summary>
