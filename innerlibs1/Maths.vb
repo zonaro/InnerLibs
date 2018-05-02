@@ -340,6 +340,14 @@ Public Module Mathematic
         Return Number
     End Function
 
+    <Extension()> Public Function LimitIndex(Of AnyType)(Int As Integer, Collection As IEnumerable(Of AnyType)) As Integer
+        Return LimitRange(Int, 0, Collection.Count - 1)
+    End Function
+
+    <Extension()> Public Function LimitIndex(Of AnyType)(Lng As Long, Collection As IEnumerable(Of AnyType)) As Long
+        Return LimitRange(Lng, 0, Collection.LongCount - 1)
+    End Function
+
     ''' <summary>
     ''' Arredonda um numero para baixo ou para cima de acordo com outro numero
     ''' </summary>

@@ -200,8 +200,8 @@ Public Module Converter
     ''' Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um dicionario os valores sao agrupados em arrays
     ''' </summary>
     ''' <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
-    ''' <param name="Dic1">Dicionario Principal</param>
-    ''' <param name="Dics">Outros dicionarios</param>
+    ''' <param name="FirstDictionary">Dicionario Principal</param>
+    ''' <param name="Dictionaries">Outros dicionarios</param>
     ''' <returns></returns>
 
     <Extension()> Function Merge(Of Tkey)(FirstDictionary As Dictionary(Of Tkey, Object), ParamArray Dictionaries As Dictionary(Of Tkey, Object)()) As Dictionary(Of Tkey, Object)

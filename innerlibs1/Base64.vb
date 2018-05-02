@@ -64,6 +64,16 @@ Public Module Base64
     End Function
 
     ''' <summary>
+    ''' Converte um arquivo uma DATA URL Completa
+    ''' </summary>
+    ''' <param name="File">Arquivo</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function ToDataURL(File As FileInfo) As String
+        Return "data:" & New FileType(File).ToString & ";base64," & File.ToBytes.ToBase64()
+    End Function
+
+    ''' <summary>
     ''' Transforma uma imagem em uma URL Base64
     ''' </summary>
     ''' <param name="Image">Imagem</param>

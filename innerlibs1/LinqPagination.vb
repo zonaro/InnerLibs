@@ -160,38 +160,121 @@ Namespace LINQ
             Return Properties.All(Function(x) x(Obj1).Equals(x(Obj2)))
         End Function
 
+        ''' <summary>
+        ''' Randomiza a ordem de um <see cref="IEnumerable"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items"></param>
+        ''' <returns></returns>
         <Extension()> Public Function OrderByRandom(Of T)(items As IEnumerable(Of T)) As IOrderedEnumerable(Of T)
             Return items.OrderBy(Function(x) Guid.NewGuid)
         End Function
 
+        ''' <summary>
+        ''' Randomiza a ordem de um <see cref="IQueryable"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items"></param>
+        ''' <returns></returns>
         <Extension()> Public Function OrderByRandom(Of T)(items As IQueryable(Of T)) As IOrderedQueryable(Of T)
             Return items.OrderBy(Function(x) Guid.NewGuid)
         End Function
 
+        ''' <summary>
+        ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
+        ''' </summary>
+        ''' <typeparam name="Tsource"></typeparam>
+        ''' <param name="source"></param>
+        ''' <param name="PageSize"></param>
+        ''' <returns></returns>
+        <Extension> Public Function GroupByPage(Of Tsource)(source As IQueryable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
+            Return source.AsEnumerable.GroupByPage(PageSize)
+        End Function
+
+        ''' <summary>
+        ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
+        ''' </summary>
+        ''' <typeparam name="Tsource"></typeparam>
+        ''' <param name="source"></param>
+        ''' <param name="PageSize"></param>
+        ''' <returns></returns>
+        <Extension> Public Function GroupByPage(Of Tsource)(source As IEnumerable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
+            PageSize = PageSize.SetMinValue(1)
+            Return source.Select(Function(item, index) New With {item, Key .Page = index / PageSize}).GroupBy(Function(g) g.Page.Floor + 1, Function(x) x.item).ToDictionary
+        End Function
+
+        ''' <summary>
+        ''' Reduz um <see cref="IQueryable"/> em uma página especifica
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="PageNumber"></param>
+        ''' <param name="PageSize"></param>
+        ''' <returns></returns>
         <Extension()> Function Page(Of TSource)(ByVal Source As IQueryable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IQueryable(Of TSource)
             Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
 
+        ''' <summary>
+        ''' Reduz um <see cref="IEnumerable"/> em uma página especifica
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="PageNumber"></param>
+        ''' <param name="PageSize"></param>
+        ''' <returns></returns>
         <Extension()>
         Function Page(Of TSource)(ByVal Source As IEnumerable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IEnumerable(Of TSource)
             Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
 
 
+        ''' <summary>
+        ''' Seleciona e une em uma unica string varios elementos
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="Selector"></param>
+        ''' <param name="Separator"></param>
+        ''' <returns></returns>
         <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
             Selector = If(Selector, Function(x) x.ToString)
             Return Source.Select(Selector).Join(Separator)
         End Function
 
+        ''' <summary>
+        ''' Seleciona e une em uma unica string varios elementos
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="Selector"></param>
+        ''' <param name="Separator"></param>
+        ''' <returns></returns>
         <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
             Return Source.AsEnumerable.SelectJoin(Selector, Separator)
         End Function
 
+        ''' <summary>
+        ''' Seleciona e une em uma unica string varios elementos enumeraveis
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="Selector"></param>
+        ''' <param name="Separator"></param>
+        ''' <returns></returns>
         <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = ";") As String
             Selector = If(Selector, Function(x) {x.ToString})
             Return Source.SelectMany(Selector).Join(Separator)
         End Function
 
+        ''' <summary>
+        ''' Seleciona e une em uma unica string varios elementos enumeraveis
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="Selector"></param>
+        ''' <param name="Separator"></param>
+        ''' <returns></returns>
         <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = ";") As String
             Return Source.AsEnumerable.SelectManyJoin(Selector, Separator)
         End Function

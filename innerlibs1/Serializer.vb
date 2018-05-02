@@ -101,7 +101,7 @@ Public NotInheritable Class Json
 
         Public Sub New()
             m_supportedTypes = New List(Of Type)(1)
-            m_supportedTypes.Add(GetType(Byte()))
+            m_supportedTypes.AddRange({GetType(Byte()), GetType(System.Data.Linq.Binary)})
         End Sub
 
         Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
