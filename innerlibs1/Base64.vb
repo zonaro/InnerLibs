@@ -59,8 +59,8 @@ Public Module Base64
     ''' <param name="Type">Tipo de arquivo</param>
     ''' <returns></returns>
     <Extension>
-    Public Function ToDataURL(Bytes As Byte(), Type As FileType) As String
-        Return "data:" & Type.MimeTypes.First.ToLower & ";base64," & Bytes.ToBase64()
+    Public Function ToDataURL(Bytes As Byte(), Optional Type As FileType = Nothing) As String
+        Return "data:" & If(Type, New FileType).ToString & ";base64," & Bytes.ToBase64()
     End Function
 
     ''' <summary>
@@ -70,7 +70,7 @@ Public Module Base64
     ''' <returns></returns>
     <Extension>
     Public Function ToDataURL(File As FileInfo) As String
-        Return "data:" & New FileType(File).ToString & ";base64," & File.ToBytes.ToBase64()
+        Return ToDataURL(File.ToBytes, New FileType(File.Extension))
     End Function
 
     ''' <summary>
