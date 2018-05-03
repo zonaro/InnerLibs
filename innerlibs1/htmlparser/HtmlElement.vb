@@ -11,6 +11,7 @@ Namespace HtmlParser
     Public Class HtmlAnchorElement
         Inherits HtmlElement
 
+
         Overrides Property Name As String
             Get
                 Return "a"
@@ -24,10 +25,12 @@ Namespace HtmlParser
             MyBase.New("a")
         End Sub
 
-        Sub New(Url As String, Text As String)
+        Sub New(Url As String, Optional InnerHTML As String = "")
             MyBase.New("a")
             Me.Href = Url
-            Me.InnerHTML = Text
+            If InnerHTML.IsNotBlank Then
+                Me.InnerHTML = InnerHTML
+            End If
         End Sub
 
         Property Target As String
@@ -370,6 +373,15 @@ Namespace HtmlParser
                 If Not a.tolower = "innerhtml" Then Me.Attribute(a) = HtmlControl.Attributes(a)
             Next
         End Sub
+
+        Property Title As String
+            Get
+                Return Me.Attribute("title")
+            End Get
+            Set(value As String)
+                Me.Attribute("title") = value
+            End Set
+        End Property
 
         ''' <summary>
         ''' Return the child elements of this element (excluding HtmlText)

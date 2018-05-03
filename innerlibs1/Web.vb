@@ -309,16 +309,37 @@ Public Module Web
     ''' </summary>
     ''' <param name="Url">  Uri</param>
     ''' <param name="Key">  Nome do parâmetro</param>
-    ''' <param name="Value">Valor do Parâmetro</param>
+    ''' <param name="Values">Valor do Parâmetro</param>
     ''' <returns></returns>
     <Extension>
-    Public Function AddParameter(Url As Uri, Key As String, Value As String) As Uri
+    Public Function AddParameter(Url As Uri, Key As String, ParamArray Values As String()) As Uri
         Dim UriBuilder = New UriBuilder(Url)
         Dim query = HttpUtility.ParseQueryString(UriBuilder.Query)
-        query(Key) = Value
+        If Values Is Nothing Then
+            If query.AllKeys.Contains(Key) Then
+                query.Remove(Key)
+            End If
+        End If
+        For Each v In Values
+            query.Add(Key, v)
+        Next
         UriBuilder.Query = query.ToString()
         Url = New Uri(UriBuilder.ToString())
         Return Url
+    End Function
+
+    <Extension()> Public Function RemoveParameter(Url As Uri, ParamArray Keys As String()) As Uri
+        Dim UriBuilder = New UriBuilder(Url)
+        Dim query = HttpUtility.ParseQueryString(UriBuilder.Query)
+        Keys = If(Keys IsNot Nothing AndAlso Keys.Count > 0, Keys, query.AllKeys)
+        For Each k In Keys
+            Try
+                query.Remove(k)
+            Catch ex As Exception
+            End Try
+        Next
+        UriBuilder.Query = query.ToString
+        Return UriBuilder.Uri
     End Function
 
     ''' <summary>
