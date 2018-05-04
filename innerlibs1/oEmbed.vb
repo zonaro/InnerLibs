@@ -1,9 +1,39 @@
 ﻿Imports System.Xml
+Imports InnerLibs.HtmlParser
 
 ''' <summary>
 ''' Classe para integrar a api oEmbed em aplicações .NET
 ''' </summary>
 Public Class oEmbed
+
+    ''' <summary>
+    ''' Retorna a string do elemento do oEmbed
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function ToString() As String
+        Return CreateElement().ToString()
+    End Function
+
+    ''' <summary>
+    ''' Retorna a string do elemento do oEmbed
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overloads Function ToString(Name As String) As String
+        Return CreateElement(Name).ToString()
+    End Function
+
+    ''' <summary>
+    ''' Cria um <see cref="HtmlElement"/> com a resposta do oEmbed
+    ''' </summary>
+    ''' <param name="Name">Elemento</param>
+    ''' <returns></returns>
+    Public Function CreateElement(Optional Name As String = "span") As HtmlElement
+        Try
+            Return New HtmlElement(Name.IfBlank("span"), Response("html"))
+        Catch ex As Exception
+            Return New HtmlAnchorElement(Me.Url) With {.Target = "_blank"}
+        End Try
+    End Function
 
     ''' <summary>
     ''' Retorna uma lista de provedores compativeis com oEmbed

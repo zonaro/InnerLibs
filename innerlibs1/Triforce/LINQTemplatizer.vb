@@ -697,7 +697,6 @@ Namespace LINQ
         ''' <param name="Parameters"></param>
         ''' <returns></returns>
         Public Overloads Function ApplyTemplate(Of T As Class)(SQLQuery As String, Template As String, Parameters As IEnumerable(Of Object), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplatePage(Of T)
-            Debug.WriteLine(SQLQuery.Wrap(Environment.NewLine))
             Dim list As IQueryable(Of T)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
             Using Me.DataContext
@@ -1475,16 +1474,13 @@ Namespace LINQ
                             ff = Function(match)
                                      Dim s As String
                                      Dim key As String = match.Groups(1).Value
-                                     Debug.WriteLine("Found TemplateKey: " & key.Wrap(selector))
                                      Try
                                          s = CType(Item, IDictionary)(key)
                                          If s IsNot Nothing Then
-                                             Debug.WriteLine("Property " & key.Quote & " found with value: " & s.ToString.Quote)
                                          Else
                                              Throw New KeyNotFoundException(ApplySelector(key, selector) & " not found")
                                          End If
                                      Catch ex As Exception
-                                         Debug.WriteLine("Key " & key.Quote & " not found in Dictionary. Restoring the original Key: " & key.Wrap(selector).Quote)
                                          s = ApplySelector(key, selector)
                                      End Try
                                      Return s
@@ -1494,13 +1490,10 @@ Namespace LINQ
                         ff = Function(match As Match) As String
                                  Dim val
                                  Dim key = match.Groups(1).Value
-                                 Debug.WriteLine("Found TemplateKey: " & key.Wrap(selector))
                                  If Item.HasProperty(key) Then
                                      val = ClassTools.GetPropertyValue(Item, key)
                                      val = If(val, "")
-                                     Debug.WriteLine("Property " & key.Quote & " found with value: " & val.ToString.Quote)
                                  Else
-                                     Debug.WriteLine("Property " & key.Quote & " not found in " & GetType(T).Name.Quote & ". Restoring the original Key: " & key.Wrap(selector).Quote)
                                      Return ApplySelector(key, selector)
                                  End If
 
@@ -1510,18 +1503,14 @@ Namespace LINQ
                                          Select Case True
                                              Case Item.HasProperty(key & "_Format")
                                                  Dim format = Item.GetPropertyValue(Of String)(key & "_Format", True)
-                                                 Debug.WriteLine("Formating " & key.Quote & " with " & (key & "_Format").Quote & " -> " & format)
                                                  Return d.Value.ToString(format.ToString)
                                              Case Item.HasProperty("TriforceDateTimeFormat")
                                                  Dim format = Item.GetPropertyValue(Of String)("TriforceDateTimeFormat", True)
-                                                 Debug.WriteLine("Formating " & key.Quote & " with TriforceDateTimeFormat -> " & format)
                                                  Return d.Value.ToString(format.ToString)
                                              Case Else
-                                                 Debug.WriteLine("Formating " & key.Quote & " with Specific Culture (" & Culture.Name & ")  -> " & Culture.DateTimeFormat.ShortDatePattern)
                                                  Return d.Value.ToString(Culture.DateTimeFormat)
                                          End Select
                                      Else
-                                         Debug.WriteLine("Value Is Nothing")
                                          Return ""
                                      End If
                                  Else

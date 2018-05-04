@@ -212,6 +212,19 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
         Return lista
     End Function
 
+
+    Sub DeleteConversation(User As UserType, Optional WithUser As UserType = Nothing)
+        Dim lista As UserConversation(Of UserType, IdType)()
+        If WithUser IsNot Nothing Then
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.ToUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)) AndAlso idgetter(WithUser).Equals(idgetter(x.FromUser.Data)))).ToArray
+        Else
+            lista = Me.Where(Function(x) (idgetter(User).Equals(idgetter(x.FromUser.Data))) Or (idgetter(User).Equals(idgetter(x.ToUser.Data)))).ToArray
+        End If
+        For Each el In lista
+            Me.Remove(el)
+        Next
+    End Sub
+
     Sub Restore(Backup As Byte())
         Dim backupstring = Encoding.GetString(Backup)
         Dim obj = backupstring.ParseJSON(Of IEnumerable(Of UserConversationBackup(Of IdType)))

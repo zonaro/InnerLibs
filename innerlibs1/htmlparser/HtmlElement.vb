@@ -883,7 +883,33 @@ Namespace HtmlParser
         Public Sub ParseURL(Optional SearchChildren As Boolean = True, Optional Target As String = "_self")
             Dim l = Me.GetTextElements(SearchChildren).Where(Function(x) x.Parent IsNot Nothing AndAlso x.Closest("a") Is Nothing)
             For Each x As HtmlText In l
-                Dim txt = x.Text.ParseURL(Function(y) y.CreateAnchor(Target).HTML)
+                Dim txt = x.Text
+                Try
+                    txt = x.Text.ParseURL(Function(y) y.CreateAnchor(Target).HTML)
+                Catch ex As Exception
+                End Try
+                If x.Text <> txt Then
+                    x.Parent.Nodes.ReplaceElement(x, txt)
+                End If
+            Next
+        End Sub
+
+        ''' <summary>
+        ''' Find URLs out of Anchor elements and replace then to their respective oEmbed
+        ''' </summary>
+        ''' <param name="SearchChildren"></param>
+        Public Sub ParseOEmbed(Optional SearchChildren As Boolean = True)
+            Dim l = Me.GetTextElements(SearchChildren).Where(Function(x) x.Parent IsNot Nothing AndAlso x.Closest("a") Is Nothing)
+            For Each x As HtmlText In l
+                Dim txt As String = x.Text
+                Try
+                    txt = x.Text.ParseURL(Function(y) New oEmbed(y).Response("html"))
+                Catch ex As Exception
+                    Try
+                        txt = x.Text.ParseURL(Function(y) y.CreateAnchor("_blank").HTML)
+                    Catch ex2 As Exception
+                    End Try
+                End Try
                 If x.Text <> txt Then
                     x.Parent.Nodes.ReplaceElement(x, txt)
                 End If

@@ -63,7 +63,7 @@ Namespace HtmlParser
                 If URL.IsURL Then
                     Return New HtmlAnchorElement(URL, Title.IfBlank(BrowserClipper.GetTitle(URL))) With {.Target = Target}
                 End If
-                Throw New Exception
+                Throw New Exception("Invalid URL")
             Catch ex As Exception
                 Return New HtmlAnchorElement(URL, Title.IfBlank(URL)) With {.Target = Target}
             End Try
