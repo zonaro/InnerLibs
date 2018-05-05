@@ -7,6 +7,39 @@ Imports InnerLibs.LINQ
 
 Namespace HtmlParser
 
+    Public Class HtmlBreakLine
+        Inherits HtmlElement
+
+        Overrides Property Name As String
+            Get
+                Return "br"
+            End Get
+            Set(value As String)
+                MyBase.Name = "br"
+            End Set
+        End Property
+        Sub New()
+            MyBase.New("br")
+            Me.IsTerminated = True
+        End Sub
+    End Class
+
+    Public Class HtmlHorizontalRule
+        Inherits HtmlElement
+
+        Overrides Property Name As String
+            Get
+                Return "hr"
+            End Get
+            Set(value As String)
+                MyBase.Name = "hr"
+            End Set
+        End Property
+        Sub New()
+            MyBase.New("hr")
+            Me.IsTerminated = True
+        End Sub
+    End Class
 
     Public Class HtmlAnchorElement
         Inherits HtmlElement

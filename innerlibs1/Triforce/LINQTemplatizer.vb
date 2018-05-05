@@ -305,11 +305,11 @@ Namespace LINQ
 
                         Dim othertag = conditiontag.FindElements(Function(n As HtmlElement)
                                                                      Dim value1 = conditiontag.Attribute("value").HtmlDecode
-                                                                     Dim value2 = n.Attribute("value").HtmlDecode
+                                                                     Dim values = n.Attributes.Where(Function(x) x.Name.StartsWith("value")).Select(Function(y) y.Value.HtmlDecode).ToArray
                                                                      Dim op = n.Attribute("operator").HtmlDecode.IfBlank("=")
                                                                      value1 = value1.QuoteIf(Not value1.IsNumber)
-                                                                     value2 = value2.QuoteIf(Not value2.IsNumber)
-                                                                     Return n.Name = "case" AndAlso (EvaluateExpression(value1 & op & value2) = True)
+                                                                     values.ForEach(Sub(b) b.QuoteIf(Not b.IsNumber()))
+                                                                     Return n.Name = "case" AndAlso values.Any(Function(value2) EvaluateExpression(value1 & op & value2) = True)
                                                                  End Function, False)
                         Dim html = ""
                         If othertag.Count > 0 Then
@@ -626,8 +626,8 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="TemplateDirectory">Diretório contendo os arquivos HTML</param>
 
-        Sub New(TemplateDirectory As DirectoryInfo)
-            MyBase.New(TemplateDirectory)
+        Sub New(TemplateDirectory As DirectoryInfo, ParamArray Selectors As String())
+            MyBase.New(TemplateDirectory, Selectors)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
 
@@ -637,8 +637,8 @@ Namespace LINQ
         ''' <param name="ApplicationAssembly">
         ''' Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE
         ''' </param>
-        Sub New(ApplicationAssembly As Assembly)
-            MyBase.New(ApplicationAssembly)
+        Sub New(ApplicationAssembly As Assembly, ParamArray Selectors As String())
+            MyBase.New(ApplicationAssembly, Selectors)
             Me.DataContext = Activator.CreateInstance(Of DataContextType)
         End Sub
 
@@ -678,10 +678,8 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
         ''' <param name="Item">    Objeto</param>
-        ''' <param name="Template">
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
+
         ''' <returns></returns>
         Public Overrides Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
             Return MyBase.ApplyTemplate(Item, Template)
@@ -730,11 +728,8 @@ Namespace LINQ
         ''' Aplica um template HTML a um objeto <see cref="IQueryable"/>
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">      Lista de objetos</param>
-        ''' <param name="Template">  
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="List">    Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">  
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
@@ -757,11 +752,8 @@ Namespace LINQ
         ''' Aplica um template HTML a um objeto <see cref="EntitySet(Of T)"/>
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">      Lista de objetos</param>
-        ''' <param name="Template">  
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="List">    Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">  
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
@@ -775,11 +767,8 @@ Namespace LINQ
         ''' Aplica um template HTML a um objeto <see cref="ISingleResult(Of T)"/>
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">      Lista de objetos</param>
-        ''' <param name="Template">  
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="List">    Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">  
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
@@ -814,11 +803,8 @@ Namespace LINQ
         ''' Aplica um template HTML a um objeto <see cref="Data.Linq.Table(Of TEntity)"/>
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">      Lista de objetos</param>
-        ''' <param name="Template">  
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="List">    Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">  
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
@@ -832,11 +818,8 @@ Namespace LINQ
         ''' Aplica um template HTML a um objeto <see cref="Data.Linq.Table(Of TEntity)"/>
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">      Lista de objetos</param>
-        ''' <param name="Template">  
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="List">    Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">  
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
@@ -939,7 +922,7 @@ Namespace LINQ
                         End If
 
                         If lista Is Nothing Then
-                            Throw New NullReferenceException("'Property' tag or 'SQL' tag not specified in template.")
+                            Throw New NullReferenceException("'Property' tag or 'SQL' tag not specified in template tag.")
                         End If
 
                         conteudo = lista.ToString
@@ -973,16 +956,18 @@ Namespace LINQ
         ''' <param name="ApplicationAssembly">
         ''' Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE
         ''' </param>
-        Sub New(ApplicationAssembly As Assembly)
+        Sub New(ApplicationAssembly As Assembly, ParamArray Selectors As String())
             Me.ApplicationAssembly = ApplicationAssembly
+            Me.Selectors = If(Selectors IsNot Nothing AndAlso Selectors.Length > 0, Selectors, Me.Selectors)
         End Sub
 
         ''' <summary>
         ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
         ''' </summary>
         ''' <param name="TemplateDirectory">Diretorio contendo os arquivos HTML</param>
-        Sub New(TemplateDirectory As DirectoryInfo)
+        Sub New(TemplateDirectory As DirectoryInfo, ParamArray Selectors As String())
             Me.TemplateDirectory = TemplateDirectory
+            Me.Selectors = If(Selectors IsNot Nothing AndAlso Selectors.Length > 0, Selectors, Me.Selectors)
         End Sub
 
         ''' <summary>
@@ -1032,24 +1017,6 @@ Namespace LINQ
         ReadOnly Property TemplateDirectory As DirectoryInfo = Nothing
 
         ''' <summary>
-        ''' Mapeia um template para um tipo
-        ''' </summary>
-        ''' <param name="Type"></param>
-        ''' <returns></returns>
-        Default Public Property MapType(Type As Type) As String
-            Get
-                If TemplateMap.ContainsKey(Type) Then
-                    Return TemplateMap(Type)
-                Else
-                    Return ""
-                End If
-            End Get
-            Set(value As String)
-                TemplateMap(Type) = value
-            End Set
-        End Property
-
-        ''' <summary>
         ''' Aplica um array de objetos em um template e retorna um Template(Of Dictionary(Of String,
         ''' Object)) do resultado
         ''' </summary>
@@ -1070,10 +1037,7 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
         ''' <param name="Item">    Objeto</param>
-        ''' <param name="Template">
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <returns></returns>
         Public Overridable Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
             If Template.IsBlank Then
@@ -1111,11 +1075,8 @@ Namespace LINQ
         ''' Aplica um template HTML a um objeto <see cref="IEnumerable"/>
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">      Lista de objetos</param>
-        ''' <param name="Template">  
-        ''' Template HTML ou nome do template HTML previamente configurado pelo metodo ( <see cref="SetTemplate"/>
-        ''' </param>
-        ''' )
+        ''' <param name="List">    Lista de objetos</param>
+        ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">  
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
@@ -1193,7 +1154,6 @@ Namespace LINQ
             Return Nothing
         End Function
 
-        'Friend _datetimeformat As String = "dd/MM/yyyy hh:mm:ss"
         ''' <summary>
         ''' Retorna o nome do arquivo de template, ou o template processado se ProccessFile estiver True
         ''' </summary>
@@ -1204,21 +1164,13 @@ Namespace LINQ
         End Function
 
         Function GetTemplate(Type As Type, Optional ProcessFile As Boolean = False) As String
-            Dim tmp = ""
-            If Type.HasProperty("TriforceTemplate") Then
-                tmp = ClassTools.GetPropertyValue(Activator.CreateInstance(Type), "TriforceTemplate").ToString
-                If tmp.IsBlank Then
-                    tmp = MapType(Type)
-                End If
-            Else
-                tmp = MapType(Type)
-            End If
+            Dim tmp = Type.GetAttributeValue(Of TriforceDefaultTemplate, String)(Function(x) x.Template)
             If tmp.IsNotBlank Then
                 If ProcessFile Then
                     tmp = pegartemplate(tmp)
                 End If
             Else
-                Throw New FileNotFoundException("Template not found in Triforce MapType or 'TriforceTemplate' property in class " & Type.Name.Quote)
+                Throw New FileNotFoundException("Class " & Type.Name.Quote & " doesent have the attribute TriforceDefaultTemplate configured")
             End If
             Return tmp
         End Function
@@ -1246,17 +1198,6 @@ Namespace LINQ
                 Case Else
                     Return pegartemplate(TemplateFile, "body")
             End Select
-        End Function
-
-        ''' <summary>
-        ''' Configura um arquivo de template para um tipo especifico de objeto.
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="Template"></param>
-        ''' <returns></returns>
-        Function SetTemplate(Of T As Class)(Template As String) As Triforce
-            MapType(GetType(T)) = Template.IfBlank(GetTemplate(Of T))
-            Return Me
         End Function
 
         Friend Function ApplySelector(Name As String, Selector As String) As String
@@ -1500,16 +1441,20 @@ Namespace LINQ
                                  If val.GetType.IsIn({GetType(Date), GetType(Date?)}) Then
                                      Dim d As Date? = val
                                      If d.HasValue Then
-                                         Select Case True
-                                             Case Item.HasProperty(key & "_Format")
-                                                 Dim format = Item.GetPropertyValue(Of String)(key & "_Format", True)
-                                                 Return d.Value.ToString(format.ToString)
-                                             Case Item.HasProperty("TriforceDateTimeFormat")
-                                                 Dim format = Item.GetPropertyValue(Of String)("TriforceDateTimeFormat", True)
-                                                 Return d.Value.ToString(format.ToString)
-                                             Case Else
-                                                 Return d.Value.ToString(Culture.DateTimeFormat)
-                                         End Select
+                                         Try
+                                             Select Case True
+                                                 Case Item.GetProperties().FirstOrDefault(Function(x) x.Name = key) IsNot Nothing
+                                                     Dim format = Item.GetProperties().First(Function(x) x.Name = key).GetCustomAttribute(Of TriforceDateTimeFormat).Format
+                                                     Return d.Value.ToString(format.ToString)
+                                                 Case Item.GetType().GetAttributeValue(Of TriforceDateTimeFormat, String)(Function(x) x.Format.IsBlank)
+                                                     Dim format = Item.GetType().GetAttributeValue(Of TriforceDateTimeFormat, String)(Function(x) x.Format)
+                                                     Return d.Value.ToString(format.ToString)
+                                                 Case Else
+                                                     Return d.Value.ToString(Culture.DateTimeFormat)
+                                             End Select
+                                         Catch ex As Exception
+                                             Return d.Value.ToString(Culture.DateTimeFormat)
+                                         End Try
                                      Else
                                          Return ""
                                      End If
@@ -1568,6 +1513,39 @@ Namespace LINQ
             Next
         End Sub
 
+    End Class
+
+    ''' <summary>
+    ''' Atributo de Configuraçao do formato de data e hora. Se aplica a propriedade especificada ou a
+    ''' classe toda
+    ''' </summary>
+    <AttributeUsage(AttributeTargets.Class + AttributeTargets.Property, AllowMultiple:=False, Inherited:=True)>
+    Public Class TriforceDateTimeFormat
+        Inherits Attribute
+
+        Sub New(Optional Format As String = "dd/MM/yyyy HH:mm:ss")
+            Me.Format = Format
+        End Sub
+
+        ReadOnly Property Format As String = "dd/MM/yyyy HH:mm:ss"
+    End Class
+
+    ''' <summary>
+    ''' Atributo de Configuraçao do Template. Aplica-se a classes de entidade
+    ''' </summary>
+    <AttributeUsage(AttributeTargets.Class, AllowMultiple:=False, Inherited:=True)>
+    Public Class TriforceDefaultTemplate
+        Inherits Attribute
+
+        Sub New(Name As String)
+            Me.Template = Name
+        End Sub
+
+        Sub New(Template As HtmlDocument)
+            Me.Template = Template.ToString
+        End Sub
+
+        ReadOnly Property Template As String = ""
     End Class
 
 End Namespace

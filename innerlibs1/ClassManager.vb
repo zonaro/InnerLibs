@@ -13,6 +13,16 @@ Imports InnerLibs.HtmlParser
 
 Public Module ClassTools
 
+
+    <Extension()>
+    Function GetAttributeValue(Of TAttribute As Attribute, TValue)(ByVal type As Type, ByVal ValueSelector As Func(Of TAttribute, TValue)) As TValue
+        Dim att = TryCast(type.GetCustomAttributes(GetType(TAttribute), True).FirstOrDefault(), TAttribute)
+        If att IsNot Nothing Then
+            Return ValueSelector(att)
+        End If
+        Return Nothing
+    End Function
+
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
     ''' </summary>
@@ -486,7 +496,6 @@ Public Module ClassTools
             Next
 
             For Each part As String In parts
-                Debug.WriteLine("Getting property " & part.RemoveLastIf("(").Quote & " from " & obj.GetType.Name.Quote)
                 If MyObject Is Nothing Then
                     Return Nothing
                 End If
