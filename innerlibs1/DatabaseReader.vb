@@ -301,9 +301,27 @@ Partial Public Class DataBase
         ''' Retorna um Json do Reader
         ''' </summary>
         ''' <returns></returns>
-        Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
+        Function ToJSON(Optional Clear As Boolean = False, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
             Try
-                Return Me.SerializeJSON(DateFormat)
+                If Me.Count = 1 AndAlso Clear = True Then
+                    Dim result = Me.First
+                    If result.Count = 1 Then
+                        Dim row = result.First
+                        If row.Count = 1 Then
+                            Return row.First.Value.SerializeJSON(DateFormat)
+                        Else
+                            Return row.SerializeJSON(DateFormat)
+                        End If
+                    Else
+                        If result.First.Count = 1 Then
+                            Return result.Select(Function(x) x.First.Value).SerializeJSON(DateFormat)
+                        Else
+                            Return result.SerializeJSON(DateFormat)
+                        End If
+                    End If
+                Else
+                    Return Me.SerializeJSON(DateFormat)
+                End If
             Catch ex As Exception
                 Return ""
             End Try
