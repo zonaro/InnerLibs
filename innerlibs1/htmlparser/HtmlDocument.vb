@@ -72,7 +72,7 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
-        '''  Fix tehe captalization, white spaces and punctuation of text elements
+        '''  Fix the captalization, white spaces and punctuation of text elements
         ''' </summary>
         Public Sub FixText()
             For Each el In Me.Nodes

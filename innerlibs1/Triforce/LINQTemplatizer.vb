@@ -7,8 +7,413 @@ Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Text.RegularExpressions
 Imports InnerLibs.HtmlParser
+Imports InnerLibs.LINQ
 
-Namespace LINQ
+Namespace Triforce
+
+    Namespace ADO
+
+        Public Class Triforce(Of ConnectionType As DbConnection)
+            Inherits Triforce
+
+            Friend Connection As ConnectionType
+
+            Property ConnectionString As String
+
+            ''' <summary>
+            ''' Instancia um novo <see cref="LINQ"/> a partir de um Diretório
+            ''' </summary>
+            ''' <param name="TemplateDirectory">Diretório contendo os arquivos HTML</param>
+
+            Sub New(TemplateDirectory As DirectoryInfo, ConnectionString As String, ParamArray Selectors As String())
+                MyBase.New(TemplateDirectory, Selectors)
+                Me.Connection = Activator.CreateInstance(Of ConnectionType)
+                Me.ConnectionString = ConnectionString
+            End Sub
+
+            ''' <summary>
+            ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
+            ''' </summary>
+            ''' <param name="ApplicationAssembly">
+            ''' Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE
+            ''' </param>
+            Sub New(ApplicationAssembly As Assembly, ConnectionString As String, ParamArray Selectors As String())
+                MyBase.New(ApplicationAssembly, Selectors)
+                Me.Connection = Activator.CreateInstance(Of ConnectionType)
+                Me.ConnectionString = ConnectionString
+            End Sub
+
+
+            ''' <summary>
+            ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um
+            ''' wrapper para <see cref="DbCommand.ExecuteReader()"/>
+            ''' porém aplica os templates automaticamente
+            ''' </summary>
+            ''' <typeparam name="T">Tipo do Objeto</typeparam>
+            ''' <param name="SQLQuery">  </param>
+            ''' <param name="Parameters"></param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(SQLQuery As String, Template As String, Parameters As IEnumerable(Of Object), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplatePage(Of T)
+                Dim l As List(Of T)
+                Using con As DbConnection = Activator.CreateInstance(Of ConnectionType)
+                    con.ConnectionString = Me.ConnectionString
+                    con.Open()
+                    Dim command As DbCommand = con.CreateCommand()
+                    command.CommandText = SQLQuery
+                    Using Reader As DbDataReader = command.ExecuteReader()
+                        l = Reader.Map(Of T)
+                    End Using
+                End Using
+                Return ApplyTemplate(l, PageNumber, PageSize, Template)
+            End Function
+
+            ''' <summary>
+            ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um
+            ''' wrapper para <see cref="DbCommand.ExecuteReader()"/>
+            ''' porém aplica os templates automaticamente
+            ''' </summary>
+            ''' <param name="SQLQuery">  </param>
+            ''' <param name="Parameters"></param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(SQLQuery As String, Template As String, Parameters As IEnumerable(Of Object), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplatePage(Of Dictionary(Of String, Object))
+                Return ApplyTemplate(Of Dictionary(Of String, Object))(SQLQuery, Template, Parameters, PageNumber, PageSize)
+            End Function
+
+        End Class
+
+    End Namespace
+
+    Namespace LINQ
+
+        ''' <summary>
+        ''' Permite integrar <see cref="Triforce"/> a objetos LINQ to SQL
+        ''' </summary>
+        ''' <typeparam name="DataContextType">Objeto LINQ to SQL gerado</typeparam>
+        Public Class Triforce(Of DataContextType As DataContext)
+            Inherits Triforce
+
+            Friend DataContext As DataContextType
+
+            ''' <summary>
+            ''' Instancia um novo <see cref="LINQ"/> a partir de um Diretório
+            ''' </summary>
+            ''' <param name="TemplateDirectory">Diretório contendo os arquivos HTML</param>
+
+            Sub New(TemplateDirectory As DirectoryInfo, ParamArray Selectors As String())
+                MyBase.New(TemplateDirectory, Selectors)
+                Me.DataContext = Activator.CreateInstance(Of DataContextType)
+            End Sub
+
+            ''' <summary>
+            ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
+            ''' </summary>
+            ''' <param name="ApplicationAssembly">
+            ''' Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE
+            ''' </param>
+            Sub New(ApplicationAssembly As Assembly, ParamArray Selectors As String())
+                MyBase.New(ApplicationAssembly, Selectors)
+                Me.DataContext = Activator.CreateInstance(Of DataContextType)
+            End Sub
+
+            ''' <summary>
+            ''' Aplica um template a uma busca determinada pelo tipo de objeto
+            ''' </summary>
+            ''' <typeparam name="T">Tipo de objeto</typeparam>
+            ''' <param name="PageNumber">Pagina atual</param>
+            ''' <param name="PageSize">  Numero de itens por pagina</param>
+            ''' <param name="predicade"> Filtro da busca</param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(predicade As Expression(Of Func(Of T, Boolean)), Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplatePage(Of T)
+                Return ApplyTemplate(Of T)(GetTemplate(Of T), predicade, PageNumber, PageSize)
+            End Function
+
+            ''' <summary>
+            ''' Aplica um template a uma busca determinada pelo tipo de objeto
+            ''' </summary>
+            ''' <typeparam name="T">Tipo de objeto</typeparam>
+            ''' <param name="PageNumber">Pagina atual</param>
+            ''' <param name="PageSize">  Numero de itens por pagina</param>
+            ''' <param name="predicade"> Filtro da busca</param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplatePage(Of T)
+                Me.DataContext = Activator.CreateInstance(Of DataContextType)
+                Using Me.DataContext
+                    Dim d As IQueryable(Of T) = Me.DataContext.GetTable(Of T).AsQueryable
+                    If predicade IsNot Nothing Then
+                        d = d.Where(predicade)
+                    End If
+                    Return ApplyTemplate(d, PageNumber, PageSize, Template)
+                End Using
+            End Function
+
+            ''' <summary>
+            ''' Aplica um template HTML a um unico objeto
+            ''' </summary>
+            ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+            ''' <param name="Item">    Objeto</param>
+            ''' <param name="Template">Template HTML ou nome do template HTML</param>
+            Public Overrides Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
+                Return MyBase.ApplyTemplate(Item, Template)
+            End Function
+
+            ''' <summary>
+            ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um
+            ''' wrapper para <see cref="DataContext.ExecuteQuery(Of TResult)(String, Object())"/>
+            ''' porém aplica os templates automaticamente
+            ''' </summary>
+            ''' <typeparam name="T">Tipo do Objeto</typeparam>
+            ''' <param name="SQLQuery">  </param>
+            ''' <param name="Parameters"></param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(SQLQuery As String, Template As String, Parameters As IEnumerable(Of Object), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplatePage(Of T)
+                Dim list As IQueryable(Of T)
+                Me.DataContext = Activator.CreateInstance(Of DataContextType)
+                Using Me.DataContext
+                    If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+                        Dim con As DbConnection = Activator.CreateInstance(Me.DataContext.Connection.GetType)
+                        con.ConnectionString = Me.DataContext.Connection.ConnectionString
+                        con.Open()
+                        Dim command As DbCommand = con.CreateCommand()
+                        command.CommandText = SQLQuery
+                        Using Reader As DbDataReader = command.ExecuteReader()
+                            Dim l As New List(Of Dictionary(Of String, Object))
+                            While Reader.Read
+                                Dim d As New Dictionary(Of String, Object)
+                                For i As Integer = 0 To Reader.FieldCount - 1
+                                    d.Add(Reader.GetName(i), Reader(Reader.GetName(i)))
+                                Next
+                                l.Add(d)
+                            End While
+                            list = l.AsQueryable
+                            Reader.Dispose()
+                        End Using
+                        con.Close()
+                    Else
+                        list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}).ToArray)
+                    End If
+                    Return ApplyTemplate(Of T)(list.AsQueryable, PageNumber, PageSize, Template)
+                End Using
+            End Function
+
+            ''' <summary>
+            ''' Aplica um template HTML a um objeto <see cref="IQueryable"/>
+            ''' </summary>
+            ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+            ''' <param name="List">      Lista de objetos</param>
+            ''' <param name="Template">  Template HTML ou nome do template HTML</param>
+            ''' <param name="PageNumber">Pagina que será processada.</param>
+            ''' <param name="PageSize">  
+            ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
+            ''' </param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
+                Dim total = If(List IsNot Nothing, List.Count, 0)
+                If PageSize < 1 Then PageSize = total
+                Dim l As New List(Of Template(Of T))
+                If total > 0 Then
+                    PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
+                    For Each item As T In List.Page(PageNumber, PageSize)
+                        l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template))
+                    Next
+                End If
+                Return CreateTemplateList(Template, l, PageSize, PageNumber, total)
+            End Function
+
+            ''' <summary>
+            ''' Aplica um template HTML a um objeto <see cref="EntitySet(Of T)"/>
+            ''' </summary>
+            ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+            ''' <param name="List">      Lista de objetos</param>
+            ''' <param name="Template">  Template HTML ou nome do template HTML</param>
+            ''' <param name="PageNumber">Pagina que será processada.</param>
+            ''' <param name="PageSize">  
+            ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
+            ''' </param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(List As EntitySet(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
+                Return ApplyTemplate(List.AsQueryable, PageNumber, PageSize, Template.ToString)
+            End Function
+
+            ''' <summary>
+            ''' Aplica um template HTML a um objeto <see cref="ISingleResult(Of T)"/>
+            ''' </summary>
+            ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+            ''' <param name="List">      Lista de objetos</param>
+            ''' <param name="Template">  Template HTML ou nome do template HTML</param>
+            ''' <param name="PageNumber">Pagina que será processada.</param>
+            ''' <param name="PageSize">  
+            ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
+            ''' </param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
+                Return ApplyTemplate(List.ToArray.AsQueryable, PageNumber, PageSize, Template.ToString)
+            End Function
+
+            ''' <summary>
+            ''' Extrai uma Query SQL de um arquivo e retorna um <see cref="TemplatePage"/> com os resultados
+            ''' </summary>
+            ''' <typeparam name="T">Tipo do Objeto</typeparam>
+            ''' <param name="TemplateName">Nome do Template configurado</param>
+            ''' <param name="Parameters">  </param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(TemplateName As String, Parameters As Object()) As TemplatePage(Of T)
+                Return ApplyTemplate(Of T)(GetCommand(TemplateName), TemplateName, Parameters)
+            End Function
+
+            ''' <summary>
+            ''' Extrai o Comando SQL e o Template HTML definidos para o objeto do tipo
+            ''' <typeparamref name="T"/> e retorna um <see cref="TemplatePage(Of T)"/> com os resultados
+            ''' </summary>
+            ''' <typeparam name="T">Tipo do Objeto</typeparam>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)() As TemplatePage(Of T)
+                Return ApplyTemplate(Of T)(GetCommand(GetType(T).Name), GetTemplate(Of T), {})
+            End Function
+
+            ''' <summary>
+            ''' Aplica um template HTML a um objeto <see cref="Data.Linq.Table(Of TEntity)"/>
+            ''' </summary>
+            ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+            ''' <param name="List">      Lista de objetos</param>
+            ''' <param name="Template">  Template HTML ou nome do template HTML</param>
+            ''' <param name="PageNumber">Pagina que será processada.</param>
+            ''' <param name="PageSize">  
+            ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
+            ''' </param>
+            ''' <returns></returns>
+            Public Overloads Function ApplyTemplate(Of T As Class)(List As Table(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
+                Return ApplyTemplate(List.AsQueryable, PageNumber, PageSize, Template)
+            End Function
+
+            ''' <summary>
+            ''' Aplica um template HTML a um objeto <see cref="Data.Linq.Table(Of TEntity)"/>
+            ''' </summary>
+            ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
+            ''' <param name="List">      Lista de objetos</param>
+            ''' <param name="Template">  Template HTML ou nome do template HTML</param>
+            ''' <param name="PageNumber">Pagina que será processada.</param>
+            ''' <param name="PageSize">  
+            ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
+            ''' </param>
+            ''' <returns></returns>
+            Public Overrides Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
+                Return ApplyTemplate(List.AsQueryable, PageNumber, PageSize, Template.ToString)
+            End Function
+
+            ''' <summary>
+            ''' Pega o comando SQL de um arquivo ou resource
+            ''' </summary>
+            ''' <param name="CommandFile">Nome do arquivo ou resource</param>
+            ''' <returns></returns>
+            Public Function GetCommand(CommandFile As String) As String
+                CommandFile = Path.GetFileNameWithoutExtension(CommandFile) & ".sql"
+                Select Case True
+                    Case IsNothing(ApplicationAssembly) And Not IsNothing(TemplateDirectory)
+                        Dim filefound = TemplateDirectory.SearchFiles(SearchOption.TopDirectoryOnly, CommandFile).First
+                        If Not filefound.Exists Then Throw New FileNotFoundException(CommandFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
+                        Using file As StreamReader = filefound.OpenText
+                            Return file.ReadToEnd
+                        End Using
+                    Case Not IsNothing(ApplicationAssembly) And IsNothing(TemplateDirectory)
+                        Try
+                            Return GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & CommandFile)
+                        Catch ex As Exception
+                            Throw New FileNotFoundException(CommandFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
+                        End Try
+                    Case Else
+                        Throw New Exception("ApplicationAssembly or TemplateDirectory is not configured!")
+                End Select
+            End Function
+
+            Friend Overrides Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
+
+                Dim listat = doc.Nodes.GetElementsByTagName("template", True)
+                For index = 0 To listat.Count - 1
+                    Dim templatetag As HtmlElement = listat(index)
+                    If templatetag.HasAttribute("disabled") Then
+                        templatetag.Destroy()
+                        Continue For
+                    End If
+                    Try
+                        If templatetag.Name = "template" Then
+
+                            Dim conteudo = ""
+                            Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
+                            If el_cont IsNot Nothing Then
+                                If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
+                                    conteudo = pegartemplate(el_cont.Attribute("file"))
+                                Else
+                                    conteudo = el_cont.InnerHTML.HtmlDecode
+                                End If
+                                el_cont.Destroy()
+                            End If
+
+                            Dim sql = ""
+                            Dim el_sql = CType(templatetag.Nodes.GetElementsByTagName("sql").FirstOrDefault, HtmlElement)
+                            If el_sql IsNot Nothing Then
+                                If el_sql.HasAttribute("file") AndAlso el_sql.Attribute("file").IsNotBlank Then
+                                    sql = GetCommand(el_sql.Attribute("file"))
+                                Else
+                                    sql = el_sql.InnerHTML.HtmlDecode
+                                End If
+                                el_sql.Destroy()
+                            End If
+
+                            Dim source = ""
+                            Dim pg As Integer = 0
+                            Dim n_item As Integer = 0
+                            Dim el_source = CType(templatetag.Nodes.GetElementsByTagName("property").FirstOrDefault, HtmlElement)
+                            If el_source IsNot Nothing Then
+                                If el_source.HasAttribute("name") AndAlso el_source.Attribute("name").IsNotBlank Then
+                                    source = el_source.Attribute("name")
+                                    Try
+                                        pg = el_source.Attribute("page")
+                                    Catch ex As Exception
+                                    End Try
+                                    Try
+                                        n_item = el_source.Attribute("size")
+                                    Catch ex As Exception
+                                    End Try
+                                End If
+                                el_source.Destroy()
+                            End If
+
+                            Dim lista As IEnumerable(Of Object) = Nothing
+
+                            If sql.IsNotBlank Then
+                                lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo, {})
+                            End If
+
+                            If source.IsNotBlank Then
+                                Dim classe As IEnumerable(Of Object) = ClassTools.GetPropertyValue(item, source)
+                                If classe.Count > 0 AndAlso conteudo.IsBlank Then
+                                    conteudo = GetTemplate(classe(0).GetType, True)
+                                End If
+                                lista = ApplyTemplate(Of Object)(classe.AsQueryable, pg, n_item, conteudo)
+                            End If
+
+                            If lista Is Nothing Then
+                                Throw New NullReferenceException("'Property' tag or 'SQL' tag not specified in template tag.")
+                            End If
+
+                            conteudo = lista.ToString
+                            If templatetag.HasAttribute("renderas") Then
+                                templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
+                                templatetag.RemoveAttribute("renderas")
+                                templatetag.InnerHTML = conteudo
+                            Else
+                                templatetag.Mutate(conteudo)
+                            End If
+                        End If
+                    Catch ex As Exception
+                        templatetag.Destroy()
+                    End Try
+                Next
+            End Sub
+
+        End Class
+
+    End Namespace
 
     ''' <summary>
     ''' Lista com as TemplateTags
@@ -613,336 +1018,6 @@ Namespace LINQ
     End Class
 
     ''' <summary>
-    ''' Permite integrar <see cref="Triforce"/> a objetos LINQ to SQL
-    ''' </summary>
-    ''' <typeparam name="DataContextType">Objeto LINQ to SQL gerado</typeparam>
-    Public Class Triforce(Of DataContextType As DataContext)
-        Inherits Triforce
-
-        Friend DataContext As DataContextType
-
-        ''' <summary>
-        ''' Instancia um novo <see cref="LINQ"/> a partir de um Diretório
-        ''' </summary>
-        ''' <param name="TemplateDirectory">Diretório contendo os arquivos HTML</param>
-
-        Sub New(TemplateDirectory As DirectoryInfo, ParamArray Selectors As String())
-            MyBase.New(TemplateDirectory, Selectors)
-            Me.DataContext = Activator.CreateInstance(Of DataContextType)
-        End Sub
-
-        ''' <summary>
-        ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
-        ''' </summary>
-        ''' <param name="ApplicationAssembly">
-        ''' Assembly contendo os arquivos HTML. Os arquivos HTML devem ser marcados como EMBEDDED RESOURCE
-        ''' </param>
-        Sub New(ApplicationAssembly As Assembly, ParamArray Selectors As String())
-            MyBase.New(ApplicationAssembly, Selectors)
-            Me.DataContext = Activator.CreateInstance(Of DataContextType)
-        End Sub
-
-        ''' <summary>
-        ''' Aplica um template a uma busca determinada pelo tipo de objeto
-        ''' </summary>
-        ''' <typeparam name="T">Tipo de objeto</typeparam>
-        ''' <param name="PageNumber">Pagina atual</param>
-        ''' <param name="PageSize">  Numero de itens por pagina</param>
-        ''' <param name="predicade"> Filtro da busca</param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(predicade As Expression(Of Func(Of T, Boolean)), Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplatePage(Of T)
-            Return ApplyTemplate(Of T)(GetTemplate(Of T), predicade, PageNumber, PageSize)
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template a uma busca determinada pelo tipo de objeto
-        ''' </summary>
-        ''' <typeparam name="T">Tipo de objeto</typeparam>
-        ''' <param name="PageNumber">Pagina atual</param>
-        ''' <param name="PageSize">  Numero de itens por pagina</param>
-        ''' <param name="predicade"> Filtro da busca</param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(Template As String, Optional predicade As Expression(Of Func(Of T, Boolean)) = Nothing, Optional PageNumber As Integer = 0, Optional PageSize As Integer = 0) As TemplatePage(Of T)
-            Me.DataContext = Activator.CreateInstance(Of DataContextType)
-            Using Me.DataContext
-                Dim d As IQueryable(Of T) = Me.DataContext.GetTable(Of T).AsQueryable
-                If predicade IsNot Nothing Then
-                    d = d.Where(predicade)
-                End If
-                Return ApplyTemplate(d, PageNumber, PageSize, Template)
-            End Using
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML a um unico objeto
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="Item">    Objeto</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML</param>
-
-        ''' <returns></returns>
-        Public Overrides Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
-            Return MyBase.ApplyTemplate(Item, Template)
-        End Function
-
-        ''' <summary>
-        ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um
-        ''' wrapper para <see cref="DataContext.ExecuteQuery(Of TResult)(String, Object())"/> porém
-        ''' aplica os templates automaticamente
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do Objeto</typeparam>
-        ''' <param name="SQLQuery">  </param>
-        ''' <param name="Parameters"></param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(SQLQuery As String, Template As String, Parameters As IEnumerable(Of Object), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0) As TemplatePage(Of T)
-            Dim list As IQueryable(Of T)
-            Me.DataContext = Activator.CreateInstance(Of DataContextType)
-            Using Me.DataContext
-                If GetType(T) = GetType(Dictionary(Of String, Object)) Then
-                    Dim con As DbConnection = Activator.CreateInstance(Me.DataContext.Connection.GetType)
-                    con.ConnectionString = Me.DataContext.Connection.ConnectionString
-                    con.Open()
-                    Dim command As DbCommand = con.CreateCommand()
-                    command.CommandText = SQLQuery
-                    Using Reader As DbDataReader = command.ExecuteReader()
-                        Dim l As New List(Of Dictionary(Of String, Object))
-                        While Reader.Read
-                            Dim d As New Dictionary(Of String, Object)
-                            For i As Integer = 0 To Reader.FieldCount - 1
-                                d.Add(Reader.GetName(i), Reader(Reader.GetName(i)))
-                            Next
-                            l.Add(d)
-                        End While
-                        list = l.AsQueryable
-                        Reader.Dispose()
-                    End Using
-                    con.Close()
-                Else
-                    list = DataContext.ExecuteQuery(Of T)(SQLQuery, If(Parameters, {}).ToArray)
-                End If
-                Return ApplyTemplate(Of T)(list.AsQueryable, PageNumber, PageSize, Template)
-            End Using
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML a um objeto <see cref="IQueryable"/>
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">    Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML</param>
-        ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">  
-        ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
-        ''' </param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As IQueryable(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
-            Dim total = If(List IsNot Nothing, List.Count, 0)
-            If PageSize < 1 Then PageSize = total
-            Dim l As New List(Of Template(Of T))
-            If total > 0 Then
-                PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
-                For Each item As T In List.Page(PageNumber, PageSize)
-                    l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template))
-                Next
-            End If
-            Return CreateTemplateList(Template, l, PageSize, PageNumber, total)
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML a um objeto <see cref="EntitySet(Of T)"/>
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">    Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML</param>
-        ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">  
-        ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
-        ''' </param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As EntitySet(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
-            Return ApplyTemplate(List.AsQueryable, PageNumber, PageSize, Template.ToString)
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML a um objeto <see cref="ISingleResult(Of T)"/>
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">    Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML</param>
-        ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">  
-        ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
-        ''' </param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As ISingleResult(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
-            Return ApplyTemplate(List.ToArray.AsQueryable, PageNumber, PageSize, Template.ToString)
-        End Function
-
-        ''' <summary>
-        ''' Extrai uma Query SQL de um arquivo e retorna um <see cref="TemplatePage"/> com os resultados
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do Objeto</typeparam>
-        ''' <param name="TemplateName">Nome do Template configurado</param>
-        ''' <param name="Parameters">  </param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(TemplateName As String, Parameters As Object()) As TemplatePage(Of T)
-            Return ApplyTemplate(Of T)(GetCommand(TemplateName), TemplateName, Parameters)
-        End Function
-
-        ''' <summary>
-        ''' Extrai o Comando SQL e o Template HTML definidos para o objeto do tipo
-        ''' <typeparamref name="T"/> e retorna um <see cref="TemplatePage(Of T)"/> com os resultados
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do Objeto</typeparam>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)() As TemplatePage(Of T)
-            Return ApplyTemplate(Of T)(GetCommand(GetType(T).Name), GetTemplate(Of T), {})
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML a um objeto <see cref="Data.Linq.Table(Of TEntity)"/>
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">    Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML</param>
-        ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">  
-        ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
-        ''' </param>
-        ''' <returns></returns>
-        Public Overloads Function ApplyTemplate(Of T As Class)(List As Table(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
-            Return ApplyTemplate(List.AsQueryable, PageNumber, PageSize, Template)
-        End Function
-
-        ''' <summary>
-        ''' Aplica um template HTML a um objeto <see cref="Data.Linq.Table(Of TEntity)"/>
-        ''' </summary>
-        ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">    Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML</param>
-        ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">  
-        ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
-        ''' </param>
-        ''' <returns></returns>
-        Public Overrides Function ApplyTemplate(Of T As Class)(List As IEnumerable(Of T), Optional PageNumber As Integer = 1, Optional PageSize As Integer = 0, Optional Template As String = "") As TemplatePage(Of T)
-            Return ApplyTemplate(List.AsQueryable, PageNumber, PageSize, Template.ToString)
-        End Function
-
-        ''' <summary>
-        ''' Pega o comando SQL de um arquivo ou resource
-        ''' </summary>
-        ''' <param name="CommandFile">Nome do arquivo ou resource</param>
-        ''' <returns></returns>
-        Public Function GetCommand(CommandFile As String) As String
-            CommandFile = Path.GetFileNameWithoutExtension(CommandFile) & ".sql"
-            Select Case True
-                Case IsNothing(ApplicationAssembly) And Not IsNothing(TemplateDirectory)
-                    Dim filefound = TemplateDirectory.SearchFiles(SearchOption.TopDirectoryOnly, CommandFile).First
-                    If Not filefound.Exists Then Throw New FileNotFoundException(CommandFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
-                    Using file As StreamReader = filefound.OpenText
-                        Return file.ReadToEnd
-                    End Using
-                Case Not IsNothing(ApplicationAssembly) And IsNothing(TemplateDirectory)
-                    Try
-                        Return GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & CommandFile)
-                    Catch ex As Exception
-                        Throw New FileNotFoundException(CommandFile.Quote & "  not found in " & ApplicationAssembly.GetName.Name.Quote & " resources. Check if Build Action is marked as ""Embedded Resource"" in File Properties.")
-                    End Try
-                Case Else
-                    Throw New Exception("ApplicationAssembly or TemplateDirectory is not configured!")
-            End Select
-        End Function
-
-        Friend Overrides Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
-
-            Dim listat = doc.Nodes.GetElementsByTagName("template", True)
-            For index = 0 To listat.Count - 1
-                Dim templatetag As HtmlElement = listat(index)
-                If templatetag.HasAttribute("disabled") Then
-                    templatetag.Destroy()
-                    Continue For
-                End If
-                Try
-                    If templatetag.Name = "template" Then
-
-                        Dim conteudo = ""
-                        Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
-                        If el_cont IsNot Nothing Then
-                            If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
-                                conteudo = pegartemplate(el_cont.Attribute("file"))
-                            Else
-                                conteudo = el_cont.InnerHTML.HtmlDecode
-                            End If
-                            el_cont.Destroy()
-                        End If
-
-                        Dim sql = ""
-                        Dim el_sql = CType(templatetag.Nodes.GetElementsByTagName("sql").FirstOrDefault, HtmlElement)
-                        If el_sql IsNot Nothing Then
-                            If el_sql.HasAttribute("file") AndAlso el_sql.Attribute("file").IsNotBlank Then
-                                sql = GetCommand(el_sql.Attribute("file"))
-                            Else
-                                sql = el_sql.InnerHTML.HtmlDecode
-                            End If
-                            el_sql.Destroy()
-                        End If
-
-                        Dim source = ""
-                        Dim pg As Integer = 0
-                        Dim n_item As Integer = 0
-                        Dim el_source = CType(templatetag.Nodes.GetElementsByTagName("property").FirstOrDefault, HtmlElement)
-                        If el_source IsNot Nothing Then
-                            If el_source.HasAttribute("name") AndAlso el_source.Attribute("name").IsNotBlank Then
-                                source = el_source.Attribute("name")
-                                Try
-                                    pg = el_source.Attribute("page")
-                                Catch ex As Exception
-                                End Try
-                                Try
-                                    n_item = el_source.Attribute("size")
-                                Catch ex As Exception
-                                End Try
-                            End If
-                            el_source.Destroy()
-                        End If
-
-                        Dim lista As IEnumerable(Of Object) = Nothing
-
-                        If sql.IsNotBlank Then
-                            lista = ApplyTemplate(Of Dictionary(Of String, Object))(sql, conteudo, {})
-                        End If
-
-                        If source.IsNotBlank Then
-                            Dim classe As IEnumerable(Of Object) = ClassTools.GetPropertyValue(item, source)
-                            If classe.Count > 0 AndAlso conteudo.IsBlank Then
-                                conteudo = GetTemplate(classe(0).GetType, True)
-                            End If
-                            lista = ApplyTemplate(Of Object)(classe.AsQueryable, pg, n_item, conteudo)
-                        End If
-
-                        If lista Is Nothing Then
-                            Throw New NullReferenceException("'Property' tag or 'SQL' tag not specified in template tag.")
-                        End If
-
-                        conteudo = lista.ToString
-                        If templatetag.HasAttribute("renderas") Then
-                            templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
-                            templatetag.RemoveAttribute("renderas")
-                            templatetag.InnerHTML = conteudo
-                        Else
-                            templatetag.Mutate(conteudo)
-                        End If
-                    End If
-                Catch ex As Exception
-                    templatetag.Destroy()
-                End Try
-            Next
-        End Sub
-
-    End Class
-
-    ''' <summary>
     ''' Gerador de HTML dinâmico a partir de objetos LINQ e arquivos HTML.
     ''' </summary>
     Public Class Triforce
@@ -1075,8 +1150,8 @@ Namespace LINQ
         ''' Aplica um template HTML a um objeto <see cref="IEnumerable"/>
         ''' </summary>
         ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
-        ''' <param name="List">    Lista de objetos</param>
-        ''' <param name="Template">Template HTML ou nome do template HTML</param>
+        ''' <param name="List">      Lista de objetos</param>
+        ''' <param name="Template">  Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
         ''' <param name="PageSize">  
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
@@ -1199,6 +1274,7 @@ Namespace LINQ
                     Return pegartemplate(TemplateFile, "body")
             End Select
         End Function
+
 
         Friend Function ApplySelector(Name As String, Selector As String) As String
             Return Selector & Name & Selector

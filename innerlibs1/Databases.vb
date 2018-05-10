@@ -653,7 +653,7 @@ Public NotInheritable Class DataBase
     ''' <param name="SafeMode">se False, indica se a operação pode ser realizada sem uma clausula WHERE</param>
     Public Sub DELETE(TableName As String, WhereConditions As String, Optional SafeMode As Boolean = True)
         Dim cmd = "DELETE FROM " & TableName
-        If WhereConditions.IsNotBlank Or SafeMode = False Then
+        If WhereConditions.IsNotBlank OrElse SafeMode = False Then
             If WhereConditions.IsNotBlank Then
                 cmd.Append(" where " & WhereConditions.RemoveFirstAny(True, "where", " "))
             End If
