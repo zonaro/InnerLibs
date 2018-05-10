@@ -675,7 +675,7 @@ Public NotInheritable Class DataBase
     End Function
 
     ''' <summary>
-    ''' Seleciona a primeira linha de um resultset e aplica no <see cref="Windows.Forms.Control"/> equivalente ao nome da coluna
+    ''' Seleciona a primeira linha de um result e aplica no <see cref="Windows.Forms.Control"/> equivalente ao nome da coluna
     ''' </summary>
     ''' <param name="Controls"></param>
     Public Function SelectAndFill(TableName As String, WhereConditions As String, ParamArray Controls As Windows.Forms.Control()) As DataBase.Reader
