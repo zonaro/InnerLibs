@@ -303,21 +303,25 @@ Partial Public Class DataBase
         ''' <returns></returns>
         Function ToJSON(Optional Clear As Boolean = False, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
             Try
-                If Me.Count = 1 AndAlso Clear = True Then
-                    Dim result = Me.First
-                    If result.Count = 1 Then
-                        Dim row = result.First
-                        If row.Count = 1 Then
-                            Return row.First.Value.SerializeJSON(DateFormat)
+                If Clear Then
+                    If Me.Count = 1 Then
+                        Dim result = Me.First
+                        If result.Count = 1 Then
+                            Dim row = result.First
+                            If row.Count = 1 Then
+                                Return row.First.Value.SerializeJSON(DateFormat)
+                            Else
+                                Return row.SerializeJSON(DateFormat)
+                            End If
                         Else
-                            Return row.SerializeJSON(DateFormat)
+                            If result.First.Count = 1 Then
+                                Return result.Select(Function(x) x.First.Value).SerializeJSON(DateFormat)
+                            Else
+                                Return result.SerializeJSON(DateFormat)
+                            End If
                         End If
                     Else
-                        If result.First.Count = 1 Then
-                            Return result.Select(Function(x) x.First.Value).SerializeJSON(DateFormat)
-                        Else
-                            Return result.SerializeJSON(DateFormat)
-                        End If
+                        Return Me.SerializeJSON(DateFormat)
                     End If
                 Else
                     Return Me.SerializeJSON(DateFormat)
