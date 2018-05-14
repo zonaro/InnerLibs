@@ -12,8 +12,8 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension> Public Function ToOrdinalNumber(Number As Integer) As String
-        Return ToOrdinalNumber(CType(Number, Long))
+    <Extension> Public Function ToOrdinalNumber(Number As Integer, Optional ExcludeNumber As Boolean = False) As String
+        Return ToOrdinalNumber(CType(Number, Long), ExcludeNumber)
 
     End Function
 
@@ -22,17 +22,17 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension> Public Function ToOrdinalNumber(Number As Long) As String
+    <Extension> Public Function ToOrdinalNumber(Number As Long, Optional ExcludeNumber As Boolean = False) As String
         If Number > 0 Then
             Select Case Number
                 Case 1
-                    Return Number & "st"
+                    Return If(ExcludeNumber, "", Number) & "st"
                 Case 2
-                    Return Number & "nd"
+                    Return If(ExcludeNumber, "", Number) & "nd"
                 Case 3
-                    Return Number & "rd"
+                    Return If(ExcludeNumber, "", Number) & "rd"
                 Case Else
-                    Return Number & "th"
+                    Return If(ExcludeNumber, "", Number) & "th"
             End Select
         End If
         Return ""

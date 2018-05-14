@@ -178,7 +178,7 @@ Namespace TimeMachine
             Format = Format.Replace("{yy}", ano.ToString.GetLastChars(2))
             Format = Format.Replace("{yyy}", ano.ToString)
             Format = Format.Replace("{yyyy}", ano.ToString)
-            Format = Format.Replace("{o}", dia.ToOrdinalNumber)
+            Format = Format.Replace("{o}", dia.ToOrdinalNumber(True))
             Return Format
         End Function
 
