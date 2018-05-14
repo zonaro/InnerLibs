@@ -190,10 +190,13 @@ Public Module Converter
     <Extension>
     Public Function ChangeArrayType(Of ToType, FromType)(Value As FromType()) As ToType()
         Dim d As New List(Of ToType)
-        For Each el As FromType In Value
-            d.Add(el.ChangeType(Of ToType))
-        Next
-        Return d.ToArray
+        If d.Count > 0 Then
+            For Each el As FromType In Value
+                d.Add(el.ChangeType(Of ToType))
+            Next
+            Return d.ToArray
+        End If
+        Return {}
     End Function
 
     ''' <summary>
