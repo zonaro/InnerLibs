@@ -146,6 +146,16 @@ End Class
 Public Module Calendars
 
     ''' <summary>
+    ''' Atrasa qualquer passo seguinte até a data especificada
+    ''' </summary>
+    ''' <param name="DateTime"></param>
+    <Extension()> Public Sub WaitUntil(DateTime As Date)
+        While Now < DateTime
+            'just wait
+        End While
+    End Sub
+
+    ''' <summary>
     ''' Veirifica se existe intersecção entre dois periodos
     ''' </summary>
     ''' <param name="StartDate1">Data inicial do primeiro periodo</param>
