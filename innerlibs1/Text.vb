@@ -1665,6 +1665,9 @@ Public Module Text
                 Case phrase(index).EndsWith("ões")
                     phrase(index) = phrase(index).RemoveLastIf("ões").Append("ão")
                     Exit Select
+                Case phrase(index).EndsWith("ãos")
+                    phrase(index) = phrase(index).RemoveLastIf("ãos").Append("ão")
+                    Exit Select
                 Case phrase(index).EndsWith("ães")
                     phrase(index) = phrase(index).RemoveLastIf("ães").Append("ão")
                     Exit Select
@@ -1717,12 +1720,17 @@ Public Module Text
         Return Words.Select(Function(p) Text.StartsWith(p)).Contains(True)
     End Function
 
-    Function SyllableCount(ByVal word As String) As Integer
-        word = word.ToLower().Trim()
+    ''' <summary>
+    ''' Conta as silabas de uma palavra
+    ''' </summary>
+    ''' <param name="Word"></param>
+    ''' <returns></returns>
+    <Extension()> Function SyllableCount(ByVal Word As String) As Integer
+        Word = Word.ToLower().Trim()
         Dim lastWasVowel As Boolean
         Dim vowels = {"a"c, "e"c, "i"c, "o"c, "u"c, "y"c}.ToList()
         Dim count As Integer
-        For Each c In word
+        For Each c In Word
             If vowels.Contains(c) Then
                 If Not lastWasVowel Then count += 1
                 lastWasVowel = True
@@ -1730,7 +1738,7 @@ Public Module Text
                 lastWasVowel = False
             End If
         Next
-        If (word.EndsWith("e") OrElse (word.EndsWith("es") OrElse word.EndsWith("ed"))) AndAlso Not word.EndsWith("le") Then count -= 1
+        If (Word.EndsWith("e") OrElse (Word.EndsWith("es") OrElse Word.EndsWith("ed"))) AndAlso Not Word.EndsWith("le") Then count -= 1
         Return count
     End Function
 
