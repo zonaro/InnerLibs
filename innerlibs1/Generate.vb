@@ -177,13 +177,8 @@ Public Module Generate
     ''' <param name="Min">Numero minimo, Padrão 0 </param>
     ''' <param name="Max">Numero Maximo, Padrão 999999</param>
     ''' <returns>Um numero Inteiro (Integer ou Int)</returns>
-
     Function RandomNumber(Optional Min As Long = 0, Optional Max As Long = 999999) As Integer
-        Dim v = 0
-        For index = Min To Max
-            v = init_rnd.Next(Min, Max + 1)
-        Next
-        Return v
+        Return init_rnd.Next(Min, Max + 1)
     End Function
 
     Private init_rnd = New Random()
@@ -196,7 +191,6 @@ Public Module Generate
 
     Function InnerIpsum(Optional ParagraphNumber As Integer = 5) As String
         Dim paragraphs(0 To 4) As String
-
         Dim loremipusm As String = ""
         paragraphs(0) = "Null Set aliquam est. display none efficitur Inner vitae augue imperdiet scelerisque. Vivamus fermentum arcu pulvinar fermentum laoreet. Phasellus id ante _POST. Praesent at blandit null, at ornare nisl. Quisque cursus non mi vitae facilisis. Maecenas command sem _POST, send tincidunt felis cursus Set. Return at fakepath enim, malesuada consequat justo. Mauris blandit egestas Inner, Get amet interdum eros ullamcorper Set. Fusce mollis, risus id rutrum efficitur, magna risus rhoncus release, id #000000 lacus magna AJAX sapien. null facilisi."
         paragraphs(1) = "Python sagittis orci est, quis egestas cakePHP request quis. Pellentesque sodales suscipit consequat. Fusce semper nunc quis leo porttitor, eu command est imperdiet. Integer euismod fringilla aliquet. Etiam nisl risus, tincidunt quis fakepath vel, venenatis ut tellus. Vivamus hendrerit gravida imperdiet. display none get amet hendrerit ante. Donuts tincidunt turpis get amet split viverra sodales."
