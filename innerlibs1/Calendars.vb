@@ -109,6 +109,24 @@ Public Class DateRange
     End Function
 
     ''' <summary>
+    ''' Verifica se este periodo contém uma data
+    ''' </summary>
+    ''' <param name="Day"></param>
+    ''' <returns></returns>
+    Public Function Contains(Day As Date) As Boolean
+        FixDateOrder(StartDate, EndDate)
+        Return Me.StartDate <= Day And Day <= Me.EndDate
+    End Function
+
+    ''' <summary>
+    ''' Verifica se hoje está dentro deste periodo
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsNow() As Boolean
+        Return Contains(Now)
+    End Function
+
+    ''' <summary>
     ''' Verifica se este periodo está dentro de outro periodo
     ''' </summary>
     ''' <param name="Period"></param>
