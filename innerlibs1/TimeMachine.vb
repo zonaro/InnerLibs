@@ -17,7 +17,7 @@ Namespace TimeMachine
         ''' <returns></returns>
         Default Public Shadows ReadOnly Property GetData(Fort As Fortnight) As IEnumerable(Of DataType)
             Get
-                Return _getdata(Fort.Key)
+                Return GetData(Fort.Key)
             End Get
         End Property
 
