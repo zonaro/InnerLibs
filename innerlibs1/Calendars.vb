@@ -256,7 +256,7 @@ Public Module Calendars
     End Function
 
     ''' <summary>
-    ''' Retorna a primeira ultima da quinzena a partir de uma outra data
+    ''' Retorna a ultima data da quinzena a partir de uma outra data
     ''' </summary>
     ''' <param name="[Date]">Data</param>
     ''' <returns></returns>
