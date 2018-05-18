@@ -469,16 +469,50 @@ Public Module Calendars
     ''' </summary>
     ''' <returns>Data de amanhã</returns>
 
-    Public ReadOnly Property Tomorrow() As DateTime = DateTime.Now.AddDays(1)
+    Public ReadOnly Property Tomorrow() As DateTime
+        Get
+            Return DateTime.Now.AddDays(1)
+        End Get
+    End Property
 
     ''' <summary>
     ''' Retorna a data de ontem
     ''' </summary>
     ''' <returns>Data de ontem</returns>
 
-    Public ReadOnly Property Yesterday() As DateTime = DateTime.Now.AddDays(-1)
+    Public ReadOnly Property Yesterday() As DateTime
+        Get
+            Return DateTime.Now.AddDays(-1)
+        End Get
+    End Property
 
+    ''' <summary>
+    ''' Retorna o ultimo domingo
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property LastSunday()
+        Get
+            Dim p = Now
+            While p.DayOfWeek <> DayOfWeek.Sunday
+                p = Yesterday
+            End While
+            Return p
+        End Get
+    End Property
 
+    ''' <summary>
+    ''' Retorna o proximo domingo
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property NextSunday()
+        Get
+            Dim p = Now
+            While p.DayOfWeek <> DayOfWeek.Sunday
+                p = Tomorrow
+            End While
+            Return p
+        End Get
+    End Property
 
 
     ''' <summary>

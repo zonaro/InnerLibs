@@ -8,6 +8,29 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable"/> priorizando valores especificos a uma condição no inicio da coleção e então segue uma ordem padrão para os outros.
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <typeparam name="DefaultOrderType"></typeparam>
+        ''' <param name="items">colecao</param>
+        ''' <param name="Priority">Seletor que define a prioridade</param>
+        ''' <param name="DefaultOrder">ordenacao padrao para os outros itens</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Iterator Function TakeAndOrder(Of T, DefaultOrderType)(ByVal items As IEnumerable(Of T), ByVal Priority As Func(Of T, Boolean), Optional DefaultOrder As Func(Of T, DefaultOrderType) = Nothing) As IEnumerable(Of T)
+            DefaultOrder = If(DefaultOrder, Function(x) True)
+            For Each item In items.Where(Priority)
+                Yield item
+            Next
+
+            For Each item In items.Where(Function(i) Not Priority(i)).OrderBy(Function(i) i)
+                Yield item
+            Next
+        End Function
+
+
         <Extension()>
         Function [And](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
             Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())

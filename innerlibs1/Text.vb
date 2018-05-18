@@ -584,6 +584,8 @@ Public Module Text
         Return d
     End Function
 
+
+
     ''' <summary>
     ''' Pega o dominio principal de uma URL
     ''' </summary>
