@@ -39,12 +39,18 @@ Public Module Converter
     ''' <returns></returns>
     <Extension()>
     Public Function ParseUnitString(Number As String) As Decimal
-        Dim i = Number.AdjustWhiteSpaces.GetLastChars(1)
-        If Units.ContainsKey(i) Then
-            Return Units(i) * Convert.ToDecimal(Number.ParseDigits)
-        Else
-            Return Number.TrimAny(i)
+        If Number.IsBlank Then
+            Return 0
         End If
+        If Not Number.IsNumber Then
+            Dim i = Number.AdjustWhiteSpaces.GetLastChars(1)
+            If Units.ContainsKey(i) Then
+                Return Units(i) * Convert.ToDecimal(Number.ParseDigits)
+            Else
+                Return Number.TrimAny(i).ChangeType(Of Decimal)
+            End If
+        End If
+        Return Number.ChangeType(Of Decimal)
     End Function
 
     ''' <summary>

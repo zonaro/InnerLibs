@@ -1,5 +1,5 @@
 ﻿Imports System.Globalization
-
+Imports InnerLibs
 
 ''' <summary>
 ''' Estrutura que representa valores em dinheiro de uma determinada <see cref="CultureInfo"/>. Utiliza uma API (http://fixer.io) para conversão de moedas.
@@ -143,6 +143,9 @@ Public Structure Money
         If l.Count = 0 Then l.Add(CultureInfo.InvariantCulture)
         Return l
     End Function
+
+
+
 
     Public Shared Operator &(Text As String, Value As Money) As String
         Return Text & Value.MoneyString
@@ -534,6 +537,7 @@ Public Structure Money
         Return Value1.CurrencySymbol = Value2.CurrencySymbol
     End Operator
 
-
-
+    Public Shared Widening Operator CType(v As Money) As Decimal
+        Return v.Value
+    End Operator
 End Structure

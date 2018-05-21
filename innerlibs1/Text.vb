@@ -1003,44 +1003,7 @@ Public Module Text
         Return New Json(DateFormat).Deserialize(Of Object)(JSON)
     End Function
 
-    ''' <summary>
-    ''' Retorna a frase especificada em sua forma composta
-    ''' </summary>
-    ''' <param name="Text">Texto no singular</param>
-    ''' <returns></returns>
-    <Extension()> Public Function Pluralize(Text As String) As String
-        Dim phrase As String() = Text.ApplySpaceOnWrapChars.Split(" ")
-        For index = 0 To phrase.Count - 1
 
-            Dim endchar As String = phrase(index).GetLastChars
-            If endchar.IsAny(WordSplitters) Then
-                phrase(index) = phrase(index).RemoveLastIf(endchar)
-            End If
-
-            Select Case True
-                Case phrase(index).IsNumber OrElse phrase(index).IsEmail OrElse phrase(index).IsURL OrElse phrase(index).IsIP OrElse phrase(index).IsIn(WordSplitters) OrElse phrase(index) = "não"
-                    'nao alterar estes tipos
-                    Exit Select
-                Case phrase(index).EndsWith("ão")
-                    phrase(index) = phrase(index).RemoveLastIf("ão").Append("ães")
-                    Exit Select
-                Case phrase(index).EndsWithAny("r", "z")
-                    phrase(index) = phrase(index).Append("es")
-                    Exit Select
-                Case phrase(index).EndsWith("ães"), phrase(index).EndsWith("ãos"), phrase(index).EndsWith("ões"), phrase(index).EndsWith("ns"), phrase(index).EndsWith("s")
-                    'ja esta no plural
-                    Exit Select
-                Case Else
-                    phrase(index) = phrase(index) & "s"
-            End Select
-
-            If endchar.IsAny(WordSplitters) Then
-                phrase(index).Append(endchar)
-            End If
-
-        Next
-        Return phrase.Join(" ").AdjustWhiteSpaces
-    End Function
 
     ''' <summary>
     ''' Retorna uma string em sua forma poop
@@ -1198,8 +1161,7 @@ Public Module Text
 
         If nums.Contains(numero) Then
             Return PluralText.Singularize()
-        Else
-            Return PluralText.Pluralize()
+
         End If
 
         Return PluralText
@@ -2901,7 +2863,45 @@ Public Module Text
             sizeType.Increment
             If sizeType >= sizeTypes.Length - 1 Then Exit Do
         Loop
-        Return Number & " " & sizeTypes(sizeType)
+        Return (Number & " " & sizeTypes(sizeType)).Trim()
+    End Function
+
+
+    ''' <summary>
+    ''' Retorna um texto quantificado a partir de um numero
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <param name="CultureInfo"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToQuantityText(Number As Integer, Optional CultureInfo As CultureInfo = Nothing) As String
+        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
+    End Function
+
+    ''' <summary>
+    ''' Retorna um texto quantificado a partir de um numero
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <param name="CultureInfo"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToQuantityText(Number As Long, Optional CultureInfo As CultureInfo = Nothing) As String
+        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
+    End Function
+
+    ''' <summary>
+    ''' Retorna um texto quantificado a partir de um numero
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <param name="CultureInfo"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToQuantityText(Number As Decimal, Optional CultureInfo As CultureInfo = Nothing) As String
+        Dim sizeTypes() As String = {"", "Mil", "Milhões", "Bilhões", "Trilhões", "Quadrilhões", "Quintilhões"}
+        Dim sizeType As Integer = 0
+        Do While Number > 1000
+            Number = Decimal.Round(CType(Number, Decimal) / 1000, 2)
+            sizeType.Increment
+            If sizeType >= sizeTypes.Length - 1 Then Exit Do
+        Loop
+        Return (Number & " " & sizeTypes(sizeType)).Trim().QuantifyText(Number, CultureInfo)
     End Function
 
     ''' <summary>
