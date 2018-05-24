@@ -535,7 +535,7 @@ Namespace HtmlParser
                         Dim txt = el.Text.HtmlDecode
                         Select Case el.Parent.Name.ToLower
                             Case "h1", "h2", "h3", "h4", "h5", "h6"
-                                el.Text = txt.AdjustBlankSpaces.ToCamel.TrimAny("!", ",", ".", "?", " ")
+                                el.Text = txt.AdjustBlankSpaces.ToTitle.TrimAny("!", ",", ".", "?", " ")
                             Case "pre", "code"
                             'do nothing
                             Case "style"

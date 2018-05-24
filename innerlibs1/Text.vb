@@ -1161,9 +1161,7 @@ Public Module Text
 
         If nums.Contains(numero) Then
             Return PluralText.Singularize()
-
         End If
-
         Return PluralText
     End Function
 
@@ -1780,13 +1778,30 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma um texto em Titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
+    ''' Transforma uma frase em uma palavra CamelCase
     ''' </summary>
     ''' <param name="Text">Texto a ser manipulado</param>
-    ''' <returns>Uma String com o texto em nome próprio</returns>
+    ''' <returns>Uma String com o texto am CameCase</returns>
     <Extension()>
     Public Function ToCamel(Text As String) As String
-        Return ToProper(Text)
+        Return ToProper(Text).Split(" ", StringSplitOptions.RemoveEmptyEntries).Join("")
+    End Function
+
+    ''' <summary>
+    ''' Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CamelSplit(Text As String) As String
+        Dim chars = Text.ToArray
+        Text = ""
+        For Each c In chars
+            If Char.IsUpper(c) Then
+                Text &= " "
+            End If
+            Text &= c
+        Next
+        Return Text
     End Function
 
     ''' <summary>
@@ -2821,25 +2836,7 @@ Public Module Text
         Return Number.ToString.ToTelephone
     End Function
 
-    ''' <summary>
-    ''' Corta uma string em uma determinada posição e completa com reticências ou outro caractere.
-    ''' </summary>
-    ''' <param name="Text">      O Texto a ser Cortado</param>
-    ''' <param name="TextLength">A quantidade de caracteres final da string cortada</param>
-    ''' <param name="Ellipsis">  
-    ''' Caracteres adicionados caso a mensagem for cortada, normalmente '...'
-    ''' </param>
-    ''' <returns>string cortada</returns>
-    ''' <summary>
-    ''' Remove as tags HTML de um texto
-    ''' </summary>
-    ''' <param name="Text">      Texto a ser Tratado</param>
-    ''' <returns>String sem as tags HTML</returns>
-    ''' <summary>
-    ''' Transforma um texto em nome proprio Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
-    ''' </summary>
-    ''' <param name="Text">      Texto a ser manipulado</param>
-    ''' <returns>Uma String com o texto em nome próprio</returns>
+
     ''' <summary>
     ''' Transforma um texto em titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
     ''' </summary>
