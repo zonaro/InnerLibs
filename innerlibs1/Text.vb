@@ -1719,7 +1719,7 @@ Public Module Text
     ''' <param name="Text">Texto</param>
     ''' <returns>Lista de anagramas</returns>
     <Extension()> Public Function ToAnagramList(ByVal Text As String) As List(Of String)
-        ToAnagramList = New List(Of String)
+        ToAnagramList = New List(Of String) From {Text}
         Dim i As Int32
         Dim y As Int32
         Dim x As Int32
@@ -1774,7 +1774,7 @@ Public Module Text
         For Each item In jagged
             ToAnagramList.AddRange(item)
         Next
-        Return ToAnagramList.Distinct().ToList()
+        Return ToAnagramList.Distinct().OrderBy(Function(o) o).ToList()
     End Function
 
     ''' <summary>
