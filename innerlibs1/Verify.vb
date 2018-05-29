@@ -297,6 +297,9 @@ Public Module Verify
         Return Arr.IfNoIndex(Index).IfBlank(Of T)(ValueIfBlankOrNoIndex)
     End Function
 
+
+
+
     ''' <summary>
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
     ''' </summary>
@@ -339,6 +342,22 @@ Public Module Verify
             Return If(blankas, CType(ValueIfBlank, T), CType(Value, T))
         End If
     End Function
+
+    ''' <summary>
+    ''' Anula o valor de um objeto se ele for igual a outro objeto
+    ''' </summary>
+    ''' <param name="Value">Valor</param>
+    ''' <param name="TestExpression">Outro Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function NullIf(Of T)(ByVal Value As T, TestExpression As Func(Of T, Boolean)) As T
+        If TestExpression(Value) Then
+            Return Nothing
+        End If
+        Return Value
+    End Function
+
+
 
     ''' <summary>
     ''' Anula o valor de um objeto se ele for igual a outro objeto

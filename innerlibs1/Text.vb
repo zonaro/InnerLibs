@@ -2778,9 +2778,10 @@ Public Module Text
     ''' <param name="Number"></param>
     ''' <returns></returns>
     <Extension> Public Function ToTelephone(Number As String) As String
+        Number = If(Number, "")
         Dim mask As String = ""
         Number = Number.ParseDigits.RemoveAny(",", ".")
-        If IsNothing(Number) OrElse Number.IsBlank Then
+        If Number.IsBlank Then
             Return ""
         End If
         Select Case Number.Length
