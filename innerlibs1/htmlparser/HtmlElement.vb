@@ -330,20 +330,32 @@ Namespace HtmlParser
         <Category("Output"), Description("A concatination of all the text associated with this element")>
         Public Property InnerText As String
             Get
-                Dim stringBuilder As New StringBuilder()
-                For Each node As HtmlNode In Nodes
-                    If TypeOf node Is HtmlText Then
-                        stringBuilder.Append(DirectCast(node, HtmlText).Text)
+                Dim txt = ""
+                For Each n In Nodes
+                    If n.IsText Then
+                        txt &= CType(n, HtmlText).Text & " "
                     Else
-                        If Not Nodes.mParent.Name.IsIn({"script", "style", "head"}) AndAlso Not DirectCast(node, HtmlElement).Name.IsIn({"script", "style", "head"}) Then
-                            stringBuilder.Append(DirectCast(node, HtmlElement).InnerText)
-                        End If
+                        Dim el = CType(n, HtmlElement)
+                        Select Case el.Name
+                            Case "script", "style", "head", "video", "audio", "media", "img"
+                                'faz nada
+                            Case "br"
+                                txt &= Environment.NewLine
+                            Case "hr"
+                                txt &= Environment.NewLine & "-------" & Environment.NewLine
+                            Case "li"
+                                txt &= Environment.NewLine & " • " & el.InnerText
+                            Case "p", "div"
+                                txt &= el.InnerText & Environment.NewLine
+                            Case Else
+                                txt &= el.InnerText
+                        End Select
                     End If
                 Next
-                Return stringBuilder.ToString()
+                Return txt
             End Get
             Set(value As String)
-                Me.InnerHTML = value.RemoveHTML
+                Me.InnerHTML = value.HtmlEncode
             End Set
         End Property
 

@@ -55,6 +55,14 @@ Namespace HtmlParser
             End Get
         End Property
 
+        Public Function AsElement() As HtmlElement
+            Return CType(Me, HtmlElement)
+        End Function
+
+        Public Function AsText() As HtmlText
+            Return CType(Me, HtmlText)
+        End Function
+
         ''' <summary>
         ''' This will return the full HTML to represent this node (and all child nodes).
         ''' </summary>

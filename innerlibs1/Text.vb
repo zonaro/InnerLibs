@@ -817,18 +817,7 @@ Public Module Text
         Return System.Web.HttpUtility.HtmlDecode("" & Text).ReplaceMany(vbCr & vbLf, "<br/>", "<br />", "<br>")
     End Function
 
-    ''' <summary>
-    ''' Retorna os N ultimos caracteres
-    ''' </summary>
-    ''' <param name="Text">  Texto correspondente</param>
-    ''' <param name="Number">Numero de caracteres</param>
-    ''' <returns>Uma String com os N ultimos caracteres</returns>
-    ''' <summary>
-    ''' Retorna os N primeiros caracteres
-    ''' </summary>
-    ''' <param name="Text">  Texto correspondente</param>
-    ''' <param name="Number">Numero de caracteres</param>
-    ''' <returns>Uma String com os N primeiros caracteres</returns>
+
     ''' <summary>
     ''' Escapa o texto HTML
     ''' </summary>
@@ -836,7 +825,7 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
-        Return System.Web.HttpUtility.HtmlEncode("" & Text)
+        Return System.Web.HttpUtility.HtmlEncode("" & Text.ReplaceMany("<br>", BreakLineChars))
     End Function
 
     ''' <summary>

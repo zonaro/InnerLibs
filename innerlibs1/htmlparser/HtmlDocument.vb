@@ -125,17 +125,17 @@ Namespace HtmlParser
         Public Property InnerText As String
             Get
                 Dim txt = ""
-                For Each n In Nodes
-                    If TypeOf n Is HtmlText Then
-                        txt &= CType(n, HtmlText).Text
+                For Each el In Me.Nodes
+                    If el.IsText Then
+                        txt &= el.AsText.Text & " "
                     Else
-                        txt &= CType(n, HtmlElement).InnerText
+                        txt &= el.AsElement.InnerText
                     End If
                 Next
                 Return txt
             End Get
             Set(value As String)
-                Me.InnerHTML = value.RemoveHTML
+                Me.InnerHTML = value.HtmlEncode
             End Set
         End Property
 
