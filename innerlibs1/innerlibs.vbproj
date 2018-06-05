@@ -140,6 +140,7 @@
     <Compile Include="htmlparser\CSSSelectors\PseudoClassNameAttribute.vb" />
     <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\FirstChildPseudoClass.vb" />
     <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\LastChildPseudoClass.vb" />
+    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\ReadOnlyPseudoClass.vb" />
     <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\NotPseudoClass.vb" />
     <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\NthChildPseudoClass.vb" />
     <Compile Include="htmlparser\CSSSelectors\Token.vb" />

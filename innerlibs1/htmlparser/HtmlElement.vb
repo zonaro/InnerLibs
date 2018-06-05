@@ -124,15 +124,39 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
+        ''' Add a node (or nodes) to collection
+        ''' </summary>
+        ''' <param name="Node"></param>
+        Public Sub AddNode(ParamArray Node As HtmlNode())
+            Me.Nodes.Add(Node)
+        End Sub
+
+        ''' <summary>
+        ''' Add a node to collection using an <see cref="HtmlGenericControl"/> as base
+        ''' </summary>
+        ''' <param name="Node"></param>
+        Public Sub AddNode(Node As HtmlGenericControl)
+            Me.Nodes.Add(Node)
+        End Sub
+
+        ''' <summary>
+        ''' Add a node to collection using a HTML string as base
+        ''' </summary>
+        ''' <param name="HTML"></param>
+        ''' <param name="Index"></param>
+        Public Sub AddNode(HTML As String, Optional Index As Integer = 0)
+            Me.Nodes.Add(HTML, Index)
+        End Sub
+
+
+        ''' <summary>
         ''' Return the child elements of this element (excluding HtmlText)
         ''' </summary>
         ''' <returns></returns>
         <Category("General"), Description("The Child Elements of this element. Exclude Text Nodes")>
-        ReadOnly Property ChildElements As HtmlNodeCollection
+        ReadOnly Property ChildElements As IEnumerable(Of HtmlElement)
             Get
-                Dim l As New HtmlNodeCollection(Parent)
-                l.AddRange(Nodes.Where(Function(p) TypeOf p Is HtmlElement).Select(Function(p) CType(p, HtmlElement)))
-                Return l
+                Return Nodes.Where(Function(p) p.IsElement).Select(Function(p) p.AsElement)
             End Get
         End Property
 
@@ -141,15 +165,10 @@ Namespace HtmlParser
         ''' </summary>
         ''' <returns></returns>
         <Category("General"), Description("The associated text to this element. Exclude HTML Nodes")>
-        Property ContentText As HtmlNodeCollection
+        ReadOnly Property ContentText As IEnumerable(Of HtmlText)
             Get
-                Return GetTextElements(True)
+                Return GetTextElements(False)
             End Get
-            Set(value As HtmlNodeCollection)
-                If value.Count > 0 Then
-                    Me.InnerText = value.Select(Function(p) p.ToString()).ToArray.Join("")
-                End If
-            End Set
         End Property
 
         ''' <summary>
@@ -296,7 +315,11 @@ Namespace HtmlParser
                 Return Me.Attribute("id")
             End Get
             Set(value As String)
-                Me.Attribute("id") = value
+                If value Is Nothing Then
+                    Me.RemoveAttribute("id")
+                Else
+                    Me.Attribute("id") = value
+                End If
             End Set
         End Property
 
@@ -344,9 +367,15 @@ Namespace HtmlParser
                             Case "hr"
                                 txt &= Environment.NewLine & "-------" & Environment.NewLine
                             Case "li"
-                                txt &= Environment.NewLine & " • " & el.InnerText
+                                Dim t = el.InnerText
+                                If t.IsNotBlank Then
+                                    txt &= Environment.NewLine & " • " & t
+                                End If
                             Case "p", "div"
-                                txt &= el.InnerText & Environment.NewLine
+                                Dim t = el.InnerText
+                                If t.IsNotBlank Then
+                                    txt &= t & Environment.NewLine
+                                End If
                             Case Else
                                 txt &= el.InnerText
                         End Select
@@ -448,6 +477,15 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
+        ''' Return the value of specific data-attibute
+        ''' </summary>
+        ''' <param name="Name"></param>
+        ''' <returns></returns>
+        Public Function Data(Name As String) As String
+            Return Me.Attribute("data-" & Name)
+        End Function
+
+        ''' <summary>
         ''' Return the value of specific attibute
         ''' </summary>
         ''' <param name="Name"></param>
@@ -456,11 +494,13 @@ Namespace HtmlParser
         Property Attribute(Name As String) As String
             Get
                 If Name.IsNotBlank Then
-                    Try
-                        Return Me.Attributes.Item(Name.ToLower).Value
-                    Catch ex As Exception
-                        Return ""
-                    End Try
+                    If Me.HasAttribute(Name) Then
+                        If Me.Attributes.Item(Name.ToLower).IsMinimized Then
+                            Return Nothing
+                        Else
+                            Return Me.Attributes.Item(Name.ToLower).Value
+                        End If
+                    End If
                 End If
                 Return ""
             End Get
@@ -478,6 +518,15 @@ Namespace HtmlParser
                 End If
             End Set
         End Property
+
+        ''' <summary>
+        ''' Check if Attribute is minimized (value is nothing)
+        ''' </summary>
+        ''' <param name="Name">Attr Name</param>
+        ''' <returns></returns>
+        Function IsMinimizedAttribute(Name As String) As Boolean
+            Return Me.HasAttribute(Name) AndAlso Me.Attributes(Name).IsMinimized
+        End Function
 
         ''' <summary>
         ''' Add a attribute to this element
@@ -737,6 +786,40 @@ Namespace HtmlParser
 
     End Class
 
+    Public Class HtmlTimeElement
+        Inherits HtmlElement
+        Sub New()
+            MyBase.New("time")
+        End Sub
+        Sub New(DateTime As DateTime)
+            Me.New
+            Me.DateTime = DateTime
+        End Sub
+
+        Property DateTime As Date?
+            Get
+                Return Me.Attribute("datetime").IfBlank(Of Date?)(Nothing)
+            End Get
+            Set(value As Date?)
+                If value.HasValue Then
+                    Me.Attribute("datetime") = value.Value.ToSQLDateString
+                Else
+                    Me.Attribute("datetime") = ""
+                End If
+            End Set
+        End Property
+
+        Overrides Property Name As String
+            Get
+                Return "time"
+            End Get
+            Set(value As String)
+                MyBase.Name = "time"
+            End Set
+        End Property
+
+    End Class
+
     Public Class HtmlImageElement
         Inherits HtmlElement
 
@@ -763,6 +846,18 @@ Namespace HtmlParser
                     Me.RemoveAttribute("src")
                 End If
                 Me.Attribute("src") = value
+            End Set
+        End Property
+
+        Property Alt As String
+            Get
+                Return Me.Attribute("alt")
+            End Get
+            Set(value As String)
+                If value Is Nothing Then
+                    Me.RemoveAttribute("alt")
+                End If
+                Me.Attribute("alt") = value
             End Set
         End Property
 
@@ -844,6 +939,22 @@ Namespace HtmlParser
             End Get
             Set(value As String)
                 Me.Attribute("value") = ("" & value)
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' Placeholder of Input
+        ''' </summary>
+        ''' <returns></returns>
+        Property PlaceHolder As String
+            Get
+                Return Me.Attribute("placeholder")
+            End Get
+            Set(value As String)
+                If value Is Nothing Then
+                    Me.RemoveAttribute("placeholder")
+                End If
+                Me.Attribute("placeholder") = value
             End Set
         End Property
 

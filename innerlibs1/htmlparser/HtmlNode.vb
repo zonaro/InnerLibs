@@ -59,6 +59,10 @@ Namespace HtmlParser
             Return CType(Me, HtmlElement)
         End Function
 
+        Public Function AsElement(Of ElementType As HtmlElement)() As ElementType
+            Return CType(Me, ElementType)
+        End Function
+
         Public Function AsText() As HtmlText
             Return CType(Me, HtmlText)
         End Function
@@ -178,7 +182,7 @@ Namespace HtmlParser
                 Element.Nodes.Add(el)
                 Return el
             Else
-                Element.Nodes.Add(Me, True)
+                Element.Nodes.Add(Me)
                 Return Me
             End If
         End Function
@@ -339,7 +343,9 @@ Namespace HtmlParser
         Inherits List(Of HtmlNode)
         Friend mParent As HtmlElement
 
-        ' Public constructor to create an empty collection.
+        ''' <summary>
+        ''' Create an abstract collection of nodes thats don't changes the parent node property
+        ''' </summary>
         Public Sub New()
             mParent = Nothing
         End Sub
@@ -360,22 +366,26 @@ Namespace HtmlParser
         ''' <returns></returns>
         Default Public Overloads ReadOnly Property Item(CssSelector As String) As HtmlNodeCollection
             Get
-                Dim l As New HtmlNodeCollection(mParent)
+                Dim l As New HtmlNodeCollection()
 
                 If CssSelector Is Nothing OrElse CssSelector.IsBlank Then
                     Return Me
                 End If
 
                 If CssSelector.Contains(","c) Then
-                    Dim combinedSelectors = CssSelector.Split(","c)
-                    Dim rt = Me.Item(combinedSelectors(0))
+                    Dim combinedSelectors = CssSelector.Split(","c, StringSplitOptions.RemoveEmptyEntries)
+                    Dim rt As New HtmlNodeCollection
+                    If combinedSelectors(0).IsNotBlank Then
+                        rt = Me.Item(combinedSelectors(0).Trim)
+                    End If
                     For Each s In combinedSelectors.Skip(1)
-                        For Each n In Me.Item(s)
-                            If Not rt.Contains(n) Then
-                                rt.Add(n, False)
-                            End If
-
-                        Next
+                        If s.IsNotBlank Then
+                            For Each n In Me.Item(s.Trim)
+                                If Not rt.Contains(n) Then
+                                    rt.Add(n)
+                                End If
+                            Next
+                        End If
                     Next
 
                     Return rt
@@ -392,7 +402,6 @@ Namespace HtmlParser
 
                     If allowTraverse AndAlso selector.AllowTraverse Then
                         l = Traverse(Me)
-
                     End If
 
                     l = selector.Filter(l)
@@ -418,9 +427,9 @@ Namespace HtmlParser
         ''' Add a Node to colleciton
         ''' </summary>
         ''' <param name="Node"></param>
-        Public Shadows Sub Add(Node As HtmlNode, Optional ChangeParent As Boolean = True)
+        Public Shadows Sub Add(Node As HtmlNode)
             If Node IsNot Nothing Then
-                If Me.mParent IsNot Nothing AndAlso ChangeParent Then
+                If Me.mParent IsNot Nothing Then
                     Node.Remove()
                     Node.SetParent(Me.mParent)
                 End If
@@ -435,7 +444,7 @@ Namespace HtmlParser
         Public Shadows Sub Add(Html As String, Optional Index As Integer = 0)
             Dim d As New HtmlParser
             For Each i In d.Parse(Html)
-                Me.Insert(Index, i, True)
+                Me.Insert(Index, i)
             Next
         End Sub
 
@@ -447,19 +456,14 @@ Namespace HtmlParser
             Me.Add(New HtmlElement(Control))
         End Sub
 
-        Public Shadows Sub AddRange(Nodes As IEnumerable(Of HtmlNode), Optional ChangeParent As Boolean = True)
+
+        Public Shadows Sub Add(ParamArray Nodes As HtmlNode())
             For Each n In Nodes
-                Me.Add(n, ChangeParent)
+                Me.Add(n)
             Next
         End Sub
 
-        Public Shadows Sub AddRange(ChangeParent As Boolean, ParamArray Nodes As HtmlNode())
-            Me.AddRange(Nodes, ChangeParent)
-        End Sub
 
-        Public Shadows Sub AddRange(ParamArray Nodes As HtmlNode())
-            Me.AddRange(Nodes, True)
-        End Sub
 
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with matchs the predicate.
@@ -469,16 +473,16 @@ Namespace HtmlParser
         ''' <param name="SearchChildren">Travesse the child nodes</param>
         ''' <returns></returns>
         Public Function FindElements(Of NodeType As HtmlNode)(predicate As Func(Of NodeType, Boolean), Optional SearchChildren As Boolean = True) As HtmlNodeCollection
-            Dim results As New HtmlNodeCollection(Nothing)
+            Dim results As New HtmlNodeCollection()
             For Each node As HtmlNode In Me
                 If TypeOf node Is NodeType Then
                     If predicate(node) Then
-                        results.Add(node, False)
+                        results.Add(node)
                     End If
                 End If
                 If TypeOf node Is HtmlElement AndAlso SearchChildren Then
                     For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.FindElements(predicate, SearchChildren)
-                        results.Add(matchedChild, False)
+                        results.Add(matchedChild)
                     Next
                 End If
             Next
@@ -499,7 +503,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <returns></returns>
         Public Function GetElements() As IEnumerable(Of HtmlElement)
-            Return Me.Where(Function(x) x.GetType = GetType(HtmlElement)).Select(Function(x) CType(x, HtmlElement))
+            Return Me.Where(Function(x) x.IsElement).Select(Function(x) x.AsElement)
         End Function
 
         ''' <summary>
@@ -591,13 +595,16 @@ Namespace HtmlParser
         ''' Insert a element in specific index
         ''' </summary>
         ''' <param name="Index"></param>
-        ''' <param name="Node"> </param>
-        Public Shadows Sub Insert(Index As Integer, Node As HtmlNode, Optional ChangeParent As Boolean = True)
-            If Me.mParent IsNot Nothing AndAlso ChangeParent Then
-                Node.Remove()
-                Node.mParent = Me.mParent
-            End If
-            MyBase.Insert(Index, Node)
+        ''' <param name="Nodes"> </param>
+        Public Shadows Sub Insert(Index As Integer, ParamArray Nodes As HtmlNode())
+            For Each node In Nodes
+                If Me.mParent IsNot Nothing Then
+                    node.Remove()
+                    node.mParent = Me.mParent
+                End If
+                MyBase.Insert(Index, node)
+                Index.Increment.SetMaxValue(Me.Count - 1)
+            Next
         End Sub
 
         ''' <summary>
@@ -606,11 +613,20 @@ Namespace HtmlParser
         ''' <param name="Index"></param>
         ''' <param name="Nodes"></param>
         Public Shadows Sub Insert(Index As Integer, Nodes As String)
-            Me.Insert(Index, New HtmlParser().Parse(Nodes).AsEnumerable, True)
+            Me.Insert(Index, New HtmlParser().Parse(Nodes))
+        End Sub
+
+        ''' <summary>
+        ''' Insert a element in specific index
+        ''' </summary>
+        ''' <param name="Index"></param>
+        ''' <param name="Nodes"></param>
+        Public Shadows Sub Insert(Index As Integer, Nodes As HtmlNodeCollection)
+            Me.Insert(Index, Nodes.ToArray)
         End Sub
 
         Public Sub ReplaceElement(Element As HtmlNode, Items As IEnumerable(Of HtmlNode))
-            Dim indexo = Element.Index
+            Dim indexo = Me.IndexOf(Element)
             Dim index_append = 1
             If indexo > -1 Then
                 For Each el In Items
@@ -640,10 +656,10 @@ Namespace HtmlParser
 
         Private Function Traverse(nodes As HtmlNodeCollection) As HtmlNodeCollection
             Dim l As New HtmlNodeCollection
-            For Each node In nodes.Where(Function(i) TypeOf i Is HtmlElement)
-                For Each n In Traverse(node).Where(Function(i) TypeOf i Is HtmlElement)
+            For Each node In nodes.Where(Function(i) i.IsElement)
+                For Each n In Traverse(node).Where(Function(i) i.IsElement)
                     If n IsNot Nothing Then
-                        l.Add(n, False)
+                        l.Add(n)
                     End If
                 Next
             Next
@@ -658,7 +674,7 @@ Namespace HtmlParser
             For Each child In node.ChildElements
                 ''aqui é os node de verdade'
                 For Each n In Traverse(child)
-                    l.Add(n, False)
+                    l.Add(n)
                 Next
 
             Next

@@ -168,7 +168,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="ClassEx"></param>
         ''' <returns></returns>
-        Public Function ClassExpression(ParamArray ClassEx As Object()) As String
+        Public Function FromExpression(ParamArray ClassEx As Object()) As String
             For Each ooo In ClassEx.ToArray
                 Select Case ooo.GetType()
                     Case GetType(String)

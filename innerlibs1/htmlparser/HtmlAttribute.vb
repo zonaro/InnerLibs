@@ -76,10 +76,8 @@ Namespace HtmlParser
 
         <Category("Output"), Description("The HTML to represent this attribute")>
         Public ReadOnly Property HTML() As String
-
             Get
                 If mValue Is Nothing Then
-
                     Return mName
                 Else
                     Return (mName & Convert.ToString("=""")) & System.Net.WebUtility.HtmlEncode(mValue) & """"
@@ -91,17 +89,20 @@ Namespace HtmlParser
 
         <Category("Output"), Description("The XHTML to represent this attribute")>
         Public ReadOnly Property XHTML() As String
-
             Get
                 If mValue Is Nothing Then
-
                     Return mName.ToLower()
                 Else
                     Return (mName & Convert.ToString("=""")) & System.Net.WebUtility.HtmlEncode(mValue) & """"
                 End If
-
             End Get
 
+        End Property
+
+        Public ReadOnly Property IsMinimized As Boolean
+            Get
+                Return Me.Value Is Nothing
+            End Get
         End Property
 
     End Class
@@ -115,7 +116,6 @@ Namespace HtmlParser
         Private mElement As HtmlElement
 
         Public Sub New()
-
             mElement = Nothing
         End Sub
 
@@ -127,6 +127,8 @@ Namespace HtmlParser
             mElement = element
         End Sub
 
+
+
         ''' <summary>
         ''' This will search the collection for the named attribute. If it is not found, this
         ''' will return null.
@@ -135,12 +137,7 @@ Namespace HtmlParser
         ''' <returns>The attribute, or null if it wasn't found.</returns>
 
         Public Function FindByName(Name As String) As HtmlAttribute
-            Dim l = Me.Where(Function(a) a.Name.ToLower = Name.ToLower)
-            If l.Count > 0 Then
-                Return l.First
-            Else
-                Return Nothing
-            End If
+            Return Me.FirstOrDefault(Function(a) a.Name.ToLower = Name.ToLower)
         End Function
 
         ''' <summary>
@@ -148,11 +145,9 @@ Namespace HtmlParser
         ''' its name. If the attribute does not exist, null is returned.
         ''' </summary>
         Default Public Overloads ReadOnly Property Item(Name As String) As HtmlAttribute
-
             Get
                 Return FindByName(Name.ToLower)
             End Get
-
         End Property
 
         ''' <summary>

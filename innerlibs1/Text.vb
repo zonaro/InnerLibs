@@ -85,8 +85,11 @@ Public Module Text
             Text = Text.Replace("< ", "<")
             Text = Text.Replace(""" ", """")
 
-            Dim arr = Text.Split(New String() {" "}, StringSplitOptions.RemoveEmptyEntries)
+            Dim arr = Text.Split(New String() {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries)
+            Text = arr.Join(Environment.NewLine)
+            arr = Text.Split(New String() {" "}, StringSplitOptions.RemoveEmptyEntries)
             Text = arr.Join(" ")
+
 
         End If
 
@@ -277,10 +280,13 @@ Public Module Text
         Dim palavras = Text.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).ToArray
 
         If Words.Count > 0 Then
-            palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x)).ToArray
+            palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x.ToLower)).ToArray
         End If
 
-        If RemoveDiacritics Then palavras = palavras.Select(Function(p) p.RemoveDiacritics).ToArray
+        If RemoveDiacritics Then
+            palavras = palavras.Select(Function(p) p.RemoveDiacritics).ToArray
+            Words = Words.Select(Function(p) p.RemoveDiacritics).ToArray
+        End If
 
         Dim dic As Dictionary(Of String, Long) = palavras.DistinctCount()
 
@@ -1234,7 +1240,7 @@ Public Module Text
     ''' <param name="Values">Strings a serem removidas</param>
     ''' <returns>Uma string com os valores removidos</returns>
     <Extension>
-    Public Function RemoveAny(ByRef Text As String, ParamArray Values() As String) As String
+    Public Function RemoveAny(ByVal Text As String, ParamArray Values() As String) As String
         Text = Text.ReplaceMany("", Values)
         Return Text
     End Function

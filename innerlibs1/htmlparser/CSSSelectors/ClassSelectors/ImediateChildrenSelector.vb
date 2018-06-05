@@ -21,7 +21,7 @@ Namespace HtmlParser.Selectors
 
         Protected Friend Overrides Function FilterCore(currentNodes As HtmlNodeCollection) As HtmlNodeCollection
             Dim l As New HtmlNodeCollection
-            l.AddRange(currentNodes.SelectMany(Function(i As HtmlElement) i.ChildElements))
+            l.Add(currentNodes.SelectMany(Function(i As HtmlElement) i.ChildElements).ToArray)
             Return l
         End Function
     End Class

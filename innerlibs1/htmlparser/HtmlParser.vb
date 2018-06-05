@@ -71,6 +71,8 @@ Namespace HtmlParser
                             element = New HtmlAnchorElement()
                         Case "select"
                             element = New HtmlSelectElement()
+                        Case "time"
+                            element = New HtmlTimeElement()
                         Case "option"
                             element = New HtmlOptionElement()
                         Case "ol", "ul"
@@ -101,7 +103,7 @@ Namespace HtmlParser
                             element.Attributes.Add(attribute)
                         End If
                     End While
-                    nodes.Add(element, True)
+                    nodes.Add(element)
                     If index < tokens.Count AndAlso "/>".Equals(tokens(index)) Then
                         element.IsTerminated = True
                         index += 1

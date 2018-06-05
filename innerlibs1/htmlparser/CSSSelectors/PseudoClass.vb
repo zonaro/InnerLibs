@@ -13,7 +13,7 @@ Namespace HtmlParser
 
         Public Overridable Function Filter(nodes As HtmlNodeCollection, parameter As String) As HtmlNodeCollection
             Dim la As New HtmlNodeCollection
-            la.AddRange(nodes.Where(Function(i) CheckNode(i, parameter)))
+            la.Add(nodes.Where(Function(i) CheckNode(i, parameter)).ToArray)
             Return la
         End Function
 

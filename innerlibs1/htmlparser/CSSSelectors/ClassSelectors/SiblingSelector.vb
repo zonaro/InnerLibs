@@ -31,10 +31,10 @@ Namespace HtmlParser.Selectors
 
         Protected Friend Overrides Function FilterCore(currentNodes As HtmlNodeCollection) As HtmlNodeCollection
             Dim l As New HtmlNodeCollection
-            l.AddRange(currentNodes.Select(Function(node)
-                                               Dim idx = node.Index
-                                               Return node.Parent.Nodes.Where(Function(i) TypeOf i Is HtmlElement).Skip(idx + 1)
-                                           End Function), False)
+            l.AddRange(currentNodes.SelectMany(Function(node)
+                                                   Dim idx = node.Index
+                                                   Return node.Parent.Nodes.Where(Function(i) TypeOf i Is HtmlElement).Skip(idx + 1)
+                                               End Function).ToArray)
             Return l
         End Function
     End Class

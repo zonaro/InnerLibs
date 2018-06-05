@@ -105,7 +105,7 @@ Namespace HtmlParser
             Get
                 Dim s = ""
                 For Each node As HtmlNode In Nodes
-                    s.Append(node.HTML)
+                    s &= node.HTML
                 Next
                 Return s
             End Get

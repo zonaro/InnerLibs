@@ -65,7 +65,7 @@
         Protected Friend MustOverride Function FilterCore(currentNodes As HtmlNodeCollection) As HtmlNodeCollection
 
 
-        Public Function Filter(currentNodes As HtmlNodeCollection) As HtmlNodeCollection
+        Friend Function Filter(currentNodes As HtmlNodeCollection) As HtmlNodeCollection
 
             Dim nodes = currentNodes
 
@@ -85,14 +85,14 @@
             Return rt
         End Function
 
-        Public Overridable Function GetSelectorParameter(selector As String) As String
+        Friend Overridable Function GetSelectorParameter(selector As String) As String
 
             Return selector.Substring(Me.Token.Length)
 
         End Function
 
 
-        Public Shared Function Parse(cssSelector As String) As IList(Of CssSelector)
+        Friend Shared Function Parse(cssSelector As String) As IList(Of CssSelector)
 
             Dim rt = New List(Of CssSelector)()
             Dim tokens = Tokenizer.GetTokens(cssSelector)
