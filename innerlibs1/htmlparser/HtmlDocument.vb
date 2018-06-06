@@ -35,6 +35,14 @@ Namespace HtmlParser
             Build(Source.ToString, Encoding)
         End Sub
 
+        ''' <summary>
+        ''' Return a Json representation of this element
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ToJSON() As String
+            Return New With {.Encoding = Me.Encoding.EncodingName, .Document = Me.Nodes.Select(Function(x) x.JSONrepresentation)}.SerializeJSON
+        End Function
+
         Private Sub Build(Optional UrlOrHTMLString As String = Nothing, Optional Encoding As Encoding = Nothing)
             If Encoding IsNot Nothing Then
                 Me.Encoding = Encoding

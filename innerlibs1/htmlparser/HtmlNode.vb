@@ -10,6 +10,41 @@ Namespace HtmlParser
     Public MustInherit Class HtmlNode
         Protected Friend mParent As HtmlElement
 
+
+        ''' <summary>
+        ''' Return a Json representation of this element
+        ''' </summary>
+        ''' <returns></returns>    
+        Public Function ToJSON() As String
+            Return JSONrepresentation.SerializeJSON
+        End Function
+
+        ReadOnly Property JSONrepresentation As Dictionary(Of String, Object)
+            Get
+                Dim d As New Dictionary(Of String, Object)
+                If Me.IsText Then
+                    d.Add("text", Me.AsText.Text)
+                Else
+                    For Each attr In Me.AsElement.Attributes.Where(Function(x) x.Name.ToLower.IsNotIn({"class", "style"}))
+                        d.Add(attr.Name, attr.Value)
+                    Next
+
+                    If Me.AsElement.HasClass Then
+                        d.Add("class", Me.AsElement.Class)
+                    End If
+
+                    If Me.AsElement.Style.Count > 0 Then
+                        d.Add("style", Me.AsElement.Style)
+                    End If
+
+                    If Me.IsElement Then
+                        d.Add("childnodes", Me.AsElement.ChildElements.Select(Function(x) x.JSONrepresentation()))
+                    End If
+                End If
+                Return d
+            End Get
+        End Property
+
         ''' <summary>
         ''' This constructor is used by the subclasses.
         ''' </summary>
@@ -23,15 +58,18 @@ Namespace HtmlParser
         <Category("Navigation"), Description("The next sibling node")>
         Public ReadOnly Property [Next]() As HtmlNode
             Get
-                If Index = -1 Then
-                    Return Nothing
-                Else
-                    If Parent.Nodes.Count > Index + 1 Then
-                        Return Parent.Nodes(Index + 1)
-                    Else
+                If Parent IsNot Nothing Then
+                    If Index = -1 Then
                         Return Nothing
+                    Else
+                        If Parent.Nodes.Count > Index + 1 Then
+                            Return Parent.Nodes(Index + 1)
+                        Else
+                            Return Nothing
+                        End If
                     End If
                 End If
+                Return Nothing
             End Get
         End Property
 
@@ -157,15 +195,18 @@ Namespace HtmlParser
         <Category("Navigation"), Description("The previous sibling node")>
         Public ReadOnly Property Previous() As HtmlNode
             Get
-                If Index = -1 Then
-                    Return Nothing
-                Else
-                    If Index > 0 Then
-                        Return Parent.Nodes(Index - 1)
-                    Else
+                If Parent IsNot Nothing Then
+                    If Index = -1 Then
                         Return Nothing
+                    Else
+                        If Index > 0 Then
+                            Return Parent.Nodes(Index - 1)
+                        Else
+                            Return Nothing
+                        End If
                     End If
                 End If
+                Return Nothing
             End Get
         End Property
 
@@ -209,6 +250,8 @@ Namespace HtmlParser
             Return Nothing
         End Function
 
+
+
         Public MustOverride Sub FixText()
 
         ''' <summary>
@@ -242,9 +285,7 @@ Namespace HtmlParser
             Return node.IsDescendentOf(Me)
         End Function
 
-        Public Function IsAnchor() As Boolean
-            Return TypeOf Me Is HtmlAnchorElement
-        End Function
+
 
         ''' <summary>
         ''' This will return true if the node passed is a descendent of this node.
@@ -268,12 +309,9 @@ Namespace HtmlParser
             Return TypeOf Me Is HtmlElement
         End Function
 
-        Public Function IsImage() As Boolean
-            Return TypeOf Me Is HtmlImageElement
-        End Function
-
-        Public Function IsSelect() As Boolean
-            Return TypeOf Me Is HtmlSelectElement
+        <Category("General"), Description("This is true if this is an element of specific type")>
+        Public Function IsElement(Of HtmlElementType As HtmlElement)() As Boolean
+            Return TypeOf Me Is HtmlElementType
         End Function
 
         <Category("General"), Description("This is true if this is a text node")>
@@ -304,7 +342,7 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
-        ''' Returns the most top parent of this node
+        ''' Returns the most top parent of this node, or sef if parent is null
         ''' </summary>
         ''' <returns></returns>
         Function TopParent() As HtmlElement
@@ -511,7 +549,7 @@ Namespace HtmlParser
         ''' with the given name.
         ''' </summary>
         ''' <param name="attributeName"> The name of the attribute to find</param>
-        ''' <param name="searchChildren">
+        ''' <param name="SearchChildren">
         ''' True if you want to search sub-nodes, False to only search this collection.
         ''' </param>
         ''' <returns>A collection of all the nodes that macth.</returns>
@@ -541,7 +579,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="attributeName">The name of the attribute to find</param>
         ''' <returns>A collection of all the nodes that macth.</returns>
-        Public Function GetElementsByAttributeNameValue(AttributeName As String, AttributeValue As String, Optional searchChildren As Boolean = True) As HtmlNodeCollection
+        Public Function GetElementsByAttributeNameValue(AttributeName As String, AttributeValue As String, Optional SearchChildren As Boolean = True) As HtmlNodeCollection
             Dim results As New HtmlNodeCollection(Nothing)
             For Each node As HtmlNode In Me
                 If TypeOf node Is HtmlElement Then
@@ -553,8 +591,8 @@ Namespace HtmlParser
                             Exit For
                         End If
                     Next
-                    If searchChildren Then
-                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeNameValue(AttributeName, AttributeValue, searchChildren)
+                    If SearchChildren Then
+                        For Each matchedChild As HtmlNode In DirectCast(node, HtmlElement).Nodes.GetElementsByAttributeNameValue(AttributeName, AttributeValue, SearchChildren)
                             results.Add(matchedChild)
                         Next
                     End If
@@ -566,11 +604,11 @@ Namespace HtmlParser
         ''' <summary>
         ''' This will search though this collection of nodes for all elements with the specified
         ''' name. If you want to search the subnodes recursively, you should pass True as the
-        ''' parameter in searchChildren. This search is guaranteed to return nodes in the order in
+        ''' parameter in SearchChildren. This search is guaranteed to return nodes in the order in
         ''' which they are found in the document.
         ''' </summary>
         ''' <param name="name">          The name of the element to find</param>
-        ''' <param name="searchChildren">
+        ''' <param name="SearchChildren">
         ''' True if you want to search sub-nodes, False to only search this collection.
         ''' </param>
         ''' <returns>A collection of all the nodes that macth.</returns>
@@ -625,6 +663,11 @@ Namespace HtmlParser
             Me.Insert(Index, Nodes.ToArray)
         End Sub
 
+        ''' <summary>
+        ''' Replace a element into another set of elements
+        ''' </summary>
+        ''' <param name="Element"></param>
+        ''' <param name="Items"></param>
         Public Sub ReplaceElement(Element As HtmlNode, Items As IEnumerable(Of HtmlNode))
             Dim indexo = Me.IndexOf(Element)
             Dim index_append = 1
@@ -639,6 +682,11 @@ Namespace HtmlParser
             End If
         End Sub
 
+        ''' <summary>
+        ''' Replace a element into another set of elements
+        ''' </summary>
+        ''' <param name="Element"></param>
+        ''' <param name="Html"></param>
         Public Sub ReplaceElement(Element As HtmlNode, Html As String)
             Dim n = New InnerLibs.HtmlParser.HtmlParser().Parse(Html)
             ReplaceElement(Element, n)

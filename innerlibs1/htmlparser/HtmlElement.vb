@@ -5,7 +5,458 @@ Imports System.Web.UI.WebControls
 Imports System.Xml
 Imports InnerLibs.LINQ
 
+
 Namespace HtmlParser
+
+#Region "Table Elements"
+
+    Public Class HtmlTableElement
+        Inherits HtmlElement
+
+        Sub New()
+            MyBase.New("table")
+        End Sub
+
+
+        Overrides Property Name As String
+            Get
+                Return "table"
+            End Get
+            Set(value As String)
+                MyBase.Name = "table"
+            End Set
+        End Property
+
+        ReadOnly Property Columns As IEnumerable(Of HtmlTableCellElement)
+            Get
+                Return CType(If(Head, Me), HtmlElement).Children("tr").Nodes.Where(Function(x) x.IsElement(Of HtmlTableCellElement))
+            End Get
+        End Property
+
+        Public Overrides ReadOnly Property Nodes As HtmlNodeCollection
+            Get
+                For Each n In MyBase.Nodes
+                    If Not n.IsElement(Of HtmlTableRowElement) OrElse Not n.IsElement(Of HtmlTablePartElement) Then
+                        n.Remove()
+                    End If
+                Next
+                Return MyBase.Nodes
+            End Get
+        End Property
+
+        Function SetCaption(HtmlString As String) As HtmlTableCaptionElement
+            Dim c = Me.Children("caption")
+            If c Is Nothing Then
+                c = New HtmlTableCaptionElement()
+                Me.Nodes.Insert(0, c)
+            End If
+            c.InnerHTML = HtmlString
+            Return c
+        End Function
+
+
+        Function SetHeaders(ParamArray Columns As HtmlNode()) As HtmlTableHeadElement
+            NormalizeTable()
+            Dim c = Me.Children("thead")
+            If c Is Nothing Then
+                c = New HtmlTableHeadElement()
+                Me.Nodes.Insert(0, c)
+            End If
+            For Each el In Columns
+                If el.IsElement(Of HtmlTableCellElement) Then
+                    el.AppendTo(c, True)
+                Else
+                    Dim w As New HtmlTableCellElement
+                    c.AddNode(el.AppendTo(w, True))
+                End If
+            Next
+            Return c
+        End Function
+
+        Function SetHeaders(ParamArray Columns As String()) As HtmlTableHeadElement
+            Dim c = Me.Children("thead")
+            If c Is Nothing Then
+                c = New HtmlTableHeadElement()
+                Me.Nodes.Insert(0, c)
+            End If
+            For Each el In Columns
+                Dim w As New HtmlTableCellElement With {.InnerHTML = el}
+                c.AddNode(w)
+            Next
+            Return c
+        End Function
+
+        ''' <summary>
+        ''' Creates TBODY and THEAD elements if not exists and move the current TR into them
+        ''' </summary>
+        ''' <returns></returns>
+        Function NormalizeTable()
+            If Me.Head Is Nothing Then
+                Me.Head = New HtmlTableHeadElement
+            End If
+            If Me.Body Is Nothing Then
+                Me.Body = New HtmlTableBodyElement
+            End If
+            For Each el In Me.ChildElements
+                If el.Name = "tr" Then
+                    If el.Nodes("th").Count > 0 Then
+                        el.Move(Head, Head.Nodes.Count - 1)
+                    Else
+                        el.Move(Body, Body.Nodes.Count - 1)
+                    End If
+                End If
+            Next
+            Return Me
+        End Function
+
+        Property Caption As HtmlTableCaptionElement
+            Get
+                Return Me.Children("caption").AsElement(Of HtmlTableCaptionElement)
+            End Get
+            Set(value As HtmlTableCaptionElement)
+                If Me.Caption IsNot Nothing Then
+                    Me.Caption.Remove()
+                End If
+                If value IsNot Nothing Then
+                    Me.Nodes.Insert(0, value)
+                End If
+            End Set
+        End Property
+
+        Property Body As HtmlTableBodyElement
+            Get
+                Return Me.Children("tbody").AsElement(Of HtmlTableBodyElement)
+            End Get
+            Set(value As HtmlTableBodyElement)
+                If Me.Body IsNot Nothing Then
+                    Me.Body.Remove()
+                End If
+                If value IsNot Nothing Then
+                    Me.Nodes.Insert(0, value)
+                End If
+            End Set
+        End Property
+
+        Property Head As HtmlTableHeadElement
+            Get
+                Return Me.Children("thead").AsElement(Of HtmlTableHeadElement)
+            End Get
+            Set(value As HtmlTableHeadElement)
+                If Me.Head IsNot Nothing Then
+                    Me.Head.Remove()
+                End If
+                If value IsNot Nothing Then
+                    Me.Nodes.Insert(0, value)
+                End If
+            End Set
+        End Property
+
+        Property Foot As HtmlTableFootElement
+            Get
+                Dim el = Me.Children("tfoot")
+                Return el.AsElement(Of HtmlTableFootElement)
+            End Get
+            Set(value As HtmlTableFootElement)
+                If Me.Foot IsNot Nothing Then
+                    Me.Foot.Remove()
+                End If
+                If value IsNot Nothing Then
+                    Me.Nodes.Insert(0, value)
+                End If
+            End Set
+        End Property
+
+        Function AddRow(ParamArray Values As String())
+            Dim r As New HtmlTableRowElement
+            For Each v In Values
+                r.Nodes.Add(New HtmlTableCellElement() With {.InnerHTML = v})
+            Next
+            Dim dest = If(Me.Body, Me.AsElement)
+            dest.AddNode(r)
+            Return r
+        End Function
+
+        Function AddRow(ParamArray Nodes As HtmlNode())
+            Dim r As New HtmlTableRowElement
+            For Each v In Nodes
+                r.Nodes.Add(v)
+            Next
+            Dim dest = If(Me.Children("tbody"), Me.AsElement)
+            dest.AddNode(r)
+            Return r
+        End Function
+
+
+    End Class
+
+
+
+    Public Class HtmlTableHeadElement
+        Inherits HtmlTablePartElement
+
+        Sub New()
+            MyBase.New()
+            Me.Name = "thead"
+        End Sub
+
+        Overrides Property Name As String
+            Get
+                Return "thead"
+            End Get
+            Set(value As String)
+                MyBase.Name = "thead"
+            End Set
+        End Property
+
+
+
+        Public Overrides ReadOnly Property Nodes As HtmlNodeCollection
+            Get
+                For Each n In MyBase.Nodes
+                    If Not n.IsElement(Of HtmlTableRowElement) Then
+                        n.Remove()
+                    End If
+                Next
+                Return MyBase.Nodes
+            End Get
+        End Property
+    End Class
+
+    Public Class HtmlTableFootElement
+        Inherits HtmlTablePartElement
+
+        Sub New()
+            MyBase.New()
+            Me.Name = "tfoot"
+        End Sub
+
+        Overrides Property Name As String
+            Get
+                Return "tfoot"
+            End Get
+            Set(value As String)
+                MyBase.Name = "tfoot"
+            End Set
+        End Property
+
+
+
+        Public Overrides ReadOnly Property Nodes As HtmlNodeCollection
+            Get
+                For Each n In MyBase.Nodes
+                    If Not n.IsElement(Of HtmlTableRowElement) Then
+                        n.Remove()
+                    End If
+                Next
+                Return MyBase.Nodes
+            End Get
+        End Property
+    End Class
+
+    Public Class HtmlTableBodyElement
+        Inherits HtmlTablePartElement
+
+        Sub New()
+            MyBase.New()
+            Me.Name = "tbody"
+        End Sub
+
+        Overrides Property Name As String
+            Get
+                Return "tbody"
+            End Get
+            Set(value As String)
+                MyBase.Name = "tbody"
+            End Set
+        End Property
+
+        Public Overrides ReadOnly Property Nodes As HtmlNodeCollection
+            Get
+                For Each n In MyBase.Nodes
+                    If Not n.IsElement(Of HtmlTableRowElement) Then
+                        n.Remove()
+                    End If
+                Next
+                Return MyBase.Nodes
+            End Get
+        End Property
+    End Class
+
+    Public Class HtmlTableCaptionElement
+        Inherits HtmlTablePartElement
+
+        Sub New()
+            MyBase.New()
+            Me.Name = "caption"
+        End Sub
+
+        Overrides Property Name As String
+            Get
+                Return "caption"
+            End Get
+            Set(value As String)
+                MyBase.Name = "caption"
+            End Set
+        End Property
+    End Class
+
+    Public MustInherit Class HtmlTablePartElement
+        Inherits HtmlElement
+
+        Sub New()
+            MyBase.New("tbody")
+        End Sub
+
+        ReadOnly Property Table As HtmlTableElement
+            Get
+                Dim el = Me.Closest("table")
+                If el IsNot Nothing Then
+                    Return el.AsElement(Of HtmlTableElement)()
+                End If
+                Return Nothing
+            End Get
+        End Property
+
+        Overrides Property Name As String
+            Get
+                Select Case MyBase.Name
+                    Case "caption"
+                        Return "caption"
+                    Case "colgroup"
+                        Return "colgroup"
+                    Case "thead"
+                        Return "thead"
+                    Case "tfoot"
+                        Return "tfoot"
+                    Case Else
+                        Return "tbody"
+                End Select
+            End Get
+            Set(value As String)
+                Select Case value.ToLower
+                    Case "caption"
+                        MyBase.Name = "caption"
+                    Case "colgroup"
+                        MyBase.Name = "colgroup"
+                    Case "thead"
+                        MyBase.Name = "thead"
+                    Case "tfoot"
+                        MyBase.Name = "tfoot"
+                    Case Else
+                        MyBase.Name = "tbody"
+                End Select
+            End Set
+        End Property
+
+        Public Overrides ReadOnly Property Nodes As HtmlNodeCollection
+            Get
+                For Each n In MyBase.Nodes
+                    If Not n.IsElement(Of HtmlTableCaptionElement) Then
+                        If Not n.IsElement(Of HtmlTableRowElement) Then
+                            n.Remove()
+                        End If
+                    End If
+                Next
+                Return MyBase.Nodes
+            End Get
+        End Property
+
+    End Class
+
+    Public Class HtmlTableRowElement
+        Inherits HtmlElement
+
+        Sub New()
+            MyBase.New("tr")
+        End Sub
+
+        Overrides Property Name As String
+            Get
+                Return "tr"
+            End Get
+            Set(value As String)
+                MyBase.Name = "tr"
+            End Set
+        End Property
+
+        ReadOnly Property Table As HtmlTableElement
+            Get
+                Dim el = Me.Closest("table")
+                If el IsNot Nothing Then
+                    Return el.AsElement(Of HtmlTableElement)()
+                End If
+                Return Nothing
+            End Get
+        End Property
+
+
+
+
+
+        Public Overrides ReadOnly Property Nodes As HtmlNodeCollection
+            Get
+                For Each n In MyBase.Nodes
+                    If Not n.IsElement(Of HtmlTableCellElement) Then
+                        n.Remove()
+                    End If
+                Next
+                Return MyBase.Nodes
+            End Get
+        End Property
+
+    End Class
+
+    Public Class HtmlTableCellElement
+        Inherits HtmlElement
+
+        ReadOnly Property Table As HtmlTableElement
+            Get
+                Dim el = Me.Closest("table")
+                If el IsNot Nothing Then
+                    Return el.AsElement(Of HtmlTableElement)()
+                End If
+                Return Nothing
+            End Get
+        End Property
+
+        ReadOnly Property IsHeaderCell
+            Get
+                If Me.Table IsNot Nothing Then
+                    Try
+                        If Me.Table.Head IsNot Nothing Then
+                            Return Me.Table.Head.Children("tr").Nodes.Contains(Me)
+                        End If
+                        Return Me.Name = "th" AndAlso Me.Table.Children("tr").Nodes.Contains(Me)
+                    Catch ex As Exception
+                    End Try
+                End If
+                Return False
+            End Get
+        End Property
+
+        Sub New()
+            MyBase.New("td")
+        End Sub
+
+        Overrides Property Name As String
+            Get
+                If MyBase.Name = "th" Then
+                    Return "th"
+                Else
+                    Return "td"
+                End If
+            End Get
+            Set(value As String)
+                If value = "th" Then
+                    MyBase.Name = "th"
+                Else
+                    MyBase.Name = "td"
+                End If
+            End Set
+        End Property
+
+    End Class
+#End Region
 
     Public Class HtmlAnchorElement
         Inherits HtmlElement
@@ -85,6 +536,8 @@ Namespace HtmlParser
         Protected mName As String
         Protected mNodes As HtmlNodeCollection
 
+
+
         ''' <summary>
         ''' This constructs a new HTML element with the specified tag name.
         ''' </summary>
@@ -124,12 +577,43 @@ Namespace HtmlParser
         End Sub
 
         ''' <summary>
+        ''' Return the first child element thats match de CssSelector
+        ''' </summary>
+        ''' <param name="CssSelector"></param>
+        ''' <returns></returns>
+        Function Children(Optional CssSelector As String = "") As HtmlElement
+            If CssSelector.IsBlank Then
+                Return Me.ChildElements.FirstOrDefault
+            End If
+            Return Me(CssSelector).Where(Function(x) x.AsElement.Parent Is Me).FirstOrDefault
+        End Function
+
+        ''' <summary>
+        ''' Return the first child element thats match de CssSelector or first child element of specific type if CssSelector is blank
+        ''' </summary>
+        ''' <param name="CssSelector"></param>
+        ''' <returns></returns>
+        Function Children(Of ElementType As HtmlElement)(Optional CssSelector As String = "") As ElementType
+            Dim el As HtmlElement
+            If CssSelector.IsBlank Then
+                el = Me.ChildElements.Where(Function(x) x.IsElement(Of ElementType)).FirstOrDefault
+            Else
+                el = Children(CssSelector)
+            End If
+            If el IsNot Nothing Then
+                Return el.AsElement(Of ElementType)
+            End If
+            Return Nothing
+        End Function
+
+        ''' <summary>
         ''' Add a node (or nodes) to collection
         ''' </summary>
         ''' <param name="Node"></param>
         Public Sub AddNode(ParamArray Node As HtmlNode())
             Me.Nodes.Add(Node)
         End Sub
+
 
         ''' <summary>
         ''' Add a node to collection using an <see cref="HtmlGenericControl"/> as base
@@ -146,6 +630,25 @@ Namespace HtmlParser
         ''' <param name="Index"></param>
         Public Sub AddNode(HTML As String, Optional Index As Integer = 0)
             Me.Nodes.Add(HTML, Index)
+        End Sub
+
+        ''' <summary>
+        ''' Clone this element into a new HtmlElement
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function Clone() As HtmlElement
+            Return New HtmlElement(Me)
+        End Function
+
+        ''' <summary>
+        ''' Clone this element into a new HtmlElement and inserts into same parent
+        ''' </summary>
+        ''' <param name="Index">The position of clone element. Use -1 to insert in the same position of the original element</param>
+        Public Sub SideClone(Optional Index As Integer = -1)
+            If Me.Parent IsNot Nothing Then
+                If Index = -1 Then Index = Me.Index
+                Me.Parent.Nodes.Insert(Index.LimitRange(0, Me.Parent.Nodes.Count - 1), Clone())
+            End If
         End Sub
 
 
@@ -409,10 +912,10 @@ Namespace HtmlParser
 
         ''' <summary>
         ''' This is the collection of all child nodes of this one. If this node is actually a text
-        ''' node, this will throw an InvalidOperationException exception.
+        ''' node, this will return nothing.
         ''' </summary>
         <Category("General"), Description("The set of child nodes")>
-        Public ReadOnly Property Nodes() As HtmlNodeCollection
+        Public Overridable ReadOnly Property Nodes() As HtmlNodeCollection
             Get
                 If IsText() Then
                     Return Nothing
@@ -880,6 +1383,10 @@ Namespace HtmlParser
             mIsExplicitlyTerminated = True
             Me.Value = Value
             Me.Type = Type
+        End Sub
+
+        Sub New()
+            Me.New(HtmlInputType.text)
         End Sub
 
         Enum HtmlInputType
