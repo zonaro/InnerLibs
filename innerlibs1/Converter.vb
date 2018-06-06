@@ -67,14 +67,16 @@ Public Module Converter
     ''' </summary>
     ''' <param name="Obj">Objeto</param>
     ''' <returns></returns>
-    Public Function ForceArray(Of Type)(ByVal Obj As Object) As Type()
-        Dim a As New List(Of Type)
+    Public Function ForceArray(Of OutputType)(ByVal Obj As Object) As OutputType()
+        Dim a As New List(Of OutputType)
         If IsNothing(Obj) Then Return a.ToArray
         If Not IsArray(Obj) Then
             If Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
         End If
-        Return Array.ConvertAll(Of Object, Type)(Obj, Function(x) CType(x, Type))
+        Return Array.ConvertAll(Of Object, OutputType)(Obj, Function(x) CType(x, OutputType))
     End Function
+
+
 
     ''' <summary>
     ''' Converte um <see cref="Ienumerable"/> para uma tabela HTML
