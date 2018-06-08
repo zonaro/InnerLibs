@@ -1,12 +1,12 @@
-﻿alter FUNCTION Fonema
+﻿ALTER FUNCTION Fonema
 (
-	@Word VARCHAR(MAX) = ''
+	@Palavra VARCHAR(MAX) = ''
 )
 RETURNS VARCHAR(MAX)
 AS
 BEGIN
 
-	DECLARE @text VARCHAR(MAX) = ISNULL(@Word,'')
+	DECLARE @text VARCHAR(MAX) = ISNULL(@Palavra,'')
 
     SET  @text = UPPER(LTRIM(RTRIM(@text)))
     IF (@text LIKE '%Z' And @text LIKE 'Z%') 
@@ -144,3 +144,20 @@ BEGIN
 
 	RETURN @text
 END
+
+GO
+
+ALTER FUNCTION CompararFonema
+(
+	@Palavra1 VARCHAR(MAX) = '',
+	@Palavra2 VARCHAR(MAX) = ''
+)
+RETURNS bit
+AS
+BEGIN
+IF(dbo.Fonema(@Palavra1) = dbo.Fonema(@Palavra2))
+BEGIN	
+RETURN 1
+END
+RETURN 0
+END	
