@@ -19,12 +19,18 @@ Namespace HtmlParser
             Return JSONrepresentation.SerializeJSON
         End Function
 
-        ReadOnly Property JSONrepresentation As Dictionary(Of String, Object)
+        ''' <summary>
+        ''' Return as
+        ''' </summary>
+        ''' <returns></returns>
+        Overridable ReadOnly Property JsonRepresentation As Dictionary(Of String, Object)
             Get
                 Dim d As New Dictionary(Of String, Object)
                 If Me.IsText Then
                     d.Add("text", Me.AsText.Text)
                 Else
+                    d.Add("Name", Me.AsElement.Name)
+
                     For Each attr In Me.AsElement.Attributes.Where(Function(x) x.Name.ToLower.IsNotIn({"class", "style"}))
                         d.Add(attr.Name, attr.Value)
                     Next
@@ -38,7 +44,7 @@ Namespace HtmlParser
                     End If
 
                     If Me.IsElement Then
-                        d.Add("childnodes", Me.AsElement.ChildElements.Select(Function(x) x.JSONrepresentation()))
+                        d.Add("childnodes", Me.AsElement.ChildElements.Select(Function(x) x.JsonRepresentation()))
                     End If
                 End If
                 Return d

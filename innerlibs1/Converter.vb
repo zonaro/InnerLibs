@@ -84,19 +84,31 @@ Public Module Converter
     ''' <param name="Table">Itens</param>
     ''' <typeparam name="Type">Tipo do Objeto</typeparam>
     ''' <returns></returns>
-    <Extension()> Public Function ToHtmlTable(Of Type As Class)(Table As IEnumerable(Of Type), Optional BeautifyHeaders As Boolean = False) As HtmlElement
+    <Extension()> Public Function ToHtmlTable(Of Type As Class)(Table As IEnumerable(Of Type), Optional BeautifyHeaders As Boolean = False) As HtmlTableElement
         If Table.Count > 0 Then
             Dim keys = Table.First.GetProperties.Select(Function(x) x.Name)
-            Dim body = ""
+
+            Dim tbody As New HtmlTableBodyElement
             For Each it In Table
-                body.Append(TableGenerator.TableRow("", it.GetProperties.Select(Function(p) p.GetValue(it).ToString).ToArray))
+                For Each prop In it.GetProperties
+                    tbody.AddNode(New HtmlTableCellElement With {.InnerHTML = prop.GetValue(it).ToString()})
+                Next
             Next
+
             If BeautifyHeaders Then
-                keys = keys.Select(Function(x) x.Replace("_", " ").ToProper.AdjustBlankSpaces)
+                keys = keys.Select(Function(x) x.Replace("_", " ").ToTitle.AdjustBlankSpaces)
             End If
-            Return New HtmlElement("table", TableHeader(keys.ToArray) & body.WrapInTag("tbody").ToString)
+
+            Dim thead As New HtmlTableHeadElement()
+            For Each k In keys
+                thead.AddNode(New HtmlTableCellElement With {.Name = "th", .InnerHTML = k})
+            Next
+
+            Dim t As New HtmlTableElement
+            t.AddNode(thead, tbody)
+            Return t
         Else
-            Return New HtmlElement("table")
+            Return New HtmlTableElement
         End If
     End Function
 

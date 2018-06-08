@@ -58,6 +58,12 @@ Namespace HtmlParser
             End Set
         End Property
 
+        Public ReadOnly Property IsData As Boolean
+            Get
+                Return Me.Name.StartsWith("data-")
+            End Get
+        End Property
+
         ''' <summary>
         ''' This will return an HTML-formatted version of this attribute. NB. This is
         ''' not SGML or XHTML safe, as it caters for null-value attributes such as "NOWRAP".
@@ -68,8 +74,7 @@ Namespace HtmlParser
             If mValue Is Nothing Then
                 Return mName
             Else
-
-                Return (Convert.ToString(mName & Convert.ToString("=""")) & mValue) + """"
+                Return (Convert.ToString(mName & Convert.ToString("=""")) & mValue) & """"
             End If
 
         End Function
@@ -78,7 +83,7 @@ Namespace HtmlParser
         Public ReadOnly Property HTML() As String
             Get
                 If mValue Is Nothing Then
-                    Return mName
+                    Return mName.ToLower
                 Else
                     Return (mName & Convert.ToString("=""")) & System.Net.WebUtility.HtmlEncode(mValue) & """"
                 End If
@@ -105,6 +110,16 @@ Namespace HtmlParser
             End Get
         End Property
 
+        Public ReadOnly Property HasValue As Boolean
+            Get
+                Return Me.Value.IsNotBlank
+            End Get
+        End Property
+
+        Function GetValue(Of OutputType As Structure)() As OutputType
+            Return CType(CType(Me.Value, Object), OutputType)
+        End Function
+
     End Class
 
     ''' <summary>
@@ -127,7 +142,13 @@ Namespace HtmlParser
             mElement = element
         End Sub
 
-
+        ''' <summary>
+        ''' Return a dictionary of this HtmlAttributeCollection
+        ''' </summary>
+        ''' <returns></returns>
+        Function ToDictionary() As Dictionary(Of String, String)
+            Return Me.Select(Function(x) New KeyValuePair(Of String, String)(x.Name, x.Value)).ToDictionary
+        End Function
 
         ''' <summary>
         ''' This will search the collection for the named attribute. If it is not found, this
@@ -178,7 +199,22 @@ Namespace HtmlParser
             Return Me(Attribute.Name)
         End Function
 
-        Public Overloads Function Contains(Name As String) As Boolean
+        ''' <summary>
+        ''' Add multiple attributes to element
+        ''' </summary>
+        ''' <param name="Attributes">attributes</param>
+        Public Shadows Function AddRange(ParamArray Attributes As HtmlAttribute()) As HtmlAttributeCollection
+            For Each attribute In Attributes
+                If Not Me.Contains(attribute.Name) Then
+                    MyBase.Add(attribute)
+                Else
+                    Me(attribute.Name).Value = attribute.Value
+                End If
+            Next
+            Return Me
+        End Function
+
+        Public Shadows Function Contains(Name As String) As Boolean
             If Me.Count = 0 Then Return False
             Return Me.Where(Function(p) p.Name.ToLower = Name.ToLower).Count > 0
         End Function

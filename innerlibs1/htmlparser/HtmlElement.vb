@@ -100,9 +100,9 @@ Namespace HtmlParser
             For Each el In Me.ChildElements
                 If el.Name = "tr" Then
                     If el.Nodes("th").Count > 0 Then
-                        el.Move(Head, Head.Nodes.Count - 1)
+                        el.AsElement(Of HtmlTableCellElement).Move(Head, Head.Nodes.Count - 1)
                     Else
-                        el.Move(Body, Body.Nodes.Count - 1)
+                        el.AsElement(Of HtmlTableCellElement).Move(Body, Body.Nodes.Count - 1)
                     End If
                 End If
             Next
@@ -664,7 +664,7 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Return the text elements of this element (excluding HtmlElement)
+        ''' Return thedirect child text of this element (excluding HtmlElement)
         ''' </summary>
         ''' <returns></returns>
         <Category("General"), Description("The associated text to this element. Exclude HTML Nodes")>
@@ -717,7 +717,7 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Gets os sets a boolean value for an specific class
+        ''' Gets os sets a boolean value for toggle an specific class
         ''' </summary>
         ''' <returns></returns>
         <Category("General"), Description("The CSS class of this element"), TypeConverter(GetType(ExpandableObjectConverter))>
@@ -772,7 +772,7 @@ Namespace HtmlParser
                 For Each attribute As HtmlAttribute In Attributes
                     value += " " + attribute.ToString()
                 Next
-                value += ">"
+                value += If(IsTerminated, "/>", ">")
                 Return value
             End Get
 
@@ -1022,14 +1022,6 @@ Namespace HtmlParser
             End Set
         End Property
 
-        ''' <summary>
-        ''' Check if Attribute is minimized (value is nothing)
-        ''' </summary>
-        ''' <param name="Name">Attr Name</param>
-        ''' <returns></returns>
-        Function IsMinimizedAttribute(Name As String) As Boolean
-            Return Me.HasAttribute(Name) AndAlso Me.Attributes(Name).IsMinimized
-        End Function
 
         ''' <summary>
         ''' Add a attribute to this element
@@ -1375,10 +1367,10 @@ Namespace HtmlParser
 
     End Class
 
-    Public Class HtmlInput
+    Public Class HtmlInputElement
         Inherits HtmlElement
 
-        Sub New(Type As HtmlInputType, Optional Value As String = Nothing)
+        Sub New(Type As HtmlInputElementType, Optional Value As String = Nothing)
             MyBase.New("input")
             mIsExplicitlyTerminated = True
             Me.Value = Value
@@ -1386,10 +1378,10 @@ Namespace HtmlParser
         End Sub
 
         Sub New()
-            Me.New(HtmlInputType.text)
+            Me.New(HtmlInputElementType.text)
         End Sub
 
-        Enum HtmlInputType
+        Enum HtmlInputElementType
             text
             button
             checkbox
@@ -1418,12 +1410,12 @@ Namespace HtmlParser
         ''' Type of Input
         ''' </summary>
         ''' <returns></returns>
-        Property Type As HtmlInputType
+        Property Type As HtmlInputElementType
             Get
-                Return GetEnumValue(Of HtmlInputType)(Me.Attribute("type"))
+                Return GetEnumValue(Of HtmlInputElementType)(Me.Attribute("type"))
             End Get
-            Set(value As HtmlInputType)
-                Me.Attribute("type") = [Enum].GetName(GetType(HtmlInputType), value)
+            Set(value As HtmlInputElementType)
+                Me.Attribute("type") = [Enum].GetName(GetType(HtmlInputElementType), value)
             End Set
         End Property
 
@@ -1464,6 +1456,21 @@ Namespace HtmlParser
                 Me.Attribute("placeholder") = value
             End Set
         End Property
+
+        Property [ReadOnly] As Boolean
+            Get
+                Return Me.HasAttribute("readonly")
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    Me.Attributes.Add("readonly")
+                Else
+                    Me.Attributes.Remove("readonly")
+                End If
+            End Set
+        End Property
+
+
 
     End Class
 
