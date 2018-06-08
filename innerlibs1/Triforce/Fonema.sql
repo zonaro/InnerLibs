@@ -155,7 +155,9 @@ ALTER FUNCTION CompararFonema
 RETURNS bit
 AS
 BEGIN
-IF(dbo.Fonema(@Palavra1) LIKE  '%' + dbo.Fonema(@Palavra2) + '%' OR dbo.Fonema(@Palavra2) LIKE  '%' + dbo.Fonema(@Palavra1) + '%' )
+DECLARE @fon1 VARCHAR(MAX) = dbo.Fonema(@Palavra1)
+DECLARE @fon2 VARCHAR(MAX) = dbo.Fonema(@Palavra2)
+IF(@fon1 LIKE  '%' + @fon2 + '%' OR @fon2 LIKE  '%' + @fon1 + '%' )
 BEGIN	
 RETURN 1
 END
