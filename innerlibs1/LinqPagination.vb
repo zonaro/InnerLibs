@@ -30,6 +30,46 @@ Namespace LINQ
             Next
         End Function
 
+        ''' <summary>
+        ''' Ordena uma lista a partir de aproximaçao
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items"></param>
+        ''' <param name="PropertySelector"></param>
+        ''' <param name="Ascending"></param>
+        ''' <param name="Searches"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function ThenByLike(Of T As Class)(ByVal items As IOrderedEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
+            Searches = If(Searches, {})
+            If Searches.Count > 0 Then
+                For Each t In Searches
+                    For Each exp In {
+                        Function(x) PropertySelector(x) = t,
+                        Function(x) PropertySelector(x).StartsWith(t),
+                        Function(x) PropertySelector(x).Contains(t),
+                        Function(x) PropertySelector(x).EndsWith(t)
+                      }
+
+                        If Ascending Then
+                            items = items.ThenByDescending(exp)
+                        Else
+                            items = items.ThenBy(exp)
+                        End If
+                    Next
+                Next
+            End If
+
+
+            Return items
+        End Function
+
+
+
+
+        <Extension()> Public Function OrderByLike(Of T As Class)(ByVal items As IEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
+            Return items.OrderBy(Function(x) True).ThenByLike(PropertySelector, Ascending, Searches)
+        End Function
+
 
         <Extension()>
         Function [And](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
@@ -79,6 +119,10 @@ Namespace LINQ
         End Function
 
         Function CreateExpression(Of T)(predicate As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
+            Return predicate
+        End Function
+
+        Function CreateExpression(Of T, T2)(predicate As Expression(Of Func(Of T, T2))) As Expression(Of Func(Of T, T2))
             Return predicate
         End Function
 

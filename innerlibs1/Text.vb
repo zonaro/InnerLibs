@@ -2792,6 +2792,8 @@ Public Module Text
                 mask = "{0:+## (##) ####-####}"
             Case 13
                 mask = "{0:+## (##) #####-####}"
+            Case Else
+                Return Number.ToString
         End Select
         Return String.Format(mask, Long.Parse(Number))
     End Function
@@ -2972,7 +2974,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Remove continuamente caracteres em branco do começo e fim de uma string
+    ''' Remove continuamente caracteres em branco do começo e fim de uma string incluindo breaklines
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
@@ -3024,6 +3026,23 @@ Public Module Text
     Function WrapInTag(Text As String, TagName As String) As HtmlParser.HtmlElement
         TagName = TagName.RemoveAny("<", ">", "/").ToLower()
         Return New HtmlParser.HtmlElement(TagName, Text)
+    End Function
+
+
+    ''' <summary>
+    ''' Procura numeros em uma string e retorna um array deles
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FindNumbers(Text As String) As Long()
+        Dim l As New List(Of Long)
+        Dim numbers As String() = Regex.Split(Text, "\D+")
+        For Each value In numbers
+            If Not value.IsBlank Then
+                l.Add(value.ChangeType(Of Long))
+            End If
+        Next
+        Return l.ToArray
     End Function
 
     <Extension()>
