@@ -75,20 +75,6 @@ Namespace HtmlParser
                             element = New HtmlTimeElement()
                         Case "option"
                             element = New HtmlOptionElement()
-                        Case "table"
-                            element = New HtmlTableElement()
-                        Case "thead"
-                            element = New HtmlTableHeadElement()
-                        Case "tbody"
-                            element = New HtmlTableBodyElement()
-                        Case "tfoot"
-                            element = New HtmlTableFootElement()
-                        Case "caption"
-                            element = New HtmlTableCaptionElement()
-                        Case "tr"
-                            element = New HtmlTableRowElement()
-                        Case "td", "th"
-                            element = New HtmlTableCellElement()
                         Case "ol", "ul"
                             element = New HtmlListElement(tag_name = "ol")
                         Case Else

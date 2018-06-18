@@ -77,41 +77,6 @@ Public Module Converter
     End Function
 
 
-
-    ''' <summary>
-    ''' Converte um <see cref="Ienumerable"/> para uma tabela HTML
-    ''' </summary>
-    ''' <param name="Table">Itens</param>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
-    ''' <returns></returns>
-    <Extension()> Public Function ToHtmlTable(Of Type As Class)(Table As IEnumerable(Of Type), Optional BeautifyHeaders As Boolean = False) As HtmlTableElement
-        If Table.Count > 0 Then
-            Dim keys = Table.First.GetProperties.Select(Function(x) x.Name)
-
-            Dim tbody As New HtmlTableBodyElement
-            For Each it In Table
-                For Each prop In it.GetProperties
-                    tbody.AddNode(New HtmlTableCellElement With {.InnerHTML = prop.GetValue(it).ToString()})
-                Next
-            Next
-
-            If BeautifyHeaders Then
-                keys = keys.Select(Function(x) x.Replace("_", " ").ToTitle.AdjustBlankSpaces)
-            End If
-
-            Dim thead As New HtmlTableHeadElement()
-            For Each k In keys
-                thead.AddNode(New HtmlTableCellElement With {.Name = "th", .InnerHTML = k})
-            Next
-
-            Dim t As New HtmlTableElement
-            t.AddNode(thead, tbody)
-            Return t
-        Else
-            Return New HtmlTableElement
-        End If
-    End Function
-
     ''' <summary>
     ''' Converte uma lista de dicionários para uma tabela HTML
     ''' </summary>

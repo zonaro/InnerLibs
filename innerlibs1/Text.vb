@@ -2775,7 +2775,7 @@ Public Module Text
     <Extension> Public Function ToTelephone(Number As String) As String
         Number = If(Number, "")
         Dim mask As String = ""
-        Number = Number.ParseDigits.RemoveAny(",", ".")
+        Number = Number.ParseDigits.RemoveAny(",", ".", "(", ")")
         If Number.IsBlank Then
             Return ""
         End If
