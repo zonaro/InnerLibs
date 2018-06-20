@@ -372,6 +372,43 @@ Namespace LINQ
             Return Search
         End Function
 
+
+
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType"></typeparam>
+        ''' <param name="Context">    </param>
+        ''' <param name="SearchTerms"></param>
+        ''' <param name="Properties"> </param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
+            Search = Nothing
+            Dim tab = Context.GetTable(Of ClassType).AsQueryable
+            Dim predi = CreateExpression(Of ClassType)(False)
+            Dim mapping = Context.Mapping.GetTable(GetType(ClassType))
+            Properties = If(Properties, {})
+
+            For Each prop In Properties
+                For Each s In SearchTerms
+                    If Not IsNothing(s) Then
+                        Dim param = prop.Parameters.First
+                        Dim con = Expression.Constant(s)
+                        Dim lk = Expression.Call(prop.Body, containsMethod, con)
+                        Dim lbd = Expression.Lambda(Of Func(Of ClassType, Boolean))(lk, param)
+                        predi = predi.Or(lbd)
+                    End If
+                Next
+                tab = tab.Where(predi)
+            Next
+            For Each prop In Properties
+                Search = If(Search, tab.OrderBy(Function(x) True)).ThenByLike(SearchTerms, prop)
+            Next
+            Return Search
+        End Function
+
+
+
         ''' <summary>
         ''' Seleciona e une em uma unica string varios elementos
         ''' </summary>
@@ -494,6 +531,45 @@ Namespace LINQ
                         }
 
                 For Each exp In testes
+                    Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
+                    If Ascending Then
+                        items = items.ThenByDescending(nv)
+                    Else
+                        items = items.ThenBy(nv)
+                    End If
+                Next
+
+            Next
+            Return items
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
+        ''' <see cref="String"/> com o valor de um determinado campo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items">       </param>
+        ''' <param name="Searches">    </param>
+        ''' <param name="SortProperty"></param>
+        ''' <param name="Ascending">   </param>
+        ''' <returns></returns>
+        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IOrderedQueryable(Of T), Searches As String(), SortProperty As Expression(Of Func(Of T, String)), Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Dim type = GetType(T)
+            Searches = If(Searches, {})
+            For Each t In Searches
+                Dim mem As MemberExpression = SortProperty.Body
+                Dim [property] = mem.Member
+                Dim parameter = SortProperty.Parameters.First
+                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
+                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
+
+                Dim tests As MethodCallExpression() = {
+                        Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
+                        Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
+                        Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
+                        }
+
+                For Each exp In tests
                     Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
                     If Ascending Then
                         items = items.ThenByDescending(nv)
