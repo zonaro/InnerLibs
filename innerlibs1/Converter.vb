@@ -93,7 +93,7 @@ Public Module Converter
             body.Append(TableGenerator.TableRow("", l.ToArray))
         Next
         body = TableGenerator.Table(TableHeader(Table.First.Keys.ToArray), body)
-        Return New HtmlElement(body)
+        Return New HtmlElement("table", body)
     End Function
 
     ''' <summary>

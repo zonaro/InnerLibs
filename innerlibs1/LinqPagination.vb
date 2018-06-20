@@ -1,5 +1,7 @@
 ﻿Imports System.Data.Linq
+Imports System.Data.Linq.Mapping
 Imports System.Linq.Expressions
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Web
 Imports System.Web.UI.HtmlControls
@@ -7,6 +9,142 @@ Imports System.Web.UI.HtmlControls
 Namespace LINQ
 
     Public Module LINQExtensions
+
+
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType"></typeparam>
+        ''' <param name="Context"></param>
+        ''' <param name="SearchTerm"></param>
+        ''' <param name="Properties"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerm As String, ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
+            Return Context.Search(Of ClassType)({SearchTerm}, Properties)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType"></typeparam>
+        ''' <param name="Context"></param>
+        ''' <param name="SearchTerms"></param>
+        ''' <param name="Properties"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
+            Dim tab = Context.GetTable(Of ClassType).OrderBy(Function(x) True)
+            Dim predi = CreateExpression(Of ClassType)(False)
+            Dim mapping = Context.Mapping.GetTable(GetType(ClassType))
+            Properties = If(Properties, {})
+            If Properties.Count = 0 Then
+                Properties = GetType(ClassType).GetProperties.Where(Function(x) x.PropertyType.Equals(GetType(String)) AndAlso x.GetCustomAttribute(Of ColumnAttribute) IsNot Nothing).Select(Function(x) x.Name).ToArray
+            End If
+            For Each prop In Properties.Select(Function(x) x.ToLower).Distinct
+                Dim field = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.Name.ToLower = prop)
+                If field IsNot Nothing Then
+                    For Each s In SearchTerms
+                        If Not IsNothing(s) Then
+                            Dim param = Expression.Parameter(GetType(ClassType), "e")
+                            Dim ac = Expression.[Property](param, field.Name)
+                            Dim con = Expression.Constant(s)
+                            Dim lk = Expression.Call(ac, containsMethod, con)
+                            Dim lbd = Expression.Lambda(Of Func(Of ClassType, Boolean))(lk, param)
+                            predi = predi.Or(lbd)
+                        End If
+                    Next
+                    tab = tab.ThenByLike(SearchTerms, field.Name)
+                End If
+            Next
+            Return tab.Where(predi)
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="source"></param>
+        ''' <param name="sortProperty"></param>
+        ''' <param name="Ascending"></param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function ThenBy(Of T)(ByVal source As IOrderedQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Dim type = GetType(T)
+            For Each prop In SortProperty
+                Dim [property] = type.GetProperty(prop)
+                Dim parameter = Expression.Parameter(type, "p")
+                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
+                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
+                Dim typeArguments = New Type() {type, [property].PropertyType}
+                Dim methodName = If(Ascending, "OrderBy", "OrderByDescending")
+                Dim resultExp = Expression.[Call](GetType(Queryable), methodName, typeArguments, source.Expression, Expression.Quote(orderByExp))
+                source = source.Provider.CreateQuery(Of T)(resultExp)
+            Next
+            Return source
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="source"></param>
+        ''' <param name="sortProperty"></param>
+        ''' <param name="Ascending"></param>
+        ''' <returns></returns>
+        <Extension> Public Function OrderBy(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True)
+            Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais <see cref="String"/> com o valor de um determinado campo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items"></param>
+        ''' <param name="Searches"></param>
+        ''' <param name="SortProperty"></param>
+        ''' <param name="Ascending"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function OrderByLike(Of T)(ByVal items As IQueryable(Of T), ByVal Searches As String(), SortProperty As String, Optional ByVal Ascending As Boolean = True)
+            Return items.OrderBy(Function(x) True).ThenByLike(Searches, SortProperty, Ascending)
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais <see cref="String"/> com o valor de um determinado campo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items"></param>
+        ''' <param name="Searches"></param>
+        ''' <param name="SortProperty"></param>
+        ''' <param name="Ascending"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IOrderedQueryable(Of T), Searches As String(), SortProperty As String, Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Dim type = GetType(T)
+            Searches = If(Searches, {})
+            For Each t In Searches
+                Dim [property] = type.GetProperty(SortProperty)
+                Dim parameter = Expression.Parameter(type, "p")
+                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
+                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
+                Dim typeArguments = New Type() {type, GetType(Boolean)}
+                Dim methodName = If(Not Ascending, "ThenBy", "ThenByDescending") 'precisa inverter pq false e 0
+                Dim testes As MethodCallExpression() = {
+                        Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
+                        Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
+                        Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
+                        }
+
+                For Each exp In testes
+                    Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
+                    items = items.ThenBy(nv)
+                Next
+
+            Next
+            Return items
+        End Function
+
+        Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains")
+        Private startsWithMethod As MethodInfo = GetType(String).GetMethod("StartsWith", {GetType(String)})
+        Private endsWithMethod As MethodInfo = GetType(String).GetMethod("EndsWith", {GetType(String)})
+
 
 
         ''' <summary>
@@ -30,8 +168,9 @@ Namespace LINQ
             Next
         End Function
 
+
         ''' <summary>
-        ''' Ordena uma lista a partir de aproximaçao
+        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais <see cref="String"/> com o valor de um determinado campo
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="items"></param>
@@ -65,18 +204,40 @@ Namespace LINQ
 
 
 
-
+        ''' <summary>
+        ''' Orderna uma lista a partir da aproximaçao de um deerminado campo com uma string
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items"></param>
+        ''' <param name="PropertySelector"></param>
+        ''' <param name="Ascending"></param>
+        ''' <param name="Searches"></param>
+        ''' <returns></returns>
         <Extension()> Public Function OrderByLike(Of T As Class)(ByVal items As IEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
             Return items.OrderBy(Function(x) True).ThenByLike(PropertySelector, Ascending, Searches)
         End Function
 
 
+        ''' <summary>
+        ''' Concatena uma expressão com outra usando o operador AND (&&)
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="expr1"></param>
+        ''' <param name="expr2"></param>
+        ''' <returns></returns>
         <Extension()>
         Function [And](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
             Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
             Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[AndAlso](expr1.Body, invokedExpr), expr1.Parameters)
         End Function
 
+        ''' <summary>
+        ''' Concatena uma expressão com outra usando o operador OR (||)
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="expr1"></param>
+        ''' <param name="expr2"></param>
+        ''' <returns></returns>
         <Extension()> Function [Or](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
             Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
             Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](expr1.Body, invokedExpr), expr1.Parameters)
@@ -105,6 +266,15 @@ Namespace LINQ
             Return Controls
         End Function
 
+        ''' <summary>
+        ''' Retorna uma express~zo genérica a partir de uma expressão tipada
+        ''' </summary>
+        ''' <typeparam name="TParm"></typeparam>
+        ''' <typeparam name="TReturn"></typeparam>
+        ''' <typeparam name="TTargetParm"></typeparam>
+        ''' <typeparam name="TTargetReturn"></typeparam>
+        ''' <param name="input"></param>
+        ''' <returns></returns>
         Public Function ConvertGeneric(Of TParm, TReturn, TTargetParm, TTargetReturn)(ByVal input As Expression(Of Func(Of TParm, TReturn))) As Expression(Of Func(Of TTargetParm, TTargetReturn))
             Dim parm = Expression.Parameter(GetType(TTargetParm))
             Dim castParm = Expression.Convert(parm, GetType(TParm))
@@ -114,14 +284,33 @@ Namespace LINQ
             Return Expression.Lambda(Of Func(Of TTargetParm, TTargetReturn))(body, parm)
         End Function
 
+        ''' <summary>
+        ''' Cria uma <see cref="Expression"/> condicional a partir de um valor <see cref="Boolean"/>
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="DefaultReturnValue">Valor padrão</param>
+        ''' <returns></returns>
         Function CreateExpression(Of T)(Optional DefaultReturnValue As Boolean = True) As Expression(Of Func(Of T, Boolean))
             Return Function(f) DefaultReturnValue
         End Function
 
+        ''' <summary>
+        ''' Cria uma <see cref="Expression"/> condicional a partir de uma outra expressão
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="predicate">Valor padrão</param>
+        ''' <returns></returns>
         Function CreateExpression(Of T)(predicate As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
             Return predicate
         End Function
 
+        ''' <summary>
+        ''' Cria uma Expression a partir de uma outra Expression
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <typeparam name="T2"></typeparam>
+        ''' <param name="predicate"></param>
+        ''' <returns></returns>
         Function CreateExpression(Of T, T2)(predicate As Expression(Of Func(Of T, T2))) As Expression(Of Func(Of T, T2))
             Return predicate
         End Function
