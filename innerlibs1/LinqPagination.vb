@@ -10,221 +10,15 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
-
-        ''' <summary>
-        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
-        ''' </summary>
-        ''' <typeparam name="ClassType"></typeparam>
-        ''' <param name="Context"></param>
-        ''' <param name="SearchTerm"></param>
-        ''' <param name="Properties"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerm As String, ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
-            Return Context.Search(Of ClassType)({SearchTerm}, Properties)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
-        ''' </summary>
-        ''' <typeparam name="ClassType"></typeparam>
-        ''' <param name="Context"></param>
-        ''' <param name="SearchTerms"></param>
-        ''' <param name="Properties"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
-            Dim tab = Context.GetTable(Of ClassType).OrderBy(Function(x) True)
-            Dim predi = CreateExpression(Of ClassType)(False)
-            Dim mapping = Context.Mapping.GetTable(GetType(ClassType))
-            Properties = If(Properties, {})
-            If Properties.Count = 0 Then
-                Properties = GetType(ClassType).GetProperties.Where(Function(x) x.PropertyType.Equals(GetType(String)) AndAlso x.GetCustomAttribute(Of ColumnAttribute) IsNot Nothing).Select(Function(x) x.Name).ToArray
-            End If
-            For Each prop In Properties.Select(Function(x) x.ToLower).Distinct
-                Dim field = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.Name.ToLower = prop)
-                If field IsNot Nothing Then
-                    For Each s In SearchTerms
-                        If Not IsNothing(s) Then
-                            Dim param = Expression.Parameter(GetType(ClassType), "e")
-                            Dim ac = Expression.[Property](param, field.Name)
-                            Dim con = Expression.Constant(s)
-                            Dim lk = Expression.Call(ac, containsMethod, con)
-                            Dim lbd = Expression.Lambda(Of Func(Of ClassType, Boolean))(lk, param)
-                            predi = predi.Or(lbd)
-                        End If
-                    Next
-                    tab = tab.ThenByLike(SearchTerms, field.Name)
-                End If
-            Next
-            Return tab.Where(predi)
-        End Function
-
-        ''' <summary>
-        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="source"></param>
-        ''' <param name="sortProperty"></param>
-        ''' <param name="Ascending"></param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function ThenBy(Of T)(ByVal source As IOrderedQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
-            Dim type = GetType(T)
-            For Each prop In SortProperty
-                Dim [property] = type.GetProperty(prop)
-                Dim parameter = Expression.Parameter(type, "p")
-                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
-                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
-                Dim typeArguments = New Type() {type, [property].PropertyType}
-                Dim methodName = If(Ascending, "OrderBy", "OrderByDescending")
-                Dim resultExp = Expression.[Call](GetType(Queryable), methodName, typeArguments, source.Expression, Expression.Quote(orderByExp))
-                source = source.Provider.CreateQuery(Of T)(resultExp)
-            Next
-            Return source
-        End Function
-
-        ''' <summary>
-        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="source"></param>
-        ''' <param name="sortProperty"></param>
-        ''' <param name="Ascending"></param>
-        ''' <returns></returns>
-        <Extension> Public Function OrderBy(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True)
-            Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
-        End Function
-
-        ''' <summary>
-        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais <see cref="String"/> com o valor de um determinado campo
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="items"></param>
-        ''' <param name="Searches"></param>
-        ''' <param name="SortProperty"></param>
-        ''' <param name="Ascending"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function OrderByLike(Of T)(ByVal items As IQueryable(Of T), ByVal Searches As String(), SortProperty As String, Optional ByVal Ascending As Boolean = True)
-            Return items.OrderBy(Function(x) True).ThenByLike(Searches, SortProperty, Ascending)
-        End Function
-
-        ''' <summary>
-        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais <see cref="String"/> com o valor de um determinado campo
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="items"></param>
-        ''' <param name="Searches"></param>
-        ''' <param name="SortProperty"></param>
-        ''' <param name="Ascending"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IOrderedQueryable(Of T), Searches As String(), SortProperty As String, Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
-            Dim type = GetType(T)
-            Searches = If(Searches, {})
-            For Each t In Searches
-                Dim [property] = type.GetProperty(SortProperty)
-                Dim parameter = Expression.Parameter(type, "p")
-                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
-                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
-                Dim typeArguments = New Type() {type, GetType(Boolean)}
-                Dim methodName = If(Not Ascending, "ThenBy", "ThenByDescending") 'precisa inverter pq false e 0
-                Dim testes As MethodCallExpression() = {
-                        Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
-                        }
-
-                For Each exp In testes
-                    Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
-                    items = items.ThenBy(nv)
-                Next
-
-            Next
-            Return items
-        End Function
-
         Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains")
-        Private startsWithMethod As MethodInfo = GetType(String).GetMethod("StartsWith", {GetType(String)})
+
         Private endsWithMethod As MethodInfo = GetType(String).GetMethod("EndsWith", {GetType(String)})
 
+        Private startsWithMethod As MethodInfo = GetType(String).GetMethod("StartsWith", {GetType(String)})
 
-
-        ''' <summary>
-        ''' Ordena um <see cref="IEnumerable"/> priorizando valores especificos a uma condição no inicio da coleção e então segue uma ordem padrão para os outros.
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <typeparam name="DefaultOrderType"></typeparam>
-        ''' <param name="items">colecao</param>
-        ''' <param name="Priority">Seletor que define a prioridade</param>
-        ''' <param name="DefaultOrder">ordenacao padrao para os outros itens</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Iterator Function TakeAndOrder(Of T, DefaultOrderType)(ByVal items As IEnumerable(Of T), ByVal Priority As Func(Of T, Boolean), Optional DefaultOrder As Func(Of T, DefaultOrderType) = Nothing) As IEnumerable(Of T)
-            DefaultOrder = If(DefaultOrder, Function(x) True)
-            For Each item In items.Where(Priority)
-                Yield item
-            Next
-
-            For Each item In items.Where(Function(i) Not Priority(i)).OrderBy(Function(i) i)
-                Yield item
-            Next
-        End Function
-
-
-        ''' <summary>
-        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais <see cref="String"/> com o valor de um determinado campo
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="items"></param>
-        ''' <param name="PropertySelector"></param>
-        ''' <param name="Ascending"></param>
-        ''' <param name="Searches"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function ThenByLike(Of T As Class)(ByVal items As IOrderedEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
-            Searches = If(Searches, {})
-            If Searches.Count > 0 Then
-                For Each t In Searches
-                    For Each exp In {
-                        Function(x) PropertySelector(x) = t,
-                        Function(x) PropertySelector(x).StartsWith(t),
-                        Function(x) PropertySelector(x).Contains(t),
-                        Function(x) PropertySelector(x).EndsWith(t)
-                      }
-
-                        If Ascending Then
-                            items = items.ThenByDescending(exp)
-                        Else
-                            items = items.ThenBy(exp)
-                        End If
-                    Next
-                Next
-            End If
-
-
-            Return items
-        End Function
-
-
-
-        ''' <summary>
-        ''' Orderna uma lista a partir da aproximaçao de um deerminado campo com uma string
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="items"></param>
-        ''' <param name="PropertySelector"></param>
-        ''' <param name="Ascending"></param>
-        ''' <param name="Searches"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function OrderByLike(Of T As Class)(ByVal items As IEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
-            Return items.OrderBy(Function(x) True).ThenByLike(PropertySelector, Ascending, Searches)
-        End Function
-
-
-        ''' <summary>
-        ''' Concatena uma expressão com outra usando o operador AND (&&)
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="expr1"></param>
-        ''' <param name="expr2"></param>
-        ''' <returns></returns>
+        ''' <summary> Concatena uma expressão com outra usando o operador AND (&&) </summary>
+        ''' <typeparam name="T"></typeparam> <param name="expr1"></param> <param
+        ''' name="expr2"></param> <returns></returns>
         <Extension()>
         Function [And](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
             Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
@@ -403,6 +197,29 @@ Namespace LINQ
         End Function
 
         ''' <summary>
+        ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
+        ''' </summary>
+        ''' <typeparam name="Tsource"></typeparam>
+        ''' <param name="source">  </param>
+        ''' <param name="PageSize"></param>
+        ''' <returns></returns>
+        <Extension> Public Function GroupByPage(Of Tsource)(source As IQueryable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
+            Return source.AsEnumerable.GroupByPage(PageSize)
+        End Function
+
+        ''' <summary>
+        ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
+        ''' </summary>
+        ''' <typeparam name="Tsource"></typeparam>
+        ''' <param name="source">  </param>
+        ''' <param name="PageSize"></param>
+        ''' <returns></returns>
+        <Extension> Public Function GroupByPage(Of Tsource)(source As IEnumerable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
+            PageSize = PageSize.SetMinValue(1)
+            Return source.Select(Function(item, index) New With {item, Key .Page = index / PageSize}).GroupBy(Function(g) g.Page.Floor + 1, Function(x) x.item).ToDictionary
+        End Function
+
+        ''' <summary>
         ''' Verifica se uma instancia de uma classe possui propriedades especificas com valores igual
         ''' as de outra instancia da mesma classe
         ''' </summary>
@@ -414,6 +231,45 @@ Namespace LINQ
         <Extension()>
         Public Function HasSamePropertyValues(Of T As Class)(Obj1 As T, Obj2 As T, ParamArray Properties As Func(Of T, Object)())
             Return Properties.All(Function(x) x(Obj1).Equals(x(Obj2)))
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="source">      </param>
+        ''' <param name="sortProperty"></param>
+        ''' <param name="Ascending">   </param>
+        ''' <returns></returns>
+        <Extension> Public Function OrderBy(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True)
+            Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
+        ''' <see cref="String"/> com o valor de um determinado campo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items">       </param>
+        ''' <param name="Searches">    </param>
+        ''' <param name="SortProperty"></param>
+        ''' <param name="Ascending">   </param>
+        ''' <returns></returns>
+        <Extension()> Public Function OrderByLike(Of T)(ByVal items As IQueryable(Of T), ByVal Searches As String(), SortProperty As String, Optional ByVal Ascending As Boolean = True)
+            Return items.OrderBy(Function(x) True).ThenByLike(Searches, SortProperty, Ascending)
+        End Function
+
+        ''' <summary>
+        ''' Orderna uma lista a partir da aproximaçao de um deerminado campo com uma string
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items">           </param>
+        ''' <param name="PropertySelector"></param>
+        ''' <param name="Ascending">       </param>
+        ''' <param name="Searches">        </param>
+        ''' <returns></returns>
+        <Extension()> Public Function OrderByLike(Of T As Class)(ByVal items As IEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
+            Return items.OrderBy(Function(x) True).ThenByLike(PropertySelector, Ascending, Searches)
         End Function
 
         ''' <summary>
@@ -437,35 +293,12 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
-        ''' </summary>
-        ''' <typeparam name="Tsource"></typeparam>
-        ''' <param name="source"></param>
-        ''' <param name="PageSize"></param>
-        ''' <returns></returns>
-        <Extension> Public Function GroupByPage(Of Tsource)(source As IQueryable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
-            Return source.AsEnumerable.GroupByPage(PageSize)
-        End Function
-
-        ''' <summary>
-        ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
-        ''' </summary>
-        ''' <typeparam name="Tsource"></typeparam>
-        ''' <param name="source"></param>
-        ''' <param name="PageSize"></param>
-        ''' <returns></returns>
-        <Extension> Public Function GroupByPage(Of Tsource)(source As IEnumerable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
-            PageSize = PageSize.SetMinValue(1)
-            Return source.Select(Function(item, index) New With {item, Key .Page = index / PageSize}).GroupBy(Function(g) g.Page.Floor + 1, Function(x) x.item).ToDictionary
-        End Function
-
-        ''' <summary>
         ''' Reduz um <see cref="IQueryable"/> em uma página especifica
         ''' </summary>
         ''' <typeparam name="TSource"></typeparam>
-        ''' <param name="Source"></param>
+        ''' <param name="Source">    </param>
         ''' <param name="PageNumber"></param>
-        ''' <param name="PageSize"></param>
+        ''' <param name="PageSize">  </param>
         ''' <returns></returns>
         <Extension()> Function Page(Of TSource)(ByVal Source As IQueryable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IQueryable(Of TSource)
             Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
@@ -475,22 +308,76 @@ Namespace LINQ
         ''' Reduz um <see cref="IEnumerable"/> em uma página especifica
         ''' </summary>
         ''' <typeparam name="TSource"></typeparam>
-        ''' <param name="Source"></param>
+        ''' <param name="Source">    </param>
         ''' <param name="PageNumber"></param>
-        ''' <param name="PageSize"></param>
+        ''' <param name="PageSize">  </param>
         ''' <returns></returns>
         <Extension()>
         Function Page(Of TSource)(ByVal Source As IEnumerable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IEnumerable(Of TSource)
             Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
 
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType"></typeparam>
+        ''' <param name="Context">   </param>
+        ''' <param name="SearchTerm"></param>
+        ''' <param name="Properties"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerm As String, ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
+            Return Context.Search(Of ClassType)({SearchTerm}, Properties)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType"></typeparam>
+        ''' <param name="Context">    </param>
+        ''' <param name="SearchTerms"></param>
+        ''' <param name="Properties"> </param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
+            Search = Nothing
+            Dim tab = Context.GetTable(Of ClassType).AsQueryable
+            Dim predi = CreateExpression(Of ClassType)(False)
+            Dim mapping = Context.Mapping.GetTable(GetType(ClassType))
+            Properties = If(Properties, {})
+            If Properties.Count = 0 Then
+                Properties = GetType(ClassType).GetProperties.Where(Function(x) x.PropertyType.Equals(GetType(String)) AndAlso x.GetCustomAttribute(Of ColumnAttribute) IsNot Nothing).Select(Function(x) x.Name).ToArray
+            End If
+            Properties = Properties.Select(Function(x) x.ToLower).Distinct.ToArray
+            For Each prop In Properties
+                Dim field = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.Name.ToLower = prop)
+                If field IsNot Nothing Then
+                    For Each s In SearchTerms
+                        If Not IsNothing(s) Then
+                            Dim param = Expression.Parameter(GetType(ClassType), "e")
+                            Dim ac = Expression.[Property](param, field.Name)
+                            Dim con = Expression.Constant(s)
+                            Dim lk = Expression.Call(ac, containsMethod, con)
+                            Dim lbd = Expression.Lambda(Of Func(Of ClassType, Boolean))(lk, param)
+                            predi = predi.Or(lbd)
+                        End If
+                    Next
+                    tab = tab.Where(predi)
+                End If
+            Next
+            For Each prop In Properties
+                Dim field = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.Name.ToLower = prop)
+                If field IsNot Nothing Then
+                    Search = If(Search, tab.OrderBy(Function(x) True)).ThenByLike(SearchTerms, field.Name)
+                End If
+            Next
+            Return Search
+        End Function
 
         ''' <summary>
         ''' Seleciona e une em uma unica string varios elementos
         ''' </summary>
         ''' <typeparam name="TSource"></typeparam>
-        ''' <param name="Source"></param>
-        ''' <param name="Selector"></param>
+        ''' <param name="Source">   </param>
+        ''' <param name="Selector"> </param>
         ''' <param name="Separator"></param>
         ''' <returns></returns>
         <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
@@ -502,8 +389,8 @@ Namespace LINQ
         ''' Seleciona e une em uma unica string varios elementos
         ''' </summary>
         ''' <typeparam name="TSource"></typeparam>
-        ''' <param name="Source"></param>
-        ''' <param name="Selector"></param>
+        ''' <param name="Source">   </param>
+        ''' <param name="Selector"> </param>
         ''' <param name="Separator"></param>
         ''' <returns></returns>
         <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
@@ -514,8 +401,8 @@ Namespace LINQ
         ''' Seleciona e une em uma unica string varios elementos enumeraveis
         ''' </summary>
         ''' <typeparam name="TSource"></typeparam>
-        ''' <param name="Source"></param>
-        ''' <param name="Selector"></param>
+        ''' <param name="Source">   </param>
+        ''' <param name="Selector"> </param>
         ''' <param name="Separator"></param>
         ''' <returns></returns>
         <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = ";") As String
@@ -527,12 +414,129 @@ Namespace LINQ
         ''' Seleciona e une em uma unica string varios elementos enumeraveis
         ''' </summary>
         ''' <typeparam name="TSource"></typeparam>
-        ''' <param name="Source"></param>
-        ''' <param name="Selector"></param>
+        ''' <param name="Source">   </param>
+        ''' <param name="Selector"> </param>
         ''' <param name="Separator"></param>
         ''' <returns></returns>
         <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = ";") As String
             Return Source.AsEnumerable.SelectManyJoin(Selector, Separator)
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable"/> priorizando valores especificos a uma condição no
+        ''' inicio da coleção e então segue uma ordem padrão para os outros.
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <typeparam name="DefaultOrderType"></typeparam>
+        ''' <param name="items">       colecao</param>
+        ''' <param name="Priority">    Seletor que define a prioridade</param>
+        ''' <param name="DefaultOrder">ordenacao padrao para os outros itens</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Iterator Function TakeAndOrder(Of T, DefaultOrderType)(ByVal items As IEnumerable(Of T), ByVal Priority As Func(Of T, Boolean), Optional DefaultOrder As Func(Of T, DefaultOrderType) = Nothing) As IEnumerable(Of T)
+            DefaultOrder = If(DefaultOrder, Function(x) True)
+            For Each item In items.Where(Priority)
+                Yield item
+            Next
+
+            For Each item In items.Where(Function(i) Not Priority(i)).OrderBy(Function(i) i)
+                Yield item
+            Next
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="source">      </param>
+        ''' <param name="sortProperty"></param>
+        ''' <param name="Ascending">   </param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function ThenBy(Of T)(ByVal source As IOrderedQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Dim type = GetType(T)
+            For Each prop In SortProperty
+                Dim [property] = type.GetProperty(prop)
+                Dim parameter = Expression.Parameter(type, "p")
+                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
+                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
+                Dim typeArguments = New Type() {type, [property].PropertyType}
+                Dim methodName = If(Ascending, "OrderBy", "OrderByDescending")
+                Dim resultExp = Expression.[Call](GetType(Queryable), methodName, typeArguments, source.Expression, Expression.Quote(orderByExp))
+                source = source.Provider.CreateQuery(Of T)(resultExp)
+            Next
+            Return source
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
+        ''' <see cref="String"/> com o valor de um determinado campo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items">       </param>
+        ''' <param name="Searches">    </param>
+        ''' <param name="SortProperty"></param>
+        ''' <param name="Ascending">   </param>
+        ''' <returns></returns>
+        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IOrderedQueryable(Of T), Searches As String(), SortProperty As String, Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Dim type = GetType(T)
+            Searches = If(Searches, {})
+            For Each t In Searches
+                Dim [property] = type.GetProperty(SortProperty)
+                Dim parameter = Expression.Parameter(type, "p")
+                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
+                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
+
+                Dim testes As MethodCallExpression() = {
+                        Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
+                        Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
+                        Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
+                        }
+
+                For Each exp In testes
+                    Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
+                    If Ascending Then
+                        items = items.ThenByDescending(nv)
+                    Else
+                        items = items.ThenBy(nv)
+                    End If
+                Next
+
+            Next
+            Return items
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
+        ''' <see cref="String"/> com o valor de um determinado campo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="items">           </param>
+        ''' <param name="PropertySelector"></param>
+        ''' <param name="Ascending">       </param>
+        ''' <param name="Searches">        </param>
+        ''' <returns></returns>
+        <Extension()> Public Function ThenByLike(Of T As Class)(ByVal items As IOrderedEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
+            Searches = If(Searches, {})
+            If Searches.Count > 0 Then
+                For Each t In Searches
+                    For Each exp In {
+                        Function(x) PropertySelector(x) = t,
+                        Function(x) PropertySelector(x).StartsWith(t),
+                        Function(x) PropertySelector(x).Contains(t),
+                        Function(x) PropertySelector(x).EndsWith(t)
+                      }
+
+                        If Ascending Then
+                            items = items.ThenByDescending(exp)
+                        Else
+                            items = items.ThenBy(exp)
+                        End If
+                    Next
+                Next
+            End If
+
+            Return items
         End Function
 
         ''' <summary>
