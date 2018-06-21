@@ -1796,7 +1796,7 @@ Public Module Text
             End If
             Text &= c
         Next
-        Return Text
+        Return Text.Trim
     End Function
 
     ''' <summary>
