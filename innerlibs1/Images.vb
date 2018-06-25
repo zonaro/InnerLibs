@@ -34,13 +34,10 @@ Public Module Images
     <Extension()> Public Function CropToCircle(Img As Image, Optional Background As Color? = Nothing) As Image
         Dim dstImage As Bitmap = New Bitmap(Img.Width, Img.Height)
         Dim g As Graphics = Graphics.FromImage(dstImage)
-        If Background.HasValue Then
-            Using br As Brush = New SolidBrush(Background)
-                g.FillRectangle(br, 0, 0, dstImage.Width, dstImage.Height)
-            End Using
-        Else
-            'dstImage.MakeTransparent(Color.Transparent)
-        End If
+        Background = If(Background, Color.Transparent)
+        Using br As Brush = New SolidBrush(Background)
+            g.FillRectangle(br, 0, 0, dstImage.Width, dstImage.Height)
+        End Using
         Dim path As New GraphicsPath()
         path.AddEllipse(0, 0, dstImage.Width, dstImage.Height)
         g.SetClip(path)

@@ -6,13 +6,13 @@ Imports InnerLibs
 ''' </summary>
 Public Structure Money
 
-    Public ReadOnly Property Value As Decimal
+    Public Property Value As Decimal
 
     ''' <summary>
     ''' Cria uma nova instancia de moeda
     ''' </summary>
     ''' <param name="Value">Valor</param>
-    Sub New(Value As Decimal)
+    Sub New(Optional Value As Decimal = 0)
         Me.New(Value, CultureInfo.CurrentCulture)
     End Sub
 
@@ -43,6 +43,8 @@ Public Structure Money
             Me.ISOCurrencySymbol = New RegionInfo(c.Name).ISOCurrencySymbol
         End If
     End Sub
+
+
 
     ''' <summary>
     ''' Converte de uma moeda para a outra utilizando a api http://cryptonator.com
@@ -539,5 +541,21 @@ Public Structure Money
 
     Public Shared Widening Operator CType(v As Money) As Decimal
         Return v.Value
+    End Operator
+
+    Public Shared Widening Operator CType(v As Decimal) As Money
+        Return New Money(v)
+    End Operator
+    Public Shared Widening Operator CType(v As Integer) As Money
+        Return New Money(v)
+    End Operator
+    Public Shared Widening Operator CType(v As Short) As Money
+        Return New Money(v)
+    End Operator
+    Public Shared Widening Operator CType(v As Long) As Money
+        Return New Money(v)
+    End Operator
+    Public Shared Widening Operator CType(v As Double) As Money
+        Return New Money(v)
     End Operator
 End Structure
