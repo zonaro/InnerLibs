@@ -157,13 +157,15 @@ Namespace LINQ
         ''' </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False) As T
+        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False, Optional ByRef IsNew As Boolean = False) As T
             Dim obj = Nothing
             Try
                 obj = Context.GetByPrimaryKeys(Of T)({ID}.ToArray).SingleOrDefault
+                IsNew = False
             Catch ex As Exception
             End Try
             If obj Is Nothing AndAlso CreateIfNotExists Then
+                IsNew = True
                 obj = Activator.CreateInstance(Of T)
                 Context.GetTable(Of T).InsertOnSubmit(obj)
             End If

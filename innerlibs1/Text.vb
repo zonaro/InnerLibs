@@ -14,7 +14,46 @@ Imports InnerLibs.HtmlParser
 ''' <remarks></remarks>
 Public Module Text
 
+    '''<summary>
+    ''' Computa a distancia de Levenshtein entre 2 strings.
+    ''' </summary>
+    <Extension()> Public Function LevenshteinDistance(Text1 As String, Text2 As String) As Integer
 
+        Dim n As Integer = Text1.Length
+        Dim m As Integer = Text2.Length
+        Dim d As Integer(,) = New Integer(n + 1, m + 1) {}
+
+        ' Step 1
+        If (n = 0) Then
+            Return m
+        End If
+
+        If (m = 0) Then
+            Return n
+        End If
+
+        ' Step 2
+        For i As Integer = 0 To n
+            d(i, 0) = i
+        Next
+
+        For j As Integer = 0 To m
+            d(0, j) = j
+        Next
+
+        ' Step 3
+        For i = 1 To n
+            'Step 4
+            For j = 1 To m
+                ' Step 5
+                Dim cost As Integer = If(Text2(j - 1) = Text1(i - 1), 0, 1)
+                'Step 6
+                d(i, j) = Math.Min(Math.Min(d(i - 1, j) + 1, d(i, j - 1) + 1), d(i - 1, j - 1) + cost)
+            Next
+        Next
+        ' Step 7
+        Return d(n, m)
+    End Function
 
     ReadOnly Property BreakLineChars As String() = {Environment.NewLine, vbCr, vbLf, vbCrLf, vbNewLine}
     ''' <summary>
