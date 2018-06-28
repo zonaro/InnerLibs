@@ -532,13 +532,25 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Return the value of specific data-attibute
+        ''' Return the value of specific data-attribute
         ''' </summary>
         ''' <param name="Name"></param>
         ''' <returns></returns>
-        Public Function Data(Name As String) As String
-            Return Me.Attribute("data-" & Name)
-        End Function
+        Public Property Data(Name As String) As String
+            Get
+                If Name.IsNotBlank Then
+                    Return Me.Attribute("data-" & Name)
+                End If
+                Return ""
+            End Get
+            Set(value As String)
+                If Name.IsNotBlank Then
+                    Me.Attribute("data-" & Name) = value
+                End If
+            End Set
+        End Property
+
+
 
         ''' <summary>
         ''' Return the value of specific attibute
