@@ -184,17 +184,26 @@ End Class
 Public Module Web
 
     ''' <summary>
+    ''' Retorna todos os arquivos de uma <see cref="HttpFileCollection"/> em um  <see cref="IEnumerable(Of Httppostedfile)"/>
+    ''' </summary>
+    ''' <param name="Files"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function AsEnumerable(Files As HttpFileCollection) As IEnumerable(Of HttpPostedFile)
+        Dim l As New List(Of HttpPostedFile)
+        For index = 0 To Files.Count - 1
+            l.Add(CType(Files(index), HttpPostedFile))
+        Next
+        Return l.AsEnumerable
+    End Function
+
+
+    ''' <summary>
     ''' Retorna todos os arquivos de uma <see cref="HttpRequest"/> em um  <see cref="IEnumerable(Of Httppostedfile)"/>
     ''' </summary>
     ''' <param name="Request"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetAllFiles(Request As HttpRequest) As IEnumerable(Of HttpPostedFile)
-        Dim l As New List(Of HttpPostedFile)
-        For index = 0 To Request.Files.Count - 1
-            Dim file As HttpPostedFile = Request.Files(index)
-            l.Add(file)
-        Next
-        Return l.AsEnumerable
+        Return Request.Files.AsEnumerable
     End Function
 
     ''' <summary>
