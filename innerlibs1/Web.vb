@@ -184,6 +184,20 @@ End Class
 Public Module Web
 
     ''' <summary>
+    ''' Retorna todos os arquivos de uma <see cref="HttpRequest"/> em um  <see cref="IEnumerable(Of Httppostedfile)"/>
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetAllFiles(Request As HttpRequest) As IEnumerable(Of HttpPostedFile)
+        Dim l As New List(Of HttpPostedFile)
+        For index = 0 To Request.Files.Count - 1
+            Dim file As HttpPostedFile = Request.Files(index)
+            l.Add(file)
+        Next
+        Return l.AsEnumerable
+    End Function
+
+    ''' <summary>
     ''' Minifica uma folha de estilo CSS
     ''' </summary>
     ''' <param name="CSS">String contendo o CSS</param>
