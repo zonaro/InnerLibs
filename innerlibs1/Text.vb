@@ -1007,7 +1007,7 @@ Public Module Text
         Dim strDigits As String = ""
         If Text = Nothing Then Return strDigits
         For Each c As Char In Text.ToCharArray()
-            If Char.IsDigit(c) Or c = Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator) Then
+            If Char.IsDigit(c) OrElse c = Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator) Then
                 strDigits &= c
             End If
         Next c
