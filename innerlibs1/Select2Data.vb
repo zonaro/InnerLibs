@@ -80,7 +80,7 @@ Namespace Select2Data
         ''' Options deste optgroup
         ''' </summary>
         ''' <returns></returns>
-        Public Property children As IEnumerable(Of Result)
+        Public Property children As New List(Of Result)
 
         Public Property id As String = ""
 
@@ -143,14 +143,9 @@ Namespace Select2Data
     ''' <summary>
     ''' Classe base para serializaçao de json para um Select2
     ''' </summary>
-    ''' <typeparam name="Type"></typeparam>
+    ''' <typeparam name="Type"></typeparam> 
     Public Class Select2Results(Of Type As Select2ResultType)
-        Inherits Select2Results
-        Public Shadows Property results As IEnumerable(Of Type)
-    End Class
-
-    Public MustInherit Class Select2Results
-        Public Property results As IEnumerable(Of Select2ResultType)
+        Public Property results As New List(Of Type)
         Public Property pagination As New Pagination
         Public Property otherdata As New AditionalData
 

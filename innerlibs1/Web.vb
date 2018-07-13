@@ -28,10 +28,13 @@ Public NotInheritable Class AJAX
     ''' <param name="Encoding">   Codificação</param>
     ''' <param name="FilePath">   Caminho do arquivo</param>
     ''' <returns>conteudo no formato especificado</returns>
-    Public Shared Function Request(Of Type)(URL As String, Optional Method As String = "GET", Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing, Optional FilePath As String = "") As Object
+    Public Shared Function Request(Of Type)(URL As String, Optional Method As String = "GET", Optional Parameters As NameValueCollection = Nothing, Optional ContentType As String = "application/x-www-form-urlencoded", Optional Encoding As Encoding = Nothing, Optional FilePath As String = "", Optional Header As WebHeaderCollection = Nothing) As Type
         If URL.IsURL Then
             Dim client As New WebClient
             client.Encoding = If(Encoding, Encoding.UTF8)
+            If Header IsNot Nothing Then
+                client.Headers = Header
+            End If
             Using client
                 Dim responsebytes As Byte()
                 If IsNothing(Parameters) Then
@@ -41,24 +44,24 @@ Public NotInheritable Class AJAX
                 End If
                 Select Case GetType(Type)
                     Case GetType(String)
-                        Return client.Encoding.GetString(responsebytes)
+                        Return client.Encoding.GetString(responsebytes).ChangeType(Of Type)
                     Case GetType(Integer), GetType(Long), GetType(Decimal), GetType(Short), GetType(Double)
                         Return client.Encoding.GetString(responsebytes).ChangeType(Of Type)
                     Case GetType(FileInfo)
-                        Return responsebytes.WriteToFile(FilePath)
+                        Return responsebytes.WriteToFile(FilePath).ChangeType(Of Type)
                     Case GetType(Byte), GetType(Byte())
-                        Return responsebytes
+                        Return responsebytes.ChangeType(Of Type)
                     Case GetType(XmlDocument)
                         Using ms As New MemoryStream(responsebytes)
                             Dim x As New XmlDocument
                             x.Load(ms)
-                            Return x
+                            Return x.ChangeType(Of Type)
                         End Using
                     Case GetType(HtmlParser.HtmlDocument)
-                        Return New HtmlParser.HtmlDocument(URL)
+                        Return New HtmlParser.HtmlDocument(URL).ChangeType(Of Type)
                     Case GetType(Drawing.Image), GetType(Bitmap)
                         Using ms As New MemoryStream(responsebytes)
-                            Return Drawing.Image.FromStream(ms)
+                            Return Drawing.Image.FromStream(ms).ChangeType(Of Type)
                         End Using
                     Case Else
                         Return client.Encoding.GetString(responsebytes).ParseJSON(Of Type)

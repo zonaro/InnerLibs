@@ -84,4 +84,35 @@ Public Module BrowserClipper
         thread.Join()
         Return title
     End Function
+
+    ''' <summary>
+    ''' Pega o conteudo HTML de uma página da web logo após seu carregamento
+    ''' </summary>
+    ''' <param name="URL">URL</param>
+    ''' <returns></returns>
+    Function GetHtmlContent(URL As String, Optional DelaySeconds As Integer = 0) As String
+        Dim content As String = ""
+        Dim thread As New Thread(Sub()
+                                     If URL.IsURL = False Then Throw New Exception("Invalid URL")
+                                     Dim web = New WebBrowser()
+                                     web.ScrollBarsEnabled = False
+                                     web.ScriptErrorsSuppressed = True
+                                     web.Navigate(URL)
+                                     While (web.ReadyState <> WebBrowserReadyState.Complete)
+                                         Application.DoEvents()
+                                         Try
+                                             content = web.DocumentText
+                                         Catch ex As Exception
+                                         End Try
+                                     End While
+                                     If DelaySeconds > 0 Then
+                                         System.Threading.Thread.Sleep(1000 * DelaySeconds.SetMinValue(1))
+                                     End If
+                                     content = web.DocumentText
+                                 End Sub)
+        thread.SetApartmentState(ApartmentState.STA)
+        thread.Start()
+        thread.Join()
+        Return content
+    End Function
 End Module

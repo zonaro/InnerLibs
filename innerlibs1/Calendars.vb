@@ -146,6 +146,25 @@ End Class
 Public Module Calendars
 
     ''' <summary>
+    ''' Pula para a data inicial da proxima quinzena
+    ''' </summary>
+    ''' <param name="FromDate">Data de partida</param>
+    ''' <param name="Num">Numero de quinzenas para adiantar</param>
+    ''' <returns></returns>
+    <Extension> Public Function NextFortnight(FromDate As Date, Optional Num As Integer = 1) As DateTime
+        For index = 1 To Num.SetMinValue(1)
+            If FromDate.Day < 16 Then
+                'ir para 2 quinzena do mesmo mes
+                FromDate = FromDate.GetFirstDayOfFortnight.AddDays(15)
+            Else
+                'ir para 1 quinzena do mes seguinte
+                FromDate = FromDate.AddDays(16).GetFirstDayOfMonth
+            End If
+        Next
+        Return FromDate
+    End Function
+
+    ''' <summary>
     ''' Atrasa qualquer passo seguinte até a data especificada
     ''' </summary>
     ''' <param name="DateTime"></param>
