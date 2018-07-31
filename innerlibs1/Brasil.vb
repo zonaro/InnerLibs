@@ -73,6 +73,12 @@ End Class
 
 Public NotInheritable Class Celebration
 
+    ReadOnly Property [Date](Optional Year As Integer? = Nothing) As DateTime
+        Get
+            Return New Date(If(Year, Now.Year), Month, Day)
+        End Get
+    End Property
+
     ReadOnly Property Description As String
         Get
             Return _fact
@@ -129,8 +135,8 @@ Public NotInheritable Class Brasil
     ''' </summary>
     ''' <param name="[Date]"></param>
     ''' <returns></returns>
-    Public Shared Function GetCelebrationByDate([Date] As Date) As String()
-        Return Celebrations.Where(Function(x) x.Day = [Date].Day And x.Month = [Date].Month).Select(Function(y) y.Description).ToArray
+    Public Shared Function GetCelebrationByDate([Date] As Date) As Celebration()
+        Return Celebrations.Where(Function(x) x.Day = [Date].Day And x.Month = [Date].Month).OrderBy(Function(x) x.Date([Date].Year)).ToArray
     End Function
 
     ''' <summary>
@@ -146,9 +152,9 @@ Public NotInheritable Class Brasil
     ''' Retorna todas as comemoracoes entre 2 datas
     ''' </summary>
     ''' <returns></returns>
-    Public Shared Function GetCelebrationBetween(FirstDate As Date, SecondDate As Date) As String()
+    Public Shared Function GetCelebrationBetween(FirstDate As Date, SecondDate As Date) As Celebration()
         Dim l = Calendars.GetBetween(FirstDate, SecondDate)
-        Dim ss As New List(Of String)
+        Dim ss As New List(Of Celebration)
         For Each i In l
             ss.AddRange(GetCelebrationByDate(i))
         Next

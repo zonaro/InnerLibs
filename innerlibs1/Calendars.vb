@@ -152,16 +152,7 @@ Public Module Calendars
     ''' <param name="Num">Numero de quinzenas para adiantar</param>
     ''' <returns></returns>
     <Extension> Public Function NextFortnight(FromDate As Date, Optional Num As Integer = 1) As DateTime
-        For index = 1 To Num.SetMinValue(1)
-            If FromDate.Day < 16 Then
-                'ir para 2 quinzena do mesmo mes
-                FromDate = FromDate.GetFirstDayOfFortnight.AddDays(15)
-            Else
-                'ir para 1 quinzena do mes seguinte
-                FromDate = FromDate.AddDays(16).GetFirstDayOfMonth
-            End If
-        Next
-        Return FromDate
+        Return New FortnightGroup(FromDate, Num).Last.Period.StartDate
     End Function
 
     ''' <summary>
@@ -509,13 +500,9 @@ Public Module Calendars
     ''' Retorna o ultimo domingo
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property LastSunday()
+    Public ReadOnly Property LastSunday(Optional FromDate As Date? = Nothing)
         Get
-            Dim p = Now
-            While p.DayOfWeek <> DayOfWeek.Sunday
-                p = Yesterday
-            End While
-            Return p
+            Return LastDay(DayOfWeek.Sunday, FromDate)
         End Get
     End Property
 
@@ -523,15 +510,32 @@ Public Module Calendars
     ''' Retorna o proximo domingo
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property NextSunday()
+    Public ReadOnly Property NextSunday(Optional FromDate As Date? = Nothing) As Date
         Get
-            Dim p = Now
-            While p.DayOfWeek <> DayOfWeek.Sunday
-                p = Tomorrow
-            End While
-            Return p
+            Return NextDay(DayOfWeek.Sunday, FromDate)
         End Get
     End Property
+
+    Public ReadOnly Property LastDay(DayOfWeek As DayOfWeek, Optional FromDate As Date? = Nothing) As Date
+        Get
+            FromDate = If(FromDate, Now)
+            While FromDate.Value.DayOfWeek <> DayOfWeek
+                FromDate = FromDate.Value.AddDays(-1)
+            End While
+            Return FromDate
+        End Get
+    End Property
+
+    Public ReadOnly Property NextDay(DayOfWeek As DayOfWeek, Optional FromDate As Date? = Nothing) As Date
+        Get
+            FromDate = If(FromDate, Now)
+            While FromDate.Value.DayOfWeek <> DayOfWeek
+                FromDate = FromDate.Value.AddDays(1)
+            End While
+            Return FromDate
+        End Get
+    End Property
+
 
 
     ''' <summary>

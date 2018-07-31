@@ -16,6 +16,8 @@ Namespace LINQ
 
         Private startsWithMethod As MethodInfo = GetType(String).GetMethod("StartsWith", {GetType(String)})
 
+        Private equalMethod As MethodInfo = GetType(String).GetMethod("Equals", {GetType(String)})
+
         ''' <summary> Concatena uma expressão com outra usando o operador AND (&&) </summary>
         ''' <typeparam name="T"></typeparam> <param name="expr1"></param> <param
         ''' name="expr2"></param> <returns></returns>
@@ -527,6 +529,7 @@ Namespace LINQ
                 Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
 
                 Dim testes As MethodCallExpression() = {
+                        Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)),
                         Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
                         Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
                         Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
@@ -566,6 +569,7 @@ Namespace LINQ
                 Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
 
                 Dim tests As MethodCallExpression() = {
+                        Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)),
                         Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
                         Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
                         Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
