@@ -757,4 +757,6 @@ Public Module Calendars
         Return (MidDate - StartDate).Ticks * 100 / (EndDate - StartDate).Ticks
     End Function
 
+
+
 End Module

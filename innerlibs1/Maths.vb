@@ -178,6 +178,44 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
+    ''' Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade
+    ''' </summary>
+    ''' <typeparam name="TKey"></typeparam>
+    ''' <typeparam name="TValue"></typeparam>
+    ''' <param name="Dic"></param>
+    ''' <returns></returns>
+    <Extension()> Function CalculatePercent(Of TKey, TValue As Structure)(Dic As Dictionary(Of TKey, TValue)) As Dictionary(Of TKey, Decimal)
+        Dim total = Dic.Sum(Function(x) x.Value.ChangeType(Of Decimal))
+        Return Dic.Select(Function(x) New KeyValuePair(Of TKey, Decimal)(x.Key, CalculatePercent(x.Value.ChangeType(Of Decimal), total))).ToDictionary
+    End Function
+
+
+    ''' <summary>
+    ''' Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
+    ''' </summary>
+    ''' <typeparam name="TKey"></typeparam>
+    ''' <typeparam name="TValue"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
+    <Extension()> Function CalculatePercent(Of TObject, TKey, TValue As Structure)(Obj As IEnumerable(Of TObject), KeySelector As Func(Of TObject, TKey), ValueSelector As Func(Of TObject, TValue)) As Dictionary(Of TKey, Decimal)
+        Return CalculatePercent(Obj.ToDictionary(KeySelector, ValueSelector))
+    End Function
+
+    ''' <summary>
+    ''' Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
+    ''' </summary>
+    <Extension()> Function CalculatePercent(Of Tobject, Tvalue As Structure)(Obj As IEnumerable(Of Tobject), ValueSelector As Func(Of Tobject, Tvalue)) As Dictionary(Of Tobject, Decimal)
+        Return Obj.CalculatePercent(Function(x) x, ValueSelector)
+    End Function
+
+    ''' <summary>
+    ''' Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
+    ''' </summary>
+    <Extension()> Function CalculatePercent(Of Tobject As Structure, Tvalue As Structure)(Obj As IEnumerable(Of Tobject)) As Dictionary(Of Tobject, Decimal)
+        Return Obj.CalculatePercent(Function(x) x, Function(x) x)
+    End Function
+
+    ''' <summary>
     ''' Retorna o percentual de um valor
     ''' </summary>
     ''' <param name="Value">Valor a ser calculado</param>
