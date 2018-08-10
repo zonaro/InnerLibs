@@ -237,6 +237,11 @@
     <EmbeddedResource Include="mimes.json" />
     <EmbeddedResource Include="brasil.json" />
     <EmbeddedResource Include="facts.json" />
+    <None Include="api\index.md" />
+    <None Include="articles\intro.md" />
+    <None Include="articles\toc.md" />
+    <None Include="docfx.json" />
+    <None Include="index.md" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -246,11 +251,15 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="packages.config" />
+    <None Include="toc.yml" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="api\.gitignore" />
     <Content Include="Triforce\Fonema.sql" />
     <EmbeddedResource Include="DocumentationPage\DocumentationPage.html" />
     <Content Include="help.shfbproj" />
@@ -290,6 +299,13 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\..\..\rpcards\trunk\SmartRP\packages\docfx.console.2.37.2\build\docfx.console.targets" Condition="Exists('..\..\..\rpcards\trunk\SmartRP\packages\docfx.console.2.37.2\build\docfx.console.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\rpcards\trunk\SmartRP\packages\docfx.console.2.37.2\build\docfx.console.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\rpcards\trunk\SmartRP\packages\docfx.console.2.37.2\build\docfx.console.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -146,7 +146,10 @@ Namespace TimeMachine
 
     Public Class Fortnight
 
-
+        ''' <summary>
+        ''' Cria uma instancia de quinzena a partir de uma data que a mesma pode conter
+        ''' </summary>
+        ''' <param name="AnyDate">Qualquer dada. Se NULL, a data atual é utilizada</param>
         Sub New(Optional AnyDate As Date? = Nothing)
             AnyDate = If(AnyDate, Now)
             AnyDate = New Date(AnyDate.Value.Year, AnyDate.Value.Month, If(AnyDate.Value.Day > 15, 16, 1), AnyDate.Value.Hour, AnyDate.Value.Minute, AnyDate.Value.Second, AnyDate.Value.Millisecond, AnyDate.Value.Kind)
@@ -160,6 +163,10 @@ Namespace TimeMachine
             Me.Period = New DateRange(AnyDate, EndDate)
         End Sub
 
+        ''' <summary>
+        ''' String que identifica a quinzena em uma coleção
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property Key As String
             Get
                 If Me.Period.EndDate.Day <= 15 Then
@@ -170,8 +177,16 @@ Namespace TimeMachine
             End Get
         End Property
 
-
+        ''' <summary>
+        ''' Periodo que esta quinzena possui
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property Period As DateRange
+
+        ''' <summary>
+        ''' Numero da quinzena (1 ou 2)
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property Number As Integer
             Get
                 Return Key.GetFirstChars(1).ChangeType(Of Integer)
@@ -179,25 +194,63 @@ Namespace TimeMachine
         End Property
 
         ''' <summary>
-        ''' Formata uma Key de um <see cref="FortnightGroup"/> para uma string especifica
+        ''' Retorna a Key de um <see cref="Fortnight"/> em um formato especifico.
         ''' </summary>
         ''' <param name="Format">Formato da string</param>
-        ''' <returns></returns>
+        '''<remarks>
+        '''<list type="number">
+        '''<listheader>
+        ''' <term> Marcação</term>  
+        ''' <description> Descrição</description>  
+        ''' </listheader>  
+        '''<item><term>{f} ou {q}</term><description>Retorna o numero da quinzena com 1 digito. EX.: "1", "2"</description></item>
+        '''<item><term>{ff} ou {qq}</term><description>Retorna o numero da quinzena com 2 digitos. EX.: "01", "02"</description></item>
+        '''<item><term>{o}</term><description>Retorna sufixo ordinal da quinzena atual. EX.: "st", "nd", "rd", "th"</description></item>
+        '''<item><term>{s}</term><description>Retorna o numero do primeiro dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
+        '''<item><term>{ss}</term><description>Retorna o numero do primeiro dia da quinzena com 2 digitos. EX.: "01", "02","30","31"</description></item>
+        '''<item><term>{e} ou {ee}</term><description>Retorna o numero do ultimo dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
+        '''<item><term>{m}</term><description>Retorna o numero do mês da quinzena com 1 digito. EX.: "1", "2","11","12"</description></item>
+        '''<item><term>{mm}</term><description>Retorna o numero do mês da quinzena com 2 digitos. EX.: "01", "02","11","12"</description></item>
+        '''<item><term>{mmm}</term><description>Retorna o nome do mês da quinzena abreviado. EX.: "Jan", "Fev","Nov","Dez"</description></item>
+        '''<item><term>{mmmm}</term><description>Retorna o nome do mês da quinzena. EX.: "Janeiro", "Fevereiro","Novembro","Dezembro"</description></item>
+        '''<item><term>{y} ou {yy} ou {a} ou {aa}</term><description>Retorna os 2 ultimos números do ano da quinzena. EX.: "18", "19","20"</description></item>
+        '''<item><term>{yyy} ou {yyyy} ou {aaa} ou {aaaa}</term><description>Retorna o número do ano da quinzena. EX.: "2018", "2019","2020"</description></item>
+        '''</list>
+        '''</remarks>
+        '''<returns>Uma string no formato especificado</returns>
         Public Function FormatName(Optional Format As String = "{q}{o} - {mmmm}/{yyyy}") As String
-            Dim dia As Integer = Key.Split("@")(0)
+            Dim quinzena As Integer = Key.Split("@")(0)
             Dim mes As Integer = Key.Split("@")(1).Split("-")(0)
             Dim ano As Integer = Key.Split("@")(1).Split("-")(1)
-            Format = Format.Replace("{q}", dia.ToString("#"))
-            Format = Format.Replace("{qq}", dia.ToString("##"))
+            Dim dia_inicio = Me.Period.StartDate.Day
+            Dim dia_fim = Me.Period.EndDate.Day
+
+            Format = Format.Replace("{s}", dia_inicio.ToString("#"))
+            Format = Format.Replace("{ss}", dia_inicio.ToString("##"))
+
+            Format = Format.Replace("{e}", dia_inicio.ToString("#"))
+            Format = Format.Replace("{ee}", dia_inicio.ToString("##"))
+
+            Format = Format.Replace("{f}", quinzena.ToString("#"))
+            Format = Format.Replace("{ff}", quinzena.ToString("##"))
+
+            Format = Format.Replace("{q}", quinzena.ToString("#"))
+            Format = Format.Replace("{qq}", quinzena.ToString("##"))
+
             Format = Format.Replace("{m}", mes.ToString("#"))
             Format = Format.Replace("{mm}", mes.ToString("##"))
             Format = Format.Replace("{mmm}", mes.ToShortMonthName)
             Format = Format.Replace("{mmmm}", mes.ToLongMonthName)
+
             Format = Format.Replace("{y}", ano.ToString.GetLastChars(2))
             Format = Format.Replace("{yy}", ano.ToString.GetLastChars(2))
             Format = Format.Replace("{yyy}", ano.ToString)
             Format = Format.Replace("{yyyy}", ano.ToString)
-            Format = Format.Replace("{o}", dia.ToOrdinalNumber(True))
+            Format = Format.Replace("{a}", ano.ToString.GetLastChars(2))
+            Format = Format.Replace("{aa}", ano.ToString.GetLastChars(2))
+            Format = Format.Replace("{aaa}", ano.ToString)
+            Format = Format.Replace("{aaaa}", ano.ToString)
+            Format = Format.Replace("{o}", quinzena.ToOrdinalNumber(True))
             Return Format
         End Function
 

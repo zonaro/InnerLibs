@@ -48,9 +48,14 @@ Public Class DateRange
         Return StartDate.GetDifference(EndDate)
     End Function
 
+    ''' <summary>
+    ''' Cria um grupo de quinzenas que contenham este periodo
+    ''' </summary>
+    ''' <returns></returns>
     Public Function CreateFortnightGroup() As FortnightGroup
         Return FortnightGroup.CreateFromDateRange(Me.StartDate, Me.EndDate)
     End Function
+
 
     Public Overrides Function ToString() As String
         Return Difference.ToString
