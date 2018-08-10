@@ -111,6 +111,21 @@ Namespace LINQ
             Return predicate
         End Function
 
+
+
+        ''' <summary>
+        ''' Distingui os items de uma lista a partir de uma propriedade da classe
+        ''' </summary>
+        ''' <typeparam name="T">Tipo da classe</typeparam>
+        ''' <typeparam name="TKey">Tipo da propriedade</typeparam>
+        ''' <param name="items">     Lista</param>
+        ''' <param name="[property]">Propriedade</param>
+        ''' <param name="OrderBy">Criterio que indica qual o objeto que deverá ser preservado na lista se encontrado mais de um</param>
+        ''' <returns></returns>
+        <Extension()> Public Function DistinctBy(Of T, TKey, TOrder)(ByVal Items As IEnumerable(Of T), ByVal [Property] As Func(Of T, TKey), OrderBy As Func(Of T, TOrder), Optional Descending As Boolean = False) As IEnumerable(Of T)
+            Return Items.GroupBy([Property]).Select(Function(x) If(Descending, x.OrderByDescending(OrderBy), x.OrderBy(OrderBy)).FirstOrDefault())
+        End Function
+
         ''' <summary>
         ''' Distingui os items de uma lista a partir de uma propriedade da classe
         ''' </summary>
@@ -120,7 +135,7 @@ Namespace LINQ
         ''' <param name="[property]">Propriedade</param>
         ''' <returns></returns>
         <Extension()> Public Function DistinctBy(Of T, TKey)(ByVal Items As IEnumerable(Of T), ByVal [Property] As Func(Of T, TKey)) As IEnumerable(Of T)
-            Return Items.GroupBy([Property]).[Select](Function(x) x.First())
+            Return Items.GroupBy([Property]).Select(Function(x) x.FirstOrDefault())
         End Function
 
         ''' <summary>

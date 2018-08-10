@@ -6,6 +6,17 @@ Imports InnerLibs.LINQ
 
 Public Module Converter
 
+
+    ''' <summary>
+    ''' Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
+    ''' <returns></returns>
+    <Extension()> Function DefineEmptyList(Of T)(ObjectForDefinition As T) As List(Of T)
+        Return New List(Of T)
+    End Function
+
     ''' <summary>
     ''' Unidades de medida de yocto a quintilhão
     ''' </summary>

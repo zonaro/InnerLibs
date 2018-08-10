@@ -242,7 +242,7 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Corta um numero decimal com a quntdade de casas especiicadas
+    ''' Corta um numero decimal com a quantidade de casas especiicadas
     ''' </summary>
     ''' <param name="Value"> Numero</param>
     ''' <param name="Places">Numero de casas apos a virgula</param>

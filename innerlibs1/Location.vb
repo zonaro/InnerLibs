@@ -1,6 +1,7 @@
 ﻿Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Xml
+
 ''' <summary>
 ''' Representa um deteminado local com suas Informações
 ''' </summary>
@@ -31,10 +32,12 @@ Public Class Location
     ''' </summary>
     ''' <param name="Latitude"></param>
     ''' <param name="Longitude"></param>
-    Public Sub New(Latitude As String, Longitude As String)
+    Public Sub New(Latitude As String, Longitude As String, Optional Search As Boolean = True)
         Me.Latitude = Latitude
         Me.Longitude = Longitude
-        Me.SearchOnGoogleMaps(Me.LatitudeLongitude, False)
+        If Search Then
+            Me.SearchOnGoogleMaps(Me.LatitudeLongitude, False)
+        End If
     End Sub
 
     ''' <summary>
@@ -134,8 +137,9 @@ Public Class Location
     ''' Retorna o endereço completo (logradouro)
     ''' </summary>
     ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
-    ReadOnly Property FullAddress() As String
+    ReadOnly Property FullAddress As String
         Get
+            ParseType()
             Dim retorno As String = Me.AddressType & " " & Address
             If Number.IsNotBlank Then retorno.Append(", " & Number)
             If Complement.IsNotBlank Then retorno.Append(", " & Complement)
@@ -152,53 +156,54 @@ Public Class Location
     End Property
 
     Private Sub ParseType()
-        Dim pal = Me.Address.Split(" ").First.ToProper
-        Select Case pal
-            Case "Aeroporto", "Ar", "Aero"
-                Me.AddressType = "Aeroporto"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Alameda", "Al", "Alm"
-                Me.AddressType = "Alameda"
-                Me.Address.RemoveFirstIf(pal)
+        If Me.Address.IsNotBlank Then
+            Dim pal = Me.Address.Split(" ").First.ToProper
+            Select Case pal
+                Case "Aeroporto", "Ar", "Aero"
+                    Me.AddressType = "Aeroporto"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Alameda", "Al", "Alm"
+                    Me.AddressType = "Alameda"
+                    Me.Address.RemoveFirstIf(pal)
 
-            Case "Area", "Área", "Ar"
-                Me.AddressType = "Área"
-                Me.Address.RemoveFirstIf(pal)
+                Case "Area", "Área", "Ar"
+                    Me.AddressType = "Área"
+                    Me.Address.RemoveFirstIf(pal)
 
-            Case "Avenida", "Av"
-                Me.AddressType = "Avenida"
-                Me.Address.RemoveFirstIf(pal)
+                Case "Avenida", "Av"
+                    Me.AddressType = "Avenida"
+                    Me.Address.RemoveFirstIf(pal)
 
-            Case "Campo", "Cmp", "Camp"
-                Me.AddressType = "Campo"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Chácara", "Chacara", "Ch", "Chac", "Chr"
-                Me.AddressType = "Chácara"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Colônia", "Col"
-                Me.AddressType = "Colônia"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Condomínio", "Cond"
-                Me.AddressType = "Condomínio"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Conjunto", "Conj"
-                Me.AddressType = "Conjunto"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Distrito", "Dist", "Ds", "Dst"
-                Me.AddressType = "Distrito"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Esplanada", "Esp"
-                Me.AddressType = "Esplanada"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Estação",
+                Case "Campo", "Cmp", "Camp"
+                    Me.AddressType = "Campo"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Chácara", "Chacara", "Ch", "Chac", "Chr"
+                    Me.AddressType = "Chácara"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Colônia", "Col"
+                    Me.AddressType = "Colônia"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Condomínio", "Cond"
+                    Me.AddressType = "Condomínio"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Conjunto", "Conj"
+                    Me.AddressType = "Conjunto"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Distrito", "Dist", "Ds", "Dst"
+                    Me.AddressType = "Distrito"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Esplanada", "Esp"
+                    Me.AddressType = "Esplanada"
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Estação",
                 Me.AddressType = "Estação"
-                Me.Address.RemoveFirstIf(pal)
-            Case "Estrada", "Est"
-                Me.AddressType = "Estrada"
-                Me.Address.RemoveFirstIf(pal)
-            Case Else
-
-        End Select
+                    Me.Address.RemoveFirstIf(pal)
+                Case "Estrada", "Est"
+                    Me.AddressType = "Estrada"
+                    Me.Address.RemoveFirstIf(pal)
+                Case Else
+            End Select
+        End If
     End Sub
 
 
