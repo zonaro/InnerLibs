@@ -146,12 +146,31 @@ Namespace TimeMachine
 
     Public Class Fortnight
 
-        Friend Sub New(Key As String, Range As DateRange)
-            Me.Key = Key
-            Me.Period = Range
+
+        Sub New(Optional AnyDate As Date? = Nothing)
+            AnyDate = If(AnyDate, Now)
+            AnyDate = New Date(AnyDate.Value.Year, AnyDate.Value.Month, If(AnyDate.Value.Day > 15, 16, 1), AnyDate.Value.Hour, AnyDate.Value.Minute, AnyDate.Value.Second, AnyDate.Value.Millisecond, AnyDate.Value.Kind)
+            Dim EndDate = AnyDate
+            EndDate = EndDate.Value.AddDays(1)
+            If EndDate.Value.Day <= 15 Then
+                EndDate = New Date(EndDate.Value.Year, EndDate.Value.Month, 15, EndDate.Value.Hour, EndDate.Value.Minute, EndDate.Value.Second, EndDate.Value.Millisecond, EndDate.Value.Kind)
+            Else
+                EndDate = EndDate.Value.GetLastDayOfMonth
+            End If
+            Me.Period = New DateRange(AnyDate, EndDate)
         End Sub
 
         Public ReadOnly Property Key As String
+            Get
+                If Me.Period.EndDate.Day <= 15 Then
+                    Return Me.Period.EndDate.ToString("\1@MM-yyyy")
+                Else
+                    Return Me.Period.EndDate.ToString("\2@MM-yyyy")
+                End If
+            End Get
+        End Property
+
+
         Public ReadOnly Property Period As DateRange
         Public ReadOnly Property Number As Integer
             Get
@@ -265,23 +284,10 @@ Namespace TimeMachine
         ''' <param name="FortnightCount"></param>
         Private Shared Function GerarLista(Optional StartDate As DateTime = Nothing, Optional FortnightCount As Integer = 1) As List(Of Fortnight)
             Dim l = New List(Of Fortnight)
-            StartDate = If(IsNothing(StartDate), Now, StartDate)
-            StartDate = New Date(StartDate.Year, StartDate.Month, If(StartDate.Day > 15, 16, 1), StartDate.Hour, StartDate.Minute, StartDate.Second, StartDate.Millisecond, StartDate.Kind)
-
-            Dim EndDate = StartDate
-
+            l.Add(New Fortnight(StartDate))
             For index = 1 To FortnightCount.SetMinValue(1)
-                Dim q As String
-                EndDate = EndDate.AddDays(1)
-                If EndDate.Day <= 15 Then
-                    EndDate = New Date(EndDate.Year, EndDate.Month, 15, EndDate.Hour, EndDate.Minute, EndDate.Second, EndDate.Millisecond, EndDate.Kind)
-                    q = New Date(EndDate.Year, EndDate.Month, 1).ToString("d@MM-yyyy")
-                Else
-                    EndDate = EndDate.GetLastDayOfMonth
-                    q = New Date(EndDate.Year, EndDate.Month, 2).ToString("d@MM-yyyy")
-                End If
-                l.Add(New Fortnight(q, New DateRange(StartDate, EndDate)))
-                StartDate = EndDate.AddDays(1)
+                StartDate = l.Last.Period.EndDate.AddDays(1)
+                l.Add(New Fortnight(StartDate))
             Next
             Return l
         End Function
@@ -314,8 +320,7 @@ Namespace TimeMachine
         ''' <summary>
         ''' Cria um grupo de quinzenas entre 2 datas
         ''' </summary>
-        ''' <param name="StartDate"></param>
-        ''' <param name="EndDate"></param>
+        '''<param name="Range">Periodo</param>
         ''' <returns></returns>
         Public Shared Function CreateFromDateRange(Range As DateRange) As FortnightGroup
             Return CreateFromDateRange(Range.StartDate, Range.EndDate)
