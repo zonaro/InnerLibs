@@ -3349,6 +3349,13 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.ColorConvert.GenerateColor(System.String)">
+ <summary>
+ Gera uma cor de acordo com um texto
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ColorConvert.GetNegativeColor(System.Drawing.Color)">
  <summary>
  Retorna  a cor negativa de uma cor

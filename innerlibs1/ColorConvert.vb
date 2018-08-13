@@ -1,10 +1,23 @@
 ﻿Imports System.Drawing
 Imports System.Runtime.CompilerServices
+Imports System.Security.Cryptography
+Imports System.Text
 ''' <summary>
 ''' Modulo de Conversão de Cores
 ''' </summary>
 ''' <remarks></remarks>
 Public Module ColorConvert
+
+
+    ''' <summary>
+    ''' Gera uma cor de acordo com um texto
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GenerateColor(Text As String) As Color
+        Dim hash = MD5.Create.ComputeHash(Encoding.UTF8.GetBytes(Text))
+        Return Color.FromArgb(hash(0), hash(1), hash(2))
+    End Function
 
     ''' <summary>
     ''' Retorna  a cor negativa de uma cor

@@ -3163,6 +3163,19 @@ references:
   commentId: T:InnerLibs.ColorConvert
   fullName: InnerLibs.ColorConvert
   nameWithType: ColorConvert
+- uid: InnerLibs.ColorConvert.GenerateColor(System.String)
+  name: GenerateColor(String)
+  href: api/InnerLibs.ColorConvert.html#InnerLibs_ColorConvert_GenerateColor_System_String_
+  commentId: M:InnerLibs.ColorConvert.GenerateColor(System.String)
+  fullName: InnerLibs.ColorConvert.GenerateColor(System.String)
+  nameWithType: ColorConvert.GenerateColor(String)
+- uid: InnerLibs.ColorConvert.GenerateColor*
+  name: GenerateColor
+  href: api/InnerLibs.ColorConvert.html#InnerLibs_ColorConvert_GenerateColor_
+  commentId: Overload:InnerLibs.ColorConvert.GenerateColor
+  isSpec: "True"
+  fullName: InnerLibs.ColorConvert.GenerateColor
+  nameWithType: ColorConvert.GenerateColor
 - uid: InnerLibs.ColorConvert.GetContrastColor(System.Drawing.Color,System.Single)
   name: GetContrastColor(Color, Single)
   href: api/InnerLibs.ColorConvert.html#InnerLibs_ColorConvert_GetContrastColor_System_Drawing_Color_System_Single_
