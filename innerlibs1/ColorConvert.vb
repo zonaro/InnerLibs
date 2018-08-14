@@ -14,9 +14,10 @@ Public Module ColorConvert
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GenerateColor(Text As String) As Color
-        Dim hash = MD5.Create.ComputeHash(Encoding.UTF8.GetBytes(Text))
-        Return Color.FromArgb(hash(0), hash(1), hash(2))
+    <Extension()> Public Function GenerateColor(Text As String, Optional Seed As Integer = 0) As Color
+        Dim ba = Encoding.Default.GetBytes(Text)
+        Dim hash = BitConverter.ToString(ba).RemoveAny("-")
+        Return hash.Substring(Seed.SetMaxValue(hash.Length - 6), 6).ToColor()
     End Function
 
     ''' <summary>

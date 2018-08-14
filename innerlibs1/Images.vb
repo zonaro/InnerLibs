@@ -558,6 +558,15 @@ Public Module Images
     End Function
 
 
+    ''' <summary>
+    ''' Retorna uma lista com as 10 cores mais utilizadas na imagem
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <returns>uma lista de Color</returns>
+    <Extension>
+    Public Function GetMostUsedColors(Image As Image, Optional Count As Integer = 10) As List(Of Color)
+        Return New Bitmap(Image).GetMostUsedColors
+    End Function
 
     ''' <summary>
     ''' Retorna uma lista com as 10 cores mais utilizadas na imagem

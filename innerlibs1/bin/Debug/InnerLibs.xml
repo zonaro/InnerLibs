@@ -3349,7 +3349,7 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:InnerLibs.ColorConvert.GenerateColor(System.String)">
+<member name="M:InnerLibs.ColorConvert.GenerateColor(System.String,System.Int32)">
  <summary>
  Gera uma cor de acordo com um texto
  </summary>
@@ -6925,6 +6925,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="Images">Array de Imagens para combinar</param>
  <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
  <returns>Um Bitmap com a combinaçao de todas as imagens do Array</returns>
+</member>
+<member name="M:InnerLibs.Images.GetMostUsedColors(System.Drawing.Image,System.Int32)">
+ <summary>
+ Retorna uma lista com as 10 cores mais utilizadas na imagem
+ </summary>
+ <param name="Image">Imagem</param>
+ <returns>uma lista de Color</returns>
 </member>
 <member name="M:InnerLibs.Images.GetMostUsedColors(System.Drawing.Bitmap,System.Int32)">
  <summary>
