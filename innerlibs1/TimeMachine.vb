@@ -200,21 +200,21 @@ Namespace TimeMachine
         '''<remarks>
         '''<list type="number">
         '''<listheader>
-        ''' <term> Marcação</term>  
-        ''' <description> Descrição</description>  
+        ''' <term> Marcação </term>  
+        ''' <description> Descrição </description>  
         ''' </listheader>  
-        '''<item><term>{f} ou {q}</term><description>Retorna o numero da quinzena com 1 digito. EX.: "1", "2"</description></item>
-        '''<item><term>{ff} ou {qq}</term><description>Retorna o numero da quinzena com 2 digitos. EX.: "01", "02"</description></item>
-        '''<item><term>{o}</term><description>Retorna sufixo ordinal da quinzena atual. EX.: "st", "nd", "rd", "th"</description></item>
-        '''<item><term>{s}</term><description>Retorna o numero do primeiro dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
-        '''<item><term>{ss}</term><description>Retorna o numero do primeiro dia da quinzena com 2 digitos. EX.: "01", "02","30","31"</description></item>
-        '''<item><term>{e} ou {ee}</term><description>Retorna o numero do ultimo dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
-        '''<item><term>{m}</term><description>Retorna o numero do mês da quinzena com 1 digito. EX.: "1", "2","11","12"</description></item>
-        '''<item><term>{mm}</term><description>Retorna o numero do mês da quinzena com 2 digitos. EX.: "01", "02","11","12"</description></item>
-        '''<item><term>{mmm}</term><description>Retorna o nome do mês da quinzena abreviado. EX.: "Jan", "Fev","Nov","Dez"</description></item>
-        '''<item><term>{mmmm}</term><description>Retorna o nome do mês da quinzena. EX.: "Janeiro", "Fevereiro","Novembro","Dezembro"</description></item>
-        '''<item><term>{y} ou {yy} ou {a} ou {aa}</term><description>Retorna os 2 ultimos números do ano da quinzena. EX.: "18", "19","20"</description></item>
-        '''<item><term>{yyy} ou {yyyy} ou {aaa} ou {aaaa}</term><description>Retorna o número do ano da quinzena. EX.: "2018", "2019","2020"</description></item>
+        '''<item><term>{f} ou {q}</term><description> Retorna o numero da quinzena com 1 digito. EX.: "1", "2"</description></item>
+        '''<item><term>{ff} ou {qq}</term><description> Retorna o numero da quinzena com 2 digitos. EX.: "01", "02"</description></item>
+        '''<item><term>{o}</term><description> Retorna sufixo ordinal da quinzena atual. EX.: "st", "nd", "rd", "th"</description></item>
+        '''<item><term>{s}</term><description> Retorna o numero do primeiro dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
+        '''<item><term>{ss}</term><description> Retorna o numero do primeiro dia da quinzena com 2 digitos. EX.: "01", "02","30","31"</description></item>
+        '''<item><term>{e} ou {ee}</term><description> Retorna o numero do ultimo dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
+        '''<item><term>{m}</term><description> Retorna o numero do mês da quinzena com 1 digito. EX.: "1", "2","11","12"</description></item>
+        '''<item><term>{mm}</term><description> Retorna o numero do mês da quinzena com 2 digitos. EX.: "01", "02","11","12"</description></item>
+        '''<item><term>{mmm}</term><description> Retorna o nome do mês da quinzena abreviado. EX.: "Jan", "Fev","Nov","Dez"</description></item>
+        '''<item><term>{mmmm}</term><description> Retorna o nome do mês da quinzena. EX.: "Janeiro", "Fevereiro","Novembro","Dezembro"</description></item>
+        '''<item><term>{y} ou {yy} ou {a} ou {aa}</term><description> Retorna os 2 ultimos números do ano da quinzena. EX.: "18", "19","20"</description></item>
+        '''<item><term>{yyy} ou {yyyy} ou {aaa} ou {aaaa}</term><description> Retorna o número do ano da quinzena. EX.: "2018", "2019","2020"</description></item>
         '''</list>
         '''</remarks>
         '''<returns>Uma string no formato especificado</returns>
@@ -338,7 +338,7 @@ Namespace TimeMachine
         Private Shared Function GerarLista(Optional StartDate As DateTime = Nothing, Optional FortnightCount As Integer = 1) As List(Of Fortnight)
             Dim l = New List(Of Fortnight)
             l.Add(New Fortnight(StartDate))
-            For index = 1 To FortnightCount.SetMinValue(1)
+            For index = 2 To FortnightCount.SetMinValue(1)
                 StartDate = l.Last.Period.EndDate.AddDays(1)
                 l.Add(New Fortnight(StartDate))
             Next

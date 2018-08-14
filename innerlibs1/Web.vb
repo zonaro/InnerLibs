@@ -194,7 +194,9 @@ Public Module Web
     <Extension()> Public Function AsEnumerable(Files As HttpFileCollection) As IEnumerable(Of HttpPostedFile)
         Dim l As New List(Of HttpPostedFile)
         For index = 0 To Files.Count - 1
-            l.Add(CType(Files(index), HttpPostedFile))
+            If Files(index).ContentLength > 0 Then
+                l.Add(CType(Files(index), HttpPostedFile))
+            End If
         Next
         Return l.AsEnumerable
     End Function
