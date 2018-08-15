@@ -211,7 +211,7 @@ Public Module Mathematic
     ''' <summary>
     ''' Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
     ''' </summary>
-    <Extension()> Function CalculatePercent(Of Tobject As Structure, Tvalue As Structure)(Obj As IEnumerable(Of Tobject)) As Dictionary(Of Tobject, Decimal)
+    <Extension()> Function CalculatePercent(Of TValue As Structure)(Obj As IEnumerable(Of TValue)) As Dictionary(Of TValue, Decimal)
         Return Obj.CalculatePercent(Function(x) x, Function(x) x)
     End Function
 
@@ -368,13 +368,18 @@ Public Module Mathematic
     <Extension()>
     Public Function LimitRange(Of Type As IConvertible)(ByVal Number As Type, Optional MinValue As Object = Nothing, Optional MaxValue As Object = Nothing) As Type
 
-        If Not IsNothing(MaxValue) Then
-            Number = If(Number < MaxValue, Number, MaxValue)
+        If If(MinValue, 0) = If(MaxValue, 0) Then
+            Return MinValue
+        Else
+            If Not IsNothing(MaxValue) Then
+                Number = If(Number < MaxValue, Number, MaxValue)
+            End If
+
+            If Not IsNothing(MinValue) Then
+                Number = If(Number > MinValue, Number, MinValue)
+            End If
         End If
 
-        If Not IsNothing(MinValue) Then
-            Number = If(Number > MinValue, Number, MinValue)
-        End If
         Return Number
     End Function
 
@@ -392,9 +397,9 @@ Public Module Mathematic
     ''' <param name="Number">      Numero</param>
     ''' <param name="MiddleNumber">Numero Médio</param>
     ''' <returns></returns>
-    <Extension()> Public Function Round(Number As Decimal, Optional MiddleNumber As Integer = 5) As Integer
+    <Extension()> Public Function Round(Number As Decimal, Optional MiddleNumber As Integer = 5, Optional Culture As CultureInfo = Nothing) As Integer
         MiddleNumber.LimitRange(1, 10)
-        Dim split = Number.ToString.Replace(".", ",").Split(",")
+        Dim split = Number.ToString.Split(If(Culture, CultureInfo.CurrentCulture).NumberFormat.NumberDecimalSeparator)
         If split(1).GetFirstChars(1).ChangeType(Of Integer) > MiddleNumber Then
             Return Number.Ceil
         Else

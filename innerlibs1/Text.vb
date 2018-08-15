@@ -14,6 +14,8 @@ Imports InnerLibs.HtmlParser
 ''' <remarks></remarks>
 Public Module Text
 
+
+
     '''<summary>
     ''' Computa a distancia de Levenshtein entre 2 strings.
     ''' </summary>
@@ -640,6 +642,30 @@ Public Module Text
     Public Function GetDomain(URL As String, Optional RemoveFirstSubdomain As Boolean = False) As String
         Return New Uri(URL).GetDomain(RemoveFirstSubdomain)
     End Function
+
+
+    ''' <summary>
+    ''' Retorna N caracteres de uma string a partir do caractere encontrado no centro
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Length"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetMiddleChars(ByVal Text As String, Length As Integer) As String
+        Text = Text.IfBlank("")
+        If Text.Length >= Length Then
+            If Text.Length Mod 2 <> 0 Then
+                Try
+                    Return Text.Substring(Text.Length / 2 - 1, Length)
+                Catch ex As Exception
+                    Return Text.GetMiddleChars(Length - 1)
+                End Try
+            Else
+                Return Text.RemoveLastChars(1).GetMiddleChars(Length)
+            End If
+        End If
+        Return Text
+    End Function
+
 
     <Extension()>
     Public Function GetFirstChars(Text As String, Optional Number As Integer = 1) As String

@@ -14,10 +14,10 @@ Public Module ColorConvert
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GenerateColor(Text As String, Optional Seed As Integer = 0) As Color
+    <Extension()> Public Function GenerateColor(Text As String) As Color
         Dim ba = Encoding.Default.GetBytes(Text)
         Dim hash = BitConverter.ToString(ba).RemoveAny("-")
-        Return hash.Substring(Seed.SetMaxValue(hash.Length - 6), 6).ToColor()
+        Return hash.GetMiddleChars(6).ToColor()
     End Function
 
     ''' <summary>

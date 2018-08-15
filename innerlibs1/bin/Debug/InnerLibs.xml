@@ -3349,7 +3349,7 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:InnerLibs.ColorConvert.GenerateColor(System.String,System.Int32)">
+<member name="M:InnerLibs.ColorConvert.GenerateColor(System.String)">
  <summary>
  Gera uma cor de acordo com um texto
  </summary>
@@ -7377,7 +7377,7 @@ Verifica se o objeto é do tipo numérico.
  Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
  </summary>
 </member>
-<member name="M:InnerLibs.Mathematic.CalculatePercent``2(System.Collections.Generic.IEnumerable{``0})">
+<member name="M:InnerLibs.Mathematic.CalculatePercent``1(System.Collections.Generic.IEnumerable{``0})">
  <summary>
  Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
  </summary>
@@ -7468,7 +7468,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="MaxValue">Valor máximo para o numero</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Mathematic.Round(System.Decimal,System.Int32)">
+<member name="M:InnerLibs.Mathematic.Round(System.Decimal,System.Int32,System.Globalization.CultureInfo)">
  <summary>
  Arredonda um numero para baixo ou para cima de acordo com outro numero
  </summary>
@@ -8671,6 +8671,14 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <param name="URL">URL</param>
  <returns>nome do dominio</returns>
+</member>
+<member name="M:InnerLibs.Text.GetMiddleChars(System.String,System.Int32)">
+ <summary>
+ Retorna N caracteres de uma string a partir do caractere encontrado no centro
+ </summary>
+ <param name="Text"></param>
+ <param name="Length"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.GetKeyWords(System.String,System.Int32,System.Int32,System.Int32,System.Boolean,System.String[],System.String[])">
  <summary>

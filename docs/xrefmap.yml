@@ -11560,6 +11560,19 @@ references:
   isSpec: "True"
   fullName: InnerLibs.HtmlParser.CssProperties.Set
   nameWithType: CssProperties.Set
+- uid: InnerLibs.HtmlParser.CssProperties.SetColor(System.Drawing.Color)
+  name: SetColor(Color)
+  href: api/InnerLibs.HtmlParser.CssProperties.html#InnerLibs_HtmlParser_CssProperties_SetColor_System_Drawing_Color_
+  commentId: M:InnerLibs.HtmlParser.CssProperties.SetColor(System.Drawing.Color)
+  fullName: InnerLibs.HtmlParser.CssProperties.SetColor(System.Drawing.Color)
+  nameWithType: CssProperties.SetColor(Color)
+- uid: InnerLibs.HtmlParser.CssProperties.SetColor*
+  name: SetColor
+  href: api/InnerLibs.HtmlParser.CssProperties.html#InnerLibs_HtmlParser_CssProperties_SetColor_
+  commentId: Overload:InnerLibs.HtmlParser.CssProperties.SetColor
+  isSpec: "True"
+  fullName: InnerLibs.HtmlParser.CssProperties.SetColor
+  nameWithType: CssProperties.SetColor
 - uid: InnerLibs.HtmlParser.CssProperties.tab_size
   name: tab_size
   href: api/InnerLibs.HtmlParser.CssProperties.html#InnerLibs_HtmlParser_CssProperties_tab_size
@@ -20517,6 +20530,12 @@ references:
   commentId: M:InnerLibs.Images.GetMostUsedColors(System.Drawing.Bitmap,System.Int32)
   fullName: InnerLibs.Images.GetMostUsedColors(System.Drawing.Bitmap, System.Int32)
   nameWithType: Images.GetMostUsedColors(Bitmap, Int32)
+- uid: InnerLibs.Images.GetMostUsedColors(System.Drawing.Image,System.Int32)
+  name: GetMostUsedColors(Image, Int32)
+  href: api/InnerLibs.Images.html#InnerLibs_Images_GetMostUsedColors_System_Drawing_Image_System_Int32_
+  commentId: M:InnerLibs.Images.GetMostUsedColors(System.Drawing.Image,System.Int32)
+  fullName: InnerLibs.Images.GetMostUsedColors(System.Drawing.Image, System.Int32)
+  nameWithType: Images.GetMostUsedColors(Image, Int32)
 - uid: InnerLibs.Images.GetMostUsedColors*
   name: GetMostUsedColors
   href: api/InnerLibs.Images.html#InnerLibs_Images_GetMostUsedColors_
@@ -21960,6 +21979,15 @@ references:
   isSpec: "True"
   fullName: InnerLibs.Mathematic.CalculatePercent
   nameWithType: Mathematic.CalculatePercent
+- uid: InnerLibs.Mathematic.CalculatePercent``1(System.Collections.Generic.IEnumerable{``0})
+  name: CalculatePercent<TValue>(IEnumerable<TValue>)
+  href: api/InnerLibs.Mathematic.html#InnerLibs_Mathematic_CalculatePercent__1_System_Collections_Generic_IEnumerable___0__
+  commentId: M:InnerLibs.Mathematic.CalculatePercent``1(System.Collections.Generic.IEnumerable{``0})
+  name.vb: CalculatePercent(Of TValue)(IEnumerable(Of TValue))
+  fullName: InnerLibs.Mathematic.CalculatePercent<TValue>(System.Collections.Generic.IEnumerable<TValue>)
+  fullName.vb: InnerLibs.Mathematic.CalculatePercent(Of TValue)(System.Collections.Generic.IEnumerable(Of TValue))
+  nameWithType: Mathematic.CalculatePercent<TValue>(IEnumerable<TValue>)
+  nameWithType.vb: Mathematic.CalculatePercent(Of TValue)(IEnumerable(Of TValue))
 - uid: InnerLibs.Mathematic.CalculatePercent``2(System.Collections.Generic.Dictionary{``0,``1})
   name: CalculatePercent<TKey, TValue>(Dictionary<TKey, TValue>)
   href: api/InnerLibs.Mathematic.html#InnerLibs_Mathematic_CalculatePercent__2_System_Collections_Generic_Dictionary___0___1__
@@ -21969,15 +21997,6 @@ references:
   fullName.vb: InnerLibs.Mathematic.CalculatePercent(Of TKey, TValue)(System.Collections.Generic.Dictionary(Of TKey, TValue))
   nameWithType: Mathematic.CalculatePercent<TKey, TValue>(Dictionary<TKey, TValue>)
   nameWithType.vb: Mathematic.CalculatePercent(Of TKey, TValue)(Dictionary(Of TKey, TValue))
-- uid: InnerLibs.Mathematic.CalculatePercent``2(System.Collections.Generic.IEnumerable{``0})
-  name: CalculatePercent<Tobject, Tvalue>(IEnumerable<Tobject>)
-  href: api/InnerLibs.Mathematic.html#InnerLibs_Mathematic_CalculatePercent__2_System_Collections_Generic_IEnumerable___0__
-  commentId: M:InnerLibs.Mathematic.CalculatePercent``2(System.Collections.Generic.IEnumerable{``0})
-  name.vb: CalculatePercent(Of Tobject, Tvalue)(IEnumerable(Of Tobject))
-  fullName: InnerLibs.Mathematic.CalculatePercent<Tobject, Tvalue>(System.Collections.Generic.IEnumerable<Tobject>)
-  fullName.vb: InnerLibs.Mathematic.CalculatePercent(Of Tobject, Tvalue)(System.Collections.Generic.IEnumerable(Of Tobject))
-  nameWithType: Mathematic.CalculatePercent<Tobject, Tvalue>(IEnumerable<Tobject>)
-  nameWithType.vb: Mathematic.CalculatePercent(Of Tobject, Tvalue)(IEnumerable(Of Tobject))
 - uid: InnerLibs.Mathematic.CalculatePercent``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})
   name: CalculatePercent<Tobject, Tvalue>(IEnumerable<Tobject>, Func<Tobject, Tvalue>)
   href: api/InnerLibs.Mathematic.html#InnerLibs_Mathematic_CalculatePercent__2_System_Collections_Generic_IEnumerable___0__System_Func___0___1__
@@ -22213,12 +22232,12 @@ references:
   commentId: M:InnerLibs.Mathematic.Round(System.Decimal)
   fullName: InnerLibs.Mathematic.Round(System.Decimal)
   nameWithType: Mathematic.Round(Decimal)
-- uid: InnerLibs.Mathematic.Round(System.Decimal,System.Int32)
-  name: Round(Decimal, Int32)
-  href: api/InnerLibs.Mathematic.html#InnerLibs_Mathematic_Round_System_Decimal_System_Int32_
-  commentId: M:InnerLibs.Mathematic.Round(System.Decimal,System.Int32)
-  fullName: InnerLibs.Mathematic.Round(System.Decimal, System.Int32)
-  nameWithType: Mathematic.Round(Decimal, Int32)
+- uid: InnerLibs.Mathematic.Round(System.Decimal,System.Int32,System.Globalization.CultureInfo)
+  name: Round(Decimal, Int32, CultureInfo)
+  href: api/InnerLibs.Mathematic.html#InnerLibs_Mathematic_Round_System_Decimal_System_Int32_System_Globalization_CultureInfo_
+  commentId: M:InnerLibs.Mathematic.Round(System.Decimal,System.Int32,System.Globalization.CultureInfo)
+  fullName: InnerLibs.Mathematic.Round(System.Decimal, System.Int32, System.Globalization.CultureInfo)
+  nameWithType: Mathematic.Round(Decimal, Int32, CultureInfo)
 - uid: InnerLibs.Mathematic.Round*
   name: Round
   href: api/InnerLibs.Mathematic.html#InnerLibs_Mathematic_Round_
@@ -29305,6 +29324,19 @@ references:
   isSpec: "True"
   fullName: InnerLibs.Text.GetLastChars
   nameWithType: Text.GetLastChars
+- uid: InnerLibs.Text.GetMiddleChars(System.String,System.Int32)
+  name: GetMiddleChars(String, Int32)
+  href: api/InnerLibs.Text.html#InnerLibs_Text_GetMiddleChars_System_String_System_Int32_
+  commentId: M:InnerLibs.Text.GetMiddleChars(System.String,System.Int32)
+  fullName: InnerLibs.Text.GetMiddleChars(System.String, System.Int32)
+  nameWithType: Text.GetMiddleChars(String, Int32)
+- uid: InnerLibs.Text.GetMiddleChars*
+  name: GetMiddleChars
+  href: api/InnerLibs.Text.html#InnerLibs_Text_GetMiddleChars_
+  commentId: Overload:InnerLibs.Text.GetMiddleChars
+  isSpec: "True"
+  fullName: InnerLibs.Text.GetMiddleChars
+  nameWithType: Text.GetMiddleChars
 - uid: InnerLibs.Text.GetOppositeWrapChar(System.String)
   name: GetOppositeWrapChar(String)
   href: api/InnerLibs.Text.html#InnerLibs_Text_GetOppositeWrapChar_System_String_

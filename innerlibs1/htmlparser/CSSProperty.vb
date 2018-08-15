@@ -191,7 +191,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation As String
             Get
                 Return Me.Item("animation")
@@ -201,7 +201,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_delay As String
             Get
                 Return Me.Item("animation-delay")
@@ -211,7 +211,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_direction As String
             Get
                 Return Me.Item("animation-direction")
@@ -221,7 +221,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_duration As String
             Get
                 Return Me.Item("animation-duration")
@@ -231,7 +231,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_fill_mode As String
             Get
                 Return Me.Item("animation-fill-mode")
@@ -241,7 +241,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_iteration_count As String
             Get
                 Return Me.Item("animation-iteration-count")
@@ -251,7 +251,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_name As String
             Get
                 Return Me.Item("animation-name")
@@ -261,7 +261,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_play_state As String
             Get
                 Return Me.Item("animation-play-state")
@@ -271,7 +271,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Animation"), Description()>
         Public Property animation_timing_function As String
             Get
                 Return Me.Item("animation-timing-function")
@@ -281,7 +281,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Visiblility"), Description()>
         Public Property backface_visibility As String
             Get
                 Return Me.Item("backface-visibility")
@@ -291,7 +291,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Appearance"), Description()>
         Public Property background As String
             Get
                 Return Me.Item("background")
@@ -301,7 +301,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Appearance"), Description()>
         Public Property background_attachment As String
             Get
                 Return Me.Item("background-attachment")
@@ -311,7 +311,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Appearance"), Description()>
         Public Property background_clip As String
             Get
                 Return Me.Item("background-clip")
@@ -321,7 +321,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Appearance"), Description()>
         Public Property background_color As String
             Get
                 Return Me.Item("background-color")
@@ -331,7 +331,11 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        Sub SetColor(Color As Drawing.Color)
+            background_color = Color.ToHexadecimal
+        End Sub
+
+        <Category("Appearance"), Description()>
         Public Property background_image As String
             Get
                 Return Me.Item("background-image")
@@ -341,7 +345,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Appearance"), Description()>
         Public Property background_origin As String
             Get
                 Return Me.Item("background-origin")
@@ -361,7 +365,7 @@ Namespace HtmlParser
             End Set
         End Property
 
-        <Category("Alignment"), Description()>
+        <Category("Appearance"), Description()>
         Public Property background_repeat As String
             Get
                 Return Me.Item("background-repeat")
