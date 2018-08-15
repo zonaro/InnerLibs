@@ -268,7 +268,7 @@ Public Module ClassTools
     ''' <typeparam name="Type">TIpo de Objeto</typeparam>
     ''' <param name="Arr">colecao</param>
     ''' <returns></returns>
-    <Extension()> Public Function DistinctCount(Of Type)(Arr As IEnumerable(Of Type)) As IDictionary(Of Type, Long)
+    <Extension()> Public Function DistinctCount(Of Type)(Arr As IEnumerable(Of Type)) As Dictionary(Of Type, Long)
         Return Arr.Distinct.Select(Function(p) New KeyValuePair(Of Type, Long)(p, Arr.Where(Function(x) x.Equals(p)).LongCount)).OrderByDescending(Function(p) p.Value).ToDictionary(Function(p) p.Key, Function(p) p.Value)
     End Function
 

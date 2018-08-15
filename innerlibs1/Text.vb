@@ -408,7 +408,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="List">Lista de palavras</param>
     ''' <returns></returns>
-    Public Function DistinctCount(ParamArray List As String()) As Dictionary(Of String, Integer)
+    Public Function DistinctCount(ParamArray List As String()) As Dictionary(Of String, Long)
         Return List.ToList.DistinctCount
     End Function
 
@@ -417,7 +417,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Phrase">Lista de palavras</param>
     ''' <returns></returns>
-    <Extension()> Function DistinctCount(Phrase As String) As Dictionary(Of String, Integer)
+    <Extension()> Function DistinctCount(Phrase As String) As Dictionary(Of String, Long)
         Return Phrase.Split(" ").ToList.DistinctCount
     End Function
 
@@ -428,7 +428,7 @@ Public Module Text
     ''' <param name="Words"></param>
     ''' <returns></returns>
     <Extension()> Function EndsWithAny(Text As String, ParamArray Words As String()) As Boolean
-        Return Words.Select(Function(p) Text.EndsWith(p)).Contains(True)
+        Return Words.Any(Function(p) Text.EndsWith(p))
     End Function
 
     ''' <summary>
@@ -1739,7 +1739,7 @@ Public Module Text
     ''' <param name="Words"></param>
     ''' <returns></returns>
     <Extension()> Function StartsWithAny(Text As String, ParamArray Words As String()) As Boolean
-        Return Words.Select(Function(p) Text.StartsWith(p)).Contains(True)
+        Return Words.Any(Function(p) Text.StartsWith(p))
     End Function
 
     ''' <summary>

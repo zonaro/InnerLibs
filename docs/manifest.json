@@ -369,10 +369,10 @@
       "output": {
         ".html": {
           "relative_path": "api/InnerLibs.ClassTools.html",
-          "hash": "bRZUhmJTNqezZV521xU3RQ=="
+          "hash": "ekS0hQdTZ665mx8gUU3bQw=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -2253,7 +2253,7 @@
       "output": {
         ".html": {
           "relative_path": "api/InnerLibs.Text.html",
-          "hash": "AbfgZLE9Vli+rgEJoDJy/A=="
+          "hash": "/r90s+c2BufKKvtyMWalpA=="
         }
       },
       "is_incremental": false,
@@ -3064,11 +3064,11 @@
           "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build"
         },
-        "ManagedReferenceDocumentProcessor": {
+        "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build"
         },
-        "ConceptualDocumentProcessor": {
+        "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build"
         }

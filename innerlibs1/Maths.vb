@@ -212,7 +212,7 @@ Public Module Mathematic
     ''' Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
     ''' </summary>
     <Extension()> Function CalculatePercent(Of TValue As Structure)(Obj As IEnumerable(Of TValue)) As Dictionary(Of TValue, Decimal)
-        Return Obj.CalculatePercent(Function(x) x, Function(x) x)
+        Return Obj.DistinctCount.CalculatePercent()
     End Function
 
     ''' <summary>
