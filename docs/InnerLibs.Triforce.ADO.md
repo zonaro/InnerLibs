@@ -6,13 +6,6 @@ public class InnerLibs.Triforce.ADO.Triforce<ConnectionType>
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `ConnectionType` | Connection |  | 
-
-
 Properties
 
 | Type | Name | Summary | 

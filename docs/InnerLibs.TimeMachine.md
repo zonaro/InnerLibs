@@ -6,13 +6,6 @@ public class InnerLibs.TimeMachine.Cronometer
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Int64` | _value |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -39,7 +32,6 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `List<String>` | GetLaps(`String` Format = ) | Retorna uma lista de strings da extraidas da `InnerLibs.TimeMachine.Cronometer.Laps` em um formato  especifico de data | 
-| `void` | IncrementTick(`Object` sender, `EventArgs` e) |  | 
 | `void` | Lap() | Marca um valor no cronometro | 
 | `void` | Reset() | Limpa os valores do cronometro | 
 | `void` | Start() | Inicia o cronometro | 

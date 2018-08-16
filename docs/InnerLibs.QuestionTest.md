@@ -6,13 +6,6 @@ public class InnerLibs.QuestionTest.Alternative
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `AlternativeQuestion` | _question |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -57,7 +50,6 @@ Methods
 | --- | --- | --- | 
 | `void` | Add(`String` Text, `Boolean` Correct) | Adiciona uma alternativa a questão. A alternativa é ignorada se já existir na lista | 
 | `void` | AddRange(`IEnumerable<Alternative>` Alternatives) |  | 
-| `void` | OnCollectionChanged(`NotifyCollectionChangedEventArgs` e) |  | 
 | `String` | ToString() |  | 
 
 
@@ -149,15 +141,6 @@ public abstract class InnerLibs.QuestionTest.Question
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `QuestionStatement` | _statement |  | 
-| `QuestionTest` | _test |  | 
-| `Decimal` | _weight |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -196,14 +179,6 @@ Enunciado de uma pergunta
 public class InnerLibs.QuestionTest.QuestionStatement
 
 ```
-
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Question` | _question |  | 
-| `String` | _text |  | 
-
 
 Properties
 
@@ -260,7 +235,6 @@ Methods
 | `QuestionType` | CreateQuestion() | Adiciona uma nova questão a avaliação. | 
 | `Alternative` | GetAlternative(`String` ID) | Pega uma Alternativa de uma Questão pelo ID | 
 | `T` | GetQuestion(`String` ID) | Pega uma questão por ID | 
-| `void` | OnCollectionChanged(`NotifyCollectionChangedEventArgs` e) |  | 
 | `void` | SetMinimumAllowedAsHalf(`Decimal` Weight = 0) | Configura o valor minimo permitido para aprovação como metade do peso da avaliação | 
 | `void` | SetMinimumAllowedAsPercent(`String` Percent, `Decimal` Weight = 0) | Configura o valor minimo permitido para aprovação como n% do peso da avaliação | 
 | `String` | ToString() |  | 

@@ -490,14 +490,6 @@ Properties
 | `Color` | ProgressColor |  | 
 
 
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Object` | GetFormattedValue(`Object` value, `Int32` rowIndex, `DataGridViewCellStyle&` cellStyle, `TypeConverter` valueTypeConverter, `TypeConverter` formattedValueTypeConverter, `DataGridViewDataErrorContexts` context) |  | 
-| `void` | Paint(`Graphics` g, `Rectangle` clipBounds, `Rectangle` cellBounds, `Int32` rowIndex, `DataGridViewElementStates` cellState, `Object` value, `Object` formattedValue, `String` errorText, `DataGridViewCellStyle` cellStyle, `DataGridViewAdvancedBorderStyle` advancedBorderStyle, `DataGridViewPaintParts` paintParts) |  | 
-
-
 ## `DataGridViewProgressColumn`
 
 ```csharp
@@ -760,15 +752,6 @@ Properties
 | `String` | SourceDirectory |  | 
 
 
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `void` | LoadFiles(`Object` sender, `EventArgs` e) |  | 
-| `String` | MontarMenu() |  | 
-| `Node` | nodeadd(`FileTree` x) |  | 
-
-
 ## `DotAttributeCollection`
 
 ```csharp
@@ -889,53 +872,11 @@ public abstract class InnerLibs.EnhancedCollectionEditor
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `List<Type>` | ExcludedTypes |  | 
-
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Boolean` | AllowMultipleSelect |  | 
-| `Type` | BaseCollectionType |  | 
-| `Type` | BaseItemType |  | 
-| `String` | FormCaption |  | 
-| `String` | GetVersion |  | 
-| `NameServices` | NameService |  | 
-| `Boolean` | ShowPropGridHelp |  | 
-| `Boolean` | UsePropGridChangeEvent |  | 
-
-
 Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Boolean` | CanSelectMultipleInstances() |  | 
-| `CollectionForm` | CreateCollectionForm() |  | 
-| `Object` | CreateInstance(`Type` itemType) |  | 
-| `Type[]` | CreateNewItemTypes() |  | 
-| `void` | DisplayError(`String` msg) |  | 
 | `Object` | EditValue(`ITypeDescriptorContext` context, `IServiceProvider` provider, `Object` value) |  | 
-| `void` | Finalize() |  | 
-| `Control` | GetControlByName(`String` ctlName, `ControlCollection` ctls) |  | 
-
-
-Static Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | CTRL_addButton |  | 
-| `String` | CTRL_cancelButton |  | 
-| `String` | CTRL_downButton |  | 
-| `String` | CTRL_listbox |  | 
-| `String` | CTRL_okButton |  | 
-| `String` | CTRL_propertyBrowser |  | 
-| `String` | CTRL_removeButton |  | 
-| `String` | CTRL_upButton |  | 
 
 
 Static Methods
@@ -1044,7 +985,6 @@ Fields
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Boolean` | CaseSensitive |  | 
-| `ArrayList` | mEnvironmentFunctionsList |  | 
 | `Boolean` | RaiseVariableNotFoundException |  | 
 | `eParserSyntax` | Syntax |  | 
 
@@ -1374,14 +1314,10 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `EvalType` | GetEvalType(`Type` t) |  | 
-| `EvalType` | GetObjectType(`Object` o) |  | 
-| `Type` | GetSystemType(`EvalType` t) |  | 
 | `Boolean` | TBool(`iEvalTypedValue` o) |  | 
 | `DateTime` | TDate(`iEvalTypedValue` o) |  | 
 | `Double` | TNum(`iEvalTypedValue` o) |  | 
 | `String` | TStr(`iEvalTypedValue` o) |  | 
-| `Boolean` | varEq(`String` v1, `String` v2) |  | 
 
 
 ## `GoogleSuggestion`
@@ -1597,14 +1533,6 @@ Properties
 | `Boolean` | AllowCapacityChange | Indica se sua capacidade pode ser alterada | 
 | `Boolean` | AllowRemoveItem | Indica se itens podem ser removidos | 
 | `Int32` | Capacity | Capacidade maxima da lista | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `void` | InsertItem(`Int32` index, `TypeCollection` item) |  | 
-| `void` | RemoveItem(`Int32` index) |  | 
 
 
 ## `Location`
@@ -1875,7 +1803,6 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `void` | Dispose(`Boolean` disposing) |  | 
 | `void` | Show(`Int32` Seconds = 0) | Exibe ou altera a notificação | 
 
 
@@ -1937,13 +1864,6 @@ public class InnerLibs.OnlineList<UserType, IdType>
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Func<UserType, IdType>` | idgetter |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -1974,13 +1894,6 @@ public class InnerLibs.OnlineUser<UserType, IdType>
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `OnlineList<UserType, IdType>` | list |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -2010,13 +1923,6 @@ public abstract class InnerLibs.opCode
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `ValueDelegate` | mValueDelegate |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -2040,16 +1946,6 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Boolean` | CanReturn(`EvalType` type) |  | 
-| `void` | Convert(`tokenizer` tokenizer, `opCode&` param1, `EvalType` EvalType) |  | 
-| `void` | RaiseEventValueChanged(`Object` sender, `EventArgs` e) |  | 
-| `void` | SwapParams(`opCode&` Param1, `opCode&` Param2) |  | 
-
-
-Static Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `void` | ConvertToSystemType(`iEvalTypedValue&` param1, `Type` SystemType) |  | 
 
 
 ## `opCodeCallMethod`
@@ -2067,13 +1963,6 @@ Properties
 | `EvalType` | EvalType |  | 
 | `Type` | systemType |  | 
 | `Object` | value |  | 
-
-
-Static Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `opCode` | GetNew(`tokenizer` tokenizer, `Object` baseObject, `MemberInfo` method, `IList` params) |  | 
 
 
 ## `opCodeGetArrayEntry`
@@ -2751,9 +2640,6 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `void` | NextToken() |  | 
-| `void` | RaiseError(`String` msg, `Exception` ex = null) |  | 
-| `void` | RaiseUnexpectedToken(`String` msg = null) |  | 
-| `void` | RaiseWrongOperator(`eTokenType` tt, `Object` ValueLeft, `Object` valueRight, `String` msg = null) |  | 
 
 
 ## `UserChat<UserType, IdType>`
@@ -2764,19 +2650,10 @@ public class InnerLibs.UserChat<UserType, IdType>
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `FileInfo` | BackupPath |  | 
-| `OnlineList<UserType, IdType>` | list |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Timer` | BackupTimer |  | 
 | `Encoding` | Encoding |  | 
 
 
@@ -2801,13 +2678,6 @@ Methods
 public class InnerLibs.UserConversation<UserType, IdType>
 
 ```
-
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `UserChat<UserType, IdType>` | chatlist |  | 
-
 
 Properties
 

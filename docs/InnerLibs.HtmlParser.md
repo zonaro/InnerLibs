@@ -249,26 +249,9 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Boolean` | AllowTraverse |  | 
-| `Boolean` | IsSubSelector |  | 
 | `String` | Selector |  | 
 | `IList<CssSelector>` | SubSelectors |  | 
 | `String` | Token |  | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `HtmlNodeCollection` | Filter(`HtmlNodeCollection` currentNodes) |  | 
-| `HtmlNodeCollection` | FilterCore(`HtmlNodeCollection` currentNodes) |  | 
-| `String` | GetSelectorParameter(`String` selector) |  | 
-
-
-Static Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `IList<CssSelector>` | Parse(`String` cssSelector) |  | 
 
 
 ## `Emoji`
@@ -1165,14 +1148,6 @@ public class InnerLibs.HtmlParser.HtmlAttribute
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | mName |  | 
-| `String` | mValue |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -1299,17 +1274,6 @@ public class InnerLibs.HtmlParser.HtmlElement
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `HtmlAttributeCollection` | mAttributes |  | 
-| `Boolean` | mIsExplicitlyTerminated |  | 
-| `Boolean` | mIsTerminated |  | 
-| `String` | mName |  | 
-| `HtmlNodeCollection` | mNodes |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -1332,7 +1296,6 @@ Properties
 | `Boolean` | IsVisible |  | 
 | `String` | Name | This is the tag name of the element. e.g. BR, BODY, TABLE etc. | 
 | `HtmlNodeCollection` | Nodes | This is the collection of all child nodes of this one. If this node is actually a text  node, this will return nothing. | 
-| `Boolean` | NoEscaping |  | 
 | `HtmlNodeCollection` | QuerySelectorAll | Travesse element with a CSS selector an retireve nodes | 
 | `CssProperties` | Style | The CSS style of element | 
 | `String` | Title | Gets or sets the Title attribute of this element | 
@@ -1455,13 +1418,6 @@ public abstract class InnerLibs.HtmlParser.HtmlNode
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `HtmlElement` | mParent |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -1500,7 +1456,6 @@ Methods
 | `Boolean` | IsText() |  | 
 | `void` | Move(`HtmlElement` Destination, `Int32` Index = 0) | Transfer the element to another element | 
 | `void` | Remove() | This will remove this node and all child nodes from the tree. If this is a root node,  this operation will do nothing. | 
-| `void` | SetParent(`HtmlElement` parentNode) | Internal method to maintain the identity of the parent node. | 
 | `String` | ToJSON() | Return a Json representation of this element | 
 | `HtmlElement` | TopParent() | Returns the most top parent of this node, or sef if parent is null | 
 | `String` | ToString() | This will render the node as it would appear in HTML. | 
@@ -1514,13 +1469,6 @@ public class InnerLibs.HtmlParser.HtmlNodeCollection
     : List<HtmlNode>, IList<HtmlNode>, ICollection<HtmlNode>, IEnumerable<HtmlNode>, IEnumerable, IList, ICollection, IReadOnlyList<HtmlNode>, IReadOnlyCollection<HtmlNode>
 
 ```
-
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `HtmlElement` | mParent |  | 
-
 
 Properties
 
@@ -1609,20 +1557,12 @@ public class InnerLibs.HtmlParser.HtmlText
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | mText |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `String` | ElementRepresentation | This will return the text for outputting inside an HTML document. | 
 | `String` | HTML | This will return the HTML to represent this text object. | 
-| `Boolean` | NoEscaping |  | 
 | `String` | Text | This is the text associated with this node. | 
 | `String` | XHTML | This will return the XHTML to represent this text object. | 
 
@@ -1681,7 +1621,6 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Boolean` | CheckNode(`HtmlElement` node, `String` parameter) |  | 
 | `HtmlNodeCollection` | Filter(`HtmlNodeCollection` nodes, `String` parameter) |  | 
 
 

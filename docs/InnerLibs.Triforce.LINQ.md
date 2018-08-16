@@ -7,13 +7,6 @@ public class InnerLibs.Triforce.LINQ.Triforce<DataContextType>
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `DataContextType` | DataContext |  | 
-
-
 Methods
 
 | Type | Name | Summary | 
@@ -30,6 +23,5 @@ Methods
 | `TemplatePage<T>` | ApplyTemplate(`Table<T>` List, `Int32` PageNumber = 1, `Int32` PageSize = 0, `String` Template = ) | Aplica um template a uma busca determinada pelo tipo de objeto | 
 | `TemplatePage<T>` | ApplyTemplate(`IEnumerable<T>` List, `Int32` PageNumber = 1, `Int32` PageSize = 0, `String` Template = ) | Aplica um template a uma busca determinada pelo tipo de objeto | 
 | `String` | GetCommand(`String` CommandFile) | Pega o comando SQL de um arquivo ou resource | 
-| `void` | ProcessSubTemplate(`T` item, `HtmlDocument` doc) |  | 
 
 

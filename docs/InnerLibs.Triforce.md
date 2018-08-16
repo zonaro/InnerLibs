@@ -24,13 +24,6 @@ Methods
 | `String` | ToString() | Retorna o HTML da pagina atual da lista de templates | 
 
 
-Static Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `List<T>` | Criar(`TemplatePage`1[]` List, `Func`2[]` OrderSelectors) |  | 
-
-
 ## `Template<T>`
 
 Estrutura de template do Triforce
@@ -52,11 +45,6 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `void` | ProccessConditions(`HtmlDocument` doc) |  | 
-| `void` | ProccessIf(`HtmlDocument` doc) |  | 
-| `void` | ProccessRepeat(`HtmlDocument` doc) |  | 
-| `void` | ProccessSwitch(`HtmlDocument` doc) |  | 
-| `void` | QuantifyStrings(`HtmlNodeCollection` nodes) |  | 
 | `String` | ToString() |  | 
 
 
@@ -68,13 +56,6 @@ public class InnerLibs.Triforce.TemplatePage<T>
     : ReadOnlyCollection<Template<T>>, IList<Template<T>>, ICollection<Template<T>>, IEnumerable<Template<T>>, IEnumerable, IList, ICollection, IReadOnlyList<Template<T>>, IReadOnlyCollection<Template<T>>
 
 ```
-
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | _pagination |  | 
-
 
 Properties
 
@@ -150,14 +131,6 @@ public class InnerLibs.Triforce.Triforce
 
 ```
 
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `CultureInfo` | _cult |  | 
-| `Dictionary<Type, String>` | TemplateMap |  | 
-
-
 Properties
 
 | Type | Name | Summary | 
@@ -175,23 +148,14 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Template<Dictionary<Int32, Object>>` | ApplyArrayTemplate(`String` Template, `Object[]` Items) | Aplica um array de objetos em um template e retorna um Template(Of Dictionary(Of String,  Object)) do resultado | 
-| `String` | ApplySelector(`String` Name, `String` Selector) |  | 
 | `Template<T>` | ApplyTemplate(`T` Item, `String` Template = ) | Aplica um template HTML a um unico objeto | 
 | `TemplatePage<T>` | ApplyTemplate(`IEnumerable<T>` List, `Int32` PageNumber = 1, `Int32` PageSize = 0, `String` Template = ) | Aplica um template HTML a um unico objeto | 
 | `String` | ClearNotFoundValues(`String` StringToClear) | Limpa dos resultados dos templates as chaves que não foram encontradas | 
 | `String` | CreatePaginarionUrlTemplate(`String` Url, `String[]` FilterParams) | Cria um template de URL a partir de uma url base e parâmetros especificos | 
-| `TemplatePage<T>` | CreateTemplateList(`String` Template, `List<Template<T>>` l, `Int32` PageSize, `Int32` PageNumber, `Int32` Total) |  | 
 | `Uri` | CreateUrl(`T` Obj, `String` UrlTemplate) | Processa a uma string URL com marcaçoes de template e retorna uma URI | 
-| `String` | GetRegexPattern(`String` Selector) |  | 
 | `String` | GetTemplate(`Boolean` ProcessFile = False) | Retorna o nome do arquivo de template, ou o template processado se ProccessFile estiver True | 
 | `String` | GetTemplate(`Type` Type, `Boolean` ProcessFile = False) | Retorna o nome do arquivo de template, ou o template processado se ProccessFile estiver True | 
 | `String` | GetTemplateContent(`String` TemplateFile, `TemplateTag` Tag) | Retorna o conteudo estático de um arquivo de template | 
-| `String` | pegartemplate(`String` TemplateFile, `String` Tag = body) |  | 
-| `void` | ProccessGet(`HtmlDocument` doc) |  | 
-| `void` | ProcessSubTemplate(`T` item, `HtmlDocument` doc) |  | 
-| `void` | ReplaceExpressionVariables(`T` Item, `HtmlElement` extag) |  | 
-| `String` | ReplaceValues(`T` Item, `String` StringToReplace) |  | 
-| `void` | TravesseAndReplace(`HtmlNodeCollection` nodes, `T` item, `Boolean` SkipTemplates) |  | 
 
 
 ## `TriforceDateTimeFormat`
