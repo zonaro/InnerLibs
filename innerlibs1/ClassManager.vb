@@ -79,7 +79,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()>
     Public Function AsIf(Of T)(Bool As Boolean, TrueValue As T, Optional FalseValue As T = Nothing) As T
-        Return If(Bool, TrueValue, FalseValue)
+        Return Bool.Choose(Of T)(TrueValue, FalseValue)
     End Function
 
     ''' <summary>

@@ -79,7 +79,6 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AllinClient.vb" />
     <Compile Include="Alphabet.vb" />
     <Compile Include="AsxFile.vb" />
     <Compile Include="Base64.vb" />
@@ -159,18 +158,14 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="JsonViewer.vb" />
-    <Compile Include="LimitedCollection.vb" />
     <Compile Include="LinqPagination.vb" />
     <Compile Include="OnlineList.vb" />
-    <Compile Include="Reme.vb" />
     <Compile Include="TextCleaner.vb" />
     <Compile Include="Triforce\LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="oEmbed.vb" />
-    <Compile Include="RiotAPI.vb" />
     <Compile Include="Select2Data.vb" />
     <Compile Include="Serializer.vb" />
-    <Compile Include="SlackClient.vb" />
     <Compile Include="Stopwatch.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -237,7 +232,6 @@
     <EmbeddedResource Include="mimes.json" />
     <EmbeddedResource Include="brasil.json" />
     <EmbeddedResource Include="facts.json" />
-    <None Include="docfx.json" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>

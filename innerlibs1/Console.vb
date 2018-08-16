@@ -12,12 +12,12 @@ Namespace Console
         ''' </summary>
         ''' <param name="Text">Texto</param>
         ''' <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
-        Public Sub Write(Text As String, CustomColoredWords As TextValueList(Of ConsoleColor))
+        Public Sub Write(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor))
             Dim lastcolor = System.Console.ForegroundColor
             Dim substrings As String() = Text.Split(" ")
             For Each substring As String In substrings
                 For Each cw In CustomColoredWords
-                    If substring = cw.Text Then
+                    If substring = cw.Key Then
                         System.Console.ForegroundColor = cw.Value
                         Exit For
                     End If
@@ -45,7 +45,7 @@ Namespace Console
         ''' <param name="Text">Texto</param>
         ''' <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
 
-        Public Sub WriteLine(Text As String, CustomColoredWords As TextValueList(Of ConsoleColor))
+        Public Sub WriteLine(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor))
             Write(Text, CustomColoredWords)
             System.Console.WriteLine("")
         End Sub

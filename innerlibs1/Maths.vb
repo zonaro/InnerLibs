@@ -1,5 +1,6 @@
 ﻿Imports System.Globalization
 Imports System.Runtime.CompilerServices
+Imports InnerLibs.Locations
 
 ''' <summary>
 ''' Módulo para calculos

@@ -639,22 +639,7 @@ Partial Public Class DataBase
             Return h
         End Function
 
-        ''' <summary>
-        ''' Cria uma lista de pares com os Itens de um <see cref="DataBase.Reader"/>
-        ''' </summary>
-        ''' <param name="TextColumn"> Coluna que será usada como Text do item</param>
-        ''' <param name="ValueColumn">Coluna que será usada como Value do item</param>
-        ''' <returns></returns>
-        Public Function ToTextValueList(Of TValue)(TextColumn As String, Optional ValueColumn As String = "") As TextValueList(Of TValue)
-            If ValueColumn.IsBlank Then ValueColumn = TextColumn
-            Dim h As New TextValueList(Of TValue)
-            If Me.HasRows Then
-                While Me.Read()
-                    h.Add("" & Me(TextColumn), CType(Me(ValueColumn), TValue))
-                End While
-            End If
-            Return h
-        End Function
+
 
         ''' <summary>
         ''' Transforma o resultado de um <see cref="DataBase.Reader"/> em QueryString
@@ -943,18 +928,7 @@ Partial Public Class DataBase
             Return DataGridView
         End Function
 
-        ''' <summary>
-        ''' Preenche um combobox com um TextValueList criado a partir deste DataBase.Reader
-        ''' </summary>
-        ''' <typeparam name="TValue">Tipo do Valor da coluna</typeparam>
-        ''' <param name="ComboBox">   </param>
-        ''' <param name="TextColumn"> Coluna usada como Texto do ComboBox</param>
-        ''' <param name="ValueColumn">Coluna usada como Valor do ComboBox</param>
-        ''' <returns></returns>
-        Public Function FillComboBox(Of TValue)(ByRef ComboBox As ComboBox, TextColumn As String, Optional ValueColumn As String = Nothing) As ComboBox
-            ComboBox.SetPairDataSource(Of TValue)(Me.ToTextValueList(Of TValue)(TextColumn, ValueColumn))
-            Return ComboBox
-        End Function
+
 
     End Class
 

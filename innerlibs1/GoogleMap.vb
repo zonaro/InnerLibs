@@ -2,7 +2,7 @@
 Imports System.IO
 Imports System.Reflection
 
-Namespace GoogleMaps
+Namespace Locations.GoogleMaps
 
 
     Public Class Map

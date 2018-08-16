@@ -2,6 +2,7 @@
 Imports System.Net
 Imports System.Runtime.CompilerServices
 Imports System.Web
+Imports InnerLibs.Locations
 ''' <summary>
 ''' Geradores de conteudo
 ''' </summary>

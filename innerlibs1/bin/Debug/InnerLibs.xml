@@ -22,31 +22,6 @@ InnerLibs
   resource lookups using this strongly typed resource class.
 </summary>
 </member>
-<member name="P:InnerLibs.AllIn.ClienteAllIn.Login">
- <summary>
- Login da Allin
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.AllIn.ClienteAllIn.Senha">
- <summary>
- Senha da Allin
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.AllIn.ClienteAllIn.#ctor(System.String,System.String)">
- <summary>
- Cria um objeto para requisiçoes na API da Allin
- </summary>
- <param name="Login">Login</param>
- <param name="Senha">Senha</param>
-</member>
-<member name="M:InnerLibs.AllIn.ClienteAllIn.GerarToken(System.Uri)">
- <summary>
- Token da API da Allin a partir da url
- </summary>
- <returns></returns>
-</member>
 <member name="T:InnerLibs.Base64">
  <summary>
  Modulo para manipulação de imagens e Strings Base64
@@ -270,122 +245,396 @@ InnerLibs
  </summary>
  <param name="Control">Elemento que vai sofrer a transformação</param>
 </member>
-<member name="T:InnerLibs.State">
+<member name="T:InnerLibs.Locations.State">
  <summary>
  Objeto que representa um estado do Brasil e seus respectivos detalhes
  </summary>
 </member>
-<member name="P:InnerLibs.State.Acronym">
+<member name="P:InnerLibs.Locations.State.Acronym">
  <summary>
  Sigla do estado
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.State.Name">
+<member name="P:InnerLibs.Locations.State.Name">
  <summary>
  Nome do estado
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.State.Cities">
+<member name="P:InnerLibs.Locations.State.Cities">
  <summary>
  Lista de cidades do estado
  </summary>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.State.StateString">
+<member name="T:InnerLibs.Locations.State.StateString">
  <summary>
  Tipo de string representativa do estado (sigla ou nome)
  </summary>
 </member>
-<member name="M:InnerLibs.State.#ctor">
+<member name="M:InnerLibs.Locations.State.#ctor">
  <summary>
  inicializa um estado vazio
  </summary>
 </member>
-<member name="M:InnerLibs.State.#ctor(System.String)">
+<member name="M:InnerLibs.Locations.State.#ctor(System.String)">
  <summary>
  Inicializa um objeto Estado a partir de uma sigla
  </summary>
  <param name="StateCode"></param>
 </member>
-<member name="M:InnerLibs.State.ToString">
+<member name="M:InnerLibs.Locations.State.ToString">
  <summary>
  Retorna a String correspondente ao estado
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.State.ToString(InnerLibs.State.StateString)">
+<member name="M:InnerLibs.Locations.State.ToString(InnerLibs.Locations.State.StateString)">
  <summary>
  Retorna a String correspondente ao estado
  </summary>
  <param name="Type">Tipo de String (Sigla ou Nome)</param>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.Brasil">
+<member name="T:InnerLibs.Locations.Brasil">
  <summary>
  Objeto para manipular cidades e estados do Brasil
  </summary>
 </member>
-<member name="P:InnerLibs.Brasil.Celebrations">
+<member name="P:InnerLibs.Locations.Brasil.Celebrations">
  <summary>
  Retorna uma lista com todas as datas comemorativas do Brasil
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Brasil.GetCelebrationByDate(System.DateTime)">
+<member name="M:InnerLibs.Locations.Brasil.GetCelebrationByDate(System.DateTime)">
  <summary>
  Retorna todas as comemoracoes de uma data
  </summary>
  <param name="[Date]"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Brasil.GetCelebrationByMonth(System.Int32)">
+<member name="M:InnerLibs.Locations.Brasil.GetCelebrationByMonth(System.Int32)">
  <summary>
  Retorna todas as comemoracoes de um mês
  </summary>
  <param name="Month">Numero do Mês</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Brasil.GetCelebrationBetween(System.DateTime,System.DateTime)">
+<member name="M:InnerLibs.Locations.Brasil.GetCelebrationBetween(System.DateTime,System.DateTime)">
  <summary>
  Retorna todas as comemoracoes entre 2 datas
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Brasil.States">
+<member name="P:InnerLibs.Locations.Brasil.States">
  <summary>
  Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Brasil.GetCitiesOf(System.String)">
+<member name="M:InnerLibs.Locations.Brasil.GetCitiesOf(System.String)">
  <summary>
  Retorna as cidades de um estado a partir do nome ou sigla do estado
  </summary>
  <param name="NameOrStateCode">Nome ou sigla do estado</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Brasil.GetStateList(InnerLibs.State.StateString)">
+<member name="M:InnerLibs.Locations.Brasil.GetStateList(InnerLibs.Locations.State.StateString)">
  <summary>
  Retorna uma lista contendo os nomes ou siglas dos estados do Brasil
  </summary>
  <param name="Type">Tipo de retorno (sigla ou nome)</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Brasil.GetNameOf(System.String)">
+<member name="M:InnerLibs.Locations.Brasil.GetNameOf(System.String)">
  <summary>
  Retorna o nome do estado a partir da sigla
  </summary>
  <param name="StateCode"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Brasil.GetAcronymOf(System.String)">
+<member name="M:InnerLibs.Locations.Brasil.GetAcronymOf(System.String)">
  <summary>
  Retorna a Sigla a partir de um nome de estado
  </summary>
  <param name="Name"></param>
  <returns></returns>
+</member>
+<member name="T:InnerLibs.Locations.GeoIP">
+ <summary>
+ Retorna a localizaçao de um IP
+ </summary>
+</member>
+<member name="M:InnerLibs.Locations.GeoIP.#ctor(System.String)">
+ <summary>
+ Declara uma instancia de GeoIP usando umma string contendo o IP ou URL
+ </summary>
+ <param name="URLorIP">Url ou IP</param>
+</member>
+<member name="M:InnerLibs.Locations.GeoIP.#ctor(System.Uri)">
+ <summary>
+ Declara uma instancia de GeoIP usando uma URI
+ </summary>
+ <param name="URL">Url</param>
+</member>
+<member name="M:InnerLibs.Locations.GeoIP.ToLocation">
+ <summary>
+ Cria um objeto Innerlibs.Location com as informaçoes do IP
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Locations.GeoIP.ToJSON(System.String)">
+ <summary>
+ Retorna uma string JSON do objeto
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.Markers">
+ <summary>
+ Marcadores do Mapa
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.APIKey">
+ <summary>
+ Chave de API do Google Maps
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.MAP_ID">
+ <summary>
+ ID do Mapa
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Locations.GoogleMaps.Map.#ctor(System.String)">
+ <summary>
+ Cria um novo objeto de Mapa
+ </summary>
+ <param name="APIKey">Chave da API do Google</param>
+</member>
+<member name="M:InnerLibs.Locations.GoogleMaps.Map.#ctor(System.String,InnerLibs.Locations.Location[])">
+ <summary>
+ Cria um mapa e seus respectivos marcadores a partir de varias localizações
+ </summary>
+ <param name="APIKey">Chave da API do Google</param>
+ <param name="Locations">Localizações</param>
+</member>
+<member name="M:InnerLibs.Locations.GoogleMaps.Map.#ctor(System.String,InnerLibs.Locations.GoogleMaps.Map.Marker[])">
+ <summary>
+ Cria um mapa a partir de um conjunto de marcadores
+ </summary>
+ <param name="APIKey">Chave da API do Google</param>
+ <param name="Markers">Marcadores</param>
+</member>
+<member name="M:InnerLibs.Locations.GoogleMaps.Map.MakeMap(System.String,System.Int32,System.String,InnerLibs.Locations.Location)">
+ <summary>
+ Constroi uma div com o Mapa
+ </summary>
+ <param name="Center">Localização do Centro do Mapa</param>
+ <param name="Zoom">Distancia do Mapa</param>
+ <param name="Height">Altura da Div do Mapa</param>
+ <param name="MAP_ID">ID do MAPA</param>
+ <returns>Uma string html contendo as referencias e o Mapa</returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.ApiUrl">
+ <summary>
+ URL da a API do Google Maps
+ </summary>
+ <returns>uma string contendo a URL da API.</returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.ScriptTag">
+ <summary>
+ Tag Script contendo a URL da Api no SRC (Adicione no Header ou Body)
+ </summary>
+ <returns>uma string contendo a tag com a URL da API.</returns>
+</member>
+<member name="T:InnerLibs.Locations.GoogleMaps.Map.Marker">
+ <summary>
+ Marcador da localização no mapa
+ </summary>
+</member>
+<member name="M:InnerLibs.Locations.GoogleMaps.Map.Marker.#ctor(InnerLibs.Locations.Location,System.String)">
+ <summary>
+ Cria um marcador
+ </summary>
+ <param name="Location">'Locaização do Marcador</param>
+ <param name="Pin">Imagem do marcador</param>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.Marker.Location">
+ <summary>
+ Localizaçao
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.Marker.Pin">
+ <summary>
+ Caminho da imagem do Marcador
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.Marker.Title">
+ <summary>
+ Titulo do Marcador
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.GoogleMaps.Map.Marker.Description">
+ <summary>
+ Descrição do marcador (balão)
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Locations.Location">
+ <summary>
+ Representa um deteminado local com suas Informações
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Locations.Location.#ctor">
+ <summary>
+ Cria um novo objeto de localização vazio
+ </summary>
+</member>
+<member name="M:InnerLibs.Locations.Location.#ctor(System.String,System.Int32,System.Boolean)">
+ <summary>
+ Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP e opcionalmente Google Maps
+ </summary>
+ <param name="PostalCode"></param>
+ <param name="Number">Numero da casa</param>
+</member>
+<member name="M:InnerLibs.Locations.Location.#ctor(System.String,System.String,System.Boolean)">
+ <summary>
+ Cria um objeto de localização e imediatamente pesquisa as informações de um local através da Latitude e Longitude usando a API do Google Maps
+ </summary>
+ <param name="Latitude"></param>
+ <param name="Longitude"></param>
+</member>
+<member name="P:InnerLibs.Locations.Location.AddressType">
+ <summary>
+ Tipo do Endereço
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Address">
+ <summary>
+ Endereco
+ </summary>
+ <value></value>
+ <returns>Endereco</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Number">
+ <summary>
+ Numero da casa, predio etc.
+ </summary>
+ <value></value>
+ <returns>Numero</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Complement">
+ <summary>
+ Complemento
+ </summary>
+ <value></value>
+ <returns>Complemento</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Neighborhood">
+ <summary>
+ Bairro
+ </summary>
+ <value></value>
+ <returns>Bairro</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.PostalCode">
+ <summary>
+ CEP - Codigo de Endereçamento Postal
+ </summary>
+ <value></value>
+ <returns>CEP</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.City">
+ <summary>
+ Cidade
+ </summary>
+ <value></value>
+ <returns>Cidade</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.State">
+ <summary>
+ Estado
+ </summary>
+ <value></value>
+ <returns>Estado</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.StateCode">
+ <summary>
+ Unidade federativa
+ </summary>
+ <value></value>
+ <returns>Sigla do estado</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Country">
+ <summary>
+ País
+ </summary>
+ <value></value>
+ <returns>País</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Latitude">
+ <summary>
+ Coordenada geográfica LATITUDE
+ </summary>
+ <value></value>
+ <returns>Latitude</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Longitude">
+ <summary>
+ Coordenada geográfica LONGITUDE
+ </summary>
+ <value></value>
+ <returns>Longitude</returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.GoogleMapsURL">
+ <summary>
+ URL do Google Maps
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.FullAddress">
+ <summary>
+ Retorna o endereço completo (logradouro)
+ </summary>
+ <returns>Uma String com o endereço completo devidamente formatado</returns>
+</member>
+<member name="M:InnerLibs.Locations.Location.ToString">
+ <summary>
+ Retorna uma String contendo as informações do Local
+ </summary>
+ <returns>string</returns>
+</member>
+<member name="M:InnerLibs.Locations.Location.LatitudeLongitude">
+ <summary>
+ Retorna as coordenadas geográficas do Local
+ </summary>
+ <returns>Uma String contendo LATITUDE e LONGITUDE separados por virgula</returns>
+</member>
+<member name="M:InnerLibs.Locations.Location.GetInfoByPostalCode">
+ <summary>
+ Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
+ </summary>
+</member>
+<member name="M:InnerLibs.Locations.Location.SearchOnGoogleMaps(System.String,System.Boolean)">
+ <summary>
+ Realiza uma busca detalhada no google Maps
+ </summary>
+ <param name="Location">String contendo os detalhes da busca ex.: Av. Rio Pequeno, 240</param>
+ <param name="Sensor">Indica se a pesquisa deve ser baseada na sua localização atual. Padrao TRUE</param>
+</member>
+<member name="M:InnerLibs.Locations.Location.Update">
+ <summary>
+ Realiza uma nova busca no google maps usando o endereço completo
+ </summary>
 </member>
 <member name="M:InnerLibs.BrowserClipper.Capture(System.String,System.Int32)">
  <summary>
@@ -866,7 +1115,7 @@ Verifica se o objeto é do tipo numérico.
  Métodos para manipulação de aplicações baseadas em Console (System.Console)
  </summary>
 </member>
-<member name="M:InnerLibs.Console.Console.Write(System.String,InnerLibs.TextValueList{System.ConsoleColor})">
+<member name="M:InnerLibs.Console.Console.Write(System.String,System.Collections.Generic.Dictionary{System.String,System.ConsoleColor})">
  <summary>
  Escreve no console colorindo palavras especificas
  </summary>
@@ -880,7 +1129,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Text">Texto</param>
  <param name="Color">Cor</param>
 </member>
-<member name="M:InnerLibs.Console.Console.WriteLine(System.String,InnerLibs.TextValueList{System.ConsoleColor})">
+<member name="M:InnerLibs.Console.Console.WriteLine(System.String,System.Collections.Generic.Dictionary{System.String,System.ConsoleColor})">
  <summary>
  Escreve uma linha no console colorindo palavras especificas
  </summary>
@@ -2013,14 +2262,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="ValueColumn">Coluna que será usada como Value do dicionario</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DataBase.Reader.ToTextValueList``1(System.String,System.String)">
- <summary>
- Cria uma lista de pares com os Itens de um <see cref="T:InnerLibs.DataBase.Reader"/>
- </summary>
- <param name="TextColumn"> Coluna que será usada como Text do item</param>
- <param name="ValueColumn">Coluna que será usada como Value do item</param>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.DataBase.Reader.ToQueryString">
  <summary>
  Transforma o resultado de um <see cref="T:InnerLibs.DataBase.Reader"/> em QueryString
@@ -2115,16 +2356,6 @@ Verifica se o objeto é do tipo numérico.
  Preenche um DataGrivView com os resultados
  </summary>
  <param name="DatagridView"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.DataBase.Reader.FillComboBox``1(System.Windows.Forms.ComboBox@,System.String,System.String)">
- <summary>
- Preenche um combobox com um TextValueList criado a partir deste DataBase.Reader
- </summary>
- <typeparam name="TValue">Tipo do Valor da coluna</typeparam>
- <param name="ComboBox">   </param>
- <param name="TextColumn"> Coluna usada como Texto do ComboBox</param>
- <param name="ValueColumn">Coluna usada como Valor do ComboBox</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.DataBase.CreateParameter``1(System.String,System.Object)">
@@ -3589,35 +3820,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="Request">Request GET ou POST</param>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.GeoIP">
- <summary>
- Retorna a localizaçao de um IP
- </summary>
-</member>
-<member name="M:InnerLibs.GeoIP.#ctor(System.String)">
- <summary>
- Declara uma instancia de GeoIP usando umma string contendo o IP ou URL
- </summary>
- <param name="URLorIP">Url ou IP</param>
-</member>
-<member name="M:InnerLibs.GeoIP.#ctor(System.Uri)">
- <summary>
- Declara uma instancia de GeoIP usando uma URI
- </summary>
- <param name="URL">Url</param>
-</member>
-<member name="M:InnerLibs.GeoIP.ToLocation">
- <summary>
- Cria um objeto Innerlibs.Location com as informaçoes do IP
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.GeoIP.ToJSON(System.String)">
- <summary>
- Retorna uma string JSON do objeto
- </summary>
- <returns></returns>
-</member>
 <member name="P:InnerLibs.HtmlParser.ClassList.Item(System.String)">
  <summary>
  Gets or sets a value indicating if this element contains a specifc class
@@ -4842,110 +5044,6 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <param name="WhereConditions"></param>
  <returns></returns>
-</member>
-<member name="T:InnerLibs.LimitedCollection`1">
- <summary>
- Cria uma coleção Limitada
- </summary>
- <typeparam name="TypeCollection">Tipo dos itens da lista</typeparam>
-</member>
-<member name="P:InnerLibs.LimitedCollection`1.AllowCapacityChange">
- <summary>
- Indica se sua capacidade pode ser alterada
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.LimitedCollection`1.AllowRemoveItem">
- <summary>
- Indica se itens podem ser removidos
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.LimitedCollection`1.AllowAddItem">
- <summary>
- Indica se itens podem ser adicionados
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.LimitedCollection`1.Capacity">
- <summary>
- Capacidade maxima da lista
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.LimitedCollection`1.#ctor(System.Boolean,System.Boolean,System.Boolean)">
- <summary>
- Cria uma nova lista limitada
- </summary>
- <param name="AllowCapacityChange">Indica se a capacidade pode ser alterada</param>
- <param name="AllowAddItem">Indica se itens podem ser adicionados</param>
- <param name="AllowRemoveItem">indica se intes podem ser removidos</param>
-</member>
-<member name="T:InnerLibs.TextValueList`1">
- <summary>
- Lista de Valores Duplos
- </summary>
-</member>
-<member name="M:InnerLibs.TextValueList`1.Add(System.String,`0)">
- <summary>
- Adiciona um novo TextValue a uma lista com key e valor
- </summary>
- <param name="Text">Valor da Key</param>
- <param name="Value">Valor do Value</param>
-</member>
-<member name="T:InnerLibs.TextValue`1">
- <summary>
- Uma par de valores sem chave (texto e item)
- </summary>
- <typeparam name="ValueType">Tipo do valor do objeto</typeparam>
-</member>
-<member name="M:InnerLibs.TextValueBinder.GetSelectedItemPair``1(System.Windows.Forms.ComboBox@)">
- <summary>
- Retorna o par do item selecionado na Combobox
- </summary>
- <typeparam name="TValue">Tipo do Valor</typeparam>
- <param name="Box">Combobox</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.TextValueBinder.GetSelectedItemPair``1(System.Windows.Forms.ListBox@)">
- <summary>
- Retorna o par do item selecionado na ListBox
- </summary>
- <typeparam name="TValue">Tipo do Valor</typeparam>
- <param name="Box">ListBox</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.TextValueBinder.GetItemPair``1(System.Windows.Forms.ComboBox@,System.Int32)">
- <summary>
- Retorna o par do item especificado pela index da Combobox
- </summary>
- <typeparam name="TValue">Tipo do Valor</typeparam>
- <param name="Box">Combobox</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.TextValueBinder.GetItemPair``1(System.Windows.Forms.ListBox@,System.Int32)">
- <summary>
- Retorna o par do item especificado pela index da ListBox
- </summary>
- <typeparam name="TValue">Tipo do Valor</typeparam>
- <param name="Box">Combobox</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.TextValueBinder.SetPairDataSource``1(System.Windows.Forms.ComboBox@,InnerLibs.TextValueList{``0}@)">
- <summary>
- Aplica uma lista de pares como source da Combobox
- </summary>
- <typeparam name="TValue">Tipo do Valor</typeparam>
- <param name="Box">Combobox</param>
- <param name="Source">Lista</param>
-</member>
-<member name="M:InnerLibs.TextValueBinder.SetPairDataSource``1(System.Windows.Forms.ListBox@,InnerLibs.TextValueList{``0}@)">
- <summary>
- Aplica uma lista de pares como source da ListBox
- </summary>
- <typeparam name="TValue">Tipo do Valor</typeparam>
- <param name="Box">ListBox</param>
- <param name="Source">Lista</param>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.Or``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
  <summary>
@@ -6563,7 +6661,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Url">Url do site</param>
  <returns>Um objeto Image() contendo o screenshot do site</returns>
 </member>
-<member name="M:InnerLibs.Generate.ToGoogleMapsURL(InnerLibs.Location,System.Boolean)">
+<member name="M:InnerLibs.Generate.ToGoogleMapsURL(InnerLibs.Locations.Location,System.Boolean)">
  <summary>
  Gera uma URL do google MAPs baseado na localização
  </summary>
@@ -6571,7 +6669,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="LatLong">Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro</param>
  <returns>Uma URI do Google Maps</returns>
 </member>
-<member name="M:InnerLibs.Generate.ToStaticGoogleMap(InnerLibs.Location,System.Int32,System.Int32,System.Int32,System.Int32,InnerLibs.Generate.MapType)">
+<member name="M:InnerLibs.Generate.ToStaticGoogleMap(InnerLibs.Locations.Location,System.Int32,System.Int32,System.Int32,System.Int32,InnerLibs.Generate.MapType)">
  <summary>
  Cria um Mapa estatico utilizando a API do google Maps
  </summary>
@@ -6639,102 +6737,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="Data">Informações do QR Code</param>
  <param name="Size">Tamanho do QR code</param>
  <returns>Um componente Image() com o QR code</returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.Markers">
- <summary>
- Marcadores do Mapa
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.APIKey">
- <summary>
- Chave de API do Google Maps
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.MAP_ID">
- <summary>
- ID do Mapa
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.GoogleMaps.Map.#ctor(System.String)">
- <summary>
- Cria um novo objeto de Mapa
- </summary>
- <param name="APIKey">Chave da API do Google</param>
-</member>
-<member name="M:InnerLibs.GoogleMaps.Map.#ctor(System.String,InnerLibs.Location[])">
- <summary>
- Cria um mapa e seus respectivos marcadores a partir de varias localizações
- </summary>
- <param name="APIKey">Chave da API do Google</param>
- <param name="Locations">Localizações</param>
-</member>
-<member name="M:InnerLibs.GoogleMaps.Map.#ctor(System.String,InnerLibs.GoogleMaps.Map.Marker[])">
- <summary>
- Cria um mapa a partir de um conjunto de marcadores
- </summary>
- <param name="APIKey">Chave da API do Google</param>
- <param name="Markers">Marcadores</param>
-</member>
-<member name="M:InnerLibs.GoogleMaps.Map.MakeMap(System.String,System.Int32,System.String,InnerLibs.Location)">
- <summary>
- Constroi uma div com o Mapa
- </summary>
- <param name="Center">Localização do Centro do Mapa</param>
- <param name="Zoom">Distancia do Mapa</param>
- <param name="Height">Altura da Div do Mapa</param>
- <param name="MAP_ID">ID do MAPA</param>
- <returns>Uma string html contendo as referencias e o Mapa</returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.ApiUrl">
- <summary>
- URL da a API do Google Maps
- </summary>
- <returns>uma string contendo a URL da API.</returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.ScriptTag">
- <summary>
- Tag Script contendo a URL da Api no SRC (Adicione no Header ou Body)
- </summary>
- <returns>uma string contendo a tag com a URL da API.</returns>
-</member>
-<member name="T:InnerLibs.GoogleMaps.Map.Marker">
- <summary>
- Marcador da localização no mapa
- </summary>
-</member>
-<member name="M:InnerLibs.GoogleMaps.Map.Marker.#ctor(InnerLibs.Location,System.String)">
- <summary>
- Cria um marcador
- </summary>
- <param name="Location">'Locaização do Marcador</param>
- <param name="Pin">Imagem do marcador</param>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.Marker.Location">
- <summary>
- Localizaçao
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.Marker.Pin">
- <summary>
- Caminho da imagem do Marcador
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.Marker.Title">
- <summary>
- Titulo do Marcador
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.GoogleMaps.Map.Marker.Description">
- <summary>
- Descrição do marcador (balão)
- </summary>
- <returns></returns>
 </member>
 <member name="M:InnerLibs.GoogleSuggestion.GetGoogleSuggestions(System.String,System.String)">
  <summary>
@@ -7037,65 +7039,65 @@ Verifica se o objeto é do tipo numérico.
  <param name="Width">Largura</param>
  <param name="Height">Altura</param>
 </member>
-<member name="T:InnerLibs.MenuBuilder">
+<member name="T:InnerLibs.MenuBuilder.MenuBuilder">
  <summary>
  Estrutura para criação de menus com submenus
  </summary>
 </member>
-<member name="P:InnerLibs.MenuBuilder.HasItems">
+<member name="P:InnerLibs.MenuBuilder.MenuBuilder.HasItems">
  <summary>
  Verifica se este menu possui itens
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.MenuBuilder.ToJSON(System.String)">
+<member name="M:InnerLibs.MenuBuilder.MenuBuilder.ToJSON(System.String)">
  <summary>
  Transforma a classe em um json
  </summary>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.MenuBuilderItem">
+<member name="T:InnerLibs.MenuBuilder.MenuBuilderItem">
  <summary>
  Item de um InnerMenu
  </summary>
 </member>
-<member name="P:InnerLibs.MenuBuilderItem.Icon">
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Icon">
  <summary>
  Icone correspondente a este menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilderItem.Title">
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Title">
  <summary>
  Titulo do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilderItem.URL">
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.URL">
  <summary>
  URL do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilderItem.Target">
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Target">
  <summary>
  Target do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilderItem.SubItems">
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.SubItems">
  <summary>
  Subitens do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilderItem.HasItems">
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.HasItems">
  <summary>
  Verifica se este item possui subitens
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.MenuBuilderItem.#ctor(System.String,System.String,System.String,System.String)">
+<member name="M:InnerLibs.MenuBuilder.MenuBuilderItem.#ctor(System.String,System.String,System.String,System.String)">
  <summary>
  Inicializa um novo MenuBuilderItem
  </summary>
@@ -7104,161 +7106,12 @@ Verifica se o objeto é do tipo numérico.
  <param name="Target">Alvo do menu, nomralmente _self</param>
  <param name="Icon">icone do menu</param>
 </member>
-<member name="M:InnerLibs.MenuBuilderItem.#ctor(System.String,System.Collections.Generic.List{InnerLibs.MenuBuilderItem},System.String)">
+<member name="M:InnerLibs.MenuBuilder.MenuBuilderItem.#ctor(System.String,System.Collections.Generic.List{InnerLibs.MenuBuilder.MenuBuilderItem},System.String)">
  <summary>
  Inicializa um novo MenuBuilderItem
  </summary>
  <param name="Title">Titulo do Menu</param>
  <param name="SubItems">Subitens do menu</param>
-</member>
-<member name="T:InnerLibs.Location">
- <summary>
- Representa um deteminado local com suas Informações
- </summary>
- <remarks></remarks>
-</member>
-<member name="M:InnerLibs.Location.#ctor">
- <summary>
- Cria um novo objeto de localização vazio
- </summary>
-</member>
-<member name="M:InnerLibs.Location.#ctor(System.String,System.Int32)">
- <summary>
- Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP e Google Maps
- </summary>
- <param name="PostalCode"></param>
- <param name="Number">Numero da casa</param>
-</member>
-<member name="M:InnerLibs.Location.#ctor(System.String,System.String,System.Boolean)">
- <summary>
- Cria um objeto de localização e imediatamente pesquisa as informações de um local através da Latitude e Longitude usando a API do Google Maps
- </summary>
- <param name="Latitude"></param>
- <param name="Longitude"></param>
-</member>
-<member name="P:InnerLibs.Location.AddressType">
- <summary>
- Tipo do Endereço
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.Location.Address">
- <summary>
- Endereco
- </summary>
- <value></value>
- <returns>Endereco</returns>
-</member>
-<member name="P:InnerLibs.Location.Number">
- <summary>
- Numero da casa, predio etc.
- </summary>
- <value></value>
- <returns>Numero</returns>
-</member>
-<member name="P:InnerLibs.Location.Complement">
- <summary>
- Complemento
- </summary>
- <value></value>
- <returns>Complemento</returns>
-</member>
-<member name="P:InnerLibs.Location.Neighborhood">
- <summary>
- Bairro
- </summary>
- <value></value>
- <returns>Bairro</returns>
-</member>
-<member name="P:InnerLibs.Location.PostalCode">
- <summary>
- CEP - Codigo de Endereçamento Postal
- </summary>
- <value></value>
- <returns>CEP</returns>
-</member>
-<member name="P:InnerLibs.Location.City">
- <summary>
- Cidade
- </summary>
- <value></value>
- <returns>Cidade</returns>
-</member>
-<member name="P:InnerLibs.Location.State">
- <summary>
- Estado
- </summary>
- <value></value>
- <returns>Estado</returns>
-</member>
-<member name="P:InnerLibs.Location.StateCode">
- <summary>
- Unidade federativa
- </summary>
- <value></value>
- <returns>Sigla do estado</returns>
-</member>
-<member name="P:InnerLibs.Location.Country">
- <summary>
- País
- </summary>
- <value></value>
- <returns>País</returns>
-</member>
-<member name="P:InnerLibs.Location.Latitude">
- <summary>
- Coordenada geográfica LATITUDE
- </summary>
- <value></value>
- <returns>Latitude</returns>
-</member>
-<member name="P:InnerLibs.Location.Longitude">
- <summary>
- Coordenada geográfica LONGITUDE
- </summary>
- <value></value>
- <returns>Longitude</returns>
-</member>
-<member name="P:InnerLibs.Location.GoogleMapsURL">
- <summary>
- URL do Google Maps
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.Location.FullAddress">
- <summary>
- Retorna o endereço completo (logradouro)
- </summary>
- <returns>Uma String com o endereço completo devidamente formatado</returns>
-</member>
-<member name="M:InnerLibs.Location.ToString">
- <summary>
- Retorna uma String contendo as informações do Local
- </summary>
- <returns>string</returns>
-</member>
-<member name="M:InnerLibs.Location.LatitudeLongitude">
- <summary>
- Retorna as coordenadas geográficas do Local
- </summary>
- <returns>Uma String contendo LATITUDE e LONGITUDE separados por virgula</returns>
-</member>
-<member name="M:InnerLibs.Location.GetInfoByPostalCode">
- <summary>
- Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
- </summary>
-</member>
-<member name="M:InnerLibs.Location.SearchOnGoogleMaps(System.String,System.Boolean)">
- <summary>
- Realiza uma busca detalhada no google Maps
- </summary>
- <param name="Location">String contendo os detalhes da busca ex.: Av. Rio Pequeno, 240</param>
- <param name="Sensor">Indica se a pesquisa deve ser baseada na sua localização atual. Padrao TRUE</param>
-</member>
-<member name="M:InnerLibs.Location.Update">
- <summary>
- Realiza uma nova busca no google maps usando o endereço completo
- </summary>
 </member>
 <member name="T:InnerLibs.Mathematic">
  <summary>
@@ -7555,7 +7408,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Degrees"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Location,InnerLibs.Location)">
+<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Locations.Location,InnerLibs.Locations.Location)">
  <summary>
  Calcula a distancia entre 2 locais
  </summary>
@@ -7563,7 +7416,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="SecondLocation">Segundo Local</param>
  <returns>A distancia em kilometros</returns>
 </member>
-<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Location[])">
+<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Locations.Location[])">
  <summary>
  Calcula a distancia passando por todos os pontos
  </summary>
