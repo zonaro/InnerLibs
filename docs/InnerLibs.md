@@ -114,35 +114,6 @@ Static Methods
 | `Image` | ToImage(this `Byte[]` Bytes) | Converte uma String DataURL ou Base64 para Imagem | 
 
 
-## `Brasil`
-
-Objeto para manipular cidades e estados do Brasil
-```csharp
-public class InnerLibs.Brasil
-
-```
-
-Static Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `List<Celebration>` | Celebrations | Retorna uma lista com todas as datas comemorativas do Brasil | 
-| `List<State>` | States | Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes | 
-
-
-Static Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | GetAcronymOf(`String` Name) | Retorna a Sigla a partir de um nome de estado | 
-| `Celebration[]` | GetCelebrationBetween(`DateTime` FirstDate, `DateTime` SecondDate) | Retorna todas as comemoracoes entre 2 datas | 
-| `Celebration[]` | GetCelebrationByDate(`DateTime` Date) | Retorna todas as comemoracoes de uma data | 
-| `String[]` | GetCelebrationByMonth(`Int32` Month) | Retorna todas as comemoracoes de um mês | 
-| `List<String>` | GetCitiesOf(`String` NameOrStateCode = ) | Retorna as cidades de um estado a partir do nome ou sigla do estado | 
-| `String` | GetNameOf(`String` StateCode) | Retorna o nome do estado a partir da sigla | 
-| `List<String>` | GetStateList(`StateString` Type = Name) | Retorna uma lista contendo os nomes ou siglas dos estados do Brasil | 
-
-
 ## `BrowserClipper`
 
 ```csharp
@@ -220,23 +191,6 @@ Static Methods
 | `String` | ToSQLDateString(this `String` Date, `String` FromCulture = pt-BR) | COnverte um datetime para o formato de string do SQL server ou Mysql | 
 | `String` | ToTimeElapsedString(this `TimeSpan` TimeElapsed, `String` DayWord = dia, `String` HourWord = hora, `String` MinuteWord = minuto, `String` SecondWord = segundo) | Retorna uma String no formato "W dias, X horas, Y minutos e Z segundos" | 
 | `void` | WaitUntil(this `DateTime` DateTime) | Atrasa qualquer passo seguinte até a data especificada | 
-
-
-## `Celebration`
-
-```csharp
-public class InnerLibs.Celebration
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `DateTime` | Date |  | 
-| `Int32` | Day |  | 
-| `String` | Description |  | 
-| `Int32` | Month |  | 
 
 
 ## `ClassTools`
@@ -554,22 +508,6 @@ Methods
 | `Boolean` | Overlaps(`DateRange` Period) | Verifica se 2 periodos possuem interseção de datas | 
 | `List<DateTime>` | ToList(`DateInterval` Interval = Day) | Cria uma lista de datas contendo todas as datas entre os periodos | 
 | `String` | ToString() |  | 
-
-
-## `Dialeto`
-
-```csharp
-public class InnerLibs.Dialeto
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `IEnumerable<String>` | Conectores |  | 
-| `IEnumerable<String>` | Iniciadores |  | 
-| `IEnumerable<String>` | Objetos |  | 
 
 
 ## `Dice`
@@ -1269,40 +1207,6 @@ Static Methods
 | `Image` | ToStaticGoogleMap(this `Location` Location, `Int32` Width = 400, `Int32` Height = 400, `Int32` Zoom = 16, `Int32` Scale = 2, `MapType` Maptype = RoadMap) | Cria um Mapa estatico utilizando a API do google Maps | 
 
 
-## `GeoIP`
-
-Retorna a localizaçao de um IP
-```csharp
-public class InnerLibs.GeoIP
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | City |  | 
-| `String` | CountryCode |  | 
-| `String` | CountryName |  | 
-| `String` | Domain |  | 
-| `String` | IP |  | 
-| `String` | Latitude |  | 
-| `String` | Longitude |  | 
-| `Int32` | MetroCode |  | 
-| `String` | RegionCode |  | 
-| `String` | RegionName |  | 
-| `String` | TimeZone |  | 
-| `String` | ZipCode |  | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToJSON(`String` DateFormat = yyyy-MM-dd HH:mm:ss) | Retorna uma string JSON do objeto | 
-| `Location` | ToLocation() | Cria um objeto Innerlibs.Location com as informaçoes do IP | 
-
-
 ## `Globals`
 
 ```csharp
@@ -1516,65 +1420,6 @@ Static Methods
 | `void` | LoadObject(this `TreeView` TreeView, `Object` Obj) |  | 
 
 
-## `LimitedCollection<TypeCollection>`
-
-Cria uma coleção Limitada
-```csharp
-public class InnerLibs.LimitedCollection<TypeCollection>
-    : Collection<TypeCollection>, IList<TypeCollection>, ICollection<TypeCollection>, IEnumerable<TypeCollection>, IEnumerable, IList, ICollection, IReadOnlyList<TypeCollection>, IReadOnlyCollection<TypeCollection>
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Boolean` | AllowAddItem | Indica se itens podem ser adicionados | 
-| `Boolean` | AllowCapacityChange | Indica se sua capacidade pode ser alterada | 
-| `Boolean` | AllowRemoveItem | Indica se itens podem ser removidos | 
-| `Int32` | Capacity | Capacidade maxima da lista | 
-
-
-## `Location`
-
-Representa um deteminado local com suas Informações
-```csharp
-public class InnerLibs.Location
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | Address | Endereco | 
-| `String` | AddressType | Tipo do Endereço | 
-| `String` | City | Cidade | 
-| `String` | Complement | Complemento | 
-| `String` | Country | País | 
-| `String` | FullAddress | Retorna o endereço completo (logradouro) | 
-| `Uri` | GoogleMapsURL | URL do Google Maps | 
-| `String` | Latitude | Coordenada geográfica LATITUDE | 
-| `String` | Longitude | Coordenada geográfica LONGITUDE | 
-| `String` | Neighborhood | Bairro | 
-| `String` | Number | Numero da casa, predio etc. | 
-| `String` | PostalCode | CEP - Codigo de Endereçamento Postal | 
-| `String` | State | Estado | 
-| `String` | StateCode | Unidade federativa | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `void` | GetInfoByPostalCode() | Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/ | 
-| `String` | LatitudeLongitude() | Retorna as coordenadas geográficas do Local | 
-| `void` | SearchOnGoogleMaps(`String` Location, `Boolean` Sensor = True) | Realiza uma busca detalhada no google Maps | 
-| `String` | ToJSON(`String` DateFormat = yyyy-MM-dd HH:mm:ss) |  | 
-| `String` | ToString() | Retorna uma String contendo as informações do Local | 
-| `void` | Update() | Realiza uma nova busca no google maps usando o endereço completo | 
-
-
 ## `Mathematic`
 
 Módulo para calculos
@@ -1631,71 +1476,6 @@ Static Methods
 | `String` | ToOrdinalNumber(this `Double` Number) | retorna o numeor em sua forma ordinal (inglês) | 
 | `String` | ToOrdinalNumber(this `Decimal` Number) | retorna o numeor em sua forma ordinal (inglês) | 
 | `Double` | ToRadians(this `Double` Degrees) | COnverte graus para radianos | 
-
-
-## `Mensagem`
-
-```csharp
-public abstract class InnerLibs.Mensagem
-
-```
-
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Func<String, Int32, Mensagem>` | Funcao |  | 
-| `Mensagem` | Resposta |  | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `void` | executa() |  | 
-
-
-## `MenuBuilder`
-
-Estrutura para criação de menus com submenus
-```csharp
-public class InnerLibs.MenuBuilder
-    : List<MenuBuilderItem>, IList<MenuBuilderItem>, ICollection<MenuBuilderItem>, IEnumerable<MenuBuilderItem>, IEnumerable, IList, ICollection, IReadOnlyList<MenuBuilderItem>, IReadOnlyCollection<MenuBuilderItem>
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Object` | HasItems | Verifica se este menu possui itens | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToJSON(`String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma a classe em um json | 
-
-
-## `MenuBuilderItem`
-
-Item de um InnerMenu
-```csharp
-public class InnerLibs.MenuBuilderItem
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Object` | HasItems | Verifica se este item possui subitens | 
-| `String` | Icon | Icone correspondente a este menu | 
-| `List<MenuBuilderItem>` | SubItems | Subitens do menu | 
-| `String` | Target | Target do menu | 
-| `String` | Title | Titulo do menu | 
-| `String` | URL | URL do menu | 
 
 
 ## `Money`
@@ -2022,13 +1802,6 @@ Methods
 | `String` | ToString() |  | 
 
 
-## `Personalidade`
-
-```csharp
-public abstract class InnerLibs.Personalidade
-
-```
-
 ## `Phonetic`
 
 Implementação da função SoundEX em Portugues
@@ -2095,43 +1868,6 @@ Enum
 | `0` | StackTime | Adiciona segundos ao total de segundos restantes se a notificação já estiver sendo exibida | 
 | `1` | ResetTime | Atribui o valor especificado aos do segundos restantes se a notificação já estiver sendo exibida | 
 | `2` | None | Não altera o tempo restante da notificação | 
-
-
-## `Reme`
-
-```csharp
-public class InnerLibs.Reme
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Dictionary<String, Dialeto>` | Dialetos |  | 
-
-
-## `RiotAPI`
-
-```csharp
-public class InnerLibs.RiotAPI
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | APIKey |  | 
-| `String` | URL |  | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Champion` | GetChampion(`Int32` ID) |  | 
-| `List<Champion>` | GetChampionList(`Boolean` FreeToPlay = False) |  | 
 
 
 ## `Romanize`
@@ -2255,27 +1991,6 @@ Static Methods
 | `Boolean` | CreateShortcut(this `DirectoryInfo` Directory, `String` Name, `String` Arguments = null, `String` Target = null, `String` Description = null, `String` Icon = null) | Cria atalhos em um diretõrio especifico | 
 
 
-## `SlackClient`
-
-```csharp
-public class InnerLibs.SlackClient
-
-```
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | SendSlackMessage(`SlackMessage` message) |  | 
-
-
-Static Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Uri` | DefaultWebHookUri |  | 
-
-
 ## `SoundEx`
 
 ```csharp
@@ -2304,31 +2019,6 @@ Static Methods
 | --- | --- | --- | 
 | `void` | AddToWindowsStartup(this `Application` MyApplication, `String` AppName) |  | 
 | `void` | RemoveFromWindowsStartup(this `Application` MyApplication, `String` AppName) |  | 
-
-
-## `State`
-
-Objeto que representa um estado do Brasil e seus respectivos detalhes
-```csharp
-public class InnerLibs.State
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | Acronym | Sigla do estado | 
-| `List<String>` | Cities | Lista de cidades do estado | 
-| `String` | Name | Nome do estado | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToString() | Retorna a String correspondente ao estado | 
-| `String` | ToString(`StateString` Type = Acronym) | Retorna a String correspondente ao estado | 
 
 
 ## `StructuredText`
@@ -2545,59 +2235,6 @@ Static Methods
 | `String` | UrlEncode(this `String` Text) | Encoda uma string para transmissão por URL | 
 | `String` | Wrap(this `String` Text, `String` WrapText = ") | Encapsula um tento entre 2 textos | 
 | `HtmlElement` | WrapInTag(this `String` Text, `String` TagName) | Encapsula um texto dentro de um elemento HTML | 
-
-
-## `TextValue<ValueType>`
-
-Uma par de valores sem chave (texto e item)
-```csharp
-public class InnerLibs.TextValue<ValueType>
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | Text |  | 
-| `ValueType` | Value |  | 
-
-
-## `TextValueBinder`
-
-```csharp
-public class InnerLibs.TextValueBinder
-
-```
-
-Static Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `TextValue<TValue>` | GetItemPair(this `ComboBox&` Box, `Int32` Index) | Retorna o par do item especificado pela index da Combobox | 
-| `TextValue<TValue>` | GetItemPair(this `ListBox&` Box, `Int32` Index) | Retorna o par do item especificado pela index da Combobox | 
-| `TextValue<TValue>` | GetSelectedItemPair(this `ComboBox&` Box) | Retorna o par do item selecionado na Combobox | 
-| `TextValue<TValue>` | GetSelectedItemPair(this `ListBox&` Box) | Retorna o par do item selecionado na Combobox | 
-| `void` | SetPairDataSource(this `ComboBox&` Box, `TextValueList`1&` Source) | Aplica uma lista de pares como source da Combobox | 
-| `void` | SetPairDataSource(this `ListBox&` Box, `TextValueList`1&` Source) | Aplica uma lista de pares como source da Combobox | 
-
-
-## `TextValueList<ValueType>`
-
-Lista de Valores Duplos
-```csharp
-public class InnerLibs.TextValueList<ValueType>
-    : List<TextValue<ValueType>>, IList<TextValue<ValueType>>, ICollection<TextValue<ValueType>>, IEnumerable<TextValue<ValueType>>, IEnumerable, IList, ICollection, IReadOnlyList<TextValue<ValueType>>, IReadOnlyCollection<TextValue<ValueType>>
-
-```
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `void` | Add(`String` Text, `ValueType` Value) | Adiciona um novo TextValue a uma lista com key e valor | 
-| `String` | GetText(`Int32` index) |  | 
-| `ValueType` | GetValue(`Int32` index) |  | 
 
 
 ## `Toggles`

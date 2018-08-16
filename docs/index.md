@@ -41,10 +41,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`AsxEntry`](InnerLibs#asxentry)
 - [`AsxFile`](InnerLibs#asxfile)
 - [`Base64`](InnerLibs#base64)
-- [`Brasil`](InnerLibs#brasil)
 - [`BrowserClipper`](InnerLibs#browserclipper)
 - [`Calendars`](InnerLibs#calendars)
-- [`Celebration`](InnerLibs#celebration)
 - [`ClassTools`](InnerLibs#classtools)
 - [`Cluster`](InnerLibs#cluster)
 - [`ColorConvert`](InnerLibs#colorconvert)
@@ -56,7 +54,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DataGridViewProgressColumn`](InnerLibs#datagridviewprogresscolumn)
 - [`DataManipulation`](InnerLibs#datamanipulation)
 - [`DateRange`](InnerLibs#daterange)
-- [`Dialeto`](InnerLibs#dialeto)
 - [`Dice`](InnerLibs#dice)
 - [`DiceRoller`](InnerLibs#diceroller)
 - [`DiceType`](InnerLibs#dicetype)
@@ -86,7 +83,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`FontAwesome`](InnerLibs#fontawesome)
 - [`FormAnimator`](InnerLibs#formanimator)
 - [`Generate`](InnerLibs#generate)
-- [`GeoIP`](InnerLibs#geoip)
 - [`Globals`](InnerLibs#globals)
 - [`GoogleSuggestion`](InnerLibs#googlesuggestion)
 - [`iEvalFunctions`](InnerLibs#ievalfunctions)
@@ -99,12 +95,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`iVariableBag`](InnerLibs#ivariablebag)
 - [`Json`](InnerLibs#json)
 - [`JsonViewer`](InnerLibs#jsonviewer)
-- [`LimitedCollection<TypeCollection>`](InnerLibs#limitedcollectiontypecollection)
-- [`Location`](InnerLibs#location)
 - [`Mathematic`](InnerLibs#mathematic)
-- [`Mensagem`](InnerLibs#mensagem)
-- [`MenuBuilder`](InnerLibs#menubuilder)
-- [`MenuBuilderItem`](InnerLibs#menubuilderitem)
 - [`Money`](InnerLibs#money)
 - [`NameServices`](InnerLibs#nameservices)
 - [`NewItemCreatedEventArgs`](InnerLibs#newitemcreatedeventargs)
@@ -117,27 +108,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`opCodeGetArrayEntry`](InnerLibs#opcodegetarrayentry)
 - [`opCodeGetVariable`](InnerLibs#opcodegetvariable)
 - [`Paragraph`](InnerLibs#paragraph)
-- [`Personalidade`](InnerLibs#personalidade)
 - [`Phonetic`](InnerLibs#phonetic)
 - [`PictureService`](InnerLibs#pictureservice)
 - [`RemainTimeBehavior`](InnerLibs#remaintimebehavior)
-- [`Reme`](InnerLibs#reme)
-- [`RiotAPI`](InnerLibs#riotapi)
 - [`Romanize`](InnerLibs#romanize)
 - [`SelfKeyDictionary<KeyType, ClassType>`](InnerLibs#selfkeydictionarykeytype-classtype)
 - [`Sentence`](InnerLibs#sentence)
 - [`SentencePart`](InnerLibs#sentencepart)
 - [`Shortcuts`](InnerLibs#shortcuts)
-- [`SlackClient`](InnerLibs#slackclient)
 - [`SoundEx`](InnerLibs#soundex)
 - [`Startup`](InnerLibs#startup)
-- [`State`](InnerLibs#state)
 - [`StructuredText`](InnerLibs#structuredtext)
 - [`TableGenerator`](InnerLibs#tablegenerator)
 - [`Text`](InnerLibs#text)
-- [`TextValue<ValueType>`](InnerLibs#textvaluevaluetype)
-- [`TextValueBinder`](InnerLibs#textvaluebinder)
-- [`TextValueList<ValueType>`](InnerLibs#textvaluelistvaluetype)
 - [`Toggles`](InnerLibs#toggles)
 - [`tokenizer`](InnerLibs#tokenizer)
 - [`UserChat<UserType, IdType>`](InnerLibs#userchatusertype-idtype)
@@ -148,10 +131,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`Verify`](InnerLibs#verify)
 - [`Web`](InnerLibs#web)
 - [`WinForms`](InnerLibs#winforms)
-
-## [InnerLibs.AllIn](InnerLibs.AllIn)
-
-- [`ClienteAllIn`](InnerLibs.AllIn#clienteallin)
 
 ## [InnerLibs.BitLy](InnerLibs.BitLy)
 
@@ -164,10 +143,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## [InnerLibs.Console](InnerLibs.Console)
 
 - [`Console`](InnerLibs.Console#console)
-
-## [InnerLibs.GoogleMaps](InnerLibs.GoogleMaps)
-
-- [`Map`](InnerLibs.GoogleMaps#map)
 
 ## [InnerLibs.HtmlParser](InnerLibs.HtmlParser)
 
@@ -204,6 +179,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## [InnerLibs.LINQ](InnerLibs.LINQ)
 
 - [`LINQExtensions`](InnerLibs.LINQ#linqextensions)
+
+## [InnerLibs.Locations](InnerLibs.Locations)
+
+- [`Brasil`](InnerLibs.Locations#brasil)
+- [`Celebration`](InnerLibs.Locations#celebration)
+- [`GeoIP`](InnerLibs.Locations#geoip)
+- [`Location`](InnerLibs.Locations#location)
+- [`State`](InnerLibs.Locations#state)
+
+## [InnerLibs.Locations.GoogleMaps](InnerLibs.Locations.GoogleMaps)
+
+- [`Map`](InnerLibs.Locations.GoogleMaps#map)
+
+## [InnerLibs.MenuBuilder](InnerLibs.MenuBuilder)
+
+- [`MenuBuilder`](InnerLibs.MenuBuilder#menubuilder)
+- [`MenuBuilderItem`](InnerLibs.MenuBuilder#menubuilderitem)
 
 ## [InnerLibs.QuestionTest](InnerLibs.QuestionTest)
 

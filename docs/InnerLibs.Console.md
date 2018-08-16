@@ -24,9 +24,9 @@ Static Methods
 | `Char` | Read() | Le o proximo caractere inserido no console pelo usuário | 
 | `ConsoleKey` | ReadKey() | Le a proxima tecla pressionada pelo usuário | 
 | `String` | ReadLine() | Le a proxima linha inserida no console pelo usuário | 
-| `void` | Write(`String` Text, `TextValueList<ConsoleColor>` CustomColoredWords) | Escreve no console colorindo palavras especificas | 
+| `void` | Write(`String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords) | Escreve no console colorindo palavras especificas | 
 | `void` | Write(`String` Text, `ConsoleColor` Color = White) | Escreve no console colorindo palavras especificas | 
-| `void` | WriteLine(`String` Text, `TextValueList<ConsoleColor>` CustomColoredWords) | Escreve uma linha no console colorindo palavras especificas | 
+| `void` | WriteLine(`String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords) | Escreve uma linha no console colorindo palavras especificas | 
 | `void` | WriteLine(`String` Text, `ConsoleColor` Color = White) | Escreve uma linha no console colorindo palavras especificas | 
 
 

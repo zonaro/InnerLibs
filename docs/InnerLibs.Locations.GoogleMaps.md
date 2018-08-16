@@ -1,7 +1,7 @@
 ## `Map`
 
 ```csharp
-public class InnerLibs.GoogleMaps.Map
+public class InnerLibs.Locations.GoogleMaps.Map
 
 ```
 
