@@ -182,13 +182,13 @@ Namespace InnerForm
         ''' </summary>
         ''' <param name="WhereConditions"></param>
         ''' <returns></returns>
-        Public Shared Function GetForm(DataBase As DataBase, Optional TableName As String = "InnerForm", Optional WhereConditions As String = "") As List(Of IDictionary(Of String, Object))
-            Dim table As New List(Of IDictionary(Of String, Object))
+        Public Shared Function GetForm(DataBase As DataBase, Optional TableName As String = "InnerForm", Optional WhereConditions As String = "") As List(Of Dictionary(Of String, Object))
+            Dim table As New List(Of Dictionary(Of String, Object))
             If Not IsNothing(DataBase) Then
                 Using r = DataBase(TableName, WhereConditions)
                     While r.Read
                         Dim row = r.GetCurrentRow
-                        Dim form = ParseJSON(Of IDictionary(Of String, Object))(row("FORM"))
+                        Dim form = ParseJSON(Of Dictionary(Of String, Object))(row("FORM"))
                         form("IP") = row("IP")
                         form("URL") = row("URL")
                         form("DATA") = row("DATA")
@@ -196,7 +196,7 @@ Namespace InnerForm
                     End While
                 End Using
             End If
-            table = table.Uniform
+            table.Uniform
             Return table
         End Function
 

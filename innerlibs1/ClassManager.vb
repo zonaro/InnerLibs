@@ -9,8 +9,46 @@ Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Web
 Imports InnerLibs.HtmlParser
+Imports InnerLibs.LINQ
 
 Public Module ClassTools
+
+    ''' <summary>
+    ''' Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade deo mesmo objeto
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <typeparam name="Group"></typeparam>
+    ''' <typeparam name="Count"></typeparam>
+    ''' <param name="obj"></param>
+    ''' <param name="GroupSelector"></param>
+    ''' <param name="CountObjectBy"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GroupAndCountBy(Of Type, Group, Count)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group), CountObjectBy As Func(Of Type, Count)) As Dictionary(Of Group, Dictionary(Of Count, Long))
+        Dim dic_of_dic = obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Dictionary(Of Count, Long))(x.Key, x.GroupBy(CountObjectBy).ToDictionary(Function(y) y.Key, Function(y) y.LongCount))).ToDictionary()
+        dic_of_dic.Values.Uniform
+        Return dic_of_dic
+    End Function
+
+
+
+    ''' <summary>
+    ''' Copia os valores de um dicionário para as propriedades de uma classe
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <typeparam name="v"></typeparam>
+    ''' <param name="Dic"></param>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function Map(Of T As Class, v)(Dic As Dictionary(Of String, v), Optional ByRef Obj As T = Nothing) As T
+        Obj = If(Obj, Activator.CreateInstance(Of T))
+        Dim props = Obj.GetProperties
+        For Each k In Dic
+            If Obj.HasProperty(k.Key) Then
+                Obj.SetPropertyValue(k.Key, Conversion.CTypeDynamic(k.Value, props.SingleOrDefault(Function(i) i.Name = k.Key).PropertyType))
+            End If
+        Next
+        Return Obj
+    End Function
 
     ''' <summary>
     ''' Mapeia os objetos de um datareader para uma classe
@@ -110,12 +148,7 @@ Public Module ClassTools
         Dim l As New List(Of String)
         l.Add(First)
         l.AddRange(N)
-        For Each item In l
-            If item.IsNotBlank Then
-                Return item
-            End If
-        Next
-        Return ""
+        Return BlankCoalesce(l.ToArray)
     End Function
 
     ''' <summary>
@@ -269,7 +302,17 @@ Public Module ClassTools
     ''' <param name="Arr">colecao</param>
     ''' <returns></returns>
     <Extension()> Public Function DistinctCount(Of Type)(Arr As IEnumerable(Of Type)) As Dictionary(Of Type, Long)
-        Return Arr.Distinct.Select(Function(p) New KeyValuePair(Of Type, Long)(p, Arr.Where(Function(x) x.Equals(p)).LongCount)).OrderByDescending(Function(p) p.Value).ToDictionary(Function(p) p.Key, Function(p) p.Value)
+        Return Arr.Distinct.Select(Function(p) New KeyValuePair(Of Type, Long)(p, Arr.Where(Function(x) x.Equals(p)).LongCount)).OrderByDescending(Function(p) p.Value).ToDictionary
+    End Function
+
+    ''' <summary>
+    ''' Conta de maneira distinta items de uma coleçao
+    ''' </summary>
+    ''' <typeparam name="Type">TIpo de Objeto</typeparam>
+    ''' <param name="Arr">colecao</param>
+    ''' <returns></returns>
+    <Extension()> Public Function DistinctCount(Of Type, S)(Arr As IEnumerable(Of Type), Prop As Func(Of Type, S)) As Dictionary(Of Type, Long)
+        Return Arr.DistinctBy(Prop).Select(Function(p) New KeyValuePair(Of Type, Long)(p, Arr.Where(Function(x) x.Equals(p)).LongCount)).OrderByDescending(Function(p) p.Value).ToDictionary
     End Function
 
     ''' <summary>

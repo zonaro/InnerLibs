@@ -93,9 +93,9 @@ Public Module Converter
     ''' </summary>
     ''' <param name="Table"></param>
     ''' <returns></returns>
-    <Extension> Public Function ToHtmlTable(Table As IEnumerable(Of IDictionary(Of String, Object))) As HtmlElement
+    <Extension> Public Function ToHtmlTable(Table As IEnumerable(Of Dictionary(Of String, Object))) As HtmlElement
         Dim body = ""
-        Table = Table.Uniform
+        Table.Uniform
         For Each dic In Table
             Dim l As New List(Of String)
             For Each k In dic.Keys.ToArray
@@ -107,33 +107,6 @@ Public Module Converter
         Return New HtmlElement("table", body)
     End Function
 
-    ''' <summary>
-    ''' Aplica as mesmas keys a todos os dicionarios de uma lista
-    ''' </summary>
-    ''' <typeparam name="TKey">Tipo da key</typeparam>
-    ''' <typeparam name="TValue">Tipo do Valor</typeparam>
-    ''' <param name="Dics">Dicionarios</param>
-    ''' <returns></returns>
-    <Extension()> Function Uniform(Of TKey, TValue)(Dics As IEnumerable(Of IDictionary(Of TKey, TValue))) As List(Of IDictionary(Of TKey, TValue))
-        Dim templist = New List(Of IDictionary(Of TKey, TValue))(Dics)
-        Dim colunas As New List(Of TKey)
-        For Each dic In templist
-            colunas.AddRange(dic.Keys.ToArray)
-        Next
-        colunas = colunas.Distinct.ToList
-        For index = 0 To templist.LongCount - 1
-            Dim tempdic As New SortedDictionary(Of TKey, TValue)
-            For Each col In colunas
-                Try
-                    tempdic(col) = templist(index)(col)
-                Catch ex As Exception
-                    tempdic(col) = Nothing
-                End Try
-            Next
-            templist(index) = New SortedDictionary(Of TKey, TValue)(tempdic)
-        Next
-        Return templist
-    End Function
 
     ''' <summary>
     ''' Aplica as mesmas keys a todos os dicionarios de uma lista
@@ -141,12 +114,18 @@ Public Module Converter
     ''' <typeparam name="TKey">Tipo da key</typeparam>
     ''' <typeparam name="TValue">Tipo do Valor</typeparam>
     ''' <param name="Dics">Dicionarios</param>
-    ''' <returns></returns>
-    Function Uniform(Of TKey, TValue)(ParamArray Dics As IDictionary(Of TKey, TValue)()) As List(Of IDictionary(Of TKey, TValue))
-        Dim l As New List(Of IDictionary(Of TKey, TValue))
-        l = Uniform(Dics.ToList())
-        Return l
-    End Function
+    '''<param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
+    <Extension()> Sub Uniform(Of TKey, TValue)(ByRef Dics As IEnumerable(Of Dictionary(Of TKey, TValue)), ParamArray AditionalKeys As TKey())
+        AditionalKeys = If(AditionalKeys, {})
+        Dim chave = Dics.SelectMany(Function(x) x.Keys).Distinct.Union(AditionalKeys)
+        For Each dic In Dics
+            For Each key In chave
+                If Not dic.ContainsKey(key) Then
+                    dic(key) = Nothing
+                End If
+            Next
+        Next
+    End Sub
 
     ''' <summary>
     ''' Converte um tipo para outro

@@ -662,6 +662,28 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.GroupAndCountBy``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2})">
+ <summary>
+ Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade deo mesmo objeto
+ </summary>
+ <typeparam name="Type"></typeparam>
+ <typeparam name="Group"></typeparam>
+ <typeparam name="Count"></typeparam>
+ <param name="obj"></param>
+ <param name="GroupSelector"></param>
+ <param name="CountObjectBy"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.Map``2(System.Collections.Generic.Dictionary{System.String,``1},``0@)">
+ <summary>
+ Copia os valores de um dicionário para as propriedades de uma classe
+ </summary>
+ <typeparam name="T"></typeparam>
+ <typeparam name="v"></typeparam>
+ <param name="Dic"></param>
+ <param name="Obj"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.Map``1(System.Data.Common.DbDataReader,System.Object[])">
  <summary>
  Mapeia os objetos de um datareader para uma classe
@@ -781,6 +803,14 @@ InnerLibs
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.DistinctCount``1(System.Collections.Generic.IEnumerable{``0})">
+ <summary>
+ Conta de maneira distinta items de uma coleçao
+ </summary>
+ <typeparam name="Type">TIpo de Objeto</typeparam>
+ <param name="Arr">colecao</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.DistinctCount``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
  <summary>
  Conta de maneira distinta items de uma coleçao
  </summary>
@@ -3707,30 +3737,21 @@ Verifica se o objeto é do tipo numérico.
  <param name="Obj">Objeto</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Converter.ToHtmlTable(System.Collections.Generic.IEnumerable{System.Collections.Generic.IDictionary{System.String,System.Object}})">
+<member name="M:InnerLibs.Converter.ToHtmlTable(System.Collections.Generic.IEnumerable{System.Collections.Generic.Dictionary{System.String,System.Object}})">
  <summary>
  Converte uma lista de dicionários para uma tabela HTML
  </summary>
  <param name="Table"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Converter.Uniform``2(System.Collections.Generic.IEnumerable{System.Collections.Generic.IDictionary{``0,``1}})">
+<member name="M:InnerLibs.Converter.Uniform``2(System.Collections.Generic.IEnumerable{System.Collections.Generic.Dictionary{``0,``1}}@,``0[])">
  <summary>
  Aplica as mesmas keys a todos os dicionarios de uma lista
  </summary>
  <typeparam name="TKey">Tipo da key</typeparam>
  <typeparam name="TValue">Tipo do Valor</typeparam>
  <param name="Dics">Dicionarios</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Converter.Uniform``2(System.Collections.Generic.IDictionary{``0,``1}[])">
- <summary>
- Aplica as mesmas keys a todos os dicionarios de uma lista
- </summary>
- <typeparam name="TKey">Tipo da key</typeparam>
- <typeparam name="TValue">Tipo do Valor</typeparam>
- <param name="Dics">Dicionarios</param>
- <returns></returns>
+<param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
 </member>
 <member name="M:InnerLibs.Converter.ChangeType``2(``1)">
  <summary>
