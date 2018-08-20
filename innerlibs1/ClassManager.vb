@@ -29,6 +29,22 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
+    ''' <summary>
+    ''' Agrupa itens de uma lista a partir de duas propriedades de um objeto resultado em um grupo com subgrupos daquele objeto
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <typeparam name="Group"></typeparam>
+    ''' <typeparam name="SubGroup"></typeparam>
+    ''' <param name="obj"></param>
+    ''' <param name="GroupSelector"></param>
+    ''' <param name="SubGroupSelector"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GroupAndSubGroupBy(Of Type, Group, SubGroup)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group), SubGroupSelector As Func(Of Type, SubGroup)) As Dictionary(Of Group, Dictionary(Of SubGroup, IEnumerable(Of Type)))
+        Dim dic_of_dic = obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Dictionary(Of SubGroup, IEnumerable(Of Type)))(x.Key, x.GroupBy(SubGroupSelector).ToDictionary(Function(y) y.Key, Function(y) y.AsEnumerable))).ToDictionary()
+        dic_of_dic.Values.Uniform
+        Return dic_of_dic
+    End Function
+
 
 
     ''' <summary>
@@ -306,13 +322,13 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Conta de maneira distinta items de uma coleçao
+    ''' Conta de maneira distinta items de uma coleçao a partir de uma propriedade
     ''' </summary>
     ''' <typeparam name="Type">TIpo de Objeto</typeparam>
     ''' <param name="Arr">colecao</param>
     ''' <returns></returns>
-    <Extension()> Public Function DistinctCount(Of Type, S)(Arr As IEnumerable(Of Type), Prop As Func(Of Type, S)) As Dictionary(Of Type, Long)
-        Return Arr.DistinctBy(Prop).Select(Function(p) New KeyValuePair(Of Type, Long)(p, Arr.Where(Function(x) x.Equals(p)).LongCount)).OrderByDescending(Function(p) p.Value).ToDictionary
+    <Extension()> Public Function DistinctCount(Of Type, PropT)(Arr As IEnumerable(Of Type), Prop As Func(Of Type, PropT)) As Dictionary(Of PropT, Long)
+        Return Arr.GroupBy(Prop).ToDictionary(Function(x) x.Key, Function(x) x.LongCount).OrderByDescending(Function(p) p.Value).ToDictionary
     End Function
 
     ''' <summary>

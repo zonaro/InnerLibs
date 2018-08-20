@@ -674,6 +674,18 @@ InnerLibs
  <param name="CountObjectBy"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.GroupAndSubGroupBy``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2})">
+ <summary>
+ Agrupa itens de uma lista a partir de duas propriedades de um objeto resultado em um grupo com subgrupos daquele objeto
+ </summary>
+ <typeparam name="Type"></typeparam>
+ <typeparam name="Group"></typeparam>
+ <typeparam name="SubGroup"></typeparam>
+ <param name="obj"></param>
+ <param name="GroupSelector"></param>
+ <param name="SubGroupSelector"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.Map``2(System.Collections.Generic.Dictionary{System.String,``1},``0@)">
  <summary>
  Copia os valores de um dicionário para as propriedades de uma classe
@@ -812,7 +824,7 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.ClassTools.DistinctCount``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
  <summary>
- Conta de maneira distinta items de uma coleçao
+ Conta de maneira distinta items de uma coleçao a partir de uma propriedade
  </summary>
  <typeparam name="Type">TIpo de Objeto</typeparam>
  <param name="Arr">colecao</param>
