@@ -82,10 +82,13 @@ Namespace Select2Data
         ''' <returns></returns>
         Public Property children As New List(Of Result)
 
+        ''' <summary>
+        ''' id do optgroup
+        ''' </summary>
+        ''' <returns></returns>
         Public Property id As String = ""
 
         Public Sub New()
-
         End Sub
 
         Public Sub New(Text As String)
@@ -111,6 +114,9 @@ Namespace Select2Data
 
     End Class
 
+    ''' <summary>
+    ''' Classe Base para resultados do Select2. Deve ser herdada
+    ''' </summary>
     Public MustInherit Class Select2ResultType
         ''' <summary>
         ''' Texto deste optgroup ou option
@@ -123,18 +129,30 @@ Namespace Select2Data
         ''' <returns></returns>
         Public Property otherdata As AditionalData
 
+        ''' <summary>
+        ''' Converte este objeto para <see cref="HtmlElement"/>
+        ''' </summary>
+        ''' <returns></returns>
         Public MustOverride Function ToHtmlElement() As HtmlElement
 
     End Class
 
+    ''' <summary>
+    ''' Informações adicionais a este resultado
+    ''' </summary>
     Public Class AditionalData
         Inherits Dictionary(Of String, Object)
 
+        ''' <summary>
+        ''' Converte uma querystring para AditionalData
+        ''' </summary>
+        ''' <param name="s"></param>
+        ''' <returns></returns>
         Public Shared Widening Operator CType(s As String) As AditionalData
             Dim e As New AditionalData
             Dim n = System.Web.HttpUtility.ParseQueryString(s).ToDictionary
             For Each el In n.Keys
-                e.Add(el, n(el))
+                e(el) = n(el)
             Next
             Return e
         End Operator
@@ -145,11 +163,28 @@ Namespace Select2Data
     ''' </summary>
     ''' <typeparam name="Type"></typeparam> 
     Public Class Select2Results(Of Type As Select2ResultType)
+
+        ''' <summary>
+        ''' Lista de options ou optgroups atrelados a este conjunto de resultados
+        ''' </summary>
+        ''' <returns></returns>
         Public Property results As New List(Of Type)
+        ''' <summary>
+        ''' Objeto paginação do Select2
+        ''' </summary>
+        ''' <returns></returns>
         Public Property pagination As New Pagination
+        ''' <summary>
+        ''' Informações adicionais (formato QueryString)
+        ''' </summary>
+        ''' <returns></returns>
         Public Property otherdata As New AditionalData
 
-
+        ''' <summary>
+        ''' Converte este objeto para um <see cref="HtmlElement"/> (Select com options)
+        ''' </summary>
+        ''' <param name="Name"></param>
+        ''' <returns></returns>
         Public Function ToHtmlElement(Optional Name As String = "") As HtmlElement
             Dim d As New HtmlElement("select")
             If Name.IsNotBlank Then
