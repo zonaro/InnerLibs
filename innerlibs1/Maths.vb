@@ -250,17 +250,7 @@ Public Module Mathematic
     ''' <returns></returns>
     <Extension>
     Public Function Slice(Value As Decimal, Optional Places As Integer = 2) As Decimal
-        Try
-            Dim splaces = ""
-            If Places > 0 Then splaces = "."
-            For index = 1 To Places
-                splaces.Append("#")
-            Next
-
-            Return Value.ToString("###############" & splaces).ChangeType(Of Decimal)
-        Catch ex As Exception
-            Return Value
-        End Try
+        Return Decimal.Round(Value, Places.LimitRange(0, 28))
     End Function
 
     ''' <summary>

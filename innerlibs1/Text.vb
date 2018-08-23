@@ -7,6 +7,7 @@ Imports System.Web
 Imports System.Web.UI.HtmlControls
 Imports System.Xml
 Imports InnerLibs.HtmlParser
+Imports InnerLibs.LINQ
 
 ''' <summary>
 ''' Modulo de manipulação de Texto
@@ -14,50 +15,26 @@ Imports InnerLibs.HtmlParser
 ''' <remarks></remarks>
 Public Module Text
 
-
-
-    '''<summary>
-    ''' Computa a distancia de Levenshtein entre 2 strings.
+    ''' <summary>
+    ''' Caracteres usado para encapsular palavras em textos
     ''' </summary>
-    <Extension()> Public Function LevenshteinDistance(Text1 As String, Text2 As String) As Integer
-
-        Dim n As Integer = Text1.Length
-        Dim m As Integer = Text2.Length
-        Dim d As Integer(,) = New Integer(n + 1, m + 1) {}
-
-        ' Step 1
-        If (n = 0) Then
-            Return m
-        End If
-
-        If (m = 0) Then
-            Return n
-        End If
-
-        ' Step 2
-        For i As Integer = 0 To n
-            d(i, 0) = i
-        Next
-
-        For j As Integer = 0 To m
-            d(0, j) = j
-        Next
-
-        ' Step 3
-        For i = 1 To n
-            'Step 4
-            For j = 1 To m
-                ' Step 5
-                Dim cost As Integer = If(Text2(j - 1) = Text1(i - 1), 0, 1)
-                'Step 6
-                d(i, j) = Math.Min(Math.Min(d(i - 1, j) + 1, d(i, j - 1) + 1), d(i - 1, j - 1) + cost)
-            Next
-        Next
-        ' Step 7
-        Return d(n, m)
-    End Function
+    ''' <returns></returns>
+    ReadOnly Property WordWrappers As String()
+        Get
+            Return OpenWrappers.Union(CloseWrappers).ToArray
+        End Get
+    End Property
 
     ReadOnly Property BreakLineChars As String() = {Environment.NewLine, vbCr, vbLf, vbCrLf, vbNewLine}
+
+    ReadOnly Property CloseWrappers As String() = {"""", "'", ")", "}", "]", ">"}
+
+    ReadOnly Property EndOfSentencePunctuation As String() = {".", "?", "!"}
+
+    ReadOnly Property MidSentencePunctuation As String() = {":", ";", ","}
+
+    ReadOnly Property OpenWrappers As String() = {"""", "'", "(", "{", "[", "<"}
+
     ''' <summary>
     ''' Caracteres em branco
     ''' </summary>
@@ -69,22 +46,6 @@ Public Module Text
     ''' </summary>
     ''' <returns></returns>
     ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine, vbCr, vbCrLf}
-
-    ''' <summary>
-    ''' Caracteres usado para encapsular palavras em textos
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property WordWrappers As String()
-        Get
-            Return OpenWrappers.Union(CloseWrappers).ToArray
-        End Get
-    End Property
-    ReadOnly Property OpenWrappers As String() = {"""", "'", "(", "{", "[", "<"}
-    ReadOnly Property CloseWrappers As String() = {"""", "'", ")", "}", "]", ">"}
-
-    ReadOnly Property EndOfSentencePunctuation As String() = {".", "?", "!"}
-    ReadOnly Property MidSentencePunctuation As String() = {":", ";", ","}
-
 
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String
@@ -130,7 +91,6 @@ Public Module Text
             Text = arr.Join(Environment.NewLine)
             arr = Text.Split(New String() {" "}, StringSplitOptions.RemoveEmptyEntries)
             Text = arr.Join(" ")
-
 
         End If
 
@@ -184,6 +144,23 @@ Public Module Text
             Text = Text.Replace(c, " " & c & " ")
         Next
         Return Text
+    End Function
+
+    ''' <summary>
+    ''' Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CamelSplit(Text As String) As String
+        Dim chars = Text.ToArray
+        Text = ""
+        For Each c In chars
+            If Char.IsUpper(c) Then
+                Text &= " "
+            End If
+            Text &= c
+        Next
+        Return Text.Trim
     End Function
 
     ''' <summary>
@@ -432,6 +409,32 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Prepara uma string com aspas simples para uma Query TransactSQL
+    ''' </summary>
+    ''' <param name="Text">Texto a ser tratado</param>
+    ''' <returns>String pornta para a query</returns>
+    <Extension()>
+    Public Function EscapeQuotesToQuery(Text As String) As String
+        Return Text.Replace("'", "''")
+    End Function
+
+    ''' <summary>
+    ''' Procura numeros em uma string e retorna um array deles
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FindNumbers(Text As String) As Long()
+        Dim l As New List(Of Long)
+        Dim numbers As String() = Regex.Split(Text, "\D+")
+        For Each value In numbers
+            If Not value.IsBlank Then
+                l.Add(value.ChangeType(Of Long))
+            End If
+        Next
+        Return l.ToArray
+    End Function
+
+    ''' <summary>
     ''' Procurea numeros de telefone em um texto
     ''' </summary>
     ''' <param name="Text"></param>
@@ -454,13 +457,6 @@ Public Module Text
         Return Text.ReplaceMany(vbCr & vbLf, "<br/>", "<br />", "<br>")
         Return Text.Replace("&nbsp;", " ")
     End Function
-
-    ''' <summary>
-    ''' Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final
-    ''' (é um alias para <see cref="AdjustWhiteSpaces"/> da frase
-    ''' </summary>
-    ''' <param name="Text">Frase a ser manipulada</param>
-    ''' <returns>Uma String com a frase corrigida</returns>
 
     <Extension()>
     Public Function FixCaptalization(ByVal Text As String) As String
@@ -496,6 +492,12 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final
+    ''' (é um alias para <see cref="AdjustWhiteSpaces"/> da frase
+    ''' </summary>
+    ''' <param name="Text">       Frase a ser manipulada</param>
+    ''' <returns>Uma String com a frase corrigida</returns>
+    ''' <summary>
     ''' Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao.
     ''' </summary>
     ''' <param name="Text">       Frase, Texto a ser pontuado</param>
@@ -513,16 +515,6 @@ Public Module Text
             End If
         End If
         Return Text
-    End Function
-
-    ''' <summary>
-    ''' Prepara uma string com aspas simples para uma Query TransactSQL
-    ''' </summary>
-    ''' <param name="Text">Texto a ser tratado</param>
-    ''' <returns>String pornta para a query</returns>
-    <Extension()>
-    Public Function EscapeQuotesToQuery(Text As String) As String
-        Return Text.Replace("'", "''")
     End Function
 
     ''' <summary>
@@ -631,8 +623,6 @@ Public Module Text
         Return d
     End Function
 
-
-
     ''' <summary>
     ''' Pega o dominio principal de uma URL
     ''' </summary>
@@ -642,30 +632,6 @@ Public Module Text
     Public Function GetDomain(URL As String, Optional RemoveFirstSubdomain As Boolean = False) As String
         Return New Uri(URL).GetDomain(RemoveFirstSubdomain)
     End Function
-
-
-    ''' <summary>
-    ''' Retorna N caracteres de uma string a partir do caractere encontrado no centro
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="Length"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function GetMiddleChars(ByVal Text As String, Length As Integer) As String
-        Text = Text.IfBlank("")
-        If Text.Length >= Length Then
-            If Text.Length Mod 2 <> 0 Then
-                Try
-                    Return Text.Substring(Text.Length / 2 - 1, Length)
-                Catch ex As Exception
-                    Return Text.GetMiddleChars(Length - 1)
-                End Try
-            Else
-                Return Text.RemoveLastChars(1).GetMiddleChars(Length)
-            End If
-        End If
-        Return Text
-    End Function
-
 
     <Extension()>
     Public Function GetFirstChars(Text As String, Optional Number As Integer = 1) As String
@@ -749,6 +715,28 @@ Public Module Text
         Else
             Return Text.Substring(Text.Length - Number)
         End If
+    End Function
+
+    ''' <summary>
+    ''' Retorna N caracteres de uma string a partir do caractere encontrado no centro
+    ''' </summary>
+    ''' <param name="Text">  </param>
+    ''' <param name="Length"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetMiddleChars(ByVal Text As String, Length As Integer) As String
+        Text = Text.IfBlank("")
+        If Text.Length >= Length Then
+            If Text.Length Mod 2 <> 0 Then
+                Try
+                    Return Text.Substring(Text.Length / 2 - 1, Length)
+                Catch ex As Exception
+                    Return Text.GetMiddleChars(Length - 1)
+                End Try
+            Else
+                Return Text.RemoveLastChars(1).GetMiddleChars(Length)
+            End If
+        End If
+        Return Text
     End Function
 
     ''' <summary>
@@ -888,11 +876,10 @@ Public Module Text
         Return System.Web.HttpUtility.HtmlDecode("" & Text).ReplaceMany(vbCr & vbLf, "<br/>", "<br />", "<br>")
     End Function
 
-
     ''' <summary>
     ''' Escapa o texto HTML
     ''' </summary>
-    ''' <param name="Text">  string HTML</param>
+    ''' <param name="Text">string HTML</param>
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
@@ -1010,6 +997,47 @@ Public Module Text
         Return List.ToArray.Join(Separator)
     End Function
 
+    '''<summary>
+    ''' Computa a distancia de Levenshtein entre 2 strings.
+    ''' </summary>
+    <Extension()> Public Function LevenshteinDistance(Text1 As String, Text2 As String) As Integer
+
+        Dim n As Integer = Text1.Length
+        Dim m As Integer = Text2.Length
+        Dim d As Integer(,) = New Integer(n + 1, m + 1) {}
+
+        ' Step 1
+        If (n = 0) Then
+            Return m
+        End If
+
+        If (m = 0) Then
+            Return n
+        End If
+
+        ' Step 2
+        For i As Integer = 0 To n
+            d(i, 0) = i
+        Next
+
+        For j As Integer = 0 To m
+            d(0, j) = j
+        Next
+
+        ' Step 3
+        For i = 1 To n
+            'Step 4
+            For j = 1 To m
+                ' Step 5
+                Dim cost As Integer = If(Text2(j - 1) = Text1(i - 1), 0, 1)
+                'Step 6
+                d(i, j) = Math.Min(Math.Min(d(i - 1, j) + 1, d(i, j - 1) + 1), d(i - 1, j - 1) + cost)
+            Next
+        Next
+        ' Step 7
+        Return d(n, m)
+    End Function
+
     ''' <summary>
     ''' limpa um texto deixando apenas os caracteres alfanumericos.
     ''' </summary>
@@ -1051,7 +1079,7 @@ Public Module Text
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
     <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As TypeClass
-        Return New Json(DateFormat).Deserialize(Of TypeClass)(JSON)
+        Return New Json().Deserialize(Of TypeClass)(JSON)
     End Function
 
     ''' <summary>
@@ -1059,11 +1087,9 @@ Public Module Text
     ''' </summary>
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
-    <Extension()> Public Function ParseJSON(JSON As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Object
-        Return New Json(DateFormat).Deserialize(Of Object)(JSON)
+    <Extension()> Public Function ParseJSON(JSON As String) As Object
+        Return New Json().Deserialize(Of Object)(JSON)
     End Function
-
-
 
     ''' <summary>
     ''' Retorna uma string em sua forma poop
@@ -1616,12 +1642,17 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma um Objeto em JSON
+    ''' Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="Json.SerializeJSON(Object)"/>
     ''' </summary>
-    ''' <param name="[Object]">Objeto</param>
+    ''' <param name="Obj">Objeto</param>
     ''' <returns>Uma String JSON</returns>
-    <Extension()> Public Function SerializeJSON([Object] As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
-        Return New Json(DateFormat).Serialize([Object])
+    <Extension()> Public Function SerializeJSON(Obj As Object, ParamArray params As Object()) As String
+        Dim mds = Obj.GetType.GetMethods().Where(Function(x) x.ReturnType = GetType(String) AndAlso x.Name.ToLower.ContainsAny("tojson"))
+        If mds.Count > 0 Then
+            Return mds.First.Invoke(Obj, params)
+        Else
+            Return Json.SerializeJSON(Obj)
+        End If
     End Function
 
     ''' <summary>
@@ -1629,20 +1660,8 @@ Public Module Text
     ''' </summary>
     ''' <typeparam name="Type">Tipo do Array</typeparam>
     ''' <param name="Array">Matriz</param>
-    <Extension()> Public Function Shuffle(Of Type)(ByRef Array() As Type) As Type()
-        Dim last As Integer = Array.Length - 1
-        Dim B(last) As Type
-        Dim done(last) As Byte
-        Dim r As New Random(My.Computer.Clock.TickCount)
-        Dim n As Integer
-        For i As Integer = 0 To last
-            Do
-                n = r.Next(last + 1)
-            Loop Until Not done(n)
-            done(n) = 1
-            B(i) = Array(n)
-        Next
-        Array = B
+    <Extension()> Public Function Shuffle(Of Type)(ByRef Array As Type()) As Type()
+        Array = Array.OrderByRandom().ToArray
         Return Array
     End Function
 
@@ -1765,6 +1784,25 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Alterna maiusculas e minusculas para cada letra de uma string
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToAlternateCase(Text As String) As String
+        Dim ch = Text.ToArray
+        For index = 0 To ch.Length - 1
+            Dim antec = ch.IfNoIndex(index - 1, "")
+
+            If antec.ToString.IsBlank OrElse Char.IsLower(antec) OrElse antec = vbNullChar Then
+                ch(index) = Char.ToUpper(ch(index))
+            Else
+                ch(index) = Char.ToLower(ch(index))
+            End If
+        Next
+        Return New String(ch)
+    End Function
+
+    ''' <summary>
     ''' Retorna um anagrama de um texto
     ''' </summary>
     ''' <param name="Text">Texto</param>
@@ -1845,57 +1883,6 @@ Public Module Text
     <Extension()>
     Public Function ToCamel(Text As String) As String
         Return ToProper(Text).Split(" ", StringSplitOptions.RemoveEmptyEntries).Join("")
-    End Function
-
-    ''' <summary>
-    ''' Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function CamelSplit(Text As String) As String
-        Dim chars = Text.ToArray
-        Text = ""
-        For Each c In chars
-            If Char.IsUpper(c) Then
-                Text &= " "
-            End If
-            Text &= c
-        Next
-        Return Text.Trim
-    End Function
-
-    ''' <summary>
-    ''' Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToRandomCase(Text As String) As String
-        Dim ch = Text.ToArray
-        Dim times = ch.Length
-        For index = 1 To times
-            Dim newindex = RandomNumber(0, ch.Length - 1)
-            ch(newindex) = Char.ToUpper(ch(newindex))
-        Next
-        Return New String(ch)
-    End Function
-
-    ''' <summary>
-    ''' Alterna maiusculas e minusculas para cada letra de uma string
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToAlternateCase(Text As String) As String
-        Dim ch = Text.ToArray
-        For index = 0 To ch.Length - 1
-            Dim antec = ch.IfNoIndex(index - 1, "")
-
-            If antec.ToString.IsBlank OrElse Char.IsLower(antec) OrElse antec = vbNullChar Then
-                ch(index) = Char.ToUpper(ch(index))
-            Else
-                ch(index) = Char.ToLower(ch(index))
-            End If
-        Next
-        Return New String(ch)
     End Function
 
     ''' <summary>
@@ -2801,6 +2788,58 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Retorna um texto quantificado a partir de um numero
+    ''' </summary>
+    ''' <param name="Number">     </param>
+    ''' <param name="CultureInfo"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToQuantityText(Number As Integer, Optional CultureInfo As CultureInfo = Nothing) As String
+        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
+    End Function
+
+    ''' <summary>
+    ''' Retorna um texto quantificado a partir de um numero
+    ''' </summary>
+    ''' <param name="Number">     </param>
+    ''' <param name="CultureInfo"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToQuantityText(Number As Long, Optional CultureInfo As CultureInfo = Nothing) As String
+        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
+    End Function
+
+    ''' <summary>
+    ''' Retorna um texto quantificado a partir de um numero
+    ''' </summary>
+    ''' <param name="Number">     </param>
+    ''' <param name="CultureInfo"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToQuantityText(Number As Decimal, Optional CultureInfo As CultureInfo = Nothing) As String
+        Dim sizeTypes() As String = {"", "Mil", "Milhões", "Bilhões", "Trilhões", "Quadrilhões", "Quintilhões"}
+        Dim sizeType As Integer = 0
+        Do While Number > 1000
+            Number = (Number / 1000).Slice(2)
+            sizeType.Increment
+            If sizeType >= sizeTypes.Length - 1 Then Exit Do
+        Loop
+        Return (Number & " " & sizeTypes(sizeType)).Trim().QuantifyText(Number, CultureInfo)
+    End Function
+
+    ''' <summary>
+    ''' Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToRandomCase(Text As String) As String
+        Dim ch = Text.ToArray
+        Dim times = ch.Length
+        For index = 1 To times
+            Dim newindex = RandomNumber(0, ch.Length - 1)
+            ch(newindex) = Char.ToUpper(ch(newindex))
+        Next
+        Return New String(ch)
+    End Function
+
+    ''' <summary>
     ''' Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca
     ''' espacos por hifen). É um alias para <see cref="ToFriendlyURL(String, Boolean)"/>
     ''' </summary>
@@ -2899,11 +2938,10 @@ Public Module Text
         Return Number.ToString.ToTelephone
     End Function
 
-
     ''' <summary>
     ''' Transforma um texto em titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
     ''' </summary>
-    ''' <param name="Text">      Texto a ser manipulado</param>
+    ''' <param name="Text">Texto a ser manipulado</param>
     ''' <returns>Uma String com o texto em nome próprio</returns>
     <Extension()>
     Public Function ToTitle(Text As String) As String
@@ -2919,49 +2957,11 @@ Public Module Text
         Dim sizeTypes() As String = {"", "K", "M", "G", "T", "P", "E"}
         Dim sizeType As Integer = 0
         Do While Number > 1000
-            Number = Decimal.Round(CType(Number, Decimal) / 1000, 2)
+            Number = (Number / 1000).Slice(1)
             sizeType.Increment
             If sizeType >= sizeTypes.Length - 1 Then Exit Do
         Loop
         Return (Number & " " & sizeTypes(sizeType)).Trim()
-    End Function
-
-
-    ''' <summary>
-    ''' Retorna um texto quantificado a partir de um numero
-    ''' </summary>
-    ''' <param name="Number"></param>
-    ''' <param name="CultureInfo"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToQuantityText(Number As Integer, Optional CultureInfo As CultureInfo = Nothing) As String
-        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
-    End Function
-
-    ''' <summary>
-    ''' Retorna um texto quantificado a partir de um numero
-    ''' </summary>
-    ''' <param name="Number"></param>
-    ''' <param name="CultureInfo"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToQuantityText(Number As Long, Optional CultureInfo As CultureInfo = Nothing) As String
-        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
-    End Function
-
-    ''' <summary>
-    ''' Retorna um texto quantificado a partir de um numero
-    ''' </summary>
-    ''' <param name="Number"></param>
-    ''' <param name="CultureInfo"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToQuantityText(Number As Decimal, Optional CultureInfo As CultureInfo = Nothing) As String
-        Dim sizeTypes() As String = {"", "Mil", "Milhões", "Bilhões", "Trilhões", "Quadrilhões", "Quintilhões"}
-        Dim sizeType As Integer = 0
-        Do While Number > 1000
-            Number = Decimal.Round(CType(Number, Decimal) / 1000, 2)
-            sizeType.Increment
-            If sizeType >= sizeTypes.Length - 1 Then Exit Do
-        Loop
-        Return (Number & " " & sizeTypes(sizeType)).Trim().QuantifyText(Number, CultureInfo)
     End Function
 
     ''' <summary>
@@ -2969,7 +2969,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function ToUnitString(Number As Integer)
+    <Extension()> Public Function ToUnitString(Number As Integer) As String
         Return Number.ChangeType(Of Decimal).ToUnitString
     End Function
 
@@ -2978,7 +2978,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function ToUnitString(Number As Long)
+    <Extension()> Public Function ToUnitString(Number As Long) As String
         Return Number.ChangeType(Of Decimal).ToUnitString
     End Function
 
@@ -3064,7 +3064,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function UrlEncode(ByVal Text As String) As String
-        Return System.Web.HttpUtility.UrlEncode("" & Text)
+        Return HttpUtility.UrlEncode("" & Text)
     End Function
 
     ''' <summary>
@@ -3091,23 +3091,6 @@ Public Module Text
     Function WrapInTag(Text As String, TagName As String) As HtmlParser.HtmlElement
         TagName = TagName.RemoveAny("<", ">", "/").ToLower()
         Return New HtmlParser.HtmlElement(TagName, Text)
-    End Function
-
-
-    ''' <summary>
-    ''' Procura numeros em uma string e retorna um array deles
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function FindNumbers(Text As String) As Long()
-        Dim l As New List(Of Long)
-        Dim numbers As String() = Regex.Split(Text, "\D+")
-        For Each value In numbers
-            If Not value.IsBlank Then
-                l.Add(value.ChangeType(Of Long))
-            End If
-        Next
-        Return l.ToArray
     End Function
 
     <Extension()>

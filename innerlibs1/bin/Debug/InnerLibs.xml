@@ -385,7 +385,7 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Locations.GeoIP.ToJSON(System.String)">
+<member name="M:InnerLibs.Locations.GeoIP.ToJSON">
  <summary>
  Retorna uma string JSON do objeto
  </summary>
@@ -660,6 +660,15 @@ InnerLibs
  Pega o conteudo HTML de uma página da web logo após seu carregamento
  </summary>
  <param name="URL">URL</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.Detach``1(System.Collections.Generic.List{``0},System.Int32)">
+ <summary>
+ Remove um item de uma lista e retorna este item
+ </summary>
+ <typeparam name="T">Tipo do item</typeparam>
+ <param name="List">Lista</param>
+ <param name="Index">Posicao do item</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.GroupAndCountBy``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2})">
@@ -2152,7 +2161,7 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DataBase.Reader.ToJSON(System.Boolean,System.String)">
+<member name="M:InnerLibs.DataBase.Reader.ToJSON(System.Boolean)">
  <summary>
  Retorna um Json do Reader
  </summary>
@@ -3767,7 +3776,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Converter.ChangeType``2(``1)">
  <summary>
- Converte um tipo para outro
+ Converte um tipo para outro. Retorna Nothing (NULL) se a covnersão falhar
  </summary>
  <typeparam name="ToType">Tipo</typeparam>
  <param name="Value">Variavel com valor</param>
@@ -3839,14 +3848,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="[NameValueCollection]">Formulario</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Converter.ToJSON(System.Collections.Specialized.NameValueCollection,System.String)">
+<member name="M:InnerLibs.Converter.ToJSON(System.Collections.Specialized.NameValueCollection)">
  <summary>
  Converte um NameValueCollection para string JSON
  </summary>
  <param name="[NameValueCollection]">Formulário</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Converter.ToJSON(System.Web.HttpRequest,System.String)">
+<member name="M:InnerLibs.Converter.ToJSON(System.Web.HttpRequest)">
  <summary>
  COnverte os Valores de um Formulário enviado por GET ou POST em JSON
  </summary>
@@ -6137,6 +6146,17 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.Select2Data.Group.id">
+ <summary>
+ id do optgroup
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Select2Data.Select2ResultType">
+ <summary>
+ Classe Base para resultados do Select2. Deve ser herdada
+ </summary>
+</member>
 <member name="P:InnerLibs.Select2Data.Select2ResultType.text">
  <summary>
  Texto deste optgroup ou option
@@ -6149,11 +6169,54 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Select2Data.Select2ResultType.ToHtmlElement">
+ <summary>
+ Converte este objeto para <see cref="T:InnerLibs.HtmlParser.HtmlElement"/>
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.Select2Data.AditionalData">
+ <summary>
+ Informações adicionais a este resultado
+ </summary>
+</member>
+<member name="M:InnerLibs.Select2Data.AditionalData.op_Implicit(System.String)~InnerLibs.Select2Data.AditionalData">
+ <summary>
+ Converte uma querystring para AditionalData
+ </summary>
+ <param name="s"></param>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.Select2Data.Select2Results`1">
  <summary>
  Classe base para serializaçao de json para um Select2
  </summary>
  <typeparam name="Type"></typeparam> 
+</member>
+<member name="P:InnerLibs.Select2Data.Select2Results`1.results">
+ <summary>
+ Lista de options ou optgroups atrelados a este conjunto de resultados
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Select2Data.Select2Results`1.pagination">
+ <summary>
+ Objeto paginação do Select2
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Select2Data.Select2Results`1.otherdata">
+ <summary>
+ Informações adicionais (formato QueryString)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Select2Data.Select2Results`1.ToHtmlElement(System.String)">
+ <summary>
+ Converte este objeto para um <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> (Select com options)
+ </summary>
+ <param name="Name"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Select2Data.Select2Results`1.ToJSON">
  <summary>
@@ -6167,21 +6230,21 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Json.SerializeJSON(System.Object,System.String)">
+<member name="M:InnerLibs.Json.SerializeJSON(System.Object)">
  <summary>
  Converte um objeto para JSON
  </summary>
  <param name="Obj"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Json.DeserializeJSON(System.Object,System.String)">
+<member name="M:InnerLibs.Json.DeserializeJSON(System.Object)">
  <summary>
  Converte um JSON para objeto
  </summary>
  <param name="Obj"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Json.DeserializeJSON``1(System.Object,System.String)">
+<member name="M:InnerLibs.Json.DeserializeJSON``1(System.Object)">
  <summary>
  Converte um JSON para objeto
  </summary>
@@ -7083,7 +7146,7 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.MenuBuilder.MenuBuilder.ToJSON(System.String)">
+<member name="M:InnerLibs.MenuBuilder.MenuBuilder.ToJSON">
  <summary>
  Transforma a classe em um json
  </summary>
@@ -8288,10 +8351,11 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:InnerLibs.Text.LevenshteinDistance(System.String,System.String)">
-<summary>
- Computa a distancia de Levenshtein entre 2 strings.
+<member name="P:InnerLibs.Text.WordWrappers">
+ <summary>
+ Caracteres usado para encapsular palavras em textos
  </summary>
+ <returns></returns>
 </member>
 <member name="P:InnerLibs.Text.WhiteSpaceChars">
  <summary>
@@ -8302,12 +8366,6 @@ Verifica se o objeto é do tipo numérico.
 <member name="P:InnerLibs.Text.WordSplitters">
  <summary>
  Strings utilizadas para descobrir as palavras em uma string
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.Text.WordWrappers">
- <summary>
- Caracteres usado para encapsular palavras em textos
  </summary>
  <returns></returns>
 </member>
@@ -8336,6 +8394,13 @@ Verifica se o objeto é do tipo numérico.
 <member name="M:InnerLibs.Text.ApplySpaceOnWrapChars(System.String)">
  <summary>
  Aplica espacos em todos os caracteres de encapsulamento
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.CamelSplit(System.String)">
+ <summary>
+ Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas
  </summary>
  <param name="Text"></param>
  <returns></returns>
@@ -8457,6 +8522,20 @@ Verifica se o objeto é do tipo numérico.
  <param name="Words"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Text.EscapeQuotesToQuery(System.String)">
+ <summary>
+ Prepara uma string com aspas simples para uma Query TransactSQL
+ </summary>
+ <param name="Text">Texto a ser tratado</param>
+ <returns>String pornta para a query</returns>
+</member>
+<member name="M:InnerLibs.Text.FindNumbers(System.String)">
+ <summary>
+ Procura numeros em uma string e retorna um array deles
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.FindTelephoneNumbers(System.String)">
  <summary>
  Procurea numeros de telefone em um texto
@@ -8471,28 +8550,19 @@ Verifica se o objeto é do tipo numérico.
  <param name="Text">Texto correspondente</param>
  <returns>String fixada</returns>
 </member>
-<member name="M:InnerLibs.Text.FixCaptalization(System.String)">
+<member name="M:InnerLibs.Text.FixPunctuation(System.String@,System.String,System.Boolean)">
  <summary>
  Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final
  (é um alias para <see cref="M:InnerLibs.Text.AdjustWhiteSpaces(System.String)"/> da frase
  </summary>
- <param name="Text">Frase a ser manipulada</param>
+ <param name="Text">       Frase a ser manipulada</param>
  <returns>Uma String com a frase corrigida</returns>
-</member>
-<member name="M:InnerLibs.Text.FixPunctuation(System.String@,System.String,System.Boolean)">
  <summary>
  Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao.
  </summary>
  <param name="Text">       Frase, Texto a ser pontuado</param>
  <param name="Punctuation">Ponto a ser adicionado na frase se a mesma não estiver com pontuacao</param>
  <returns>Frase corretamente pontuada</returns>
-</member>
-<member name="M:InnerLibs.Text.EscapeQuotesToQuery(System.String)">
- <summary>
- Prepara uma string com aspas simples para uma Query TransactSQL
- </summary>
- <param name="Text">Texto a ser tratado</param>
- <returns>String pornta para a query</returns>
 </member>
 <member name="M:InnerLibs.Text.FixText(System.String)">
  <summary>
@@ -8558,14 +8628,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="URL">URL</param>
  <returns>nome do dominio</returns>
 </member>
-<member name="M:InnerLibs.Text.GetMiddleChars(System.String,System.Int32)">
- <summary>
- Retorna N caracteres de uma string a partir do caractere encontrado no centro
- </summary>
- <param name="Text"></param>
- <param name="Length"></param>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.Text.GetKeyWords(System.String,System.Int32,System.Int32,System.Int32,System.Boolean,System.String[],System.String[])">
  <summary>
  Extrai palavras chave de um texto seguindo critérios especificos.
@@ -8578,6 +8640,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="ImportantWords">  
  Palavras importantes. elas sempre serão adicionadas a lista de tags desde que não estejam nas <paramref name="IgnoredWords"/>
  </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.GetMiddleChars(System.String,System.Int32)">
+ <summary>
+ Retorna N caracteres de uma string a partir do caractere encontrado no centro
+ </summary>
+ <param name="Text">  </param>
+ <param name="Length"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.GetOppositeWrapChar(System.String)">
@@ -8642,7 +8712,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Escapa o texto HTML
  </summary>
- <param name="Text">  string HTML</param>
+ <param name="Text">string HTML</param>
  <returns>String HTML corrigido</returns>
 </member>
 <member name="M:InnerLibs.Text.Increment(System.Int32@,System.Int32)">
@@ -8716,6 +8786,11 @@ Verifica se o objeto é do tipo numérico.
  <param name="Separator">Separador entre as strings</param>
  <returns>string</returns>
 </member>
+<member name="M:InnerLibs.Text.LevenshteinDistance(System.String,System.String)">
+<summary>
+ Computa a distancia de Levenshtein entre 2 strings.
+ </summary>
+</member>
 <member name="M:InnerLibs.Text.MakeClean(System.String)">
  <summary>
  limpa um texto deixando apenas os caracteres alfanumericos.
@@ -8738,7 +8813,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="JSON">String JSON</param>
  <returns>Um objeto do tipo T</returns>
 </member>
-<member name="M:InnerLibs.Text.ParseJSON(System.String,System.String)">
+<member name="M:InnerLibs.Text.ParseJSON(System.String)">
  <summary>
  Transforma uma JSON String em um Objeto ou Classe
  </summary>
@@ -9006,11 +9081,11 @@ Verifica se o objeto é do tipo numérico.
  <param name="ComparisonType"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.SerializeJSON(System.Object,System.String)">
+<member name="M:InnerLibs.Text.SerializeJSON(System.Object,System.Object[])">
  <summary>
- Transforma um Objeto em JSON
+ Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="M:InnerLibs.Json.SerializeJSON(System.Object)"/>
  </summary>
- <param name="[Object]">Objeto</param>
+ <param name="Obj">Objeto</param>
  <returns>Uma String JSON</returns>
 </member>
 <member name="M:InnerLibs.Text.Shuffle``1(``0[]@)">
@@ -9064,6 +9139,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="Word"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Text.ToAlternateCase(System.String)">
+ <summary>
+ Alterna maiusculas e minusculas para cada letra de uma string
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.ToAnagram(System.String)">
  <summary>
  Retorna um anagrama de um texto
@@ -9084,27 +9166,6 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <param name="Text">Texto a ser manipulado</param>
  <returns>Uma String com o texto am CameCase</returns>
-</member>
-<member name="M:InnerLibs.Text.CamelSplit(System.String)">
- <summary>
- Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas
- </summary>
- <param name="Text"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToRandomCase(System.String)">
- <summary>
- Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
- </summary>
- <param name="Text"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToAlternateCase(System.String)">
- <summary>
- Alterna maiusculas e minusculas para cada letra de uma string
- </summary>
- <param name="Text"></param>
- <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToExtensiveForm(System.Decimal,System.Int32)">
  <summary>
@@ -9266,6 +9327,37 @@ Verifica se o objeto é do tipo numérico.
  <param name="Number"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Text.ToQuantityText(System.Int32,System.Globalization.CultureInfo)">
+ <summary>
+ Retorna um texto quantificado a partir de um numero
+ </summary>
+ <param name="Number">     </param>
+ <param name="CultureInfo"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToQuantityText(System.Int64,System.Globalization.CultureInfo)">
+ <summary>
+ Retorna um texto quantificado a partir de um numero
+ </summary>
+ <param name="Number">     </param>
+ <param name="CultureInfo"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToQuantityText(System.Decimal,System.Globalization.CultureInfo)">
+ <summary>
+ Retorna um texto quantificado a partir de um numero
+ </summary>
+ <param name="Number">     </param>
+ <param name="CultureInfo"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToRandomCase(System.String)">
+ <summary>
+ Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.ToSlug(System.String,System.Boolean)">
  <summary>
  Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca
@@ -9323,7 +9415,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Transforma um texto em titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
  </summary>
- <param name="Text">      Texto a ser manipulado</param>
+ <param name="Text">Texto a ser manipulado</param>
  <returns>Uma String com o texto em nome próprio</returns>
 </member>
 <member name="M:InnerLibs.Text.ToUnitString(System.Decimal)">
@@ -9331,30 +9423,6 @@ Verifica se o objeto é do tipo numérico.
  Abrevia um numero adicionando o letra da unidade que o representa
  </summary>
  <param name="Number">Numero</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToQuantityText(System.Int32,System.Globalization.CultureInfo)">
- <summary>
- Retorna um texto quantificado a partir de um numero
- </summary>
- <param name="Number"></param>
- <param name="CultureInfo"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToQuantityText(System.Int64,System.Globalization.CultureInfo)">
- <summary>
- Retorna um texto quantificado a partir de um numero
- </summary>
- <param name="Number"></param>
- <param name="CultureInfo"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToQuantityText(System.Decimal,System.Globalization.CultureInfo)">
- <summary>
- Retorna um texto quantificado a partir de um numero
- </summary>
- <param name="Number"></param>
- <param name="CultureInfo"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToUnitString(System.Int32)">
@@ -9441,13 +9509,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="Text">   Texto</param>
  <param name="TagName">Nome da Tag (Exemplo: div)</param>
  <returns>Uma string HTML com seu texto dentro de uma tag</returns>
-</member>
-<member name="M:InnerLibs.Text.FindNumbers(System.String)">
- <summary>
- Procura numeros em uma string e retorna um array deles
- </summary>
- <param name="Text"></param>
- <returns></returns>
 </member>
 <member name="T:InnerLibs.NotificationForm">
  <summary>
@@ -10145,16 +10206,11 @@ Atualiza a lista de keys
 </member>
 <member name="P:InnerLibs.AJAX.Response.timeout">
  <summary>
- Tempo que a API demora para responder (calculado automaticamente no metodo <see cref="M:InnerLibs.AJAX.Response.ToJSON(System.String)"/>)
+ Tempo que a API demora para responder (calculado automaticamente no metodo <see cref="!:Response.ToJSON(String)"/>)
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.AJAX.Response.SerializeJSON(System.String)">
- <summary>
- Processa a resposta e retorna um JSON deste objeto. É um alias para <see cref="M:InnerLibs.AJAX.Response.ToJSON(System.String)"/>
- </summary>
-</member>
-<member name="M:InnerLibs.AJAX.Response.ToJSON(System.String)">
+<member name="M:InnerLibs.AJAX.Response.ToJSON">
  <summary>
  Processa a resposta e retorna um JSON deste objeto
  </summary>

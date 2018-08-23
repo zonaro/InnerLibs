@@ -128,7 +128,7 @@ Public Module Converter
     End Sub
 
     ''' <summary>
-    ''' Converte um tipo para outro
+    ''' Converte um tipo para outro. Retorna Nothing (NULL) se a covnersão falhar
     ''' </summary>
     ''' <typeparam name="ToType">Tipo</typeparam>
     ''' <param name="Value">Variavel com valor</param>
@@ -298,9 +298,11 @@ Public Module Converter
     ''' <param name="Request"></param>
     ''' <param name="Obj"></param>
     <Extension()>
-    Public Sub SetPropertiesIn(Of T As Class)(Request As HttpRequest, ByRef Obj As T, ParamArray Keys As String())
+    Public Function SetPropertiesIn(Of T As Class)(Request As HttpRequest, ByRef Obj As T, ParamArray Keys As String()) As T
+        Obj = If(Obj, Activator.CreateInstance(Of T))
         Request.ToDictionary(Keys).SetPropertiesIn(Of T)(Obj)
-    End Sub
+        Return Obj
+    End Function
 
     ''' <summary>
     ''' Transforma uma lista de pares em um Dictionary
@@ -406,8 +408,8 @@ Public Module Converter
     ''' <param name="[NameValueCollection]">Formulário</param>
     ''' <returns></returns>
     <Extension>
-    Public Function ToJSON([NameValueCollection] As NameValueCollection, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
-        Return NameValueCollection.ToDictionary.SerializeJSON(DateFormat)
+    Public Function ToJSON([NameValueCollection] As NameValueCollection) As String
+        Return Json.SerializeJSON(NameValueCollection.ToDictionary)
     End Function
 
     ''' <summary>
@@ -416,11 +418,11 @@ Public Module Converter
     ''' <param name="Request">Request GET ou POST</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function ToJSON(Request As System.Web.HttpRequest, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
+    Public Function ToJSON(Request As System.Web.HttpRequest) As String
         Dim d As New Dictionary(Of String, Object)
         d.Add("QueryString", Request.QueryString.ToDictionary)
         d.Add("Form", Request.Form.ToDictionary)
-        Return d.SerializeJSON(DateFormat)
+        Return Json.SerializeJSON(d)
     End Function
 
 End Module

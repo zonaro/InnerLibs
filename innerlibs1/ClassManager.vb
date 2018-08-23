@@ -13,6 +13,23 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+
+
+    ''' <summary>
+    ''' Remove um item de uma lista e retorna este item
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do item</typeparam>
+    ''' <param name="List">Lista</param>
+    ''' <param name="Index">Posicao do item</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Detach(Of T)(List As List(Of T), Index As Integer) As T
+        Dim p = List.IfBlankOrNoIndex(Index, Nothing)
+        If p IsNot Nothing Then
+            List.RemoveAt(Index)
+        End If
+        Return p
+    End Function
+
     ''' <summary>
     ''' Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade deo mesmo objeto
     ''' </summary>
@@ -983,18 +1000,10 @@ Public Module ClassTools
                 If (Obj.GetType.GetMethod("ToString").DeclaringType IsNot GetType(Object)) Then
                     Return Obj.ToString
                 Else
-                    Return Json.SerializeJSON(Obj, DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss"))
+                    Return Json.SerializeJSON(Obj)
                 End If
         End Select
     End Function
 
-    ''' <summary>
-    ''' Seta o valor de uma propriedade de um objeto
-    ''' </summary>
-    ''' <param name="MyObject">    Objeto</param>
-    ''' <param name="PropertyName">Nome da properiedade</param>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
-    ''' <param name="Collection">  
-    ''' Coleçao contendo um INDEX definido pelo nome da propriedade <paramref name="PropertyName"/>
-    ''' </param>
+
 End Module

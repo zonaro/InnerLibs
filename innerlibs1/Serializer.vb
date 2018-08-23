@@ -5,9 +5,9 @@
 Public NotInheritable Class Json
     Inherits JavaScriptSerializer
 
-    Friend Sub New(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss")
+    Friend Sub New()
         MyBase.New()
-        Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter() With {.DateFormat = DateFormat}, New BytesConverter()})
+        Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter(), New BytesConverter()})
     End Sub
 
     ''' <summary>
@@ -15,11 +15,11 @@ Public NotInheritable Class Json
     ''' </summary>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    Public Shared Function SerializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
+    Public Shared Function SerializeJSON(Obj As Object) As String
         If IsNothing(Obj) Then
-            Return ""
+            Return Nothing
         Else
-            Return New Json(DateFormat).Serialize(Obj)
+            Return New Json().Serialize(Obj)
         End If
     End Function
 
@@ -28,11 +28,11 @@ Public NotInheritable Class Json
     ''' </summary>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    Public Shared Function DeserializeJSON(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Object
+    Public Shared Function DeserializeJSON(Obj As Object) As Object
         If IsNothing(Obj) Then
             Return Nothing
         Else
-            Return ParseJSON(Obj, DateFormat)
+            Return ParseJSON(Obj)
         End If
     End Function
 
@@ -41,11 +41,11 @@ Public NotInheritable Class Json
     ''' </summary>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    Public Shared Function DeserializeJSON(Of Type)(Obj As Object, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Type
+    Public Shared Function DeserializeJSON(Of Type)(Obj As Object) As Type
         If IsNothing(Obj) Then
             Return Nothing
         Else
-            Return ParseJSON(Of Type)(Obj, DateFormat)
+            Return ParseJSON(Of Type)(Obj)
         End If
     End Function
 
@@ -53,7 +53,7 @@ Public NotInheritable Class Json
         Inherits JavaScriptConverter
         Private m_supportedTypes As List(Of Type)
 
-        Public DateFormat As String = "yyyy-MM-dd HH:mm:ss"
+
 
         Public Sub New()
             m_supportedTypes = New List(Of Type)(1)
@@ -70,7 +70,6 @@ Public NotInheritable Class Json
         Public Overrides Function Serialize(obj As Object, serializer As JavaScriptSerializer) As IDictionary(Of String, Object)
             Dim dt As DateTime = Convert.ToDateTime(obj)
             Dim dicDateTime As New Dictionary(Of String, Object)
-            dicDateTime.Add("CustomString", dt.ToString(DateFormat))
             dicDateTime.Add("DateTimeString", dt.ToString("yyyy-MM-dd HH:mm:ss"))
             dicDateTime.Add("DateString", dt.ToString("yyyy-MM-dd"))
             dicDateTime.Add("TimeString", dt.ToString("HH:mm:ss"))

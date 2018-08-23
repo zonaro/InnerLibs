@@ -231,8 +231,8 @@ Namespace Locations
             Return Latitude & "," & Longitude
         End Function
 
-        Public Function ToJSON(Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As String
-            Return Me.SerializeJSON(DateFormat)
+        Public Function ToJSON() As String
+            Return Json.SerializeJSON(Me)
         End Function
 
         ''' <summary>

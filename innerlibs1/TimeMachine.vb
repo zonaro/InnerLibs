@@ -72,7 +72,7 @@ Namespace TimeMachine
 
 
         Public Function ToJSON(Optional IncludeFortnightsWithoutData As Boolean = True)
-            Return Me.ToDataDictionary(IncludeFortnightsWithoutData).SerializeJSON
+            Return Json.SerializeJSON(Me.ToDataDictionary(IncludeFortnightsWithoutData))
         End Function
 
         ''' <summary>
