@@ -365,6 +365,22 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="source">   </param>
+    ''' <param name="alternate"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function FirstOr(Of T)(source As IEnumerable(Of T), predicate As Func(Of T, Boolean), Alternate As T) As T
+        Try
+            Return source.First(predicate)
+        Catch ex As Exception
+            Return Alternate
+        End Try
+    End Function
+
+    ''' <summary>
     ''' Cria um unico <see cref="NamevalueCollection"/> a partir de um
     ''' <see cref="HttpRequest.QueryString"/> e um <see cref="HttpRequest.Form"/>
     ''' </summary>

@@ -848,6 +848,15 @@ InnerLibs
  <param name="alternate"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.FirstOr``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean},``0)">
+ <summary>
+ Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="source">   </param>
+ <param name="alternate"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.FlatRequest(System.Web.HttpRequest)">
  <summary>
  Cria um unico <see cref="T:System.Collections.Specialized.NameValueCollection"/> a partir de um
