@@ -1,6 +1,7 @@
 ﻿Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
+Imports System.Drawing.Text
 Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Windows.Forms
@@ -11,6 +12,9 @@ Imports System.Windows.Forms
 ''' <remarks></remarks>
 ''' 
 Public Module Images
+
+
+
 
     ''' <summary>
     ''' Corta uma imagem para um quadrado perfeito a partir do centro
@@ -387,7 +391,7 @@ Public Module Images
     ''' <returns></returns>
     <Extension> Public Function ToSize(ByVal Text As String) As Size
         Dim s As New Size
-        Text = Text.Replacemany("", "px", " ", ";", ":").ToLower.Trim
+        Text = Text.ReplaceMany("", "px", " ", ";", ":").ToLower.Trim
         Try
             Select Case True
                 Case Text.IsNumber

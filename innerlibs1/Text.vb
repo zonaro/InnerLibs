@@ -1309,7 +1309,7 @@ Public Module Text
     ''' <param name="Text">Texto</param>
     ''' <returns>String sem os acentos</returns>
     <Extension>
-    Public Function RemoveAccents(ByRef Text As String) As String
+    Public Function RemoveAccents(ByVal Text As String) As String
         Dim s As String = Text.Normalize(NormalizationForm.FormD)
         Dim sb As New StringBuilder()
         Dim k As Integer = 0
@@ -1320,8 +1320,7 @@ Public Module Text
             End If
             k.Increment
         End While
-        Text = sb.ToString()
-        Return Text
+        Return sb.ToString()
     End Function
 
     ''' <summary>

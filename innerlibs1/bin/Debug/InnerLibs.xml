@@ -8916,7 +8916,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Text"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.RemoveAccents(System.String@)">
+<member name="M:InnerLibs.Text.RemoveAccents(System.String)">
  <summary>
  Remove os acentos de uma string
  </summary>
