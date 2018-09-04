@@ -3304,6 +3304,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="Period"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.DateRange.CalculatePercent(System.Nullable{System.DateTime})">
+ <summary>
+ Verifica quantos porcento uma data representa  em distancia dentro deste periodo
+ </summary>
+ <param name="[Date]">Data correspondente</param>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.Calendars">
  <summary>
  Modulo para manipulação de calendário
@@ -3318,32 +3325,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Num">Numero de quinzenas para adiantar</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Calendars.WaitUntil(System.DateTime)">
- <summary>
- Atrasa qualquer passo seguinte até a data especificada
- </summary>
- <param name="DateTime"></param>
-</member>
-<member name="M:InnerLibs.Calendars.IsOverlap(System.DateTime,System.DateTime,System.DateTime,System.DateTime)">
- <summary>
- Veirifica se existe intersecção entre dois periodos
- </summary>
- <param name="StartDate1">Data inicial do primeiro periodo</param>
- <param name="EndDate1">Data Final do primeiro periodo</param>
- <param name="StartDate2">Data inicial do segundo periodo</param>
- <param name="EndDate2">Data Final do primeiro periodo</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Calendars.DateRange(System.DateTime,System.DateTime,System.TimeSpan)">
- <summary>
- Retorna um Array de <see cref="T:System.DateTime"/> contendo todas as datas entre 2 datas
- </summary>
- <param name="StartDate">Data Inicial</param>
- <param name="EndDate">Data Final</param>
- <param name="Increment">Valor a ser incrementado (padrão 1 dia)</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Calendars.GetFirstDateOfWeek(System.DateTime,System.DayOfWeek)">
+<member name="M:InnerLibs.Calendars.GetFirstDayOfWeek(System.DateTime,System.DayOfWeek)">
  <summary>
  Retorna o primeiro dia da semana da data especificada
  </summary>
@@ -3351,7 +3333,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Calendars.GetLastDateOfWeek(System.DateTime,System.DayOfWeek)">
+<member name="M:InnerLibs.Calendars.GetLastDayOfWeek(System.DateTime,System.DayOfWeek)">
  <summary>
  Retorna o primeiro dia da semana da data especificada
  </summary>

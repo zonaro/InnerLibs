@@ -21,6 +21,7 @@ Public Class DateRange
             _startDate = value
         End Set
     End Property
+
     Public Property EndDate As Date
         Get
             FixDateOrder(_startDate, _enddate)
@@ -82,6 +83,7 @@ Public Class DateRange
     ''' <param name="Period">Periodo</param>
     ''' <returns></returns>
     Public Function Overlaps(Period As DateRange) As Boolean
+        FixDateOrder(StartDate, EndDate)
         Select Case True
             Case Period.StartDate <= Me.EndDate And Period.StartDate >= Me.StartDate
                 Return True
@@ -141,6 +143,14 @@ Public Class DateRange
         Return Period.Contains(Me)
     End Function
 
+    ''' <summary>
+    ''' Verifica quantos porcento uma data representa  em distancia dentro deste periodo
+    ''' </summary>
+    ''' <param name="[Date]">Data correspondente</param>
+    ''' <returns></returns>
+    Public Function CalculatePercent(Optional [Date] As Date? = Nothing) As Decimal
+        Return If([Date], Now).CalculatePercent(StartDate, EndDate)
+    End Function
 End Class
 
 
@@ -160,48 +170,6 @@ Public Module Calendars
         Return New FortnightGroup(FromDate, Num).Last.Period.StartDate
     End Function
 
-    ''' <summary>
-    ''' Atrasa qualquer passo seguinte até a data especificada
-    ''' </summary>
-    ''' <param name="DateTime"></param>
-    <Extension()> Public Sub WaitUntil(DateTime As Date)
-        While Now < DateTime
-            'just wait
-        End While
-    End Sub
-
-    ''' <summary>
-    ''' Veirifica se existe intersecção entre dois periodos
-    ''' </summary>
-    ''' <param name="StartDate1">Data inicial do primeiro periodo</param>
-    ''' <param name="EndDate1">Data Final do primeiro periodo</param>
-    ''' <param name="StartDate2">Data inicial do segundo periodo</param>
-    ''' <param name="EndDate2">Data Final do primeiro periodo</param>
-    ''' <returns></returns>
-    Public Function IsOverlap(StartDate1 As DateTime, EndDate1 As DateTime, StartDate2 As DateTime, EndDate2 As DateTime) As Boolean
-        FixDateOrder(StartDate1, EndDate1)
-        FixDateOrder(StartDate2, EndDate2)
-        Return (StartDate1 <= EndDate2) And (EndDate1 >= StartDate2)
-    End Function
-
-    ''' <summary>
-    ''' Retorna um Array de <see cref="DateTime"/> contendo todas as datas entre 2 datas
-    ''' </summary>
-    ''' <param name="StartDate">Data Inicial</param>
-    ''' <param name="EndDate">Data Final</param>
-    ''' <param name="Increment">Valor a ser incrementado (padrão 1 dia)</param>
-    ''' <returns></returns>
-    Public Function DateRange(ByVal StartDate As Date, ByVal EndDate As Date, Optional Increment As TimeSpan = Nothing) As Date()
-        FixDateOrder(StartDate, EndDate)
-        Dim l As New List(Of Date)
-        If IsNothing(Increment) OrElse Increment = TimeSpan.Zero Then Increment = New TimeSpan(1, 0, 0, 0)
-        l.Add(StartDate)
-        While StartDate < EndDate
-            l.Add(l.Last().Add(Increment))
-        End While
-        l.Add(EndDate)
-        Return l.ToArray
-    End Function
 
     ''' <summary>
     ''' Retorna o primeiro dia da semana da data especificada
@@ -210,7 +178,7 @@ Public Module Calendars
     ''' <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetFirstDateOfWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateTime
+    Public Function GetFirstDayOfWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateTime
         While [Date].DayOfWeek > FirstDayOfWeek
             [Date] = [Date].AddDays(-1)
         End While
@@ -224,8 +192,8 @@ Public Module Calendars
     ''' <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetLastDateOfWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateTime
-        Return [Date].GetFirstDateOfWeek(FirstDayOfWeek).AddDays(6)
+    Public Function GetLastDayOfWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateTime
+        Return [Date].GetFirstDayOfWeek(FirstDayOfWeek).AddDays(6)
     End Function
 
     ''' <summary>
@@ -236,7 +204,7 @@ Public Module Calendars
     ''' <returns></returns>
     <Extension>
     Public Function GetWeek([Date] As DateTime, Optional FirstDayOfWeek As DayOfWeek = DayOfWeek.Sunday) As DateRange
-        Return New DateRange([Date].GetFirstDateOfWeek(FirstDayOfWeek), [Date].GetLastDateOfWeek(FirstDayOfWeek))
+        Return New DateRange([Date].GetFirstDayOfWeek(FirstDayOfWeek), [Date].GetLastDayOfWeek(FirstDayOfWeek))
     End Function
 
     ''' <summary>
