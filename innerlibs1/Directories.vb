@@ -61,7 +61,10 @@ Public Module Directories
     ''' <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns> 
     <Extension()>
     Function ToDirectory(DirectoryName As String) As DirectoryInfo
-        DirectoryName = Path.GetFullPath(DirectoryName)
+        DirectoryName = Path.GetDirectoryName(DirectoryName)
+        If DirectoryName.IsFilePath Then
+            DirectoryName = Path.GetDirectoryName(DirectoryName)
+        End If
         If Directory.Exists(DirectoryName) = False Then
             Directory.CreateDirectory(DirectoryName)
         End If

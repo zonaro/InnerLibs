@@ -158,6 +158,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="JsonViewer.vb" />
+    <Compile Include="JSON\JSON.vb" />
     <Compile Include="LinqPagination.vb" />
     <Compile Include="OnlineList.vb" />
     <Compile Include="TextCleaner.vb" />
