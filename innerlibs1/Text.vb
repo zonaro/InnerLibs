@@ -2786,41 +2786,85 @@ Public Module Text
         Return StrConv(Text, vbProperCase)
     End Function
 
-    ''' <summary>
-    ''' Retorna um texto quantificado a partir de um numero
-    ''' </summary>
-    ''' <param name="Number">     </param>
-    ''' <param name="CultureInfo"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToQuantityText(Number As Integer, Optional CultureInfo As CultureInfo = Nothing) As String
-        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
-    End Function
 
     ''' <summary>
-    ''' Retorna um texto quantificado a partir de um numero
+    ''' Reduz um numero utilizando uma unidade de medida e uma base
     ''' </summary>
-    ''' <param name="Number">     </param>
-    ''' <param name="CultureInfo"></param>
+    ''' <param name="Number">Numero a ser reduzido</param>
+    ''' <param name="BaseNumber">Numero base da unidade de medida</param>
+    ''' <param name="Round">Numero de casas para arredondar o numero decimal</param>
+    ''' <param name="BaseUnity">Unidades de medida</param>
     ''' <returns></returns>
-    <Extension> Public Function ToQuantityText(Number As Long, Optional CultureInfo As CultureInfo = Nothing) As String
-        Return Number.ChangeType(Of Decimal).ToQuantityText(CultureInfo)
-    End Function
-
-    ''' <summary>
-    ''' Retorna um texto quantificado a partir de um numero
-    ''' </summary>
-    ''' <param name="Number">     </param>
-    ''' <param name="CultureInfo"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToQuantityText(Number As Decimal, Optional CultureInfo As CultureInfo = Nothing) As String
-        Dim sizeTypes() As String = {"", "Mil", "Milhões", "Bilhões", "Trilhões", "Quadrilhões", "Quintilhões"}
+    <Extension> Public Function QuantityFormula(Number As Decimal, BaseNumber As Decimal, Round As Decimal, ParamArray BaseUnity As String()) As String
         Dim sizeType As Integer = 0
-        Do While Number > 1000
-            Number = (Number / 1000).Slice(2)
-            sizeType.Increment
-            If sizeType >= sizeTypes.Length - 1 Then Exit Do
-        Loop
-        Return (Number & " " & sizeTypes(sizeType)).Trim().QuantifyText(Number, CultureInfo)
+        BaseUnity = If(BaseUnity, {})
+        If BaseUnity.Count >= 1 AndAlso Number >= BaseNumber Then
+            Do While Number > BaseNumber
+                Number = (Number / BaseNumber)
+                sizeType.Increment
+                If sizeType >= BaseUnity.Length - 1 Then Exit Do
+            Loop
+            Return Number.Slice(Round) & " " & BaseUnity(sizeType)
+        End If
+        Return Number.Slice(Round)
+    End Function
+
+
+
+
+    ''' <summary>
+    ''' Reduz um numero utilizando uma unidade de medida e uma base
+    ''' </summary>
+    ''' <param name="Number">Numero a ser reduzido</param>
+    ''' <param name="BaseNumber">Numero base da unidade de medida</param>
+    ''' <param name="BaseUnity">Unidades de medida</param>
+    ''' <returns></returns>
+    <Extension> Public Function QuantityFormula(Number As Decimal, BaseNumber As Decimal, ParamArray BaseUnity As String()) As String
+        Return Number.QuantityFormula(BaseNumber, 2, BaseUnity)
+    End Function
+
+    ''' <summary>
+    ''' Reduz um numero utilizando uma unidade de medida e uma base
+    ''' </summary>
+    ''' <param name="Number">Numero a ser reduzido</param>
+    ''' <param name="BaseNumber">Numero base da unidade de medida</param>
+    ''' <param name="BaseUnity">Unidades de medida</param>
+    ''' <returns></returns>
+    <Extension> Public Function QuantityFormula(Number As Integer, BaseNumber As Decimal, ParamArray BaseUnity As String()) As String
+        Return Number.ChangeType(Of Decimal).QuantityFormula(BaseNumber, 2, BaseUnity)
+    End Function
+
+    ''' <summary>
+    ''' Reduz um numero utilizando uma unidade de medida e uma base
+    ''' </summary>
+    ''' <param name="Number">Numero a ser reduzido</param>
+    ''' <param name="BaseNumber">Numero base da unidade de medida</param>
+    ''' <param name="BaseUnity">Unidades de medida</param>
+    ''' <returns></returns>
+    <Extension> Public Function QuantityFormula(Number As Long, BaseNumber As Decimal, ParamArray BaseUnity As String()) As String
+        Return Number.ChangeType(Of Decimal).QuantityFormula(BaseNumber, 2, BaseUnity)
+    End Function
+
+    ''' <summary>
+    ''' Reduz um numero utilizando uma unidade de medida e uma base
+    ''' </summary>
+    ''' <param name="Number">Numero a ser reduzido</param>
+    ''' <param name="BaseNumber">Numero base da unidade de medida</param>
+    ''' <param name="BaseUnity">Unidades de medida</param>
+    ''' <returns></returns>
+    <Extension> Public Function QuantityFormula(Number As Double, BaseNumber As Decimal, ParamArray BaseUnity As String()) As String
+        Return Number.ChangeType(Of Decimal).QuantityFormula(BaseNumber, 2, BaseUnity)
+    End Function
+
+    ''' <summary>
+    ''' Reduz um numero utilizando uma unidade de medida e uma base
+    ''' </summary>
+    ''' <param name="Number">Numero a ser reduzido</param>
+    ''' <param name="BaseNumber">Numero base da unidade de medida</param>
+    ''' <param name="BaseUnity">Unidades de medida</param>
+    ''' <returns></returns>
+    <Extension> Public Function QuantityFormula(Number As Double, BaseNumber As Decimal, Round As Integer, ParamArray BaseUnity As String()) As String
+        Return Number.ChangeType(Of Decimal).QuantityFormula(BaseNumber, Round, BaseUnity)
     End Function
 
     ''' <summary>
@@ -2878,11 +2922,13 @@ Public Module Text
     <Extension> Public Function ToTelephone(Number As String) As String
         Number = If(Number, "")
         Dim mask As String = ""
-        Number = Number.ParseDigits.RemoveAny(",", ".", "(", ")")
+        Number = Number.ParseDigits.RemoveAny(",", ".")
         If Number.IsBlank Then
             Return ""
         End If
         Select Case Number.Length
+            Case Is <= 4
+                mask = "{0:####}"
             Case Is <= 8
                 mask = "{0:####-####}"
             Case 9
@@ -2947,48 +2993,6 @@ Public Module Text
         Return ToProper(Text)
     End Function
 
-    ''' <summary>
-    ''' Abrevia um numero adicionando o letra da unidade que o representa
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <returns></returns>
-    <Extension()> Public Function ToUnitString(Number As Decimal) As String
-        Dim sizeTypes() As String = {"", "K", "M", "G", "T", "P", "E"}
-        Dim sizeType As Integer = 0
-        Do While Number > 1000
-            Number = (Number / 1000).Slice(1)
-            sizeType.Increment
-            If sizeType >= sizeTypes.Length - 1 Then Exit Do
-        Loop
-        Return (Number & " " & sizeTypes(sizeType)).Trim()
-    End Function
-
-    ''' <summary>
-    ''' Abrevia um numero adicionando o letra da unidade que o representa
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <returns></returns>
-    <Extension()> Public Function ToUnitString(Number As Integer) As String
-        Return Number.ChangeType(Of Decimal).ToUnitString
-    End Function
-
-    ''' <summary>
-    ''' Abrevia um numero adicionando o letra da unidade que o representa
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <returns></returns>
-    <Extension()> Public Function ToUnitString(Number As Long) As String
-        Return Number.ChangeType(Of Decimal).ToUnitString
-    End Function
-
-    ''' <summary>
-    ''' Abrevia um numero adicionando o letra da unidade que o representa
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <returns></returns>
-    <Extension()> Public Function ToUnitString(Number As Short)
-        Return Number.ChangeType(Of Decimal).ToUnitString
-    End Function
 
     ''' <summary>
     ''' Transforma um XML Document em string

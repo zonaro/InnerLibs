@@ -18,53 +18,6 @@ Public Module Converter
     End Function
 
     ''' <summary>
-    ''' Unidades de medida de yocto a quintilhão
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property Units As Dictionary(Of String, Decimal)
-        Get
-            Dim sizeTypes As New Dictionary(Of String, Decimal)
-            sizeTypes.Add("y", 1.0E-24)
-            sizeTypes.Add("z", 1.0E-21)
-            sizeTypes.Add("a", 1.0E-18)
-            sizeTypes.Add("f", 0.000000000000001)
-            sizeTypes.Add("p", 0.000000000001)
-            sizeTypes.Add("n", 0.000000001)
-            sizeTypes.Add("µ", 0.000001)
-            sizeTypes.Add("m", 0.001)
-            sizeTypes.Add("", 1)
-            sizeTypes.Add("K", 1000)
-            sizeTypes.Add("M", 1000000)
-            sizeTypes.Add("G", 1000000000)
-            sizeTypes.Add("T", 1000000000000)
-            sizeTypes.Add("P", 1000000000000000)
-            sizeTypes.Add("E", 1000000000000000000)
-            Return sizeTypes
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Converte um numero na sua forma abreviada para um tipo numérico
-    ''' </summary>
-    ''' <param name="Number"></param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function ParseUnitString(Number As String) As Decimal
-        If Number.IsBlank Then
-            Return 0
-        End If
-        If Not Number.IsNumber Then
-            Dim i = Number.AdjustWhiteSpaces.GetLastChars(1)
-            If Units.ContainsKey(i) Then
-                Return Units(i) * Convert.ToDecimal(Number.ParseDigits)
-            Else
-                Return Number.TrimAny(i).ChangeType(Of Decimal)
-            End If
-        End If
-        Return Number.ChangeType(Of Decimal)
-    End Function
-
-    ''' <summary>
     ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
     ''' </summary>
     ''' <param name="Obj">Objeto</param>

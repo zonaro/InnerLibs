@@ -6,7 +6,7 @@ Imports System.Runtime.Serialization
 Imports System.Text
 Imports System.Runtime.CompilerServices
 
-Namespace TinyJson
+Namespace JSONReader
     Public Module JSONParser
         <ThreadStatic>
         Private splitArrayPool As Stack(Of List(Of String))

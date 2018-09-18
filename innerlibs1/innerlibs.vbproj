@@ -212,6 +212,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Toggles.vb" />
+    <Compile Include="UnitConverter.vb" />
     <Compile Include="vCard.vb" />
     <Compile Include="Stilingue.vb" />
     <Compile Include="Verify.vb" />
@@ -249,7 +250,6 @@
   <ItemGroup>
     <Content Include="Triforce\Fonema.sql" />
     <EmbeddedResource Include="DocumentationPage\DocumentationPage.html" />
-    <Content Include="help.shfbproj" />
     <Content Include="js\InnerFormValidation.js" />
     <Content Include="js\InnerLibs.js" />
     <Content Include="js\jquery.innerform.js" />

@@ -3722,19 +3722,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Converter.Units">
- <summary>
- Unidades de medida de yocto a quintilhão
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Converter.ParseUnitString(System.String)">
- <summary>
- Converte um numero na sua forma abreviada para um tipo numérico
- </summary>
- <param name="Number"></param>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.Converter.ForceArray(System.Object)">
  <summary>
  Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
@@ -9318,28 +9305,59 @@ Verifica se o objeto é do tipo numérico.
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToQuantityText(System.Int32,System.Globalization.CultureInfo)">
+<member name="M:InnerLibs.Text.QuantityFormula(System.Decimal,System.Decimal,System.Decimal,System.String[])">
  <summary>
- Retorna um texto quantificado a partir de um numero
+ Reduz um numero utilizando uma unidade de medida e uma base
  </summary>
- <param name="Number">     </param>
- <param name="CultureInfo"></param>
+ <param name="Number">Numero a ser reduzido</param>
+ <param name="BaseNumber">Numero base da unidade de medida</param>
+ <param name="Round">Numero de casas para arredondar o numero decimal</param>
+ <param name="BaseUnity">Unidades de medida</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToQuantityText(System.Int64,System.Globalization.CultureInfo)">
+<member name="M:InnerLibs.Text.QuantityFormula(System.Decimal,System.Decimal,System.String[])">
  <summary>
- Retorna um texto quantificado a partir de um numero
+ Reduz um numero utilizando uma unidade de medida e uma base
  </summary>
- <param name="Number">     </param>
- <param name="CultureInfo"></param>
+ <param name="Number">Numero a ser reduzido</param>
+ <param name="BaseNumber">Numero base da unidade de medida</param>
+ <param name="BaseUnity">Unidades de medida</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToQuantityText(System.Decimal,System.Globalization.CultureInfo)">
+<member name="M:InnerLibs.Text.QuantityFormula(System.Int32,System.Decimal,System.String[])">
  <summary>
- Retorna um texto quantificado a partir de um numero
+ Reduz um numero utilizando uma unidade de medida e uma base
  </summary>
- <param name="Number">     </param>
- <param name="CultureInfo"></param>
+ <param name="Number">Numero a ser reduzido</param>
+ <param name="BaseNumber">Numero base da unidade de medida</param>
+ <param name="BaseUnity">Unidades de medida</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.QuantityFormula(System.Int64,System.Decimal,System.String[])">
+ <summary>
+ Reduz um numero utilizando uma unidade de medida e uma base
+ </summary>
+ <param name="Number">Numero a ser reduzido</param>
+ <param name="BaseNumber">Numero base da unidade de medida</param>
+ <param name="BaseUnity">Unidades de medida</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.QuantityFormula(System.Double,System.Decimal,System.String[])">
+ <summary>
+ Reduz um numero utilizando uma unidade de medida e uma base
+ </summary>
+ <param name="Number">Numero a ser reduzido</param>
+ <param name="BaseNumber">Numero base da unidade de medida</param>
+ <param name="BaseUnity">Unidades de medida</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.QuantityFormula(System.Double,System.Decimal,System.Int32,System.String[])">
+ <summary>
+ Reduz um numero utilizando uma unidade de medida e uma base
+ </summary>
+ <param name="Number">Numero a ser reduzido</param>
+ <param name="BaseNumber">Numero base da unidade de medida</param>
+ <param name="BaseUnity">Unidades de medida</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToRandomCase(System.String)">
@@ -9408,34 +9426,6 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <param name="Text">Texto a ser manipulado</param>
  <returns>Uma String com o texto em nome próprio</returns>
-</member>
-<member name="M:InnerLibs.Text.ToUnitString(System.Decimal)">
- <summary>
- Abrevia um numero adicionando o letra da unidade que o representa
- </summary>
- <param name="Number">Numero</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToUnitString(System.Int32)">
- <summary>
- Abrevia um numero adicionando o letra da unidade que o representa
- </summary>
- <param name="Number">Numero</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToUnitString(System.Int64)">
- <summary>
- Abrevia um numero adicionando o letra da unidade que o representa
- </summary>
- <param name="Number">Numero</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToUnitString(System.Int16)">
- <summary>
- Abrevia um numero adicionando o letra da unidade que o representa
- </summary>
- <param name="Number">Numero</param>
- <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToXMLString(System.Xml.XmlDocument)">
  <summary>
@@ -9683,6 +9673,118 @@ Verifica se o objeto é do tipo numérico.
  <param name="CurrentChar">String contendo o primeiro ou segundo valor</param>
  <param name="TrueValue">Primeiro valor</param>
  <param name="FalseValue">Segundo Valor</param>
+</member>
+<member name="T:InnerLibs.UnitConverter">
+ <summary>
+ Classe para manipulaçao de numeros e conversão unidades
+ </summary>
+</member>
+<member name="P:InnerLibs.UnitConverter.Units">
+ <summary>
+ Unidades de Medida
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.#ctor">
+ <summary>
+ Inicia um <see cref="T:InnerLibs.UnitConverter"/> vazio
+ </summary>
+</member>
+<member name="M:InnerLibs.UnitConverter.CreateBase100">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1000
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.#ctor(System.Collections.Generic.Dictionary{System.Decimal,System.String})">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> utilizando um <see cref="T:System.Collections.Generic.Dictionary`2"/> com as marcaçoes de unidade de medida
+ </summary>
+ <param name="Units">Unidades de medida. Permite uso de singular e plural separando as palavras com ";" </param>
+ <remarks>Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)</remarks>
+</member>
+<member name="M:InnerLibs.UnitConverter.#ctor(System.Collections.Generic.Dictionary{System.String,System.Decimal})">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> utilizando um <see cref="T:System.Collections.Generic.Dictionary`2"/> com as marcaçoes de unidade de medida
+ </summary>
+ <param name="Units">Unidades de medida. Permite uso de singular e plural separando as palavras com ";" </param>
+ <remarks>Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)</remarks>
+</member>
+<member name="M:InnerLibs.UnitConverter.#ctor(System.Decimal,System.Int32,System.String[])">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> utilizando um numero inicial, uma base multiplicadora e um array com as unidades de medida
+ </summary>
+ <param name="StartAt">Numero Inicial</param>
+ <param name="Base">Base multiplicadora, exponencia o numero em <paramref name="StartAt"/> para cada item em <paramref name="Units"/></param>
+ <param name="Units">Unidades de medida. Permite uso de singular e plural separando as palavras com ";" </param>
+ <remarks>Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)</remarks>
+</member>
+<member name="M:InnerLibs.UnitConverter.#ctor(System.Int32,System.String[])">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> utilizando uma base multiplicadora e um array com as unidades de medida começando pelo numero 1
+ </summary>
+ <param name="Base">Base multiplicadora, exponencia o numero 1 para cada item em <paramref name="Units"/></param>
+ <param name="Units">Unidades de medida. Permite uso de singular e plural separando as palavras com ";" </param>
+ <remarks>Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)</remarks>
+</member>
+<member name="M:InnerLibs.UnitConverter.Abreviate(System.Decimal,System.Int32)">
+ <summary>
+ Abrevia um numero com a unidade mais alta encontrada dentro do conversor
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.Abreviate(System.Int32)">
+ <summary>
+ Abrevia um numero com a unidade mais alta encontrada dentro do conversor
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.Abreviate(System.Int16)">
+ <summary>
+ Abrevia um numero com a unidade mais alta encontrada dentro do conversor
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.Abreviate(System.Int64)">
+ <summary>
+ Abrevia um numero com a unidade mais alta encontrada dentro do conversor
+ </summary>
+ <param name="Number">Numero</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.Parse(System.String,System.Int32)">
+ <summary>
+ Retorna o numero decimal a partir de uma string abreviada
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.Convert(System.Decimal,System.String,System.String)">
+ <summary>
+ Converte um numero   decimal em outro numero decimal a partir de unidades de medida
+ </summary>
+ <param name="Number">Numero</param>
+ <param name="From">Unidade de Medida de origem</param>
+ <param name="[To]">Unidade de medida de destino</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.Convert(System.String,System.String)">
+ <summary>
+ Converte um numero abreviado em decimal 
+ </summary>
+ <param name="AbreviatedNumber">Numero abreviado</param>
+ <param name="[To]">Unidade de destino</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.GetUnitBase(System.String)">
+ <summary>
+ Retorna a base a partir da unidade de medida
+ </summary>
+ <param name="U">Unidade de medida</param>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.vCard">
  <summary>

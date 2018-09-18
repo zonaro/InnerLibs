@@ -250,7 +250,10 @@ Public Module Mathematic
     ''' <returns></returns>
     <Extension>
     Public Function Slice(Value As Decimal, Optional Places As Integer = 2) As Decimal
-        Return Decimal.Round(Value, Places.LimitRange(0, 28))
+        If Places > -1 Then
+            Return Decimal.Round(Value, Places.LimitRange(0, 28))
+        End If
+        Return Value
     End Function
 
     ''' <summary>
