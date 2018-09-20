@@ -20,7 +20,7 @@ Public Class UnitConverter
     ''' Cria um <see cref="UnitConverter"/> de Base 1000
     ''' </summary>
     ''' <returns></returns>
-    Public Shared Function CreateBase100() As UnitConverter
+    Public Shared Function CreateBase1000() As UnitConverter
         Dim c = New UnitConverter(0.000000000000000000000001D, 1000, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E")
         Return c
     End Function
@@ -50,7 +50,7 @@ Public Class UnitConverter
     ''' <param name="Base">Base multiplicadora, exponencia o numero em <paramref name="StartAt"/> para cada item em <paramref name="Units"/></param>
     ''' <param name="Units">Unidades de medida. Permite uso de singular e plural separando as palavras com ";" </param>
     ''' <remarks>Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)</remarks>
-    Sub New(StartAt As Decimal, Base As Integer, ParamArray Units As String())
+    Sub New(Base As Decimal, StartAt As Decimal, ParamArray Units As String())
         Units = If(Units, {})
         Me.Units = New Dictionary(Of Decimal, String)
         Me.Units.Add(StartAt, Units.First)
@@ -67,7 +67,7 @@ Public Class UnitConverter
     ''' <param name="Units">Unidades de medida. Permite uso de singular e plural separando as palavras com ";" </param>
     ''' <remarks>Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)</remarks>
     Sub New(Base As Integer, ParamArray Units As String())
-        Me.New(1, Base, Units)
+        Me.New(Base, 1, Units)
     End Sub
 
     ''' <summary>
@@ -78,7 +78,7 @@ Public Class UnitConverter
     Function Abreviate(Number As Decimal, Optional DecimalPlaces As Integer = -1) As String
         Select Case Units.Count
             Case 0
-                Return Number.Slice(DecimalPlaces)
+                Return Number.Slice(DecimalPlaces).ToString
             Case Else
                 Dim k = Units.OrderBy(Function(x) x.Key).LastOrDefault(Function(x) x.Key <= Number)
                 If k.Key = 0 Then
@@ -93,7 +93,7 @@ Public Class UnitConverter
                         u = u.Split(";")(1)
                     End If
                 End If
-                Return Number & " " & u
+                Return Number.ToString.Trim("0") & " " & u
         End Select
     End Function
 
@@ -138,26 +138,30 @@ Public Class UnitConverter
             While i.StartsWithAny(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
                 i = i.RemoveFirstChars()
             End While
-
-            Dim p = Units.SingleOrDefault(Function(x) x.Value.Split(";").Any(Function(y) y.Trim = i.Trim))
+            Dim p = GetUnit(i)
             If p.Key > 0 Then
-                Return (p.Key * System.Convert.ToDecimal(Number.ParseDigits)).Slice(DecimalPlaces)
+                Return (p.Key * Number.ParseDigits.ChangeType(Of Decimal)).Slice(DecimalPlaces)
             Else
-                Return Number.TrimAny(i).ChangeType(Of Decimal).Slice(DecimalPlaces)
+                Return Number.ParseDigits.ChangeType(Of Decimal).Slice(DecimalPlaces)
             End If
         End If
         Return Number.ChangeType(Of Decimal).Slice(DecimalPlaces)
     End Function
 
+    ''' <summary>
+    ''' Extrai a Unidade utilizada a partir de um numero abreviado
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
     Public Function ParseUnit(Number As String) As String
         Dim i = Number
         While i.StartsWithAny(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
             i = i.RemoveFirstChars()
         End While
-        Dim p = Units.SingleOrDefault(Function(x) x.Value.Split(";").Any(Function(y) y.Trim = i.Trim))
+        Dim p = GetUnit(i)
         Dim u = p.Value.IfBlank("")
         If u.Contains(";") Then
-            If Number.ParseDigits = 1 Then
+            If Number.ParseDigits.IfBlank(1) = 1 Then
                 u = u.Split(";").First
             Else
                 u = u.Split(";")(1)
@@ -173,7 +177,7 @@ Public Class UnitConverter
     ''' <param name="From">Unidade de Medida de origem</param>
     ''' <param name="[To]">Unidade de medida de destino</param>
     ''' <returns></returns>
-    Function Convert(Number As Decimal, From As String, [To] As String) As Decimal
+    Function Convert(Number As Decimal, [To] As String, From As String) As Decimal
         Return Convert(Number & From, [To])
     End Function
 
@@ -184,17 +188,32 @@ Public Class UnitConverter
     ''' <param name="[To]">Unidade de destino</param>
     ''' <returns></returns>
     Function Convert(AbreviatedNumber As String, [To] As String) As Decimal
-        Dim nn = Parse(AbreviatedNumber) 'mm 
-        Return nn / GetUnitBase([To])
+        Dim nn = Parse(AbreviatedNumber)
+        Return nn / GetUnit([To]).Key
     End Function
 
     ''' <summary>
-    ''' Retorna a base a partir da unidade de medida
+    ''' Converte um numero abreviado em outro numero abreviado de outra unidade 
     ''' </summary>
-    ''' <param name="U">Unidade de medida</param>
+    ''' <param name="AbreviatedNumber">Numero abreviado</param>
+    ''' <param name="[To]">Unidade de destino</param>
     ''' <returns></returns>
-    Function GetUnitBase(U As String) As Decimal
-        Return Units.SingleOrDefault(Function(x) x.Value.Split(";").Any(Function(y) y.Trim = U.Trim)).Key
+    Function ConvertAbreviate(AbreviatedNumber As String, [To] As String) As String
+        Dim nn = Parse(AbreviatedNumber)
+        Return ((nn / GetUnit([To]).Key) & " " & [To]).Trim
+    End Function
+
+    ''' <summary>
+    ''' Retorna a unidade e a base a partir do nome da unidade
+    ''' </summary>
+    ''' <param name="U"></param>
+    ''' <returns></returns>
+    Function GetUnit(U As String) As KeyValuePair(Of Decimal, String)
+        If U.IsBlank Then
+            Return Units.SingleOrDefault(Function(x) x.Value.IsBlank)
+        Else
+            Return Units.SingleOrDefault(Function(x) x.Value.Split(";").Any(Function(y) y.Trim = U.Trim))
+        End If
     End Function
 
 End Class

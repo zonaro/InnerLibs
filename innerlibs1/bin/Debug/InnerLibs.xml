@@ -9690,7 +9690,7 @@ Verifica se o objeto é do tipo numérico.
  Inicia um <see cref="T:InnerLibs.UnitConverter"/> vazio
  </summary>
 </member>
-<member name="M:InnerLibs.UnitConverter.CreateBase100">
+<member name="M:InnerLibs.UnitConverter.CreateBase1000">
  <summary>
  Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1000
  </summary>
@@ -9710,7 +9710,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Units">Unidades de medida. Permite uso de singular e plural separando as palavras com ";" </param>
  <remarks>Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)</remarks>
 </member>
-<member name="M:InnerLibs.UnitConverter.#ctor(System.Decimal,System.Int32,System.String[])">
+<member name="M:InnerLibs.UnitConverter.#ctor(System.Decimal,System.Decimal,System.String[])">
  <summary>
  Cria um <see cref="T:InnerLibs.UnitConverter"/> utilizando um numero inicial, uma base multiplicadora e um array com as unidades de medida
  </summary>
@@ -9762,6 +9762,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="Number"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.UnitConverter.ParseUnit(System.String)">
+ <summary>
+ Extrai a Unidade utilizada a partir de um numero abreviado
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.UnitConverter.Convert(System.Decimal,System.String,System.String)">
  <summary>
  Converte um numero   decimal em outro numero decimal a partir de unidades de medida
@@ -9779,11 +9786,19 @@ Verifica se o objeto é do tipo numérico.
  <param name="[To]">Unidade de destino</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.UnitConverter.GetUnitBase(System.String)">
+<member name="M:InnerLibs.UnitConverter.ConvertAbreviate(System.String,System.String)">
  <summary>
- Retorna a base a partir da unidade de medida
+ Converte um numero abreviado em outro numero abreviado de outra unidade 
  </summary>
- <param name="U">Unidade de medida</param>
+ <param name="AbreviatedNumber">Numero abreviado</param>
+ <param name="[To]">Unidade de destino</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.GetUnit(System.String)">
+ <summary>
+ Retorna a unidade e a base a partir do nome da unidade
+ </summary>
+ <param name="U"></param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.vCard">
