@@ -74,7 +74,7 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | ToJSON(`String` DateFormat = yyyy-MM-dd HH:mm:ss) | Retorna uma string JSON do objeto | 
+| `String` | ToJSON() | Retorna uma string JSON do objeto | 
 | `Location` | ToLocation() | Cria um objeto Innerlibs.Location com as informaçoes do IP | 
 
 
@@ -113,7 +113,7 @@ Methods
 | `void` | GetInfoByPostalCode() | Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/ | 
 | `String` | LatitudeLongitude() | Retorna as coordenadas geográficas do Local | 
 | `void` | SearchOnGoogleMaps(`String` Location, `Boolean` Sensor = True) | Realiza uma busca detalhada no google Maps | 
-| `String` | ToJSON(`String` DateFormat = yyyy-MM-dd HH:mm:ss) |  | 
+| `String` | ToJSON() |  | 
 | `String` | ToString() | Retorna uma String contendo as informações do Local | 
 | `void` | Update() | Realiza uma nova busca no google maps usando o endereço completo | 
 

@@ -33,6 +33,6 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `List<IDictionary<String, Object>>` | GetForm(`DataBase` DataBase, `String` TableName = InnerForm, `String` WhereConditions = ) |  | 
+| `List<Dictionary<String, Object>>` | GetForm(`DataBase` DataBase, `String` TableName = InnerForm, `String` WhereConditions = ) |  | 
 
 

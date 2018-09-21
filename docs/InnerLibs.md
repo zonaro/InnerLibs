@@ -161,22 +161,20 @@ Static Methods
 | --- | --- | --- | 
 | `Decimal` | CalculatePercent(this `DateTime` MidDate, `DateTime` StartDate, `DateTime` EndDate) | Calcula a porcentagem de diferenca entre duas datas de acordo com a data inicial especificada | 
 | `List<DateTime>` | ClearTime(this `List<DateTime>` List) | Remove o tempo de todas as datas de uma lista e retorna uma nova lista | 
-| `DateTime[]` | DateRange(`DateTime` StartDate, `DateTime` EndDate, `TimeSpan` Increment = null) | Retorna um Array de `System.DateTime` contendo todas as datas entre 2 datas | 
 | `void` | FillWith(this `HtmlSelect` Box, `CalendarType` CalendarType, `TypeOfFill` TextType = LongName, `TypeOfFill` ValueType = Number) | Preenche um HtmlSelect com MESES ou DIAS DA SEMANA | 
 | `void` | FixDateOrder(`DateTime&` StartDate, `DateTime&` EndDate) | Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate  sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas resulte em um  `System.TimeSpan` negativo | 
 | `List<DateTime>` | GetBetween(this `DateTime` StartDate, `DateTime` EndDate, `DayOfWeek[]` Days) | Retorna uma lista com as datas de dias especificos da semana entre 2 datas | 
 | `TimeFlow` | GetDifference(this `DateTime` InitialDate, `DateTime` SecondDate) | Retorna uma `InnerLibs.TimeMachine.TimeFlow` com a diferença entre 2 Datas | 
-| `DateTime` | GetFirstDateOfWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o primeiro dia da semana da data especificada | 
 | `DateTime` | GetFirstDayOfFortnight(this `DateTime` Date) | Retorna a primeira data da quinzena a partir de uma outra data | 
 | `DateTime` | GetFirstDayOfMonth(this `DateTime` Date) | Retorna a primeira data do mes a partir de uma outra data | 
-| `DateTime` | GetLastDateOfWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o primeiro dia da semana da data especificada | 
+| `DateTime` | GetFirstDayOfWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o primeiro dia da semana da data especificada | 
 | `DateTime` | GetLastDayOfFortnight(this `DateTime` Date) | Retorna a ultima data da quinzena a partir de uma outra data | 
 | `DateTime` | GetLastDayOfMonth(this `DateTime` Date) | Retorna a ultima data do mes a partir de uma outra data | 
+| `DateTime` | GetLastDayOfWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o primeiro dia da semana da data especificada | 
 | `DateRange` | GetWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna um DateRange equivalente a semana de uma data especifica | 
 | `Int32` | GetWeekOfYear(this `DateTime` Date, `CultureInfo` Culture = null, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o numero da semana relativa ao ano | 
 | `Boolean` | IsAnniversary(this `DateTime` BirthDate, `Nullable<DateTime>` CompareWith = null) | Verifica se a Data de hoje é um aniversário | 
 | `Boolean` | IsBetween(this `DateTime` MidDate, `DateTime` StartDate, `DateTime` EndDate, `Boolean` IgnoreTime = False) | Verifica se uma data se encontra entre 2 datas | 
-| `Boolean` | IsOverlap(`DateTime` StartDate1, `DateTime` EndDate1, `DateTime` StartDate2, `DateTime` EndDate2) | Veirifica se existe intersecção entre dois periodos | 
 | `Boolean` | IsSameMonth(this `DateTime` Date, `DateTime` AnotherDate) | Verifica se uma data é do mesmo mês e ano que outra data | 
 | `Boolean` | IsWeekend(this `DateTime` YourDate) | Verifica se o dia se encontra no fim de semana | 
 | `DateTime` | NextFortnight(this `DateTime` FromDate, `Int32` Num = 1) | Pula para a data inicial da proxima quinzena | 
@@ -190,7 +188,6 @@ Static Methods
 | `String` | ToSQLDateString(this `DateTime` Date) | COnverte um datetime para o formato de string do SQL server ou Mysql | 
 | `String` | ToSQLDateString(this `String` Date, `String` FromCulture = pt-BR) | COnverte um datetime para o formato de string do SQL server ou Mysql | 
 | `String` | ToTimeElapsedString(this `TimeSpan` TimeElapsed, `String` DayWord = dia, `String` HourWord = hora, `String` MinuteWord = minuto, `String` SecondWord = segundo) | Retorna uma String no formato "W dias, X horas, Y minutos e Z segundos" | 
-| `void` | WaitUntil(this `DateTime` DateTime) | Atrasa qualquer passo seguinte até a data especificada | 
 
 
 ## `ClassTools`
@@ -217,8 +214,11 @@ Static Methods
 | `Type` | CopyToObject(this `NameValueCollection` Collection, `Type&` Obj, `String[]` Keys) | Copia os valores de um `System.Collections.Specialized.NameValueCollection` para um objeto de um tipo especifico | 
 | `Dictionary<String, Object>` | CreateDictionary(this `Type` Obj) | Converte uma classe para um `System.Collections.Generic.Dictionary`2` | 
 | `Type` | CreateObject(this `NameValueCollection` Collection, `String[]` Keys) | Cria um objeto de um tipo especifico a partir de um `System.Collections.Specialized.NameValueCollection` | 
+| `T` | Detach(this `List<T>` List, `Int32` Index) | Remove um item de uma lista e retorna este item | 
 | `Dictionary<Type, Int64>` | DistinctCount(this `IEnumerable<Type>` Arr) | Conta de maneira distinta items de uma coleçao | 
+| `Dictionary<PropT, Int64>` | DistinctCount(this `IEnumerable<Type>` Arr, `Func<Type, PropT>` Prop) | Conta de maneira distinta items de uma coleçao | 
 | `T` | FirstOr(this `IEnumerable<T>` source, `T` Alternate) | Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia | 
+| `T` | FirstOr(this `IEnumerable<T>` source, `Func<T, Boolean>` predicate, `T` Alternate) | Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia | 
 | `NameValueCollection` | FlatRequest(this `HttpRequest` Request) | Cria um unico `System.Collections.Specialized.NameValueCollection` a partir de um  `System.Web.HttpRequest.QueryString` e um `System.Web.HttpRequest.Form` | 
 | `TValue` | GetAttributeValue(this `Type` type, `Func<TAttribute, TValue>` ValueSelector) |  | 
 | `T` | GetEnumValue(`String` Name) | Traz o valor de uma enumeração a partir de uma string | 
@@ -234,6 +234,8 @@ Static Methods
 | `String` | GetResourceFileText(this `Assembly` Assembly, `String` FileName) | Pega o texto de um arquivo embutido no assembly | 
 | `HtmlDocument` | GetResourceHtmlDocument(this `Assembly` Assembly, `String` FileName) | Pega o texto de um arquivo embutido no assembly | 
 | `Tvalue` | GetValueOr(this `IDictionary<tkey, Tvalue>` Dic, `tkey` Key, `Tvalue` ReplaceValue = null) |  | 
+| `Dictionary<Group, Dictionary<Count, Int64>>` | GroupAndCountBy(this `IEnumerable<Type>` obj, `Func<Type, Group>` GroupSelector, `Func<Type, Count>` CountObjectBy) | Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade deo mesmo objeto | 
+| `Dictionary<Group, Dictionary<SubGroup, IEnumerable<Type>>>` | GroupAndSubGroupBy(this `IEnumerable<Type>` obj, `Func<Type, Group>` GroupSelector, `Func<Type, SubGroup>` SubGroupSelector) | Agrupa itens de uma lista a partir de duas propriedades de um objeto resultado em um grupo com subgrupos daquele objeto | 
 | `Boolean` | HasProperty(this `Type` Type, `String` PropertyName, `Boolean` GetPrivate = False) | Verifica se um tipo possui uma propriedade | 
 | `Boolean` | HasProperty(this `Object` Obj, `String` Name) | Verifica se um tipo possui uma propriedade | 
 | `Boolean` | IsArrayOf(this `Type` Type) | Verifica se o tipo é um array de um objeto especifico | 
@@ -248,7 +250,8 @@ Static Methods
 | `Boolean` | IsNumericType(this `Type` Obj) | Verifica se o objeto é do tipo numérico. | 
 | `Boolean` | IsType(this `Object` Obj) | Verifica se um objeto é de um determinado tipo | 
 | `T` | LastOr(this `IEnumerable<T>` source, `T` Alternate) | Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia | 
-| `List<T>` | Map(this `DbDataReader` Reader, `Object[]` Params) | Mapeia os objetos de um datareader para uma classe | 
+| `T` | Map(this `Dictionary<String, v>` Dic, `T&` Obj = null) | Copia os valores de um dicionário para as propriedades de uma classe | 
+| `List<T>` | Map(this `DbDataReader` Reader, `Object[]` Params) | Copia os valores de um dicionário para as propriedades de uma classe | 
 | `NameValueCollection` | Merge(`NameValueCollection[]` NVC) | Mescla varios `System.Collections.Specialized.NameValueCollection` em um unico `System.Collections.Specialized.NameValueCollection` | 
 | `Dictionary<String, Object>` | MergeProperties(`Object[]` Items) | Mescla varios tipos de objeto em um unico dicionario a partir de suas propriedades | 
 | `T` | NullCoalesce(this `Nullable<T>` First, `Nullable`1[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
@@ -256,26 +259,11 @@ Static Methods
 | `T` | NullCoalesce(this `T` First, `T[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `T` | NullCoalesce(this `IEnumerable<T>` List) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `Type` | NullifyProperties(this `Type` Obj) | Transforma todas as propriedades String em NULL quando suas estiverem em branco | 
-| `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `TKey[]` Keys) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
 | `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `Func<KeyValuePair<TKey, TValue>, Boolean>` predicate) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
+| `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `TKey[]` Keys) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
 | `void` | SetPropertyValue(this `Object` MyObject, `String` PropertyName, `Type` Value) | Seta o valor de uma propriedade de um objeto | 
 | `void` | SetPropertyValueFromCollection(this `Object` MyObject, `String` PropertyName, `CollectionBase` Collection) |  | 
 | `String` | ToFlatString(this `Object` Obj, `String` DateFormat = ) | Retorna o objeto em seu formato padrão de String, ou serializa o objeto em Json se o mesmo  não possuir formato em string | 
-
-
-## `Cluster`
-
-```csharp
-public class InnerLibs.Cluster
-    : DotObject
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ID |  | 
 
 
 ## `ColorConvert`
@@ -311,35 +299,26 @@ public class InnerLibs.Converter
 
 ```
 
-Static Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `Dictionary<String, Decimal>` | Units | Unidades de medida de yocto a quintilhão | 
-
-
 Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `ToType[]` | ChangeArrayType(this `FromType[]` Value) | Converte um array de um tipo para outro | 
-| `ToType` | ChangeType(this `FromType` Value) | Converte um tipo para outro | 
+| `ToType` | ChangeType(this `FromType` Value) | Converte um tipo para outro. Retorna Nothing (NULL) se a covnersão falhar | 
 | `List<T>` | DefineEmptyList(this `T` ObjectForDefinition) | Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos | 
 | `Object[]` | ForceArray(`Object` Obj) | Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto | 
 | `OutputType[]` | ForceArray(`Object` Obj) | Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto | 
 | `Dictionary<Tkey, Object>` | Merge(this `Dictionary<Tkey, Object>` FirstDictionary, `Dictionary`2[]` Dictionaries) | Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um dicionario os valores sao agrupados em arrays | 
-| `Decimal` | ParseUnitString(this `String` Number) | Converte um numero na sua forma abreviada para um tipo numérico | 
 | `void` | SetPropertiesIn(this `IDictionary<String, Object>` Dic, `T` Obj) | Seta as propriedades de uma classe a partir de um dictionary | 
-| `void` | SetPropertiesIn(this `HttpRequest` Request, `T&` Obj, `String[]` Keys) | Seta as propriedades de uma classe a partir de um dictionary | 
+| `T` | SetPropertiesIn(this `HttpRequest` Request, `T&` Obj, `String[]` Keys) | Seta as propriedades de uma classe a partir de um dictionary | 
 | `Dictionary<TKey, List<TValue>>` | ToDictionary(this `IEnumerable<IGrouping<TKey, TValue>>` groupings) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
 | `Dictionary<String, Object>` | ToDictionary(this `HttpRequest` Request, `String[]` keys) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
 | `Dictionary<TKey, TValue>` | ToDictionary(this `IEnumerable<KeyValuePair<TKey, TValue>>` items) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
 | `Dictionary<String, Object>` | ToDictionary(this `NameValueCollection` NameValueCollection, `String[]` Keys) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
-| `HtmlElement` | ToHtmlTable(this `IEnumerable<IDictionary<String, Object>>` Table) | Converte uma lista de dicionários para uma tabela HTML | 
-| `String` | ToJSON(this `NameValueCollection` NameValueCollection, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Converte um NameValueCollection para string JSON | 
-| `String` | ToJSON(this `HttpRequest` Request, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Converte um NameValueCollection para string JSON | 
-| `List<IDictionary<TKey, TValue>>` | Uniform(this `IEnumerable<IDictionary<TKey, TValue>>` Dics) | Aplica as mesmas keys a todos os dicionarios de uma lista | 
-| `List<IDictionary<TKey, TValue>>` | Uniform(`IDictionary`2[]` Dics) | Aplica as mesmas keys a todos os dicionarios de uma lista | 
+| `HtmlElement` | ToHtmlTable(this `IEnumerable<Dictionary<String, Object>>` Table) | Converte uma lista de dicionários para uma tabela HTML | 
+| `String` | ToJSON(this `NameValueCollection` NameValueCollection) | Converte um NameValueCollection para string JSON | 
+| `String` | ToJSON(this `HttpRequest` Request) | Converte um NameValueCollection para string JSON | 
+| `void` | Uniform(this `IEnumerable`1&` Dics, `TKey[]` AditionalKeys) | Aplica as mesmas keys a todos os dicionarios de uma lista | 
 
 
 ## `CssParser`
@@ -498,6 +477,7 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `Decimal` | CalculatePercent(`Nullable<DateTime>` Date = null) | Verifica quantos porcento uma data representa  em distancia dentro deste periodo | 
 | `Boolean` | Contains(`DateRange` Period) | Verifica se este periodo contém um outro periodo | 
 | `Boolean` | Contains(`DateTime` Day) | Verifica se este periodo contém um outro periodo | 
 | `FortnightGroup` | CreateFortnightGroup() | Cria um grupo de quinzenas que contenham este periodo | 
@@ -611,31 +591,6 @@ Methods
 | `Object` | GetPropertyOwner(`PropertyDescriptor` pd) |  | 
 
 
-## `Digraph`
-
-Wrapper para criaçao de gráficos em DOT Language
-```csharp
-public class InnerLibs.Digraph
-    : List<DotObject>, IList<DotObject>, ICollection<DotObject>, IEnumerable<DotObject>, IEnumerable, IList, ICollection, IReadOnlyList<DotObject>, IReadOnlyCollection<DotObject>
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `List<Cluster>` | Clusters |  | 
-| `String` | GraphType | Tipo do Grafico | 
-| `String` | ID | Nome do Gráfico | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToString() | Escreve a DOT string correspondente a este gráfico | 
-
-
 ## `Directories`
 
 Funções para trabalhar com diretorios
@@ -688,85 +643,6 @@ Properties
 | `String` | ProductName |  | 
 | `String` | SearchPlaceholder |  | 
 | `String` | SourceDirectory |  | 
-
-
-## `DotAttributeCollection`
-
-```csharp
-public class InnerLibs.DotAttributeCollection
-    : Dictionary<String, Object>, IDictionary<String, Object>, ICollection<KeyValuePair<String, Object>>, IEnumerable<KeyValuePair<String, Object>>, IEnumerable, IDictionary, ICollection, IReadOnlyDictionary<String, Object>, IReadOnlyCollection<KeyValuePair<String, Object>>, ISerializable, IDeserializationCallback
-
-```
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToString() |  | 
-
-
-## `DotEdge`
-
-Representa uma ligação entre nós de um grafico em DOT Language
-```csharp
-public class InnerLibs.DotEdge
-    : DotObject
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `DotNode` | ChildNode |  | 
-| `String` | ID |  | 
-| `Boolean` | Oriented | Indica se esta ligação é orientada ou não | 
-| `DotNode` | ParentNode |  | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToString() | Escreve a DOT String desta ligaçao | 
-
-
-## `DotNode`
-
-Representa um nó de um grafico em DOT Language
-```csharp
-public class InnerLibs.DotNode
-    : DotObject
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ID | ID deste nó | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToString() | Escreve a DOT string deste nó e seus respectivos nós filhos | 
-
-
-## `DotObject`
-
-```csharp
-public abstract class InnerLibs.DotObject
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `DotAttributeCollection` | Attributes |  | 
-| `String` | ID |  | 
 
 
 ## `EditorCreatedEventArgs`
@@ -1400,9 +1276,9 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Object` | DeserializeJSON(`Object` Obj, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Converte um JSON para objeto | 
-| `Type` | DeserializeJSON(`Object` Obj, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Converte um JSON para objeto | 
-| `String` | SerializeJSON(`Object` Obj, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Converte um objeto para JSON | 
+| `Object` | DeserializeJSON(`Object` Obj) | Converte um JSON para objeto | 
+| `Type` | DeserializeJSON(`Object` Obj) | Converte um JSON para objeto | 
+| `String` | SerializeJSON(`Object` Obj) | Converte um objeto para JSON | 
 
 
 ## `JsonViewer`
@@ -2105,8 +1981,8 @@ Static Methods
 | `Int64[]` | FindNumbers(this `String` Text) | Procura numeros em uma string e retorna um array deles | 
 | `List<String>` | FindTelephoneNumbers(this `String` Text) | Procurea numeros de telefone em um texto | 
 | `String` | FixBreakLines(this `String` Text) | Transforma quebras de linha HTML em quebras de linha comuns ao .net | 
-| `String` | FixCaptalization(this `String` Text) | Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final  (é um alias para `InnerLibs.Text.AdjustWhiteSpaces(System.String)` da frase | 
-| `String` | FixPunctuation(this `String&` Text, `String` Punctuation = ., `Boolean` ForceSpecificPunctuation = False) | Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao. | 
+| `String` | FixCaptalization(this `String` Text) |  | 
+| `String` | FixPunctuation(this `String&` Text, `String` Punctuation = ., `Boolean` ForceSpecificPunctuation = False) | Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final  (é um alias para `InnerLibs.Text.AdjustWhiteSpaces(System.String)` da frase | 
 | `String` | FixText(this `String` Text) | Arruma a ortografia do texto captalizando corretamente, adcionando pontução ao final de frase  caso nescessário e removendo espaços excessivos ou incorretos | 
 | `String` | Format(this `String` Text, `Object[]` Args) | Extension Method para `System.String` | 
 | `String` | GetAfter(this `String` Text, `String` Value) | Retorna um texto posterior a outro | 
@@ -2142,7 +2018,7 @@ Static Methods
 | `String` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) | Remove caracteres não numéricos de uma string | 
 | `Type` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) | Remove caracteres não numéricos de uma string | 
 | `TypeClass` | ParseJSON(this `String` JSON, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma uma JSON String em um Objeto ou Classe | 
-| `Object` | ParseJSON(this `String` JSON, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma uma JSON String em um Objeto ou Classe | 
+| `Object` | ParseJSON(this `String` JSON) | Transforma uma JSON String em um Objeto ou Classe | 
 | `String` | Poopfy(`String[]` Words) | Retorna uma string em sua forma poop | 
 | `String` | Poopfy(this `String` Text) | Retorna uma string em sua forma poop | 
 | `String` | PreetyPrint(this `XmlDocument` Document) | Return a Idented XML string | 
@@ -2150,11 +2026,17 @@ Static Methods
 | `String` | PrependIf(this `String&` Text, `String` PrependText, `Boolean` Test) | Adiciona texto ao começo de uma string se um criterio for cumprido | 
 | `String` | QuantifyText(this `String` PluralText, `CultureInfo` Culture = null, `String` Identifier = q) | Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em ``. | 
 | `String` | QuantifyText(this `String` PluralText, `Object` Quantity, `CultureInfo` Culture = null) | Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em ``. | 
+| `String` | QuantityFormula(this `Decimal` Number, `Decimal` BaseNumber, `Decimal` Round, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
+| `String` | QuantityFormula(this `Decimal` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
+| `String` | QuantityFormula(this `Int32` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
+| `String` | QuantityFormula(this `Int64` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
+| `String` | QuantityFormula(this `Double` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
+| `String` | QuantityFormula(this `Double` Number, `Decimal` BaseNumber, `Int32` Round, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
 | `String` | Quote(this `String` Text, `Char` QuoteChar = ") | Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) | 
 | `String` | QuoteIf(this `String` Text, `Boolean` Condition, `String` QuoteChar = ") | Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes) se uma  condiçao for cumprida | 
 | `Type` | RandomItem(`Type[]` Array) | Sorteia um item da Matriz | 
 | `String` | RegexEscape(this `String` Text) | Escapa caracteres exclusivos de uma regex | 
-| `String` | RemoveAccents(this `String&` Text) | Remove os acentos de uma string | 
+| `String` | RemoveAccents(this `String` Text) | Remove os acentos de uma string | 
 | `String` | RemoveAny(this `String` Text, `String[]` Values) | Remove várias strings de uma string | 
 | `String` | RemoveDiacritics(this `String&` Text) | Remove os acentos de uma string | 
 | `String` | RemoveFirstAny(this `String` Text, `Boolean` ContinuouslyRemove, `String[]` StartStringTest) | Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes | 
@@ -2175,7 +2057,7 @@ Static Methods
 | `String` | ReplaceNone(this `String` Text, `String` OldValue) | Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são  substituídas por vazio. | 
 | `String` | SensitiveReplace(this `String` Text, `String` NewValue, `String` OldValue, `StringComparison` ComparisonType = InvariantCulture) | Realiza um replace em uma string usando um tipo especifico de comparacao | 
 | `String` | SensitiveReplace(this `String` Text, `String` NewValue, `IEnumerable<String>` OldValues, `StringComparison` ComparisonType = InvariantCulture) | Realiza um replace em uma string usando um tipo especifico de comparacao | 
-| `String` | SerializeJSON(this `Object` Object, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma um Objeto em JSON | 
+| `String` | SerializeJSON(this `Object` Obj, `Object[]` params) | Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se `InnerLibs.Json.SerializeJSON(System.Object)` | 
 | `Type[]` | Shuffle(this `Type[]&` Array) | Randomiza a ordem dos itens de um Array | 
 | `List<Type>` | Shuffle(this `List`1&` List) | Randomiza a ordem dos itens de um Array | 
 | `String` | Shuffle(this `String&` Text) | Randomiza a ordem dos itens de um Array | 
@@ -2202,31 +2084,22 @@ Static Methods
 | `HtmlElement` | ToHtmlList(this `IEnumerable<T>` List, `Boolean` OrdenedList = False) | Transforma uma lista em uma lista HTML (OL ou UL) | 
 | `String` | ToHtmlString(this `HtmlGenericControl` Control) | Transforma um HtmlGenericControl em uma stringHTML | 
 | `String` | ToLeet(this `String` Text, `Int32` Degree = 30) | Converte um texo para Leet (1337) | 
-| `Object` | ToMoney(`Decimal` Number, `String` Currency = R$, `Char` ThousandSeparator = ., `Char` DecimalSeparator = ,) | Formata um numero decimal como moeda | 
-| `String` | ToNumberString(this `Decimal` Number, `Char` ThousandSeparator = ., `Char` DecimalSeparator = ,) | Formata um numero decimal com separador de milhares e 2 casas decimais. | 
 | `Object` | ToPercentString(this `Decimal` Number) | Retorna um numero com o sinal de porcentagem | 
 | `Object` | ToPercentString(this `Int32` Number) | Retorna um numero com o sinal de porcentagem | 
 | `Object` | ToPercentString(this `Double` Number) | Retorna um numero com o sinal de porcentagem | 
 | `Object` | ToPercentString(this `Int16` Number) | Retorna um numero com o sinal de porcentagem | 
 | `Object` | ToPercentString(this `Int64` Number) | Retorna um numero com o sinal de porcentagem | 
 | `String` | ToProper(this `String` Text) |  | 
-| `String` | ToQuantityText(this `Int32` Number, `CultureInfo` CultureInfo = null) | Retorna um texto quantificado a partir de um numero | 
-| `String` | ToQuantityText(this `Int64` Number, `CultureInfo` CultureInfo = null) | Retorna um texto quantificado a partir de um numero | 
-| `String` | ToQuantityText(this `Decimal` Number, `CultureInfo` CultureInfo = null) | Retorna um texto quantificado a partir de um numero | 
 | `String` | ToRandomCase(this `String` Text) | Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas) | 
 | `String` | ToSlug(this `String` Text, `Boolean` UseUnderscore = False) | Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca  espacos por hifen). É um alias para `InnerLibs.Text.ToFriendlyURL(System.String,System.Boolean)` | 
-| `String` | ToSnake(this `String` Text) |  | 
+| `String` | ToSnake(this `String` Text) | Retorna uma string em Snake Case | 
 | `Stream` | ToStream(this `String` Text) | Cria um `System.IO.Stream` a partir de uma string | 
 | `String` | ToTelephone(this `String` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | ToTelephone(this `Int64` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | ToTelephone(this `Int32` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | ToTelephone(this `Decimal` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | ToTelephone(this `Double` Number) | Aplica uma mascara a um numero de telefone | 
-| `String` | ToTitle(this `String` Text) | Transforma um texto em titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code | 
-| `String` | ToUnitString(this `Decimal` Number) | Abrevia um numero adicionando o letra da unidade que o representa | 
-| `Object` | ToUnitString(this `Int32` Number) | Abrevia um numero adicionando o letra da unidade que o representa | 
-| `Object` | ToUnitString(this `Int64` Number) | Abrevia um numero adicionando o letra da unidade que o representa | 
-| `Object` | ToUnitString(this `Int16` Number) | Abrevia um numero adicionando o letra da unidade que o representa | 
+| `String` | ToTitle(this `String` Text) | Transforma um texto em titulo | 
 | `String` | ToXMLString(this `XmlDocument` XML) | Transforma um XML Document em string | 
 | `String` | TrimAny(this `String` Text, `Boolean` ContinuouslyRemove, `String[]` StringTest) | Remove do começo e do final de uma string qualquer valor que estiver no conjunto | 
 | `String` | TrimAny(this `String` Text, `String[]` StringTest) | Remove do começo e do final de uma string qualquer valor que estiver no conjunto | 
@@ -2277,6 +2150,45 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `void` | NextToken() |  | 
+
+
+## `UnitConverter`
+
+Classe para manipulaçao de numeros e conversão unidades
+```csharp
+public class InnerLibs.UnitConverter
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `Dictionary<Decimal, String>` | Units | Unidades de Medida | 
+
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | Abreviate(`Decimal` Number, `Int32` DecimalPlaces = -1) | Abrevia um numero com a unidade mais alta encontrada dentro do conversor | 
+| `String` | Abreviate(`Int32` Number) | Abrevia um numero com a unidade mais alta encontrada dentro do conversor | 
+| `String` | Abreviate(`Int16` Number) | Abrevia um numero com a unidade mais alta encontrada dentro do conversor | 
+| `String` | Abreviate(`Int64` Number) | Abrevia um numero com a unidade mais alta encontrada dentro do conversor | 
+| `Decimal` | Convert(`Decimal` Number, `String` To, `String` From) | Converte um numero   decimal em outro numero decimal a partir de unidades de medida | 
+| `Decimal` | Convert(`String` AbreviatedNumber, `String` To) | Converte um numero   decimal em outro numero decimal a partir de unidades de medida | 
+| `String` | ConvertAbreviate(`String` AbreviatedNumber, `String` To) | Converte um numero abreviado em outro numero abreviado de outra unidade | 
+| `KeyValuePair<Decimal, String>` | GetUnit(`String` U) | Retorna a unidade e a base a partir do nome da unidade | 
+| `Decimal` | Parse(`String` Number, `Int32` DecimalPlaces = -1) | Retorna o numero decimal a partir de uma string abreviada | 
+| `String` | ParseUnit(`String` Number) | Extrai a Unidade utilizada a partir de um numero abreviado | 
+
+
+Static Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `UnitConverter` | CreateBase1000Converter() | Cria um `InnerLibs.UnitConverter` de Base 1000 | 
+| `UnitConverter` | CreateFileSizeConverter() | Cria um `InnerLibs.UnitConverter` de Base 1024 (Bytes) | 
 
 
 ## `UserChat<UserType, IdType>`

@@ -18,7 +18,7 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | ToJSON(`String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma a classe em um json | 
+| `String` | ToJSON() | Transforma a classe em um json | 
 
 
 ## `MenuBuilderItem`

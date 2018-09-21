@@ -44,7 +44,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`BrowserClipper`](InnerLibs#browserclipper)
 - [`Calendars`](InnerLibs#calendars)
 - [`ClassTools`](InnerLibs#classtools)
-- [`Cluster`](InnerLibs#cluster)
 - [`ColorConvert`](InnerLibs#colorconvert)
 - [`Converter`](InnerLibs#converter)
 - [`CssParser`](InnerLibs#cssparser)
@@ -58,13 +57,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DiceRoller`](InnerLibs#diceroller)
 - [`DiceType`](InnerLibs#dicetype)
 - [`DictionaryPropertyGridAdapter`](InnerLibs#dictionarypropertygridadapter)
-- [`Digraph`](InnerLibs#digraph)
 - [`Directories`](InnerLibs#directories)
 - [`DocumentationPage`](InnerLibs#documentationpage)
-- [`DotAttributeCollection`](InnerLibs#dotattributecollection)
-- [`DotEdge`](InnerLibs#dotedge)
-- [`DotNode`](InnerLibs#dotnode)
-- [`DotObject`](InnerLibs#dotobject)
 - [`EditorCreatedEventArgs`](InnerLibs#editorcreatedeventargs)
 - [`Encryption`](InnerLibs#encryption)
 - [`EnhancedCollectionEditor`](InnerLibs#enhancedcollectioneditor)
@@ -123,6 +117,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`Text`](InnerLibs#text)
 - [`Toggles`](InnerLibs#toggles)
 - [`tokenizer`](InnerLibs#tokenizer)
+- [`UnitConverter`](InnerLibs#unitconverter)
 - [`UserChat<UserType, IdType>`](InnerLibs#userchatusertype-idtype)
 - [`UserConversation<UserType, IdType>`](InnerLibs#userconversationusertype-idtype)
 - [`VariableComplexity`](InnerLibs#variablecomplexity)
@@ -143,6 +138,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## [InnerLibs.Console](InnerLibs.Console)
 
 - [`Console`](InnerLibs.Console#console)
+
+## [InnerLibs.DOTLanguage](InnerLibs.DOTLanguage)
+
+- [`Cluster`](InnerLibs.DOTLanguage#cluster)
+- [`Digraph`](InnerLibs.DOTLanguage#digraph)
+- [`DotAttributeCollection`](InnerLibs.DOTLanguage#dotattributecollection)
+- [`DotEdge`](InnerLibs.DOTLanguage#dotedge)
+- [`DotNode`](InnerLibs.DOTLanguage#dotnode)
+- [`DotObject`](InnerLibs.DOTLanguage#dotobject)
 
 ## [InnerLibs.HtmlParser](InnerLibs.HtmlParser)
 
@@ -175,6 +179,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## [InnerLibs.InnerForm](InnerLibs.InnerForm)
 
 - [`InnerForm`](InnerLibs.InnerForm#innerform)
+
+## [InnerLibs.JSONReader](InnerLibs.JSONReader)
+
+- [`JSONParser`](InnerLibs.JSONReader#jsonparser)
+- [`JSONWriter`](InnerLibs.JSONReader#jsonwriter)
 
 ## [InnerLibs.LINQ](InnerLibs.LINQ)
 
