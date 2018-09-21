@@ -1982,14 +1982,7 @@ Public Module Text
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
     Public Function ToFileSizeString(ByVal Size As Decimal) As String
-        Dim sizeTypes() As String = {"B", "KB", "MB", "GB", "TB", "PB", "EB"}
-        Dim sizeType As Integer = 0
-        Do While Size > 1024
-            Size = Decimal.Round(CType(Size, Decimal) / 1024, 2)
-            sizeType.Increment
-            If sizeType >= sizeTypes.Length - 1 Then Exit Do
-        Loop
-        Return Size & " " & sizeTypes(sizeType)
+        Return UnitConverter.CreateFileSizeConverter.Abreviate(Size)
     End Function
 
     ''' <summary>
@@ -2710,33 +2703,6 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Formata um numero decimal como moeda
-    ''' </summary>
-    ''' <param name="Number">           Numero Decimal</param>
-    ''' <param name="Currency">         SImbolo de moeda</param>
-    ''' <param name="ThousandSeparator">Separador de milhares</param>
-    ''' <param name="DecimalSeparator"> Separador de casas decimais</param>
-    ''' <returns></returns>
-    Public Function ToMoney(Number As Decimal, Optional Currency As String = "R$", Optional ThousandSeparator As Char = ".", Optional DecimalSeparator As Char = ",")
-        Return Currency & Number.ToNumberString(ThousandSeparator, DecimalSeparator)
-    End Function
-
-    ''' <summary>
-    ''' Formata um numero decimal com separador de milhares e 2 casas decimais.
-    ''' </summary>
-    ''' <param name="Number">           Numero Decimal</param>
-    ''' <param name="ThousandSeparator">Separador de milhares</param>
-    ''' <param name="DecimalSeparator"> Separador de casas decimais</param>
-    ''' <returns>Numero formatado em string</returns>
-    <Extension>
-    Public Function ToNumberString(Number As Decimal, Optional ThousandSeparator As Char = ".", Optional DecimalSeparator As Char = ",") As String
-        Dim NewNumber As String = Number.ToString("N", CultureInfo.CreateSpecificCulture("fr-FR"))
-        NewNumber = NewNumber.Replace(".", "<thousand>").Replace(",", "<decimal>")
-        NewNumber = NewNumber.Replace("<thousand>", ThousandSeparator).Replace("<decimal>", DecimalSeparator)
-        Return NewNumber
-    End Function
-
-    ''' <summary>
     ''' Retorna um numero com o sinal de porcentagem
     ''' </summary>
     ''' <param name="Number"></param>
@@ -2895,6 +2861,11 @@ Public Module Text
         Return Text.ToFriendlyURL(UseUnderscore)
     End Function
 
+    ''' <summary>
+    ''' Retorna uma string em Snake Case
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
     <Extension()>
     Public Function ToSnake(Text As String) As String
         Return Text.Replace(" ", "_")
@@ -2984,7 +2955,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma um texto em titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
+    ''' Transforma um texto em titulo
     ''' </summary>
     ''' <param name="Text">Texto a ser manipulado</param>
     ''' <returns>Uma String com o texto em nome próprio</returns>
@@ -3021,13 +2992,8 @@ Public Module Text
     ''' <param name="StringTest">        Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()> Public Function TrimAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StringTest As String()) As String
-        While Text.EndsWithAny(StringTest)
-            Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest)
-        End While
-
-        While Text.StartsWithAny(StringTest)
-            Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
-        End While
+        Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
+        Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest)
         Return Text
     End Function
 

@@ -20,9 +20,17 @@ Public Class UnitConverter
     ''' Cria um <see cref="UnitConverter"/> de Base 1000
     ''' </summary>
     ''' <returns></returns>
-    Public Shared Function CreateBase1000() As UnitConverter
-        Dim c = New UnitConverter(0.000000000000000000000001D, 1000, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E")
-        Return c
+    Public Shared Function CreateBase1000Converter() As UnitConverter
+        Return New UnitConverter(0.000000000000000000000001D, 1000, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E")
+
+    End Function
+
+    ''' <summary>
+    ''' Cria um <see cref="UnitConverter"/> de Base 1024 (Bytes)
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared Function CreateFileSizeConverter() As UnitConverter
+        Return New UnitConverter(1024, "B", "KB", "MB", "GB", "TB", "PB", "EB")
     End Function
 
     ''' <summary>
