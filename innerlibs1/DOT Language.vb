@@ -3,7 +3,7 @@ Imports System.Globalization
 Imports System.Runtime.CompilerServices
 
 
-Namespace DOT
+Namespace DOTLanguage
 
     ''' <summary>
     ''' Wrapper para criaçao de gráficos em DOT Language

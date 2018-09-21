@@ -3085,70 +3085,70 @@ Verifica se o objeto é do tipo numérico.
  <typeparam name="KeyType">Tipo da Key</typeparam>
  <typeparam name="ClassType">Tipo da</typeparam>
 </member>
-<member name="T:InnerLibs.Digraph">
+<member name="T:InnerLibs.DOTLanguage.Digraph">
  <summary>
  Wrapper para criaçao de gráficos em DOT Language
  </summary>
 </member>
-<member name="P:InnerLibs.Digraph.GraphType">
+<member name="P:InnerLibs.DOTLanguage.Digraph.GraphType">
  <summary>
  Tipo do Grafico
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Digraph.ID">
+<member name="P:InnerLibs.DOTLanguage.Digraph.ID">
  <summary>
  Nome do Gráfico
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Digraph.ToString">
+<member name="M:InnerLibs.DOTLanguage.Digraph.ToString">
  <summary>
  Escreve a DOT string correspondente a este gráfico
  </summary>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.DotNode">
+<member name="T:InnerLibs.DOTLanguage.DotNode">
  <summary>
  Representa um nó de um grafico em DOT Language
  </summary>
 </member>
-<member name="M:InnerLibs.DotNode.#ctor(System.String)">
+<member name="M:InnerLibs.DOTLanguage.DotNode.#ctor(System.String)">
  <summary>
  Cria um novo nó
  </summary>
  <param name="ID"></param>
 </member>
-<member name="P:InnerLibs.DotNode.ID">
+<member name="P:InnerLibs.DOTLanguage.DotNode.ID">
  <summary>
  ID deste nó
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DotNode.ToString">
+<member name="M:InnerLibs.DOTLanguage.DotNode.ToString">
  <summary>
  Escreve a DOT string deste nó e seus respectivos nós filhos
  </summary>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.DotEdge">
+<member name="T:InnerLibs.DOTLanguage.DotEdge">
  <summary>
  Representa uma ligação entre nós de um grafico em DOT Language
  </summary>
 </member>
-<member name="M:InnerLibs.DotEdge.#ctor(InnerLibs.DotNode,InnerLibs.DotNode,System.Boolean)">
+<member name="M:InnerLibs.DOTLanguage.DotEdge.#ctor(InnerLibs.DOTLanguage.DotNode,InnerLibs.DOTLanguage.DotNode,System.Boolean)">
  <summary>
  Cria uma nova ligaçao 
  </summary>
  <param name="Oriented">Relação orientada</param>
 </member>
-<member name="P:InnerLibs.DotEdge.Oriented">
+<member name="P:InnerLibs.DOTLanguage.DotEdge.Oriented">
  <summary>
  Indica se esta ligação é orientada ou não
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DotEdge.ToString">
+<member name="M:InnerLibs.DOTLanguage.DotEdge.ToString">
  <summary>
  Escreve a DOT String desta ligaçao
  </summary>
@@ -9251,25 +9251,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="degree">Grau de itensidade (0 - 100%)</param>
  <returns>Texto em 1337</returns>
 </member>
-<member name="M:InnerLibs.Text.ToMoney(System.Decimal,System.String,System.Char,System.Char)">
- <summary>
- Formata um numero decimal como moeda
- </summary>
- <param name="Number">           Numero Decimal</param>
- <param name="Currency">         SImbolo de moeda</param>
- <param name="ThousandSeparator">Separador de milhares</param>
- <param name="DecimalSeparator"> Separador de casas decimais</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.ToNumberString(System.Decimal,System.Char,System.Char)">
- <summary>
- Formata um numero decimal com separador de milhares e 2 casas decimais.
- </summary>
- <param name="Number">           Numero Decimal</param>
- <param name="ThousandSeparator">Separador de milhares</param>
- <param name="DecimalSeparator"> Separador de casas decimais</param>
- <returns>Numero formatado em string</returns>
-</member>
 <member name="M:InnerLibs.Text.ToPercentString(System.Decimal)">
  <summary>
  Retorna um numero com o sinal de porcentagem
@@ -9378,6 +9359,13 @@ Verifica se o objeto é do tipo numérico.
  </param>
  <returns>string amigavel para URL</returns>
 </member>
+<member name="M:InnerLibs.Text.ToSnake(System.String)">
+ <summary>
+ Retorna uma string em Snake Case
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.ToStream(System.String)">
  <summary>
  Cria um <see cref="T:System.IO.Stream"/> a partir de uma string
@@ -9422,7 +9410,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Text.ToTitle(System.String)">
  <summary>
- Transforma um texto em titulo Ex.: igor -&gt; Igor / inner code -&gt; Inner Code
+ Transforma um texto em titulo
  </summary>
  <param name="Text">Texto a ser manipulado</param>
  <returns>Uma String com o texto em nome próprio</returns>
@@ -9690,9 +9678,15 @@ Verifica se o objeto é do tipo numérico.
  Inicia um <see cref="T:InnerLibs.UnitConverter"/> vazio
  </summary>
 </member>
-<member name="M:InnerLibs.UnitConverter.CreateBase1000">
+<member name="M:InnerLibs.UnitConverter.CreateBase1000Converter">
  <summary>
  Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1000
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.CreateFileSizeConverter">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1024 (Bytes)
  </summary>
  <returns></returns>
 </member>
