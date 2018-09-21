@@ -53,9 +53,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DataGridViewProgressColumn`](InnerLibs#datagridviewprogresscolumn)
 - [`DataManipulation`](InnerLibs#datamanipulation)
 - [`DateRange`](InnerLibs#daterange)
-- [`Dice`](InnerLibs#dice)
-- [`DiceRoller`](InnerLibs#diceroller)
-- [`DiceType`](InnerLibs#dicetype)
 - [`DictionaryPropertyGridAdapter`](InnerLibs#dictionarypropertygridadapter)
 - [`Directories`](InnerLibs#directories)
 - [`DocumentationPage`](InnerLibs#documentationpage)
@@ -221,6 +218,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`SingleAlternativeQuestion`](InnerLibs.QuestionTest#singlealternativequestion)
 - [`StatementImage`](InnerLibs.QuestionTest#statementimage)
 - [`StatementImages`](InnerLibs.QuestionTest#statementimages)
+
+## [InnerLibs.RolePlayingGame](InnerLibs.RolePlayingGame)
+
+- [`Dice`](InnerLibs.RolePlayingGame#dice)
+- [`DiceRoller`](InnerLibs.RolePlayingGame#diceroller)
+- [`DiceType`](InnerLibs.RolePlayingGame#dicetype)
 
 ## [InnerLibs.Select2Data](InnerLibs.Select2Data)
 

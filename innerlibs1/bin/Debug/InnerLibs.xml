@@ -2849,48 +2849,48 @@ Verifica se o objeto é do tipo numérico.
  <param name="TableName">Nome da Tabela</param>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.DiceRoller">
+<member name="T:InnerLibs.RolePlayingGame.DiceRoller">
  <summary>
  Combinação de varios dados de RPG que podem ser rolados ao mesmo tempo
  </summary>
 </member>
-<member name="M:InnerLibs.DiceRoller.#ctor(InnerLibs.Dice[])">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.#ctor(InnerLibs.RolePlayingGame.Dice[])">
  <summary>
  Cria uma nova combinação de Dados
  </summary>
  <param name="Dices">Dados de RPG</param>
 </member>
-<member name="M:InnerLibs.DiceRoller.#ctor(InnerLibs.DiceRoller[])">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.#ctor(InnerLibs.RolePlayingGame.DiceRoller[])">
  <summary>
  Cria uma nova combinação de Dados
  </summary>
  <param name="DiceRollers">Dados de RPG</param>
 </member>
-<member name="M:InnerLibs.DiceRoller.#ctor(System.Collections.Generic.List{InnerLibs.Dice}[])">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.#ctor(System.Collections.Generic.List{InnerLibs.RolePlayingGame.Dice}[])">
  <summary>
  Cria uma nova combinação de Dados
  </summary>
  <param name="ListOfDices">Lista de dados de RPG</param>
 </member>
-<member name="M:InnerLibs.DiceRoller.#ctor(InnerLibs.DiceType[])">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.#ctor(InnerLibs.RolePlayingGame.DiceType[])">
  <summary>
  Cria uma nova combinação de novos dados a criados a partir de varios tipos
  </summary>
  <param name="DiceType">Tipos Dados de RPG</param>
 </member>
-<member name="P:InnerLibs.DiceRoller.Value">
+<member name="P:InnerLibs.RolePlayingGame.DiceRoller.Value">
  <summary>
  Retorna a soma de todos os valores dos dados
  </summary>
  <returns>Integer</returns>
 </member>
-<member name="M:InnerLibs.DiceRoller.Roll">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.Roll">
  <summary>
  Rola todos os dados (não travados) e retorna a soma de seus valores
  </summary>
  <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
 </member>
-<member name="M:InnerLibs.DiceRoller.op_Addition(InnerLibs.DiceRoller,InnerLibs.Dice)">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.op_Addition(InnerLibs.RolePlayingGame.DiceRoller,InnerLibs.RolePlayingGame.Dice)">
  <summary>
  Combina um dado com DiceRoller
  </summary>
@@ -2898,7 +2898,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Dice">Dado 2</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DiceRoller.op_Addition(InnerLibs.Dice,InnerLibs.DiceRoller)">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.op_Addition(InnerLibs.RolePlayingGame.Dice,InnerLibs.RolePlayingGame.DiceRoller)">
  <summary>
  Combina um dado com DiceRoller
  </summary>
@@ -2906,7 +2906,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Dice">Dado 2</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DiceRoller.op_Addition(InnerLibs.DiceRoller,InnerLibs.DiceRoller)">
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.op_Addition(InnerLibs.RolePlayingGame.DiceRoller,InnerLibs.RolePlayingGame.DiceRoller)">
  <summary>
  Combina um dado com DiceRoller
  </summary>
@@ -2914,12 +2914,12 @@ Verifica se o objeto é do tipo numérico.
  <param name="Combo2">Combo de Dados 2</param>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.Dice">
+<member name="T:InnerLibs.RolePlayingGame.Dice">
  <summary>
  Dado de RPG
  </summary>
 </member>
-<member name="M:InnerLibs.Dice.op_Addition(InnerLibs.Dice,InnerLibs.Dice)">
+<member name="M:InnerLibs.RolePlayingGame.Dice.op_Addition(InnerLibs.RolePlayingGame.Dice,InnerLibs.RolePlayingGame.Dice)">
  <summary>
  Combina 2 dados em um DiceRoller
  </summary>
@@ -2927,153 +2927,153 @@ Verifica se o objeto é do tipo numérico.
  <param name="Dice2">Dado 2</param>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.Type">
+<member name="P:InnerLibs.RolePlayingGame.Dice.Type">
  <summary>
  Tipo do dado
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.IsCustom">
+<member name="P:InnerLibs.RolePlayingGame.Dice.IsCustom">
  <summary>
  Indica se o dado é um dado com faces customizadas
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.IsVicious">
+<member name="P:InnerLibs.RolePlayingGame.Dice.IsVicious">
  <summary>
  Verifica se o dado possui algum lado viciado
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.Locked">
+<member name="P:InnerLibs.RolePlayingGame.Dice.Locked">
  <summary>
  Se TRUE, Impede este dado de ser rolado
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.Value">
+<member name="P:InnerLibs.RolePlayingGame.Dice.Value">
  <summary>
  Valor atual deste dado
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.RolledTimes">
+<member name="P:InnerLibs.RolePlayingGame.Dice.RolledTimes">
  <summary>
  Numero de vezes que este dado já foi rolado
  </summary>
  <returns>Integer</returns>
 </member>
-<member name="M:InnerLibs.Dice.Roll">
+<member name="M:InnerLibs.RolePlayingGame.Dice.Roll">
  <summary>
  Rola o dado e retorna seu valor
  </summary>
  <returns>Integer</returns>
 </member>
-<member name="P:InnerLibs.Dice.Face(System.Int32)">
+<member name="P:InnerLibs.RolePlayingGame.Dice.Face(System.Int32)">
  <summary>
  Retorna a face correspondente ao numero
  </summary>
  <param name="FaceNumber">Numero da face</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Dice.NormalizeWeight">
+<member name="M:InnerLibs.RolePlayingGame.Dice.NormalizeWeight">
  <summary>
  Normaliza o peso das faces do dado
  </summary>
 </member>
-<member name="P:InnerLibs.Dice.Faces">
+<member name="P:InnerLibs.RolePlayingGame.Dice.Faces">
  <summary>
  Faces do dado
  </summary>
  <returns>Um array com a cópia das faces do dado</returns>
 </member>
-<member name="M:InnerLibs.Dice.#ctor(InnerLibs.DiceType)">
+<member name="M:InnerLibs.RolePlayingGame.Dice.#ctor(InnerLibs.RolePlayingGame.DiceType)">
  <summary>
  Cria um novo dado de um tipo especifico
  </summary>
  <param name="Type">Tipo de dado</param>
 </member>
-<member name="M:InnerLibs.Dice.#ctor(System.Int32)">
+<member name="M:InnerLibs.RolePlayingGame.Dice.#ctor(System.Int32)">
  <summary>
  Cria um novo dado com um numero customizado de faces
  </summary>
  <param name="CustomFaces">Numero de faces do dado (Minimo de 2 faces)</param>
 </member>
-<member name="T:InnerLibs.Dice.DiceFace">
+<member name="T:InnerLibs.RolePlayingGame.Dice.DiceFace">
  <summary>
  Face de um dado. Pode ser viciada ou não
  </summary>
 </member>
-<member name="P:InnerLibs.Dice.DiceFace.Value">
+<member name="P:InnerLibs.RolePlayingGame.Dice.DiceFace.Value">
  <summary>
  Valor Da Face (numero)
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.DiceFace.Weight">
+<member name="P:InnerLibs.RolePlayingGame.Dice.DiceFace.Weight">
  <summary>
  Peso da face (vicia o dado)
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.DiceFace.WeightPercent">
+<member name="P:InnerLibs.RolePlayingGame.Dice.DiceFace.WeightPercent">
  <summary>
  Porcetagem do peso da face (vicia o dado)
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Dice.DiceFace.IsVicious">
+<member name="P:InnerLibs.RolePlayingGame.Dice.DiceFace.IsVicious">
  <summary>
  Valor que indica se a face está viciada
  </summary>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.DiceType">
+<member name="T:InnerLibs.RolePlayingGame.DiceType">
  <summary>
  Tipos de Dados
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.Custom">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.Custom">
  <summary>
  Dado customizado
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.Coin">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.Coin">
  <summary>
  Moeda
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.D4">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.D4">
  <summary>
  Dado de 4 Lados (Tetraedro/Pirâmide)
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.D6">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.D6">
  <summary>
  Dado de 6 Lados (Pentalátero/Cubo/Dado Tradicional)
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.D8">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.D8">
  <summary>
  Dado de 8 Lados (Octaedro)
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.D10">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.D10">
  <summary>
  Dado de 10 Lados (Decaedro)
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.D12">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.D12">
  <summary>
  Dado de 12 Lados (Dodecaedro)
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.D20">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.D20">
  <summary>
  Dado de 20 Lados (Icosaedro)
  </summary>
 </member>
-<member name="F:InnerLibs.DiceType.D100">
+<member name="F:InnerLibs.RolePlayingGame.DiceType.D100">
  <summary>
  Dado de 100 Lados (Esfera/Bola - Particulamente util para porcentagem)
  </summary>
@@ -8530,12 +8530,6 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Text.FixPunctuation(System.String@,System.String,System.Boolean)">
  <summary>
- Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final
- (é um alias para <see cref="M:InnerLibs.Text.AdjustWhiteSpaces(System.String)"/> da frase
- </summary>
- <param name="Text">       Frase a ser manipulada</param>
- <returns>Uma String com a frase corrigida</returns>
- <summary>
  Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao.
  </summary>
  <param name="Text">       Frase, Texto a ser pontuado</param>
@@ -8769,7 +8763,7 @@ Verifica se o objeto é do tipo numérico.
  Computa a distancia de Levenshtein entre 2 strings.
  </summary>
 </member>
-<member name="M:InnerLibs.Text.MakeClean(System.String)">
+<member name="M:InnerLibs.Text.ParseAlphaNumeric(System.String)">
  <summary>
  limpa um texto deixando apenas os caracteres alfanumericos.
  </summary>
