@@ -492,12 +492,6 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Remove os espaços excessivos (duplos) no meio da frase e remove os espaços no inicio e final
-    ''' (é um alias para <see cref="AdjustWhiteSpaces"/> da frase
-    ''' </summary>
-    ''' <param name="Text">       Frase a ser manipulada</param>
-    ''' <returns>Uma String com a frase corrigida</returns>
-    ''' <summary>
     ''' Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao.
     ''' </summary>
     ''' <param name="Text">       Frase, Texto a ser pontuado</param>
@@ -1043,7 +1037,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension> Function MakeClean(Text As String) As String
+    <Extension> Function ParseAlphaNumeric(Text As String) As String
         Dim l As New List(Of String)
         For Each item In Text.Split(" ", StringSplitOptions.RemoveEmptyEntries)
             l.Add(Regex.Replace(item, "[^A-Za-z0-9]", ""))
