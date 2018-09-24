@@ -1,14 +1,9 @@
-﻿
-''' <summary>
+﻿''' <summary>
 ''' Classe para manipulaçao de numeros e conversão unidades
 ''' </summary>
 Public Class UnitConverter
 
-    ''' <summary>
-    ''' Unidades de Medida
-    ''' </summary>
-    ''' <returns></returns>
-    Property Units As New Dictionary(Of Decimal, String)
+    Private Units As New Dictionary(Of Decimal, String)
 
     Property UnitComparisonType As StringComparison = StringComparison.Ordinal
 
@@ -192,7 +187,7 @@ Public Class UnitConverter
     End Function
 
     ''' <summary>
-    ''' Converte um numero abreviado em decimal 
+    ''' Converte um numero abreviado em decimal
     ''' </summary>
     ''' <param name="AbreviatedNumber">Numero abreviado</param>
     ''' <param name="[To]">Unidade de destino</param>
@@ -203,7 +198,7 @@ Public Class UnitConverter
     End Function
 
     ''' <summary>
-    ''' Converte um numero abreviado em outro numero abreviado de outra unidade 
+    ''' Converte um numero abreviado em outro numero abreviado de outra unidade
     ''' </summary>
     ''' <param name="AbreviatedNumber">Numero abreviado</param>
     ''' <param name="[To]">Unidade de destino</param>
