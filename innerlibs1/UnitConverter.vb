@@ -101,7 +101,7 @@ Public Class UnitConverter
                         u = u.Split(";")(1)
                     End If
                 End If
-                Return Number.ToString.Trim("0") & " " & u
+                Return (Number.ToString.Trim("0") & " " & u).Trim
         End Select
     End Function
 
