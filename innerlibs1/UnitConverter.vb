@@ -10,6 +10,8 @@ Public Class UnitConverter
     ''' <returns></returns>
     Property Units As New Dictionary(Of Decimal, String)
 
+    Property UnitComparisonType As StringComparison = StringComparison.Ordinal
+
     ''' <summary>
     ''' Inicia um <see cref="UnitConverter"/> vazio
     ''' </summary>
@@ -216,11 +218,11 @@ Public Class UnitConverter
     ''' </summary>
     ''' <param name="U"></param>
     ''' <returns></returns>
-    Function GetUnit(U As String) As KeyValuePair(Of Decimal, String)
+    Private Function GetUnit(U As String) As KeyValuePair(Of Decimal, String)
         If U.IsBlank Then
             Return Units.SingleOrDefault(Function(x) x.Value.IsBlank)
         Else
-            Return Units.SingleOrDefault(Function(x) x.Value.Split(";").Any(Function(y) y.Trim = U.Trim))
+            Return Units.SingleOrDefault(Function(x) x.Value.Split(";").Any(Function(y) y.Trim.Equals(U.Trim, UnitComparisonType)))
         End If
     End Function
 
