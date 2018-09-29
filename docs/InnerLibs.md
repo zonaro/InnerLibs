@@ -890,7 +890,7 @@ Static Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `List<String>` | GetExtensions(`String` MIME) | Traz uma lista de extensões de acordo com o MIME type especificado | 
-| `FileType` | GetFileType(`String` MimeTypeOrExtension) | Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string | 
+| `FileType` | GetFileType(`String` MimeTypeOrExtensionOrPath) | Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string | 
 | `FileTypeList` | GetFileTypeList() | Retorna uma Lista com todos os MIME Types suportados | 
 | `List<String>` | GetFileTypeStringList() | Retorna uma lista de strings contendo todos os MIME Types | 
 
@@ -912,7 +912,7 @@ Static Methods
 | `List<String>` | GetFileType(this `ImageFormat` RawFormat) | Retorna o Mime Type a partir da extensão de um arquivo | 
 | `List<String>` | GetFileType(this `Image` Image) | Retorna o Mime Type a partir da extensão de um arquivo | 
 | `Icon` | GetIcon(this `FileInfo` File) | Retorna um icone de acordo com o arquivo | 
-| `FileType` | ToFileType(this `String` MimeTypeOrExtension) | Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo | 
+| `FileType` | ToFileType(this `String` MimeTypeOrExtensionOrPath) | Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo | 
 
 
 ## `FileTypeList`
@@ -2087,7 +2087,7 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Dictionary<Decimal, String>` | Units | Unidades de Medida | 
+| `StringComparison` | UnitComparisonType |  | 
 
 
 Methods
@@ -2101,7 +2101,6 @@ Methods
 | `Decimal` | Convert(`Decimal` Number, `String` To, `String` From) | Converte um numero   decimal em outro numero decimal a partir de unidades de medida | 
 | `Decimal` | Convert(`String` AbreviatedNumber, `String` To) | Converte um numero   decimal em outro numero decimal a partir de unidades de medida | 
 | `String` | ConvertAbreviate(`String` AbreviatedNumber, `String` To) | Converte um numero abreviado em outro numero abreviado de outra unidade | 
-| `KeyValuePair<Decimal, String>` | GetUnit(`String` U) | Retorna a unidade e a base a partir do nome da unidade | 
 | `Decimal` | Parse(`String` Number, `Int32` DecimalPlaces = -1) | Retorna o numero decimal a partir de uma string abreviada | 
 | `String` | ParseUnit(`String` Number) | Extrai a Unidade utilizada a partir de um numero abreviado | 
 

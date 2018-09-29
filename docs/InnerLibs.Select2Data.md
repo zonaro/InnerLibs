@@ -68,6 +68,7 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `HtmlElement` | ToHtmlElement() |  | 
+| `ListItem` | ToListItem() | Retorna um ListItem deste objeto | 
 
 
 ## `Select2Results<Type>`
