@@ -65,6 +65,24 @@ Namespace Select2Data
 
             Return d
         End Function
+
+        ''' <summary>
+        ''' Retorna um ListItem deste objeto
+        ''' </summary>
+        ''' <returns></returns>
+        Function ToListItem() As System.Web.UI.WebControls.ListItem
+            Dim l As New System.Web.UI.WebControls.ListItem(Me.text, Me.id)
+            If otherdata IsNot Nothing Then
+                For Each entry In otherdata.Keys
+                    If entry.IsNotBlank Then
+                        l.Attributes.Add("data-" & entry, otherdata(entry))
+                    End If
+                Next
+            End If
+            l.Selected = Me.selected
+            l.Enabled = Not disabled
+            Return l
+        End Function
     End Class
 
     Public Class Pagination

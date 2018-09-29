@@ -6113,6 +6113,12 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Select2Data.Result.ToListItem">
+ <summary>
+ Retorna um ListItem deste objeto
+ </summary>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.Select2Data.Group">
  <summary>
  Grupo de resultado, rendereiza como optgroup
@@ -7543,7 +7549,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
  </summary>
- <param name="MimeTypeOrExtension"></param>
+ <param name="MimeTypeOrExtensionOrPath"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.FileTypeExtensions.GetIcon(System.IO.FileInfo)">
@@ -7641,7 +7647,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string
  </summary>
- <param name="MimeTypeOrExtension"></param>
+ <param name="MimeTypeOrExtensionOrPath"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.FileType.#ctor">
@@ -7659,7 +7665,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
  </summary>
- <param name="MimeTypeOrExtension">Extensão do arquivo</param>
+ <param name="MimeTypeOrExtensionOrPath">Extensão do arquivo</param>
 </member>
 <member name="M:InnerLibs.FileType.ToString">
  <summary>
@@ -9661,12 +9667,6 @@ Verifica se o objeto é do tipo numérico.
  Classe para manipulaçao de numeros e conversão unidades
  </summary>
 </member>
-<member name="P:InnerLibs.UnitConverter.Units">
- <summary>
- Unidades de Medida
- </summary>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.UnitConverter.#ctor">
  <summary>
  Inicia um <see cref="T:InnerLibs.UnitConverter"/> vazio
@@ -9768,7 +9768,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.UnitConverter.Convert(System.String,System.String)">
  <summary>
- Converte um numero abreviado em decimal 
+ Converte um numero abreviado em decimal
  </summary>
  <param name="AbreviatedNumber">Numero abreviado</param>
  <param name="[To]">Unidade de destino</param>
@@ -9776,7 +9776,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.UnitConverter.ConvertAbreviate(System.String,System.String)">
  <summary>
- Converte um numero abreviado em outro numero abreviado de outra unidade 
+ Converte um numero abreviado em outro numero abreviado de outra unidade
  </summary>
  <param name="AbreviatedNumber">Numero abreviado</param>
  <param name="[To]">Unidade de destino</param>

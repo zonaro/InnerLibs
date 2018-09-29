@@ -61,11 +61,11 @@ Public Module FileTypeExtensions
     ''' <summary>
     ''' Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
     ''' </summary>
-    ''' <param name="MimeTypeOrExtension"></param>
+    ''' <param name="MimeTypeOrExtensionOrPath"></param>
     ''' <returns></returns>
     <Extension()>
-    Public Function ToFileType(MimeTypeOrExtension As String) As FileType
-        Return New FileType(MimeTypeOrExtension)
+    Public Function ToFileType(MimeTypeOrExtensionOrPath As String) As FileType
+        Return New FileType(MimeTypeOrExtensionOrPath)
     End Function
 
     ''' <summary>
@@ -204,24 +204,24 @@ Public Class FileType
     ''' <summary>
     ''' Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string
     ''' </summary>
-    ''' <param name="MimeTypeOrExtension"></param>
+    ''' <param name="MimeTypeOrExtensionOrPath"></param>
     ''' <returns></returns>
-    Public Shared Function GetFileType(MimeTypeOrExtension As String) As FileType
+    Public Shared Function GetFileType(MimeTypeOrExtensionOrPath As String) As FileType
         Dim l = GetFileTypeList()
         Dim ismime As Boolean = True
         Try
-            Dim newmime = Path.GetExtension(MimeTypeOrExtension)
+            Dim newmime = Path.GetExtension(MimeTypeOrExtensionOrPath)
             If newmime.IsNotBlank Then
-                MimeTypeOrExtension = newmime
+                MimeTypeOrExtensionOrPath = newmime
                 ismime = False
             End If
         Catch ex As Exception
         End Try
         If Not ismime Then
-            MimeTypeOrExtension = "." & MimeTypeOrExtension.TrimAny(" ", ".")
+            MimeTypeOrExtensionOrPath = "." & MimeTypeOrExtensionOrPath.TrimAny(" ", ".")
         End If
         For Each item As FileType In l
-            If (MimeTypeOrExtension.IsIn(item.Extensions) Or MimeTypeOrExtension.IsIn(item.MimeTypes)) Then
+            If (MimeTypeOrExtensionOrPath.IsIn(item.Extensions) Or MimeTypeOrExtensionOrPath.IsIn(item.MimeTypes)) Then
                 Return item
             End If
         Next
@@ -245,9 +245,9 @@ Public Class FileType
     ''' <summary>
     ''' Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
     ''' </summary>
-    ''' <param name="MimeTypeOrExtension">Extensão do arquivo</param>
-    Public Sub New(MimeTypeOrExtension As String)
-        Build(MimeTypeOrExtension)
+    ''' <param name="MimeTypeOrExtensionOrPath">Extensão do arquivo</param>
+    Public Sub New(MimeTypeOrExtensionOrPath As String)
+        Build(MimeTypeOrExtensionOrPath)
     End Sub
 
     Private Sub Build(Extension As String)
