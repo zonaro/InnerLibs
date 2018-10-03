@@ -140,7 +140,7 @@ Public Class UnitConverter
         End If
         If Not Number.IsNumber Then
             Dim i = Number
-            While i.StartsWithAny(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+            While i.StartsWithAny(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, ",", ".")
                 i = i.RemoveFirstChars()
             End While
             Dim p = GetUnit(i)
@@ -160,7 +160,7 @@ Public Class UnitConverter
     ''' <returns></returns>
     Public Function ParseUnit(Number As String) As String
         Dim i = Number
-        While i.StartsWithAny(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+        While i.StartsWithAny(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, ",", ".")
             i = i.RemoveFirstChars()
         End While
         Dim p = GetUnit(i)
