@@ -364,6 +364,8 @@ Public Module ClassTools
         End If
     End Function
 
+
+
     ''' <summary>
     ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
     ''' </summary>

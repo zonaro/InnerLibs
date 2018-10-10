@@ -637,6 +637,16 @@ Namespace LINQ
         End Function
 
         ''' <summary>
+        ''' Coloca todos os abjetos que atendem a um rpedicado em um estado de PENDING DELETE
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="Table">Tabela</param>
+        ''' <param name="predicate">predicado</param>
+        <Extension()> Public Sub DeleteAllOnSubmitWhere(Of T As Class)(Table As Table(Of T), predicate As Func(Of T, Boolean))
+            Table.DeleteAllOnSubmit(Table.Where(predicate))
+        End Sub
+
+        ''' <summary>
         ''' Atualiza um objeto de entidade a partir de valores em um Dictionary
         ''' </summary>
         ''' <typeparam name="T"></typeparam>

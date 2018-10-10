@@ -5405,6 +5405,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="Searches">        </param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.DeleteAllOnSubmitWhere``1(System.Data.Linq.Table{``0},System.Func{``0,System.Boolean})">
+ <summary>
+ Coloca todos os abjetos que atendem a um rpedicado em um estado de PENDING DELETE
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="Table">Tabela</param>
+ <param name="predicate">predicado</param>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.UpdateObjectFromDictionary``2(System.Data.Linq.DataContext,System.Collections.Generic.IDictionary{System.String,System.Object})">
  <summary>
  Atualiza um objeto de entidade a partir de valores em um Dictionary
