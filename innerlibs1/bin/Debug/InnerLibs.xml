@@ -5407,11 +5407,32 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.DeleteAllOnSubmitWhere``1(System.Data.Linq.Table{``0},System.Func{``0,System.Boolean})">
  <summary>
- Coloca todos os abjetos que atendem a um rpedicado em um estado de PENDING DELETE
+ Coloca todos os abjetos que atendem a um predicado em um estado de PENDING DELETE
  </summary>
  <typeparam name="T">Tipo do objeto</typeparam>
  <param name="Table">Tabela</param>
  <param name="predicate">predicado</param>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Most(System.Collections.Generic.IEnumerable{System.Boolean},System.Boolean)">
+ <summary>
+ Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
+ </summary>
+ <param name="List"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.MostTrue(System.Boolean[])">
+ <summary>
+ Retorna TRUE se a maioria dos testes em uma lista retornarem TRUE
+ </summary>
+ <param name="Tests"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.MostFalse(System.Boolean[])">
+ <summary>
+ Retorna TRUE se a maioria dos testes em uma lista retornarem FALSE
+ </summary>
+ <param name="Tests"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.UpdateObjectFromDictionary``2(System.Data.Linq.DataContext,System.Collections.Generic.IDictionary{System.String,System.Object})">
  <summary>

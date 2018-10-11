@@ -637,7 +637,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Coloca todos os abjetos que atendem a um rpedicado em um estado de PENDING DELETE
+        ''' Coloca todos os abjetos que atendem a um predicado em um estado de PENDING DELETE
         ''' </summary>
         ''' <typeparam name="T">Tipo do objeto</typeparam>
         ''' <param name="Table">Tabela</param>
@@ -645,6 +645,42 @@ Namespace LINQ
         <Extension()> Public Sub DeleteAllOnSubmitWhere(Of T As Class)(Table As Table(Of T), predicate As Func(Of T, Boolean))
             Table.DeleteAllOnSubmit(Table.Where(predicate))
         End Sub
+
+        ''' <summary>
+        ''' Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
+        ''' </summary>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function Most(List As IEnumerable(Of Boolean), Optional Result As Boolean = True) As Boolean
+            If List.Count > 0 Then
+                Dim arr = List.DistinctCount
+                If arr.ContainsKey(True) AndAlso arr.ContainsKey(False) Then
+                    Return arr(Result) > arr(Not Result)
+                Else
+                    Return arr.First.Key = Result
+                End If
+            End If
+            Return False = Result
+        End Function
+
+        ''' <summary>
+        ''' Retorna TRUE se a maioria dos testes em uma lista retornarem TRUE
+        ''' </summary>
+        ''' <param name="Tests"></param>
+        ''' <returns></returns>
+        Public Function MostTrue(ParamArray Tests As Boolean()) As Boolean
+            Return If(Tests, {}).Most(True)
+        End Function
+
+        ''' <summary>
+        ''' Retorna TRUE se a maioria dos testes em uma lista retornarem FALSE
+        ''' </summary>
+        ''' <param name="Tests"></param>
+        ''' <returns></returns>
+        Public Function MostFalse(ParamArray Tests As Boolean()) As Boolean
+            Return If(Tests, {}).Most(False)
+        End Function
+
 
         ''' <summary>
         ''' Atualiza um objeto de entidade a partir de valores em um Dictionary
