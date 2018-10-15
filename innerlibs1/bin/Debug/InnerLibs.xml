@@ -3317,6 +3317,24 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Calendars.ConvertDateString(System.String,System.String,System.Globalization.CultureInfo)">
+ <summary>
+ Converte uma string em datetime a partir de um formato especifico
+ </summary>
+ <param name="DateString">String original</param>
+ <param name="Format"></param>
+ <param name="Culture"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.ChangeFormat(System.String,System.String,System.String,System.Globalization.CultureInfo)">
+ <summary>
+ Converte uma string de data para outra string de data com formato diferente
+ </summary>
+ <param name="DateString">String original</param>
+ <param name="InputFormat"></param>
+ <param name="Culture"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.NextFortnight(System.DateTime,System.Int32)">
  <summary>
  Pula para a data inicial da proxima quinzena

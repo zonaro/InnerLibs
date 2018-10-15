@@ -161,6 +161,29 @@ End Class
 Public Module Calendars
 
     ''' <summary>
+    ''' Converte uma string em datetime a partir de um formato especifico
+    ''' </summary>
+    ''' <param name="DateString">String original</param>
+    ''' <param name="Format"></param>
+    ''' <param name="Culture"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ConvertDateString(DateString As String, Format As String, Optional Culture As CultureInfo = Nothing) As Date
+        Culture = If(Culture, CultureInfo.CurrentCulture)
+        Return DateTime.ParseExact(DateString, Format, Culture)
+    End Function
+
+    ''' <summary>
+    ''' Converte uma string de data para outra string de data com formato diferente
+    ''' </summary>
+    ''' <param name="DateString">String original</param>
+    ''' <param name="InputFormat"></param>
+    ''' <param name="Culture"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ChangeFormat(DateString As String, InputFormat As String, OutputFormat As String, Optional Culture As CultureInfo = Nothing) As String
+        Return DateString.ConvertDateString(InputFormat, Culture).ToString(OutputFormat)
+    End Function
+
+    ''' <summary>
     ''' Pula para a data inicial da proxima quinzena
     ''' </summary>
     ''' <param name="FromDate">Data de partida</param>
