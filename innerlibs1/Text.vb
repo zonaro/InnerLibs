@@ -16,6 +16,36 @@ Imports InnerLibs.LINQ
 Public Module Text
 
     ''' <summary>
+    ''' Substitui a ultima instancia de um texto por outro
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OldText"></param>
+    ''' <param name="NewText"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ReplaceLast(Text As String, OldText As String, Optional NewText As String = "") As String
+        If Text.Contains(OldText) Then
+            Text = Text.Insert(Text.LastIndexOf(OldText), NewText)
+            Text = Text.Remove(Text.LastIndexOf(OldText), 1)
+        End If
+        Return Text
+    End Function
+
+    ''' <summary>
+    ''' Substitui a primeira instancia de um texto por outro
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OldText"></param>
+    ''' <param name="NewText"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ReplaceFirst(Text As String, OldText As String, Optional NewText As String = "") As String
+        If Text.Contains(OldText) Then
+            Text = Text.Insert(Text.IndexOf(OldText), NewText)
+            Text = Text.Remove(Text.IndexOf(OldText), 1)
+        End If
+        Return Text
+    End Function
+
+    ''' <summary>
     ''' Caracteres usado para encapsular palavras em textos
     ''' </summary>
     ''' <returns></returns>

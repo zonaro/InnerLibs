@@ -1457,7 +1457,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Cria uma instancia de quinzena a partir de uma data que a mesma pode conter
  </summary>
- <param name="AnyDate">Qualquer dada. Se NULL, a data atual é utilizada</param>
+ <param name="AnyDate">Qualquer data. Se NULL, a data atual é utilizada</param>
 </member>
 <member name="P:InnerLibs.TimeMachine.Fortnight.Key">
  <summary>
@@ -7246,6 +7246,22 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Mathematic.PenalizeMin(System.Int32,System.Int32)">
+ <summary>
+ Retorna a diferença entre 2 numeros se o valor minimo for maior que o total
+ </summary>
+ <param name="Total"></param>
+ <param name="MinValue"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.PenalizeMax(System.Int32,System.Int32)">
+ <summary>
+ Retorna a diferença entre 2 numeros se o valor maximo for menor que o total
+ </summary>
+ <param name="Total"></param>
+ <param name="MaxValue"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Mathematic.ToOrdinalNumber(System.Int32,System.Boolean)">
  <summary>
  retorna o numeor em sua forma ordinal (inglês)
@@ -8381,6 +8397,24 @@ Verifica se o objeto é do tipo numérico.
  Modulo de manipulação de Texto
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Text.ReplaceLast(System.String,System.String,System.String)">
+ <summary>
+ Substitui a ultima instancia de um texto por outro
+ </summary>
+ <param name="Text"></param>
+ <param name="OldText"></param>
+ <param name="NewText"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ReplaceFirst(System.String,System.String,System.String)">
+ <summary>
+ Substitui a primeira instancia de um texto por outro
+ </summary>
+ <param name="Text"></param>
+ <param name="OldText"></param>
+ <param name="NewText"></param>
+ <returns></returns>
 </member>
 <member name="P:InnerLibs.Text.WordWrappers">
  <summary>

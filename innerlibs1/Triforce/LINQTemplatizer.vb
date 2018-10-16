@@ -6,6 +6,7 @@ Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Text.RegularExpressions
+Imports System.Xml
 Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
@@ -1620,6 +1621,8 @@ Namespace Triforce
         Sub New(Template As HtmlDocument)
             Me.Template = Template.ToString
         End Sub
+
+
 
         ReadOnly Property Template As String = ""
     End Class

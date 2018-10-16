@@ -149,7 +149,7 @@ Namespace TimeMachine
         ''' <summary>
         ''' Cria uma instancia de quinzena a partir de uma data que a mesma pode conter
         ''' </summary>
-        ''' <param name="AnyDate">Qualquer dada. Se NULL, a data atual é utilizada</param>
+        ''' <param name="AnyDate">Qualquer data. Se NULL, a data atual é utilizada</param>
         Sub New(Optional AnyDate As Date? = Nothing)
             AnyDate = If(AnyDate, Now)
             AnyDate = New Date(AnyDate.Value.Year, AnyDate.Value.Month, If(AnyDate.Value.Day > 15, 16, 1), AnyDate.Value.Hour, AnyDate.Value.Minute, AnyDate.Value.Second, AnyDate.Value.Millisecond, AnyDate.Value.Kind)
@@ -413,7 +413,6 @@ Namespace TimeMachine
                 Else
                     Me.NonRelevantDays.Add(CurDate)
                 End If
-                Me.AllDays.Add(CurDate)
                 CurDate = CurDate.AddDays(1)
             End While
 
@@ -499,7 +498,11 @@ Namespace TimeMachine
         ''' Todos os dias entre as datas Inicial e Final
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property AllDays As New List(Of Date)
+        Public ReadOnly Property AllDays As IEnumerable(Of Date)
+            Get
+                Return RelevantDays.Union(NonRelevantDays).OrderBy(Function(x) x).AsEnumerable
+            End Get
+        End Property
 
         ''' <summary>
         ''' Dias não relevantes entre as datas Inicial e Final
@@ -517,7 +520,7 @@ Namespace TimeMachine
         ''' Dias da semana não relevantes
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property NonRelevantDaysOfWeek As List(Of DayOfWeek)
+        Public ReadOnly Property NonRelevantDaysOfWeek As IEnumerable(Of DayOfWeek)
             Get
                 Dim lista = {DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday}.ToList()
                 Dim lista2 = New List(Of DayOfWeek)
@@ -527,7 +530,7 @@ Namespace TimeMachine
                         lista2.Remove(item)
                     End If
                 Next
-                Return lista2
+                Return lista2.AsEnumerable
             End Get
         End Property
 
@@ -597,8 +600,7 @@ Namespace TimeMachine
 
             Dim current As String = ano & " " & mes & " " & dia & " " & horas & " " & minutos & " " & segundos
             If current.Contains(",") Then
-                current = current.Insert(current.LastIndexOf(","), " e ")
-                current = current.Remove(current.LastIndexOf(","), 1)
+                current = current.ReplaceLast(",", " e ")
             End If
             Return current.AdjustWhiteSpaces
         End Function
@@ -742,7 +744,7 @@ Namespace TimeMachine
         ''' <param name="StartDate">Data Inicial da produção</param>
         ''' <param name="Time">Tempo do item</param>
         ''' <param name="Quantity">Quantidade de itens</param>
-        Public Sub New(StartDate As DateTime, Time As TimeSpan, Optional Quantity As Integer = 1, Optional SingularItem As String = "Item", Optional MultipleItem As String = "Itens")
+        Public Sub New(StartDate As DateTime, Time As TimeSpan, Optional Quantity As Integer = 1, Optional SingularItem As String = "Item", Optional MultipleItem As String = "Items")
             Me.StartDate = StartDate
             Me.Item.Quantity = Quantity
             Me.Item.Time = Time
@@ -1235,7 +1237,7 @@ Namespace TimeMachine
         ''' string que representa o item quando sua quantidade é maior que 1
         ''' </summary>
         ''' <returns></returns>
-        Property MultipleItem As String = "Itens"
+        Property MultipleItem As String = Nothing
 
         ''' <summary>
         ''' Retorna uma string que representa a quantidade do item

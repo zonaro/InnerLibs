@@ -9,13 +9,33 @@ Imports InnerLibs.Locations
 Public Module Mathematic
 
     ''' <summary>
+    ''' Retorna a diferença entre 2 numeros se o valor minimo for maior que o total
+    ''' </summary>
+    ''' <param name="Total"></param>
+    ''' <param name="MinValue"></param>
+    ''' <returns></returns>
+    <Extension()> Function PenalizeMin(Total As Integer, MinValue As Integer) As Integer
+        Return If(Total < MinValue, MinValue - Total, 0)
+    End Function
+
+    ''' <summary>
+    ''' Retorna a diferença entre 2 numeros se o valor maximo for menor que o total
+    ''' </summary>
+    ''' <param name="Total"></param>
+    ''' <param name="MaxValue"></param>
+    ''' <returns></returns>
+    <Extension()> Function PenalizeMax(Total As Integer, MaxValue As Integer) As Integer
+        Return If(Total > MaxValue, MaxValue - Total, 0)
+    End Function
+
+
+    ''' <summary>
     ''' retorna o numeor em sua forma ordinal (inglês)
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension> Public Function ToOrdinalNumber(Number As Integer, Optional ExcludeNumber As Boolean = False) As String
         Return ToOrdinalNumber(CType(Number, Long), ExcludeNumber)
-
     End Function
 
     ''' <summary>

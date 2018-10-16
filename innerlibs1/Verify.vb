@@ -308,7 +308,7 @@ Public Module Verify
     ''' <param name="ValueIfBlank">Valor se estiver em branco</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function IfBlank(Of T)(ByVal Value As Object, ValueIfBlank As T) As T
+    Public Function IfBlank(Of T)(ByVal Value As Object, Optional ValueIfBlank As T = Nothing) As T
         If IsNothing(Value) Then
             Return ValueIfBlank
         Else
