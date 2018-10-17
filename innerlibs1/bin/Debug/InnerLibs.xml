@@ -10780,6 +10780,13 @@ Atualiza a lista de keys
  <param name="Control">Controle <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/></param>
  <param name="Values"> Valores que devem receber a propriedade select</param>
 </member>
+<member name="M:InnerLibs.Web.SelectValues(System.Web.UI.HtmlControls.HtmlSelect,System.Collections.Generic.IEnumerable{System.String})">
+ <summary>
+ Seleciona Valores de um <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/>
+ </summary>
+ <param name="Control">Controle <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/></param>
+ <param name="Values"> Valores que devem receber a propriedade select</param>
+</member>
 <member name="M:InnerLibs.Web.SelectValues(System.Web.UI.HtmlControls.HtmlSelect,System.Func{System.Web.UI.WebControls.ListItem,System.Boolean})">
  <summary>
  Seleciona Valores de um <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/>

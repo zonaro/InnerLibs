@@ -886,6 +886,16 @@ Public Module Web
         Return Control
     End Function
 
+
+    ''' <summary>
+    ''' Seleciona Valores de um <see cref="HtmlSelect"/>
+    ''' </summary>
+    ''' <param name="Control">Controle <see cref="HtmlSelect"/></param>
+    ''' <param name="Values"> Valores que devem receber a propriedade select</param>
+    <Extension()> Public Function SelectValues(Control As HtmlSelect, Values As IEnumerable(Of String)) As HtmlSelect
+        Return Control.SelectValues(Values.ToArray)
+    End Function
+
     ''' <summary>
     ''' Seleciona Valores de um <see cref="HtmlSelect"/>
     ''' </summary>
