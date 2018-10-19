@@ -10,6 +10,39 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+        ''' <summary>
+        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do Objeto</typeparam>
+        ''' <param name="Items">Itens</param>
+        ''' <param name="childSelector">Seletor das propriedades filhas</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Iterator Function Traverse(Of T)(ByVal items As IEnumerable(Of T), ByVal childSelector As Func(Of T, IEnumerable(Of T)), Optional filter As Func(Of T, Boolean) = Nothing) As IEnumerable(Of T)
+            filter = If(filter, Function(x) True)
+            Dim stack = New Stack(Of T)(items.Where(filter))
+            While stack.Any()
+                Dim [next] = stack.Pop()
+                Yield [next]
+                For Each child In childSelector([next]).Where(filter)
+                    stack.Push(child)
+                Next
+            End While
+        End Function
+
+        ''' <summary>
+        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do Objeto</typeparam>
+        ''' <param name="Item">Itens</param>
+        ''' <param name="childSelector">Seletor das propriedades filhas</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function Traverse(Of T)(ByVal Item As T, ByVal childSelector As Func(Of T, IEnumerable(Of T)), Optional filter As Func(Of T, Boolean) = Nothing) As IEnumerable(Of T)
+            Return childSelector(Item).Traverse(childSelector, filter)
+        End Function
+
+
         Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains")
 
         Private endsWithMethod As MethodInfo = GetType(String).GetMethod("EndsWith", {GetType(String)})
@@ -164,7 +197,8 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+        ''' opcionalmente criar o objeto se o mesmo não existir
         ''' </summary>
         ''' <typeparam name="T">Tipo do objeto</typeparam>
         ''' <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
@@ -190,8 +224,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com sua chave primaria. Pode
-        ''' opcionalmente criar o objeto se o mesmo não existir
+        ''' Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias.
         ''' </summary>
         ''' <typeparam name="T">Tipo do objeto</typeparam>
         ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>

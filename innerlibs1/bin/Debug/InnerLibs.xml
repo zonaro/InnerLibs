@@ -5083,6 +5083,24 @@ Verifica se o objeto é do tipo numérico.
  <param name="WhereConditions"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,System.Boolean})">
+ <summary>
+ Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
+ </summary>
+ <typeparam name="T">Tipo do Objeto</typeparam>
+ <param name="Items">Itens</param>
+ <param name="childSelector">Seletor das propriedades filhas</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``1(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,System.Boolean})">
+ <summary>
+ Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
+ </summary>
+ <typeparam name="T">Tipo do Objeto</typeparam>
+ <param name="Item">Itens</param>
+ <param name="childSelector">Seletor das propriedades filhas</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.Or``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
  <summary>
  Concatena uma expressão com outra usando o operador OR (||)
@@ -5177,7 +5195,8 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.DataContext,System.Object,System.Boolean,System.Boolean@)">
  <summary>
- Retorna um objeto de uma tabela especifica de acordo com uma chave primária.
+ Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+ opcionalmente criar o objeto se o mesmo não existir
  </summary>
  <typeparam name="T">Tipo do objeto</typeparam>
  <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
@@ -5189,8 +5208,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKeys``1(System.Data.Linq.DataContext,System.Object[])">
  <summary>
- Retorna um objeto de uma tabela especifica de acordo com sua chave primaria. Pode
- opcionalmente criar o objeto se o mesmo não existir
+ Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias.
  </summary>
  <typeparam name="T">Tipo do objeto</typeparam>
  <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
