@@ -10826,7 +10826,7 @@ Atualiza a lista de keys
  <param name="Control">Controle <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/></param>
  <param name="Values"> Valores que serao desselecionados</param>
 </member>
-<member name="M:InnerLibs.Web.SetItem(System.Web.UI.HtmlControls.HtmlSelect,System.String,System.String)">
+<member name="M:InnerLibs.Web.SetItem(System.Web.UI.HtmlControls.HtmlSelect,System.String,System.String,System.StringComparison)">
  <summary>
  Adiciona um novo <see cref="T:System.Web.UI.WebControls.ListItem"/> ao <see cref="T:System.Web.UI.HtmlControls.HtmlSelect"/> se um item identico nao existir no mesmo
  </summary>

@@ -956,10 +956,10 @@ Public Module Web
     ''' <param name="Text">    Texto do Item</param>
     ''' <param name="Value">   Valor do Item</param>
     ''' <returns>o objeto ListItem adicionado ou existente</returns>
-    <Extension()> Public Function SetItem(Control As HtmlSelect, Text As String, Optional Value As String = "") As ListItem
+    <Extension()> Public Function SetItem(Control As HtmlSelect, Text As String, Optional Value As String = "", Optional ComparisonType As StringComparison = StringComparison.InvariantCultureIgnoreCase) As ListItem
         Dim li = New ListItem(Text, Value.IfBlank(Text))
         For Each item As ListItem In Control.Items
-            If item.Text = li.Text AndAlso item.Value = li.Value Then
+            If item.Text.Equals(li.Text, ComparisonType) AndAlso item.Value.Equals(li.Value, ComparisonType) Then
                 Return item
             End If
         Next
