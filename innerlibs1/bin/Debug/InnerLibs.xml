@@ -5092,6 +5092,19 @@ Verifica se o objeto é do tipo numérico.
  <param name="childSelector">Seletor das propriedades filhas</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.MergeProperty``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2},System.Boolean)">
+ <summary>
+ Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
+ </summary>
+ <typeparam name="TObject">Tipo do objeto</typeparam>
+ <typeparam name="TProperty">Tipo da propriedade</typeparam>
+ <typeparam name="TOrder">Tipo do objeto de ordenacao</typeparam>
+ <param name="objs">colecao de objetos</param>
+ <param name="selector">seletor da propriedade</param>
+ <param name="Order">seletor da ordem</param>
+ <param name="Ascending">ordem ascendente ou descendente</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``1(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,System.Boolean})">
  <summary>
  Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente

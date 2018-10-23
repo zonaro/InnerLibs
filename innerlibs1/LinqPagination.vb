@@ -31,6 +31,28 @@ Namespace LINQ
         End Function
 
         ''' <summary>
+        ''' Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
+        ''' </summary>
+        ''' <typeparam name="TObject">Tipo do objeto</typeparam>
+        ''' <typeparam name="TProperty">Tipo da propriedade</typeparam>
+        ''' <typeparam name="TOrder">Tipo do objeto de ordenacao</typeparam>
+        ''' <param name="objs">colecao de objetos</param>
+        ''' <param name="selector">seletor da propriedade</param>
+        ''' <param name="Order">seletor da ordem</param>
+        ''' <param name="Ascending">ordem ascendente ou descendente</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function MergeProperty(Of TObject, TProperty, TOrder)(objs As IEnumerable(Of TObject), selector As Func(Of TObject, TProperty), Order As Func(Of TObject, TOrder), Optional Ascending As Boolean = True) As IEnumerable(Of TObject)
+            objs = If(objs, {})
+            objs = If(Ascending, objs.OrderBy(Order), objs.OrderByDescending(Order)).ToArray
+            Dim value As TProperty = selector(objs.First)
+            For Each obj In objs
+                obj.SetPropertyValue(Of TProperty)(selector.Method.Name, value)
+            Next
+            Return objs
+        End Function
+
+        ''' <summary>
         ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
         ''' </summary>
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
