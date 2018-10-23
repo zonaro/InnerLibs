@@ -34,22 +34,45 @@ Namespace LINQ
         ''' Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
         ''' </summary>
         ''' <typeparam name="TObject">Tipo do objeto</typeparam>
-        ''' <typeparam name="TProperty">Tipo da propriedade</typeparam>
         ''' <typeparam name="TOrder">Tipo do objeto de ordenacao</typeparam>
         ''' <param name="objs">colecao de objetos</param>
-        ''' <param name="selector">seletor da propriedade</param>
+        ''' <param name="PropertyName">seletor da propriedade</param>
         ''' <param name="Order">seletor da ordem</param>
         ''' <param name="Ascending">ordem ascendente ou descendente</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function MergeProperty(Of TObject, TProperty, TOrder)(objs As IEnumerable(Of TObject), selector As Func(Of TObject, TProperty), Order As Func(Of TObject, TOrder), Optional Ascending As Boolean = True) As IEnumerable(Of TObject)
+        Public Function MergeProperty(Of TObject, TOrder)(objs As IEnumerable(Of TObject), PropertyName As String, Order As Func(Of TObject, TOrder), Optional Ascending As Boolean = True) As IEnumerable(Of TObject)
             objs = If(objs, {})
             objs = If(Ascending, objs.OrderBy(Order), objs.OrderByDescending(Order)).ToArray
-            Dim value As TProperty = selector(objs.First)
+            Dim value = objs.First().GetPropertyValue(PropertyName)
             For Each obj In objs
-                obj.SetPropertyValue(Of TProperty)(selector.Method.Name, value)
+                obj.SetPropertyValue(PropertyName, value)
             Next
             Return objs
+        End Function
+
+        Sub SetPropertyValue(Of Tsource, TProperty)(ByVal source As Tsource, ByVal propertyLambda As Expression(Of Func(Of Tsource, TProperty)))
+
+        End Sub
+
+
+        ''' <summary>
+        ''' Retorna as informacoes de uma propriedade a aprtir de um seletor
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <typeparam name="TProperty"></typeparam>
+        ''' <param name="source"></param>
+        ''' <param name="propertyLambda"></param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function GetPropertyInfo(Of TSource, TProperty)(ByVal source As TSource, ByVal propertyLambda As Expression(Of Func(Of TSource, TProperty))) As PropertyInfo
+            Dim type As Type = GetType(TSource)
+            Dim member As MemberExpression = TryCast(propertyLambda.Body, MemberExpression)
+            If member Is Nothing Then Throw New ArgumentException(String.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()))
+            Dim propInfo As PropertyInfo = TryCast(member.Member, PropertyInfo)
+            If propInfo Is Nothing Then Throw New ArgumentException(String.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()))
+            If type <> propInfo.ReflectedType AndAlso Not type.IsSubclassOf(propInfo.ReflectedType) Then Throw New ArgumentException(String.Format("Expression '{0}' refers to a property that is not from type {1}.", propertyLambda.ToString(), type))
+            Return propInfo
         End Function
 
         ''' <summary>
