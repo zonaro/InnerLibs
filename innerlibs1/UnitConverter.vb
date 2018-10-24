@@ -1,4 +1,5 @@
-﻿''' <summary>
+﻿Imports System.Globalization
+''' <summary>
 ''' Classe para manipulaçao de numeros e conversão unidades
 ''' </summary>
 Public Class UnitConverter
@@ -6,6 +7,8 @@ Public Class UnitConverter
     Private Units As New Dictionary(Of Decimal, String)
 
     Property UnitComparisonType As StringComparison = StringComparison.Ordinal
+
+    Property Culture As CultureInfo = CultureInfo.InvariantCulture
 
     ''' <summary>
     ''' Inicia um <see cref="UnitConverter"/> vazio
@@ -98,7 +101,12 @@ Public Class UnitConverter
                         u = u.Split(";")(1)
                     End If
                 End If
-                Return (Number.ToString.TrimAny("0", ",", ".") & " " & u).Trim
+                Dim abr = Number.ToString(Culture)
+                If abr.Contains(Culture.NumberFormat.NumberDecimalSeparator) Then
+                    abr = abr.Trim("0")
+                    abr = abr.Trim(Culture.NumberFormat.NumberDecimalSeparator)
+                End If
+                Return (abr & " " & u).Trim
         End Select
     End Function
 
