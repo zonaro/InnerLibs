@@ -8,6 +8,49 @@ Imports InnerLibs.Locations
 ''' <remarks></remarks>
 Public Module Mathematic
 
+
+    ''' <summary>
+    ''' Retorna o elemento de menor valor de uma coleção
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do elemento</typeparam>
+    ''' <param name="Elements">Lista de elementos</param>
+    ''' <returns></returns>
+    <Extension()> Function LowerOf(Of T)(Elements As IEnumerable(Of T)) As T
+        Return If(Elements, {}).OrderBy(Function(x) x).FirstOrDefault
+    End Function
+
+    ''' <summary>
+    ''' Retorna o elemento de menor valor de uma coleção
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do elemento</typeparam>
+    ''' <param name="Elements">Lista de elementos</param>
+    ''' <returns></returns>
+    Function LowerOf(Of T)(ParamArray Elements As T()) As T
+        Return If(Elements, {}).LowerOf
+    End Function
+
+    ''' <summary>
+    ''' Retorna o elemento de maior valor de uma coleção
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do elemento</typeparam>
+    ''' <param name="Elements">Lista de elementos</param>
+    ''' <returns></returns>
+    <Extension()> Function HigherOf(Of T)(Elements As IEnumerable(Of T)) As T
+        Return If(Elements, {}).OrderByDescending(Function(x) x).FirstOrDefault
+    End Function
+
+    ''' <summary>
+    ''' Retorna o elemento de maior valor de uma coleção
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do elemento</typeparam>
+    ''' <param name="Elements">Lista de elementos</param>
+    ''' <returns></returns>
+    Function HigherOf(Of T)(ParamArray Elements As T()) As T
+        Return If(Elements, {}).HigherOf
+    End Function
+
+
+
     ''' <summary>
     ''' Retorna a diferença entre 2 numeros se o valor minimo for maior que o total
     ''' </summary>

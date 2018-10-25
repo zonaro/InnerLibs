@@ -7286,6 +7286,38 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Mathematic.LowerOf``1(System.Collections.Generic.IEnumerable{``0})">
+ <summary>
+ Retorna o elemento de menor valor de uma coleção
+ </summary>
+ <typeparam name="T">Tipo do elemento</typeparam>
+ <param name="Elements">Lista de elementos</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.LowerOf``1(``0[])">
+ <summary>
+ Retorna o elemento de menor valor de uma coleção
+ </summary>
+ <typeparam name="T">Tipo do elemento</typeparam>
+ <param name="Elements">Lista de elementos</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.HigherOf``1(System.Collections.Generic.IEnumerable{``0})">
+ <summary>
+ Retorna o elemento de maior valor de uma coleção
+ </summary>
+ <typeparam name="T">Tipo do elemento</typeparam>
+ <param name="Elements">Lista de elementos</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.HigherOf``1(``0[])">
+ <summary>
+ Retorna o elemento de maior valor de uma coleção
+ </summary>
+ <typeparam name="T">Tipo do elemento</typeparam>
+ <param name="Elements">Lista de elementos</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Mathematic.PenalizeMin(System.Int32,System.Int32)">
  <summary>
  Retorna a diferença entre 2 numeros se o valor minimo for maior que o total
