@@ -22,11 +22,84 @@ InnerLibs
   resource lookups using this strongly typed resource class.
 </summary>
 </member>
+<member name="T:InnerLibs.DataURI">
+ <summary>
+ Classe para Extrair informaçoes de uma DATAURL
+ </summary>
+</member>
+<member name="M:InnerLibs.DataURI.#ctor(System.String)">
+ <summary>
+ Cria um novo DATAURL a aprtir de uma string
+ </summary>
+ <param name="DataURI"></param>
+</member>
+<member name="P:InnerLibs.DataURI.Data">
+ <summary>
+ String Base64 ou Base32
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataURI.Encoding">
+ <summary>
+ Tipo de encoding (32 ou 64)
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataURI.Mime">
+ <summary>
+ Tipo do arquivo encontrado
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataURI.Extension">
+ <summary>
+ Extensão do tipo do arquivo
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataURI.FullMimeType">
+ <summary>
+ MIME type completo
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.DataURI.FileType">
+ <summary>
+ Informaçoes referentes ao tipo do arquivo
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataURI.ToString">
+ <summary>
+ Retorna uma string da dataURL
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataURI.ToBytes">
+ <summary>
+ Converte esta dataURI em Bytes()
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataURI.WriteToFile(System.String)">
+ <summary>
+ Transforma este datauri em arquivo
+ </summary>
+ <param name="Path"></param>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.Base64">
  <summary>
  Modulo para manipulação de imagens e Strings Base64
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Base64.IsDataURL(System.String)">
+ <summary>
+ Retorna TRUE se o texto for um dataurl valido
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Base64.Btoa(System.String,System.Text.Encoding)">
  <summary>
@@ -7719,7 +7792,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
  </summary>
- <param name="MimeTypeOrExtensionOrPath"></param>
+ <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.FileTypeExtensions.GetIcon(System.IO.FileInfo)">
@@ -7817,7 +7890,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string
  </summary>
- <param name="MimeTypeOrExtensionOrPath"></param>
+ <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.FileType.#ctor">
@@ -7835,7 +7908,7 @@ Verifica se o objeto é do tipo numérico.
  <summary>
  Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
  </summary>
- <param name="MimeTypeOrExtensionOrPath">Extensão do arquivo</param>
+ <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
 </member>
 <member name="M:InnerLibs.FileType.ToString">
  <summary>

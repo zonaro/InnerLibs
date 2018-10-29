@@ -2,13 +2,122 @@
 Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
+Imports System.Text.RegularExpressions
 Imports System.Web
+
+''' <summary>
+''' Classe para Extrair informaçoes de uma DATAURL
+''' </summary>
+Public Class DataURI
+
+    ''' <summary>
+    ''' Cria um novo DATAURL a aprtir de uma string
+    ''' </summary>
+    ''' <param name="DataURI"></param>
+    Sub New(DataURI As String)
+        Try
+            Dim regex = New Regex("^data:(?<mimeType>(?<mime>\w+)\/(?<extension>\w+));(?<encoding>\w+),(?<data>.*)", RegexOptions.Compiled)
+            Dim match = regex.Match(DataURI)
+            Mime = match.Groups("mime").Value.ToLower
+            Encoding = match.Groups("encoding").Value.ToLower
+            Data = match.Groups("data").Value
+        Catch ex As Exception
+            Throw New ArgumentException("DataURI not Valid", ex)
+        End Try
+    End Sub
+
+    ''' <summary>
+    ''' String Base64 ou Base32
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property Data As String
+
+    ''' <summary>
+    ''' Tipo de encoding (32 ou 64)
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property Encoding As String
+
+    ''' <summary>
+    ''' Tipo do arquivo encontrado
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property Mime As String
+
+    ''' <summary>
+    ''' Extensão do tipo do arquivo
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property Extension As String
+
+
+    ''' <summary>
+    ''' MIME type completo
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property FullMimeType As String
+        Get
+            Return Mime & "/" & Extension
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Informaçoes referentes ao tipo do arquivo
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property FileType As FileType
+        Get
+            Return New FileType(Me.FullMimeType)
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna uma string da dataURL
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function ToString() As String
+        Return "data:" & FullMimeType & ";" & Encoding & "," & Data
+    End Function
+
+    ''' <summary>
+    ''' Converte esta dataURI em Bytes()
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function ToBytes() As Byte()
+        Return Me.ToString.ToBytes
+    End Function
+
+    ''' <summary>
+    ''' Transforma este datauri em arquivo
+    ''' </summary>
+    ''' <param name="Path"></param>
+    ''' <returns></returns>
+    Public Function WriteToFile(Path As String) As FileInfo
+        Return Me.ToBytes.WriteToFile(Path)
+    End Function
+
+End Class
 
 ''' <summary>
 ''' Modulo para manipulação de imagens e Strings Base64
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Base64
+
+
+    ''' <summary>
+    ''' Retorna TRUE se o texto for um dataurl valido
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Function IsDataURL(Text As String) As Boolean
+        Try
+            Return New DataURI(Text).ToString.IsNotBlank
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+
 
     ''' <summary>
     ''' Encoda uma string em Base64
