@@ -238,6 +238,35 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Verifica se uma string contém a maioria dos valores especificados
+    ''' </summary>
+    ''' <param name="Text">  Texto correspondente</param>
+    ''' <param name="Values">Lista de valores</param>
+    ''' <returns>True se conter todos os valores, false se não</returns>
+    <Extension>
+    Public Function ContainsMost(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
+        Values = If(Values, {})
+        Dim l As New List(Of Boolean)
+        If Values.Count > 0 Then
+            For Each value In Values
+                l.Add(Not IsNothing(Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1)
+            Next
+        End If
+        Return l.Most
+    End Function
+    ''' <summary>
+    ''' Verifica se uma string contém a maioria dos valores especificados
+    ''' </summary>
+    ''' <param name="Text">  Texto correspondente</param>
+    ''' <param name="Values">Lista de valores</param>
+    ''' <returns>True se conter todos os valores, false se não</returns>
+    <Extension>
+    Public Function ContainsMost(Text As String, ParamArray Values As String()) As Boolean
+        Return Text.ContainsMost(StringComparison.CurrentCultureIgnoreCase, Values)
+    End Function
+
+
+    ''' <summary>
     ''' Verifica se uma String contém todos os valores especificados
     ''' </summary>
     ''' <param name="Text">  Texto correspondente</param>
@@ -245,12 +274,7 @@ Public Module Text
     ''' <returns>True se conter todos os valores, false se não</returns>
     <Extension>
     Public Function ContainsAll(Text As String, ParamArray Values As String()) As Boolean
-        For Each value As String In Values
-            If IsNothing(Text) OrElse Text.ToLower.IndexOf(value.ToLower) = -1 Then
-                Return False
-            End If
-        Next
-        Return True
+        Return Text.ContainsAll(StringComparison.CurrentCultureIgnoreCase, Values)
     End Function
 
     ''' <summary>
@@ -262,12 +286,16 @@ Public Module Text
     ''' <returns>True se conter algum valor, false se não</returns>
     <Extension>
     Public Function ContainsAll(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
-        For Each value As String In Values
-            If IsNothing(Text) OrElse Text.IndexOf(value, ComparisonType) = -1 Then
-                Return False
-            End If
-        Next
-        Return True
+        Values = If(Values, {})
+        If Values.Count > 0 Then
+            For Each value As String In Values
+                If IsNothing(Text) OrElse Text.IndexOf(value, ComparisonType) = -1 Then
+                    Return False
+                End If
+            Next
+            Return True
+        End If
+        Return Text.IsBlank
     End Function
 
     ''' <summary>
@@ -278,12 +306,7 @@ Public Module Text
     ''' <returns>True se conter algum valor, false se não</returns>
     <Extension>
     Public Function ContainsAny(Text As String, ParamArray Values As String()) As Boolean
-        For Each value As String In Values
-            If Not IsNothing(Text) AndAlso Text.ToLower.IndexOf(value.ToLower) <> -1 Then
-                Return True
-            End If
-        Next
-        Return False
+        Return Text.ContainsAny(StringComparison.CurrentCultureIgnoreCase, Values)
     End Function
 
     ''' <summary>
@@ -295,12 +318,17 @@ Public Module Text
     ''' <returns>True se conter algum valor, false se não</returns>
     <Extension>
     Public Function ContainsAny(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
-        For Each value As String In Values
-            If Text.IndexOf(value, ComparisonType) <> -1 Then
-                Return True
-            End If
-        Next
-        Return False
+        Values = If(Values, {})
+        If Values.Count > 0 Then
+            For Each value As String In If(Values, {})
+                If Not IsNothing(Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1 Then
+                    Return True
+                End If
+            Next
+            Return False
+        Else
+            Return Text.IsNotBlank
+        End If
     End Function
 
     ''' <summary>
@@ -350,7 +378,7 @@ Public Module Text
     ''' <param name="HTMLString">String contendo o HTML</param>
     ''' <returns></returns>
     <Extension()>
-    Function CreateElement(HTMLString As String) As HtmlGenericControl
+    Function CreateGenericElement(HTMLString As String) As HtmlGenericControl
         Dim element As New HtmlGenericControl
         Dim docXML = New XmlDocument()
         docXML.LoadXml(HTMLString)
@@ -387,11 +415,18 @@ Public Module Text
         Return Number
     End Function
 
+    ''' <summary>
+    ''' Remove uma linha especifica de um texto
+    ''' </summary>
+    ''' <param name="Text">Texto</param>
+    ''' <param name="LineIndex">Numero da linha</param>
+    ''' <returns></returns>
     <Extension()>
-    Public Function DeleteLine(ByRef Text As String, LineIndex As Integer) As String
+    Public Function DeleteLine(ByVal Text As String, LineIndex As Integer) As String
         Dim parts As New List(Of String)
         Dim strReader = New StringReader(Text)
         Dim NewText As String = ""
+        LineIndex = LineIndex.SetMinValue(0)
         While True
             NewText = strReader.ReadLine()
             If NewText Is Nothing Then

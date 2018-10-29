@@ -8669,6 +8669,22 @@ Verifica se o objeto é do tipo numérico.
  <param name="BadWords">           Array de palavras indesejadas</param>
  <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
 </member>
+<member name="M:InnerLibs.Text.ContainsMost(System.String,System.StringComparison,System.String[])">
+ <summary>
+ Verifica se uma string contém a maioria dos valores especificados
+ </summary>
+ <param name="Text">  Texto correspondente</param>
+ <param name="Values">Lista de valores</param>
+ <returns>True se conter todos os valores, false se não</returns>
+</member>
+<member name="M:InnerLibs.Text.ContainsMost(System.String,System.String[])">
+ <summary>
+ Verifica se uma string contém a maioria dos valores especificados
+ </summary>
+ <param name="Text">  Texto correspondente</param>
+ <param name="Values">Lista de valores</param>
+ <returns>True se conter todos os valores, false se não</returns>
+</member>
 <member name="M:InnerLibs.Text.ContainsAll(System.String,System.String[])">
  <summary>
  Verifica se uma String contém todos os valores especificados
@@ -8722,7 +8738,7 @@ Verifica se o objeto é do tipo numérico.
  </param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.CreateElement(System.String)">
+<member name="M:InnerLibs.Text.CreateGenericElement(System.String)">
  <summary>
  Cria um elemento HTML a partir de uma string HTML
  </summary>
@@ -8744,6 +8760,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="Number">Numero</param>
  `
  <param name="Amount">QUantidade que será removida</param>
+</member>
+<member name="M:InnerLibs.Text.DeleteLine(System.String,System.Int32)">
+ <summary>
+ Remove uma linha especifica de um texto
+ </summary>
+ <param name="Text">Texto</param>
+ <param name="LineIndex">Numero da linha</param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.DistinctCount(System.String[])">
  <summary>
