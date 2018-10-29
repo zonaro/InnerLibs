@@ -11,26 +11,6 @@ Namespace LINQ
     Public Module LINQExtensions
 
         ''' <summary>
-        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do Objeto</typeparam>
-        ''' <param name="Items">Itens</param>
-        ''' <param name="childSelector">Seletor das propriedades filhas</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Iterator Function Traverse(Of T)(ByVal items As IEnumerable(Of T), ByVal childSelector As Func(Of T, IEnumerable(Of T)), Optional filter As Func(Of T, Boolean) = Nothing) As IEnumerable(Of T)
-            filter = If(filter, Function(x) True)
-            Dim stack = New Stack(Of T)(items.Where(filter))
-            While stack.Any()
-                Dim [next] = stack.Pop()
-                Yield [next]
-                For Each child In childSelector([next]).Where(filter)
-                    stack.Push(child)
-                Next
-            End While
-        End Function
-
-        ''' <summary>
         ''' Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
         ''' </summary>
         ''' <typeparam name="TObject">Tipo do objeto</typeparam>
@@ -50,11 +30,6 @@ Namespace LINQ
             Next
             Return objs
         End Function
-
-        Sub SetPropertyValue(Of Tsource, TProperty)(ByVal source As Tsource, ByVal propertyLambda As Expression(Of Func(Of Tsource, TProperty)))
-
-        End Sub
-
 
         ''' <summary>
         ''' Retorna as informacoes de uma propriedade a aprtir de um seletor
@@ -79,14 +54,69 @@ Namespace LINQ
         ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
         ''' </summary>
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
-        ''' <param name="Item">Itens</param>
-        ''' <param name="childSelector">Seletor das propriedades filhas</param>
+        ''' <param name="Items">Itens</param>
+        ''' <param name="ChildSelector">Seletor das propriedades filhas</param>
         ''' <returns></returns>
         <Extension()>
-        Public Function Traverse(Of T)(ByVal Item As T, ByVal childSelector As Func(Of T, IEnumerable(Of T)), Optional filter As Func(Of T, Boolean) = Nothing) As IEnumerable(Of T)
-            Return childSelector(Item).Traverse(childSelector, filter)
+        Public Iterator Function Traverse(Of T)(ByVal items As IEnumerable(Of T), ByVal ChildSelector As Func(Of T, IEnumerable(Of T))) As IEnumerable(Of T)
+            Dim stack = New Stack(Of T)(items)
+            While stack.Any()
+                Dim [next] = stack.Pop()
+                Yield [next]
+                For Each child In ChildSelector([next])
+                    stack.Push(child)
+                Next
+            End While
         End Function
 
+        ''' <summary>
+        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do Objeto</typeparam>
+        ''' <param name="Item">Itens</param>
+        ''' <param name="ChildSelector">Seletor das propriedades filhas</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function Traverse(Of T)(ByVal Item As T, ByVal ChildSelector As Func(Of T, IEnumerable(Of T)), Optional IncludeMe As Boolean = False) As IEnumerable(Of T)
+            Return ChildSelector(Item).Union(If(IncludeMe, {Item}, {})).Traverse(ChildSelector)
+        End Function
+
+        ''' <summary>
+        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do Objeto</typeparam>
+        ''' <param name="Item">Itens</param>
+        ''' <param name="ChildSelector">Seletor das propriedades filhas</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function Traverse(Of T, P)(ByVal Item As T, ByVal ChildSelector As Func(Of T, IEnumerable(Of T)), PropertySelector As Func(Of T, P), Optional IncludeMe As Boolean = False) As IEnumerable(Of P)
+            Return Item.Traverse(ChildSelector, IncludeMe).Select(PropertySelector)
+        End Function
+
+        ''' <summary>
+        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do Objeto</typeparam>
+        ''' <param name="Item">Itens</param>
+        ''' <param name="ChildSelector">Seletor das propriedades filhas</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function Traverse(Of T, P)(ByVal Item As T, ByVal ChildSelector As Func(Of T, IEnumerable(Of T)), PropertySelector As Func(Of T, IEnumerable(Of P)), Optional IncludeMe As Boolean = False) As IEnumerable(Of P)
+            Return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector)
+        End Function
+
+
+        ''' <summary>
+        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do Objeto</typeparam>
+        ''' <param name="Item">Itens</param>
+        ''' <param name="ChildSelector">Seletor das propriedades filhas</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function Traverse(Of T, P)(ByVal Item As T, ByVal ChildSelector As Func(Of T, IEnumerable(Of T)), PropertySelector As Func(Of T, IQueryable(Of P)), Optional IncludeMe As Boolean = False) As IEnumerable(Of P)
+            Return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector)
+        End Function
 
         Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains")
 

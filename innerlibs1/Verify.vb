@@ -294,10 +294,57 @@ Public Module Verify
     ''' <param name="ValueIfBlankOrNoIndex">Valor se o mesmo nao existir</param>
     ''' <returns></returns>
     <Extension()> Public Function IfBlankOrNoIndex(Of T)(Arr As IEnumerable(Of T), Index As Integer, ValueIfBlankOrNoIndex As T) As T
-        Return Arr.IfNoIndex(Index).IfBlank(Of T)(ValueIfBlankOrNoIndex)
+        Return If(Arr, {}).IfNoIndex(Index).IfBlank(Of T)(ValueIfBlankOrNoIndex)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+    ''' </summary>
+    ''' <typeparam name="T">Tipo da Variavel</typeparam>
+    ''' <param name="Value">       Valor</param>
+    ''' <param name="ValuesIfBlank">Valor se estiver em branco</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function IfNullOrEmpty(Of T)(ByVal Value As Object(), ParamArray ValuesIfBlank As T()) As T()
+        If Value Is Nothing OrElse Value.Count = 0 Then
+            Return If(ValuesIfBlank, {})
+        Else
+            Return Value.ChangeArrayType(Of T)
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+    ''' </summary>
+    ''' <typeparam name="T">Tipo da Variavel</typeparam>
+    ''' <param name="Value">       Valor</param>
+    ''' <param name="ValuesIfBlank">Valor se estiver em branco</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function IfNullOrEmpty(Of T)(ByVal Value As IEnumerable(Of Object()), ParamArray ValuesIfBlank As T()) As IEnumerable(Of T)
+        If Value Is Nothing OrElse Value.Count = 0 Then
+            Return ValuesIfBlank
+        Else
+            Return Value.ChangeIEnumerableType(Of T)
+        End If
     End Function
 
 
+    ''' <summary>
+    ''' Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+    ''' </summary>
+    ''' <typeparam name="T">Tipo da Variavel</typeparam>
+    ''' <param name="Value">       Valor</param>
+    ''' <param name="ValueIfBlank">Valor se estiver em branco</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function IfNullOrEmpty(Of T)(ByVal Value As IEnumerable(Of Object()), ValueIfBlank As IEnumerable(Of T)) As IEnumerable(Of T)
+        If Value Is Nothing OrElse Value.Count = 0 Then
+            Return ValueIfBlank
+        Else
+            Return Value.ChangeIEnumerableType(Of T)
+        End If
+    End Function
 
 
     ''' <summary>

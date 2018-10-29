@@ -128,6 +128,24 @@ Public Module Converter
     End Function
 
     ''' <summary>
+    ''' Converte um IEnumerable de um tipo para outro
+    ''' </summary>
+    ''' <typeparam name="ToType">Tipo do array</typeparam>
+    ''' <param name="Value">Array com elementos</param>
+    ''' <returns>Array convertido em novo tipo</returns>
+    <Extension>
+    Public Function ChangeIEnumerableType(Of ToType, FromType)(Value As IEnumerable(Of FromType)) As IEnumerable(Of ToType)
+        Dim d As New List(Of ToType)
+        If Value.Count > 0 Then
+            For Each el As FromType In Value
+                d.Add(el.ChangeType(Of ToType))
+            Next
+            Return d.AsEnumerable
+        End If
+        Return {}
+    End Function
+
+    ''' <summary>
     ''' Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um dicionario os valores sao agrupados em arrays
     ''' </summary>
     ''' <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>

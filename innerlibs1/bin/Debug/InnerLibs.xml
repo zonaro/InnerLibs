@@ -3786,6 +3786,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="Value">Array com elementos</param>
  <returns>Array convertido em novo tipo</returns>
 </member>
+<member name="M:InnerLibs.Converter.ChangeIEnumerableType``2(System.Collections.Generic.IEnumerable{``1})">
+ <summary>
+ Converte um IEnumerable de um tipo para outro
+ </summary>
+ <typeparam name="ToType">Tipo do array</typeparam>
+ <param name="Value">Array com elementos</param>
+ <returns>Array convertido em novo tipo</returns>
+</member>
 <member name="M:InnerLibs.Converter.Merge``1(System.Collections.Generic.Dictionary{``0,System.Object},System.Collections.Generic.Dictionary{``0,System.Object}[])">
  <summary>
  Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um dicionario os valores sao agrupados em arrays
@@ -5083,15 +5091,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="WhereConditions"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,System.Boolean})">
- <summary>
- Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
- </summary>
- <typeparam name="T">Tipo do Objeto</typeparam>
- <param name="Items">Itens</param>
- <param name="childSelector">Seletor das propriedades filhas</param>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.MergeProperty``2(System.Collections.Generic.IEnumerable{``0},System.String,System.Func{``0,``1},System.Boolean)">
  <summary>
  Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
@@ -5114,13 +5113,49 @@ Verifica se o objeto é do tipo numérico.
  <param name="propertyLambda"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``1(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,System.Boolean})">
+<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Collections.Generic.IEnumerable{``0}})">
+ <summary>
+ Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
+ </summary>
+ <typeparam name="T">Tipo do Objeto</typeparam>
+ <param name="Items">Itens</param>
+ <param name="ChildSelector">Seletor das propriedades filhas</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``1(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Boolean)">
  <summary>
  Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
  </summary>
  <typeparam name="T">Tipo do Objeto</typeparam>
  <param name="Item">Itens</param>
- <param name="childSelector">Seletor das propriedades filhas</param>
+ <param name="ChildSelector">Seletor das propriedades filhas</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``2(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,``1},System.Boolean)">
+ <summary>
+ Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
+ </summary>
+ <typeparam name="T">Tipo do Objeto</typeparam>
+ <param name="Item">Itens</param>
+ <param name="ChildSelector">Seletor das propriedades filhas</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``2(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,System.Collections.Generic.IEnumerable{``1}},System.Boolean)">
+ <summary>
+ Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
+ </summary>
+ <typeparam name="T">Tipo do Objeto</typeparam>
+ <param name="Item">Itens</param>
+ <param name="ChildSelector">Seletor das propriedades filhas</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Traverse``2(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}},System.Func{``0,System.Linq.IQueryable{``1}},System.Boolean)">
+ <summary>
+ Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
+ </summary>
+ <typeparam name="T">Tipo do Objeto</typeparam>
+ <param name="Item">Itens</param>
+ <param name="ChildSelector">Seletor das propriedades filhas</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.Or``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
@@ -9439,61 +9474,6 @@ Verifica se o objeto é do tipo numérico.
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.QuantityFormula(System.Decimal,System.Decimal,System.Decimal,System.String[])">
- <summary>
- Reduz um numero utilizando uma unidade de medida e uma base
- </summary>
- <param name="Number">Numero a ser reduzido</param>
- <param name="BaseNumber">Numero base da unidade de medida</param>
- <param name="Round">Numero de casas para arredondar o numero decimal</param>
- <param name="BaseUnity">Unidades de medida</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.QuantityFormula(System.Decimal,System.Decimal,System.String[])">
- <summary>
- Reduz um numero utilizando uma unidade de medida e uma base
- </summary>
- <param name="Number">Numero a ser reduzido</param>
- <param name="BaseNumber">Numero base da unidade de medida</param>
- <param name="BaseUnity">Unidades de medida</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.QuantityFormula(System.Int32,System.Decimal,System.String[])">
- <summary>
- Reduz um numero utilizando uma unidade de medida e uma base
- </summary>
- <param name="Number">Numero a ser reduzido</param>
- <param name="BaseNumber">Numero base da unidade de medida</param>
- <param name="BaseUnity">Unidades de medida</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.QuantityFormula(System.Int64,System.Decimal,System.String[])">
- <summary>
- Reduz um numero utilizando uma unidade de medida e uma base
- </summary>
- <param name="Number">Numero a ser reduzido</param>
- <param name="BaseNumber">Numero base da unidade de medida</param>
- <param name="BaseUnity">Unidades de medida</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.QuantityFormula(System.Double,System.Decimal,System.String[])">
- <summary>
- Reduz um numero utilizando uma unidade de medida e uma base
- </summary>
- <param name="Number">Numero a ser reduzido</param>
- <param name="BaseNumber">Numero base da unidade de medida</param>
- <param name="BaseUnity">Unidades de medida</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.QuantityFormula(System.Double,System.Decimal,System.Int32,System.String[])">
- <summary>
- Reduz um numero utilizando uma unidade de medida e uma base
- </summary>
- <param name="Number">Numero a ser reduzido</param>
- <param name="BaseNumber">Numero base da unidade de medida</param>
- <param name="BaseUnity">Unidades de medida</param>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.Text.ToRandomCase(System.String)">
  <summary>
  Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
@@ -10273,6 +10253,33 @@ Atualiza a lista de keys
  <param name="Arr">Array</param>
  <param name="Index">Posicao</param>
  <param name="ValueIfBlankOrNoIndex">Valor se o mesmo nao existir</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Verify.IfNullOrEmpty``1(System.Object[],``0[])">
+ <summary>
+ Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+ </summary>
+ <typeparam name="T">Tipo da Variavel</typeparam>
+ <param name="Value">       Valor</param>
+ <param name="ValuesIfBlank">Valor se estiver em branco</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Verify.IfNullOrEmpty``1(System.Collections.Generic.IEnumerable{System.Object[]},``0[])">
+ <summary>
+ Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+ </summary>
+ <typeparam name="T">Tipo da Variavel</typeparam>
+ <param name="Value">       Valor</param>
+ <param name="ValuesIfBlank">Valor se estiver em branco</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Verify.IfNullOrEmpty``1(System.Collections.Generic.IEnumerable{System.Object[]},System.Collections.Generic.IEnumerable{``0})">
+ <summary>
+ Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+ </summary>
+ <typeparam name="T">Tipo da Variavel</typeparam>
+ <param name="Value">       Valor</param>
+ <param name="ValueIfBlank">Valor se estiver em branco</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Verify.IfBlank``1(System.Object,``0)">
