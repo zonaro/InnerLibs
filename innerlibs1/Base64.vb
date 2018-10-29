@@ -22,6 +22,9 @@ Public Class DataURI
             Extension = match.Groups("extension").Value.ToLower
             Encoding = match.Groups("encoding").Value.ToLower
             Data = match.Groups("data").Value
+            If {Mime, Extension, Encoding, Data}.Any(Function(x) x.IsBlank) Then
+                Throw New Exception("Some parts are blank")
+            End If
         Catch ex As Exception
             Throw New ArgumentException("DataURI not Valid", ex)
         End Try
@@ -66,11 +69,9 @@ Public Class DataURI
     ''' Informaçoes referentes ao tipo do arquivo
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property FileType As FileType
-        Get
-            Return New FileType(Me.FullMimeType)
-        End Get
-    End Property
+    Function ToFileType() As FileType
+        Return New FileType(Me.FullMimeType)
+    End Function
 
     ''' <summary>
     ''' Retorna uma string da dataURL

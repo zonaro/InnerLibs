@@ -63,7 +63,7 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.DataURI.FileType">
+<member name="M:InnerLibs.DataURI.ToFileType">
  <summary>
  Informaçoes referentes ao tipo do arquivo
  </summary>

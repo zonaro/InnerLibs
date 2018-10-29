@@ -211,7 +211,7 @@ Public Class FileType
         Dim ismime As Boolean = True
 
         Try
-            Return New DataURI(MimeTypeOrExtensionOrPathOrDataURI).Filetype
+            Return New DataURI(MimeTypeOrExtensionOrPathOrDataURI).ToFileType
         Catch ex As Exception
         End Try
 
