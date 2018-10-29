@@ -19,6 +19,7 @@ Public Class DataURI
             Dim regex = New Regex("^data:(?<mimeType>(?<mime>\w+)\/(?<extension>\w+));(?<encoding>\w+),(?<data>.*)", RegexOptions.Compiled)
             Dim match = regex.Match(DataURI)
             Mime = match.Groups("mime").Value.ToLower
+            Extension = match.Groups("extension").Value.ToLower
             Encoding = match.Groups("encoding").Value.ToLower
             Data = match.Groups("data").Value
         Catch ex As Exception
