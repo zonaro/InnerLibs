@@ -10,6 +10,11 @@ Imports System.Web
 ''' <remarks></remarks>
 Public Module Directories
 
+    <Extension()>
+    Public Function FixSlashes(Path As String, Optional Inverted As Boolean = False) As String
+        Return Path.Split({"\", "/"}, StringSplitOptions.RemoveEmptyEntries).Join(If(Inverted, "\", "/"))
+    End Function
+
     ''' <summary>
     ''' Deleta um arquivo ou diretório se o mesmo existir e retorna TURE se o arquivo puder ser criado novamente
     ''' </summary>
