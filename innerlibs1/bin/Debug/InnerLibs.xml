@@ -3258,6 +3258,14 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Files.SaveMailAttachment(System.Net.Mail.Attachment,System.String)">
+ <summary>
+ Salva um anexo para um caminho    
+ </summary>
+ <param name="attachment"></param>
+ <param name="Path"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Files.WriteToFile(System.Byte[],System.String)">
  <summary>
  Transforma um  Array de Bytes em um arquivo

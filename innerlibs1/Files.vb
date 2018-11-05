@@ -7,6 +7,24 @@ Imports System.Web
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Files
+
+    ''' <summary>
+    ''' Salva um anexo para um caminho    
+    ''' </summary>
+    ''' <param name="attachment"></param>
+    ''' <param name="Path"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function SaveMailAttachment(ByVal attachment As System.Net.Mail.Attachment, Path As String) As FileInfo
+        Dim allBytes As Byte() = New Byte(attachment.ContentStream.Length - 1) {}
+        Dim bytesRead As Integer = attachment.ContentStream.Read(allBytes, 0, CInt(attachment.ContentStream.Length))
+        Path.ToDirectory
+        Dim writer As BinaryWriter = New BinaryWriter(New FileStream(Path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
+        writer.Write(allBytes)
+        writer.Close()
+        Return New FileInfo(Path)
+    End Function
+
+
     ''' <summary>
     ''' Transforma um  Array de Bytes em um arquivo
     ''' </summary>
