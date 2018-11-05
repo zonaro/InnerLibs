@@ -8,6 +8,18 @@ Imports System.Web
 ''' <remarks></remarks>
 Public Module Files
 
+
+    ''' <summary>
+    ''' Salva um anexo para um diretório    
+    ''' </summary>
+    ''' <param name="attachment"></param>
+    ''' <param name="Directory"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function SaveMailAttachment(ByVal attachment As System.Net.Mail.Attachment, Directory As DirectoryInfo) As FileInfo
+        Directory = Directory.FullName.ToDirectory
+        Return SaveMailAttachment(attachment, Directory.FullName & "\" & attachment.Name)
+    End Function
+
     ''' <summary>
     ''' Salva um anexo para um caminho    
     ''' </summary>
@@ -61,12 +73,11 @@ Public Module Files
     <Extension()>
     Public Function ToBytes(File As FileInfo) As Byte()
         Dim fInfo As New FileInfo(File.FullName)
-        Dim numBytes As Long = fInfo.Length
-        Dim fStream As New FileStream(File.FullName, FileMode.Open, FileAccess.Read)
-        Dim br As New BinaryReader(fStream)
-        Return br.ReadBytes(CInt(numBytes))
-        br.Close()
-        fStream.Close()
+        Using fStream As New FileStream(File.FullName, FileMode.Open, FileAccess.Read)
+            Using br As New BinaryReader(fStream)
+                Return br.ReadBytes(CInt(fInfo.Length))
+            End Using
+        End Using
     End Function
 
     ''' <summary>
@@ -79,8 +90,7 @@ Public Module Files
             Dim br As New BinaryReader(File.InputStream)
             Return br.ReadBytes(CInt(File.InputStream.Length))
         Catch ex As Exception
-            Dim d As New List(Of Byte)
-            Return d.ToArray
+            Return {}
         End Try
     End Function
 

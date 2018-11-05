@@ -3258,6 +3258,14 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Files.SaveMailAttachment(System.Net.Mail.Attachment,System.IO.DirectoryInfo)">
+ <summary>
+ Salva um anexo para um diretório    
+ </summary>
+ <param name="attachment"></param>
+ <param name="Directory"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Files.SaveMailAttachment(System.Net.Mail.Attachment,System.String)">
  <summary>
  Salva um anexo para um caminho    
