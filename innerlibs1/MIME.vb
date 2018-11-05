@@ -253,7 +253,7 @@ Public Class FileType
     ''' </summary>
     ''' <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
     Public Sub New(MimeTypeOrExtensionOrPathOrDataURI As String)
-        Build(MimeTypeOrExtensionOrPathOrDataURI)
+        Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower)
     End Sub
 
     Private Sub Build(Extension As String)
