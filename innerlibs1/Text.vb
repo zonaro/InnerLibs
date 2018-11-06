@@ -1789,11 +1789,19 @@ Public Module Text
         Return phrase.Join(" ").AdjustWhiteSpaces
     End Function
 
+    ''' <summary>
+    ''' Corta un texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="TextLength"></param>
+    ''' <param name="Ellipsis"></param>
+    ''' <returns></returns>
     <Extension()>
     Public Function Slice(Text As String, Optional TextLength As Integer = 0, Optional Ellipsis As String = "...") As String
         If Text.Length <= TextLength OrElse TextLength < 1 Then
             Return Text
         Else
+            Text = Text.GetBefore(Environment.NewLine)
             Return Text.GetFirstChars(TextLength) & Ellipsis
         End If
     End Function

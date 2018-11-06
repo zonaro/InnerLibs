@@ -41,7 +41,7 @@ Public Class OnlineList(Of UserType As Class, IdType As Structure)
         End Get
     End Property
 
-    Public Shadows Function Add(Obj As UserType)
+    Public Shadows Function Add(Obj As UserType) As OnlineUser(Of UserType, IdType)
         If Obj IsNot Nothing Then
             Dim ID = Me.idgetter(Obj)
             If Not Me.ContainsKey(ID) Then

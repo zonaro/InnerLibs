@@ -9395,6 +9395,15 @@ Verifica se o objeto é do tipo numérico.
  <param name="Text">Texto no pluiral</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Text.Slice(System.String,System.Int32,System.String)">
+ <summary>
+ Corta un texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
+ </summary>
+ <param name="Text"></param>
+ <param name="TextLength"></param>
+ <param name="Ellipsis"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.Split(System.String,System.String,System.StringSplitOptions)">
  <summary>
  Separa um texto em um array de strings a partir de uma outra string
@@ -11089,6 +11098,14 @@ Atualiza a lista de keys
  <param name="Context">Context HTTP</param>
  <param name="Bytes">Byte array</param>
  <param name="ContentType">MIME Type do Download</param>
+</member>
+<member name="M:InnerLibs.Web.FirstOf(System.Web.HttpRequest,System.String[])">
+ <summary>
+ Retorna o primeiro item não branco de um <see cref="T:System.Web.HttpRequest"/> a partir de uma coleção de Keys
+ </summary>
+ <param name="Request"></param>
+ <param name="Keys"></param>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.WinForms">
  <summary>

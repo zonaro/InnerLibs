@@ -183,7 +183,7 @@ Public Module Verify
     <Extension()>
     Public Function IsURL(Text As String) As Boolean
         Dim u As Uri
-        Return Uri.TryCreate(Text, UriKind.Absolute, u)
+        Return Uri.TryCreate(Text, UriKind.Absolute, u) AndAlso Not Text.Contains(" ")
     End Function
 
     ''' <summary>

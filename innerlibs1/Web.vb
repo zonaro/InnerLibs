@@ -1185,6 +1185,21 @@ Public Module Web
         Context.Response.End()
     End Sub
 
+    ''' <summary>
+    ''' Retorna o primeiro item não branco de um <see cref="Httprequest"/> a partir de uma coleção de Keys
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <param name="Keys"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FirstOf(Request As HttpRequest, ParamArray Keys As String()) As String
+        For Each k In If(Keys, {})
+            If Request(k).IsNotBlank Then
+                Return Request(k)
+            End If
+        Next
+        Return ""
+    End Function
+
 End Module
 
 
