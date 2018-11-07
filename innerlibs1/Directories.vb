@@ -79,7 +79,7 @@ Public Module Directories
     ''' <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
     ''' <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
     <Extension()>
-    Function ToFile(FileName As String, Type As FileType) As FileInfo
+    Function ToFileInfo(FileName As String, Type As FileType) As FileInfo
         Type = If(Type, New FileType(".txt"))
         FileName = Path.GetFullPath(FileName.RemoveAny(Path.GetExtension(FileName))) & Type.Extensions(0)
         If File.Exists(FileName) = False Then
@@ -94,7 +94,7 @@ Public Module Directories
     ''' <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
     ''' <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
     <Extension()>
-    Function ToFile(FileName As String) As FileInfo
+    Function ToFileInfo(FileName As String) As FileInfo
         If File.Exists(FileName) = False Then
             File.Create(FileName).Dispose()
         End If
@@ -149,7 +149,7 @@ Public Module Directories
     ''' <param name="Directory">Diretório</param>
     ''' <returns></returns>
     <Extension> Function ExtractZipFile(ByVal File As FileInfo, ByVal Directory As DirectoryInfo) As DirectoryInfo
-        Directory = (Directory.FullName & Path.DirectorySeparatorChar & Path.GetFileNameWithoutExtension(File.Name)).ToDirectoryInfo
+        Directory = (Directory.FullName & Path.DirectorySeparatorChar & Path.GetFileNameWithoutExtension(File.Name) & Path.DirectorySeparatorChar).ToDirectoryInfo
         ZipFile.ExtractToDirectory(File.FullName, Directory.FullName)
         Return Directory.FullName.ToDirectoryInfo
     End Function
@@ -249,7 +249,7 @@ Public Module Directories
     ''' <returns></returns>
     <Extension> Function SearchFilesBetween(Directory As DirectoryInfo, FirstDate As DateTime, SecondDate As Date, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileInfo)
         FixDateOrder(FirstDate, SecondDate)
-        Return Directory.SearchFiles(SearchOption, Searches).Where(Function(file) file.LastWriteTime >= FirstDate AndAlso file.LastWriteTime <= SecondDate).OrderByDescending(Function(f) If(f.LastWriteTime.Year <= 1601, f.CreationTime, f.LastWriteTime)).ToList
+        Return Directory.SearchFiles(SearchOption, Searches).Where(Function(file) file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(Function(f) If(f.LastWriteTime.Year <= 1601, f.CreationTime, f.LastWriteTime)).ToList
     End Function
 
     ''' <summary>

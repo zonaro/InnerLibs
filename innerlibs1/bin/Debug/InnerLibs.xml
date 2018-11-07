@@ -6474,14 +6474,14 @@ Verifica se o objeto é do tipo numérico.
  <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns> 
  <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste aruqivo.</remarks>
 </member>
-<member name="M:InnerLibs.Directories.ToFile(System.String,InnerLibs.FileType)">
+<member name="M:InnerLibs.Directories.ToFileInfo(System.String,InnerLibs.FileType)">
  <summary>
  Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
  </summary>
  <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
  <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
 </member>
-<member name="M:InnerLibs.Directories.ToFile(System.String)">
+<member name="M:InnerLibs.Directories.ToFileInfo(System.String)">
  <summary>
  Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
  </summary>
@@ -7765,11 +7765,20 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Mathematic.IsBetween``1(``0,System.Object,System.Object)">
  <summary>
- Verifica se um numero está entre outros 2 números
+ Verifica se um valor numerico ou data está entre outros 2 valores
  </summary>
- <param name="Number">      Numero</param>
- <param name="FirstNumber"> Primeiro numero comparador</param>
- <param name="SecondNumber">Segundo numero comparador</param>
+ <param name="Value">      Numero</param>
+ <param name="FirstValue"> Primeiro numero comparador</param>
+ <param name="SecondValue">Segundo numero comparador</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.IsEqualOrBetween``1(``0,System.Object,System.Object)">
+ <summary>
+ Verifica se um valor é igual ou está entre outros 2 valores
+ </summary>
+ <param name="Value">      Numero</param>
+ <param name="FirstValue"> Primeiro numero comparador</param>
+ <param name="SecondValue">Segundo numero comparador</param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.FileTypeExtensions">

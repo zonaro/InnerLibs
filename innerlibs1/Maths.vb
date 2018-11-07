@@ -618,22 +618,42 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Verifica se um numero está entre outros 2 números
+    ''' Verifica se um valor numerico ou data está entre outros 2 valores
     ''' </summary>
-    ''' <param name="Number">      Numero</param>
-    ''' <param name="FirstNumber"> Primeiro numero comparador</param>
-    ''' <param name="SecondNumber">Segundo numero comparador</param>
+    ''' <param name="Value">      Numero</param>
+    ''' <param name="FirstValue"> Primeiro numero comparador</param>
+    ''' <param name="SecondValue">Segundo numero comparador</param>
     ''' <returns></returns>
-    <Extension()> Public Function IsBetween(Of Type)(Number As Type, FirstNumber As Object, SecondNumber As Object) As Boolean
-        FirstNumber = DirectCast(FirstNumber, Type)
-        SecondNumber = DirectCast(SecondNumber, Type)
+    <Extension()> Public Function IsBetween(Of Type As Structure)(Value As Type, FirstValue As Object, SecondValue As Object) As Boolean
+        FirstValue = DirectCast(FirstValue, Type)
+        SecondValue = DirectCast(SecondValue, Type)
         Select Case True
-            Case FirstNumber < SecondNumber
-                Return FirstNumber < Number And Number < SecondNumber
-            Case FirstNumber > SecondNumber
-                Return FirstNumber > Number And Number > SecondNumber
+            Case FirstValue < SecondValue
+                Return FirstValue < Value And Value < SecondValue
+            Case FirstValue > SecondValue
+                Return FirstValue > Value And Value > SecondValue
             Case Else
-                Return FirstNumber = Number And Number = SecondNumber
+                Return FirstValue = Value And Value = SecondValue
+        End Select
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um valor é igual ou está entre outros 2 valores
+    ''' </summary>
+    ''' <param name="Value">      Numero</param>
+    ''' <param name="FirstValue"> Primeiro numero comparador</param>
+    ''' <param name="SecondValue">Segundo numero comparador</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsEqualOrBetween(Of Type)(Value As Type, FirstValue As Object, SecondValue As Object) As Boolean
+        FirstValue = DirectCast(FirstValue, Type)
+        SecondValue = DirectCast(SecondValue, Type)
+        Select Case True
+            Case FirstValue < SecondValue
+                Return FirstValue <= Value And Value <= SecondValue
+            Case FirstValue > SecondValue
+                Return FirstValue >= Value And Value >= SecondValue
+            Case Else
+                Return FirstValue = Value And Value = SecondValue
         End Select
     End Function
 
