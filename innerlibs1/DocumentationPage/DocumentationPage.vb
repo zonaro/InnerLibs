@@ -58,7 +58,7 @@ Public MustInherit Class DocumentationPage
     Friend Function MontarMenu() As String
         Dim menu As New Node()
         menu.state.expanded = True
-        Dim caminho = (Request.PhysicalApplicationPath & "/" & SourceDirectory).ToDirectory
+        Dim caminho = (Request.PhysicalApplicationPath & "/" & SourceDirectory).ToDirectoryInfo
         Dim files As New FileTree(caminho, "*.html", "*.png,", "*.jpg", "*.md")
         Dim lista As New List(Of Node)
         For Each n In files.Children

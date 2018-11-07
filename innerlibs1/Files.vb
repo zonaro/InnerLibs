@@ -16,7 +16,7 @@ Public Module Files
     ''' <param name="Directory"></param>
     ''' <returns></returns>
     <Extension()> Public Function SaveMailAttachment(ByVal attachment As System.Net.Mail.Attachment, Directory As DirectoryInfo) As FileInfo
-        Directory = Directory.FullName.ToDirectory
+        Directory = Directory.FullName.ToDirectoryInfo
         Return SaveMailAttachment(attachment, Directory.FullName & "\" & attachment.Name)
     End Function
 
@@ -29,7 +29,7 @@ Public Module Files
     <Extension()> Public Function SaveMailAttachment(ByVal attachment As System.Net.Mail.Attachment, Path As String) As FileInfo
         Dim allBytes As Byte() = New Byte(attachment.ContentStream.Length - 1) {}
         Dim bytesRead As Integer = attachment.ContentStream.Read(allBytes, 0, CInt(attachment.ContentStream.Length))
-        Path.ToDirectory
+        Path.ToDirectoryInfo
         Dim writer As BinaryWriter = New BinaryWriter(New FileStream(Path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
         writer.Write(allBytes)
         writer.Close()
@@ -47,7 +47,7 @@ Public Module Files
     <Extension()>
     Public Function WriteToFile(Bytes As Byte(), FilePath As String) As FileInfo
         Dim p = New FileInfo(FilePath)
-        p.Directory.FullName.ToDirectory()
+        p.Directory.FullName.ToDirectoryInfo()
         File.WriteAllBytes(p.FullName, Bytes)
         Return p
     End Function
@@ -102,7 +102,7 @@ Public Module Files
     ''' <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
     <Extension()>
     Public Function WriteToFile(Text As String, FilePath As String, Optional Append As Boolean = False) As FileInfo
-        Path.GetDirectoryName(FilePath).ToDirectory()
+        Path.GetDirectoryName(FilePath).ToDirectoryInfo()
         Using s As New StreamWriter(FilePath, Append, System.Text.Encoding.UTF8)
             s.Write(Text)
             s.Close()

@@ -6466,12 +6466,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="Path">Camingo</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Directories.ToDirectory(System.String)">
+<member name="M:InnerLibs.Directories.ToDirectoryInfo(System.String)">
  <summary>
  Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório
  </summary>
  <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
  <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns> 
+ <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste aruqivo.</remarks>
 </member>
 <member name="M:InnerLibs.Directories.ToFile(System.String,InnerLibs.FileType)">
  <summary>

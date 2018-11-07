@@ -11,8 +11,8 @@ Imports System.Web
 Public Module Directories
 
     <Extension()>
-    Public Function FixSlashes(Path As String, Optional Inverted As Boolean = False) As String
-        Return Path.Split({"\", "/"}, StringSplitOptions.RemoveEmptyEntries).Join(If(Inverted, "\", "/"))
+    Public Function FixPathSeparator(Path As String, Optional Alternative As Boolean = False) As String
+        Return Path.Split({IO.Path.DirectorySeparatorChar, IO.Path.AltDirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries).Join(If(Alternative, IO.Path.AltDirectorySeparatorChar, IO.Path.DirectorySeparatorChar))
     End Function
 
     ''' <summary>
@@ -64,12 +64,10 @@ Public Module Directories
     ''' </summary>
     ''' <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
     ''' <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns> 
+    ''' <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste aruqivo.</remarks>
     <Extension()>
-    Function ToDirectory(DirectoryName As String) As DirectoryInfo
+    Function ToDirectoryInfo(DirectoryName As String) As DirectoryInfo
         DirectoryName = Path.GetDirectoryName(DirectoryName)
-        If DirectoryName.IsFilePath Then
-            DirectoryName = Path.GetDirectoryName(DirectoryName)
-        End If
         If Directory.Exists(DirectoryName) = False Then
             Directory.CreateDirectory(DirectoryName)
         End If
@@ -151,9 +149,9 @@ Public Module Directories
     ''' <param name="Directory">Diretório</param>
     ''' <returns></returns>
     <Extension> Function ExtractZipFile(ByVal File As FileInfo, ByVal Directory As DirectoryInfo) As DirectoryInfo
-        Directory = (Directory.FullName & Path.DirectorySeparatorChar & Path.GetFileNameWithoutExtension(File.Name)).ToDirectory
+        Directory = (Directory.FullName & Path.DirectorySeparatorChar & Path.GetFileNameWithoutExtension(File.Name)).ToDirectoryInfo
         ZipFile.ExtractToDirectory(File.FullName, Directory.FullName)
-        Return Directory.FullName.ToDirectory
+        Return Directory.FullName.ToDirectoryInfo
     End Function
 
     ''' <summary>
