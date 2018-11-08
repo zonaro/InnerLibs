@@ -488,12 +488,12 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function FindNumbers(Text As String) As Long()
-        Dim l As New List(Of Long)
+    <Extension()> Public Function FindNumbers(Text As String) As Decimal()
+        Dim l As New List(Of Decimal)
         Dim numbers As String() = Regex.Split(Text, "\D+")
         For Each value In numbers
             If Not value.IsBlank Then
-                l.Add(value.ChangeType(Of Long))
+                l.Add(value.ChangeType(Of Decimal))
             End If
         Next
         Return l.ToArray

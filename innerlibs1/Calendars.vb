@@ -160,6 +160,8 @@ End Class
 ''' <remarks></remarks>
 Public Module Calendars
 
+
+
     ''' <summary>
     ''' Converte uma string em datetime a partir de um formato especifico
     ''' </summary>
