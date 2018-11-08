@@ -10,6 +10,19 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+
+        ''' <summary>
+        '''Atualiza objetos de entidade usando <see cref="Data.Linq.RefreshMode.KeepChanges"/> e envia as alteraçoes ao banco de dados
+        ''' </summary>
+        ''' <param name="Entities">Entidades</param>
+        <Extension()> Public Sub RefreshAndSubmitChanges(Context As DataContext, ParamArray Entities As Object())
+            Entities = If(Entities, {})
+            If Entities.Count > 0 Then
+                Context.Refresh(Data.Linq.RefreshMode.KeepChanges, Entities)
+                Context.SubmitChanges()
+            End If
+        End Sub
+
         ''' <summary>
         ''' Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
         ''' </summary>
@@ -32,7 +45,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Retorna as informacoes de uma propriedade a aprtir de um seletor
+        ''' Retorna as informacoes de uma propriedade a partir de um seletor
         ''' </summary>
         ''' <typeparam name="TSource"></typeparam>
         ''' <typeparam name="TProperty"></typeparam>
@@ -171,7 +184,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Retorna uma express~zo genérica a partir de uma expressão tipada
+        ''' Retorna uma expressão genérica a partir de uma expressão tipada
         ''' </summary>
         ''' <typeparam name="TParm"></typeparam>
         ''' <typeparam name="TReturn"></typeparam>
@@ -179,7 +192,7 @@ Namespace LINQ
         ''' <typeparam name="TTargetReturn"></typeparam>
         ''' <param name="input"></param>
         ''' <returns></returns>
-        Public Function ConvertGeneric(Of TParm, TReturn, TTargetParm, TTargetReturn)(ByVal input As Expression(Of Func(Of TParm, TReturn))) As Expression(Of Func(Of TTargetParm, TTargetReturn))
+        <Extension()> Public Function ConvertGeneric(Of TParm, TReturn, TTargetParm, TTargetReturn)(ByVal input As Expression(Of Func(Of TParm, TReturn))) As Expression(Of Func(Of TTargetParm, TTargetReturn))
             Dim parm = Expression.Parameter(GetType(TTargetParm))
             Dim castParm = Expression.Convert(parm, GetType(TParm))
             Dim body = ReplaceExpression(input.Body, input.Parameters(0), castParm)
@@ -215,7 +228,7 @@ Namespace LINQ
         ''' <typeparam name="T2"></typeparam>
         ''' <param name="predicate"></param>
         ''' <returns></returns>
-        Function CreateExpression(Of T, T2)(predicate As Expression(Of Func(Of T, T2))) As Expression(Of Func(Of T, T2))
+        <Extension()> Function CreateExpression(Of T, T2)(predicate As Expression(Of Func(Of T, T2))) As Expression(Of Func(Of T, T2))
             Return predicate
         End Function
 

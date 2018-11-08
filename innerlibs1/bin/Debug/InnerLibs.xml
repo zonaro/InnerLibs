@@ -5180,6 +5180,12 @@ Verifica se o objeto é do tipo numérico.
  <param name="WhereConditions"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.RefreshAndSubmitChanges(System.Data.Linq.DataContext,System.Object[])">
+ <summary>
+Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.KeepChanges"/> e envia as alteraçoes ao banco de dados
+ </summary>
+ <param name="Entities">Entidades</param>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.MergeProperty``2(System.Collections.Generic.IEnumerable{``0},System.String,System.Func{``0,``1},System.Boolean)">
  <summary>
  Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
@@ -5194,7 +5200,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.GetPropertyInfo``2(``0,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
  <summary>
- Retorna as informacoes de uma propriedade a aprtir de um seletor
+ Retorna as informacoes de uma propriedade a partir de um seletor
  </summary>
  <typeparam name="TSource"></typeparam>
  <typeparam name="TProperty"></typeparam>
@@ -5266,7 +5272,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.ConvertGeneric``4(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
  <summary>
- Retorna uma express~zo genérica a partir de uma expressão tipada
+ Retorna uma expressão genérica a partir de uma expressão tipada
  </summary>
  <typeparam name="TParm"></typeparam>
  <typeparam name="TReturn"></typeparam>
@@ -6451,6 +6457,14 @@ Verifica se o objeto é do tipo numérico.
  Funções para trabalhar com diretorios
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Directories.FixPathSeparator(System.String,System.Boolean)">
+ <summary>
+ Ajusta um caminho de arquivo ou diretório colocando o mesmo <see cref="F:System.IO.Path.DirectorySeparatorChar"/> evitando barras duplas ou alternativas
+ </summary>
+ <param name="Path">String contendo o caminho</param>
+ <param name="Alternative">Se TRUE, utiliza <see cref="F:System.IO.Path.AltDirectorySeparatorChar"/> ao invés de  <see cref="F:System.IO.Path.DirectorySeparatorChar"/> </param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Directories.DeleteIfExist(System.String)">
  <summary>
