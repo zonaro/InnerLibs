@@ -2,6 +2,144 @@
 Imports System.Runtime.CompilerServices
 Imports InnerLibs.Locations
 
+
+''' <summary>
+''' Representa um Par X,Y para operaçoes matemáticas
+''' </summary>
+''' 
+Public Class EquationPair
+
+    Sub New()
+
+    End Sub
+
+    Sub New(X As Decimal?, Y As Decimal?)
+        Me.X = X
+        Me.Y = Y
+    End Sub
+
+    Property X As Decimal?
+    Property Y As Decimal?
+
+
+    Function ToArray() As Decimal?()
+        Return {X, Y}
+    End Function
+
+    Function ToJson()
+        Return Json.SerializeJSON(Me.ToArray)
+    End Function
+
+End Class
+
+Public Class RuleOfThree
+
+    ''' <summary>
+    ''' Calcula uma regra de tres
+    ''' </summary>
+    ''' <param name="FirstEquation"></param>
+    ''' <param name="SecondEquation"></param>
+    Sub New(FirstEquation As EquationPair, SecondEquation As EquationPair)
+        Me.FirstEquation = FirstEquation
+        Me.SecondEquation = SecondEquation
+        Start()
+    End Sub
+
+    Private Sub Start()
+        Select Case True
+            Case {FirstEquation.Y, SecondEquation.X, SecondEquation.Y}.All(Function(x) x.HasValue)
+                FirstEquation.X = SecondEquation.X * FirstEquation.Y / SecondEquation.Y
+                Exit Select
+            Case {FirstEquation.X, SecondEquation.X, SecondEquation.Y}.All(Function(x) x.HasValue)
+                FirstEquation.Y = FirstEquation.X * SecondEquation.Y / FirstEquation.X
+                Exit Select
+
+            Case {FirstEquation.X, FirstEquation.Y, SecondEquation.X}.All(Function(x) x.HasValue)
+                SecondEquation.Y = SecondEquation.X * FirstEquation.Y / FirstEquation.X
+                Exit Select
+
+            Case {FirstEquation.X, FirstEquation.Y, SecondEquation.Y}.All(Function(x) x.HasValue)
+                SecondEquation.X = SecondEquation.Y * FirstEquation.X / FirstEquation.Y
+                Exit Select
+            Case Else
+                Throw New NoNullAllowedException("Three numbers need to be known to make a rule of three")
+        End Select
+
+    End Sub
+
+    ''' <summary>
+    ''' Calcula uma regra de três
+    ''' </summary>
+    ''' <param name="E1X"></param>
+    ''' <param name="E1Y"></param>
+    ''' <param name="E2X"></param>
+    ''' <param name="E2Y"></param>
+    Sub New(E1X As Decimal?, E1Y As Decimal?, E2X As Decimal?, E2Y As Decimal?)
+        Me.New(New EquationPair(E1X, E1Y), New EquationPair(E2X, E2Y))
+    End Sub
+
+    ''' <summary>
+    ''' Calcula uma regra de três
+    ''' </summary>
+    Sub New(ParamArray Numbers As Decimal?())
+        Numbers = If(Numbers, {})
+        Select Case True
+            Case Numbers.Count < 3
+                Throw New NoNullAllowedException("Three numbers need to be known to make a rule of three")
+                Exit Select
+            Case Numbers.Count = 3
+                Me.FirstEquation.X = Numbers(0)
+                Me.FirstEquation.Y = Numbers(1)
+                Me.SecondEquation.X = Numbers(2)
+                Me.SecondEquation.Y = Nothing
+            Case Else
+                If Numbers.All(Function(x) x.HasValue) Then
+                    Throw New NoNullAllowedException("One of numbers must be NULL")
+                    Exit Select
+                End If
+
+                If Numbers.Count(Function(x) x.HasValue) < 3 Then
+                    Throw New NoNullAllowedException("Three numbers need to be known to make a rule of three")
+                    Exit Select
+                End If
+
+                Me.FirstEquation.X = Numbers.IfNoIndex(0)
+                Me.FirstEquation.Y = Numbers.IfNoIndex(1)
+                Me.SecondEquation.X = Numbers.IfNoIndex(2)
+                Me.SecondEquation.Y = Numbers.IfNoIndex(3)
+                Start()
+        End Select
+
+    End Sub
+
+    ''' <summary>
+    ''' Primeira Equaçao
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property FirstEquation As New EquationPair
+
+    ''' <summary>
+    ''' Segunda Equaçao
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property SecondEquation As New EquationPair
+
+    ''' <summary>
+    ''' Retorna a representacao em JSON desta regra de tres
+    ''' </summary>
+    ''' <returns></returns>
+    Function ToJson() As String
+        Return Json.SerializeJSON(Me.Toarray)
+    End Function
+
+
+    Function ToArray() As Decimal?()()
+        Return {FirstEquation.ToArray, SecondEquation.ToArray}
+    End Function
+End Class
+
+
+
 ''' <summary>
 ''' Módulo para calculos
 ''' </summary>

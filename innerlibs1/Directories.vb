@@ -74,7 +74,9 @@ Public Module Directories
     ''' <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste aruqivo.</remarks>
     <Extension()>
     Function ToDirectoryInfo(DirectoryName As String) As DirectoryInfo
-        DirectoryName = Path.GetDirectoryName(DirectoryName)
+        If DirectoryName.IsFilePath Then
+            DirectoryName = Path.GetDirectoryName(DirectoryName)
+        End If
         If Directory.Exists(DirectoryName) = False Then
             Directory.CreateDirectory(DirectoryName)
         End If

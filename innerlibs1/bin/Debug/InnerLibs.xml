@@ -7419,6 +7419,51 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Title">Titulo do Menu</param>
  <param name="SubItems">Subitens do menu</param>
 </member>
+<member name="T:InnerLibs.EquationPair">
+ <summary>
+ Representa um Par X,Y para operaçoes matemáticas
+ </summary>
+ 
+</member>
+<member name="M:InnerLibs.RuleOfThree.#ctor(InnerLibs.EquationPair,InnerLibs.EquationPair)">
+ <summary>
+ Calcula uma regra de tres
+ </summary>
+ <param name="FirstEquation"></param>
+ <param name="SecondEquation"></param>
+</member>
+<member name="M:InnerLibs.RuleOfThree.#ctor(System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
+ <summary>
+ Calcula uma regra de três
+ </summary>
+ <param name="E1X"></param>
+ <param name="E1Y"></param>
+ <param name="E2X"></param>
+ <param name="E2Y"></param>
+</member>
+<member name="M:InnerLibs.RuleOfThree.#ctor(System.Nullable{System.Decimal}[])">
+ <summary>
+ Calcula uma regra de três
+ </summary>
+</member>
+<member name="P:InnerLibs.RuleOfThree.FirstEquation">
+ <summary>
+ Primeira Equaçao
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.RuleOfThree.SecondEquation">
+ <summary>
+ Segunda Equaçao
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.RuleOfThree.ToJson">
+ <summary>
+ Retorna a representacao em JSON desta regra de tres
+ </summary>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.Mathematic">
  <summary>
  Módulo para calculos
