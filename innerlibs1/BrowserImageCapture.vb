@@ -61,27 +61,34 @@ Public Module BrowserClipper
     ''' <returns></returns>
     Function GetTitle(URL As String) As String
         Dim title As String = ""
-        Dim thread As New Thread(Sub()
-                                     If URL.IsURL = False Then Throw New Exception("Invalid URL")
-                                     Dim web = New WebBrowser()
-                                     web.ScrollBarsEnabled = False
-                                     web.ScriptErrorsSuppressed = True
-                                     web.Navigate(URL)
-                                     While (web.ReadyState <> WebBrowserReadyState.Complete)
-                                         Application.DoEvents()
-                                         Try
-                                             title = web.DocumentTitle
-                                             If title.IsNotBlank Then
-                                                 Exit While
-                                             End If
-                                         Catch ex As Exception
-                                         End Try
-                                     End While
-                                     title = web.DocumentTitle
-                                 End Sub)
-        thread.SetApartmentState(ApartmentState.STA)
-        thread.Start()
-        thread.Join()
+        Try
+            title = New HtmlParser.HtmlDocument(URL).DocumentTitle
+            If title.IsBlank Then
+                Throw New Exception
+            End If
+        Catch ex As Exception
+            Dim thread As New Thread(Sub()
+                                         If URL.IsURL = False Then Throw New Exception("Invalid URL")
+                                         Dim web = New WebBrowser()
+                                         web.ScrollBarsEnabled = False
+                                         web.ScriptErrorsSuppressed = True
+                                         web.Navigate(URL)
+                                         While (web.ReadyState <> WebBrowserReadyState.Complete)
+                                             Application.DoEvents()
+                                             Try
+                                                 title = web.DocumentTitle
+                                                 If title.IsNotBlank Then
+                                                     Exit While
+                                                 End If
+                                             Catch ex2 As Exception
+                                             End Try
+                                         End While
+                                         title = web.DocumentTitle
+                                     End Sub)
+            thread.SetApartmentState(ApartmentState.STA)
+            thread.Start()
+            thread.Join()
+        End Try
         Return title
     End Function
 

@@ -145,7 +145,28 @@ Namespace HtmlParser
             Set(value As String)
                 Me.InnerHTML = value.HtmlEncode
             End Set
+
         End Property
+
+        Public Property DocumentTitle As String
+            Get
+                Try
+                    Return Me.Title.InnerText
+                Catch ex As Exception
+                    Return ""
+                End Try
+            End Get
+            Set(value As String)
+                If Me.Head Is Nothing Then
+                    Throw New Exception("This document doesent contains a HEAD element")
+                End If
+                If Me.Title Is Nothing Then
+                    Me.Head.Nodes.Add("<title>" & value & "</title>")
+                End If
+                Me.Title.InnerText = value
+            End Set
+        End Property
+
 
         ''' <summary>
         ''' This is the collection of nodes used to represent this document.
@@ -323,6 +344,16 @@ Namespace HtmlParser
         Public ReadOnly Property Head As HtmlElement
             Get
                 Return Me.FindElements(Function(p As HtmlElement) p.Name.ToLower = "head").FirstOr(Nothing)
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Return the Title element if exist 
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Title As HtmlElement
+            Get
+                Return Me.Head.FindElements(Function(p As HtmlElement) p.Name.ToLower = "title").FirstOr(Nothing)
             End Get
         End Property
 
