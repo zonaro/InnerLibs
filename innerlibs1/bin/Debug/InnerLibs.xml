@@ -4269,6 +4269,12 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.Title">
+ <summary>
+ Return the Title element if exist 
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.HtmlParser.HtmlDocument.QuerySelectorAll(System.String)">
  <summary>
  Travesse DOM with a CSS selector an retireve nodes
