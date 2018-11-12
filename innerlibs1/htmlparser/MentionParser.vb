@@ -24,6 +24,22 @@ Namespace HtmlParser
             Return Regex.Replace(Text, "(:)((?:[A-Za-z0-9-_]*))(:)", New MatchEvaluator(Function(x) Method(x.ToString.GetBetween(":", ":"))))
         End Function
 
+
+
+
+        ''' <summary>
+        ''' Localiza menções a usuários no texto e automaticamente executa uma função de replace para
+        ''' cada hashtag encontrada
+        ''' </summary>
+        ''' <param name="Text">  Texto</param>
+        ''' <param name="Method"></param>
+
+        <Extension()>
+        Function ParseMentionByChar(ByVal Text As String, MatchChar As String, Optional Method As Func(Of String, String) = Nothing) As String
+            Method = If(Method, Function(x) x)
+            Return Regex.Replace(Text, "(?<= |^)" & MatchChar.RegexEscape & "([^@ ]+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf(MatchChar).Trim)))
+        End Function
+
         ''' <summary>
         ''' Localiza menções a usuários no texto e automaticamente executa uma função de replace para
         ''' cada hashtag encontrada
@@ -33,8 +49,7 @@ Namespace HtmlParser
 
         <Extension()>
         Function ParseUsername(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
-            Method = If(Method, Function(x) x)
-            Return Regex.Replace(Text, "(?<= |^)@([^@ ]+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("@").Trim)))
+            Return Text.ParseMentionByChar("@", Method)
         End Function
 
         ''' <summary>
@@ -46,8 +61,7 @@ Namespace HtmlParser
 
         <Extension()>
         Function ParseHashtag(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
-            Method = If(Method, Function(x) x)
-            Return Regex.Replace(Text.ToString, "(?<= |^)#([^@ ]+)", New MatchEvaluator(Function(x) Method(x.ToString.RemoveFirstIf("#").Trim)))
+            Return Text.ParseMentionByChar("#", Method)
         End Function
 
         ''' <summary>

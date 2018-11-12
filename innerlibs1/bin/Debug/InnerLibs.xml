@@ -4583,6 +4583,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="Method">        </param>
  <param name="SearchChildren"></param>
 </member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseMentionByChar(System.String,System.Func{System.String,System.String},System.Boolean)">
+ <summary>
+ Find mentions and replace then using specific method using a custom char on match
+ </summary>
+ <param name="Method">        </param>
+ <param name="SearchChildren"></param>
+</member>
 <member name="M:InnerLibs.HtmlParser.HtmlElement.RemoveAttribute(System.String)">
  <summary>
  Remove an attribute from element
@@ -5073,6 +5080,14 @@ Verifica se o objeto é do tipo numérico.
 <member name="M:InnerLibs.HtmlParser.MentionParser.ParseEmoji(System.String,System.Func{System.String,System.String})">
  <summary>
  Localiza emojis no texto e automaticamente executa uma função de replace para cada emoji encontrado
+ </summary>
+ <param name="Text">  Texto</param>
+ <param name="Method"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.MentionParser.ParseMentionByChar(System.String,System.String,System.Func{System.String,System.String})">
+ <summary>
+ Localiza menções a usuários no texto e automaticamente executa uma função de replace para
+ cada hashtag encontrada
  </summary>
  <param name="Text">  Texto</param>
  <param name="Method"></param>

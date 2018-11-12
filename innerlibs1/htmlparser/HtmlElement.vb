@@ -795,6 +795,16 @@ Namespace HtmlParser
             Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseUsername(Method)))
         End Sub
 
+
+        ''' <summary>
+        ''' Find mentions and replace then using specific method using a custom char on match
+        ''' </summary>
+        ''' <param name="Method">        </param>
+        ''' <param name="SearchChildren"></param>
+        Public Sub ParseMentionByChar(MatchChar As String, Method As Func(Of String, String), Optional SearchChildren As Boolean = True)
+            Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseMentionByChar(MatchChar, Method)))
+        End Sub
+
         ''' <summary>
         ''' Remove an attribute from element
         ''' </summary>
