@@ -15,8 +15,21 @@ Imports InnerLibs.LINQ
 ''' <remarks></remarks>
 Public Module Text
 
+
+
     ''' <summary>
-    ''' Substitui a ultima instancia de um texto por outro
+    ''' Seprar uma string em varias partes a partir de varias strings removendo as entradas em branco
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="SplitText"></param>
+    ''' <returns></returns>
+    Public Function SplitAny(Text As String, ParamArray SplitText As String()) As String()
+        SplitText = If(SplitText, {})
+        Return Text.Split(SplitText, StringSplitOptions.RemoveEmptyEntries)
+    End Function
+
+    ''' <summary>
+    ''' Substitui a ultima ocorrencia de um texto por outro
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <param name="OldText"></param>
@@ -31,7 +44,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Substitui a primeira instancia de um texto por outro
+    ''' Substitui a primeira ocorrencia de um texto por outro
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <param name="OldText"></param>
@@ -165,6 +178,28 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Adiciona texto ao final de uma string se um criterio for cumprido
+    ''' </summary>
+    ''' <param name="Text">      Texto</param>
+    ''' <param name="AppendText">Texto adicional</param>
+    ''' <param name="Test">      Teste</param>
+    <Extension()> Public Function AppendIf(ByRef Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
+        Test = If(Test, Function(x) False)
+        Return Text.AppendIf(AppendText, Test(Text))
+    End Function
+
+    ''' <summary>
+    ''' Adiciona texto ao final de uma string se um criterio for cumprido
+    ''' </summary>
+    ''' <param name="Text">      Texto</param>
+    ''' <param name="AppendText">Texto adicional</param>
+    ''' <param name="Test">      Teste</param>
+    <Extension()> Public Function PrependIf(ByRef Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
+        Test = If(Test, Function(x) False)
+        Return Text.PrependIf(AppendText, Test(Text))
+    End Function
+
+    ''' <summary>
     ''' Aplica espacos em todos os caracteres de encapsulamento
     ''' </summary>
     ''' <param name="Text"></param>
@@ -202,7 +237,7 @@ Public Module Text
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     ''' <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
     <Extension()>
-    Public Function Censor(ByRef Text As String, BadWords As List(Of String), Optional CensorshipCharacter As Char = "*") As Boolean
+    Public Function Censor(ByRef Text As String, BadWords As IEnumerable(Of String), Optional CensorshipCharacter As Char = "*") As Boolean
         Dim IsCensored As Boolean = False
         Dim words As String() = Text.Split(" ", StringSplitOptions.None)
         If words.ContainsAny(BadWords) Then
@@ -212,7 +247,7 @@ Public Module Text
                     censored.Append(CensorshipCharacter)
                 Next
                 For index = 0 To words.Length - 1
-                    If words(index).RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower = bad.RemoveDiacritics.RemoveAny(".", ",", "!", "?", ";", ":").ToLower Then
+                    If words(index).RemoveDiacritics.RemoveAny(WordSplitters).ToLower = bad.RemoveDiacritics.RemoveAny(WordSplitters).ToLower Then
                         words(index) = words(index).ToLower().Replace(bad, censored)
                         IsCensored = True
                     End If
@@ -254,6 +289,7 @@ Public Module Text
         End If
         Return l.Most
     End Function
+
     ''' <summary>
     ''' Verifica se uma string contém a maioria dos valores especificados
     ''' </summary>
@@ -379,23 +415,13 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Function CreateGenericElement(HTMLString As String) As HtmlGenericControl
-        Dim element As New HtmlGenericControl
-        Dim docXML = New XmlDocument()
-        docXML.LoadXml(HTMLString)
-        Dim node = docXML.DocumentElement
-        element.TagName = node.Name
-        For Each attr As XmlAttribute In node.Attributes
-            element.Attributes.Add(attr.Name, attr.Value)
-        Next
-        element.InnerHtml = node.InnerXml
-        Return element
+        Return New HtmlParser.HtmlElement(HTMLString).CreateWebFormControl(Of HtmlGenericControl)
     End Function
 
     ''' <summary>
     ''' Decrementa em 1 ou mais um numero inteiro
     ''' </summary>
     ''' <param name="Number">Numero</param>
-    ''' `
     ''' <param name="Amount">QUantidade que será removida</param>
     <Extension()>
     Public Function Decrement(ByRef Number As Integer, Optional Amount As Integer = 1) As Integer
@@ -407,7 +433,6 @@ Public Module Text
     ''' Decrementa em 1 ou mais um numero inteiro
     ''' </summary>
     ''' <param name="Number">Numero</param>
-    ''' `
     ''' <param name="Amount">QUantidade que será removida</param>
     <Extension()>
     Public Function Decrement(ByRef Number As Long, Optional Amount As Integer = 1) As Integer
@@ -592,7 +617,7 @@ Public Module Text
     ''' <param name="Text">Texto</param>
     ''' <param name="Args">Objetos de substituição</param>
     ''' <returns></returns>
-    <Extension> Public Function Format(Text As String, ParamArray Args As Object()) As String
+    <Extension> Public Function Format(Text As String, ParamArray Args As String()) As String
         Return String.Format(Text, Args)
     End Function
 

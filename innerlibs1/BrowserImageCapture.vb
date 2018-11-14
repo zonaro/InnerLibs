@@ -61,13 +61,7 @@ Public Module BrowserClipper
     ''' <returns></returns>
     Function GetTitle(URL As String) As String
         Dim title As String = ""
-        Try
-            title = New HtmlParser.HtmlDocument(URL).DocumentTitle
-            If title.IsBlank Then
-                Throw New Exception
-            End If
-        Catch ex As Exception
-            Dim thread As New Thread(Sub()
+        Dim thread As New Thread(Sub()
                                          If URL.IsURL = False Then Throw New Exception("Invalid URL")
                                          Dim web = New WebBrowser()
                                          web.ScrollBarsEnabled = False
@@ -87,8 +81,7 @@ Public Module BrowserClipper
                                      End Sub)
             thread.SetApartmentState(ApartmentState.STA)
             thread.Start()
-            thread.Join()
-        End Try
+        thread.Join()
         Return title
     End Function
 

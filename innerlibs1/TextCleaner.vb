@@ -29,8 +29,12 @@ Public Class Paragraph
 
     <ScriptIgnore>
     Property StructuredText As StructuredText
+
 End Class
 
+''' <summary>
+''' Sentença de um texto (uma frase ou oração)
+''' </summary>
 Public Class Sentence
     Inherits List(Of SentencePart)
 
@@ -74,7 +78,6 @@ Public Class Sentence
             palavra = ""
         End If
 
-
         If listabase.Count > 0 Then
             If listabase.Last = "," Then 'se a ultima sentenca for uma virgula, substituimos ela por ponto
                 listabase.RemoveAt(listabase.Count - 1)
@@ -110,40 +113,76 @@ Public Class Sentence
 
     <ScriptIgnore>
     ReadOnly Property Paragraph As Paragraph
+
 End Class
 
+''' <summary>
+''' Parte de uma sentença. Pode ser uma palavra, pontuaçao ou qualquer caractere de encapsulamento
+''' </summary>
 Public Class SentencePart
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de senteça for uma palavra
+    ''' </summary>
+    ''' <returns></returns>
     Function IsWord() As Boolean
         Return Not IsNotWord()
     End Function
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de senteça não for uma palavra
+    ''' </summary>
+    ''' <returns></returns>
     Function IsNotWord() As Boolean
         Return IsOpenWrapChar() OrElse IsCloseWrapChar() OrElse IsComma() OrElse IsEndOfSentencePunctuation() OrElse IsMidSentencePunctuation()
     End Function
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento
+    ''' </summary>
+    ''' <returns></returns>
     Function IsOpenWrapChar() As Boolean
         Return OpenWrappers.Contains(Me.Text)
     End Function
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
+    ''' </summary>
+    ''' <returns></returns>
     Function IsCloseWrapChar() As Boolean
         Return CloseWrappers.Contains(Me.Text)
     End Function
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de sentença é uma vírgula
+    ''' </summary>
+    ''' <returns></returns>
     Function IsComma() As Boolean
         Return Me.Text = ","
     End Function
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
+    ''' </summary>
+    ''' <returns></returns>
     Function IsEndOfSentencePunctuation() As Boolean
         Return EndOfSentencePunctuation.Contains(Me.Text)
     End Function
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de senteça for um caractere de de meio de sentença (dois pontos ou ponto e vírgula)
+    ''' </summary>
+    ''' <returns></returns>
     Function IsMidSentencePunctuation() As Boolean
         Return MidSentencePunctuation.Contains(Me.Text)
     End Function
 
+    ''' <summary>
+    ''' Retorna TRUE se esta parte de senteça for qualquer tipo de pontuaçao
+    ''' </summary>
+    ''' <returns></returns>
     Function IsPunctuation() As Boolean
-        Return IsPunctuation Or IsMidSentencePunctuation()
+        Return IsEndOfSentencePunctuation() Or IsMidSentencePunctuation()
     End Function
 
     Friend Sub New(Text As String, Sentence As Sentence)
@@ -154,6 +193,10 @@ Public Class SentencePart
     <ScriptIgnore>
     ReadOnly Property Sentence As Sentence
 
+    ''' <summary>
+    ''' Texto desta parte de sentença
+    ''' </summary>
+    ''' <returns></returns>
     Public Property Text As String
 
     Public Overrides Function ToString() As String
@@ -171,25 +214,37 @@ Public Class SentencePart
         Return Text
     End Function
 
-
+    ''' <summary>
+    ''' Parte de sentença anterior
+    ''' </summary>
+    ''' <returns></returns>
     Public Function Previous() As SentencePart
         Return Sentence.IfNoIndex(Sentence.IndexOf(Me) - 1)
     End Function
 
+    ''' <summary>
+    ''' Parte da próxima sentença
+    ''' </summary>
+    ''' <returns></returns>
     Public Function [Next]() As SentencePart
         Return Sentence.IfNoIndex(Sentence.IndexOf(Me) + 1)
     End Function
 
+    ''' <summary>
+    ''' Retorna true se é nescessário espaço andes da proxima sentença
+    ''' </summary>
+    ''' <returns></returns>
     Public Function NeedSpaceOnNext() As Boolean
         Return Me.Next IsNot Nothing AndAlso (Me.Next.IsWord OrElse Me.Next.IsOpenWrapChar)
     End Function
 
 End Class
 
+''' <summary>
+''' Texto estruturado (Dividido em parágrafos)
+''' </summary>
 Public Class StructuredText
     Inherits List(Of Paragraph)
-
-
 
     Public Overrides Function ToString() As String
         Dim par As String = ""
@@ -201,7 +256,6 @@ Public Class StructuredText
         Next
         Return par
     End Function
-
 
     Public Sub New(OriginalText As String)
         For Each p In OriginalText.Split(BreakLineChars, StringSplitOptions.RemoveEmptyEntries)
