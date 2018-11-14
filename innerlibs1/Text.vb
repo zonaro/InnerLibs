@@ -23,7 +23,7 @@ Public Module Text
     ''' <param name="Text"></param>
     ''' <param name="SplitText"></param>
     ''' <returns></returns>
-    Public Function SplitAny(Text As String, ParamArray SplitText As String()) As String()
+    <Extension()> Public Function SplitAny(Text As String, ParamArray SplitText As String()) As String()
         SplitText = If(SplitText, {})
         Return Text.Split(SplitText, StringSplitOptions.RemoveEmptyEntries)
     End Function
