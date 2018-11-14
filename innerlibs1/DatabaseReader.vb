@@ -812,7 +812,7 @@ Partial Public Class DataBase
                     Dim base As String = ""
                     For Each item As String In Me.GetColumns()
                         header.Append("|" & item)
-                        base.Append("|" & item.Censor("-", item))
+                        base.Append("|" & item.Censor("-", {item}))
                     Next
                     header.Append("|" & Environment.NewLine)
                     base.Append("|" & Environment.NewLine)
