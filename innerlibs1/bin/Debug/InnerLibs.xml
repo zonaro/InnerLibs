@@ -5664,6 +5664,93 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Keys">   </param>
  <returns></returns>
 </member>
+<member name="T:InnerLibs.Sentence">
+ <summary>
+ Sentença de um texto (uma frase ou oração)
+ </summary>
+</member>
+<member name="T:InnerLibs.SentencePart">
+ <summary>
+ Parte de uma sentença. Pode ser uma palavra, pontuaçao ou qualquer caractere de encapsulamento
+ </summary>
+</member>
+<member name="M:InnerLibs.SentencePart.IsWord">
+ <summary>
+ Retorna TRUE se esta parte de senteça for uma palavra
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.IsNotWord">
+ <summary>
+ Retorna TRUE se esta parte de senteça não for uma palavra
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.IsOpenWrapChar">
+ <summary>
+ Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.IsCloseWrapChar">
+ <summary>
+ Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.IsComma">
+ <summary>
+ Retorna TRUE se esta parte de sentença é uma vírgula
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.IsEndOfSentencePunctuation">
+ <summary>
+ Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.IsMidSentencePunctuation">
+ <summary>
+ Retorna TRUE se esta parte de senteça for um caractere de de meio de sentença (dois pontos ou ponto e vírgula)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.IsPunctuation">
+ <summary>
+ Retorna TRUE se esta parte de senteça for qualquer tipo de pontuaçao
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.SentencePart.Text">
+ <summary>
+ Texto desta parte de sentença
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.Previous">
+ <summary>
+ Parte de sentença anterior
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.Next">
+ <summary>
+ Parte da próxima sentença
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.SentencePart.NeedSpaceOnNext">
+ <summary>
+ Retorna true se é nescessário espaço andes da proxima sentença
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.StructuredText">
+ <summary>
+ Texto estruturado (Dividido em parágrafos)
+ </summary>
+</member>
 <member name="M:InnerLibs.Triforce.ADO.Triforce`1.#ctor(System.IO.DirectoryInfo,System.String,System.String[])">
  <summary>
  Instancia um novo <see cref="N:InnerLibs.Triforce.LINQ"/> a partir de um Diretório
@@ -8684,9 +8771,17 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Text.SplitAny(System.String,System.String[])">
+ <summary>
+ Seprar uma string em varias partes a partir de varias strings removendo as entradas em branco
+ </summary>
+ <param name="Text"></param>
+ <param name="SplitText"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.ReplaceLast(System.String,System.String,System.String)">
  <summary>
- Substitui a ultima instancia de um texto por outro
+ Substitui a ultima ocorrencia de um texto por outro
  </summary>
  <param name="Text"></param>
  <param name="OldText"></param>
@@ -8695,7 +8790,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Text.ReplaceFirst(System.String,System.String,System.String)">
  <summary>
- Substitui a primeira instancia de um texto por outro
+ Substitui a primeira ocorrencia de um texto por outro
  </summary>
  <param name="Text"></param>
  <param name="OldText"></param>
@@ -8742,6 +8837,22 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="AppendText">Texto adicional</param>
  <param name="Test">      Teste</param>
 </member>
+<member name="M:InnerLibs.Text.AppendIf(System.String@,System.String,System.Func{System.String,System.Boolean})">
+ <summary>
+ Adiciona texto ao final de uma string se um criterio for cumprido
+ </summary>
+ <param name="Text">      Texto</param>
+ <param name="AppendText">Texto adicional</param>
+ <param name="Test">      Teste</param>
+</member>
+<member name="M:InnerLibs.Text.PrependIf(System.String@,System.String,System.Func{System.String,System.Boolean})">
+ <summary>
+ Adiciona texto ao final de uma string se um criterio for cumprido
+ </summary>
+ <param name="Text">      Texto</param>
+ <param name="AppendText">Texto adicional</param>
+ <param name="Test">      Teste</param>
+</member>
 <member name="M:InnerLibs.Text.ApplySpaceOnWrapChars(System.String)">
  <summary>
  Aplica espacos em todos os caracteres de encapsulamento
@@ -8756,7 +8867,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.Censor(System.String@,System.Collections.Generic.List{System.String},System.Char)">
+<member name="M:InnerLibs.Text.Censor(System.String@,System.Collections.Generic.IEnumerable{System.String},System.Char)">
  <summary>
  Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro
  caractere desejado) e retorna um valor indicando se o texto precisou ser censurado
@@ -8856,7 +8967,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Decrementa em 1 ou mais um numero inteiro
  </summary>
  <param name="Number">Numero</param>
- `
  <param name="Amount">QUantidade que será removida</param>
 </member>
 <member name="M:InnerLibs.Text.Decrement(System.Int64@,System.Int32)">
@@ -8864,7 +8974,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Decrementa em 1 ou mais um numero inteiro
  </summary>
  <param name="Number">Numero</param>
- `
  <param name="Amount">QUantidade que será removida</param>
 </member>
 <member name="M:InnerLibs.Text.DeleteLine(System.String,System.Int32)">
@@ -8941,7 +9050,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">Texto</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.Format(System.String,System.Object[])">
+<member name="M:InnerLibs.Text.Format(System.String,System.String[])">
  <summary>
  Extension Method para <see cref="T:System.String"/>
  </summary>
