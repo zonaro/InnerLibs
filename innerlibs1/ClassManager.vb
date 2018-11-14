@@ -13,7 +13,13 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
-
+    <Extension()> Public Function ToQueryString(Dic As Dictionary(Of String, String)) As String
+        Dim param As String = ""
+        For Each k In Dic
+            param.Append("&" & k.Key & "=" & HttpUtility.UrlEncode("" & k.Value))
+        Next
+        Return param
+    End Function
 
     ''' <summary>
     ''' Remove um item de uma lista e retorna este item

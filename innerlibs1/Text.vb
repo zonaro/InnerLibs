@@ -153,6 +153,15 @@ Public Module Text
         Return a.Join("")
     End Function
 
+
+    <Extension()>
+    Public Function AppendUrlParameter(ByRef Url As String, Key As String, ParamArray Value As String()) As String
+        For Each v In If(Value, {})
+            Url.Append(String.Format("&{0}={1}", Key, v.IfBlank("")))
+        Next
+        Return Url
+    End Function
+
     ''' <summary>
     ''' Adiciona texto ao final de uma string
     ''' </summary>
