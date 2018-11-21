@@ -9760,7 +9760,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="degree">Grau de itensidade (0 - 100%)</param>
  <returns>Texto em 1337</returns>
 </member>
-<member name="M:InnerLibs.Text.ToPercentString(System.Decimal)">
+<member name="M:InnerLibs.Text.ToPercentString(System.Decimal,System.Int32)">
  <summary>
  Retorna um numero com o sinal de porcentagem
  </summary>
@@ -9774,7 +9774,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToPercentString(System.Double)">
+<member name="M:InnerLibs.Text.ToPercentString(System.Double,System.Int32)">
  <summary>
  Retorna um numero com o sinal de porcentagem
  </summary>
@@ -9793,6 +9793,13 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Retorna um numero com o sinal de porcentagem
  </summary>
  <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.ToProper(System.String)">
+ <summary>
+ Coloca o texto em TitleCase
+ </summary>
+ <param name="Text"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToRandomCase(System.String)">

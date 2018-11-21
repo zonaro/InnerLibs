@@ -913,7 +913,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function GetRelativeURL(URL As Uri) As String
-        Return URL.PathAndQuery.RemoveAny(URL.AbsoluteUri)
+        Return URL.PathAndQuery.RemoveFirstIf(URL.AbsoluteUri)
     End Function
 
     ''' <summary>
@@ -2808,7 +2808,10 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToPercentString(Number As Decimal)
+    <Extension()> Public Function ToPercentString(Number As Decimal, Optional Decimals As Integer = -1) As String
+        If Decimals > -1 Then
+            Number = Decimal.Round(Number, Decimals)
+        End If
         Return Number.ToString.Append("%")
     End Function
 
@@ -2817,7 +2820,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToPercentString(Number As Integer)
+    <Extension()> Public Function ToPercentString(Number As Integer) As String
         Return Number.ToString.Append("%")
     End Function
 
@@ -2826,7 +2829,10 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToPercentString(Number As Double)
+    <Extension()> Public Function ToPercentString(Number As Double, Optional Decimals As Integer = -1) As String
+        If Decimals > -1 Then
+            Number = Decimal.Round(Number.ChangeType(Of Decimal), Decimals)
+        End If
         Return Number.ToString.Append("%")
     End Function
 
@@ -2835,7 +2841,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToPercentString(Number As Short)
+    <Extension()> Public Function ToPercentString(Number As Short) As String
         Return Number.ToString.Append("%")
     End Function
 
@@ -2844,10 +2850,15 @@ Public Module Text
     ''' </summary>
     ''' <param name="Number"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToPercentString(Number As Long)
+    <Extension()> Public Function ToPercentString(Number As Long) As String
         Return Number.ToString.Append("%")
     End Function
 
+    ''' <summary>
+    ''' Coloca o texto em TitleCase
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
     <Extension()>
     Public Function ToProper(Text As String) As String
         Return StrConv(Text, vbProperCase)
