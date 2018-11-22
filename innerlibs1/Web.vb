@@ -1186,7 +1186,7 @@ Public Module Web
     End Sub
 
     ''' <summary>
-    ''' Retorna o primeiro item não branco de um <see cref="Httprequest"/> a partir de uma coleção de Keys
+    ''' Retorna o primeiro item não branco de um <see cref="HttpRequest"/> a partir de uma coleção de Keys
     ''' </summary>
     ''' <param name="Request"></param>
     ''' <param name="Keys"></param>
@@ -1198,6 +1198,21 @@ Public Module Web
             End If
         Next
         Return ""
+    End Function
+
+    ''' <summary>
+    ''' Retorna o primeiro item não branco de um <see cref="HttpRequest"/> a partir de uma coleção de Keys
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <param name="Keys"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FirstOf(Of T)(Request As HttpRequest, ParamArray Keys As String()) As T
+        For Each k In If(Keys, {})
+            If Request(k).IsNotBlank Then
+                Return Request(k).ChangeType(Of T)
+            End If
+        Next
+        Return Nothing
     End Function
 
 

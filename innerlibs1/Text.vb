@@ -1611,7 +1611,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>
+    ''' Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
     ''' </summary>
     <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String, String)) As String
         If Dic IsNot Nothing AndAlso Text.IsNotBlank Then

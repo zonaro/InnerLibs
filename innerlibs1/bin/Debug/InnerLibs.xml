@@ -9502,7 +9502,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Text.ReplaceFrom(System.String,System.Collections.Generic.IDictionary{System.String,System.String})">
  <summary>
- aplica um replace a um texto baseando-se em um <see cref="T:System.Collections.IDictionary"/>
+ Aplica varios replaces a um texto a partir de um <see cref="T:System.Collections.IDictionary"/>
  </summary>
 </member>
 <member name="M:InnerLibs.Text.ReplaceFrom(System.String,System.Collections.Generic.IDictionary{System.String,System.String[]},System.StringComparison)">
