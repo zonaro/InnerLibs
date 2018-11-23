@@ -3281,6 +3281,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="attachment"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Files.ToBytes(System.IO.Stream)">
+ <summary>
+ COnverte um Stram em Bytes
+ </summary>
+ <param name="stream"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Files.WriteToFile(System.Byte[],System.String)">
  <summary>
  Transforma um  Array de Bytes em um arquivo
@@ -9573,7 +9580,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Obj">Objeto</param>
  <returns>Uma String JSON</returns>
 </member>
-<member name="M:InnerLibs.Text.Shuffle``1(``0[]@)">
+<member name="M:InnerLibs.Text.Shuffle``1(``0[])">
  <summary>
  Randomiza a ordem dos itens de um Array
  </summary>

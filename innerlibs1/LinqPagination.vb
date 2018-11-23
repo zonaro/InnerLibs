@@ -560,7 +560,7 @@ Namespace LINQ
         ''' <param name="Selector"> </param>
         ''' <param name="Separator"></param>
         ''' <returns></returns>
-        <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
+        <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = "") As String
             Selector = If(Selector, Function(x) x.ToString)
             Return Source.Select(Selector).Join(Separator)
         End Function
@@ -573,7 +573,7 @@ Namespace LINQ
         ''' <param name="Selector"> </param>
         ''' <param name="Separator"></param>
         ''' <returns></returns>
-        <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = ";") As String
+        <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IQueryable(Of TSource), Optional Selector As Func(Of TSource, String) = Nothing, Optional Separator As String = "") As String
             Return Source.AsEnumerable.SelectJoin(Selector, Separator)
         End Function
 
@@ -585,7 +585,7 @@ Namespace LINQ
         ''' <param name="Selector"> </param>
         ''' <param name="Separator"></param>
         ''' <returns></returns>
-        <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = ";") As String
+        <Extension()> Function SelectManyJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Selector As Func(Of TSource, IEnumerable(Of String)) = Nothing, Optional Separator As String = "") As String
             Selector = If(Selector, Function(x) {x.ToString})
             Return Source.SelectMany(Selector).Join(Separator)
         End Function

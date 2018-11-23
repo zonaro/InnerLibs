@@ -1039,7 +1039,7 @@ Public Module Text
     ''' <param name="Text">             Texto</param>
     ''' <param name="IgnoreWhiteSpaces">Ignora os espaços na hora de comparar</param>
     ''' <returns></returns>
-    Public Function IsPalindrome(ByVal Text As String, Optional IgnoreWhiteSpaces As Boolean = False) As Boolean
+    <Extension()> Public Function IsPalindrome(ByVal Text As String, Optional IgnoreWhiteSpaces As Boolean = False) As Boolean
         If IgnoreWhiteSpaces Then Text = Text.RemoveAny(" ")
         Dim c = Text.ToArray()
         Dim p = c
@@ -1054,7 +1054,7 @@ Public Module Text
     ''' <param name="Separator">Separador entre as strings</param>
     ''' <returns>string</returns>
     <Extension()>
-    Public Function Join(Of Type)(Array As IEnumerable(Of Type), Optional Separator As String = ";") As String
+    Public Function Join(Of Type)(Array As IEnumerable(Of Type), Optional Separator As String = "") As String
         Return String.Join(Separator, Array)
     End Function
 
@@ -1065,7 +1065,7 @@ Public Module Text
     ''' <param name="Separator">Separador entre as strings</param>
     ''' <returns>string</returns>
     <Extension()>
-    Public Function Join(Of Type)(Array As Type(), Optional Separator As String = ";") As String
+    Public Function Join(Of Type)(Array As Type(), Optional Separator As String = "") As String
         Return String.Join(Separator, Array)
     End Function
 
@@ -1752,7 +1752,7 @@ Public Module Text
     ''' </summary>
     ''' <typeparam name="Type">Tipo do Array</typeparam>
     ''' <param name="Array">Matriz</param>
-    <Extension()> Public Function Shuffle(Of Type)(ByRef Array As Type()) As Type()
+    <Extension()> Public Function Shuffle(Of Type)(ByVal Array As Type()) As Type()
         Array = Array.OrderByRandom().ToArray
         Return Array
     End Function

@@ -41,11 +41,27 @@ Public Module Files
     ''' <param name="attachment"></param>
     ''' <returns></returns>
     <Extension()> Public Function ToBytes(ByVal attachment As System.Net.Mail.Attachment) As Byte()
-        Dim allBytes As Byte() = New Byte(attachment.ContentStream.Length - 1) {}
-        Dim bytesRead As Integer = attachment.ContentStream.Read(allBytes, 0, CInt(attachment.ContentStream.Length))
-        Return allBytes
+        Return attachment.ContentStream.ToBytes
     End Function
 
+    ''' <summary>
+    ''' COnverte um Stram em Bytes
+    ''' </summary>
+    ''' <param name="stream"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function ToBytes(ByVal stream As Stream) As Byte()
+        Dim totalbytes As Byte() = Nothing
+        Dim iBytesRead As Integer
+        Dim Totalread As Int64 = 0
+        ReDim totalbytes(stream.Length)
+        Do
+            iBytesRead = stream.Read(totalbytes, Totalread, Totalread + 1048576)
+            Totalread += iBytesRead
+        Loop While Not iBytesRead = 0
+        stream.Close()
+        Return totalbytes
+    End Function
 
     ''' <summary>
     ''' Transforma um  Array de Bytes em um arquivo
