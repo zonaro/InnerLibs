@@ -364,31 +364,42 @@ Public Module Web
         Return UriBuilder.Uri
     End Function
 
+
     ''' <summary>
     ''' Reescreve a URL original a partir de uma REGEX aplicada em uma URL amigavel
     ''' </summary>
     ''' <param name="App">       Aplicaçao HTTP</param>
     ''' <param name="URLPattern">REGEX da URL</param>
-    ''' <param name="OriginalURL">       URL original</param>
-    <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, OriginalURL As String) As Boolean
-        Dim theurl = App.Request.Path
-        If New Regex(URLPattern, RegexOptions.IgnoreCase).Match(theurl).Success Then
-            Dim novaurl = If(App.Request.IsSecureConnection, "https://", "http://") & App.Request.Url.GetDomain & "/" & OriginalURL.ToString
-            novaurl = String.Format(novaurl, App.Request.Url.Segments)
+    ''' <param name="FileUrl">       URL original do arquivo</param>
+    <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, FileUrl As String) As Boolean
+        If New Regex(URLPattern, RegexOptions.IgnoreCase).Match(App.Request.Path).Success Then
+            Dim novaurl = If(App.Request.IsSecureConnection, "https://", "http://") & App.Request.Url.GetDomain & "/" & FileUrl.ToString
+            novaurl = String.Format(novaurl, App.Request.RawUrl.GetUrlSegments.ToArray)
             Dim novauri = New Uri(novaurl)
             For Each param In App.Request.QueryString.AllKeys
                 novauri = novauri.AddParameter(param, App.Request(param))
             Next
-            theurl = novauri.PathAndQuery
-            App.Context.RewritePath("~" & theurl)
+            App.Context.RewritePath("~" & novauri.PathAndQuery)
             Return True
         Else
             Return False
         End If
     End Function
 
-
-
+    ''' <summary>
+    ''' Retorna os segmentos de uma url
+    ''' </summary>
+    ''' <param name="Url"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetUrlSegments(Url As String) As IEnumerable(Of String)
+        Dim l As New List(Of String)
+        Dim p As New Regex("(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)", RegexOptions.Singleline + RegexOptions.IgnoreCase)
+        Dim gs = p.Matches(Url)
+        For Each g As Match In gs
+            l.Add(g.Value)
+        Next
+        Return l
+    End Function
 
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de

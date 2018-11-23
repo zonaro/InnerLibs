@@ -454,6 +454,9 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension()>
         Function Page(Of TSource)(ByVal Source As IEnumerable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IEnumerable(Of TSource)
+            If PageNumber < 0 Then
+                Return Source
+            End If
             Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
 

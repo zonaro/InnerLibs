@@ -10892,7 +10892,14 @@ Atualiza a lista de keys
  </summary>
  <param name="App">       Aplicaçao HTTP</param>
  <param name="URLPattern">REGEX da URL</param>
- <param name="OriginalURL">       URL original</param>
+ <param name="FileUrl">       URL original do arquivo</param>
+</member>
+<member name="M:InnerLibs.Web.GetUrlSegments(System.String)">
+ <summary>
+ Retorna os segmentos de uma url
+ </summary>
+ <param name="Url"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.ToProcedure(System.Web.HttpRequest,System.String,System.String[])">
  <summary>
@@ -11306,6 +11313,14 @@ Atualiza a lista de keys
  <param name="ContentType">MIME Type do Download</param>
 </member>
 <member name="M:InnerLibs.Web.FirstOf(System.Web.HttpRequest,System.String[])">
+ <summary>
+ Retorna o primeiro item não branco de um <see cref="T:System.Web.HttpRequest"/> a partir de uma coleção de Keys
+ </summary>
+ <param name="Request"></param>
+ <param name="Keys"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FirstOf``1(System.Web.HttpRequest,System.String[])">
  <summary>
  Retorna o primeiro item não branco de um <see cref="T:System.Web.HttpRequest"/> a partir de uma coleção de Keys
  </summary>
