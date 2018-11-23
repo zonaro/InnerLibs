@@ -3274,6 +3274,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="Path"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Files.ToBytes(System.Net.Mail.Attachment)">
+ <summary>
+ Salva um anexo para Byte()    
+ </summary>
+ <param name="attachment"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Files.WriteToFile(System.Byte[],System.String)">
  <summary>
  Transforma um  Array de Bytes em um arquivo

@@ -27,13 +27,23 @@ Public Module Files
     ''' <param name="Path"></param>
     ''' <returns></returns>
     <Extension()> Public Function SaveMailAttachment(ByVal attachment As System.Net.Mail.Attachment, Path As String) As FileInfo
-        Dim allBytes As Byte() = New Byte(attachment.ContentStream.Length - 1) {}
-        Dim bytesRead As Integer = attachment.ContentStream.Read(allBytes, 0, CInt(attachment.ContentStream.Length))
         Path.ToDirectoryInfo
         Dim writer As BinaryWriter = New BinaryWriter(New FileStream(Path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
-        writer.Write(allBytes)
+        writer.Write(attachment.ToBytes)
         writer.Close()
         Return New FileInfo(Path)
+    End Function
+
+
+    ''' <summary>
+    ''' Salva um anexo para Byte()    
+    ''' </summary>
+    ''' <param name="attachment"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToBytes(ByVal attachment As System.Net.Mail.Attachment) As Byte()
+        Dim allBytes As Byte() = New Byte(attachment.ContentStream.Length - 1) {}
+        Dim bytesRead As Integer = attachment.ContentStream.Read(allBytes, 0, CInt(attachment.ContentStream.Length))
+        Return allBytes
     End Function
 
 
