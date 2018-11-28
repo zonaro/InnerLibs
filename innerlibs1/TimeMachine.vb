@@ -586,7 +586,7 @@ Namespace TimeMachine
             ano = (If(Me.Years > 0, (If(Me.Years = 1, Me.Years & " ano ", Me.Years & " anos")), ""))
             mes = (If(Me.Months > 0, (If(Me.Months = 1, Me.Months & " mês ", Me.Months & " meses ")), ""))
             dia = (If(Me.Days > 0, (If(Me.Days = 1, Me.Days & " dia ", Me.Days & " dias ")), ""))
-            If FullString Or Me.Days < 1 Then
+            If FullString OrElse {ano, mes, dia}.All(Function(x) x.IsBlank) Then
                 horas = (If(Me.Hours > 0, (If(Me.Hours = 1, Me.Hours & " hora ", Me.Hours & " horas ")), ""))
                 minutos = (If(Me.Minutes > 0, (If(Me.Minutes = 1, Me.Minutes & " minuto ", Me.Minutes & " minutos ")), ""))
                 segundos = (If(Me.Seconds > 0, (If(Me.Seconds = 1, Me.Seconds & " segundo ", Me.Seconds & " segundos ")), ""))
@@ -598,7 +598,7 @@ Namespace TimeMachine
             horas.AppendIf(",", horas.IsNotBlank And (minutos.IsNotBlank Or segundos.IsNotBlank))
             minutos.AppendIf(",", minutos.IsNotBlank And (segundos.IsNotBlank))
 
-            Dim current As String = ano & " " & mes & " " & dia & " " & horas & " " & minutos & " " & segundos
+            Dim current As String = {ano, mes, dia, horas, minutos, segundos}.Join(" ")
             If current.Contains(",") Then
                 current = current.ReplaceLast(",", " e ")
             End If
