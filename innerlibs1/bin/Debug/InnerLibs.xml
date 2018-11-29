@@ -4501,7 +4501,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.HtmlParser.HtmlElement.Censor(System.Char,System.String[])">
  <summary>
- ReplaceFrom Badwords in all text elements.
+ Replace Badwords in all text elements.
  </summary>
  <param name="CensorChar"></param>
  <param name="BadWords">  </param>
@@ -8891,7 +8891,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
  <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
 </member>
-<member name="M:InnerLibs.Text.Censor(System.String,System.Char,System.String[])">
+<member name="M:InnerLibs.Text.Censor(System.String@,System.Char,System.String[])">
  <summary>
  Retorna um novo texto censurando as palavras de um texto substituindo as palavras indesejadas
  por um caractere desejado)

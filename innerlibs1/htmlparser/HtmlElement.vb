@@ -599,7 +599,7 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' ReplaceFrom Badwords in all text elements.
+        ''' Replace Badwords in all text elements.
         ''' </summary>
         ''' <param name="CensorChar"></param>
         ''' <param name="BadWords">  </param>

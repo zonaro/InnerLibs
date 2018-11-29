@@ -374,7 +374,7 @@ Public Module Web
     ''' <param name="URLPattern">REGEX da URL</param>
     ''' <param name="FileUrl">       URL original do arquivo</param>
     <Extension> Public Function RewriteUrl(App As HttpApplication, URLPattern As String, FileUrl As String) As Boolean
-        If New Regex(URLPattern, RegexOptions.IgnoreCase).Match(App.Request.Path).Success Then
+        If New Regex(URLPattern.Replace("{{URLSEGMENT}}", "([^/]+)"), RegexOptions.IgnoreCase).Match(App.Request.Path).Success Then
             Dim novaurl = If(App.Request.IsSecureConnection, "https://", "http://") & App.Request.Url.GetDomain & "/" & FileUrl.ToString
             novaurl = String.Format(novaurl, App.Request.RawUrl.GetUrlSegments.ToArray)
             Dim novauri = New Uri(novaurl)
@@ -394,13 +394,16 @@ Public Module Web
     ''' <param name="Url"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetUrlSegments(Url As String) As IEnumerable(Of String)
-        Dim l As New List(Of String)
-        Dim p As New Regex("(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)", RegexOptions.Singleline + RegexOptions.IgnoreCase)
-        Dim gs = p.Matches(Url)
-        For Each g As Match In gs
-            l.Add(g.Value)
-        Next
-        Return l
+        If Url.IsURL Then
+            Dim l As New List(Of String)
+            Dim p As New Regex("(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", RegexOptions.Singleline + RegexOptions.IgnoreCase)
+            Dim gs = p.Matches(Url)
+            For Each g As Match In gs
+                l.Add(g.Value)
+            Next
+            Return l
+        End If
+        Return {}
     End Function
 
     ''' <summary>

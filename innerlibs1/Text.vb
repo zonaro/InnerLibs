@@ -275,10 +275,9 @@ Public Module Text
     ''' <param name="BadWords">           Array de palavras indesejadas</param>
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     <Extension()>
-    Public Function Censor(ByVal Text As String, CensorshipCharacter As Char, ParamArray BadWords As String()) As String
-        Dim txt As String = Text
-        txt.Censor(BadWords.ToList, CensorshipCharacter)
-        Return txt
+    Public Function Censor(ByRef Text As String, CensorshipCharacter As Char, ParamArray BadWords As String()) As String
+        Text.Censor(BadWords.ToList, CensorshipCharacter)
+        Return Text
     End Function
 
     ''' <summary>
@@ -2097,7 +2096,7 @@ Public Module Text
     ''' <returns>string amigavel para URL</returns>
     <Extension()>
     Public Function ToFriendlyURL(Text As String, Optional UseUnderscore As Boolean = False) As String
-        Return Text.Replace(" ", If(UseUnderscore, "_", "-")).Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?", "/", "#", "\", "<", ">", "(", ")", "{", "}", "[", "]", "|", """", "'", vbTab, Environment.NewLine).Trim.RemoveAccents().ToLower()
+        Return Text.ReplaceMany(If(UseUnderscore, "_", "-"), "_", "-", " ").Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?", "/", "#", "\", "<", ">", "(", ")", "{", "}", "[", "]", "|", """", "'", vbTab, Environment.NewLine).Trim.RemoveAccents().ToLower()
     End Function
 
     ''' <summary>

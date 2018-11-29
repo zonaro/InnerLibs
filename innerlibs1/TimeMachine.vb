@@ -494,6 +494,43 @@ Namespace TimeMachine
         ''' <returns></returns>
         Public ReadOnly Property RelevantDays As New List(Of Date)
 
+
+        Public ReadOnly Property TotalSeconds As Decimal
+            Get
+                Return (Me.EndDate - Me.StartDate).TotalSeconds
+            End Get
+        End Property
+
+        Public ReadOnly Property TotalMinutes As Decimal
+            Get
+                Return (Me.EndDate - Me.StartDate).TotalMinutes
+            End Get
+        End Property
+
+        Public ReadOnly Property TotalDays As Decimal
+            Get
+                Return (Me.EndDate - Me.StartDate).TotalDays
+            End Get
+        End Property
+
+        Public ReadOnly Property TotalMonths As Decimal
+            Get
+                Return StartDate.Subtract(EndDate).Days / (365.25 / 12)
+            End Get
+        End Property
+
+        Public ReadOnly Property TotalYears As Decimal
+            Get
+                Return Me.TotalMonths / 12
+            End Get
+        End Property
+
+        Public ReadOnly Property TotalWeeks As Decimal
+            Get
+                Return Me.TotalDays / 7
+            End Get
+        End Property
+
         ''' <summary>
         ''' Todos os dias entre as datas Inicial e Final
         ''' </summary>
