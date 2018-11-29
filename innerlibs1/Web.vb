@@ -394,16 +394,15 @@ Public Module Web
     ''' <param name="Url"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetUrlSegments(Url As String) As IEnumerable(Of String)
-        If Url.IsURL Then
-            Dim l As New List(Of String)
+
+        Dim l As New List(Of String)
             Dim p As New Regex("(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", RegexOptions.Singleline + RegexOptions.IgnoreCase)
             Dim gs = p.Matches(Url)
             For Each g As Match In gs
                 l.Add(g.Value)
             Next
             Return l
-        End If
-        Return {}
+
     End Function
 
     ''' <summary>
