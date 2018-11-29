@@ -19,6 +19,8 @@ Imports System.Xml
 ''' </summary>
 Public NotInheritable Class AJAX
 
+
+
     ''' <summary>
     ''' Retorna o conteúdo de uma página
     ''' </summary>
@@ -1226,6 +1228,14 @@ Public Module Web
         Return Nothing
     End Function
 
+    ''' <summary>
+    ''' Retorna o caminho relativo ao arquivo desta página
+    ''' </summary>
+    ''' <param name="Request">Httprequest</param>
+    ''' <returns></returns>
+    <Extension()> Function GetPhysicalRelativePath(Request As HttpRequest) As String
+        Return Request.PhysicalPath.RemoveFirstIf(Request.PhysicalApplicationPath).FixPathSeparator(True)
+    End Function
 
 
 End Module

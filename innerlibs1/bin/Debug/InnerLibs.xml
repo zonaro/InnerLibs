@@ -11342,6 +11342,13 @@ Atualiza a lista de keys
  <param name="Keys"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Web.GetPhysicalRelativePath(System.Web.HttpRequest)">
+ <summary>
+ Retorna o caminho relativo ao arquivo desta página
+ </summary>
+ <param name="Request">Httprequest</param>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.WinForms">
  <summary>
  Módulo de controle de formulários
