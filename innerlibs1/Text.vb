@@ -246,8 +246,7 @@ Public Module Text
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     ''' <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
     <Extension()>
-    Public Function Censor(ByRef Text As String, BadWords As IEnumerable(Of String), Optional CensorshipCharacter As Char = "*") As Boolean
-        Dim IsCensored As Boolean = False
+    Public Function Censor(ByVal Text As String, BadWords As IEnumerable(Of String), Optional CensorshipCharacter As String = "*", Optional IsCensored As Boolean = False) As String
         Dim words As String() = Text.Split(" ", StringSplitOptions.None)
         If words.ContainsAny(BadWords) Then
             For Each bad In BadWords
@@ -264,7 +263,7 @@ Public Module Text
             Next
             Text = words.Join(" ")
         End If
-        Return IsCensored
+        Return Text
     End Function
 
     ''' <summary>
@@ -275,9 +274,8 @@ Public Module Text
     ''' <param name="BadWords">           Array de palavras indesejadas</param>
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     <Extension()>
-    Public Function Censor(ByRef Text As String, CensorshipCharacter As Char, ParamArray BadWords As String()) As String
-        Text.Censor(BadWords.ToList, CensorshipCharacter)
-        Return Text
+    Public Function Censor(ByVal Text As String, CensorshipCharacter As String, ParamArray BadWords As String()) As String
+        Return Text.Censor(BadWords.ToList, CensorshipCharacter)
     End Function
 
     ''' <summary>

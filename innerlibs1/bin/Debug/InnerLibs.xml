@@ -8881,7 +8881,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.Censor(System.String@,System.Collections.Generic.IEnumerable{System.String},System.Char)">
+<member name="M:InnerLibs.Text.Censor(System.String,System.Collections.Generic.IEnumerable{System.String},System.String,System.Boolean)">
  <summary>
  Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro
  caractere desejado) e retorna um valor indicando se o texto precisou ser censurado
@@ -8891,7 +8891,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
  <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
 </member>
-<member name="M:InnerLibs.Text.Censor(System.String@,System.Char,System.String[])">
+<member name="M:InnerLibs.Text.Censor(System.String,System.String,System.String[])">
  <summary>
  Retorna um novo texto censurando as palavras de um texto substituindo as palavras indesejadas
  por um caractere desejado)
