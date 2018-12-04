@@ -1,0 +1,22 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.InnerForm
+  commentId: N:InnerLibs.InnerForm
+  id: InnerLibs.InnerForm
+  children:
+  - InnerLibs.InnerForm.InnerForm
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.InnerForm
+  nameWithType: InnerLibs.InnerForm
+  fullName: InnerLibs.InnerForm
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.InnerForm.InnerForm
+  commentId: T:InnerLibs.InnerForm.InnerForm
+  name: InnerForm
+  nameWithType: InnerForm
+  fullName: InnerLibs.InnerForm.InnerForm

@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Directories
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Directories
+   ">
+    <meta name="generator" content="docfx 2.37.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="InnerLibs.Directories">
+  
+  
+  <h1 id="InnerLibs_Directories" data-uid="InnerLibs.Directories" class="text-break">Class Directories
+  </h1>
+  <div class="markdown level0 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Funções para trabalhar com diretorios</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">Directories</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="InnerLibs.html">InnerLibs</a></h6>
+  <h6><strong>Assembly</strong>: InnerLibs.dll</h6>
+  <h5 id="InnerLibs_Directories_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Directories</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="InnerLibs_Directories_CleanDirectory_" data-uid="InnerLibs.Directories.CleanDirectory*"></a>
+  <h4 id="InnerLibs_Directories_CleanDirectory_System_IO_DirectoryInfo_System_Boolean_" data-uid="InnerLibs.Directories.CleanDirectory(System.IO.DirectoryInfo,System.Boolean)">CleanDirectory(DirectoryInfo, Boolean)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Remove todos os subdiretorios vazios</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">TopDirectory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretorio da operação</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">DeleteTopDirectoryIfEmpty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_CopyTo_" data-uid="InnerLibs.Directories.CopyTo*"></a>
+  <h4 id="InnerLibs_Directories_CopyTo_System_Collections_Generic_List_System_IO_FileInfo__System_IO_DirectoryInfo_" data-uid="InnerLibs.Directories.CopyTo(System.Collections.Generic.List{System.IO.FileInfo},System.IO.DirectoryInfo)">CopyTo(List&lt;FileInfo&gt;, DirectoryInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Copia arquivos para dentro de outro diretório</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;FileInfo&gt; CopyTo(this List&lt;FileInfo&gt; List, DirectoryInfo DestinationDirectory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.FileInfo</span>&gt;</td>
+        <td><span class="parametername">List</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivos</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">DestinationDirectory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório de destino</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.FileInfo</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_CopyTo_" data-uid="InnerLibs.Directories.CopyTo*"></a>
+  <h4 id="InnerLibs_Directories_CopyTo_System_IO_DirectoryInfo_System_IO_DirectoryInfo_" data-uid="InnerLibs.Directories.CopyTo(System.IO.DirectoryInfo,System.IO.DirectoryInfo)">CopyTo(DirectoryInfo, DirectoryInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Copia um diretório para dentro de outro diretório</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DirectoryInfo CopyTo(this DirectoryInfo Directory, DirectoryInfo DestinationDirectory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">DestinationDirectory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório de destino</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_DeleteIfExist_" data-uid="InnerLibs.Directories.DeleteIfExist*"></a>
+  <h4 id="InnerLibs_Directories_DeleteIfExist_System_IO_FileSystemInfo_" data-uid="InnerLibs.Directories.DeleteIfExist(System.IO.FileSystemInfo)">DeleteIfExist(FileSystemInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Deleta um arquivo ou diretório se o mesmo existir e retorna TRUE se o arquivo puder ser criado novamente</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool DeleteIfExist(this FileSystemInfo Path)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileSystemInfo</span></td>
+        <td><span class="parametername">Path</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Camingo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_DeleteIfExist_" data-uid="InnerLibs.Directories.DeleteIfExist*"></a>
+  <h4 id="InnerLibs_Directories_DeleteIfExist_System_String_" data-uid="InnerLibs.Directories.DeleteIfExist(System.String)">DeleteIfExist(String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Deleta um arquivo ou diretório se o mesmo existir e retorna TURE se o arquivo puder ser criado novamente</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool DeleteIfExist(this string Path)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Path</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Camingo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_ExtractZipFile_" data-uid="InnerLibs.Directories.ExtractZipFile*"></a>
+  <h4 id="InnerLibs_Directories_ExtractZipFile_System_IO_FileInfo_System_IO_DirectoryInfo_" data-uid="InnerLibs.Directories.ExtractZipFile(System.IO.FileInfo,System.IO.DirectoryInfo)">ExtractZipFile(FileInfo, DirectoryInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Extrai um arquivo zip em um diretório</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DirectoryInfo ExtractZipFile(this FileInfo File, DirectoryInfo Directory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td><span class="parametername">File</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivo ZIp</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_Find_" data-uid="InnerLibs.Directories.Find*"></a>
+  <h4 id="InnerLibs_Directories_Find__1_System_IO_DirectoryInfo_System_Func___0_System_Boolean__System_IO_SearchOption_" data-uid="InnerLibs.Directories.Find``1(System.IO.DirectoryInfo,System.Func{``0,System.Boolean},System.IO.SearchOption)">Find&lt;FindType&gt;(DirectoryInfo, Func&lt;FindType, Boolean&gt;, SearchOption)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static IEnumerable&lt;FindType&gt; Find&lt;FindType&gt;(this DirectoryInfo Directory, Func&lt;FindType, bool&gt; predicate, SearchOption SearchOption = SearchOption.AllDirectories)
+    where FindType : FileSystemInfo</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;FindType, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="parametername">predicate</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Funcao LINQ utilizada para a busca</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;FindType&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">FindType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_HasDirectories_" data-uid="InnerLibs.Directories.HasDirectories*"></a>
+  <h4 id="InnerLibs_Directories_HasDirectories_System_IO_DirectoryInfo_" data-uid="InnerLibs.Directories.HasDirectories(System.IO.DirectoryInfo)">HasDirectories(DirectoryInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Verifica se um diretório possui subdiretórios</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool HasDirectories(this DirectoryInfo Directory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_HasFiles_" data-uid="InnerLibs.Directories.HasFiles*"></a>
+  <h4 id="InnerLibs_Directories_HasFiles_System_IO_DirectoryInfo_" data-uid="InnerLibs.Directories.HasFiles(System.IO.DirectoryInfo)">HasFiles(DirectoryInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Verifica se um diretório possui arquivos</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool HasFiles(this DirectoryInfo Directory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_IsEmpty_" data-uid="InnerLibs.Directories.IsEmpty*"></a>
+  <h4 id="InnerLibs_Directories_IsEmpty_System_IO_DirectoryInfo_" data-uid="InnerLibs.Directories.IsEmpty(System.IO.DirectoryInfo)">IsEmpty(DirectoryInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Verifica se um diretório está vazio</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool IsEmpty(this DirectoryInfo Directory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_IsNotEmpty_" data-uid="InnerLibs.Directories.IsNotEmpty*"></a>
+  <h4 id="InnerLibs_Directories_IsNotEmpty_System_IO_DirectoryInfo_" data-uid="InnerLibs.Directories.IsNotEmpty(System.IO.DirectoryInfo)">IsNotEmpty(DirectoryInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Verifica se um diretório não está vazio</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool IsNotEmpty(this DirectoryInfo Directory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_Search_" data-uid="InnerLibs.Directories.Search*"></a>
+  <h4 id="InnerLibs_Directories_Search_System_IO_DirectoryInfo_System_IO_SearchOption_System_String___" data-uid="InnerLibs.Directories.Search(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">Search(DirectoryInfo, SearchOption, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;FileSystemInfo&gt; Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Searches</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Padrões de pesquisa (<em>.txt, arquivo.</em>, *)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.FileSystemInfo</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_SearchBetween_" data-uid="InnerLibs.Directories.SearchBetween*"></a>
+  <h4 id="InnerLibs_Directories_SearchBetween_System_IO_DirectoryInfo_System_DateTime_System_DateTime_System_IO_SearchOption_System_String___" data-uid="InnerLibs.Directories.SearchBetween(System.IO.DirectoryInfo,System.DateTime,System.DateTime,System.IO.SearchOption,System.String[])">SearchBetween(DirectoryInfo, DateTime, DateTime, SearchOption, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;FileSystemInfo&gt; SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">FirstDate</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Data Inicial</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">SecondDate</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Data Final</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Searches</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Padrões de pesquisa (<em>.txt, arquivo.</em>, *)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.FileSystemInfo</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_SearchDirectories_" data-uid="InnerLibs.Directories.SearchDirectories*"></a>
+  <h4 id="InnerLibs_Directories_SearchDirectories_System_IO_DirectoryInfo_System_IO_SearchOption_System_String___" data-uid="InnerLibs.Directories.SearchDirectories(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">SearchDirectories(DirectoryInfo, SearchOption, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;DirectoryInfo&gt; SearchDirectories(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Searches</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Padrões de pesquisa (<em>.txt, arquivo.</em>, *)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.DirectoryInfo</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_SearchDirectoriesBetween_" data-uid="InnerLibs.Directories.SearchDirectoriesBetween*"></a>
+  <h4 id="InnerLibs_Directories_SearchDirectoriesBetween_System_IO_DirectoryInfo_System_DateTime_System_DateTime_System_IO_SearchOption_System_String___" data-uid="InnerLibs.Directories.SearchDirectoriesBetween(System.IO.DirectoryInfo,System.DateTime,System.DateTime,System.IO.SearchOption,System.String[])">SearchDirectoriesBetween(DirectoryInfo, DateTime, DateTime, SearchOption, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;DirectoryInfo&gt; SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">FirstDate</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Data Inicial</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">SecondDate</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Data Final</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Searches</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Padrões de pesquisa (<em>.txt, arquivo.</em>, *)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.DirectoryInfo</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_SearchFiles_" data-uid="InnerLibs.Directories.SearchFiles*"></a>
+  <h4 id="InnerLibs_Directories_SearchFiles_System_IO_DirectoryInfo_System_IO_SearchOption_System_String___" data-uid="InnerLibs.Directories.SearchFiles(System.IO.DirectoryInfo,System.IO.SearchOption,System.String[])">SearchFiles(DirectoryInfo, SearchOption, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;FileInfo&gt; SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Searches</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Padrões de pesquisa (<em>.txt, arquivo.</em>, *)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.FileInfo</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_SearchFilesBetween_" data-uid="InnerLibs.Directories.SearchFilesBetween*"></a>
+  <h4 id="InnerLibs_Directories_SearchFilesBetween_System_IO_DirectoryInfo_System_DateTime_System_DateTime_System_IO_SearchOption_System_String___" data-uid="InnerLibs.Directories.SearchFilesBetween(System.IO.DirectoryInfo,System.DateTime,System.DateTime,System.IO.SearchOption,System.String[])">SearchFilesBetween(DirectoryInfo, DateTime, DateTime, SearchOption, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;FileInfo&gt; SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">Directory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Diretório</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">FirstDate</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Data Inicial</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">SecondDate</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Data Final</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Searches</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Padrões de pesquisa (<em>.txt, arquivo.</em>, *)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.IO.FileInfo</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_ToDirectory_" data-uid="InnerLibs.Directories.ToDirectory*"></a>
+  <h4 id="InnerLibs_Directories_ToDirectory_System_String_" data-uid="InnerLibs.Directories.ToDirectory(System.String)">ToDirectory(String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DirectoryInfo ToDirectory(this string DirectoryName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">DirectoryName</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">o nome(s) do(s) diretorio(s) Ex.: &quot;dir1/dir2/dir3&quot; </p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Um DirectoryInfo contendo as informacoes do diretório criado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_ToFile_" data-uid="InnerLibs.Directories.ToFile*"></a>
+  <h4 id="InnerLibs_Directories_ToFile_System_String_" data-uid="InnerLibs.Directories.ToFile(System.String)">ToFile(String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static FileInfo ToFile(this string FileName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">FileName</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">o nome do arquivo Ex.: &quot;dir1/dir2/dir3/file.txt&quot; </p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Um FileInfo contendo as informacoes do arquivo criado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_ToFile_" data-uid="InnerLibs.Directories.ToFile*"></a>
+  <h4 id="InnerLibs_Directories_ToFile_System_String_InnerLibs_FileType_" data-uid="InnerLibs.Directories.ToFile(System.String,InnerLibs.FileType)">ToFile(String, FileType)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static FileInfo ToFile(this string FileName, FileType Type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">FileName</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">o nome do arquivo Ex.: &quot;dir1/dir2/dir3/file.txt&quot; </p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="InnerLibs.FileType.html">FileType</a></td>
+        <td><span class="parametername">Type</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Um FileInfo contendo as informacoes do arquivo criado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_ToZipFile_" data-uid="InnerLibs.Directories.ToZipFile*"></a>
+  <h4 id="InnerLibs_Directories_ToZipFile_System_IO_DirectoryInfo_System_String_System_IO_Compression_CompressionLevel_" data-uid="InnerLibs.Directories.ToZipFile(System.IO.DirectoryInfo,System.String,System.IO.Compression.CompressionLevel)">ToZipFile(DirectoryInfo, String, CompressionLevel)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria um arquivo .ZIP de um diretório</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static FileInfo ToZipFile(this DirectoryInfo FilesDirectory, string OutputFile, CompressionLevel CompressionLevel = CompressionLevel.Optimal)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">FilesDirectory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Um diretório contendo arquivos</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">OutputFile</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">O caminho onde será exportado o arquivo ZIP, Mesmo caminho do diretório se não especificado</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.Compression.CompressionLevel</span></td>
+        <td><span class="parametername">CompressionLevel</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Nivel de compressão do arquivo Zip</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Um FileInfo contendo as informações do arquivo gerado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Directories_ToZipFile_" data-uid="InnerLibs.Directories.ToZipFile*"></a>
+  <h4 id="InnerLibs_Directories_ToZipFile_System_IO_DirectoryInfo_System_String_System_IO_Compression_CompressionLevel_System_IO_SearchOption_System_String___" data-uid="InnerLibs.Directories.ToZipFile(System.IO.DirectoryInfo,System.String,System.IO.Compression.CompressionLevel,System.IO.SearchOption,System.String[])">ToZipFile(DirectoryInfo, String, CompressionLevel, SearchOption, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria um arquivo .ZIP a partir de arquivos selecionados de uma pesquisa em um diretório</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static FileInfo ToZipFile(this DirectoryInfo FilesDirectory, string OutputFile, CompressionLevel CompressionLevel, SearchOption SearchOption, params string[] Searches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.DirectoryInfo</span></td>
+        <td><span class="parametername">FilesDirectory</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Um diretório contendo arquivos</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">OutputFile</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">O caminho onde será exportado o arquivo ZIP, Mesmo caminho do diretório se não especificado</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.Compression.CompressionLevel</span></td>
+        <td><span class="parametername">CompressionLevel</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Nivel de compressão do arquivo Zip</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.SearchOption</span></td>
+        <td><span class="parametername">SearchOption</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a busca ocorrerá apenas no diretório pai ou em subdiretórios também</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Searches</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Directories.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Padrões de pesquisa (<em>.extensao, nome.</em>, <em>nome</em>.<em>, *.</em>)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_CreateDictionary__1___0_">ClassTools.CreateDictionary&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_System_Reflection_BindingFlags_">ClassTools.GetProperties(Object, BindingFlags)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_">ClassTools.GetProperties(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Type_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Type, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue__1_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue&lt;Type&gt;(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_HasProperty_System_Object_System_String_">ClassTools.HasProperty(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsArrayOf__1_System_Object_">ClassTools.IsArrayOf&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsDictionary_System_Object_">ClassTools.IsDictionary(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsInAny__1___0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsInAny&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;[], IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsList_System_Object_">ClassTools.IsList(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsNotIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsNotIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsType__1_System_Object_">ClassTools.IsType&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullCoalesce__1___0___0___">ClassTools.NullCoalesce&lt;T&gt;(T, T[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullifyProperties__1___0_">ClassTools.NullifyProperties&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValue__1_System_Object_System_String___0_">ClassTools.SetPropertyValue&lt;Type&gt;(Object, String, Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValueFromCollection__1_System_Object_System_String_System_Collections_CollectionBase_">ClassTools.SetPropertyValueFromCollection&lt;Type&gt;(Object, String, CollectionBase)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_ToFlatString_System_Object_System_String_">ClassTools.ToFlatString(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.DataManipulation.html#InnerLibs_DataManipulation_GetDbType_System_Object_">DataManipulation.GetDbType(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_DefineEmptyList__1___0_">Converter.DefineEmptyList&lt;T&gt;(T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_ChangeType__2___1_">Converter.ChangeType&lt;ToType, FromType&gt;(FromType)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.JsonViewer.html#InnerLibs_JsonViewer_CreateNode_System_Object_">JsonViewer.CreateNode(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Mathematic.html#InnerLibs_Mathematic_IsBetween__1___0_System_Object_System_Object_">Mathematic.IsBetween&lt;Type&gt;(Type, Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Text.html#InnerLibs_Text_SerializeJSON_System_Object_System_String_">Text.SerializeJSON(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNumber_System_Object_">Verify.IsNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNotNumber_System_Object_">Verify.IsNotNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IfBlank__1_System_Object___0_">Verify.IfBlank&lt;T&gt;(Object, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0_System_Func___0_System_Boolean__">Verify.NullIf&lt;T&gt;(T, Func&lt;T, Boolean&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0___0_">Verify.NullIf&lt;T&gt;(T, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_CreateFromAjax__1___0__System_String_System_String_System_Collections_Specialized_NameValueCollection_System_String_System_Text_Encoding_">Web.CreateFromAjax&lt;Type&gt;(ref Type, String, String, NameValueCollection, String, Encoding)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_AsListItem__3___0_System_Func___0___1__System_Func___0___2__">Web.AsListItem&lt;T, TextType, ValueType&gt;(T, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_GetCastedValue_System_Object_">WinForms.GetCastedValue(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_CastValueForControl_System_Object__System_Object_">WinForms.CastValueForControl(ref Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_ApplyToControls__1___0_System_Web_UI_HtmlControls_HtmlControl___">LINQExtensions.ApplyToControls&lt;T&gt;(T, HtmlControl[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_HasSamePropertyValues__1___0___0_System_Func___0_System_Object____">LINQExtensions.HasSamePropertyValues&lt;T&gt;(T, T, Func&lt;T, Object&gt;[])</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class DataManipulation
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class DataManipulation
+   ">
+    <meta name="generator" content="docfx 2.37.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="InnerLibs.DataManipulation">
+  
+  
+  <h1 id="InnerLibs_DataManipulation" data-uid="InnerLibs.DataManipulation" class="text-break">Class DataManipulation
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">DataManipulation</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="InnerLibs.html">InnerLibs</a></h6>
+  <h6><strong>Assembly</strong>: InnerLibs.dll</h6>
+  <h5 id="InnerLibs_DataManipulation_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class DataManipulation</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="InnerLibs_DataManipulation_AddFile_" data-uid="InnerLibs.DataManipulation.AddFile*"></a>
+  <h4 id="InnerLibs_DataManipulation_AddFile_System_Data_Common_DbCommand__System_String_System_Byte___" data-uid="InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Byte[])">AddFile(ref DbCommand, String, Byte[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Adiciona um parametro de Arquivo no commando</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DbCommand AddFile(this ref DbCommand Command, string FileParameter, byte[] File)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbCommand</span></td>
+        <td><span class="parametername">Command</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Comando</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">FileParameter</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Parametro de arquivo</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">File</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Array de bytes</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbCommand</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_AddFile_" data-uid="InnerLibs.DataManipulation.AddFile*"></a>
+  <h4 id="InnerLibs_DataManipulation_AddFile_System_Data_Common_DbCommand__System_String_System_IO_FileInfo_" data-uid="InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.IO.FileInfo)">AddFile(ref DbCommand, String, FileInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Adiciona um parametro de Arquivo no commando</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DbCommand AddFile(this ref DbCommand Command, string FileParameter, FileInfo File)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbCommand</span></td>
+        <td><span class="parametername">Command</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Comando</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">FileParameter</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Parametro de arquivo</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td><span class="parametername">File</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivo postado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbCommand</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_AddFile_" data-uid="InnerLibs.DataManipulation.AddFile*"></a>
+  <h4 id="InnerLibs_DataManipulation_AddFile_System_Data_Common_DbCommand__System_String_System_Web_HttpPostedFile_" data-uid="InnerLibs.DataManipulation.AddFile(System.Data.Common.DbCommand@,System.String,System.Web.HttpPostedFile)">AddFile(ref DbCommand, String, HttpPostedFile)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Adiciona um parametro de Arquivo no commando</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DbCommand AddFile(this ref DbCommand Command, string FileParameter, HttpPostedFile File)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbCommand</span></td>
+        <td><span class="parametername">Command</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Comando</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">FileParameter</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Parametro de arquivo</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Web.HttpPostedFile</span></td>
+        <td><span class="parametername">File</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivo postado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbCommand</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_AppendSQLParameter_" data-uid="InnerLibs.DataManipulation.AppendSQLParameter*"></a>
+  <h4 id="InnerLibs_DataManipulation_AppendSQLParameter_System_String__System_String_System_String_" data-uid="InnerLibs.DataManipulation.AppendSQLParameter(System.String@,System.String,System.String)">AppendSQLParameter(ref String, String, String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Concatena um parametro a uma string de comando SQL</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static object AppendSQLParameter(this ref string Command, string Key, string Value = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Command</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Comando sql</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Key</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">nome do parametro</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Value</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">valor do parametro</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_GetDbType_" data-uid="InnerLibs.DataManipulation.GetDbType*"></a>
+  <h4 id="InnerLibs_DataManipulation_GetDbType_System_Object_" data-uid="InnerLibs.DataManipulation.GetDbType(System.Object)">GetDbType(Object)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Retorna o DbType de acordo com o tipo do objeto</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DbType GetDbType(this object Obj)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">Obj</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.DbType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_RunSQL_" data-uid="InnerLibs.DataManipulation.RunSQL*"></a>
+  <h4 id="InnerLibs_DataManipulation_RunSQL_System_Data_Linq_DataContext_System_String_System_Data_Common_DbParameter___" data-uid="InnerLibs.DataManipulation.RunSQL(System.Data.Linq.DataContext,System.String,System.Data.Common.DbParameter[])">RunSQL(DataContext, String, DbParameter[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Executa um Comando SQL e retorna uma estrutura estatica com os dados (<a class="xref" href="InnerLibs.DataBase.Reader.html">DataBase.Reader</a>)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DataBase.Reader RunSQL(this DataContext Context, string SQLQuery, params DbParameter[] Parameters)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Linq.DataContext</span></td>
+        <td><span class="parametername">Context</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">SQLQuery</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbParameter</span>[]</td>
+        <td><span class="parametername">Parameters</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.DataBase.Reader.html">DataBase.Reader</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_SELECT_" data-uid="InnerLibs.DataManipulation.SELECT*"></a>
+  <h4 id="InnerLibs_DataManipulation_SELECT_System_Data_Linq_DataContext_System_String_System_String_System_String___" data-uid="InnerLibs.DataManipulation.SELECT(System.Data.Linq.DataContext,System.String,System.String,System.String[])">SELECT(DataContext, String, String, String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria um <a class="xref" href="InnerLibs.DataBase.Reader.html">DataBase.Reader</a> a partir de um comando SELECT</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DataBase.Reader SELECT(this DataContext Context, string TableName, string WhereConditions = &quot;&quot;, string[] Columns = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Linq.DataContext</span></td>
+        <td><span class="parametername">Context</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Nome da tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">WhereConditions</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Condições após a clausula WHERE</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Columns</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.DataBase.Reader.html">DataBase.Reader</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_SetParameter_" data-uid="InnerLibs.DataManipulation.SetParameter*"></a>
+  <h4 id="InnerLibs_DataManipulation_SetParameter_System_Data_Common_DbParameterCollection__System_Data_Common_DbParameter_" data-uid="InnerLibs.DataManipulation.SetParameter(System.Data.Common.DbParameterCollection@,System.Data.Common.DbParameter)">SetParameter(ref DbParameterCollection, DbParameter)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Adiciona ou troca o valor de um parametro em uma coleção</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void SetParameter(this ref DbParameterCollection Params, DbParameter Parameter)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbParameterCollection</span></td>
+        <td><span class="parametername">Params</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Coleçao</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbParameter</span></td>
+        <td><span class="parametername">Parameter</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Parâmetro</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_ToDataBaseReader_" data-uid="InnerLibs.DataManipulation.ToDataBaseReader*"></a>
+  <h4 id="InnerLibs_DataManipulation_ToDataBaseReader_System_Data_Common_DbDataReader_" data-uid="InnerLibs.DataManipulation.ToDataBaseReader(System.Data.Common.DbDataReader)">ToDataBaseReader(DbDataReader)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um <span class="xref">System.Data.Common.DbDataReader</span> para um <a class="xref" href="InnerLibs.DataBase.Reader.html">DataBase.Reader</a></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DataBase.Reader ToDataBaseReader(this DbDataReader Reader)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.Common.DbDataReader</span></td>
+        <td><span class="parametername">Reader</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Reader</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.DataBase.Reader.html">DataBase.Reader</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_ToDataSet_" data-uid="InnerLibs.DataManipulation.ToDataSet*"></a>
+  <h4 id="InnerLibs_DataManipulation_ToDataSet_System_String___" data-uid="InnerLibs.DataManipulation.ToDataSet(System.String[])">ToDataSet(String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um Array para um <span class="xref">System.Data.DataSet</span> de 1 Coluna</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DataSet ToDataSet(this string[] Input)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Input</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Array com 1 coluna a ser convertida</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.DataSet</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">um DataSet de 1 Coluna</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_ToDataTableReader_" data-uid="InnerLibs.DataManipulation.ToDataTableReader*"></a>
+  <h4 id="InnerLibs_DataManipulation_ToDataTableReader_System_String___" data-uid="InnerLibs.DataManipulation.ToDataTableReader(System.String[])">ToDataTableReader(String[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um Array para um DataTableReader de 1 Coluna</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static DataTableReader ToDataTableReader(this string[] Input)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Input</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Array com 1 coluna a ser convertida</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Data.DataTableReader</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Um DataReader de 1 Coluna</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_ToINSERT_" data-uid="InnerLibs.DataManipulation.ToINSERT*"></a>
+  <h4 id="InnerLibs_DataManipulation_ToINSERT__1_System_Collections_Generic_IDictionary_System_String___0__System_String_" data-uid="InnerLibs.DataManipulation.ToINSERT``1(System.Collections.Generic.IDictionary{System.String,``0},System.String)">ToINSERT&lt;T&gt;(IDictionary&lt;String, T&gt;, String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria uma string com um comando de INSERT a partir dos dados do dicionario</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToINSERT&lt;T&gt;(this IDictionary&lt;string, T&gt; Dic, string TableName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IDictionary</span>&lt;<span class="xref">System.String</span>, T&gt;</td>
+        <td><span class="parametername">Dic</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Dicionario</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Nome da Tabela</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Tipo dos dados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_DataManipulation_ToUPDATE_" data-uid="InnerLibs.DataManipulation.ToUPDATE*"></a>
+  <h4 id="InnerLibs_DataManipulation_ToUPDATE__1_System_Collections_Generic_IDictionary_System_String___0__System_String_System_String_" data-uid="InnerLibs.DataManipulation.ToUPDATE``1(System.Collections.Generic.IDictionary{System.String,``0},System.String,System.String)">ToUPDATE&lt;T&gt;(IDictionary&lt;String, T&gt;, String, String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria uma string com um comando de UPDATE a partir dos dados do dicionario</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToUPDATE&lt;T&gt;(this IDictionary&lt;string, T&gt; Dic, string TableName, string WhereClausule)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IDictionary</span>&lt;<span class="xref">System.String</span>, T&gt;</td>
+        <td><span class="parametername">Dic</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Dicionario</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Nome da Tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">WhereClausule</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.DataManipulation.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Tipo dos dados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_CreateDictionary__1___0_">ClassTools.CreateDictionary&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_System_Reflection_BindingFlags_">ClassTools.GetProperties(Object, BindingFlags)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_">ClassTools.GetProperties(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Type_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Type, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue__1_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue&lt;Type&gt;(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_HasProperty_System_Object_System_String_">ClassTools.HasProperty(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsArrayOf__1_System_Object_">ClassTools.IsArrayOf&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsDictionary_System_Object_">ClassTools.IsDictionary(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsInAny__1___0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsInAny&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;[], IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsList_System_Object_">ClassTools.IsList(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsNotIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsNotIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsType__1_System_Object_">ClassTools.IsType&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullCoalesce__1___0___0___">ClassTools.NullCoalesce&lt;T&gt;(T, T[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullifyProperties__1___0_">ClassTools.NullifyProperties&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValue__1_System_Object_System_String___0_">ClassTools.SetPropertyValue&lt;Type&gt;(Object, String, Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValueFromCollection__1_System_Object_System_String_System_Collections_CollectionBase_">ClassTools.SetPropertyValueFromCollection&lt;Type&gt;(Object, String, CollectionBase)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_ToFlatString_System_Object_System_String_">ClassTools.ToFlatString(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.DataManipulation.html#InnerLibs_DataManipulation_GetDbType_System_Object_">DataManipulation.GetDbType(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_DefineEmptyList__1___0_">Converter.DefineEmptyList&lt;T&gt;(T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_ChangeType__2___1_">Converter.ChangeType&lt;ToType, FromType&gt;(FromType)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.JsonViewer.html#InnerLibs_JsonViewer_CreateNode_System_Object_">JsonViewer.CreateNode(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Mathematic.html#InnerLibs_Mathematic_IsBetween__1___0_System_Object_System_Object_">Mathematic.IsBetween&lt;Type&gt;(Type, Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Text.html#InnerLibs_Text_SerializeJSON_System_Object_System_String_">Text.SerializeJSON(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNumber_System_Object_">Verify.IsNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNotNumber_System_Object_">Verify.IsNotNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IfBlank__1_System_Object___0_">Verify.IfBlank&lt;T&gt;(Object, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0_System_Func___0_System_Boolean__">Verify.NullIf&lt;T&gt;(T, Func&lt;T, Boolean&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0___0_">Verify.NullIf&lt;T&gt;(T, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_CreateFromAjax__1___0__System_String_System_String_System_Collections_Specialized_NameValueCollection_System_String_System_Text_Encoding_">Web.CreateFromAjax&lt;Type&gt;(ref Type, String, String, NameValueCollection, String, Encoding)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_AsListItem__3___0_System_Func___0___1__System_Func___0___2__">Web.AsListItem&lt;T, TextType, ValueType&gt;(T, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_GetCastedValue_System_Object_">WinForms.GetCastedValue(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_CastValueForControl_System_Object__System_Object_">WinForms.CastValueForControl(ref Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_ApplyToControls__1___0_System_Web_UI_HtmlControls_HtmlControl___">LINQExtensions.ApplyToControls&lt;T&gt;(T, HtmlControl[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_HasSamePropertyValues__1___0___0_System_Func___0_System_Object____">LINQExtensions.HasSamePropertyValues&lt;T&gt;(T, T, Func&lt;T, Object&gt;[])</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

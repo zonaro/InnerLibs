@@ -1,0 +1,120 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.TimeMachine
+  commentId: N:InnerLibs.TimeMachine
+  id: InnerLibs.TimeMachine
+  children:
+  - InnerLibs.TimeMachine.Cronometer
+  - InnerLibs.TimeMachine.Day
+  - InnerLibs.TimeMachine.Fortnight
+  - InnerLibs.TimeMachine.FortnightGroup
+  - InnerLibs.TimeMachine.FortnightGroup`1
+  - InnerLibs.TimeMachine.Item
+  - InnerLibs.TimeMachine.LapEventArgs
+  - InnerLibs.TimeMachine.Stopwatch
+  - InnerLibs.TimeMachine.TimeDemand
+  - InnerLibs.TimeMachine.TimeFlow
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.TimeMachine
+  nameWithType: InnerLibs.TimeMachine
+  fullName: InnerLibs.TimeMachine
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.TimeMachine.Cronometer
+  commentId: T:InnerLibs.TimeMachine.Cronometer
+  parent: InnerLibs.TimeMachine
+  name: Cronometer
+  nameWithType: Cronometer
+  fullName: InnerLibs.TimeMachine.Cronometer
+- uid: InnerLibs.TimeMachine.LapEventArgs
+  commentId: T:InnerLibs.TimeMachine.LapEventArgs
+  name: LapEventArgs
+  nameWithType: LapEventArgs
+  fullName: InnerLibs.TimeMachine.LapEventArgs
+- uid: InnerLibs.TimeMachine.Stopwatch
+  commentId: T:InnerLibs.TimeMachine.Stopwatch
+  name: Stopwatch
+  nameWithType: Stopwatch
+  fullName: InnerLibs.TimeMachine.Stopwatch
+- uid: InnerLibs.TimeMachine.FortnightGroup`1
+  commentId: T:InnerLibs.TimeMachine.FortnightGroup`1
+  parent: InnerLibs.TimeMachine
+  name: FortnightGroup<DataType>
+  nameWithType: FortnightGroup<DataType>
+  fullName: InnerLibs.TimeMachine.FortnightGroup<DataType>
+  nameWithType.vb: FortnightGroup(Of DataType)
+  fullName.vb: InnerLibs.TimeMachine.FortnightGroup(Of DataType)
+  name.vb: FortnightGroup(Of DataType)
+  spec.csharp:
+  - uid: InnerLibs.TimeMachine.FortnightGroup`1
+    name: FortnightGroup
+    nameWithType: FortnightGroup
+    fullName: InnerLibs.TimeMachine.FortnightGroup
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: DataType
+    nameWithType: DataType
+    fullName: DataType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: InnerLibs.TimeMachine.FortnightGroup`1
+    name: FortnightGroup
+    nameWithType: FortnightGroup
+    fullName: InnerLibs.TimeMachine.FortnightGroup
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: DataType
+    nameWithType: DataType
+    fullName: DataType
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.TimeMachine.Fortnight
+  commentId: T:InnerLibs.TimeMachine.Fortnight
+  parent: InnerLibs.TimeMachine
+  name: Fortnight
+  nameWithType: Fortnight
+  fullName: InnerLibs.TimeMachine.Fortnight
+- uid: InnerLibs.TimeMachine.FortnightGroup
+  commentId: T:InnerLibs.TimeMachine.FortnightGroup
+  parent: InnerLibs.TimeMachine
+  name: FortnightGroup
+  nameWithType: FortnightGroup
+  fullName: InnerLibs.TimeMachine.FortnightGroup
+- uid: InnerLibs.TimeMachine.TimeFlow
+  commentId: T:InnerLibs.TimeMachine.TimeFlow
+  parent: InnerLibs.TimeMachine
+  name: TimeFlow
+  nameWithType: TimeFlow
+  fullName: InnerLibs.TimeMachine.TimeFlow
+- uid: InnerLibs.TimeMachine.TimeDemand
+  commentId: T:InnerLibs.TimeMachine.TimeDemand
+  parent: InnerLibs.TimeMachine
+  name: TimeDemand
+  nameWithType: TimeDemand
+  fullName: InnerLibs.TimeMachine.TimeDemand
+- uid: InnerLibs.TimeMachine.Day
+  commentId: T:InnerLibs.TimeMachine.Day
+  parent: InnerLibs.TimeMachine
+  name: Day
+  nameWithType: Day
+  fullName: InnerLibs.TimeMachine.Day
+- uid: InnerLibs.TimeMachine.Item
+  commentId: T:InnerLibs.TimeMachine.Item
+  parent: InnerLibs.TimeMachine
+  name: Item
+  nameWithType: Item
+  fullName: InnerLibs.TimeMachine.Item
+- uid: InnerLibs.TimeMachine
+  commentId: N:InnerLibs.TimeMachine
+  name: InnerLibs.TimeMachine
+  nameWithType: InnerLibs.TimeMachine
+  fullName: InnerLibs.TimeMachine

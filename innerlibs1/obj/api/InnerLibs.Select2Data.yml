@@ -1,0 +1,91 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.Select2Data
+  commentId: N:InnerLibs.Select2Data
+  id: InnerLibs.Select2Data
+  children:
+  - InnerLibs.Select2Data.AditionalData
+  - InnerLibs.Select2Data.Group
+  - InnerLibs.Select2Data.Pagination
+  - InnerLibs.Select2Data.Result
+  - InnerLibs.Select2Data.Select2Results`1
+  - InnerLibs.Select2Data.Select2ResultType
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.Select2Data
+  nameWithType: InnerLibs.Select2Data
+  fullName: InnerLibs.Select2Data
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.Select2Data.Result
+  commentId: T:InnerLibs.Select2Data.Result
+  name: Result
+  nameWithType: Result
+  fullName: InnerLibs.Select2Data.Result
+- uid: InnerLibs.Select2Data.Pagination
+  commentId: T:InnerLibs.Select2Data.Pagination
+  parent: InnerLibs.Select2Data
+  name: Pagination
+  nameWithType: Pagination
+  fullName: InnerLibs.Select2Data.Pagination
+- uid: InnerLibs.Select2Data.Group
+  commentId: T:InnerLibs.Select2Data.Group
+  name: Group
+  nameWithType: Group
+  fullName: InnerLibs.Select2Data.Group
+- uid: InnerLibs.Select2Data.Select2ResultType
+  commentId: T:InnerLibs.Select2Data.Select2ResultType
+  parent: InnerLibs.Select2Data
+  name: Select2ResultType
+  nameWithType: Select2ResultType
+  fullName: InnerLibs.Select2Data.Select2ResultType
+- uid: InnerLibs.Select2Data.AditionalData
+  commentId: T:InnerLibs.Select2Data.AditionalData
+  parent: InnerLibs.Select2Data
+  name: AditionalData
+  nameWithType: AditionalData
+  fullName: InnerLibs.Select2Data.AditionalData
+- uid: InnerLibs.Select2Data.Select2Results`1
+  commentId: T:InnerLibs.Select2Data.Select2Results`1
+  name: Select2Results<Type>
+  nameWithType: Select2Results<Type>
+  fullName: InnerLibs.Select2Data.Select2Results<Type>
+  nameWithType.vb: Select2Results(Of Type)
+  fullName.vb: InnerLibs.Select2Data.Select2Results(Of Type)
+  name.vb: Select2Results(Of Type)
+  spec.csharp:
+  - uid: InnerLibs.Select2Data.Select2Results`1
+    name: Select2Results
+    nameWithType: Select2Results
+    fullName: InnerLibs.Select2Data.Select2Results
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: InnerLibs.Select2Data.Select2Results`1
+    name: Select2Results
+    nameWithType: Select2Results
+    fullName: InnerLibs.Select2Data.Select2Results
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Select2Data
+  commentId: N:InnerLibs.Select2Data
+  name: InnerLibs.Select2Data
+  nameWithType: InnerLibs.Select2Data
+  fullName: InnerLibs.Select2Data

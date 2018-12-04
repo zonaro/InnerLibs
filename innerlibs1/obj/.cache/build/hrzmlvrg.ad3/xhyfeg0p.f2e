@@ -1,0 +1,1324 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Images
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Images
+   ">
+    <meta name="generator" content="docfx 2.37.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="InnerLibs.Images">
+  
+  
+  <h1 id="InnerLibs_Images" data-uid="InnerLibs.Images" class="text-break">Class Images
+  </h1>
+  <div class="markdown level0 summary"><p>Modulo de Imagem</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">Images</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="InnerLibs.html">InnerLibs</a></h6>
+  <h6><strong>Assembly</strong>: InnerLibs.dll</h6>
+  <h5 id="InnerLibs_Images_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Images</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="InnerLibs_Images_ImageTypes_" data-uid="InnerLibs.Images.ImageTypes*"></a>
+  <h4 id="InnerLibs_Images_ImageTypes" data-uid="InnerLibs.Images.ImageTypes">ImageTypes</h4>
+  <div class="markdown level1 summary"><p>Lista com todos os formatos de imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static ImageFormat[] ImageTypes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="InnerLibs_Images_CombineImages_" data-uid="InnerLibs.Images.CombineImages*"></a>
+  <h4 id="InnerLibs_Images_CombineImages_System_Boolean_System_Drawing_Image___" data-uid="InnerLibs.Images.CombineImages(System.Boolean,System.Drawing.Image[])">CombineImages(Boolean, Image[])</h4>
+  <div class="markdown level1 summary"><p>Combina 2 ou mais imagens em uma única imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Bitmap CombineImages(bool VerticalFlow, params Image[] Images)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">VerticalFlow</span></td>
+        <td><p>Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span>[]</td>
+        <td><span class="parametername">Images</span></td>
+        <td><p>Lista de Imagens para combinar</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Bitmap</span></td>
+        <td><p>Um Bitmap com a combinaçao de todas as imagens da Lista</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_CombineImages_" data-uid="InnerLibs.Images.CombineImages*"></a>
+  <h4 id="InnerLibs_Images_CombineImages_System_Collections_Generic_List_System_Drawing_Image__System_Boolean_" data-uid="InnerLibs.Images.CombineImages(System.Collections.Generic.List{System.Drawing.Image},System.Boolean)">CombineImages(List&lt;Image&gt;, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Combina 2 ou mais imagens em uma única imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Bitmap CombineImages(this List&lt;Image&gt; Images, bool VerticalFlow = false)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Drawing.Image</span>&gt;</td>
+        <td><span class="parametername">Images</span></td>
+        <td><p>Lista de Imagens para combinar</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">VerticalFlow</span></td>
+        <td><p>Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Bitmap</span></td>
+        <td><p>Um Bitmap com a combinaçao de todas as imagens da Lista</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_CombineImages_" data-uid="InnerLibs.Images.CombineImages*"></a>
+  <h4 id="InnerLibs_Images_CombineImages_System_Drawing_Image___System_Boolean_" data-uid="InnerLibs.Images.CombineImages(System.Drawing.Image[],System.Boolean)">CombineImages(Image[], Boolean)</h4>
+  <div class="markdown level1 summary"><p>Combina 2 ou mais imagens em uma única imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Bitmap CombineImages(this Image[] Images, bool VerticalFlow = false)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span>[]</td>
+        <td><span class="parametername">Images</span></td>
+        <td><p>Array de Imagens para combinar</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">VerticalFlow</span></td>
+        <td><p>Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Bitmap</span></td>
+        <td><p>Um Bitmap com a combinaçao de todas as imagens do Array</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_ConvertToGrayscale_" data-uid="InnerLibs.Images.ConvertToGrayscale*"></a>
+  <h4 id="InnerLibs_Images_ConvertToGrayscale_System_Drawing_Image_" data-uid="InnerLibs.Images.ConvertToGrayscale(System.Drawing.Image)">ConvertToGrayscale(Image)</h4>
+  <div class="markdown level1 summary"><p>Converte uma Imagem para Escala de cinza</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Bitmap ConvertToGrayscale(this Image source)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">source</span></td>
+        <td><p>imagem original</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Bitmap</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_Crop_" data-uid="InnerLibs.Images.Crop*"></a>
+  <h4 id="InnerLibs_Images_Crop_System_Drawing_Image_System_Drawing_Size_" data-uid="InnerLibs.Images.Crop(System.Drawing.Image,System.Drawing.Size)">Crop(Image, Size)</h4>
+  <div class="markdown level1 summary"><p>Cropa uma imagem a patir do centro</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image Crop(this Image Image, Size Size)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Size</span></td>
+        <td><span class="parametername">Size</span></td>
+        <td><p>Tamanho</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_Crop_" data-uid="InnerLibs.Images.Crop*"></a>
+  <h4 id="InnerLibs_Images_Crop_System_Drawing_Image_System_Int32_System_Int32_" data-uid="InnerLibs.Images.Crop(System.Drawing.Image,System.Int32,System.Int32)">Crop(Image, Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Cropa uma imagem a patir do centro</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image Crop(this Image Image, int MaxWidth, int MaxHeight)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">MaxWidth</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">MaxHeight</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_CropToCircle_" data-uid="InnerLibs.Images.CropToCircle*"></a>
+  <h4 id="InnerLibs_Images_CropToCircle_System_Drawing_Image_System_Nullable_System_Drawing_Color__" data-uid="InnerLibs.Images.CropToCircle(System.Drawing.Image,System.Nullable{System.Drawing.Color})">CropToCircle(Image, Nullable&lt;Color&gt;)</h4>
+  <div class="markdown level1 summary"><p>Corta a imagem em um circulo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image CropToCircle(this Image Img, Color? Background = default(Color? ))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Img</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Drawing.Color</span>&gt;</td>
+        <td><span class="parametername">Background</span></td>
+        <td><p>Cor do fundo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_CropToSquare_" data-uid="InnerLibs.Images.CropToSquare*"></a>
+  <h4 id="InnerLibs_Images_CropToSquare_System_Drawing_Image_System_Int32_" data-uid="InnerLibs.Images.CropToSquare(System.Drawing.Image,System.Int32)">CropToSquare(Image, Int32)</h4>
+  <div class="markdown level1 summary"><p>Corta uma imagem para um quadrado perfeito a partir do centro</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image CropToSquare(this Image Img, int WidthHeight = 0)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Img</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">WidthHeight</span></td>
+        <td><p>Tamanho do quadrado em pixels</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_DrawImage_" data-uid="InnerLibs.Images.DrawImage*"></a>
+  <h4 id="InnerLibs_Images_DrawImage_System_String_System_Drawing_Font_System_Nullable_System_Drawing_Color__System_Nullable_System_Drawing_Color__" data-uid="InnerLibs.Images.DrawImage(System.String,System.Drawing.Font,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color})">DrawImage(String, Font, Nullable&lt;Color&gt;, Nullable&lt;Color&gt;)</h4>
+  <div class="markdown level1 summary"><p>Escreve uma string em uma imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image DrawImage(this string Text, Font Font = null, Color? TextColor = default(Color? ), Color? BackColor = default(Color? ))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Text</span></td>
+        <td><p>Texto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Font</span></td>
+        <td><span class="parametername">Font</span></td>
+        <td><p>Fonte que será usada</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Drawing.Color</span>&gt;</td>
+        <td><span class="parametername">TextColor</span></td>
+        <td><p>Cor do texto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Drawing.Color</span>&gt;</td>
+        <td><span class="parametername">BackColor</span></td>
+        <td><p>Cor de fundo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_GetEncoderInfo_" data-uid="InnerLibs.Images.GetEncoderInfo*"></a>
+  <h4 id="InnerLibs_Images_GetEncoderInfo_System_Drawing_Imaging_ImageFormat_" data-uid="InnerLibs.Images.GetEncoderInfo(System.Drawing.Imaging.ImageFormat)">GetEncoderInfo(ImageFormat)</h4>
+  <div class="markdown level1 summary"><p>Pega o encoder a partir de um formato de imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static ImageCodecInfo GetEncoderInfo(this ImageFormat RawFormat)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span></td>
+        <td><span class="parametername">RawFormat</span></td>
+        <td><p>Image format</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageCodecInfo</span></td>
+        <td><p>image codec info.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_GetImageFormat_" data-uid="InnerLibs.Images.GetImageFormat*"></a>
+  <h4 id="InnerLibs_Images_GetImageFormat_System_Drawing_Image_" data-uid="InnerLibs.Images.GetImageFormat(System.Drawing.Image)">GetImageFormat(Image)</h4>
+  <div class="markdown level1 summary"><p>Retorna o formato da imagem correspondente a aquela imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static ImageFormat GetImageFormat(this Image OriginalImage)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">OriginalImage</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_GetMostUsedColors_" data-uid="InnerLibs.Images.GetMostUsedColors*"></a>
+  <h4 id="InnerLibs_Images_GetMostUsedColors_System_Drawing_Bitmap_System_Int32_" data-uid="InnerLibs.Images.GetMostUsedColors(System.Drawing.Bitmap,System.Int32)">GetMostUsedColors(Bitmap, Int32)</h4>
+  <div class="markdown level1 summary"><p>Retorna uma lista com as 10 cores mais utilizadas na imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;Color&gt; GetMostUsedColors(this Bitmap Image, int Count = 10)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Bitmap</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">Count</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Drawing.Color</span>&gt;</td>
+        <td><p>uma lista de Color</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_GetMostUsedColors_" data-uid="InnerLibs.Images.GetMostUsedColors*"></a>
+  <h4 id="InnerLibs_Images_GetMostUsedColors_System_Drawing_Image_System_Int32_" data-uid="InnerLibs.Images.GetMostUsedColors(System.Drawing.Image,System.Int32)">GetMostUsedColors(Image, Int32)</h4>
+  <div class="markdown level1 summary"><p>Retorna uma lista com as 10 cores mais utilizadas na imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;Color&gt; GetMostUsedColors(this Image Image, int Count = 10)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">Count</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Drawing.Color</span>&gt;</td>
+        <td><p>uma lista de Color</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_InsertWatermark_" data-uid="InnerLibs.Images.InsertWatermark*"></a>
+  <h4 id="InnerLibs_Images_InsertWatermark_System_Drawing_Image_System_Drawing_Image_System_Int32_System_Int32_" data-uid="InnerLibs.Images.InsertWatermark(System.Drawing.Image,System.Drawing.Image,System.Int32,System.Int32)">InsertWatermark(Image, Image, Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Insere uma imagem de marca Dágua na imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image InsertWatermark(this Image Image, Image WaterMark, int X = -1, int Y = -1)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">WaterMark</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">X</span></td>
+        <td><p>Posição X</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">Y</span></td>
+        <td><p>Posição Y</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_InsertWatermark_" data-uid="InnerLibs.Images.InsertWatermark*"></a>
+  <h4 id="InnerLibs_Images_InsertWatermark_System_Drawing_Image_System_String_System_String_System_Nullable_System_Drawing_Color__System_Nullable_System_Drawing_Color__System_Int32_System_Int32_" data-uid="InnerLibs.Images.InsertWatermark(System.Drawing.Image,System.String,System.String,System.Nullable{System.Drawing.Color},System.Nullable{System.Drawing.Color},System.Int32,System.Int32)">InsertWatermark(Image, String, String, Nullable&lt;Color&gt;, Nullable&lt;Color&gt;, Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Insere um texto de marca Dágua na imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image InsertWatermark(this Image Image, string Watermark, string Font = &quot;Arial&quot;, Color? FontColor = default(Color? ), Color? BackColor = default(Color? ), int X = -1, int Y = -1)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Watermark</span></td>
+        <td><p>TExto de Marca Dagua</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Font</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Drawing.Color</span>&gt;</td>
+        <td><span class="parametername">FontColor</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Drawing.Color</span>&gt;</td>
+        <td><span class="parametername">BackColor</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">X</span></td>
+        <td><p>Posição X</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">Y</span></td>
+        <td><p>Posição Y</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_Resize_" data-uid="InnerLibs.Images.Resize*"></a>
+  <h4 id="InnerLibs_Images_Resize_System_Drawing_Image_System_Int32_System_Int32_System_Boolean_" data-uid="InnerLibs.Images.Resize(System.Drawing.Image,System.Int32,System.Int32,System.Boolean)">Resize(Image, Int32, Int32, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Redimensiona e converte uma Imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image Resize(this Image Original, int NewWidth, int MaxHeight, bool OnlyResizeIfWider = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Original</span></td>
+        <td><p>Imagem Original</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">NewWidth</span></td>
+        <td><p>Nova Largura</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">MaxHeight</span></td>
+        <td><p>Altura máxima</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">OnlyResizeIfWider</span></td>
+        <td><p>Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_TestAndRotate_" data-uid="InnerLibs.Images.TestAndRotate*"></a>
+  <h4 id="InnerLibs_Images_TestAndRotate_System_Drawing_Image__" data-uid="InnerLibs.Images.TestAndRotate(System.Drawing.Image@)">TestAndRotate(ref Image)</h4>
+  <div class="markdown level1 summary"><p>Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool TestAndRotate(this ref Image Img)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Img</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>TRUE caso a imagem ja tenha sido rotacionada</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_ToBytes_" data-uid="InnerLibs.Images.ToBytes*"></a>
+  <h4 id="InnerLibs_Images_ToBytes_System_Drawing_Image_System_Drawing_Imaging_ImageFormat_" data-uid="InnerLibs.Images.ToBytes(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">ToBytes(Image, ImageFormat)</h4>
+  <div class="markdown level1 summary"><p>Transforma uma imagem em array de bytes</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static byte[] ToBytes(this Image Image, ImageFormat Format = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span></td>
+        <td><span class="parametername">Format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_ToSize_" data-uid="InnerLibs.Images.ToSize*"></a>
+  <h4 id="InnerLibs_Images_ToSize_System_String_" data-uid="InnerLibs.Images.ToSize(System.String)">ToSize(String)</h4>
+  <div class="markdown level1 summary"><p>Interperta uma string de diversas formas e a transforma em um <span class="xref">System.Drawing.Size</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Size ToSize(this string Text)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Text</span></td>
+        <td><p>Texto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Size</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Images_Trim_" data-uid="InnerLibs.Images.Trim*"></a>
+  <h4 id="InnerLibs_Images_Trim_System_Drawing_Image_System_Drawing_Color_" data-uid="InnerLibs.Images.Trim(System.Drawing.Image,System.Drawing.Color)">Trim(Image, Color)</h4>
+  <div class="markdown level1 summary"><p>Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image Trim(this Image Img, Color Color)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Img</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Color</span></td>
+        <td><span class="parametername">Color</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_CreateDictionary__1___0_">ClassTools.CreateDictionary&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_System_Reflection_BindingFlags_">ClassTools.GetProperties(Object, BindingFlags)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_">ClassTools.GetProperties(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Type_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Type, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue__1_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue&lt;Type&gt;(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_HasProperty_System_Object_System_String_">ClassTools.HasProperty(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsArrayOf__1_System_Object_">ClassTools.IsArrayOf&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsDictionary_System_Object_">ClassTools.IsDictionary(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsInAny__1___0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsInAny&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;[], IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsList_System_Object_">ClassTools.IsList(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsNotIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsNotIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsType__1_System_Object_">ClassTools.IsType&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullCoalesce__1___0___0___">ClassTools.NullCoalesce&lt;T&gt;(T, T[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullifyProperties__1___0_">ClassTools.NullifyProperties&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValue__1_System_Object_System_String___0_">ClassTools.SetPropertyValue&lt;Type&gt;(Object, String, Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValueFromCollection__1_System_Object_System_String_System_Collections_CollectionBase_">ClassTools.SetPropertyValueFromCollection&lt;Type&gt;(Object, String, CollectionBase)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_ToFlatString_System_Object_System_String_">ClassTools.ToFlatString(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.DataManipulation.html#InnerLibs_DataManipulation_GetDbType_System_Object_">DataManipulation.GetDbType(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_DefineEmptyList__1___0_">Converter.DefineEmptyList&lt;T&gt;(T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_ChangeType__2___1_">Converter.ChangeType&lt;ToType, FromType&gt;(FromType)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.JsonViewer.html#InnerLibs_JsonViewer_CreateNode_System_Object_">JsonViewer.CreateNode(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Mathematic.html#InnerLibs_Mathematic_IsBetween__1___0_System_Object_System_Object_">Mathematic.IsBetween&lt;Type&gt;(Type, Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Text.html#InnerLibs_Text_SerializeJSON_System_Object_System_String_">Text.SerializeJSON(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNumber_System_Object_">Verify.IsNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNotNumber_System_Object_">Verify.IsNotNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IfBlank__1_System_Object___0_">Verify.IfBlank&lt;T&gt;(Object, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0_System_Func___0_System_Boolean__">Verify.NullIf&lt;T&gt;(T, Func&lt;T, Boolean&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0___0_">Verify.NullIf&lt;T&gt;(T, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_CreateFromAjax__1___0__System_String_System_String_System_Collections_Specialized_NameValueCollection_System_String_System_Text_Encoding_">Web.CreateFromAjax&lt;Type&gt;(ref Type, String, String, NameValueCollection, String, Encoding)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_AsListItem__3___0_System_Func___0___1__System_Func___0___2__">Web.AsListItem&lt;T, TextType, ValueType&gt;(T, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_GetCastedValue_System_Object_">WinForms.GetCastedValue(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_CastValueForControl_System_Object__System_Object_">WinForms.CastValueForControl(ref Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_ApplyToControls__1___0_System_Web_UI_HtmlControls_HtmlControl___">LINQExtensions.ApplyToControls&lt;T&gt;(T, HtmlControl[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_HasSamePropertyValues__1___0___0_System_Func___0_System_Object____">LINQExtensions.HasSamePropertyValues&lt;T&gt;(T, T, Func&lt;T, Object&gt;[])</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

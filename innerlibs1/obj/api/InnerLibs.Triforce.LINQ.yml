@@ -1,0 +1,53 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.Triforce.LINQ
+  commentId: N:InnerLibs.Triforce.LINQ
+  id: InnerLibs.Triforce.LINQ
+  children:
+  - InnerLibs.Triforce.LINQ.Triforce`1
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.Triforce.LINQ
+  nameWithType: InnerLibs.Triforce.LINQ
+  fullName: InnerLibs.Triforce.LINQ
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.Triforce.LINQ.Triforce`1
+  commentId: T:InnerLibs.Triforce.LINQ.Triforce`1
+  name: Triforce<DataContextType>
+  nameWithType: Triforce<DataContextType>
+  fullName: InnerLibs.Triforce.LINQ.Triforce<DataContextType>
+  nameWithType.vb: Triforce(Of DataContextType)
+  fullName.vb: InnerLibs.Triforce.LINQ.Triforce(Of DataContextType)
+  name.vb: Triforce(Of DataContextType)
+  spec.csharp:
+  - uid: InnerLibs.Triforce.LINQ.Triforce`1
+    name: Triforce
+    nameWithType: Triforce
+    fullName: InnerLibs.Triforce.LINQ.Triforce
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: DataContextType
+    nameWithType: DataContextType
+    fullName: DataContextType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: InnerLibs.Triforce.LINQ.Triforce`1
+    name: Triforce
+    nameWithType: Triforce
+    fullName: InnerLibs.Triforce.LINQ.Triforce
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: DataContextType
+    nameWithType: DataContextType
+    fullName: DataContextType
+  - name: )
+    nameWithType: )
+    fullName: )

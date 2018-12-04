@@ -1,0 +1,28 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.LINQ
+  commentId: N:InnerLibs.LINQ
+  id: InnerLibs.LINQ
+  children:
+  - InnerLibs.LINQ.LINQExtensions
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.LINQ
+  nameWithType: InnerLibs.LINQ
+  fullName: InnerLibs.LINQ
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.LINQ.LINQExtensions
+  commentId: T:InnerLibs.LINQ.LINQExtensions
+  parent: InnerLibs.LINQ
+  name: LINQExtensions
+  nameWithType: LINQExtensions
+  fullName: InnerLibs.LINQ.LINQExtensions
+- uid: InnerLibs.LINQ
+  commentId: N:InnerLibs.LINQ
+  name: InnerLibs.LINQ
+  nameWithType: InnerLibs.LINQ
+  fullName: InnerLibs.LINQ

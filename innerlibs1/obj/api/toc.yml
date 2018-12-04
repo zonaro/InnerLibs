@@ -1,0 +1,528 @@
+### YamlMime:TableOfContent
+- uid: InnerLibs
+  name: InnerLibs
+  items:
+  - uid: InnerLibs.AJAX
+    name: AJAX
+  - uid: InnerLibs.AJAX.Response
+    name: AJAX.Response
+  - uid: InnerLibs.Alphabet
+    name: Alphabet
+  - uid: InnerLibs.AsxEntry
+    name: AsxEntry
+  - uid: InnerLibs.AsxFile
+    name: AsxFile
+  - uid: InnerLibs.Base64
+    name: Base64
+  - uid: InnerLibs.Brasil
+    name: Brasil
+  - uid: InnerLibs.BrowserClipper
+    name: BrowserClipper
+  - uid: InnerLibs.Calendars
+    name: Calendars
+  - uid: InnerLibs.Calendars.CalendarType
+    name: Calendars.CalendarType
+  - uid: InnerLibs.Calendars.TypeOfFill
+    name: Calendars.TypeOfFill
+  - uid: InnerLibs.Celebration
+    name: Celebration
+  - uid: InnerLibs.ClassTools
+    name: ClassTools
+  - uid: InnerLibs.Cluster
+    name: Cluster
+  - uid: InnerLibs.ColorConvert
+    name: ColorConvert
+  - uid: InnerLibs.Converter
+    name: Converter
+  - uid: InnerLibs.CssParser
+    name: CssParser
+  - uid: InnerLibs.DataBase
+    name: DataBase
+  - uid: InnerLibs.DataBase.Reader
+    name: DataBase.Reader
+  - uid: InnerLibs.DataBase.Result
+    name: DataBase.Result
+  - uid: InnerLibs.DataBase.Row
+    name: DataBase.Row
+  - uid: InnerLibs.DataGridViewManager
+    name: DataGridViewManager
+  - uid: InnerLibs.DataGridViewProgressCell
+    name: DataGridViewProgressCell
+  - uid: InnerLibs.DataGridViewProgressColumn
+    name: DataGridViewProgressColumn
+  - uid: InnerLibs.DataManipulation
+    name: DataManipulation
+  - uid: InnerLibs.DateRange
+    name: DateRange
+  - uid: InnerLibs.Dialeto
+    name: Dialeto
+  - uid: InnerLibs.Dice
+    name: Dice
+  - uid: InnerLibs.Dice.DiceFace
+    name: Dice.DiceFace
+  - uid: InnerLibs.DiceRoller
+    name: DiceRoller
+  - uid: InnerLibs.DiceType
+    name: DiceType
+  - uid: InnerLibs.DictionaryPropertyGridAdapter
+    name: DictionaryPropertyGridAdapter
+  - uid: InnerLibs.Digraph
+    name: Digraph
+  - uid: InnerLibs.Directories
+    name: Directories
+  - uid: InnerLibs.DocumentationPage
+    name: DocumentationPage
+  - uid: InnerLibs.DotAttributeCollection
+    name: DotAttributeCollection
+  - uid: InnerLibs.DotEdge
+    name: DotEdge
+  - uid: InnerLibs.DotNode
+    name: DotNode
+  - uid: InnerLibs.DotObject
+    name: DotObject
+  - uid: InnerLibs.EditorCreatedEventArgs
+    name: EditorCreatedEventArgs
+  - uid: InnerLibs.Encryption
+    name: Encryption
+  - uid: InnerLibs.EnhancedCollectionEditor
+    name: EnhancedCollectionEditor
+  - uid: InnerLibs.eParserSyntax
+    name: eParserSyntax
+  - uid: InnerLibs.eTokenType
+    name: eTokenType
+  - uid: InnerLibs.EvalType
+    name: EvalType
+  - uid: InnerLibs.Evaluator
+    name: Evaluator
+  - uid: InnerLibs.Evaluator.parserException
+    name: Evaluator.parserException
+  - uid: InnerLibs.EvalVariable
+    name: EvalVariable
+  - uid: InnerLibs.FileContextMenu
+    name: FileContextMenu
+  - uid: InnerLibs.FileLogger
+    name: FileLogger
+  - uid: InnerLibs.FileLogger.LogEntry
+    name: FileLogger.LogEntry
+  - uid: InnerLibs.Files
+    name: Files
+  - uid: InnerLibs.FileTree
+    name: FileTree
+  - uid: InnerLibs.FileType
+    name: FileType
+  - uid: InnerLibs.FileTypeExtensions
+    name: FileTypeExtensions
+  - uid: InnerLibs.FileTypeList
+    name: FileTypeList
+  - uid: InnerLibs.FontAwesome
+    name: FontAwesome
+  - uid: InnerLibs.FormAnimator
+    name: FormAnimator
+  - uid: InnerLibs.FormAnimator.AnimationDirection
+    name: FormAnimator.AnimationDirection
+  - uid: InnerLibs.FormAnimator.AnimationMethod
+    name: FormAnimator.AnimationMethod
+  - uid: InnerLibs.Generate
+    name: Generate
+  - uid: InnerLibs.Generate.MapType
+    name: Generate.MapType
+  - uid: InnerLibs.GeoIP
+    name: GeoIP
+  - uid: InnerLibs.Globals
+    name: Globals
+  - uid: InnerLibs.GoogleSuggestion
+    name: GoogleSuggestion
+  - uid: InnerLibs.iEvalFunctions
+    name: iEvalFunctions
+  - uid: InnerLibs.iEvalHasDescription
+    name: iEvalHasDescription
+  - uid: InnerLibs.iEvalTypedValue
+    name: iEvalTypedValue
+  - uid: InnerLibs.iEvalValue
+    name: iEvalValue
+  - uid: InnerLibs.Images
+    name: Images
+  - uid: InnerLibs.INameProvider
+    name: INameProvider
+  - uid: InnerLibs.InnerCrypt
+    name: InnerCrypt
+  - uid: InnerLibs.iVariableBag
+    name: iVariableBag
+  - uid: InnerLibs.Json
+    name: Json
+  - uid: InnerLibs.JsonViewer
+    name: JsonViewer
+  - uid: InnerLibs.LimitedCollection`1
+    name: LimitedCollection<TypeCollection>
+    name.vb: LimitedCollection(Of TypeCollection)
+  - uid: InnerLibs.Location
+    name: Location
+  - uid: InnerLibs.Mathematic
+    name: Mathematic
+  - uid: InnerLibs.Mensagem
+    name: Mensagem
+  - uid: InnerLibs.MenuBuilder
+    name: MenuBuilder
+  - uid: InnerLibs.MenuBuilderItem
+    name: MenuBuilderItem
+  - uid: InnerLibs.Money
+    name: Money
+  - uid: InnerLibs.NameServices
+    name: NameServices
+  - uid: InnerLibs.NewItemCreatedEventArgs
+    name: NewItemCreatedEventArgs
+  - uid: InnerLibs.NotificationForm
+    name: NotificationForm
+  - uid: InnerLibs.oEmbed
+    name: oEmbed
+  - uid: InnerLibs.oEmbed.Endpoint
+    name: oEmbed.Endpoint
+  - uid: InnerLibs.OnlineList`2
+    name: OnlineList<UserType, IdType>
+    name.vb: OnlineList(Of UserType, IdType)
+  - uid: InnerLibs.OnlineUser`2
+    name: OnlineUser<UserType, IdType>
+    name.vb: OnlineUser(Of UserType, IdType)
+  - uid: InnerLibs.opCode
+    name: opCode
+  - uid: InnerLibs.opCode.RunDelegate
+    name: opCode.RunDelegate
+  - uid: InnerLibs.opCode.ValueDelegate
+    name: opCode.ValueDelegate
+  - uid: InnerLibs.opCodeCallMethod
+    name: opCodeCallMethod
+  - uid: InnerLibs.opCodeGetArrayEntry
+    name: opCodeGetArrayEntry
+  - uid: InnerLibs.opCodeGetVariable
+    name: opCodeGetVariable
+  - uid: InnerLibs.Paragraph
+    name: Paragraph
+  - uid: InnerLibs.Personalidade
+    name: Personalidade
+  - uid: InnerLibs.Phonetic
+    name: Phonetic
+  - uid: InnerLibs.PictureService
+    name: PictureService
+  - uid: InnerLibs.PictureService.Picture
+    name: PictureService.Picture
+  - uid: InnerLibs.RemainTimeBehavior
+    name: RemainTimeBehavior
+  - uid: InnerLibs.Reme
+    name: Reme
+  - uid: InnerLibs.RiotAPI
+    name: RiotAPI
+  - uid: InnerLibs.RiotAPI.Champion
+    name: RiotAPI.Champion
+  - uid: InnerLibs.Romanize
+    name: Romanize
+  - uid: InnerLibs.Romanize.RomanDigit
+    name: Romanize.RomanDigit
+  - uid: InnerLibs.SelfKeyDictionary`2
+    name: SelfKeyDictionary<KeyType, ClassType>
+    name.vb: SelfKeyDictionary(Of KeyType, ClassType)
+  - uid: InnerLibs.Sentence
+    name: Sentence
+  - uid: InnerLibs.SentencePart
+    name: SentencePart
+  - uid: InnerLibs.Shortcuts
+    name: Shortcuts
+  - uid: InnerLibs.SlackClient
+    name: SlackClient
+  - uid: InnerLibs.SlackClient.SlackMessage
+    name: SlackClient.SlackMessage
+  - uid: InnerLibs.SoundEx
+    name: SoundEx
+  - uid: InnerLibs.Startup
+    name: Startup
+  - uid: InnerLibs.State
+    name: State
+  - uid: InnerLibs.State.StateString
+    name: State.StateString
+  - uid: InnerLibs.StructuredText
+    name: StructuredText
+  - uid: InnerLibs.TableGenerator
+    name: TableGenerator
+  - uid: InnerLibs.Text
+    name: Text
+  - uid: InnerLibs.TextValue`1
+    name: TextValue<ValueType>
+    name.vb: TextValue(Of ValueType)
+  - uid: InnerLibs.TextValueBinder
+    name: TextValueBinder
+  - uid: InnerLibs.TextValueList`1
+    name: TextValueList<ValueType>
+    name.vb: TextValueList(Of ValueType)
+  - uid: InnerLibs.Toggles
+    name: Toggles
+  - uid: InnerLibs.tokenizer
+    name: tokenizer
+  - uid: InnerLibs.UserChat`2
+    name: UserChat<UserType, IdType>
+    name.vb: UserChat(Of UserType, IdType)
+  - uid: InnerLibs.UserConversation`2
+    name: UserConversation<UserType, IdType>
+    name.vb: UserConversation(Of UserType, IdType)
+  - uid: InnerLibs.VariableComplexity
+    name: VariableComplexity
+  - uid: InnerLibs.VariableNotFoundException
+    name: VariableNotFoundException
+  - uid: InnerLibs.vCard
+    name: vCard
+  - uid: InnerLibs.vCard.vAddress
+    name: vCard.vAddress
+  - uid: InnerLibs.vCard.vAddresss
+    name: vCard.vAddresss
+  - uid: InnerLibs.vCard.vAddressTypes
+    name: vCard.vAddressTypes
+  - uid: InnerLibs.vCard.vEmail
+    name: vCard.vEmail
+  - uid: InnerLibs.vCard.vEmails
+    name: vCard.vEmails
+  - uid: InnerLibs.vCard.vLocations
+    name: vCard.vLocations
+  - uid: InnerLibs.vCard.vPhoneTypes
+    name: vCard.vPhoneTypes
+  - uid: InnerLibs.vCard.vTelephone
+    name: vCard.vTelephone
+  - uid: InnerLibs.vCard.vTelephones
+    name: vCard.vTelephones
+  - uid: InnerLibs.vCard.vURL
+    name: vCard.vURL
+  - uid: InnerLibs.vCard.vURLs
+    name: vCard.vURLs
+  - uid: InnerLibs.Verify
+    name: Verify
+  - uid: InnerLibs.Web
+    name: Web
+  - uid: InnerLibs.WinForms
+    name: WinForms
+- uid: InnerLibs.AllIn
+  name: InnerLibs.AllIn
+  items:
+  - uid: InnerLibs.AllIn.ClienteAllIn
+    name: ClienteAllIn
+  - uid: InnerLibs.AllIn.ClienteAllIn.Envio
+    name: ClienteAllIn.Envio
+- uid: InnerLibs.BitLy
+  name: InnerLibs.BitLy
+  items:
+  - uid: InnerLibs.BitLy.BitLy
+    name: BitLy
+  - uid: InnerLibs.BitLy.BitLy.ShortUrl
+    name: BitLy.ShortUrl
+  - uid: InnerLibs.BitLy.BitLy.ShortUrl.ShortUrlData
+    name: BitLy.ShortUrl.ShortUrlData
+- uid: InnerLibs.Bootstrap
+  name: InnerLibs.Bootstrap
+  items:
+  - uid: InnerLibs.Bootstrap.Bootstrap
+    name: Bootstrap
+  - uid: InnerLibs.Bootstrap.Bootstrap.Alert
+    name: Bootstrap.Alert
+  - uid: InnerLibs.Bootstrap.Bootstrap.BootstrapElement
+    name: Bootstrap.BootstrapElement
+  - uid: InnerLibs.Bootstrap.Bootstrap.ElementType
+    name: Bootstrap.ElementType
+  - uid: InnerLibs.Bootstrap.Bootstrap.Panel
+    name: Bootstrap.Panel
+  - uid: InnerLibs.Bootstrap.Bootstrap.ProgressBar
+    name: Bootstrap.ProgressBar
+- uid: InnerLibs.Console
+  name: InnerLibs.Console
+  items:
+  - uid: InnerLibs.Console.Console
+    name: Console
+- uid: InnerLibs.GoogleMaps
+  name: InnerLibs.GoogleMaps
+  items:
+  - uid: InnerLibs.GoogleMaps.Map
+    name: Map
+  - uid: InnerLibs.GoogleMaps.Map.Marker
+    name: Map.Marker
+- uid: InnerLibs.HtmlParser
+  name: InnerLibs.HtmlParser
+  items:
+  - uid: InnerLibs.HtmlParser.ClassList
+    name: ClassList
+  - uid: InnerLibs.HtmlParser.CssProperties
+    name: CssProperties
+  - uid: InnerLibs.HtmlParser.CssSelector
+    name: CssSelector
+  - uid: InnerLibs.HtmlParser.Emoji
+    name: Emoji
+  - uid: InnerLibs.HtmlParser.HtmlAnchorElement
+    name: HtmlAnchorElement
+  - uid: InnerLibs.HtmlParser.HtmlAttribute
+    name: HtmlAttribute
+  - uid: InnerLibs.HtmlParser.HtmlAttributeCollection
+    name: HtmlAttributeCollection
+  - uid: InnerLibs.HtmlParser.HtmlBreakLine
+    name: HtmlBreakLine
+  - uid: InnerLibs.HtmlParser.HtmlDocument
+    name: HtmlDocument
+  - uid: InnerLibs.HtmlParser.HtmlElement
+    name: HtmlElement
+  - uid: InnerLibs.HtmlParser.HtmlHorizontalRule
+    name: HtmlHorizontalRule
+  - uid: InnerLibs.HtmlParser.HtmlImageElement
+    name: HtmlImageElement
+  - uid: InnerLibs.HtmlParser.HtmlInputElement
+    name: HtmlInputElement
+  - uid: InnerLibs.HtmlParser.HtmlInputElement.HtmlInputElementType
+    name: HtmlInputElement.HtmlInputElementType
+  - uid: InnerLibs.HtmlParser.HtmlListElement
+    name: HtmlListElement
+  - uid: InnerLibs.HtmlParser.HtmlNode
+    name: HtmlNode
+  - uid: InnerLibs.HtmlParser.HtmlNodeCollection
+    name: HtmlNodeCollection
+  - uid: InnerLibs.HtmlParser.HtmlOptionElement
+    name: HtmlOptionElement
+  - uid: InnerLibs.HtmlParser.HtmlSelectElement
+    name: HtmlSelectElement
+  - uid: InnerLibs.HtmlParser.HtmlText
+    name: HtmlText
+  - uid: InnerLibs.HtmlParser.HtmlTimeElement
+    name: HtmlTimeElement
+  - uid: InnerLibs.HtmlParser.MentionParser
+    name: MentionParser
+  - uid: InnerLibs.HtmlParser.PseudoClass
+    name: PseudoClass
+  - uid: InnerLibs.HtmlParser.PseudoClassNameAttribute
+    name: PseudoClassNameAttribute
+  - uid: InnerLibs.HtmlParser.Token
+    name: Token
+  - uid: InnerLibs.HtmlParser.Tokenizer
+    name: Tokenizer
+- uid: InnerLibs.InnerForm
+  name: InnerLibs.InnerForm
+  items:
+  - uid: InnerLibs.InnerForm.InnerForm
+    name: InnerForm
+- uid: InnerLibs.LINQ
+  name: InnerLibs.LINQ
+  items:
+  - uid: InnerLibs.LINQ.LINQExtensions
+    name: LINQExtensions
+- uid: InnerLibs.QuestionTest
+  name: InnerLibs.QuestionTest
+  items:
+  - uid: InnerLibs.QuestionTest.Alternative
+    name: Alternative
+  - uid: InnerLibs.QuestionTest.AlternativeList
+    name: AlternativeList
+  - uid: InnerLibs.QuestionTest.AlternativeQuestion
+    name: AlternativeQuestion
+  - uid: InnerLibs.QuestionTest.DissertativeQuestion
+    name: DissertativeQuestion
+  - uid: InnerLibs.QuestionTest.MultipleAlternativeQuestion
+    name: MultipleAlternativeQuestion
+  - uid: InnerLibs.QuestionTest.NumericQuestion
+    name: NumericQuestion
+  - uid: InnerLibs.QuestionTest.Question
+    name: Question
+  - uid: InnerLibs.QuestionTest.QuestionEditor
+    name: QuestionEditor
+  - uid: InnerLibs.QuestionTest.QuestionStatement
+    name: QuestionStatement
+  - uid: InnerLibs.QuestionTest.QuestionTest
+    name: QuestionTest
+  - uid: InnerLibs.QuestionTest.SingleAlternativeQuestion
+    name: SingleAlternativeQuestion
+  - uid: InnerLibs.QuestionTest.StatementImage
+    name: StatementImage
+  - uid: InnerLibs.QuestionTest.StatementImages
+    name: StatementImages
+- uid: InnerLibs.Select2Data
+  name: InnerLibs.Select2Data
+  items:
+  - uid: InnerLibs.Select2Data.AditionalData
+    name: AditionalData
+  - uid: InnerLibs.Select2Data.Group
+    name: Group
+  - uid: InnerLibs.Select2Data.Pagination
+    name: Pagination
+  - uid: InnerLibs.Select2Data.Result
+    name: Result
+  - uid: InnerLibs.Select2Data.Select2Results`1
+    name: Select2Results<Type>
+    name.vb: Select2Results(Of Type)
+  - uid: InnerLibs.Select2Data.Select2ResultType
+    name: Select2ResultType
+- uid: InnerLibs.Stilingue
+  name: InnerLibs.Stilingue
+  items:
+  - uid: InnerLibs.Stilingue.StilingueAPI
+    name: StilingueAPI
+  - uid: InnerLibs.Stilingue.StilingueAPI.Endpoint
+    name: StilingueAPI.Endpoint
+  - uid: InnerLibs.Stilingue.StilingueAPI.WarRoom
+    name: StilingueAPI.WarRoom
+  - uid: InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards
+    name: StilingueAPI.WarRoom.Cards
+  - uid: InnerLibs.Stilingue.StilingueAPI.WarRoom.Channel
+    name: StilingueAPI.WarRoom.Channel
+  - uid: InnerLibs.Stilingue.StilingueAPI.WarRoom.Meta
+    name: StilingueAPI.WarRoom.Meta
+  - uid: InnerLibs.Stilingue.StilingueAPI.WarRoom.News
+    name: StilingueAPI.WarRoom.News
+  - uid: InnerLibs.Stilingue.StilingueAPI.WarRoom.Post
+    name: StilingueAPI.WarRoom.Post
+- uid: InnerLibs.TimeMachine
+  name: InnerLibs.TimeMachine
+  items:
+  - uid: InnerLibs.TimeMachine.Cronometer
+    name: Cronometer
+  - uid: InnerLibs.TimeMachine.Day
+    name: Day
+  - uid: InnerLibs.TimeMachine.Fortnight
+    name: Fortnight
+  - uid: InnerLibs.TimeMachine.FortnightGroup
+    name: FortnightGroup
+  - uid: InnerLibs.TimeMachine.FortnightGroup`1
+    name: FortnightGroup<DataType>
+    name.vb: FortnightGroup(Of DataType)
+  - uid: InnerLibs.TimeMachine.Item
+    name: Item
+  - uid: InnerLibs.TimeMachine.LapEventArgs
+    name: LapEventArgs
+  - uid: InnerLibs.TimeMachine.Stopwatch
+    name: Stopwatch
+  - uid: InnerLibs.TimeMachine.TimeDemand
+    name: TimeDemand
+  - uid: InnerLibs.TimeMachine.TimeFlow
+    name: TimeFlow
+- uid: InnerLibs.Triforce
+  name: InnerLibs.Triforce
+  items:
+  - uid: InnerLibs.Triforce.MixedTemplatePage`1
+    name: MixedTemplatePage<T>
+    name.vb: MixedTemplatePage(Of T)
+  - uid: InnerLibs.Triforce.Template`1
+    name: Template<T>
+    name.vb: Template(Of T)
+  - uid: InnerLibs.Triforce.TemplatePage`1
+    name: TemplatePage<T>
+    name.vb: TemplatePage(Of T)
+  - uid: InnerLibs.Triforce.TemplatePropertySelector
+    name: TemplatePropertySelector
+  - uid: InnerLibs.Triforce.TemplateTag
+    name: TemplateTag
+  - uid: InnerLibs.Triforce.Triforce
+    name: Triforce
+  - uid: InnerLibs.Triforce.TriforceDateTimeFormat
+    name: TriforceDateTimeFormat
+  - uid: InnerLibs.Triforce.TriforceDefaultTemplate
+    name: TriforceDefaultTemplate
+- uid: InnerLibs.Triforce.ADO
+  name: InnerLibs.Triforce.ADO
+  items:
+  - uid: InnerLibs.Triforce.ADO.Triforce`1
+    name: Triforce<ConnectionType>
+    name.vb: Triforce(Of ConnectionType)
+- uid: InnerLibs.Triforce.LINQ
+  name: InnerLibs.Triforce.LINQ
+  items:
+  - uid: InnerLibs.Triforce.LINQ.Triforce`1
+    name: Triforce<DataContextType>
+    name.vb: Triforce(Of DataContextType)

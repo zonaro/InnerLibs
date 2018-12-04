@@ -1,0 +1,53 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.Triforce.ADO
+  commentId: N:InnerLibs.Triforce.ADO
+  id: InnerLibs.Triforce.ADO
+  children:
+  - InnerLibs.Triforce.ADO.Triforce`1
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.Triforce.ADO
+  nameWithType: InnerLibs.Triforce.ADO
+  fullName: InnerLibs.Triforce.ADO
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.Triforce.ADO.Triforce`1
+  commentId: T:InnerLibs.Triforce.ADO.Triforce`1
+  name: Triforce<ConnectionType>
+  nameWithType: Triforce<ConnectionType>
+  fullName: InnerLibs.Triforce.ADO.Triforce<ConnectionType>
+  nameWithType.vb: Triforce(Of ConnectionType)
+  fullName.vb: InnerLibs.Triforce.ADO.Triforce(Of ConnectionType)
+  name.vb: Triforce(Of ConnectionType)
+  spec.csharp:
+  - uid: InnerLibs.Triforce.ADO.Triforce`1
+    name: Triforce
+    nameWithType: Triforce
+    fullName: InnerLibs.Triforce.ADO.Triforce
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ConnectionType
+    nameWithType: ConnectionType
+    fullName: ConnectionType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: InnerLibs.Triforce.ADO.Triforce`1
+    name: Triforce
+    nameWithType: Triforce
+    fullName: InnerLibs.Triforce.ADO.Triforce
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ConnectionType
+    nameWithType: ConnectionType
+    fullName: ConnectionType
+  - name: )
+    nameWithType: )
+    fullName: )

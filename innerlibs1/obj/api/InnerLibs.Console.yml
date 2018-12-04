@@ -1,0 +1,22 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.Console
+  commentId: N:InnerLibs.Console
+  id: InnerLibs.Console
+  children:
+  - InnerLibs.Console.Console
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.Console
+  nameWithType: InnerLibs.Console
+  fullName: InnerLibs.Console
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.Console.Console
+  commentId: T:InnerLibs.Console.Console
+  name: Console
+  nameWithType: Console
+  fullName: InnerLibs.Console.Console

@@ -1,0 +1,3459 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Web
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Web
+   ">
+    <meta name="generator" content="docfx 2.37.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="InnerLibs.Web">
+  
+  
+  <h1 id="InnerLibs_Web" data-uid="InnerLibs.Web" class="text-break">Class Web
+  </h1>
+  <div class="markdown level0 summary"><p>Modulo Web</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">Web</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="InnerLibs.html">InnerLibs</a></h6>
+  <h6><strong>Assembly</strong>: InnerLibs.dll</h6>
+  <h5 id="InnerLibs_Web_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Web</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="InnerLibs_Web_AddParameter_" data-uid="InnerLibs.Web.AddParameter*"></a>
+  <h4 id="InnerLibs_Web_AddParameter_System_Uri_System_String_System_String___" data-uid="InnerLibs.Web.AddParameter(System.Uri,System.String,System.String[])">AddParameter(Uri, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Adciona um parametro a Query String de uma URL</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Uri AddParameter(this Uri Url, string Key, params string[] Values)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">Url</span></td>
+        <td><p>Uri</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Key</span></td>
+        <td><p>Nome do parâmetro</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Values</span></td>
+        <td><p>Valor do Parâmetro</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_AsEnumerable_" data-uid="InnerLibs.Web.AsEnumerable*"></a>
+  <h4 id="InnerLibs_Web_AsEnumerable_System_Web_HttpFileCollection_" data-uid="InnerLibs.Web.AsEnumerable(System.Web.HttpFileCollection)">AsEnumerable(HttpFileCollection)</h4>
+  <div class="markdown level1 summary"><p>Retorna todos os arquivos de uma <span class="xref">System.Web.HttpFileCollection</span> em um  <span class="xref">System.Collections.Generic.IEnumerable&lt;T&gt;</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static IEnumerable&lt;HttpPostedFile&gt; AsEnumerable(this HttpFileCollection Files)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpFileCollection</span></td>
+        <td><span class="parametername">Files</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Web.HttpPostedFile</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_AsListItem_" data-uid="InnerLibs.Web.AsListItem*"></a>
+  <h4 id="InnerLibs_Web_AsListItem__3___0_System_Func___0___1__System_Func___0___2__" data-uid="InnerLibs.Web.AsListItem``3(``0,System.Func{``0,``1},System.Func{``0,``2})">AsListItem&lt;T, TextType, ValueType&gt;(T, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;)</h4>
+  <div class="markdown level1 summary"><p>Retorna um <span class="xref">System.Web.UI.WebControls.ListItem</span> a partir de 2 propriedades de um objeto</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static ListItem AsListItem&lt;T, TextType, ValueType&gt;(this T Obj, Func&lt;T, TextType&gt; Text, Func&lt;T, ValueType&gt; Value = null)
+    where T : class</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">Obj</span></td>
+        <td><p>Objeto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, TextType&gt;</td>
+        <td><span class="parametername">Text</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, ValueType&gt;</td>
+        <td><span class="parametername">Value</span></td>
+        <td><p>Valor do ListItem</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.WebControls.ListItem</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>Tipo do objeto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TextType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">ValueType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_CreateFromAjax_" data-uid="InnerLibs.Web.CreateFromAjax*"></a>
+  <h4 id="InnerLibs_Web_CreateFromAjax__1___0__System_String_System_String_System_Collections_Specialized_NameValueCollection_System_String_System_Text_Encoding_" data-uid="InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)">CreateFromAjax&lt;Type&gt;(ref Type, String, String, NameValueCollection, String, Encoding)</h4>
+  <div class="markdown level1 summary"><p>Cria um objeto a partir de uma requisiçao AJAX</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void CreateFromAjax&lt;Type&gt;(this ref Type TheObject, string URL, string Method, NameValueCollection Parameters = null, string ContentType = &quot;application/x-www-form-urlencoded&quot;, Encoding Encoding = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Type</span></td>
+        <td><span class="parametername">TheObject</span></td>
+        <td><p>Objeto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">URL</span></td>
+        <td><p>URL de requisiçao</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Method</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Specialized.NameValueCollection</span></td>
+        <td><span class="parametername">Parameters</span></td>
+        <td><p>Parametros da URL</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ContentType</span></td>
+        <td><p>Conteudo</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Encoding</span></td>
+        <td><span class="parametername">Encoding</span></td>
+        <td><p>Codificação</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">Type</span></td>
+        <td><p>Tipo do objeto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_DestroySessionAndCookies_" data-uid="InnerLibs.Web.DestroySessionAndCookies*"></a>
+  <h4 id="InnerLibs_Web_DestroySessionAndCookies_System_Web_HttpApplication_" data-uid="InnerLibs.Web.DestroySessionAndCookies(System.Web.HttpApplication)">DestroySessionAndCookies(HttpApplication)</h4>
+  <div class="markdown level1 summary"><p>Destroi a Sessão, cache e cookies de uma aplicação ASP.NET</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string DestroySessionAndCookies(this HttpApplication Page)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpApplication</span></td>
+        <td><span class="parametername">Page</span></td>
+        <td><p>Pagina atual</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_DisselectValues_" data-uid="InnerLibs.Web.DisselectValues*"></a>
+  <h4 id="InnerLibs_Web_DisselectValues_System_Web_UI_HtmlControls_HtmlSelect_System_Func_System_Web_UI_WebControls_ListItem_System_Boolean__" data-uid="InnerLibs.Web.DisselectValues(System.Web.UI.HtmlControls.HtmlSelect,System.Func{System.Web.UI.WebControls.ListItem,System.Boolean})">DisselectValues(HtmlSelect, Func&lt;ListItem, Boolean&gt;)</h4>
+  <div class="markdown level1 summary"><p>Seleciona Valores de um <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HtmlSelect DisselectValues(this HtmlSelect Control, Func&lt;ListItem, bool&gt; Predicate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Web.UI.WebControls.ListItem</span>, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="parametername">Predicate</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_DisselectValues_" data-uid="InnerLibs.Web.DisselectValues*"></a>
+  <h4 id="InnerLibs_Web_DisselectValues_System_Web_UI_HtmlControls_HtmlSelect_System_String___" data-uid="InnerLibs.Web.DisselectValues(System.Web.UI.HtmlControls.HtmlSelect,System.String[])">DisselectValues(HtmlSelect, String[])</h4>
+  <div class="markdown level1 summary"><p>Desseleciona Valores de um <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HtmlSelect DisselectValues(this HtmlSelect Control, params string[] Values)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Values</span></td>
+        <td><p>Valores que serao desselecionados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ExtractOptions_" data-uid="InnerLibs.Web.ExtractOptions*"></a>
+  <h4 id="InnerLibs_Web_ExtractOptions_System_Web_UI_HtmlControls_HtmlSelect_" data-uid="InnerLibs.Web.ExtractOptions(System.Web.UI.HtmlControls.HtmlSelect)">ExtractOptions(HtmlSelect)</h4>
+  <div class="markdown level1 summary"><p>Retorna uma string HTML com os options de um <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ExtractOptions(this HtmlSelect Control)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>COntrole HTMLSelect</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_GetAllFiles_" data-uid="InnerLibs.Web.GetAllFiles*"></a>
+  <h4 id="InnerLibs_Web_GetAllFiles_System_Web_HttpRequest_" data-uid="InnerLibs.Web.GetAllFiles(System.Web.HttpRequest)">GetAllFiles(HttpRequest)</h4>
+  <div class="markdown level1 summary"><p>Retorna todos os arquivos de uma <span class="xref">System.Web.HttpRequest</span> em um  <span class="xref">System.Collections.Generic.IEnumerable&lt;T&gt;</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static IEnumerable&lt;HttpPostedFile&gt; GetAllFiles(this HttpRequest Request)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpRequest</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Web.HttpPostedFile</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_GetFacebookUsername_" data-uid="InnerLibs.Web.GetFacebookUsername*"></a>
+  <h4 id="InnerLibs_Web_GetFacebookUsername_System_String_" data-uid="InnerLibs.Web.GetFacebookUsername(System.String)">GetFacebookUsername(String)</h4>
+  <div class="markdown level1 summary"><p>Captura o Username ou UserID de uma URL do Facebook</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string GetFacebookUsername(this string URL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">URL</span></td>
+        <td><p>URL do Facebook</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_GetFacebookUsername_" data-uid="InnerLibs.Web.GetFacebookUsername*"></a>
+  <h4 id="InnerLibs_Web_GetFacebookUsername_System_Uri_" data-uid="InnerLibs.Web.GetFacebookUsername(System.Uri)">GetFacebookUsername(Uri)</h4>
+  <div class="markdown level1 summary"><p>Captura o Username ou UserID de uma URL do Facebook</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string GetFacebookUsername(this Uri URL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">URL</span></td>
+        <td><p>URL do Facebook</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_GetVideoId_" data-uid="InnerLibs.Web.GetVideoId*"></a>
+  <h4 id="InnerLibs_Web_GetVideoId_System_String_" data-uid="InnerLibs.Web.GetVideoId(System.String)">GetVideoId(String)</h4>
+  <div class="markdown level1 summary"><p>Captura o ID de um video do YOUTUBE ou VIMEO em uma URL</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string GetVideoId(string URL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">URL</span></td>
+        <td><p>URL do video</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p>ID do video do youtube ou Vimeo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_GetVideoId_" data-uid="InnerLibs.Web.GetVideoId*"></a>
+  <h4 id="InnerLibs_Web_GetVideoId_System_Uri_" data-uid="InnerLibs.Web.GetVideoId(System.Uri)">GetVideoId(Uri)</h4>
+  <div class="markdown level1 summary"><p>Captura o ID de um video do youtube em uma URL</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string GetVideoId(this Uri URL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">URL</span></td>
+        <td><p>URL do video</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p>ID do video do youtube</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_GetYoutubeThumbnail_" data-uid="InnerLibs.Web.GetYoutubeThumbnail*"></a>
+  <h4 id="InnerLibs_Web_GetYoutubeThumbnail_System_String_" data-uid="InnerLibs.Web.GetYoutubeThumbnail(System.String)">GetYoutubeThumbnail(String)</h4>
+  <div class="markdown level1 summary"><p>Captura a Thumbnail de um video do youtube</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Image GetYoutubeThumbnail(string URL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">URL</span></td>
+        <td><p>Url do Youtube</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_GetYoutubeThumbnail_" data-uid="InnerLibs.Web.GetYoutubeThumbnail*"></a>
+  <h4 id="InnerLibs_Web_GetYoutubeThumbnail_System_Uri_" data-uid="InnerLibs.Web.GetYoutubeThumbnail(System.Uri)">GetYoutubeThumbnail(Uri)</h4>
+  <div class="markdown level1 summary"><p>Captura a Thumbnail de um video do youtube</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Image GetYoutubeThumbnail(Uri URL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">URL</span></td>
+        <td><p>Url do Youtube</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_IsConnected_" data-uid="InnerLibs.Web.IsConnected*"></a>
+  <h4 id="InnerLibs_Web_IsConnected_System_String_" data-uid="InnerLibs.Web.IsConnected(System.String)">IsConnected(String)</h4>
+  <div class="markdown level1 summary"><p>Verifica se o computador está conectado com a internet</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsConnected(string Test = &quot;http://google.com&quot;)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Test</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_IsDown_" data-uid="InnerLibs.Web.IsDown*"></a>
+  <h4 id="InnerLibs_Web_IsDown_System_String_" data-uid="InnerLibs.Web.IsDown(System.String)">IsDown(String)</h4>
+  <div class="markdown level1 summary"><p>Verifica se um site está indisponível usando o serviço IsUp.Me</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool IsDown(this string Url)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Url</span></td>
+        <td><p>Url</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True para site fora do Ar</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_IsDown_" data-uid="InnerLibs.Web.IsDown*"></a>
+  <h4 id="InnerLibs_Web_IsDown_System_Uri_" data-uid="InnerLibs.Web.IsDown(System.Uri)">IsDown(Uri)</h4>
+  <div class="markdown level1 summary"><p>Verifica se um site está indisponível usando o serviço IsUp.Me</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsDown(Uri Url)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">Url</span></td>
+        <td><p>Url</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True para site fora do Ar</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_IsUp_" data-uid="InnerLibs.Web.IsUp*"></a>
+  <h4 id="InnerLibs_Web_IsUp_System_String_" data-uid="InnerLibs.Web.IsUp(System.String)">IsUp(String)</h4>
+  <div class="markdown level1 summary"><p>Verifica se um site está disponível usando o serviço IsUp.Me</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool IsUp(this string Url)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Url</span></td>
+        <td><p>Url</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>False para site fora do Ar</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_IsUp_" data-uid="InnerLibs.Web.IsUp*"></a>
+  <h4 id="InnerLibs_Web_IsUp_System_Uri_" data-uid="InnerLibs.Web.IsUp(System.Uri)">IsUp(Uri)</h4>
+  <div class="markdown level1 summary"><p>Verifica se um site está disponível usando o serviço IsUp.Me</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsUp(Uri Url)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">Url</span></td>
+        <td><p>Url</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>False para site fora do Ar</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_MinifyCSS_" data-uid="InnerLibs.Web.MinifyCSS*"></a>
+  <h4 id="InnerLibs_Web_MinifyCSS_System_String_" data-uid="InnerLibs.Web.MinifyCSS(System.String)">MinifyCSS(String)</h4>
+  <div class="markdown level1 summary"><p>Minifica uma folha de estilo CSS</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string MinifyCSS(string CSS)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">CSS</span></td>
+        <td><p>String contendo o CSS</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_RangeDownload_" data-uid="InnerLibs.Web.RangeDownload*"></a>
+  <h4 id="InnerLibs_Web_RangeDownload_System_Web_HttpContext__System_Byte____InnerLibs_FileType_" data-uid="InnerLibs.Web.RangeDownload(System.Web.HttpContext@,System.Byte[]@,InnerLibs.FileType)">RangeDownload(ref HttpContext, ref Byte[], FileType)</h4>
+  <div class="markdown level1 summary"><p>Realiza um download parcial de um <span class="xref">System.Byte</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void RangeDownload(this ref HttpContext Context, ref byte[] Bytes, FileType FileType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpContext</span></td>
+        <td><span class="parametername">Context</span></td>
+        <td><p>Context HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">Bytes</span></td>
+        <td><p>Byte array</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="InnerLibs.FileType.html">FileType</a></td>
+        <td><span class="parametername">FileType</span></td>
+        <td><p>Tipo do Arquivo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_RangeDownload_" data-uid="InnerLibs.Web.RangeDownload*"></a>
+  <h4 id="InnerLibs_Web_RangeDownload_System_Web_HttpContext__System_Byte____System_String_" data-uid="InnerLibs.Web.RangeDownload(System.Web.HttpContext@,System.Byte[]@,System.String)">RangeDownload(ref HttpContext, ref Byte[], String)</h4>
+  <div class="markdown level1 summary"><p>Realiza um download parcial de um <span class="xref">System.Byte</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void RangeDownload(this ref HttpContext Context, ref byte[] Bytes, string ContentType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpContext</span></td>
+        <td><span class="parametername">Context</span></td>
+        <td><p>Context HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">Bytes</span></td>
+        <td><p>Byte array</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ContentType</span></td>
+        <td><p>MIME Type do Download</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_RemoveParameter_" data-uid="InnerLibs.Web.RemoveParameter*"></a>
+  <h4 id="InnerLibs_Web_RemoveParameter_System_Uri_System_String___" data-uid="InnerLibs.Web.RemoveParameter(System.Uri,System.String[])">RemoveParameter(Uri, String[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Uri RemoveParameter(this Uri Url, params string[] Keys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">Url</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Keys</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_RewriteUrl_" data-uid="InnerLibs.Web.RewriteUrl*"></a>
+  <h4 id="InnerLibs_Web_RewriteUrl_System_Web_HttpApplication_System_String_System_String_" data-uid="InnerLibs.Web.RewriteUrl(System.Web.HttpApplication,System.String,System.String)">RewriteUrl(HttpApplication, String, String)</h4>
+  <div class="markdown level1 summary"><p>Reescreve a URL original a partir de uma REGEX aplicada em uma URL amigavel</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static bool RewriteUrl(this HttpApplication App, string URLPattern, string OriginalURL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpApplication</span></td>
+        <td><span class="parametername">App</span></td>
+        <td><p>Aplicaçao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">URLPattern</span></td>
+        <td><p>REGEX da URL</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">OriginalURL</span></td>
+        <td><p>URL original</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_SelectValues_" data-uid="InnerLibs.Web.SelectValues*"></a>
+  <h4 id="InnerLibs_Web_SelectValues_System_Web_UI_HtmlControls_HtmlSelect_System_Func_System_Web_UI_WebControls_ListItem_System_Boolean__" data-uid="InnerLibs.Web.SelectValues(System.Web.UI.HtmlControls.HtmlSelect,System.Func{System.Web.UI.WebControls.ListItem,System.Boolean})">SelectValues(HtmlSelect, Func&lt;ListItem, Boolean&gt;)</h4>
+  <div class="markdown level1 summary"><p>Seleciona Valores de um <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HtmlSelect SelectValues(this HtmlSelect Control, Func&lt;ListItem, bool&gt; Predicate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Web.UI.WebControls.ListItem</span>, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="parametername">Predicate</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_SelectValues_" data-uid="InnerLibs.Web.SelectValues*"></a>
+  <h4 id="InnerLibs_Web_SelectValues_System_Web_UI_HtmlControls_HtmlSelect_System_String___" data-uid="InnerLibs.Web.SelectValues(System.Web.UI.HtmlControls.HtmlSelect,System.String[])">SelectValues(HtmlSelect, String[])</h4>
+  <div class="markdown level1 summary"><p>Seleciona Valores de um <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HtmlSelect SelectValues(this HtmlSelect Control, params string[] Values)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">Values</span></td>
+        <td><p>Valores que devem receber a propriedade select</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_SetItem_" data-uid="InnerLibs.Web.SetItem*"></a>
+  <h4 id="InnerLibs_Web_SetItem_System_Web_UI_HtmlControls_HtmlSelect_System_String_System_String_" data-uid="InnerLibs.Web.SetItem(System.Web.UI.HtmlControls.HtmlSelect,System.String,System.String)">SetItem(HtmlSelect, String, String)</h4>
+  <div class="markdown level1 summary"><p>Adiciona um novo <span class="xref">System.Web.UI.WebControls.ListItem</span> ao <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span> se um item identico nao existir no mesmo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static ListItem SetItem(this HtmlSelect Control, string Text, string Value = &quot;&quot;)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Text</span></td>
+        <td><p>Texto do Item</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Value</span></td>
+        <td><p>Valor do Item</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.WebControls.ListItem</span></td>
+        <td><p>o objeto ListItem adicionado ou existente</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_SetItem_" data-uid="InnerLibs.Web.SetItem*"></a>
+  <h4 id="InnerLibs_Web_SetItem_System_Web_UI_HtmlControls_HtmlSelect_System_Web_UI_WebControls_ListItem_" data-uid="InnerLibs.Web.SetItem(System.Web.UI.HtmlControls.HtmlSelect,System.Web.UI.WebControls.ListItem)">SetItem(HtmlSelect, ListItem)</h4>
+  <div class="markdown level1 summary"><p>Adiciona um novo <span class="xref">System.Web.UI.WebControls.ListItem</span> ao <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span> se um item identico nao existir no mesmo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static ListItem SetItem(this HtmlSelect Control, ListItem li)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Web.UI.WebControls.ListItem</span></td>
+        <td><span class="parametername">li</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.WebControls.ListItem</span></td>
+        <td><p>o objeto ListItem adicionado ou existente</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_SetItems_" data-uid="InnerLibs.Web.SetItems*"></a>
+  <h4 id="InnerLibs_Web_SetItems_System_Web_UI_HtmlControls_HtmlSelect_System_Collections_Generic_List_System_Web_UI_WebControls_ListItem__" data-uid="InnerLibs.Web.SetItems(System.Web.UI.HtmlControls.HtmlSelect,System.Collections.Generic.List{System.Web.UI.WebControls.ListItem})">SetItems(HtmlSelect, List&lt;ListItem&gt;)</h4>
+  <div class="markdown level1 summary"><p>Adiciona varios <span class="xref">System.Web.UI.WebControls.ListItem</span> ao <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span> se estes nao existirem no mesmo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HtmlSelect SetItems(this HtmlSelect Control, List&lt;ListItem&gt; List)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Web.UI.WebControls.ListItem</span>&gt;</td>
+        <td><span class="parametername">List</span></td>
+        <td><p>Lista de itens que serão adicionados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><p>o objeto ListItem adicionado ou existente</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_SetItems_" data-uid="InnerLibs.Web.SetItems*"></a>
+  <h4 id="InnerLibs_Web_SetItems__3_System_Web_UI_HtmlControls_HtmlSelect_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Func___0___2____2___" data-uid="InnerLibs.Web.SetItems``3(System.Web.UI.HtmlControls.HtmlSelect,System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2},``2[])">SetItems&lt;T, TextType, ValueType&gt;(HtmlSelect, IEnumerable&lt;T&gt;, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;, ValueType[])</h4>
+  <div class="markdown level1 summary"><p>Adiciona varios <span class="xref">System.Web.UI.WebControls.ListItem</span> ao <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span> se estes nao existirem no mesmo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HtmlSelect SetItems&lt;T, TextType, ValueType&gt;(this HtmlSelect Control, IEnumerable&lt;T&gt; List, Func&lt;T, TextType&gt; Text, Func&lt;T, ValueType&gt; Value, params ValueType[] SelectedValues)
+    where T : class</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">List</span></td>
+        <td><p>Lista de itens que serão adicionados</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, TextType&gt;</td>
+        <td><span class="parametername">Text</span></td>
+        <td><p>Texto do Item</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, ValueType&gt;</td>
+        <td><span class="parametername">Value</span></td>
+        <td><p>Valor do Item</p>
+</td>
+      </tr>
+      <tr>
+        <td>ValueType[]</td>
+        <td><span class="parametername">SelectedValues</span></td>
+        <td><p>QUais valores devem ser selecionados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><p>o objeto ListItem adicionado ou existente</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TextType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">ValueType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_SetItems_" data-uid="InnerLibs.Web.SetItems*"></a>
+  <h4 id="InnerLibs_Web_SetItems__3_System_Web_UI_HtmlControls_HtmlSelect_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Func___0___2__System_Func___0_System_Boolean__" data-uid="InnerLibs.Web.SetItems``3(System.Web.UI.HtmlControls.HtmlSelect,System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2},System.Func{``0,System.Boolean})">SetItems&lt;T, TextType, ValueType&gt;(HtmlSelect, IEnumerable&lt;T&gt;, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;, Func&lt;T, Boolean&gt;)</h4>
+  <div class="markdown level1 summary"><p>Adiciona varios <span class="xref">System.Web.UI.WebControls.ListItem</span> ao <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span> se estes nao existirem no mesmo</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HtmlSelect SetItems&lt;T, TextType, ValueType&gt;(this HtmlSelect Control, IEnumerable&lt;T&gt; List, Func&lt;T, TextType&gt; Text, Func&lt;T, ValueType&gt; Value = null, Func&lt;T, bool&gt; Selected = null)
+    where T : class</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>Controle <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">List</span></td>
+        <td><p>Lista de itens que serão adicionados</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, TextType&gt;</td>
+        <td><span class="parametername">Text</span></td>
+        <td><p>Texto do Item</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, ValueType&gt;</td>
+        <td><span class="parametername">Value</span></td>
+        <td><p>Valor do Item</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="parametername">Selected</span></td>
+        <td><p>QUais valores devem ser selecionados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><p>o objeto ListItem adicionado ou existente</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TextType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">ValueType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToCookie_" data-uid="InnerLibs.Web.ToCookie*"></a>
+  <h4 id="InnerLibs_Web_ToCookie_System_Web_SessionState_HttpSessionState_System_String_System_DateTime_" data-uid="InnerLibs.Web.ToCookie(System.Web.SessionState.HttpSessionState,System.String,System.DateTime)">ToCookie(HttpSessionState, String, DateTime)</h4>
+  <div class="markdown level1 summary"><p>Cria um cookie guardando todos os valores da sessão atual</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HttpCookie ToCookie(this HttpSessionState Session, string CookieName = &quot;&quot;, DateTime Expires)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.SessionState.HttpSessionState</span></td>
+        <td><span class="parametername">Session</span></td>
+        <td><p>Sessão</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">CookieName</span></td>
+        <td><p>Nome do Cookie</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">Expires</span></td>
+        <td><p>Data de expiração</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpCookie</span></td>
+        <td><p>Um cookie com os valores da sessão</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToCookie_" data-uid="InnerLibs.Web.ToCookie*"></a>
+  <h4 id="InnerLibs_Web_ToCookie_System_Web_SessionState_HttpSessionState_System_String_System_DateTime_System_String___" data-uid="InnerLibs.Web.ToCookie(System.Web.SessionState.HttpSessionState,System.String,System.DateTime,System.String[])">ToCookie(HttpSessionState, String, DateTime, String[])</h4>
+  <div class="markdown level1 summary"><p>Cria um cookie guardando valores especificos da sessão atual</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HttpCookie ToCookie(this HttpSessionState Session, string CookieName, DateTime Expires, params string[] SessionKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.SessionState.HttpSessionState</span></td>
+        <td><span class="parametername">Session</span></td>
+        <td><p>Sessão</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">CookieName</span></td>
+        <td><p>Nome do Cookie</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
+        <td><span class="parametername">Expires</span></td>
+        <td><p>Data de expiração</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">SessionKeys</span></td>
+        <td><p>As keys especificas que você quer guardar</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpCookie</span></td>
+        <td><p>Um cookie com os valores da sessão</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToCookie_" data-uid="InnerLibs.Web.ToCookie*"></a>
+  <h4 id="InnerLibs_Web_ToCookie_System_Web_SessionState_HttpSessionState_System_String_System_String___" data-uid="InnerLibs.Web.ToCookie(System.Web.SessionState.HttpSessionState,System.String,System.String[])">ToCookie(HttpSessionState, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Cria um cookie guardando valores especificos da sessão atual (1 dia de duração)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static HttpCookie ToCookie(this HttpSessionState Session, string CookieName, params string[] SessionKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.SessionState.HttpSessionState</span></td>
+        <td><span class="parametername">Session</span></td>
+        <td><p>Sessão</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">CookieName</span></td>
+        <td><p>Nome do Cookie</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">SessionKeys</span></td>
+        <td><p>As keys especificas que você quer guardar</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpCookie</span></td>
+        <td><p>Um cookie com os valores da sessão</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToHtmlString_" data-uid="InnerLibs.Web.ToHtmlString*"></a>
+  <h4 id="InnerLibs_Web_ToHtmlString_System_Web_UI_HtmlControls_HtmlSelect_" data-uid="InnerLibs.Web.ToHtmlString(System.Web.UI.HtmlControls.HtmlSelect)">ToHtmlString(HtmlSelect)</h4>
+  <div class="markdown level1 summary"><p>Retorna uma string HTML de um <span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToHtmlString(this HtmlSelect Control)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.UI.HtmlControls.HtmlSelect</span></td>
+        <td><span class="parametername">Control</span></td>
+        <td><p>COntrole HTMLSelect</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToINSERT_" data-uid="InnerLibs.Web.ToINSERT*"></a>
+  <h4 id="InnerLibs_Web_ToINSERT_System_Collections_Specialized_NameValueCollection_System_String_System_String___" data-uid="InnerLibs.Web.ToINSERT(System.Collections.Specialized.NameValueCollection,System.String,System.String[])">ToINSERT(NameValueCollection, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+uma URL como as colunas da tabela de destino</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static object ToINSERT(this NameValueCollection Request, string TableName, params string[] QueryStringKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Specialized.NameValueCollection</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p>Nome da tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">QueryStringKeys</span></td>
+        <td><p>Parametros da URL que devem ser utilizados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToINSERT_" data-uid="InnerLibs.Web.ToINSERT*"></a>
+  <h4 id="InnerLibs_Web_ToINSERT_System_Web_HttpRequest_System_String_System_String___" data-uid="InnerLibs.Web.ToINSERT(System.Web.HttpRequest,System.String,System.String[])">ToINSERT(HttpRequest, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+uma URL como as colunas da tabela de destino</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static object ToINSERT(this HttpRequest Request, string TableName, params string[] QueryStringKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpRequest</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p>Nome da Procedure</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">QueryStringKeys</span></td>
+        <td><p>Parametros da URL que devem ser utilizados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToINSERTorUPDATE_" data-uid="InnerLibs.Web.ToINSERTorUPDATE*"></a>
+  <h4 id="InnerLibs_Web_ToINSERTorUPDATE_System_Collections_Specialized_NameValueCollection_System_String_System_String_System_String___" data-uid="InnerLibs.Web.ToINSERTorUPDATE(System.Collections.Specialized.NameValueCollection,System.String,System.String,System.String[])">ToINSERTorUPDATE(NameValueCollection, String, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de
+uma URL como as colunas da tabela de destino</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToINSERTorUPDATE(this NameValueCollection Request, string TableName, string QueryStringPrimaryKey, params string[] QueryStringKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Specialized.NameValueCollection</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p>Nome da Tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">QueryStringPrimaryKey</span></td>
+        <td><p>Parametro que representa a chave primaria da Tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">QueryStringKeys</span></td>
+        <td><p>Parametros da URL que devem ser utilizados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToINSERTorUPDATE_" data-uid="InnerLibs.Web.ToINSERTorUPDATE*"></a>
+  <h4 id="InnerLibs_Web_ToINSERTorUPDATE_System_Web_HttpRequest_System_String_System_String_System_String___" data-uid="InnerLibs.Web.ToINSERTorUPDATE(System.Web.HttpRequest,System.String,System.String,System.String[])">ToINSERTorUPDATE(HttpRequest, String, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de
+uma URL como as colunas da tabela de destino</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToINSERTorUPDATE(this HttpRequest Request, string TableName, string QueryStringPrimaryKey, params string[] QueryStringKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpRequest</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p>Nome da Tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">QueryStringPrimaryKey</span></td>
+        <td><p>Parametro que representa a chave primaria da Tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">QueryStringKeys</span></td>
+        <td><p>Parametros da URL que devem ser utilizados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToListItems_" data-uid="InnerLibs.Web.ToListItems*"></a>
+  <h4 id="InnerLibs_Web_ToListItems__3_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Func___0___2____2___" data-uid="InnerLibs.Web.ToListItems``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2},``2[])">ToListItems&lt;T, TextType, ValueType&gt;(IEnumerable&lt;T&gt;, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;, ValueType[])</h4>
+  <div class="markdown level1 summary"><p>Retorna uma lista de <span class="xref">System.Web.UI.WebControls.ListItem</span> a partir de uma coleçao de objetos</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;ListItem&gt; ToListItems&lt;T, TextType, ValueType&gt;(this IEnumerable&lt;T&gt; List, Func&lt;T, TextType&gt; Text, Func&lt;T, ValueType&gt; Value, params ValueType[] SelectedValues)
+    where T : class</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">List</span></td>
+        <td><p>Lista</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, TextType&gt;</td>
+        <td><span class="parametername">Text</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, ValueType&gt;</td>
+        <td><span class="parametername">Value</span></td>
+        <td><p>Valor do ListItem</p>
+</td>
+      </tr>
+      <tr>
+        <td>ValueType[]</td>
+        <td><span class="parametername">SelectedValues</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Web.UI.WebControls.ListItem</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>Tipo do objeto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TextType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">ValueType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToListItems_" data-uid="InnerLibs.Web.ToListItems*"></a>
+  <h4 id="InnerLibs_Web_ToListItems__3_System_Collections_Generic_IEnumerable___0__System_Func___0___1__System_Func___0___2__System_Func___0_System_Boolean__" data-uid="InnerLibs.Web.ToListItems``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2},System.Func{``0,System.Boolean})">ToListItems&lt;T, TextType, ValueType&gt;(IEnumerable&lt;T&gt;, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;, Func&lt;T, Boolean&gt;)</h4>
+  <div class="markdown level1 summary"><p>Retorna uma lista de <span class="xref">System.Web.UI.WebControls.ListItem</span> a partir de uma coleçao de objetos</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static List&lt;ListItem&gt; ToListItems&lt;T, TextType, ValueType&gt;(this IEnumerable&lt;T&gt; List, Func&lt;T, TextType&gt; Text, Func&lt;T, ValueType&gt; Value = null, Func&lt;T, bool&gt; Selected = null)
+    where T : class</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">List</span></td>
+        <td><p>Lista</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, TextType&gt;</td>
+        <td><span class="parametername">Text</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, ValueType&gt;</td>
+        <td><span class="parametername">Value</span></td>
+        <td><p>Valor do ListItem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;T, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="parametername">Selected</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.Web.UI.WebControls.ListItem</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>Tipo do objeto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TextType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="parametername">ValueType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToProcedure_" data-uid="InnerLibs.Web.ToProcedure*"></a>
+  <h4 id="InnerLibs_Web_ToProcedure_System_Web_HttpRequest_System_String_" data-uid="InnerLibs.Web.ToProcedure(System.Web.HttpRequest,System.String)">ToProcedure(HttpRequest, String)</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar uma procedure especifica e trata todos os parametros de
+uma URL como parametros da procedure</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToProcedure(this HttpRequest Request, string ProcedureName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpRequest</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ProcedureName</span></td>
+        <td><p>Nome da Procedure</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToProcedure_" data-uid="InnerLibs.Web.ToProcedure*"></a>
+  <h4 id="InnerLibs_Web_ToProcedure_System_Web_HttpRequest_System_String_System_String___" data-uid="InnerLibs.Web.ToProcedure(System.Web.HttpRequest,System.String,System.String[])">ToProcedure(HttpRequest, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
+uma URL como parametros da procedure</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToProcedure(this HttpRequest Request, string ProcedureName, params string[] QueryStringKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpRequest</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ProcedureName</span></td>
+        <td><p>Nome da Procedure</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">QueryStringKeys</span></td>
+        <td><p>Parametros da URL que devem ser utilizados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToUPDATE_" data-uid="InnerLibs.Web.ToUPDATE*"></a>
+  <h4 id="InnerLibs_Web_ToUPDATE_System_Collections_Specialized_NameValueCollection_System_String_System_String_System_String___" data-uid="InnerLibs.Web.ToUPDATE(System.Collections.Specialized.NameValueCollection,System.String,System.String,System.String[])">ToUPDATE(NameValueCollection, String, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+uma URL como as colunas da tabela de destino</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static object ToUPDATE(this NameValueCollection Request, string TableName, string WhereClausule, params string[] QueryStringKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Specialized.NameValueCollection</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p>Nome da tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">WhereClausule</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">QueryStringKeys</span></td>
+        <td><p>Parametros da URL que devem ser utilizados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_ToUPDATE_" data-uid="InnerLibs.Web.ToUPDATE*"></a>
+  <h4 id="InnerLibs_Web_ToUPDATE_System_Web_HttpRequest_System_String_System_String_System_String___" data-uid="InnerLibs.Web.ToUPDATE(System.Web.HttpRequest,System.String,System.String,System.String[])">ToUPDATE(HttpRequest, String, String, String[])</h4>
+  <div class="markdown level1 summary"><p>Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
+uma URL como as colunas da tabela de destino</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static object ToUPDATE(this HttpRequest Request, string TableName, string WhereClausule, params string[] QueryStringKeys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpRequest</span></td>
+        <td><span class="parametername">Request</span></td>
+        <td><p>Requisicao HTTP</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">TableName</span></td>
+        <td><p>Nome da tabela</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">WhereClausule</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">QueryStringKeys</span></td>
+        <td><p>Parametros da URL que devem ser utilizados</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><p>Uma string com o comando montado</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteCSV_" data-uid="InnerLibs.Web.WriteCSV*"></a>
+  <h4 id="InnerLibs_Web_WriteCSV_System_Web_HttpResponse_System_String_System_String_" data-uid="InnerLibs.Web.WriteCSV(System.Web.HttpResponse,System.String,System.String)">WriteCSV(HttpResponse, String, String)</h4>
+  <div class="markdown level1 summary"><p>Escreve um arquivo CSV e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteCSV(this HttpResponse Response, string CSVString, string FileName = &quot;CSV&quot;)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">CSVString</span></td>
+        <td><p>String com o conteudo do arquivo CSV</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">FileName</span></td>
+        <td><p>Nome do arquivo CSV</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteEnd_" data-uid="InnerLibs.Web.WriteEnd*"></a>
+  <h4 id="InnerLibs_Web_WriteEnd_System_Web_HttpResponse_InnerLibs_HtmlParser_HtmlDocument_" data-uid="InnerLibs.Web.WriteEnd(System.Web.HttpResponse,InnerLibs.HtmlParser.HtmlDocument)">WriteEnd(HttpResponse, HtmlDocument)</h4>
+  <div class="markdown level1 summary"><p>Escreve um texto e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteEnd(this HttpResponse Response, HtmlDocument Text)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlDocument.html">HtmlDocument</a></td>
+        <td><span class="parametername">Text</span></td>
+        <td><p>Texto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteEnd_" data-uid="InnerLibs.Web.WriteEnd*"></a>
+  <h4 id="InnerLibs_Web_WriteEnd_System_Web_HttpResponse_System_String_" data-uid="InnerLibs.Web.WriteEnd(System.Web.HttpResponse,System.String)">WriteEnd(HttpResponse, String)</h4>
+  <div class="markdown level1 summary"><p>Escreve um texto e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteEnd(this HttpResponse Response, string Text)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Text</span></td>
+        <td><p>Texto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteImage_" data-uid="InnerLibs.Web.WriteImage*"></a>
+  <h4 id="InnerLibs_Web_WriteImage_System_Web_HttpResponse_System_Byte___InnerLibs_FileType_" data-uid="InnerLibs.Web.WriteImage(System.Web.HttpResponse,System.Byte[],InnerLibs.FileType)">WriteImage(HttpResponse, Byte[], FileType)</h4>
+  <div class="markdown level1 summary"><p>Escreve uma imagem e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteImage(this HttpResponse Response, byte[] Image, FileType MimeType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="InnerLibs.FileType.html">FileType</a></td>
+        <td><span class="parametername">MimeType</span></td>
+        <td><p>Formato MIME Type</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteImage_" data-uid="InnerLibs.Web.WriteImage*"></a>
+  <h4 id="InnerLibs_Web_WriteImage_System_Web_HttpResponse_System_Byte___System_String_" data-uid="InnerLibs.Web.WriteImage(System.Web.HttpResponse,System.Byte[],System.String)">WriteImage(HttpResponse, Byte[], String)</h4>
+  <div class="markdown level1 summary"><p>Escreve uma imagem e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteImage(this HttpResponse Response, byte[] Image, string MimeType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">MimeType</span></td>
+        <td><p>Formato MIME Type</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteImage_" data-uid="InnerLibs.Web.WriteImage*"></a>
+  <h4 id="InnerLibs_Web_WriteImage_System_Web_HttpResponse_System_Drawing_Image_System_Drawing_Imaging_ImageFormat_" data-uid="InnerLibs.Web.WriteImage(System.Web.HttpResponse,System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">WriteImage(HttpResponse, Image, ImageFormat)</h4>
+  <div class="markdown level1 summary"><p>Escreve uma imagem e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteImage(this HttpResponse Response, Image Image, ImageFormat ImageFormat = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p>Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span></td>
+        <td><span class="parametername">ImageFormat</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteJSON_" data-uid="InnerLibs.Web.WriteJSON*"></a>
+  <h4 id="InnerLibs_Web_WriteJSON_System_Web_HttpResponse_InnerLibs_AJAX_Response_" data-uid="InnerLibs.Web.WriteJSON(System.Web.HttpResponse,InnerLibs.AJAX.Response)">WriteJSON(HttpResponse, AJAX.Response)</h4>
+  <div class="markdown level1 summary"><p>Escreve um JSON e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteJSON(this HttpResponse Response, AJAX.Response JSON)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="InnerLibs.AJAX.Response.html">AJAX.Response</a></td>
+        <td><span class="parametername">JSON</span></td>
+        <td><p>Objeto de resposta AJAX</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteJSON_" data-uid="InnerLibs.Web.WriteJSON*"></a>
+  <h4 id="InnerLibs_Web_WriteJSON_System_Web_HttpResponse_InnerLibs_HtmlParser_HtmlDocument_" data-uid="InnerLibs.Web.WriteJSON(System.Web.HttpResponse,InnerLibs.HtmlParser.HtmlDocument)">WriteJSON(HttpResponse, HtmlDocument)</h4>
+  <div class="markdown level1 summary"><p>Escreve um <a class="xref" href="InnerLibs.HtmlParser.HtmlDocument.html">HtmlDocument</a> e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteJSON(this HttpResponse HttpResponse, HtmlDocument Document)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">HttpResponse</span></td>
+        <td><p>Response</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlDocument.html">HtmlDocument</a></td>
+        <td><span class="parametername">Document</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteJSON_" data-uid="InnerLibs.Web.WriteJSON*"></a>
+  <h4 id="InnerLibs_Web_WriteJSON_System_Web_HttpResponse_System_String_" data-uid="InnerLibs.Web.WriteJSON(System.Web.HttpResponse,System.String)">WriteJSON(HttpResponse, String)</h4>
+  <div class="markdown level1 summary"><p>Escreve um JSON e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteJSON(this HttpResponse Response, string JSON)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">JSON</span></td>
+        <td><p>String JSON</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteJSON_" data-uid="InnerLibs.Web.WriteJSON*"></a>
+  <h4 id="InnerLibs_Web_WriteJSON_System_Web_HttpResponse_System_String_System_String_System_Object_" data-uid="InnerLibs.Web.WriteJSON(System.Web.HttpResponse,System.String,System.String,System.Object)">WriteJSON(HttpResponse, String, String, Object)</h4>
+  <div class="markdown level1 summary"><p>Escreve um JSON e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteJSON(this HttpResponse HttpResponse, string Status, string Message, object Response = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">HttpResponse</span></td>
+        <td><p>Response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Status</span></td>
+        <td><p>Status</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Message</span></td>
+        <td><p>Mensagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>Objeto anexado ao JSON</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteJSON_" data-uid="InnerLibs.Web.WriteJSON*"></a>
+  <h4 id="InnerLibs_Web_WriteJSON__1_System_Web_HttpResponse___0_" data-uid="InnerLibs.Web.WriteJSON``1(System.Web.HttpResponse,``0)">WriteJSON&lt;Type&gt;(HttpResponse, Type)</h4>
+  <div class="markdown level1 summary"><p>Escreve um JSON e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteJSON&lt;Type&gt;(this HttpResponse Response, Type JSON)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">Type</span></td>
+        <td><span class="parametername">JSON</span></td>
+        <td><p>Objeto de resposta AJAX</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">Type</span></td>
+        <td><p>Tipo de Objeto que será Serializado em JSON</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteJSON_" data-uid="InnerLibs.Web.WriteJSON*"></a>
+  <h4 id="InnerLibs_Web_WriteJSON__1_System_Web_HttpResponse_System_Func___0__System_String_System_String_" data-uid="InnerLibs.Web.WriteJSON``1(System.Web.HttpResponse,System.Func{``0},System.String,System.String)">WriteJSON&lt;Type&gt;(HttpResponse, Func&lt;Type&gt;, String, String)</h4>
+  <div class="markdown level1 summary"><p>Escreve um JSON e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteJSON&lt;Type&gt;(this HttpResponse HttpResponse, Func&lt;Type&gt; ActResponse, string SuccessMessage = &quot;&quot;, string ErrorMessage = &quot;&quot;)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">HttpResponse</span></td>
+        <td><p>Response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;Type&gt;</td>
+        <td><span class="parametername">ActResponse</span></td>
+        <td><p>Função Anexada que dará origem ao response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">SuccessMessage</span></td>
+        <td><p>Mensagem de Sucesso</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ErrorMessage</span></td>
+        <td><p>Mensagem de Erro</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">Type</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteRedirect_" data-uid="InnerLibs.Web.WriteRedirect*"></a>
+  <h4 id="InnerLibs_Web_WriteRedirect_System_Web_HttpResponse_System_Uri_System_String_System_Int32_" data-uid="InnerLibs.Web.WriteRedirect(System.Web.HttpResponse,System.Uri,System.String,System.Int32)">WriteRedirect(HttpResponse, Uri, String, Int32)</h4>
+  <div class="markdown level1 summary"><p>Esreve um script de Redirect na pagina e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteRedirect(this HttpResponse Response, Uri Url, string Message = &quot;&quot;, int RefreshTime = 1)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">Url</span></td>
+        <td><p>Url de Redirect</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Message</span></td>
+        <td><p>Mensagem na pagina</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">RefreshTime</span></td>
+        <td><p>Tempo em segundos para dar Redirect</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteScript_" data-uid="InnerLibs.Web.WriteScript*"></a>
+  <h4 id="InnerLibs_Web_WriteScript_System_Web_HttpResponse_System_String_" data-uid="InnerLibs.Web.WriteScript(System.Web.HttpResponse,System.String)">WriteScript(HttpResponse, String)</h4>
+  <div class="markdown level1 summary"><p>Escreve um script na página</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteScript(this HttpResponse Response, string ScriptOrURL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ScriptOrURL</span></td>
+        <td><p>Texto ou URL absoluta do Script</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteXML_" data-uid="InnerLibs.Web.WriteXML*"></a>
+  <h4 id="InnerLibs_Web_WriteXML_System_Web_HttpResponse_System_String_" data-uid="InnerLibs.Web.WriteXML(System.Web.HttpResponse,System.String)">WriteXML(HttpResponse, String)</h4>
+  <div class="markdown level1 summary"><p>Escreve um XML e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteXML(this HttpResponse Response, string XML)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">XML</span></td>
+        <td><p>String XML</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Web_WriteXML_" data-uid="InnerLibs.Web.WriteXML*"></a>
+  <h4 id="InnerLibs_Web_WriteXML_System_Web_HttpResponse_System_Xml_XmlDocument_" data-uid="InnerLibs.Web.WriteXML(System.Web.HttpResponse,System.Xml.XmlDocument)">WriteXML(HttpResponse, XmlDocument)</h4>
+  <div class="markdown level1 summary"><p>Escreve um XML e finaliza um HttpResponse</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static void WriteXML(this HttpResponse Response, XmlDocument XML)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpResponse</span></td>
+        <td><span class="parametername">Response</span></td>
+        <td><p>HttpResponse</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Xml.XmlDocument</span></td>
+        <td><span class="parametername">XML</span></td>
+        <td><p>String XML</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_CreateDictionary__1___0_">ClassTools.CreateDictionary&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_System_Reflection_BindingFlags_">ClassTools.GetProperties(Object, BindingFlags)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_">ClassTools.GetProperties(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Type_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Type, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue__1_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue&lt;Type&gt;(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_HasProperty_System_Object_System_String_">ClassTools.HasProperty(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsArrayOf__1_System_Object_">ClassTools.IsArrayOf&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsDictionary_System_Object_">ClassTools.IsDictionary(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsInAny__1___0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsInAny&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;[], IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsList_System_Object_">ClassTools.IsList(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsNotIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsNotIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsType__1_System_Object_">ClassTools.IsType&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullCoalesce__1___0___0___">ClassTools.NullCoalesce&lt;T&gt;(T, T[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullifyProperties__1___0_">ClassTools.NullifyProperties&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValue__1_System_Object_System_String___0_">ClassTools.SetPropertyValue&lt;Type&gt;(Object, String, Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValueFromCollection__1_System_Object_System_String_System_Collections_CollectionBase_">ClassTools.SetPropertyValueFromCollection&lt;Type&gt;(Object, String, CollectionBase)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_ToFlatString_System_Object_System_String_">ClassTools.ToFlatString(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.DataManipulation.html#InnerLibs_DataManipulation_GetDbType_System_Object_">DataManipulation.GetDbType(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_DefineEmptyList__1___0_">Converter.DefineEmptyList&lt;T&gt;(T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_ChangeType__2___1_">Converter.ChangeType&lt;ToType, FromType&gt;(FromType)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.JsonViewer.html#InnerLibs_JsonViewer_CreateNode_System_Object_">JsonViewer.CreateNode(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Mathematic.html#InnerLibs_Mathematic_IsBetween__1___0_System_Object_System_Object_">Mathematic.IsBetween&lt;Type&gt;(Type, Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Text.html#InnerLibs_Text_SerializeJSON_System_Object_System_String_">Text.SerializeJSON(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNumber_System_Object_">Verify.IsNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNotNumber_System_Object_">Verify.IsNotNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IfBlank__1_System_Object___0_">Verify.IfBlank&lt;T&gt;(Object, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0_System_Func___0_System_Boolean__">Verify.NullIf&lt;T&gt;(T, Func&lt;T, Boolean&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0___0_">Verify.NullIf&lt;T&gt;(T, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_CreateFromAjax__1___0__System_String_System_String_System_Collections_Specialized_NameValueCollection_System_String_System_Text_Encoding_">Web.CreateFromAjax&lt;Type&gt;(ref Type, String, String, NameValueCollection, String, Encoding)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_AsListItem__3___0_System_Func___0___1__System_Func___0___2__">Web.AsListItem&lt;T, TextType, ValueType&gt;(T, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_GetCastedValue_System_Object_">WinForms.GetCastedValue(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_CastValueForControl_System_Object__System_Object_">WinForms.CastValueForControl(ref Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_ApplyToControls__1___0_System_Web_UI_HtmlControls_HtmlControl___">LINQExtensions.ApplyToControls&lt;T&gt;(T, HtmlControl[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_HasSamePropertyValues__1___0___0_System_Func___0_System_Object____">LINQExtensions.HasSamePropertyValues&lt;T&gt;(T, T, Func&lt;T, Object&gt;[])</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

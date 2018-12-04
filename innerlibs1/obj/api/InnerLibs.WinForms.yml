@@ -1,0 +1,6177 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.WinForms
+  commentId: T:InnerLibs.WinForms
+  id: WinForms
+  parent: InnerLibs
+  children:
+  - InnerLibs.WinForms.AddClick(System.Windows.Forms.Control@,System.EventHandler)
+  - InnerLibs.WinForms.Alert(System.String)
+  - InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+  - InnerLibs.WinForms.Confirm(System.String)
+  - InnerLibs.WinForms.CreateDictionary(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})
+  - InnerLibs.WinForms.CreateFontFromFile(System.String,System.Int32,System.Drawing.FontStyle)
+  - InnerLibs.WinForms.CreateFontFromResource(System.Byte[],System.Int32,System.Drawing.FontStyle)
+  - InnerLibs.WinForms.GetAllControls``1(System.Web.UI.Control)
+  - InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control)
+  - InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control,System.Func{System.Windows.Forms.Control,System.Boolean})
+  - InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeNode)
+  - InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeView)
+  - InnerLibs.WinForms.GetCastedValue(System.Object)
+  - InnerLibs.WinForms.Notify(System.String,System.EventHandler,System.String,System.Drawing.Size,System.Int32,System.Boolean,InnerLibs.RemainTimeBehavior)
+  - InnerLibs.WinForms.Prompt(System.String,System.String)
+  - InnerLibs.WinForms.RemoveClick(System.Windows.Forms.Control@,System.EventHandler)
+  - InnerLibs.WinForms.RestartAsAdmin(System.Boolean)
+  - InnerLibs.WinForms.SetTelephoneMask(System.Windows.Forms.MaskedTextBox)
+  - InnerLibs.WinForms.ToFullScreen(System.Windows.Forms.Form,System.Int32)
+  langs:
+  - csharp
+  - vb
+  name: WinForms
+  nameWithType: WinForms
+  fullName: InnerLibs.WinForms
+  type: Class
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: WinForms
+    path: WinForms.vb
+    startLine: 11
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nMódulo de controle de formulários\n"
+  remarks: ''
+  example: []
+  syntax:
+    content: public class WinForms
+    content.vb: Public Module WinForms
+  extensionMethods:
+  - InnerLibs.WinForms.InnerLibs.ClassTools.CreateDictionary
+  - System.Object.InnerLibs.ClassTools.GetProperties(System.Reflection.BindingFlags)
+  - System.Object.InnerLibs.ClassTools.GetProperties
+  - System.Object.InnerLibs.ClassTools.GetPropertyValue(System.String,System.Type,System.Boolean)
+  - System.Object.InnerLibs.ClassTools.GetPropertyValue``1(System.String,System.Boolean)
+  - System.Object.InnerLibs.ClassTools.GetPropertyValue(System.String,System.Boolean)
+  - System.Object.InnerLibs.ClassTools.HasProperty(System.String)
+  - System.Object.InnerLibs.ClassTools.IsArrayOf``1
+  - System.Object.InnerLibs.ClassTools.IsDictionary
+  - InnerLibs.WinForms.InnerLibs.ClassTools.IsIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+  - InnerLibs.WinForms.InnerLibs.ClassTools.IsIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  - InnerLibs.WinForms.InnerLibs.ClassTools.IsInAny(System.Collections.Generic.IEnumerable{InnerLibs.WinForms}[],System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+  - System.Object.InnerLibs.ClassTools.IsList
+  - InnerLibs.WinForms.InnerLibs.ClassTools.IsNotIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+  - InnerLibs.WinForms.InnerLibs.ClassTools.IsNotIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  - System.Object.InnerLibs.ClassTools.IsType``1
+  - InnerLibs.WinForms.InnerLibs.ClassTools.NullCoalesce(InnerLibs.WinForms[])
+  - InnerLibs.WinForms.InnerLibs.ClassTools.NullifyProperties
+  - System.Object.InnerLibs.ClassTools.SetPropertyValue``1(System.String,{Type})
+  - System.Object.InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.String,System.Collections.CollectionBase)
+  - System.Object.InnerLibs.ClassTools.ToFlatString(System.String)
+  - System.Object.InnerLibs.DataManipulation.GetDbType
+  - InnerLibs.WinForms.InnerLibs.Converter.DefineEmptyList
+  - InnerLibs.WinForms.InnerLibs.Converter.ChangeType``1
+  - System.Object.InnerLibs.JsonViewer.CreateNode
+  - InnerLibs.WinForms.InnerLibs.Mathematic.IsBetween(System.Object,System.Object)
+  - System.Object.InnerLibs.Text.SerializeJSON(System.String)
+  - System.Object.InnerLibs.Verify.IsNumber
+  - System.Object.InnerLibs.Verify.IsNotNumber
+  - System.Object.InnerLibs.Verify.IfBlank``1({T})
+  - InnerLibs.WinForms.InnerLibs.Verify.NullIf(System.Func{InnerLibs.WinForms,System.Boolean})
+  - InnerLibs.WinForms.InnerLibs.Verify.NullIf(InnerLibs.WinForms)
+  - InnerLibs.WinForms.InnerLibs.Web.CreateFromAjax(System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+  - InnerLibs.WinForms.InnerLibs.Web.AsListItem``2(System.Func{InnerLibs.WinForms,{TextType}},System.Func{InnerLibs.WinForms,{ValueType}})
+  - System.Object.InnerLibs.WinForms.GetCastedValue
+  - System.Object.InnerLibs.WinForms.CastValueForControl(System.Object)
+  - InnerLibs.WinForms.InnerLibs.LINQ.LINQExtensions.ApplyToControls(System.Web.UI.HtmlControls.HtmlControl[])
+  - InnerLibs.WinForms.InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(InnerLibs.WinForms,System.Func{InnerLibs.WinForms,System.Object}[])
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: InnerLibs.WinForms.RestartAsAdmin(System.Boolean)
+  commentId: M:InnerLibs.WinForms.RestartAsAdmin(System.Boolean)
+  id: RestartAsAdmin(System.Boolean)
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: RestartAsAdmin(Boolean)
+  nameWithType: WinForms.RestartAsAdmin(Boolean)
+  fullName: InnerLibs.WinForms.RestartAsAdmin(System.Boolean)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: RestartAsAdmin
+    path: WinForms.vb
+    startLine: 17
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nReinicia a aplicação solicitando acesso administrativo se a mesma já não estiver em modo administrativo\n"
+  example: []
+  syntax:
+    content: public static void RestartAsAdmin(bool ForceRestart = false)
+    parameters:
+    - id: ForceRestart
+      type: System.Boolean
+      description: Força o reinicio da aplicação mesmo se ela estiver em modo administrativo
+    content.vb: Public Shared Sub RestartAsAdmin(ForceRestart As Boolean = False)
+  overload: InnerLibs.WinForms.RestartAsAdmin*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.Notify(System.String,System.EventHandler,System.String,System.Drawing.Size,System.Int32,System.Boolean,InnerLibs.RemainTimeBehavior)
+  commentId: M:InnerLibs.WinForms.Notify(System.String,System.EventHandler,System.String,System.Drawing.Size,System.Int32,System.Boolean,InnerLibs.RemainTimeBehavior)
+  id: Notify(System.String,System.EventHandler,System.String,System.Drawing.Size,System.Int32,System.Boolean,InnerLibs.RemainTimeBehavior)
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: Notify(String, EventHandler, String, Size, Int32, Boolean, RemainTimeBehavior)
+  nameWithType: WinForms.Notify(String, EventHandler, String, Size, Int32, Boolean, RemainTimeBehavior)
+  fullName: InnerLibs.WinForms.Notify(System.String, System.EventHandler, System.String, System.Drawing.Size, System.Int32, System.Boolean, InnerLibs.RemainTimeBehavior)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: Notify
+    path: WinForms.vb
+    startLine: 44
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nExibe uma notificação com uma mensagem\n"
+  example: []
+  syntax:
+    content: public static NotificationForm Notify(string Text, EventHandler Action = null, string OKButtonText = "OK", Size Size = default(Size), int LifeTimeSeconds = 10, bool ShowRemainTime = false, RemainTimeBehavior RemainTimeBehavior = RemainTimeBehavior.StackTime)
+    parameters:
+    - id: Text
+      type: System.String
+      description: Texto da notiicação
+    - id: Action
+      type: System.EventHandler
+      description: Ação do botão OK
+    - id: OKButtonText
+      type: System.String
+      description: texto do botão OK
+    - id: Size
+      type: System.Drawing.Size
+      description: Tamanho do Form
+    - id: LifeTimeSeconds
+      type: System.Int32
+      description: Tempo e que a notificação demora para fechar automaticamente
+    - id: ShowRemainTime
+      type: System.Boolean
+      description: Exibir/Esconder o contador da notificação
+    - id: RemainTimeBehavior
+      type: InnerLibs.RemainTimeBehavior
+    return:
+      type: InnerLibs.NotificationForm
+    content.vb: Public Shared Function Notify(Text As String, Action As EventHandler = Nothing, OKButtonText As String = "OK", Size As Size = Nothing, LifeTimeSeconds As Integer = 10, ShowRemainTime As Boolean = False, RemainTimeBehavior As RemainTimeBehavior = RemainTimeBehavior.StackTime) As NotificationForm
+  overload: InnerLibs.WinForms.Notify*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.CreateFontFromFile(System.String,System.Int32,System.Drawing.FontStyle)
+  commentId: M:InnerLibs.WinForms.CreateFontFromFile(System.String,System.Int32,System.Drawing.FontStyle)
+  id: CreateFontFromFile(System.String,System.Int32,System.Drawing.FontStyle)
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: CreateFontFromFile(String, Int32, FontStyle)
+  nameWithType: WinForms.CreateFontFromFile(String, Int32, FontStyle)
+  fullName: InnerLibs.WinForms.CreateFontFromFile(System.String, System.Int32, System.Drawing.FontStyle)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: CreateFontFromFile
+    path: WinForms.vb
+    startLine: 67
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nCria uma Font a partir de um arquivo\n"
+  example: []
+  syntax:
+    content: public static Font CreateFontFromFile(string Path, int Size = 12, FontStyle Style = FontStyle.Regular)
+    parameters:
+    - id: Path
+      type: System.String
+      description: caminho do arquivo
+    - id: Size
+      type: System.Int32
+    - id: Style
+      type: System.Drawing.FontStyle
+    return:
+      type: System.Drawing.Font
+      description: ''
+    content.vb: Public Shared Function CreateFontFromFile(Path As String, Size As Integer = 12, Style As FontStyle = FontStyle.Regular) As Font
+  overload: InnerLibs.WinForms.CreateFontFromFile*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeNode)
+  commentId: M:InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeNode)
+  id: GetAllNodes(System.Windows.Forms.TreeNode)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: GetAllNodes(TreeNode)
+  nameWithType: WinForms.GetAllNodes(TreeNode)
+  fullName: InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeNode)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: GetAllNodes
+    path: WinForms.vb
+    startLine: 78
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nTraz todos os nós descendentes de um nó pai\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static List<TreeNode> GetAllNodes(this TreeNode Node)
+    parameters:
+    - id: Node
+      type: System.Windows.Forms.TreeNode
+      description: nó
+    return:
+      type: System.Collections.Generic.List{System.Windows.Forms.TreeNode}
+      description: ''
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Function GetAllNodes(Node As TreeNode) As List(Of TreeNode)
+  overload: InnerLibs.WinForms.GetAllNodes*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeView)
+  commentId: M:InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeView)
+  id: GetAllNodes(System.Windows.Forms.TreeView)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: GetAllNodes(TreeView)
+  nameWithType: WinForms.GetAllNodes(TreeView)
+  fullName: InnerLibs.WinForms.GetAllNodes(System.Windows.Forms.TreeView)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: GetAllNodes
+    path: WinForms.vb
+    startLine: 93
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nTraz todos os nós descendentes de um TreeView\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static List<TreeNode> GetAllNodes(this TreeView Node)
+    parameters:
+    - id: Node
+      type: System.Windows.Forms.TreeView
+      description: nó
+    return:
+      type: System.Collections.Generic.List{System.Windows.Forms.TreeNode}
+      description: ''
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Function GetAllNodes(Node As TreeView) As List(Of TreeNode)
+  overload: InnerLibs.WinForms.GetAllNodes*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.CreateFontFromResource(System.Byte[],System.Int32,System.Drawing.FontStyle)
+  commentId: M:InnerLibs.WinForms.CreateFontFromResource(System.Byte[],System.Int32,System.Drawing.FontStyle)
+  id: CreateFontFromResource(System.Byte[],System.Int32,System.Drawing.FontStyle)
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: CreateFontFromResource(Byte[], Int32, FontStyle)
+  nameWithType: WinForms.CreateFontFromResource(Byte[], Int32, FontStyle)
+  fullName: InnerLibs.WinForms.CreateFontFromResource(System.Byte[], System.Int32, System.Drawing.FontStyle)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: CreateFontFromResource
+    path: WinForms.vb
+    startLine: 107
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nCria uma Font a partir de um arquivo embutido\n"
+  example: []
+  syntax:
+    content: public static Font CreateFontFromResource(byte[] Resource, int Size = 12, FontStyle Style = FontStyle.Regular)
+    parameters:
+    - id: Resource
+      type: System.Byte[]
+      description: Resource (Bytes()) do arquivo
+    - id: Size
+      type: System.Int32
+    - id: Style
+      type: System.Drawing.FontStyle
+    return:
+      type: System.Drawing.Font
+      description: ''
+    content.vb: Public Shared Function CreateFontFromResource(Resource As Byte(), Size As Integer = 12, Style As FontStyle = FontStyle.Regular) As Font
+  overload: InnerLibs.WinForms.CreateFontFromResource*
+  nameWithType.vb: WinForms.CreateFontFromResource(Byte(), Int32, FontStyle)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.CreateFontFromResource(System.Byte(), System.Int32, System.Drawing.FontStyle)
+  name.vb: CreateFontFromResource(Byte(), Int32, FontStyle)
+- uid: InnerLibs.WinForms.Alert(System.String)
+  commentId: M:InnerLibs.WinForms.Alert(System.String)
+  id: Alert(System.String)
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: Alert(String)
+  nameWithType: WinForms.Alert(String)
+  fullName: InnerLibs.WinForms.Alert(System.String)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: Alert
+    path: WinForms.vb
+    startLine: 118
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nExibe uma caixa de alerta com uma mensagem\n"
+  example: []
+  syntax:
+    content: public static void Alert(string Message)
+    parameters:
+    - id: Message
+      type: System.String
+      description: Texto da caixa de alerta
+    content.vb: Public Shared Sub Alert(Message As String)
+  overload: InnerLibs.WinForms.Alert*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.Confirm(System.String)
+  commentId: M:InnerLibs.WinForms.Confirm(System.String)
+  id: Confirm(System.String)
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: Confirm(String)
+  nameWithType: WinForms.Confirm(String)
+  fullName: InnerLibs.WinForms.Confirm(System.String)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: Confirm
+    path: WinForms.vb
+    startLine: 128
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nExibe uma caixa de comfirmação com uma mensagem\n"
+  example: []
+  syntax:
+    content: public static bool Confirm(string Message)
+    parameters:
+    - id: Message
+      type: System.String
+      description: Texto da caixa de confirmação
+    return:
+      type: System.Boolean
+      description: TRUE ou FALSE
+    content.vb: Public Shared Function Confirm(Message As String) As Boolean
+  overload: InnerLibs.WinForms.Confirm*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.Prompt(System.String,System.String)
+  commentId: M:InnerLibs.WinForms.Prompt(System.String,System.String)
+  id: Prompt(System.String,System.String)
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: Prompt(String, String)
+  nameWithType: WinForms.Prompt(String, String)
+  fullName: InnerLibs.WinForms.Prompt(System.String, System.String)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: Prompt
+    path: WinForms.vb
+    startLine: 137
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nExibe uma caixa de mensagem ao usuário esperando uma resposta\n"
+  example: []
+  syntax:
+    content: public static string Prompt(string Message, string DefaultText = "")
+    parameters:
+    - id: Message
+      type: System.String
+      description: Mensagem String
+    - id: DefaultText
+      type: System.String
+    return:
+      type: System.String
+      description: ''
+    content.vb: Public Shared Function Prompt(Message As String, DefaultText As String = "") As String
+  overload: InnerLibs.WinForms.Prompt*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.ToFullScreen(System.Windows.Forms.Form,System.Int32)
+  commentId: M:InnerLibs.WinForms.ToFullScreen(System.Windows.Forms.Form,System.Int32)
+  id: ToFullScreen(System.Windows.Forms.Form,System.Int32)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: ToFullScreen(Form, Int32)
+  nameWithType: WinForms.ToFullScreen(Form, Int32)
+  fullName: InnerLibs.WinForms.ToFullScreen(System.Windows.Forms.Form, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: ToFullScreen
+    path: WinForms.vb
+    startLine: 146
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nDeixa o Form em tela cheia.\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static Form ToFullScreen(this Form Form, int TheScreen = 0)
+    parameters:
+    - id: Form
+      type: System.Windows.Forms.Form
+      description: O formulario
+    - id: TheScreen
+      type: System.Int32
+      description: Qual tela o form será aplicado
+    return:
+      type: System.Windows.Forms.Form
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Function ToFullScreen(Form As Form, TheScreen As Integer = 0) As Form
+  overload: InnerLibs.WinForms.ToFullScreen*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.SetTelephoneMask(System.Windows.Forms.MaskedTextBox)
+  commentId: M:InnerLibs.WinForms.SetTelephoneMask(System.Windows.Forms.MaskedTextBox)
+  id: SetTelephoneMask(System.Windows.Forms.MaskedTextBox)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: SetTelephoneMask(MaskedTextBox)
+  nameWithType: WinForms.SetTelephoneMask(MaskedTextBox)
+  fullName: InnerLibs.WinForms.SetTelephoneMask(System.Windows.Forms.MaskedTextBox)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: SetTelephoneMask
+    path: WinForms.vb
+    startLine: 163
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nAplica máscara de telefone com ou sem o nono dígito automaticamente de acordo com o número\ninputado. Utilize este metodo no Evento GotFocus e LostFocus simultaneamente\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static void SetTelephoneMask(this MaskedTextBox TheTextBox)
+    parameters:
+    - id: TheTextBox
+      type: System.Windows.Forms.MaskedTextBox
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Sub SetTelephoneMask(TheTextBox As MaskedTextBox)
+  overload: InnerLibs.WinForms.SetTelephoneMask*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.AddClick(System.Windows.Forms.Control@,System.EventHandler)
+  commentId: M:InnerLibs.WinForms.AddClick(System.Windows.Forms.Control@,System.EventHandler)
+  id: AddClick(System.Windows.Forms.Control@,System.EventHandler)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: AddClick(ref Control, EventHandler)
+  nameWithType: WinForms.AddClick(ref Control, EventHandler)
+  fullName: InnerLibs.WinForms.AddClick(ref System.Windows.Forms.Control, System.EventHandler)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: AddClick
+    path: WinForms.vb
+    startLine: 188
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nAdiciona funções ao clique de algum controle\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static void AddClick(this ref Control Control, EventHandler Action)
+    parameters:
+    - id: Control
+      type: System.Windows.Forms.Control
+      description: Controle
+    - id: Action
+      type: System.EventHandler
+      description: Ação
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Sub AddClick(ByRef Control As Control, Action As EventHandler)
+  overload: InnerLibs.WinForms.AddClick*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  nameWithType.vb: WinForms.AddClick(ByRef Control, EventHandler)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.AddClick(ByRef System.Windows.Forms.Control, System.EventHandler)
+  name.vb: AddClick(ByRef Control, EventHandler)
+- uid: InnerLibs.WinForms.RemoveClick(System.Windows.Forms.Control@,System.EventHandler)
+  commentId: M:InnerLibs.WinForms.RemoveClick(System.Windows.Forms.Control@,System.EventHandler)
+  id: RemoveClick(System.Windows.Forms.Control@,System.EventHandler)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: RemoveClick(ref Control, EventHandler)
+  nameWithType: WinForms.RemoveClick(ref Control, EventHandler)
+  fullName: InnerLibs.WinForms.RemoveClick(ref System.Windows.Forms.Control, System.EventHandler)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: RemoveClick
+    path: WinForms.vb
+    startLine: 198
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nRemove funções do clique de algum controle\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static void RemoveClick(this ref Control Control, EventHandler Action)
+    parameters:
+    - id: Control
+      type: System.Windows.Forms.Control
+      description: Controle
+    - id: Action
+      type: System.EventHandler
+      description: Ação
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Sub RemoveClick(ByRef Control As Control, Action As EventHandler)
+  overload: InnerLibs.WinForms.RemoveClick*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  nameWithType.vb: WinForms.RemoveClick(ByRef Control, EventHandler)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.RemoveClick(ByRef System.Windows.Forms.Control, System.EventHandler)
+  name.vb: RemoveClick(ByRef Control, EventHandler)
+- uid: InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control)
+  commentId: M:InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control)
+  id: GetAllControls``1(System.Windows.Forms.Control)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: GetAllControls<ControlType>(Control)
+  nameWithType: WinForms.GetAllControls<ControlType>(Control)
+  fullName: InnerLibs.WinForms.GetAllControls<ControlType>(System.Windows.Forms.Control)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: GetAllControls
+    path: WinForms.vb
+    startLine: 209
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nPega todos os controles filhos de um controle pai\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static IEnumerable<ControlType> GetAllControls<ControlType>(this Control Control)
+          where ControlType : Control
+    parameters:
+    - id: Control
+      type: System.Windows.Forms.Control
+      description: Controle Pai
+    typeParameters:
+    - id: ControlType
+      description: Tipo de controle
+    return:
+      type: System.Collections.Generic.IEnumerable{{ControlType}}
+      description: Uma lista com os controles
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Function GetAllControls(Of ControlType As Control)(Control As Control) As IEnumerable(Of ControlType)
+  overload: InnerLibs.WinForms.GetAllControls*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  nameWithType.vb: WinForms.GetAllControls(Of ControlType)(Control)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.GetAllControls(Of ControlType)(System.Windows.Forms.Control)
+  name.vb: GetAllControls(Of ControlType)(Control)
+- uid: InnerLibs.WinForms.GetAllControls``1(System.Web.UI.Control)
+  commentId: M:InnerLibs.WinForms.GetAllControls``1(System.Web.UI.Control)
+  id: GetAllControls``1(System.Web.UI.Control)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: GetAllControls<ControlType>(Control)
+  nameWithType: WinForms.GetAllControls<ControlType>(Control)
+  fullName: InnerLibs.WinForms.GetAllControls<ControlType>(System.Web.UI.Control)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: GetAllControls
+    path: WinForms.vb
+    startLine: 229
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nPega todos os controles filhos de um controle pai\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static IEnumerable<ControlType> GetAllControls<ControlType>(this Control Control)
+          where ControlType : Control
+    parameters:
+    - id: Control
+      type: System.Web.UI.Control
+      description: Controle Pai
+    typeParameters:
+    - id: ControlType
+      description: Tipo de controle
+    return:
+      type: System.Collections.Generic.IEnumerable{{ControlType}}
+      description: Uma lista com os controles
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Function GetAllControls(Of ControlType As Control)(Control As Control) As IEnumerable(Of ControlType)
+  overload: InnerLibs.WinForms.GetAllControls*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  nameWithType.vb: WinForms.GetAllControls(Of ControlType)(Control)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.GetAllControls(Of ControlType)(System.Web.UI.Control)
+  name.vb: GetAllControls(Of ControlType)(Control)
+- uid: InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control,System.Func{System.Windows.Forms.Control,System.Boolean})
+  commentId: M:InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control,System.Func{System.Windows.Forms.Control,System.Boolean})
+  id: GetAllControls``1(System.Windows.Forms.Control,System.Func{System.Windows.Forms.Control,System.Boolean})
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: GetAllControls<Type>(Control, Func<Control, Boolean>)
+  nameWithType: WinForms.GetAllControls<Type>(Control, Func<Control, Boolean>)
+  fullName: InnerLibs.WinForms.GetAllControls<Type>(System.Windows.Forms.Control, System.Func<System.Windows.Forms.Control, System.Boolean>)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: GetAllControls
+    path: WinForms.vb
+    startLine: 250
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nRetorna uma lista de controles a partir de um predicado\n"
+  example: []
+  syntax:
+    content: >-
+      public static Type GetAllControls<Type>(Control Control, Func<Control, bool> predicate)
+          where Type : Control
+    parameters:
+    - id: Control
+      type: System.Windows.Forms.Control
+      description: ''
+    - id: predicate
+      type: System.Func{System.Windows.Forms.Control,System.Boolean}
+      description: ''
+    typeParameters:
+    - id: Type
+      description: ''
+    return:
+      type: '{Type}'
+      description: ''
+    content.vb: Public Shared Function GetAllControls(Of Type As Control)(Control As Control, predicate As Func(Of Control, Boolean)) As Type
+  overload: InnerLibs.WinForms.GetAllControls*
+  nameWithType.vb: WinForms.GetAllControls(Of Type)(Control, Func(Of Control, Boolean))
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.GetAllControls(Of Type)(System.Windows.Forms.Control, System.Func(Of System.Windows.Forms.Control, System.Boolean))
+  name.vb: GetAllControls(Of Type)(Control, Func(Of Control, Boolean))
+- uid: InnerLibs.WinForms.GetCastedValue(System.Object)
+  commentId: M:InnerLibs.WinForms.GetCastedValue(System.Object)
+  id: GetCastedValue(System.Object)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: GetCastedValue(Object)
+  nameWithType: WinForms.GetCastedValue(Object)
+  fullName: InnerLibs.WinForms.GetCastedValue(System.Object)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: GetCastedValue
+    path: WinForms.vb
+    startLine: 259
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nRetorna o valor de um Controle de formulário ou variavel de acordo com seu tipo\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static object GetCastedValue(this object Control)
+    parameters:
+    - id: Control
+      type: System.Object
+      description: Controle
+    return:
+      type: System.Object
+      description: ''
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Function GetCastedValue(Control As Object) As Object
+  overload: InnerLibs.WinForms.GetCastedValue*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+  commentId: M:InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+  id: CastValueForControl(System.Object@,System.Object)
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: CastValueForControl(ref Object, Object)
+  nameWithType: WinForms.CastValueForControl(ref Object, Object)
+  fullName: InnerLibs.WinForms.CastValueForControl(ref System.Object, System.Object)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: CastValueForControl
+    path: WinForms.vb
+    startLine: 297
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nAplica um valor a um controle ou variavel dependendo do seu tipo\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static void CastValueForControl(this ref object Control, object Value)
+    parameters:
+    - id: Control
+      type: System.Object
+      description: Controle
+    - id: Value
+      type: System.Object
+      description: Valor
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Sub CastValueForControl(ByRef Control As Object, Value As Object)
+  overload: InnerLibs.WinForms.CastValueForControl*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  nameWithType.vb: WinForms.CastValueForControl(ByRef Object, Object)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.CastValueForControl(ByRef System.Object, System.Object)
+  name.vb: CastValueForControl(ByRef Object, Object)
+- uid: InnerLibs.WinForms.CreateDictionary(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})
+  commentId: M:InnerLibs.WinForms.CreateDictionary(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})
+  id: CreateDictionary(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})
+  isExtensionMethod: true
+  parent: InnerLibs.WinForms
+  langs:
+  - csharp
+  - vb
+  name: CreateDictionary(IEnumerable<Control>)
+  nameWithType: WinForms.CreateDictionary(IEnumerable<Control>)
+  fullName: InnerLibs.WinForms.CreateDictionary(System.Collections.Generic.IEnumerable<System.Windows.Forms.Control>)
+  type: Method
+  source:
+    remote:
+      path: C:/SVN/InnerLibs/trunk/innerlibs1/WinForms.vb
+    id: CreateDictionary
+    path: WinForms.vb
+    startLine: 335
+  assemblies:
+  - InnerLibs
+  namespace: InnerLibs
+  summary: "\nCria um <xref href=\"System.Collections.Generic.Dictionary%602\" data-throw-if-not-resolved=\"false\"></xref> a partir de uma lista de controles onde a KEY será o nome do controle e Value será extraido do valor de acordo com seu tipo\n"
+  example: []
+  syntax:
+    content: >-
+      [Extension]
+
+      public static Dictionary<string, object> CreateDictionary(this IEnumerable<Control> Controls)
+    parameters:
+    - id: Controls
+      type: System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}
+      description: ''
+    return:
+      type: System.Collections.Generic.Dictionary{System.String,System.Object}
+      description: ''
+    content.vb: >-
+      <Extension>
+
+      <ExtensionAttribute>
+
+      Public Shared Function CreateDictionary(Controls As IEnumerable(Of Control)) As Dictionary(Of String, Object)
+  overload: InnerLibs.WinForms.CreateDictionary*
+  attributes:
+  - type: System.Runtime.CompilerServices.ExtensionAttribute
+    ctor: System.Runtime.CompilerServices.ExtensionAttribute.#ctor
+    arguments: []
+  nameWithType.vb: WinForms.CreateDictionary(IEnumerable(Of Control))
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: InnerLibs.WinForms.CreateDictionary(System.Collections.Generic.IEnumerable(Of System.Windows.Forms.Control))
+  name.vb: CreateDictionary(IEnumerable(Of Control))
+references:
+- uid: InnerLibs
+  commentId: N:InnerLibs
+  name: InnerLibs
+  nameWithType: InnerLibs
+  fullName: InnerLibs
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.CreateDictionary
+  commentId: M:InnerLibs.ClassTools.CreateDictionary``1(``0)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.CreateDictionary``1(``0)
+  name: CreateDictionary()
+  nameWithType: ClassTools.CreateDictionary()
+  fullName: InnerLibs.ClassTools.CreateDictionary()
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.CreateDictionary
+    name: CreateDictionary
+    nameWithType: ClassTools.CreateDictionary
+    fullName: InnerLibs.ClassTools.CreateDictionary
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.CreateDictionary
+    name: CreateDictionary
+    nameWithType: ClassTools.CreateDictionary
+    fullName: InnerLibs.ClassTools.CreateDictionary
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.GetProperties(System.Reflection.BindingFlags)
+  commentId: M:InnerLibs.ClassTools.GetProperties(System.Object,System.Reflection.BindingFlags)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.GetProperties(System.Object,System.Reflection.BindingFlags)
+  name: GetProperties(BindingFlags)
+  nameWithType: ClassTools.GetProperties(BindingFlags)
+  fullName: InnerLibs.ClassTools.GetProperties(System.Reflection.BindingFlags)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetProperties(System.Reflection.BindingFlags)
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Reflection.BindingFlags
+    name: BindingFlags
+    nameWithType: BindingFlags
+    fullName: System.Reflection.BindingFlags
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetProperties(System.Reflection.BindingFlags)
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Reflection.BindingFlags
+    name: BindingFlags
+    nameWithType: BindingFlags
+    fullName: System.Reflection.BindingFlags
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.GetProperties
+  commentId: M:InnerLibs.ClassTools.GetProperties(System.Object)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.GetProperties(System.Object)
+  name: GetProperties()
+  nameWithType: ClassTools.GetProperties()
+  fullName: InnerLibs.ClassTools.GetProperties()
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetProperties
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetProperties
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.GetPropertyValue(System.String,System.Type,System.Boolean)
+  commentId: M:InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Type,System.Boolean)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Type,System.Boolean)
+  name: GetPropertyValue(String, Type, Boolean)
+  nameWithType: ClassTools.GetPropertyValue(String, Type, Boolean)
+  fullName: InnerLibs.ClassTools.GetPropertyValue(System.String, System.Type, System.Boolean)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.String,System.Type,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Type
+    name: Type
+    nameWithType: Type
+    fullName: System.Type
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.String,System.Type,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Type
+    name: Type
+    nameWithType: Type
+    fullName: System.Type
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.GetPropertyValue``1(System.String,System.Boolean)
+  commentId: M:InnerLibs.ClassTools.GetPropertyValue``1(System.Object,System.String,System.Boolean)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.GetPropertyValue``1(System.Object,System.String,System.Boolean)
+  name: GetPropertyValue<Type>(String, Boolean)
+  nameWithType: ClassTools.GetPropertyValue<Type>(String, Boolean)
+  fullName: InnerLibs.ClassTools.GetPropertyValue<Type>(System.String, System.Boolean)
+  nameWithType.vb: ClassTools.GetPropertyValue(Of Type)(String, Boolean)
+  fullName.vb: InnerLibs.ClassTools.GetPropertyValue(Of Type)(System.String, System.Boolean)
+  name.vb: GetPropertyValue(Of Type)(String, Boolean)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetPropertyValue``1(System.String,System.Boolean)
+    name: GetPropertyValue<Type>
+    nameWithType: ClassTools.GetPropertyValue<Type>
+    fullName: InnerLibs.ClassTools.GetPropertyValue<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetPropertyValue``1(System.String,System.Boolean)
+    name: GetPropertyValue(Of Type)
+    nameWithType: ClassTools.GetPropertyValue(Of Type)
+    fullName: InnerLibs.ClassTools.GetPropertyValue(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.GetPropertyValue(System.String,System.Boolean)
+  commentId: M:InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Boolean)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Boolean)
+  name: GetPropertyValue(String, Boolean)
+  nameWithType: ClassTools.GetPropertyValue(String, Boolean)
+  fullName: InnerLibs.ClassTools.GetPropertyValue(System.String, System.Boolean)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.String,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.String,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.HasProperty(System.String)
+  commentId: M:InnerLibs.ClassTools.HasProperty(System.Object,System.String)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.HasProperty(System.Object,System.String)
+  name: HasProperty(String)
+  nameWithType: ClassTools.HasProperty(String)
+  fullName: InnerLibs.ClassTools.HasProperty(System.String)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.HasProperty(System.String)
+    name: HasProperty
+    nameWithType: ClassTools.HasProperty
+    fullName: InnerLibs.ClassTools.HasProperty
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.HasProperty(System.String)
+    name: HasProperty
+    nameWithType: ClassTools.HasProperty
+    fullName: InnerLibs.ClassTools.HasProperty
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.IsArrayOf``1
+  commentId: M:InnerLibs.ClassTools.IsArrayOf``1(System.Object)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsArrayOf``1(System.Object)
+  name: IsArrayOf<T>()
+  nameWithType: ClassTools.IsArrayOf<T>()
+  fullName: InnerLibs.ClassTools.IsArrayOf<T>()
+  nameWithType.vb: ClassTools.IsArrayOf(Of T)()
+  fullName.vb: InnerLibs.ClassTools.IsArrayOf(Of T)()
+  name.vb: IsArrayOf(Of T)()
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsArrayOf``1
+    name: IsArrayOf<T>
+    nameWithType: ClassTools.IsArrayOf<T>
+    fullName: InnerLibs.ClassTools.IsArrayOf<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsArrayOf``1
+    name: IsArrayOf(Of T)
+    nameWithType: ClassTools.IsArrayOf(Of T)
+    fullName: InnerLibs.ClassTools.IsArrayOf(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.IsDictionary
+  commentId: M:InnerLibs.ClassTools.IsDictionary(System.Object)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsDictionary(System.Object)
+  name: IsDictionary()
+  nameWithType: ClassTools.IsDictionary()
+  fullName: InnerLibs.ClassTools.IsDictionary()
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsDictionary
+    name: IsDictionary
+    nameWithType: ClassTools.IsDictionary
+    fullName: InnerLibs.ClassTools.IsDictionary
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsDictionary
+    name: IsDictionary
+    nameWithType: ClassTools.IsDictionary
+    fullName: InnerLibs.ClassTools.IsDictionary
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.IsIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+  commentId: M:InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  name: IsIn(IEnumerable<WinForms>, IEqualityComparer<WinForms>)
+  nameWithType: ClassTools.IsIn(IEnumerable<WinForms>, IEqualityComparer<WinForms>)
+  fullName: InnerLibs.ClassTools.IsIn(System.Collections.Generic.IEnumerable<InnerLibs.WinForms>, System.Collections.Generic.IEqualityComparer<InnerLibs.WinForms>)
+  nameWithType.vb: ClassTools.IsIn(IEnumerable(Of WinForms), IEqualityComparer(Of WinForms))
+  fullName.vb: InnerLibs.ClassTools.IsIn(System.Collections.Generic.IEnumerable(Of InnerLibs.WinForms), System.Collections.Generic.IEqualityComparer(Of InnerLibs.WinForms))
+  name.vb: IsIn(IEnumerable(Of WinForms), IEqualityComparer(Of WinForms))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+    name: IsIn
+    nameWithType: ClassTools.IsIn
+    fullName: InnerLibs.ClassTools.IsIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+    name: IsIn
+    nameWithType: ClassTools.IsIn
+    fullName: InnerLibs.ClassTools.IsIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.IsIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  commentId: M:InnerLibs.ClassTools.IsIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  name: IsIn(String, IEqualityComparer<Char>)
+  nameWithType: ClassTools.IsIn(String, IEqualityComparer<Char>)
+  fullName: InnerLibs.ClassTools.IsIn(System.String, System.Collections.Generic.IEqualityComparer<System.Char>)
+  nameWithType.vb: ClassTools.IsIn(String, IEqualityComparer(Of Char))
+  fullName.vb: InnerLibs.ClassTools.IsIn(System.String, System.Collections.Generic.IEqualityComparer(Of System.Char))
+  name.vb: IsIn(String, IEqualityComparer(Of Char))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsIn
+    nameWithType: ClassTools.IsIn
+    fullName: InnerLibs.ClassTools.IsIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsIn
+    nameWithType: ClassTools.IsIn
+    fullName: InnerLibs.ClassTools.IsIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.IsInAny(System.Collections.Generic.IEnumerable{InnerLibs.WinForms}[],System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+  commentId: M:InnerLibs.ClassTools.IsInAny``1(``0,System.Collections.Generic.IEnumerable{``0}[],System.Collections.Generic.IEqualityComparer{``0})
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsInAny``1(``0,System.Collections.Generic.IEnumerable{``0}[],System.Collections.Generic.IEqualityComparer{``0})
+  name: IsInAny(IEnumerable<WinForms>[], IEqualityComparer<WinForms>)
+  nameWithType: ClassTools.IsInAny(IEnumerable<WinForms>[], IEqualityComparer<WinForms>)
+  fullName: InnerLibs.ClassTools.IsInAny(System.Collections.Generic.IEnumerable<InnerLibs.WinForms>[], System.Collections.Generic.IEqualityComparer<InnerLibs.WinForms>)
+  nameWithType.vb: ClassTools.IsInAny(IEnumerable(Of WinForms)(), IEqualityComparer(Of WinForms))
+  fullName.vb: InnerLibs.ClassTools.IsInAny(System.Collections.Generic.IEnumerable(Of InnerLibs.WinForms)(), System.Collections.Generic.IEqualityComparer(Of InnerLibs.WinForms))
+  name.vb: IsInAny(IEnumerable(Of WinForms)(), IEqualityComparer(Of WinForms))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsInAny(System.Collections.Generic.IEnumerable{InnerLibs.WinForms}[],System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+    name: IsInAny
+    nameWithType: ClassTools.IsInAny
+    fullName: InnerLibs.ClassTools.IsInAny
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsInAny(System.Collections.Generic.IEnumerable{InnerLibs.WinForms}[],System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+    name: IsInAny
+    nameWithType: ClassTools.IsInAny
+    fullName: InnerLibs.ClassTools.IsInAny
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.IsList
+  commentId: M:InnerLibs.ClassTools.IsList(System.Object)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsList(System.Object)
+  name: IsList()
+  nameWithType: ClassTools.IsList()
+  fullName: InnerLibs.ClassTools.IsList()
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsList
+    name: IsList
+    nameWithType: ClassTools.IsList
+    fullName: InnerLibs.ClassTools.IsList
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsList
+    name: IsList
+    nameWithType: ClassTools.IsList
+    fullName: InnerLibs.ClassTools.IsList
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.IsNotIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+  commentId: M:InnerLibs.ClassTools.IsNotIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsNotIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  name: IsNotIn(IEnumerable<WinForms>, IEqualityComparer<WinForms>)
+  nameWithType: ClassTools.IsNotIn(IEnumerable<WinForms>, IEqualityComparer<WinForms>)
+  fullName: InnerLibs.ClassTools.IsNotIn(System.Collections.Generic.IEnumerable<InnerLibs.WinForms>, System.Collections.Generic.IEqualityComparer<InnerLibs.WinForms>)
+  nameWithType.vb: ClassTools.IsNotIn(IEnumerable(Of WinForms), IEqualityComparer(Of WinForms))
+  fullName.vb: InnerLibs.ClassTools.IsNotIn(System.Collections.Generic.IEnumerable(Of InnerLibs.WinForms), System.Collections.Generic.IEqualityComparer(Of InnerLibs.WinForms))
+  name.vb: IsNotIn(IEnumerable(Of WinForms), IEqualityComparer(Of WinForms))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsNotIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+    name: IsNotIn
+    nameWithType: ClassTools.IsNotIn
+    fullName: InnerLibs.ClassTools.IsNotIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsNotIn(System.Collections.Generic.IEnumerable{InnerLibs.WinForms},System.Collections.Generic.IEqualityComparer{InnerLibs.WinForms})
+    name: IsNotIn
+    nameWithType: ClassTools.IsNotIn
+    fullName: InnerLibs.ClassTools.IsNotIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.IsNotIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  commentId: M:InnerLibs.ClassTools.IsNotIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsNotIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  name: IsNotIn(String, IEqualityComparer<Char>)
+  nameWithType: ClassTools.IsNotIn(String, IEqualityComparer<Char>)
+  fullName: InnerLibs.ClassTools.IsNotIn(System.String, System.Collections.Generic.IEqualityComparer<System.Char>)
+  nameWithType.vb: ClassTools.IsNotIn(String, IEqualityComparer(Of Char))
+  fullName.vb: InnerLibs.ClassTools.IsNotIn(System.String, System.Collections.Generic.IEqualityComparer(Of System.Char))
+  name.vb: IsNotIn(String, IEqualityComparer(Of Char))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsNotIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsNotIn
+    nameWithType: ClassTools.IsNotIn
+    fullName: InnerLibs.ClassTools.IsNotIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsNotIn(System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsNotIn
+    nameWithType: ClassTools.IsNotIn
+    fullName: InnerLibs.ClassTools.IsNotIn
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.IsType``1
+  commentId: M:InnerLibs.ClassTools.IsType``1(System.Object)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.IsType``1(System.Object)
+  name: IsType<T>()
+  nameWithType: ClassTools.IsType<T>()
+  fullName: InnerLibs.ClassTools.IsType<T>()
+  nameWithType.vb: ClassTools.IsType(Of T)()
+  fullName.vb: InnerLibs.ClassTools.IsType(Of T)()
+  name.vb: IsType(Of T)()
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsType``1
+    name: IsType<T>
+    nameWithType: ClassTools.IsType<T>
+    fullName: InnerLibs.ClassTools.IsType<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsType``1
+    name: IsType(Of T)
+    nameWithType: ClassTools.IsType(Of T)
+    fullName: InnerLibs.ClassTools.IsType(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.NullCoalesce(InnerLibs.WinForms[])
+  commentId: M:InnerLibs.ClassTools.NullCoalesce``1(``0,``0[])
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.NullCoalesce``1(``0,``0[])
+  name: NullCoalesce(WinForms[])
+  nameWithType: ClassTools.NullCoalesce(WinForms[])
+  fullName: InnerLibs.ClassTools.NullCoalesce(InnerLibs.WinForms[])
+  nameWithType.vb: ClassTools.NullCoalesce(WinForms())
+  fullName.vb: InnerLibs.ClassTools.NullCoalesce(InnerLibs.WinForms())
+  name.vb: NullCoalesce(WinForms())
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.NullCoalesce(InnerLibs.WinForms[])
+    name: NullCoalesce
+    nameWithType: ClassTools.NullCoalesce
+    fullName: InnerLibs.ClassTools.NullCoalesce
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.NullCoalesce(InnerLibs.WinForms[])
+    name: NullCoalesce
+    nameWithType: ClassTools.NullCoalesce
+    fullName: InnerLibs.ClassTools.NullCoalesce
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.ClassTools.NullifyProperties
+  commentId: M:InnerLibs.ClassTools.NullifyProperties``1(``0)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.NullifyProperties``1(``0)
+  name: NullifyProperties()
+  nameWithType: ClassTools.NullifyProperties()
+  fullName: InnerLibs.ClassTools.NullifyProperties()
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.NullifyProperties
+    name: NullifyProperties
+    nameWithType: ClassTools.NullifyProperties
+    fullName: InnerLibs.ClassTools.NullifyProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.NullifyProperties
+    name: NullifyProperties
+    nameWithType: ClassTools.NullifyProperties
+    fullName: InnerLibs.ClassTools.NullifyProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.SetPropertyValue``1(System.String,{Type})
+  commentId: M:InnerLibs.ClassTools.SetPropertyValue``1(System.Object,System.String,``0)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.SetPropertyValue``1(System.Object,System.String,``0)
+  name: SetPropertyValue<Type>(String, Type)
+  nameWithType: ClassTools.SetPropertyValue<Type>(String, Type)
+  fullName: InnerLibs.ClassTools.SetPropertyValue<Type>(System.String, Type)
+  nameWithType.vb: ClassTools.SetPropertyValue(Of Type)(String, Type)
+  fullName.vb: InnerLibs.ClassTools.SetPropertyValue(Of Type)(System.String, Type)
+  name.vb: SetPropertyValue(Of Type)(String, Type)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.SetPropertyValue``1(System.String,``0)
+    name: SetPropertyValue<Type>
+    nameWithType: ClassTools.SetPropertyValue<Type>
+    fullName: InnerLibs.ClassTools.SetPropertyValue<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.SetPropertyValue``1(System.String,``0)
+    name: SetPropertyValue(Of Type)
+    nameWithType: ClassTools.SetPropertyValue(Of Type)
+    fullName: InnerLibs.ClassTools.SetPropertyValue(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.String,System.Collections.CollectionBase)
+  commentId: M:InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.Object,System.String,System.Collections.CollectionBase)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.Object,System.String,System.Collections.CollectionBase)
+  name: SetPropertyValueFromCollection<Type>(String, CollectionBase)
+  nameWithType: ClassTools.SetPropertyValueFromCollection<Type>(String, CollectionBase)
+  fullName: InnerLibs.ClassTools.SetPropertyValueFromCollection<Type>(System.String, System.Collections.CollectionBase)
+  nameWithType.vb: ClassTools.SetPropertyValueFromCollection(Of Type)(String, CollectionBase)
+  fullName.vb: InnerLibs.ClassTools.SetPropertyValueFromCollection(Of Type)(System.String, System.Collections.CollectionBase)
+  name.vb: SetPropertyValueFromCollection(Of Type)(String, CollectionBase)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.String,System.Collections.CollectionBase)
+    name: SetPropertyValueFromCollection<Type>
+    nameWithType: ClassTools.SetPropertyValueFromCollection<Type>
+    fullName: InnerLibs.ClassTools.SetPropertyValueFromCollection<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.CollectionBase
+    name: CollectionBase
+    nameWithType: CollectionBase
+    fullName: System.Collections.CollectionBase
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.String,System.Collections.CollectionBase)
+    name: SetPropertyValueFromCollection(Of Type)
+    nameWithType: ClassTools.SetPropertyValueFromCollection(Of Type)
+    fullName: InnerLibs.ClassTools.SetPropertyValueFromCollection(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.CollectionBase
+    name: CollectionBase
+    nameWithType: CollectionBase
+    fullName: System.Collections.CollectionBase
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.ClassTools.ToFlatString(System.String)
+  commentId: M:InnerLibs.ClassTools.ToFlatString(System.Object,System.String)
+  parent: InnerLibs.ClassTools
+  definition: InnerLibs.ClassTools.ToFlatString(System.Object,System.String)
+  name: ToFlatString(String)
+  nameWithType: ClassTools.ToFlatString(String)
+  fullName: InnerLibs.ClassTools.ToFlatString(System.String)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.ToFlatString(System.String)
+    name: ToFlatString
+    nameWithType: ClassTools.ToFlatString
+    fullName: InnerLibs.ClassTools.ToFlatString
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.ToFlatString(System.String)
+    name: ToFlatString
+    nameWithType: ClassTools.ToFlatString
+    fullName: InnerLibs.ClassTools.ToFlatString
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.DataManipulation.GetDbType
+  commentId: M:InnerLibs.DataManipulation.GetDbType(System.Object)
+  parent: InnerLibs.DataManipulation
+  definition: InnerLibs.DataManipulation.GetDbType(System.Object)
+  name: GetDbType()
+  nameWithType: DataManipulation.GetDbType()
+  fullName: InnerLibs.DataManipulation.GetDbType()
+  spec.csharp:
+  - uid: InnerLibs.DataManipulation.GetDbType
+    name: GetDbType
+    nameWithType: DataManipulation.GetDbType
+    fullName: InnerLibs.DataManipulation.GetDbType
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.DataManipulation.GetDbType
+    name: GetDbType
+    nameWithType: DataManipulation.GetDbType
+    fullName: InnerLibs.DataManipulation.GetDbType
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.Converter.DefineEmptyList
+  commentId: M:InnerLibs.Converter.DefineEmptyList``1(``0)
+  parent: InnerLibs.Converter
+  definition: InnerLibs.Converter.DefineEmptyList``1(``0)
+  name: DefineEmptyList()
+  nameWithType: Converter.DefineEmptyList()
+  fullName: InnerLibs.Converter.DefineEmptyList()
+  spec.csharp:
+  - uid: InnerLibs.Converter.DefineEmptyList
+    name: DefineEmptyList
+    nameWithType: Converter.DefineEmptyList
+    fullName: InnerLibs.Converter.DefineEmptyList
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Converter.DefineEmptyList
+    name: DefineEmptyList
+    nameWithType: Converter.DefineEmptyList
+    fullName: InnerLibs.Converter.DefineEmptyList
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.Converter.ChangeType``1
+  commentId: M:InnerLibs.Converter.ChangeType``2(``1)
+  parent: InnerLibs.Converter
+  definition: InnerLibs.Converter.ChangeType``2(``1)
+  name: ChangeType<ToType>()
+  nameWithType: Converter.ChangeType<ToType>()
+  fullName: InnerLibs.Converter.ChangeType<ToType>()
+  nameWithType.vb: Converter.ChangeType(Of ToType)()
+  fullName.vb: InnerLibs.Converter.ChangeType(Of ToType)()
+  name.vb: ChangeType(Of ToType)()
+  spec.csharp:
+  - uid: InnerLibs.Converter.ChangeType``1
+    name: ChangeType<ToType>
+    nameWithType: Converter.ChangeType<ToType>
+    fullName: InnerLibs.Converter.ChangeType<ToType>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Converter.ChangeType``1
+    name: ChangeType(Of ToType)
+    nameWithType: Converter.ChangeType(Of ToType)
+    fullName: InnerLibs.Converter.ChangeType(Of ToType)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.JsonViewer.CreateNode
+  commentId: M:InnerLibs.JsonViewer.CreateNode(System.Object)
+  parent: InnerLibs.JsonViewer
+  definition: InnerLibs.JsonViewer.CreateNode(System.Object)
+  name: CreateNode()
+  nameWithType: JsonViewer.CreateNode()
+  fullName: InnerLibs.JsonViewer.CreateNode()
+  spec.csharp:
+  - uid: InnerLibs.JsonViewer.CreateNode
+    name: CreateNode
+    nameWithType: JsonViewer.CreateNode
+    fullName: InnerLibs.JsonViewer.CreateNode
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.JsonViewer.CreateNode
+    name: CreateNode
+    nameWithType: JsonViewer.CreateNode
+    fullName: InnerLibs.JsonViewer.CreateNode
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.Mathematic.IsBetween(System.Object,System.Object)
+  commentId: M:InnerLibs.Mathematic.IsBetween``1(``0,System.Object,System.Object)
+  parent: InnerLibs.Mathematic
+  definition: InnerLibs.Mathematic.IsBetween``1(``0,System.Object,System.Object)
+  name: IsBetween(Object, Object)
+  nameWithType: Mathematic.IsBetween(Object, Object)
+  fullName: InnerLibs.Mathematic.IsBetween(System.Object, System.Object)
+  spec.csharp:
+  - uid: InnerLibs.Mathematic.IsBetween(System.Object,System.Object)
+    name: IsBetween
+    nameWithType: Mathematic.IsBetween
+    fullName: InnerLibs.Mathematic.IsBetween
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Mathematic.IsBetween(System.Object,System.Object)
+    name: IsBetween
+    nameWithType: Mathematic.IsBetween
+    fullName: InnerLibs.Mathematic.IsBetween
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.Text.SerializeJSON(System.String)
+  commentId: M:InnerLibs.Text.SerializeJSON(System.Object,System.String)
+  parent: InnerLibs.Text
+  definition: InnerLibs.Text.SerializeJSON(System.Object,System.String)
+  name: SerializeJSON(String)
+  nameWithType: Text.SerializeJSON(String)
+  fullName: InnerLibs.Text.SerializeJSON(System.String)
+  spec.csharp:
+  - uid: InnerLibs.Text.SerializeJSON(System.String)
+    name: SerializeJSON
+    nameWithType: Text.SerializeJSON
+    fullName: InnerLibs.Text.SerializeJSON
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Text.SerializeJSON(System.String)
+    name: SerializeJSON
+    nameWithType: Text.SerializeJSON
+    fullName: InnerLibs.Text.SerializeJSON
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.Verify.IsNumber
+  commentId: M:InnerLibs.Verify.IsNumber(System.Object)
+  parent: InnerLibs.Verify
+  definition: InnerLibs.Verify.IsNumber(System.Object)
+  name: IsNumber()
+  nameWithType: Verify.IsNumber()
+  fullName: InnerLibs.Verify.IsNumber()
+  spec.csharp:
+  - uid: InnerLibs.Verify.IsNumber
+    name: IsNumber
+    nameWithType: Verify.IsNumber
+    fullName: InnerLibs.Verify.IsNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.IsNumber
+    name: IsNumber
+    nameWithType: Verify.IsNumber
+    fullName: InnerLibs.Verify.IsNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.Verify.IsNotNumber
+  commentId: M:InnerLibs.Verify.IsNotNumber(System.Object)
+  parent: InnerLibs.Verify
+  definition: InnerLibs.Verify.IsNotNumber(System.Object)
+  name: IsNotNumber()
+  nameWithType: Verify.IsNotNumber()
+  fullName: InnerLibs.Verify.IsNotNumber()
+  spec.csharp:
+  - uid: InnerLibs.Verify.IsNotNumber
+    name: IsNotNumber
+    nameWithType: Verify.IsNotNumber
+    fullName: InnerLibs.Verify.IsNotNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.IsNotNumber
+    name: IsNotNumber
+    nameWithType: Verify.IsNotNumber
+    fullName: InnerLibs.Verify.IsNotNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.Verify.IfBlank``1({T})
+  commentId: M:InnerLibs.Verify.IfBlank``1(System.Object,``0)
+  parent: InnerLibs.Verify
+  definition: InnerLibs.Verify.IfBlank``1(System.Object,``0)
+  name: IfBlank<T>(T)
+  nameWithType: Verify.IfBlank<T>(T)
+  fullName: InnerLibs.Verify.IfBlank<T>(T)
+  nameWithType.vb: Verify.IfBlank(Of T)(T)
+  fullName.vb: InnerLibs.Verify.IfBlank(Of T)(T)
+  name.vb: IfBlank(Of T)(T)
+  spec.csharp:
+  - uid: InnerLibs.Verify.IfBlank``1(``0)
+    name: IfBlank<T>
+    nameWithType: Verify.IfBlank<T>
+    fullName: InnerLibs.Verify.IfBlank<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.IfBlank``1(``0)
+    name: IfBlank(Of T)
+    nameWithType: Verify.IfBlank(Of T)
+    fullName: InnerLibs.Verify.IfBlank(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.Verify.NullIf(System.Func{InnerLibs.WinForms,System.Boolean})
+  commentId: M:InnerLibs.Verify.NullIf``1(``0,System.Func{``0,System.Boolean})
+  parent: InnerLibs.Verify
+  definition: InnerLibs.Verify.NullIf``1(``0,System.Func{``0,System.Boolean})
+  name: NullIf(Func<WinForms, Boolean>)
+  nameWithType: Verify.NullIf(Func<WinForms, Boolean>)
+  fullName: InnerLibs.Verify.NullIf(System.Func<InnerLibs.WinForms, System.Boolean>)
+  nameWithType.vb: Verify.NullIf(Func(Of WinForms, Boolean))
+  fullName.vb: InnerLibs.Verify.NullIf(System.Func(Of InnerLibs.WinForms, System.Boolean))
+  name.vb: NullIf(Func(Of WinForms, Boolean))
+  spec.csharp:
+  - uid: InnerLibs.Verify.NullIf(System.Func{InnerLibs.WinForms,System.Boolean})
+    name: NullIf
+    nameWithType: Verify.NullIf
+    fullName: InnerLibs.Verify.NullIf
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.NullIf(System.Func{InnerLibs.WinForms,System.Boolean})
+    name: NullIf
+    nameWithType: Verify.NullIf
+    fullName: InnerLibs.Verify.NullIf
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.Verify.NullIf(InnerLibs.WinForms)
+  commentId: M:InnerLibs.Verify.NullIf``1(``0,``0)
+  parent: InnerLibs.Verify
+  definition: InnerLibs.Verify.NullIf``1(``0,``0)
+  name: NullIf(WinForms)
+  nameWithType: Verify.NullIf(WinForms)
+  fullName: InnerLibs.Verify.NullIf(InnerLibs.WinForms)
+  spec.csharp:
+  - uid: InnerLibs.Verify.NullIf(InnerLibs.WinForms)
+    name: NullIf
+    nameWithType: Verify.NullIf
+    fullName: InnerLibs.Verify.NullIf
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.NullIf(InnerLibs.WinForms)
+    name: NullIf
+    nameWithType: Verify.NullIf
+    fullName: InnerLibs.Verify.NullIf
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.Web.CreateFromAjax(System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+  commentId: M:InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+  parent: InnerLibs.Web
+  definition: InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+  name: CreateFromAjax(String, String, NameValueCollection, String, Encoding)
+  nameWithType: Web.CreateFromAjax(String, String, NameValueCollection, String, Encoding)
+  fullName: InnerLibs.Web.CreateFromAjax(System.String, System.String, System.Collections.Specialized.NameValueCollection, System.String, System.Text.Encoding)
+  spec.csharp:
+  - uid: InnerLibs.Web.CreateFromAjax(System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+    name: CreateFromAjax
+    nameWithType: Web.CreateFromAjax
+    fullName: InnerLibs.Web.CreateFromAjax
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Specialized.NameValueCollection
+    name: NameValueCollection
+    nameWithType: NameValueCollection
+    fullName: System.Collections.Specialized.NameValueCollection
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Text.Encoding
+    name: Encoding
+    nameWithType: Encoding
+    fullName: System.Text.Encoding
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Web.CreateFromAjax(System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+    name: CreateFromAjax
+    nameWithType: Web.CreateFromAjax
+    fullName: InnerLibs.Web.CreateFromAjax
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Specialized.NameValueCollection
+    name: NameValueCollection
+    nameWithType: NameValueCollection
+    fullName: System.Collections.Specialized.NameValueCollection
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Text.Encoding
+    name: Encoding
+    nameWithType: Encoding
+    fullName: System.Text.Encoding
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.Web.AsListItem``2(System.Func{InnerLibs.WinForms,{TextType}},System.Func{InnerLibs.WinForms,{ValueType}})
+  commentId: M:InnerLibs.Web.AsListItem``3(``0,System.Func{``0,``1},System.Func{``0,``2})
+  parent: InnerLibs.Web
+  definition: InnerLibs.Web.AsListItem``3(``0,System.Func{``0,``1},System.Func{``0,``2})
+  name: AsListItem<TextType, ValueType>(Func<WinForms, TextType>, Func<WinForms, ValueType>)
+  nameWithType: Web.AsListItem<TextType, ValueType>(Func<WinForms, TextType>, Func<WinForms, ValueType>)
+  fullName: InnerLibs.Web.AsListItem<TextType, ValueType>(System.Func<InnerLibs.WinForms, TextType>, System.Func<InnerLibs.WinForms, ValueType>)
+  nameWithType.vb: Web.AsListItem(Of TextType, ValueType)(Func(Of WinForms, TextType), Func(Of WinForms, ValueType))
+  fullName.vb: InnerLibs.Web.AsListItem(Of TextType, ValueType)(System.Func(Of InnerLibs.WinForms, TextType), System.Func(Of InnerLibs.WinForms, ValueType))
+  name.vb: AsListItem(Of TextType, ValueType)(Func(Of WinForms, TextType), Func(Of WinForms, ValueType))
+  spec.csharp:
+  - uid: InnerLibs.Web.AsListItem``2(System.Func{InnerLibs.WinForms,``0},System.Func{InnerLibs.WinForms,``1})
+    name: AsListItem<TextType, ValueType>
+    nameWithType: Web.AsListItem<TextType, ValueType>
+    fullName: InnerLibs.Web.AsListItem<TextType, ValueType>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TextType
+    nameWithType: TextType
+    fullName: TextType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: ValueType
+    nameWithType: ValueType
+    fullName: ValueType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Web.AsListItem``2(System.Func{InnerLibs.WinForms,``0},System.Func{InnerLibs.WinForms,``1})
+    name: AsListItem(Of TextType, ValueType)
+    nameWithType: Web.AsListItem(Of TextType, ValueType)
+    fullName: InnerLibs.Web.AsListItem(Of TextType, ValueType)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TextType
+    nameWithType: TextType
+    fullName: TextType
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: ValueType
+    nameWithType: ValueType
+    fullName: ValueType
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.WinForms.GetCastedValue
+  commentId: M:InnerLibs.WinForms.GetCastedValue(System.Object)
+  parent: InnerLibs.WinForms
+  definition: InnerLibs.WinForms.GetCastedValue(System.Object)
+  name: GetCastedValue()
+  nameWithType: WinForms.GetCastedValue()
+  fullName: InnerLibs.WinForms.GetCastedValue()
+  spec.csharp:
+  - uid: InnerLibs.WinForms.GetCastedValue
+    name: GetCastedValue
+    nameWithType: WinForms.GetCastedValue
+    fullName: InnerLibs.WinForms.GetCastedValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.WinForms.GetCastedValue
+    name: GetCastedValue
+    nameWithType: WinForms.GetCastedValue
+    fullName: InnerLibs.WinForms.GetCastedValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.InnerLibs.WinForms.CastValueForControl(System.Object)
+  commentId: M:InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+  parent: InnerLibs.WinForms
+  definition: InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+  name: CastValueForControl(Object)
+  nameWithType: WinForms.CastValueForControl(Object)
+  fullName: InnerLibs.WinForms.CastValueForControl(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.WinForms.CastValueForControl(System.Object)
+    name: CastValueForControl
+    nameWithType: WinForms.CastValueForControl
+    fullName: InnerLibs.WinForms.CastValueForControl
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.WinForms.CastValueForControl(System.Object)
+    name: CastValueForControl
+    nameWithType: WinForms.CastValueForControl
+    fullName: InnerLibs.WinForms.CastValueForControl
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.LINQ.LINQExtensions.ApplyToControls(System.Web.UI.HtmlControls.HtmlControl[])
+  commentId: M:InnerLibs.LINQ.LINQExtensions.ApplyToControls``1(``0,System.Web.UI.HtmlControls.HtmlControl[])
+  parent: InnerLibs.LINQ.LINQExtensions
+  definition: InnerLibs.LINQ.LINQExtensions.ApplyToControls``1(``0,System.Web.UI.HtmlControls.HtmlControl[])
+  name: ApplyToControls(HtmlControl[])
+  nameWithType: LINQExtensions.ApplyToControls(HtmlControl[])
+  fullName: InnerLibs.LINQ.LINQExtensions.ApplyToControls(System.Web.UI.HtmlControls.HtmlControl[])
+  nameWithType.vb: LINQExtensions.ApplyToControls(HtmlControl())
+  fullName.vb: InnerLibs.LINQ.LINQExtensions.ApplyToControls(System.Web.UI.HtmlControls.HtmlControl())
+  name.vb: ApplyToControls(HtmlControl())
+  spec.csharp:
+  - uid: InnerLibs.LINQ.LINQExtensions.ApplyToControls(System.Web.UI.HtmlControls.HtmlControl[])
+    name: ApplyToControls
+    nameWithType: LINQExtensions.ApplyToControls
+    fullName: InnerLibs.LINQ.LINQExtensions.ApplyToControls
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Web.UI.HtmlControls.HtmlControl
+    name: HtmlControl
+    nameWithType: HtmlControl
+    fullName: System.Web.UI.HtmlControls.HtmlControl
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.LINQ.LINQExtensions.ApplyToControls(System.Web.UI.HtmlControls.HtmlControl[])
+    name: ApplyToControls
+    nameWithType: LINQExtensions.ApplyToControls
+    fullName: InnerLibs.LINQ.LINQExtensions.ApplyToControls
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Web.UI.HtmlControls.HtmlControl
+    name: HtmlControl
+    nameWithType: HtmlControl
+    fullName: System.Web.UI.HtmlControls.HtmlControl
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(InnerLibs.WinForms,System.Func{InnerLibs.WinForms,System.Object}[])
+  commentId: M:InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues``1(``0,``0,System.Func{``0,System.Object}[])
+  parent: InnerLibs.LINQ.LINQExtensions
+  definition: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues``1(``0,``0,System.Func{``0,System.Object}[])
+  name: HasSamePropertyValues(WinForms, Func<WinForms, Object>[])
+  nameWithType: LINQExtensions.HasSamePropertyValues(WinForms, Func<WinForms, Object>[])
+  fullName: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(InnerLibs.WinForms, System.Func<InnerLibs.WinForms, System.Object>[])
+  nameWithType.vb: LINQExtensions.HasSamePropertyValues(WinForms, Func(Of WinForms, Object)())
+  fullName.vb: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(InnerLibs.WinForms, System.Func(Of InnerLibs.WinForms, System.Object)())
+  name.vb: HasSamePropertyValues(WinForms, Func(Of WinForms, Object)())
+  spec.csharp:
+  - uid: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(InnerLibs.WinForms,System.Func{InnerLibs.WinForms,System.Object}[])
+    name: HasSamePropertyValues
+    nameWithType: LINQExtensions.HasSamePropertyValues
+    fullName: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(InnerLibs.WinForms,System.Func{InnerLibs.WinForms,System.Object}[])
+    name: HasSamePropertyValues
+    nameWithType: LINQExtensions.HasSamePropertyValues
+    fullName: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: InnerLibs.WinForms
+    name: WinForms
+    nameWithType: WinForms
+    fullName: InnerLibs.WinForms
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.CreateDictionary``1(``0)
+  commentId: M:InnerLibs.ClassTools.CreateDictionary``1(``0)
+  name: CreateDictionary<Type>(Type)
+  nameWithType: ClassTools.CreateDictionary<Type>(Type)
+  fullName: InnerLibs.ClassTools.CreateDictionary<Type>(Type)
+  nameWithType.vb: ClassTools.CreateDictionary(Of Type)(Type)
+  fullName.vb: InnerLibs.ClassTools.CreateDictionary(Of Type)(Type)
+  name.vb: CreateDictionary(Of Type)(Type)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.CreateDictionary``1(``0)
+    name: CreateDictionary<Type>
+    nameWithType: ClassTools.CreateDictionary<Type>
+    fullName: InnerLibs.ClassTools.CreateDictionary<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.CreateDictionary``1(``0)
+    name: CreateDictionary(Of Type)
+    nameWithType: ClassTools.CreateDictionary(Of Type)
+    fullName: InnerLibs.ClassTools.CreateDictionary(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools
+  commentId: T:InnerLibs.ClassTools
+  parent: InnerLibs
+  name: ClassTools
+  nameWithType: ClassTools
+  fullName: InnerLibs.ClassTools
+- uid: InnerLibs.ClassTools.GetProperties(System.Object,System.Reflection.BindingFlags)
+  commentId: M:InnerLibs.ClassTools.GetProperties(System.Object,System.Reflection.BindingFlags)
+  isExternal: true
+  name: GetProperties(Object, BindingFlags)
+  nameWithType: ClassTools.GetProperties(Object, BindingFlags)
+  fullName: InnerLibs.ClassTools.GetProperties(System.Object, System.Reflection.BindingFlags)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetProperties(System.Object,System.Reflection.BindingFlags)
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Reflection.BindingFlags
+    name: BindingFlags
+    nameWithType: BindingFlags
+    fullName: System.Reflection.BindingFlags
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetProperties(System.Object,System.Reflection.BindingFlags)
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Reflection.BindingFlags
+    name: BindingFlags
+    nameWithType: BindingFlags
+    fullName: System.Reflection.BindingFlags
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.GetProperties(System.Object)
+  commentId: M:InnerLibs.ClassTools.GetProperties(System.Object)
+  isExternal: true
+  name: GetProperties(Object)
+  nameWithType: ClassTools.GetProperties(Object)
+  fullName: InnerLibs.ClassTools.GetProperties(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetProperties(System.Object)
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetProperties(System.Object)
+    name: GetProperties
+    nameWithType: ClassTools.GetProperties
+    fullName: InnerLibs.ClassTools.GetProperties
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Type,System.Boolean)
+  commentId: M:InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Type,System.Boolean)
+  isExternal: true
+  name: GetPropertyValue(Object, String, Type, Boolean)
+  nameWithType: ClassTools.GetPropertyValue(Object, String, Type, Boolean)
+  fullName: InnerLibs.ClassTools.GetPropertyValue(System.Object, System.String, System.Type, System.Boolean)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Type,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Type
+    name: Type
+    nameWithType: Type
+    fullName: System.Type
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Type,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Type
+    name: Type
+    nameWithType: Type
+    fullName: System.Type
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.GetPropertyValue``1(System.Object,System.String,System.Boolean)
+  commentId: M:InnerLibs.ClassTools.GetPropertyValue``1(System.Object,System.String,System.Boolean)
+  isExternal: true
+  name: GetPropertyValue<Type>(Object, String, Boolean)
+  nameWithType: ClassTools.GetPropertyValue<Type>(Object, String, Boolean)
+  fullName: InnerLibs.ClassTools.GetPropertyValue<Type>(System.Object, System.String, System.Boolean)
+  nameWithType.vb: ClassTools.GetPropertyValue(Of Type)(Object, String, Boolean)
+  fullName.vb: InnerLibs.ClassTools.GetPropertyValue(Of Type)(System.Object, System.String, System.Boolean)
+  name.vb: GetPropertyValue(Of Type)(Object, String, Boolean)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetPropertyValue``1(System.Object,System.String,System.Boolean)
+    name: GetPropertyValue<Type>
+    nameWithType: ClassTools.GetPropertyValue<Type>
+    fullName: InnerLibs.ClassTools.GetPropertyValue<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetPropertyValue``1(System.Object,System.String,System.Boolean)
+    name: GetPropertyValue(Of Type)
+    nameWithType: ClassTools.GetPropertyValue(Of Type)
+    fullName: InnerLibs.ClassTools.GetPropertyValue(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Boolean)
+  commentId: M:InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Boolean)
+  isExternal: true
+  name: GetPropertyValue(Object, String, Boolean)
+  nameWithType: ClassTools.GetPropertyValue(Object, String, Boolean)
+  fullName: InnerLibs.ClassTools.GetPropertyValue(System.Object, System.String, System.Boolean)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.GetPropertyValue(System.Object,System.String,System.Boolean)
+    name: GetPropertyValue
+    nameWithType: ClassTools.GetPropertyValue
+    fullName: InnerLibs.ClassTools.GetPropertyValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.HasProperty(System.Object,System.String)
+  commentId: M:InnerLibs.ClassTools.HasProperty(System.Object,System.String)
+  isExternal: true
+  name: HasProperty(Object, String)
+  nameWithType: ClassTools.HasProperty(Object, String)
+  fullName: InnerLibs.ClassTools.HasProperty(System.Object, System.String)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.HasProperty(System.Object,System.String)
+    name: HasProperty
+    nameWithType: ClassTools.HasProperty
+    fullName: InnerLibs.ClassTools.HasProperty
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.HasProperty(System.Object,System.String)
+    name: HasProperty
+    nameWithType: ClassTools.HasProperty
+    fullName: InnerLibs.ClassTools.HasProperty
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsArrayOf``1(System.Object)
+  commentId: M:InnerLibs.ClassTools.IsArrayOf``1(System.Object)
+  isExternal: true
+  name: IsArrayOf<T>(Object)
+  nameWithType: ClassTools.IsArrayOf<T>(Object)
+  fullName: InnerLibs.ClassTools.IsArrayOf<T>(System.Object)
+  nameWithType.vb: ClassTools.IsArrayOf(Of T)(Object)
+  fullName.vb: InnerLibs.ClassTools.IsArrayOf(Of T)(System.Object)
+  name.vb: IsArrayOf(Of T)(Object)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsArrayOf``1(System.Object)
+    name: IsArrayOf<T>
+    nameWithType: ClassTools.IsArrayOf<T>
+    fullName: InnerLibs.ClassTools.IsArrayOf<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsArrayOf``1(System.Object)
+    name: IsArrayOf(Of T)
+    nameWithType: ClassTools.IsArrayOf(Of T)
+    fullName: InnerLibs.ClassTools.IsArrayOf(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsDictionary(System.Object)
+  commentId: M:InnerLibs.ClassTools.IsDictionary(System.Object)
+  isExternal: true
+  name: IsDictionary(Object)
+  nameWithType: ClassTools.IsDictionary(Object)
+  fullName: InnerLibs.ClassTools.IsDictionary(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsDictionary(System.Object)
+    name: IsDictionary
+    nameWithType: ClassTools.IsDictionary
+    fullName: InnerLibs.ClassTools.IsDictionary
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsDictionary(System.Object)
+    name: IsDictionary
+    nameWithType: ClassTools.IsDictionary
+    fullName: InnerLibs.ClassTools.IsDictionary
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  commentId: M:InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  isExternal: true
+  name: IsIn<Type>(Type, IEnumerable<Type>, IEqualityComparer<Type>)
+  nameWithType: ClassTools.IsIn<Type>(Type, IEnumerable<Type>, IEqualityComparer<Type>)
+  fullName: InnerLibs.ClassTools.IsIn<Type>(Type, System.Collections.Generic.IEnumerable<Type>, System.Collections.Generic.IEqualityComparer<Type>)
+  nameWithType.vb: ClassTools.IsIn(Of Type)(Type, IEnumerable(Of Type), IEqualityComparer(Of Type))
+  fullName.vb: InnerLibs.ClassTools.IsIn(Of Type)(Type, System.Collections.Generic.IEnumerable(Of Type), System.Collections.Generic.IEqualityComparer(Of Type))
+  name.vb: IsIn(Of Type)(Type, IEnumerable(Of Type), IEqualityComparer(Of Type))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+    name: IsIn<Type>
+    nameWithType: ClassTools.IsIn<Type>
+    fullName: InnerLibs.ClassTools.IsIn<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+    name: IsIn(Of Type)
+    nameWithType: ClassTools.IsIn(Of Type)
+    fullName: InnerLibs.ClassTools.IsIn(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  commentId: M:InnerLibs.ClassTools.IsIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  isExternal: true
+  name: IsIn<Type>(Type, String, IEqualityComparer<Char>)
+  nameWithType: ClassTools.IsIn<Type>(Type, String, IEqualityComparer<Char>)
+  fullName: InnerLibs.ClassTools.IsIn<Type>(Type, System.String, System.Collections.Generic.IEqualityComparer<System.Char>)
+  nameWithType.vb: ClassTools.IsIn(Of Type)(Type, String, IEqualityComparer(Of Char))
+  fullName.vb: InnerLibs.ClassTools.IsIn(Of Type)(Type, System.String, System.Collections.Generic.IEqualityComparer(Of System.Char))
+  name.vb: IsIn(Of Type)(Type, String, IEqualityComparer(Of Char))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsIn<Type>
+    nameWithType: ClassTools.IsIn<Type>
+    fullName: InnerLibs.ClassTools.IsIn<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsIn(Of Type)
+    nameWithType: ClassTools.IsIn(Of Type)
+    fullName: InnerLibs.ClassTools.IsIn(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsInAny``1(``0,System.Collections.Generic.IEnumerable{``0}[],System.Collections.Generic.IEqualityComparer{``0})
+  commentId: M:InnerLibs.ClassTools.IsInAny``1(``0,System.Collections.Generic.IEnumerable{``0}[],System.Collections.Generic.IEqualityComparer{``0})
+  isExternal: true
+  name: IsInAny<Type>(Type, IEnumerable<Type>[], IEqualityComparer<Type>)
+  nameWithType: ClassTools.IsInAny<Type>(Type, IEnumerable<Type>[], IEqualityComparer<Type>)
+  fullName: InnerLibs.ClassTools.IsInAny<Type>(Type, System.Collections.Generic.IEnumerable<Type>[], System.Collections.Generic.IEqualityComparer<Type>)
+  nameWithType.vb: ClassTools.IsInAny(Of Type)(Type, IEnumerable(Of Type)(), IEqualityComparer(Of Type))
+  fullName.vb: InnerLibs.ClassTools.IsInAny(Of Type)(Type, System.Collections.Generic.IEnumerable(Of Type)(), System.Collections.Generic.IEqualityComparer(Of Type))
+  name.vb: IsInAny(Of Type)(Type, IEnumerable(Of Type)(), IEqualityComparer(Of Type))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsInAny``1(``0,System.Collections.Generic.IEnumerable{``0}[],System.Collections.Generic.IEqualityComparer{``0})
+    name: IsInAny<Type>
+    nameWithType: ClassTools.IsInAny<Type>
+    fullName: InnerLibs.ClassTools.IsInAny<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsInAny``1(``0,System.Collections.Generic.IEnumerable{``0}[],System.Collections.Generic.IEqualityComparer{``0})
+    name: IsInAny(Of Type)
+    nameWithType: ClassTools.IsInAny(Of Type)
+    fullName: InnerLibs.ClassTools.IsInAny(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsList(System.Object)
+  commentId: M:InnerLibs.ClassTools.IsList(System.Object)
+  isExternal: true
+  name: IsList(Object)
+  nameWithType: ClassTools.IsList(Object)
+  fullName: InnerLibs.ClassTools.IsList(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsList(System.Object)
+    name: IsList
+    nameWithType: ClassTools.IsList
+    fullName: InnerLibs.ClassTools.IsList
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsList(System.Object)
+    name: IsList
+    nameWithType: ClassTools.IsList
+    fullName: InnerLibs.ClassTools.IsList
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsNotIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  commentId: M:InnerLibs.ClassTools.IsNotIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+  isExternal: true
+  name: IsNotIn<Type>(Type, IEnumerable<Type>, IEqualityComparer<Type>)
+  nameWithType: ClassTools.IsNotIn<Type>(Type, IEnumerable<Type>, IEqualityComparer<Type>)
+  fullName: InnerLibs.ClassTools.IsNotIn<Type>(Type, System.Collections.Generic.IEnumerable<Type>, System.Collections.Generic.IEqualityComparer<Type>)
+  nameWithType.vb: ClassTools.IsNotIn(Of Type)(Type, IEnumerable(Of Type), IEqualityComparer(Of Type))
+  fullName.vb: InnerLibs.ClassTools.IsNotIn(Of Type)(Type, System.Collections.Generic.IEnumerable(Of Type), System.Collections.Generic.IEqualityComparer(Of Type))
+  name.vb: IsNotIn(Of Type)(Type, IEnumerable(Of Type), IEqualityComparer(Of Type))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsNotIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+    name: IsNotIn<Type>
+    nameWithType: ClassTools.IsNotIn<Type>
+    fullName: InnerLibs.ClassTools.IsNotIn<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsNotIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})
+    name: IsNotIn(Of Type)
+    nameWithType: ClassTools.IsNotIn(Of Type)
+    fullName: InnerLibs.ClassTools.IsNotIn(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsNotIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  commentId: M:InnerLibs.ClassTools.IsNotIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+  isExternal: true
+  name: IsNotIn<Type>(Type, String, IEqualityComparer<Char>)
+  nameWithType: ClassTools.IsNotIn<Type>(Type, String, IEqualityComparer<Char>)
+  fullName: InnerLibs.ClassTools.IsNotIn<Type>(Type, System.String, System.Collections.Generic.IEqualityComparer<System.Char>)
+  nameWithType.vb: ClassTools.IsNotIn(Of Type)(Type, String, IEqualityComparer(Of Char))
+  fullName.vb: InnerLibs.ClassTools.IsNotIn(Of Type)(Type, System.String, System.Collections.Generic.IEqualityComparer(Of System.Char))
+  name.vb: IsNotIn(Of Type)(Type, String, IEqualityComparer(Of Char))
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsNotIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsNotIn<Type>
+    nameWithType: ClassTools.IsNotIn<Type>
+    fullName: InnerLibs.ClassTools.IsNotIn<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsNotIn``1(``0,System.String,System.Collections.Generic.IEqualityComparer{System.Char})
+    name: IsNotIn(Of Type)
+    nameWithType: ClassTools.IsNotIn(Of Type)
+    fullName: InnerLibs.ClassTools.IsNotIn(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Generic.IEqualityComparer`1
+    name: IEqualityComparer
+    nameWithType: IEqualityComparer
+    fullName: System.Collections.Generic.IEqualityComparer
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Char
+    name: Char
+    nameWithType: Char
+    fullName: System.Char
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.IsType``1(System.Object)
+  commentId: M:InnerLibs.ClassTools.IsType``1(System.Object)
+  isExternal: true
+  name: IsType<T>(Object)
+  nameWithType: ClassTools.IsType<T>(Object)
+  fullName: InnerLibs.ClassTools.IsType<T>(System.Object)
+  nameWithType.vb: ClassTools.IsType(Of T)(Object)
+  fullName.vb: InnerLibs.ClassTools.IsType(Of T)(System.Object)
+  name.vb: IsType(Of T)(Object)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.IsType``1(System.Object)
+    name: IsType<T>
+    nameWithType: ClassTools.IsType<T>
+    fullName: InnerLibs.ClassTools.IsType<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.IsType``1(System.Object)
+    name: IsType(Of T)
+    nameWithType: ClassTools.IsType(Of T)
+    fullName: InnerLibs.ClassTools.IsType(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.NullCoalesce``1(``0,``0[])
+  commentId: M:InnerLibs.ClassTools.NullCoalesce``1(``0,``0[])
+  name: NullCoalesce<T>(T, T[])
+  nameWithType: ClassTools.NullCoalesce<T>(T, T[])
+  fullName: InnerLibs.ClassTools.NullCoalesce<T>(T, T[])
+  nameWithType.vb: ClassTools.NullCoalesce(Of T)(T, T())
+  fullName.vb: InnerLibs.ClassTools.NullCoalesce(Of T)(T, T())
+  name.vb: NullCoalesce(Of T)(T, T())
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.NullCoalesce``1(``0,``0[])
+    name: NullCoalesce<T>
+    nameWithType: ClassTools.NullCoalesce<T>
+    fullName: InnerLibs.ClassTools.NullCoalesce<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.NullCoalesce``1(``0,``0[])
+    name: NullCoalesce(Of T)
+    nameWithType: ClassTools.NullCoalesce(Of T)
+    fullName: InnerLibs.ClassTools.NullCoalesce(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.NullifyProperties``1(``0)
+  commentId: M:InnerLibs.ClassTools.NullifyProperties``1(``0)
+  name: NullifyProperties<Type>(Type)
+  nameWithType: ClassTools.NullifyProperties<Type>(Type)
+  fullName: InnerLibs.ClassTools.NullifyProperties<Type>(Type)
+  nameWithType.vb: ClassTools.NullifyProperties(Of Type)(Type)
+  fullName.vb: InnerLibs.ClassTools.NullifyProperties(Of Type)(Type)
+  name.vb: NullifyProperties(Of Type)(Type)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.NullifyProperties``1(``0)
+    name: NullifyProperties<Type>
+    nameWithType: ClassTools.NullifyProperties<Type>
+    fullName: InnerLibs.ClassTools.NullifyProperties<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.NullifyProperties``1(``0)
+    name: NullifyProperties(Of Type)
+    nameWithType: ClassTools.NullifyProperties(Of Type)
+    fullName: InnerLibs.ClassTools.NullifyProperties(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.SetPropertyValue``1(System.Object,System.String,``0)
+  commentId: M:InnerLibs.ClassTools.SetPropertyValue``1(System.Object,System.String,``0)
+  isExternal: true
+  name: SetPropertyValue<Type>(Object, String, Type)
+  nameWithType: ClassTools.SetPropertyValue<Type>(Object, String, Type)
+  fullName: InnerLibs.ClassTools.SetPropertyValue<Type>(System.Object, System.String, Type)
+  nameWithType.vb: ClassTools.SetPropertyValue(Of Type)(Object, String, Type)
+  fullName.vb: InnerLibs.ClassTools.SetPropertyValue(Of Type)(System.Object, System.String, Type)
+  name.vb: SetPropertyValue(Of Type)(Object, String, Type)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.SetPropertyValue``1(System.Object,System.String,``0)
+    name: SetPropertyValue<Type>
+    nameWithType: ClassTools.SetPropertyValue<Type>
+    fullName: InnerLibs.ClassTools.SetPropertyValue<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.SetPropertyValue``1(System.Object,System.String,``0)
+    name: SetPropertyValue(Of Type)
+    nameWithType: ClassTools.SetPropertyValue(Of Type)
+    fullName: InnerLibs.ClassTools.SetPropertyValue(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.Object,System.String,System.Collections.CollectionBase)
+  commentId: M:InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.Object,System.String,System.Collections.CollectionBase)
+  isExternal: true
+  name: SetPropertyValueFromCollection<Type>(Object, String, CollectionBase)
+  nameWithType: ClassTools.SetPropertyValueFromCollection<Type>(Object, String, CollectionBase)
+  fullName: InnerLibs.ClassTools.SetPropertyValueFromCollection<Type>(System.Object, System.String, System.Collections.CollectionBase)
+  nameWithType.vb: ClassTools.SetPropertyValueFromCollection(Of Type)(Object, String, CollectionBase)
+  fullName.vb: InnerLibs.ClassTools.SetPropertyValueFromCollection(Of Type)(System.Object, System.String, System.Collections.CollectionBase)
+  name.vb: SetPropertyValueFromCollection(Of Type)(Object, String, CollectionBase)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.Object,System.String,System.Collections.CollectionBase)
+    name: SetPropertyValueFromCollection<Type>
+    nameWithType: ClassTools.SetPropertyValueFromCollection<Type>
+    fullName: InnerLibs.ClassTools.SetPropertyValueFromCollection<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.CollectionBase
+    name: CollectionBase
+    nameWithType: CollectionBase
+    fullName: System.Collections.CollectionBase
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.SetPropertyValueFromCollection``1(System.Object,System.String,System.Collections.CollectionBase)
+    name: SetPropertyValueFromCollection(Of Type)
+    nameWithType: ClassTools.SetPropertyValueFromCollection(Of Type)
+    fullName: InnerLibs.ClassTools.SetPropertyValueFromCollection(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.CollectionBase
+    name: CollectionBase
+    nameWithType: CollectionBase
+    fullName: System.Collections.CollectionBase
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.ClassTools.ToFlatString(System.Object,System.String)
+  commentId: M:InnerLibs.ClassTools.ToFlatString(System.Object,System.String)
+  isExternal: true
+  name: ToFlatString(Object, String)
+  nameWithType: ClassTools.ToFlatString(Object, String)
+  fullName: InnerLibs.ClassTools.ToFlatString(System.Object, System.String)
+  spec.csharp:
+  - uid: InnerLibs.ClassTools.ToFlatString(System.Object,System.String)
+    name: ToFlatString
+    nameWithType: ClassTools.ToFlatString
+    fullName: InnerLibs.ClassTools.ToFlatString
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.ClassTools.ToFlatString(System.Object,System.String)
+    name: ToFlatString
+    nameWithType: ClassTools.ToFlatString
+    fullName: InnerLibs.ClassTools.ToFlatString
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.DataManipulation.GetDbType(System.Object)
+  commentId: M:InnerLibs.DataManipulation.GetDbType(System.Object)
+  isExternal: true
+  name: GetDbType(Object)
+  nameWithType: DataManipulation.GetDbType(Object)
+  fullName: InnerLibs.DataManipulation.GetDbType(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.DataManipulation.GetDbType(System.Object)
+    name: GetDbType
+    nameWithType: DataManipulation.GetDbType
+    fullName: InnerLibs.DataManipulation.GetDbType
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.DataManipulation.GetDbType(System.Object)
+    name: GetDbType
+    nameWithType: DataManipulation.GetDbType
+    fullName: InnerLibs.DataManipulation.GetDbType
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.DataManipulation
+  commentId: T:InnerLibs.DataManipulation
+  parent: InnerLibs
+  name: DataManipulation
+  nameWithType: DataManipulation
+  fullName: InnerLibs.DataManipulation
+- uid: InnerLibs.Converter.DefineEmptyList``1(``0)
+  commentId: M:InnerLibs.Converter.DefineEmptyList``1(``0)
+  name: DefineEmptyList<T>(T)
+  nameWithType: Converter.DefineEmptyList<T>(T)
+  fullName: InnerLibs.Converter.DefineEmptyList<T>(T)
+  nameWithType.vb: Converter.DefineEmptyList(Of T)(T)
+  fullName.vb: InnerLibs.Converter.DefineEmptyList(Of T)(T)
+  name.vb: DefineEmptyList(Of T)(T)
+  spec.csharp:
+  - uid: InnerLibs.Converter.DefineEmptyList``1(``0)
+    name: DefineEmptyList<T>
+    nameWithType: Converter.DefineEmptyList<T>
+    fullName: InnerLibs.Converter.DefineEmptyList<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Converter.DefineEmptyList``1(``0)
+    name: DefineEmptyList(Of T)
+    nameWithType: Converter.DefineEmptyList(Of T)
+    fullName: InnerLibs.Converter.DefineEmptyList(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Converter
+  commentId: T:InnerLibs.Converter
+  parent: InnerLibs
+  name: Converter
+  nameWithType: Converter
+  fullName: InnerLibs.Converter
+- uid: InnerLibs.Converter.ChangeType``2(``1)
+  commentId: M:InnerLibs.Converter.ChangeType``2(``1)
+  name: ChangeType<ToType, FromType>(FromType)
+  nameWithType: Converter.ChangeType<ToType, FromType>(FromType)
+  fullName: InnerLibs.Converter.ChangeType<ToType, FromType>(FromType)
+  nameWithType.vb: Converter.ChangeType(Of ToType, FromType)(FromType)
+  fullName.vb: InnerLibs.Converter.ChangeType(Of ToType, FromType)(FromType)
+  name.vb: ChangeType(Of ToType, FromType)(FromType)
+  spec.csharp:
+  - uid: InnerLibs.Converter.ChangeType``2(``1)
+    name: ChangeType<ToType, FromType>
+    nameWithType: Converter.ChangeType<ToType, FromType>
+    fullName: InnerLibs.Converter.ChangeType<ToType, FromType>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: FromType
+    nameWithType: FromType
+    fullName: FromType
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Converter.ChangeType``2(``1)
+    name: ChangeType(Of ToType, FromType)
+    nameWithType: Converter.ChangeType(Of ToType, FromType)
+    fullName: InnerLibs.Converter.ChangeType(Of ToType, FromType)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: FromType
+    nameWithType: FromType
+    fullName: FromType
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.JsonViewer.CreateNode(System.Object)
+  commentId: M:InnerLibs.JsonViewer.CreateNode(System.Object)
+  isExternal: true
+  name: CreateNode(Object)
+  nameWithType: JsonViewer.CreateNode(Object)
+  fullName: InnerLibs.JsonViewer.CreateNode(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.JsonViewer.CreateNode(System.Object)
+    name: CreateNode
+    nameWithType: JsonViewer.CreateNode
+    fullName: InnerLibs.JsonViewer.CreateNode
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.JsonViewer.CreateNode(System.Object)
+    name: CreateNode
+    nameWithType: JsonViewer.CreateNode
+    fullName: InnerLibs.JsonViewer.CreateNode
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.JsonViewer
+  commentId: T:InnerLibs.JsonViewer
+  parent: InnerLibs
+  name: JsonViewer
+  nameWithType: JsonViewer
+  fullName: InnerLibs.JsonViewer
+- uid: InnerLibs.Mathematic.IsBetween``1(``0,System.Object,System.Object)
+  commentId: M:InnerLibs.Mathematic.IsBetween``1(``0,System.Object,System.Object)
+  isExternal: true
+  name: IsBetween<Type>(Type, Object, Object)
+  nameWithType: Mathematic.IsBetween<Type>(Type, Object, Object)
+  fullName: InnerLibs.Mathematic.IsBetween<Type>(Type, System.Object, System.Object)
+  nameWithType.vb: Mathematic.IsBetween(Of Type)(Type, Object, Object)
+  fullName.vb: InnerLibs.Mathematic.IsBetween(Of Type)(Type, System.Object, System.Object)
+  name.vb: IsBetween(Of Type)(Type, Object, Object)
+  spec.csharp:
+  - uid: InnerLibs.Mathematic.IsBetween``1(``0,System.Object,System.Object)
+    name: IsBetween<Type>
+    nameWithType: Mathematic.IsBetween<Type>
+    fullName: InnerLibs.Mathematic.IsBetween<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Mathematic.IsBetween``1(``0,System.Object,System.Object)
+    name: IsBetween(Of Type)
+    nameWithType: Mathematic.IsBetween(Of Type)
+    fullName: InnerLibs.Mathematic.IsBetween(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Mathematic
+  commentId: T:InnerLibs.Mathematic
+  parent: InnerLibs
+  name: Mathematic
+  nameWithType: Mathematic
+  fullName: InnerLibs.Mathematic
+- uid: InnerLibs.Text.SerializeJSON(System.Object,System.String)
+  commentId: M:InnerLibs.Text.SerializeJSON(System.Object,System.String)
+  isExternal: true
+  name: SerializeJSON(Object, String)
+  nameWithType: Text.SerializeJSON(Object, String)
+  fullName: InnerLibs.Text.SerializeJSON(System.Object, System.String)
+  spec.csharp:
+  - uid: InnerLibs.Text.SerializeJSON(System.Object,System.String)
+    name: SerializeJSON
+    nameWithType: Text.SerializeJSON
+    fullName: InnerLibs.Text.SerializeJSON
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Text.SerializeJSON(System.Object,System.String)
+    name: SerializeJSON
+    nameWithType: Text.SerializeJSON
+    fullName: InnerLibs.Text.SerializeJSON
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Text
+  commentId: T:InnerLibs.Text
+  parent: InnerLibs
+  name: Text
+  nameWithType: Text
+  fullName: InnerLibs.Text
+- uid: InnerLibs.Verify.IsNumber(System.Object)
+  commentId: M:InnerLibs.Verify.IsNumber(System.Object)
+  isExternal: true
+  name: IsNumber(Object)
+  nameWithType: Verify.IsNumber(Object)
+  fullName: InnerLibs.Verify.IsNumber(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.Verify.IsNumber(System.Object)
+    name: IsNumber
+    nameWithType: Verify.IsNumber
+    fullName: InnerLibs.Verify.IsNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.IsNumber(System.Object)
+    name: IsNumber
+    nameWithType: Verify.IsNumber
+    fullName: InnerLibs.Verify.IsNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Verify
+  commentId: T:InnerLibs.Verify
+  parent: InnerLibs
+  name: Verify
+  nameWithType: Verify
+  fullName: InnerLibs.Verify
+- uid: InnerLibs.Verify.IsNotNumber(System.Object)
+  commentId: M:InnerLibs.Verify.IsNotNumber(System.Object)
+  isExternal: true
+  name: IsNotNumber(Object)
+  nameWithType: Verify.IsNotNumber(Object)
+  fullName: InnerLibs.Verify.IsNotNumber(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.Verify.IsNotNumber(System.Object)
+    name: IsNotNumber
+    nameWithType: Verify.IsNotNumber
+    fullName: InnerLibs.Verify.IsNotNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.IsNotNumber(System.Object)
+    name: IsNotNumber
+    nameWithType: Verify.IsNotNumber
+    fullName: InnerLibs.Verify.IsNotNumber
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Verify.IfBlank``1(System.Object,``0)
+  commentId: M:InnerLibs.Verify.IfBlank``1(System.Object,``0)
+  isExternal: true
+  name: IfBlank<T>(Object, T)
+  nameWithType: Verify.IfBlank<T>(Object, T)
+  fullName: InnerLibs.Verify.IfBlank<T>(System.Object, T)
+  nameWithType.vb: Verify.IfBlank(Of T)(Object, T)
+  fullName.vb: InnerLibs.Verify.IfBlank(Of T)(System.Object, T)
+  name.vb: IfBlank(Of T)(Object, T)
+  spec.csharp:
+  - uid: InnerLibs.Verify.IfBlank``1(System.Object,``0)
+    name: IfBlank<T>
+    nameWithType: Verify.IfBlank<T>
+    fullName: InnerLibs.Verify.IfBlank<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.IfBlank``1(System.Object,``0)
+    name: IfBlank(Of T)
+    nameWithType: Verify.IfBlank(Of T)
+    fullName: InnerLibs.Verify.IfBlank(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Verify.NullIf``1(``0,System.Func{``0,System.Boolean})
+  commentId: M:InnerLibs.Verify.NullIf``1(``0,System.Func{``0,System.Boolean})
+  isExternal: true
+  name: NullIf<T>(T, Func<T, Boolean>)
+  nameWithType: Verify.NullIf<T>(T, Func<T, Boolean>)
+  fullName: InnerLibs.Verify.NullIf<T>(T, System.Func<T, System.Boolean>)
+  nameWithType.vb: Verify.NullIf(Of T)(T, Func(Of T, Boolean))
+  fullName.vb: InnerLibs.Verify.NullIf(Of T)(T, System.Func(Of T, System.Boolean))
+  name.vb: NullIf(Of T)(T, Func(Of T, Boolean))
+  spec.csharp:
+  - uid: InnerLibs.Verify.NullIf``1(``0,System.Func{``0,System.Boolean})
+    name: NullIf<T>
+    nameWithType: Verify.NullIf<T>
+    fullName: InnerLibs.Verify.NullIf<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.NullIf``1(``0,System.Func{``0,System.Boolean})
+    name: NullIf(Of T)
+    nameWithType: Verify.NullIf(Of T)
+    fullName: InnerLibs.Verify.NullIf(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Verify.NullIf``1(``0,``0)
+  commentId: M:InnerLibs.Verify.NullIf``1(``0,``0)
+  name: NullIf<T>(T, T)
+  nameWithType: Verify.NullIf<T>(T, T)
+  fullName: InnerLibs.Verify.NullIf<T>(T, T)
+  nameWithType.vb: Verify.NullIf(Of T)(T, T)
+  fullName.vb: InnerLibs.Verify.NullIf(Of T)(T, T)
+  name.vb: NullIf(Of T)(T, T)
+  spec.csharp:
+  - uid: InnerLibs.Verify.NullIf``1(``0,``0)
+    name: NullIf<T>
+    nameWithType: Verify.NullIf<T>
+    fullName: InnerLibs.Verify.NullIf<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Verify.NullIf``1(``0,``0)
+    name: NullIf(Of T)
+    nameWithType: Verify.NullIf(Of T)
+    fullName: InnerLibs.Verify.NullIf(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+  commentId: M:InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+  isExternal: true
+  name: CreateFromAjax<Type>(Type, String, String, NameValueCollection, String, Encoding)
+  nameWithType: Web.CreateFromAjax<Type>(Type, String, String, NameValueCollection, String, Encoding)
+  fullName: InnerLibs.Web.CreateFromAjax<Type>(Type, System.String, System.String, System.Collections.Specialized.NameValueCollection, System.String, System.Text.Encoding)
+  nameWithType.vb: Web.CreateFromAjax(Of Type)(Type, String, String, NameValueCollection, String, Encoding)
+  fullName.vb: InnerLibs.Web.CreateFromAjax(Of Type)(Type, System.String, System.String, System.Collections.Specialized.NameValueCollection, System.String, System.Text.Encoding)
+  name.vb: CreateFromAjax(Of Type)(Type, String, String, NameValueCollection, String, Encoding)
+  spec.csharp:
+  - uid: InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+    name: CreateFromAjax<Type>
+    nameWithType: Web.CreateFromAjax<Type>
+    fullName: InnerLibs.Web.CreateFromAjax<Type>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Specialized.NameValueCollection
+    name: NameValueCollection
+    nameWithType: NameValueCollection
+    fullName: System.Collections.Specialized.NameValueCollection
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Text.Encoding
+    name: Encoding
+    nameWithType: Encoding
+    fullName: System.Text.Encoding
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Web.CreateFromAjax``1(``0@,System.String,System.String,System.Collections.Specialized.NameValueCollection,System.String,System.Text.Encoding)
+    name: CreateFromAjax(Of Type)
+    nameWithType: Web.CreateFromAjax(Of Type)
+    fullName: InnerLibs.Web.CreateFromAjax(Of Type)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: Type
+    nameWithType: Type
+    fullName: Type
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Collections.Specialized.NameValueCollection
+    name: NameValueCollection
+    nameWithType: NameValueCollection
+    fullName: System.Collections.Specialized.NameValueCollection
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Text.Encoding
+    name: Encoding
+    nameWithType: Encoding
+    fullName: System.Text.Encoding
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Web
+  commentId: T:InnerLibs.Web
+  parent: InnerLibs
+  name: Web
+  nameWithType: Web
+  fullName: InnerLibs.Web
+- uid: InnerLibs.Web.AsListItem``3(``0,System.Func{``0,``1},System.Func{``0,``2})
+  commentId: M:InnerLibs.Web.AsListItem``3(``0,System.Func{``0,``1},System.Func{``0,``2})
+  isExternal: true
+  name: AsListItem<T, TextType, ValueType>(T, Func<T, TextType>, Func<T, ValueType>)
+  nameWithType: Web.AsListItem<T, TextType, ValueType>(T, Func<T, TextType>, Func<T, ValueType>)
+  fullName: InnerLibs.Web.AsListItem<T, TextType, ValueType>(T, System.Func<T, TextType>, System.Func<T, ValueType>)
+  nameWithType.vb: Web.AsListItem(Of T, TextType, ValueType)(T, Func(Of T, TextType), Func(Of T, ValueType))
+  fullName.vb: InnerLibs.Web.AsListItem(Of T, TextType, ValueType)(T, System.Func(Of T, TextType), System.Func(Of T, ValueType))
+  name.vb: AsListItem(Of T, TextType, ValueType)(T, Func(Of T, TextType), Func(Of T, ValueType))
+  spec.csharp:
+  - uid: InnerLibs.Web.AsListItem``3(``0,System.Func{``0,``1},System.Func{``0,``2})
+    name: AsListItem<T, TextType, ValueType>
+    nameWithType: Web.AsListItem<T, TextType, ValueType>
+    fullName: InnerLibs.Web.AsListItem<T, TextType, ValueType>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TextType
+    nameWithType: TextType
+    fullName: TextType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: ValueType
+    nameWithType: ValueType
+    fullName: ValueType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.Web.AsListItem``3(``0,System.Func{``0,``1},System.Func{``0,``2})
+    name: AsListItem(Of T, TextType, ValueType)
+    nameWithType: Web.AsListItem(Of T, TextType, ValueType)
+    fullName: InnerLibs.Web.AsListItem(Of T, TextType, ValueType)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TextType
+    nameWithType: TextType
+    fullName: TextType
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: ValueType
+    nameWithType: ValueType
+    fullName: ValueType
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.GetCastedValue(System.Object)
+  commentId: M:InnerLibs.WinForms.GetCastedValue(System.Object)
+  isExternal: true
+  name: GetCastedValue(Object)
+  nameWithType: WinForms.GetCastedValue(Object)
+  fullName: InnerLibs.WinForms.GetCastedValue(System.Object)
+  spec.csharp:
+  - uid: InnerLibs.WinForms.GetCastedValue(System.Object)
+    name: GetCastedValue
+    nameWithType: WinForms.GetCastedValue
+    fullName: InnerLibs.WinForms.GetCastedValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.WinForms.GetCastedValue(System.Object)
+    name: GetCastedValue
+    nameWithType: WinForms.GetCastedValue
+    fullName: InnerLibs.WinForms.GetCastedValue
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms
+  commentId: T:InnerLibs.WinForms
+  parent: InnerLibs
+  name: WinForms
+  nameWithType: WinForms
+  fullName: InnerLibs.WinForms
+- uid: InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+  commentId: M:InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+  isExternal: true
+  name: CastValueForControl(Object, Object)
+  nameWithType: WinForms.CastValueForControl(Object, Object)
+  fullName: InnerLibs.WinForms.CastValueForControl(System.Object, System.Object)
+  spec.csharp:
+  - uid: InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+    name: CastValueForControl
+    nameWithType: WinForms.CastValueForControl
+    fullName: InnerLibs.WinForms.CastValueForControl
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.WinForms.CastValueForControl(System.Object@,System.Object)
+    name: CastValueForControl
+    nameWithType: WinForms.CastValueForControl
+    fullName: InnerLibs.WinForms.CastValueForControl
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.LINQ.LINQExtensions.ApplyToControls``1(``0,System.Web.UI.HtmlControls.HtmlControl[])
+  commentId: M:InnerLibs.LINQ.LINQExtensions.ApplyToControls``1(``0,System.Web.UI.HtmlControls.HtmlControl[])
+  isExternal: true
+  name: ApplyToControls<T>(T, HtmlControl[])
+  nameWithType: LINQExtensions.ApplyToControls<T>(T, HtmlControl[])
+  fullName: InnerLibs.LINQ.LINQExtensions.ApplyToControls<T>(T, System.Web.UI.HtmlControls.HtmlControl[])
+  nameWithType.vb: LINQExtensions.ApplyToControls(Of T)(T, HtmlControl())
+  fullName.vb: InnerLibs.LINQ.LINQExtensions.ApplyToControls(Of T)(T, System.Web.UI.HtmlControls.HtmlControl())
+  name.vb: ApplyToControls(Of T)(T, HtmlControl())
+  spec.csharp:
+  - uid: InnerLibs.LINQ.LINQExtensions.ApplyToControls``1(``0,System.Web.UI.HtmlControls.HtmlControl[])
+    name: ApplyToControls<T>
+    nameWithType: LINQExtensions.ApplyToControls<T>
+    fullName: InnerLibs.LINQ.LINQExtensions.ApplyToControls<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Web.UI.HtmlControls.HtmlControl
+    name: HtmlControl
+    nameWithType: HtmlControl
+    fullName: System.Web.UI.HtmlControls.HtmlControl
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.LINQ.LINQExtensions.ApplyToControls``1(``0,System.Web.UI.HtmlControls.HtmlControl[])
+    name: ApplyToControls(Of T)
+    nameWithType: LINQExtensions.ApplyToControls(Of T)
+    fullName: InnerLibs.LINQ.LINQExtensions.ApplyToControls(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Web.UI.HtmlControls.HtmlControl
+    name: HtmlControl
+    nameWithType: HtmlControl
+    fullName: System.Web.UI.HtmlControls.HtmlControl
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.LINQ.LINQExtensions
+  commentId: T:InnerLibs.LINQ.LINQExtensions
+  parent: InnerLibs.LINQ
+  name: LINQExtensions
+  nameWithType: LINQExtensions
+  fullName: InnerLibs.LINQ.LINQExtensions
+- uid: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues``1(``0,``0,System.Func{``0,System.Object}[])
+  commentId: M:InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues``1(``0,``0,System.Func{``0,System.Object}[])
+  isExternal: true
+  name: HasSamePropertyValues<T>(T, T, Func<T, Object>[])
+  nameWithType: LINQExtensions.HasSamePropertyValues<T>(T, T, Func<T, Object>[])
+  fullName: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues<T>(T, T, System.Func<T, System.Object>[])
+  nameWithType.vb: LINQExtensions.HasSamePropertyValues(Of T)(T, T, Func(Of T, Object)())
+  fullName.vb: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(Of T)(T, T, System.Func(Of T, System.Object)())
+  name.vb: HasSamePropertyValues(Of T)(T, T, Func(Of T, Object)())
+  spec.csharp:
+  - uid: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues``1(``0,``0,System.Func{``0,System.Object}[])
+    name: HasSamePropertyValues<T>
+    nameWithType: LINQExtensions.HasSamePropertyValues<T>
+    fullName: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues<T>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues``1(``0,``0,System.Func{``0,System.Object}[])
+    name: HasSamePropertyValues(Of T)
+    nameWithType: LINQExtensions.HasSamePropertyValues(Of T)
+    fullName: InnerLibs.LINQ.LINQExtensions.HasSamePropertyValues(Of T)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.LINQ
+  commentId: N:InnerLibs.LINQ
+  name: InnerLibs.LINQ
+  nameWithType: InnerLibs.LINQ
+  fullName: InnerLibs.LINQ
+- uid: InnerLibs.WinForms.RestartAsAdmin*
+  commentId: Overload:InnerLibs.WinForms.RestartAsAdmin
+  name: RestartAsAdmin
+  nameWithType: WinForms.RestartAsAdmin
+  fullName: InnerLibs.WinForms.RestartAsAdmin
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: InnerLibs.WinForms.Notify*
+  commentId: Overload:InnerLibs.WinForms.Notify
+  name: Notify
+  nameWithType: WinForms.Notify
+  fullName: InnerLibs.WinForms.Notify
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System.EventHandler
+  commentId: T:System.EventHandler
+  parent: System
+  isExternal: true
+  name: EventHandler
+  nameWithType: EventHandler
+  fullName: System.EventHandler
+- uid: System.Drawing.Size
+  commentId: T:System.Drawing.Size
+  parent: System.Drawing
+  isExternal: true
+  name: Size
+  nameWithType: Size
+  fullName: System.Drawing.Size
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: InnerLibs.RemainTimeBehavior
+  commentId: T:InnerLibs.RemainTimeBehavior
+  parent: InnerLibs
+  name: RemainTimeBehavior
+  nameWithType: RemainTimeBehavior
+  fullName: InnerLibs.RemainTimeBehavior
+- uid: InnerLibs.NotificationForm
+  commentId: T:InnerLibs.NotificationForm
+  parent: InnerLibs
+  name: NotificationForm
+  nameWithType: NotificationForm
+  fullName: InnerLibs.NotificationForm
+- uid: System.Drawing
+  commentId: N:System.Drawing
+  isExternal: true
+  name: System.Drawing
+  nameWithType: System.Drawing
+  fullName: System.Drawing
+- uid: InnerLibs.WinForms.CreateFontFromFile*
+  commentId: Overload:InnerLibs.WinForms.CreateFontFromFile
+  name: CreateFontFromFile
+  nameWithType: WinForms.CreateFontFromFile
+  fullName: InnerLibs.WinForms.CreateFontFromFile
+- uid: System.Drawing.FontStyle
+  commentId: T:System.Drawing.FontStyle
+  parent: System.Drawing
+  isExternal: true
+  name: FontStyle
+  nameWithType: FontStyle
+  fullName: System.Drawing.FontStyle
+- uid: System.Drawing.Font
+  commentId: T:System.Drawing.Font
+  parent: System.Drawing
+  isExternal: true
+  name: Font
+  nameWithType: Font
+  fullName: System.Drawing.Font
+- uid: InnerLibs.WinForms.GetAllNodes*
+  commentId: Overload:InnerLibs.WinForms.GetAllNodes
+  name: GetAllNodes
+  nameWithType: WinForms.GetAllNodes
+  fullName: InnerLibs.WinForms.GetAllNodes
+- uid: System.Windows.Forms.TreeNode
+  commentId: T:System.Windows.Forms.TreeNode
+  parent: System.Windows.Forms
+  isExternal: true
+  name: TreeNode
+  nameWithType: TreeNode
+  fullName: System.Windows.Forms.TreeNode
+- uid: System.Collections.Generic.List{System.Windows.Forms.TreeNode}
+  commentId: T:System.Collections.Generic.List{System.Windows.Forms.TreeNode}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.List`1
+  name: List<TreeNode>
+  nameWithType: List<TreeNode>
+  fullName: System.Collections.Generic.List<System.Windows.Forms.TreeNode>
+  nameWithType.vb: List(Of TreeNode)
+  fullName.vb: System.Collections.Generic.List(Of System.Windows.Forms.TreeNode)
+  name.vb: List(Of TreeNode)
+  spec.csharp:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    nameWithType: List
+    fullName: System.Collections.Generic.List
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Windows.Forms.TreeNode
+    name: TreeNode
+    nameWithType: TreeNode
+    fullName: System.Windows.Forms.TreeNode
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    nameWithType: List
+    fullName: System.Collections.Generic.List
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Windows.Forms.TreeNode
+    name: TreeNode
+    nameWithType: TreeNode
+    fullName: System.Windows.Forms.TreeNode
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Windows.Forms
+  commentId: N:System.Windows.Forms
+  isExternal: true
+  name: System.Windows.Forms
+  nameWithType: System.Windows.Forms
+  fullName: System.Windows.Forms
+- uid: System.Collections.Generic.List`1
+  commentId: T:System.Collections.Generic.List`1
+  isExternal: true
+  name: List<T>
+  nameWithType: List<T>
+  fullName: System.Collections.Generic.List<T>
+  nameWithType.vb: List(Of T)
+  fullName.vb: System.Collections.Generic.List(Of T)
+  name.vb: List(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    nameWithType: List
+    fullName: System.Collections.Generic.List
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.List`1
+    name: List
+    nameWithType: List
+    fullName: System.Collections.Generic.List
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic
+  commentId: N:System.Collections.Generic
+  isExternal: true
+  name: System.Collections.Generic
+  nameWithType: System.Collections.Generic
+  fullName: System.Collections.Generic
+- uid: System.Windows.Forms.TreeView
+  commentId: T:System.Windows.Forms.TreeView
+  parent: System.Windows.Forms
+  isExternal: true
+  name: TreeView
+  nameWithType: TreeView
+  fullName: System.Windows.Forms.TreeView
+- uid: InnerLibs.WinForms.CreateFontFromResource*
+  commentId: Overload:InnerLibs.WinForms.CreateFontFromResource
+  name: CreateFontFromResource
+  nameWithType: WinForms.CreateFontFromResource
+  fullName: InnerLibs.WinForms.CreateFontFromResource
+- uid: System.Byte[]
+  commentId: T:System.Byte[]
+  isExternal: true
+  name: Byte[]
+  nameWithType: Byte[]
+  fullName: System.Byte[]
+  nameWithType.vb: Byte()
+  fullName.vb: System.Byte()
+  name.vb: Byte()
+  spec.csharp:
+  - uid: System.Byte
+    name: Byte
+    nameWithType: Byte
+    fullName: System.Byte
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  spec.vb:
+  - uid: System.Byte
+    name: Byte
+    nameWithType: Byte
+    fullName: System.Byte
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+- uid: InnerLibs.WinForms.Alert*
+  commentId: Overload:InnerLibs.WinForms.Alert
+  name: Alert
+  nameWithType: WinForms.Alert
+  fullName: InnerLibs.WinForms.Alert
+- uid: InnerLibs.WinForms.Confirm*
+  commentId: Overload:InnerLibs.WinForms.Confirm
+  name: Confirm
+  nameWithType: WinForms.Confirm
+  fullName: InnerLibs.WinForms.Confirm
+- uid: InnerLibs.WinForms.Prompt*
+  commentId: Overload:InnerLibs.WinForms.Prompt
+  name: Prompt
+  nameWithType: WinForms.Prompt
+  fullName: InnerLibs.WinForms.Prompt
+- uid: InnerLibs.WinForms.ToFullScreen*
+  commentId: Overload:InnerLibs.WinForms.ToFullScreen
+  name: ToFullScreen
+  nameWithType: WinForms.ToFullScreen
+  fullName: InnerLibs.WinForms.ToFullScreen
+- uid: System.Windows.Forms.Form
+  commentId: T:System.Windows.Forms.Form
+  parent: System.Windows.Forms
+  isExternal: true
+  name: Form
+  nameWithType: Form
+  fullName: System.Windows.Forms.Form
+- uid: InnerLibs.WinForms.SetTelephoneMask*
+  commentId: Overload:InnerLibs.WinForms.SetTelephoneMask
+  name: SetTelephoneMask
+  nameWithType: WinForms.SetTelephoneMask
+  fullName: InnerLibs.WinForms.SetTelephoneMask
+- uid: System.Windows.Forms.MaskedTextBox
+  commentId: T:System.Windows.Forms.MaskedTextBox
+  parent: System.Windows.Forms
+  isExternal: true
+  name: MaskedTextBox
+  nameWithType: MaskedTextBox
+  fullName: System.Windows.Forms.MaskedTextBox
+- uid: InnerLibs.WinForms.AddClick*
+  commentId: Overload:InnerLibs.WinForms.AddClick
+  name: AddClick
+  nameWithType: WinForms.AddClick
+  fullName: InnerLibs.WinForms.AddClick
+- uid: System.Windows.Forms.Control
+  commentId: T:System.Windows.Forms.Control
+  parent: System.Windows.Forms
+  isExternal: true
+  name: Control
+  nameWithType: Control
+  fullName: System.Windows.Forms.Control
+- uid: InnerLibs.WinForms.RemoveClick*
+  commentId: Overload:InnerLibs.WinForms.RemoveClick
+  name: RemoveClick
+  nameWithType: WinForms.RemoveClick
+  fullName: InnerLibs.WinForms.RemoveClick
+- uid: InnerLibs.WinForms.GetAllControls*
+  commentId: Overload:InnerLibs.WinForms.GetAllControls
+  name: GetAllControls
+  nameWithType: WinForms.GetAllControls
+  fullName: InnerLibs.WinForms.GetAllControls
+- uid: System.Collections.Generic.IEnumerable{{ControlType}}
+  commentId: T:System.Collections.Generic.IEnumerable{``0}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IEnumerable`1
+  name: IEnumerable<ControlType>
+  nameWithType: IEnumerable<ControlType>
+  fullName: System.Collections.Generic.IEnumerable<ControlType>
+  nameWithType.vb: IEnumerable(Of ControlType)
+  fullName.vb: System.Collections.Generic.IEnumerable(Of ControlType)
+  name.vb: IEnumerable(Of ControlType)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ControlType
+    nameWithType: ControlType
+    fullName: ControlType
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ControlType
+    nameWithType: ControlType
+    fullName: ControlType
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic.IEnumerable`1
+  commentId: T:System.Collections.Generic.IEnumerable`1
+  isExternal: true
+  name: IEnumerable<T>
+  nameWithType: IEnumerable<T>
+  fullName: System.Collections.Generic.IEnumerable<T>
+  nameWithType.vb: IEnumerable(Of T)
+  fullName.vb: System.Collections.Generic.IEnumerable(Of T)
+  name.vb: IEnumerable(Of T)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Web.UI.Control
+  commentId: T:System.Web.UI.Control
+  parent: System.Web.UI
+  isExternal: true
+  name: Control
+  nameWithType: Control
+  fullName: System.Web.UI.Control
+- uid: System.Web.UI
+  commentId: N:System.Web.UI
+  isExternal: true
+  name: System.Web.UI
+  nameWithType: System.Web.UI
+  fullName: System.Web.UI
+- uid: System.Func{System.Windows.Forms.Control,System.Boolean}
+  commentId: T:System.Func{System.Windows.Forms.Control,System.Boolean}
+  parent: System
+  definition: System.Func`2
+  name: Func<Control, Boolean>
+  nameWithType: Func<Control, Boolean>
+  fullName: System.Func<System.Windows.Forms.Control, System.Boolean>
+  nameWithType.vb: Func(Of Control, Boolean)
+  fullName.vb: System.Func(Of System.Windows.Forms.Control, System.Boolean)
+  name.vb: Func(Of Control, Boolean)
+  spec.csharp:
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Windows.Forms.Control
+    name: Control
+    nameWithType: Control
+    fullName: System.Windows.Forms.Control
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Windows.Forms.Control
+    name: Control
+    nameWithType: Control
+    fullName: System.Windows.Forms.Control
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: '{Type}'
+  commentId: '!:``0'
+  definition: '``0'
+  name: Type
+  nameWithType: Type
+  fullName: Type
+- uid: System.Func`2
+  commentId: T:System.Func`2
+  isExternal: true
+  name: Func<T, TResult>
+  nameWithType: Func<T, TResult>
+  fullName: System.Func<T, TResult>
+  nameWithType.vb: Func(Of T, TResult)
+  fullName.vb: System.Func(Of T, TResult)
+  name.vb: Func(Of T, TResult)
+  spec.csharp:
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Func`2
+    name: Func
+    nameWithType: Func
+    fullName: System.Func
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResult
+    nameWithType: TResult
+    fullName: TResult
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: '``0'
+  name: T
+  nameWithType: T
+  fullName: T
+- uid: InnerLibs.WinForms.GetCastedValue*
+  commentId: Overload:InnerLibs.WinForms.GetCastedValue
+  name: GetCastedValue
+  nameWithType: WinForms.GetCastedValue
+  fullName: InnerLibs.WinForms.GetCastedValue
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: InnerLibs.WinForms.CastValueForControl*
+  commentId: Overload:InnerLibs.WinForms.CastValueForControl
+  name: CastValueForControl
+  nameWithType: WinForms.CastValueForControl
+  fullName: InnerLibs.WinForms.CastValueForControl
+- uid: System.Collections.Generic.Dictionary`2
+  commentId: T:System.Collections.Generic.Dictionary`2
+  isExternal: true
+  name: Dictionary<TKey, TValue>
+  nameWithType: Dictionary<TKey, TValue>
+  fullName: System.Collections.Generic.Dictionary<TKey, TValue>
+  nameWithType.vb: Dictionary(Of TKey, TValue)
+  fullName.vb: System.Collections.Generic.Dictionary(Of TKey, TValue)
+  name.vb: Dictionary(Of TKey, TValue)
+  spec.csharp:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    nameWithType: Dictionary
+    fullName: System.Collections.Generic.Dictionary
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TKey
+    nameWithType: TKey
+    fullName: TKey
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TValue
+    nameWithType: TValue
+    fullName: TValue
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    nameWithType: Dictionary
+    fullName: System.Collections.Generic.Dictionary
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TKey
+    nameWithType: TKey
+    fullName: TKey
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TValue
+    nameWithType: TValue
+    fullName: TValue
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.WinForms.CreateDictionary*
+  commentId: Overload:InnerLibs.WinForms.CreateDictionary
+  name: CreateDictionary
+  nameWithType: WinForms.CreateDictionary
+  fullName: InnerLibs.WinForms.CreateDictionary
+- uid: System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}
+  commentId: T:System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.IEnumerable`1
+  name: IEnumerable<Control>
+  nameWithType: IEnumerable<Control>
+  fullName: System.Collections.Generic.IEnumerable<System.Windows.Forms.Control>
+  nameWithType.vb: IEnumerable(Of Control)
+  fullName.vb: System.Collections.Generic.IEnumerable(Of System.Windows.Forms.Control)
+  name.vb: IEnumerable(Of Control)
+  spec.csharp:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Windows.Forms.Control
+    name: Control
+    nameWithType: Control
+    fullName: System.Windows.Forms.Control
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.Generic.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Windows.Forms.Control
+    name: Control
+    nameWithType: Control
+    fullName: System.Windows.Forms.Control
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.Generic.Dictionary{System.String,System.Object}
+  commentId: T:System.Collections.Generic.Dictionary{System.String,System.Object}
+  parent: System.Collections.Generic
+  definition: System.Collections.Generic.Dictionary`2
+  name: Dictionary<String, Object>
+  nameWithType: Dictionary<String, Object>
+  fullName: System.Collections.Generic.Dictionary<System.String, System.Object>
+  nameWithType.vb: Dictionary(Of String, Object)
+  fullName.vb: System.Collections.Generic.Dictionary(Of System.String, System.Object)
+  name.vb: Dictionary(Of String, Object)
+  spec.csharp:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    nameWithType: Dictionary
+    fullName: System.Collections.Generic.Dictionary
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.Generic.Dictionary`2
+    name: Dictionary
+    nameWithType: Dictionary
+    fullName: System.Collections.Generic.Dictionary
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )

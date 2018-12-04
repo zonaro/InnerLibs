@@ -1,0 +1,1236 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class HtmlNode
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class HtmlNode
+   ">
+    <meta name="generator" content="docfx 2.37.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="InnerLibs.HtmlParser.HtmlNode">
+  
+  
+  <h1 id="InnerLibs_HtmlParser_HtmlNode" data-uid="InnerLibs.HtmlParser.HtmlNode" class="text-break">Class HtmlNode
+  </h1>
+  <div class="markdown level0 summary"><p>The HtmlNode is the base for all objects that may appear in HTML. Currently, this
+implemention only supports HtmlText and HtmlElement node types.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">HtmlNode</span></div>
+      <div class="level2"><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></div>
+      <div class="level2"><a class="xref" href="InnerLibs.HtmlParser.HtmlText.html">HtmlText</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Finalize()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="InnerLibs.HtmlParser.html">InnerLibs.HtmlParser</a></h6>
+  <h6><strong>Assembly</strong>: InnerLibs.dll</h6>
+  <h5 id="InnerLibs_HtmlParser_HtmlNode_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class HtmlNode</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode__ctor_" data-uid="InnerLibs.HtmlParser.HtmlNode.#ctor*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode__ctor" data-uid="InnerLibs.HtmlParser.HtmlNode.#ctor">HtmlNode()</h4>
+  <div class="markdown level1 summary"><p>This constructor is used by the subclasses.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected HtmlNode()</code></pre>
+  </div>
+  <h3 id="fields">Fields
+  </h3>
+  
+  
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_mParent" data-uid="InnerLibs.HtmlParser.HtmlNode.mParent">mParent</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected HtmlElement mParent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_ElementRepresentation_" data-uid="InnerLibs.HtmlParser.HtmlNode.ElementRepresentation*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_ElementRepresentation" data-uid="InnerLibs.HtmlParser.HtmlNode.ElementRepresentation">ElementRepresentation</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract string ElementRepresentation { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_FirstChild_" data-uid="InnerLibs.HtmlParser.HtmlNode.FirstChild*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_FirstChild" data-uid="InnerLibs.HtmlParser.HtmlNode.FirstChild">FirstChild</h4>
+  <div class="markdown level1 summary"><p>This will return the first child node. If there are no children, this will return null.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlNode FirstChild { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_HTML_" data-uid="InnerLibs.HtmlParser.HtmlNode.HTML*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_HTML" data-uid="InnerLibs.HtmlParser.HtmlNode.HTML">HTML</h4>
+  <div class="markdown level1 summary"><p>This will return the full HTML to represent this node (and all child nodes).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract string HTML { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Index_" data-uid="InnerLibs.HtmlParser.HtmlNode.Index*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Index" data-uid="InnerLibs.HtmlParser.HtmlNode.Index">Index</h4>
+  <div class="markdown level1 summary"><p>This will return the index position within the parent&apos;s nodes that this one resides. If
+this is not in a collection, this will return -1.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Index { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsChild_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsChild*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsChild" data-uid="InnerLibs.HtmlParser.HtmlNode.IsChild">IsChild</h4>
+  <div class="markdown level1 summary"><p>This will return true if this is a child node (has a parent).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsChild { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsParent_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsParent*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsParent" data-uid="InnerLibs.HtmlParser.HtmlNode.IsParent">IsParent</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsParent { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsRoot_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsRoot*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsRoot" data-uid="InnerLibs.HtmlParser.HtmlNode.IsRoot">IsRoot</h4>
+  <div class="markdown level1 summary"><p>This will return true if this is a root node (has no parent).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsRoot { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_JsonRepresentation_" data-uid="InnerLibs.HtmlParser.HtmlNode.JsonRepresentation*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_JsonRepresentation" data-uid="InnerLibs.HtmlParser.HtmlNode.JsonRepresentation">JsonRepresentation</h4>
+  <div class="markdown level1 summary"><p>Return as</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual Dictionary&lt;string, object&gt; JsonRepresentation { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.Dictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.Object</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_LastChild_" data-uid="InnerLibs.HtmlParser.HtmlNode.LastChild*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_LastChild" data-uid="InnerLibs.HtmlParser.HtmlNode.LastChild">LastChild</h4>
+  <div class="markdown level1 summary"><p>This will return the last child node. If there are no children, this will return null.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlNode LastChild { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Next_" data-uid="InnerLibs.HtmlParser.HtmlNode.Next*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Next" data-uid="InnerLibs.HtmlParser.HtmlNode.Next">Next</h4>
+  <div class="markdown level1 summary"><p>This will return the next sibling node. If this is the last one, it will return null.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlNode Next { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Parent_" data-uid="InnerLibs.HtmlParser.HtmlNode.Parent*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Parent" data-uid="InnerLibs.HtmlParser.HtmlNode.Parent">Parent</h4>
+  <div class="markdown level1 summary"><p>This will return the parent of this node, or null if there is none.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlElement Parent { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Previous_" data-uid="InnerLibs.HtmlParser.HtmlNode.Previous*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Previous" data-uid="InnerLibs.HtmlParser.HtmlNode.Previous">Previous</h4>
+  <div class="markdown level1 summary"><p>This will return the previous sibling node. If this is the first one, it will return null.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlNode Previous { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_XHTML_" data-uid="InnerLibs.HtmlParser.HtmlNode.XHTML*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_XHTML" data-uid="InnerLibs.HtmlParser.HtmlNode.XHTML">XHTML</h4>
+  <div class="markdown level1 summary"><p>This will return the full XHTML to represent this node (and all child nodes)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract string XHTML { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_AppendTo_" data-uid="InnerLibs.HtmlParser.HtmlNode.AppendTo*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_AppendTo_InnerLibs_HtmlParser_HtmlElement_System_Boolean_" data-uid="InnerLibs.HtmlParser.HtmlNode.AppendTo(InnerLibs.HtmlParser.HtmlElement,System.Boolean)">AppendTo(HtmlElement, Boolean)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlNode AppendTo(HtmlElement Element, bool Copy = false)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></td>
+        <td><span class="parametername">Element</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">Copy</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_AsElement_" data-uid="InnerLibs.HtmlParser.HtmlNode.AsElement*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_AsElement" data-uid="InnerLibs.HtmlParser.HtmlNode.AsElement">AsElement()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlElement AsElement()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_AsElement_" data-uid="InnerLibs.HtmlParser.HtmlNode.AsElement*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_AsElement__1" data-uid="InnerLibs.HtmlParser.HtmlNode.AsElement``1">AsElement&lt;ElementType&gt;()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ElementType AsElement&lt;ElementType&gt;()
+    where ElementType : HtmlElement</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ElementType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">ElementType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_AsText_" data-uid="InnerLibs.HtmlParser.HtmlNode.AsText*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_AsText" data-uid="InnerLibs.HtmlParser.HtmlNode.AsText">AsText()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlText AsText()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlText.html">HtmlText</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Censor_" data-uid="InnerLibs.HtmlParser.HtmlNode.Censor*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Censor_System_Char_System_String___" data-uid="InnerLibs.HtmlParser.HtmlNode.Censor(System.Char,System.String[])">Censor(Char, String[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract bool Censor(char CensorChar, params string[] BadWords)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Char</span></td>
+        <td><span class="parametername">CensorChar</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">BadWords</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Closest_" data-uid="InnerLibs.HtmlParser.HtmlNode.Closest*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Closest_System_String_" data-uid="InnerLibs.HtmlParser.HtmlNode.Closest(System.String)">Closest(String)</h4>
+  <div class="markdown level1 summary"><p>Returns the most closest parent matching the css selector</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlElement Closest(string CssSelector)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">CssSelector</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_FixText_" data-uid="InnerLibs.HtmlParser.HtmlNode.FixText*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_FixText" data-uid="InnerLibs.HtmlParser.HtmlNode.FixText">FixText()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract void FixText()</code></pre>
+  </div>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_GetCommonAncestor_" data-uid="InnerLibs.HtmlParser.HtmlNode.GetCommonAncestor*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_GetCommonAncestor_InnerLibs_HtmlParser_HtmlNode_" data-uid="InnerLibs.HtmlParser.HtmlNode.GetCommonAncestor(InnerLibs.HtmlParser.HtmlNode)">GetCommonAncestor(HtmlNode)</h4>
+  <div class="markdown level1 summary"><p>This will return the ancstor that is common to this node and the one specified.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlNode GetCommonAncestor(HtmlNode node)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td><span class="parametername">node</span></td>
+        <td><p>The possible node that is relative</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td><p>The common ancestor, or null if there is none</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsAncestorOf_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsAncestorOf*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsAncestorOf_InnerLibs_HtmlParser_HtmlNode_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsAncestorOf(InnerLibs.HtmlParser.HtmlNode)">IsAncestorOf(HtmlNode)</h4>
+  <div class="markdown level1 summary"><p>This will return true if the node passed is one of the children or grandchildren of this node.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsAncestorOf(HtmlNode node)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td><span class="parametername">node</span></td>
+        <td><p>The node that might be a child.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if this node is an ancestor of the one specified.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsDescendentOf_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsDescendentOf*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsDescendentOf_InnerLibs_HtmlParser_HtmlNode_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsDescendentOf(InnerLibs.HtmlParser.HtmlNode)">IsDescendentOf(HtmlNode)</h4>
+  <div class="markdown level1 summary"><p>This will return true if the node passed is a descendent of this node.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsDescendentOf(HtmlNode node)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlNode.html">HtmlNode</a></td>
+        <td><span class="parametername">node</span></td>
+        <td><p>The node that might be the parent or grandparent (etc.)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if this node is a descendent of the one passed in.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsElement_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsElement*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsElement" data-uid="InnerLibs.HtmlParser.HtmlNode.IsElement">IsElement()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsElement()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsElement_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsElement*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsElement__1" data-uid="InnerLibs.HtmlParser.HtmlNode.IsElement``1">IsElement&lt;HtmlElementType&gt;()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsElement&lt;HtmlElementType&gt;()
+    where HtmlElementType : HtmlElement</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">HtmlElementType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_IsText_" data-uid="InnerLibs.HtmlParser.HtmlNode.IsText*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_IsText" data-uid="InnerLibs.HtmlParser.HtmlNode.IsText">IsText()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsText()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Move_" data-uid="InnerLibs.HtmlParser.HtmlNode.Move*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Move_InnerLibs_HtmlParser_HtmlElement_System_Int32_" data-uid="InnerLibs.HtmlParser.HtmlNode.Move(InnerLibs.HtmlParser.HtmlElement,System.Int32)">Move(HtmlElement, Int32)</h4>
+  <div class="markdown level1 summary"><p>Transfer the element to another element</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Move(HtmlElement Destination, int Index = 0)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></td>
+        <td><span class="parametername">Destination</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">Index</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_Remove_" data-uid="InnerLibs.HtmlParser.HtmlNode.Remove*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_Remove" data-uid="InnerLibs.HtmlParser.HtmlNode.Remove">Remove()</h4>
+  <div class="markdown level1 summary"><p>This will remove this node and all child nodes from the tree. If this is a root node,
+this operation will do nothing.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Remove()</code></pre>
+  </div>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_ToJSON_" data-uid="InnerLibs.HtmlParser.HtmlNode.ToJSON*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_ToJSON" data-uid="InnerLibs.HtmlParser.HtmlNode.ToJSON">ToJSON()</h4>
+  <div class="markdown level1 summary"><p>Return a Json representation of this element</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string ToJSON()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_TopParent_" data-uid="InnerLibs.HtmlParser.HtmlNode.TopParent*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_TopParent" data-uid="InnerLibs.HtmlParser.HtmlNode.TopParent">TopParent()</h4>
+  <div class="markdown level1 summary"><p>Returns the most top parent of this node, or sef if parent is null</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HtmlElement TopParent()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="InnerLibs.HtmlParser.HtmlElement.html">HtmlElement</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_HtmlParser_HtmlNode_ToString_" data-uid="InnerLibs.HtmlParser.HtmlNode.ToString*"></a>
+  <h4 id="InnerLibs_HtmlParser_HtmlNode_ToString" data-uid="InnerLibs.HtmlParser.HtmlNode.ToString">ToString()</h4>
+  <div class="markdown level1 summary"><p>This will render the node as it would appear in HTML.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract override string ToString()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_CreateDictionary__1___0_">ClassTools.CreateDictionary&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_System_Reflection_BindingFlags_">ClassTools.GetProperties(Object, BindingFlags)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_">ClassTools.GetProperties(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Type_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Type, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue__1_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue&lt;Type&gt;(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_HasProperty_System_Object_System_String_">ClassTools.HasProperty(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsArrayOf__1_System_Object_">ClassTools.IsArrayOf&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsDictionary_System_Object_">ClassTools.IsDictionary(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsInAny__1___0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsInAny&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;[], IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsList_System_Object_">ClassTools.IsList(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsNotIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsNotIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsType__1_System_Object_">ClassTools.IsType&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullCoalesce__1___0___0___">ClassTools.NullCoalesce&lt;T&gt;(T, T[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullifyProperties__1___0_">ClassTools.NullifyProperties&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValue__1_System_Object_System_String___0_">ClassTools.SetPropertyValue&lt;Type&gt;(Object, String, Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValueFromCollection__1_System_Object_System_String_System_Collections_CollectionBase_">ClassTools.SetPropertyValueFromCollection&lt;Type&gt;(Object, String, CollectionBase)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_ToFlatString_System_Object_System_String_">ClassTools.ToFlatString(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.DataManipulation.html#InnerLibs_DataManipulation_GetDbType_System_Object_">DataManipulation.GetDbType(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_DefineEmptyList__1___0_">Converter.DefineEmptyList&lt;T&gt;(T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_ChangeType__2___1_">Converter.ChangeType&lt;ToType, FromType&gt;(FromType)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.JsonViewer.html#InnerLibs_JsonViewer_CreateNode_System_Object_">JsonViewer.CreateNode(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Mathematic.html#InnerLibs_Mathematic_IsBetween__1___0_System_Object_System_Object_">Mathematic.IsBetween&lt;Type&gt;(Type, Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Text.html#InnerLibs_Text_SerializeJSON_System_Object_System_String_">Text.SerializeJSON(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNumber_System_Object_">Verify.IsNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNotNumber_System_Object_">Verify.IsNotNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IfBlank__1_System_Object___0_">Verify.IfBlank&lt;T&gt;(Object, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0_System_Func___0_System_Boolean__">Verify.NullIf&lt;T&gt;(T, Func&lt;T, Boolean&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0___0_">Verify.NullIf&lt;T&gt;(T, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_CreateFromAjax__1___0__System_String_System_String_System_Collections_Specialized_NameValueCollection_System_String_System_Text_Encoding_">Web.CreateFromAjax&lt;Type&gt;(ref Type, String, String, NameValueCollection, String, Encoding)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_AsListItem__3___0_System_Func___0___1__System_Func___0___2__">Web.AsListItem&lt;T, TextType, ValueType&gt;(T, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_GetCastedValue_System_Object_">WinForms.GetCastedValue(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_CastValueForControl_System_Object__System_Object_">WinForms.CastValueForControl(ref Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_ApplyToControls__1___0_System_Web_UI_HtmlControls_HtmlControl___">LINQExtensions.ApplyToControls&lt;T&gt;(T, HtmlControl[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_HasSamePropertyValues__1___0___0_System_Func___0_System_Object____">LINQExtensions.HasSamePropertyValues&lt;T&gt;(T, T, Func&lt;T, Object&gt;[])</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Base64
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Base64
+   ">
+    <meta name="generator" content="docfx 2.37.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="InnerLibs.Base64">
+  
+  
+  <h1 id="InnerLibs_Base64" data-uid="InnerLibs.Base64" class="text-break">Class Base64
+  </h1>
+  <div class="markdown level0 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Modulo para manipulação de imagens e Strings Base64</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">Base64</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="InnerLibs.html">InnerLibs</a></h6>
+  <h6><strong>Assembly</strong>: InnerLibs.dll</h6>
+  <h5 id="InnerLibs_Base64_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Base64</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="InnerLibs_Base64_Atob_" data-uid="InnerLibs.Base64.Atob*"></a>
+  <h4 id="InnerLibs_Base64_Atob_System_String_System_Text_Encoding_" data-uid="InnerLibs.Base64.Atob(System.String,System.Text.Encoding)">Atob(String, Encoding)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Decoda uma string em Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string Atob(string Base, Encoding Encoding = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Base</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Encoding</span></td>
+        <td><span class="parametername">Encoding</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_Btoa_" data-uid="InnerLibs.Base64.Btoa*"></a>
+  <h4 id="InnerLibs_Base64_Btoa_System_String_System_Text_Encoding_" data-uid="InnerLibs.Base64.Btoa(System.String,System.Text.Encoding)">Btoa(String, Encoding)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Encoda uma string em Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string Btoa(string Text, Encoding Encoding = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Text</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Encoding</span></td>
+        <td><span class="parametername">Encoding</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_CreateFileFromDataURL_" data-uid="InnerLibs.Base64.CreateFileFromDataURL*"></a>
+  <h4 id="InnerLibs_Base64_CreateFileFromDataURL_System_String_System_String_" data-uid="InnerLibs.Base64.CreateFileFromDataURL(System.String,System.String)">CreateFileFromDataURL(String, String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Cria um arquivo fisico a partir de uma Base64 ou DataURL</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static FileInfo CreateFileFromDataURL(this string Base64StringOrDataURL, string FilePath)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Base64StringOrDataURL</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">FilePath</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_FixBase64_" data-uid="InnerLibs.Base64.FixBase64*"></a>
+  <h4 id="InnerLibs_Base64_FixBase64_System_String_" data-uid="InnerLibs.Base64.FixBase64(System.String)">FixBase64(String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Arruma os caracteres de uma string Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string FixBase64(this string Base64StringOrDataUrl)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Base64StringOrDataUrl</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Base64String ou DataURL</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Retorna apenas a Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToBase64_" data-uid="InnerLibs.Base64.ToBase64*"></a>
+  <h4 id="InnerLibs_Base64_ToBase64_System_Byte___" data-uid="InnerLibs.Base64.ToBase64(System.Byte[])">ToBase64(Byte[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um Array de Bytes em uma string Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToBase64(this byte[] Bytes)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">Bytes</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Array de Bytes</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToBase64_" data-uid="InnerLibs.Base64.ToBase64*"></a>
+  <h4 id="InnerLibs_Base64_ToBase64_System_Drawing_Image_" data-uid="InnerLibs.Base64.ToBase64(System.Drawing.Image)">ToBase64(Image)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma Imagem para String Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToBase64(this Image OriginalImage)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">OriginalImage</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma string em formato Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToBase64_" data-uid="InnerLibs.Base64.ToBase64*"></a>
+  <h4 id="InnerLibs_Base64_ToBase64_System_Drawing_Image_System_Drawing_Imaging_ImageFormat_" data-uid="InnerLibs.Base64.ToBase64(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">ToBase64(Image, ImageFormat)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma Imagem para String Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToBase64(this Image OriginalImage, ImageFormat OriginalImageFormat)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">OriginalImage</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span></td>
+        <td><span class="parametername">OriginalImageFormat</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Formato da imagem de acordo com sua extensão (JPG, PNG, GIF etc.)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma string em formato Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToBase64_" data-uid="InnerLibs.Base64.ToBase64*"></a>
+  <h4 id="InnerLibs_Base64_ToBase64_System_String_System_Drawing_Imaging_ImageFormat_" data-uid="InnerLibs.Base64.ToBase64(System.String,System.Drawing.Imaging.ImageFormat)">ToBase64(String, ImageFormat)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma Imagem da WEB para String Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToBase64(this string ImageURL, ImageFormat OriginalImageFormat)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ImageURL</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Caminho da imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span></td>
+        <td><span class="parametername">OriginalImageFormat</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Formato da imagem de acordo com sua extensão (JPG, PNG, GIF etc.)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma string em formato Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToBase64_" data-uid="InnerLibs.Base64.ToBase64*"></a>
+  <h4 id="InnerLibs_Base64_ToBase64_System_Uri_" data-uid="InnerLibs.Base64.ToBase64(System.Uri)">ToBase64(Uri)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma Imagem da WEB para String Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToBase64(this Uri ImageURL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Uri</span></td>
+        <td><span class="parametername">ImageURL</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Caminho da imagem</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma string em formato Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToBase64_" data-uid="InnerLibs.Base64.ToBase64*"></a>
+  <h4 id="InnerLibs_Base64_ToBase64_System_Web_HttpPostedFile_System_Boolean_" data-uid="InnerLibs.Base64.ToBase64(System.Web.HttpPostedFile,System.Boolean)">ToBase64(HttpPostedFile, Boolean)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um arquivo em HttpPostedFile para String Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToBase64(this HttpPostedFile PostedFile, bool DataUrl = false)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpPostedFile</span></td>
+        <td><span class="parametername">PostedFile</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivo</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">DataUrl</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Especifica se a resposta deve ser em DataURI ou apenas a Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma string em formato Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToBytes_" data-uid="InnerLibs.Base64.ToBytes*"></a>
+  <h4 id="InnerLibs_Base64_ToBytes_System_String_" data-uid="InnerLibs.Base64.ToBytes(System.String)">ToBytes(String)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma DATAURL ou Base64 String em um array de Bytes</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static byte[] ToBytes(this string Base64StringOrDataURL)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Base64StringOrDataURL</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Base64 String ou DataURL</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToDataURL_" data-uid="InnerLibs.Base64.ToDataURL*"></a>
+  <h4 id="InnerLibs_Base64_ToDataURL_System_Byte___InnerLibs_FileType_" data-uid="InnerLibs.Base64.ToDataURL(System.Byte[],InnerLibs.FileType)">ToDataURL(Byte[], FileType)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um Array de Bytes em uma DATA URL Completa</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToDataURL(this byte[] Bytes, FileType Type = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">Bytes</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Array de Bytes</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="InnerLibs.FileType.html">FileType</a></td>
+        <td><span class="parametername">Type</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Tipo de arquivo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToDataURL_" data-uid="InnerLibs.Base64.ToDataURL*"></a>
+  <h4 id="InnerLibs_Base64_ToDataURL_System_Drawing_Image_" data-uid="InnerLibs.Base64.ToDataURL(System.Drawing.Image)">ToDataURL(Image)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Transforma uma imagem em uma URL Base64</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToDataURL(this Image Image)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">Image</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Imagem</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma DataURI em string</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToDataURL_" data-uid="InnerLibs.Base64.ToDataURL*"></a>
+  <h4 id="InnerLibs_Base64_ToDataURL_System_Drawing_Image_System_Drawing_Imaging_ImageFormat_" data-uid="InnerLibs.Base64.ToDataURL(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">ToDataURL(Image, ImageFormat)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma imagem para DataURI trocando o MIME Type</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToDataURL(this Image OriginalImage, ImageFormat OriginalImageFormat)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><span class="parametername">OriginalImage</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Imagem</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Drawing.Imaging.ImageFormat</span></td>
+        <td><span class="parametername">OriginalImageFormat</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Formato da Imagem</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma data URI com a imagem convertida</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToDataURL_" data-uid="InnerLibs.Base64.ToDataURL*"></a>
+  <h4 id="InnerLibs_Base64_ToDataURL_System_IO_FileInfo_" data-uid="InnerLibs.Base64.ToDataURL(System.IO.FileInfo)">ToDataURL(FileInfo)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um arquivo uma DATA URL Completa</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToDataURL(this FileInfo File)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.FileInfo</span></td>
+        <td><span class="parametername">File</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivo</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToDataURL_" data-uid="InnerLibs.Base64.ToDataURL*"></a>
+  <h4 id="InnerLibs_Base64_ToDataURL_System_Web_HttpPostedFile_" data-uid="InnerLibs.Base64.ToDataURL(System.Web.HttpPostedFile)">ToDataURL(HttpPostedFile)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma Imagem dem HttpPostedFile para uma Data URI</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static string ToDataURL(this HttpPostedFile PostedFile)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpPostedFile</span></td>
+        <td><span class="parametername">PostedFile</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivo de Imagem</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma data URI Base64</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToImage_" data-uid="InnerLibs.Base64.ToImage*"></a>
+  <h4 id="InnerLibs_Base64_ToImage_System_Byte___" data-uid="InnerLibs.Base64.ToImage(System.Byte[])">ToImage(Byte[])</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um array de bytes para imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image ToImage(this byte[] Bytes)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">Bytes</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Bytes</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToImage_" data-uid="InnerLibs.Base64.ToImage*"></a>
+  <h4 id="InnerLibs_Base64_ToImage_System_String_System_Int32_System_Int32_" data-uid="InnerLibs.Base64.ToImage(System.String,System.Int32,System.Int32)">ToImage(String, Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte uma String DataURL ou Base64 para Imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image ToImage(this string DataUrlOrBase64String, int Width = 0, int Height = 0)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">DataUrlOrBase64String</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">A string Base64 a ser convertida</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">Width</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Altura da nova imagem (não preencher retorna o tamanho original da imagem)</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">Height</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Largura da nova imagem (não preencher retorna o tamanho original da imagem)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Uma imagem (componente Image)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="InnerLibs_Base64_ToImage_" data-uid="InnerLibs.Base64.ToImage*"></a>
+  <h4 id="InnerLibs_Base64_ToImage_System_Web_HttpPostedFile_" data-uid="InnerLibs.Base64.ToImage(System.Web.HttpPostedFile)">ToImage(HttpPostedFile)</h4>
+  <div class="markdown level1 summary"><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="2" sourceendlinenumber="2">Converte um httpPostedFile para imagem</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Extension]
+public static Image ToImage(this HttpPostedFile PostedFile)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Web.HttpPostedFile</span></td>
+        <td><span class="parametername">PostedFile</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">Arquivo HttpPostedFile</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Drawing.Image</span></td>
+        <td><p sourcefile="obj/api/InnerLibs.Base64.yml" sourcestartlinenumber="1" sourceendlinenumber="1">uma Image</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_CreateDictionary__1___0_">ClassTools.CreateDictionary&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_System_Reflection_BindingFlags_">ClassTools.GetProperties(Object, BindingFlags)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetProperties_System_Object_">ClassTools.GetProperties(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Type_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Type, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue__1_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue&lt;Type&gt;(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_GetPropertyValue_System_Object_System_String_System_Boolean_">ClassTools.GetPropertyValue(Object, String, Boolean)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_HasProperty_System_Object_System_String_">ClassTools.HasProperty(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsArrayOf__1_System_Object_">ClassTools.IsArrayOf&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsDictionary_System_Object_">ClassTools.IsDictionary(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsInAny__1___0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsInAny&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;[], IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsList_System_Object_">ClassTools.IsList(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__">ClassTools.IsNotIn&lt;Type&gt;(Type, IEnumerable&lt;Type&gt;, IEqualityComparer&lt;Type&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsNotIn__1___0_System_String_System_Collections_Generic_IEqualityComparer_System_Char__">ClassTools.IsNotIn&lt;Type&gt;(Type, String, IEqualityComparer&lt;Char&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_IsType__1_System_Object_">ClassTools.IsType&lt;T&gt;(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullCoalesce__1___0___0___">ClassTools.NullCoalesce&lt;T&gt;(T, T[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_NullifyProperties__1___0_">ClassTools.NullifyProperties&lt;Type&gt;(Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValue__1_System_Object_System_String___0_">ClassTools.SetPropertyValue&lt;Type&gt;(Object, String, Type)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_SetPropertyValueFromCollection__1_System_Object_System_String_System_Collections_CollectionBase_">ClassTools.SetPropertyValueFromCollection&lt;Type&gt;(Object, String, CollectionBase)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.ClassTools.html#InnerLibs_ClassTools_ToFlatString_System_Object_System_String_">ClassTools.ToFlatString(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.DataManipulation.html#InnerLibs_DataManipulation_GetDbType_System_Object_">DataManipulation.GetDbType(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_DefineEmptyList__1___0_">Converter.DefineEmptyList&lt;T&gt;(T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Converter.html#InnerLibs_Converter_ChangeType__2___1_">Converter.ChangeType&lt;ToType, FromType&gt;(FromType)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.JsonViewer.html#InnerLibs_JsonViewer_CreateNode_System_Object_">JsonViewer.CreateNode(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Mathematic.html#InnerLibs_Mathematic_IsBetween__1___0_System_Object_System_Object_">Mathematic.IsBetween&lt;Type&gt;(Type, Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Text.html#InnerLibs_Text_SerializeJSON_System_Object_System_String_">Text.SerializeJSON(Object, String)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNumber_System_Object_">Verify.IsNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IsNotNumber_System_Object_">Verify.IsNotNumber(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_IfBlank__1_System_Object___0_">Verify.IfBlank&lt;T&gt;(Object, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0_System_Func___0_System_Boolean__">Verify.NullIf&lt;T&gt;(T, Func&lt;T, Boolean&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Verify.html#InnerLibs_Verify_NullIf__1___0___0_">Verify.NullIf&lt;T&gt;(T, T)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_CreateFromAjax__1___0__System_String_System_String_System_Collections_Specialized_NameValueCollection_System_String_System_Text_Encoding_">Web.CreateFromAjax&lt;Type&gt;(ref Type, String, String, NameValueCollection, String, Encoding)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.Web.html#InnerLibs_Web_AsListItem__3___0_System_Func___0___1__System_Func___0___2__">Web.AsListItem&lt;T, TextType, ValueType&gt;(T, Func&lt;T, TextType&gt;, Func&lt;T, ValueType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_GetCastedValue_System_Object_">WinForms.GetCastedValue(Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.WinForms.html#InnerLibs_WinForms_CastValueForControl_System_Object__System_Object_">WinForms.CastValueForControl(ref Object, Object)</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_ApplyToControls__1___0_System_Web_UI_HtmlControls_HtmlControl___">LINQExtensions.ApplyToControls&lt;T&gt;(T, HtmlControl[])</a>
+  </div>
+  <div>
+      <a class="xref" href="InnerLibs.LINQ.LINQExtensions.html#InnerLibs_LINQ_LINQExtensions_HasSamePropertyValues__1___0___0_System_Func___0_System_Object____">LINQExtensions.HasSamePropertyValues&lt;T&gt;(T, T, Func&lt;T, Object&gt;[])</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

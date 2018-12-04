@@ -1,0 +1,14 @@
+C:\SVN\InnerLibs\trunk\innerlibs1\bin\Debug\InnerLibs.dll
+C:\SVN\InnerLibs\trunk\innerlibs1\bin\Debug\InnerLibs.pdb
+C:\SVN\InnerLibs\trunk\innerlibs1\bin\Debug\InnerLibs.xml
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\Interop.IWshRuntimeLibrary.dll
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\Interop.MSScriptControl.dll
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.ResolveComReference.cache
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.Resources.resources
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.NotificationForm.resources
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.GenerateResource.cache
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\innerlibs.vbproj.CoreCompileInputs.cache
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.dll
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.xml
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\InnerLibs.pdb
+C:\SVN\InnerLibs\trunk\innerlibs1\obj\Debug\innerlibs.vbprojAssemblyReference.cache

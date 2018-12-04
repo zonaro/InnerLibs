@@ -1,0 +1,166 @@
+### YamlMime:ManagedReference
+items:
+- uid: InnerLibs.Triforce
+  commentId: N:InnerLibs.Triforce
+  id: InnerLibs.Triforce
+  children:
+  - InnerLibs.Triforce.MixedTemplatePage`1
+  - InnerLibs.Triforce.Template`1
+  - InnerLibs.Triforce.TemplatePage`1
+  - InnerLibs.Triforce.TemplatePropertySelector
+  - InnerLibs.Triforce.TemplateTag
+  - InnerLibs.Triforce.Triforce
+  - InnerLibs.Triforce.TriforceDateTimeFormat
+  - InnerLibs.Triforce.TriforceDefaultTemplate
+  langs:
+  - csharp
+  - vb
+  name: InnerLibs.Triforce
+  nameWithType: InnerLibs.Triforce
+  fullName: InnerLibs.Triforce
+  type: Namespace
+  assemblies:
+  - InnerLibs
+references:
+- uid: InnerLibs.Triforce.TemplateTag
+  commentId: T:InnerLibs.Triforce.TemplateTag
+  parent: InnerLibs.Triforce
+  name: TemplateTag
+  nameWithType: TemplateTag
+  fullName: InnerLibs.Triforce.TemplateTag
+- uid: InnerLibs.Triforce.MixedTemplatePage`1
+  commentId: T:InnerLibs.Triforce.MixedTemplatePage`1
+  parent: InnerLibs.Triforce
+  name: MixedTemplatePage<T>
+  nameWithType: MixedTemplatePage<T>
+  fullName: InnerLibs.Triforce.MixedTemplatePage<T>
+  nameWithType.vb: MixedTemplatePage(Of T)
+  fullName.vb: InnerLibs.Triforce.MixedTemplatePage(Of T)
+  name.vb: MixedTemplatePage(Of T)
+  spec.csharp:
+  - uid: InnerLibs.Triforce.MixedTemplatePage`1
+    name: MixedTemplatePage
+    nameWithType: MixedTemplatePage
+    fullName: InnerLibs.Triforce.MixedTemplatePage
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: InnerLibs.Triforce.MixedTemplatePage`1
+    name: MixedTemplatePage
+    nameWithType: MixedTemplatePage
+    fullName: InnerLibs.Triforce.MixedTemplatePage
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Triforce.Template`1
+  commentId: T:InnerLibs.Triforce.Template`1
+  name: Template<T>
+  nameWithType: Template<T>
+  fullName: InnerLibs.Triforce.Template<T>
+  nameWithType.vb: Template(Of T)
+  fullName.vb: InnerLibs.Triforce.Template(Of T)
+  name.vb: Template(Of T)
+  spec.csharp:
+  - uid: InnerLibs.Triforce.Template`1
+    name: Template
+    nameWithType: Template
+    fullName: InnerLibs.Triforce.Template
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: InnerLibs.Triforce.Template`1
+    name: Template
+    nameWithType: Template
+    fullName: InnerLibs.Triforce.Template
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Triforce.TemplatePage`1
+  commentId: T:InnerLibs.Triforce.TemplatePage`1
+  parent: InnerLibs.Triforce
+  name: TemplatePage<T>
+  nameWithType: TemplatePage<T>
+  fullName: InnerLibs.Triforce.TemplatePage<T>
+  nameWithType.vb: TemplatePage(Of T)
+  fullName.vb: InnerLibs.Triforce.TemplatePage(Of T)
+  name.vb: TemplatePage(Of T)
+  spec.csharp:
+  - uid: InnerLibs.Triforce.TemplatePage`1
+    name: TemplatePage
+    nameWithType: TemplatePage
+    fullName: InnerLibs.Triforce.TemplatePage
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: InnerLibs.Triforce.TemplatePage`1
+    name: TemplatePage
+    nameWithType: TemplatePage
+    fullName: InnerLibs.Triforce.TemplatePage
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: InnerLibs.Triforce.TemplatePropertySelector
+  commentId: T:InnerLibs.Triforce.TemplatePropertySelector
+  name: TemplatePropertySelector
+  nameWithType: TemplatePropertySelector
+  fullName: InnerLibs.Triforce.TemplatePropertySelector
+- uid: InnerLibs.Triforce.Triforce
+  commentId: T:InnerLibs.Triforce.Triforce
+  parent: InnerLibs.Triforce
+  name: Triforce
+  nameWithType: Triforce
+  fullName: InnerLibs.Triforce.Triforce
+- uid: InnerLibs.Triforce.TriforceDateTimeFormat
+  commentId: T:InnerLibs.Triforce.TriforceDateTimeFormat
+  name: TriforceDateTimeFormat
+  nameWithType: TriforceDateTimeFormat
+  fullName: InnerLibs.Triforce.TriforceDateTimeFormat
+- uid: InnerLibs.Triforce.TriforceDefaultTemplate
+  commentId: T:InnerLibs.Triforce.TriforceDefaultTemplate
+  name: TriforceDefaultTemplate
+  nameWithType: TriforceDefaultTemplate
+  fullName: InnerLibs.Triforce.TriforceDefaultTemplate
+- uid: InnerLibs.Triforce
+  commentId: N:InnerLibs.Triforce
+  name: InnerLibs.Triforce
+  nameWithType: InnerLibs.Triforce
+  fullName: InnerLibs.Triforce
