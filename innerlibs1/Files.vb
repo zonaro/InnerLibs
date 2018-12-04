@@ -17,7 +17,7 @@ Public Module Files
     ''' <returns></returns>
     <Extension()> Public Function SaveMailAttachment(ByVal attachment As System.Net.Mail.Attachment, Directory As DirectoryInfo) As FileInfo
         Directory = Directory.FullName.ToDirectoryInfo
-        Return SaveMailAttachment(attachment, Directory.FullName & "\" & attachment.Name)
+        Return SaveMailAttachment(attachment, Directory.FullName & "\" & attachment.Name.IfBlank(attachment.ContentId))
     End Function
 
     ''' <summary>
@@ -28,6 +28,9 @@ Public Module Files
     ''' <returns></returns>
     <Extension()> Public Function SaveMailAttachment(ByVal attachment As System.Net.Mail.Attachment, Path As String) As FileInfo
         Path.ToDirectoryInfo
+        If Path.IsDirectoryPath Then
+            Path = Path & "\" & attachment.Name.IfBlank(attachment.ContentId)
+        End If
         Dim writer As BinaryWriter = New BinaryWriter(New FileStream(Path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
         writer.Write(attachment.ToBytes)
         writer.Close()
