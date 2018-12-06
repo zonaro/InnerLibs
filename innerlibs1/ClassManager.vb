@@ -36,8 +36,11 @@ Public Module ClassTools
     <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As T, ParamArray PropertyNames As String()) As String
         Dim txt = ""
         PropertyNames = If(PropertyNames, {})
+        Dim props = Obj.GetProperties.AsEnumerable
         For Each propertyname In PropertyNames
-            txt &= "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
+            If props.Count(Function(x) x.Name = propertyname) > 0 Then
+                txt &= "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
+            End If
         Next
         Return txt
     End Function
