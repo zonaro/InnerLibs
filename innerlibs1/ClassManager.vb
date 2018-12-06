@@ -13,6 +13,11 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    ''' <summary>
+    ''' Retorna um dicionário em QueryString
+    ''' </summary>
+    ''' <param name="Dic"></param>
+    ''' <returns></returns>
     <Extension()> Public Function ToQueryString(Dic As Dictionary(Of String, String)) As String
         Dim param As String = ""
         For Each k In Dic
@@ -20,6 +25,40 @@ Public Module ClassTools
         Next
         Return param
     End Function
+
+    ''' <summary>
+    ''' Retorna a propriedade de um objeto como um parametro de query string
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <param name="PropertyNames"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As T, ParamArray PropertyNames As String()) As String
+        Dim txt = ""
+        PropertyNames = If(PropertyNames, {})
+        For Each propertyname In PropertyNames
+            txt &= "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
+        Next
+        Return txt
+    End Function
+
+    ''' <summary>
+    ''' Retorna a propriedade de varios objetos em uma lista como um parametro de query string
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <param name="PropertyNames"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As IEnumerable(Of T), ParamArray PropertyNames As String()) As String
+        Dim txt = ""
+        For Each i In Obj
+            txt &= i.GetPropertyAsQueryStringParameter(PropertyNames)
+        Next
+        Return txt
+    End Function
+
+
+
 
     ''' <summary>
     ''' Remove um item de uma lista e retorna este item

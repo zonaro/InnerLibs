@@ -735,6 +735,31 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.ToQueryString(System.Collections.Generic.Dictionary{System.String,System.String})">
+ <summary>
+ Retorna um dicionário em QueryString
+ </summary>
+ <param name="Dic"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.GetPropertyAsQueryStringParameter``1(``0,System.String[])">
+ <summary>
+ Retorna a propriedade de um objeto como um parametro de query string
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Obj"></param>
+ <param name="PropertyNames"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.GetPropertyAsQueryStringParameter``1(System.Collections.Generic.IEnumerable{``0},System.String[])">
+ <summary>
+ Retorna a propriedade de varios objetos em uma lista como um parametro de query string
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Obj"></param>
+ <param name="PropertyNames"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.Detach``1(System.Collections.Generic.List{``0},System.Int32)">
  <summary>
  Remove um item de uma lista e retorna este item
