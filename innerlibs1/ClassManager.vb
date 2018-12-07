@@ -33,6 +33,24 @@ Public Module ClassTools
     ''' <param name="Obj"></param>
     ''' <param name="PropertyNames"></param>
     ''' <returns></returns>
+    <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T, TProperty)(Obj As T, ParamArray PropertyNames As Expressions.Expression(Of Func(Of T, TProperty))()) As String
+        Dim txt = ""
+        PropertyNames = If(PropertyNames, {})
+        Dim props = Obj.GetProperties.AsEnumerable
+        For Each propertyname In PropertyNames
+            Dim prop = Obj.GetPropertyInfo(propertyname)
+            txt &= "&" & prop.Name & "=" & ToFlatString(prop.GetValue(Obj)).UrlEncode
+        Next
+        Return txt
+    End Function
+
+    ''' <summary>
+    ''' Retorna a propriedade de um objeto como um parametro de query string
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <param name="PropertyNames"></param>
+    ''' <returns></returns>
     <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As T, ParamArray PropertyNames As String()) As String
         Dim txt = ""
         PropertyNames = If(PropertyNames, {})

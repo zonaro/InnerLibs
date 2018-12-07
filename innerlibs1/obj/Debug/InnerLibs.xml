@@ -742,6 +742,15 @@ InnerLibs
  <param name="Dic"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.GetPropertyAsQueryStringParameter``2(``0,System.Linq.Expressions.Expression{System.Func{``0,``1}}[])">
+ <summary>
+ Retorna a propriedade de um objeto como um parametro de query string
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Obj"></param>
+ <param name="PropertyNames"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.GetPropertyAsQueryStringParameter``1(``0,System.String[])">
  <summary>
  Retorna a propriedade de um objeto como um parametro de query string
