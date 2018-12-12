@@ -242,6 +242,29 @@ Public Module Calendars
         Return New DateTime([Date].Year, [Date].Month, DateTime.DaysInMonth([Date].Year, [Date].Month), [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
     End Function
 
+
+    ''' <summary>
+    ''' Retorna a ultima data do mes a partir de uma outra data
+    ''' </summary>
+    ''' <param name="MonthNumber">Data</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetLastDayOfMonth(MonthNumber As Integer, Optional Year As Integer? = Nothing) As DateTime
+        Year = If(Year, Now.Month).SetMinValue(DateTime.MinValue.Month)
+        Return New Date(Year, MonthNumber, 1).GetLastDayOfMonth
+    End Function
+
+    ''' <summary>
+    ''' Retorna a ultima data do mes a partir de uma outra data
+    ''' </summary>
+    ''' <param name="MonthNumber">Data</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetFirstDayOfMonth(MonthNumber As Integer, Optional Year As Integer? = Nothing) As DateTime
+        Year = If(Year, Now.Month).SetMinValue(DateTime.MinValue.Month)
+        Return New Date(Year, MonthNumber, 1)
+    End Function
+
     ''' <summary>
     ''' Retorna a primeira data do mes a partir de uma outra data
     ''' </summary>

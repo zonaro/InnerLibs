@@ -3511,6 +3511,20 @@ Verifica se o objeto é do tipo numérico.
  <param name="[Date]">Data</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfMonth(System.Int32,System.Nullable{System.Int32})">
+ <summary>
+ Retorna a ultima data do mes a partir de uma outra data
+ </summary>
+ <param name="MonthNumber">Data</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfMonth(System.Int32,System.Nullable{System.Int32})">
+ <summary>
+ Retorna a ultima data do mes a partir de uma outra data
+ </summary>
+ <param name="MonthNumber">Data</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetFirstDayOfMonth(System.DateTime)">
  <summary>
  Retorna a primeira data do mes a partir de uma outra data
@@ -5554,6 +5568,16 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Properties"> </param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Search``1(System.Data.Linq.DataContext,System.String,System.Linq.Expressions.Expression{System.Func{``0,System.String}}[])">
+ <summary>
+ Retorna um <see cref="T:System.Linq.IQueryable`1"/> procurando em varios campos diferentes de uma entidade
+ </summary>
+ <typeparam name="ClassType"></typeparam>
+ <param name="Context">    </param>
+ <param name="SearchTerm"></param>
+ <param name="Properties"> </param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.Search``1(System.Data.Linq.DataContext,System.String[],System.Linq.Expressions.Expression{System.Func{``0,System.String}}[])">
  <summary>
  Retorna um <see cref="T:System.Linq.IQueryable`1"/> procurando em varios campos diferentes de uma entidade
@@ -5562,6 +5586,15 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Context">    </param>
  <param name="SearchTerms"></param>
  <param name="Properties"> </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.SelectJoin``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+ <summary>
+ Seleciona e une em uma unica string varios elementos
+ </summary>
+ <typeparam name="TSource"></typeparam>
+ <param name="Source">   </param>
+ ''' <param name="Separator"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.SelectJoin``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.String},System.String)">

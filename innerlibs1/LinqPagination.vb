@@ -503,9 +503,9 @@ Namespace LINQ
                             predi = predi.Or(lbd)
                         End If
                     Next
-                    tab = tab.Where(predi)
                 End If
             Next
+            tab = tab.Where(predi)
             For Each prop In Properties
                 Dim field = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.Name.ToLower = prop)
                 If field IsNot Nothing Then
@@ -515,6 +515,19 @@ Namespace LINQ
             Return Search
         End Function
 
+
+
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType"></typeparam>
+        ''' <param name="Context">    </param>
+        ''' <param name="SearchTerm"></param>
+        ''' <param name="Properties"> </param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerm As String, ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
+            Return Context.Search(Of ClassType)({SearchTerm}, Properties)
+        End Function
 
 
         ''' <summary>
@@ -542,8 +555,8 @@ Namespace LINQ
                         predi = predi.Or(lbd)
                     End If
                 Next
-                tab = tab.Where(predi)
             Next
+            tab = tab.Where(predi)
             For Each prop In Properties
                 Search = If(Search, tab.OrderBy(Function(x) True)).ThenByLike(SearchTerms, prop)
             Next
@@ -551,6 +564,17 @@ Namespace LINQ
         End Function
 
 
+
+        ''' <summary>
+        ''' Seleciona e une em uma unica string varios elementos
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <param name="Source">   </param>
+        ''' ''' <param name="Separator"></param>
+        ''' <returns></returns>
+        <Extension()> Function SelectJoin(Of TSource)(ByVal Source As IEnumerable(Of TSource), Optional Separator As String = "") As String
+            Return Source.SelectJoin(Nothing, Separator)
+        End Function
 
         ''' <summary>
         ''' Seleciona e une em uma unica string varios elementos

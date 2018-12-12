@@ -25,3 +25,4 @@ C:\Users\zonar\source\repos\InnerLibs\innerlibs1\obj\Debug\innerlibs.vbproj.Core
 C:\Users\zonar\source\repos\InnerLibs\innerlibs1\obj\Debug\InnerLibs.dll
 C:\Users\zonar\source\repos\InnerLibs\innerlibs1\obj\Debug\InnerLibs.xml
 C:\Users\zonar\source\repos\InnerLibs\innerlibs1\obj\Debug\InnerLibs.pdb
+C:\Users\zonar\source\repos\InnerLibs\innerlibs1\obj\Debug\innerlibs.vbprojAssemblyReference.cache
