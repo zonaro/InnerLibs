@@ -125,7 +125,7 @@ Namespace InnerForm
 
                     'anexa o form em json
                     Using s = itens.SerializeJSON.ToStream
-                        mail.Attachments.Add(New Attachment(s, usermail.ToSlug & ".json", New FileType(".json").ToString))
+                        mail.Attachments.Add(New Attachment(s, usermail.ToSlugCase & ".json", New FileType(".json").ToString))
                     End Using
 
                     'anexa os arquivos

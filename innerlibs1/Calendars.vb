@@ -45,6 +45,26 @@ Public Class DateRange
         Me.EndDate = EndDate
     End Sub
 
+    ''' <summary>
+    ''' Retorna TRUE se a data de inicio e fim for a mesma
+    ''' </summary>
+    ''' <returns></returns>
+    Function IsSingleDate() As Boolean
+        Return Me.StartDate.Date = Me.EndDate.Date
+    End Function
+
+    ''' <summary>
+    ''' Retorna TRUE se a data e hora de inicio e fim for a mesma
+    ''' </summary>
+    ''' <returns></returns>
+    Function IsSingleDateTime() As Boolean
+        Return Me.StartDate = Me.EndDate
+    End Function
+
+    ''' <summary>
+    ''' Retorna um <see cref="TimeFlow"/> contendo a diferença entre as datas
+    ''' </summary>
+    ''' <returns></returns>
     Function Difference() As TimeFlow
         Return StartDate.GetDifference(EndDate)
     End Function
@@ -57,7 +77,10 @@ Public Class DateRange
         Return FortnightGroup.CreateFromDateRange(Me.StartDate, Me.EndDate)
     End Function
 
-
+    ''' <summary>
+    ''' Retorna uma strin representando a diferença das datas
+    ''' </summary>
+    ''' <returns></returns>
     Public Overrides Function ToString() As String
         Return Difference.ToString
     End Function
@@ -150,6 +173,29 @@ Public Class DateRange
     ''' <returns></returns>
     Public Function CalculatePercent(Optional [Date] As Date? = Nothing) As Decimal
         Return If([Date], Now).CalculatePercent(StartDate, EndDate)
+    End Function
+
+
+    ''' <summary>
+    ''' Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Selector"></param>
+    ''' <param name="List"></param>
+    ''' <returns></returns>
+    Public Function Filter(Of T)(Selector As Func(Of T, Date), List As IEnumerable(Of T)) As IEnumerable(Of T)
+        Return List.Where(Function(x) Me.StartDate <= Selector(x) AndAlso Selector(x) <= Me.EndDate)
+    End Function
+
+    ''' <summary>
+    ''' Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Selector"></param>
+    ''' <param name="List"></param>
+    ''' <returns></returns>
+    Public Function Filter(Of T)(Selector As Func(Of T, Date?), List As IEnumerable(Of T)) As IEnumerable(Of T)
+        Return List.Where(Function(x) Selector(x).HasValue).Where(Function(x) Me.StartDate <= Selector(x).Value AndAlso Selector(x).Value <= Me.EndDate)
     End Function
 End Class
 

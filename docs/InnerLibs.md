@@ -97,6 +97,7 @@ Static Methods
 | `String` | Btoa(`String` Text, `Encoding` Encoding = null) | Encoda uma string em Base64 | 
 | `FileInfo` | CreateFileFromDataURL(this `String` Base64StringOrDataURL, `String` FilePath) | Cria um arquivo fisico a partir de uma Base64 ou DataURL | 
 | `String` | FixBase64(this `String` Base64StringOrDataUrl) | Arruma os caracteres de uma string Base64 | 
+| `Boolean` | IsDataURL(this `String` Text) | Retorna TRUE se o texto for um dataurl valido | 
 | `String` | ToBase64(this `Byte[]` Bytes) | Converte um Array de Bytes em uma string Base64 | 
 | `String` | ToBase64(this `Image` OriginalImage, `ImageFormat` OriginalImageFormat) | Converte um Array de Bytes em uma string Base64 | 
 | `String` | ToBase64(this `Image` OriginalImage) | Converte um Array de Bytes em uma string Base64 | 
@@ -160,16 +161,20 @@ Static Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Decimal` | CalculatePercent(this `DateTime` MidDate, `DateTime` StartDate, `DateTime` EndDate) | Calcula a porcentagem de diferenca entre duas datas de acordo com a data inicial especificada | 
+| `String` | ChangeFormat(this `String` DateString, `String` InputFormat, `String` OutputFormat, `CultureInfo` Culture = null) | Converte uma string de data para outra string de data com formato diferente | 
 | `List<DateTime>` | ClearTime(this `List<DateTime>` List) | Remove o tempo de todas as datas de uma lista e retorna uma nova lista | 
+| `DateTime` | ConvertDateString(this `String` DateString, `String` Format, `CultureInfo` Culture = null) | Converte uma string em datetime a partir de um formato especifico | 
 | `void` | FillWith(this `HtmlSelect` Box, `CalendarType` CalendarType, `TypeOfFill` TextType = LongName, `TypeOfFill` ValueType = Number) | Preenche um HtmlSelect com MESES ou DIAS DA SEMANA | 
 | `void` | FixDateOrder(`DateTime&` StartDate, `DateTime&` EndDate) | Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate  sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas resulte em um  `System.TimeSpan` negativo | 
 | `List<DateTime>` | GetBetween(this `DateTime` StartDate, `DateTime` EndDate, `DayOfWeek[]` Days) | Retorna uma lista com as datas de dias especificos da semana entre 2 datas | 
 | `TimeFlow` | GetDifference(this `DateTime` InitialDate, `DateTime` SecondDate) | Retorna uma `InnerLibs.TimeMachine.TimeFlow` com a diferença entre 2 Datas | 
 | `DateTime` | GetFirstDayOfFortnight(this `DateTime` Date) | Retorna a primeira data da quinzena a partir de uma outra data | 
-| `DateTime` | GetFirstDayOfMonth(this `DateTime` Date) | Retorna a primeira data do mes a partir de uma outra data | 
+| `DateTime` | GetFirstDayOfMonth(this `Int32` MonthNumber, `Nullable<Int32>` Year = null) | Retorna a ultima data do mes a partir de uma outra data | 
+| `DateTime` | GetFirstDayOfMonth(this `DateTime` Date) | Retorna a ultima data do mes a partir de uma outra data | 
 | `DateTime` | GetFirstDayOfWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o primeiro dia da semana da data especificada | 
 | `DateTime` | GetLastDayOfFortnight(this `DateTime` Date) | Retorna a ultima data da quinzena a partir de uma outra data | 
 | `DateTime` | GetLastDayOfMonth(this `DateTime` Date) | Retorna a ultima data do mes a partir de uma outra data | 
+| `DateTime` | GetLastDayOfMonth(this `Int32` MonthNumber, `Nullable<Int32>` Year = null) | Retorna a ultima data do mes a partir de uma outra data | 
 | `DateTime` | GetLastDayOfWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o primeiro dia da semana da data especificada | 
 | `DateRange` | GetWeek(this `DateTime` Date, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna um DateRange equivalente a semana de uma data especifica | 
 | `Int32` | GetWeekOfYear(this `DateTime` Date, `CultureInfo` Culture = null, `DayOfWeek` FirstDayOfWeek = Sunday) | Retorna o numero da semana relativa ao ano | 
@@ -225,6 +230,9 @@ Static Methods
 | `List<T>` | GetEnumValues() | Traz todos os Valores de uma enumeração | 
 | `List<PropertyInfo>` | GetProperties(this `Object` MyObject, `BindingFlags` BindAttr) | Traz uma Lista com todas as propriedades de um objeto | 
 | `List<PropertyInfo>` | GetProperties(this `Object` MyObject) | Traz uma Lista com todas as propriedades de um objeto | 
+| `String` | GetPropertyAsQueryStringParameter(this `T` Obj, `Expression`1[]` PropertyNames) | Retorna a propriedade de um objeto como um parametro de query string | 
+| `String` | GetPropertyAsQueryStringParameter(this `T` Obj, `String[]` PropertyNames) | Retorna a propriedade de um objeto como um parametro de query string | 
+| `String` | GetPropertyAsQueryStringParameter(this `IEnumerable<T>` Obj, `String[]` PropertyNames) | Retorna a propriedade de um objeto como um parametro de query string | 
 | `Object[]` | GetPropertyParameterFromString(this `String` Text) | Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe | 
 | `Object[]` | GetPropertyParametersFromString(this `Type` Type, `String` Text) | Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe | 
 | `Object` | GetPropertyValue(this `Object` MyObject, `String` PropertyName, `Type` Type, `Boolean` GetPrivate = False) | Traz o valor de uma propriedade de um objeto | 
@@ -254,16 +262,17 @@ Static Methods
 | `List<T>` | Map(this `DbDataReader` Reader, `Object[]` Params) | Copia os valores de um dicionário para as propriedades de uma classe | 
 | `NameValueCollection` | Merge(`NameValueCollection[]` NVC) | Mescla varios `System.Collections.Specialized.NameValueCollection` em um unico `System.Collections.Specialized.NameValueCollection` | 
 | `Dictionary<String, Object>` | MergeProperties(`Object[]` Items) | Mescla varios tipos de objeto em um unico dicionario a partir de suas propriedades | 
-| `T` | NullCoalesce(this `Nullable<T>` First, `Nullable`1[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
-| `T` | NullCoalesce(this `IEnumerable<Nullable<T>>` List) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `T` | NullCoalesce(this `T` First, `T[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `T` | NullCoalesce(this `IEnumerable<T>` List) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
+| `T` | NullCoalesce(this `Nullable<T>` First, `Nullable`1[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
+| `T` | NullCoalesce(this `IEnumerable<Nullable<T>>` List) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `Type` | NullifyProperties(this `Type` Obj) | Transforma todas as propriedades String em NULL quando suas estiverem em branco | 
-| `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `Func<KeyValuePair<TKey, TValue>, Boolean>` predicate) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
 | `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `TKey[]` Keys) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
+| `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `Func<KeyValuePair<TKey, TValue>, Boolean>` predicate) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
 | `void` | SetPropertyValue(this `Object` MyObject, `String` PropertyName, `Type` Value) | Seta o valor de uma propriedade de um objeto | 
 | `void` | SetPropertyValueFromCollection(this `Object` MyObject, `String` PropertyName, `CollectionBase` Collection) |  | 
 | `String` | ToFlatString(this `Object` Obj, `String` DateFormat = ) | Retorna o objeto em seu formato padrão de String, ou serializa o objeto em Json se o mesmo  não possuir formato em string | 
+| `String` | ToQueryString(this `Dictionary<String, String>` Dic) | Retorna um dicionário em QueryString | 
 
 
 ## `ColorConvert`
@@ -304,6 +313,7 @@ Static Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `ToType[]` | ChangeArrayType(this `FromType[]` Value) | Converte um array de um tipo para outro | 
+| `IEnumerable<ToType>` | ChangeIEnumerableType(this `IEnumerable<FromType>` Value) | Converte um IEnumerable de um tipo para outro | 
 | `ToType` | ChangeType(this `FromType` Value) | Converte um tipo para outro. Retorna Nothing (NULL) se a covnersão falhar | 
 | `List<T>` | DefineEmptyList(this `T` ObjectForDefinition) | Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos | 
 | `Object[]` | ForceArray(`Object` Obj) | Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto | 
@@ -457,6 +467,35 @@ Static Methods
 | `String` | ToUPDATE(this `IDictionary<String, T>` Dic, `String` TableName, `String` WhereClausule) | Cria uma string com um comando de UPDATE a partir dos dados do dicionario | 
 
 
+## `DataURI`
+
+Classe para Extrair informaçoes de uma DATAURL
+```csharp
+public class InnerLibs.DataURI
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | Data | String Base64 ou Base32 | 
+| `String` | Encoding | Tipo de encoding (32 ou 64) | 
+| `String` | Extension | Extensão do tipo do arquivo | 
+| `String` | FullMimeType | MIME type completo | 
+| `String` | Mime | Tipo do arquivo encontrado | 
+
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `Byte[]` | ToBytes() | Converte esta dataURI em Bytes() | 
+| `FileType` | ToFileType() | Informaçoes referentes ao tipo do arquivo | 
+| `String` | ToString() | Retorna uma string da dataURL | 
+| `FileInfo` | WriteToFile(`String` Path) | Transforma este datauri em arquivo | 
+
+
 ## `DateRange`
 
 Classe que representa um periodo entre 2 datas
@@ -481,13 +520,17 @@ Methods
 | `Boolean` | Contains(`DateRange` Period) | Verifica se este periodo contém um outro periodo | 
 | `Boolean` | Contains(`DateTime` Day) | Verifica se este periodo contém um outro periodo | 
 | `FortnightGroup` | CreateFortnightGroup() | Cria um grupo de quinzenas que contenham este periodo | 
-| `TimeFlow` | Difference() |  | 
+| `TimeFlow` | Difference() | Retorna um `InnerLibs.TimeMachine.TimeFlow` contendo a diferença entre as datas | 
+| `IEnumerable<T>` | Filter(`Func<T, DateTime>` Selector, `IEnumerable<T>` List) | Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo | 
+| `IEnumerable<T>` | Filter(`Func<T, Nullable<DateTime>>` Selector, `IEnumerable<T>` List) | Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo | 
 | `Boolean` | IsIn(`DateRange` Period) | Verifica se este periodo está dentro de outro periodo | 
 | `Boolean` | IsNow() | Verifica se hoje está dentro deste periodo | 
+| `Boolean` | IsSingleDate() | Retorna TRUE se a data de inicio e fim for a mesma | 
+| `Boolean` | IsSingleDateTime() | Retorna TRUE se a data e hora de inicio e fim for a mesma | 
 | `Boolean` | MatchAny(`DateRange` Period) | Verifica se 2 periodos coincidem datas (interseção, esta dentro de um periodo de ou contém um periodo) | 
 | `Boolean` | Overlaps(`DateRange` Period) | Verifica se 2 periodos possuem interseção de datas | 
 | `List<DateTime>` | ToList(`DateInterval` Interval = Day) | Cria uma lista de datas contendo todas as datas entre os periodos | 
-| `String` | ToString() |  | 
+| `String` | ToString() | Retorna uma strin representando a diferença das datas | 
 
 
 ## `DictionaryPropertyGridAdapter`
@@ -533,6 +576,7 @@ Static Methods
 | `Boolean` | DeleteIfExist(this `FileSystemInfo` Path) | Deleta um arquivo ou diretório se o mesmo existir e retorna TURE se o arquivo puder ser criado novamente | 
 | `DirectoryInfo` | ExtractZipFile(this `FileInfo` File, `DirectoryInfo` Directory) | Extrai um arquivo zip em um diretório | 
 | `IEnumerable<FindType>` | Find(this `DirectoryInfo` Directory, `Func<FindType, Boolean>` predicate, `SearchOption` SearchOption = AllDirectories) | Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate | 
+| `String` | FixPathSeparator(this `String` Path, `Boolean` Alternative = False) | Ajusta um caminho de arquivo ou diretório colocando o mesmo `System.IO.Path.DirectorySeparatorChar` evitando barras duplas ou alternativas | 
 | `Boolean` | HasDirectories(this `DirectoryInfo` Directory) | Verifica se um diretório possui subdiretórios | 
 | `Boolean` | HasFiles(this `DirectoryInfo` Directory) | Verifica se um diretório possui arquivos | 
 | `Boolean` | IsEmpty(this `DirectoryInfo` Directory) | Verifica se um diretório está vazio | 
@@ -543,9 +587,9 @@ Static Methods
 | `List<DirectoryInfo>` | SearchDirectoriesBetween(this `DirectoryInfo` Directory, `DateTime` FirstDate, `DateTime` SecondDate, `SearchOption` SearchOption, `String[]` Searches) | Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas | 
 | `List<FileInfo>` | SearchFiles(this `DirectoryInfo` Directory, `SearchOption` SearchOption, `String[]` Searches) | Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas | 
 | `List<FileInfo>` | SearchFilesBetween(this `DirectoryInfo` Directory, `DateTime` FirstDate, `DateTime` SecondDate, `SearchOption` SearchOption, `String[]` Searches) | Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um range de 2 datas | 
-| `DirectoryInfo` | ToDirectory(this `String` DirectoryName) | Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório | 
-| `FileInfo` | ToFile(this `String` FileName, `FileType` Type) | Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo | 
-| `FileInfo` | ToFile(this `String` FileName) | Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo | 
+| `DirectoryInfo` | ToDirectoryInfo(this `String` DirectoryName) | Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório | 
+| `FileInfo` | ToFileInfo(this `String` FileName, `FileType` Type) | Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo | 
+| `FileInfo` | ToFileInfo(this `String` FileName) | Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo | 
 | `FileInfo` | ToZipFile(this `DirectoryInfo` FilesDirectory, `String` OutputFile, `CompressionLevel` CompressionLevel = Optimal) | Cria um arquivo .ZIP de um diretório | 
 | `FileInfo` | ToZipFile(this `DirectoryInfo` FilesDirectory, `String` OutputFile, `CompressionLevel` CompressionLevel, `SearchOption` SearchOption, `String[]` Searches) | Cria um arquivo .ZIP de um diretório | 
 
@@ -638,6 +682,30 @@ Enum
 | --- | --- | --- | 
 | `0` | cSharp |  | 
 | `1` | Vb |  | 
+
+
+## `EquationPair`
+
+Representa um Par X,Y para operaçoes matemáticas
+```csharp
+public class InnerLibs.EquationPair
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `Nullable<Decimal>` | X |  | 
+| `Nullable<Decimal>` | Y |  | 
+
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `Nullable`1[]` | ToArray() |  | 
+| `Object` | ToJson() |  | 
 
 
 ## `eTokenType`
@@ -821,8 +889,12 @@ Static Methods
 | --- | --- | --- | 
 | `String` | GetLatestDirectoryName(this `FileInfo` Path) | Retorna o nome do diretorio onde o arquivo se encontra | 
 | `String` | ReadText(this `FileInfo` File) | Retorna o conteudo de um arquivo de texto | 
-| `Byte[]` | ToBytes(this `FileInfo` File) | Transforma um arquivo em um Array de Bytes | 
-| `Byte[]` | ToBytes(this `HttpPostedFile` File) | Transforma um arquivo em um Array de Bytes | 
+| `FileInfo` | SaveMailAttachment(this `Attachment` attachment, `DirectoryInfo` Directory) | Salva um anexo para um diretório | 
+| `FileInfo` | SaveMailAttachment(this `Attachment` attachment, `String` Path) | Salva um anexo para um diretório | 
+| `Byte[]` | ToBytes(this `Attachment` attachment) | Salva um anexo para Byte() | 
+| `Byte[]` | ToBytes(this `Stream` stream) | Salva um anexo para Byte() | 
+| `Byte[]` | ToBytes(this `FileInfo` File) | Salva um anexo para Byte() | 
+| `Byte[]` | ToBytes(this `HttpPostedFile` File) | Salva um anexo para Byte() | 
 | `FileInfo` | WriteToFile(this `Byte[]` Bytes, `String` FilePath) | Transforma um  Array de Bytes em um arquivo | 
 | `FileInfo` | WriteToFile(this `String` Text, `String` FilePath, `Boolean` Append = False) | Transforma um  Array de Bytes em um arquivo | 
 | `FileInfo` | WriteToFile(this `String` Text, `FileInfo` File, `Boolean` Append = False) | Transforma um  Array de Bytes em um arquivo | 
@@ -890,7 +962,7 @@ Static Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `List<String>` | GetExtensions(`String` MIME) | Traz uma lista de extensões de acordo com o MIME type especificado | 
-| `FileType` | GetFileType(`String` MimeTypeOrExtensionOrPath) | Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string | 
+| `FileType` | GetFileType(`String` MimeTypeOrExtensionOrPathOrDataURI) | Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string | 
 | `FileTypeList` | GetFileTypeList() | Retorna uma Lista com todos os MIME Types suportados | 
 | `List<String>` | GetFileTypeStringList() | Retorna uma lista de strings contendo todos os MIME Types | 
 
@@ -912,7 +984,7 @@ Static Methods
 | `List<String>` | GetFileType(this `ImageFormat` RawFormat) | Retorna o Mime Type a partir da extensão de um arquivo | 
 | `List<String>` | GetFileType(this `Image` Image) | Retorna o Mime Type a partir da extensão de um arquivo | 
 | `Icon` | GetIcon(this `FileInfo` File) | Retorna um icone de acordo com o arquivo | 
-| `FileType` | ToFileType(this `String` MimeTypeOrExtensionOrPath) | Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo | 
+| `FileType` | ToFileType(this `String` MimeTypeOrExtensionOrPathOrDataURI) | Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo | 
 
 
 ## `FileTypeList`
@@ -981,6 +1053,102 @@ Properties
 | `Int32` | Duration | Gets or sets the number of milliseconds over which the animation is played. | 
 | `Form` | Form | Gets the form to be animated. | 
 | `AnimationMethod` | Method | Gets or sets the animation method used to show and hide the form. | 
+
+
+## `FullMoneyWriter`
+
+Classe para escrever moedas por extenso com suporte até 999 quintilhoes de $$
+```csharp
+public class InnerLibs.FullMoneyWriter
+    : FullNumberWriter
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `QuantityTextPair` | CurrencyCentsName | Par de strings que representam os centavos desta moeda em sua forma singular ou plural | 
+| `QuantityTextPair` | CurrencyName | Par de strings que representam os nomes da moeda em sua forma singular ou plural | 
+| `String` | Text | Escreve um numero por extenso | 
+| `String` | Text | Escreve um numero por extenso | 
+
+
+Static Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `FullMoneyWriter` | CreateFromJSON(`String` JsonString) | Cria um `InnerLibs.FullMoneyWriter` a partir de um JSON | 
+
+
+## `FullNumberWriter`
+
+Classe para escrever numeros por extenso com suporte até 999 quintilhoes
+```csharp
+public class InnerLibs.FullNumberWriter
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | And | String que representa a palavra "e". Utilizada na concatenação de expressões | 
+| `QuantityTextPair` | Billion | Par de strings que representam os numeros 1 bilhão a 999 bilhões | 
+| `String` | Dot | String utilizada quando um numero possui casa decimais. Normalmente "virgula" | 
+| `String` | Eight | String que representa o numero 8. | 
+| `String` | Eighteen | String que representa o numero 18. | 
+| `String` | EightHundred | String que representa os numeros 800 a 899. | 
+| `String` | Eighty | String que representa os numeros 80 a 89. | 
+| `String` | Eleven | String que representa o numero 11. | 
+| `String` | ExactlyOneHundred | String que represena o exato numero 100. Em alguns idiomas esta string não é nescessária | 
+| `String` | Fifteen | String que representa o numero 15. | 
+| `String` | Fifty | String que representa os numeros 50 a 59. | 
+| `String` | Five | String que representa o numero 5. | 
+| `String` | FiveHundred | String que representa os numeros 500 a 599. | 
+| `String` | Four | String que representa o numero 4. | 
+| `String` | FourHundred | String que representa os numeros 400 a 499. | 
+| `String` | Fourteen | String que representa o numero 14. | 
+| `String` | Fourty | String que representa os numeros 40 a 49. | 
+| `QuantityTextPair` | Million | Par de strings que representam os numeros 1 milhão a 999 milhões | 
+| `String` | Minus | String que representa a palavra "Menos". Utilizada quando os números são negativos | 
+| `String` | MoreThan | String utilizada quando o numero é maior que 999 quintilhões. Retorna uma string "Mais de 999 quintilhões" | 
+| `String` | Nine | String que representa o numero 9. | 
+| `String` | NineHundred | String que representa os numeros 900 a 999. | 
+| `String` | Nineteen | String que representa o numero 19. | 
+| `String` | Ninety | String que representa os numeros 90 a 99. | 
+| `String` | One | String que representa o numero 1. | 
+| `String` | OneHundred | String que representa os numeros 100 a 199. | 
+| `QuantityTextPair` | Quadrillion | Par de strings que representam os numeros 1 quadrilhão a 999 quadrilhões | 
+| `QuantityTextPair` | Quintillion | Par de strings que representam os numeros 1 quintilhão a 999 quintilhões | 
+| `String` | Seven | String que representa o numero 7. | 
+| `String` | SevenHundred | String que representa os numeros 700 a 799. | 
+| `String` | Seventeen | String que representa o numero 17. | 
+| `String` | Seventy | String que representa os numeros 70 a 79. | 
+| `String` | Six | String que representa o numero 6. | 
+| `String` | SixHundred | String que representa os numeros 600 a 699. | 
+| `String` | Sixteen | String que representa o numero 16. | 
+| `String` | Sixty | String que representa os numeros 60 a 69. | 
+| `String` | Ten | String que representa o numero 10. | 
+| `String` | Text | Escreve um numero por extenso | 
+| `String` | Thirteen | String que representa o numero 13. | 
+| `String` | Thirty | String que representa os numeros 30 a 39. | 
+| `String` | Thousand | String que representa os numeros 1000 a 9999 | 
+| `String` | Three | String que representa o numero 3. | 
+| `String` | ThreeHundred | String que representa os numeros 300 a 399. | 
+| `QuantityTextPair` | Trillion | Par de strings que representam os numeros 1 trilhão a 999 trilhões | 
+| `String` | Twelve | String que representa o numero 12. | 
+| `String` | Twenty | String que representa os numeros 20 a 29 . | 
+| `String` | Two | String que representa o numero 2. | 
+| `String` | TwoHundred | String que representa os numeros 200 a 299. | 
+| `String` | Zero | String que representa o numero 0. | 
+
+
+Static Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `FullNumberWriter` | CreateFromJSON(`String` JsonString) | Cria um `InnerLibs.FullNumberWriter` a partir de um JSON | 
 
 
 ## `Generate`
@@ -1255,11 +1423,20 @@ Static Methods
 | `Int64` | Floor(this `Double` Number) | Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4 | 
 | `List<Int32>` | GeometricProgression(`Int32` FirstNumber, `Int32` Constant, `Int32` Length) | Retorna uma Progressão Gemoétrica com N numeros | 
 | `Int64` | GetDecimalPlaces(this `Decimal` Value, `Int32` DecimalPlaces = 0, `CultureInfo` Culture = null) | Retorna um numero inteiro representando a parte decimal de um numero decimal | 
-| `Boolean` | IsBetween(this `Type` Number, `Object` FirstNumber, `Object` SecondNumber) | Verifica se um numero está entre outros 2 números | 
+| `Boolean` | HasDecimalPart(this `Decimal` Value) | Verifica se um numero possui parte decimal | 
+| `Boolean` | HasDecimalPart(this `Double` Value) | Verifica se um numero possui parte decimal | 
+| `T` | HigherOf(this `IEnumerable<T>` Elements) | Retorna o elemento de maior valor de uma coleção | 
+| `T` | HigherOf(`T[]` Elements) | Retorna o elemento de maior valor de uma coleção | 
+| `Boolean` | IsBetween(this `Type` Value, `Object` FirstValue, `Object` SecondValue) | Verifica se um valor numerico ou data está entre outros 2 valores | 
+| `Boolean` | IsEqualOrBetween(this `Type` Value, `Object` FirstValue, `Object` SecondValue) | Verifica se um valor é igual ou está entre outros 2 valores | 
 | `Single` | Lerp(this `Single` Start, `Single` End, `Single` Amount) | Realiza um calculo de interpolação Linear | 
 | `Int32` | LimitIndex(this `Int32` Int, `IEnumerable<AnyType>` Collection) |  | 
 | `Int64` | LimitIndex(this `Int64` Lng, `IEnumerable<AnyType>` Collection) |  | 
 | `Type` | LimitRange(this `Type` Number, `Object` MinValue = null, `Object` MaxValue = null) | Limita um range para um numero | 
+| `T` | LowerOf(this `IEnumerable<T>` Elements) | Retorna o elemento de menor valor de uma coleção | 
+| `T` | LowerOf(`T[]` Elements) | Retorna o elemento de menor valor de uma coleção | 
+| `Int32` | PenalizeMax(this `Int32` Total, `Int32` MaxValue) | Retorna a diferença entre 2 numeros se o valor maximo for menor que o total | 
+| `Int32` | PenalizeMin(this `Int32` Total, `Int32` MinValue) | Retorna a diferença entre 2 numeros se o valor minimo for maior que o total | 
 | `Int32` | Round(this `Decimal` Number, `Int32` MiddleNumber = 5, `CultureInfo` Culture = null) | Arredonda um numero para baixo ou para cima de acordo com outro numero | 
 | `Int32` | Round(this `Decimal` Number) | Arredonda um numero para baixo ou para cima de acordo com outro numero | 
 | `Type` | SetMaxValue(this `Type` Number, `Type` MaxValue) | Limita o valor Maximo de um numero | 
@@ -1289,9 +1466,11 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `CultureInfo` | Culture | Cultura correspondente a esta moeda | 
 | `String` | CurrencySymbol | Simbolo de moeda | 
 | `String` | ISOCurrencySymbol | Simbolo de moeda utilizada em cambio (ISO) | 
 | `String` | MoneyString | String do valor formatado como moeda | 
+| `RegionInfo` | Region | Região correspondente a essa moeda | 
 | `Decimal` | Value |  | 
 
 
@@ -1301,8 +1480,16 @@ Methods
 | --- | --- | --- | 
 | `Money` | ConvertCurrency(`String` Symbol) | Converte de uma moeda para a outra utilizando a api http://cryptonator.com | 
 | `Money` | ConvertCurrency(`CultureInfo` Culture) | Converte de uma moeda para a outra utilizando a api http://cryptonator.com | 
+| `Boolean` | Equals(`Object` obj) | Compara se 2 valores são iguais (mesmo valor e moeda) | 
 | `String` | ToString() | String do valor formatado como moeda, é um alias para `InnerLibs.Money.MoneyString` | 
-| `Object` | ToString(`Int32` Precision) | String do valor formatado como moeda, é um alias para `InnerLibs.Money.MoneyString` | 
+| `String` | ToString(`Int32` Precision) | String do valor formatado como moeda, é um alias para `InnerLibs.Money.MoneyString` | 
+
+
+Static Fields
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | DefaultPattern |  | 
 
 
 Static Methods
@@ -1456,7 +1643,7 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Object` | Add(`UserType` Obj) |  | 
+| `OnlineUser<UserType, IdType>` | Add(`UserType` Obj) |  | 
 | `OnlineUser<UserType, IdType>` | Add(`UserType` Obj, `Boolean` Online = False, `String` Activity = null) |  | 
 | `Boolean` | ContainsUser(`UserType` User) |  | 
 | `IEnumerable<OnlineUser<UserType, IdType>>` | OnlineUsers() |  | 
@@ -1651,6 +1838,35 @@ Methods
 | `Picture` | Unsplash(`Int32` Index = -1, `Boolean` Grayscale = False, `Boolean` Blur = False) | Retorna uma Imagem utilizando Unsplash.it | 
 
 
+## `QuantityTextPair`
+
+```csharp
+public class InnerLibs.QuantityTextPair
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | Plural |  | 
+| `String` | Singular |  | 
+| `String` | Text |  | 
+
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | ToString() |  | 
+| `Object` | ToString(`Int64` Number) |  | 
+| `Object` | ToString(`Decimal` Number) |  | 
+| `Object` | ToString(`Int16` Number) |  | 
+| `Object` | ToString(`Int32` Number) |  | 
+| `Object` | ToString(`Double` Number) |  | 
+| `Object` | ToString(`Single` Number) |  | 
+
+
 ## `RemainTimeBehavior`
 
 Comportamento do contador da notificação
@@ -1683,6 +1899,29 @@ Static Methods
 | --- | --- | --- | 
 | `Int32` | ToArabic(this `String` RomanNumber) | Converte uma String contendo um numero romano para seu valor arabico | 
 | `String` | ToRoman(this `Int32` ArabicNumber) | Converte um valor numérico arabico para numero romano | 
+
+
+## `RuleOfThree`
+
+```csharp
+public class InnerLibs.RuleOfThree
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `EquationPair` | FirstEquation | Primeira Equaçao | 
+| `EquationPair` | SecondEquation | Segunda Equaçao | 
+
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `Nullable`1[][]` | ToArray() |  | 
+| `String` | ToJson() | Retorna a representacao em JSON desta regra de tres | 
 
 
 ## `SelfKeyDictionary<KeyType, ClassType>`
@@ -1723,6 +1962,7 @@ Methods
 
 ## `Sentence`
 
+Sentença de um texto (uma frase ou oração)
 ```csharp
 public class InnerLibs.Sentence
     : List<SentencePart>, IList<SentencePart>, ICollection<SentencePart>, IEnumerable<SentencePart>, IEnumerable, IList, ICollection, IReadOnlyList<SentencePart>, IReadOnlyCollection<SentencePart>
@@ -1745,6 +1985,7 @@ Methods
 
 ## `SentencePart`
 
+Parte de uma sentença. Pode ser uma palavra, pontuaçao ou qualquer caractere de encapsulamento
 ```csharp
 public class InnerLibs.SentencePart
 
@@ -1755,24 +1996,24 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Sentence` | Sentence |  | 
-| `String` | Text |  | 
+| `String` | Text | Texto desta parte de sentença | 
 
 
 Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Boolean` | IsCloseWrapChar() |  | 
-| `Boolean` | IsComma() |  | 
-| `Boolean` | IsEndOfSentencePunctuation() |  | 
-| `Boolean` | IsMidSentencePunctuation() |  | 
-| `Boolean` | IsNotWord() |  | 
-| `Boolean` | IsOpenWrapChar() |  | 
-| `Boolean` | IsPunctuation() |  | 
-| `Boolean` | IsWord() |  | 
-| `Boolean` | NeedSpaceOnNext() |  | 
-| `SentencePart` | Next() |  | 
-| `SentencePart` | Previous() |  | 
+| `Boolean` | IsCloseWrapChar() | Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento | 
+| `Boolean` | IsComma() | Retorna TRUE se esta parte de sentença é uma vírgula | 
+| `Boolean` | IsEndOfSentencePunctuation() | Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao) | 
+| `Boolean` | IsMidSentencePunctuation() | Retorna TRUE se esta parte de senteça for um caractere de de meio de sentença (dois pontos ou ponto e vírgula) | 
+| `Boolean` | IsNotWord() | Retorna TRUE se esta parte de senteça não for uma palavra | 
+| `Boolean` | IsOpenWrapChar() | Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento | 
+| `Boolean` | IsPunctuation() | Retorna TRUE se esta parte de senteça for qualquer tipo de pontuaçao | 
+| `Boolean` | IsWord() | Retorna TRUE se esta parte de senteça for uma palavra | 
+| `Boolean` | NeedSpaceOnNext() | Retorna true se é nescessário espaço andes da proxima sentença | 
+| `SentencePart` | Next() | Parte da próxima sentença | 
+| `SentencePart` | Previous() | Parte de sentença anterior | 
 | `String` | ToString() |  | 
 
 
@@ -1822,6 +2063,7 @@ Static Methods
 
 ## `StructuredText`
 
+Texto estruturado (Dividido em parágrafos)
 ```csharp
 public class InnerLibs.StructuredText
     : List<Paragraph>, IList<Paragraph>, ICollection<Paragraph>, IEnumerable<Paragraph>, IEnumerable, IList, ICollection, IReadOnlyList<Paragraph>, IReadOnlyCollection<Paragraph>
@@ -1883,31 +2125,35 @@ Static Methods
 | `String` | Alphabetize(this `String` Text) | Retorna uma string em ordem afabética baseada em uma outra string | 
 | `String` | Append(this `String&` Text, `String` AppendText) | Adiciona texto ao final de uma string | 
 | `String` | AppendIf(this `String&` Text, `String` AppendText, `Boolean` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
+| `String` | AppendIf(this `String&` Text, `String` AppendText, `Func<String, Boolean>` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
+| `String` | AppendUrlParameter(this `String&` Url, `String` Key, `String[]` Value) |  | 
 | `String` | ApplySpaceOnWrapChars(this `String` Text) | Aplica espacos em todos os caracteres de encapsulamento | 
 | `String` | CamelSplit(this `String` Text) | Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas | 
-| `Boolean` | Censor(this `String&` Text, `List<String>` BadWords, `Char` CensorshipCharacter = *) | Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro  caractere desejado) e retorna um valor indicando se o texto precisou ser censurado | 
-| `String` | Censor(this `String` Text, `Char` CensorshipCharacter, `String[]` BadWords) | Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro  caractere desejado) e retorna um valor indicando se o texto precisou ser censurado | 
+| `String` | Censor(this `String` Text, `IEnumerable<String>` BadWords, `String` CensorshipCharacter = *, `Boolean` IsCensored = False) | Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro  caractere desejado) e retorna um valor indicando se o texto precisou ser censurado | 
+| `String` | Censor(this `String` Text, `String` CensorshipCharacter, `String[]` BadWords) | Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro  caractere desejado) e retorna um valor indicando se o texto precisou ser censurado | 
 | `Boolean` | ContainsAll(this `String` Text, `String[]` Values) | Verifica se uma String contém todos os valores especificados | 
 | `Boolean` | ContainsAll(this `String` Text, `StringComparison` ComparisonType, `String[]` Values) | Verifica se uma String contém todos os valores especificados | 
 | `Boolean` | ContainsAny(this `String` Text, `String[]` Values) | Verifica se uma String contém qualquer um dos valores especificados | 
 | `Boolean` | ContainsAny(this `String` Text, `StringComparison` ComparisonType, `String[]` Values) | Verifica se uma String contém qualquer um dos valores especificados | 
+| `Boolean` | ContainsMost(this `String` Text, `StringComparison` ComparisonType, `String[]` Values) | Verifica se uma string contém a maioria dos valores especificados | 
+| `Boolean` | ContainsMost(this `String` Text, `String[]` Values) | Verifica se uma string contém a maioria dos valores especificados | 
 | `Int32` | CountCharacter(this `String` Text, `Char` Character) | Conta os caracters especificos de uma string | 
 | `Dictionary<String, Int64>` | CountWords(this `String` Text, `Boolean` RemoveDiacritics = True, `String[]` Words = null) | Retorna as plavaras contidas em uma frase em ordem alfabética e sua respectiva quantidade | 
-| `HtmlGenericControl` | CreateElement(this `String` HTMLString) | Cria um elemento HTML a partir de uma string HTML | 
+| `HtmlGenericControl` | CreateGenericElement(this `String` HTMLString) | Cria um elemento HTML a partir de uma string HTML | 
 | `Int32` | Decrement(this `Int32&` Number, `Int32` Amount = 1) | Decrementa em 1 ou mais um numero inteiro | 
 | `Int32` | Decrement(this `Int64&` Number, `Int32` Amount = 1) | Decrementa em 1 ou mais um numero inteiro | 
-| `String` | DeleteLine(this `String&` Text, `Int32` LineIndex) |  | 
+| `String` | DeleteLine(this `String` Text, `Int32` LineIndex) | Remove uma linha especifica de um texto | 
 | `Dictionary<String, Int64>` | DistinctCount(`String[]` List) | Cria um dicionário com as palavras de uma lista e a quantidade de cada uma. | 
 | `Dictionary<String, Int64>` | DistinctCount(this `String` Phrase) | Cria um dicionário com as palavras de uma lista e a quantidade de cada uma. | 
 | `Boolean` | EndsWithAny(this `String` Text, `String[]` Words) | Verifica se uma string termina com alguma outra string de um array | 
 | `String` | EscapeQuotesToQuery(this `String` Text) | Prepara uma string com aspas simples para uma Query TransactSQL | 
-| `Int64[]` | FindNumbers(this `String` Text) | Procura numeros em uma string e retorna um array deles | 
+| `Decimal[]` | FindNumbers(this `String` Text) | Procura numeros em uma string e retorna um array deles | 
 | `List<String>` | FindTelephoneNumbers(this `String` Text) | Procurea numeros de telefone em um texto | 
 | `String` | FixBreakLines(this `String` Text) | Transforma quebras de linha HTML em quebras de linha comuns ao .net | 
 | `String` | FixCaptalization(this `String` Text) |  | 
 | `String` | FixPunctuation(this `String&` Text, `String` Punctuation = ., `Boolean` ForceSpecificPunctuation = False) | Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao. | 
 | `String` | FixText(this `String` Text) | Arruma a ortografia do texto captalizando corretamente, adcionando pontução ao final de frase  caso nescessário e removendo espaços excessivos ou incorretos | 
-| `String` | Format(this `String` Text, `Object[]` Args) | Extension Method para `System.String` | 
+| `String` | Format(this `String` Text, `String[]` Args) | Extension Method para `System.String` | 
 | `String` | GetAfter(this `String` Text, `String` Value) | Retorna um texto posterior a outro | 
 | `String[]` | GetAllBetween(this `String` Text, `String` Before, `String` After = ) | Retorna todas as ocorrencias de um texto entre dois textos | 
 | `String` | GetBefore(this `String` Text, `String` Value) | Retorna um texto anterior a outro | 
@@ -1931,30 +2177,30 @@ Static Methods
 | `Int64` | Increment(this `Int64&` Number, `Int32` Amount = 1) | Incrementa em 1 ou mais um numero inteiro | 
 | `Boolean` | IsAnagramOf(this `String` Text, `String` AnotherText) | Verifica se uma palavra é um Anagrama de outra palavra | 
 | `Boolean` | IsAny(this `String` Text, `String[]` Texts) | Compara se uma string é igual a outras strings | 
-| `Boolean` | IsPalindrome(`String` Text, `Boolean` IgnoreWhiteSpaces = False) | Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da esqueda  para direita | 
-| `String` | Join(this `IEnumerable<Type>` Array, `String` Separator = ;) | Une todos os valores de um objeto em uma unica string | 
-| `String` | Join(this `Type[]` Array, `String` Separator = ;) | Une todos os valores de um objeto em uma unica string | 
+| `Boolean` | IsPalindrome(this `String` Text, `Boolean` IgnoreWhiteSpaces = False) | Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da esqueda  para direita | 
+| `String` | Join(this `IEnumerable<Type>` Array, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
+| `String` | Join(this `Type[]` Array, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
 | `String` | Join(`String` Separator, `Type[]` Array) | Une todos os valores de um objeto em uma unica string | 
 | `String` | Join(this `List<Type>` List, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
 | `Int32` | LevenshteinDistance(this `String` Text1, `String` Text2) | Computa a distancia de Levenshtein entre 2 strings. | 
+| `String` | MaskTelephoneNumber(this `String` Number) | Aplica uma mascara a um numero de telefone | 
+| `String` | MaskTelephoneNumber(this `Int64` Number) | Aplica uma mascara a um numero de telefone | 
+| `String` | MaskTelephoneNumber(this `Int32` Number) | Aplica uma mascara a um numero de telefone | 
+| `String` | MaskTelephoneNumber(this `Decimal` Number) | Aplica uma mascara a um numero de telefone | 
+| `String` | MaskTelephoneNumber(this `Double` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | ParseAlphaNumeric(this `String` Text) | limpa um texto deixando apenas os caracteres alfanumericos. | 
 | `String` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) | Remove caracteres não numéricos de uma string | 
 | `Type` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) | Remove caracteres não numéricos de uma string | 
-| `TypeClass` | ParseJSON(this `String` JSON, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma uma JSON String em um Objeto ou Classe | 
 | `Object` | ParseJSON(this `String` JSON) | Transforma uma JSON String em um Objeto ou Classe | 
+| `TypeClass` | ParseJSON(this `String` JSON, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma uma JSON String em um Objeto ou Classe | 
 | `String` | Poopfy(`String[]` Words) | Retorna uma string em sua forma poop | 
 | `String` | Poopfy(this `String` Text) | Retorna uma string em sua forma poop | 
 | `String` | PreetyPrint(this `XmlDocument` Document) | Return a Idented XML string | 
 | `String` | Prepend(this `String&` Text, `String` PrependText) | Adiciona texto ao começo de uma string | 
-| `String` | PrependIf(this `String&` Text, `String` PrependText, `Boolean` Test) | Adiciona texto ao começo de uma string se um criterio for cumprido | 
+| `String` | PrependIf(this `String&` Text, `String` PrependText, `Boolean` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
+| `String` | PrependIf(this `String&` Text, `String` AppendText, `Func<String, Boolean>` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
 | `String` | QuantifyText(this `String` PluralText, `CultureInfo` Culture = null, `String` Identifier = q) | Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em ``. | 
 | `String` | QuantifyText(this `String` PluralText, `Object` Quantity, `CultureInfo` Culture = null) | Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em ``. | 
-| `String` | QuantityFormula(this `Decimal` Number, `Decimal` BaseNumber, `Decimal` Round, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
-| `String` | QuantityFormula(this `Decimal` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
-| `String` | QuantityFormula(this `Int32` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
-| `String` | QuantityFormula(this `Int64` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
-| `String` | QuantityFormula(this `Double` Number, `Decimal` BaseNumber, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
-| `String` | QuantityFormula(this `Double` Number, `Decimal` BaseNumber, `Int32` Round, `String[]` BaseUnity) | Reduz um numero utilizando uma unidade de medida e uma base | 
 | `String` | Quote(this `String` Text, `Char` QuoteChar = ") | Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) | 
 | `String` | QuoteIf(this `String` Text, `Boolean` Condition, `String` QuoteChar = ") | Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes) se uma  condiçao for cumprida | 
 | `Type` | RandomItem(`Type[]` Array) | Sorteia um item da Matriz | 
@@ -1972,31 +2218,30 @@ Static Methods
 | `String` | RemoveNonPrintable(this `String` Text) | Remove caracteres não printaveis de uma string | 
 | `String[]` | Replace(this `String[]` Strings, `String` OldValue, `String` NewValue, `Boolean` ReplaceIfEquals = True) | Faz uma busca em todos os elementos do array e aplica um ReplaceFrom comum | 
 | `List<String>` | Replace(this `List<String>` Strings, `String` OldValue, `String` NewValue, `Boolean` ReplaceIfEquals = True) | Faz uma busca em todos os elementos do array e aplica um ReplaceFrom comum | 
-| `String` | ReplaceFrom(this `String` Text, `IDictionary<String, String>` Dic) | aplica um replace a um texto baseando-se em um `System.Collections.IDictionary` | 
-| `String` | ReplaceFrom(this `String` Text, `IDictionary<String, String[]>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | aplica um replace a um texto baseando-se em um `System.Collections.IDictionary` | 
-| `String` | ReplaceFrom(this `String` Text, `IDictionary<String[], String>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | aplica um replace a um texto baseando-se em um `System.Collections.IDictionary` | 
-| `String` | ReplaceFrom(this `String` Text, `IDictionary<String[], String[]>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | aplica um replace a um texto baseando-se em um `System.Collections.IDictionary` | 
+| `String` | ReplaceFirst(this `String` Text, `String` OldText, `String` NewText = ) | Substitui a primeira ocorrencia de um texto por outro | 
+| `String` | ReplaceFrom(this `String` Text, `IDictionary<String, String>` Dic) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
+| `String` | ReplaceFrom(this `String` Text, `IDictionary<String, String[]>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
+| `String` | ReplaceFrom(this `String` Text, `IDictionary<String[], String>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
+| `String` | ReplaceFrom(this `String` Text, `IDictionary<String[], String[]>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
+| `String` | ReplaceLast(this `String` Text, `String` OldText, `String` NewText = ) | Substitui a ultima ocorrencia de um texto por outro | 
 | `String` | ReplaceMany(this `String` Text, `String` NewValue, `String[]` OldValues) | Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são  substituídas por um novo valor. | 
 | `String` | ReplaceNone(this `String` Text, `String` OldValue) | Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são  substituídas por vazio. | 
 | `String` | SensitiveReplace(this `String` Text, `String` NewValue, `String` OldValue, `StringComparison` ComparisonType = InvariantCulture) | Realiza um replace em uma string usando um tipo especifico de comparacao | 
 | `String` | SensitiveReplace(this `String` Text, `String` NewValue, `IEnumerable<String>` OldValues, `StringComparison` ComparisonType = InvariantCulture) | Realiza um replace em uma string usando um tipo especifico de comparacao | 
 | `String` | SerializeJSON(this `Object` Obj, `Object[]` params) | Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se `InnerLibs.Json.SerializeJSON(System.Object)` | 
-| `Type[]` | Shuffle(this `Type[]&` Array) | Randomiza a ordem dos itens de um Array | 
+| `Type[]` | Shuffle(this `Type[]` Array) | Randomiza a ordem dos itens de um Array | 
 | `List<Type>` | Shuffle(this `List`1&` List) | Randomiza a ordem dos itens de um Array | 
 | `String` | Shuffle(this `String&` Text) | Randomiza a ordem dos itens de um Array | 
 | `String` | Singularize(this `String` Text) | Retorna a frase especificada em sua forma singular | 
-| `String` | Slice(this `String` Text, `Int32` TextLength = 0, `String` Ellipsis = ...) |  | 
+| `String` | Slice(this `String` Text, `Int32` TextLength = 0, `String` Ellipsis = ...) | Corta un texto para exibir um numero máximo de caracteres ou na primeira quebra de linha. | 
 | `String[]` | Split(this `String` Text, `String` Separator, `StringSplitOptions` Options = RemoveEmptyEntries) | Separa um texto em um array de strings a partir de uma outra string | 
+| `String[]` | SplitAny(this `String` Text, `String[]` SplitText) | Seprar uma string em varias partes a partir de varias strings removendo as entradas em branco | 
 | `Boolean` | StartsWithAny(this `String` Text, `String[]` Words) | Verifica se uma string começa com alguma outra string de um array | 
 | `Int32` | SyllableCount(this `String` Word) | Conta as silabas de uma palavra | 
 | `String` | ToAlternateCase(this `String` Text) | Alterna maiusculas e minusculas para cada letra de uma string | 
 | `String` | ToAnagram(this `String` Text) | Retorna um anagrama de um texto | 
 | `List<String>` | ToAnagramList(this `String` Text) | Retorna uma lista com todos os anagramas de uma palavra (Metodo Lento) | 
 | `String` | ToCamel(this `String` Text) | Transforma uma frase em uma palavra CamelCase | 
-| `String` | ToExtensiveForm(this `Decimal` Number, `Int32` DecimalPlaces = 3) | Transforma um numero em sua forma extensa (com até 3 casas apos a virgula) | 
-| `String` | ToExtensiveForm(this `Int32` Number) | Transforma um numero em sua forma extensa (com até 3 casas apos a virgula) | 
-| `String` | ToExtensiveForm(this `Money` MoneyValue) | Transforma um numero em sua forma extensa (com até 3 casas apos a virgula) | 
-| `String` | ToExtensiveMoneyForm(this `Decimal` Value) | Transforma um valor monetário R$ em sua forma extensa | 
 | `String` | ToFileSizeString(this `Byte[]` Size) | Retorna o uma string representando um valor em bytes, KB, MB ou TB | 
 | `String` | ToFileSizeString(this `FileInfo` Size) | Retorna o uma string representando um valor em bytes, KB, MB ou TB | 
 | `String` | ToFileSizeString(this `Double` Size) | Retorna o uma string representando um valor em bytes, KB, MB ou TB | 
@@ -2007,22 +2252,17 @@ Static Methods
 | `HtmlElement` | ToHtmlList(this `IEnumerable<T>` List, `Boolean` OrdenedList = False) | Transforma uma lista em uma lista HTML (OL ou UL) | 
 | `String` | ToHtmlString(this `HtmlGenericControl` Control) | Transforma um HtmlGenericControl em uma stringHTML | 
 | `String` | ToLeet(this `String` Text, `Int32` Degree = 30) | Converte um texo para Leet (1337) | 
-| `Object` | ToPercentString(this `Decimal` Number) | Retorna um numero com o sinal de porcentagem | 
-| `Object` | ToPercentString(this `Int32` Number) | Retorna um numero com o sinal de porcentagem | 
-| `Object` | ToPercentString(this `Double` Number) | Retorna um numero com o sinal de porcentagem | 
-| `Object` | ToPercentString(this `Int16` Number) | Retorna um numero com o sinal de porcentagem | 
-| `Object` | ToPercentString(this `Int64` Number) | Retorna um numero com o sinal de porcentagem | 
-| `String` | ToProper(this `String` Text) |  | 
-| `String` | ToRandomCase(this `String` Text) | Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas) | 
-| `String` | ToSlug(this `String` Text, `Boolean` UseUnderscore = False) | Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca  espacos por hifen). É um alias para `InnerLibs.Text.ToFriendlyURL(System.String,System.Boolean)` | 
-| `String` | ToSnake(this `String` Text) | Retorna uma string em Snake Case | 
+| `String` | ToPercentString(this `Decimal` Number, `Int32` Decimals = -1) | Retorna um numero com o sinal de porcentagem | 
+| `String` | ToPercentString(this `Int32` Number) | Retorna um numero com o sinal de porcentagem | 
+| `String` | ToPercentString(this `Double` Number, `Int32` Decimals = -1) | Retorna um numero com o sinal de porcentagem | 
+| `String` | ToPercentString(this `Int16` Number) | Retorna um numero com o sinal de porcentagem | 
+| `String` | ToPercentString(this `Int64` Number) | Retorna um numero com o sinal de porcentagem | 
+| `String` | ToProperCase(this `String` Text, `Boolean` ForceCase = False) | Coloca o texto em TitleCase | 
+| `String` | ToRandomCase(this `String` Text, `Int32` Times = 0) | Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas) | 
+| `String` | ToSlugCase(this `String` Text, `Boolean` UseUnderscore = False) | Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca  espacos por hifen). É um alias para `InnerLibs.Text.ToFriendlyURL(System.String,System.Boolean)` | 
+| `String` | ToSnakeCase(this `String` Text) | Retorna uma string em Snake_Case | 
 | `Stream` | ToStream(this `String` Text) | Cria um `System.IO.Stream` a partir de uma string | 
-| `String` | ToTelephone(this `String` Number) | Aplica uma mascara a um numero de telefone | 
-| `String` | ToTelephone(this `Int64` Number) | Aplica uma mascara a um numero de telefone | 
-| `String` | ToTelephone(this `Int32` Number) | Aplica uma mascara a um numero de telefone | 
-| `String` | ToTelephone(this `Decimal` Number) | Aplica uma mascara a um numero de telefone | 
-| `String` | ToTelephone(this `Double` Number) | Aplica uma mascara a um numero de telefone | 
-| `String` | ToTitle(this `String` Text) | Transforma um texto em titulo | 
+| `String` | ToTitle(this `String` Text, `Boolean` ForceCase = False) | Transforma um texto em titulo | 
 | `String` | ToXMLString(this `XmlDocument` XML) | Transforma um XML Document em string | 
 | `String` | TrimAny(this `String` Text, `Boolean` ContinuouslyRemove, `String[]` StringTest) | Remove do começo e do final de uma string qualquer valor que estiver no conjunto | 
 | `String` | TrimAny(this `String` Text, `String[]` StringTest) | Remove do começo e do final de uma string qualquer valor que estiver no conjunto | 
@@ -2087,6 +2327,7 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `CultureInfo` | Culture |  | 
 | `StringComparison` | UnitComparisonType |  | 
 
 
@@ -2255,9 +2496,12 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `T` | IfBlank(this `Object` Value, `T` ValueIfBlank) | Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE | 
+| `T` | IfBlank(this `Object` Value, `T` ValueIfBlank = null) | Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE | 
 | `T` | IfBlankOrNoIndex(this `IEnumerable<T>` Arr, `Int32` Index, `T` ValueIfBlankOrNoIndex) | Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir ou seu valor for branco ou nothing | 
 | `T` | IfNoIndex(this `IEnumerable<T>` Arr, `Int32` Index, `T` ValueIfNoIndex = null) | Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir | 
+| `T[]` | IfNullOrEmpty(this `Object[]` Value, `T[]` ValuesIfBlank) | Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE | 
+| `IEnumerable<T>` | IfNullOrEmpty(this `IEnumerable<Object[]>` Value, `T[]` ValuesIfBlank) | Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE | 
+| `IEnumerable<T>` | IfNullOrEmpty(this `IEnumerable<Object[]>` Value, `IEnumerable<T>` ValueIfBlank) | Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE | 
 | `Boolean` | IsAndroid(this `HttpRequest` HttpRequest) | Verifica se o User Agent da requisição é um Android | 
 | `Boolean` | IsBlank(this `String` Text) | Verifica se uma String está em branco | 
 | `Boolean` | IsDesktop(this `HttpRequest` HttpRequest) | Verifica se o User Agent da requisição é um PC/NOTEBOOK/MAC | 
@@ -2313,9 +2557,13 @@ Static Methods
 | `HtmlSelect` | DisselectValues(this `HtmlSelect` Control, `Func<ListItem, Boolean>` Predicate) | Seleciona Valores de um `System.Web.UI.HtmlControls.HtmlSelect` | 
 | `HtmlSelect` | DisselectValues(this `HtmlSelect` Control, `String[]` Values) | Seleciona Valores de um `System.Web.UI.HtmlControls.HtmlSelect` | 
 | `String` | ExtractOptions(this `HtmlSelect` Control) | Retorna uma string HTML com os options de um `System.Web.UI.HtmlControls.HtmlSelect` | 
+| `String` | FirstOf(this `HttpRequest` Request, `String[]` Keys) | Retorna o primeiro item não branco de um `System.Web.HttpRequest` a partir de uma coleção de Keys | 
+| `T` | FirstOf(this `HttpRequest` Request, `String[]` Keys) | Retorna o primeiro item não branco de um `System.Web.HttpRequest` a partir de uma coleção de Keys | 
 | `IEnumerable<HttpPostedFile>` | GetAllFiles(this `HttpRequest` Request) | Retorna todos os arquivos de uma `System.Web.HttpRequest` em um  `System.Collections.Generic.IEnumerable`1` | 
 | `String` | GetFacebookUsername(this `String` URL) | Captura o Username ou UserID de uma URL do Facebook | 
 | `String` | GetFacebookUsername(this `Uri` URL) | Captura o Username ou UserID de uma URL do Facebook | 
+| `String` | GetPhysicalRelativePath(this `HttpRequest` Request) | Retorna o caminho relativo ao arquivo desta página | 
+| `IEnumerable<String>` | GetUrlSegments(this `String` Url) | Retorna os segmentos de uma url | 
 | `String` | GetVideoId(`String` URL) | Captura o ID de um video do YOUTUBE ou VIMEO em uma URL | 
 | `String` | GetVideoId(this `Uri` URL) | Captura o ID de um video do YOUTUBE ou VIMEO em uma URL | 
 | `Image` | GetYoutubeThumbnail(`String` URL) | Captura a Thumbnail de um video do youtube | 
@@ -2329,10 +2577,11 @@ Static Methods
 | `void` | RangeDownload(this `HttpContext&` Context, `Byte[]&` Bytes, `FileType` FileType) | Realiza um download parcial de um `System.Byte` | 
 | `void` | RangeDownload(this `HttpContext&` Context, `Byte[]&` Bytes, `String` ContentType) | Realiza um download parcial de um `System.Byte` | 
 | `Uri` | RemoveParameter(this `Uri` Url, `String[]` Keys) |  | 
-| `Boolean` | RewriteUrl(this `HttpApplication` App, `String` URLPattern, `String` OriginalURL) | Reescreve a URL original a partir de uma REGEX aplicada em uma URL amigavel | 
+| `Boolean` | RewriteUrl(this `HttpApplication` App, `String` URLPattern, `String` FileUrl) | Reescreve a URL original a partir de uma REGEX aplicada em uma URL amigavel | 
 | `HtmlSelect` | SelectValues(this `HtmlSelect` Control, `String[]` Values) | Seleciona Valores de um `System.Web.UI.HtmlControls.HtmlSelect` | 
+| `HtmlSelect` | SelectValues(this `HtmlSelect` Control, `IEnumerable<String>` Values) | Seleciona Valores de um `System.Web.UI.HtmlControls.HtmlSelect` | 
 | `HtmlSelect` | SelectValues(this `HtmlSelect` Control, `Func<ListItem, Boolean>` Predicate) | Seleciona Valores de um `System.Web.UI.HtmlControls.HtmlSelect` | 
-| `ListItem` | SetItem(this `HtmlSelect` Control, `String` Text, `String` Value = ) | Adiciona um novo `System.Web.UI.WebControls.ListItem` ao `System.Web.UI.HtmlControls.HtmlSelect` se um item identico nao existir no mesmo | 
+| `ListItem` | SetItem(this `HtmlSelect` Control, `String` Text, `String` Value = , `StringComparison` ComparisonType = InvariantCultureIgnoreCase) | Adiciona um novo `System.Web.UI.WebControls.ListItem` ao `System.Web.UI.HtmlControls.HtmlSelect` se um item identico nao existir no mesmo | 
 | `ListItem` | SetItem(this `HtmlSelect` Control, `ListItem` li) | Adiciona um novo `System.Web.UI.WebControls.ListItem` ao `System.Web.UI.HtmlControls.HtmlSelect` se um item identico nao existir no mesmo | 
 | `HtmlSelect` | SetItems(this `HtmlSelect` Control, `IEnumerable<T>` List, `Func<T, TextType>` Text, `Func<T, ValueType>` Value = null, `Func<T, Boolean>` Selected = null) | Adiciona varios `System.Web.UI.WebControls.ListItem` ao `System.Web.UI.HtmlControls.HtmlSelect` se estes nao existirem no mesmo | 
 | `HtmlSelect` | SetItems(this `HtmlSelect` Control, `IEnumerable<T>` List, `Func<T, TextType>` Text, `Func<T, ValueType>` Value, `ValueType[]` SelectedValues) | Adiciona varios `System.Web.UI.WebControls.ListItem` ao `System.Web.UI.HtmlControls.HtmlSelect` se estes nao existirem no mesmo | 

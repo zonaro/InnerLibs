@@ -111,7 +111,7 @@ Namespace Select2Data
 
         Public Sub New(Text As String)
             Me.text = Text
-            Me.id = Text.ToSlug
+            Me.id = Text.ToSlugCase
         End Sub
 
         Public Overrides Function ToHtmlElement() As HtmlElement

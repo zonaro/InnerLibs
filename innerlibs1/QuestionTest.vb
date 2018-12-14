@@ -57,10 +57,10 @@ Namespace QuestionTest
         ''' <returns></returns>
         Public Property Title As String
             Get
-                Return _title.ToProper
+                Return _title.ToProperCase
             End Get
             Set(value As String)
-                _title = value.ToProper
+                _title = value.ToProperCase
             End Set
         End Property
 

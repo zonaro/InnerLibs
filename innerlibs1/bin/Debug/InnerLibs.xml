@@ -3386,9 +3386,33 @@ Verifica se o objeto é do tipo numérico.
  <param name="StartDate"></param>
  <param name="EndDate"></param>
 </member>
+<member name="M:InnerLibs.DateRange.IsSingleDate">
+ <summary>
+ Retorna TRUE se a data de inicio e fim for a mesma
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.IsSingleDateTime">
+ <summary>
+ Retorna TRUE se a data e hora de inicio e fim for a mesma
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.Difference">
+ <summary>
+ Retorna um <see cref="T:InnerLibs.TimeMachine.TimeFlow"/> contendo a diferença entre as datas
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DateRange.CreateFortnightGroup">
  <summary>
  Cria um grupo de quinzenas que contenham este periodo
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.ToString">
+ <summary>
+ Retorna uma strin representando a diferença das datas
  </summary>
  <returns></returns>
 </member>
@@ -3446,6 +3470,24 @@ Verifica se o objeto é do tipo numérico.
  Verifica quantos porcento uma data representa  em distancia dentro deste periodo
  </summary>
  <param name="[Date]">Data correspondente</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.Filter``1(System.Func{``0,System.DateTime},System.Collections.Generic.IEnumerable{``0})">
+ <summary>
+ Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Selector"></param>
+ <param name="List"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.Filter``1(System.Func{``0,System.Nullable{System.DateTime}},System.Collections.Generic.IEnumerable{``0})">
+ <summary>
+ Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Selector"></param>
+ <param name="List"></param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.Calendars">
@@ -6428,12 +6470,31 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Currency">Moeda</param>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.Money.Region">
+ <summary>
+ Região correspondente a essa moeda
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Money.Culture">
+ <summary>
+ Cultura correspondente a esta moeda
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Money.op_Like(InnerLibs.Money,InnerLibs.Money)">
  <summary>
  Verifica se 2 valores sao da mesma moeda
  </summary>
  <param name="Value1"></param>
  <param name="Value2"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Money.Equals(System.Object)">
+ <summary>
+ Compara se 2 valores são iguais (mesmo valor e moeda)
+ </summary>
+ <param name="obj"></param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.oEmbed">
@@ -7659,6 +7720,20 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Mathematic.HasDecimalPart(System.Decimal)">
+ <summary>
+ Verifica se um numero possui parte decimal
+ </summary>
+ <param name="Value"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.HasDecimalPart(System.Double)">
+ <summary>
+ Verifica se um numero possui parte decimal
+ </summary>
+ <param name="Value"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Mathematic.LowerOf``1(System.Collections.Generic.IEnumerable{``0})">
  <summary>
  Retorna o elemento de menor valor de uma coleção
@@ -8846,6 +8921,356 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <returns></returns>
 </member>
+<member name="T:InnerLibs.FullNumberWriter">
+ <summary>
+ Classe para escrever numeros por extenso com suporte até 999 quintilhoes
+ </summary>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Minus">
+ <summary>
+ String que representa a palavra "Menos". Utilizada quando os números são negativos
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Zero">
+ <summary>
+ String que representa o numero 0.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.And">
+ <summary>
+ String que representa a palavra "e". Utilizada na concatenação de expressões
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.One">
+ <summary>
+ String que representa o numero 1.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Two">
+ <summary>
+ String que representa o numero 2.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Three">
+ <summary>
+ String que representa o numero 3.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Four">
+ <summary>
+ String que representa o numero 4.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Five">
+ <summary>
+ String que representa o numero 5.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Six">
+ <summary>
+ String que representa o numero 6.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Seven">
+ <summary>
+ String que representa o numero 7.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Eight">
+ <summary>
+ String que representa o numero 8.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Nine">
+ <summary>
+ String que representa o numero 9.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Ten">
+ <summary>
+ String que representa o numero 10.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Eleven">
+ <summary>
+ String que representa o numero 11.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Twelve">
+ <summary>
+ String que representa o numero 12.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Thirteen">
+ <summary>
+ String que representa o numero 13.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Fourteen">
+ <summary>
+ String que representa o numero 14.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Fifteen">
+ <summary>
+ String que representa o numero 15.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Sixteen">
+ <summary>
+ String que representa o numero 16.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Seventeen">
+ <summary>
+ String que representa o numero 17.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Eighteen">
+ <summary>
+ String que representa o numero 18.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Nineteen">
+ <summary>
+ String que representa o numero 19.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Twenty">
+ <summary>
+ String que representa os numeros 20 a 29 .
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Thirty">
+ <summary>
+ String que representa os numeros 30 a 39.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Fourty">
+ <summary>
+ String que representa os numeros 40 a 49.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Fifty">
+ <summary>
+ String que representa os numeros 50 a 59.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Sixty">
+ <summary>
+ String que representa os numeros 60 a 69.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Seventy">
+ <summary>
+ String que representa os numeros 70 a 79.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Eighty">
+ <summary>
+ String que representa os numeros 80 a 89.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Ninety">
+ <summary>
+ String que representa os numeros 90 a 99.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.ExactlyOneHundred">
+ <summary>
+ String que represena o exato numero 100. Em alguns idiomas esta string não é nescessária
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.OneHundred">
+ <summary>
+ String que representa os numeros 100 a 199.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.TwoHundred">
+ <summary>
+ String que representa os numeros 200 a 299.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.ThreeHundred">
+ <summary>
+ String que representa os numeros 300 a 399.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.FourHundred">
+ <summary>
+ String que representa os numeros 400 a 499.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.FiveHundred">
+ <summary>
+ String que representa os numeros 500 a 599.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.SixHundred">
+ <summary>
+ String que representa os numeros 600 a 699.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.SevenHundred">
+ <summary>
+ String que representa os numeros 700 a 799.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.EightHundred">
+ <summary>
+ String que representa os numeros 800 a 899.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.NineHundred">
+ <summary>
+ String que representa os numeros 900 a 999.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Thousand">
+ <summary>
+ String que representa os numeros 1000 a 9999
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Million">
+ <summary>
+ Par de strings que representam os numeros 1 milhão a 999 milhões
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Billion">
+ <summary>
+ Par de strings que representam os numeros 1 bilhão a 999 bilhões
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Trillion">
+ <summary>
+ Par de strings que representam os numeros 1 trilhão a 999 trilhões
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Quadrillion">
+ <summary>
+ Par de strings que representam os numeros 1 quadrilhão a 999 quadrilhões
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Quintillion">
+ <summary>
+ Par de strings que representam os numeros 1 quintilhão a 999 quintilhões
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.MoreThan">
+ <summary>
+ String utilizada quando o numero é maior que 999 quintilhões. Retorna uma string "Mais de 999 quintilhões"
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Dot">
+ <summary>
+ String utilizada quando um numero possui casa decimais. Normalmente "virgula"
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.FullNumberWriter.#ctor">
+ <summary>
+ Instancia um novo <see cref="T:InnerLibs.FullNumberWriter"/> com as configurações default (inglês)
+ </summary>
+</member>
+<member name="M:InnerLibs.FullNumberWriter.CreateFromJSON(System.String)">
+ <summary>
+ Cria um <see cref="T:InnerLibs.FullNumberWriter"/> a partir de um JSON
+ </summary>
+ <param name="JsonString"></param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullNumberWriter.Text(System.Decimal,System.Int32)">
+ <summary>
+ Escreve um numero por extenso
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.FullMoneyWriter">
+ <summary>
+ Classe para escrever moedas por extenso com suporte até 999 quintilhoes de $$
+ </summary>
+</member>
+<member name="P:InnerLibs.FullMoneyWriter.CurrencyName">
+ <summary>
+ Par de strings que representam os nomes da moeda em sua forma singular ou plural
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullMoneyWriter.CurrencyCentsName">
+ <summary>
+ Par de strings que representam os centavos desta moeda em sua forma singular ou plural
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullMoneyWriter.Text(System.Decimal,System.Int32)">
+ <summary>
+ Escreve um numero por extenso
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.FullMoneyWriter.Text(InnerLibs.Money,System.Int32)">
+ <summary>
+ Escreve um numero por extenso
+ </summary>
+ <param name="Number"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.FullMoneyWriter.CreateFromJSON(System.String)">
+ <summary>
+ Cria um <see cref="T:InnerLibs.FullMoneyWriter"/> a partir de um JSON
+ </summary>
+ <param name="JsonString"></param>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.Text">
  <summary>
  Modulo de manipulação de Texto
@@ -9735,35 +10160,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">Texto a ser manipulado</param>
  <returns>Uma String com o texto am CameCase</returns>
 </member>
-<member name="M:InnerLibs.Text.ToExtensiveForm(System.Decimal,System.Int32)">
- <summary>
- Transforma um numero em sua forma extensa (com até 3 casas apos a virgula)
- </summary>
- <param name="Number">       Numero decimal</param>
- <param name="DecimalPlaces">Numero de casas decimais (de 0 a 3)</param>
- <returns>String contendo o numero por extenso</returns>
-</member>
-<member name="M:InnerLibs.Text.ToExtensiveForm(System.Int32)">
- <summary>
- Transforma um numero em sua forma extensa
- </summary>
- <param name="Number">Numero decimal</param>
- <returns>String contendo o numero por extenso</returns>
-</member>
-<member name="M:InnerLibs.Text.ToExtensiveForm(InnerLibs.Money)">
- <summary>
- Transforma um valor monetário em sua forma extensa
- </summary>
- <param name="MoneyValue">Numero decimal</param>
- <returns>String contendo o numero por extenso</returns>
-</member>
-<member name="M:InnerLibs.Text.ToExtensiveMoneyForm(System.Decimal)">
- <summary>
- Transforma um valor monetário R$ em sua forma extensa
- </summary>
- <param name="Value">Numero decimal</param>
- <returns>String contendo o numero por extenso</returns>
-</member>
 <member name="M:InnerLibs.Text.ToFileSizeString(System.Byte[])">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
@@ -9876,21 +10272,22 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToProper(System.String)">
+<member name="M:InnerLibs.Text.ToProperCase(System.String,System.Boolean)">
  <summary>
  Coloca o texto em TitleCase
  </summary>
  <param name="Text"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToRandomCase(System.String)">
+<member name="M:InnerLibs.Text.ToRandomCase(System.String,System.Int32)">
  <summary>
  Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
  </summary>
  <param name="Text"></param>
+ <param name="Times">Numero de vezes que serão sorteados caracteres.</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToSlug(System.String,System.Boolean)">
+<member name="M:InnerLibs.Text.ToSlugCase(System.String,System.Boolean)">
  <summary>
  Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca
  espacos por hifen). É um alias para <see cref="M:InnerLibs.Text.ToFriendlyURL(System.String,System.Boolean)"/>
@@ -9901,9 +10298,9 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </param>
  <returns>string amigavel para URL</returns>
 </member>
-<member name="M:InnerLibs.Text.ToSnake(System.String)">
+<member name="M:InnerLibs.Text.ToSnakeCase(System.String)">
  <summary>
- Retorna uma string em Snake Case
+ Retorna uma string em Snake_Case
  </summary>
  <param name="Text"></param>
  <returns></returns>
@@ -9915,46 +10312,47 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="TExt"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToTelephone(System.String)">
+<member name="M:InnerLibs.Text.MaskTelephoneNumber(System.String)">
  <summary>
  Aplica uma mascara a um numero de telefone
  </summary>
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToTelephone(System.Int64)">
+<member name="M:InnerLibs.Text.MaskTelephoneNumber(System.Int64)">
  <summary>
  Aplica uma mascara a um numero de telefone
  </summary>
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToTelephone(System.Int32)">
+<member name="M:InnerLibs.Text.MaskTelephoneNumber(System.Int32)">
  <summary>
  Aplica uma mascara a um numero de telefone
  </summary>
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToTelephone(System.Decimal)">
+<member name="M:InnerLibs.Text.MaskTelephoneNumber(System.Decimal)">
  <summary>
  Aplica uma mascara a um numero de telefone
  </summary>
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToTelephone(System.Double)">
+<member name="M:InnerLibs.Text.MaskTelephoneNumber(System.Double)">
  <summary>
  Aplica uma mascara a um numero de telefone
  </summary>
  <param name="Number"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.ToTitle(System.String)">
+<member name="M:InnerLibs.Text.ToTitle(System.String,System.Boolean)">
  <summary>
  Transforma um texto em titulo
  </summary>
  <param name="Text">Texto a ser manipulado</param>
+ <param name="ForceCase">Se FALSE, apenas altera o primeiro caractere de cada palavra como UPPERCASE, dexando os demais intactos. Se TRUE, força o primeiro caractere de casa palavra como UPPERCASE e os demais como LOWERCASE</param>
  <returns>Uma String com o texto em nome próprio</returns>
 </member>
 <member name="M:InnerLibs.Text.ToXMLString(System.Xml.XmlDocument)">

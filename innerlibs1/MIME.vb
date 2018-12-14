@@ -260,7 +260,7 @@ Public Class FileType
         Dim item = GetFileType(Extension)
         Me.Extensions = item.Extensions
         Me.MimeTypes = item.MimeTypes
-        Me.Description = item.Description.ToProper
+        Me.Description = item.Description.ToProperCase
     End Sub
 
     ''' <summary>

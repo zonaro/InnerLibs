@@ -846,7 +846,7 @@ Partial Public Class DataBase
                     Returned.Append(" <thead>")
                     Returned.Append("     <tr>")
                     For Each item As String In Me.GetColumns()
-                        Returned.Append("         <th>" & If(BeautfyColumnNames, item.ToProper.Replace("_", " ").AdjustBlankSpaces, item) & "</th>")
+                        Returned.Append("         <th>" & If(BeautfyColumnNames, item.ToProperCase.Replace("_", " ").AdjustBlankSpaces, item) & "</th>")
                     Next
                     Returned.Append("     </tr>")
                     Returned.Append(" </thead>")

@@ -292,7 +292,7 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `List<DateTime>` | AllDays | Todos os dias entre as datas Inicial e Final | 
+| `IEnumerable<DateTime>` | AllDays | Todos os dias entre as datas Inicial e Final | 
 | `Int32` | Days | Numero de Dias | 
 | `DateTime` | EndDate | Data Final | 
 | `Int32` | Hours | Numero de Horas | 
@@ -300,11 +300,17 @@ Properties
 | `Int32` | Minutes | Numero de Minutos | 
 | `Int32` | Months | Numero de Meses | 
 | `List<DateTime>` | NonRelevantDays | Dias não relevantes entre as datas Inicial e Final | 
-| `List<DayOfWeek>` | NonRelevantDaysOfWeek | Dias da semana não relevantes | 
+| `IEnumerable<DayOfWeek>` | NonRelevantDaysOfWeek | Dias da semana não relevantes | 
 | `List<DateTime>` | RelevantDays | Dias Relevantes entre as datas Inicial e Final | 
 | `List<DayOfWeek>` | RelevantDaysOfWeek | Dias da semana relevantes | 
 | `Int32` | Seconds | Numero de Segundos | 
 | `DateTime` | StartDate | Data Inicial | 
+| `Decimal` | TotalDays |  | 
+| `Decimal` | TotalMinutes |  | 
+| `Decimal` | TotalMonths |  | 
+| `Decimal` | TotalSeconds |  | 
+| `Decimal` | TotalWeeks |  | 
+| `Decimal` | TotalYears |  | 
 | `Int32` | Years | Numero de Anos | 
 
 

@@ -1227,6 +1227,7 @@ Properties
 | --- | --- | --- | 
 | `HtmlElement` | Body | Return the body element if exist | 
 | `String` | DocTypeXHTML |  | 
+| `String` | DocumentTitle |  | 
 | `Encoding` | Encoding | The Encoding used to export this document as file | 
 | `HtmlElement` | Head | Return the Head element if exist | 
 | `String` | HTML | This will return the HTML used to represent this document. | 
@@ -1235,6 +1236,7 @@ Properties
 | `HtmlNodeCollection` | Nodes | This is the collection of nodes used to represent this document. | 
 | `HtmlNodeCollection` | QuerySelectorAll | Travesse DOM with a CSS selector an retireve nodes | 
 | `HtmlNodeCollection` | QuerySelectorAll | Travesse DOM with a CSS selector an retireve nodes | 
+| `HtmlElement` | Title | Return the Title element if exist | 
 | `String` | XHTML | This will return the XHTML document used to represent this document. | 
 
 
@@ -1310,7 +1312,7 @@ Methods
 | `void` | AddNode(`HtmlNode[]` Node) | Add a node (or nodes) to collection | 
 | `void` | AddNode(`HtmlGenericControl` Node) | Add a node (or nodes) to collection | 
 | `void` | AddNode(`String` HTML, `Int32` Index = 0) | Add a node (or nodes) to collection | 
-| `Boolean` | Censor(`Char` CensorChar, `String[]` BadWords) | ReplaceFrom Badwords in all text elements. | 
+| `Boolean` | Censor(`Char` CensorChar, `String[]` BadWords) | Replace Badwords in all text elements. | 
 | `HtmlElement` | Children(`String` CssSelector = ) | Return the first child element thats match de CssSelector | 
 | `ElementType` | Children(`String` CssSelector = ) | Return the first child element thats match de CssSelector | 
 | `HtmlElement` | Clone() | Clone this element into a new HtmlElement | 
@@ -1326,6 +1328,7 @@ Methods
 | `void` | Mutate(`String` Html) | Transform the current element into a new set of elements | 
 | `void` | ParseEmoji(`Func<String, String>` Method = null, `Boolean` SearchChildren = True) | Find :emoji: and replace then using specific method | 
 | `void` | ParseHashTags(`Func<String, String>` Method, `Boolean` SearchChildren = True) |  | 
+| `void` | ParseMentionByChar(`String` MatchChar, `Func<String, String>` Method, `Boolean` SearchChildren = True) | Find mentions and replace then using specific method using a custom char on match | 
 | `void` | ParseOEmbed(`Boolean` SearchChildren = True) | Find URLs out of Anchor elements and replace then to their respective oEmbed | 
 | `void` | ParseURL(`Boolean` SearchChildren = True, `String` Target = _self) | Find URLs out of Anchor elements and replace then to anchors | 
 | `void` | ParseUsername(`Func<String, String>` Method, `Boolean` SearchChildren = True) | Find @mentions and replace then using specific method | 
@@ -1606,6 +1609,7 @@ Static Methods
 | `HtmlAnchorElement` | CreateAnchor(this `String` URL, `String` Target = _blank, `String` Title = ) | Cria um elemento de Ancora (a) a partir de uma string com URL. O titulo é obtido  automaticamente da url quando possivel. Se a string não for uma URL válida uma ancora com  o proprio texto é criada. | 
 | `String` | ParseEmoji(this `String` Text, `Func<String, String>` Method = null) | Localiza emojis no texto e automaticamente executa uma função de replace para cada emoji encontrado | 
 | `String` | ParseHashtag(this `String` Text, `Func<String, String>` Method = null) | Localiza hashtags no texto e automaticamente executa uma função de replace para cada  hashtag encontrada | 
+| `String` | ParseMentionByChar(this `String` Text, `String` MatchChar, `Func<String, String>` Method = null) | Localiza menções a usuários no texto e automaticamente executa uma função de replace para  cada hashtag encontrada | 
 | `String` | ParseURL(this `String` Text, `Func<String, String>` Method = null) |  | 
 | `String` | ParseUsername(this `String` Text, `Func<String, String>` Method = null) | Localiza menções a usuários no texto e automaticamente executa uma função de replace para  cada hashtag encontrada | 
 

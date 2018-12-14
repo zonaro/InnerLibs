@@ -163,7 +163,7 @@ Namespace Locations
 
         Private Sub ParseType()
             If Me.Address.IsNotBlank Then
-                Dim pal = Me.Address.Split(" ").First.ToProper
+                Dim pal = Me.Address.Split(" ").First.ToProperCase
                 Select Case pal
                     Case "Aeroporto", "Ar", "Aero"
                         Me.AddressType = "Aeroporto"

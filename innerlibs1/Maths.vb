@@ -148,6 +148,24 @@ Public Module Mathematic
 
 
     ''' <summary>
+    ''' Verifica se um numero possui parte decimal
+    ''' </summary>
+    ''' <param name="Value"></param>
+    ''' <returns></returns>
+    <Extension> Public Function HasDecimalPart(Value As Decimal) As Boolean
+        Return Not (Value Mod 1) = 0 AndAlso Value > 0
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um numero possui parte decimal
+    ''' </summary>
+    ''' <param name="Value"></param>
+    ''' <returns></returns>
+    <Extension> Public Function HasDecimalPart(Value As Double) As Boolean
+        Return Not (Value Mod 1) = 0 AndAlso Value > 0
+    End Function
+
+    ''' <summary>
     ''' Retorna o elemento de menor valor de uma coleção
     ''' </summary>
     ''' <typeparam name="T">Tipo do elemento</typeparam>

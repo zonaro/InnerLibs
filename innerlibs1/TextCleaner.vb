@@ -208,7 +208,7 @@ Public Class SentencePart
         End If
 
         If indexo = 0 OrElse (indexo = 1 AndAlso OpenWrappers.Contains(Sentence(0).Text)) Then
-            Return Text.ToProper
+            Return Text.ToProperCase
         End If
 
         Return Text

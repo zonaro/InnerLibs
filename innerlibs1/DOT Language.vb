@@ -35,7 +35,7 @@ Namespace DOTLanguage
         Public Overrides Function ToString() As String
             Dim s = Me.Select(Function(n) n.ToString & Environment.NewLine).ToArray.Join("")
             s = s.Split(Environment.NewLine).Distinct.Join(Environment.NewLine) & Environment.NewLine
-            Return GraphType & " " & ID.ToSlug(True) & " " & s.Quote("{")
+            Return GraphType & " " & ID.ToSlugCase(True) & " " & s.Quote("{")
         End Function
 
 
@@ -104,7 +104,7 @@ Namespace DOTLanguage
                 Return _id
             End Get
             Set(value As String)
-                _id = value.ToSlug(True)
+                _id = value.ToSlugCase(True)
             End Set
         End Property
         Private _id As String
@@ -147,7 +147,7 @@ Namespace DOTLanguage
 
         Public Overrides Property ID As String
             Get
-                Return ParentNode.ID.ToSlug(True) & If(Me.Oriented, " -> ", " -- ") & ChildNode.ID.ToSlug(True)
+                Return ParentNode.ID.ToSlugCase(True) & If(Me.Oriented, " -> ", " -- ") & ChildNode.ID.ToSlugCase(True)
             End Get
             Set(value As String)
                 Debug.Write("Cannot change ID of a relation")

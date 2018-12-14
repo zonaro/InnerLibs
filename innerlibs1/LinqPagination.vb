@@ -11,6 +11,7 @@ Namespace LINQ
     Public Module LINQExtensions
 
 
+
         ''' <summary>
         '''Atualiza objetos de entidade usando <see cref="Data.Linq.RefreshMode.KeepChanges"/> e envia as alteraçoes ao banco de dados
         ''' </summary>
@@ -130,6 +131,8 @@ Namespace LINQ
         Public Function Traverse(Of T, P)(ByVal Item As T, ByVal ChildSelector As Func(Of T, IEnumerable(Of T)), PropertySelector As Func(Of T, IQueryable(Of P)), Optional IncludeMe As Boolean = False) As IEnumerable(Of P)
             Return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector)
         End Function
+
+
 
         Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains")
 

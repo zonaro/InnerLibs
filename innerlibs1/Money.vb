@@ -1,5 +1,8 @@
 ﻿Imports System.Globalization
+Imports System.Web.Script.Serialization
 Imports InnerLibs
+
+
 
 ''' <summary>
 ''' Estrutura que representa valores em dinheiro de uma determinada <see cref="CultureInfo"/>. Utiliza uma API (http://fixer.io) para conversão de moedas.
@@ -23,8 +26,8 @@ Public Structure Money
     ''' <param name="Culture">Cultura</param>
     Public Sub New(Value As Decimal, Culture As CultureInfo)
         Me.Value = Value
-        Me.ISOCurrencySymbol = New RegionInfo(Culture.Name).ISOCurrencySymbol
-        Me.CurrencySymbol = Culture.NumberFormat.CurrencySymbol
+        Me.Culture = Culture
+        Me.Region = New RegionInfo(Culture.Name)
     End Sub
 
     ''' <summary>
@@ -34,14 +37,8 @@ Public Structure Money
     ''' <param name="ISOCurrencySymbol">Simbolo de moeda, ISO ou nome da cultura</param>
     Public Sub New(Value As Decimal, ISOCurrencySymbol As String, Optional CurrencySymbol As String = "")
         Me.Value = Value
-        Dim c = GetCultureInfosByCurrencySymbol(ISOCurrencySymbol).FirstOrDefault
-        If c.Equals(CultureInfo.InvariantCulture) Then
-            Me.CurrencySymbol = CurrencySymbol.IfBlank(ISOCurrencySymbol)
-            Me.ISOCurrencySymbol = ISOCurrencySymbol
-        Else
-            Me.CurrencySymbol = New RegionInfo(c.Name).CurrencySymbol
-            Me.ISOCurrencySymbol = New RegionInfo(c.Name).ISOCurrencySymbol
-        End If
+        Me.Culture = GetCultureInfosByCurrencySymbol(ISOCurrencySymbol).FirstOrDefault
+        Me.Region = New RegionInfo(Me.Culture.Name)
     End Sub
 
 
@@ -103,16 +100,14 @@ Public Structure Money
     ''' </summary>
     ''' <param name="Precision">Precisao de casas decimais</param>
     ''' <returns></returns>
-    Public Overloads Function ToString(Precision As Integer)
-        Dim c = GetCultureInfosByCurrencySymbol(Me.ISOCurrencySymbol).First
+    Public Overloads Function ToString(Precision As Integer) As String
+        Dim c = Me.Culture
         If c.Equals(CultureInfo.InvariantCulture) Then
             c = CultureInfo.CurrentCulture
         End If
         Dim ss = CurrencySymbol & " " & If(Precision > 0, Me.Value.Slice(Precision.SetMinValue(2)), Me.Value).ToString(c)
-        If Not (Me.Value Mod 1) = 0 AndAlso Me.Value > 0 Then
-            While ss.EndsWith("0")
-                ss = ss.TrimEnd("0")
-            End While
+        If Me.Value.HasDecimalPart Then
+            ss = ss.TrimEnd("0")
         End If
         Return ss.IfBlank("0")
     End Function
@@ -122,6 +117,10 @@ Public Structure Money
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property CurrencySymbol As String
+        Get
+            Return Me.Region.CurrencySymbol
+        End Get
+    End Property
 
 
     ''' <summary>
@@ -129,6 +128,10 @@ Public Structure Money
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property ISOCurrencySymbol As String
+        Get
+            Return Me.Region.ISOCurrencySymbol
+        End Get
+    End Property
 
 
     ''' <summary>
@@ -147,6 +150,20 @@ Public Structure Money
     End Function
 
 
+    Shared DefaultPattern As String = "{value} {money|moneys} and {cent|cents}"
+
+    ''' <summary>
+    ''' Região correspondente a essa moeda
+    ''' </summary>
+    ''' <returns></returns>
+    <ScriptIgnore>
+    Property Region As RegionInfo
+    ''' <summary>
+    ''' Cultura correspondente a esta moeda
+    ''' </summary>
+    ''' <returns></returns>
+    <ScriptIgnore>
+    Property Culture As CultureInfo
 
 
     Public Shared Operator &(Text As String, Value As Money) As String
@@ -558,4 +575,17 @@ Public Structure Money
     Public Shared Widening Operator CType(v As Double) As Money
         Return New Money(v)
     End Operator
+
+    ''' <summary>
+    ''' Compara se 2 valores são iguais (mesmo valor e moeda)
+    ''' </summary>
+    ''' <param name="obj"></param>
+    ''' <returns></returns>
+    Public Overrides Function Equals(obj As Object) As Boolean
+        If obj.GetType = GetType(Money) Then
+            Return Me.Value = CType(obj, Money).Value AndAlso Me.ISOCurrencySymbol = CType(obj, Money).ISOCurrencySymbol
+        Else
+            Return False
+        End If
+    End Function
 End Structure
