@@ -32,7 +32,7 @@ Namespace HtmlParser.Bootstrap
             End Get
         End Property
 
-        Public ReadOnly Property Alert(Content As String, Optional Dismissible As Boolean, Optional Type As ElementType = ElementType.Default) As HtmlElement
+        Public ReadOnly Property Alert(Content As String, Optional Dismissible As Boolean = True, Optional Type As ElementType = ElementType.Default) As HtmlElement
             Get
                 Dim el As New HtmlElement("div", "")
                 el.Class.Add(CreateObjectClass("alert", Type))
@@ -112,63 +112,5 @@ Namespace HtmlParser.Bootstrap
     End Class
 
 
-
-#Region "Elements"
-
-
-    ''' <summary>
-    ''' Elemento Alert do Bootstrap
-    ''' </summary>
-
-
-    Public Class ProgressBar
-
-        Property Value As Decimal
-            Property Content As String
-            Property Type As ElementType
-            Property Striped As Boolean = False
-            Property Animated As Boolean = False
-            Property Label As Boolean = True
-            Property Min As Decimal = 0
-            Property Max As Decimal = 100
-
-            Public Sub New(Value As Integer, Optional Min As Decimal = 0, Optional Max As Decimal = 100)
-                Me.Value = Value
-                Me.Min = Min
-                Me.Max = Max
-                Me.Content = Content.IsNull(Value, False)
-            End Sub
-
-            ''' <summary>
-            ''' Transforma um elemento em um Panel do Bootstrap
-            ''' </summary>
-            ''' <param name="Control">Elemento que vai sofrer a transformação</param>
-            Public Sub TransformElement(ByRef Control As HtmlGenericControl)
-                Control.Attributes("class") = "progress " & Control.Attributes("class")
-                Me.ToString()
-                Control.InnerHtml = Me.InnerHTML
-            End Sub
-
-            Public Sub Stack(Bar As ProgressBar)
-                Me.ToString()
-                Bar.ToString()
-                Debug.WriteLine(Bar.InnerHTML)
-                Me.InnerHTML.Append(Bar.InnerHTML)
-                Me.ToString()
-            End Sub
-
-            Public Overloads Function ToString(Optional ID As String = "", Optional [Class] As String = "", Optional Attributes As String = "") As String
-                OuterHtml = "<div class='progress'>"
-            OuterHtml.Append(InnerHTML)
-
-            OuterHtml.Append("</div>")
-                Return OuterHtml
-            End Function
-
-        End Class
-
-#End Region
-
-    End Class
 
 End Namespace
