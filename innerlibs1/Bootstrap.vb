@@ -19,8 +19,12 @@ Namespace HtmlParser.Bootstrap
             Get
                 Dim el As New HtmlElement("div", "")
                 el.Class.Add(CreateObjectClass("panel", Type))
-                el.InnerHTML.Append("<div class='panel-heading'><h3 class='panel-title'>" & Title & "</h3></div>")
-                el.InnerHTML.Append("<div class='panel-body'>" & Content & "</div>")
+                el.InnerHTML.Append("<div class='panel-heading'>")
+                el.InnerHTML.Append("<h3 class='panel-title'>" & Title & "</h3>")
+                el.InnerHTML.Append("</div>")
+                el.InnerHTML.Append("<div class='panel-body'>")
+                el.InnerHTML.Append(Content)
+                el.InnerHTML.Append("</div>")
                 If Footer.IsNotBlank() Then
                     el.InnerHTML.Append("<div class='panel-footer'>" & Footer & "</div>")
                 End If
@@ -28,7 +32,7 @@ Namespace HtmlParser.Bootstrap
             End Get
         End Property
 
-        Public ReadOnly Property Alert(Content As String, Optional Dismissible As Boolean = False, Optional Type As ElementType = ElementType.Default) As HtmlElement
+        Public ReadOnly Property Alert(Content As String, Optional Dismissible As Boolean, Optional Type As ElementType = ElementType.Default) As HtmlElement
             Get
                 Dim el As New HtmlElement("div", "")
                 el.Class.Add(CreateObjectClass("alert", Type))
@@ -67,24 +71,8 @@ Namespace HtmlParser.Bootstrap
             End Get
         End Property
 
-        Public ReadOnly Property Row(ID As String, ParamArray Columns As HtmlElement()) As HtmlElement
-            Get
-                Dim el As New HtmlElement("div")
-                el.ID = ID
-                el.Class.Add("row")
-                el.Nodes.Add(Columns)
-                Return el
-            End Get
-        End Property
 
-        Public ReadOnly Property Row(ParamArray Columns As HtmlElement()) As HtmlElement
-            Get
-                Dim el As New HtmlElement("div")
-                el.Class.Add("row")
-                el.Nodes.Add(Columns)
-                Return el
-            End Get
-        End Property
+
 
 
         Public ReadOnly Property Container(ParamArray Rows As HtmlElement()) As HtmlElement
@@ -125,5 +113,62 @@ Namespace HtmlParser.Bootstrap
 
 
 
+#Region "Elements"
+
+
+    ''' <summary>
+    ''' Elemento Alert do Bootstrap
+    ''' </summary>
+
+
+    Public Class ProgressBar
+
+        Property Value As Decimal
+            Property Content As String
+            Property Type As ElementType
+            Property Striped As Boolean = False
+            Property Animated As Boolean = False
+            Property Label As Boolean = True
+            Property Min As Decimal = 0
+            Property Max As Decimal = 100
+
+            Public Sub New(Value As Integer, Optional Min As Decimal = 0, Optional Max As Decimal = 100)
+                Me.Value = Value
+                Me.Min = Min
+                Me.Max = Max
+                Me.Content = Content.IsNull(Value, False)
+            End Sub
+
+            ''' <summary>
+            ''' Transforma um elemento em um Panel do Bootstrap
+            ''' </summary>
+            ''' <param name="Control">Elemento que vai sofrer a transformação</param>
+            Public Sub TransformElement(ByRef Control As HtmlGenericControl)
+                Control.Attributes("class") = "progress " & Control.Attributes("class")
+                Me.ToString()
+                Control.InnerHtml = Me.InnerHTML
+            End Sub
+
+            Public Sub Stack(Bar As ProgressBar)
+                Me.ToString()
+                Bar.ToString()
+                Debug.WriteLine(Bar.InnerHTML)
+                Me.InnerHTML.Append(Bar.InnerHTML)
+                Me.ToString()
+            End Sub
+
+            Public Overloads Function ToString(Optional ID As String = "", Optional [Class] As String = "", Optional Attributes As String = "") As String
+                OuterHtml = "<div class='progress'>"
+            OuterHtml.Append(InnerHTML)
+
+            OuterHtml.Append("</div>")
+                Return OuterHtml
+            End Function
+
+        End Class
+
+#End Region
+
+    End Class
 
 End Namespace
