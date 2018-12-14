@@ -94,7 +94,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <param name="ClassName"></param>
         Public Shadows Function Add(ParamArray ClassName As String()) As HtmlElement
-            For Each c In ClassName
+            For Each c In ClassName.SelectMany(Function(x) x.Split(" ", StringSplitOptions.RemoveEmptyEntries))
                 Me.Item(c) = True
             Next
             Return Me.mElement
@@ -183,6 +183,7 @@ Namespace HtmlParser
             Next
             Return Me.ToString
         End Function
+
 
     End Class
 
