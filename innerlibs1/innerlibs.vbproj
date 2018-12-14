@@ -122,6 +122,7 @@
     <Compile Include="Converter.vb" />
     <Compile Include="FileTree.vb" />
     <Compile Include="GeoIP.vb" />
+    <Compile Include="htmlparser\BootstrapPlugin.vb" />
     <Compile Include="htmlparser\ClassProperty.vb" />
     <Compile Include="htmlparser\CssParser.vb" />
     <Compile Include="htmlparser\CSSProperty.vb" />
