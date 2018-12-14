@@ -19,12 +19,8 @@ Namespace HtmlParser.Bootstrap
             Get
                 Dim el As New HtmlElement("div", "")
                 el.Class.Add(CreateObjectClass("panel", Type))
-                el.InnerHTML.Append("<div class='panel-heading'>")
-                el.InnerHTML.Append("<h3 class='panel-title'>" & Title & "</h3>")
-                el.InnerHTML.Append("</div>")
-                el.InnerHTML.Append("<div class='panel-body'>")
-                el.InnerHTML.Append(Content)
-                el.InnerHTML.Append("</div>")
+                el.InnerHTML.Append("<div class='panel-heading'><h3 class='panel-title'>" & Title & "</h3></div>")
+                el.InnerHTML.Append("<div class='panel-body'>" & Content & "</div>")
                 If Footer.IsNotBlank() Then
                     el.InnerHTML.Append("<div class='panel-footer'>" & Footer & "</div>")
                 End If
