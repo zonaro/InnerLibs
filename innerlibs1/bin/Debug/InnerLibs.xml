@@ -273,50 +273,1174 @@ InnerLibs
  <param name="addHistory">Salva a URL no histórico da conta</param>
  <returns>Um Objet SHortUrl do Bit.Ly</returns>
 </member>
-<member name="T:InnerLibs.Bootstrap.Bootstrap.ElementType">
- <summary>
- Classe que representa a aparência de um elemento de forma geral
- </summary>
-</member>
-<member name="T:InnerLibs.Bootstrap.Bootstrap.BootstrapElement">
- <summary>
- Classe mãe dos elementos de Bootstrap
- </summary>
-</member>
-<member name="M:InnerLibs.Bootstrap.Bootstrap.BootstrapElement.CreateObjectClass(InnerLibs.Bootstrap.Bootstrap.ElementType)">
+<member name="M:InnerLibs.HtmlParser.Bootstrap.BootstrapBuilder.CreateObjectClass(System.String,InnerLibs.HtmlParser.Bootstrap.BootstrapBuilder.ElementType)">
  <summary>
  Retorna uma classe baseada no tipo do element criado
  </summary>
  <param name="ElementType">Elemento do bootstrap</param>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.Bootstrap.Bootstrap.Panel">
+<member name="P:InnerLibs.HtmlParser.ClassList.Item(System.String)">
  <summary>
- Elemento Panel do Bootstrap
+ Gets or sets a value indicating if this element contains a specifc class
+ </summary>
+ <param name="ClassName">Name</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.ClassList.Count">
+ <summary>
+ Count the class of element
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.Insert(System.Int32,System.String)">
+ <summary>
+ Insert a class into specific index
+ </summary>
+ <param name="index"></param>
+ <param name="ClassName"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.RemoveAt(System.Int32)">
+ <summary>
+ Remove the class with specific index
+ </summary>
+ <param name="index"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.Add(System.String[])">
+ <summary>
+ Add a class to element
+ </summary>
+ <param name="ClassName"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.AddRange(System.String[])">
+ <summary>
+ Add a class to element
+ </summary>
+ <param name="ClassName"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.Clear">
+ <summary>
+ Remove the class attribute from element
  </summary>
 </member>
-<member name="M:InnerLibs.Bootstrap.Bootstrap.Panel.TransformElement(System.Web.UI.HtmlControls.HtmlGenericControl@)">
+<member name="M:InnerLibs.HtmlParser.ClassList.IndexOf(System.String)">
  <summary>
- Transforma um elemento em um Panel do Bootstrap
+ Gets the class position index in element
  </summary>
- <param name="Control">Elemento que vai sofrer a transformação</param>
+ <param name="ClassName"></param>
+ <returns></returns>
 </member>
-<member name="T:InnerLibs.Bootstrap.Bootstrap.Alert">
+<member name="M:InnerLibs.HtmlParser.ClassList.Contains(System.String[])">
  <summary>
- Elemento Alert do Bootstrap
+ Check if element coitains all the classes
+ </summary>
+ <param name="ClassName"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.Remove(System.String)">
+ <summary>
+ Remove a class from element
+ </summary>
+ <param name="ClassName"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.ToString">
+ <summary>
+ Returns the class attribute of element
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.ClassList.FromExpression(System.Object[])">
+ <summary>
+ Proccess a set of objects and apply class names according to the boolean properties, keyvaluepairs or strings
+ </summary>
+ <param name="ClassEx"></param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.CssProperties.Item(System.String)">
+ <summary>
+ Gets or sets the style of element
+ </summary>
+ <param name="Name">Name of CSS style</param>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlAttribute">
+ <summary>
+ The HtmlAttribute object represents a named value associated with an HtmlElement.
  </summary>
 </member>
-<member name="M:InnerLibs.Bootstrap.Bootstrap.Alert.TransformElement(System.Web.UI.HtmlControls.HtmlGenericControl@)">
+<member name="M:InnerLibs.HtmlParser.HtmlAttribute.#ctor(System.String,System.String)">
  <summary>
- Transforma um elemento em um Alert do Bootstrap
+ This constructs an HtmlAttribute object with the given name and value. For wierd
+ HTML attributes that don't have a value (e.g. "NOWRAP"), specify null as the value.
  </summary>
- <param name="Control">Elemento que vai sofrer a transformação</param>
+ <param name="name">The name of the attribute</param>
+ <param name="value">The value of the attribute</param>
 </member>
-<member name="M:InnerLibs.Bootstrap.Bootstrap.ProgressBar.TransformElement(System.Web.UI.HtmlControls.HtmlGenericControl@)">
+<member name="P:InnerLibs.HtmlParser.HtmlAttribute.Name">
  <summary>
- Transforma um elemento em um Panel do Bootstrap
+ The name of the attribute. e.g. WIDTH
  </summary>
- <param name="Control">Elemento que vai sofrer a transformação</param>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlAttribute.Value">
+ <summary>
+ The value of the attribute. e.g. 100%
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlAttribute.ToString">
+ <summary>
+ This will return an HTML-formatted version of this attribute. NB. This is
+ not SGML or XHTML safe, as it caters for null-value attributes such as "NOWRAP".
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlAttributeCollection">
+ <summary>
+ This is a collection of attributes. Typically, this is associated with a particular
+ element. This collection is searchable by both the index and the name of the attribute.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.#ctor(InnerLibs.HtmlParser.HtmlElement)">
+ <summary>
+ This will create an empty collection of attributes.
+ </summary>
+ <param name="element"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.ToDictionary">
+ <summary>
+ Return a dictionary of this HtmlAttributeCollection
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.FindByName(System.String)">
+ <summary>
+ This will search the collection for the named attribute. If it is not found, this
+ will return null.
+ </summary>
+ <param name="name">The name of the attribute to find.</param>
+ <returns>The attribute, or null if it wasn't found.</returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlAttributeCollection.Item(System.String)">
+ <summary>
+ This overload allows you to have direct access to an attribute by providing
+ its name. If the attribute does not exist, null is returned.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.Add(System.String,System.String)">
+ <summary>
+ Add an attribute to element
+ </summary>
+ <param name="Name">Name of attribute</param>
+ <param name="Value">Value of attribute, for Wired attributes just leave Nothing</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.Add(InnerLibs.HtmlParser.HtmlAttribute)">
+ <summary>
+ Add an attribute to element
+ </summary>
+ <param name="Attribute">attribute</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.AddRange(InnerLibs.HtmlParser.HtmlAttribute[])">
+ <summary>
+ Add multiple attributes to element
+ </summary>
+ <param name="Attributes">attributes</param>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlDocument">
+ <summary>
+ This is the basic HTML document object used to represent a sequence of HTML.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.String,System.Text.Encoding)">
+ <summary>
+ This will create a new document object by parsing the HTML specified.
+ </summary>
+ <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.Xml.Linq.XNode,System.Text.Encoding)">
+ <summary>
+ This will create a new document object by parsing the HTML specified.
+ </summary>
+ <param name="Source">The HTML Source as Xnode.</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.ToJSON">
+ <summary>
+ Return a Json representation of this element
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.Byte[],System.Text.Encoding)">
+ <summary>
+ This will create a new document object direct from Byte Array.
+ </summary>
+ <param name="Content">The byte array with URL or HTML to parse.</param>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.Encoding">
+ <summary>
+ The Encoding used to export this document as file
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.MinifyCSS">
+ <summary>
+ Merge all STYLE tags and minify it
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.FixText">
+ <summary>
+  Fix the captalization, white spaces and punctuation of text elements
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.GetTextElements(System.Boolean)">
+ <summary>
+ Returns all Text elements excluding style and script elements
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.InnerHTML">
+ <summary>
+ Return a html string of child nodes
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.InnerText">
+ <summary>
+ Returns the text of all child nodes
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.Nodes">
+ <summary>
+ This is the collection of nodes used to represent this document.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.HTML">
+ <summary>
+ This will return the HTML used to represent this document.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.XHTML">
+ <summary>
+ This will return the XHTML document used to represent this document.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.ToXmlDocument">
+ <summary>
+ Return the <see cref="T:System.Xml.XmlDocument"/> equivalent to this document
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.ToString">
+ <summary>
+ Return the HTML of this document
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.GetBytes">
+ <summary>
+ Return the byte array for this document
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.SaveAs(System.IO.FileInfo)">
+ <summary>
+ Save the document as file
+ </summary>
+ <param name="File">File</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.CopyTo(System.IO.Stream@)">
+ <summary>
+ Copy this document to stream
+ </summary>
+ <param name="s"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.SaveAs(System.String)">
+ <summary>
+ Save the document as file
+ </summary>
+ <param name="FileName">Filename</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.LoadInto(System.Windows.Forms.WebBrowser@)">
+ <summary>
+ Load the document in <see cref="T:System.Windows.Forms.WebBrowser"/> control
+ </summary>
+ <param name="WebBrowser"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.LoadInto(System.Windows.Forms.TreeView@)">
+ <summary>
+ Load the nodes of document in <see cref="T:System.Windows.Forms.TreeView"/> control
+ </summary>
+ <param name="TreeView"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.FindElements``1(System.Func{``0,System.Boolean},System.Boolean)">
+ <summary>
+ This will search though this collection of nodes for all elements with matchs the predicate.
+ </summary>
+ <typeparam name="NodeType">Type of Node (<see cref="T:InnerLibs.HtmlParser.HtmlElement"/> or <see cref="T:InnerLibs.HtmlParser.HtmlText"/>)</typeparam>
+ <param name="predicate">The predicate to match the nodes</param>
+ <param name="SearchChildren">Travesse the child nodes</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.Body">
+ <summary>
+ Return the body element if exist 
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.Head">
+ <summary>
+ Return the Head element if exist 
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.Title">
+ <summary>
+ Return the Title element if exist 
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.QuerySelectorAll(System.String)">
+ <summary>
+ Travesse DOM with a CSS selector an retireve nodes
+ </summary>
+ <param name="CssSelector">Teh CSS selector</param>
+ <returns>The <see cref="T:InnerLibs.HtmlParser.HtmlNodeCollection"/> with matched elements</returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlDocument.QuerySelectorAll(System.String,System.Action{InnerLibs.HtmlParser.HtmlElement}[])">
+ <summary>
+ Execute an <see cref="T:System.Action"/> for each <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> matched with <paramref name="CssSelector"/>
+ </summary>
+ <param name="CssSelector">The CSS Selector</param>
+ <param name="Actions">Actions</param>
+ <returns>The <see cref="T:InnerLibs.HtmlParser.HtmlNodeCollection"/> with matched elements</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.QuerySelector(System.String)">
+ <summary>
+ Travesse DOM with a CSS selector an retireve the first node
+ </summary>
+ <param name="CssSelector">Teh CSS selector</param>
+ <returns>The <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> matched</returns>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlElement">
+ <summary>
+ The HtmlElement object represents any HTML element. An element has a name and zero or more attributes.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.#ctor(System.String,System.String)">
+ <summary>
+ This constructs a new HTML element with the specified tag name.
+ </summary>
+ <param name="name">The name of this element</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.#ctor(InnerLibs.HtmlParser.HtmlElement)">
+ <summary>
+ This constructs a new HTML element using a <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> as source.
+ </summary>
+ <param name="Element">The htmlelement</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.#ctor(System.Web.UI.HtmlControls.HtmlGenericControl)">
+ <summary>
+ This constructs a new HTML element using a <see cref="T:System.Web.UI.HtmlControls.HtmlGenericControl"/> as source.
+ </summary>
+ <param name="HtmlControl">The server control</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Children(System.String)">
+ <summary>
+ Return the first child element thats match de CssSelector
+ </summary>
+ <param name="CssSelector"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Children``1(System.String)">
+ <summary>
+ Return the first child element thats match de CssSelector or first child element of specific type if CssSelector is blank
+ </summary>
+ <param name="CssSelector"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(InnerLibs.HtmlParser.HtmlNode[])">
+ <summary>
+ Add a node (or nodes) to collection
+ </summary>
+ <param name="Node"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(System.Web.UI.HtmlControls.HtmlGenericControl)">
+ <summary>
+ Add a node to collection using an <see cref="T:System.Web.UI.HtmlControls.HtmlGenericControl"/> as base
+ </summary>
+ <param name="Node"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(System.String,System.Int32)">
+ <summary>
+ Add a node to collection using a HTML string as base
+ </summary>
+ <param name="HTML"></param>
+ <param name="Index"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Clone">
+ <summary>
+ Clone this element into a new HtmlElement
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.SideClone(System.Int32)">
+ <summary>
+ Clone this element into a new HtmlElement and inserts into same parent
+ </summary>
+ <param name="Index">The position of clone element. Use -1 to insert in the same position of the original element</param>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.ChildElements">
+ <summary>
+ Return the child elements of this element (excluding HtmlText)
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.ContentText">
+ <summary>
+ Return thedirect child text of this element (excluding HtmlElement)
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.IsExplicitlyTerminated">
+ <summary>
+ This flag indicates that the element is explicitly closed using the /name method.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Title">
+ <summary>
+ Gets or sets the Title attribute of this element
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Class">
+ <summary>
+ Gets os sets a boolean value for toggle an specific class
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Attributes">
+ <summary>
+ This is the collection of attributes associated with this element.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.AttributesNames">
+ <summary>
+ Return the name of al attributes
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Disabled">
+ <summary>
+ Gets os sets a value indicating thats element is disabled
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.ElementRepresentation">
+ <summary>
+ This will return the HTML representation of this element.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.HTML">
+ <summary>
+ This will return the HTML for this element and all subnodes.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.ID">
+ <summary>
+ The ID of element
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.InnerHTML">
+ <summary>
+ Return a html string of child nodes
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Name">
+ <summary>
+ This is the tag name of the element. e.g. BR, BODY, TABLE etc.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Nodes">
+ <summary>
+ This is the collection of all child nodes of this one. If this node is actually a text
+ node, this will return nothing.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Style">
+ <summary>
+ The CSS style of element
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.XHTML">
+ <summary>
+ This will return the XHTML for this element and all subnodes.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.QuerySelectorAll(System.String)">
+ <summary>
+ Travesse element with a CSS selector an retireve nodes
+ </summary>
+ <param name="CssSelector">Teh CSS selector</param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Data(System.String)">
+ <summary>
+ Return the value of specific data-attribute
+ </summary>
+ <param name="Name"></param>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlElement.Attribute(System.String)">
+ <summary>
+ Return the value of specific attibute
+ </summary>
+ <param name="Name"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.AddAttribute(System.String,System.String)">
+ <summary>
+ Add a attribute to this element
+ </summary>
+ <param name="Name"> </param>
+ <param name="Value"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Censor(System.Char,System.String[])">
+ <summary>
+ Replace Badwords in all text elements.
+ </summary>
+ <param name="CensorChar"></param>
+ <param name="BadWords">  </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.CreateWebFormControl``1">
+ <summary>
+ Create a <see cref="T:System.Web.UI.HtmlControls.HtmlControl"/> using this <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> as source
+ </summary>
+ <typeparam name="Type"></typeparam>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Destroy">
+ <summary>
+ Remove this element from parent element. If parent element is null, nothing happens
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.FindElements``1(System.Func{``0,System.Boolean},System.Boolean)">
+ <summary>
+ This will search though this collection of nodes for all elements with matchs the predicate.
+ </summary>
+ <typeparam name="NodeType">Type of Node ( <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> or <see cref="T:InnerLibs.HtmlParser.HtmlText"/>)</typeparam>
+ <param name="predicate">     The predicate to match the nodes</param>
+ <param name="SearchChildren">Travesse the child nodes</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.FixText">
+ <summary>
+ Fix the punctuation, white spaces and captalization of the child text elements
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.GetTextElements(System.Boolean)">
+ <summary>
+ Returns all Text elements excluding style and script elements
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.HasAttribute(System.String)">
+ <summary>
+ Verify if this element has an specific attribute
+ </summary>
+ <param name="Name"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.HasClass(System.String)">
+ <summary>
+ Verify if this element has an specific class
+ </summary>
+ <param name="ClassName"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Mutate(InnerLibs.HtmlParser.HtmlNodeCollection)">
+ <summary>
+ Transform the current element into a new set of elements
+ </summary>
+ <param name="Elements">Collection of new elements</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Mutate(InnerLibs.HtmlParser.HtmlElement)">
+ <summary>
+ Transform the current element into a new element
+ </summary>
+ <param name="Element">New element</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.Mutate(System.String)">
+ <summary>
+ Transform the current element into a new element or set of elements using a html string
+ as source
+ </summary>
+ <param name="Html">Html String</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseEmoji(System.Func{System.String,System.String},System.Boolean)">
+ <summary>
+ Find :emoji: and replace then using specific method
+ </summary>
+ <param name="Method">        </param>
+ <param name="SearchChildren"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseOEmbed(System.Boolean)">
+ <summary>
+ Find URLs out of Anchor elements and replace then to their respective oEmbed
+ </summary>
+ <param name="SearchChildren"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseURL(System.Boolean,System.String)">
+ <summary>
+ Find URLs out of Anchor elements and replace then to anchors
+ </summary>
+ <param name="SearchChildren"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseUsername(System.Func{System.String,System.String},System.Boolean)">
+ <summary>
+ Find @mentions and replace then using specific method
+ </summary>
+ <param name="Method">        </param>
+ <param name="SearchChildren"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseMentionByChar(System.String,System.Func{System.String,System.String},System.Boolean)">
+ <summary>
+ Find mentions and replace then using specific method using a custom char on match
+ </summary>
+ <param name="Method">        </param>
+ <param name="SearchChildren"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.RemoveAttribute(System.String)">
+ <summary>
+ Remove an attribute from element
+ </summary>
+ <param name="Name"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ToString">
+ <summary>
+ This will return the HTML representation of this element.
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ToXmlElement">
+ <summary>
+ Return the <see cref="T:System.Xml.XmlElement"/> equivalent to this node
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlInputElement.Type">
+ <summary>
+ Type of Input
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlInputElement.Value">
+ <summary>
+ Value of Input
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlInputElement.PlaceHolder">
+ <summary>
+ Placeholder of Input
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlListElement.#ctor(System.Boolean)">
+ <summary>
+ Create a List element (OL or UL)
+ </summary>
+ <param name="OrdenedList"></param>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlListElement.Name">
+ <summary>
+ Returns the name of element (OL or UL)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlListElement.Add(System.String)">
+ <summary>
+ Add a LI to this list
+ </summary>
+ <param name="Text"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlListElement.Add(InnerLibs.HtmlParser.HtmlNode[])">
+ <summary>
+ Add a LI to this list
+ </summary>
+ <param name="Content"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlSelectElement.#ctor">
+ <summary>
+ Create a select element
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlSelectElement.Name">
+ <summary>
+ Returns the name of element (OL or UL)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlSelectElement.AddOption(InnerLibs.HtmlParser.HtmlOptionElement)">
+ <summary>
+ Add a option to this list
+ </summary>
+ <param name="Option"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlSelectElement.Organize">
+ <summary>
+ Redefines the node elements
+ </summary>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlNode">
+ <summary>
+ The HtmlNode is the base for all objects that may appear in HTML. Currently, this
+ implemention only supports HtmlText and HtmlElement node types.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.ToJSON">
+ <summary>
+ Return a Json representation of this element
+ </summary>
+ <returns></returns>    
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.JsonRepresentation">
+ <summary>
+ Return as
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.#ctor">
+ <summary>
+ This constructor is used by the subclasses.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.Next">
+ <summary>
+ This will return the next sibling node. If this is the last one, it will return null.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.FirstChild">
+ <summary>
+ This will return the first child node. If there are no children, this will return null.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.HTML">
+ <summary>
+ This will return the full HTML to represent this node (and all child nodes).
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.Index">
+ <summary>
+ This will return the index position within the parent's nodes that this one resides. If
+ this is not in a collection, this will return -1.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.IsChild">
+ <summary>
+ This will return true if this is a child node (has a parent).
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.IsRoot">
+ <summary>
+ This will return true if this is a root node (has no parent).
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.LastChild">
+ <summary>
+ This will return the last child node. If there are no children, this will return null.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.Parent">
+ <summary>
+ This will return the parent of this node, or null if there is none.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.Previous">
+ <summary>
+ This will return the previous sibling node. If this is the first one, it will return null.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNode.XHTML">
+ <summary>
+ This will return the full XHTML to represent this node (and all child nodes)
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.Closest(System.String)">
+ <summary>
+ Returns the most closest parent matching the css selector
+ </summary>
+ <param name="CssSelector"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.GetCommonAncestor(InnerLibs.HtmlParser.HtmlNode)">
+ <summary>
+ This will return the ancstor that is common to this node and the one specified.
+ </summary>
+ <param name="node">The possible node that is relative</param>
+ <returns>The common ancestor, or null if there is none</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.IsAncestorOf(InnerLibs.HtmlParser.HtmlNode)">
+ <summary>
+ This will return true if the node passed is one of the children or grandchildren of this node.
+ </summary>
+ <param name="node">The node that might be a child.</param>
+ <returns>True if this node is an ancestor of the one specified.</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.IsDescendentOf(InnerLibs.HtmlParser.HtmlNode)">
+ <summary>
+ This will return true if the node passed is a descendent of this node.
+ </summary>
+ <param name="node">The node that might be the parent or grandparent (etc.)</param>
+ <returns>True if this node is a descendent of the one passed in.</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.Move(InnerLibs.HtmlParser.HtmlElement,System.Int32)">
+ <summary>
+ Transfer the element to another element
+ </summary>
+ <param name="Destination"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.Remove">
+ <summary>
+ This will remove this node and all child nodes from the tree. If this is a root node,
+ this operation will do nothing.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.TopParent">
+ <summary>
+ Returns the most top parent of this node, or sef if parent is null
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.ToString">
+ <summary>
+ This will render the node as it would appear in HTML.
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNode.SetParent(InnerLibs.HtmlParser.HtmlElement)">
+ <summary>
+ Internal method to maintain the identity of the parent node.
+ </summary>
+ <param name="parentNode">The parent node of this one</param>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlNodeCollection">
+ <summary>
+ This object represents a collection of HtmlNodes, which can be either HtmlText or HtmlElement
+ objects. The order in which the nodes occur directly corresponds to the order in which they
+ appear in the original HTML document.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.#ctor">
+ <summary>
+ Create an abstract collection of nodes thats don't changes the parent node property
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.#ctor(InnerLibs.HtmlParser.HtmlElement)">
+ <summary>
+ A collection is usually associated with a parent node (an HtmlElement, actually) but you
+ can pass null to implement an abstracted collection.
+ </summary>
+ <param name="parent">The parent element, or null if it is not appropriate</param>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlNodeCollection.Item(System.String)">
+ <summary>
+ Return elements thats match the current CSS selector
+ </summary>
+ <param name="CssSelector">CSS selector</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Do(System.Action{InnerLibs.HtmlParser.HtmlNode})">
+ <summary>
+ Perform an action on each node and returns the same list
+ </summary>
+ <param name="action"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Add(InnerLibs.HtmlParser.HtmlNode)">
+ <summary>
+ Add a Node to colleciton
+ </summary>
+ <param name="Node"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Add(System.String,System.Int32)">
+ <summary>
+ Add node (or nodes) to collection from string
+ </summary>
+ <param name="Html"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Add(System.Web.UI.HtmlControls.HtmlGenericControl)">
+ <summary>
+ Add a Node to colleciton
+ </summary>
+ <param name="Control"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.FindElements``1(System.Func{``0,System.Boolean},System.Boolean)">
+ <summary>
+ This will search though this collection of nodes for all elements with matchs the predicate.
+ </summary>
+ <typeparam name="NodeType">Type of Node ( <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> or <see cref="T:InnerLibs.HtmlParser.HtmlText"/>)</typeparam>
+ <param name="predicate">     The predicate to match the nodes</param>
+ <param name="SearchChildren">Travesse the child nodes</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.FindElements``1">
+ <summary>
+ Return all elements and child elements in a single list of NodeType
+ </summary>
+ <typeparam name="NodeType"></typeparam>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElements">
+ <summary>
+ Return only <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> from this <see cref="T:InnerLibs.HtmlParser.HtmlNodeCollection"/>
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElementsByAttributeName(System.String,System.Boolean)">
+ <summary>
+ This will search though this collection of nodes for all elements with the an attribute
+ with the given name.
+ </summary>
+ <param name="attributeName"> The name of the attribute to find</param>
+ <param name="SearchChildren">
+ True if you want to search sub-nodes, False to only search this collection.
+ </param>
+ <returns>A collection of all the nodes that macth.</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElementsByAttributeNameValue(System.String,System.String,System.Boolean)">
+ <summary>
+ This will search though this collection of nodes for all elements with the an attribute
+ with the given name and value.
+ </summary>
+ <param name="attributeName">The name of the attribute to find</param>
+ <returns>A collection of all the nodes that macth.</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElementsByTagName(System.String,System.Boolean)">
+ <summary>
+ This will search though this collection of nodes for all elements with the specified
+ name. If you want to search the subnodes recursively, you should pass True as the
+ parameter in SearchChildren. This search is guaranteed to return nodes in the order in
+ which they are found in the document.
+ </summary>
+ <param name="name">          The name of the element to find</param>
+ <param name="SearchChildren">
+ True if you want to search sub-nodes, False to only search this collection.
+ </param>
+ <returns>A collection of all the nodes that macth.</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Insert(System.Int32,InnerLibs.HtmlParser.HtmlNode[])">
+ <summary>
+ Insert a element in specific index
+ </summary>
+ <param name="Index"></param>
+ <param name="Nodes"> </param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Insert(System.Int32,System.String)">
+ <summary>
+ Insert a element in specific index
+ </summary>
+ <param name="Index"></param>
+ <param name="Nodes"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Insert(System.Int32,InnerLibs.HtmlParser.HtmlNodeCollection)">
+ <summary>
+ Insert a element in specific index
+ </summary>
+ <param name="Index"></param>
+ <param name="Nodes"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.ReplaceElement(InnerLibs.HtmlParser.HtmlNode,System.Collections.Generic.IEnumerable{InnerLibs.HtmlParser.HtmlNode})">
+ <summary>
+ Replace a element into another set of elements
+ </summary>
+ <param name="Element"></param>
+ <param name="Items"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.ReplaceElement(InnerLibs.HtmlParser.HtmlNode,System.String)">
+ <summary>
+ Replace a element into another set of elements
+ </summary>
+ <param name="Element"></param>
+ <param name="Html"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.ToString">
+ <summary>
+ Retuns all html text from this collection
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlParser">
+ <summary>
+ This is the main HTML parser class. I recommend you don't play around too much in here
+ as it's a little fiddly.
+
+ Bascially, this class will build a tree containing HtmlNode elements.
+ </summary>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlParser.ParseStatus">
+ <summary>
+ Internal FSM to represent the state of the parser
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.#ctor">
+ <summary>
+ This constructs a new parser. Even though this object is currently stateless,
+ in the future, parameters coping for tollerance and SGML (etc.) will be passed.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.Parse(System.String)">
+ <summary>
+ This will parse a string containing HTML and will produce a domain tree.
+ </summary>
+ <param name="html">The HTML to be parsed</param>
+ <returns>A tree representing the elements</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.MoveNodesDown(InnerLibs.HtmlParser.HtmlNodeCollection@,System.Int32,InnerLibs.HtmlParser.HtmlElement)">
+ <summary>
+ This will move all the nodes from the specified index to the new parent.
+ </summary>
+ <param name="nodes">The collection of nodes</param>
+ <param name="node_index">The index of the first node (in the above collection) to move</param>
+ <param name="new_parent">The node which will become the parent of the moved nodes</param>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.FindTagOpenNodeIndex(InnerLibs.HtmlParser.HtmlNodeCollection,System.String)">
+ <summary>
+ This will find the corresponding opening tag for the named one. This is identified as
+ the most recently read node with the same name, but with no child nodes.
+ </summary>
+ <param name="nodes">The collection of nodes</param>
+ <param name="name">The name of the tag</param>
+ <returns>The index of the opening tag, or -1 if it was not found</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.RemoveComments(System.String)">
+ <summary>
+ This will remove all HTML comments from the input string. This will
+ not remove comment markers from inside tag attribute values.
+ </summary>
+ <param name="input">Input HTML containing comments</param>
+ <returns>HTML containing no comments</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.RemoveSGMLComments(System.String)">
+ <summary>
+ This will remove all HTML comments from the input string. This will
+ not remove comment markers from inside tag attribute values.
+ </summary>
+ <param name="input">Input HTML containing comments</param>
+ <returns>HTML containing no comments</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.PreprocessScript(System.String,System.String)">
+ <summary>
+ This will encode the scripts within the page so they get passed through the
+ parser properly. This is due to some people using comments protect the script
+ and others who don't. It also takes care of issues where the script itself has
+ HTML comments in (in strings, for example).
+ </summary>
+ <param name="input">The HTML to examine</param>
+ <returns>The HTML with the scripts marked up differently</returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlParser.GetTokens(System.String)">
+ <summary>
+ This will tokenise the HTML input string.
+ </summary>
+ <param name="input"></param>
+ <returns></returns>
+</member>
+<member name="T:InnerLibs.HtmlParser.HtmlText">
+ <summary>
+ The HtmlText node represents a simple piece of text from the document.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlText.#ctor(System.String)">
+ <summary>
+ This constructs a new node with the given text content.
+ </summary>
+ <param name="text"></param>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlText.ElementRepresentation">
+ <summary>
+ This will return the text for outputting inside an HTML document.
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlText.HTML">
+ <summary>
+ This will return the HTML to represent this text object.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlText.Text">
+ <summary>
+ This is the text associated with this node.
+ </summary>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlText.XHTML">
+ <summary>
+ This will return the XHTML to represent this text object.
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlText.Censor(System.Char,System.String[])">
+ <summary>
+ ReplaceFrom Badwords in text.
+ </summary>
+ <param name="CensorChar"></param>
+ <param name="BadWords">  </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlText.FixText">
+ <summary>
+ Fix the punctuation, white spaces and captalization of text
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlText.ToString">
+ <summary>
+ This will return the text for outputting inside an HTML document.
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.MentionParser.ParseEmoji(System.String,System.Func{System.String,System.String})">
+ <summary>
+ Localiza emojis no texto e automaticamente executa uma função de replace para cada emoji encontrado
+ </summary>
+ <param name="Text">  Texto</param>
+ <param name="Method"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.MentionParser.ParseMentionByChar(System.String,System.String,System.Func{System.String,System.String})">
+ <summary>
+ Localiza menções a usuários no texto e automaticamente executa uma função de replace para
+ cada hashtag encontrada
+ </summary>
+ <param name="Text">  Texto</param>
+ <param name="Method"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.MentionParser.ParseUsername(System.String,System.Func{System.String,System.String})">
+ <summary>
+ Localiza menções a usuários no texto e automaticamente executa uma função de replace para
+ cada hashtag encontrada
+ </summary>
+ <param name="Text">  Texto</param>
+ <param name="Method"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.MentionParser.ParseHashtag(System.String,System.Func{System.String,System.String})">
+ <summary>
+ Localiza hashtags no texto e automaticamente executa uma função de replace para cada
+ hashtag encontrada
+ </summary>
+ <param name="Text">  Texto</param>
+ <param name="Method"></param>
+</member>
+<member name="M:InnerLibs.HtmlParser.MentionParser.CreateAnchor(System.String,System.String,System.String)">
+ <summary>
+ Cria um elemento de Ancora (a) a partir de uma string com URL. O titulo é obtido
+ automaticamente da url quando possivel. Se a string não for uma URL válida uma ancora com
+ o proprio texto é criada.
+ </summary>
+ <param name="URL">URL</param>
+ <returns></returns>
 </member>
 <member name="T:InnerLibs.Locations.State">
  <summary>
@@ -4057,1168 +5181,6 @@ Verifica se o objeto é do tipo numérico.
  COnverte os Valores de um Formulário enviado por GET ou POST em JSON
  </summary>
  <param name="Request">Request GET ou POST</param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.ClassList.Item(System.String)">
- <summary>
- Gets or sets a value indicating if this element contains a specifc class
- </summary>
- <param name="ClassName">Name</param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.ClassList.Count">
- <summary>
- Count the class of element
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.Insert(System.Int32,System.String)">
- <summary>
- Insert a class into specific index
- </summary>
- <param name="index"></param>
- <param name="ClassName"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.RemoveAt(System.Int32)">
- <summary>
- Remove the class with specific index
- </summary>
- <param name="index"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.Add(System.String[])">
- <summary>
- Add a class to element
- </summary>
- <param name="ClassName"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.AddRange(System.String[])">
- <summary>
- Add a class to element
- </summary>
- <param name="ClassName"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.Clear">
- <summary>
- Remove the class attribute from element
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.IndexOf(System.String)">
- <summary>
- Gets the class position index in element
- </summary>
- <param name="ClassName"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.Contains(System.String[])">
- <summary>
- Check if element coitains all the classes
- </summary>
- <param name="ClassName"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.Remove(System.String)">
- <summary>
- Remove a class from element
- </summary>
- <param name="ClassName"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.ToString">
- <summary>
- Returns the class attribute of element
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.ClassList.FromExpression(System.Object[])">
- <summary>
- Proccess a set of objects and apply class names according to the boolean properties, keyvaluepairs or strings
- </summary>
- <param name="ClassEx"></param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.CssProperties.Item(System.String)">
- <summary>
- Gets or sets the style of element
- </summary>
- <param name="Name">Name of CSS style</param>
- <returns></returns>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlAttribute">
- <summary>
- The HtmlAttribute object represents a named value associated with an HtmlElement.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttribute.#ctor(System.String,System.String)">
- <summary>
- This constructs an HtmlAttribute object with the given name and value. For wierd
- HTML attributes that don't have a value (e.g. "NOWRAP"), specify null as the value.
- </summary>
- <param name="name">The name of the attribute</param>
- <param name="value">The value of the attribute</param>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlAttribute.Name">
- <summary>
- The name of the attribute. e.g. WIDTH
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlAttribute.Value">
- <summary>
- The value of the attribute. e.g. 100%
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttribute.ToString">
- <summary>
- This will return an HTML-formatted version of this attribute. NB. This is
- not SGML or XHTML safe, as it caters for null-value attributes such as "NOWRAP".
- </summary>
- <returns></returns>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlAttributeCollection">
- <summary>
- This is a collection of attributes. Typically, this is associated with a particular
- element. This collection is searchable by both the index and the name of the attribute.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.#ctor(InnerLibs.HtmlParser.HtmlElement)">
- <summary>
- This will create an empty collection of attributes.
- </summary>
- <param name="element"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.ToDictionary">
- <summary>
- Return a dictionary of this HtmlAttributeCollection
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.FindByName(System.String)">
- <summary>
- This will search the collection for the named attribute. If it is not found, this
- will return null.
- </summary>
- <param name="name">The name of the attribute to find.</param>
- <returns>The attribute, or null if it wasn't found.</returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlAttributeCollection.Item(System.String)">
- <summary>
- This overload allows you to have direct access to an attribute by providing
- its name. If the attribute does not exist, null is returned.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.Add(System.String,System.String)">
- <summary>
- Add an attribute to element
- </summary>
- <param name="Name">Name of attribute</param>
- <param name="Value">Value of attribute, for Wired attributes just leave Nothing</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.Add(InnerLibs.HtmlParser.HtmlAttribute)">
- <summary>
- Add an attribute to element
- </summary>
- <param name="Attribute">attribute</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlAttributeCollection.AddRange(InnerLibs.HtmlParser.HtmlAttribute[])">
- <summary>
- Add multiple attributes to element
- </summary>
- <param name="Attributes">attributes</param>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlDocument">
- <summary>
- This is the basic HTML document object used to represent a sequence of HTML.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.String,System.Text.Encoding)">
- <summary>
- This will create a new document object by parsing the HTML specified.
- </summary>
- <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.Xml.Linq.XNode,System.Text.Encoding)">
- <summary>
- This will create a new document object by parsing the HTML specified.
- </summary>
- <param name="Source">The HTML Source as Xnode.</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.ToJSON">
- <summary>
- Return a Json representation of this element
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.Byte[],System.Text.Encoding)">
- <summary>
- This will create a new document object direct from Byte Array.
- </summary>
- <param name="Content">The byte array with URL or HTML to parse.</param>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.Encoding">
- <summary>
- The Encoding used to export this document as file
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.MinifyCSS">
- <summary>
- Merge all STYLE tags and minify it
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.FixText">
- <summary>
-  Fix the captalization, white spaces and punctuation of text elements
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.GetTextElements(System.Boolean)">
- <summary>
- Returns all Text elements excluding style and script elements
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.InnerHTML">
- <summary>
- Return a html string of child nodes
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.InnerText">
- <summary>
- Returns the text of all child nodes
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.Nodes">
- <summary>
- This is the collection of nodes used to represent this document.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.HTML">
- <summary>
- This will return the HTML used to represent this document.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.XHTML">
- <summary>
- This will return the XHTML document used to represent this document.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.ToXmlDocument">
- <summary>
- Return the <see cref="T:System.Xml.XmlDocument"/> equivalent to this document
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.ToString">
- <summary>
- Return the HTML of this document
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.GetBytes">
- <summary>
- Return the byte array for this document
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.SaveAs(System.IO.FileInfo)">
- <summary>
- Save the document as file
- </summary>
- <param name="File">File</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.CopyTo(System.IO.Stream@)">
- <summary>
- Copy this document to stream
- </summary>
- <param name="s"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.SaveAs(System.String)">
- <summary>
- Save the document as file
- </summary>
- <param name="FileName">Filename</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.LoadInto(System.Windows.Forms.WebBrowser@)">
- <summary>
- Load the document in <see cref="T:System.Windows.Forms.WebBrowser"/> control
- </summary>
- <param name="WebBrowser"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.LoadInto(System.Windows.Forms.TreeView@)">
- <summary>
- Load the nodes of document in <see cref="T:System.Windows.Forms.TreeView"/> control
- </summary>
- <param name="TreeView"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.FindElements``1(System.Func{``0,System.Boolean},System.Boolean)">
- <summary>
- This will search though this collection of nodes for all elements with matchs the predicate.
- </summary>
- <typeparam name="NodeType">Type of Node (<see cref="T:InnerLibs.HtmlParser.HtmlElement"/> or <see cref="T:InnerLibs.HtmlParser.HtmlText"/>)</typeparam>
- <param name="predicate">The predicate to match the nodes</param>
- <param name="SearchChildren">Travesse the child nodes</param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.Body">
- <summary>
- Return the body element if exist 
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.Head">
- <summary>
- Return the Head element if exist 
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.Title">
- <summary>
- Return the Title element if exist 
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.QuerySelectorAll(System.String)">
- <summary>
- Travesse DOM with a CSS selector an retireve nodes
- </summary>
- <param name="CssSelector">Teh CSS selector</param>
- <returns>The <see cref="T:InnerLibs.HtmlParser.HtmlNodeCollection"/> with matched elements</returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlDocument.QuerySelectorAll(System.String,System.Action{InnerLibs.HtmlParser.HtmlElement}[])">
- <summary>
- Execute an <see cref="T:System.Action"/> for each <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> matched with <paramref name="CssSelector"/>
- </summary>
- <param name="CssSelector">The CSS Selector</param>
- <param name="Actions">Actions</param>
- <returns>The <see cref="T:InnerLibs.HtmlParser.HtmlNodeCollection"/> with matched elements</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.QuerySelector(System.String)">
- <summary>
- Travesse DOM with a CSS selector an retireve the first node
- </summary>
- <param name="CssSelector">Teh CSS selector</param>
- <returns>The <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> matched</returns>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlElement">
- <summary>
- The HtmlElement object represents any HTML element. An element has a name and zero or more attributes.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.#ctor(System.String,System.String)">
- <summary>
- This constructs a new HTML element with the specified tag name.
- </summary>
- <param name="name">The name of this element</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.#ctor(InnerLibs.HtmlParser.HtmlElement)">
- <summary>
- This constructs a new HTML element using a <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> as source.
- </summary>
- <param name="Element">The htmlelement</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.#ctor(System.Web.UI.HtmlControls.HtmlGenericControl)">
- <summary>
- This constructs a new HTML element using a <see cref="T:System.Web.UI.HtmlControls.HtmlGenericControl"/> as source.
- </summary>
- <param name="HtmlControl">The server control</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Children(System.String)">
- <summary>
- Return the first child element thats match de CssSelector
- </summary>
- <param name="CssSelector"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Children``1(System.String)">
- <summary>
- Return the first child element thats match de CssSelector or first child element of specific type if CssSelector is blank
- </summary>
- <param name="CssSelector"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(InnerLibs.HtmlParser.HtmlNode[])">
- <summary>
- Add a node (or nodes) to collection
- </summary>
- <param name="Node"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(System.Web.UI.HtmlControls.HtmlGenericControl)">
- <summary>
- Add a node to collection using an <see cref="T:System.Web.UI.HtmlControls.HtmlGenericControl"/> as base
- </summary>
- <param name="Node"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(System.String,System.Int32)">
- <summary>
- Add a node to collection using a HTML string as base
- </summary>
- <param name="HTML"></param>
- <param name="Index"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Clone">
- <summary>
- Clone this element into a new HtmlElement
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.SideClone(System.Int32)">
- <summary>
- Clone this element into a new HtmlElement and inserts into same parent
- </summary>
- <param name="Index">The position of clone element. Use -1 to insert in the same position of the original element</param>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.ChildElements">
- <summary>
- Return the child elements of this element (excluding HtmlText)
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.ContentText">
- <summary>
- Return thedirect child text of this element (excluding HtmlElement)
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.IsExplicitlyTerminated">
- <summary>
- This flag indicates that the element is explicitly closed using the /name method.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Title">
- <summary>
- Gets or sets the Title attribute of this element
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Class">
- <summary>
- Gets os sets a boolean value for toggle an specific class
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Attributes">
- <summary>
- This is the collection of attributes associated with this element.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.AttributesNames">
- <summary>
- Return the name of al attributes
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Disabled">
- <summary>
- Gets os sets a value indicating thats element is disabled
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.ElementRepresentation">
- <summary>
- This will return the HTML representation of this element.
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.HTML">
- <summary>
- This will return the HTML for this element and all subnodes.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.ID">
- <summary>
- The ID of element
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.InnerHTML">
- <summary>
- Return a html string of child nodes
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Name">
- <summary>
- This is the tag name of the element. e.g. BR, BODY, TABLE etc.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Nodes">
- <summary>
- This is the collection of all child nodes of this one. If this node is actually a text
- node, this will return nothing.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Style">
- <summary>
- The CSS style of element
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.XHTML">
- <summary>
- This will return the XHTML for this element and all subnodes.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.QuerySelectorAll(System.String)">
- <summary>
- Travesse element with a CSS selector an retireve nodes
- </summary>
- <param name="CssSelector">Teh CSS selector</param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Data(System.String)">
- <summary>
- Return the value of specific data-attribute
- </summary>
- <param name="Name"></param>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlElement.Attribute(System.String)">
- <summary>
- Return the value of specific attibute
- </summary>
- <param name="Name"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.AddAttribute(System.String,System.String)">
- <summary>
- Add a attribute to this element
- </summary>
- <param name="Name"> </param>
- <param name="Value"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Censor(System.Char,System.String[])">
- <summary>
- Replace Badwords in all text elements.
- </summary>
- <param name="CensorChar"></param>
- <param name="BadWords">  </param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.CreateWebFormControl``1">
- <summary>
- Create a <see cref="T:System.Web.UI.HtmlControls.HtmlControl"/> using this <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> as source
- </summary>
- <typeparam name="Type"></typeparam>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Destroy">
- <summary>
- Remove this element from parent element. If parent element is null, nothing happens
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.FindElements``1(System.Func{``0,System.Boolean},System.Boolean)">
- <summary>
- This will search though this collection of nodes for all elements with matchs the predicate.
- </summary>
- <typeparam name="NodeType">Type of Node ( <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> or <see cref="T:InnerLibs.HtmlParser.HtmlText"/>)</typeparam>
- <param name="predicate">     The predicate to match the nodes</param>
- <param name="SearchChildren">Travesse the child nodes</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.FixText">
- <summary>
- Fix the punctuation, white spaces and captalization of the child text elements
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.GetTextElements(System.Boolean)">
- <summary>
- Returns all Text elements excluding style and script elements
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.HasAttribute(System.String)">
- <summary>
- Verify if this element has an specific attribute
- </summary>
- <param name="Name"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.HasClass(System.String)">
- <summary>
- Verify if this element has an specific class
- </summary>
- <param name="ClassName"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Mutate(InnerLibs.HtmlParser.HtmlNodeCollection)">
- <summary>
- Transform the current element into a new set of elements
- </summary>
- <param name="Elements">Collection of new elements</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Mutate(InnerLibs.HtmlParser.HtmlElement)">
- <summary>
- Transform the current element into a new element
- </summary>
- <param name="Element">New element</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.Mutate(System.String)">
- <summary>
- Transform the current element into a new element or set of elements using a html string
- as source
- </summary>
- <param name="Html">Html String</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseEmoji(System.Func{System.String,System.String},System.Boolean)">
- <summary>
- Find :emoji: and replace then using specific method
- </summary>
- <param name="Method">        </param>
- <param name="SearchChildren"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseOEmbed(System.Boolean)">
- <summary>
- Find URLs out of Anchor elements and replace then to their respective oEmbed
- </summary>
- <param name="SearchChildren"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseURL(System.Boolean,System.String)">
- <summary>
- Find URLs out of Anchor elements and replace then to anchors
- </summary>
- <param name="SearchChildren"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseUsername(System.Func{System.String,System.String},System.Boolean)">
- <summary>
- Find @mentions and replace then using specific method
- </summary>
- <param name="Method">        </param>
- <param name="SearchChildren"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.ParseMentionByChar(System.String,System.Func{System.String,System.String},System.Boolean)">
- <summary>
- Find mentions and replace then using specific method using a custom char on match
- </summary>
- <param name="Method">        </param>
- <param name="SearchChildren"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.RemoveAttribute(System.String)">
- <summary>
- Remove an attribute from element
- </summary>
- <param name="Name"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.ToString">
- <summary>
- This will return the HTML representation of this element.
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.ToXmlElement">
- <summary>
- Return the <see cref="T:System.Xml.XmlElement"/> equivalent to this node
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlInputElement.Type">
- <summary>
- Type of Input
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlInputElement.Value">
- <summary>
- Value of Input
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlInputElement.PlaceHolder">
- <summary>
- Placeholder of Input
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlListElement.#ctor(System.Boolean)">
- <summary>
- Create a List element (OL or UL)
- </summary>
- <param name="OrdenedList"></param>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlListElement.Name">
- <summary>
- Returns the name of element (OL or UL)
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlListElement.Add(System.String)">
- <summary>
- Add a LI to this list
- </summary>
- <param name="Text"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlListElement.Add(InnerLibs.HtmlParser.HtmlNode[])">
- <summary>
- Add a LI to this list
- </summary>
- <param name="Content"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlSelectElement.#ctor">
- <summary>
- Create a select element
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlSelectElement.Name">
- <summary>
- Returns the name of element (OL or UL)
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlSelectElement.AddOption(InnerLibs.HtmlParser.HtmlOptionElement)">
- <summary>
- Add a option to this list
- </summary>
- <param name="Option"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlSelectElement.Organize">
- <summary>
- Redefines the node elements
- </summary>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlNode">
- <summary>
- The HtmlNode is the base for all objects that may appear in HTML. Currently, this
- implemention only supports HtmlText and HtmlElement node types.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.ToJSON">
- <summary>
- Return a Json representation of this element
- </summary>
- <returns></returns>    
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.JsonRepresentation">
- <summary>
- Return as
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.#ctor">
- <summary>
- This constructor is used by the subclasses.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.Next">
- <summary>
- This will return the next sibling node. If this is the last one, it will return null.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.FirstChild">
- <summary>
- This will return the first child node. If there are no children, this will return null.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.HTML">
- <summary>
- This will return the full HTML to represent this node (and all child nodes).
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.Index">
- <summary>
- This will return the index position within the parent's nodes that this one resides. If
- this is not in a collection, this will return -1.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.IsChild">
- <summary>
- This will return true if this is a child node (has a parent).
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.IsRoot">
- <summary>
- This will return true if this is a root node (has no parent).
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.LastChild">
- <summary>
- This will return the last child node. If there are no children, this will return null.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.Parent">
- <summary>
- This will return the parent of this node, or null if there is none.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.Previous">
- <summary>
- This will return the previous sibling node. If this is the first one, it will return null.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNode.XHTML">
- <summary>
- This will return the full XHTML to represent this node (and all child nodes)
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.Closest(System.String)">
- <summary>
- Returns the most closest parent matching the css selector
- </summary>
- <param name="CssSelector"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.GetCommonAncestor(InnerLibs.HtmlParser.HtmlNode)">
- <summary>
- This will return the ancstor that is common to this node and the one specified.
- </summary>
- <param name="node">The possible node that is relative</param>
- <returns>The common ancestor, or null if there is none</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.IsAncestorOf(InnerLibs.HtmlParser.HtmlNode)">
- <summary>
- This will return true if the node passed is one of the children or grandchildren of this node.
- </summary>
- <param name="node">The node that might be a child.</param>
- <returns>True if this node is an ancestor of the one specified.</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.IsDescendentOf(InnerLibs.HtmlParser.HtmlNode)">
- <summary>
- This will return true if the node passed is a descendent of this node.
- </summary>
- <param name="node">The node that might be the parent or grandparent (etc.)</param>
- <returns>True if this node is a descendent of the one passed in.</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.Move(InnerLibs.HtmlParser.HtmlElement,System.Int32)">
- <summary>
- Transfer the element to another element
- </summary>
- <param name="Destination"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.Remove">
- <summary>
- This will remove this node and all child nodes from the tree. If this is a root node,
- this operation will do nothing.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.TopParent">
- <summary>
- Returns the most top parent of this node, or sef if parent is null
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.ToString">
- <summary>
- This will render the node as it would appear in HTML.
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNode.SetParent(InnerLibs.HtmlParser.HtmlElement)">
- <summary>
- Internal method to maintain the identity of the parent node.
- </summary>
- <param name="parentNode">The parent node of this one</param>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlNodeCollection">
- <summary>
- This object represents a collection of HtmlNodes, which can be either HtmlText or HtmlElement
- objects. The order in which the nodes occur directly corresponds to the order in which they
- appear in the original HTML document.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.#ctor">
- <summary>
- Create an abstract collection of nodes thats don't changes the parent node property
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.#ctor(InnerLibs.HtmlParser.HtmlElement)">
- <summary>
- A collection is usually associated with a parent node (an HtmlElement, actually) but you
- can pass null to implement an abstracted collection.
- </summary>
- <param name="parent">The parent element, or null if it is not appropriate</param>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlNodeCollection.Item(System.String)">
- <summary>
- Return elements thats match the current CSS selector
- </summary>
- <param name="CssSelector">CSS selector</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Do(System.Action{InnerLibs.HtmlParser.HtmlNode})">
- <summary>
- Perform an action on each node and returns the same list
- </summary>
- <param name="action"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Add(InnerLibs.HtmlParser.HtmlNode)">
- <summary>
- Add a Node to colleciton
- </summary>
- <param name="Node"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Add(System.String,System.Int32)">
- <summary>
- Add node (or nodes) to collection from string
- </summary>
- <param name="Html"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Add(System.Web.UI.HtmlControls.HtmlGenericControl)">
- <summary>
- Add a Node to colleciton
- </summary>
- <param name="Control"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.FindElements``1(System.Func{``0,System.Boolean},System.Boolean)">
- <summary>
- This will search though this collection of nodes for all elements with matchs the predicate.
- </summary>
- <typeparam name="NodeType">Type of Node ( <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> or <see cref="T:InnerLibs.HtmlParser.HtmlText"/>)</typeparam>
- <param name="predicate">     The predicate to match the nodes</param>
- <param name="SearchChildren">Travesse the child nodes</param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.FindElements``1">
- <summary>
- Return all elements and child elements in a single list of NodeType
- </summary>
- <typeparam name="NodeType"></typeparam>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElements">
- <summary>
- Return only <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> from this <see cref="T:InnerLibs.HtmlParser.HtmlNodeCollection"/>
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElementsByAttributeName(System.String,System.Boolean)">
- <summary>
- This will search though this collection of nodes for all elements with the an attribute
- with the given name.
- </summary>
- <param name="attributeName"> The name of the attribute to find</param>
- <param name="SearchChildren">
- True if you want to search sub-nodes, False to only search this collection.
- </param>
- <returns>A collection of all the nodes that macth.</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElementsByAttributeNameValue(System.String,System.String,System.Boolean)">
- <summary>
- This will search though this collection of nodes for all elements with the an attribute
- with the given name and value.
- </summary>
- <param name="attributeName">The name of the attribute to find</param>
- <returns>A collection of all the nodes that macth.</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.GetElementsByTagName(System.String,System.Boolean)">
- <summary>
- This will search though this collection of nodes for all elements with the specified
- name. If you want to search the subnodes recursively, you should pass True as the
- parameter in SearchChildren. This search is guaranteed to return nodes in the order in
- which they are found in the document.
- </summary>
- <param name="name">          The name of the element to find</param>
- <param name="SearchChildren">
- True if you want to search sub-nodes, False to only search this collection.
- </param>
- <returns>A collection of all the nodes that macth.</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Insert(System.Int32,InnerLibs.HtmlParser.HtmlNode[])">
- <summary>
- Insert a element in specific index
- </summary>
- <param name="Index"></param>
- <param name="Nodes"> </param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Insert(System.Int32,System.String)">
- <summary>
- Insert a element in specific index
- </summary>
- <param name="Index"></param>
- <param name="Nodes"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Insert(System.Int32,InnerLibs.HtmlParser.HtmlNodeCollection)">
- <summary>
- Insert a element in specific index
- </summary>
- <param name="Index"></param>
- <param name="Nodes"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.ReplaceElement(InnerLibs.HtmlParser.HtmlNode,System.Collections.Generic.IEnumerable{InnerLibs.HtmlParser.HtmlNode})">
- <summary>
- Replace a element into another set of elements
- </summary>
- <param name="Element"></param>
- <param name="Items"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.ReplaceElement(InnerLibs.HtmlParser.HtmlNode,System.String)">
- <summary>
- Replace a element into another set of elements
- </summary>
- <param name="Element"></param>
- <param name="Html"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.ToString">
- <summary>
- Retuns all html text from this collection
- </summary>
- <returns></returns>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlParser">
- <summary>
- This is the main HTML parser class. I recommend you don't play around too much in here
- as it's a little fiddly.
-
- Bascially, this class will build a tree containing HtmlNode elements.
- </summary>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlParser.ParseStatus">
- <summary>
- Internal FSM to represent the state of the parser
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.#ctor">
- <summary>
- This constructs a new parser. Even though this object is currently stateless,
- in the future, parameters coping for tollerance and SGML (etc.) will be passed.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.Parse(System.String)">
- <summary>
- This will parse a string containing HTML and will produce a domain tree.
- </summary>
- <param name="html">The HTML to be parsed</param>
- <returns>A tree representing the elements</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.MoveNodesDown(InnerLibs.HtmlParser.HtmlNodeCollection@,System.Int32,InnerLibs.HtmlParser.HtmlElement)">
- <summary>
- This will move all the nodes from the specified index to the new parent.
- </summary>
- <param name="nodes">The collection of nodes</param>
- <param name="node_index">The index of the first node (in the above collection) to move</param>
- <param name="new_parent">The node which will become the parent of the moved nodes</param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.FindTagOpenNodeIndex(InnerLibs.HtmlParser.HtmlNodeCollection,System.String)">
- <summary>
- This will find the corresponding opening tag for the named one. This is identified as
- the most recently read node with the same name, but with no child nodes.
- </summary>
- <param name="nodes">The collection of nodes</param>
- <param name="name">The name of the tag</param>
- <returns>The index of the opening tag, or -1 if it was not found</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.RemoveComments(System.String)">
- <summary>
- This will remove all HTML comments from the input string. This will
- not remove comment markers from inside tag attribute values.
- </summary>
- <param name="input">Input HTML containing comments</param>
- <returns>HTML containing no comments</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.RemoveSGMLComments(System.String)">
- <summary>
- This will remove all HTML comments from the input string. This will
- not remove comment markers from inside tag attribute values.
- </summary>
- <param name="input">Input HTML containing comments</param>
- <returns>HTML containing no comments</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.PreprocessScript(System.String,System.String)">
- <summary>
- This will encode the scripts within the page so they get passed through the
- parser properly. This is due to some people using comments protect the script
- and others who don't. It also takes care of issues where the script itself has
- HTML comments in (in strings, for example).
- </summary>
- <param name="input">The HTML to examine</param>
- <returns>The HTML with the scripts marked up differently</returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlParser.GetTokens(System.String)">
- <summary>
- This will tokenise the HTML input string.
- </summary>
- <param name="input"></param>
- <returns></returns>
-</member>
-<member name="T:InnerLibs.HtmlParser.HtmlText">
- <summary>
- The HtmlText node represents a simple piece of text from the document.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlText.#ctor(System.String)">
- <summary>
- This constructs a new node with the given text content.
- </summary>
- <param name="text"></param>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlText.ElementRepresentation">
- <summary>
- This will return the text for outputting inside an HTML document.
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlText.HTML">
- <summary>
- This will return the HTML to represent this text object.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlText.Text">
- <summary>
- This is the text associated with this node.
- </summary>
-</member>
-<member name="P:InnerLibs.HtmlParser.HtmlText.XHTML">
- <summary>
- This will return the XHTML to represent this text object.
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlText.Censor(System.Char,System.String[])">
- <summary>
- ReplaceFrom Badwords in text.
- </summary>
- <param name="CensorChar"></param>
- <param name="BadWords">  </param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlText.FixText">
- <summary>
- Fix the punctuation, white spaces and captalization of text
- </summary>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlText.ToString">
- <summary>
- This will return the text for outputting inside an HTML document.
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.MentionParser.ParseEmoji(System.String,System.Func{System.String,System.String})">
- <summary>
- Localiza emojis no texto e automaticamente executa uma função de replace para cada emoji encontrado
- </summary>
- <param name="Text">  Texto</param>
- <param name="Method"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.MentionParser.ParseMentionByChar(System.String,System.String,System.Func{System.String,System.String})">
- <summary>
- Localiza menções a usuários no texto e automaticamente executa uma função de replace para
- cada hashtag encontrada
- </summary>
- <param name="Text">  Texto</param>
- <param name="Method"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.MentionParser.ParseUsername(System.String,System.Func{System.String,System.String})">
- <summary>
- Localiza menções a usuários no texto e automaticamente executa uma função de replace para
- cada hashtag encontrada
- </summary>
- <param name="Text">  Texto</param>
- <param name="Method"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.MentionParser.ParseHashtag(System.String,System.Func{System.String,System.String})">
- <summary>
- Localiza hashtags no texto e automaticamente executa uma função de replace para cada
- hashtag encontrada
- </summary>
- <param name="Text">  Texto</param>
- <param name="Method"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.MentionParser.CreateAnchor(System.String,System.String,System.String)">
- <summary>
- Cria um elemento de Ancora (a) a partir de uma string com URL. O titulo é obtido
- automaticamente da url quando possivel. Se a string não for uma URL válida uma ancora com
- o proprio texto é criada.
- </summary>
- <param name="URL">URL</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.InnerCrypt.InnCrypt(System.String)">

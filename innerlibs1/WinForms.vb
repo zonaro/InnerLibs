@@ -11,6 +11,10 @@ Imports System.Windows.Forms
 ''' <remarks></remarks>
 Public Module WinForms
 
+
+
+
+
     ''' <summary>
     ''' Reinicia a aplicação solicitando acesso administrativo se a mesma já não estiver em modo administrativo
     ''' </summary>
