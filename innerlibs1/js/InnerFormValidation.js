@@ -48,7 +48,7 @@ $.fn.isValid = function () {
                             results.push(true)
                             break;
                         }
-                        var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+                      var re = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[a-z]{2,6})*(\.[a-z]{2,6})$/gi;
                         results.push(re.test(value));
                         break;
                     case "required":
