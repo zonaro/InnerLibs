@@ -81,6 +81,9 @@ Namespace InnerForm
         ''' <returns></returns>
         Property UserSubject As String = ""
 
+
+
+
         Sub SendForm(sender As Object, e As EventArgs) Handles Me.Load
             Response.Clear()
             Dim agora = Now
@@ -200,6 +203,19 @@ Namespace InnerForm
             Return table
         End Function
 
+
+        Public Function GetForm(Optional WhereConditions As String = "") As List(Of Dictionary(Of String, Object))
+            Return GetForm(Me.DataBase, Me.TableName, WhereConditions)
+        End Function
+
+        Private Sub CreateTable()
+            Dim str = "if not exists (select * from sysobjects where name='" & TableName & "' and xtype='U')" & Environment.NewLine
+            str.AppendLine("create table " & TableName & " (")
+            str.AppendLine("Name varchar(64) not null")
+            str.AppendLine(")")
+            str.AppendLine("go")
+            Return str
+        End Sub
     End Class
 
 End Namespace

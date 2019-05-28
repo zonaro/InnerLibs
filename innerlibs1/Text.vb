@@ -782,6 +782,26 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Adiciona texto ao final de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
+    ''' </summary>
+    ''' <param name="Text">      Texto</param>
+    ''' <param name="AppendText">Texto adicional</param>
+    <Extension()>
+    Public Function AppendLine(ByRef Text As String, AppendText As String) As String
+        Return Text.Append(AppendText & Environment.NewLine)
+    End Function
+
+    ''' <summary>
+    ''' Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
+    ''' </summary>
+    ''' <param name="Text">      Texto</param>
+    ''' <param name="AppendText">Texto adicional</param>
+    <Extension()>
+    Public Function PrependLine(ByRef Text As String, AppendText As String) As String
+        Return Text.Prepend(AppendText & Environment.NewLine)
+    End Function
+
+    ''' <summary>
     ''' Adiciona texto ao final de uma string se um criterio for cumprido
     ''' </summary>
     ''' <param name="Text">      Texto</param>
