@@ -69,7 +69,7 @@ Partial Public Class DataBase
         End Function
 
         ''' <summary>
-        ''' Esvazia o reader
+        ''' Esvazia e destroi o reader
         ''' </summary>
         Public Sub Dispose() Implements IDisposable.Dispose
             MyBase.Clear()
@@ -650,7 +650,7 @@ Partial Public Class DataBase
             If Me.HasRows Then
                 While Me.Read()
                     For Each it In Me.GetColumns()
-                        param.Append("&" & it & "=" & HttpUtility.UrlEncode("" & Me(it)))
+                        param.Append("&" & it & "=" & HttpUtility.UrlEncode("" & If(Me(it), "")))
                     Next
                 End While
             End If
@@ -667,7 +667,7 @@ Partial Public Class DataBase
             If Me.HasRows Then
                 While Me.Read()
                     For Each it In Me.GetColumns()
-                        Url = Url.AddParameter(it, Me(it))
+                        Url = Url.AddParameter(it, If(Me(it), ""))
                     Next
                 End While
             End If
@@ -701,7 +701,7 @@ Partial Public Class DataBase
                 Dim columns As List(Of String) = Me.GetColumns()
                 While Me.Read()
                     For Each coluna In columns
-                        DelimitedString = DelimitedString & Json.SerializeJSON(Me(coluna)) & ColDelimiter
+                        DelimitedString = DelimitedString & If(Me(coluna), "") & ColDelimiter
                     Next
                     DelimitedString = DelimitedString & RowDelimiter
                 End While
@@ -769,7 +769,7 @@ Partial Public Class DataBase
             If Me.HasRows Then
                 While Me.Read()
                     For Each item As String In Me.GetColumns()
-                        Returned.Append(Me(item).ToString().Quote & Separator)
+                        Returned.Append(If(Me(item), "").ToString().Quote & Separator)
                     Next
                     Returned.Append(Environment.NewLine)
                 End While
@@ -854,7 +854,7 @@ Partial Public Class DataBase
                     While Me.Read()
                         Returned.Append("     <tr>")
                         For Each item As String In Me.GetColumns()
-                            Returned.Append(" <td>" & ToFlatString(Me(item)) & "</td>")
+                            Returned.Append(" <td>" & If(Me(item), "") & "</td>")
 
                         Next
                         Returned.Append("     </tr>")

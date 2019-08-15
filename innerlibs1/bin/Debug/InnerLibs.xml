@@ -3283,7 +3283,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.DataBase.Reader.Dispose">
  <summary>
- Esvazia o reader
+ Esvazia e destroi o reader
  </summary>
 </member>
 <member name="M:InnerLibs.DataBase.Reader.Close">
