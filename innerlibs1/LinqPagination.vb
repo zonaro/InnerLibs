@@ -287,9 +287,23 @@ Namespace LINQ
             Return Items
         End Function
 
+
         ''' <summary>
         ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
         ''' opcionalmente criar o objeto se o mesmo não existir
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
+        ''' <param name="ID">               Valor da chave primária</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object) As T
+            Return Context.GetByPrimaryKey(Of T)(ID, False)
+        End Function
+
+
+        ''' <summary>
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.
         ''' </summary>
         ''' <typeparam name="T">Tipo do objeto</typeparam>
         ''' <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
@@ -299,7 +313,7 @@ Namespace LINQ
         ''' </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, Optional CreateIfNotExists As Boolean = False, Optional ByRef IsNew As Boolean = False) As T
+        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, CreateIfNotExists As Boolean, Optional ByRef IsNew As Boolean = False) As T
             Dim obj = Nothing
             Try
                 obj = Context.GetByPrimaryKeys(Of T)({ID}.ToArray).SingleOrDefault

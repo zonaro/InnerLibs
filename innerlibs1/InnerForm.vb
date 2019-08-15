@@ -214,7 +214,7 @@ Namespace InnerForm
             str.AppendLine("Name varchar(64) not null")
             str.AppendLine(")")
             str.AppendLine("go")
-            Return str
+            DataBase.RunSQL(str)
         End Sub
     End Class
 

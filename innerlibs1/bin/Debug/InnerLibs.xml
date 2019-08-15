@@ -5087,11 +5087,28 @@ Verifica se o objeto é do tipo numérico.
  <param name="Dics">Dicionarios</param>
 <param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
 </member>
+<member name="M:InnerLibs.Converter.ToInteger``1(``0)">
+ <summary>
+ Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
+<member name="M:InnerLibs.Converter.ToLong``1(``0)">
+ <summary>
+ Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
 <member name="M:InnerLibs.Converter.ChangeType``2(``1)">
  <summary>
- Converte um tipo para outro. Retorna Nothing (NULL) se a covnersão falhar
+ Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
  </summary>
  <typeparam name="ToType">Tipo</typeparam>
+ <typeparam name="FromType">Tipo de origem</typeparam>
  <param name="Value">Variavel com valor</param>
  <returns>Valor convertido em novo tipo</returns>
 </member>
@@ -5432,10 +5449,19 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Items"> </param>
  <param name="Action"></param>
 </member>
-<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.DataContext,System.Object,System.Boolean,System.Boolean@)">
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.DataContext,System.Object)">
  <summary>
  Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
  opcionalmente criar o objeto se o mesmo não existir
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
+ <param name="ID">               Valor da chave primária</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.DataContext,System.Object,System.Boolean,System.Boolean@)">
+ <summary>
+ Retorna um objeto de uma tabela especifica de acordo com uma chave primária.
  </summary>
  <typeparam name="T">Tipo do objeto</typeparam>
  <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
@@ -9297,6 +9323,20 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">      Texto</param>
  <param name="AppendText">Texto adicional</param>
 </member>
+<member name="M:InnerLibs.Text.AppendLine(System.String@,System.String)">
+ <summary>
+ Adiciona texto ao final de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
+ </summary>
+ <param name="Text">      Texto</param>
+ <param name="AppendText">Texto adicional</param>
+</member>
+<member name="M:InnerLibs.Text.PrependLine(System.String@,System.String)">
+ <summary>
+ Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
+ </summary>
+ <param name="Text">      Texto</param>
+ <param name="AppendText">Texto adicional</param>
+</member>
 <member name="M:InnerLibs.Text.AppendIf(System.String@,System.String,System.Boolean)">
  <summary>
  Adiciona texto ao final de uma string se um criterio for cumprido
@@ -9360,7 +9400,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <param name="Text">  Texto correspondente</param>
  <param name="Values">Lista de valores</param>
- <returns>True se conter todos os valores, false se não</returns>
+ <returns>True se conter a maioria dos valores, false se não</returns>
 </member>
 <member name="M:InnerLibs.Text.ContainsMost(System.String,System.String[])">
  <summary>
@@ -11245,6 +11285,14 @@ Atualiza a lista de keys
  Modulo Web
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Web.CreateDirectory(System.Web.HttpServerUtility,System.String)">
+ <summary>
+ Cria um diretório a partir da raiz da aplicação do servidor
+ </summary>
+ <param name="Server"></param>
+ <param name="Path"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.AsEnumerable(System.Web.HttpFileCollection)">
  <summary>

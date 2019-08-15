@@ -80,10 +80,35 @@ Public Module Converter
         Next
     End Sub
 
+
     ''' <summary>
-    ''' Converte um tipo para outro. Retorna Nothing (NULL) se a covnersão falhar
+    ''' Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToInteger(Of FromType)(Value As FromType) As Integer
+        Return Value.ChangeType(Of Integer)
+    End Function
+
+    ''' <summary>
+    ''' Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToLong(Of FromType)(Value As FromType) As Long
+        Return Value.ChangeType(Of Long)
+    End Function
+
+
+    ''' <summary>
+    ''' Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
     ''' </summary>
     ''' <typeparam name="ToType">Tipo</typeparam>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
     ''' <param name="Value">Variavel com valor</param>
     ''' <returns>Valor convertido em novo tipo</returns>
     <Extension>

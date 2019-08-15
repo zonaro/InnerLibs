@@ -911,7 +911,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">  Texto correspondente</param>
     ''' <param name="Values">Lista de valores</param>
-    ''' <returns>True se conter todos os valores, false se não</returns>
+    ''' <returns>True se conter a maioria dos valores, false se não</returns>
     <Extension>
     Public Function ContainsMost(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
         Values = If(Values, {})

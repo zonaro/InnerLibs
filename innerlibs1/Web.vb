@@ -182,6 +182,27 @@ End Class
 ''' <remarks></remarks>
 Public Module Web
 
+    <Extension()> Public Function GetFileUrl(Server As HttpServerUtility, File As String) As String
+
+        Return File.Split(Server.MapPath("~/"), StringSplitOptions.RemoveEmptyEntries).LastOrDefault()
+
+    End Function
+
+    ''' <summary>
+    ''' Cria um diretório a partir da raiz da aplicação do servidor
+    ''' </summary>
+    ''' <param name="Server"></param>
+    ''' <param name="Path"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CreateDirectory(Server As HttpServerUtility, Path As String) As String
+
+        If Not Directory.Exists(Server.MapPath("~/") & "/" & Path) Then
+            Directory.CreateDirectory(Server.MapPath("~/") & "/" & Path)
+        End If
+        Return Path
+    End Function
+
+
     ''' <summary>
     ''' Retorna todos os arquivos de uma <see cref="HttpFileCollection"/> em um  <see cref="IEnumerable(Of Httppostedfile)"/>
     ''' </summary>
@@ -396,12 +417,12 @@ Public Module Web
     <Extension()> Public Function GetUrlSegments(Url As String) As IEnumerable(Of String)
 
         Dim l As New List(Of String)
-            Dim p As New Regex("(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", RegexOptions.Singleline + RegexOptions.IgnoreCase)
-            Dim gs = p.Matches(Url)
-            For Each g As Match In gs
-                l.Add(g.Value)
-            Next
-            Return l
+        Dim p As New Regex("(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", RegexOptions.Singleline + RegexOptions.IgnoreCase)
+        Dim gs = p.Matches(Url)
+        For Each g As Match In gs
+            l.Add(g.Value)
+        Next
+        Return l
 
     End Function
 
