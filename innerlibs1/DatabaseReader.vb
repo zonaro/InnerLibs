@@ -698,7 +698,7 @@ Partial Public Class DataBase
         Public Function ToDelimitedString(Optional ColDelimiter As String = "[ColDelimiter]", Optional RowDelimiter As String = "[RowDelimiter]", Optional TableDelimiter As String = "[TableDelimiter]") As String
             Dim DelimitedString As String = ""
             Do
-                Dim columns As List(Of String) = Me.GetColumns()
+                Dim columns = Me.GetColumns()
                 While Me.Read()
                     For Each coluna In columns
                         DelimitedString = DelimitedString & If(Me(coluna), "") & ColDelimiter
@@ -767,11 +767,12 @@ Partial Public Class DataBase
 
             Dim Returned As String = "sep=" & Separator & Environment.NewLine
             If Me.HasRows Then
+                Dim col = Me.GetColumns()
                 While Me.Read()
-                    For Each item As String In Me.GetColumns()
-                        Returned.Append(If(Me(item), "").ToString().Quote & Separator)
+                    For Each item As String In col
+                        Returned &= (If(Me(item), "").ToString().Quote & Separator)
                     Next
-                    Returned.Append(Environment.NewLine)
+                    Returned &= Environment.NewLine
                 End While
             End If
             Return Returned
@@ -840,12 +841,14 @@ Partial Public Class DataBase
         ''' <param name="BeautfyColumnNames">Embeleza nomes de colunas</param>
         ''' <returns></returns>
         Public Function ToHTMLTable(Optional BeautfyColumnNames As Boolean = False) As HtmlParser.HtmlElement
-            Dim Returned As String = ""
+            Dim tag As New HtmlParser.HtmlElement("div")
             Do
+                Dim Returned As String = ""
                 If Me.HasRows Then
+                    Dim col = Me.GetColumns()
                     Returned.Append(" <thead>")
                     Returned.Append("     <tr>")
-                    For Each item As String In Me.GetColumns()
+                    For Each item As String In col
                         Returned.Append("         <th>" & If(BeautfyColumnNames, item.ToProperCase.Replace("_", " ").AdjustBlankSpaces, item) & "</th>")
                     Next
                     Returned.Append("     </tr>")
@@ -853,7 +856,7 @@ Partial Public Class DataBase
                     Returned.Append(" <tbody>")
                     While Me.Read()
                         Returned.Append("     <tr>")
-                        For Each item As String In Me.GetColumns()
+                        For Each item As String In col
                             Returned.Append(" <td>" & If(Me(item), "") & "</td>")
 
                         Next
@@ -862,10 +865,11 @@ Partial Public Class DataBase
                     Returned.Append(" </tbody>")
 
                 End If
+                Dim tabletag As New HtmlParser.HtmlElement("table")
+                tabletag.InnerHTML = Returned
+                tag.AddNode(tabletag)
             Loop While Me.NextResult()
-            Dim tag As New HtmlParser.HtmlElement("table")
-            tag.InnerHTML = Returned
-            Return tag
+            Return If(tag.ChildElements.Count <= 1, tag.FirstChild, tag)
         End Function
 
         ''' <summary>
