@@ -17,6 +17,17 @@ Partial Public Class DataBase
     Public NotInheritable Class Row
         Inherits Dictionary(Of String, Object)
 
+        Public Function Simplify() As Object
+            If Me.Count > 0 Then
+                If Me.Count = 1 Then
+                    Return Me.First.Value 'retorna o unico valor da unica coluna
+                Else
+                    Return Me
+                End If
+            End If
+            Return Nothing
+        End Function
+
         ''' <summary>
         ''' Retorna todas as colunas deta linha (é um alias para <see cref="Row.Keys"/>)
         ''' </summary>
@@ -34,6 +45,23 @@ Partial Public Class DataBase
     ''' </summary>
     Public NotInheritable Class Result
         Inherits List(Of Row)
+
+
+        Public Function Simplify() As Object
+            If Me.Count > 0 Then
+                If Me.Count = 1 Then
+                    Return Me.First.Simplify
+                Else
+                    If Me.First.Count = 1 Then 'retorna array de valores de cada linha (tem 1 coluna apenas)
+                        Return Me.Select(Function(x) x.Simplify).Where(Function(x) x IsNot Nothing)
+                    Else
+                        Return Me
+                    End If
+                End If
+            End If
+            Return Nothing
+        End Function
+
 
         ''' <summary>
         ''' Retorna todas as colunas deste result
@@ -297,38 +325,32 @@ Partial Public Class DataBase
             Return GetRow(rowindex)
         End Function
 
+
+
+        Public Function Simplify() As Object
+            If Me.Count > 0 Then
+                If Me.Count = 1 Then
+                    Return Me.First.Simplify()
+                Else
+                    Return Me.Select(Function(x) x.Simplify()).Where(Function(x) x IsNot Nothing)
+                End If
+            End If
+            Return Nothing
+        End Function
+
         ''' <summary>
         ''' Retorna um Json do Reader
         ''' </summary>
         ''' <returns></returns>
-        Function ToJSON(Optional Clear As Boolean = False) As String
-            Try
-                If Clear Then
-                    If Me.Count = 1 Then
-                        Dim result = Me.First
-                        If result.Count = 1 Then
-                            Dim row = result.First
-                            If row.Count = 1 Then
-                                Return Json.SerializeJSON(row.First.Value)
-                            Else
-                                Return Json.SerializeJSON(row)
-                            End If
-                        Else
-                            If result.First.Count = 1 Then
-                                Return Json.SerializeJSON(result.Select(Function(x) x.First.Value))
-                            Else
-                                Return Json.SerializeJSON(result)
-                            End If
-                        End If
-                    Else
-                        Return Json.SerializeJSON(Me)
-                    End If
-                Else
-                    Return Json.SerializeJSON(Me)
-                End If
-            Catch ex As Exception
-                Return ""
-            End Try
+        Function ToJSON(Optional Simplify As Boolean = False) As String
+
+            If Simplify Then
+                Return Json.SerializeJSON(Me.Simplify())
+            Else
+                Return Json.SerializeJSON(Me)
+            End If
+
+            Return ""
         End Function
 
         ''' <summary>
