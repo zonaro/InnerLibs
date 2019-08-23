@@ -48,7 +48,7 @@ Public Module Files
     End Function
 
     ''' <summary>
-    ''' COnverte um Stram em Bytes
+    ''' Converte um stream em Bytes
     ''' </summary>
     ''' <param name="stream"></param>
     ''' <returns></returns>

@@ -4441,7 +4441,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Files.ToBytes(System.IO.Stream)">
  <summary>
- COnverte um Stram em Bytes
+ Converte um stream em Bytes
  </summary>
  <param name="stream"></param>
  <returns></returns>
@@ -7485,6 +7485,13 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <param name="Image">Imagem</param>
  <returns>uma lista de Color</returns>
+</member>
+<member name="M:InnerLibs.Images.ToStream(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ Transforma uma imagem em um stream
+ </summary>
+ <param name="Image">Imagem</param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Images.ToBytes(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">
  <summary>

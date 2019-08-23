@@ -635,17 +635,27 @@ Public Module Images
     End Function
 
     ''' <summary>
-    ''' Transforma uma imagem em array de bytes
+    ''' Transforma uma imagem em um stream
     ''' </summary>
     ''' <param name="Image">Imagem</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function ToBytes(Image As Image, Optional Format As ImageFormat = Nothing) As Byte()
+    Public Function ToStream(Image As Image, Optional Format As ImageFormat = Nothing) As Stream
         Using mStream As New MemoryStream()
             Image.Save(mStream, If(Format, ImageFormat.Png))
-            Return mStream.ToArray()
+            Return mStream
         End Using
     End Function
+
+    ''' <summary>
+    ''' Transforma uma imagem em array de bytes
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToBytes(Image As Image, Optional Format As ImageFormat = Nothing) As Byte()
+        Return Image.ToStream(Format).ToBytes()
+    End Function
+
 
 End Module
 
