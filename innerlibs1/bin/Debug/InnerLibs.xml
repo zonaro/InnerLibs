@@ -5200,14 +5200,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="Request">Request GET ou POST</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.InnerCrypt.InnCrypt(System.String)">
+<member name="M:InnerLibs.InnerCrypt.InnCrypt(System.String,System.Int32)">
  <summary>
  Criptografa uma suma string usando a logica InnerCrypt
  </summary>
  <param name="Text">Texto</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.InnerCrypt.UnnCrypt(System.String)">
+<member name="M:InnerLibs.InnerCrypt.UnnCrypt(System.String,System.Int32)">
  <summary>
  Descriptografa uma string previamente criptografada com InnerCrypt
  </summary>
@@ -7715,6 +7715,24 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Mathematic.CalculateSimpleInterest(System.Decimal,System.Decimal,System.Decimal)">
+ <summary>
+ Calcula os Juros simples
+ </summary>
+ <param name="Capital">Capital</param>
+ <param name="Rate">Taxa</param>
+ <param name="Time">Tempo</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.CalculateCompoundInterest(System.Decimal,System.Decimal,System.Decimal)">
+ <summary>
+ Calcula Juros compostos
+ </summary>
+ <param name="Capital">Capital</param>
+ <param name="Rate">Taxa</param>
+ <param name="Time">Tempo</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Mathematic.HasDecimalPart(System.Decimal)">
  <summary>
  Verifica se um numero possui parte decimal
@@ -7761,7 +7779,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Elements">Lista de elementos</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Mathematic.PenalizeMin(System.Int32,System.Int32)">
+<member name="M:InnerLibs.Mathematic.DifferenceIfMin(System.Int32,System.Int32)">
  <summary>
  Retorna a diferença entre 2 numeros se o valor minimo for maior que o total
  </summary>
@@ -7769,7 +7787,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="MinValue"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Mathematic.PenalizeMax(System.Int32,System.Int32)">
+<member name="M:InnerLibs.Mathematic.DifferenceIfMax(System.Int32,System.Int32)">
  <summary>
  Retorna a diferença entre 2 numeros se o valor maximo for menor que o total
  </summary>

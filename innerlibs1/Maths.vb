@@ -129,7 +129,7 @@ Public Class RuleOfThree
     ''' </summary>
     ''' <returns></returns>
     Function ToJson() As String
-        Return Json.SerializeJSON(Me.Toarray)
+        Return Json.SerializeJSON(Me.ToArray)
     End Function
 
 
@@ -148,11 +148,34 @@ Public Module Mathematic
 
 
     ''' <summary>
+    ''' Calcula os Juros simples
+    ''' </summary>
+    ''' <param name="Capital">Capital</param>
+    ''' <param name="Rate">Taxa</param>
+    ''' <param name="Time">Tempo</param>
+    ''' <returns></returns>
+    <Extension()> Public Function CalculateSimpleInterest(Capital As Decimal, Rate As Decimal, Time As Decimal)
+        Return Capital * Rate * Time
+    End Function
+
+    ''' <summary>
+    ''' Calcula Juros compostos
+    ''' </summary>
+    ''' <param name="Capital">Capital</param>
+    ''' <param name="Rate">Taxa</param>
+    ''' <param name="Time">Tempo</param>
+    ''' <returns></returns>
+    <Extension()> Public Function CalculateCompoundInterest(Capital As Decimal, Rate As Decimal, Time As Decimal)
+        Return Capital * ((1 + Rate) ^ Time)
+    End Function
+
+    ''' <summary>
     ''' Verifica se um numero possui parte decimal
     ''' </summary>
     ''' <param name="Value"></param>
     ''' <returns></returns>
     <Extension> Public Function HasDecimalPart(Value As Decimal) As Boolean
+        If Value < 0 Then Value = Value * -1
         Return Not (Value Mod 1) = 0 AndAlso Value > 0
     End Function
 
@@ -162,7 +185,7 @@ Public Module Mathematic
     ''' <param name="Value"></param>
     ''' <returns></returns>
     <Extension> Public Function HasDecimalPart(Value As Double) As Boolean
-        Return Not (Value Mod 1) = 0 AndAlso Value > 0
+        Return Value.ChangeType(Of Decimal).HasDecimalPart()
     End Function
 
     ''' <summary>
@@ -213,7 +236,7 @@ Public Module Mathematic
     ''' <param name="Total"></param>
     ''' <param name="MinValue"></param>
     ''' <returns></returns>
-    <Extension()> Function PenalizeMin(Total As Integer, MinValue As Integer) As Integer
+    <Extension()> Function DifferenceIfMin(Total As Integer, MinValue As Integer) As Integer
         Return If(Total < MinValue, MinValue - Total, 0)
     End Function
 
@@ -223,7 +246,7 @@ Public Module Mathematic
     ''' <param name="Total"></param>
     ''' <param name="MaxValue"></param>
     ''' <returns></returns>
-    <Extension()> Function PenalizeMax(Total As Integer, MaxValue As Integer) As Integer
+    <Extension()> Function DifferenceIfMax(Total As Integer, MaxValue As Integer) As Integer
         Return If(Total > MaxValue, MaxValue - Total, 0)
     End Function
 
