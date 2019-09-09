@@ -82,6 +82,17 @@ Public Module Converter
 
 
     ''' <summary>
+    ''' Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToBoolean(Of FromType)(Value As FromType) As Boolean
+        Return Value.ChangeType(Of Boolean)
+    End Function
+
+    ''' <summary>
     ''' Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
     ''' </summary>
     ''' <typeparam name="FromType">Tipo de origem</typeparam>

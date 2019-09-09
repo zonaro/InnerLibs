@@ -161,6 +161,7 @@
     <Compile Include="JSON\JSON.vb" />
     <Compile Include="LinqPagination.vb" />
     <Compile Include="OnlineList.vb" />
+    <Compile Include="OptGroupAdapter.vb" />
     <Compile Include="TextCleaner.vb" />
     <Compile Include="Triforce\LINQTemplatizer.vb" />
     <Compile Include="Money.vb" />

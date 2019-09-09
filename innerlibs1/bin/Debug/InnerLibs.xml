@@ -5087,6 +5087,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="Dics">Dicionarios</param>
 <param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
 </member>
+<member name="M:InnerLibs.Converter.ToBoolean``1(``0)">
+ <summary>
+ Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
 <member name="M:InnerLibs.Converter.ToInteger``1(``0)">
  <summary>
  Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
