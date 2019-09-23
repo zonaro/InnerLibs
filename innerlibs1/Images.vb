@@ -573,7 +573,7 @@ Public Module Images
     End Function
 
     ''' <summary>
-    ''' Retorna uma lista com as 10 cores mais utilizadas na imagem
+    ''' Retorna uma lista com as <paramref name="Count"/> cores mais utilizadas na imagem
     ''' </summary>
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
@@ -641,10 +641,10 @@ Public Module Images
     ''' <returns></returns>
     <Extension()>
     Public Function ToStream(Image As Image, Optional Format As ImageFormat = Nothing) As Stream
-        Using mStream As New MemoryStream()
-            Image.Save(mStream, If(Format, ImageFormat.Png))
-            Return mStream
-        End Using
+        Dim s As Stream = New System.IO.MemoryStream()
+        Image.Save(s, If(Format, ImageFormat.Png))
+        s.Position = 0
+        Return s
     End Function
 
     ''' <summary>
@@ -653,7 +653,20 @@ Public Module Images
     ''' <param name="Image">Imagem</param>
     ''' <returns></returns>
     <Extension()> Public Function ToBytes(Image As Image, Optional Format As ImageFormat = Nothing) As Byte()
-        Return Image.ToStream(Format).ToBytes()
+        Using ms = Image.ToStream(Format)
+            Return ms.ToBytes()
+        End Using
+    End Function
+
+    ''' <summary>
+    ''' redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+    ''' </summary>
+    ''' <param name="Image"></param>
+    ''' <param name="Width"></param>
+    ''' <param name="Height"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ResizeCrop(Image As Image, Width As Integer, Height As Integer) As Image
+        Return Image.Resize(Width, Height, False).Crop(Width, Height)
     End Function
 
 

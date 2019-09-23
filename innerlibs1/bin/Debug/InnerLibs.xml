@@ -3968,6 +3968,23 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <param name="Controls"></param>
 </member>
+<member name="M:InnerLibs.DataBase.ExecProcedureFromRequest(System.String,System.String[])">
+ <summary>
+ Executa uma procedure parametrizada a partir de um <see cref="T:System.Web.HttpRequest"/>
+ </summary>
+ <param name="ProcedureName">Nome da procedure</param>
+ <param name="RequestKeys">quais keys do <see cref="T:System.Web.HttpRequest"/> serão usadas</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DataBase.ExecProcedureFromRequest(System.Web.HttpRequest,System.String,System.String[])">
+ <summary>
+ Executa uma procedure parametrizada a partir de um <see cref="T:System.Web.HttpRequest"/>
+ </summary>
+ <param name="ProcedureName">Nome da procedure</param>
+ <param name="RequestKeys">quais keys do <see cref="T:System.Web.HttpRequest"/> serão usadas</param>
+  <param name="Request">Qual a requeisiçao</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataGridViewManager.BuildFromClass``1(System.Windows.Forms.DataGridView@,System.Collections.Generic.List{``0})">
  <summary>
  Cria as colunas e linhas de um DataGridView de acordo com uma lista de um objeto do mesmo tipo
@@ -5089,7 +5106,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Converter.ToBoolean``1(``0)">
  <summary>
- Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+ Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
  </summary>
  <typeparam name="FromType">Tipo de origem</typeparam>
  <param name="Value">Variavel com valor</param>
@@ -7489,7 +7506,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Images.GetMostUsedColors(System.Drawing.Bitmap,System.Int32)">
  <summary>
- Retorna uma lista com as 10 cores mais utilizadas na imagem
+ Retorna uma lista com as <paramref name="Count"/> cores mais utilizadas na imagem
  </summary>
  <param name="Image">Imagem</param>
  <returns>uma lista de Color</returns>
@@ -7506,6 +7523,15 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Transforma uma imagem em array de bytes
  </summary>
  <param name="Image">Imagem</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Images.ResizeCrop(System.Drawing.Image,System.Int32,System.Int32)">
+ <summary>
+ redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+ </summary>
+ <param name="Image"></param>
+ <param name="Width"></param>
+ <param name="Height"></param>
  <returns></returns>
 </member>
 <member name="T:InnerLibs.PictureService">

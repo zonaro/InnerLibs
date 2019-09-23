@@ -54,16 +54,10 @@ Public Module Files
     ''' <returns></returns>
     <Extension()>
     Public Function ToBytes(ByVal stream As Stream) As Byte()
-        Dim totalbytes As Byte() = Nothing
-        Dim iBytesRead As Integer
-        Dim Totalread As Int64 = 0
-        ReDim totalbytes(stream.Length)
-        Do
-            iBytesRead = stream.Read(totalbytes, Totalread, Totalread + 1048576)
-            Totalread += iBytesRead
-        Loop While Not iBytesRead = 0
-        stream.Close()
-        Return totalbytes
+        Using ms As New MemoryStream()
+            stream.CopyTo(ms)
+            Return ms.ToArray()
+        End Using
     End Function
 
     ''' <summary>

@@ -137,7 +137,7 @@ Public NotInheritable Class DataBase
             Using command As DbCommand = con.CreateCommand()
                 Dim param = command.CreateParameter()
                 param.DbType = DataManipulation.GetDbType(Value)
-                param.ParameterName = "@" & Name.TrimAny("@", " ")
+                param.ParameterName = "@" & Name.TrimAny("@", " ", "=")
                 Dim valor As Object = DBNull.Value
                 If Not IsNothing(Value) AndAlso Not IsNothing(Value.GetType) Then
                     Select Case Value.GetType()
@@ -145,11 +145,11 @@ Public NotInheritable Class DataBase
                             valor = Value.ToString
                         Case GetType(Char)
                             valor = Value.ToString.GetFirstChars
-                        Case GetType(Byte())
+                        Case GetType(Byte()), GetType(Byte)
                             If Value.LongLength > 0 Then
-                                valor = Value
+                                valor = ForceArray(Of Byte)(Value)
                             Else
-                                valor = New Byte()
+                                valor = DBNull.Value
                             End If
                         Case GetType(HttpPostedFile)
                             If CType(Value, HttpPostedFile).ContentLength > 0 Then
@@ -169,7 +169,7 @@ Public NotInheritable Class DataBase
                             Else
                                 valor = Value
                             End If
-                        Case GetType(Short), GetType(Integer), GetType(Long), GetType(Decimal), GetType(Double), GetType(Byte)
+                        Case GetType(Short), GetType(Integer), GetType(Long), GetType(Decimal), GetType(Double)
                             valor = Value
                         Case Else
                             Return Me.CreateParameter(Of String)(Name, Json.SerializeJSON(Value))
@@ -546,6 +546,7 @@ Public NotInheritable Class DataBase
             For Each p As Match In reg
                 Dim param = p.Groups("param").Value
                 param = param.TrimAny(True, "@", " ", ",", "(", ")")
+
                 Select Case True
                     Case nomes.Contains(param)
                         For Each c In CustomParameters
@@ -683,6 +684,31 @@ Public NotInheritable Class DataBase
         reader.ApplyToControls(Controls)
         reader.StartOver()
         Return reader
+    End Function
+
+    ''' <summary>
+    ''' Executa uma procedure parametrizada a partir de um <see cref="HttpRequest"/>
+    ''' </summary>
+    ''' <param name="ProcedureName">Nome da procedure</param>
+    ''' <param name="RequestKeys">quais keys do <see cref="HttpRequest"/> serão usadas</param>
+    ''' <returns></returns>
+    Public Function ExecProcedureFromRequest(ByVal ProcedureName As String, ParamArray RequestKeys() As String) As DbCommand
+        Return ExecProcedureFromRequest(HttpContext.Current.Request, ProcedureName, RequestKeys)
+    End Function
+
+    ''' <summary>
+    ''' Executa uma procedure parametrizada a partir de um <see cref="HttpRequest"/>
+    ''' </summary>
+    ''' <param name="ProcedureName">Nome da procedure</param>
+    ''' <param name="RequestKeys">quais keys do <see cref="HttpRequest"/> serão usadas</param>
+    '''  <param name="Request">Qual a requeisiçao</param>
+    ''' <returns></returns>
+    Public Function ExecProcedureFromRequest(Request As HttpRequest, ByVal ProcedureName As String, ParamArray RequestKeys() As String) As DbCommand
+        RequestKeys = If(RequestKeys, {})
+        If RequestKeys.Count = 0 Then
+            RequestKeys = Request.FlatRequest.AllKeys
+        End If
+        Return CreateCommandFromRequest(Request, "EXEC " & ProcedureName & " " & RequestKeys.Select(Function(key) " @" & key & " = @" + key).ToArray.Join(","))
     End Function
 
 End Class
