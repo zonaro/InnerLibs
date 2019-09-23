@@ -145,9 +145,9 @@ Public NotInheritable Class DataBase
                             valor = Value.ToString
                         Case GetType(Char)
                             valor = Value.ToString.GetFirstChars
-                        Case GetType(Byte()), GetType(Byte)
+                        Case GetType(Byte())
                             If Value.LongLength > 0 Then
-                                valor = ForceArray(Of Byte)(Value)
+                                valor = CType(Value, Byte())
                             Else
                                 valor = DBNull.Value
                             End If
@@ -169,7 +169,7 @@ Public NotInheritable Class DataBase
                             Else
                                 valor = Value
                             End If
-                        Case GetType(Short), GetType(Integer), GetType(Long), GetType(Decimal), GetType(Double)
+                        Case GetType(Short), GetType(Integer), GetType(Long), GetType(Decimal), GetType(Double), GetType(Byte)
                             valor = Value
                         Case Else
                             Return Me.CreateParameter(Of String)(Name, Json.SerializeJSON(Value))
@@ -183,6 +183,8 @@ Public NotInheritable Class DataBase
             End Using
         End Using
     End Function
+
+
 
     ''' <summary>
     ''' Retorna a lista de arquivos SQL disponiveis
@@ -540,39 +542,48 @@ Public NotInheritable Class DataBase
             command.CommandText = SQLQuery
             Dim nomes As New List(Of String)
             Try
-                nomes.AddRange(CustomParameters.[Select](Function(x) x.ParameterName.TrimAny(True, "@", " ")).Distinct())
+                nomes.AddRange(CustomParameters.[Select](Function(x) x.ParameterName.TrimAny(True, "@", " ", "=", ",")).Distinct())
             Catch ex As Exception
             End Try
+
+            Dim k As New List(Of String)
             For Each p As Match In reg
                 Dim param = p.Groups("param").Value
-                param = param.TrimAny(True, "@", " ", ",", "(", ")")
+                param = param.TrimAny(True, "@", " ", ",", "(", ")", "=")
+                k.Add(param)
+            Next
 
-                Select Case True
-                    Case nomes.Contains(param)
-                        For Each c In CustomParameters
-                            If c.ParameterName.TrimAny("@", " ", ",", "(", ")") = param Then
-                                command.Parameters.SetParameter(c)
-                            End If
-                        Next
-                        Exit Select
-                    Case Request.Form.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Form(param)))
-                        Exit Select
+            k = k.Distinct().ToList()
 
-                    Case Request.QueryString.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.QueryString(param)))
-                        Exit Select
+            For Each param In k
+                If Not command.Parameters.Contains(param) Then
+                    Select Case True
+                        Case nomes.Contains(param)
+                            For Each c In CustomParameters
+                                If c.ParameterName.TrimAny("@", " ", ",", "(", ")", "=") = param Then
+                                    command.Parameters.SetParameter(c)
+                                End If
+                            Next
+                            Exit Select
+                        Case Request.Form.AllKeys.Contains(param)
+                            command.Parameters.SetParameter(Me.CreateParameter(param, Request.Form(param)))
+                            Exit Select
 
-                    Case Request.Files.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Files(param).ToBytes))
-                        Exit Select
+                        Case Request.QueryString.AllKeys.Contains(param)
+                            command.Parameters.SetParameter(Me.CreateParameter(param, Request.QueryString(param)))
+                            Exit Select
 
-                    Case Request.Cookies.AllKeys.Contains(param)
-                        command.Parameters.SetParameter(Me.CreateParameter(param, Request.Cookies(param)))
-                        Exit Select
-                    Case Else
-                        command.Parameters.SetParameter(Me.CreateParameter(param, String.Empty))
-                End Select
+                        Case Request.Files.AllKeys.Contains(param)
+                            command.Parameters.SetParameter(Me.CreateParameter(param, Request.Files(param).ToBytes))
+                            Exit Select
+
+                        Case Request.Cookies.AllKeys.Contains(param)
+                            command.Parameters.SetParameter(Me.CreateParameter(param, Request.Cookies(param)))
+                            Exit Select
+                        Case Else
+                            command.Parameters.SetParameter(Me.CreateParameter(param, String.Empty))
+                    End Select
+                End If
             Next
             Return command
         End Using

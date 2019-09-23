@@ -12,7 +12,7 @@ Public Module DataManipulation
     ''' <param name="Parameter">Parâmetro</param>
     <Extension()> Sub SetParameter(ByRef Params As DbParameterCollection, Parameter As DbParameter)
         For Each p As DbParameter In Params
-            If p.ParameterName.TrimAny("@", " ") = Parameter.ParameterName.TrimAny("@", " ") Then
+            If p.ParameterName.TrimAny("@", " ", "=") = Parameter.ParameterName.TrimAny("@", " ", "=") Then
                 Params(Parameter.ParameterName).Value = If(Parameter.Value, DBNull.Value)
                 Exit Sub
             End If
