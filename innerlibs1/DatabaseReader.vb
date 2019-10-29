@@ -17,6 +17,9 @@ Partial Public Class DataBase
     Public NotInheritable Class Row
         Inherits Dictionary(Of String, Object)
 
+
+
+
         Public Function Simplify() As Object
             If Me.Count > 0 Then
                 If Me.Count = 1 Then
@@ -46,13 +49,18 @@ Partial Public Class DataBase
     Public NotInheritable Class Result
         Inherits List(Of Row)
 
+        ''' <summary>
+        ''' Nome do <see cref="Result"/>. É utilizado na serialização do objeto. Quando não especificado, o objeto é serializado como um Array
+        ''' </summary>
+        ''' <returns></returns>
+        Property ResultName As String = Nothing
 
         Public Function Simplify() As Object
             If Me.Count > 0 Then
                 If Me.Count = 1 Then
                     Return Me.First.Simplify
                 Else
-                    If Me.First.Count = 1 Then 'retorna array de valores de cada linha (tem 1 coluna apenas)
+                    If Me.All(Function(x) x.Count = 1) Then 'retorna array de valores de cada linha (tem 1 coluna apenas)
                         Return Me.Select(Function(x) x.Simplify).Where(Function(x) x IsNot Nothing)
                     Else
                         Return Me
@@ -61,6 +69,9 @@ Partial Public Class DataBase
             End If
             Return Nothing
         End Function
+
+
+
 
 
         ''' <summary>
@@ -295,6 +306,12 @@ Partial Public Class DataBase
             End Get
         End Property
 
+        Public ReadOnly Property CountResults As Integer
+            Get
+                Return MyBase.Count
+            End Get
+        End Property
+
         ''' <summary>
         ''' Retorna um resultado (tabela) a partir do seu Index.
         ''' </summary>
@@ -349,7 +366,6 @@ Partial Public Class DataBase
             Else
                 Return Json.SerializeJSON(Me)
             End If
-
             Return ""
         End Function
 

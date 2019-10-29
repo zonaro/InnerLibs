@@ -3270,6 +3270,12 @@ Verifica se o objeto é do tipo numérico.
  Resultado de uma query no banco de dados
  </summary>
 </member>
+<member name="P:InnerLibs.DataBase.Result.ResultName">
+ <summary>
+ Nome do <see cref="T:InnerLibs.DataBase.Result"/>. É utilizado na serialização do objeto. Quando não especificado, o objeto é serializado como um Array
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataBase.Result.GetColumns">
  <summary>
  Retorna todas as colunas deste result
