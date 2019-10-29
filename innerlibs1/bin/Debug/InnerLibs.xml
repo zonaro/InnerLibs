@@ -3284,7 +3284,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="T:InnerLibs.DataBase.Reader">
  <summary>
- Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando <see cref="T:System.Collections.Generic.List`1"/> de  <see cref="T:System.Collections.Generic.Dictionary`2"/>. Permite a leitura
+ Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando <see cref="T:System.Collections.Generic.List`1"/>. Permite a leitura
  releitura, atribuição e serialização mesmo após o fechamento da conexão.
  </summary>
 </member>

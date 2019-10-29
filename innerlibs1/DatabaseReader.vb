@@ -63,7 +63,7 @@ Partial Public Class DataBase
                     If Me.All(Function(x) x.Count = 1) Then 'retorna array de valores de cada linha (tem 1 coluna apenas)
                         Return Me.Select(Function(x) x.Simplify).Where(Function(x) x IsNot Nothing)
                     Else
-                        Return Me
+                        Return Me.ReturnMyself
                     End If
                 End If
             End If
@@ -71,7 +71,14 @@ Partial Public Class DataBase
         End Function
 
 
-
+        Protected Friend Function ReturnMyself()
+            If Me.ResultName.IsNotBlank() Then
+                Dim dic = New Dictionary(Of String, Object)
+                dic(Me.ResultName) = Me
+                Return dic
+            End If
+            Return Me
+        End Function
 
 
         ''' <summary>
@@ -92,7 +99,7 @@ Partial Public Class DataBase
     End Class
 
     ''' <summary>
-    ''' Estrutura que imita um <see cref="DbDataReader"/> usando <see cref="List"/> de  <see cref="Dictionary"/>. Permite a leitura
+    ''' Estrutura que imita um <see cref="DbDataReader"/> usando <see cref="List(Of List(Of Dictionary(Of String,Object)))"/>. Permite a leitura
     ''' releitura, atribuição e serialização mesmo após o fechamento da conexão.
     ''' </summary>
     Public NotInheritable Class Reader
@@ -360,11 +367,19 @@ Partial Public Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Function ToJSON(Optional Simplify As Boolean = False) As String
-
             If Simplify Then
                 Return Json.SerializeJSON(Me.Simplify())
             Else
-                Return Json.SerializeJSON(Me)
+                Dim l = Me.Select(Function(x) x.ReturnMyself)
+                If l.All(Function(x) ClassTools.IsDictionary(x)) Then
+                    Dim nv = New Dictionary(Of String, Object)
+                    For Each d In l.ChangeIEnumerableType(Of Dictionary(Of String, Object))
+                        nv.Add(d.First.Key, d.First.Value)
+                    Next
+                    Return Json.SerializeJSON(nv)
+                Else
+                    Return Json.SerializeJSON(l)
+                End If
             End If
             Return ""
         End Function

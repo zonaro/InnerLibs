@@ -7,7 +7,7 @@ Public NotInheritable Class Json
 
     Friend Sub New()
         MyBase.New()
-        Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter(), New BytesConverter(), New DataBaseReaderResultConverter()})
+        Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter(), New BytesConverter()})
     End Sub
 
     ''' <summary>
@@ -123,35 +123,5 @@ Public NotInheritable Class Json
 
     End Class
 
-    Private Class DataBaseReaderResultConverter
-        Inherits JavaScriptConverter
-        Private m_supportedTypes As List(Of Type)
-
-        Public Sub New()
-            m_supportedTypes = New List(Of Type)(1)
-            m_supportedTypes.AddRange({GetType(DataBase.Row)})
-        End Sub
-
-        Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
-            Return Nothing
-        End Function
-
-        Public Overrides Function Serialize(obj As Object, serializer As JavaScriptSerializer) As IDictionary(Of String, Object)
-            Dim bt = Converter.ChangeType(Of DataBase.Result, Object)(obj)
-            If bt.ResultName.IsNotBlank() Then
-                Dim dic = New Dictionary(Of String, Object)
-                dic(bt.ResultName) = bt.ToArray()
-                Return dic
-            End If
-            Return obj
-        End Function
-
-        Public Overrides ReadOnly Property SupportedTypes() As IEnumerable(Of Type)
-            Get
-                Return Me.m_supportedTypes
-            End Get
-        End Property
-
-    End Class
 
 End Class

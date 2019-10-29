@@ -1859,6 +1859,13 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.ToFullExceptionString(System.Exception)">
+ <summary>
+ Concatena todas as  <see cref="P:System.Exception.InnerException"/> em uma única string
+ </summary>
+ <param name="ex"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.ToQueryString(System.Collections.Generic.Dictionary{System.String,System.String})">
  <summary>
  Retorna um dicionário em QueryString
@@ -3263,6 +3270,12 @@ Verifica se o objeto é do tipo numérico.
  Resultado de uma query no banco de dados
  </summary>
 </member>
+<member name="P:InnerLibs.DataBase.Result.ResultName">
+ <summary>
+ Nome do <see cref="T:InnerLibs.DataBase.Result"/>. É utilizado na serialização do objeto. Quando não especificado, o objeto é serializado como um Array
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.DataBase.Result.GetColumns">
  <summary>
  Retorna todas as colunas deste result
@@ -3271,7 +3284,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="T:InnerLibs.DataBase.Reader">
  <summary>
- Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando <see cref="T:System.Collections.Generic.List`1"/> de  <see cref="T:System.Collections.Generic.Dictionary`2"/>. Permite a leitura
+ Estrutura que imita um <see cref="T:System.Data.Common.DbDataReader"/> usando <see cref="T:System.Collections.Generic.List`1"/>. Permite a leitura
  releitura, atribuição e serialização mesmo após o fechamento da conexão.
  </summary>
 </member>
@@ -10273,6 +10286,20 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
  </param>
  <returns>string amigavel para URL</returns>
+</member>
+<member name="M:InnerLibs.Text.ToFriendlyPathName(System.String)">
+ <summary>
+ Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos)
+ </summary>
+ <param name="Text"></param>
+ <returns>string amigavel para URL</returns>
+</member>
+<member name="M:InnerLibs.Text.AdjustPathChars(System.String)">
+ <summary>
+ Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToHtmlList``1(System.Collections.Generic.IEnumerable{``0},System.Boolean)">
  <summary>
