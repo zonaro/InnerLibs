@@ -13,6 +13,21 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+
+    ''' <summary>
+    ''' Concatena todas as  <see cref="Exception.InnerException"/> em uma única string
+    ''' </summary>
+    ''' <param name="ex"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToFullExceptionString(ex As Exception) As String
+        Dim ExceptionString = ex.Message
+        While ex.InnerException IsNot Nothing
+            ex = ex.InnerException
+            ExceptionString &= " >> " & ex.Message
+        End While
+        Return ExceptionString
+    End Function
+
     ''' <summary>
     ''' Retorna um dicionário em QueryString
     ''' </summary>

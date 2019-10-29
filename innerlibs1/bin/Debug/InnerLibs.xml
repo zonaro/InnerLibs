@@ -1859,6 +1859,13 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.ToFullExceptionString(System.Exception)">
+ <summary>
+ Concatena todas as  <see cref="P:System.Exception.InnerException"/> em uma única string
+ </summary>
+ <param name="ex"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.ToQueryString(System.Collections.Generic.Dictionary{System.String,System.String})">
  <summary>
  Retorna um dicionário em QueryString
@@ -10273,6 +10280,20 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
  </param>
  <returns>string amigavel para URL</returns>
+</member>
+<member name="M:InnerLibs.Text.ToFriendlyPathName(System.String)">
+ <summary>
+ Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos)
+ </summary>
+ <param name="Text"></param>
+ <returns>string amigavel para URL</returns>
+</member>
+<member name="M:InnerLibs.Text.AdjustPathChars(System.String)">
+ <summary>
+ Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.ToHtmlList``1(System.Collections.Generic.IEnumerable{``0},System.Boolean)">
  <summary>

@@ -2683,7 +2683,26 @@ Public Module Text
     ''' <returns>string amigavel para URL</returns>
     <Extension()>
     Public Function ToFriendlyURL(Text As String, Optional UseUnderscore As Boolean = False) As String
-        Return Text.ReplaceMany(If(UseUnderscore, "_", "-"), "_", "-", " ").Replace("&", "e").Replace("@", "a").RemoveAny(".", ",", "?", "/", "#", "\", "<", ">", "(", ")", "{", "}", "[", "]", "|", """", "'", vbTab, Environment.NewLine).Trim.RemoveAccents().ToLower()
+        Return Text.ReplaceMany(If(UseUnderscore, "_", "-"), "_", "-", " ").RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLower()
+    End Function
+
+    ''' <summary>
+    ''' Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos)
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns>string amigavel para URL</returns>
+    <Extension()>
+    Public Function ToFriendlyPathName(Text As String) As String
+        Return Text.Replace("&", "e").Replace("@", "a").RemoveAny(":", "*", "?", "/", "\", "<", ">", "{", "}", "[", "]", "|", """", "'", vbTab, Environment.NewLine).AdjustBlankSpaces()
+    End Function
+
+    ''' <summary>
+    ''' Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function AdjustPathChars(Text As String) As String
+        Return Text.Split({"/", "\"}, StringSplitOptions.RemoveEmptyEntries).Select(Function(x) x.ToFriendlyPathName).Join("/")
     End Function
 
     ''' <summary>

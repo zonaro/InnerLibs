@@ -715,11 +715,8 @@ Public NotInheritable Class DataBase
     '''  <param name="Request">Qual a requeisiçao</param>
     ''' <returns></returns>
     Public Function ExecProcedureFromRequest(Request As HttpRequest, ByVal ProcedureName As String, ParamArray RequestKeys() As String) As DbCommand
-        RequestKeys = If(RequestKeys, {})
-        If RequestKeys.Count = 0 Then
-            RequestKeys = Request.FlatRequest.AllKeys
-        End If
-        Return CreateCommandFromRequest(Request, "EXEC " & ProcedureName & " " & RequestKeys.Select(Function(key) " @" & key & " = @" + key).ToArray.Join(","))
+        RequestKeys = If(RequestKeys, Request.FlatRequest.AllKeys)
+        Return CreateCommandFromRequest(Request, "EXEC " & ProcedureName & " " & If(RequestKeys, {}).Select(Function(key) " @" & key & " = @" + key).ToArray.Join(","))
     End Function
 
 End Class
