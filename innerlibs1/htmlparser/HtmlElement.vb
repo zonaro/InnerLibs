@@ -10,6 +10,7 @@ Namespace HtmlParser
 
 
 
+
     Public Class HtmlAnchorElement
         Inherits HtmlElement
 
@@ -165,8 +166,6 @@ Namespace HtmlParser
         Public Sub AddNode(ParamArray Node As HtmlNode())
             Me.Nodes.Add(Node)
         End Sub
-
-
         ''' <summary>
         ''' Add a node to collection using an <see cref="HtmlGenericControl"/> as base
         ''' </summary>
@@ -182,6 +181,16 @@ Namespace HtmlParser
         ''' <param name="Index"></param>
         Public Sub AddNode(HTML As String, Optional Index As Integer = 0)
             Me.Nodes.Add(HTML, Index)
+        End Sub
+
+        ''' <summary>
+        ''' Add one or more empty elements by their tagnames
+        ''' </summary>
+        ''' <param name="Names"></param>
+        Public Sub AddElement(ParamArray Names As String())
+            For Each n In If(Names, {})
+                Me.Nodes.Add(New HtmlElement(n))
+            Next
         End Sub
 
         ''' <summary>

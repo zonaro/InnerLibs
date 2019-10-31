@@ -13,7 +13,29 @@ Imports System.Windows.Forms
 ''' 
 Public Module Images
 
+    ''' <summary>
+    ''' Inverte as cores de uma imagem
+    ''' </summary>
+    ''' <param name="Img"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function InvertImageColors(Img As Image) As Bitmap
+        Dim bm As New Bitmap(Img)
+        Dim X As Integer
+        Dim Y As Integer
+        Dim r As Integer
+        Dim g As Integer
+        Dim b As Integer
 
+        For X = 0 To bm.Width - 1
+            For Y = 0 To bm.Height - 1
+                r = 255 - bm.GetPixel(X, Y).R
+                g = 255 - bm.GetPixel(X, Y).G
+                b = 255 - bm.GetPixel(X, Y).B
+                bm.SetPixel(X, Y, Color.FromArgb(r, g, b))
+            Next Y
+        Next X
+        Return bm
+    End Function
 
 
     ''' <summary>

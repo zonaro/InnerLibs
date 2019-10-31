@@ -678,6 +678,12 @@ InnerLibs
  <param name="HTML"></param>
  <param name="Index"></param>
 </member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.AddElement(System.String[])">
+ <summary>
+ Add one or more empty elements by their tagnames
+ </summary>
+ <param name="Names"></param>
+</member>
 <member name="M:InnerLibs.HtmlParser.HtmlElement.Clone">
  <summary>
  Clone this element into a new HtmlElement
@@ -3288,6 +3294,18 @@ Verifica se o objeto é do tipo numérico.
  releitura, atribuição e serialização mesmo após o fechamento da conexão.
  </summary>
 </member>
+<member name="M:InnerLibs.DataBase.Reader.SetResultNames(System.String[])">
+ <summary>
+ Aplica nomes aos <see cref="T:InnerLibs.DataBase.Result"/> deste <see cref="T:InnerLibs.DataBase.Reader"/>
+ </summary>
+ <param name="Names"></param>
+</member>
+<member name="M:InnerLibs.DataBase.Reader.SetPrefixedResultNames(System.String)">
+ <summary>
+ Aplica nomes aos <see cref="T:InnerLibs.DataBase.Result"/> deste <see cref="T:InnerLibs.DataBase.Reader"/> utilizando um prefixo e um numero indexador
+ </summary>
+ <param name="Prefix"></param>
+</member>
 <member name="M:InnerLibs.DataBase.Reader.ToString">
  <summary>
  Retorna um Json do objeto
@@ -3446,7 +3464,7 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <param name="Rows">Conunto de Dicionários</param>
 </member>
-<member name="M:InnerLibs.DataBase.Reader.#ctor(System.Data.Common.DbDataReader)">
+<member name="M:InnerLibs.DataBase.Reader.#ctor(System.Data.Common.DbDataReader,System.Boolean)">
  <summary>
  Cria um novo Reader a partir de um <see cref="T:System.Data.Common.DbDataReader"/>
  </summary>
@@ -3848,14 +3866,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="ApplicationAssembly">Diretório onde estão guardados os arquivos SQL</param>
  <typeparam name="ConnectionType">Tipo de conexão com o banco</typeparam>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.String)">
+<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.Boolean)">
  <summary>
  Executa uma Query no banco. Recomenda-se o uso de procedures.
  </summary>
  <param name="SQLQuery">Comando SQL a ser executado</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Boolean)">
  <summary>
  Executa uma Query no banco criando um comando a partir de um <see cref="T:System.Collections.Generic.IDictionary`2"/>
  </summary>
@@ -3863,21 +3881,21 @@ Verifica se o objeto é do tipo numérico.
  <param name="Values">Dicionario contendo os valores</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.IO.FileInfo)">
+<member name="M:InnerLibs.DataBase.RunSQL(System.IO.FileInfo,System.Boolean)">
  <summary>
  Executa uma Query no banco partir de um Arquivo.
  </summary>
  <param name="File">Arquivo com o comando SQL a ser executado</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.Web.HttpPostedFile)">
+<member name="M:InnerLibs.DataBase.RunSQL(System.Web.HttpPostedFile,System.Boolean)">
  <summary>
  Executa uma Query no banco partir de um Arquivo.
  </summary>
  <param name="File">Arquivo com o comando SQL a ser executado</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.Byte[])">
+<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.Byte[],System.Boolean)">
  <summary>
  Executa uma Query no banco com upload de arquivos.
  </summary>
@@ -3886,7 +3904,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="File">         Arquivo</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.Web.HttpPostedFile)">
+<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.Web.HttpPostedFile,System.Boolean)">
  <summary>
  Executa uma Query no banco com upload de arquivos.
  </summary>
@@ -3895,7 +3913,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="File">         Arquivo postado</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.IO.FileInfo)">
+<member name="M:InnerLibs.DataBase.RunSQL(System.String,System.String,System.IO.FileInfo,System.Boolean)">
  <summary>
  Executa uma Query no banco com upload de arquivos.
  </summary>
@@ -3904,7 +3922,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="File">         Arquivo</param>
  <returns>Um <see cref="T:InnerLibs.DataBase.Reader"/> com as informações da consulta</returns>
 </member>
-<member name="M:InnerLibs.DataBase.RunSQL(System.Data.Common.DbCommand)">
+<member name="M:InnerLibs.DataBase.RunSQL(System.Data.Common.DbCommand,System.Boolean)">
  <summary>
  Executa uma Query no banco. Recomenda-se o uso de procedures.
  </summary>
@@ -7363,6 +7381,13 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <remarks></remarks>
  
+</member>
+<member name="M:InnerLibs.Images.InvertImageColors(System.Drawing.Image)">
+ <summary>
+ Inverte as cores de uma imagem
+ </summary>
+ <param name="Img"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Images.CropToSquare(System.Drawing.Image,System.Int32)">
  <summary>

@@ -13,6 +13,10 @@ Imports InnerLibs
 
 Public NotInheritable Class DataBase
 
+
+
+
+
     ''' <summary>
     ''' Cria um parametro de Query SQL a partir de uma variavel convertida para um tipo especifico
     ''' </summary>
@@ -366,7 +370,7 @@ Public NotInheritable Class DataBase
     ''' <param name="SQLQuery">Comando SQL a ser executado</param>
     ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
 
-    Public Function RunSQL(ByVal SQLQuery As String) As Reader
+    Public Function RunSQL(ByVal SQLQuery As String, Optional ForceLowerCaseColumns As Boolean = False) As Reader
         Log(SQLQuery)
         Using con = Activator.CreateInstance(ConnectionType)
             con.ConnectionString = Me.ConnectionString
@@ -374,7 +378,7 @@ Public NotInheritable Class DataBase
             Using command As DbCommand = con.CreateCommand()
                 command.CommandText = SQLQuery
                 Using Reader As DbDataReader = command.ExecuteReader()
-                    Return New Reader(Reader)
+                    Return New Reader(Reader, ForceLowerCaseColumns)
                 End Using
             End Using
         End Using
@@ -386,8 +390,8 @@ Public NotInheritable Class DataBase
     ''' <param name="SQLQuery">Comando SQL</param>
     ''' <param name="Values">Dicionario contendo os valores</param>
     ''' <returns></returns>
-    Public Function RunSQL(ByVal SQLQuery As String, Values As IDictionary(Of String, Object)) As Reader
-        Return RunSQL(Me.CreateCommandFromDictionary(SQLQuery, Values))
+    Public Function RunSQL(ByVal SQLQuery As String, Values As IDictionary(Of String, Object), Optional ForceLowerCaseColumns As Boolean = False) As Reader
+        Return RunSQL(Me.CreateCommandFromDictionary(SQLQuery, Values), ForceLowerCaseColumns)
     End Function
 
     ''' <summary>
@@ -395,9 +399,9 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
     ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
-    Public Function RunSQL(ByVal File As FileInfo) As Reader
+    Public Function RunSQL(ByVal File As FileInfo, Optional ForceLowerCaseColumns As Boolean = False) As Reader
         Using s = File.OpenText
-            Return RunSQL(s.ReadToEnd)
+            Return RunSQL(s.ReadToEnd, ForceLowerCaseColumns)
         End Using
     End Function
 
@@ -406,8 +410,8 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <param name="File">Arquivo com o comando SQL a ser executado</param>
     ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
-    Public Function RunSQL(ByVal File As HttpPostedFile) As Reader
-        Using s = New StreamReader(File.InputStream)
+    Public Function RunSQL(ByVal File As HttpPostedFile, Optional ForceLowerCaseColumns As Boolean = False) As Reader
+        Using s = New StreamReader(File.InputStream, ForceLowerCaseColumns)
             Return RunSQL(s.ReadToEnd)
         End Using
     End Function
@@ -419,7 +423,7 @@ Public NotInheritable Class DataBase
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">         Arquivo</param>
     ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
-    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte()) As Reader
+    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As Byte(), Optional ForceLowerCaseColumns As Boolean = False) As Reader
         Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -428,7 +432,7 @@ Public NotInheritable Class DataBase
         command.CommandText = SQLQuery
         command.AddFile(FileParameter, File)
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return New Reader(Reader)
+        Return New Reader(Reader, ForceLowerCaseColumns)
     End Function
 
     ''' <summary>
@@ -438,7 +442,7 @@ Public NotInheritable Class DataBase
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">         Arquivo postado</param>
     ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
-    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile) As Reader
+    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As HttpPostedFile, Optional ForceLowerCaseColumns As Boolean = False) As Reader
         Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -447,7 +451,7 @@ Public NotInheritable Class DataBase
         command.CommandText = SQLQuery
         command.AddFile(FileParameter, File)
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return New Reader(Reader)
+        Return New Reader(Reader, ForceLowerCaseColumns)
     End Function
 
     ''' <summary>
@@ -457,7 +461,7 @@ Public NotInheritable Class DataBase
     ''' <param name="FileParameter">Nome do parâmetro que guarda o arquivo</param>
     ''' <param name="File">         Arquivo</param>
     ''' <returns>Um <see cref="DataBase.Reader"/> com as informações da consulta</returns>
-    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo) As Reader
+    Public Function RunSQL(SQLQuery As String, FileParameter As String, File As FileInfo, Optional ForceLowerCaseColumns As Boolean = False) As Reader
         Log(SQLQuery)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
@@ -466,7 +470,7 @@ Public NotInheritable Class DataBase
         command.CommandText = SQLQuery
         command.AddFile(FileParameter, File)
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return New Reader(Reader)
+        Return New Reader(Reader, ForceLowerCaseColumns)
     End Function
 
     ''' <summary>
@@ -474,14 +478,14 @@ Public NotInheritable Class DataBase
     ''' </summary>
     ''' <param name="Command">Commando de banco de dados pre-pronto</param>
     ''' <returns></returns>
-    Public Function RunSQL(Command As DbCommand) As Reader
+    Public Function RunSQL(Command As DbCommand, Optional ForceLowerCaseColumns As Boolean = False) As Reader
         Log(Command.CommandText)
         Dim con = Activator.CreateInstance(ConnectionType)
         con.ConnectionString = Me.ConnectionString
         Command.Connection = con
         con.Open()
         Dim Reader As DbDataReader = Command.ExecuteReader()
-        Return New Reader(Reader)
+        Return New Reader(Reader, ForceLowerCaseColumns)
     End Function
 
     ''' <summary>
@@ -715,7 +719,7 @@ Public NotInheritable Class DataBase
     '''  <param name="Request">Qual a requeisiçao</param>
     ''' <returns></returns>
     Public Function ExecProcedureFromRequest(Request As HttpRequest, ByVal ProcedureName As String, ParamArray RequestKeys() As String) As DbCommand
-        RequestKeys = If(RequestKeys, Request.FlatRequest.AllKeys)
+        RequestKeys = If(RequestKeys, Request.FlatRequest.AllKeys).Where(Function(x) Request(x).IsNotBlank()).ToArray()
         Return CreateCommandFromRequest(Request, "EXEC " & ProcedureName & " " & If(RequestKeys, {}).Select(Function(key) " @" & key & " = @" + key).ToArray.Join(","))
     End Function
 

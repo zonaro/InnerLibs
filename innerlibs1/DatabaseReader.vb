@@ -107,6 +107,31 @@ Partial Public Class DataBase
         Implements IDisposable
 
         ''' <summary>
+        ''' Aplica nomes aos <see cref="Result"/> deste <see cref="Reader"/>
+        ''' </summary>
+        ''' <param name="Names"></param>
+        Public Sub SetResultNames(ParamArray Names As String())
+            Names = If(Names, {})
+            If Me.HasResults Then
+                For index = 0 To Names.Count.SetMaxValue(Me.CountResults) - 1
+                    Me.GetResult(index).ResultName = Names(index)
+                Next
+            End If
+        End Sub
+
+        ''' <summary>
+        ''' Aplica nomes aos <see cref="Result"/> deste <see cref="Reader"/> utilizando um prefixo e um numero indexador
+        ''' </summary>
+        ''' <param name="Prefix"></param>
+        Public Sub SetPrefixedResultNames(Prefix As String)
+            If Me.HasResults Then
+                For index = 0 To Me.CountResults - 1
+                    Me.GetResult(index).ResultName = Prefix & index.ToString
+                Next
+            End If
+        End Sub
+
+        ''' <summary>
         ''' Retorna um Json do objeto
         ''' </summary>
         ''' <returns></returns>
@@ -434,14 +459,14 @@ Partial Public Class DataBase
         ''' Cria um novo Reader a partir de um <see cref="DbDataReader"/>
         ''' </summary>
         ''' <param name="Reader">Reader</param>
-        Public Sub New(Reader As DbDataReader)
+        Public Sub New(Reader As DbDataReader, Optional ForceLowerCaseColumns As Boolean = False)
             Using Reader
                 Try
                     Do
                         Dim listatabela As New Result
                         Dim columns = New List(Of String)
                         For i As Integer = 0 To Reader.FieldCount - 1
-                            columns.Add(Reader.GetName(i))
+                            columns.Add(If(ForceLowerCaseColumns, Reader.GetName(i).ToLower(), Reader.GetName(i)))
                         Next
                         If Reader.HasRows Then
                             While Reader.Read
