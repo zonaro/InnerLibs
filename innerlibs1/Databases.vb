@@ -4,18 +4,11 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Text.RegularExpressions
 Imports System.Web
-Imports System.Web.SessionState
 Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
-Imports System.Windows.Forms
-Imports System.Xml
 Imports InnerLibs
 
 Public NotInheritable Class DataBase
-
-
-
-
 
     ''' <summary>
     ''' Cria um parametro de Query SQL a partir de uma variavel convertida para um tipo especifico
@@ -89,12 +82,14 @@ Public NotInheritable Class DataBase
             Return "INSERT"
         End If
     End Function
+
     ''' <summary>
     ''' Faz um INSERT out UPDATE no banco de dados de acordo com o valor da coluna de chave primária especificado em um <see cref="IDictionary"/>
     '''</summary>
     Public Function INSERTorUPDATE(TableName As String, PrimaryKeyColumn As String, Columns As NameValueCollection) As String
         Return INSERTorUPDATE(TableName, PrimaryKeyColumn, Columns.ToDictionary)
     End Function
+
     ''' <summary>
     ''' Faz um INSERT out UPDATE no banco de dados de acordo com o valor da coluna de chave primária especificado em um <see cref="IDictionary"/>
     '''</summary>
@@ -188,8 +183,6 @@ Public NotInheritable Class DataBase
         End Using
     End Function
 
-
-
     ''' <summary>
     ''' Retorna a lista de arquivos SQL disponiveis
     ''' </summary>
@@ -276,7 +269,7 @@ Public NotInheritable Class DataBase
     ''' Arquivo onde serão salvos os logs
     ''' </summary>
     ''' <returns></returns>
-    Public Property LogFile As FileInfo
+    Public Property LogFile As FileInfo = Nothing
 
     Private Sub Log(ByVal SQLQuery As String)
         Try
@@ -643,9 +636,6 @@ Public NotInheritable Class DataBase
         Next
     End Sub
 
-
-
-
     ''' <summary>
     ''' Insere um objeto em uma tabela a partir de suas propriedades e valores
     ''' </summary>
@@ -724,4 +714,3 @@ Public NotInheritable Class DataBase
     End Function
 
 End Class
-

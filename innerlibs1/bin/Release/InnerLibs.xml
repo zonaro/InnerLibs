@@ -4668,6 +4668,14 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Calendars.ToTimeZone(System.DateTime,System.TimeZoneInfo)">
+ <summary>
+ Converte um <see cref="T:System.DateTime"/> para um timezone Especifico
+ </summary>
+ <param name="[Date]"></param>
+ <param name="TimeZone"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.ConvertDateString(System.String,System.String,System.Globalization.CultureInfo)">
  <summary>
  Converte uma string em datetime a partir de um formato especifico
@@ -9361,6 +9369,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Modulo de manipulação de Texto
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Text.PrintIf(System.String,System.Boolean)">
+ <summary>
+ Retorna a string especificada se o valor booleano for verdadeiro
+ </summary>
+ <param name="Text"></param>
+ <param name="BooleanValue"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.SplitAny(System.String,System.String[])">
  <summary>

@@ -623,6 +623,16 @@ End Class
 ''' <remarks></remarks>
 Public Module Text
 
+    ''' <summary>
+    ''' Retorna a string especificada se o valor booleano for verdadeiro
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="BooleanValue"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function PrintIf(Text As String, BooleanValue As Boolean) As String
+        Return If(BooleanValue, Text, "")
+    End Function
+
 
 
     ''' <summary>

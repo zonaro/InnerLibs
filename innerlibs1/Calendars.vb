@@ -206,6 +206,15 @@ End Class
 ''' <remarks></remarks>
 Public Module Calendars
 
+    ''' <summary>
+    ''' Converte um <see cref="Date"/> para um timezone Especifico
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <param name="TimeZone"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToTimeZone([Date] As Date, TimeZone As TimeZoneInfo) As Date
+        Return TimeZoneInfo.ConvertTimeFromUtc([Date], TimeZone)
+    End Function
 
 
     ''' <summary>

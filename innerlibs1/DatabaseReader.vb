@@ -17,7 +17,9 @@ Partial Public Class DataBase
     Public NotInheritable Class Row
         Inherits Dictionary(Of String, Object)
 
-
+        Sub New()
+            MyBase.New(StringComparer.OrdinalIgnoreCase)
+        End Sub
 
 
         Public Function Simplify() As Object

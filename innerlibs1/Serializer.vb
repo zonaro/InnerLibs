@@ -7,6 +7,7 @@ Public NotInheritable Class Json
 
     Friend Sub New()
         MyBase.New()
+        Me.MaxJsonLength = Integer.MaxValue
         Me.RegisterConverters(New JavaScriptConverter() {New DateStringJSONConverter(), New BytesConverter()})
     End Sub
 
