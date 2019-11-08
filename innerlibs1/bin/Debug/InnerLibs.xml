@@ -6971,14 +6971,28 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">String MD5</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Encryption.Encrypt(System.String)">
+<member name="M:InnerLibs.Encryption.Encrypt(System.String,System.String)">
  <summary>
  Criptografa uma string
  </summary>
  <param name="Text">Texto descriptografado</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Encryption.Decrypt(System.String)">
+<member name="M:InnerLibs.Encryption.Decrypt(System.String,System.String)">
+ <summary>
+ Descriptografa uma string
+ </summary>
+ <param name="Text">Texto Criptografado</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Encryption.Encrypt(System.String,System.String,System.String)">
+ <summary>
+ Criptografa uma string
+ </summary>
+ <param name="Text">Texto descriptografado</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Encryption.Decrypt(System.String,System.String,System.String)">
  <summary>
  Descriptografa uma string
  </summary>
