@@ -16,14 +16,17 @@ Public Module Encryption
 
     <Extension()>
     Public Function ToMD5String(Text As String) As String
-        Dim md5 = System.Security.Cryptography.MD5.Create()
-        Dim inputBytes As Byte() = System.Text.Encoding.ASCII.GetBytes(Text)
-        Dim hash As Byte() = md5.ComputeHash(inputBytes)
-        Dim sb = New StringBuilder()
-        For i As Integer = 0 To hash.Length - 1
-            sb.Append(hash(i).ToString("X2"))
-        Next
-        Return sb.ToString()
+        If (Text.IsNotBlank()) Then
+            Dim md5 = System.Security.Cryptography.MD5.Create()
+            Dim inputBytes As Byte() = System.Text.Encoding.ASCII.GetBytes(Text)
+            Dim hash As Byte() = md5.ComputeHash(inputBytes)
+            Dim sb = New StringBuilder()
+            For i As Integer = 0 To hash.Length - 1
+                sb.Append(hash(i).ToString("X2"))
+            Next
+            Return sb.ToString()
+        End If
+        Return Text
     End Function
 
     ''' <summary>
@@ -134,7 +137,7 @@ Public Module Encryption
             aes.Key = Encoding.UTF8.GetBytes(Key)
             aes.Mode = CipherMode.CBC
             aes.Padding = PaddingMode.PKCS7
-            Dim src As Byte() = System.Convert.FromBase64String(text)
+            Dim src As Byte() = System.Convert.FromBase64String(text.FixBase64())
 
             Using ddecrypt As ICryptoTransform = aes.CreateDecryptor()
                 Dim dest As Byte() = ddecrypt.TransformFinalBlock(src, 0, src.Length)
