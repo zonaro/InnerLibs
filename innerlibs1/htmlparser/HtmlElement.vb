@@ -5,11 +5,7 @@ Imports System.Web.UI.WebControls
 Imports System.Xml
 Imports InnerLibs.LINQ
 
-
 Namespace HtmlParser
-
-
-
 
     Public Class HtmlAnchorElement
         Inherits HtmlElement
@@ -89,8 +85,6 @@ Namespace HtmlParser
         Protected mName As String
         Protected mNodes As HtmlNodeCollection
 
-
-
         ''' <summary>
         ''' This constructs a new HTML element with the specified tag name.
         ''' </summary>
@@ -166,6 +160,7 @@ Namespace HtmlParser
         Public Sub AddNode(ParamArray Node As HtmlNode())
             Me.Nodes.Add(Node)
         End Sub
+
         ''' <summary>
         ''' Add a node to collection using an <see cref="HtmlGenericControl"/> as base
         ''' </summary>
@@ -211,7 +206,6 @@ Namespace HtmlParser
                 Me.Parent.Nodes.Insert(Index.LimitRange(0, Me.Parent.Nodes.Count - 1), Clone())
             End If
         End Sub
-
 
         ''' <summary>
         ''' Return the child elements of this element (excluding HtmlText)
@@ -278,11 +272,27 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Gets os sets a boolean value for toggle an specific class
+        ''' The class list of this element
         ''' </summary>
         ''' <returns></returns>
         <Category("General"), Description("The CSS class of this element"), TypeConverter(GetType(ExpandableObjectConverter))>
         Public ReadOnly Property [Class] As ClassList
+
+        ''' <summary>
+        ''' Gets os sets a boolean value for toggle an specific class
+        ''' </summary>
+
+        Public Function ToggleClass(ClassName As String, Status As Boolean) As HtmlElement
+            Me.Class(ClassName) = Status
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Gets os sets a boolean value for toggle an specific class
+        ''' </summary>
+        Public Function ToggleClass(ClassName As String) As HtmlElement
+            Return Me.ToggleClass(ClassName, Not Me.Class(ClassName))
+        End Function
 
         ''' <summary>
         ''' This is the collection of attributes associated with this element.
@@ -559,8 +569,6 @@ Namespace HtmlParser
             End Set
         End Property
 
-
-
         ''' <summary>
         ''' Return the value of specific attibute
         ''' </summary>
@@ -594,7 +602,6 @@ Namespace HtmlParser
                 End If
             End Set
         End Property
-
 
         ''' <summary>
         ''' Add a attribute to this element
@@ -804,7 +811,6 @@ Namespace HtmlParser
             Me.GetTextElements(SearchChildren).ForEach(Sub(x As HtmlText) x.Parent.Nodes.ReplaceElement(x, x.Text.ParseUsername(Method)))
         End Sub
 
-
         ''' <summary>
         ''' Find mentions and replace then using specific method using a custom char on match
         ''' </summary>
@@ -866,9 +872,11 @@ Namespace HtmlParser
 
     Public Class HtmlTimeElement
         Inherits HtmlElement
+
         Sub New()
             MyBase.New("time")
         End Sub
+
         Sub New(DateTime As DateTime)
             Me.New
             Me.DateTime = DateTime
@@ -1052,8 +1060,6 @@ Namespace HtmlParser
                 End If
             End Set
         End Property
-
-
 
     End Class
 

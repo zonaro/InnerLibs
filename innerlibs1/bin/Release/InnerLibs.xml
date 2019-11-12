@@ -721,9 +721,19 @@ InnerLibs
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlElement.Class">
  <summary>
- Gets os sets a boolean value for toggle an specific class
+ The class list of this element
  </summary>
  <returns></returns>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ToggleClass(System.String,System.Boolean)">
+ <summary>
+ Gets os sets a boolean value for toggle an specific class
+ </summary>
+</member>
+<member name="M:InnerLibs.HtmlParser.HtmlElement.ToggleClass(System.String)">
+ <summary>
+ Gets os sets a boolean value for toggle an specific class
+ </summary>
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlElement.Attributes">
  <summary>
@@ -5154,6 +5164,22 @@ Verifica se o objeto é do tipo numérico.
 <member name="M:InnerLibs.Converter.ToInteger``1(``0)">
  <summary>
  Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
+<member name="M:InnerLibs.Converter.ToDecimal``1(``0)">
+ <summary>
+ Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
+<member name="M:InnerLibs.Converter.ToDouble``1(``0)">
+ <summary>
+ Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar
  </summary>
  <typeparam name="FromType">Tipo de origem</typeparam>
  <param name="Value">Variavel com valor</param>

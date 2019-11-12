@@ -104,6 +104,28 @@ Public Module Converter
     End Function
 
     ''' <summary>
+    ''' Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToDecimal(Of FromType)(Value As FromType) As Decimal
+        Return Value.ChangeType(Of Decimal)
+    End Function
+
+    ''' <summary>
+    ''' Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToDouble(Of FromType)(Value As FromType) As Double
+        Return Value.ChangeType(Of Double)
+    End Function
+
+    ''' <summary>
     ''' Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
     ''' </summary>
     ''' <typeparam name="FromType">Tipo de origem</typeparam>
