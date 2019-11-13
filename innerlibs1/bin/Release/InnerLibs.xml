@@ -5177,6 +5177,14 @@ Verifica se o objeto é do tipo numérico.
  <param name="Value">Variavel com valor</param>
  <returns>Valor convertido em novo tipo</returns>
 </member>
+<member name="M:InnerLibs.Converter.ToDateTime``1(``0)">
+ <summary>
+ Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
 <member name="M:InnerLibs.Converter.ToDouble``1(``0)">
  <summary>
  Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar

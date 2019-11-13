@@ -115,6 +115,17 @@ Public Module Converter
     End Function
 
     ''' <summary>
+    ''' Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToDateTime(Of FromType)(Value As FromType) As DateTime
+        Return Value.ChangeType(Of DateTime)
+    End Function
+
+    ''' <summary>
     ''' Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar
     ''' </summary>
     ''' <typeparam name="FromType">Tipo de origem</typeparam>
