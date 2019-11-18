@@ -10,8 +10,6 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
-
-
         ''' <summary>
         '''Atualiza objetos de entidade usando <see cref="Data.Linq.RefreshMode.KeepChanges"/> e envia as alteraçoes ao banco de dados
         ''' </summary>
@@ -119,7 +117,6 @@ Namespace LINQ
             Return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector)
         End Function
 
-
         ''' <summary>
         ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
         ''' </summary>
@@ -131,8 +128,6 @@ Namespace LINQ
         Public Function Traverse(Of T, P)(ByVal Item As T, ByVal ChildSelector As Func(Of T, IEnumerable(Of T)), PropertySelector As Func(Of T, IQueryable(Of P)), Optional IncludeMe As Boolean = False) As IEnumerable(Of P)
             Return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector)
         End Function
-
-
 
         Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains")
 
@@ -235,8 +230,6 @@ Namespace LINQ
             Return predicate
         End Function
 
-
-
         ''' <summary>
         ''' Distingui os items de uma lista a partir de uma propriedade da classe
         ''' </summary>
@@ -287,6 +280,42 @@ Namespace LINQ
             Return Items
         End Function
 
+        ''' <summary>
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+        ''' opcionalmente criar o objeto se o mesmo não existir
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="Table">Tabela da entidade</param>
+        ''' <param name="IDs">Valores das chaves primárias</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Table As Table(Of T), ByVal IDs As Object) As IEnumerable(Of T)
+            Dim mapping = Table.Context.Mapping.GetTable(GetType(T))
+            Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
+            If pkfield Is Nothing Then Throw New Exception(String.Format("Table {0} does not contain a Primary Key field or is a composite primary key", mapping.TableName))
+            Dim param = Expression.Parameter(GetType(T), "e")
+            Dim l As New List(Of T)
+            For Each ID In IDs
+                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(CTypeDynamic(ID, pkfield.Type))), param)
+                Dim obj = Table.SingleOrDefault(predicate)
+                If obj IsNot Nothing Then
+                    l.Add(obj)
+                End If
+            Next
+            Return l.AsEnumerable
+        End Function
+
+        ''' <summary>
+        ''' Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias.
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
+        ''' <param name="IDs">    Valor da chave primárias</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ParamArray IDs As Object()) As IEnumerable(Of T)
+            Return Context.GetTable(Of T)().GetByPrimaryKeys(IDs)
+        End Function
 
         ''' <summary>
         ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
@@ -301,6 +330,54 @@ Namespace LINQ
             Return Context.GetByPrimaryKey(Of T)(ID, False)
         End Function
 
+        ''' <summary>
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+        ''' opcionalmente criar o objeto se o mesmo não existir
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="Table">          Tabela da entidade</param>
+        ''' <param name="ID">               Valor da chave primária</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function GetByPrimaryKey(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object) As T
+            Return Table.Context.GetByPrimaryKey(Of T)(ID, False)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária. é um alias de <see cref="GetByPrimaryKey(Of T)(Data.Linq.Table(Of T), Object)"/>
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="Table">          Tabela da entidade</param>
+        ''' <param name="ID">               Valor da chave primária</param>
+        ''' <returns></returns>
+        <Extension> Public Function GetPK(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object) As T
+            Return Table.GetByPrimaryKey(ID)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+        ''' opcionalmente criar o objeto se o mesmo não existir. é um alias para <see cref="GetByPrimaryKey(Of T)(Data.Linq.Table(Of T), Object, Boolean, ByRef Boolean)"/>
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="Table">          Tabela da entidade</param>
+        ''' <param name="ID">               Valor da chave primária</param>
+        ''' <returns></returns>
+        <Extension> Public Function GetPK(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object, CreateIfNotExists As Boolean, Optional ByRef IsNew As Boolean = False) As T
+            Return Table.GetByPrimaryKey(ID, CreateIfNotExists, IsNew)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+        ''' opcionalmente criar o objeto se o mesmo não existir
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto</typeparam>
+        ''' <param name="Table">          Tabela da entidade</param>
+        ''' <param name="ID">               Valor da chave primária</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function GetByPrimaryKey(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object, CreateIfNotExists As Boolean, Optional ByRef IsNew As Boolean = False) As T
+            Return Table.Context.GetByPrimaryKey(Of T)(ID, CreateIfNotExists, IsNew)
+        End Function
 
         ''' <summary>
         ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.
@@ -326,31 +403,6 @@ Namespace LINQ
                 Context.GetTable(Of T).InsertOnSubmit(obj)
             End If
             Return obj
-        End Function
-
-        ''' <summary>
-        ''' Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias.
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
-        ''' <param name="IDs">    Valor da chave primárias</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ParamArray IDs As Object()) As IEnumerable(Of T)
-            Dim table = Context.GetTable(Of T)()
-            Dim mapping = Context.Mapping.GetTable(GetType(T))
-            Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
-            If pkfield Is Nothing Then Throw New Exception(String.Format("Table {0} does not contain a Primary Key field", mapping.TableName))
-            Dim param = Expression.Parameter(GetType(T), "e")
-            Dim l As New List(Of T)
-            For Each ID In IDs
-                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(CTypeDynamic(ID, pkfield.Type))), param)
-                Dim obj = table.SingleOrDefault(predicate)
-                If obj IsNot Nothing Then
-                    l.Add(obj)
-                End If
-            Next
-            Return l.AsEnumerable
         End Function
 
         ''' <summary>
@@ -532,8 +584,6 @@ Namespace LINQ
             Return Search
         End Function
 
-
-
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
         ''' </summary>
@@ -546,7 +596,6 @@ Namespace LINQ
             Return Context.Search(Of ClassType)({SearchTerm}, Properties)
         End Function
 
-
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
         ''' </summary>
@@ -556,10 +605,22 @@ Namespace LINQ
         ''' <param name="Properties"> </param>
         ''' <returns></returns>
         <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
+            Return Context.GetTable(Of ClassType).Search(SearchTerms, Properties)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType"></typeparam>
+        ''' <param name="Table">    </param>
+        ''' <param name="SearchTerms"></param>
+        ''' <param name="Properties"> </param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
             Search = Nothing
-            Dim tab = Context.GetTable(Of ClassType).AsQueryable
+            Dim tab = Table.AsQueryable
             Dim predi = CreateExpression(Of ClassType)(False)
-            Dim mapping = Context.Mapping.GetTable(GetType(ClassType))
+            Dim mapping = Table.Context.Mapping.GetTable(GetType(ClassType))
             Properties = If(Properties, {})
 
             For Each prop In Properties
@@ -579,8 +640,6 @@ Namespace LINQ
             Next
             Return Search
         End Function
-
-
 
         ''' <summary>
         ''' Seleciona e une em uma unica string varios elementos
@@ -845,7 +904,6 @@ Namespace LINQ
         Public Function MostFalse(ParamArray Tests As Boolean()) As Boolean
             Return If(Tests, {}).Most(False)
         End Function
-
 
         ''' <summary>
         ''' Atualiza um objeto de entidade a partir de valores em um Dictionary

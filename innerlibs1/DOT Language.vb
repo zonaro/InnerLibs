@@ -1,26 +1,32 @@
-﻿
-Imports System.Globalization
-Imports System.Runtime.CompilerServices
+﻿Namespace DOTLanguage
 
-
-Namespace DOTLanguage
+    Enum GraphType
+        ''' <summary>
+        ''' Gráficos não orientados
+        ''' </summary>
+        Graph
+        ''' <summary>
+        ''' Gráficos orientados
+        ''' </summary>
+        Digraph
+    End Enum
 
     ''' <summary>
     ''' Wrapper para criaçao de gráficos em DOT Language
     ''' </summary>
-    Public Class Digraph
+    Public Class Graph
         Inherits List(Of DotObject)
-
 
         Property Clusters As New List(Of Cluster)
 
-
         ''' <summary>
-        ''' Tipo do Grafico
+        ''' Tipo do Grafico (graph, digraph)
         ''' </summary>
         ''' <returns></returns>
 
-        ReadOnly Property GraphType As String = "digraph"
+        Property GraphType As String = "graph"
+
+        Property Strict As Boolean = False
 
         ''' <summary>
         ''' Nome do Gráfico
@@ -35,9 +41,11 @@ Namespace DOTLanguage
         Public Overrides Function ToString() As String
             Dim s = Me.Select(Function(n) n.ToString & Environment.NewLine).ToArray.Join("")
             s = s.Split(Environment.NewLine).Distinct.Join(Environment.NewLine) & Environment.NewLine
+            If GraphType.ToLower.Equals("graph") Then
+                s = s.Replace("->", "--").Replace("<-", "--")
+            End If
             Return GraphType & " " & ID.ToSlugCase(True) & " " & s.Quote("{")
         End Function
-
 
     End Class
 
@@ -52,6 +60,7 @@ Namespace DOTLanguage
                 Throw New NotImplementedException()
             End Set
         End Property
+
     End Class
 
     Public MustInherit Class DotObject
@@ -65,7 +74,6 @@ Namespace DOTLanguage
     Public Class DotAttributeCollection
         Inherits Dictionary(Of String, Object)
 
-
         Public Overrides Function ToString() As String
             Dim dotstring = ""
             For Each prop In Me
@@ -78,7 +86,6 @@ Namespace DOTLanguage
         End Function
 
     End Class
-
 
     ''' <summary>
     ''' Representa um nó de um grafico em DOT Language
@@ -94,7 +101,6 @@ Namespace DOTLanguage
             Me.ID = ID
         End Sub
 
-
         ''' <summary>
         ''' ID deste nó
         ''' </summary>
@@ -107,6 +113,7 @@ Namespace DOTLanguage
                 _id = value.ToSlugCase(True)
             End Set
         End Property
+
         Private _id As String
 
         ''' <summary>
@@ -126,7 +133,7 @@ Namespace DOTLanguage
         Inherits DotObject
 
         ''' <summary>
-        ''' Cria uma nova ligaçao 
+        ''' Cria uma nova ligaçao
         ''' </summary>
         ''' <param name="Oriented">Relação orientada</param>
         Sub New(ParentNode As DotNode, ChildNode As DotNode, Optional Oriented As Boolean = True)
@@ -169,4 +176,3 @@ Namespace DOTLanguage
     End Class
 
 End Namespace
-

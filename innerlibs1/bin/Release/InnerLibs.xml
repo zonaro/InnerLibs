@@ -4374,24 +4374,34 @@ Verifica se o objeto é do tipo numérico.
  <typeparam name="KeyType">Tipo da Key</typeparam>
  <typeparam name="ClassType">Tipo da</typeparam>
 </member>
-<member name="T:InnerLibs.DOTLanguage.Digraph">
+<member name="F:InnerLibs.DOTLanguage.GraphType.Graph">
+ <summary>
+ Gráficos não orientados
+ </summary>
+</member>
+<member name="F:InnerLibs.DOTLanguage.GraphType.Digraph">
+ <summary>
+ Gráficos orientados
+ </summary>
+</member>
+<member name="T:InnerLibs.DOTLanguage.Graph">
  <summary>
  Wrapper para criaçao de gráficos em DOT Language
  </summary>
 </member>
-<member name="P:InnerLibs.DOTLanguage.Digraph.GraphType">
+<member name="P:InnerLibs.DOTLanguage.Graph.GraphType">
  <summary>
- Tipo do Grafico
+ Tipo do Grafico (graph, digraph)
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.DOTLanguage.Digraph.ID">
+<member name="P:InnerLibs.DOTLanguage.Graph.ID">
  <summary>
  Nome do Gráfico
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DOTLanguage.Digraph.ToString">
+<member name="M:InnerLibs.DOTLanguage.Graph.ToString">
  <summary>
  Escreve a DOT string correspondente a este gráfico
  </summary>
@@ -4427,7 +4437,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.DOTLanguage.DotEdge.#ctor(InnerLibs.DOTLanguage.DotNode,InnerLibs.DOTLanguage.DotNode,System.Boolean)">
  <summary>
- Cria uma nova ligaçao 
+ Cria uma nova ligaçao
  </summary>
  <param name="Oriented">Relação orientada</param>
 </member>
@@ -5547,6 +5557,25 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Items"> </param>
  <param name="Action"></param>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKeys``1(System.Data.Linq.Table{``0},System.Object)">
+ <summary>
+ Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+ opcionalmente criar o objeto se o mesmo não existir
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="Table">Tabela da entidade</param>
+ <param name="IDs">Valores das chaves primárias</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKeys``1(System.Data.Linq.DataContext,System.Object[])">
+ <summary>
+ Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias.
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
+ <param name="IDs">    Valor da chave primárias</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.DataContext,System.Object)">
  <summary>
  Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
@@ -5554,6 +5583,45 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <typeparam name="T">Tipo do objeto</typeparam>
  <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
+ <param name="ID">               Valor da chave primária</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.Table{``0},System.Object)">
+ <summary>
+ Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+ opcionalmente criar o objeto se o mesmo não existir
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="Table">          Tabela da entidade</param>
+ <param name="ID">               Valor da chave primária</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetPK``1(System.Data.Linq.Table{``0},System.Object)">
+ <summary>
+ Retorna um objeto de uma tabela especifica de acordo com uma chave primária. é um alias de <see cref="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.Table{``0},System.Object)"/>
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="Table">          Tabela da entidade</param>
+ <param name="ID">               Valor da chave primária</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetPK``1(System.Data.Linq.Table{``0},System.Object,System.Boolean,System.Boolean@)">
+ <summary>
+ Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+ opcionalmente criar o objeto se o mesmo não existir. é um alias para <see cref="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.Table{``0},System.Object,System.Boolean,System.Boolean@)"/>
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="Table">          Tabela da entidade</param>
+ <param name="ID">               Valor da chave primária</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.Table{``0},System.Object,System.Boolean,System.Boolean@)">
+ <summary>
+ Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
+ opcionalmente criar o objeto se o mesmo não existir
+ </summary>
+ <typeparam name="T">Tipo do objeto</typeparam>
+ <param name="Table">          Tabela da entidade</param>
  <param name="ID">               Valor da chave primária</param>
  <returns></returns>
 </member>
@@ -5567,15 +5635,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="CreateIfNotExists">
  Se true, cria o objeto e coloca o status de INSERT pendente para este
  </param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.LINQ.LINQExtensions.GetByPrimaryKeys``1(System.Data.Linq.DataContext,System.Object[])">
- <summary>
- Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias.
- </summary>
- <typeparam name="T">Tipo do objeto</typeparam>
- <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
- <param name="IDs">    Valor da chave primárias</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.GroupByPage``1(System.Linq.IQueryable{``0},System.Int32)">
@@ -5712,6 +5771,16 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <typeparam name="ClassType"></typeparam>
  <param name="Context">    </param>
+ <param name="SearchTerms"></param>
+ <param name="Properties"> </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Search``1(System.Data.Linq.Table{``0},System.String[],System.Linq.Expressions.Expression{System.Func{``0,System.String}}[])">
+ <summary>
+ Retorna um <see cref="T:System.Linq.IQueryable`1"/> procurando em varios campos diferentes de uma entidade
+ </summary>
+ <typeparam name="ClassType"></typeparam>
+ <param name="Table">    </param>
  <param name="SearchTerms"></param>
  <param name="Properties"> </param>
  <returns></returns>
