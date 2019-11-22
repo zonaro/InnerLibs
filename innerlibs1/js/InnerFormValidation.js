@@ -1,3 +1,69 @@
+
+const _phoneMask = (input) => {
+    let text = input.value
+    text = text.replace(/\D/g, "");
+    text = text.replace(/^(\d{1,2})/g, "($1");
+    text = text.replace(/^(\(\d{2})(\d+)/g, "$1) $2");
+    text = text.replace(/^(\(\d{2}\) \d{4})(\d{1,4})$/g, "$1-$2");
+    text = text.replace(/^(\(\d{2}\) \d{5})(\d{4})$/g, "$1-$2");
+    if (/\([\d]{2}\) [\d]{5}-[\d]{4}$/g.test(text)) {
+        input.maxLength = text.length;
+    }
+    input.value = text;
+};
+
+const _dateMask = (input) => {
+    let text = input.value;
+    text = text.replace(/\D/g, "");
+    text = text.replace(/^(\d{2})(\d+)/g, "$1/$2");
+    text = text.replace(/^(\d{2}\/\d{2})(\d{1,4})$/g, "$1/$2");
+    if (/^[\d]{2}\/[\d]{2}\/[\d]{4}$/g.test(text)) {
+        input.maxLength = text.length;
+    }
+    input.value = text;
+};
+
+const _cpfMask = (input) => {
+    let text = input.value;
+    text = text.replace(/\D/g, "");
+    text = text.replace(/^(\d{3})(\d+)/g, "$1.$2");
+    text = text.replace(/^(\d{3}\.\d{3})(\d+)/g, "$1.$2");
+    text = text.replace(/^(\d{3}\.\d{3}\.\d{3})(\d{1,2})$/g, "$1-$2");
+    if (/^[\d]{3}\.[\d]{3}\.[\d]{3}-[\d]{2}$/g.test(text)) {
+        input.maxLength = text.length;
+    }
+    input.value = text;
+};
+
+const _cepMask = (input) => {
+    let text = input.value
+    text = text.replace(/\D/g, "");
+    text = text.replace(/^(\d{5})(\d{1,3})$/g, "$1-$2");
+    if (/^[\d]{5}-[\d]{3}$/g.test(text)) {
+        input.maxLength = text.length;
+    }
+    input.value = text;
+};
+
+const _cnpjMask = (input) => {
+    let text = input.value;
+    text = text.replace(/\D/g, "");
+    text = text.replace(/^(\d{2})(\d+)/, "$1.$2");
+    text = text.replace(/^(\d{2}\.\d{3})(\d+)/g, "$1.$2");
+    text = text.replace(/^(\d{2}\.\d{3}\.\d{3})(\d+)/g, "$1/$2");
+    text = text.replace(/^(\d{2}\.\d{3}\.\d{3}\/\d{4})(\d{1,2})$/g, "$1-$2");
+    if (/^[\d]{2}\.[\d]{3}\.[\d]{3}\/[\d]{4}-[\d]{2}$/g.test(text)) {
+        input.maxLength = text.length;
+    }
+    input.value = text;
+};
+
+const _onlyNumbers = (input) => {
+    let text = input.value;
+    text = text.replace(/\D/g, "");
+    input.value = text;
+}; 
+
 jQuery.fn.isValid = function () {
     var results = [];
 
@@ -202,4 +268,27 @@ jQuery(document).ready(function () {
         return jQuery(this).isValid();
     });
 
+    jQuery(".mask.phone, .mask.tel, [type='tel'].mask").on('input', function () {
+        _phoneMask(this);
+    });
+
+    jQuery(".mask.cpf").on('input', function () {
+        _cpfMask(this);
+    });
+
+    jQuery(".mask.cep").on('input', function () {
+        _cpfMask(this);
+    });
+
+    jQuery(".mask.cnpj").on('input', function () {
+        _cnpjMask(this);
+    });
+
+    jQuery(".mask.date, .mask.data").on('input', function () {
+        _dateMask(this);
+    });
+
+    jQuery(".mask.num, .mask.number").on('input', function () {
+        _onlyNumbers(this);
+    });
 });
