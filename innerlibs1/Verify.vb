@@ -30,7 +30,7 @@ Public Module Verify
     ''' </summary>
     ''' <param name="CPF">CPF</param>
     ''' <returns></returns>
-    Public Function IsValidCPF(CPF As String) As Boolean
+    <Extension()> Public Function IsValidCPF(CPF As String) As Boolean
         CPF = CPF.RemoveAny(".", "-")
         Dim digito As String = [String].Empty
         Dim k As Integer, j As Integer, soma As Integer
