@@ -13,7 +13,6 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
-
     ''' <summary>
     ''' Concatena todas as  <see cref="Exception.InnerException"/> em uma única string
     ''' </summary>
@@ -93,9 +92,6 @@ Public Module ClassTools
         Return txt
     End Function
 
-
-
-
     ''' <summary>
     ''' Remove um item de uma lista e retorna este item
     ''' </summary>
@@ -142,8 +138,6 @@ Public Module ClassTools
         dic_of_dic.Values.Uniform
         Return dic_of_dic
     End Function
-
-
 
     ''' <summary>
     ''' Copia os valores de um dicionário para as propriedades de uma classe
@@ -368,6 +362,7 @@ Public Module ClassTools
     ''' <param name="Collection">Colecao</param>
     ''' <returns></returns>
     <Extension()> Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, ByRef Obj As Type, ParamArray Keys As String()) As Type
+
         Dim PROPS = Obj.GetProperties
         If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = Collection.AllKeys
         For Each key As String In Collection.Keys
@@ -445,8 +440,6 @@ Public Module ClassTools
         End If
     End Function
 
-
-
     ''' <summary>
     ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
     ''' </summary>
@@ -456,11 +449,37 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function FirstOr(Of T)(source As IEnumerable(Of T), predicate As Func(Of T, Boolean), Alternate As T) As T
-        Try
-            Return source.First(predicate)
-        Catch ex As Exception
-            Return Alternate
-        End Try
+        Return If(source.FirstOrDefault(predicate), Alternate)
+    End Function
+
+    ''' <summary>
+    ''' O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="source"></param>
+    ''' <param name="predicate"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function FirstAny(Of T)(source As IEnumerable(Of T), ParamArray predicate() As Func(Of T, Boolean)) As T
+        For index = 0 To predicate.Length - 1
+            Dim v = source.FirstOrDefault(predicate(index))
+            If v IsNot Nothing Then
+                Return v
+            End If
+        Next
+        Return Nothing
+    End Function
+
+    ''' <summary>
+    ''' O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="source"></param>
+    ''' <param name="predicate"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function FirstAnyOr(Of T)(source As IEnumerable(Of T), Alternate As T, ParamArray predicate() As Func(Of T, Boolean)) As T
+        Return If(source.FirstAny(predicate), Alternate)
     End Function
 
     ''' <summary>
@@ -469,7 +488,7 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="Request">HttpRequest</param>
     ''' <returns></returns>
-    <Extension()> Public Function FlatRequest(Request As HttpRequest) As NameValueCollection
+    <Extension()> Public Function ToFlatRequest(Request As HttpRequest) As NameValueCollection
         Return ClassTools.Merge(Request.QueryString, Request.Form)
     End Function
 
@@ -789,6 +808,35 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OtherText"></param>
+    ''' <returns></returns>
+    <Extension> Function IsLikeAny(Text As String, OtherText As String) As Boolean
+        Text = Text.IfBlank(Text)
+        OtherText = OtherText.IfBlank(OtherText)
+        Return Text Like OtherText
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OtherTexts"></param>
+    ''' <returns></returns>
+    <Extension> Function IsLikeAny(Text As String, OtherTexts As IEnumerable(Of String)) As Boolean
+        Text = Text.IfBlank("")
+        For Each item In If(OtherTexts, {})
+            If item Like Text Then
+                Return True
+            End If
+        Next
+        Return False
+    End Function
+
+
+    ''' <summary>
     ''' Verifica se o objeto existe dentro de uma Lista, coleção ou array.
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>
@@ -1103,6 +1151,5 @@ Public Module ClassTools
                 End If
         End Select
     End Function
-
 
 End Module

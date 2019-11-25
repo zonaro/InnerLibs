@@ -709,7 +709,7 @@ Public NotInheritable Class DataBase
     '''  <param name="Request">Qual a requeisiçao</param>
     ''' <returns></returns>
     Public Function ExecProcedureFromRequest(Request As HttpRequest, ByVal ProcedureName As String, ParamArray RequestKeys() As String) As DbCommand
-        RequestKeys = If(RequestKeys, Request.FlatRequest.AllKeys).Where(Function(x) Request(x).IsNotBlank()).ToArray()
+        RequestKeys = If(RequestKeys, Request.ToFlatRequest.AllKeys).Where(Function(x) Request(x).IsNotBlank()).ToArray()
         Return CreateCommandFromRequest(Request, "EXEC " & ProcedureName & " " & If(RequestKeys, {}).Select(Function(key) " @" & key & " = @" + key).ToArray.Join(","))
     End Function
 

@@ -2111,7 +2111,25 @@ InnerLibs
  <param name="alternate"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassTools.FlatRequest(System.Web.HttpRequest)">
+<member name="M:InnerLibs.ClassTools.FirstAny``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean}[])">
+ <summary>
+ O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="source"></param>
+ <param name="predicate"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.FirstAnyOr``1(System.Collections.Generic.IEnumerable{``0},``0,System.Func{``0,System.Boolean}[])">
+ <summary>
+ O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="source"></param>
+ <param name="predicate"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.ToFlatRequest(System.Web.HttpRequest)">
  <summary>
  Cria um unico <see cref="T:System.Collections.Specialized.NameValueCollection"/> a partir de um
  <see cref="P:System.Web.HttpRequest.QueryString"/> e um <see cref="P:System.Web.HttpRequest.Form"/>
@@ -2245,6 +2263,22 @@ InnerLibs
  Verifica se o objeto é um iDictionary
  </summary>
  <param name="obj"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.IsLikeAny(System.String,System.String)">
+ <summary>
+ Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
+ </summary>
+ <param name="Text"></param>
+ <param name="OtherText"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.IsLikeAny(System.String,System.Collections.Generic.IEnumerable{System.String})">
+ <summary>
+ Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+ </summary>
+ <param name="Text"></param>
+ <param name="OtherTexts"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})">
@@ -11634,6 +11668,16 @@ Atualiza a lista de keys
  <param name="Url"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Web.ToProcedure(System.Collections.Specialized.NameValueCollection,System.String,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
+ uma URL como parametros da procedure
+ </summary>
+ <param name="Request">        Requisicao HTTP</param>
+ <param name="ProcedureName">  Nome da Procedure</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
 <member name="M:InnerLibs.Web.ToProcedure(System.Web.HttpRequest,System.String,System.String[])">
  <summary>
  Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
@@ -11641,7 +11685,7 @@ Atualiza a lista de keys
  </summary>
  <param name="Request">        Requisicao HTTP</param>
  <param name="ProcedureName">  Nome da Procedure</param>
- <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.ToProcedure(System.Web.HttpRequest,System.String)">
@@ -11660,8 +11704,8 @@ Atualiza a lista de keys
  </summary>
  <param name="Request"> Requisicao HTTP</param>
  <param name="TableName">  Nome da Tabela</param>
- <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
- <param name="QueryStringPrimaryKey">Parametro que representa a chave primaria da Tabela</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
+ <param name="PrimaryKey">Parametro que representa a chave primaria da Tabela</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.ToINSERTorUPDATE(System.Collections.Specialized.NameValueCollection,System.String,System.String,System.String[])">
@@ -11671,8 +11715,8 @@ Atualiza a lista de keys
  </summary>
  <param name="Request"> Requisicao HTTP</param>
  <param name="TableName">  Nome da Tabela</param>
- <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
- <param name="QueryStringPrimaryKey">Parametro que representa a chave primaria da Tabela</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
+ <param name="PrimaryKey">Parametro que representa a chave primaria da Tabela</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.ToUPDATE(System.Collections.Specialized.NameValueCollection,System.String,System.String,System.String[])">
@@ -11682,7 +11726,7 @@ Atualiza a lista de keys
  </summary>
  <param name="Request">        Requisicao HTTP</param>
  <param name="TableName">  Nome da tabela</param>
- <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.ToUPDATE(System.Web.HttpRequest,System.String,System.String,System.String[])">
@@ -11692,7 +11736,7 @@ Atualiza a lista de keys
  </summary>
  <param name="Request">        Requisicao HTTP</param>
  <param name="TableName">  Nome da tabela</param>
- <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.ToINSERT(System.Web.HttpRequest,System.String,System.String[])">
@@ -11702,7 +11746,7 @@ Atualiza a lista de keys
  </summary>
  <param name="Request">        Requisicao HTTP</param>
  <param name="TableName">  Nome da Procedure</param>
- <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.ToINSERT(System.Collections.Specialized.NameValueCollection,System.String,System.String[])">
@@ -11712,7 +11756,7 @@ Atualiza a lista de keys
  </summary>
  <param name="Request">        Requisicao HTTP</param>
  <param name="TableName">  Nome da tabela</param>
- <param name="QueryStringKeys">Parametros da URL que devem ser utilizados</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.WriteEnd(System.Web.HttpResponse,System.String)">
