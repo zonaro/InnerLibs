@@ -4518,6 +4518,13 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Files.ToAttachment(System.Web.HttpPostedFile)">
+ <summary>
+ Cria um <see cref="T:System.Net.Mail.Attachment"/> a a partir de um <see cref="T:System.Web.HttpPostedFile"/>
+ </summary>
+ <param name="File"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Files.SaveMailAttachment(System.Net.Mail.Attachment,System.IO.DirectoryInfo)">
  <summary>
  Salva um anexo para um diretório    
@@ -11197,7 +11204,14 @@ Atualiza a lista de keys
  <summary>
  Verifica se a string é um CPF válido
  </summary>
- <param name="CPF">CPF</param>
+ <param name="Text">CPF</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Verify.IsValidCNPJ(System.String)">
+ <summary>
+ Verifica se a string é um CNPJ válido
+ </summary>
+ <param name="Text">CPF</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Verify.IsFilePath(System.String)">
@@ -11673,7 +11687,17 @@ Atualiza a lista de keys
  Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
  uma URL como parametros da procedure
  </summary>
- <param name="Request">        Requisicao HTTP</param>
+ <param name="NVC">        Requisicao HTTP</param>
+ <param name="ProcedureName">  Nome da Procedure</param>
+ <param name="Keys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToProcedure(System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
+ uma URL como parametros da procedure
+ </summary>
+ <param name="Dic">        Requisicao HTTP</param>
  <param name="ProcedureName">  Nome da Procedure</param>
  <param name="Keys">Parametros da URL que devem ser utilizados</param>
  <returns>Uma string com o comando montado</returns>
@@ -11757,6 +11781,35 @@ Atualiza a lista de keys
  <param name="Request">        Requisicao HTTP</param>
  <param name="TableName">  Nome da tabela</param>
  <param name="Keys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToSQLFilter(System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.String,InnerLibs.Web.LogicConcatenationOperator,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="T:System.Collections.Generic.Dictionary`2"/>
+ </summary>
+ <param name="Dic">        Dicionario</param>
+ <param name="TableName">  Nome da Tabela</param>
+ <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToSQLFilter(System.Collections.Specialized.NameValueCollection,System.String,System.String,InnerLibs.Web.LogicConcatenationOperator,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="T:System.Collections.Specialized.NameValueCollection"/>
+ </summary>
+ <param name="NVC">        Colecao</param>
+ <param name="TableName">  Nome da Tabela</param>
+ <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+ <returns>Uma string com o comando montado</returns>
+</member>
+<member name="M:InnerLibs.Web.ToSQLFilter(System.Web.HttpRequest,System.String,System.String,InnerLibs.Web.LogicConcatenationOperator,System.String[])">
+ <summary>
+ Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="T:System.Web.HttpRequest"/>
+ </summary>
+ <param name="Request">        Dicionario</param>
+ <param name="TableName">  Nome da Tabela</param>
+ <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+ <param name="CommaSeparatedColumns">Colunas separadas por virgula</param>
+ <param name="LogicConcatenation">AND ou OR</param>
  <returns>Uma string com o comando montado</returns>
 </member>
 <member name="M:InnerLibs.Web.WriteEnd(System.Web.HttpResponse,System.String)">

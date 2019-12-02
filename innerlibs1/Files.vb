@@ -8,6 +8,14 @@ Imports System.Web
 ''' <remarks></remarks>
 Public Module Files
 
+    ''' <summary>
+    ''' Cria um <see cref="System.Net.Mail.Attachment"/> a a partir de um <see cref="HttpPostedFile"/>
+    ''' </summary>
+    ''' <param name="File"></param>
+    ''' <returns></returns>
+    <Extension()> Function ToAttachment(File As HttpPostedFile) As System.Net.Mail.Attachment
+        Return New Net.Mail.Attachment(File.InputStream, File.FileName, File.ContentType)
+    End Function
 
     ''' <summary>
     ''' Salva um anexo para um diretório    

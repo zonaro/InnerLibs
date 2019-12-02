@@ -828,7 +828,7 @@ Public Module ClassTools
     <Extension> Function IsLikeAny(Text As String, OtherTexts As IEnumerable(Of String)) As Boolean
         Text = Text.IfBlank("")
         For Each item In If(OtherTexts, {})
-            If item Like Text Then
+            If item Like Text Or Text Like item Then
                 Return True
             End If
         Next

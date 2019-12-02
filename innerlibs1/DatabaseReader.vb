@@ -442,6 +442,7 @@ Partial Public Class DataBase
         ''' </summary>
         ''' <param name="Tables">Conunto de listas de dicionarios</param>
         Public Sub New(ParamArray Tables As Result())
+
             For Each l In Tables
                 Me.Add(l)
             Next

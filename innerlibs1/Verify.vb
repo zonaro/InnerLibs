@@ -28,20 +28,70 @@ Public Module Verify
     ''' <summary>
     ''' Verifica se a string é um CPF válido
     ''' </summary>
-    ''' <param name="CPF">CPF</param>
+    ''' <param name="Text">CPF</param>
     ''' <returns></returns>
-    <Extension()> Public Function IsValidCPF(CPF As String) As Boolean
-        CPF = CPF.RemoveAny(".", "-")
+    <Extension()> Public Function IsValidCPF(Text As String) As Boolean
+        Text = Text.RemoveAny(".", "-")
         Dim digito As String = [String].Empty
         Dim k As Integer, j As Integer, soma As Integer
         For k = 0 To 1
             soma = 0
             For j = 0 To 9 + (k - 1)
-                soma += Integer.Parse(CPF(j).ToString()) * (10 + k - j)
+                soma += Integer.Parse(Text(j).ToString()) * (10 + k - j)
             Next
             digito += If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
         Next
-        Return (digito(0) = CPF(9) And digito(1) = CPF(10))
+        Return (digito(0) = Text(9) And digito(1) = Text(10))
+    End Function
+
+    ''' <summary>
+    ''' Verifica se a string é um CNPJ válido
+    ''' </summary>
+    ''' <param name="Text">CPF</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsValidCNPJ(ByVal Text As String) As Boolean
+        Dim multiplicador1 As Integer() = New Integer(11) {5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2}
+        Dim multiplicador2 As Integer() = New Integer(12) {6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2}
+        Dim soma As Integer
+        Dim resto As Integer
+        Dim digito As String
+        Dim tempCnpj As String
+        Text = Text.Trim()
+        Text = Text.Replace(".", "").Replace("-", "").Replace("/", "")
+        If Text.Length <> 14 Then Return False
+        tempCnpj = Text.Substring(0, 12)
+        soma = 0
+
+        For i As Integer = 0 To 12 - 1
+            soma += Integer.Parse(tempCnpj(i).ToString()) * multiplicador1(i)
+        Next
+
+        resto = (soma Mod 11)
+
+        If resto < 2 Then
+            resto = 0
+        Else
+            resto = 11 - resto
+        End If
+
+        digito = resto.ToString()
+        tempCnpj = tempCnpj & digito
+        soma = 0
+
+        For i As Integer = 0 To 13 - 1
+            soma += Integer.Parse(tempCnpj(i).ToString()) * multiplicador2(i)
+        Next
+
+        resto = (soma Mod 11)
+
+        If resto < 2 Then
+            resto = 0
+        Else
+            resto = 11 - resto
+        End If
+
+        digito = digito & resto.ToString()
+        Return Text.EndsWith(digito)
     End Function
 
     ''' <summary>
@@ -329,7 +379,6 @@ Public Module Verify
         End If
     End Function
 
-
     ''' <summary>
     ''' Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
     ''' </summary>
@@ -345,7 +394,6 @@ Public Module Verify
             Return Value.ChangeIEnumerableType(Of T)
         End If
     End Function
-
 
     ''' <summary>
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
@@ -403,8 +451,6 @@ Public Module Verify
         End If
         Return Value
     End Function
-
-
 
     ''' <summary>
     ''' Anula o valor de um objeto se ele for igual a outro objeto

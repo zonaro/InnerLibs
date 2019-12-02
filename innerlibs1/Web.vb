@@ -1,16 +1,12 @@
 ﻿Imports System.Collections.Specialized
-Imports System.Data.Common
-Imports System.Data.Linq
 Imports System.Drawing
 Imports System.IO
-Imports System.Linq.Expressions
 Imports System.Net
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Web
 Imports System.Web.SessionState
-Imports System.Web.UI
 Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
 Imports System.Xml
@@ -19,8 +15,6 @@ Imports System.Xml
 ''' Métodos de requisição
 ''' </summary>
 Public NotInheritable Class AJAX
-
-
 
     ''' <summary>
     ''' Retorna o conteúdo de uma página
@@ -150,8 +144,6 @@ Public NotInheritable Class AJAX
             Me.response = Response
         End Sub
 
-
-
         ''' <summary>
         ''' Processa a resposta e retorna um JSON deste objeto
         ''' </summary>
@@ -170,10 +162,6 @@ Public NotInheritable Class AJAX
         End Function
 
     End Class
-
-
-
-
 
 End Class
 
@@ -203,7 +191,6 @@ Public Module Web
         Return Path
     End Function
 
-
     ''' <summary>
     ''' Retorna todos os arquivos de uma <see cref="HttpFileCollection"/> em um  <see cref="IEnumerable(Of Httppostedfile)"/>
     ''' </summary>
@@ -218,7 +205,6 @@ Public Module Web
         Next
         Return l.AsEnumerable
     End Function
-
 
     ''' <summary>
     ''' Retorna todos os arquivos de uma <see cref="HttpRequest"/> em um  <see cref="IEnumerable(Of Httppostedfile)"/>
@@ -261,7 +247,6 @@ Public Module Web
             Return False
         End Try
     End Function
-
 
     ''' <summary>
     ''' Cria um objeto a partir de uma requisiçao AJAX
@@ -388,7 +373,6 @@ Public Module Web
         Return UriBuilder.Uri
     End Function
 
-
     ''' <summary>
     ''' Reescreve a URL original a partir de uma REGEX aplicada em uma URL amigavel
     ''' </summary>
@@ -427,28 +411,39 @@ Public Module Web
 
     End Function
 
-
-
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
     ''' uma URL como parametros da procedure
     ''' </summary>
-    ''' <param name="Request">        Requisicao HTTP</param>
+    ''' <param name="NVC">        Requisicao HTTP</param>
     ''' <param name="ProcedureName">  Nome da Procedure</param>
     ''' <param name="Keys">Parametros da URL que devem ser utilizados</param>
     ''' <returns>Uma string com o comando montado</returns>
 
     <Extension()>
-    Public Function ToProcedure(Request As NameValueCollection, ByVal ProcedureName As String, ParamArray Keys() As String) As String
-        Keys = If(Keys, {})
-        If Keys.Count = 0 Then
-            Keys = Request.AllKeys
-        Else
-            Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys))
-        End If
-        Return "EXEC " & ProcedureName & " " & Keys.Select(Function(key) " @" & key & "=" & UrlDecode(Request(key)).IsNull(Quotes:=Not UrlDecode(Request(key)).IsNumber())).ToArray.Join(",")
+    Public Function ToProcedure(NVC As NameValueCollection, ByVal ProcedureName As String, ParamArray Keys() As String) As String
+        Return NVC.ToDictionary().ToProcedure(ProcedureName, Keys)
     End Function
 
+    ''' <summary>
+    ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
+    ''' uma URL como parametros da procedure
+    ''' </summary>
+    ''' <param name="Dic">        Requisicao HTTP</param>
+    ''' <param name="ProcedureName">  Nome da Procedure</param>
+    ''' <param name="Keys">Parametros da URL que devem ser utilizados</param>
+    ''' <returns>Uma string com o comando montado</returns>
+
+    <Extension()>
+    Public Function ToProcedure(Dic As IDictionary(Of String, Object), ByVal ProcedureName As String, ParamArray Keys() As String) As String
+        Keys = If(Keys, {})
+        If Keys.Count = 0 Then
+            Keys = Dic.Keys.ToArray()
+        Else
+            Keys = Dic.Keys.ToArray().Where(Function(x) x.IsLikeAny(Keys)).ToArray
+        End If
+        Return "EXEC " & ProcedureName & " " & Keys.Select(Function(key) " @" & key & "=" & UrlDecode(If(IsDate(Dic(key)), CType(Dic(key), Date).ToSQLDateString(), "" & Dic(key))).IsNull()).ToArray.Join(", ")
+    End Function
 
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
@@ -473,10 +468,8 @@ Public Module Web
     ''' <returns>Uma string com o comando montado</returns>
     <Extension()>
     Public Function ToProcedure(Request As HttpRequest, ByVal ProcedureName As String) As String
-        Return Request.ToProcedure(ProcedureName, Request.ToFlatRequest.AllKeys)
+        Return Request.ToProcedure(ProcedureName, Request.ToFlatRequest().AllKeys)
     End Function
-
-
 
     ''' <summary>
     ''' Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de
@@ -490,7 +483,6 @@ Public Module Web
     <Extension()> Public Function ToINSERTorUPDATE(Request As HttpRequest, TableName As String, PrimaryKey As String, ParamArray Keys As String()) As String
         Return Request.ToFlatRequest.ToINSERTorUPDATE(TableName, PrimaryKey, Keys)
     End Function
-
 
     ''' <summary>
     ''' Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de
@@ -507,7 +499,7 @@ Public Module Web
         If Keys.Count = 0 Then
             Keys = Request.AllKeys
         Else
-            Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys))
+            Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys)).ToArray
         End If
         Keys = Keys.Where(Function(x) x.ToLower <> PrimaryKey.ToLower).ToArray
         If pk > 0 Then
@@ -530,7 +522,7 @@ Public Module Web
         If Keys.Count = 0 Then
             Keys = Request.AllKeys
         Else
-            Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys))
+            Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys)).ToArray
         End If
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In Keys
@@ -578,13 +570,66 @@ Public Module Web
         If Keys.Count = 0 Then
             Keys = Request.AllKeys
         Else
-            Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys))
+            Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys)).ToArray
         End If
         Dim s = String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", Keys.Join(","), Keys.Select(Function(p) Request(p).UrlDecode.IsNull(Quotes:=Not Request(p).UrlDecode.IsNumber)).ToArray.Join(","))
         Debug.WriteLine(s.Wrap(Environment.NewLine))
         Return s
     End Function
 
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="Dictionary(Of String, Object)"/>
+    ''' </summary>
+    ''' <param name="Dic">        Dicionario</param>
+    ''' <param name="TableName">  Nome da Tabela</param>
+    ''' <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+    ''' <returns>Uma string com o comando montado</returns>
+
+    <Extension()>
+    Public Function ToSQLFilter(Dic As IDictionary(Of String, Object), ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As String
+        Dim CMD = "SELECT " & CommaSeparatedColumns.IfBlank("*") & " FROM " & TableName
+        FilterKeys = If(FilterKeys, {})
+        If FilterKeys.Count = 0 Then
+            FilterKeys = Dic.Keys.ToArray()
+        Else
+            FilterKeys = Dic.Keys.ToArray().Where(Function(x) x.IsLikeAny(FilterKeys)).ToArray
+        End If
+        If FilterKeys.Count > 0 Then
+            CMD = CMD & " WHERE " & FilterKeys.Select(Function(key) " " & key & "=" & UrlDecode("" & Dic(key)).IsNull()).ToArray.Join(" " & [Enum].GetName(GetType(LogicConcatenationOperator), LogicConcatenation) & " ")
+        End If
+        Return CMD
+    End Function
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="NameValueCollection"/>
+    ''' </summary>
+    ''' <param name="NVC">        Colecao</param>
+    ''' <param name="TableName">  Nome da Tabela</param>
+    ''' <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()>
+    Public Function ToSQLFilter(NVC As NameValueCollection, ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As String
+        Return NVC.ToDictionary.ToSQLFilter(TableName, CommaSeparatedColumns, LogicConcatenation, FilterKeys)
+    End Function
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="HttpRequest"/>
+    ''' </summary>
+    ''' <param name="Request">        Dicionario</param>
+    ''' <param name="TableName">  Nome da Tabela</param>
+    ''' <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+    ''' <param name="CommaSeparatedColumns">Colunas separadas por virgula</param>
+    ''' <param name="LogicConcatenation">AND ou OR</param>
+    ''' <returns>Uma string com o comando montado</returns>
+    <Extension()>
+    Public Function ToSQLFilter(Request As HttpRequest, ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As String
+        Return Request.ToFlatRequest.ToSQLFilter(TableName, CommaSeparatedColumns, LogicConcatenation, FilterKeys)
+    End Function
+
+    Public Enum LogicConcatenationOperator
+        [AND]
+        [OR]
+    End Enum
 
     ''' <summary>
     ''' Escreve um texto e finaliza um HttpResponse
@@ -744,7 +789,6 @@ Public Module Web
         End Try
     End Sub
 
-
     ''' <summary>
     ''' Escreve um XML e finaliza um HttpResponse
     ''' </summary>
@@ -789,7 +833,6 @@ Public Module Web
     Public Sub WriteJSON(HttpResponse As HttpResponse, Document As HtmlParser.HtmlDocument)
         HttpResponse.WriteEnd(Document.ToString)
     End Sub
-
 
     ''' <summary>
     ''' Captura o Username ou UserID de uma URL do Facebook
@@ -922,7 +965,6 @@ Public Module Web
         Return options
     End Function
 
-
     ''' <summary>
     ''' Retorna uma string HTML de um <see cref="HtmlSelect"/>
     ''' </summary>
@@ -955,7 +997,6 @@ Public Module Web
         Next
         Return Control
     End Function
-
 
     ''' <summary>
     ''' Seleciona Valores de um <see cref="HtmlSelect"/>
@@ -1090,7 +1131,6 @@ Public Module Web
         Return List.ToListItems(Text, Value, Function(x) Value(x).IsIn(If(SelectedValues, {})))
     End Function
 
-
     ''' <summary>
     ''' Adiciona varios <see cref="ListItem"/> ao <see cref="HtmlSelect"/> se estes nao existirem no mesmo
     ''' </summary>
@@ -1130,7 +1170,6 @@ Public Module Web
         Return Control
     End Function
 
-
     ''' <summary>
     ''' Adiciona varios <see cref="ListItem"/> ao <see cref="HtmlSelect"/> se estes nao existirem no mesmo
     ''' </summary>
@@ -1144,7 +1183,6 @@ Public Module Web
         Next
         Return Control
     End Function
-
 
     ''' <summary>
     ''' Realiza um download parcial de um <see cref="Byte()"/>
@@ -1294,7 +1332,4 @@ Public Module Web
         Return Request.PhysicalPath.RemoveFirstIf(Request.PhysicalApplicationPath).FixPathSeparator(True)
     End Function
 
-
 End Module
-
-
