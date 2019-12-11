@@ -563,6 +563,38 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Traz uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetProperty(MyObject As Object, Name As String) As PropertyInfo
+        If MyObject IsNot Nothing Then
+            Return MyObject.GetType().GetProperties().SingleOrDefault(Function(x) x.Name = Name)
+        Else
+            Return Nothing
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Traz uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetPropertyValue(Of T)(MyObject As Object, Name As String) As T
+        If MyObject IsNot Nothing Then
+            Dim prop = MyObject.GetType().GetProperties().SingleOrDefault(Function(x) x.Name.ToLower = Name.ToLower)
+            If prop IsNot Nothing Then
+                Return prop.GetValue(MyObject)
+            End If
+            Return Nothing
+        Else
+            Return Nothing
+        End If
+    End Function
+
+    ''' <summary>
     ''' Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe
     ''' </summary>
     ''' <param name="Text"></param>
@@ -835,6 +867,17 @@ Public Module ClassTools
         Return False
     End Function
 
+
+    ''' <summary>
+    ''' Verifica se o objeto existe dentro de uma Lista, coleção ou array.
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo do objeto</typeparam>
+    ''' <param name="Obj"> objeto</param>
+    ''' <param name="List">Lista</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsIn(Of Type)(Obj As Type, ParamArray List As Type()) As Boolean
+        Return Obj.IsIn(List.ToList)
+    End Function
 
     ''' <summary>
     ''' Verifica se o objeto existe dentro de uma Lista, coleção ou array.

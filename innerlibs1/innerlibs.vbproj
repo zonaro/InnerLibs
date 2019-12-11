@@ -157,6 +157,7 @@
     <Compile Include="InnerForm.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="JSminifier.vb" />
     <Compile Include="JsonViewer.vb" />
     <Compile Include="JSON\JSON.vb" />
     <Compile Include="LinqPagination.vb" />

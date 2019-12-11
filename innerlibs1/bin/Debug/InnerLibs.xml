@@ -2165,6 +2165,20 @@ InnerLibs
  <param name="MyObject">Objeto</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.GetProperty(System.Object,System.String)">
+ <summary>
+ Traz uma propriedade de um objeto
+ </summary>
+ <param name="MyObject">Objeto</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.GetPropertyValue``1(System.Object,System.String)">
+ <summary>
+ Traz uma propriedade de um objeto
+ </summary>
+ <param name="MyObject">Objeto</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.GetPropertyParameterFromString``1(System.String)">
  <summary>
  Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe
@@ -2279,6 +2293,15 @@ InnerLibs
  </summary>
  <param name="Text"></param>
  <param name="OtherTexts"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.IsIn``1(``0,``0[])">
+ <summary>
+ Verifica se o objeto existe dentro de uma Lista, coleção ou array.
+ </summary>
+ <typeparam name="Type">Tipo do objeto</typeparam>
+ <param name="Obj"> objeto</param>
+ <param name="List">Lista</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.IsIn``1(``0,System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEqualityComparer{``0})">
@@ -11605,6 +11628,13 @@ Atualiza a lista de keys
  Minifica uma folha de estilo CSS
  </summary>
  <param name="CSS">String contendo o CSS</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.MinifyJS(System.String)">
+ <summary>
+ Minifica um arquivo JavaScript
+ </summary>
+ <param name="Js">String contendo o Javascript</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.IsConnected(System.String)">

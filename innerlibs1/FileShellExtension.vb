@@ -47,7 +47,7 @@ Public Module FileContextMenu
 End Module
 
 
-Public Module Startup
+Public Module WindowsStartup
 
     Private runKey As String = "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
     Private startupKey As Microsoft.Win32.RegistryKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(runKey)

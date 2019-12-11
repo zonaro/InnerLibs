@@ -104,7 +104,7 @@ Public Module Encryption
     ''' <returns></returns>
     <Extension()>
     Public Function Encrypt(ByVal text As String, Key As String, IV As String) As String
-        If (text.IsNotBlank()) Then
+        If text.IsNotBlank() Then
             Dim aes As AesCryptoServiceProvider = New AesCryptoServiceProvider()
             aes.BlockSize = 128
             aes.KeySize = 256
@@ -140,8 +140,11 @@ Public Module Encryption
             Dim src As Byte() = System.Convert.FromBase64String(text.FixBase64())
 
             Using ddecrypt As ICryptoTransform = aes.CreateDecryptor()
-                Dim dest As Byte() = ddecrypt.TransformFinalBlock(src, 0, src.Length)
-                Return Encoding.UTF8.GetString(dest)
+                Try
+                    Dim dest As Byte() = ddecrypt.TransformFinalBlock(src, 0, src.Length)
+                    Return Encoding.UTF8.GetString(dest)
+                Catch ex As Exception
+                End Try
             End Using
         End If
         Return text

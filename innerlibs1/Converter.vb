@@ -308,7 +308,7 @@ Public Module Converter
         Dim result = Request.QueryString.ToDictionary(keys)
         Dim result2 = Request.Form.ToDictionary(keys)
         result = result.Merge(result2)
-        For Each f As String In Request.Files.AllKeys.Where(Function(k) k.IsIn(keys))
+        For Each f As String In Request.Files.AllKeys.Where(Function(k) k.IsLikeAny(keys))
             If Request.Files(f).ContentLength > 0 Then
                 result(f) = Request.Files(f).ToBytes
             End If
@@ -366,7 +366,7 @@ Public Module Converter
         Dim result = New Dictionary(Of String, Object)()
         If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = NameValueCollection.AllKeys
         For Each key As String In [NameValueCollection].Keys
-            If key.IsNotBlank AndAlso key.IsIn(Keys) Then
+            If key.IsNotBlank AndAlso key.IsLikeAny(Keys) Then
                 Dim values As String() = [NameValueCollection].GetValues(key)
                 If result.ContainsKey(key) Then
                     Dim l As New List(Of Object)

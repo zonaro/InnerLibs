@@ -287,7 +287,7 @@ Public Module Verify
 
     <Extension()>
     Public Function IsAndroid(HttpRequest As HttpRequest) As Boolean
-        Return HttpRequest.UserAgent.ToLower.Contains("android")
+        Return HttpRequest.UserAgent.ToLower.Contains("android") And Not HttpRequest.IsIpad
     End Function
 
     ''' <summary>
@@ -297,7 +297,7 @@ Public Module Verify
     ''' <returns>TRUE para desktops, FALSE para mobile</returns>
 
     <Extension()> Public Function IsDesktop(HttpRequest As HttpRequest) As Boolean
-        Return Not HttpRequest.IsMobile()
+        Return Not HttpRequest.IsMobile() And Not HttpRequest.IsIpad()
     End Function
 
     ''' <summary>

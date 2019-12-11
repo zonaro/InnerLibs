@@ -220,7 +220,7 @@ Public Module Web
     ''' </summary>
     ''' <param name="CSS">String contendo o CSS</param>
     ''' <returns></returns>
-    Public Function MinifyCSS(CSS As String) As String
+    <Extension()> Public Function MinifyCSS(CSS As String) As String
         CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#")
         CSS = Regex.Replace(CSS, "[\n\r]+\s*", String.Empty)
         CSS = Regex.Replace(CSS, "\s+", " ")
@@ -230,6 +230,15 @@ Public Module Web
         ' Remove comments from CSS
         CSS = Regex.Replace(CSS, "/\*[\d\D]*?\*/", String.Empty)
         Return CSS
+    End Function
+
+    ''' <summary>
+    ''' Minifica um arquivo JavaScript
+    ''' </summary>
+    ''' <param name="Js">String contendo o Javascript</param>
+    ''' <returns></returns>
+    <Extension()> Public Function MinifyJS(Js As String) As String
+        Return New JSMin().Minify(Js)
     End Function
 
     ''' <summary>
