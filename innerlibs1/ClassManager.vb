@@ -586,7 +586,7 @@ Public Module ClassTools
         If MyObject IsNot Nothing Then
             Dim prop = MyObject.GetType().GetProperties().SingleOrDefault(Function(x) x.Name.ToLower = Name.ToLower)
             If prop IsNot Nothing Then
-                Return prop.GetValue(MyObject)
+                Return CType(prop.GetValue(MyObject), T)
             End If
             Return Nothing
         Else
