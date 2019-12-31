@@ -334,6 +334,17 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Verifica se somente um unico elemento corresponde a condição
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="predicate"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function OnlyOneOf(Of Type)(List As IEnumerable(Of Type), predicate As Func(Of Type, Boolean)) As Boolean
+        Return List.Count(predicate) = 1
+    End Function
+
+    ''' <summary>
     ''' Verifica se uma lista, coleção ou array contem um dos itens de outra lista, coleção ou array.
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>
@@ -584,7 +595,8 @@ Public Module ClassTools
     <Extension()>
     Public Function GetPropertyValue(Of T)(MyObject As Object, Name As String) As T
         If MyObject IsNot Nothing Then
-            Dim prop = MyObject.GetType().GetProperties().SingleOrDefault(Function(x) x.Name.ToLower = Name.ToLower)
+            Dim prop = MyObject.GetType().GetProperties().SingleOrDefault(
+                Function(x) x.Name.ToLower = Name.ToLower)
             If prop IsNot Nothing Then
                 Return CType(prop.GetValue(MyObject), T)
             End If

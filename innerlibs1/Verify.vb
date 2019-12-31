@@ -26,20 +26,30 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se a string é um CPF ou CNPJ válido
+    ''' </summary>
+    ''' <param name="Text">CPF ou CNPJ</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsValidDocument(Text As String) As Boolean
+        Return Text.IsValidCPF() OrElse Text.IsValidCNPJ()
+    End Function
+
+
+    ''' <summary>
     ''' Verifica se a string é um CPF válido
     ''' </summary>
     ''' <param name="Text">CPF</param>
     ''' <returns></returns>
     <Extension()> Public Function IsValidCPF(Text As String) As Boolean
         Text = Text.RemoveAny(".", "-")
-        Dim digito As String = [String].Empty
+        Dim digito As String = ""
         Dim k As Integer, j As Integer, soma As Integer
         For k = 0 To 1
             soma = 0
             For j = 0 To 9 + (k - 1)
                 soma += Integer.Parse(Text(j).ToString()) * (10 + k - j)
             Next
-            digito += If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
+            digito &= If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
         Next
         Return (digito(0) = Text(9) And digito(1) = Text(10))
     End Function

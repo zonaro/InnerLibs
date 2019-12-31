@@ -149,7 +149,7 @@ Public Module ColorConvert
     ''' <returns>Um objeto color</returns>
     <Extension()>
     Public Function ToColor(HexadecimalColorString As String) As Color
-        Return ColorTranslator.FromHtml("#" & HexadecimalColorString.RemoveAny("#"))
+        Return ColorTranslator.FromHtml("#" & HexadecimalColorString.RemoveAny("#").IfBlank("000000"))
     End Function
 
 End Module

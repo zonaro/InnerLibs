@@ -1,7 +1,6 @@
 ﻿Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
-Imports System.Drawing.Text
 Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Windows.Forms
@@ -10,8 +9,47 @@ Imports System.Windows.Forms
 ''' Modulo de Imagem
 ''' </summary>
 ''' <remarks></remarks>
-''' 
+'''
 Public Module Images
+
+    ''' <summary>
+    ''' Otimiza uma imagem para web
+    ''' </summary>
+    ''' <param name="Img">Imagem</param>
+    ''' <param name="Size">Tamanho base</param>
+    ''' <param name="Quality">Qualdiade Base</param>
+    ''' <returns></returns>
+    <Extension> Public Function OptimizeForWeb(Img As Image, Optional Size As Integer = 150, Optional Quality As Integer = 75) As Image
+
+        Using image = New Bitmap(Img)
+            Dim width, height As Integer
+
+            If image.Width > image.Height Then
+                width = Size
+                height = Convert.ToInt32(image.Height * Size / image.Width)
+            Else
+                width = Convert.ToInt32(image.Width * Size / image.Height)
+                height = Size
+            End If
+
+            Dim resized = New Bitmap(width, height)
+
+            Using graphics = System.Drawing.Graphics.FromImage(resized)
+                graphics.CompositingQuality = CompositingQuality.HighSpeed
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic
+                graphics.CompositingMode = CompositingMode.SourceCopy
+                graphics.DrawImage(image, 0, 0, width, height)
+                Using output As New MemoryStream
+                    Dim qualityParamId = Encoder.Quality
+                    Dim encoderParameters = New EncoderParameters(1)
+                    encoderParameters.Param(0) = New EncoderParameter(qualityParamId, Quality)
+                    Dim codec = ImageCodecInfo.GetImageDecoders().FirstOrDefault(Function(x) x.FormatID = ImageFormat.Png.Guid)
+                    resized.Save(output, codec, encoderParameters)
+                    Return System.Drawing.Image.FromStream(output)
+                End Using
+            End Using
+        End Using
+    End Function
 
     ''' <summary>
     ''' Inverte as cores de uma imagem
@@ -36,7 +74,6 @@ Public Module Images
         Next X
         Return bm
     End Function
-
 
     ''' <summary>
     ''' Corta uma imagem para um quadrado perfeito a partir do centro
@@ -70,7 +107,6 @@ Public Module Images
         g.DrawImage(Img, 0, 0)
         Return dstImage
     End Function
-
 
     ''' <summary>
     ''' Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF)
@@ -140,8 +176,6 @@ Public Module Images
 
         If X < 0 Then X = (bm_Resultado.Width - bm_marcaDagua.Width) \ 2   'centraliza a marca d'agua
         If Y < 0 Then Y = (bm_Resultado.Height - bm_marcaDagua.Height) \ 2   'centraliza a marca d'agua
-
-
 
         Const ALPHA As Byte = 128
         ' Define o componente Alpha do pixel
@@ -246,8 +280,6 @@ Public Module Images
         End Try
     End Function
 
-
-
     ''' <summary>
     ''' Escreve uma string em uma imagem
     ''' </summary>
@@ -282,14 +314,11 @@ Public Module Images
         Return bmp
     End Function
 
-
-
-
     ''' <summary>
     ''' Cropa uma imagem a patir do centro
     ''' </summary>
     ''' <param name="Image">Imagem</param>
-    ''' <param name="Size">Tamanho</param>    
+    ''' <param name="Size">Tamanho</param>
     ''' <returns></returns>
     <Extension()> Public Function Crop(Image As Image, Size As Size) As Image
         Return Image.Crop(Size.Width, Size.Height)
@@ -349,7 +378,6 @@ Public Module Images
             Return finalImage
         End Using
 
-
     End Function
 
     ''' <summary>
@@ -371,7 +399,6 @@ Public Module Images
         Next
         Return bm
     End Function
-
 
     ''' <summary>
     ''' Redimensiona e converte uma Imagem
@@ -553,15 +580,13 @@ Public Module Images
                 width += bitmap.Width
                 height = If(bitmap.Height > height, bitmap.Height, height)
 
-
-
             End If
         Next
 
         'cria um bitmap para tratar a imagem combinada
         imagemFinal = New System.Drawing.Bitmap(width, height)
 
-        'Obtem o objeto gráfico da imagem 
+        'Obtem o objeto gráfico da imagem
         Using g As System.Drawing.Graphics = System.Drawing.Graphics.FromImage(imagemFinal)
             'define a cor de fundo
             g.Clear(System.Drawing.Color.White)
@@ -582,7 +607,6 @@ Public Module Images
 
         Return imagemFinal
     End Function
-
 
     ''' <summary>
     ''' Retorna uma lista com as 10 cores mais utilizadas na imagem
@@ -691,7 +715,6 @@ Public Module Images
         Return Image.Resize(Width, Height, False).Crop(Width, Height)
     End Function
 
-
 End Module
 
 ''' <summary>
@@ -700,6 +723,7 @@ End Module
 Public Class PictureService
 
     Class Picture
+
         ''' <summary>
         ''' URL da imagem
         ''' </summary>
@@ -810,7 +834,6 @@ Public Class PictureService
         url.AppendIf("/" & System.Web.HttpUtility.UrlEncode(Text), Text.IsNotBlank)
         Return New Picture(url)
 
-
     End Function
 
     ''' <summary>
@@ -855,7 +878,5 @@ Public Class PictureService
     Public Sub New(Width As Integer, Height As Integer)
         Me.Size = New Size(Width, Height)
     End Sub
-
-
 
 End Class
