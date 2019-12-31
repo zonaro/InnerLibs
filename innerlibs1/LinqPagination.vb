@@ -593,7 +593,19 @@ Namespace LINQ
         ''' <param name="Properties"> </param>
         ''' <returns></returns>
         <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerm As String, ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
-            Return Context.Search(Of ClassType)({SearchTerm}, Properties)
+            Return Context.Search({SearchTerm}, Properties)
+        End Function
+
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerm As String, ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
+            Return Table.Search({SearchTerm}, Properties)
+        End Function
+
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerm As String, ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
+            Return Table.Context.Search(Of ClassType)({SearchTerm}, Properties)
+        End Function
+
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String(), ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
+            Return Table.Context.Search(Of ClassType)(SearchTerms, Properties)
         End Function
 
         ''' <summary>
@@ -609,12 +621,12 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
+        ''' Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes de uma entidade
         ''' </summary>
-        ''' <typeparam name="ClassType"></typeparam>
-        ''' <param name="Table">    </param>
-        ''' <param name="SearchTerms"></param>
-        ''' <param name="Properties"> </param>
+        ''' <typeparam name="ClassType">Tipo da Entidade</typeparam>
+        ''' <param name="Table">Tabela da Entidade</param>
+        ''' <param name="SearchTerms">Termos da pesquisa</param>
+        ''' <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         ''' <returns></returns>
         <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
             Search = Nothing
@@ -622,7 +634,6 @@ Namespace LINQ
             Dim predi = CreateExpression(Of ClassType)(False)
             Dim mapping = Table.Context.Mapping.GetTable(GetType(ClassType))
             Properties = If(Properties, {})
-
             For Each prop In Properties
                 For Each s In SearchTerms
                     If Not IsNothing(s) Then

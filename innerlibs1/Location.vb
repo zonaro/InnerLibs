@@ -1,10 +1,6 @@
-﻿Imports System.Reflection
-Imports System.Runtime.CompilerServices
-Imports System.Xml
-Imports InnerLibs.Location
+﻿Imports System.Xml
 
 Namespace Locations
-
 
     ''' <summary>
     ''' Representa um deteminado local com suas Informações
@@ -29,7 +25,7 @@ Namespace Locations
             If Not Number = Nothing Then Me.Number = Number
             Me.GetInfoByPostalCode()
             If SearchOnMaps Then
-                Me.SearchOnGoogleMaps(Me.FullAddress)
+                Me.Update()
             End If
         End Sub
 
@@ -50,15 +46,26 @@ Namespace Locations
         ''' Tipo do Endereço
         ''' </summary>
         ''' <returns></returns>
-        Property AddressType As String
+        Property StreetType As String
 
         ''' <summary>
-        ''' Endereco
+        ''' O nome do Endereço
         ''' </summary>
         ''' <value></value>
-        ''' <returns>Endereco</returns>
+        ''' <returns></returns>
 
-        Property Address As String
+        Property StreetName As String
+
+        ''' <summary>
+        ''' Logradouro
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Street As String
+            Get
+                Return StreetType & " " & StreetName
+            End Get
+        End Property
+
         ''' <summary>
         ''' Numero da casa, predio etc.
         ''' </summary>
@@ -87,7 +94,6 @@ Namespace Locations
         ''' <returns>CEP</returns>
 
         Property PostalCode As String
-
 
         ''' <summary>
         ''' Cidade
@@ -140,13 +146,13 @@ Namespace Locations
         Property GoogleMapsURL As Uri
 
         ''' <summary>
-        ''' Retorna o endereço completo (logradouro)
+        ''' Retorna o endereço completo
         ''' </summary>
         ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
-        ReadOnly Property FullAddress As String
+        ReadOnly Property Address As String
             Get
                 ParseType()
-                Dim retorno As String = Me.AddressType & " " & Address
+                Dim retorno As String = Street
                 If Number.IsNotBlank Then retorno.Append(", " & Number)
                 If Complement.IsNotBlank Then retorno.Append(", " & Complement)
                 If Neighborhood.IsNotBlank Then retorno.Append(" - " & Neighborhood)
@@ -162,64 +168,20 @@ Namespace Locations
         End Property
 
         Private Sub ParseType()
-            If Me.Address.IsNotBlank Then
-                Dim pal = Me.Address.Split(" ").First.ToProperCase
-                Select Case pal
-                    Case "Aeroporto", "Ar", "Aero"
-                        Me.AddressType = "Aeroporto"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Alameda", "Al", "Alm"
-                        Me.AddressType = "Alameda"
-                        Me.Address.RemoveFirstIf(pal)
-
-                    Case "Area", "Área", "Ar"
-                        Me.AddressType = "Área"
-                        Me.Address.RemoveFirstIf(pal)
-
-                    Case "Avenida", "Av"
-                        Me.AddressType = "Avenida"
-                        Me.Address.RemoveFirstIf(pal)
-
-                    Case "Campo", "Cmp", "Camp"
-                        Me.AddressType = "Campo"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Chácara", "Chacara", "Ch", "Chac", "Chr"
-                        Me.AddressType = "Chácara"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Colônia", "Col"
-                        Me.AddressType = "Colônia"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Condomínio", "Cond"
-                        Me.AddressType = "Condomínio"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Conjunto", "Conj"
-                        Me.AddressType = "Conjunto"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Distrito", "Dist", "Ds", "Dst"
-                        Me.AddressType = "Distrito"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Esplanada", "Esp"
-                        Me.AddressType = "Esplanada"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Estação",
-                Me.AddressType = "Estação"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case "Estrada", "Est"
-                        Me.AddressType = "Estrada"
-                        Me.Address.RemoveFirstIf(pal)
-                    Case Else
-                End Select
+            If Me.StreetType.IsBlank() Then
+                If Me.StreetName.IsNotBlank Then
+                    Me.StreetType = AddressTypes.GetAddressType(Me.StreetName)
+                    If Me.StreetType.IsNotBlank Then Me.StreetName.RemoveFirstIf(StreetType)
+                End If
             End If
         End Sub
-
-
 
         ''' <summary>
         ''' Retorna uma String contendo as informações do Local
         ''' </summary>
         ''' <returns>string</returns>
         Public Overrides Function ToString() As String
-            Return FullAddress()
+            Return Address()
         End Function
 
         ''' <summary>
@@ -232,6 +194,7 @@ Namespace Locations
         End Function
 
         Public Function ToJSON() As String
+
             Return Json.SerializeJSON(Me)
         End Function
 
@@ -244,8 +207,9 @@ Namespace Locations
             Me.City = cep("localidade")
             Me.StateCode = cep("uf")
             Me.State = Brasil.GetNameOf(Me.StateCode)
-            Me.Address = cep("logradouro")
+            Me.StreetName = cep("logradouro")
             Me.Country = "Brasil"
+            ParseType()
         End Sub
 
         ''' <summary>
@@ -263,7 +227,7 @@ Namespace Locations
                 Throw New Exception("Você estourou o limite de buscas diárias, continue novamente amanhã! (Em caso de IP dinâmico, reinicie sua conexão com a internet e tente novamente.)")
             ElseIf documento.SelectSingleNode("GeocodeResponse").SelectSingleNode("status").InnerText.ToString = "OK" Then
                 Try
-                    Me.Address = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'route']/long_name").InnerText
+                    Me.StreetName = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'route']/long_name").InnerText
                 Catch ex As Exception
 
                 End Try
@@ -307,21 +271,30 @@ Namespace Locations
 
                 End Try
 
-
             End If
             Me.GoogleMapsURL = Me.ToGoogleMapsURL(True)
+            ParseType()
         End Sub
 
         ''' <summary>
         ''' Realiza uma nova busca no google maps usando o endereço completo
         ''' </summary>
         Public Sub Update()
-            Me.SearchOnGoogleMaps(Me.FullAddress)
+            Me.SearchOnGoogleMaps(Me.Address)
         End Sub
 
     End Class
 
-    Friend Class Logradouro
+    Friend Class AddressTypes
+
+        Public Shared Function GetAddressType(Endereco As String) As String
+            Dim tp = Endereco.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
+            If tp.IsNotBlank Then
+                Return GetType(AddressTypes).GetProperties().FirstOrDefault(Function(x) tp.IsIn(x) OrElse x.Name = tp).Name
+            End If
+            Return ""
+        End Function
+
         Public ReadOnly Property Aeroporto As String() = {"Aeroporto", "Ar", "Aero"}
         Public ReadOnly Property Alameda As String() = {"Alameda", "Al", "Alm"}
         Public ReadOnly Property Área As String() = {"Área", "Area"}
@@ -349,24 +322,23 @@ Namespace Locations
         Public ReadOnly Property Parque As String() = {"Parque", "Pq", "Pk", "Par", "Parq", "Park"}
         Public ReadOnly Property Passarela As String() = {"Pass", "Pas", "Pa", "Passarela"}
         Public ReadOnly Property Pátio As String() = {"Pt", "Pat", "Pateo", "Patio"}
-        Public ReadOnly Property Praça As String() = {}
-        Public ReadOnly Property Quadra As String() = {}
-        Public ReadOnly Property Recanto As String() = {}
+        Public ReadOnly Property Praça As String() = {"Praça", "Pc", "Praca", "Pç"}
+        Public ReadOnly Property Quadra As String() = {"Qd", "Quadra", "Quad"}
+        Public ReadOnly Property Recanto As String() = {"Rec", "Recanto", "Rc"}
         Public ReadOnly Property Residencial As String() = {"Residencial", "Residencia", "Res", "Resid"}
         Public ReadOnly Property Rodovia As String() = {"Rodovia", "Rod"}
         Public ReadOnly Property Rua As String() = {"Rua", "R"}
-        Public ReadOnly Property Setor As String() = {}
-        Public ReadOnly Property Sítio As String() = {}
-        Public ReadOnly Property Travessa As String() = {}
-        Public ReadOnly Property Trecho As String() = {}
-        Public ReadOnly Property Trevo As String() = {}
-        Public ReadOnly Property Vale As String() = {}
-        Public ReadOnly Property Vereda As String() = {}
-        Public ReadOnly Property Via As String() = {}
-        Public ReadOnly Property Viaduto As String() = {}
-        Public ReadOnly Property Viela As String() = {}
-        Public ReadOnly Property Vila As String() = {}
+        Public ReadOnly Property Setor As String() = {"Setor", "Str"}
+        Public ReadOnly Property Sítio As String() = {"Sitio", "Sit"}
+        Public ReadOnly Property Travessa As String() = {"Trv", "Travessa", "Tvs"}
+        Public ReadOnly Property Trecho As String() = {"Trc", "Trecho"}
+        Public ReadOnly Property Trevo As String() = {"Trevo"}
+        Public ReadOnly Property Vale As String() = {"Vale", "Val"}
+        Public ReadOnly Property Vereda As String() = {"Vereda"}
+        Public ReadOnly Property Via As String() = {"Via"}
+        Public ReadOnly Property Viaduto As String() = {"Vd", "Viaduto"}
+        Public ReadOnly Property Viela As String() = {"Viela"}
+        Public ReadOnly Property Vila As String() = {"Vila", "Vl"}
     End Class
 
 End Namespace
-

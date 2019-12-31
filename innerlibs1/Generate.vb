@@ -110,7 +110,7 @@ Public Module Generate
         If LatLong = True Then
             s = Uri.EscapeUriString(AdjustWhiteSpaces(local.LatitudeLongitude))
         Else
-            s = Uri.EscapeUriString(AdjustWhiteSpaces(local.FullAddress))
+            s = Uri.EscapeUriString(AdjustWhiteSpaces(local.Address))
         End If
 
         Return New Uri("https://www.google.com.br/maps/search/" & s)
@@ -129,7 +129,7 @@ Public Module Generate
 
     <Extension()>
     Public Function ToStaticGoogleMap(Location As Location, Optional Width As Integer = 400, Optional Height As Integer = 400, Optional Zoom As Integer = 16, Optional Scale As Integer = 2, Optional Maptype As MapType = Generate.MapType.RoadMap) As Image
-        Dim thecenter = If(Location.Latitude.IsBlank, Location.FullAddress.Replace(" ", "+"), Location.LatitudeLongitude)
+        Dim thecenter = If(Location.Latitude.IsBlank, Location.Address.Replace(" ", "+"), Location.LatitudeLongitude)
         Dim mapstring = ""
         Select Case Maptype
             Case 1
