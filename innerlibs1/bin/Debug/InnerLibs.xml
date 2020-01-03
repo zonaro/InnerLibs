@@ -1725,18 +1725,24 @@ InnerLibs
  <param name="Latitude"></param>
  <param name="Longitude"></param>
 </member>
-<member name="P:InnerLibs.Locations.Location.AddressType">
+<member name="P:InnerLibs.Locations.Location.StreetType">
  <summary>
  Tipo do Endereço
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Address">
+<member name="P:InnerLibs.Locations.Location.StreetName">
  <summary>
- Endereco
+ O nome do endereço
  </summary>
  <value></value>
- <returns>Endereco</returns>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.Location.Street">
+ <summary>
+ Logradouro
+ </summary>
+ <returns></returns>
 </member>
 <member name="P:InnerLibs.Locations.Location.Number">
  <summary>
@@ -1814,9 +1820,9 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.FullAddress">
+<member name="P:InnerLibs.Locations.Location.Address">
  <summary>
- Retorna o endereço completo (logradouro)
+ Retorna o endereço completo
  </summary>
  <returns>Uma String com o endereço completo devidamente formatado</returns>
 </member>
@@ -2286,22 +2292,6 @@ InnerLibs
  Verifica se o objeto é um iDictionary
  </summary>
  <param name="obj"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.ClassTools.IsLikeAny(System.String,System.String)">
- <summary>
- Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
- </summary>
- <param name="Text"></param>
- <param name="OtherText"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.ClassTools.IsLikeAny(System.String,System.Collections.Generic.IEnumerable{System.String})">
- <summary>
- Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
- </summary>
- <param name="Text"></param>
- <param name="OtherTexts"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.IsIn``1(``0,``0[])">
@@ -5852,10 +5842,10 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <summary>
  Retorna um <see cref="T:System.Linq.IQueryable`1"/> procurando em varios campos diferentes de uma entidade
  </summary>
- <typeparam name="ClassType"></typeparam>
- <param name="Table">    </param>
- <param name="SearchTerms"></param>
- <param name="Properties"> </param>
+ <typeparam name="ClassType">Tipo da Entidade</typeparam>
+ <param name="Table">Tabela da Entidade</param>
+ <param name="SearchTerms">Termos da pesquisa</param>
+ <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.SelectJoin``1(System.Collections.Generic.IEnumerable{``0},System.String)">
@@ -5990,6 +5980,20 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 <member name="M:InnerLibs.LINQ.LINQExtensions.MostFalse(System.Boolean[])">
  <summary>
  Retorna TRUE se a maioria dos testes em uma lista retornarem FALSE
+ </summary>
+ <param name="Tests"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.AllTrue(System.Boolean[])">
+ <summary>
+ Retorna TRUE se a todos os testes em uma lista retornarem TRUE
+ </summary>
+ <param name="Tests"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.AllFalse(System.Boolean[])">
+ <summary>
+ Retorna TRUE se a todos os testes em uma lista retornarem FALSE
  </summary>
  <param name="Tests"></param>
  <returns></returns>
@@ -9569,6 +9573,46 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Text.IsLikeAny(System.String,System.String)">
+ <summary>
+ Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
+ </summary>
+ <param name="Text"></param>
+ <param name="Pattern"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.IsLikeAny(System.String,System.Collections.Generic.IEnumerable{System.String})">
+ <summary>
+ Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+ </summary>
+ <param name="Text"></param>
+ <param name="Patterns"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.IsLikeAny(System.String,System.String[])">
+ <summary>
+ Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+ </summary>
+ <param name="Text"></param>
+ <param name="Patterns"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.IsLike(System.String,System.String)">
+ <summary>
+ Alias para função <see cref="M:InnerLibs.Text.IsLikeAny(System.String,System.String)"/>
+ </summary>
+ <param name="Text"></param>
+ <param name="Pattern"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.IsLikeElse(System.String,System.String)">
+ <summary>
+ Compara 2 textos usando caractere curinga de forma convencional e contrária
+ </summary>
+ <param name="Text"></param>
+ <param name="OtherText"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.FormatDocument(System.Int64)">
  <summary>
  Formata um numero para CNPJ ou CNPJ de acordo com o tamanho
@@ -9791,7 +9835,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <param name="Text">            TExto</param>
  <param name="RemoveDiacritics">indica se os acentos devem ser removidos das palavras</param>
- <param name="Words">           
+ <param name="Words">
  Desconsidera outras palavras e busca a quantidadade de cada palavra especificada em um array
  </param>
  <returns></returns>
@@ -9956,7 +10000,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="MinWordLenght">   Tamanho minimo da palavra</param>
  <param name="IgnoredWords">    palavras que sempre serão ignoradas</param>
  <param name="RemoveDiacritics">TRUE para remover acentos</param>
- <param name="ImportantWords">  
+ <param name="ImportantWords">
  Palavras importantes. elas sempre serão adicionadas a lista de tags desde que não estejam nas <paramref name="IgnoredWords"/>
  </param>
  <returns></returns>

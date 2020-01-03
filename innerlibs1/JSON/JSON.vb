@@ -1,477 +1,339 @@
-﻿Imports System
-Imports System.Collections
-Imports System.Collections.Generic
+﻿Imports System.Dynamic
+Imports System.IO
 Imports System.Reflection
-Imports System.Runtime.Serialization
+Imports System.Runtime.InteropServices
+Imports System.Runtime.Serialization.Json
 Imports System.Text
-Imports System.Runtime.CompilerServices
+Imports System.Xml
 
-Namespace JSONReader
-    Public Module JSONParser
-        <ThreadStatic>
-        Private splitArrayPool As Stack(Of List(Of String))
-        <ThreadStatic>
-        Private stringBuilder As StringBuilder
-        <ThreadStatic>
-        Private fieldInfoCache As Dictionary(Of Type, Dictionary(Of String, FieldInfo))
-        <ThreadStatic>
-        Private propertyInfoCache As Dictionary(Of Type, Dictionary(Of String, PropertyInfo))
+Namespace JsonReader
 
-        <Extension()>
-        Function FromJson(Of T)(ByVal json As String) As T
-            If propertyInfoCache Is Nothing Then propertyInfoCache = New Dictionary(Of Type, Dictionary(Of String, PropertyInfo))()
-            If fieldInfoCache Is Nothing Then fieldInfoCache = New Dictionary(Of Type, Dictionary(Of String, FieldInfo))()
-            If stringBuilder Is Nothing Then stringBuilder = New StringBuilder()
-            If splitArrayPool Is Nothing Then splitArrayPool = New Stack(Of List(Of String))()
-            stringBuilder.Length = 0
+    Public Class JsonReader
+        Inherits DynamicObject
 
-            For i As Integer = 0 To json.Length - 1
-                Dim c As Char = json(i)
+        Private Enum JsonTypeEnum
+            [string]
+            [number]
+            [boolean]
+            [object]
+            [array]
+            [null]
+        End Enum
 
-                If c = """"c Then
-                    i = AppendUntilStringEnd(True, i, json)
-                    Continue For
-                End If
-
-                If Char.IsWhiteSpace(c) Then Continue For
-                stringBuilder.Append(c)
-            Next
-
-            Return CType(ParseValue(GetType(T), stringBuilder.ToString()), T)
+        Public Shared Function Parse(ByVal json As String) As Object
+            Return Parse(json, Encoding.Unicode)
         End Function
 
-        Private Function AppendUntilStringEnd(ByVal appendEscapeCharacter As Boolean, ByVal startIdx As Integer, ByVal json As String) As Integer
-            stringBuilder.Append(json(startIdx))
-
-            For i As Integer = startIdx + 1 To json.Length - 1
-
-                If json(i) = "\"c Then
-                    If appendEscapeCharacter Then stringBuilder.Append(json(i))
-                    stringBuilder.Append(json(i + 1))
-                    i += 1
-                ElseIf json(i) = """"c Then
-                    stringBuilder.Append(json(i))
-                    Return i
-                Else
-                    stringBuilder.Append(json(i))
-                End If
-            Next
-
-            Return json.Length - 1
+        Public Shared Function Parse(Of T)(ByVal json As String) As T
+            Return CType(Parse(json, Encoding.Unicode), T)
         End Function
 
-        Private Function Split(ByVal json As String) As List(Of String)
-            Dim splitArray As List(Of String) = If(splitArrayPool.Count > 0, splitArrayPool.Pop(), New List(Of String)())
-            splitArray.Clear()
-            If json.Length = 2 Then Return splitArray
-            Dim parseDepth As Integer = 0
-            stringBuilder.Length = 0
-
-            For i As Integer = 1 To json.Length - 1 - 1
-
-                Select Case json(i)
-                    Case "["c, "{"c
-                        parseDepth += 1
-                    Case "]"c, "}"c
-                        parseDepth -= 1
-                    Case """"c
-                        i = AppendUntilStringEnd(True, i, json)
-                        Continue For
-                    Case ","c, ":"c
-
-                        If parseDepth = 0 Then
-                            splitArray.Add(stringBuilder.ToString())
-                            stringBuilder.Length = 0
-                            Continue For
-                        End If
-                End Select
-
-                stringBuilder.Append(json(i))
-            Next
-
-            splitArray.Add(stringBuilder.ToString())
-            Return splitArray
+        Public Shared Function Parse(Of T)(ByVal json As String, ByVal Encoding As Encoding) As T
+            Return CType(Parse(json, Encoding), T)
         End Function
 
-        Friend Function ParseValue(ByVal type As Type, ByVal json As String) As Object
-            If type = GetType(String) Then
-                If json.Length <= 2 Then Return String.Empty
-                Dim parseStringBuilder As StringBuilder = New StringBuilder(json.Length)
-
-                For i As Integer = 1 To json.Length - 1 - 1
-
-                    If json(i) = "\"c AndAlso i + 1 < json.Length - 1 Then
-                        Dim j As Integer = """\nrtbf/".IndexOf(json(i + 1))
-
-                        If j >= 0 Then
-                            parseStringBuilder.Append("""\" & vbLf & vbCr & vbTab & vbBack & vbFormFeed & "/"(j))
-                            i += 1
-                            Continue For
-                        End If
-
-                        If json(i + 1) = "u"c AndAlso i + 5 < json.Length - 1 Then
-                            Dim c As UInt32 = 0
-
-                            If UInt32.TryParse(json.Substring(i + 2, 4), System.Globalization.NumberStyles.AllowHexSpecifier, Nothing, c) Then
-                                parseStringBuilder.Append(ChrW(c))
-                                i += 5
-                                Continue For
-                            End If
-                        End If
-                    End If
-
-                    parseStringBuilder.Append(json(i))
-                Next
-
-                Return parseStringBuilder.ToString()
-            End If
-
-            If type.IsPrimitive Then
-                Dim result = Convert.ChangeType(json, type, System.Globalization.CultureInfo.InvariantCulture)
-                Return result
-            End If
-
-            If type = GetType(Decimal) Then
-                Dim result As Decimal
-                Decimal.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, result)
-                Return result
-            End If
-
-            If json = "null" Then
-                Return Nothing
-            End If
-
-            If type.IsEnum Then
-                If json(0) = """"c Then json = json.Substring(1, json.Length - 2)
-
-                Try
-                    Return [Enum].Parse(type, json, False)
-                Catch
-                    Return 0
-                End Try
-            End If
-
-            If type.IsArray Then
-                Dim arrayType As Type = type.GetElementType()
-                If json(0) <> "["c OrElse json(json.Length - 1) <> "]"c Then Return Nothing
-                Dim elems As List(Of String) = Split(json)
-                Dim newArray As Array = Array.CreateInstance(arrayType, elems.Count)
-
-                For i As Integer = 0 To elems.Count - 1
-                    newArray.SetValue(ParseValue(arrayType, elems(i)), i)
-                Next
-
-                splitArrayPool.Push(elems)
-                Return newArray
-            End If
-
-            If type.IsGenericType AndAlso type.GetGenericTypeDefinition() = GetType(List(Of)) Then
-                Dim listType As Type = type.GetGenericArguments()(0)
-                If json(0) <> "["c OrElse json(json.Length - 1) <> "]"c Then Return Nothing
-                Dim elems As List(Of String) = Split(json)
-                Dim list = CType(type.GetConstructor(New Type() {GetType(Integer)}).Invoke(New Object() {elems.Count}), IList)
-
-                For i As Integer = 0 To elems.Count - 1
-                    list.Add(ParseValue(listType, elems(i)))
-                Next
-
-                splitArrayPool.Push(elems)
-                Return list
-            End If
-
-            If type.IsGenericType AndAlso type.GetGenericTypeDefinition() = GetType(Dictionary(Of,)) Then
-                Dim keyType, valueType As Type
-
-                If True Then
-                    Dim args As Type() = type.GetGenericArguments()
-                    keyType = args(0)
-                    valueType = args(1)
-                End If
-
-                If keyType <> GetType(String) Then Return Nothing
-                If json(0) <> "{"c OrElse json(json.Length - 1) <> "}"c Then Return Nothing
-                Dim elems As List(Of String) = Split(json)
-                If elems.Count Mod 2 <> 0 Then Return Nothing
-                Dim dictionary = CType(type.GetConstructor(New Type() {GetType(Integer)}).Invoke(New Object() {elems.Count / 2}), IDictionary)
-
-                For i As Integer = 0 To elems.Count - 1 Step 2
-                    If elems(i).Length <= 2 Then Continue For
-                    Dim keyValue As String = elems(i).Substring(1, elems(i).Length - 2)
-                    Dim val As Object = ParseValue(valueType, elems(i + 1))
-                    dictionary.Add(keyValue, val)
-                Next
-
-                Return dictionary
-            End If
-
-            If type = GetType(Object) Then
-                Return ParseAnonymousValue(json)
-            End If
-
-            If json(0) = "{"c AndAlso json(json.Length - 1) = "}"c Then
-                Return ParseObject(type, json)
-            End If
-
-            Return Nothing
+        Public Shared Function Parse(ByVal json As String, ByVal encoding As Encoding) As Object
+            Using reader = JsonReaderWriterFactory.CreateJsonReader(encoding.GetBytes(json), XmlDictionaryReaderQuotas.Max)
+                Return ToValue(XElement.Load(reader))
+            End Using
         End Function
 
-        Private Function ParseAnonymousValue(ByVal json As String) As Object
-            If json.Length = 0 Then Return Nothing
-
-            If json(0) = "{"c AndAlso json(json.Length - 1) = "}"c Then
-                Dim elems As List(Of String) = Split(json)
-                If elems.Count Mod 2 <> 0 Then Return Nothing
-                Dim dict = New Dictionary(Of String, Object)(elems.Count / 2)
-
-                For i As Integer = 0 To elems.Count - 1 Step 2
-                    dict.Add(elems(i).Substring(1, elems(i).Length - 2), ParseAnonymousValue(elems(i + 1)))
-                Next
-
-                Return dict
-            End If
-
-            If json(0) = "["c AndAlso json(json.Length - 1) = "]"c Then
-                Dim items As List(Of String) = Split(json)
-                Dim finalList = New List(Of Object)(items.Count)
-
-                For i As Integer = 0 To items.Count - 1
-                    finalList.Add(ParseAnonymousValue(items(i)))
-                Next
-
-                Return finalList
-            End If
-
-            If json(0) = """"c AndAlso json(json.Length - 1) = """"c Then
-                Dim str As String = json.Substring(1, json.Length - 2)
-                Return str.Replace("\", String.Empty)
-            End If
-
-            If Char.IsDigit(json(0)) OrElse json(0) = "-"c Then
-
-                If json.Contains(".") Then
-                    Dim result As Double
-                    Double.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, result)
-                    Return result
-                Else
-                    Dim result As Integer
-                    Integer.TryParse(json, result)
-                    Return result
-                End If
-            End If
-
-            If json = "true" Then Return True
-            If json = "false" Then Return False
-            Return Nothing
+        Public Shared Function Parse(ByVal stream As Stream) As Object
+            Using reader = JsonReaderWriterFactory.CreateJsonReader(stream, XmlDictionaryReaderQuotas.Max)
+                Return ToValue(XElement.Load(reader))
+            End Using
         End Function
 
-        Private Function CreateMemberNameDictionary(Of T As MemberInfo)(ByVal members As T()) As Dictionary(Of String, T)
-            Dim nameToMember As Dictionary(Of String, T) = New Dictionary(Of String, T)(StringComparer.OrdinalIgnoreCase)
-
-            For i As Integer = 0 To members.Length - 1
-                Dim member As T = members(i)
-                If member.IsDefined(GetType(IgnoreDataMemberAttribute), True) Then Continue For
-                Dim name As String = member.Name
-
-                If member.IsDefined(GetType(DataMemberAttribute), True) Then
-                    Dim dataMemberAttribute As DataMemberAttribute = CType(Attribute.GetCustomAttribute(member, GetType(DataMemberAttribute), True), DataMemberAttribute)
-                    If Not String.IsNullOrEmpty(dataMemberAttribute.Name) Then name = dataMemberAttribute.Name
-                End If
-
-                nameToMember.Add(name, member)
-            Next
-
-            Return nameToMember
+        Public Shared Function Parse(ByVal stream As Stream, ByVal encoding As Encoding) As Object
+            Using reader = JsonReaderWriterFactory.CreateJsonReader(stream, encoding, XmlDictionaryReaderQuotas.Max, Function(__)
+                                                                                                                     End Function)
+                Return ToValue(XElement.Load(reader))
+            End Using
         End Function
 
-        Private Function ParseObject(ByVal type As Type, ByVal json As String) As Object
-            Dim instance As Object = FormatterServices.GetUninitializedObject(type)
-            Dim elems As List(Of String) = Split(json)
-            If elems.Count Mod 2 <> 0 Then Return instance
-            Dim nameToField As Dictionary(Of String, FieldInfo)
-            Dim nameToProperty As Dictionary(Of String, PropertyInfo)
-
-            If Not fieldInfoCache.TryGetValue(type, nameToField) Then
-                nameToField = CreateMemberNameDictionary(type.GetFields(BindingFlags.Instance Or BindingFlags.[Public] Or BindingFlags.FlattenHierarchy))
-                fieldInfoCache.Add(type, nameToField)
-            End If
-
-            If Not propertyInfoCache.TryGetValue(type, nameToProperty) Then
-                nameToProperty = CreateMemberNameDictionary(type.GetProperties(BindingFlags.Instance Or BindingFlags.[Public] Or BindingFlags.FlattenHierarchy))
-                propertyInfoCache.Add(type, nameToProperty)
-            End If
-
-            For i As Integer = 0 To elems.Count - 1 Step 2
-                If elems(i).Length <= 2 Then Continue For
-                Dim key As String = elems(i).Substring(1, elems(i).Length - 2)
-                Dim value As String = elems(i + 1)
-                Dim fieldInfo As FieldInfo
-                Dim propertyInfo As PropertyInfo
-
-                If nameToField.TryGetValue(key, fieldInfo) Then
-                    fieldInfo.SetValue(instance, ParseValue(fieldInfo.FieldType, value))
-                ElseIf nameToProperty.TryGetValue(key, propertyInfo) Then
-                    propertyInfo.SetValue(instance, ParseValue(propertyInfo.PropertyType, value), Nothing)
-                End If
-            Next
-
-            Return instance
-        End Function
-    End Module
-
-
-    Public Module JSONWriter
-        <Extension()>
-        Public Function WriteJson(Of T)(ByVal item As T) As String
-            Dim stringBuilder As StringBuilder = New StringBuilder()
-            AppendValue(stringBuilder, item)
-            Return stringBuilder.ToString()
+        Public Shared Function Serialize(ByVal obj As Object) As String
+            Return CreateJsonString(New XStreamingElement("root", CreateTypeAttr(GetJsonType(obj)), CreateJsonNode(obj)))
         End Function
 
-        Private Sub AppendValue(ByVal stringBuilder As StringBuilder, ByVal item As Object)
-            If item Is Nothing Then
-                stringBuilder.Append("null")
-                Return
-            End If
+        Private Shared Function ToValue(ByVal element As XElement) As Object
+            Dim type = CType([Enum].Parse(GetType(JsonTypeEnum), element.Attribute("type").Value), JsonTypeEnum)
 
-            Dim type As Type = item.[GetType]()
+            Select Case type
+                Case JsonTypeEnum.boolean
+                    Return CBool(element)
+                Case JsonTypeEnum.number
+                    Return CDbl(element)
+                Case JsonTypeEnum.string
+                    Return CStr(element)
+                Case JsonTypeEnum.object, JsonTypeEnum.array
+                    Return New JsonReader(element, type)
+                Case Else
+                    Return Nothing
+            End Select
+        End Function
 
-            If type = GetType(String) Then
-                stringBuilder.Append(""""c)
-                Dim str As String = CStr(item)
+        Private Shared Function GetJsonType(ByVal obj As Object) As JsonTypeEnum
+            If obj Is Nothing Then Return JsonTypeEnum.null
 
-                For i As Integer = 0 To str.Length - 1
+            Select Case Type.GetTypeCode(obj.[GetType]())
+                Case TypeCode.Boolean
+                    Return JsonTypeEnum.boolean
+                Case TypeCode.String, TypeCode.Char, TypeCode.DateTime
+                    Return JsonTypeEnum.string
+                Case TypeCode.Int16, TypeCode.Int32, TypeCode.Int64, TypeCode.UInt16, TypeCode.UInt32, TypeCode.UInt64, TypeCode.Single, TypeCode.Double, TypeCode.Decimal, TypeCode.SByte, TypeCode.Byte
+                    Return JsonTypeEnum.number
+                Case TypeCode.Object
+                    Return If((TypeOf obj Is IEnumerable), JsonTypeEnum.array, JsonTypeEnum.object)
+                Case Else
+                    Return JsonTypeEnum.null
+            End Select
+        End Function
 
-                    If str(i) < " "c OrElse str(i) = """"c OrElse str(i) = "\"c Then
-                        stringBuilder.Append("\"c)
-                        Dim j As Integer = """\" & vbLf & vbCr & vbTab & vbBack & vbFormFeed.IndexOf(str(i))
+        Private Shared Function CreateTypeAttr(ByVal type As JsonTypeEnum) As XAttribute
+            Return New XAttribute("type", type.ToString())
+        End Function
 
-                        If j >= 0 Then
-                            stringBuilder.Append("""\nrtbf"(j))
-                        Else
-                            stringBuilder.AppendFormat("u{0:X4}", AscW(str(i)))
-                        End If
-                    Else
-                        stringBuilder.Append(str(i))
-                    End If
-                Next
+        Private Shared Function CreateJsonNode(ByVal obj As Object) As Object
+            Dim type = GetJsonType(obj)
 
-                stringBuilder.Append(""""c)
-            ElseIf type = GetType(Byte) OrElse type = GetType(Integer) Then
-                stringBuilder.Append(item.ToString())
-            ElseIf type = GetType(Single) Then
-                stringBuilder.Append((CSng(item)).ToString(System.Globalization.CultureInfo.InvariantCulture))
-            ElseIf type = GetType(Double) Then
-                stringBuilder.Append((CDbl(item)).ToString(System.Globalization.CultureInfo.InvariantCulture))
-            ElseIf type = GetType(Boolean) Then
-                stringBuilder.Append(If((CBool(item)), "true", "false"))
-            ElseIf type = GetType(Date) Then
-                stringBuilder.Append(item.ToString().Quote)
-            ElseIf type.IsEnum Then
-                stringBuilder.Append(""""c)
-                stringBuilder.Append(item.ToString())
-                stringBuilder.Append(""""c)
-            ElseIf TypeOf item Is IList Then
-                stringBuilder.Append("["c)
-                Dim isFirst As Boolean = True
-                Dim list As IList = TryCast(item, IList)
+            Select Case type
+                Case JsonTypeEnum.string, JsonTypeEnum.number
+                    Return obj
+                Case JsonTypeEnum.boolean
+                    Return obj.ToString().ToLower()
+                Case JsonTypeEnum.object
+                    Return CreateXObject(obj)
+                Case JsonTypeEnum.array
+                    Return CreateXArray(TryCast(obj, IEnumerable))
+                Case Else
+                    Return Nothing
+            End Select
+        End Function
 
-                For i As Integer = 0 To list.Count - 1
+        Private Shared Function CreateXArray(Of T As IEnumerable)(ByVal obj As T) As IEnumerable(Of XStreamingElement)
+            Return obj.Cast(Of Object)().[Select](Function(o) New XStreamingElement("item", CreateTypeAttr(GetJsonType(o)), CreateJsonNode(o)))
+        End Function
 
-                    If isFirst Then
-                        isFirst = False
-                    Else
-                        stringBuilder.Append(","c)
-                    End If
+        Private Shared Function CreateXObject(ByVal obj As Object) As IEnumerable(Of XStreamingElement)
+            Return obj.[GetType]().GetProperties(BindingFlags.[Public] Or BindingFlags.Instance).[Select](Function(pi) New With {Key .Name = pi.Name, Key .Value = pi.GetValue(obj, Nothing)
+            }).[Select](Function(a) New XStreamingElement(a.Name, CreateTypeAttr(GetJsonType(a.Value)), CreateJsonNode(a.Value)))
+        End Function
 
-                    AppendValue(stringBuilder, list(i))
-                Next
+        Private Shared Function CreateJsonString(ByVal element As XStreamingElement) As String
+            Using ms = New MemoryStream()
 
-                stringBuilder.Append("]"c)
-            ElseIf type.IsGenericType AndAlso type.GetGenericTypeDefinition() = GetType(Dictionary(Of,)) Then
-                Dim keyType As Type = type.GetGenericArguments()(0)
+                Using writer = JsonReaderWriterFactory.CreateJsonWriter(ms, Encoding.Unicode)
+                    element.WriteTo(writer)
+                    writer.Flush()
+                    Return Encoding.Unicode.GetString(ms.ToArray())
+                End Using
+            End Using
+        End Function
 
-                If keyType <> GetType(String) Then
-                    stringBuilder.Append("{}")
-                    Return
-                End If
+        ReadOnly xml As XElement
+        ReadOnly jsonType As JsonTypeEnum
 
-                stringBuilder.Append("{"c)
-                Dim dict As IDictionary = TryCast(item, IDictionary)
-                Dim isFirst As Boolean = True
 
-                For Each key As Object In dict.Keys
-
-                    If isFirst Then
-                        isFirst = False
-                    Else
-                        stringBuilder.Append(","c)
-                    End If
-
-                    stringBuilder.Append(""""c)
-                    stringBuilder.Append(CStr(key))
-                    stringBuilder.Append(""":")
-                    AppendValue(stringBuilder, dict(key))
-                Next
-
-                stringBuilder.Append("}"c)
-            Else
-                stringBuilder.Append("{"c)
-                Dim isFirst As Boolean = True
-                Dim fieldInfos As FieldInfo() = type.GetFields(BindingFlags.Instance Or BindingFlags.[Public] Or BindingFlags.FlattenHierarchy)
-
-                For i As Integer = 0 To fieldInfos.Length - 1
-                    If fieldInfos(i).IsDefined(GetType(IgnoreDataMemberAttribute), True) Then Continue For
-                    Dim value As Object = fieldInfos(i).GetValue(item)
-
-                    If value IsNot Nothing Then
-
-                        If isFirst Then
-                            isFirst = False
-                        Else
-                            stringBuilder.Append(","c)
-                        End If
-
-                        stringBuilder.Append(""""c)
-                        stringBuilder.Append(GetMemberName(fieldInfos(i)))
-                        stringBuilder.Append(""":")
-                        AppendValue(stringBuilder, value)
-                    End If
-                Next
-
-                Dim propertyInfo As PropertyInfo() = type.GetProperties(BindingFlags.Instance Or BindingFlags.[Public] Or BindingFlags.FlattenHierarchy)
-
-                For i As Integer = 0 To propertyInfo.Length - 1
-                    If Not propertyInfo(i).CanRead OrElse propertyInfo(i).IsDefined(GetType(IgnoreDataMemberAttribute), True) Then Continue For
-                    Dim value As Object = propertyInfo(i).GetValue(item, Nothing)
-
-                    If value IsNot Nothing Then
-
-                        If isFirst Then
-                            isFirst = False
-                        Else
-                            stringBuilder.Append(","c)
-                        End If
-
-                        stringBuilder.Append(""""c)
-                        stringBuilder.Append(GetMemberName(propertyInfo(i)))
-                        stringBuilder.Append(""":")
-                        AppendValue(stringBuilder, value)
-                    End If
-                Next
-
-                stringBuilder.Append("}"c)
-            End If
+        Public Sub New()
+            xml = New XElement("root", CreateTypeAttr(JsonTypeEnum.object))
+            jsonType = JsonTypeEnum.object
         End Sub
 
-        Private Function GetMemberName(ByVal member As MemberInfo) As String
-            If member.IsDefined(GetType(DataMemberAttribute), True) Then
-                Dim dataMemberAttribute As DataMemberAttribute = CType(Attribute.GetCustomAttribute(member, GetType(DataMemberAttribute), True), DataMemberAttribute)
-                If Not String.IsNullOrEmpty(dataMemberAttribute.Name) Then Return dataMemberAttribute.Name
+        Private Sub New(ByVal element As XElement, ByVal type As JsonTypeEnum)
+            Debug.Assert(type = JsonTypeEnum.array OrElse type = JsonTypeEnum.object)
+            xml = element
+            jsonType = type
+        End Sub
+
+        Public ReadOnly Property IsObject As Boolean
+            Get
+                Return jsonType = JsonTypeEnum.object
+            End Get
+        End Property
+
+        Public ReadOnly Property IsArray As Boolean
+            Get
+                Return jsonType = JsonTypeEnum.array
+            End Get
+        End Property
+
+        Public Function IsDefined(ByVal name As String) As Boolean
+            Return IsObject AndAlso (xml.Element(name) IsNot Nothing)
+        End Function
+
+        Public Function IsDefined(ByVal index As Integer) As Boolean
+            Return IsArray AndAlso (xml.Elements().ElementAtOrDefault(index) IsNot Nothing)
+        End Function
+
+        Public Function Delete(ByVal name As String) As Boolean
+            Dim elem = xml.Element(name)
+
+            If elem IsNot Nothing Then
+                elem.Remove()
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        Public Function Delete(ByVal index As Integer) As Boolean
+            Dim elem = xml.Elements().ElementAtOrDefault(index)
+
+            If elem IsNot Nothing Then
+                elem.Remove()
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        Public Function Deserialize(Of T)() As T
+            Return CType(Deserialize(GetType(T)), T)
+        End Function
+
+        Private Function Deserialize(ByVal type As Type) As Object
+            Return If((IsArray), DeserializeArray(type), DeserializeObject(type))
+        End Function
+
+        Private Function DeserializeValue(ByVal element As XElement, ByVal elementType As Type) As Object
+            Dim value = ToValue(element)
+
+            If TypeOf value Is JsonReader Then
+                value = (CType(value, JsonReader)).Deserialize(elementType)
             End If
 
-            Return member.Name
+            Return Convert.ChangeType(value, elementType)
         End Function
-    End Module
 
+        Private Function DeserializeObject(ByVal targetType As Type) As Object
+            Dim result = Activator.CreateInstance(targetType)
+            Dim dict = targetType.GetProperties(BindingFlags.[Public] Or BindingFlags.Instance).Where(Function(p) p.CanWrite).ToDictionary(Function(pi) pi.Name, Function(pi) pi)
+
+            For Each item In xml.Elements()
+                Dim propertyInfo As PropertyInfo
+                If Not dict.TryGetValue(item.Name.LocalName, propertyInfo) Then Continue For
+                Dim value = DeserializeValue(item, propertyInfo.PropertyType)
+                propertyInfo.SetValue(result, value, Nothing)
+            Next
+
+            Return result
+        End Function
+
+        Private Function DeserializeArray(ByVal targetType As Type) As Object
+            If targetType.IsArray Then
+                Dim elemType = targetType.GetElementType()
+                Dim array As Object = array.CreateInstance(elemType, xml.Elements().Count())
+                Dim index = 0
+
+                For Each item In xml.Elements()
+                    array(Math.Min(System.Threading.Interlocked.Increment(index), index - 1)) = DeserializeValue(item, elemType)
+                Next
+
+                Return array
+            Else
+                Dim elemType = targetType.GetGenericArguments()(0)
+                Dim list As Object = Activator.CreateInstance(targetType)
+
+                For Each item In xml.Elements()
+                    list.Add(DeserializeValue(item, elemType))
+                Next
+
+                Return list
+            End If
+        End Function
+
+        Public Overrides Function TryInvoke(ByVal binder As InvokeBinder, ByVal args As Object(), <Out> ByRef result As Object) As Boolean
+            result = If((IsArray), Delete(CInt(args(0))), Delete(CStr(args(0))))
+            Return True
+        End Function
+
+        Public Overrides Function TryInvokeMember(ByVal binder As InvokeMemberBinder, ByVal args As Object(), <Out> ByRef result As Object) As Boolean
+            If args.Length > 0 Then
+                result = Nothing
+                Return False
+            End If
+
+            result = IsDefined(binder.Name)
+            Return True
+        End Function
+
+        Public Overrides Function TryConvert(ByVal binder As ConvertBinder, <Out> ByRef result As Object) As Boolean
+            If binder.Type = GetType(IEnumerable) OrElse binder.Type = GetType(Object()) Then
+                Dim ie = If((IsArray), xml.Elements().[Select](Function(x) ToValue(x)), xml.Elements().[Select](Function(x) CType(New KeyValuePair(Of String, Object)(x.Name.LocalName, ToValue(x)), Object)))
+                result = If((binder.Type = GetType(Object())), ie.ToArray(), ie)
+            Else
+                result = Deserialize(binder.Type)
+            End If
+
+            Return True
+        End Function
+
+        Private Function TryGet(ByVal element As XElement, <Out> ByRef result As Object) As Boolean
+            If element Is Nothing Then
+                result = Nothing
+                Return False
+            End If
+
+            result = ToValue(element)
+            Return True
+        End Function
+
+        Public Overrides Function TryGetIndex(ByVal binder As GetIndexBinder, ByVal indexes As Object(), <Out> ByRef result As Object) As Boolean
+            Return If((IsArray), TryGet(xml.Elements().ElementAtOrDefault(CInt(indexes(0))), result), TryGet(xml.Element(CStr(indexes(0))), result))
+        End Function
+
+        Public Overrides Function TryGetMember(ByVal binder As GetMemberBinder, <Out> ByRef result As Object) As Boolean
+            Return If((IsArray), TryGet(xml.Elements().ElementAtOrDefault(Integer.Parse(binder.Name)), result), TryGet(xml.Element(binder.Name), result))
+        End Function
+
+        Private Function TrySet(ByVal name As String, ByVal value As Object) As Boolean
+            Dim type = GetJsonType(value)
+            Dim element = xml.Element(name)
+
+            If element Is Nothing Then
+                xml.Add(New XElement(name, CreateTypeAttr(type), CreateJsonNode(value)))
+            Else
+                element.Attribute("type").Value = type.ToString()
+                element.ReplaceNodes(CreateJsonNode(value))
+            End If
+
+            Return True
+        End Function
+
+        Private Function TrySet(ByVal index As Integer, ByVal value As Object) As Boolean
+            Dim type = GetJsonType(value)
+            Dim e = xml.Elements().ElementAtOrDefault(index)
+
+            If e Is Nothing Then
+                xml.Add(New XElement("item", CreateTypeAttr(type), CreateJsonNode(value)))
+            Else
+                e.Attribute("type").Value = type.ToString()
+                e.ReplaceNodes(CreateJsonNode(value))
+            End If
+
+            Return True
+        End Function
+
+        Public Overrides Function TrySetIndex(ByVal binder As SetIndexBinder, ByVal indexes As Object(), ByVal value As Object) As Boolean
+            Return If((IsArray), TrySet(CInt(indexes(0)), value), TrySet(CStr(indexes(0)), value))
+        End Function
+
+        Public Overrides Function TrySetMember(ByVal binder As SetMemberBinder, ByVal value As Object) As Boolean
+            Return If((IsArray), TrySet(Integer.Parse(binder.Name), value), TrySet(binder.Name, value))
+        End Function
+
+        Public Overrides Function GetDynamicMemberNames() As IEnumerable(Of String)
+            Return If((IsArray), xml.Elements().[Select](Function(x, i) i.ToString()), xml.Elements().[Select](Function(x) x.Name.LocalName))
+        End Function
+
+        Public Overrides Function ToString() As String
+            For Each elem In xml.Descendants().Where(Function(x) x.Attribute("type").Value = "null")
+                elem.RemoveNodes()
+            Next
+
+            Return CreateJsonString(New XStreamingElement("root", CreateTypeAttr(jsonType), xml.Elements()))
+        End Function
+
+    End Class
 
 End Namespace

@@ -13,6 +13,8 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+
+
     ''' <summary>
     ''' Concatena todas as  <see cref="Exception.InnerException"/> em uma única string
     ''' </summary>
@@ -595,15 +597,12 @@ Public Module ClassTools
     <Extension()>
     Public Function GetPropertyValue(Of T)(MyObject As Object, Name As String) As T
         If MyObject IsNot Nothing Then
-            Dim prop = MyObject.GetType().GetProperties().SingleOrDefault(
-                Function(x) x.Name.ToLower = Name.ToLower)
+            Dim prop = MyObject.GetType().GetProperties().SingleOrDefault(Function(x) x.Name.ToLower = Name.ToLower)
             If prop IsNot Nothing Then
                 Return CType(prop.GetValue(MyObject), T)
             End If
-            Return Nothing
-        Else
-            Return Nothing
         End If
+        Return Nothing
     End Function
 
     ''' <summary>
@@ -851,33 +850,6 @@ Public Module ClassTools
         Return TypeOf obj Is IDictionary AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(Dictionary(Of , )))
     End Function
 
-    ''' <summary>
-    ''' Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="OtherText"></param>
-    ''' <returns></returns>
-    <Extension> Function IsLikeAny(Text As String, OtherText As String) As Boolean
-        Text = Text.IfBlank(Text)
-        OtherText = OtherText.IfBlank(OtherText)
-        Return Text Like OtherText
-    End Function
-
-    ''' <summary>
-    ''' Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="OtherTexts"></param>
-    ''' <returns></returns>
-    <Extension> Function IsLikeAny(Text As String, OtherTexts As IEnumerable(Of String)) As Boolean
-        Text = Text.IfBlank("")
-        For Each item In If(OtherTexts, {})
-            If item Like Text Or Text Like item Then
-                Return True
-            End If
-        Next
-        Return False
-    End Function
 
 
     ''' <summary>

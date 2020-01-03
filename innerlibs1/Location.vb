@@ -49,7 +49,7 @@ Namespace Locations
         Property StreetType As String
 
         ''' <summary>
-        ''' O nome do Endereço
+        ''' O nome do endereço
         ''' </summary>
         ''' <value></value>
         ''' <returns></returns>

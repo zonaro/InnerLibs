@@ -48,20 +48,24 @@ Public Class QuantityTextPair
     Public Overloads Function Tostring(Number As Decimal)
         Return If(Number = 1, Singular, Plural)
     End Function
+
     Public Overloads Function Tostring(Number As Short)
         Return If(Number = 1, Singular, Plural)
     End Function
+
     Public Overloads Function Tostring(Number As Integer)
         Return If(Number = 1, Singular, Plural)
     End Function
+
     Public Overloads Function Tostring(Number As Double)
         Return If(Number = 1, Singular, Plural)
     End Function
+
     Public Overloads Function Tostring(Number As Single)
         Return If(Number = 1, Singular, Plural)
     End Function
-End Class
 
+End Class
 
 ''' <summary>
 ''' Classe para escrever numeros por extenso com suporte até 999 quintilhoes
@@ -85,7 +89,6 @@ Public Class FullNumberWriter
     ''' </summary>
     ''' <returns></returns>
     Property [And] As String
-
 
     ''' <summary>
     ''' String que representa o numero 1.
@@ -260,41 +263,49 @@ Public Class FullNumberWriter
     ''' </summary>
     ''' <returns></returns>
     Property OneHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 200 a 299.
     ''' </summary>
     ''' <returns></returns>
     Property TwoHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 300 a 399.
     ''' </summary>
     ''' <returns></returns>
     Property ThreeHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 400 a 499.
     ''' </summary>
     ''' <returns></returns>
     Property FourHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 500 a 599.
     ''' </summary>
     ''' <returns></returns>
     Property FiveHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 600 a 699.
     ''' </summary>
     ''' <returns></returns>
     Property SixHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 700 a 799.
     ''' </summary>
     ''' <returns></returns>
     Property SevenHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 800 a 899.
     ''' </summary>
     ''' <returns></returns>
     Property EightHundred As String
+
     ''' <summary>
     ''' String que representa os numeros 900 a 999.
     ''' </summary>
@@ -306,26 +317,31 @@ Public Class FullNumberWriter
     ''' </summary>
     ''' <returns></returns>
     Property Thousand As String
+
     ''' <summary>
     ''' Par de strings que representam os numeros 1 milhão a 999 milhões
     ''' </summary>
     ''' <returns></returns>
     Property Million As New QuantityTextPair
+
     ''' <summary>
     ''' Par de strings que representam os numeros 1 bilhão a 999 bilhões
     ''' </summary>
     ''' <returns></returns>
     Property Billion As New QuantityTextPair
+
     ''' <summary>
     ''' Par de strings que representam os numeros 1 trilhão a 999 trilhões
     ''' </summary>
     ''' <returns></returns>
     Property Trillion As New QuantityTextPair
+
     ''' <summary>
     ''' Par de strings que representam os numeros 1 quadrilhão a 999 quadrilhões
     ''' </summary>
     ''' <returns></returns>
     Property Quadrillion As New QuantityTextPair
+
     ''' <summary>
     ''' Par de strings que representam os numeros 1 quintilhão a 999 quintilhões
     ''' </summary>
@@ -387,7 +403,6 @@ Public Class FullNumberWriter
             Return (InExtensive(num) & If(dec = 0 Or DecimalPlaces = 0, "", Dot.Wrap(" ") & InExtensive(dec))).ToLower.AdjustWhiteSpaces
         End Get
     End Property
-
 
     Friend Function InExtensive(ByVal Number As Decimal) As String
 
@@ -553,17 +568,13 @@ Public Class FullNumberWriter
 
 #End Region
 
-
             Case Else
                 Return MoreThan & " " & InExtensive(999999999999999999999D)
         End Select
 
     End Function
 
-
-
 End Class
-
 
 ''' <summary>
 ''' Classe para escrever moedas por extenso com suporte até 999 quintilhoes de $$
@@ -576,6 +587,7 @@ Public Class FullMoneyWriter
     ''' </summary>
     ''' <returns></returns>
     Property CurrencyName As New QuantityTextPair("dollar", "dollars")
+
     ''' <summary>
     ''' Par de strings que representam os centavos desta moeda em sua forma singular ou plural
     ''' </summary>
@@ -624,6 +636,64 @@ End Class
 Public Module Text
 
     ''' <summary>
+    ''' Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Pattern"></param>
+    ''' <returns></returns>
+    <Extension> Function IsLikeAny(Text As String, Pattern As String) As Boolean
+        Text = Text.IfBlank(Text)
+        Pattern = Pattern.IfBlank(Pattern)
+        Return Text Like Pattern
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Patterns"></param>
+    ''' <returns></returns>
+    <Extension> Function IsLikeAny(Text As String, Patterns As IEnumerable(Of String)) As Boolean
+        Text = Text.IfBlank("")
+        For Each item In If(Patterns, {})
+            If item Like Text Or Text Like item Then
+                Return True
+            End If
+        Next
+        Return False
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Patterns"></param>
+    ''' <returns></returns>
+    <Extension> Function IsLikeAny(Text As String, ParamArray Patterns As String()) As Boolean
+        Return Text.IsLikeAny(If(Patterns, {}).AsEnumerable)
+    End Function
+
+    ''' <summary>
+    ''' Alias para função <see cref="IsLikeAny(String, String)"/>
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Pattern"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsLike(Text As String, Pattern As String) As Boolean
+        Return Text.IsLikeAny(Pattern)
+    End Function
+
+    ''' <summary>
+    ''' Compara 2 textos usando caractere curinga de forma convencional e contrária
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OtherText"></param>
+    ''' <returns></returns>
+    Public Function IsLikeElse(Text As String, OtherText As String) As Boolean
+        Return Text Like OtherText OrElse OtherText Like Text
+    End Function
+
+    ''' <summary>
     ''' Formata um numero para CNPJ ou CNPJ de acordo com o tamanho
     ''' </summary>
     ''' <param name="Document"></param>
@@ -665,8 +735,6 @@ Public Module Text
     <Extension()> Public Function PrintIf(Text As String, BooleanValue As Boolean) As String
         Return If(BooleanValue, Text, "")
     End Function
-
-
 
     ''' <summary>
     ''' Seprar uma string em varias partes a partir de varias strings removendo as entradas em branco
@@ -803,7 +871,6 @@ Public Module Text
         Array.Sort(a)
         Return a.Join("")
     End Function
-
 
     <Extension()>
     Public Function AppendUrlParameter(ByRef Url As String, Key As String, ParamArray Value As String()) As String
@@ -978,7 +1045,6 @@ Public Module Text
         Return Text.ContainsMost(StringComparison.CurrentCultureIgnoreCase, Values)
     End Function
 
-
     ''' <summary>
     ''' Verifica se uma String contém todos os valores especificados
     ''' </summary>
@@ -1060,7 +1126,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">            TExto</param>
     ''' <param name="RemoveDiacritics">indica se os acentos devem ser removidos das palavras</param>
-    ''' <param name="Words">           
+    ''' <param name="Words">
     ''' Desconsidera outras palavras e busca a quantidadade de cada palavra especificada em um array
     ''' </param>
     ''' <returns></returns>
@@ -1412,7 +1478,7 @@ Public Module Text
     ''' <param name="MinWordLenght">   Tamanho minimo da palavra</param>
     ''' <param name="IgnoredWords">    palavras que sempre serão ignoradas</param>
     ''' <param name="RemoveDiacritics">TRUE para remover acentos</param>
-    ''' <param name="ImportantWords">  
+    ''' <param name="ImportantWords">
     ''' Palavras importantes. elas sempre serão adicionadas a lista de tags desde que não estejam nas <paramref name="IgnoredWords"/>
     ''' </param>
     ''' <returns></returns>
@@ -2654,8 +2720,6 @@ Public Module Text
         Return ToProperCase(Text).Split(" ", StringSplitOptions.RemoveEmptyEntries).Join("")
     End Function
 
-
-
     ''' <summary>
     ''' Retorna o uma string representando um valor em bytes, KB, MB ou TB
     ''' </summary>
@@ -3530,8 +3594,6 @@ Public Module Text
         End If
     End Function
 
-
-
     ''' <summary>
     ''' Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
     ''' </summary>
@@ -3669,7 +3731,6 @@ Public Module Text
         Return ToProperCase(Text, ForceCase)
     End Function
 
-
     ''' <summary>
     ''' Transforma um XML Document em string
     ''' </summary>
@@ -3766,6 +3827,5 @@ Public Module Text
         TagName = TagName.RemoveAny("<", ">", "/").ToLower()
         Return New HtmlParser.HtmlElement(TagName, Text)
     End Function
-
 
 End Module

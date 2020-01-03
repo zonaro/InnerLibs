@@ -636,7 +636,7 @@ Namespace LINQ
             Properties = If(Properties, {})
             For Each prop In Properties
                 For Each s In SearchTerms
-                    If Not IsNothing(s) Then
+                    If Not IsNothing(s) AndAlso s.IsNotBlank() Then
                         Dim param = prop.Parameters.First
                         Dim con = Expression.Constant(s)
                         Dim lk = Expression.Call(prop.Body, containsMethod, con)
@@ -914,6 +914,24 @@ Namespace LINQ
         ''' <returns></returns>
         Public Function MostFalse(ParamArray Tests As Boolean()) As Boolean
             Return If(Tests, {}).Most(False)
+        End Function
+
+        ''' <summary>
+        ''' Retorna TRUE se a todos os testes em uma lista retornarem TRUE
+        ''' </summary>
+        ''' <param name="Tests"></param>
+        ''' <returns></returns>
+        Public Function AllTrue(ParamArray Tests As Boolean()) As Boolean
+            Return If(Tests, {}).All(Function(x) x = True)
+        End Function
+
+        ''' <summary>
+        ''' Retorna TRUE se a todos os testes em uma lista retornarem FALSE
+        ''' </summary>
+        ''' <param name="Tests"></param>
+        ''' <returns></returns>
+        Public Function AllFalse(ParamArray Tests As Boolean()) As Boolean
+            Return If(Tests, {}).All(Function(x) x = False)
         End Function
 
         ''' <summary>

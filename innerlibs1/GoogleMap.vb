@@ -138,7 +138,7 @@ Namespace Locations.GoogleMaps
             ''' <param name="Pin">Imagem do marcador</param>
             Public Sub New(Location As Location, Optional Pin As String = "")
                 Me.Location = Location
-                Me.Title = Location.AddressName
+                Me.Title = Location.StreetName
                 Me.Description = Location.ToString()
                 Me.Pin = Pin
             End Sub
