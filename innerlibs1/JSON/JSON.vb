@@ -33,9 +33,12 @@ Namespace JsonReader
         End Function
 
         Public Shared Function Parse(ByVal json As String, ByVal encoding As Encoding) As Object
-            Using reader = JsonReaderWriterFactory.CreateJsonReader(encoding.GetBytes(json), XmlDictionaryReaderQuotas.Max)
-                Return ToValue(XElement.Load(reader))
-            End Using
+            If json.IsNotBlank Then
+                Using reader = JsonReaderWriterFactory.CreateJsonReader(encoding.GetBytes(json), XmlDictionaryReaderQuotas.Max)
+                    Return ToValue(XElement.Load(reader))
+                End Using
+            End If
+            Return Nothing
         End Function
 
         Public Shared Function Parse(ByVal stream As Stream) As Object
@@ -132,7 +135,6 @@ Namespace JsonReader
 
         ReadOnly xml As XElement
         ReadOnly jsonType As JsonTypeEnum
-
 
         Public Sub New()
             xml = New XElement("root", CreateTypeAttr(JsonTypeEnum.object))

@@ -1418,6 +1418,13 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.HtmlParser.MentionParser.ParseURL(System.String,System.Func{System.String,System.String})">
+ <summary>
+ Localiza URLs no texto e automaticamente executa uma função de replace para cada URL encontrada
+ </summary>
+ <param name="Text">  Texto</param>
+ <param name="Method"></param>
+</member>
 <member name="M:InnerLibs.HtmlParser.MentionParser.ParseEmoji(System.String,System.Func{System.String,System.String})">
  <summary>
  Localiza emojis no texto e automaticamente executa uma função de replace para cada emoji encontrado
@@ -1427,11 +1434,12 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.HtmlParser.MentionParser.ParseMentionByChar(System.String,System.String,System.Func{System.String,System.String})">
  <summary>
- Localiza menções a usuários no texto e automaticamente executa uma função de replace para
- cada hashtag encontrada
+ Localiza menções a usuários no texto a partir de um caractere e automaticamente executa uma função de replace para
+ cada menção encontrada
  </summary>
  <param name="Text">  Texto</param>
  <param name="Method"></param>
+ <param name="MatchChar">Caractere inicial</param>
 </member>
 <member name="M:InnerLibs.HtmlParser.MentionParser.ParseUsername(System.String,System.Func{System.String,System.String})">
  <summary>
@@ -11690,6 +11698,28 @@ Atualiza a lista de keys
  Modulo Web
  </summary>
  <remarks></remarks>
+</member>
+<member name="M:InnerLibs.Web.GetBody(System.Web.HttpRequest)">
+ <summary>
+ Retorna o corpo em formato de texto de uma rquisição HTTP
+ </summary>
+ <param name="Request"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetBody``1(System.Web.HttpRequest)">
+ <summary>
+ Retorna o corpo em formato de <typeparamref name="T"/> de uma rquisição HTTP
+ </summary>
+ <param name="Request"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpServerUtility,System.String)">
+ <summary>
+ Retorna  URL relativa de um arquivo do servidor
+ </summary>
+ <param name="Server"></param>
+ <param name="File"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.CreateDirectory(System.Web.HttpServerUtility,System.String)">
  <summary>

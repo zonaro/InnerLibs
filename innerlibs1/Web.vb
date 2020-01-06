@@ -10,7 +10,7 @@ Imports System.Web.SessionState
 Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
 Imports System.Xml
-
+Imports InnerLibs.JsonReader
 ''' <summary>
 ''' Métodos de requisição
 ''' </summary>
@@ -170,7 +170,35 @@ End Class
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Web
+    ''' <summary>
+    ''' Retorna o corpo em formato de texto de uma rquisição HTTP
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetBody(Request As HttpRequest) As String
+        Using sr = New StreamReader(HttpContext.Current.Request.InputStream)
+            Return sr.ReadToEnd()
+        End Using
 
+    End Function
+
+    ''' <summary>
+    ''' Retorna o corpo em formato de <typeparamref name="T"/> de uma rquisição HTTP
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetBody(Of T)(Request As HttpRequest) As T
+        Using sr = New StreamReader(HttpContext.Current.Request.InputStream)
+            Return CType(JsonReader.JsonReader.Parse(sr.ReadToEnd()), T)
+        End Using
+    End Function
+
+    ''' <summary>
+    ''' Retorna  URL relativa de um arquivo do servidor
+    ''' </summary>
+    ''' <param name="Server"></param>
+    ''' <param name="File"></param>
+    ''' <returns></returns>
     <Extension()> Public Function GetFileUrl(Server As HttpServerUtility, File As String) As String
 
         Return File.Split(Server.MapPath("~/"), StringSplitOptions.RemoveEmptyEntries).LastOrDefault()

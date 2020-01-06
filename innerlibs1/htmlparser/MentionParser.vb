@@ -6,6 +6,11 @@ Namespace HtmlParser
 
     Public Module MentionParser
 
+        ''' <summary>
+        ''' Localiza URLs no texto e automaticamente executa uma função de replace para cada URL encontrada
+        ''' </summary>
+        ''' <param name="Text">  Texto</param>
+        ''' <param name="Method"></param>
         <Extension()>
         Function ParseURL(ByVal Text As String, Optional Method As Func(Of String, String) = Nothing) As String
             Method = If(Method, Function(x) x)
@@ -28,11 +33,12 @@ Namespace HtmlParser
 
 
         ''' <summary>
-        ''' Localiza menções a usuários no texto e automaticamente executa uma função de replace para
-        ''' cada hashtag encontrada
+        ''' Localiza menções a usuários no texto a partir de um caractere e automaticamente executa uma função de replace para
+        ''' cada menção encontrada
         ''' </summary>
         ''' <param name="Text">  Texto</param>
         ''' <param name="Method"></param>
+        ''' <param name="MatchChar">Caractere inicial</param>
 
         <Extension()>
         Function ParseMentionByChar(ByVal Text As String, MatchChar As String, Optional Method As Func(Of String, String) = Nothing) As String
