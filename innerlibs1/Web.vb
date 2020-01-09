@@ -11,6 +11,7 @@ Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
 Imports System.Xml
 Imports InnerLibs.JsonReader
+
 ''' <summary>
 ''' Métodos de requisição
 ''' </summary>
@@ -1369,4 +1370,38 @@ Public Module Web
         Return Request.PhysicalPath.RemoveFirstIf(Request.PhysicalApplicationPath).FixPathSeparator(True)
     End Function
 
+
+    <Extension()>
+    Public Function FindAncestor(Of TControl As UI.Control)(ByVal control As UI.Control) As TControl
+        If control Is Nothing Then Throw New ArgumentNullException("control")
+        Dim parent As UI.Control = control
+
+        Do
+            parent = parent.Parent
+            Dim candidate = TryCast(parent, TControl)
+
+            If candidate IsNot Nothing Then
+                Return candidate
+            End If
+        Loop While parent IsNot Nothing
+
+        Return Nothing
+    End Function
+
+    <Extension()>
+    Public Iterator Function FindDescendants(Of TControl As UI.Control)(ByVal parent As UI.Control) As IEnumerable(Of TControl)
+        If parent Is Nothing Then Throw New ArgumentNullException("control")
+
+        If parent.HasControls() Then
+
+            For Each childControl As UI.Control In parent.Controls
+                Dim candidate = TryCast(childControl, TControl)
+                If candidate IsNot Nothing Then Yield candidate
+
+                For Each nextLevel In FindDescendants(Of TControl)(childControl)
+                    Yield nextLevel
+                Next
+            Next
+        End If
+    End Function
 End Module
