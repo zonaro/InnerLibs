@@ -6,7 +6,6 @@ Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Text.RegularExpressions
-Imports System.Xml
 Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
@@ -43,7 +42,6 @@ Namespace Triforce
                 Me.Connection = Activator.CreateInstance(Of ConnectionType)
                 Me.ConnectionString = ConnectionString
             End Sub
-
 
             ''' <summary>
             ''' Executa uma query SQL e retorna um <see cref="IEnumerable"/> com os resultados (É um
@@ -203,7 +201,7 @@ Namespace Triforce
             ''' <param name="List">      Lista de objetos</param>
             ''' <param name="Template">  Template HTML ou nome do template HTML</param>
             ''' <param name="PageNumber">Pagina que será processada.</param>
-            ''' <param name="PageSize">  
+            ''' <param name="PageSize">
             ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
             ''' </param>
             ''' <returns></returns>
@@ -227,7 +225,7 @@ Namespace Triforce
             ''' <param name="List">      Lista de objetos</param>
             ''' <param name="Template">  Template HTML ou nome do template HTML</param>
             ''' <param name="PageNumber">Pagina que será processada.</param>
-            ''' <param name="PageSize">  
+            ''' <param name="PageSize">
             ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
             ''' </param>
             ''' <returns></returns>
@@ -242,7 +240,7 @@ Namespace Triforce
             ''' <param name="List">      Lista de objetos</param>
             ''' <param name="Template">  Template HTML ou nome do template HTML</param>
             ''' <param name="PageNumber">Pagina que será processada.</param>
-            ''' <param name="PageSize">  
+            ''' <param name="PageSize">
             ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
             ''' </param>
             ''' <returns></returns>
@@ -278,7 +276,7 @@ Namespace Triforce
             ''' <param name="List">      Lista de objetos</param>
             ''' <param name="Template">  Template HTML ou nome do template HTML</param>
             ''' <param name="PageNumber">Pagina que será processada.</param>
-            ''' <param name="PageSize">  
+            ''' <param name="PageSize">
             ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
             ''' </param>
             ''' <returns></returns>
@@ -293,7 +291,7 @@ Namespace Triforce
             ''' <param name="List">      Lista de objetos</param>
             ''' <param name="Template">  Template HTML ou nome do template HTML</param>
             ''' <param name="PageNumber">Pagina que será processada.</param>
-            ''' <param name="PageSize">  
+            ''' <param name="PageSize">
             ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
             ''' </param>
             ''' <returns></returns>
@@ -565,6 +563,7 @@ Namespace Triforce
             Me.ProccessIf(doc)
             Me.ProccessRepeat(doc)
             Me.ProcessedTemplate = doc
+            Me.Culture = If(Culture, CultureInfo.CurrentCulture)
         End Sub
 
         ReadOnly Property Culture As CultureInfo
@@ -1093,8 +1092,7 @@ Namespace Triforce
         ReadOnly Property TemplateDirectory As DirectoryInfo = Nothing
 
         ''' <summary>
-        ''' Aplica um array de objetos em um template e retorna um Template(Of Dictionary(Of String,
-        ''' Object)) do resultado
+        ''' Aplica um array de objetos em um template e retorna um <see cref="Template(Of Dictionary(Of String,Object))"/>  do resultado
         ''' </summary>
         ''' <param name="Template">Template</param>
         ''' <param name="Items">   Items na ordem que serão substituidos</param>
@@ -1154,7 +1152,7 @@ Namespace Triforce
         ''' <param name="List">      Lista de objetos</param>
         ''' <param name="Template">  Template HTML ou nome do template HTML</param>
         ''' <param name="PageNumber">Pagina que será processada.</param>
-        ''' <param name="PageSize">  
+        ''' <param name="PageSize">
         ''' Quantidade de itens por página. Passar o valor 0 para trazer todos os itens
         ''' </param>
         ''' <returns></returns>
@@ -1239,6 +1237,10 @@ Namespace Triforce
             Return GetTemplate(GetType(T), ProcessFile)
         End Function
 
+        ''' <summary>
+        ''' Retorna o nome do arquivo de template, ou o template processado se ProccessFile estiver True
+        ''' </summary>
+        ''' <returns></returns>
         Function GetTemplate(Type As Type, Optional ProcessFile As Boolean = False) As String
             Dim tmp = Type.GetAttributeValue(Of TriforceDefaultTemplate, String)(Function(x) x.Template)
             If tmp.IsNotBlank Then
@@ -1255,7 +1257,7 @@ Namespace Triforce
         ''' Retorna o conteudo estático de um arquivo de template
         ''' </summary>
         ''' <param name="Templatefile">Nome do arquivo do template</param>
-        ''' <param name="Tag">         
+        ''' <param name="Tag">
         ''' Indica qual tag dve ser capturada, head, body ou footer ou pagination
         ''' </param>
         ''' <returns></returns>
@@ -1275,7 +1277,6 @@ Namespace Triforce
                     Return pegartemplate(TemplateFile, "body")
             End Select
         End Function
-
 
         Friend Function ApplySelector(Name As String, Selector As String) As String
             Return Selector & Name & Selector
@@ -1621,8 +1622,6 @@ Namespace Triforce
         Sub New(Template As HtmlDocument)
             Me.Template = Template.ToString
         End Sub
-
-
 
         ReadOnly Property Template As String = ""
     End Class

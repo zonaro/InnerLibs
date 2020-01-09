@@ -96,6 +96,20 @@ Namespace Locations
         Property PostalCode As String
 
         ''' <summary>
+        ''' CEP - Codigo de Endereçamento Postal. Alias de <see cref="PostalCode"/>
+        ''' </summary>
+        ''' <value></value>
+        ''' <returns>CEP</returns>
+        Property ZipCode As String
+            Get
+                Return PostalCode
+            End Get
+            Set(value As String)
+                PostalCode = value
+            End Set
+        End Property
+
+        ''' <summary>
         ''' Cidade
         ''' </summary>
         ''' <value></value>
@@ -290,7 +304,8 @@ Namespace Locations
         Public Shared Function GetAddressType(Endereco As String) As String
             Dim tp = Endereco.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
             If tp.IsNotBlank Then
-                Return GetType(AddressTypes).GetProperties().FirstOrDefault(Function(x) tp.IsIn(x) OrElse x.Name = tp).Name
+                Dim df = New AddressTypes()
+                Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp).Name
             End If
             Return ""
         End Function

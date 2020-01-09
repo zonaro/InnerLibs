@@ -353,6 +353,8 @@ Friend Class opCodeBinary
                                 mValueDelegate = AddressOf STR_EQ_STR
                             Case EvalType.Date
                                 mValueDelegate = AddressOf DATE_EQ_DATE
+                            Case EvalType.Boolean
+                                mValueDelegate = AddressOf BOOL_EQ_BOOL
                         End Select
                         mEvalType = EvalType.Boolean
                     Case eTokenType.operator_ne
@@ -440,6 +442,10 @@ Friend Class opCodeBinary
 
     Private Function DATE_EQ_DATE() As Object
         Return DirectCast(mParam1.value, Date).Date = (DirectCast(mParam2.value, Date)).Date
+    End Function
+
+    Private Function BOOL_EQ_BOOL() As Object
+        Return DirectCast(mParam1.value, Boolean) = DirectCast(mParam2.value, Boolean)
     End Function
 
     Private Function DATE_NE_DATE() As Object

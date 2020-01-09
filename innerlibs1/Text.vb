@@ -674,27 +674,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Alias para função <see cref="IsLikeAny(String, String)"/>
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="Pattern"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function IsLike(Text As String, Pattern As String) As Boolean
-        Return Text.IsLikeAny(Pattern)
-    End Function
-
-    ''' <summary>
-    ''' Compara 2 textos usando caractere curinga de forma convencional e contrária
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="OtherText"></param>
-    ''' <returns></returns>
-    Public Function IsLikeElse(Text As String, OtherText As String) As Boolean
-        Return Text Like OtherText OrElse OtherText Like Text
-    End Function
-
-    ''' <summary>
-    ''' Formata um numero para CNPJ ou CNPJ de acordo com o tamanho
+    ''' Formata um numero para CNPJ ou CNPJ se forem validos
     ''' </summary>
     ''' <param name="Document"></param>
     ''' <returns></returns>

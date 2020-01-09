@@ -468,7 +468,7 @@ Public Module Web
     ''' </summary>
     ''' <param name="Dic">        Requisicao HTTP</param>
     ''' <param name="ProcedureName">  Nome da Procedure</param>
-    ''' <param name="Keys">Parametros da URL que devem ser utilizados</param>
+    ''' <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
     ''' <returns>Uma string com o comando montado</returns>
 
     <Extension()>

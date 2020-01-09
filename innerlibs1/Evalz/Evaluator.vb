@@ -30,7 +30,7 @@ Public Class Evaluator
         str = str.TrimCarriage
         str.IfBlank(Of String)(False)
         If str.IsAny("True", "true", "False", "false") Then
-            Return New opCodeImmediate(EvalType.Boolean, str.ChangeType(Of Boolean))
+            Return New opCodeImmediate(EvalType.Boolean, str.ToLower().ChangeType(Of Boolean))
         End If
         If str.IsNumber Then
             Return New opCodeImmediate(EvalType.Number, str.ChangeType(Of Long))
