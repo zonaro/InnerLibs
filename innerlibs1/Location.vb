@@ -185,7 +185,9 @@ Namespace Locations
             If Me.StreetType.IsBlank() Then
                 If Me.StreetName.IsNotBlank Then
                     Me.StreetType = AddressTypes.GetAddressType(Me.StreetName)
-                    If Me.StreetType.IsNotBlank Then Me.StreetName.RemoveFirstIf(StreetType)
+                    If Me.StreetType.IsNotBlank Then
+                        Me.StreetName = Me.StreetName.Trim().RemoveFirstIf(StreetType).Trim()
+                    End If
                 End If
             End If
         End Sub
@@ -217,6 +219,7 @@ Namespace Locations
         ''' </summary>
         Public Sub GetInfoByPostalCode()
             Dim cep As Object = AJAX.GET(Of Object)("https://viacep.com.br/ws/" & Me.PostalCode & "/json/")
+
             Me.Neighborhood = cep("bairro")
             Me.City = cep("localidade")
             Me.StateCode = cep("uf")
@@ -224,6 +227,7 @@ Namespace Locations
             Me.StreetName = cep("logradouro")
             Me.Country = "Brasil"
             ParseType()
+
         End Sub
 
         ''' <summary>
