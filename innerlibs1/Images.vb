@@ -670,14 +670,17 @@ Public Module Images
         Dim dctSortedByValueHighToLow = dctColorIncidence.OrderByDescending(Function(x) x.Value).ToDictionary(Function(x) x.Key, Function(x) x.Value)
 
         ' this should be replaced with some elegant Linq ?
-        For Each kvp As KeyValuePair(Of Integer, Integer) In dctSortedByValueHighToLow.Take(Count)
-            TenMostUsedColors.Add(Color.FromArgb(kvp.Key))
-            TenMostUsedColorIncidences.Add(kvp.Value)
+        For Each kvp As KeyValuePair(Of Integer, Integer) In dctSortedByValueHighToLow
+            Dim cor = Color.FromArgb(kvp.Key)
+            If cor <> Color.Empty AndAlso cor <> Color.Transparent Then
+                TenMostUsedColors.Add(cor)
+                TenMostUsedColorIncidences.Add(kvp.Value)
+            End If
         Next
 
         MostUsedColor = Color.FromArgb(dctSortedByValueHighToLow.First().Key)
         MostUsedColorIncidence = dctSortedByValueHighToLow.First().Value
-        Return TenMostUsedColors
+        Return TenMostUsedColors.Take(Count)
     End Function
 
     ''' <summary>
