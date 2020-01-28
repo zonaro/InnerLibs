@@ -212,8 +212,20 @@ Public Module Calendars
     ''' <param name="[Date]"></param>
     ''' <param name="TimeZone"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToTimeZone([Date] As Date, TimeZone As TimeZoneInfo) As Date
+    <Extension()> Public Function ToTimeZoneUtc([Date] As Date, TimeZone As TimeZoneInfo) As Date
         Return TimeZoneInfo.ConvertTimeFromUtc([Date], TimeZone)
+    End Function
+
+
+
+    ''' <summary>
+    ''' Converte um <see cref="Date"/> para um timezone Especifico
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <param name="TimeZoneId"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToTimeZone([Date] As Date, TimeZoneId As String) As Date
+        Return TimeZoneInfo.ConvertTime([Date], TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId))
     End Function
 
 
@@ -569,6 +581,24 @@ Public Module Calendars
     Public ReadOnly Property Yesterday() As DateTime
         Get
             Return DateTime.Now.AddDays(-1)
+        End Get
+    End Property
+
+    Public ReadOnly Property BrazilianNow() As DateTime
+        Get
+            Return TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"))
+        End Get
+    End Property
+
+    Public ReadOnly Property BrazilianTomorrow() As DateTime
+        Get
+            Return BrazilianNow.AddDays(1)
+        End Get
+    End Property
+
+    Public ReadOnly Property BrazilianYesterday() As DateTime
+        Get
+            Return BrazilianNow.AddDays(-1)
         End Get
     End Property
 

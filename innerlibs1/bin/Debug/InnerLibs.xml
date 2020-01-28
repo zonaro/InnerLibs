@@ -4766,12 +4766,20 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:InnerLibs.Calendars.ToTimeZone(System.DateTime,System.TimeZoneInfo)">
+<member name="M:InnerLibs.Calendars.ToTimeZoneUtc(System.DateTime,System.TimeZoneInfo)">
  <summary>
  Converte um <see cref="T:System.DateTime"/> para um timezone Especifico
  </summary>
  <param name="[Date]"></param>
  <param name="TimeZone"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.ToTimeZone(System.DateTime,System.String)">
+ <summary>
+ Converte um <see cref="T:System.DateTime"/> para um timezone Especifico
+ </summary>
+ <param name="[Date]"></param>
+ <param name="TimeZoneId"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Calendars.ConvertDateString(System.String,System.String,System.Globalization.CultureInfo)">
@@ -5225,7 +5233,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Obj">Objeto</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Converter.ToHtmlTable(System.Collections.Generic.IEnumerable{System.Collections.Generic.Dictionary{System.String,System.Object}})">
+<member name="M:InnerLibs.Converter.ToHtmlTable(System.Collections.Generic.IEnumerable{System.Collections.Generic.Dictionary{System.String,System.Object}},System.Boolean)">
  <summary>
  Converte uma lista de dicionários para uma tabela HTML
  </summary>
@@ -5266,6 +5274,22 @@ Verifica se o objeto é do tipo numérico.
  <returns>Valor convertido em novo tipo</returns>
 </member>
 <member name="M:InnerLibs.Converter.ToDateTime``1(``0)">
+ <summary>
+ Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
+<member name="M:InnerLibs.Converter.ToDateTime``1(``0,System.String)">
+ <summary>
+ Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+ </summary>
+ <typeparam name="FromType">Tipo de origem</typeparam>
+ <param name="Value">Variavel com valor</param>
+ <returns>Valor convertido em novo tipo</returns>
+</member>
+<member name="M:InnerLibs.Converter.ToDateTime``1(``0,System.Globalization.CultureInfo)">
  <summary>
  Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
  </summary>

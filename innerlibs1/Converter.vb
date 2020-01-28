@@ -1,11 +1,11 @@
 ﻿Imports System.Collections.Specialized
+Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports System.Web
 Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
 Public Module Converter
-
 
     ''' <summary>
     ''' Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
@@ -40,26 +40,17 @@ Public Module Converter
         Return Array.ConvertAll(Of Object, OutputType)(Obj, Function(x) CType(x, OutputType))
     End Function
 
-
     ''' <summary>
     ''' Converte uma lista de dicionários para uma tabela HTML
     ''' </summary>
     ''' <param name="Table"></param>
     ''' <returns></returns>
-    <Extension> Public Function ToHtmlTable(Table As IEnumerable(Of Dictionary(Of String, Object))) As HtmlElement
-        Dim body = ""
-        Table.Uniform
-        For Each dic In Table
-            Dim l As New List(Of String)
-            For Each k In dic.Keys.ToArray
-                l.Add(dic(k))
-            Next
-            body.Append(TableGenerator.TableRow("", l.ToArray))
-        Next
-        body = TableGenerator.Table(TableHeader(Table.First.Keys.ToArray), body)
-        Return New HtmlElement("table", body)
+    <Extension> Public Function ToHtmlTable(Table As IEnumerable(Of Dictionary(Of String, Object)), Optional IncludeFooter As Boolean = False) As HtmlElement
+        Dim ks = Table.SelectMany(Function(x) x.Keys).Distinct()
+        Dim thead = ks.Select(Function(x) x.WrapInTag("th").ToString()).Join("").WrapInTag("tr").ToString()
+        Dim body = Table.Uniform().Select(Function(linha) ks.Select(Function(x) linha.GetValueOr(x, "").ToString().WrapInTag("td").ToString()).Join("").WrapInTag("tr").ToString()).Join("").WrapInTag("tbody").ToString()
+        Return New HtmlElement("table", thead.WrapInTag("thead").ToString() & body.ToString() & If(IncludeFooter, thead.WrapInTag("tfooter").ToString(), ""))
     End Function
-
 
     ''' <summary>
     ''' Aplica as mesmas keys a todos os dicionarios de uma lista
@@ -68,7 +59,7 @@ Public Module Converter
     ''' <typeparam name="TValue">Tipo do Valor</typeparam>
     ''' <param name="Dics">Dicionarios</param>
     '''<param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
-    <Extension()> Sub Uniform(Of TKey, TValue)(ByRef Dics As IEnumerable(Of Dictionary(Of TKey, TValue)), ParamArray AditionalKeys As TKey())
+    <Extension()> Function Uniform(Of TKey, TValue)(ByRef Dics As IEnumerable(Of Dictionary(Of TKey, TValue)), ParamArray AditionalKeys As TKey())
         AditionalKeys = If(AditionalKeys, {})
         Dim chave = Dics.SelectMany(Function(x) x.Keys).Distinct.Union(AditionalKeys)
         For Each dic In Dics
@@ -78,8 +69,8 @@ Public Module Converter
                 End If
             Next
         Next
-    End Sub
-
+        Return Dics
+    End Function
 
     ''' <summary>
     ''' Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
@@ -126,6 +117,28 @@ Public Module Converter
     End Function
 
     ''' <summary>
+    ''' Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToDateTime(Of FromType)(Value As FromType, CultureInfoName As String) As DateTime
+        Return Value.ToDateTime(New CultureInfo(CultureInfoName))
+    End Function
+
+    ''' <summary>
+    ''' Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToDateTime(Of FromType)(Value As FromType, CultureInfo As CultureInfo) As DateTime
+        Return Convert.ToDateTime(Value, CultureInfo)
+    End Function
+
+    ''' <summary>
     ''' Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar
     ''' </summary>
     ''' <typeparam name="FromType">Tipo de origem</typeparam>
@@ -146,7 +159,6 @@ Public Module Converter
     Public Function ToLong(Of FromType)(Value As FromType) As Long
         Return Value.ChangeType(Of Long)
     End Function
-
 
     ''' <summary>
     ''' Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
@@ -355,7 +367,6 @@ Public Module Converter
         Return items.DistinctBy(Function(x) x.Key).ToDictionary(Of TKey, TValue)(Function(x) x.Key, Function(x) x.Value)
     End Function
 
-
     ''' <summary>
     ''' Converte um NameValueCollection para um <see cref="Dictionary(Of String, Object)"/>
     ''' </summary>
@@ -464,8 +475,5 @@ Public Module Converter
         d.Add("Form", Request.Form.ToDictionary)
         Return Json.SerializeJSON(d)
     End Function
-
-
-
 
 End Module
