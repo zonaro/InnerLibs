@@ -214,10 +214,31 @@ Public Module Web
     ''' <returns></returns>
     <Extension()> Public Function CreateDirectory(Server As HttpServerUtility, Path As String) As String
 
-        If Not Directory.Exists(Server.MapPath("~/") & "/" & Path) Then
+        If Not Directory.Exists(Server.MapPath("~/" & Path)) Then
             Directory.CreateDirectory(Server.MapPath("~/") & "/" & Path)
         End If
         Return Path
+    End Function
+
+    ''' <summary>
+    ''' Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <param name="File"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFileUrl(Request As HttpRequest, File As FileInfo) As String
+        Return "/" + (File.FullName.Replace(Request.PhysicalApplicationPath, String.Empty)).TrimAny(" ", "\\", "/")
+    End Function
+
+
+    ''' <summary>
+    ''' Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <param name="File"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFileUrl(Request As HttpRequest, File As String) As String
+        Return Request.GetFileUrl(New FileInfo(File))
     End Function
 
     ''' <summary>
