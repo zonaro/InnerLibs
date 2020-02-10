@@ -2324,10 +2324,22 @@ Public Module Text
         Return Strings.ToArray.Replace(OldValue, NewValue, ReplaceIfEquals).ToList()
     End Function
 
+
     ''' <summary>
     ''' Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
     ''' </summary>
     <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String, String)) As String
+        If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
+            For Each p In Dic
+                Text = Text.Replace(p.Key, p.Value)
+            Next
+        End If
+        Return Text
+    End Function
+    ''' <summary>
+    ''' Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
+    ''' </summary>
+    <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String, Object)) As String
         If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
             For Each p In Dic
                 Text = Text.Replace(p.Key, p.Value)

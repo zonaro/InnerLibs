@@ -450,7 +450,7 @@ Namespace LINQ
         ''' <param name="sortProperty"></param>
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
-        <Extension> Public Function OrderBy(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True)
+        <Extension> Public Function OrderBy(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
             Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
         End Function
 

@@ -11749,6 +11749,22 @@ Atualiza a lista de keys
  <param name="Path"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.IO.FileInfo)">
+ <summary>
+ Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
+ </summary>
+ <param name="Request"></param>
+ <param name="File"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.String)">
+ <summary>
+ Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
+ </summary>
+ <param name="Request"></param>
+ <param name="File"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Web.AsEnumerable(System.Web.HttpFileCollection)">
  <summary>
  Retorna todos os arquivos de uma <see cref="T:System.Web.HttpFileCollection"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/>

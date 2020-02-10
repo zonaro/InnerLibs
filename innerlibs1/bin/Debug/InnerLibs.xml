@@ -6539,7 +6539,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Triforce.Triforce.#ctor(System.IO.DirectoryInfo,System.String[])">
  <summary>
- Instancia um novo <see cref="N:InnerLibs.Triforce.LINQ"/> a partir de um Assembly
+ Instancia um novo <see cref="N:InnerLibs.Triforce.LINQ"/> a partir de um diretório de templates
  </summary>
  <param name="TemplateDirectory">Diretorio contendo os arquivos HTML</param>
 </member>
@@ -6612,6 +6612,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Triforce.Triforce.ApplyValues(System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Aplica valores de um dicionário a uma string com marcações de template
+ </summary>
+ <param name="StringToApply"></param>
+ <param name="Values"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Triforce.Triforce.ClearNotFoundValues(System.String)">
  <summary>
  Limpa dos resultados dos templates as chaves que não foram encontradas
@@ -6619,7 +6627,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="StringToClear"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Triforce.Triforce.CreatePaginarionUrlTemplate(System.String,System.String[])">
+<member name="M:InnerLibs.Triforce.Triforce.CreatePaginationUrlTemplate(System.String,System.String[])">
  <summary>
  Cria um template de URL a partir de uma url base e parâmetros especificos
  </summary>
@@ -10418,6 +10426,11 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Aplica varios replaces a um texto a partir de um <see cref="T:System.Collections.IDictionary"/>
  </summary>
 </member>
+<member name="M:InnerLibs.Text.ReplaceFrom(System.String,System.Collections.Generic.IDictionary{System.String,System.Object})">
+ <summary>
+ Aplica varios replaces a um texto a partir de um <see cref="T:System.Collections.IDictionary"/>
+ </summary>
+</member>
 <member name="M:InnerLibs.Text.ReplaceFrom(System.String,System.Collections.Generic.IDictionary{System.String,System.String[]},System.StringComparison)">
  <summary>
  Aplica um replace a um texto baseando-se em um <see cref="T:System.Collections.IDictionary"/>.
@@ -11747,6 +11760,22 @@ Atualiza a lista de keys
  </summary>
  <param name="Server"></param>
  <param name="Path"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.IO.FileInfo)">
+ <summary>
+ Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
+ </summary>
+ <param name="Request"></param>
+ <param name="File"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.String)">
+ <summary>
+ Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
+ </summary>
+ <param name="Request"></param>
+ <param name="File"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Web.AsEnumerable(System.Web.HttpFileCollection)">

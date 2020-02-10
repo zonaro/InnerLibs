@@ -13,8 +13,6 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
-
-
     ''' <summary>
     ''' Concatena todas as  <see cref="Exception.InnerException"/> em uma única string
     ''' </summary>
@@ -849,8 +847,6 @@ Public Module ClassTools
         End If
         Return TypeOf obj Is IDictionary AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(Dictionary(Of , )))
     End Function
-
-
 
     ''' <summary>
     ''' Verifica se o objeto existe dentro de uma Lista, coleção ou array.

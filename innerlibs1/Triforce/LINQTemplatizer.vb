@@ -864,6 +864,7 @@ Namespace Triforce
                     End If
 
                     Dim dic As New Dictionary(Of String, String)
+                    dic("##PaginationUrl##") = PaginationUrlTemplate
                     dic("##ActivePage##") = PageNumber
                     dic("##PageNumber##") = PageNumber
                     dic("##PageCount##") = PageCount
@@ -884,26 +885,42 @@ Namespace Triforce
                         If before > 1 And before < PageCount Then
                             dic("##PageNumber##") = before
                             pagestring.Prepend(page.InnerHTML.ReplaceFrom(dic))
+                            ' pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                         End If
 
                         If after > 1 And after < PageCount Then
                             dic("##PageNumber##") = after
                             pagestring.Append(page.InnerHTML.ReplaceFrom(dic))
+                            'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                         End If
                     Next
                     dic("##PageNumber##") = PageNumber - 1
-                    pagestring.PrependIf(back.InnerHTML.ReplaceFrom(dic), back IsNot Nothing AndAlso PageNumber > 1)
+                    If back IsNot Nothing Then
+                        pagestring.PrependIf(back.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
+                        'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
+                    End If
 
                     dic("##PageNumber##") = 1
-                    pagestring.PrependIf(first.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
+                    If first IsNot Nothing Then
+                        pagestring.PrependIf(first.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
+                        'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
+                    End If
 
                     dic("##PageNumber##") = PageNumber + 1
-                    pagestring.AppendIf(nex.InnerHTML.ReplaceFrom(dic), nex IsNot Nothing AndAlso PageNumber < PageCount)
+                    If nex IsNot Nothing Then
+                        pagestring.AppendIf(nex.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
+                        'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
+                    End If
 
                     dic("##PageNumber##") = PageCount
-                    pagestring.AppendIf(last.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
+                    If last IsNot Nothing Then
+                        pagestring.AppendIf(last.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
+                        'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
+                    End If
 
-                    paginationdoc.Nodes.GetElementsByTagName("page").First.Parent.InnerHTML = pagestring
+                    'paginationdoc.Nodes.GetElementsByTagName("page").First.Parent.InnerHTML = pagestring
+                    paginationdoc = New HtmlDocument(pagestring)
+
                     Return paginationdoc.InnerHTML.ReplaceFrom(dic)
                 End If
                 Return ""
@@ -947,7 +964,8 @@ Namespace Triforce
         ''' Template aplicado a URL de paginação
         ''' </summary>
         ''' <returns></returns>
-        Property PaginationUrlTemplate As String
+        Property PaginationUrlTemplate As String = ""
+
 
         ''' <summary>
         ''' Total de Itens encontrados na <see cref="IQueryable"/> ou <see cref="IEnumerable"/>
@@ -1037,7 +1055,7 @@ Namespace Triforce
         End Sub
 
         ''' <summary>
-        ''' Instancia um novo <see cref="LINQ"/> a partir de um Assembly
+        ''' Instancia um novo <see cref="LINQ"/> a partir de um diretório de templates
         ''' </summary>
         ''' <param name="TemplateDirectory">Diretorio contendo os arquivos HTML</param>
         Sub New(TemplateDirectory As DirectoryInfo, ParamArray Selectors As String())
@@ -1170,6 +1188,21 @@ Namespace Triforce
         End Function
 
         ''' <summary>
+        ''' Aplica valores de um dicionário a uma string com marcações de template
+        ''' </summary>
+        ''' <param name="StringToApply"></param>
+        ''' <param name="Values"></param>
+        ''' <returns></returns>
+        Public Function ApplyValues(StringToApply As String, Values As IDictionary(Of String, Object)) As String
+            For Each selector In Selectors
+                If StringToApply.IsNotBlank Then
+                    StringToApply = StringToApply.ReplaceFrom(Values.Select(Function(x) New KeyValuePair(Of String, Object)(selector & x.Key & selector, x.Value)).ToDictionary())
+                End If
+            Next
+            Return If(StringToApply, "")
+        End Function
+
+        ''' <summary>
         ''' Limpa dos resultados dos templates as chaves que não foram encontradas
         ''' </summary>
         ''' <param name="StringToClear"></param>
@@ -1194,23 +1227,26 @@ Namespace Triforce
         ''' </summary>
         ''' <param name="Url">         </param>
         ''' <param name="FilterParams"></param>
-        Function CreatePaginarionUrlTemplate(Url As String, ParamArray FilterParams As String()) As String
+        Function CreatePaginationUrlTemplate(Url As String, ParamArray FilterParams As String()) As String
             If Url.IsURL Then
-                Dim urls As String = New Uri(Url).GetLeftPart(UriPartial.Path)
+                Url = New Uri(Url).GetLeftPart(UriPartial.Path)
                 If FilterParams.Count > 0 Then
                     Dim querystring = "?"
                     For Each k In FilterParams
                         If querystring <> "?" Then
                             querystring.Append("&")
                         End If
+
                         querystring.Append(k & "=" & ApplySelector(k, Selectors.FirstOr("##")))
                     Next
-                    urls.Append(querystring)
+                    Url.Append(querystring)
                 End If
                 Return Url
             End If
             Return ""
         End Function
+
+
 
         ''' <summary>
         ''' Processa a uma string URL com marcaçoes de template e retorna uma URI
