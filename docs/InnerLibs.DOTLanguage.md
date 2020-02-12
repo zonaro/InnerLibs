@@ -13,31 +13,6 @@ Properties
 | `String` | ID |  | 
 
 
-## `Digraph`
-
-Wrapper para criaçao de gráficos em DOT Language
-```csharp
-public class InnerLibs.DOTLanguage.Digraph
-    : List<DotObject>, IList<DotObject>, ICollection<DotObject>, IEnumerable<DotObject>, IEnumerable, IList, ICollection, IReadOnlyList<DotObject>, IReadOnlyCollection<DotObject>
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `List<Cluster>` | Clusters |  | 
-| `String` | GraphType | Tipo do Grafico | 
-| `String` | ID | Nome do Gráfico | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToString() | Escreve a DOT string correspondente a este gráfico | 
-
-
 ## `DotAttributeCollection`
 
 ```csharp
@@ -115,5 +90,31 @@ Properties
 | --- | --- | --- | 
 | `DotAttributeCollection` | Attributes |  | 
 | `String` | ID |  | 
+
+
+## `Graph`
+
+Wrapper para criaçao de gráficos em DOT Language
+```csharp
+public class InnerLibs.DOTLanguage.Graph
+    : List<DotObject>, IList<DotObject>, ICollection<DotObject>, IEnumerable<DotObject>, IEnumerable, IList, ICollection, IReadOnlyList<DotObject>, IReadOnlyCollection<DotObject>
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `List<Cluster>` | Clusters |  | 
+| `String` | GraphType | Tipo do Grafico (graph, digraph) | 
+| `String` | ID | Nome do Gráfico | 
+| `Boolean` | Strict |  | 
+
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | ToString() | Escreve a DOT string correspondente a este gráfico | 
 
 

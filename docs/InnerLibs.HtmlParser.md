@@ -1284,7 +1284,7 @@ Properties
 | `HtmlAttributeCollection` | Attributes | This is the collection of attributes associated with this element. | 
 | `IEnumerable<String>` | AttributesNames | Return the name of al attributes | 
 | `IEnumerable<HtmlElement>` | ChildElements | Return the child elements of this element (excluding HtmlText) | 
-| `ClassList` | Class | Gets os sets a boolean value for toggle an specific class | 
+| `ClassList` | Class | The class list of this element | 
 | `IEnumerable<HtmlText>` | ContentText | Return thedirect child text of this element (excluding HtmlElement) | 
 | `String` | Data | Return the value of specific data-attribute | 
 | `Boolean` | Disabled | Gets os sets a value indicating thats element is disabled | 
@@ -1309,6 +1309,7 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `HtmlElement` | AddAttribute(`String` Name, `String` Value = null) | Add a attribute to this element | 
+| `void` | AddElement(`String[]` Names) | Add one or more empty elements by their tagnames | 
 | `void` | AddNode(`HtmlNode[]` Node) | Add a node (or nodes) to collection | 
 | `void` | AddNode(`HtmlGenericControl` Node) | Add a node (or nodes) to collection | 
 | `void` | AddNode(`String` HTML, `Int32` Index = 0) | Add a node (or nodes) to collection | 
@@ -1334,6 +1335,8 @@ Methods
 | `void` | ParseUsername(`Func<String, String>` Method, `Boolean` SearchChildren = True) | Find @mentions and replace then using specific method | 
 | `HtmlElement` | RemoveAttribute(`String` Name) | Remove an attribute from element | 
 | `void` | SideClone(`Int32` Index = -1) | Clone this element into a new HtmlElement and inserts into same parent | 
+| `HtmlElement` | ToggleClass(`String` ClassName, `Boolean` Status) | Gets os sets a boolean value for toggle an specific class | 
+| `HtmlElement` | ToggleClass(`String` ClassName) | Gets os sets a boolean value for toggle an specific class | 
 | `String` | ToString() | This will return the HTML representation of this element. | 
 | `XmlElement` | ToXmlElement() | Return the `System.Xml.XmlElement` equivalent to this node | 
 
@@ -1609,8 +1612,8 @@ Static Methods
 | `HtmlAnchorElement` | CreateAnchor(this `String` URL, `String` Target = _blank, `String` Title = ) | Cria um elemento de Ancora (a) a partir de uma string com URL. O titulo é obtido  automaticamente da url quando possivel. Se a string não for uma URL válida uma ancora com  o proprio texto é criada. | 
 | `String` | ParseEmoji(this `String` Text, `Func<String, String>` Method = null) | Localiza emojis no texto e automaticamente executa uma função de replace para cada emoji encontrado | 
 | `String` | ParseHashtag(this `String` Text, `Func<String, String>` Method = null) | Localiza hashtags no texto e automaticamente executa uma função de replace para cada  hashtag encontrada | 
-| `String` | ParseMentionByChar(this `String` Text, `String` MatchChar, `Func<String, String>` Method = null) | Localiza menções a usuários no texto e automaticamente executa uma função de replace para  cada hashtag encontrada | 
-| `String` | ParseURL(this `String` Text, `Func<String, String>` Method = null) |  | 
+| `String` | ParseMentionByChar(this `String` Text, `String` MatchChar, `Func<String, String>` Method = null) | Localiza menções a usuários no texto a partir de um caractere e automaticamente executa uma função de replace para  cada menção encontrada | 
+| `String` | ParseURL(this `String` Text, `Func<String, String>` Method = null) | Localiza URLs no texto e automaticamente executa uma função de replace para cada URL encontrada | 
 | `String` | ParseUsername(this `String` Text, `Func<String, String>` Method = null) | Localiza menções a usuários no texto e automaticamente executa uma função de replace para  cada hashtag encontrada | 
 
 

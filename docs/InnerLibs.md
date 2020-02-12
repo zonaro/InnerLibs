@@ -93,8 +93,8 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | Atob(`String` Base, `Encoding` Encoding = null) | Decoda uma string em Base64 | 
-| `String` | Btoa(`String` Text, `Encoding` Encoding = null) | Encoda uma string em Base64 | 
+| `String` | Atob(this `String` Base, `Encoding` Encoding = null) | Decoda uma string em Base64 | 
+| `String` | Btoa(this `String` Text, `Encoding` Encoding = null) | Encoda uma string em Base64 | 
 | `FileInfo` | CreateFileFromDataURL(this `String` Base64StringOrDataURL, `String` FilePath) | Cria um arquivo fisico a partir de uma Base64 ou DataURL | 
 | `String` | FixBase64(this `String` Base64StringOrDataUrl) | Arruma os caracteres de uma string Base64 | 
 | `Boolean` | IsDataURL(this `String` Text) | Retorna TRUE se o texto for um dataurl valido | 
@@ -144,6 +144,9 @@ Static Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `DateTime` | BrazilianNow |  | 
+| `DateTime` | BrazilianTomorrow |  | 
+| `DateTime` | BrazilianYesterday |  | 
 | `String` | Farewell | Retorna uma despedida | 
 | `String` | Greeting | Retorna uma saudação | 
 | `DateTime` | LastDay |  | 
@@ -193,6 +196,8 @@ Static Methods
 | `String` | ToSQLDateString(this `DateTime` Date) | COnverte um datetime para o formato de string do SQL server ou Mysql | 
 | `String` | ToSQLDateString(this `String` Date, `String` FromCulture = pt-BR) | COnverte um datetime para o formato de string do SQL server ou Mysql | 
 | `String` | ToTimeElapsedString(this `TimeSpan` TimeElapsed, `String` DayWord = dia, `String` HourWord = hora, `String` MinuteWord = minuto, `String` SecondWord = segundo) | Retorna uma String no formato "W dias, X horas, Y minutos e Z segundos" | 
+| `DateTime` | ToTimeZone(this `DateTime` Date, `String` TimeZoneId) | Converte um `System.DateTime` para um timezone Especifico | 
+| `DateTime` | ToTimeZoneUtc(this `DateTime` Date, `TimeZoneInfo` TimeZone) | Converte um `System.DateTime` para um timezone Especifico | 
 
 
 ## `ClassTools`
@@ -222,22 +227,25 @@ Static Methods
 | `T` | Detach(this `List<T>` List, `Int32` Index) | Remove um item de uma lista e retorna este item | 
 | `Dictionary<Type, Int64>` | DistinctCount(this `IEnumerable<Type>` Arr) | Conta de maneira distinta items de uma coleçao | 
 | `Dictionary<PropT, Int64>` | DistinctCount(this `IEnumerable<Type>` Arr, `Func<Type, PropT>` Prop) | Conta de maneira distinta items de uma coleçao | 
+| `T` | FirstAny(this `IEnumerable<T>` source, `Func`2[]` predicate) | O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista | 
+| `T` | FirstAnyOr(this `IEnumerable<T>` source, `T` Alternate, `Func`2[]` predicate) | O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista | 
 | `T` | FirstOr(this `IEnumerable<T>` source, `T` Alternate) | Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia | 
 | `T` | FirstOr(this `IEnumerable<T>` source, `Func<T, Boolean>` predicate, `T` Alternate) | Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia | 
-| `NameValueCollection` | FlatRequest(this `HttpRequest` Request) | Cria um unico `System.Collections.Specialized.NameValueCollection` a partir de um  `System.Web.HttpRequest.QueryString` e um `System.Web.HttpRequest.Form` | 
 | `TValue` | GetAttributeValue(this `Type` type, `Func<TAttribute, TValue>` ValueSelector) |  | 
 | `T` | GetEnumValue(`String` Name) | Traz o valor de uma enumeração a partir de uma string | 
 | `List<T>` | GetEnumValues() | Traz todos os Valores de uma enumeração | 
 | `List<PropertyInfo>` | GetProperties(this `Object` MyObject, `BindingFlags` BindAttr) | Traz uma Lista com todas as propriedades de um objeto | 
 | `List<PropertyInfo>` | GetProperties(this `Object` MyObject) | Traz uma Lista com todas as propriedades de um objeto | 
+| `PropertyInfo` | GetProperty(this `Object` MyObject, `String` Name) | Traz uma propriedade de um objeto | 
 | `String` | GetPropertyAsQueryStringParameter(this `T` Obj, `Expression`1[]` PropertyNames) | Retorna a propriedade de um objeto como um parametro de query string | 
 | `String` | GetPropertyAsQueryStringParameter(this `T` Obj, `String[]` PropertyNames) | Retorna a propriedade de um objeto como um parametro de query string | 
 | `String` | GetPropertyAsQueryStringParameter(this `IEnumerable<T>` Obj, `String[]` PropertyNames) | Retorna a propriedade de um objeto como um parametro de query string | 
 | `Object[]` | GetPropertyParameterFromString(this `String` Text) | Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe | 
 | `Object[]` | GetPropertyParametersFromString(this `Type` Type, `String` Text) | Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe | 
-| `Object` | GetPropertyValue(this `Object` MyObject, `String` PropertyName, `Type` Type, `Boolean` GetPrivate = False) | Traz o valor de uma propriedade de um objeto | 
-| `Type` | GetPropertyValue(this `Object` MyObject, `String` PropertyName, `Boolean` GetPrivate = False) | Traz o valor de uma propriedade de um objeto | 
-| `Object` | GetPropertyValue(this `Object` MyObject, `String` PropertyName, `Boolean` GetPrivate = True) | Traz o valor de uma propriedade de um objeto | 
+| `T` | GetPropertyValue(this `Object` MyObject, `String` Name) | Traz uma propriedade de um objeto | 
+| `Object` | GetPropertyValue(this `Object` MyObject, `String` PropertyName, `Type` Type, `Boolean` GetPrivate = False) | Traz uma propriedade de um objeto | 
+| `Type` | GetPropertyValue(this `Object` MyObject, `String` PropertyName, `Boolean` GetPrivate = False) | Traz uma propriedade de um objeto | 
+| `Object` | GetPropertyValue(this `Object` MyObject, `String` PropertyName, `Boolean` GetPrivate = True) | Traz uma propriedade de um objeto | 
 | `Byte[]` | GetResourceBytes(this `Assembly` Assembly, `String` FileName) | Pega os bytes de um arquivo embutido no assembly | 
 | `String` | GetResourceFileText(this `Assembly` Assembly, `String` FileName) | Pega o texto de um arquivo embutido no assembly | 
 | `HtmlDocument` | GetResourceHtmlDocument(this `Assembly` Assembly, `String` FileName) | Pega o texto de um arquivo embutido no assembly | 
@@ -249,6 +257,7 @@ Static Methods
 | `Boolean` | IsArrayOf(this `Type` Type) | Verifica se o tipo é um array de um objeto especifico | 
 | `Boolean` | IsArrayOf(this `Object` Obj) | Verifica se o tipo é um array de um objeto especifico | 
 | `Boolean` | IsDictionary(this `Object` obj) | Verifica se o objeto é um iDictionary | 
+| `Boolean` | IsIn(this `Type` Obj, `Type[]` List) | Verifica se o objeto existe dentro de uma Lista, coleção ou array. | 
 | `Boolean` | IsIn(this `Type` Obj, `IEnumerable<Type>` List, `IEqualityComparer<Type>` Comparer = null) | Verifica se o objeto existe dentro de uma Lista, coleção ou array. | 
 | `Boolean` | IsIn(this `Type` Obj, `String` Text, `IEqualityComparer<Char>` Comparer = null) | Verifica se o objeto existe dentro de uma Lista, coleção ou array. | 
 | `Boolean` | IsInAny(this `Type` Obj, `IEnumerable`1[]` List, `IEqualityComparer<Type>` Comparer = null) | Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays. | 
@@ -262,16 +271,19 @@ Static Methods
 | `List<T>` | Map(this `DbDataReader` Reader, `Object[]` Params) | Copia os valores de um dicionário para as propriedades de uma classe | 
 | `NameValueCollection` | Merge(`NameValueCollection[]` NVC) | Mescla varios `System.Collections.Specialized.NameValueCollection` em um unico `System.Collections.Specialized.NameValueCollection` | 
 | `Dictionary<String, Object>` | MergeProperties(`Object[]` Items) | Mescla varios tipos de objeto em um unico dicionario a partir de suas propriedades | 
-| `T` | NullCoalesce(this `T` First, `T[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
-| `T` | NullCoalesce(this `IEnumerable<T>` List) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `T` | NullCoalesce(this `Nullable<T>` First, `Nullable`1[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `T` | NullCoalesce(this `IEnumerable<Nullable<T>>` List) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
+| `T` | NullCoalesce(this `T` First, `T[]` N) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
+| `T` | NullCoalesce(this `IEnumerable<T>` List) | Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor | 
 | `Type` | NullifyProperties(this `Type` Obj) | Transforma todas as propriedades String em NULL quando suas estiverem em branco | 
+| `Boolean` | OnlyOneOf(this `IEnumerable<Type>` List, `Func<Type, Boolean>` predicate) | Verifica se somente um unico elemento corresponde a condição | 
 | `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `TKey[]` Keys) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
 | `void` | RemoveIfExist(this `IDictionary<TKey, TValue>` dic, `Func<KeyValuePair<TKey, TValue>, Boolean>` predicate) | Remove de um dicionario as respectivas Keys se as mesmas existirem | 
 | `void` | SetPropertyValue(this `Object` MyObject, `String` PropertyName, `Type` Value) | Seta o valor de uma propriedade de um objeto | 
 | `void` | SetPropertyValueFromCollection(this `Object` MyObject, `String` PropertyName, `CollectionBase` Collection) |  | 
+| `NameValueCollection` | ToFlatRequest(this `HttpRequest` Request) | Cria um unico `System.Collections.Specialized.NameValueCollection` a partir de um  `System.Web.HttpRequest.QueryString` e um `System.Web.HttpRequest.Form` | 
 | `String` | ToFlatString(this `Object` Obj, `String` DateFormat = ) | Retorna o objeto em seu formato padrão de String, ou serializa o objeto em Json se o mesmo  não possuir formato em string | 
+| `String` | ToFullExceptionString(this `Exception` ex) | Concatena todas as  `System.Exception.InnerException` em uma única string | 
 | `String` | ToQueryString(this `Dictionary<String, String>` Dic) | Retorna um dicionário em QueryString | 
 
 
@@ -314,21 +326,29 @@ Static Methods
 | --- | --- | --- | 
 | `ToType[]` | ChangeArrayType(this `FromType[]` Value) | Converte um array de um tipo para outro | 
 | `IEnumerable<ToType>` | ChangeIEnumerableType(this `IEnumerable<FromType>` Value) | Converte um IEnumerable de um tipo para outro | 
-| `ToType` | ChangeType(this `FromType` Value) | Converte um tipo para outro. Retorna Nothing (NULL) se a covnersão falhar | 
+| `ToType` | ChangeType(this `FromType` Value) | Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar | 
 | `List<T>` | DefineEmptyList(this `T` ObjectForDefinition) | Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos | 
 | `Object[]` | ForceArray(`Object` Obj) | Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto | 
 | `OutputType[]` | ForceArray(`Object` Obj) | Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto | 
 | `Dictionary<Tkey, Object>` | Merge(this `Dictionary<Tkey, Object>` FirstDictionary, `Dictionary`2[]` Dictionaries) | Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um dicionario os valores sao agrupados em arrays | 
 | `void` | SetPropertiesIn(this `IDictionary<String, Object>` Dic, `T` Obj) | Seta as propriedades de uma classe a partir de um dictionary | 
 | `T` | SetPropertiesIn(this `HttpRequest` Request, `T&` Obj, `String[]` Keys) | Seta as propriedades de uma classe a partir de um dictionary | 
+| `Boolean` | ToBoolean(this `FromType` Value) | Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar | 
+| `DateTime` | ToDateTime(this `FromType` Value) | Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar | 
+| `DateTime` | ToDateTime(this `FromType` Value, `String` CultureInfoName) | Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar | 
+| `DateTime` | ToDateTime(this `FromType` Value, `CultureInfo` CultureInfo) | Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar | 
+| `Decimal` | ToDecimal(this `FromType` Value) | Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar | 
 | `Dictionary<TKey, List<TValue>>` | ToDictionary(this `IEnumerable<IGrouping<TKey, TValue>>` groupings) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
 | `Dictionary<String, Object>` | ToDictionary(this `HttpRequest` Request, `String[]` keys) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
 | `Dictionary<TKey, TValue>` | ToDictionary(this `IEnumerable<KeyValuePair<TKey, TValue>>` items) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
 | `Dictionary<String, Object>` | ToDictionary(this `NameValueCollection` NameValueCollection, `String[]` Keys) | Returna um `System.Collections.Generic.Dictionary`2` a partir de um `System.Linq.IGrouping`2` | 
-| `HtmlElement` | ToHtmlTable(this `IEnumerable<Dictionary<String, Object>>` Table) | Converte uma lista de dicionários para uma tabela HTML | 
+| `Double` | ToDouble(this `FromType` Value) | Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar | 
+| `HtmlElement` | ToHtmlTable(this `IEnumerable<Dictionary<String, Object>>` Table, `Boolean` IncludeFooter = False) | Converte uma lista de dicionários para uma tabela HTML | 
+| `Int32` | ToInteger(this `FromType` Value) | Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar | 
 | `String` | ToJSON(this `NameValueCollection` NameValueCollection) | Converte um NameValueCollection para string JSON | 
 | `String` | ToJSON(this `HttpRequest` Request) | Converte um NameValueCollection para string JSON | 
-| `void` | Uniform(this `IEnumerable`1&` Dics, `TKey[]` AditionalKeys) | Aplica as mesmas keys a todos os dicionarios de uma lista | 
+| `Int64` | ToLong(this `FromType` Value) | Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar | 
+| `Object` | Uniform(this `IEnumerable`1&` Dics, `TKey[]` AditionalKeys) | Aplica as mesmas keys a todos os dicionarios de uma lista | 
 
 
 ## `CssParser`
@@ -371,6 +391,8 @@ Methods
 | `DbCommand` | CreateUpdateCommand(`String` TableName, `String` WhereClausule, `IDictionary<String, Object>` Dic) | Cria um comando de UPDATE baseado em um `System.Collections.Generic.IDictionary`2` | 
 | `String` | CreateUpdateCommandText(`String` TableName, `String` WhereClausule, `String[]` Columns) | Cria um comando de UPDATE | 
 | `void` | DELETE(`String` TableName, `String` WhereConditions, `Boolean` SafeMode = True) | Deleta um registro de uma tabela | 
+| `DbCommand` | ExecProcedureFromRequest(`String` ProcedureName, `String[]` RequestKeys) | Executa uma procedure parametrizada a partir de um `System.Web.HttpRequest` | 
+| `DbCommand` | ExecProcedureFromRequest(`HttpRequest` Request, `String` ProcedureName, `String[]` RequestKeys) | Executa uma procedure parametrizada a partir de um `System.Web.HttpRequest` | 
 | `String` | GetCommand(`String` CommandFile) | Pega o comando SQL de um arquivo ou resource | 
 | `List<String>` | GetSqlFilesList() | Retorna a lista de arquivos SQL disponiveis | 
 | `Reader` | INSERT(`String` TableName, `IDictionary<String, Object>` Dic) | Faz um INSERT no banco de dados de acordo com um  `System.Collections.IDictionary` | 
@@ -379,14 +401,14 @@ Methods
 | `String` | INSERTorUPDATE(`HttpRequest` Request, `String` TableName, `String` PrimaryKeyColumn, `String[]` Columns) | Faz um INSERT out UPDATE no banco de dados de acordo com o valor da coluna de chave primária especificado em um `System.Collections.IDictionary` | 
 | `Reader` | OpenFile(`String` CommandFile, `DbParameter[]` Parameters) | Executa o comando de um arquivo SQL configurado | 
 | `void` | RunProcedureForEach(`String` Procedure, `String` ForeignKey, `String` ForeignValue, `NameValueCollection` Items, `String[]` Keys) | Executa uma procedure para cada item dentro de uma coleção | 
-| `Reader` | RunSQL(`String` SQLQuery) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
-| `Reader` | RunSQL(`String` SQLQuery, `IDictionary<String, Object>` Values) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
-| `Reader` | RunSQL(`FileInfo` File) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
-| `Reader` | RunSQL(`HttpPostedFile` File) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
-| `Reader` | RunSQL(`String` SQLQuery, `String` FileParameter, `Byte[]` File) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
-| `Reader` | RunSQL(`String` SQLQuery, `String` FileParameter, `HttpPostedFile` File) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
-| `Reader` | RunSQL(`String` SQLQuery, `String` FileParameter, `FileInfo` File) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
-| `Reader` | RunSQL(`DbCommand` Command) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`String` SQLQuery, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`String` SQLQuery, `IDictionary<String, Object>` Values, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`FileInfo` File, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`HttpPostedFile` File, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`String` SQLQuery, `String` FileParameter, `Byte[]` File, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`String` SQLQuery, `String` FileParameter, `HttpPostedFile` File, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`String` SQLQuery, `String` FileParameter, `FileInfo` File, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
+| `Reader` | RunSQL(`DbCommand` Command, `Boolean` ForceLowerCaseColumns = False) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
 | `Reader` | RunSQL(`String` SQLQuery, `DbParameter[]` Parameters) | Executa uma Query no banco. Recomenda-se o uso de procedures. | 
 | `Reader` | SelectAndFill(`String` TableName, `String` WhereConditions, `HtmlControl[]` Controls) | Seleciona a primeira linha de um resultset e aplica no `System.Web.UI.HtmlControls.HtmlControl` equivalente ao nome da coluna | 
 | `Reader` | SelectAndFill(`String` TableName, `String` WhereConditions, `Control[]` Controls) | Seleciona a primeira linha de um resultset e aplica no `System.Web.UI.HtmlControls.HtmlControl` equivalente ao nome da coluna | 
@@ -612,6 +634,14 @@ Properties
 | `String` | SourceDirectory |  | 
 
 
+## `DropDownListAdapter`
+
+```csharp
+public class InnerLibs.DropDownListAdapter
+    : WebControlAdapter
+
+```
+
 ## `EditorCreatedEventArgs`
 
 ```csharp
@@ -639,8 +669,10 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | Decrypt(this `String` Text) | Descriptografa uma string | 
-| `String` | Encrypt(this `String` Text) | Criptografa uma string | 
+| `String` | Decrypt(this `String` Text, `String` Key = null) | Descriptografa uma string | 
+| `String` | Decrypt(this `String` text, `String` Key, `String` IV) | Descriptografa uma string | 
+| `String` | Encrypt(this `String` Text, `String` Key = null) | Criptografa uma string | 
+| `String` | Encrypt(this `String` text, `String` Key, `String` IV) | Criptografa uma string | 
 | `String` | ToMD5String(this `String` Text) | Criptografa um Texto em MD5 | 
 | `String` | TryReverseMD5(this `String` Text) | Tenta reverter uma string MD5 para seu valor original | 
 
@@ -891,6 +923,7 @@ Static Methods
 | `String` | ReadText(this `FileInfo` File) | Retorna o conteudo de um arquivo de texto | 
 | `FileInfo` | SaveMailAttachment(this `Attachment` attachment, `DirectoryInfo` Directory) | Salva um anexo para um diretório | 
 | `FileInfo` | SaveMailAttachment(this `Attachment` attachment, `String` Path) | Salva um anexo para um diretório | 
+| `Attachment` | ToAttachment(this `HttpPostedFile` File) | Cria um `System.Net.Mail.Attachment` a a partir de um `System.Web.HttpPostedFile` | 
 | `Byte[]` | ToBytes(this `Attachment` attachment) | Salva um anexo para Byte() | 
 | `Byte[]` | ToBytes(this `Stream` stream) | Salva um anexo para Byte() | 
 | `Byte[]` | ToBytes(this `FileInfo` File) | Salva um anexo para Byte() | 
@@ -1305,10 +1338,14 @@ Static Methods
 | `List<Color>` | GetMostUsedColors(this `Bitmap` Image, `Int32` Count = 10) | Retorna uma lista com as 10 cores mais utilizadas na imagem | 
 | `Image` | InsertWatermark(this `Image` Image, `String` Watermark, `String` Font = Arial, `Nullable<Color>` FontColor = null, `Nullable<Color>` BackColor = null, `Int32` X = -1, `Int32` Y = -1) | Insere um texto de marca Dágua na imagem | 
 | `Image` | InsertWatermark(this `Image` Image, `Image` WaterMark, `Int32` X = -1, `Int32` Y = -1) | Insere um texto de marca Dágua na imagem | 
+| `Bitmap` | InvertImageColors(this `Image` Img) | Inverte as cores de uma imagem | 
+| `Image` | OptimizeForWeb(this `Image` Img, `Int32` Size = 150, `Int32` Quality = 75) | Otimiza uma imagem para web | 
 | `Image` | Resize(this `Image` Original, `Int32` NewWidth, `Int32` MaxHeight, `Boolean` OnlyResizeIfWider = True) | Redimensiona e converte uma Imagem | 
+| `Image` | ResizeCrop(this `Image` Image, `Int32` Width, `Int32` Height) | redimensiona e Cropa uma imagem, aproveitando a maior parte dela | 
 | `Boolean` | TestAndRotate(this `Image&` Img) | Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF) | 
 | `Byte[]` | ToBytes(this `Image` Image, `ImageFormat` Format = null) | Transforma uma imagem em array de bytes | 
 | `Size` | ToSize(this `String` Text) | Interperta uma string de diversas formas e a transforma em um `System.Drawing.Size` | 
+| `Stream` | ToStream(this `Image` Image, `ImageFormat` Format = null) | Transforma uma imagem em um stream | 
 | `Image` | Trim(this `Image` Img, `Color` Color) | Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo | 
 
 
@@ -1337,8 +1374,8 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | InnCrypt(this `String` Text) | Criptografa uma suma string usando a logica InnerCrypt | 
-| `String` | UnnCrypt(this `String` EncryptedText) | Descriptografa uma string previamente criptografada com InnerCrypt | 
+| `String` | InnCrypt(this `String` Text, `Int32` Seed = 1) | Criptografa uma suma string usando a logica InnerCrypt | 
+| `String` | UnnCrypt(this `String` EncryptedText, `Int32` Seed = 1) | Descriptografa uma string previamente criptografada com InnerCrypt | 
 
 
 ## `iVariableBag`
@@ -1353,6 +1390,21 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `iEvalTypedValue` | GetVariable(`String` varname) |  | 
+
+
+## `JSMin`
+
+```csharp
+public class InnerLibs.JSMin
+
+```
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `Boolean` | IsAlphanum(`Int32` c) |  | 
+| `String` | Minify(`String` src) |  | 
 
 
 ## `Json`
@@ -1404,6 +1456,7 @@ Static Methods
 | `Double` | Average(`Double[]` Values) | Tira a média de todos os números de um Array | 
 | `Int32` | Average(`Int32[]` Values) | Tira a média de todos os números de um Array | 
 | `Int64` | Average(`Int64[]` Values) | Tira a média de todos os números de um Array | 
+| `Object` | CalculateCompoundInterest(this `Decimal` Capital, `Decimal` Rate, `Decimal` Time) | Calcula Juros compostos | 
 | `Double` | CalculateDistance(`Location` FirstLocation, `Location` SecondLocation) | Calcula a distancia entre 2 locais | 
 | `Double` | CalculateDistance(`Location[]` Locations) | Calcula a distancia entre 2 locais | 
 | `Dictionary<TKey, Decimal>` | CalculatePercent(this `Dictionary<TKey, TValue>` Dic) | Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade | 
@@ -1411,10 +1464,13 @@ Static Methods
 | `Dictionary<Tobject, Decimal>` | CalculatePercent(this `IEnumerable<Tobject>` Obj, `Func<Tobject, Tvalue>` ValueSelector) | Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade | 
 | `Dictionary<TValue, Decimal>` | CalculatePercent(this `IEnumerable<TValue>` Obj) | Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade | 
 | `Decimal` | CalculatePercent(this `Decimal` Value, `Decimal` Total) | Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade | 
+| `Object` | CalculateSimpleInterest(this `Decimal` Capital, `Decimal` Rate, `Decimal` Time) | Calcula os Juros simples | 
 | `Decimal` | CalculateValueFromPercent(this `String` Percent, `Decimal` Total) | Retorna o valor de um determinado percentual de um valor total | 
 | `List<T[]>` | CartesianProduct(`T[][]` Sets) | Retorna todas as possiveis combinações de Arrays do mesmo tipo (Produto Cartesiano) | 
 | `Int64` | Ceil(this `Decimal` Number) | Arredonda um numero para cima. Ex.: 4,5 -&gt; 5 | 
 | `Int64` | Ceil(this `Double` Number) | Arredonda um numero para cima. Ex.: 4,5 -&gt; 5 | 
+| `Int32` | DifferenceIfMax(this `Int32` Total, `Int32` MaxValue) | Retorna a diferença entre 2 numeros se o valor maximo for menor que o total | 
+| `Int32` | DifferenceIfMin(this `Int32` Total, `Int32` MinValue) | Retorna a diferença entre 2 numeros se o valor minimo for maior que o total | 
 | `Object` | EvaluateExpression(`String` Formula, `Boolean` Exception = False) | Executa uma Expressão matematica/lógica simples | 
 | `T` | EvaluateExpression(`String` Formula, `Boolean` Exception = False) | Executa uma Expressão matematica/lógica simples | 
 | `Int32` | Factorial(this `Int32` Number) | Calcula o fatorial de um numero | 
@@ -1435,8 +1491,6 @@ Static Methods
 | `Type` | LimitRange(this `Type` Number, `Object` MinValue = null, `Object` MaxValue = null) | Limita um range para um numero | 
 | `T` | LowerOf(this `IEnumerable<T>` Elements) | Retorna o elemento de menor valor de uma coleção | 
 | `T` | LowerOf(`T[]` Elements) | Retorna o elemento de menor valor de uma coleção | 
-| `Int32` | PenalizeMax(this `Int32` Total, `Int32` MaxValue) | Retorna a diferença entre 2 numeros se o valor maximo for menor que o total | 
-| `Int32` | PenalizeMin(this `Int32` Total, `Int32` MinValue) | Retorna a diferença entre 2 numeros se o valor minimo for maior que o total | 
 | `Int32` | Round(this `Decimal` Number, `Int32` MiddleNumber = 5, `CultureInfo` Culture = null) | Arredonda um numero para baixo ou para cima de acordo com outro numero | 
 | `Int32` | Round(this `Decimal` Number) | Arredonda um numero para baixo ou para cima de acordo com outro numero | 
 | `Type` | SetMaxValue(this `Type` Number, `Type` MaxValue) | Limita o valor Maximo de um numero | 
@@ -1536,7 +1590,7 @@ Properties
 Formulário de notificações interativas
 ```csharp
 public class InnerLibs.NotificationForm
-    : Form, IComponent, IDisposable, IOleControl, IOleObject, IOleInPlaceObject, IOleInPlaceActiveObject, IOleWindow, IViewObject, IViewObject2, IPersist, IPersistStreamInit, IPersistPropertyBag, IPersistStorage, IQuickActivate, ISupportOleDropSource, IDropTarget, ISynchronizeInvoke, IWin32Window, IArrangedElement, IBindableComponent, IContainerControl
+    : Form, IComponent, IDisposable, IOleControl, IOleObject, IOleInPlaceObject, IOleInPlaceActiveObject, IOleWindow, IViewObject, IViewObject2, IPersist, IPersistStreamInit, IPersistPropertyBag, IPersistStorage, IQuickActivate, ISupportOleDropSource, IDropTarget, ISynchronizeInvoke, IWin32Window, IArrangedElement, IBindableComponent, IKeyboardToolTip, IContainerControl
 
 ```
 
@@ -2046,21 +2100,6 @@ Static Methods
 | `Boolean` | SoundsLike(this `String` FirstText, `String` SecondText) | Compara 2 palavras e verifica se elas possuem fonema parecido | 
 
 
-## `Startup`
-
-```csharp
-public class InnerLibs.Startup
-
-```
-
-Static Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `void` | AddToWindowsStartup(this `Application` MyApplication, `String` AppName) |  | 
-| `void` | RemoveFromWindowsStartup(this `Application` MyApplication, `String` AppName) |  | 
-
-
 ## `StructuredText`
 
 Texto estruturado (Dividido em parágrafos)
@@ -2121,11 +2160,13 @@ Static Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `String` | AdjustBlankSpaces(this `String` Text) |  | 
+| `String` | AdjustPathChars(this `String` Text) | Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos | 
 | `String` | AdjustWhiteSpaces(this `String` Text) |  | 
 | `String` | Alphabetize(this `String` Text) | Retorna uma string em ordem afabética baseada em uma outra string | 
 | `String` | Append(this `String&` Text, `String` AppendText) | Adiciona texto ao final de uma string | 
 | `String` | AppendIf(this `String&` Text, `String` AppendText, `Boolean` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
 | `String` | AppendIf(this `String&` Text, `String` AppendText, `Func<String, Boolean>` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
+| `String` | AppendLine(this `String&` Text, `String` AppendText) | Adiciona texto ao final de uma string com uma quebra de linha no final do `` | 
 | `String` | AppendUrlParameter(this `String&` Url, `String` Key, `String[]` Value) |  | 
 | `String` | ApplySpaceOnWrapChars(this `String` Text) | Aplica espacos em todos os caracteres de encapsulamento | 
 | `String` | CamelSplit(this `String` Text) | Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas | 
@@ -2154,6 +2195,9 @@ Static Methods
 | `String` | FixPunctuation(this `String&` Text, `String` Punctuation = ., `Boolean` ForceSpecificPunctuation = False) | Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao. | 
 | `String` | FixText(this `String` Text) | Arruma a ortografia do texto captalizando corretamente, adcionando pontução ao final de frase  caso nescessário e removendo espaços excessivos ou incorretos | 
 | `String` | Format(this `String` Text, `String[]` Args) | Extension Method para `System.String` | 
+| `String` | FormatCNPJ(this `Int64` CNPJ) | Formata um numero para CNPJ | 
+| `String` | FormatCPF(this `Int64` CPF) | Formata um numero para CPF | 
+| `String` | FormatDocument(this `Int64` Document) | Formata um numero para CNPJ ou CNPJ se forem validos | 
 | `String` | GetAfter(this `String` Text, `String` Value) | Retorna um texto posterior a outro | 
 | `String[]` | GetAllBetween(this `String` Text, `String` Before, `String` After = ) | Retorna todas as ocorrencias de um texto entre dois textos | 
 | `String` | GetBefore(this `String` Text, `String` Value) | Retorna um texto anterior a outro | 
@@ -2177,28 +2221,33 @@ Static Methods
 | `Int64` | Increment(this `Int64&` Number, `Int32` Amount = 1) | Incrementa em 1 ou mais um numero inteiro | 
 | `Boolean` | IsAnagramOf(this `String` Text, `String` AnotherText) | Verifica se uma palavra é um Anagrama de outra palavra | 
 | `Boolean` | IsAny(this `String` Text, `String[]` Texts) | Compara se uma string é igual a outras strings | 
+| `Boolean` | IsLikeAny(this `String` Text, `String` Pattern) | Verifica se um texto é parecido com outro outro usando comparação com caratere curinga | 
+| `Boolean` | IsLikeAny(this `String` Text, `IEnumerable<String>` Patterns) | Verifica se um texto é parecido com outro outro usando comparação com caratere curinga | 
+| `Boolean` | IsLikeAny(this `String` Text, `String[]` Patterns) | Verifica se um texto é parecido com outro outro usando comparação com caratere curinga | 
 | `Boolean` | IsPalindrome(this `String` Text, `Boolean` IgnoreWhiteSpaces = False) | Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da esqueda  para direita | 
-| `String` | Join(this `IEnumerable<Type>` Array, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
-| `String` | Join(this `Type[]` Array, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
 | `String` | Join(`String` Separator, `Type[]` Array) | Une todos os valores de um objeto em uma unica string | 
 | `String` | Join(this `List<Type>` List, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
+| `String` | Join(this `IEnumerable<Type>` Array, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
+| `String` | Join(this `Type[]` Array, `String` Separator = ) | Une todos os valores de um objeto em uma unica string | 
 | `Int32` | LevenshteinDistance(this `String` Text1, `String` Text2) | Computa a distancia de Levenshtein entre 2 strings. | 
+| `String` | MaskTelephoneNumber(this `Double` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | MaskTelephoneNumber(this `String` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | MaskTelephoneNumber(this `Int64` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | MaskTelephoneNumber(this `Int32` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | MaskTelephoneNumber(this `Decimal` Number) | Aplica uma mascara a um numero de telefone | 
-| `String` | MaskTelephoneNumber(this `Double` Number) | Aplica uma mascara a um numero de telefone | 
 | `String` | ParseAlphaNumeric(this `String` Text) | limpa um texto deixando apenas os caracteres alfanumericos. | 
 | `String` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) | Remove caracteres não numéricos de uma string | 
 | `Type` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) | Remove caracteres não numéricos de uma string | 
-| `Object` | ParseJSON(this `String` JSON) | Transforma uma JSON String em um Objeto ou Classe | 
 | `TypeClass` | ParseJSON(this `String` JSON, `String` DateFormat = yyyy-MM-dd HH:mm:ss) | Transforma uma JSON String em um Objeto ou Classe | 
+| `Object` | ParseJSON(this `String` JSON) | Transforma uma JSON String em um Objeto ou Classe | 
 | `String` | Poopfy(`String[]` Words) | Retorna uma string em sua forma poop | 
 | `String` | Poopfy(this `String` Text) | Retorna uma string em sua forma poop | 
 | `String` | PreetyPrint(this `XmlDocument` Document) | Return a Idented XML string | 
 | `String` | Prepend(this `String&` Text, `String` PrependText) | Adiciona texto ao começo de uma string | 
 | `String` | PrependIf(this `String&` Text, `String` PrependText, `Boolean` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
 | `String` | PrependIf(this `String&` Text, `String` AppendText, `Func<String, Boolean>` Test) | Adiciona texto ao final de uma string se um criterio for cumprido | 
+| `String` | PrependLine(this `String&` Text, `String` AppendText) | Adiciona texto ao inicio de uma string com uma quebra de linha no final do `` | 
+| `String` | PrintIf(this `String` Text, `Boolean` BooleanValue) | Retorna a string especificada se o valor booleano for verdadeiro | 
 | `String` | QuantifyText(this `String` PluralText, `CultureInfo` Culture = null, `String` Identifier = q) | Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em ``. | 
 | `String` | QuantifyText(this `String` PluralText, `Object` Quantity, `CultureInfo` Culture = null) | Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em ``. | 
 | `String` | Quote(this `String` Text, `Char` QuoteChar = ") | Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) | 
@@ -2220,6 +2269,7 @@ Static Methods
 | `List<String>` | Replace(this `List<String>` Strings, `String` OldValue, `String` NewValue, `Boolean` ReplaceIfEquals = True) | Faz uma busca em todos os elementos do array e aplica um ReplaceFrom comum | 
 | `String` | ReplaceFirst(this `String` Text, `String` OldText, `String` NewText = ) | Substitui a primeira ocorrencia de um texto por outro | 
 | `String` | ReplaceFrom(this `String` Text, `IDictionary<String, String>` Dic) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
+| `String` | ReplaceFrom(this `String` Text, `IDictionary<String, Object>` Dic) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
 | `String` | ReplaceFrom(this `String` Text, `IDictionary<String, String[]>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
 | `String` | ReplaceFrom(this `String` Text, `IDictionary<String[], String>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
 | `String` | ReplaceFrom(this `String` Text, `IDictionary<String[], String[]>` Dic, `StringComparison` Comparison = InvariantCultureIgnoreCase) | Aplica varios replaces a um texto a partir de um `System.Collections.IDictionary` | 
@@ -2248,6 +2298,7 @@ Static Methods
 | `String` | ToFileSizeString(this `Int32` Size) | Retorna o uma string representando um valor em bytes, KB, MB ou TB | 
 | `String` | ToFileSizeString(this `Int64` Size) | Retorna o uma string representando um valor em bytes, KB, MB ou TB | 
 | `String` | ToFileSizeString(this `Decimal` Size) | Retorna o uma string representando um valor em bytes, KB, MB ou TB | 
+| `String` | ToFriendlyPathName(this `String` Text) | Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos) | 
 | `String` | ToFriendlyURL(this `String` Text, `Boolean` UseUnderscore = False) | Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e troca  espacos por hifen) | 
 | `HtmlElement` | ToHtmlList(this `IEnumerable<T>` List, `Boolean` OrdenedList = False) | Transforma uma lista em uma lista HTML (OL ou UL) | 
 | `String` | ToHtmlString(this `HtmlGenericControl` Control) | Transforma um HtmlGenericControl em uma stringHTML | 
@@ -2529,7 +2580,9 @@ Static Methods
 | `Boolean` | IsRunningAsAdministrator() | Verifica se a aplicação está rodando como administrador | 
 | `Boolean` | IsTelephone(this `String` Text) | Valida se a string é um telefone | 
 | `Boolean` | IsURL(this `String` Text) | Verifica se um determinado texto é uma URL válida | 
-| `Boolean` | IsValidCPF(`String` CPF) | Verifica se a string é um CPF válido | 
+| `Boolean` | IsValidCNPJ(this `String` Text) | Verifica se a string é um CNPJ válido | 
+| `Boolean` | IsValidCPF(this `String` Text) | Verifica se a string é um CPF válido | 
+| `Boolean` | IsValidDocument(this `String` Text) | Verifica se a string é um CPF ou CNPJ válido | 
 | `Boolean` | IsValidDomain(this `String` DomainOrEmail) | Verifica se o dominio é válido (existe) em uma URL ou email | 
 | `T` | NullIf(this `T` Value, `Func<T, Boolean>` TestExpression) | Anula o valor de um objeto se ele for igual a outro objeto | 
 | `T` | NullIf(this `T` Value, `T` TestValue) | Anula o valor de um objeto se ele for igual a outro objeto | 
@@ -2552,16 +2605,24 @@ Static Methods
 | `Uri` | AddParameter(this `Uri` Url, `String` Key, `String[]` Values) | Adciona um parametro a Query String de uma URL | 
 | `IEnumerable<HttpPostedFile>` | AsEnumerable(this `HttpFileCollection` Files) | Retorna todos os arquivos de uma `System.Web.HttpFileCollection` em um  `System.Collections.Generic.IEnumerable`1` | 
 | `ListItem` | AsListItem(this `T` Obj, `Func<T, TextType>` Text, `Func<T, ValueType>` Value = null) | Retorna um `System.Web.UI.WebControls.ListItem` a partir de 2 propriedades de um objeto | 
+| `String` | CreateDirectory(this `HttpServerUtility` Server, `String` Path) | Cria um diretório a partir da raiz da aplicação do servidor | 
 | `void` | CreateFromAjax(this `Type&` TheObject, `String` URL, `String` Method, `NameValueCollection` Parameters = null, `String` ContentType = application/x-www-form-urlencoded, `Encoding` Encoding = null) | Cria um objeto a partir de uma requisiçao AJAX | 
 | `String` | DestroySessionAndCookies(this `HttpApplication` Page) | Destroi a Sessão, cache e cookies de uma aplicação ASP.NET | 
 | `HtmlSelect` | DisselectValues(this `HtmlSelect` Control, `Func<ListItem, Boolean>` Predicate) | Seleciona Valores de um `System.Web.UI.HtmlControls.HtmlSelect` | 
 | `HtmlSelect` | DisselectValues(this `HtmlSelect` Control, `String[]` Values) | Seleciona Valores de um `System.Web.UI.HtmlControls.HtmlSelect` | 
 | `String` | ExtractOptions(this `HtmlSelect` Control) | Retorna uma string HTML com os options de um `System.Web.UI.HtmlControls.HtmlSelect` | 
+| `TControl` | FindAncestor(this `Control` control) |  | 
+| `IEnumerable<TControl>` | FindDescendants(this `Control` parent) |  | 
 | `String` | FirstOf(this `HttpRequest` Request, `String[]` Keys) | Retorna o primeiro item não branco de um `System.Web.HttpRequest` a partir de uma coleção de Keys | 
 | `T` | FirstOf(this `HttpRequest` Request, `String[]` Keys) | Retorna o primeiro item não branco de um `System.Web.HttpRequest` a partir de uma coleção de Keys | 
 | `IEnumerable<HttpPostedFile>` | GetAllFiles(this `HttpRequest` Request) | Retorna todos os arquivos de uma `System.Web.HttpRequest` em um  `System.Collections.Generic.IEnumerable`1` | 
+| `String` | GetBody(this `HttpRequest` Request) | Retorna o corpo em formato de texto de uma rquisição HTTP | 
+| `T` | GetBody(this `HttpRequest` Request) | Retorna o corpo em formato de texto de uma rquisição HTTP | 
 | `String` | GetFacebookUsername(this `String` URL) | Captura o Username ou UserID de uma URL do Facebook | 
 | `String` | GetFacebookUsername(this `Uri` URL) | Captura o Username ou UserID de uma URL do Facebook | 
+| `String` | GetFileUrl(this `HttpServerUtility` Server, `String` File) | Retorna  URL relativa de um arquivo do servidor | 
+| `String` | GetFileUrl(this `HttpRequest` Request, `FileInfo` File) | Retorna  URL relativa de um arquivo do servidor | 
+| `String` | GetFileUrl(this `HttpRequest` Request, `String` File) | Retorna  URL relativa de um arquivo do servidor | 
 | `String` | GetPhysicalRelativePath(this `HttpRequest` Request) | Retorna o caminho relativo ao arquivo desta página | 
 | `IEnumerable<String>` | GetUrlSegments(this `String` Url) | Retorna os segmentos de uma url | 
 | `String` | GetVideoId(`String` URL) | Captura o ID de um video do YOUTUBE ou VIMEO em uma URL | 
@@ -2573,7 +2634,8 @@ Static Methods
 | `Boolean` | IsDown(`Uri` Url) | Verifica se um site está indisponível usando o serviço IsUp.Me | 
 | `Boolean` | IsUp(this `String` Url) | Verifica se um site está disponível usando o serviço IsUp.Me | 
 | `Boolean` | IsUp(`Uri` Url) | Verifica se um site está disponível usando o serviço IsUp.Me | 
-| `String` | MinifyCSS(`String` CSS) | Minifica uma folha de estilo CSS | 
+| `String` | MinifyCSS(this `String` CSS) | Minifica uma folha de estilo CSS | 
+| `String` | MinifyJS(this `String` Js) | Minifica um arquivo JavaScript | 
 | `void` | RangeDownload(this `HttpContext&` Context, `Byte[]&` Bytes, `FileType` FileType) | Realiza um download parcial de um `System.Byte` | 
 | `void` | RangeDownload(this `HttpContext&` Context, `Byte[]&` Bytes, `String` ContentType) | Realiza um download parcial de um `System.Byte` | 
 | `Uri` | RemoveParameter(this `Uri` Url, `String[]` Keys) |  | 
@@ -2590,16 +2652,21 @@ Static Methods
 | `HttpCookie` | ToCookie(this `HttpSessionState` Session, `String` CookieName, `DateTime` Expires, `String[]` SessionKeys) | Cria um cookie guardando valores especificos da sessão atual (1 dia de duração) | 
 | `HttpCookie` | ToCookie(this `HttpSessionState` Session, `String` CookieName = , `DateTime` Expires = 01/01/0001 12:00:00 AM) | Cria um cookie guardando valores especificos da sessão atual (1 dia de duração) | 
 | `String` | ToHtmlString(this `HtmlSelect` Control) | Retorna uma string HTML de um `System.Web.UI.HtmlControls.HtmlSelect` | 
-| `Object` | ToINSERT(this `HttpRequest` Request, `String` TableName, `String[]` QueryStringKeys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
-| `Object` | ToINSERT(this `NameValueCollection` Request, `String` TableName, `String[]` QueryStringKeys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
-| `String` | ToINSERTorUPDATE(this `HttpRequest` Request, `String` TableName, `String` QueryStringPrimaryKey, `String[]` QueryStringKeys) | Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
-| `String` | ToINSERTorUPDATE(this `NameValueCollection` Request, `String` TableName, `String` QueryStringPrimaryKey, `String[]` QueryStringKeys) | Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
+| `String` | ToINSERT(this `HttpRequest` Request, `String` TableName, `String[]` Keys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
+| `String` | ToINSERT(this `NameValueCollection` Request, `String` TableName, `String[]` Keys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
+| `String` | ToINSERTorUPDATE(this `HttpRequest` Request, `String` TableName, `String` PrimaryKey, `String[]` Keys) | Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
+| `String` | ToINSERTorUPDATE(this `NameValueCollection` Request, `String` TableName, `String` PrimaryKey, `String[]` Keys) | Monta um Comando SQL para executar um INSERT ou UPDATE e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
 | `List<ListItem>` | ToListItems(this `IEnumerable<T>` List, `Func<T, TextType>` Text, `Func<T, ValueType>` Value = null, `Func<T, Boolean>` Selected = null) | Retorna uma lista de `System.Web.UI.WebControls.ListItem` a partir de uma coleçao de objetos | 
 | `List<ListItem>` | ToListItems(this `IEnumerable<T>` List, `Func<T, TextType>` Text, `Func<T, ValueType>` Value, `ValueType[]` SelectedValues) | Retorna uma lista de `System.Web.UI.WebControls.ListItem` a partir de uma coleçao de objetos | 
-| `String` | ToProcedure(this `HttpRequest` Request, `String` ProcedureName, `String[]` QueryStringKeys) | Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de  uma URL como parametros da procedure | 
+| `String` | ToProcedure(this `NameValueCollection` NVC, `String` ProcedureName, `String[]` Keys) | Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de  uma URL como parametros da procedure | 
+| `String` | ToProcedure(this `IDictionary<String, Object>` Dic, `String` ProcedureName, `String[]` Keys) | Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de  uma URL como parametros da procedure | 
+| `String` | ToProcedure(this `HttpRequest` Request, `String` ProcedureName, `String[]` Keys) | Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de  uma URL como parametros da procedure | 
 | `String` | ToProcedure(this `HttpRequest` Request, `String` ProcedureName) | Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de  uma URL como parametros da procedure | 
-| `Object` | ToUPDATE(this `NameValueCollection` Request, `String` TableName, `String` WhereClausule, `String[]` QueryStringKeys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
-| `Object` | ToUPDATE(this `HttpRequest` Request, `String` TableName, `String` WhereClausule, `String[]` QueryStringKeys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
+| `String` | ToSQLFilter(this `IDictionary<String, Object>` Dic, `String` TableName, `String` CommaSeparatedColumns, `LogicConcatenationOperator` LogicConcatenation, `String[]` FilterKeys) | Monta um Comando SQL para executar um SELECT com filtros a partir de um `System.Collections.Generic.Dictionary`2` | 
+| `String` | ToSQLFilter(this `NameValueCollection` NVC, `String` TableName, `String` CommaSeparatedColumns, `LogicConcatenationOperator` LogicConcatenation, `String[]` FilterKeys) | Monta um Comando SQL para executar um SELECT com filtros a partir de um `System.Collections.Generic.Dictionary`2` | 
+| `String` | ToSQLFilter(this `HttpRequest` Request, `String` TableName, `String` CommaSeparatedColumns, `LogicConcatenationOperator` LogicConcatenation, `String[]` FilterKeys) | Monta um Comando SQL para executar um SELECT com filtros a partir de um `System.Collections.Generic.Dictionary`2` | 
+| `String` | ToUPDATE(this `NameValueCollection` Request, `String` TableName, `String` WhereClausule, `String[]` Keys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
+| `String` | ToUPDATE(this `HttpRequest` Request, `String` TableName, `String` WhereClausule, `String[]` Keys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
 | `void` | WriteCSV(this `HttpResponse` Response, `String` CSVString, `String` FileName = CSV) | Escreve um arquivo CSV e finaliza um HttpResponse | 
 | `void` | WriteEnd(this `HttpResponse` Response, `String` Text) | Escreve um texto e finaliza um HttpResponse | 
 | `void` | WriteEnd(this `HttpResponse` Response, `HtmlDocument` Text) | Escreve um texto e finaliza um HttpResponse | 
@@ -2616,6 +2683,21 @@ Static Methods
 | `void` | WriteScript(this `HttpResponse` Response, `String` ScriptOrURL) | Escreve um script na página | 
 | `void` | WriteXML(this `HttpResponse` Response, `String` XML) | Escreve um XML e finaliza um HttpResponse | 
 | `void` | WriteXML(this `HttpResponse` Response, `XmlDocument` XML) | Escreve um XML e finaliza um HttpResponse | 
+
+
+## `WindowsStartup`
+
+```csharp
+public class InnerLibs.WindowsStartup
+
+```
+
+Static Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `void` | AddToWindowsStartup(this `Application` MyApplication, `String` AppName) |  | 
+| `void` | RemoveFromWindowsStartup(this `Application` MyApplication, `String` AppName) |  | 
 
 
 ## `WinForms`

@@ -147,11 +147,12 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Template<Dictionary<Int32, Object>>` | ApplyArrayTemplate(`String` Template, `Object[]` Items) | Aplica um array de objetos em um template e retorna um Template(Of Dictionary(Of String,  Object)) do resultado | 
+| `Template<Dictionary<Int32, Object>>` | ApplyArrayTemplate(`String` Template, `Object[]` Items) | Aplica um array de objetos em um template e retorna um `InnerLibs.Triforce.Template`1`  do resultado | 
 | `Template<T>` | ApplyTemplate(`T` Item, `String` Template = ) | Aplica um template HTML a um unico objeto | 
 | `TemplatePage<T>` | ApplyTemplate(`IEnumerable<T>` List, `Int32` PageNumber = 1, `Int32` PageSize = 0, `String` Template = ) | Aplica um template HTML a um unico objeto | 
+| `String` | ApplyValues(`String` StringToApply, `IDictionary<String, Object>` Values) | Aplica valores de um dicionário a uma string com marcações de template | 
 | `String` | ClearNotFoundValues(`String` StringToClear) | Limpa dos resultados dos templates as chaves que não foram encontradas | 
-| `String` | CreatePaginarionUrlTemplate(`String` Url, `String[]` FilterParams) | Cria um template de URL a partir de uma url base e parâmetros especificos | 
+| `String` | CreatePaginationUrlTemplate(`String` Url, `String[]` FilterParams) | Cria um template de URL a partir de uma url base e parâmetros especificos | 
 | `Uri` | CreateUrl(`T` Obj, `String` UrlTemplate) | Processa a uma string URL com marcaçoes de template e retorna uma URI | 
 | `String` | GetTemplate(`Boolean` ProcessFile = False) | Retorna o nome do arquivo de template, ou o template processado se ProccessFile estiver True | 
 | `String` | GetTemplate(`Type` Type, `Boolean` ProcessFile = False) | Retorna o nome do arquivo de template, ou o template processado se ProccessFile estiver True | 

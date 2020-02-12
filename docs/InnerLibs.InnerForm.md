@@ -26,6 +26,7 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `List<Dictionary<String, Object>>` | GetForm(`String` WhereConditions = ) |  | 
 | `void` | SendForm(`Object` sender, `EventArgs` e) |  | 
 
 

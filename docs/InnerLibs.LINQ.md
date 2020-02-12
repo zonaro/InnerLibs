@@ -9,6 +9,8 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `Boolean` | AllFalse(`Boolean[]` Tests) | Retorna TRUE se a todos os testes em uma lista retornarem FALSE | 
+| `Boolean` | AllTrue(`Boolean[]` Tests) | Retorna TRUE se a todos os testes em uma lista retornarem TRUE | 
 | `Expression<Func<T, Boolean>>` | And(this `Expression<Func<T, Boolean>>` expr1, `Expression<Func<T, Boolean>>` expr2) |  | 
 | `HtmlControl[]` | ApplyToControls(this `T` Obj, `HtmlControl[]` Controls) | Aplica os valores encontrados nas propriedades de uma entidade em controles com mesmo ID  das colunas. Se os conroles não existirem no resultado eles serão ignorados. | 
 | `Expression<Func<TTargetParm, TTargetReturn>>` | ConvertGeneric(this `Expression<Func<TParm, TReturn>>` input) | Retorna uma expressão genérica a partir de uma expressão tipada | 
@@ -20,8 +22,14 @@ Static Methods
 | `IEnumerable<T>` | DistinctBy(this `IEnumerable<T>` Items, `Func<T, TKey>` Property) | Distingui os items de uma lista a partir de uma propriedade da classe | 
 | `IQueryable<T>` | DistinctBy(this `IQueryable<T>` Items, `Expression<Func<T, TKey>>` Property) | Distingui os items de uma lista a partir de uma propriedade da classe | 
 | `IEnumerable<T>` | ForEach(this `IEnumerable<T>` Items, `Action<T>` Action) | Realiza uma acão para cada item de uma lista. | 
-| `T` | GetByPrimaryKey(this `DataContext` Context, `Object` ID, `Boolean` CreateIfNotExists = False, `Boolean&` IsNew = False) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode  opcionalmente criar o objeto se o mesmo não existir | 
-| `IEnumerable<T>` | GetByPrimaryKeys(this `DataContext` Context, `Object[]` IDs) | Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias. | 
+| `T` | GetByPrimaryKey(this `DataContext` Context, `Object` ID) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode  opcionalmente criar o objeto se o mesmo não existir | 
+| `T` | GetByPrimaryKey(this `Table<T>` Table, `Object` ID) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode  opcionalmente criar o objeto se o mesmo não existir | 
+| `T` | GetByPrimaryKey(this `Table<T>` Table, `Object` ID, `Boolean` CreateIfNotExists, `Boolean&` IsNew = False) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode  opcionalmente criar o objeto se o mesmo não existir | 
+| `T` | GetByPrimaryKey(this `DataContext` Context, `Object` ID, `Boolean` CreateIfNotExists, `Boolean&` IsNew = False) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode  opcionalmente criar o objeto se o mesmo não existir | 
+| `IEnumerable<T>` | GetByPrimaryKeys(this `Table<T>` Table, `Object` IDs) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode  opcionalmente criar o objeto se o mesmo não existir | 
+| `IEnumerable<T>` | GetByPrimaryKeys(this `DataContext` Context, `Object[]` IDs) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode  opcionalmente criar o objeto se o mesmo não existir | 
+| `T` | GetPK(this `Table<T>` Table, `Object` ID) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária. é um alias de `InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.Table{``0},System.Object)` | 
+| `T` | GetPK(this `Table<T>` Table, `Object` ID, `Boolean` CreateIfNotExists, `Boolean&` IsNew = False) | Retorna um objeto de uma tabela especifica de acordo com uma chave primária. é um alias de `InnerLibs.LINQ.LINQExtensions.GetByPrimaryKey``1(System.Data.Linq.Table{``0},System.Object)` | 
 | `PropertyInfo` | GetPropertyInfo(this `TSource` source, `Expression<Func<TSource, TProperty>>` propertyLambda) | Retorna as informacoes de uma propriedade a partir de um seletor | 
 | `Dictionary<Int64, List<Tsource>>` | GroupByPage(this `IQueryable<Tsource>` source, `Int32` PageSize) | Criar um `System.Collections.Generic.Dictionary`2` agrupando os itens em páginas de um tamanho especifico | 
 | `Dictionary<Int64, List<Tsource>>` | GroupByPage(this `IEnumerable<Tsource>` source, `Int32` PageSize) | Criar um `System.Collections.Generic.Dictionary`2` agrupando os itens em páginas de um tamanho especifico | 
@@ -31,7 +39,7 @@ Static Methods
 | `Boolean` | MostFalse(`Boolean[]` Tests) | Retorna TRUE se a maioria dos testes em uma lista retornarem FALSE | 
 | `Boolean` | MostTrue(`Boolean[]` Tests) | Retorna TRUE se a maioria dos testes em uma lista retornarem TRUE | 
 | `Expression<Func<T, Boolean>>` | Or(this `Expression<Func<T, Boolean>>` expr1, `Expression<Func<T, Boolean>>` expr2) | Concatena uma expressão com outra usando o operador OR (||) | 
-| `Object` | OrderBy(this `IQueryable<T>` source, `String[]` SortProperty, `Boolean` Ascending = True) | Ordena um `System.Linq.IQueryable`1` a partir do nome de uma ou mais propriedades | 
+| `IOrderedQueryable<T>` | OrderBy(this `IQueryable<T>` source, `String[]` SortProperty, `Boolean` Ascending = True) | Ordena um `System.Linq.IQueryable`1` a partir do nome de uma ou mais propriedades | 
 | `Object` | OrderByLike(this `IQueryable<T>` items, `String[]` Searches, `String` SortProperty, `Boolean` Ascending = True) | Ordena um `System.Collections.Generic.IEnumerable`1` a partir da aproximaçao de uma ou mais  `System.String` com o valor de um determinado campo | 
 | `IOrderedEnumerable<T>` | OrderByLike(this `IEnumerable<T>` items, `Func<T, String>` PropertySelector, `Boolean` Ascending, `String[]` Searches) | Ordena um `System.Collections.Generic.IEnumerable`1` a partir da aproximaçao de uma ou mais  `System.String` com o valor de um determinado campo | 
 | `IOrderedEnumerable<T>` | OrderByRandom(this `IEnumerable<T>` items) | Randomiza a ordem de um `System.Collections.IEnumerable` | 
@@ -42,7 +50,11 @@ Static Methods
 | `IOrderedQueryable<ClassType>` | Search(this `DataContext` Context, `String` SearchTerm, `String[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
 | `IOrderedQueryable<ClassType>` | Search(this `DataContext` Context, `String[]` SearchTerms, `String[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
 | `IOrderedQueryable<ClassType>` | Search(this `DataContext` Context, `String` SearchTerm, `Expression`1[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
+| `IOrderedQueryable<ClassType>` | Search(this `Table<ClassType>` Table, `String` SearchTerm, `Expression`1[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
+| `IOrderedQueryable<ClassType>` | Search(this `Table<ClassType>` Table, `String` SearchTerm, `String[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
+| `IOrderedQueryable<ClassType>` | Search(this `Table<ClassType>` Table, `String[]` SearchTerms, `String[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
 | `IOrderedQueryable<ClassType>` | Search(this `DataContext` Context, `String[]` SearchTerms, `Expression`1[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
+| `IOrderedQueryable<ClassType>` | Search(this `Table<ClassType>` Table, `String[]` SearchTerms, `Expression`1[]` Properties) | Retorna um `System.Linq.IQueryable`1` procurando em varios campos diferentes de uma entidade | 
 | `String` | SelectJoin(this `IEnumerable<TSource>` Source, `String` Separator = ) | Seleciona e une em uma unica string varios elementos | 
 | `String` | SelectJoin(this `IEnumerable<TSource>` Source, `Func<TSource, String>` Selector = null, `String` Separator = ) | Seleciona e une em uma unica string varios elementos | 
 | `String` | SelectJoin(this `IQueryable<TSource>` Source, `Func<TSource, String>` Selector = null, `String` Separator = ) | Seleciona e une em uma unica string varios elementos | 

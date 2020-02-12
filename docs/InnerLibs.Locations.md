@@ -90,12 +90,10 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | Address | Endereco | 
-| `String` | AddressType | Tipo do Endereço | 
+| `String` | Address | Retorna o endereço completo | 
 | `String` | City | Cidade | 
 | `String` | Complement | Complemento | 
 | `String` | Country | País | 
-| `String` | FullAddress | Retorna o endereço completo (logradouro) | 
 | `Uri` | GoogleMapsURL | URL do Google Maps | 
 | `String` | Latitude | Coordenada geográfica LATITUDE | 
 | `String` | Longitude | Coordenada geográfica LONGITUDE | 
@@ -104,6 +102,10 @@ Properties
 | `String` | PostalCode | CEP - Codigo de Endereçamento Postal | 
 | `String` | State | Estado | 
 | `String` | StateCode | Unidade federativa | 
+| `String` | Street | Logradouro | 
+| `String` | StreetName | O nome do endereço | 
+| `String` | StreetType | Tipo do Endereço | 
+| `String` | ZipCode | CEP - Codigo de Endereçamento Postal. Alias de `InnerLibs.Locations.Location.PostalCode` | 
 
 
 Methods

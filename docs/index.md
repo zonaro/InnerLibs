@@ -57,6 +57,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DictionaryPropertyGridAdapter`](InnerLibs#dictionarypropertygridadapter)
 - [`Directories`](InnerLibs#directories)
 - [`DocumentationPage`](InnerLibs#documentationpage)
+- [`DropDownListAdapter`](InnerLibs#dropdownlistadapter)
 - [`EditorCreatedEventArgs`](InnerLibs#editorcreatedeventargs)
 - [`Encryption`](InnerLibs#encryption)
 - [`EnhancedCollectionEditor`](InnerLibs#enhancedcollectioneditor)
@@ -88,6 +89,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`INameProvider`](InnerLibs#inameprovider)
 - [`InnerCrypt`](InnerLibs#innercrypt)
 - [`iVariableBag`](InnerLibs#ivariablebag)
+- [`JSMin`](InnerLibs#jsmin)
 - [`Json`](InnerLibs#json)
 - [`JsonViewer`](InnerLibs#jsonviewer)
 - [`Mathematic`](InnerLibs#mathematic)
@@ -114,7 +116,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`SentencePart`](InnerLibs#sentencepart)
 - [`Shortcuts`](InnerLibs#shortcuts)
 - [`SoundEx`](InnerLibs#soundex)
-- [`Startup`](InnerLibs#startup)
 - [`StructuredText`](InnerLibs#structuredtext)
 - [`TableGenerator`](InnerLibs#tablegenerator)
 - [`Text`](InnerLibs#text)
@@ -128,15 +129,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`vCard`](InnerLibs#vcard)
 - [`Verify`](InnerLibs#verify)
 - [`Web`](InnerLibs#web)
+- [`WindowsStartup`](InnerLibs#windowsstartup)
 - [`WinForms`](InnerLibs#winforms)
 
 ## [InnerLibs.BitLy](InnerLibs.BitLy)
 
 - [`BitLy`](InnerLibs.BitLy#bitly)
-
-## [InnerLibs.Bootstrap](InnerLibs.Bootstrap)
-
-- [`Bootstrap`](InnerLibs.Bootstrap#bootstrap)
 
 ## [InnerLibs.Console](InnerLibs.Console)
 
@@ -145,11 +143,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## [InnerLibs.DOTLanguage](InnerLibs.DOTLanguage)
 
 - [`Cluster`](InnerLibs.DOTLanguage#cluster)
-- [`Digraph`](InnerLibs.DOTLanguage#digraph)
 - [`DotAttributeCollection`](InnerLibs.DOTLanguage#dotattributecollection)
 - [`DotEdge`](InnerLibs.DOTLanguage#dotedge)
 - [`DotNode`](InnerLibs.DOTLanguage#dotnode)
 - [`DotObject`](InnerLibs.DOTLanguage#dotobject)
+- [`Graph`](InnerLibs.DOTLanguage#graph)
 
 ## [InnerLibs.HtmlParser](InnerLibs.HtmlParser)
 
@@ -179,14 +177,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`Token`](InnerLibs.HtmlParser#token)
 - [`Tokenizer`](InnerLibs.HtmlParser#tokenizer)
 
+## [InnerLibs.HtmlParser.Bootstrap](InnerLibs.HtmlParser.Bootstrap)
+
+- [`BootstrapBuilder`](InnerLibs.HtmlParser.Bootstrap#bootstrapbuilder)
+
 ## [InnerLibs.InnerForm](InnerLibs.InnerForm)
 
 - [`InnerForm`](InnerLibs.InnerForm#innerform)
 
-## [InnerLibs.JSONReader](InnerLibs.JSONReader)
+## [InnerLibs.JsonReader](InnerLibs.JsonReader)
 
-- [`JSONParser`](InnerLibs.JSONReader#jsonparser)
-- [`JSONWriter`](InnerLibs.JSONReader#jsonwriter)
+- [`JsonReader`](InnerLibs.JsonReader#jsonreader)
 
 ## [InnerLibs.LINQ](InnerLibs.LINQ)
 
