@@ -4,6 +4,7 @@ Imports System.Reflection
 Imports System.Runtime.InteropServices
 Imports System.Runtime.Serialization.Json
 Imports System.Text
+Imports System.Web.Script.Serialization
 Imports System.Xml
 
 Namespace JsonReader
@@ -24,6 +25,14 @@ Namespace JsonReader
             Return Parse(json, Encoding.Unicode)
         End Function
 
+        Public Shared Function Deserialize(ByVal json As String) As Object
+            Return Parse(json, Encoding.Unicode)
+        End Function
+
+        Public Shared Function Deserialize(Of T)(ByVal json As String) As T
+            Return CType(Parse(json, Encoding.Unicode), T)
+        End Function
+
         Public Shared Function Parse(Of T)(ByVal json As String) As T
             Return CType(Parse(json, Encoding.Unicode), T)
         End Function
@@ -34,9 +43,13 @@ Namespace JsonReader
 
         Public Shared Function Parse(ByVal json As String, ByVal encoding As Encoding) As Object
             If json.IsNotBlank Then
-                Using reader = JsonReaderWriterFactory.CreateJsonReader(encoding.GetBytes(json), XmlDictionaryReaderQuotas.Max)
-                    Return ToValue(XElement.Load(reader))
-                End Using
+                Try
+                    Using reader = JsonReaderWriterFactory.CreateJsonReader(encoding.GetBytes(json), XmlDictionaryReaderQuotas.Max)
+                        Return ToValue(XElement.Load(reader))
+                    End Using
+                Catch ex As Exception
+                    Return json
+                End Try
             End If
             Return Nothing
         End Function
@@ -118,7 +131,8 @@ Namespace JsonReader
         End Function
 
         Private Shared Function CreateXObject(ByVal obj As Object) As IEnumerable(Of XStreamingElement)
-            Return obj.[GetType]().GetProperties(BindingFlags.[Public] Or BindingFlags.Instance).[Select](Function(pi) New With {Key .Name = pi.Name, Key .Value = pi.GetValue(obj, Nothing)
+
+            Return obj.[GetType]().GetProperties(BindingFlags.[Public] Or BindingFlags.Instance).Where(Function(x) Not x.HasAttribute(Of ScriptIgnoreAttribute)).[Select](Function(pi) New With {Key .Name = pi.Name, Key .Value = pi.GetValue(obj, Nothing)
             }).[Select](Function(a) New XStreamingElement(a.Name, CreateTypeAttr(GetJsonType(a.Value)), CreateJsonNode(a.Value)))
         End Function
 

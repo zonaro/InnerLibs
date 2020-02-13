@@ -2167,6 +2167,21 @@ InnerLibs
  <param name="Request">HttpRequest</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.HasAttribute(System.Reflection.PropertyInfo,System.Type)">
+ <summary>
+ Verifica se um atributo foi definido em uma propriedade de uma classe
+ </summary>
+ <param name="target"></param>
+ <param name="attribType"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.HasAttribute``1(System.Reflection.PropertyInfo)">
+ <summary>
+ Verifica se um atributo foi definido em uma propriedade de uma classe
+ </summary>
+ <param name="target"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.GetEnumValue``1(System.String)">
  <summary>
  Traz o valor de uma enumeração a partir de uma string
@@ -6965,27 +6980,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Json.SerializeJSON(System.Object)">
- <summary>
- Converte um objeto para JSON
- </summary>
- <param name="Obj"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Json.DeserializeJSON(System.Object)">
- <summary>
- Converte um JSON para objeto
- </summary>
- <param name="Obj"></param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Json.DeserializeJSON``1(System.Object)">
- <summary>
- Converte um JSON para objeto
- </summary>
- <param name="Obj"></param>
- <returns></returns>
-</member>
 <member name="T:InnerLibs.Directories">
  <summary>
  Funções para trabalhar com diretorios
@@ -10487,7 +10481,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Text.SerializeJSON(System.Object,System.Object[])">
  <summary>
- Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="M:InnerLibs.Json.SerializeJSON(System.Object)"/>
+ Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="M:InnerLibs.JsonReader.JsonReader.Serialize(System.Object)"/>
  </summary>
  <param name="Obj">Objeto</param>
  <returns>Uma String JSON</returns>
@@ -11166,171 +11160,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 <member name="T:InnerLibs.vCard">
  <summary>
  Um objeto vCard
- </summary>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI">
- <summary>
- API do Stilingue
- </summary>
-</member>
-<member name="M:InnerLibs.Stilingue.StilingueAPI.#ctor(System.String,System.String,InnerLibs.Stilingue.StilingueAPI.Endpoint)">
- <summary>
- Inicializa a api do Stilingue e traz todas as keys da conta
- </summary>
-<param name="Email">Email do stilingue</param>
-<param name="Password">Senha do stilingue</param> 
-</member>
-<member name="M:InnerLibs.Stilingue.StilingueAPI.UpdateKeys">
- <summary>
-Atualiza a lista de keys
- </summary>
-</member>
-<member name="M:InnerLibs.Stilingue.StilingueAPI.GetWarRoom(System.Int32,System.Boolean,InnerLibs.Stilingue.StilingueAPI.Endpoint)">
- <summary>
- Retorna um WarRoom de uma Key
- </summary>
- <param name="IndexKey">Numro da Key na lista de Keys</param>
- <param name="AutoRequest">Quando TRUE, faz uma requisição das informações de META e NEWS imediatamente ao declarar o objeto</param>
- <param name="URLEndPoint">Qual Url deve ser utilizada</param>
- <returns></returns>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI.Endpoint">
- <summary>
- URLs do Stilingue
- </summary>
-</member>
-<member name="P:InnerLibs.Stilingue.StilingueAPI.URL">
- <summary>
- Propriedade que indica se qual Endpoint (URL) a API irá trabalhar
- </summary>
- <returns></returns>
-</member>
-<member name="P:InnerLibs.Stilingue.StilingueAPI.BaseURL">
- <summary>
- URL da API do Stilingue
- </summary>
- <returns></returns>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI.WarRoom">
- <summary>
- API de Cards e News do Stilingue
- </summary>
-</member>
-<member name="P:InnerLibs.Stilingue.StilingueAPI.WarRoom.Errors">
- <summary>
- Lista de Erros capturados ao fazer a requisiçao da API
- </summary>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.Stilingue.StilingueAPI.WarRoom.#ctor(System.String,System.Boolean,InnerLibs.Stilingue.StilingueAPI.Endpoint)">
- <summary>
- Declara um novo objeto WarRoom
- </summary>
- <param name="Key">Chave única de acesso da pesquisa disponível no dashboard do War Room</param>
- <param name="AutoRequest">Quando TRUE, faz uma requisição das informações de META e NEWS imediatamente ao declarar o objeto</param>
- <param name="URLEndPoint">Qual Url deve ser utilizada</param>
-</member>
-<member name="M:InnerLibs.Stilingue.StilingueAPI.WarRoom.GetFrameCardURL(InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards)">
- <summary>
- Gera um objeto URI com a URL de um Card especifico
- </summary>
- <param name="Card">Tipo do Card</param>
- <returns>URI</returns>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards">
- <summary>
- Lista de Cards do Stilingue
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Sonar">
- <summary>
- Sonar
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Gallery">
- <summary>
- Galeria de Mídia
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Overview">
- <summary>
- Visão Geral
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Statistics">
- <summary>
- Estatísticas Gerais
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Matrix">
- <summary>
- Matriz
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Metro">
- <summary>
- Metro
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Stream">
- <summary>
- Evolução dos Clusters
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Cards.Clipping">
- <summary>
- Noticias
- </summary>
-</member>
-<member name="M:InnerLibs.Stilingue.StilingueAPI.WarRoom.GetMeta">
- <summary>
- Traz as informações dos Metatados da Pesquisa
- </summary>
-</member>
-<member name="M:InnerLibs.Stilingue.StilingueAPI.WarRoom.GetNews(InnerLibs.Stilingue.StilingueAPI.WarRoom.Channel,System.Boolean,System.Int32,System.Int32,System.String[],System.String[])">
- <summary>
- Traz os posts de Mídias Sociais e/ou Notícias
- </summary> 
- <param name="Channel">Canal de publicações.</param>
- <param name="Group_Posts">Agrupar Publicações</param>
- <param name="Limit">Limite por página. Maximo de 36.</param>
- <param name="Offset">Pagina</param>
- <param name="Groups">Filtrar grupos especificos  (lista de títulos concatenados por dois pontos. Exemplo: 'Grupo1:Grupo2’)</param>
- <param name="Themes">Filtrar temas especificos  (lista de títulos concatenados por dois pontos. Exemplo: 'Tema1:Tema2’)</param>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI.WarRoom.Channel">
- <summary>
- Canal de Pesquisa
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Channel.All">
- <summary>
- Todas as Publicações
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Channel.Clipping">
- <summary>
- Apenas Notícias
- </summary>
-</member>
-<member name="F:InnerLibs.Stilingue.StilingueAPI.WarRoom.Channel.SocialMedia">
- <summary>
- Apenas Mídias Sociais
- </summary>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI.WarRoom.Meta">
- <summary>
- Metadados da Pesquisa
- </summary>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI.WarRoom.News">
- <summary>
- Noticias e publicações em Redes Sociais
- </summary>
-</member>
-<member name="T:InnerLibs.Stilingue.StilingueAPI.WarRoom.Post">
- <summary>
- Noticia ou Post
  </summary>
 </member>
 <member name="T:InnerLibs.Verify">

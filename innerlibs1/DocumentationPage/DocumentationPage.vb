@@ -64,7 +64,7 @@ Public MustInherit Class DocumentationPage
         For Each n In files.Children
             lista.Add(nodeadd(n))
         Next
-        Return Json.SerializeJSON(lista)
+        Return JsonReader.JsonReader.Serialize(lista)
     End Function
 
     Friend Class State

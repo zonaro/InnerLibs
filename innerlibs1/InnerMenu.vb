@@ -20,7 +20,7 @@ Namespace MenuBuilder
         ''' </summary>
         ''' <returns></returns>
         Public Function ToJSON() As String
-            Return Json.SerializeJSON(Me)
+            Return JsonReader.JsonReader.Serialize(Me)
         End Function
 
     End Class

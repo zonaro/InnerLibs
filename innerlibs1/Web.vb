@@ -152,13 +152,13 @@ Public NotInheritable Class AJAX
             Try
                 Me.status = If(status.IsBlank, "success", status)
                 t = Now.Ticks - t
-                Return Json.SerializeJSON(Me)
+                Return JsonReader.JsonReader.Serialize(Me)
             Catch ex As Exception
                 Me.status = If(status.IsBlank, "error", status)
                 Me.message = If(message.IsBlank, ex.Message, message)
                 Me.response = Nothing
                 t = Now.Ticks - t
-                Return Json.SerializeJSON(Me)
+                Return JsonReader.JsonReader.Serialize(Me)
             End Try
         End Function
 
@@ -810,7 +810,7 @@ Public Module Web
     <Extension>
     Public Sub WriteJSON(Of Type)(Response As HttpResponse, JSON As Type)
         Response.ContentType = "application/json"
-        Response.WriteEnd(JSON.SerializeJSON)
+        Response.WriteEnd(JsonReader.JsonReader.Serialize(JSON))
     End Sub
 
     ''' <summary>

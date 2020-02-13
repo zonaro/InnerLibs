@@ -513,6 +513,26 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Verifica se um atributo foi definido em uma propriedade de uma classe
+    ''' </summary>
+    ''' <param name="target"></param>
+    ''' <param name="attribType"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function HasAttribute(target As PropertyInfo, attribType As Type)
+        Dim attribs = target.GetCustomAttributes(attribType, False)
+        Return attribs.Length > 0
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um atributo foi definido em uma propriedade de uma classe
+    ''' </summary>
+    ''' <param name="target"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function HasAttribute(Of T)(target As PropertyInfo)
+        Return target.HasAttribute(GetType(T))
+    End Function
+
+    ''' <summary>
     ''' Traz o valor de uma enumeração a partir de uma string
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
@@ -1170,7 +1190,7 @@ Public Module ClassTools
                 If (Obj.GetType.GetMethod("ToString").DeclaringType IsNot GetType(Object)) Then
                     Return Obj.ToString
                 Else
-                    Return Json.SerializeJSON(Obj)
+                    Return JsonReader.JsonReader.Serialize(Obj)
                 End If
         End Select
     End Function

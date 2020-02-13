@@ -33,7 +33,7 @@ Namespace QuestionTest
         ''' <returns></returns>
         ReadOnly Property IsValid As Boolean
             Get
-                Return Me.Select(Function(q) q.Weight).Sum = Me.Weight
+                Return Me.Sum(Function(q) q.Weight) = Me.Weight
             End Get
         End Property
 
@@ -381,6 +381,10 @@ Namespace QuestionTest
             End Set
         End Property
 
+        ''' <summary>
+        '''  HTML referente a essa questão
+        ''' </summary>
+        ''' <returns></returns>
         <ScriptIgnore>
         MustOverride ReadOnly Property HTML As String
 
@@ -398,7 +402,7 @@ Namespace QuestionTest
     Public Class StatementImages
         Inherits List(Of StatementImage)
 
-        <ScriptIgnore>
+
         ReadOnly Property Statement As QuestionStatement
 
         Friend Sub New(Statement As QuestionStatement)

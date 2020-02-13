@@ -211,7 +211,7 @@ Namespace Locations
 
         Public Function ToJSON() As String
 
-            Return Json.SerializeJSON(Me)
+            Return JsonReader.JsonReader.Serialize(Me)
         End Function
 
         ''' <summary>

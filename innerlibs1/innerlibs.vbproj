@@ -216,7 +216,6 @@
     <Compile Include="Toggles.vb" />
     <Compile Include="UnitConverter.vb" />
     <Compile Include="vCard.vb" />
-    <Compile Include="Stilingue.vb" />
     <Compile Include="Verify.vb" />
     <Compile Include="Web.vb" />
     <Compile Include="WinForms.vb" />

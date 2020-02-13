@@ -1886,7 +1886,7 @@ Public Module Text
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
     <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As TypeClass
-        Return New Json().Deserialize(Of TypeClass)(JSON)
+        Return JsonReader.JsonReader.Parse(Of TypeClass)(JSON)
     End Function
 
     ''' <summary>
@@ -1895,7 +1895,7 @@ Public Module Text
     ''' <param name="JSON">String JSON</param>
     ''' <returns>Um objeto do tipo T</returns>
     <Extension()> Public Function ParseJSON(JSON As String) As Object
-        Return New Json().Deserialize(Of Object)(JSON)
+        Return JsonReader.JsonReader.Parse(JSON)
     End Function
 
     ''' <summary>
@@ -2461,7 +2461,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="Json.SerializeJSON(Object)"/>
+    ''' Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="JsonReader.JsonReader.Serialize(Object)"/>
     ''' </summary>
     ''' <param name="Obj">Objeto</param>
     ''' <returns>Uma String JSON</returns>
@@ -2470,7 +2470,7 @@ Public Module Text
         If mds.Count > 0 Then
             Return mds.First.Invoke(Obj, params)
         Else
-            Return Json.SerializeJSON(Obj)
+            Return JsonReader.JsonReader.Serialize(Obj)
         End If
     End Function
 

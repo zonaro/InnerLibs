@@ -138,7 +138,7 @@ Partial Public Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
-            Return Json.SerializeJSON(Me)
+            Return JsonReader.JsonReader.Serialize(Me)
         End Function
 
         ''' <summary>
@@ -395,7 +395,7 @@ Partial Public Class DataBase
         ''' <returns></returns>
         Function ToJSON(Optional Simplify As Boolean = False) As String
             If Simplify Then
-                Return Json.SerializeJSON(Me.Simplify())
+                Return JsonReader.JsonReader.Serialize(Me.Simplify())
             Else
                 Dim l = Me.Select(Function(x) x.ReturnMyself)
                 If l.All(Function(x) ClassTools.IsDictionary(x)) Then
@@ -403,9 +403,9 @@ Partial Public Class DataBase
                     For Each d In l.ChangeIEnumerableType(Of Dictionary(Of String, Object))
                         nv.Add(d.First.Key, d.First.Value)
                     Next
-                    Return Json.SerializeJSON(nv)
+                    Return JsonReader.JsonReader.Serialize(nv)
                 Else
-                    Return Json.SerializeJSON(l)
+                    Return JsonReader.JsonReader.Serialize(l)
                 End If
             End If
             Return ""
@@ -478,7 +478,7 @@ Partial Public Class DataBase
                                     If Not lista.Columns.Contains(col) Then
                                         Try
                                             If Reader(col).GetType = GetType(String) Then
-                                                lista.Add(col, If(IsDBNull(Reader(col)), "", Json.DeserializeJSON(Reader(col))))
+                                                lista.Add(col, If(IsDBNull(Reader(col)), "", JsonReader.JsonReader.Parse(Reader(col))))
                                             Else
                                                 Try
                                                     lista.Add(col, If(IsDBNull(Reader(col)), Nothing, Reader(col)))
@@ -904,7 +904,7 @@ Partial Public Class DataBase
 
                     While Me.Read()
                         For Each item As String In Me.GetColumns()
-                            Returned.Append("|" & Json.SerializeJSON(Me(item)))
+                            Returned.Append("|" & JsonReader.JsonReader.Serialize(Me(item)))
                         Next
                         Returned.Append("|" & Environment.NewLine)
                     End While

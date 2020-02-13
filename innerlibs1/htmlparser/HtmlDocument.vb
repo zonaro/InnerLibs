@@ -40,7 +40,7 @@ Namespace HtmlParser
         ''' </summary>
         ''' <returns></returns>
         Public Function ToJSON() As String
-            Return Json.SerializeJSON(New With {.Encoding = Me.Encoding.EncodingName, .Document = Me.Nodes.Select(Function(x) x.JsonRepresentation)})
+            Return JsonReader.JsonReader.Serialize(New With {.Encoding = Me.Encoding.EncodingName, .Document = Me.Nodes.Select(Function(x) x.JsonRepresentation)})
         End Function
 
         Private Sub Build(Optional UrlOrHTMLString As String = Nothing, Optional Encoding As Encoding = Nothing)
