@@ -461,6 +461,7 @@ Public Module ClassTools
     <Extension>
     Public Function FirstOr(Of T)(source As IEnumerable(Of T), predicate As Func(Of T, Boolean), Alternate As T) As T
         Return If(source.FirstOrDefault(predicate), Alternate)
+
     End Function
 
     ''' <summary>
