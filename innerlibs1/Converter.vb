@@ -460,7 +460,7 @@ Public Module Converter
     ''' <returns></returns>
     <Extension>
     Public Function ToJSON([NameValueCollection] As NameValueCollection) As String
-        Return JsonReader.JsonReader.Serialize(NameValueCollection.ToDictionary)
+        Return OldJsonSerializer.SerializeJSON(NameValueCollection.ToDictionary)
     End Function
 
     ''' <summary>
@@ -473,7 +473,7 @@ Public Module Converter
         Dim d As New Dictionary(Of String, Object)
         d.Add("QueryString", Request.QueryString.ToDictionary)
         d.Add("Form", Request.Form.ToDictionary)
-        Return JsonReader.JsonReader.Serialize(d)
+        Return OldJsonSerializer.SerializeJSON(d)
     End Function
 
 End Module

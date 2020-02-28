@@ -635,6 +635,8 @@ End Class
 ''' <remarks></remarks>
 Public Module Text
 
+
+
     ''' <summary>
     ''' Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
     ''' </summary>
@@ -2070,6 +2072,17 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) é um alias de <see cref="Quote(String, Char)"/>
+    ''' </summary>
+    ''' <param name="Text">     Texto</param>
+    ''' <param name="QuoteChar">Caractere de encapsulamento</param>
+    ''' <returns></returns>
+    <Extension()>
+    Function Brackfy(Text As String, Optional QuoteChar As Char = """"c) As String
+        Return Text.Quote(QuoteChar)
+    End Function
+
+    ''' <summary>
     ''' Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes) se uma
     ''' condiçao for cumprida
     ''' </summary>
@@ -2342,7 +2355,19 @@ Public Module Text
     <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String, Object)) As String
         If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
             For Each p In Dic
-                Text = Text.Replace(p.Key, p.Value)
+                Select Case True
+                    Case IsDictionary(p.Value)
+                        Text = Text.ReplaceFrom(CType(p.Value, IDictionary(Of String, Object)))
+                    Case IsArray(p)
+                        For Each item In ForceArray(p.Value)
+                            Text = Text.ReplaceMany(p.Key, CType(p.Value, String()))
+                        Next
+                    Case Else
+                        Text = Text.Replace(p.Key, p.Value)
+                End Select
+
+
+
             Next
         End If
         Return Text
@@ -2461,7 +2486,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="JsonReader.JsonReader.Serialize(Object)"/>
+    ''' Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="OldJsonSerializer.SerializeJSON(Object)"/>
     ''' </summary>
     ''' <param name="Obj">Objeto</param>
     ''' <returns>Uma String JSON</returns>
@@ -2470,7 +2495,7 @@ Public Module Text
         If mds.Count > 0 Then
             Return mds.First.Invoke(Obj, params)
         Else
-            Return JsonReader.JsonReader.Serialize(Obj)
+            Return OldJsonSerializer.SerializeJSON(Obj)
         End If
     End Function
 

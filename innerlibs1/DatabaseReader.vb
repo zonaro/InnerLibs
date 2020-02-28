@@ -138,7 +138,7 @@ Partial Public Class DataBase
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
-            Return JsonReader.JsonReader.Serialize(Me)
+            Return OldJsonSerializer.SerializeJSON(Me)
         End Function
 
         ''' <summary>
@@ -395,7 +395,7 @@ Partial Public Class DataBase
         ''' <returns></returns>
         Function ToJSON(Optional Simplify As Boolean = False) As String
             If Simplify Then
-                Return JsonReader.JsonReader.Serialize(Me.Simplify())
+                Return OldJsonSerializer.SerializeJSON(Me.Simplify())
             Else
                 Dim l = Me.Select(Function(x) x.ReturnMyself)
                 If l.All(Function(x) ClassTools.IsDictionary(x)) Then
@@ -403,9 +403,9 @@ Partial Public Class DataBase
                     For Each d In l.ChangeIEnumerableType(Of Dictionary(Of String, Object))
                         nv.Add(d.First.Key, d.First.Value)
                     Next
-                    Return JsonReader.JsonReader.Serialize(nv)
+                    Return OldJsonSerializer.SerializeJSON(nv)
                 Else
-                    Return JsonReader.JsonReader.Serialize(l)
+                    Return OldJsonSerializer.SerializeJSON(l)
                 End If
             End If
             Return ""
@@ -904,7 +904,7 @@ Partial Public Class DataBase
 
                     While Me.Read()
                         For Each item As String In Me.GetColumns()
-                            Returned.Append("|" & JsonReader.JsonReader.Serialize(Me(item)))
+                            Returned.Append("|" & OldJsonSerializer.SerializeJSON(Me(item)))
                         Next
                         Returned.Append("|" & Environment.NewLine)
                     End While

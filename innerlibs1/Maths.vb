@@ -27,7 +27,7 @@ Public Class EquationPair
     End Function
 
     Function ToJson()
-        Return JsonReader.JsonReader.Serialize(Me.ToArray)
+        Return OldJsonSerializer.SerializeJSON(Me.ToArray)
     End Function
 
 End Class
@@ -129,7 +129,7 @@ Public Class RuleOfThree
     ''' </summary>
     ''' <returns></returns>
     Function ToJson() As String
-        Return JsonReader.JsonReader.Serialize(Me.ToArray)
+        Return OldJsonSerializer.SerializeJSON(Me.ToArray)
     End Function
 
 

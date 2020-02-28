@@ -207,6 +207,20 @@ End Class
 Public Module Calendars
 
     ''' <summary>
+    ''' Retorna a idade
+    ''' </summary>
+    ''' <param name="BirthDate"></param>
+    ''' <param name="FromDate"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetAge(BirthDate As DateTime, Optional FromDate As DateTime? = Nothing) As Integer
+        FromDate = If(FromDate, Now)
+        Dim age As Integer
+        age = FromDate.Value.Year - BirthDate.Year
+        If (BirthDate > Today.AddYears(-age)) Then age -= 1
+        Return age
+    End Function
+
+    ''' <summary>
     ''' Converte um <see cref="Date"/> para um timezone Especifico
     ''' </summary>
     ''' <param name="[Date]"></param>

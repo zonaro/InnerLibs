@@ -12,18 +12,39 @@ Namespace QuestionTest
     ''' Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     ''' </summary>
     <Serializable>
+    <Category("Avaliação"), Description("Representa uma avaliação de perguntas e respostas")>
     Public Class QuestionTest
         Inherits ObservableCollection(Of Question)
 
         Protected NotOverridable Overrides Sub OnCollectionChanged(e As NotifyCollectionChangedEventArgs)
             MyBase.OnCollectionChanged(e)
-            If e.Action = NotifyCollectionChangedAction.Add Then
-                Debug.WriteLine("Question Added")
-                For Each ni In e.NewItems
-                    Dim q = CType(ni, Question)
-                    q._test = Me
-                Next
-            End If
+            Select Case e.Action
+                Case NotifyCollectionChangedAction.Add
+                    Debug.WriteLine("Question Added")
+                    For Each ni In e.NewItems
+                        Dim q = CType(ni, Question)
+                        q._test = Me
+                    Next
+                Case NotifyCollectionChangedAction.Remove
+                    Debug.WriteLine("Question Removed")
+                    For Each ni In e.OldItems
+                        Dim q = CType(ni, Question)
+                        q._test = Nothing
+                    Next
+                Case NotifyCollectionChangedAction.Replace
+                    Debug.WriteLine("Question Replaced")
+                    For Each ni In e.NewItems
+                        Dim q = CType(ni, Question)
+                        q._test = Me
+                    Next
+                    For Each ni In e.OldItems
+                        Dim q = CType(ni, Question)
+                        q._test = Nothing
+                    Next
+                Case Else
+
+            End Select
+
 
         End Sub
 
@@ -31,6 +52,7 @@ Namespace QuestionTest
         ''' Verifica se o peso da prova equivale a soma dos pesos das questões
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Verifica se o peso da prova equivale a soma dos pesos das questões")>
         ReadOnly Property IsValid As Boolean
             Get
                 Return Me.Sum(Function(q) q.Weight) = Me.Weight
@@ -56,6 +78,7 @@ Namespace QuestionTest
         ''' Titulo da Avaliação
         ''' </summary>
         ''' <returns></returns>
+        <Category("Texto"), Description("Título da Avaliação")>
         Public Property Title As String
             Get
                 Return _title.ToProperCase
@@ -66,6 +89,8 @@ Namespace QuestionTest
         End Property
 
         Private _title As String = ""
+
+
 
         ''' <summary>
         ''' Adiciona uma nova questão a avaliação.
@@ -109,31 +134,36 @@ Namespace QuestionTest
         ''' Valor Minimo da nota para aprovação (Normalmente 6)
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Valor Minimo da nota para aprovação (Normalmente 6)")>
         Public Property MinimumWeightAllowed As Decimal = 6
 
         ''' <summary>
         ''' Peso da Avaliação (Normalmente 10)
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Peso da Avaliação (Normalmente 10)")>
         Public Property Weight As Decimal = 10
 
         ''' <summary>
         ''' Cabeçalho da prova. Texto adicional que ficará antes das questões e apoós o título
         ''' </summary>
         ''' <returns></returns>
+        <Category("Texto"), Description("Cabeçalho da prova. Texto adicional que ficará antes das questões e após o título")>
         Public Property Header As String = ""
 
         ''' <summary>
         ''' Rodapé da prova. Texto adicional que ficará após as questões
         ''' </summary>
         ''' <returns></returns>
+        <Category("Texto"), Description("Rodapé da prova. Texto adicional que ficará após as questões")>
         Public Property Footer As String = ""
 
         ''' <summary>
         ''' Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo permitido, caso contrário, FALSE
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property IsApproved
+        <Category("Validação"), Description("Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo permitido, caso contrário, FALSE")>
+        Public ReadOnly Property IsApproved As Boolean
             Get
                 Return Me.FinalNote >= MinimumWeightAllowed
             End Get
@@ -143,6 +173,7 @@ Namespace QuestionTest
         ''' Numero de questões que o usuário acertou
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Numero de questões que o usuário acertou")>
         Public ReadOnly Property Hits As Integer
             Get
                 Dim c = 0
@@ -157,6 +188,7 @@ Namespace QuestionTest
         ''' Numero de questões que o usuário errou
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Numero de questões que o usuário errou")>
         Public ReadOnly Property Fails As Integer
             Get
                 Return Me.Count - Hits
@@ -167,6 +199,7 @@ Namespace QuestionTest
         ''' Média da Avaliação
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Média da Avaliação")>
         Public ReadOnly Property Average As Decimal
             Get
                 Try
@@ -188,12 +221,14 @@ Namespace QuestionTest
         ''' Pontos de bonificação que serão somados a média final da avaliação
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Pontos de bonificação que serão somados a média final da avaliação")>
         Public Property Bonus As Decimal = 0
 
         ''' <summary>
         ''' Nota final da avaliação (Bonus + Média)
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Nota final da avaliação (Bonus + Média)")>
         Public ReadOnly Property FinalNote As Decimal
             Get
                 Return Average + Bonus
@@ -204,6 +239,7 @@ Namespace QuestionTest
         ''' Porcentagem de Acertos do Usuário
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Porcentagem de acertos da avaliação")>
         Public ReadOnly Property HitPercent As Integer
             Get
                 Return Me.Average.CalculatePercent(Weight)
@@ -214,6 +250,7 @@ Namespace QuestionTest
         ''' Porcentagem de Erros do Usuário
         ''' </summary>
         ''' <returns></returns>
+        <Category("Validação"), Description("Porcentagem de erros da avaliação")>
         Public ReadOnly Property FailPercent As Integer
             Get
                 Return (Me.Weight - Me.Average).CalculatePercent(Weight)
@@ -258,6 +295,7 @@ Namespace QuestionTest
         ''' </summary>
         ''' <returns></returns>
         <ScriptIgnore>
+        <Category("HTML"), Description("Estrutura HTML gerada automaticamente")>
         ReadOnly Property HTML As HtmlDocument
             Get
                 Dim head = ""
@@ -402,7 +440,7 @@ Namespace QuestionTest
     Public Class StatementImages
         Inherits List(Of StatementImage)
 
-
+        <ScriptIgnore>
         ReadOnly Property Statement As QuestionStatement
 
         Friend Sub New(Statement As QuestionStatement)
@@ -483,7 +521,9 @@ Namespace QuestionTest
                     If Images.Count > 0 Then
                         HTML.Append(Images.HTML)
                     End If
-                    HTML = HTML.WrapInTag("label").Class.Add("Statement").Attributes.Add("for", Me.Question.ID).ToString
+                    Dim otr = HTML.WrapInTag("label").Class.Add("Statement")
+                    otr.Attributes.Add("for", Me.Question.ID)
+                    HTML = otr.ToString()
                 End If
                 Return HTML
             End Get
@@ -720,6 +760,13 @@ Namespace QuestionTest
             End Get
         End Property
 
+        Public Overrides ReadOnly Property HTML As String
+            Get
+                Return Me.Alternatives.HTML
+            End Get
+        End Property
+
+
     End Class
 
     ''' <summary>
@@ -756,15 +803,7 @@ Namespace QuestionTest
             End Get
         End Property
 
-        <ScriptIgnore>
-        Public Overrides ReadOnly Property HTML As String
-            Get
-                If Test IsNot Nothing Then
-                    Return (Statement.HTML & Alternatives.HTML).WrapInTag("li").Class.Add("Question").ToString
-                End If
-                Return ""
-            End Get
-        End Property
+
 
         ''' <summary>
         ''' Verifica se as existe apenas uma unica alternativa correta na questão
@@ -789,6 +828,8 @@ Namespace QuestionTest
     ''' </summary>
     Public Class MultipleAlternativeQuestion
         Inherits AlternativeQuestion
+
+
 
         Public Sub New()
             MyBase.New()
@@ -825,15 +866,7 @@ Namespace QuestionTest
             End Get
         End Property
 
-        <ScriptIgnore>
-        Public Overrides ReadOnly Property HTML As String
-            Get
-                If Test IsNot Nothing Then
-                    Return (Statement.HTML & Alternatives.HTML).WrapInTag("li").Class.Add("Question").ToString
-                End If
-                Return ""
-            End Get
-        End Property
+
 
     End Class
 
@@ -910,7 +943,7 @@ Namespace QuestionTest
         End Sub
 
         Public Overrides Function ToString() As String
-            Return Me.Number.ToRoman.Wrap("(") & Me.Text
+            Return Me.Number.ToRoman.Quote("(") & Me.Text
         End Function
 
         ''' <summary>
@@ -976,7 +1009,23 @@ Namespace QuestionTest
         ReadOnly Property HTML As String
             Get
                 If Question IsNot Nothing Then
-                    Return "<" & If(_question.RenderAsSelect, "option", "li") & " class='Alternative " & If(Question.GetType Is GetType(SingleAlternativeQuestion), "Single", "Multiple") & "'><input type=" & If(Question.GetType Is GetType(SingleAlternativeQuestion), "radio", "checkbox").ToString.Quote & " ID=" & ID.Quote & " name=" & Question.ID.Quote & "   value=" & ID.Quote & " /><label for=" & ID.Quote & ">" & Text & "</label>"
+                    If _question.RenderAsSelect Then
+                        Dim el = New HtmlElement("option", Text)
+                        el.Class.Add("Alternative")
+                        el.Class.Add(If(Question.GetType Is GetType(SingleAlternativeQuestion), "Single", "Multiple"))
+                        el.AddAttribute("value", ID)
+                        el.ID = ID
+                        Return el.ToString()
+                    Else
+                        Dim el = New HtmlElement("input") With {.IsTerminated = True}
+                        el.Class.Add("Alternative")
+                        el.Class.Add(If(Question.GetType Is GetType(SingleAlternativeQuestion), "Single", "Multiple"))
+                        el.AddAttribute("type", If(Question.GetType Is GetType(SingleAlternativeQuestion), "radio", "checkbox"))
+                        el.ID = ID
+                        el.AddAttribute("name", Question.ID)
+                        el.AddAttribute("value", ID)
+                        Return el.ToString() & "<label for=" & ID.Quote & ">" & Text & "</label>"
+                    End If
                 End If
                 Return ""
             End Get

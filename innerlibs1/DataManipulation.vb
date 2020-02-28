@@ -37,7 +37,9 @@ Public Module DataManipulation
             command.Parameters.Add(param)
         Next
         Dim Reader As DbDataReader = command.ExecuteReader()
-        Return New DataBase.Reader(Reader)
+        Dim t = New DataBase.Reader(Reader)
+        con.Close()
+        Return t
     End Function
 
 

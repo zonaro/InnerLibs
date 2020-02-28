@@ -6,6 +6,7 @@ Imports System.Runtime.Serialization.Json
 Imports System.Text
 Imports System.Web.Script.Serialization
 Imports System.Xml
+Imports System.Linq
 
 Namespace JsonReader
 
@@ -62,6 +63,7 @@ Namespace JsonReader
 
         Public Shared Function Parse(ByVal stream As Stream, ByVal encoding As Encoding) As Object
             Using reader = JsonReaderWriterFactory.CreateJsonReader(stream, encoding, XmlDictionaryReaderQuotas.Max, Function(__)
+
                                                                                                                      End Function)
                 Return ToValue(XElement.Load(reader))
             End Using
@@ -99,7 +101,10 @@ Namespace JsonReader
                 Case TypeCode.Int16, TypeCode.Int32, TypeCode.Int64, TypeCode.UInt16, TypeCode.UInt32, TypeCode.UInt64, TypeCode.Single, TypeCode.Double, TypeCode.Decimal, TypeCode.SByte, TypeCode.Byte
                     Return JsonTypeEnum.number
                 Case TypeCode.Object
-                    Return If((TypeOf obj Is IEnumerable), JsonTypeEnum.array, JsonTypeEnum.object)
+                    If TypeOf obj Is IEnumerable Then
+                        Return JsonTypeEnum.array
+                    End If
+                    Return JsonTypeEnum.object
                 Case Else
                     Return JsonTypeEnum.null
             End Select
@@ -121,19 +126,30 @@ Namespace JsonReader
                     Return CreateXObject(obj)
                 Case JsonTypeEnum.array
                     Return CreateXArray(TryCast(obj, IEnumerable))
+
                 Case Else
                     Return Nothing
             End Select
         End Function
 
         Private Shared Function CreateXArray(Of T As IEnumerable)(ByVal obj As T) As IEnumerable(Of XStreamingElement)
+            If ClassTools.IsDictionary(obj) Then
+                Return CreateXObject(obj)
+            End If
             Return obj.Cast(Of Object)().[Select](Function(o) New XStreamingElement("item", CreateTypeAttr(GetJsonType(o)), CreateJsonNode(o)))
+
         End Function
 
         Private Shared Function CreateXObject(ByVal obj As Object) As IEnumerable(Of XStreamingElement)
+            If ClassTools.IsDictionary(obj) Then
+                Dim l = New List(Of Object)
+                For Each t In obj
+                    l.Add(New With {Key .Name = t.Key, Key .Value = t.Value})
+                Next
+                Return l.[Select](Function(a) New XStreamingElement(a.Name.ToString(), CreateTypeAttr(GetJsonType(a.Value)), CreateJsonNode(a.Value)))
+            End If
+            Return obj.[GetType]().GetProperties(BindingFlags.[Public] Or BindingFlags.Instance).Where(Function(x) Not x.HasAttribute(Of ScriptIgnoreAttribute)).[Select](Function(pi) New With {Key .Name = pi.Name, Key .Value = pi.GetValue(obj, Nothing)}).[Select](Function(a) New XStreamingElement(a.Name, CreateTypeAttr(GetJsonType(a.Value)), CreateJsonNode(a.Value)))
 
-            Return obj.[GetType]().GetProperties(BindingFlags.[Public] Or BindingFlags.Instance).Where(Function(x) Not x.HasAttribute(Of ScriptIgnoreAttribute)).[Select](Function(pi) New With {Key .Name = pi.Name, Key .Value = pi.GetValue(obj, Nothing)
-            }).[Select](Function(a) New XStreamingElement(a.Name, CreateTypeAttr(GetJsonType(a.Value)), CreateJsonNode(a.Value)))
         End Function
 
         Private Shared Function CreateJsonString(ByVal element As XStreamingElement) As String

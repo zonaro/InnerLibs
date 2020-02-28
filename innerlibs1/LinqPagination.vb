@@ -1,4 +1,5 @@
-﻿Imports System.Data.Linq
+﻿Imports System.Collections.Specialized
+Imports System.Data.Linq
 Imports System.Data.Linq.Mapping
 Imports System.Linq.Expressions
 Imports System.Reflection
@@ -172,8 +173,29 @@ Namespace LINQ
                             CType(c, HtmlInputControl).Value = Obj.GetPropertyValue(c.ID)
                         Case "select"
                             CType(c, HtmlSelect).SelectValues(Obj.GetPropertyValue(c.ID).ToString)
+                        Case "img"
+                            CType(c, HtmlImage).Src = Obj.GetPropertyValue(c.ID).ToString
                         Case Else
                             CType(c, HtmlContainerControl).InnerHtml = Obj.GetPropertyValue(c.ID)
+                    End Select
+                Catch ex As Exception
+                End Try
+            Next
+            Return Controls
+        End Function
+
+        <Extension()> Public Function ApplyToControls(Obj As NameValueCollection, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
+            For Each c In Controls
+                Try
+                    Select Case c.TagName.ToLower
+                        Case "input"
+                            CType(c, HtmlInputControl).Value = Obj(c.ID).ToString
+                        Case "select"
+                            CType(c, HtmlSelect).SelectValues(Obj(c.ID))
+                        Case "img"
+                            CType(c, HtmlImage).Src = Obj(c.ID).ToString
+                        Case Else
+                            CType(c, HtmlContainerControl).InnerHtml = Obj(c.ID)
                     End Select
                 Catch ex As Exception
                 End Try

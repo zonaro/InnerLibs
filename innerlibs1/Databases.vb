@@ -171,7 +171,7 @@ Public NotInheritable Class DataBase
                         Case GetType(Short), GetType(Integer), GetType(Long), GetType(Decimal), GetType(Double), GetType(Byte)
                             valor = Value
                         Case Else
-                            Return Me.CreateParameter(Of String)(Name, JsonReader.JsonReader.Serialize(Value))
+                            Return Me.CreateParameter(Of String)(Name, OldJsonSerializer.SerializeJSON(Value))
                     End Select
                 Else
 

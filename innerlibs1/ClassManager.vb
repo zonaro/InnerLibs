@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Data.Common
 Imports System.Drawing.Text
+Imports System.Dynamic
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
@@ -12,6 +13,7 @@ Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
 Public Module ClassTools
+
 
     ''' <summary>
     ''' Concatena todas as  <see cref="Exception.InnerException"/> em uma única string
@@ -27,6 +29,14 @@ Public Module ClassTools
         Return ExceptionString
     End Function
 
+    <Extension()> Public Function DictionaryToObject(ByVal dict As IDictionary) As Object
+        Dim eo As IDictionary(Of String, Object) = CType(New ExpandoObject(), IDictionary(Of String, Object))
+        For Each kvp In dict
+            eo.Add(kvp.Key, kvp.Value)
+        Next
+        Return eo
+    End Function
+
     ''' <summary>
     ''' Retorna um dicionário em QueryString
     ''' </summary>
@@ -38,6 +48,16 @@ Public Module ClassTools
             param.Append("&" & k.Key & "=" & HttpUtility.UrlEncode("" & k.Value))
         Next
         Return param
+    End Function
+
+
+    ''' <summary>
+    ''' Retorna um <see cref="NameValueCollection"/> em QueryString
+    ''' </summary>
+    ''' <param name="NVC"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToQueryString(NVC As NameValueCollection) As String
+        Return NVC.AllKeys.SelectManyJoin(Function(n) NVC.GetValues(n).Select(Function(v) n & "=" & v), "&")
     End Function
 
     ''' <summary>
@@ -108,7 +128,47 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade deo mesmo objeto
+    ''' Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
+    ''' </summary>
+    ''' <typeparam name="A"></typeparam>
+    ''' <typeparam name="B"></typeparam>
+    ''' <typeparam name="C"></typeparam>
+    ''' <param name="maps"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToTableArray(Of A, B, C, D)(ByVal maps As Dictionary(Of A, Dictionary(Of B, C)), HeaderProp As Func(Of B, D)) As IEnumerable(Of Object)
+        Dim lista = New List(Of Object)
+        Dim header = New List(Of Object)
+        header.Add(HeaderProp.Method.GetParameters.First().Name)
+        For Each h In maps.SelectMany(Function(x) x.Value.Keys.ToArray())
+            header.Add(HeaderProp(h))
+        Next
+        lista.Add(header)
+        lista.AddRange(maps.Select(Function(x)
+                                       Dim l = New List(Of Object)
+                                       l.Add(x.Key) 'A
+                                       For Each y In x.Value.Values
+                                           l.Add(y) 'C
+                                       Next
+                                       Return l.ToArray()
+                                   End Function))
+        Return lista
+    End Function
+
+    ''' <summary>
+    ''' Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
+    ''' </summary>
+    <Extension()> Public Function ToTableArray(Of A, B, C)(ByVal maps As Dictionary(Of A, B))
+        Return maps.Select(Function(x)
+                               Dim l = New List(Of Object)
+                               l.Add(x.Key)
+                               l.Add(x.Value)
+                               Return l.ToArray()
+                           End Function)
+    End Function
+
+
+    ''' <summary>
+    ''' Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade do mesmo objeto
     ''' </summary>
     ''' <typeparam name="Type"></typeparam>
     ''' <typeparam name="Group"></typeparam>
@@ -117,10 +177,22 @@ Public Module ClassTools
     ''' <param name="GroupSelector"></param>
     ''' <param name="CountObjectBy"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GroupAndCountBy(Of Type, Group, Count)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group), CountObjectBy As Func(Of Type, Count)) As Dictionary(Of Group, Dictionary(Of Count, Long))
+    <Extension()> Public Function GroupAndCountSubGroupBy(Of Type, Group, Count)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group), CountObjectBy As Func(Of Type, Count)) As Dictionary(Of Group, Dictionary(Of Count, Long))
         Dim dic_of_dic = obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Dictionary(Of Count, Long))(x.Key, x.GroupBy(CountObjectBy).ToDictionary(Function(y) y.Key, Function(y) y.LongCount))).ToDictionary()
         dic_of_dic.Values.Uniform
         Return dic_of_dic
+    End Function
+
+    ''' <summary>
+    ''' Agrupa e conta os itens de uma lista a aprtir de uma propriedade
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <typeparam name="Group"></typeparam>
+    ''' <param name="obj"></param>
+    ''' <param name="GroupSelector"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GroupAndCountBy(Of Type, Group)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group)) As Dictionary(Of Group, Long)
+        Return obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Long)(x.Key, x.LongCount())).ToDictionary()
     End Function
 
     ''' <summary>
@@ -1191,7 +1263,7 @@ Public Module ClassTools
                 If (Obj.GetType.GetMethod("ToString").DeclaringType IsNot GetType(Object)) Then
                     Return Obj.ToString
                 Else
-                    Return JsonReader.JsonReader.Serialize(Obj)
+                    Return OldJsonSerializer.SerializeJSON(Obj)
                 End If
         End Select
     End Function

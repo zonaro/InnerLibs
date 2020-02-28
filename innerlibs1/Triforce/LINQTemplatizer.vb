@@ -1,4 +1,5 @@
 ﻿Imports System.Collections.ObjectModel
+Imports System.Collections.Specialized
 Imports System.Data.Common
 Imports System.Data.Linq
 Imports System.Globalization
@@ -6,6 +7,7 @@ Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Text.RegularExpressions
+Imports System.Web
 Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
@@ -338,6 +340,7 @@ Namespace Triforce
 
                             Dim conteudo = ""
                             Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
+                            Dim el_empty = CType(templatetag.Nodes.GetElementsByTagName("empty").FirstOrDefault, HtmlElement)
                             If el_cont IsNot Nothing Then
                                 If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
                                     conteudo = pegartemplate(el_cont.Attribute("file"))
@@ -388,14 +391,21 @@ Namespace Triforce
                                 If classe.Count > 0 AndAlso conteudo.IsBlank Then
                                     conteudo = GetTemplate(classe(0).GetType, True)
                                 End If
-                                lista = ApplyTemplate(Of Object)(classe.AsQueryable, pg, n_item, conteudo)
+                                If classe.Count > 0 Then
+                                    lista = ApplyTemplate(Of Object)(classe.AsQueryable, pg, n_item, conteudo)
+                                    conteudo = lista.ToString
+                                Else
+                                    lista = New List(Of Object)
+                                    If el_empty IsNot Nothing Then
+                                        conteudo = el_empty.ToString()
+                                    End If
+                                End If
                             End If
 
                             If lista Is Nothing Then
                                 Throw New NullReferenceException("'Property' tag or 'SQL' tag not specified in template tag.")
                             End If
 
-                            conteudo = lista.ToString
                             If templatetag.HasAttribute("renderas") Then
                                 templatetag.Name = templatetag.Attribute("renderas").IfBlank("span")
                                 templatetag.RemoveAttribute("renderas")
@@ -713,7 +723,7 @@ Namespace Triforce
                                                                      Dim values = n.Attributes.Where(Function(x) x.Name.StartsWith("value")).Select(Function(y) y.Value.HtmlDecode).ToArray
                                                                      Dim op = n.Attribute("operator").HtmlDecode.IfBlank("=")
                                                                      value1 = value1.QuoteIf(Not value1.IsNumber)
-                                                                     values.ForEach(Sub(b) b.QuoteIf(Not b.IsNumber()))
+                                                                     values = values.Select(Function(b) b.QuoteIf(Not b.IsNumber())).ToArray()
                                                                      Return n.Name = "case" AndAlso values.Any(Function(value2) EvaluateExpression(value1 & op & value2) = True)
                                                                  End Function, False)
                         Dim html = ""
@@ -725,8 +735,8 @@ Namespace Triforce
                                 End If
                             Next
                         Else
-                            othertag = conditiontag.FindElements(Function(n As HtmlElement) n.Name = "else", False)
-                            If othertag.Count = 1 Then
+                            othertag = conditiontag.FindElements(Function(n As HtmlElement) n.Name = "else" Or n.Name = "default", False)
+                            If othertag.Count > 0 Then
                                 html = CType(othertag.First, HtmlElement).InnerHTML
                             End If
                         End If
@@ -967,6 +977,7 @@ Namespace Triforce
         Property PaginationUrlTemplate As String = ""
 
 
+
         ''' <summary>
         ''' Total de Itens encontrados na <see cref="IQueryable"/> ou <see cref="IEnumerable"/>
         ''' </summary>
@@ -976,6 +987,29 @@ Namespace Triforce
         Public Shared Widening Operator CType(v As TemplatePage(Of T)) As String
             Return v.ToString
         End Operator
+
+        ''' <summary>
+        ''' Cria um template de URL de paginação a partir de uma URL previamente criada
+        ''' </summary>
+        ''' <param name="Url">URL</param>
+        ''' <param name="PageNumberParameter">Parametro de paginacao utilizado</param>
+        ''' <param name="QueryString">Parametros adicionais</param>
+        ''' <returns></returns>
+        Function CreatePaginationUrlTemplate(Url As String, PageNumberParameter As String, Optional QueryString As NameValueCollection = Nothing) As String
+            QueryString = If(QueryString, New NameValueCollection)
+            If Url.IsURL Then
+                Dim _url = New Uri(Url)
+                If _url.Query.IsNotBlank Then QueryString.Add(HttpUtility.ParseQueryString(_url.Query))
+            End If
+            If QueryString.AllKeys.Contains(PageNumberParameter) Then
+                QueryString.Remove(PageNumberParameter)
+            End If
+            QueryString(PageNumberParameter) = "##PageNumber##"
+            Dim u As New UriBuilder(Url)
+            u.Query = QueryString.ToQueryString
+            PaginationUrlTemplate = u.Uri.ToString()
+            Return PaginationUrlTemplate
+        End Function
 
         ''' <summary>
         ''' Retorna o HTML da pagina atual da lista de templates
@@ -990,6 +1024,9 @@ Namespace Triforce
             Else
                 html = Empty
             End If
+
+
+
             Return New HtmlDocument(Head.Replace("#_PAGINATION_#", Pagination) & html.IfBlank(Empty) & Footer.Replace("#_PAGINATION_#", Pagination))
         End Function
 
@@ -1223,30 +1260,26 @@ Namespace Triforce
         End Function
 
         ''' <summary>
-        ''' Cria um template de URL a partir de uma url base e parâmetros especificos
+        ''' Cria um template de URL de paginação a partir de uma URL previamente criada
         ''' </summary>
-        ''' <param name="Url">         </param>
-        ''' <param name="FilterParams"></param>
-        Function CreatePaginationUrlTemplate(Url As String, ParamArray FilterParams As String()) As String
-            If Url.IsURL Then
-                Url = New Uri(Url).GetLeftPart(UriPartial.Path)
-                If FilterParams.Count > 0 Then
-                    Dim querystring = "?"
-                    For Each k In FilterParams
-                        If querystring <> "?" Then
-                            querystring.Append("&")
-                        End If
-
-                        querystring.Append(k & "=" & ApplySelector(k, Selectors.FirstOr("##")))
-                    Next
-                    Url.Append(querystring)
-                End If
-                Return Url
-            End If
-            Return ""
-        End Function
-
-
+        ''' <param name="Url">URL</param>
+        ''' <param name="PageNumberParameter">Parametro de paginacao utilizado</param>
+        ''' <param name="QueryString">Parametros adicionais</param>
+        ''' <returns></returns>
+        'Function CreatePaginationUrlTemplate(Url As String, PageNumberParameter As String, Optional QueryString As NameValueCollection = Nothing) As String
+        '    QueryString = If(QueryString, New NameValueCollection)
+        '    If Url.IsURL Then
+        '        Dim _url = New Uri(Url)
+        '        If _url.Query.IsNotBlank Then QueryString.Add(HttpUtility.ParseQueryString(_url.Query))
+        '    End If
+        '    If QueryString.AllKeys.Contains(PageNumberParameter) Then
+        '        QueryString.Remove(PageNumberParameter)
+        '    End If
+        '    QueryString(PageNumberParameter) = "##PageNumber##"
+        '    Dim u As New UriBuilder(Url)
+        '    u.Query = QueryString.ToQueryString
+        '    Return u.Uri.ToString()
+        'End Function
 
         ''' <summary>
         ''' Processa a uma string URL com marcaçoes de template e retorna uma URI
@@ -1382,7 +1415,7 @@ Namespace Triforce
                         If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
                         Using file As StreamReader = filefound.OpenText
                             Try
-                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(Tag).First, HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(Tag & " not found in " & filefound.Name)
                             End Try
@@ -1391,7 +1424,7 @@ Namespace Triforce
                         Try
                             Dim txt = GetResourceFileText(ApplicationAssembly, ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             Try
-                                Return CType(New HtmlDocument(txt).Nodes.GetElementsByTagName(Tag)(0), HtmlElement).InnerHTML
+                                Return CType(New HtmlDocument(txt).Nodes.GetElementsByTagName(Tag).First, HtmlElement).InnerHTML
                             Catch ex As Exception
                                 Throw New Exception(Tag & " not found in " & ApplicationAssembly.GetName.Name & "." & TemplateFile)
                             End Try
