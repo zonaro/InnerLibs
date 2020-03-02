@@ -705,6 +705,13 @@ Public Module ClassTools
         Return GetType(Type).GetPropertyParametersFromString(Text)
     End Function
 
+
+    <Extension()> Public Function ParamSplit(Text As String) As String()
+        Dim name As String = Text.GetBefore("(")
+        Dim params = Regex.Split(Text.RemoveFirstIf(name).RemoveFirstIf("(").RemoveLastIf(")"), ",(?=(?:[^""]*""[^""]*"")*[^""]*$)")
+        Return params
+    End Function
+
     ''' <summary>
     ''' Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe
     ''' </summary>
@@ -713,8 +720,7 @@ Public Module ClassTools
     <Extension> Public Function GetPropertyParametersFromString(Type As Type, Text As String) As Object()
         Dim props = Type.GetProperties(BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
         Dim name As String = Text.GetBefore("(")
-        Dim params = Regex.Split(Text.RemoveFirstIf(name).RemoveFirstIf("(").RemoveLastIf(")"), ",(?=(?:[^""]*""[^""]*"")*[^""]*$)")
-
+        Dim params = Text.ParamSplit()
         Dim info = props.Where(Function(x) x.Name.ToLower = name.ToLower AndAlso x.GetIndexParameters.Count = params.Count).FirstOrDefault
 
         If info IsNot Nothing Then

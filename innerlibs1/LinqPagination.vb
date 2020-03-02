@@ -12,6 +12,86 @@ Namespace LINQ
     Public Module LINQExtensions
 
         ''' <summary>
+        ''' Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+        ''' </summary>
+        ''' <typeparam name="Type">Tipo do objeto acessado</typeparam>
+        ''' <param name="PropertyName">Propriedade do objeto <typeparamref name="Type"/></param>
+        ''' <param name="[Operator]">Operador ou método do objeto <typeparamref name="Type"/> que retorna um <see cref="Boolean"/></param>
+        ''' <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="Type"/></param>
+        ''' <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+        ''' <returns></returns>
+        Public Function WhereExpression(Of Type)(PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As Expression(Of Func(Of Type, Boolean))
+            Dim parameter = Expression.Parameter(GetType(Type), GetType(Type).Name.ToLower())
+            Dim member = Expression.[Property](parameter, PropertyName)
+            Dim constant = Expression.Constant(PropertyValue)
+            Dim body As Expression
+            Select Case [Operator].ToLower()
+                Case "=", "==", "equal"
+                    body = Expression.Equal(member, constant)
+                Case ">=", "greaterthanorequal", "greaterorequal"
+                    body = Expression.GreaterThanOrEqual(member, constant)
+                Case "<=", "lessthanorequal", "lessorequal"
+                    body = Expression.LessThanOrEqual(member, constant)
+                Case ">", "greaterthan", "greater"
+                    body = Expression.GreaterThan(member, constant)
+                Case "<", "lessthan", "less"
+                    body = Expression.LessThan(member, constant)
+                Case "<>", "!=", "notequal"
+                    body = Expression.NotEqual(member, constant)
+                Case "like", "contains"
+                    body = Expression.Call(member, containsMethod, constant)
+                Case Else
+                    body = Expression.Call(member, GetType(Type).GetMethod([Operator], {PropertyValue.GetType()}), constant)
+            End Select
+
+            body = Expression.Equal(body, Expression.Constant([Is]))
+            Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
+            Return finalExpression
+        End Function
+
+        ''' <summary>
+        ''' Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto acessado</typeparam>
+        ''' <param name="List">Lista</param>
+        ''' <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+        ''' <param name="[Operator]">Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="Boolean"/></param>
+        ''' <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
+        ''' <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+        ''' <returns></returns>
+        <Extension()> Function WhereExpression(Of T)(List As IQueryable(Of T), PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As IQueryable(Of T)
+            Return List.Where(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
+        End Function
+
+        ''' <summary>
+        ''' Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto acessado</typeparam>
+        ''' <param name="List">Lista</param>
+        ''' <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+        ''' <param name="[Operator]">Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="Boolean"/></param>
+        ''' <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
+        ''' <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+        ''' <returns></returns>
+        <Extension()> Function FirstOrDefaultExpression(Of T)(List As IQueryable(Of T), PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As T
+            Return List.FirstOrDefault(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
+        End Function
+
+        ''' <summary>
+        ''' Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do objeto acessado</typeparam>
+        ''' <param name="List">Lista</param>
+        ''' <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+        ''' <param name="[Operator]">Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="Boolean"/></param>
+        ''' <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
+        ''' <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+        ''' <returns></returns>
+        <Extension()> Function SingleOrDefaultExpression(Of T)(List As IQueryable(Of T), PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As T
+            Return List.SingleOrDefault(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
+        End Function
+
+        ''' <summary>
         '''Atualiza objetos de entidade usando <see cref="Data.Linq.RefreshMode.KeepChanges"/> e envia as alteraçoes ao banco de dados
         ''' </summary>
         ''' <param name="Entities">Entidades</param>

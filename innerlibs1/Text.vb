@@ -1133,15 +1133,6 @@ Public Module Text
         Return dic
     End Function
 
-    ''' <summary>
-    ''' Cria um elemento HTML a partir de uma string HTML
-    ''' </summary>
-    ''' <param name="HTMLString">String contendo o HTML</param>
-    ''' <returns></returns>
-    <Extension()>
-    Function CreateGenericElement(HTMLString As String) As HtmlGenericControl
-        Return New HtmlParser.HtmlElement(HTMLString).CreateWebFormControl(Of HtmlGenericControl)
-    End Function
 
     ''' <summary>
     ''' Decrementa em 1 ou mais um numero inteiro

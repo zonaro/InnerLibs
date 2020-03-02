@@ -492,13 +492,7 @@ Namespace HtmlParser
             Next
         End Sub
 
-        ''' <summary>
-        ''' Add a Node to colleciton
-        ''' </summary>
-        ''' <param name="Control"></param>
-        Public Shadows Sub Add(Control As HtmlGenericControl)
-            Me.Add(New HtmlElement(Control))
-        End Sub
+
 
 
         Public Shadows Sub Add(ParamArray Nodes As HtmlNode())
