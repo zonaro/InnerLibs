@@ -1,4 +1,5 @@
-﻿Imports System.Globalization
+﻿Imports System.Collections.Specialized
+Imports System.Globalization
 Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
@@ -635,7 +636,19 @@ End Class
 ''' <remarks></remarks>
 Public Module Text
 
-
+    <Extension()> Function ParseQueryString(querystring As String) As NameValueCollection
+        Dim queryParameters As NameValueCollection = New NameValueCollection()
+        Dim querySegments As String() = querystring.Split("&"c)
+        For Each segment As String In querySegments
+            Dim parts As String() = segment.Split("="c)
+            If parts.Length > 0 Then
+                Dim key As String = parts(0).Trim(New Char() {"?"c, " "c})
+                Dim val As String = parts(1).Trim()
+                queryParameters.Add(key, val)
+            End If
+        Next
+        Return queryParameters
+    End Function
 
     ''' <summary>
     ''' Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
@@ -789,7 +802,7 @@ Public Module Text
     ''' Strings utilizadas para descobrir as palavras em uma string
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br />", Environment.NewLine, vbCr, vbCrLf}
+    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br/>", Environment.NewLine, vbCr, vbCrLf}
 
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String
@@ -1132,7 +1145,6 @@ Public Module Text
         Next
         Return dic
     End Function
-
 
     ''' <summary>
     ''' Decrementa em 1 ou mais um numero inteiro
@@ -2328,7 +2340,6 @@ Public Module Text
         Return Strings.ToArray.Replace(OldValue, NewValue, ReplaceIfEquals).ToList()
     End Function
 
-
     ''' <summary>
     ''' Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
     ''' </summary>
@@ -2340,6 +2351,7 @@ Public Module Text
         End If
         Return Text
     End Function
+
     ''' <summary>
     ''' Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
     ''' </summary>
@@ -2356,8 +2368,6 @@ Public Module Text
                     Case Else
                         Text = Text.Replace(p.Key, p.Value)
                 End Select
-
-
 
             Next
         End If

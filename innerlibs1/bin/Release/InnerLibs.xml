@@ -639,12 +639,6 @@ InnerLibs
  </summary>
  <param name="Element">The htmlelement</param>
 </member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.#ctor(System.Web.UI.HtmlControls.HtmlGenericControl)">
- <summary>
- This constructs a new HTML element using a <see cref="T:System.Web.UI.HtmlControls.HtmlGenericControl"/> as source.
- </summary>
- <param name="HtmlControl">The server control</param>
-</member>
 <member name="M:InnerLibs.HtmlParser.HtmlElement.Children(System.String)">
  <summary>
  Return the first child element thats match de CssSelector
@@ -662,12 +656,6 @@ InnerLibs
 <member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(InnerLibs.HtmlParser.HtmlNode[])">
  <summary>
  Add a node (or nodes) to collection
- </summary>
- <param name="Node"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.AddNode(System.Web.UI.HtmlControls.HtmlGenericControl)">
- <summary>
- Add a node to collection using an <see cref="T:System.Web.UI.HtmlControls.HtmlGenericControl"/> as base
  </summary>
  <param name="Node"></param>
 </member>
@@ -832,13 +820,6 @@ InnerLibs
  </summary>
  <param name="CensorChar"></param>
  <param name="BadWords">  </param>
- <returns></returns>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.CreateWebFormControl``1">
- <summary>
- Create a <see cref="T:System.Web.UI.HtmlControls.HtmlControl"/> using this <see cref="T:InnerLibs.HtmlParser.HtmlElement"/> as source
- </summary>
- <typeparam name="Type"></typeparam>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.HtmlParser.HtmlElement.Destroy">
@@ -1189,12 +1170,6 @@ InnerLibs
  Add node (or nodes) to collection from string
  </summary>
  <param name="Html"></param>
-</member>
-<member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.Add(System.Web.UI.HtmlControls.HtmlGenericControl)">
- <summary>
- Add a Node to colleciton
- </summary>
- <param name="Control"></param>
 </member>
 <member name="M:InnerLibs.HtmlParser.HtmlNodeCollection.FindElements``1(System.Func{``0,System.Boolean},System.Boolean)">
  <summary>
@@ -1908,6 +1883,13 @@ InnerLibs
  Retorna um dicionário em QueryString
  </summary>
  <param name="Dic"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.ToQueryString(System.Collections.Specialized.NameValueCollection)">
+ <summary>
+ Retorna um <see cref="T:System.Collections.Specialized.NameValueCollection"/> em QueryString
+ </summary>
+ <param name="NVC"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.GetPropertyAsQueryStringParameter``2(``0,System.Linq.Expressions.Expression{System.Func{``0,``1}}[])">
@@ -5542,6 +5524,60 @@ Verifica se o objeto é do tipo numérico.
  <param name="WhereConditions"></param>
  <returns></returns>
 </member>
+<member name="T:InnerLibs.PaginationInfo`2">
+ <summary>
+ Classe para manipulaçcao de coleções de forma paginada
+ </summary>
+ <typeparam name="T"></typeparam>
+ <typeparam name="ListType"></typeparam>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.WhereExpression``1(System.String,System.String,System.Object,System.Boolean)">
+ <summary>
+ Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+ </summary>
+ <typeparam name="Type">Tipo do objeto acessado</typeparam>
+ <param name="PropertyName">Propriedade do objeto <typeparamref name="Type"/></param>
+ <param name="[Operator]">Operador ou método do objeto <typeparamref name="Type"/> que retorna um <see cref="T:System.Boolean"/></param>
+ <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="Type"/></param>
+ <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.WhereExpression``1(System.Linq.IQueryable{``0},System.String,System.String,System.Object,System.Boolean)">
+ <summary>
+ Busca em um <see cref="T:System.Linq.IQueryable`1"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+ </summary>
+ <typeparam name="T">Tipo do objeto acessado</typeparam>
+ <param name="List">Lista</param>
+ <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+ <param name="[Operator]">Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="T:System.Boolean"/></param>
+ <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
+ <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.FirstOrDefaultExpression``1(System.Linq.IQueryable{``0},System.String,System.String,System.Object,System.Boolean)">
+ <summary>
+ Busca em um <see cref="T:System.Linq.IQueryable`1"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+ </summary>
+ <typeparam name="T">Tipo do objeto acessado</typeparam>
+ <param name="List">Lista</param>
+ <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+ <param name="[Operator]">Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="T:System.Boolean"/></param>
+ <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
+ <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.SingleOrDefaultExpression``1(System.Linq.IQueryable{``0},System.String,System.String,System.Object,System.Boolean)">
+ <summary>
+ Busca em um <see cref="T:System.Linq.IQueryable`1"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+ </summary>
+ <typeparam name="T">Tipo do objeto acessado</typeparam>
+ <param name="List">Lista</param>
+ <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+ <param name="[Operator]">Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="T:System.Boolean"/></param>
+ <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
+ <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.RefreshAndSubmitChanges(System.Data.Linq.DataContext,System.Object[])">
  <summary>
 Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.KeepChanges"/> e envia as alteraçoes ao banco de dados
@@ -6542,6 +6578,15 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Triforce.TemplatePage`1.CreatePaginationUrlTemplate(System.String,System.String,System.Collections.Specialized.NameValueCollection)">
+ <summary>
+ Cria um template de URL de paginação a partir de uma URL previamente criada
+ </summary>
+ <param name="Url">URL</param>
+ <param name="PageNumberParameter">Parametro de paginacao utilizado</param>
+ <param name="QueryString">Parametros adicionais</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Triforce.TemplatePage`1.BuildHtml">
  <summary>
  Retorna o HTML da pagina atual da lista de templates
@@ -6674,13 +6719,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <param name="StringToClear"></param>
  <returns></returns>
-</member>
-<member name="M:InnerLibs.Triforce.Triforce.CreatePaginationUrlTemplate(System.String,System.String[])">
- <summary>
- Cria um template de URL a partir de uma url base e parâmetros especificos
- </summary>
- <param name="Url">         </param>
- <param name="FilterParams"></param>
 </member>
 <member name="M:InnerLibs.Triforce.Triforce.CreateUrl``1(``0,System.String)">
  <summary>
@@ -9937,13 +9975,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.CreateGenericElement(System.String)">
- <summary>
- Cria um elemento HTML a partir de uma string HTML
- </summary>
- <param name="HTMLString">String contendo o HTML</param>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.Text.Decrement(System.Int32@,System.Int32)">
  <summary>
  Decrementa em 1 ou mais um numero inteiro
@@ -10556,7 +10587,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Text.SerializeJSON(System.Object,System.Object[])">
  <summary>
- Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="M:InnerLibs.JsonReader.JsonReader.Serialize(System.Object)"/>
+ Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="M:InnerLibs.OldJsonSerializer.SerializeJSON(System.Object)"/>
  </summary>
  <param name="Obj">Objeto</param>
  <returns>Uma String JSON</returns>

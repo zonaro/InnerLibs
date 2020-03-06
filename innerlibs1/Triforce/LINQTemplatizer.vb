@@ -7,7 +7,7 @@ Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Text.RegularExpressions
-Imports System.Web
+
 Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
@@ -999,7 +999,7 @@ Namespace Triforce
             QueryString = If(QueryString, New NameValueCollection)
             If Url.IsURL Then
                 Dim _url = New Uri(Url)
-                If _url.Query.IsNotBlank Then QueryString.Add(HttpUtility.ParseQueryString(_url.Query))
+                If _url.Query.IsNotBlank Then QueryString.Add(Text.ParseQueryString(_url.Query))
             End If
             If QueryString.AllKeys.Contains(PageNumberParameter) Then
                 QueryString.Remove(PageNumberParameter)
