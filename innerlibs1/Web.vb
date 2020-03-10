@@ -171,6 +171,27 @@ End Class
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Web
+
+
+    ''' <summary>
+    ''' Pega todos os controles filhos de um controle pai
+    ''' </summary>
+    ''' <typeparam name="ControlType">Tipo de controle</typeparam>
+    ''' <param name="Control">Controle Pai</param>
+    ''' <returns>Uma lista com os controles</returns>
+    <Extension()>
+    Public Function GetAllControls(Of ControlType As System.Web.UI.Control)(Control As System.Web.UI.Control) As IEnumerable(Of ControlType)
+        Dim lista As New List(Of ControlType)
+        For Each c In Control.Controls
+            If c.GetType = GetType(ControlType) Then
+                lista.Add(c)
+            End If
+            If c.HasChildren Then
+                lista.AddRange(GetAllControls(Of ControlType)(c))
+            End If
+        Next
+        Return lista.AsEnumerable
+    End Function
     ''' <summary>
     ''' Retorna o corpo em formato de texto de uma rquisição HTTP
     ''' </summary>

@@ -130,8 +130,8 @@ Public Module WinForms
     ''' <param name="Message">Texto da caixa de confirmação</param>
     ''' <returns>TRUE ou FALSE</returns>
 
-    Public Function Confirm(Message As String) As Boolean
-        Return If(MsgBox(Message, MsgBoxStyle.OkCancel + MsgBoxStyle.Information, My.Application.Info.AssemblyName) = MsgBoxResult.Ok, True, False)
+    Public Function Confirm(Message As String, Optional Caption As String = "") As Boolean
+        Return If(MessageBox.Show(Message, Caption.IfBlank(My.Application.Info.AssemblyName), MessageBoxButtons.YesNo, MessageBoxIcon.Question) = MsgBoxResult.Ok, True, False)
     End Function
 
     ''' <summary>
@@ -225,25 +225,6 @@ Public Module WinForms
         Return lista.AsEnumerable
     End Function
 
-    ''' <summary>
-    ''' Pega todos os controles filhos de um controle pai
-    ''' </summary>
-    ''' <typeparam name="ControlType">Tipo de controle</typeparam>
-    ''' <param name="Control">Controle Pai</param>
-    ''' <returns>Uma lista com os controles</returns>
-    <Extension()>
-    Public Function GetAllControls(Of ControlType As System.Web.UI.Control)(Control As System.Web.UI.Control) As IEnumerable(Of ControlType)
-        Dim lista As New List(Of ControlType)
-        For Each c In Control.Controls
-            If c.GetType = GetType(ControlType) Then
-                lista.Add(c)
-            End If
-            If c.HasChildren Then
-                lista.AddRange(GetAllControls(Of ControlType)(c))
-            End If
-        Next
-        Return lista.AsEnumerable
-    End Function
 
     ''' <summary>
     ''' Retorna uma lista de controles a partir de um predicado

@@ -371,7 +371,7 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Sets">Lista de Arrays para combinar</param>
     ''' <returns>Plano Cartesiano</returns>
-    Public Function CartesianProduct(Of T)(ByVal ParamArray Sets As T()()) As List(Of T())
+    Public Function CartesianProduct(Of T)(ParamArray Sets As T()()) As List(Of T())
         Dim emptyProduct As IEnumerable(Of IEnumerable(Of T)) = New IEnumerable(Of T)() {Enumerable.Empty(Of T)()}
         Dim c = Sets.Aggregate(emptyProduct, Function(accumulator, sequence)
                                                  Return (From accseq In accumulator
