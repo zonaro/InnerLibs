@@ -2193,12 +2193,7 @@ Public Module Text
         Return re
     End Function
 
-    ''' <summary>
-    ''' Remove uma determinada linha de um texto
-    ''' </summary>
-    ''' <param name="Text">     Texto completo</param>
-    ''' <param name="LineIndex">numero da linha a ser removida (Começando do 0)</param>
-    ''' <returns>string sem a linha indicada</returns>
+
     ''' <summary>
     ''' Remove os X primeiros caracteres
     ''' </summary>
