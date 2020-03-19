@@ -5524,6 +5524,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="WhereConditions"></param>
  <returns></returns>
 </member>
+<member name="T:InnerLibs.PaginationInfo`2">
+ <summary>
+ Classe para manipulaçcao de coleções de forma paginada
+ </summary>
+ <typeparam name="T"></typeparam>
+ <typeparam name="ListType"></typeparam>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.WhereExpression``1(System.String,System.String,System.Object,System.Boolean)">
  <summary>
  Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
@@ -10435,12 +10442,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Text.RemoveFirstChars(System.String,System.Int32)">
  <summary>
- Remove uma determinada linha de um texto
- </summary>
- <param name="Text">     Texto completo</param>
- <param name="LineIndex">numero da linha a ser removida (Começando do 0)</param>
- <returns>string sem a linha indicada</returns>
- <summary>
  Remove os X primeiros caracteres
  </summary>
  <param name="Text">     Texto</param>
@@ -11660,6 +11661,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Web.GetAllControls``1(System.Web.UI.Control)">
+ <summary>
+ Pega todos os controles filhos de um controle pai
+ </summary>
+ <typeparam name="ControlType">Tipo de controle</typeparam>
+ <param name="Control">Controle Pai</param>
+ <returns>Uma lista com os controles</returns>
+</member>
 <member name="M:InnerLibs.Web.GetBody(System.Web.HttpRequest)">
  <summary>
  Retorna o corpo em formato de texto de uma rquisição HTTP
@@ -12349,7 +12358,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <param name="Message">Texto da caixa de alerta</param>
 </member>
-<member name="M:InnerLibs.WinForms.Confirm(System.String)">
+<member name="M:InnerLibs.WinForms.Confirm(System.String,System.String)">
  <summary>
  Exibe uma caixa de comfirmação com uma mensagem
  </summary>
@@ -12392,14 +12401,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Action"> Ação</param>
 </member>
 <member name="M:InnerLibs.WinForms.GetAllControls``1(System.Windows.Forms.Control)">
- <summary>
- Pega todos os controles filhos de um controle pai
- </summary>
- <typeparam name="ControlType">Tipo de controle</typeparam>
- <param name="Control">Controle Pai</param>
- <returns>Uma lista com os controles</returns>
-</member>
-<member name="M:InnerLibs.WinForms.GetAllControls``1(System.Web.UI.Control)">
  <summary>
  Pega todos os controles filhos de um controle pai
  </summary>
