@@ -137,7 +137,13 @@ Public Module Encryption
             aes.Key = Encoding.UTF8.GetBytes(Key)
             aes.Mode = CipherMode.CBC
             aes.Padding = PaddingMode.PKCS7
-            Dim src As Byte() = System.Convert.FromBase64String(text.FixBase64())
+            Dim src As Byte()
+            Try
+                src = System.Convert.FromBase64String(text.FixBase64())
+            Catch
+                src = System.Convert.FromBase64String(text)
+
+            End Try
 
             Using ddecrypt As ICryptoTransform = aes.CreateDecryptor()
                 Try

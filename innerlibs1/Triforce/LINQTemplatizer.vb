@@ -153,8 +153,8 @@ Namespace Triforce
             ''' <typeparam name="T">TIpo de objeto usado como fonte dos dados</typeparam>
             ''' <param name="Item">    Objeto</param>
             ''' <param name="Template">Template HTML ou nome do template HTML</param>
-            Public Overrides Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
-                Return MyBase.ApplyTemplate(Item, Template)
+            Public Overrides Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "", Optional DataIndex As Integer = 0) As Template(Of T)
+                Return MyBase.ApplyTemplate(Item, Template, 0)
             End Function
 
             ''' <summary>
@@ -213,8 +213,9 @@ Namespace Triforce
                 Dim l As New List(Of Template(Of T))
                 If total > 0 Then
                     PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
-                    For Each item As T In List.Page(PageNumber, PageSize)
-                        l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template))
+                    Dim List2 = List.Page(PageNumber, PageSize).ToArray()
+                    For Each item As T In List2
+                        l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template, Array.IndexOf(List2, item)))
                     Next
                 End If
                 Return CreateTemplateList(Template, l, PageSize, PageNumber, total)
@@ -326,7 +327,7 @@ Namespace Triforce
                 End Select
             End Function
 
-            Friend Overrides Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
+            Friend Overrides Sub ProccessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
 
                 Dim listat = doc.Nodes.GetElementsByTagName("template", True)
                 For index = 0 To listat.Count - 1
@@ -564,10 +565,13 @@ Namespace Triforce
         ''' </summary>
         ''' <param name="Data">             </param>
         ''' <param name="ProcessedTemplate"></param>
-        Friend Sub New(Data As T, ProcessedTemplate As String, Culture As CultureInfo)
+        Friend Sub New(Data As T, ProcessedTemplate As String, Culture As CultureInfo, DatatIndex As Integer)
             Me.Data = Data
+            Me.DataIndex = DataIndex
             Dim doc As New HtmlDocument(ProcessedTemplate)
             QuantifyStrings(doc.Nodes)
+            Me.ProccessIfParameter(doc)
+            Me.ProccessIfClass(doc)
             Me.ProccessConditions(doc)
             Me.ProccessSwitch(doc)
             Me.ProccessIf(doc)
@@ -583,6 +587,12 @@ Namespace Triforce
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property Data As T
+
+        ''' <summary>
+        ''' Posição do item atual no template
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property DataIndex As Integer
 
         ''' <summary>
         ''' Template processado
@@ -682,6 +692,37 @@ Namespace Triforce
                 Catch ex As Exception
                     conditiontag.Destroy()
                 End Try
+            Next
+        End Sub
+
+        Friend Sub ProccessIfParameter(doc As HtmlDocument)
+            Dim lista = doc.FindElements(Of HtmlElement)(Function(x) x.AttributesNames.Any(Function(y) y.StartsWith("if:")))
+            For index = 1 To lista.Count - 1
+                Dim el As HtmlElement = lista(index)
+                Dim attrs = el.Attributes.Where(Function(x) x.Name.StartsWith("if:"))
+                For i = 1 To attrs.Count - 1
+                    Dim attr = attrs(i)
+                    Dim condition = EvaluateExpression(Of Boolean)(attr.Value)
+                    If condition = False Then
+                        el.RemoveAttribute(attr.Name.RemoveFirstIf("if:"))
+                    End If
+                    el.RemoveAttribute(attr.Name)
+                Next
+            Next
+        End Sub
+
+        Friend Sub ProccessIfClass(doc As HtmlDocument)
+            Dim lista = doc.FindElements(Of HtmlElement)(Function(x) x.AttributesNames.Any(Function(y) y.StartsWith("ifclass:")))
+            For index = 0 To lista.Count - 1
+                Dim el As HtmlElement = lista(index)
+                Dim attrs = el.Attributes.Where(Function(x) x.Name.StartsWith("ifclass:"))
+                For i = 0 To attrs.Count - 1
+                    Dim attr = attrs(i)
+                    Dim condition = EvaluateExpression(Of Boolean)(attr.Value)
+                    el.Class(attr.Name.RemoveFirstIf("ifclass:")) = condition
+                    el.RemoveAttribute(attr.Name)
+                Next
+
             Next
         End Sub
 
@@ -976,8 +1017,6 @@ Namespace Triforce
         ''' <returns></returns>
         Property PaginationUrlTemplate As String = ""
 
-
-
         ''' <summary>
         ''' Total de Itens encontrados na <see cref="IQueryable"/> ou <see cref="IEnumerable"/>
         ''' </summary>
@@ -1024,8 +1063,6 @@ Namespace Triforce
             Else
                 html = Empty
             End If
-
-
 
             Return New HtmlDocument(Head.Replace("#_PAGINATION_#", Pagination) & html.IfBlank(Empty) & Footer.Replace("#_PAGINATION_#", Pagination))
         End Function
@@ -1168,7 +1205,7 @@ Namespace Triforce
         ''' <param name="Item">    Objeto</param>
         ''' <param name="Template">Template HTML ou nome do template HTML</param>
         ''' <returns></returns>
-        Public Overridable Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "") As Template(Of T)
+        Public Overridable Function ApplyTemplate(Of T As Class)(Item As T, Optional Template As String = "", Optional DataIndex As Integer = 0) As Template(Of T)
             If Template.IsBlank Then
                 Template = Me.GetTemplate(Of T)
             End If
@@ -1188,7 +1225,7 @@ Namespace Triforce
             TravesseAndReplace(doc.Nodes, Item, True)
 
             'processa subtemplates
-            Me.ProcessSubTemplate(Item, doc)
+            Me.ProccessSubTemplate(Item, doc)
 
             'e entao replace nos valores do template pai novamente pra cobrir os valores dos templates filhos que nao foram replaceados
             TravesseAndReplace(doc.Nodes, Item, False)
@@ -1197,7 +1234,7 @@ Namespace Triforce
             TravesseAndReplace(doc.Nodes, CustomValues, False)
             TravesseAndReplace(doc.Nodes, post_proccess, False)
 
-            Return New Template(Of T)(Item, doc.ToString, Me.Culture)
+            Return New Template(Of T)(Item, doc.ToString, Me.Culture, DataIndex)
         End Function
 
         ''' <summary>
@@ -1217,8 +1254,9 @@ Namespace Triforce
             Dim l As New List(Of Template(Of T))
             If total > 0 Then
                 PageNumber = PageNumber.LimitRange(1, (total / PageSize).Ceil())
-                For Each item As T In List.Page(PageNumber, PageSize)
-                    l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template))
+                Dim List2 = List.Page(PageNumber, PageSize).ToArray()
+                For Each item As T In List2
+                    l.Add(Me.ApplyTemplate(Of T)(CType(item, T), Template, Array.IndexOf(List2, item)))
                 Next
             End If
             Return CreateTemplateList(Template, l, PageSize, PageNumber, total)
@@ -1258,28 +1296,6 @@ Namespace Triforce
             Next
             Return If(StringToClear, "")
         End Function
-
-        ''' <summary>
-        ''' Cria um template de URL de paginação a partir de uma URL previamente criada
-        ''' </summary>
-        ''' <param name="Url">URL</param>
-        ''' <param name="PageNumberParameter">Parametro de paginacao utilizado</param>
-        ''' <param name="QueryString">Parametros adicionais</param>
-        ''' <returns></returns>
-        'Function CreatePaginationUrlTemplate(Url As String, PageNumberParameter As String, Optional QueryString As NameValueCollection = Nothing) As String
-        '    QueryString = If(QueryString, New NameValueCollection)
-        '    If Url.IsURL Then
-        '        Dim _url = New Uri(Url)
-        '        If _url.Query.IsNotBlank Then QueryString.Add(HttpUtility.ParseQueryString(_url.Query))
-        '    End If
-        '    If QueryString.AllKeys.Contains(PageNumberParameter) Then
-        '        QueryString.Remove(PageNumberParameter)
-        '    End If
-        '    QueryString(PageNumberParameter) = "##PageNumber##"
-        '    Dim u As New UriBuilder(Url)
-        '    u.Query = QueryString.ToQueryString
-        '    Return u.Uri.ToString()
-        'End Function
 
         ''' <summary>
         ''' Processa a uma string URL com marcaçoes de template e retorna uma URI
@@ -1471,7 +1487,7 @@ Namespace Triforce
             Next
         End Sub
 
-        Friend Overridable Sub ProcessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
+        Friend Overridable Sub ProccessSubTemplate(Of T As Class)(item As T, doc As HtmlDocument)
 
             Dim listat = doc.Nodes.GetElementsByTagName("template", True)
             For index = 0 To listat.Count - 1
@@ -1517,10 +1533,21 @@ Namespace Triforce
 
                         If source.IsNotBlank Then
                             Dim classe As IEnumerable(Of Object) = ClassTools.GetPropertyValue(item, source)
+
                             If classe.Count > 0 AndAlso conteudo.IsBlank Then
                                 conteudo = GetTemplate(classe(0).GetType, True)
                             End If
+
+                            Dim ordersource = CType(templatetag.Nodes.GetElementsByTagName("order").FirstOrDefault, HtmlElement)
+                            If ordersource IsNot Nothing Then
+                                lista = lista.OrderBy(Function(x) True)
+                                For Each prop In ordersource.Attributes
+                                    lista = CType(lista, IOrderedEnumerable(Of Object)).ThenBy({prop.Name}, prop.IsMinimized OrElse prop.Value.IsAny("asc", "true", "1", "ascending"))
+                                Next
+                            End If
+
                             lista = ApplyTemplate(Of Object)(classe, conteudo, pg, n_item)
+
                         End If
 
                         If lista Is Nothing Then
@@ -1605,9 +1632,23 @@ Namespace Triforce
                                      Else
                                          Return ""
                                      End If
-                                 Else
-                                     Return val.ToString
                                  End If
+
+                                 If val.GetType.IsIn({GetType(Decimal), GetType(Double)}) Then
+                                     Return CType(val, Decimal).ToString(Culture.NumberFormat)
+                                 End If
+
+                                 If val.GetType.IsIn({GetType(Decimal?), GetType(Double?)}) Then
+                                     Dim d = CType(val, Decimal?)
+                                     If d.HasValue Then
+                                         Return d.Value.ToString(Culture.NumberFormat)
+                                     Else
+                                         Return ""
+                                     End If
+                                 End If
+
+                                 Return val.ToString
+
                              End Function
                     End If
                     If ff IsNot Nothing Then
@@ -1615,7 +1656,7 @@ Namespace Triforce
                     End If
                 End If
             Next
-            Return If(StringToReplace, "")
+            Return If(StringToReplace, "").Replace("\r\n", "<br>")
         End Function
 
         Friend Sub TravesseAndReplace(Of T As Class)(nodes As HtmlNodeCollection, item As T, SkipTemplates As Boolean)

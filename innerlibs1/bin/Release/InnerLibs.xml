@@ -6304,7 +6304,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="predicade"> Filtro da busca</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Triforce.LINQ.Triforce`1.ApplyTemplate``1(``0,System.String)">
+<member name="M:InnerLibs.Triforce.LINQ.Triforce`1.ApplyTemplate``1(``0,System.String,System.Int32)">
  <summary>
  Aplica um template HTML a um unico objeto
  </summary>
@@ -6498,7 +6498,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <typeparam name="T"></typeparam>
 </member>
-<member name="M:InnerLibs.Triforce.Template`1.#ctor(`0,System.String,System.Globalization.CultureInfo)">
+<member name="M:InnerLibs.Triforce.Template`1.#ctor(`0,System.String,System.Globalization.CultureInfo,System.Int32)">
  <summary>
  Cria um novo template
  </summary>
@@ -6508,6 +6508,12 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 <member name="P:InnerLibs.Triforce.Template`1.Data">
  <summary>
  Objeto de onde são extraidos as informações do template
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Triforce.Template`1.DataIndex">
+ <summary>
+ Posição do item atual no template
  </summary>
  <returns></returns>
 </member>
@@ -6683,7 +6689,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Items">   Items na ordem que serão substituidos</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Triforce.Triforce.ApplyTemplate``1(``0,System.String)">
+<member name="M:InnerLibs.Triforce.Triforce.ApplyTemplate``1(``0,System.String,System.Int32)">
  <summary>
  Aplica um template HTML a um unico objeto
  </summary>

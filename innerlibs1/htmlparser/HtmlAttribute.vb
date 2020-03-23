@@ -104,12 +104,20 @@ Namespace HtmlParser
 
         End Property
 
+        ''' <summary>
+        ''' Check if this Attribute is minimized (has value = null)
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property IsMinimized As Boolean
             Get
                 Return Me.Value Is Nothing
             End Get
         End Property
 
+        ''' <summary>
+        ''' Check if this Attribute has a value
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property HasValue As Boolean
             Get
                 Return Me.Value.IsNotBlank

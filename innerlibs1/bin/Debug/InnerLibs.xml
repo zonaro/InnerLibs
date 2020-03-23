@@ -395,6 +395,18 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.HtmlParser.HtmlAttribute.IsMinimized">
+ <summary>
+ Check if this Attribute is minimized (has value = null)
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.HtmlParser.HtmlAttribute.HasValue">
+ <summary>
+ Check if this Attribute has a value
+ </summary>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.HtmlParser.HtmlAttributeCollection">
  <summary>
  This is a collection of attributes. Typically, this is associated with a particular
@@ -5862,6 +5874,16 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Ascending">   </param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.OrderBy``1(System.Collections.Generic.IEnumerable{``0},System.String[],System.Boolean)">
+ <summary>
+ Ordena um <see cref="T:System.Linq.IQueryable`1"/> a partir do nome de uma ou mais propriedades
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="source">      </param>
+ <param name="sortProperty"></param>
+ <param name="Ascending">   </param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.OrderByLike``1(System.Linq.IQueryable{``0},System.String[],System.String,System.Boolean)">
  <summary>
  Ordena um <see cref="T:System.Collections.Generic.IEnumerable`1"/> a partir da aproximaçao de uma ou mais
@@ -6035,6 +6057,16 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 <member name="M:InnerLibs.LINQ.LINQExtensions.ThenBy``1(System.Linq.IOrderedQueryable{``0},System.String[],System.Boolean)">
  <summary>
  Ordena um <see cref="T:System.Linq.IQueryable`1"/> a partir do nome de uma ou mais propriedades
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="source">      </param>
+ <param name="sortProperty"></param>
+ <param name="Ascending">   </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.ThenBy``1(System.Linq.IOrderedEnumerable{``0},System.String[],System.Boolean)">
+ <summary>
+ Ordena um <see cref="T:System.Collections.Generic.IEnumerable`1"/> a partir do nome de uma ou mais propriedades
  </summary>
  <typeparam name="T"></typeparam>
  <param name="source">      </param>
@@ -6304,7 +6336,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="predicade"> Filtro da busca</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Triforce.LINQ.Triforce`1.ApplyTemplate``1(``0,System.String)">
+<member name="M:InnerLibs.Triforce.LINQ.Triforce`1.ApplyTemplate``1(``0,System.String,System.Int32)">
  <summary>
  Aplica um template HTML a um unico objeto
  </summary>
@@ -6498,7 +6530,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <typeparam name="T"></typeparam>
 </member>
-<member name="M:InnerLibs.Triforce.Template`1.#ctor(`0,System.String,System.Globalization.CultureInfo)">
+<member name="M:InnerLibs.Triforce.Template`1.#ctor(`0,System.String,System.Globalization.CultureInfo,System.Int32)">
  <summary>
  Cria um novo template
  </summary>
@@ -6508,6 +6540,12 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 <member name="P:InnerLibs.Triforce.Template`1.Data">
  <summary>
  Objeto de onde são extraidos as informações do template
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Triforce.Template`1.DataIndex">
+ <summary>
+ Posição do item atual no template
  </summary>
  <returns></returns>
 </member>
@@ -6683,7 +6721,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Items">   Items na ordem que serão substituidos</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Triforce.Triforce.ApplyTemplate``1(``0,System.String)">
+<member name="M:InnerLibs.Triforce.Triforce.ApplyTemplate``1(``0,System.String,System.Int32)">
  <summary>
  Aplica um template HTML a um unico objeto
  </summary>

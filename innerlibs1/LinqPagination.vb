@@ -556,6 +556,22 @@ Namespace LINQ
             Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
         End Function
 
+
+        ''' <summary>
+        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="source">      </param>
+        ''' <param name="sortProperty"></param>
+        ''' <param name="Ascending">   </param>
+        ''' <returns></returns>
+        <Extension> Public Function OrderBy(Of T)(ByVal source As IEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
+        End Function
+
+
+
+
         ''' <summary>
         ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
         ''' <see cref="String"/> com o valor de um determinado campo
@@ -857,6 +873,23 @@ Namespace LINQ
                 Dim methodName = If(Ascending, "OrderBy", "OrderByDescending")
                 Dim resultExp = Expression.[Call](GetType(Queryable), methodName, typeArguments, source.Expression, Expression.Quote(orderByExp))
                 source = source.Provider.CreateQuery(Of T)(resultExp)
+            Next
+            Return source
+        End Function
+
+        ''' <summary>
+        ''' Ordena um <see cref="ienumerable(Of T)"/> a partir do nome de uma ou mais propriedades
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="source">      </param>
+        ''' <param name="sortProperty"></param>
+        ''' <param name="Ascending">   </param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Function ThenBy(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Dim type = GetType(T)
+            For Each prop In SortProperty
+                source = source.ThenBy(Function(x) x.GetPropertyValue(prop))
             Next
             Return source
         End Function
