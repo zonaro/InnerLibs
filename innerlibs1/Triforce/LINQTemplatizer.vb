@@ -1646,7 +1646,7 @@ Namespace Triforce
                                                  Case Item.GetProperties().FirstOrDefault(Function(x) x.Name = key) IsNot Nothing
                                                      Dim format = Item.GetProperties().First(Function(x) x.Name = key).GetCustomAttribute(Of TriforceDateTimeFormat).Format
                                                      Return d.Value.ToString(format.ToString)
-                                                 Case Item.GetType().GetAttributeValue(Of TriforceDateTimeFormat, String)(Function(x) x.Format.IsBlank)
+                                                 Case Item.GetType().GetAttributeValue(Of TriforceDateTimeFormat, String)(Function(x) x.Format.IsNotBlank)
                                                      Dim format = Item.GetType().GetAttributeValue(Of TriforceDateTimeFormat, String)(Function(x) x.Format)
                                                      Return d.Value.ToString(format.ToString)
                                                  Case Else
@@ -1660,14 +1660,28 @@ Namespace Triforce
                                      End If
                                  End If
 
-                                 If val.GetType.IsIn({GetType(Decimal), GetType(Double)}) Then
-                                     Return CType(val, Decimal).ToString(Culture.NumberFormat)
-                                 End If
+                                 If val.GetType.IsIn({GetType(Decimal), GetType(Double), GetType(Integer), GetType(Long), GetType(Short), GetType(Decimal?), GetType(Double?), GetType(Integer?), GetType(Long?), GetType(Short?)}) Then
+                                     If val IsNot Nothing Then
+                                         Try
 
-                                 If val.GetType.IsIn({GetType(Decimal?), GetType(Double?)}) Then
-                                     Dim d = CType(val, Decimal?)
-                                     If d.HasValue Then
-                                         Return d.Value.ToString(Culture.NumberFormat)
+                                             Dim formatter As TriforceNumberFormat = Nothing
+                                             Dim prop = Item.GetProperties().FirstOrDefault(Function(x) x.Name = key)
+                                             If prop IsNot Nothing Then
+                                                 formatter = prop.GetCustomAttribute(Of TriforceNumberFormat)
+                                             End If
+
+                                             If formatter Is Nothing Then
+                                                 formatter = Item.GetType().GetCustomAttribute(Of TriforceNumberFormat)
+                                             End If
+
+                                             If formatter IsNot Nothing Then
+                                                 Return String.Format(formatter.Culture, formatter.Format, val)
+                                             End If
+                                             Return String.Format(Culture.NumberFormat, "{0:0,0.00}", val)
+
+                                         Catch ex As Exception
+                                             Return String.Format(Culture.NumberFormat, "{0:0,0.00}", val)
+                                         End Try
                                      Else
                                          Return ""
                                      End If
@@ -1742,6 +1756,29 @@ Namespace Triforce
         End Sub
 
         ReadOnly Property Format As String = "dd/MM/yyyy HH:mm:ss"
+    End Class
+
+    ''' <summary>
+    ''' Atributo de Configuraçao do formato de numero. Se aplica a propriedade especificada ou a
+    ''' classe toda
+    ''' </summary>
+    <AttributeUsage(AttributeTargets.Class + AttributeTargets.Property, AllowMultiple:=False, Inherited:=True)>
+    Public Class TriforceNumberFormat
+        Inherits Attribute
+
+        Sub New(Optional Format As String = "{0:0,0.00}", Optional Culture As String = Nothing)
+            Me.Format = Format
+            If Culture.IsNotBlank Then
+                Try
+                    Me.Culture = CultureInfo.CreateSpecificCulture(Culture)
+                Catch ex As Exception
+                End Try
+            End If
+            Me.Culture = If(Me.Culture, CultureInfo.CurrentCulture)
+        End Sub
+
+        ReadOnly Property Format As String = "{0:0,0.00}"
+        ReadOnly Property Culture As CultureInfo
     End Class
 
     ''' <summary>

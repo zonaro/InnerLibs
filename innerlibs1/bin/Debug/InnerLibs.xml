@@ -6796,6 +6796,12 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  classe toda
  </summary>
 </member>
+<member name="T:InnerLibs.Triforce.TriforceNumberFormat">
+ <summary>
+ Atributo de Configuraçao do formato de numero. Se aplica a propriedade especificada ou a
+ classe toda
+ </summary>
+</member>
 <member name="T:InnerLibs.Triforce.TriforceDefaultTemplate">
  <summary>
  Atributo de Configuraçao do Template. Aplica-se a classes de entidade
