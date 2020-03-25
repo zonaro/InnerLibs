@@ -886,7 +886,7 @@ Namespace LINQ
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function ThenBy(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+        Public Function ThenBy(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
             Dim type = GetType(T)
             For Each prop In SortProperty
                 source = source.ThenBy(Function(x) x.GetPropertyValue(prop))

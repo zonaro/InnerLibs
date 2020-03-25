@@ -392,14 +392,26 @@ Namespace Triforce
                                 If classe.Count > 0 AndAlso conteudo.IsBlank Then
                                     conteudo = GetTemplate(classe(0).GetType, True)
                                 End If
-                                If classe.Count > 0 Then
+
+                                Dim ordersource = CType(templatetag.Nodes.GetElementsByTagName("order").FirstOrDefault, HtmlElement)
+                                If ordersource IsNot Nothing Then
+                                    classe = classe.OrderBy(Function(x) True)
+                                    For Each prop In ordersource.Attributes
+                                        classe = CType(classe, IOrderedEnumerable(Of Object)).ThenBy({prop.Name}, prop.IsMinimized OrElse prop.Value.IsAny("asc", "true", "1", "ascending"))
+                                    Next
+                                End If
+
+                                If classe.Count() > 0 Then
                                     lista = ApplyTemplate(Of Object)(classe.AsQueryable, pg, n_item, conteudo)
                                     conteudo = lista.ToString
                                 Else
                                     lista = New List(Of Object)
                                     If el_empty IsNot Nothing Then
                                         conteudo = el_empty.ToString()
+                                    Else
+                                        conteudo = ""
                                     End If
+
                                 End If
                             End If
 
@@ -1505,6 +1517,8 @@ Namespace Triforce
 
                         Dim conteudo = ""
                         Dim el_cont = CType(templatetag.Nodes.GetElementsByTagName("content").First, HtmlElement)
+                        Dim el_empty = CType(templatetag.Nodes.GetElementsByTagName("empty").FirstOrDefault, HtmlElement)
+
                         If el_cont IsNot Nothing Then
                             If el_cont.HasAttribute("file") AndAlso el_cont.Attribute("file").IsNotBlank Then
                                 conteudo = pegartemplate(el_cont.Attribute("file"))
@@ -1537,21 +1551,29 @@ Namespace Triforce
 
                         If source.IsNotBlank Then
                             Dim classe As IEnumerable(Of Object) = ClassTools.GetPropertyValue(item, source)
-
                             If classe.Count > 0 AndAlso conteudo.IsBlank Then
                                 conteudo = GetTemplate(classe(0).GetType, True)
                             End If
 
                             Dim ordersource = CType(templatetag.Nodes.GetElementsByTagName("order").FirstOrDefault, HtmlElement)
                             If ordersource IsNot Nothing Then
-                                lista = lista.OrderBy(Function(x) True)
+                                classe = classe.OrderBy(Function(x) True)
                                 For Each prop In ordersource.Attributes
-                                    lista = CType(lista, IOrderedEnumerable(Of Object)).ThenBy({prop.Name}, prop.IsMinimized OrElse prop.Value.IsAny("asc", "true", "1", "ascending"))
+                                    classe = CType(classe, IOrderedEnumerable(Of Object)).ThenBy({prop.Name}, prop.IsMinimized OrElse prop.Value.IsAny("asc", "true", "1", "ascending"))
                                 Next
                             End If
 
-                            lista = ApplyTemplate(Of Object)(classe, conteudo, pg, n_item)
-
+                            If classe.Count() > 0 Then
+                                lista = ApplyTemplate(Of Object)(classe.AsQueryable, pg, n_item, conteudo)
+                                conteudo = lista.ToString
+                            Else
+                                lista = New List(Of Object)
+                                If el_empty IsNot Nothing Then
+                                    conteudo = el_empty.ToString()
+                                Else
+                                    conteudo = ""
+                                End If
+                            End If
                         End If
 
                         If lista Is Nothing Then
