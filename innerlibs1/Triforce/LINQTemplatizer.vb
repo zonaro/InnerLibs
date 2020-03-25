@@ -560,6 +560,10 @@ Namespace Triforce
     ''' <typeparam name="T"></typeparam>
     Public Class Template(Of T)
 
+        Public Shared Widening Operator CType(v As Template(Of T)) As String
+            Return v.ToString()
+        End Operator
+
         ''' <summary>
         ''' Cria um novo template
         ''' </summary>

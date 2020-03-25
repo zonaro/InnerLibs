@@ -10,7 +10,6 @@ Imports System.Web.SessionState
 Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
 Imports System.Xml
-Imports InnerLibs.JsonReader
 
 ''' <summary>
 ''' Métodos de requisição
@@ -172,7 +171,6 @@ End Class
 ''' <remarks></remarks>
 Public Module Web
 
-
     ''' <summary>
     ''' Pega todos os controles filhos de um controle pai
     ''' </summary>
@@ -192,6 +190,7 @@ Public Module Web
         Next
         Return lista.AsEnumerable
     End Function
+
     ''' <summary>
     ''' Retorna o corpo em formato de texto de uma rquisição HTTP
     ''' </summary>
@@ -210,9 +209,7 @@ Public Module Web
     ''' <param name="Request"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetBody(Of T)(Request As HttpRequest) As T
-        Using sr = New StreamReader(HttpContext.Current.Request.InputStream)
-            Return CType(JsonReader.JsonReader.Parse(sr.ReadToEnd()), T)
-        End Using
+        Return CType(JsonReader.JsonReader.Parse(Request.GetBody), T)
     End Function
 
     ''' <summary>
@@ -222,9 +219,7 @@ Public Module Web
     ''' <param name="File"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetFileUrl(Server As HttpServerUtility, File As String) As String
-
         Return File.Split(Server.MapPath("~/"), StringSplitOptions.RemoveEmptyEntries).LastOrDefault()
-
     End Function
 
     ''' <summary>
@@ -250,7 +245,6 @@ Public Module Web
     <Extension()> Public Function GetFileUrl(Request As HttpRequest, File As FileInfo) As String
         Return "/" + (File.FullName.Replace(Request.PhysicalApplicationPath, String.Empty)).TrimAny(" ", "\\", "/")
     End Function
-
 
     ''' <summary>
     ''' Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
@@ -1412,7 +1406,6 @@ Public Module Web
         Return Request.PhysicalPath.RemoveFirstIf(Request.PhysicalApplicationPath).FixPathSeparator(True)
     End Function
 
-
     <Extension()>
     Public Function FindAncestor(Of TControl As UI.Control)(ByVal control As UI.Control) As TControl
         If control Is Nothing Then Throw New ArgumentNullException("control")
@@ -1446,4 +1439,5 @@ Public Module Web
             Next
         End If
     End Function
+
 End Module
