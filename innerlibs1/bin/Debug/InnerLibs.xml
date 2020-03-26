@@ -9872,28 +9872,28 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.Append(System.String@,System.String)">
+<member name="M:InnerLibs.Text.Append(System.String,System.String)">
  <summary>
  Adiciona texto ao final de uma string
  </summary>
  <param name="Text">      Texto</param>
  <param name="AppendText">Texto adicional</param>
 </member>
-<member name="M:InnerLibs.Text.AppendLine(System.String@,System.String)">
+<member name="M:InnerLibs.Text.AppendLine(System.String,System.String)">
  <summary>
  Adiciona texto ao final de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
  </summary>
  <param name="Text">      Texto</param>
  <param name="AppendText">Texto adicional</param>
 </member>
-<member name="M:InnerLibs.Text.PrependLine(System.String@,System.String)">
+<member name="M:InnerLibs.Text.PrependLine(System.String,System.String)">
  <summary>
  Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
  </summary>
  <param name="Text">      Texto</param>
  <param name="AppendText">Texto adicional</param>
 </member>
-<member name="M:InnerLibs.Text.AppendIf(System.String@,System.String,System.Boolean)">
+<member name="M:InnerLibs.Text.AppendIf(System.String,System.String,System.Boolean)">
  <summary>
  Adiciona texto ao final de uma string se um criterio for cumprido
  </summary>
@@ -9901,7 +9901,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="AppendText">Texto adicional</param>
  <param name="Test">      Teste</param>
 </member>
-<member name="M:InnerLibs.Text.AppendIf(System.String@,System.String,System.Func{System.String,System.Boolean})">
+<member name="M:InnerLibs.Text.AppendIf(System.String,System.String,System.Func{System.String,System.Boolean})">
  <summary>
  Adiciona texto ao final de uma string se um criterio for cumprido
  </summary>
@@ -10376,14 +10376,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Document"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.Prepend(System.String@,System.String)">
+<member name="M:InnerLibs.Text.Prepend(System.String,System.String)">
  <summary>
  Adiciona texto ao começo de uma string
  </summary>
  <param name="Text">       Texto</param>
  <param name="PrependText">Texto adicional</param>
 </member>
-<member name="M:InnerLibs.Text.PrependIf(System.String@,System.String,System.Boolean)">
+<member name="M:InnerLibs.Text.PrependIf(System.String,System.String,System.Boolean)">
  <summary>
  Adiciona texto ao começo de uma string se um criterio for cumprido
  </summary>

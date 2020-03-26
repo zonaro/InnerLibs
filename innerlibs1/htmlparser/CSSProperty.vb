@@ -144,7 +144,7 @@ Namespace HtmlParser
                     End If
                     Dim p = ""
                     For Each k In styledic.Where(Function(d) d.Value.IsNotBlank)
-                        p.Append(k.Key.ToLower & ":" & k.Value.ToLower & ";")
+                        p = p.Append(k.Key.ToLower & ":" & k.Value.ToLower & ";")
                     Next
                     mElement.Attribute("style") = p
                 End If

@@ -868,9 +868,9 @@ Public Module Text
     End Function
 
     <Extension()>
-    Public Function AppendUrlParameter(ByRef Url As String, Key As String, ParamArray Value As String()) As String
+    Public Function AppendUrlParameter(Url As String, Key As String, ParamArray Value As String()) As String
         For Each v In If(Value, {})
-            Url.Append(String.Format("&{0}={1}", Key, v.IfBlank("")))
+            Url = Url.Append(String.Format("&{0}={1}", Key, v.IfBlank("")))
         Next
         Return Url
     End Function
@@ -881,8 +881,8 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     <Extension()>
-    Public Function Append(ByRef Text As String, AppendText As String) As String
-        Text &= AppendText
+    Public Function Append(Text As String, AppendText As String) As String
+        Text = Text & AppendText
         Return Text
     End Function
 
@@ -892,7 +892,7 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     <Extension()>
-    Public Function AppendLine(ByRef Text As String, AppendText As String) As String
+    Public Function AppendLine(Text As String, AppendText As String) As String
         Return Text.Append(AppendText & Environment.NewLine)
     End Function
 
@@ -902,7 +902,7 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     <Extension()>
-    Public Function PrependLine(ByRef Text As String, AppendText As String) As String
+    Public Function PrependLine(Text As String, AppendText As String) As String
         Return Text.Prepend(AppendText & Environment.NewLine)
     End Function
 
@@ -912,9 +912,9 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     ''' <param name="Test">      Teste</param>
-    <Extension()> Public Function AppendIf(ByRef Text As String, AppendText As String, Test As Boolean) As String
+    <Extension()> Public Function AppendIf(Text As String, AppendText As String, Test As Boolean) As String
         If Test Then
-            Text.Append(AppendText)
+            Text = Text.Append(AppendText)
         End If
         Return Text
     End Function
@@ -925,7 +925,7 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     ''' <param name="Test">      Teste</param>
-    <Extension()> Public Function AppendIf(ByRef Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
+    <Extension()> Public Function AppendIf(Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
         Test = If(Test, Function(x) False)
         Return Text.AppendIf(AppendText, Test(Text))
     End Function
@@ -985,7 +985,7 @@ Public Module Text
             For Each bad In BadWords
                 Dim censored = ""
                 For index = 1 To bad.Length
-                    censored.Append(CensorshipCharacter)
+                    censored = censored.Append(CensorshipCharacter)
                 Next
                 For index = 0 To words.Length - 1
                     If words(index).RemoveDiacritics.RemoveAny(WordSplitters).ToLower = bad.RemoveDiacritics.RemoveAny(WordSplitters).ToLower Then
@@ -1295,11 +1295,11 @@ Public Module Text
             Dim palavra = c
             If palavra.EndsWith(".") AndAlso palavra.Length = 2 Then
                 palavra = palavra.ToUpper
-                Text.Append(palavra)
+                Text = Text.Append(palavra)
 
                 Dim proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, "")
                 If Not (proximapalavra.EndsWith(".") AndAlso palavra.Length = 2) Then
-                    Text.Append(" ")
+                    Text = Text.Append(" ")
                 End If
             Else
                 Text.Append(c & " ")
@@ -1970,7 +1970,7 @@ Public Module Text
     ''' <param name="Text">       Texto</param>
     ''' <param name="PrependText">Texto adicional</param>
     <Extension()>
-    Public Function Prepend(ByRef Text As String, PrependText As String) As String
+    Public Function Prepend(Text As String, PrependText As String) As String
         Text = PrependText & Text
         Return Text
     End Function
@@ -1981,7 +1981,7 @@ Public Module Text
     ''' <param name="Text">       Texto</param>
     ''' <param name="PrependText">Texto adicional</param>
     ''' <param name="Test">       Teste</param>
-    <Extension()> Public Function PrependIf(ByRef Text As String, PrependText As String, Test As Boolean) As String
+    <Extension()> Public Function PrependIf(Text As String, PrependText As String, Test As Boolean) As String
         If Test Then
             Text.Prepend(PrependText)
         End If
@@ -2118,9 +2118,9 @@ Public Module Text
         Dim newstring As String = ""
         For Each c In Text.ToArray
             If c.IsIn(chars) Then
-                newstring.Append("\" & c)
+                newstring = newstring.Append("\" & c)
             Else
-                newstring.Append(c)
+                newstring = newstring.Append(c)
             End If
         Next
         Return newstring

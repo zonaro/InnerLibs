@@ -786,7 +786,7 @@ Namespace Triforce
                         Dim html = ""
                         If othertag.Count > 0 Then
                             For Each node As HtmlElement In othertag
-                                html.Append(node.InnerHTML)
+                                html = html.Append(node.InnerHTML)
                                 If node.HasAttribute("break") Then
                                     Exit For
                                 End If
@@ -951,37 +951,37 @@ Namespace Triforce
 
                         If before > 1 And before < PageCount Then
                             dic("##PageNumber##") = before
-                            pagestring.Prepend(page.InnerHTML.ReplaceFrom(dic))
+                            pagestring = pagestring.Prepend(page.InnerHTML.ReplaceFrom(dic))
                             ' pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                         End If
 
                         If after > 1 And after < PageCount Then
                             dic("##PageNumber##") = after
-                            pagestring.Append(page.InnerHTML.ReplaceFrom(dic))
+                            pagestring = pagestring.Append(page.InnerHTML.ReplaceFrom(dic))
                             'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                         End If
                     Next
                     dic("##PageNumber##") = PageNumber - 1
                     If back IsNot Nothing Then
-                        pagestring.PrependIf(back.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
+                        pagestring = pagestring.PrependIf(back.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
                         'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                     End If
 
                     dic("##PageNumber##") = 1
                     If first IsNot Nothing Then
-                        pagestring.PrependIf(first.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
+                        pagestring = pagestring.PrependIf(first.InnerHTML.ReplaceFrom(dic), PageNumber > 1)
                         'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                     End If
 
                     dic("##PageNumber##") = PageNumber + 1
                     If nex IsNot Nothing Then
-                        pagestring.AppendIf(nex.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
+                        pagestring = pagestring.AppendIf(nex.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
                         'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                     End If
 
                     dic("##PageNumber##") = PageCount
                     If last IsNot Nothing Then
-                        pagestring.AppendIf(last.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
+                        pagestring = pagestring.AppendIf(last.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
                         'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                     End If
 
@@ -1683,7 +1683,6 @@ Namespace Triforce
                                              End If
 
                                              Return String.Format(Culture.NumberFormat, "{0:0}", val)
-
                                          Catch ex As Exception
                                              Return String.Format(Culture.NumberFormat, "{0:0}", val)
                                          End Try

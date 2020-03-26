@@ -807,10 +807,10 @@ Public Class PictureService
     Public Function Unsplash(Optional Index As Integer = -1, Optional Grayscale As Boolean = False, Optional Blur As Boolean = False) As Picture
 
         Dim url = "https://unsplash.it/"
-        url.AppendIf("g/", Grayscale)
-        url.Append(Me.Size.Width & "/" & Me.Size.Height)
-        url.Append("?")
-        url.AppendIf("&blur", Blur)
+        url = url.AppendIf("g/", Grayscale)
+        url = url.Append(Me.Size.Width & "/" & Me.Size.Height)
+        url = url.Append("?")
+        url = url.AppendIf("&blur", Blur)
         If Index > -1 Then
             url.Append("&image=" & Index)
         Else

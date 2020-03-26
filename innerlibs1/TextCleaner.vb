@@ -22,7 +22,7 @@ Public Class Paragraph
     Public Overrides Function ToString() As String
         Dim ss = ""
         For Each s In Me
-            ss.Append(s.ToString & " ")
+            ss = ss.Append(s.ToString & " ")
         Next
         Return ss.Trim
     End Function
@@ -101,10 +101,10 @@ Public Class Sentence
     Public Overrides Function ToString() As String
         Dim sent = ""
         For Each s In Me
-            sent.Append(s.ToString)
+            sent = sent.Append(s.ToString)
             If s.Next IsNot Nothing Then
                 If s.NeedSpaceOnNext Then
-                    sent.Append(" ")
+                    sent = sent.Append(" ")
                 End If
             End If
         Next
@@ -250,9 +250,9 @@ Public Class StructuredText
         Dim par As String = ""
         For Each p In Me
             For i = 1 To p.Ident
-                par.Append(vbTab)
+                par = par.Append(vbTab)
             Next
-            par.Append(p.ToString & Environment.NewLine)
+            par = par.Append(p.ToString & Environment.NewLine)
         Next
         Return par
     End Function

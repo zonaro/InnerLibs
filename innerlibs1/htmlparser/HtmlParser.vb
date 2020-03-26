@@ -224,11 +224,11 @@ Namespace HtmlParser
                     i += 3
                 ElseIf input.Substring(i, 1).Equals("<") Then
                     inTag = True
-                    output.Append("<")
+                    output = output.Append("<")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals(">") Then
                     inTag = False
-                    output.Append(">")
+                    output = output.Append(">")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals("""") AndAlso inTag Then
                     Dim string_start As Integer = i
@@ -238,7 +238,7 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output.Append(input.Substring(string_start, i - string_start))
+                    output = output.Append(input.Substring(string_start, i - string_start))
                 ElseIf input.Substring(i, 1).Equals("'") AndAlso inTag Then
                     Dim string_start As Integer = i
                     i += 1
@@ -247,9 +247,9 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output.Append(input.Substring(string_start, i - string_start))
+                    output = output.Append(input.Substring(string_start, i - string_start))
                 Else
-                    output.Append(input.Substring(i, 1))
+                    output = output.Append(input.Substring(i, 1))
                     i += 1
                 End If
             End While
@@ -280,11 +280,11 @@ Namespace HtmlParser
                     i += 3
                 ElseIf input.Substring(i, 1).Equals("<") Then
                     inTag = True
-                    output.Append("<")
+                    output = output.Append("<")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals(">") Then
                     inTag = False
-                    output.Append(">")
+                    output = output.Append(">")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals("""") AndAlso inTag Then
                     Dim string_start As Integer = i
@@ -294,7 +294,7 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output.Append(input.Substring(string_start, i - string_start))
+                    output = output.Append(input.Substring(string_start, i - string_start))
                 ElseIf input.Substring(i, 1).Equals("'") AndAlso inTag Then
                     Dim string_start As Integer = i
                     i += 1
@@ -303,9 +303,9 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output.Append(input.Substring(string_start, i - string_start))
+                    output = output.Append(input.Substring(string_start, i - string_start))
                 Else
-                    output.Append(input.Substring(i, 1))
+                    output = output.Append(input.Substring(i, 1))
                     i += 1
                 End If
             End While
@@ -333,38 +333,38 @@ Namespace HtmlParser
                         If index >= input.Length Then
                             Exit Do
                         ElseIf input.Substring(index, 1).Equals(">") Then
-                            output.Append(">")
+                            output = output.Append(">")
                             index += 1
                             Exit Do
                         ElseIf index + 1 < input.Length AndAlso input.Substring(index, 2).Equals("/>") Then
-                            output.Append("/>")
+                            output = output.Append("/>")
                             index += 2
                             omit_body = True
                             Exit Do
                         ElseIf input.Substring(index, 1).Equals("""") Then
-                            output.Append("""")
+                            output = output.Append("""")
                             index += 1
                             While index < input.Length AndAlso Not input.Substring(index, 1).Equals("""")
-                                output.Append(input.Substring(index, 1))
+                                output = output.Append(input.Substring(index, 1))
                                 index += 1
                             End While
                             If index < input.Length Then
                                 index += 1
-                                output.Append("""")
+                                output = output.Append("""")
                             End If
                         ElseIf input.Substring(index, 1).Equals("'") Then
-                            output.Append("'")
+                            output = output.Append("'")
                             index += 1
                             While index < input.Length AndAlso Not input.Substring(index, 1).Equals("'")
-                                output.Append(input.Substring(index, 1))
+                                output = output.Append(input.Substring(index, 1))
                                 index += 1
                             End While
                             If index < input.Length Then
                                 index += 1
-                                output.Append("'")
+                                output = output.Append("'")
                             End If
                         Else
-                            output.Append(input.Substring(index, 1))
+                            output = output.Append(input.Substring(index, 1))
                             index += 1
                         End If
                     Loop While True
@@ -376,18 +376,18 @@ Namespace HtmlParser
                     If Not omit_body Then
                         Dim script_body As New StringBuilder()
                         While index + tag_name_len + 3 < input.Length AndAlso Not input.Substring(index, tag_name_len + 3).ToLower().Equals((Convert.ToString("</") & tag_name) + ">")
-                            script_body.Append(input.Substring(index, 1))
+                            script_body = script_body.Append(input.Substring(index, 1))
                             index += 1
                         End While
                         ' Done - now encode the script
-                        output.Append(EncodeScript(script_body.ToString()))
-                        output.Append((Convert.ToString("</") & tag_name) + ">")
+                        output = output.Append(EncodeScript(script_body.ToString()))
+                        output = output.Append((Convert.ToString("</") & tag_name) + ">")
                         If index + tag_name_len + 3 < input.Length Then
                             index += tag_name_len + 3
                         End If
                     End If
                 Else
-                    output.Append(input.Substring(index, 1))
+                    output = output.Append(input.Substring(index, 1))
                     index += 1
                 End If
             End While

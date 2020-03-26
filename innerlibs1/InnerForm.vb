@@ -139,7 +139,7 @@ Namespace InnerForm
 
                     'monta a mensagem
                     For Each item In itens
-                        mail.Body.Append(TableRow(item.Key, "<strong>" & item.Key & "</strong>", "" & item.Value))
+                        mail.Body = mail.Body.Append(TableRow(item.Key, "<strong>" & item.Key & "</strong>", "" & item.Value))
                     Next
                     mail.Body = Table("", mail.Body)
 

@@ -278,7 +278,7 @@ Public Class FileType
     Public Function ToFilterString() As String
         Dim r As String = ""
         For Each ext In Me.Extensions
-            r.Append("*" & ext & ";")
+            r = r.Append("*" & ext & ";")
         Next
         r = Me.Description & "|" & r.RemoveLastIf(";")
         Return r
@@ -325,7 +325,7 @@ Public Class FileTypeList
     Public Function ToFilterString() As String
         Dim r As String = ""
         For Each ext In Me
-            r.Append(ext.ToFilterString & "|")
+            r = r.Append(ext.ToFilterString & "|")
         Next
         Return r.RemoveLastIf("|")
     End Function

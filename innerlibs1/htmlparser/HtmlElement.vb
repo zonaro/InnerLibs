@@ -341,23 +341,23 @@ Namespace HtmlParser
         Public Overrides ReadOnly Property HTML() As String
             Get
                 Dim shtml As New StringBuilder()
-                shtml.Append(Convert.ToString("<") & mName)
+                shtml = shtml.Append(Convert.ToString("<") & mName)
                 For Each attribute As HtmlAttribute In Attributes
-                    shtml.Append(" " + attribute.HTML)
+                    shtml = shtml.Append(" " + attribute.HTML)
                 Next
                 If Nodes.Count > 0 Then
-                    shtml.Append(">")
+                    shtml = shtml.Append(">")
                     For Each node As HtmlNode In Nodes
-                        shtml.Append(node.HTML)
+                        shtml = shtml.Append(node.HTML)
                     Next
-                    shtml.Append((Convert.ToString("</") & mName) + ">")
+                    shtml = shtml.Append((Convert.ToString("</") & mName) + ">")
                 Else
                     If IsExplicitlyTerminated Then
-                        shtml.Append((Convert.ToString("></") & mName) + ">")
+                        shtml = shtml.Append((Convert.ToString("></") & mName) + ">")
                     ElseIf IsTerminated Then
-                        shtml.Append("/>")
+                        shtml = shtml.Append("/>")
                     Else
-                        shtml.Append(">")
+                        shtml = shtml.Append(">")
                     End If
                 End If
                 Return shtml.ToString()
@@ -392,9 +392,9 @@ Namespace HtmlParser
                 Dim s = ""
                 For Each node As HtmlNode In Nodes
                     If TypeOf node Is HtmlElement Then
-                        s.Append(node.HTML)
+                        s = s.Append(node.HTML)
                     Else
-                        s.Append(CType(node, HtmlText).Text)
+                        s = s.Append(CType(node, HtmlText).Text)
                     End If
                 Next
                 Return s
@@ -497,21 +497,21 @@ Namespace HtmlParser
                     Attributes.Add(New HtmlAttribute("xmlns", "http://www.w3.org/1999/xhtml"))
                 End If
                 Dim html As New StringBuilder()
-                html.Append("<" + mName.ToLower())
+                html = html.Append("<" + mName.ToLower())
                 For Each attribute As HtmlAttribute In Attributes
-                    html.Append(" " + attribute.XHTML)
+                    html = html.Append(" " + attribute.XHTML)
                 Next
                 If IsTerminated Then
-                    html.Append("/>")
+                    html = html.Append("/>")
                 Else
                     If Nodes.Count > 0 Then
-                        html.Append(">")
+                        html = html.Append(">")
                         For Each node As HtmlNode In Nodes
-                            html.Append(node.XHTML)
+                            html = html.Append(node.XHTML)
                         Next
-                        html.Append("</" + mName.ToLower() + ">")
+                        html = html.Append("</" + mName.ToLower() + ">")
                     Else
-                        html.Append("/>")
+                        html = html.Append("/>")
                     End If
                 End If
                 Return html.ToString()
