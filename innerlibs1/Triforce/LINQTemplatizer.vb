@@ -1677,10 +1677,15 @@ Namespace Triforce
                                              If formatter IsNot Nothing Then
                                                  Return String.Format(formatter.Culture, formatter.Format, val)
                                              End If
-                                             Return String.Format(Culture.NumberFormat, "{0:0,0.00}", val)
+
+                                             If val.GetType.IsIn(GetType(Decimal), GetType(Double), GetType(Decimal?), GetType(Double?)) Then
+                                                 Return String.Format(Culture.NumberFormat, "{0:0.00}", val)
+                                             End If
+
+                                             Return String.Format(Culture.NumberFormat, "{0:0}", val)
 
                                          Catch ex As Exception
-                                             Return String.Format(Culture.NumberFormat, "{0:0,0.00}", val)
+                                             Return String.Format(Culture.NumberFormat, "{0:0}", val)
                                          End Try
                                      Else
                                          Return ""
