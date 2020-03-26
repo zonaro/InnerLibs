@@ -1443,8 +1443,8 @@ Namespace Triforce
                 Else
                     TemplateFile = Path.GetFileNameWithoutExtension(TemplateFile) & ".html"
                     If IsNothing(ApplicationAssembly) Then
-                        Dim filefound = TemplateDirectory.SearchFiles(SearchOption.TopDirectoryOnly, TemplateFile).First
-                        If Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
+                        Dim filefound = TemplateDirectory.SearchFiles(SearchOption.AllDirectories, TemplateFile).FirstOrDefault()
+                        If filefound Is Nothing OrElse Not filefound.Exists Then Throw New FileNotFoundException(TemplateFile.Quote & "  not found in " & TemplateDirectory.Name.Quote)
                         Using file As StreamReader = filefound.OpenText
                             Try
                                 Return CType(New HtmlDocument(file.ReadToEnd).Nodes.GetElementsByTagName(Tag).First, HtmlElement).InnerHTML
