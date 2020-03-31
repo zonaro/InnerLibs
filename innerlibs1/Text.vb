@@ -1983,7 +1983,7 @@ Public Module Text
     ''' <param name="Test">       Teste</param>
     <Extension()> Public Function PrependIf(Text As String, PrependText As String, Test As Boolean) As String
         If Test Then
-            Text.Prepend(PrependText)
+            Text = Text.Prepend(PrependText)
         End If
         Return Text
     End Function
@@ -2192,7 +2192,6 @@ Public Module Text
         End While
         Return re
     End Function
-
 
     ''' <summary>
     ''' Remove os X primeiros caracteres
@@ -3587,6 +3586,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function ToProperCase(Text As String, Optional ForceCase As Boolean = False) As String
+        If Text.IsBlank Then Return Text
         If ForceCase Then
             Return StrConv(Text, vbProperCase)
         Else
