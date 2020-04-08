@@ -139,7 +139,7 @@ Namespace InnerForm
 
                     'monta a mensagem
                     For Each item In itens
-                        mail.Body = mail.Body.Append(TableRow(item.Key, "<strong>" & item.Key & "</strong>", "" & item.Value))
+                        mail.Body &= (TableRow(item.Key, "<strong>" & item.Key & "</strong>", "" & item.Value))
                     Next
                     mail.Body = Table("", mail.Body)
 
@@ -210,10 +210,10 @@ Namespace InnerForm
 
         Private Sub CreateTable()
             Dim str = "if not exists (select * from sysobjects where name='" & TableName & "' and xtype='U')" & Environment.NewLine
-            str.AppendLine("create table " & TableName & " (")
-            str.AppendLine("Name varchar(64) not null")
-            str.AppendLine(")")
-            str.AppendLine("go")
+            str = str.AppendLine("create table " & TableName & " (")
+            str = str.AppendLine("Name varchar(64) not null")
+            str = str.AppendLine(")")
+            str = str.AppendLine("go")
             DataBase.RunSQL(str)
         End Sub
     End Class

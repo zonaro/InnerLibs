@@ -60,7 +60,7 @@ Public NotInheritable Class DataBase
     Public Function CreateUpdateCommandText(TableName As String, WhereClausule As String, ParamArray Columns As String()) As String
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In Columns
-            cmd.Append(String.Format(" {0} = @{0},", col) & Environment.NewLine)
+            cmd &= (String.Format(" {0} = @{0},", col) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Return cmd
@@ -626,11 +626,11 @@ Public NotInheritable Class DataBase
         For index = 0 To tamanho_loops_comando - 1
             Dim comando = "EXEC " & Procedure & " "
             If ForeignKey.IsNotBlank Then
-                comando.Append("@" & ForeignKey & "=" & ForeignValue.IsNull & ", ")
+                comando &= ("@" & ForeignKey & "=" & ForeignValue.IsNull & ", ")
             End If
             For Each key In Keys
                 Dim valor As String = Items.GetValues(key)(index)
-                comando.Append("@" & key & "=" & valor.IsNull() & ", ")
+                comando &= ("@" & key & "=" & valor.IsNull() & ", ")
             Next
             RunSQL(comando.Trim.RemoveLastIf(","))
         Next
@@ -645,7 +645,7 @@ Public NotInheritable Class DataBase
         Get
             Dim cmd = "SELECT " & If(Not IsNothing(Columns) AndAlso Columns.Count > 0, Columns.Join(", ").TrimAny(" ", ","), "*") & " FROM " & TableName
             If WhereConditions.IsNotBlank Then
-                cmd.Append(" where " & WhereConditions.TrimAny(" ", "where", "WHERE"))
+                cmd &= (" where " & WhereConditions.TrimAny(" ", "where", "WHERE"))
             End If
             Return RunSQL(cmd)
         End Get
@@ -661,7 +661,7 @@ Public NotInheritable Class DataBase
         Dim cmd = "DELETE FROM " & TableName
         If WhereConditions.IsNotBlank OrElse SafeMode = False Then
             If WhereConditions.IsNotBlank Then
-                cmd.Append(" where " & WhereConditions.RemoveFirstAny(True, "where", " "))
+                cmd &= (" where " & WhereConditions.RemoveFirstAny(True, "where", " "))
             End If
             RunSQL(cmd)
         Else

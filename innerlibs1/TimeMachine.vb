@@ -629,11 +629,11 @@ Namespace TimeMachine
                 segundos = (If(Me.Seconds > 0, (If(Me.Seconds = 1, Me.Seconds & " segundo ", Me.Seconds & " segundos ")), ""))
             End If
 
-            ano.AppendIf(",", ano.IsNotBlank And (mes.IsNotBlank Or dia.IsNotBlank Or horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
-            mes.AppendIf(",", mes.IsNotBlank And (dia.IsNotBlank Or horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
-            dia.AppendIf(",", dia.IsNotBlank And (horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
-            horas.AppendIf(",", horas.IsNotBlank And (minutos.IsNotBlank Or segundos.IsNotBlank))
-            minutos.AppendIf(",", minutos.IsNotBlank And (segundos.IsNotBlank))
+            ano &= If(",", ano.IsNotBlank And (mes.IsNotBlank Or dia.IsNotBlank Or horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
+            mes &= If(",", mes.IsNotBlank And (dia.IsNotBlank Or horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
+            dia &= If(",", dia.IsNotBlank And (horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
+            horas &= If(",", horas.IsNotBlank And (minutos.IsNotBlank Or segundos.IsNotBlank))
+            minutos &= If(",", minutos.IsNotBlank And (segundos.IsNotBlank))
 
             Dim current As String = {ano, mes, dia, horas, minutos, segundos}.Join(" ")
             If current.Contains(",") Then

@@ -22,7 +22,7 @@ Public Class Paragraph
     Public Overrides Function ToString() As String
         Dim ss = ""
         For Each s In Me
-            ss = ss.Append(s.ToString & " ")
+            ss &= (s.ToString & " ")
         Next
         Return ss.Trim
     End Function
@@ -68,7 +68,7 @@ Public Class Sentence
                     palavra = ""
                     'senao, adiciona o proximo caractere a palavra atual
                 Case Else
-                    palavra &= p
+                    palavra  &=  p
             End Select
         Next
 
@@ -101,10 +101,10 @@ Public Class Sentence
     Public Overrides Function ToString() As String
         Dim sent = ""
         For Each s In Me
-            sent = sent.Append(s.ToString)
+            sent &= (s.ToString)
             If s.Next IsNot Nothing Then
                 If s.NeedSpaceOnNext Then
-                    sent = sent.Append(" ")
+                    sent &= (" ")
                 End If
             End If
         Next
@@ -250,9 +250,9 @@ Public Class StructuredText
         Dim par As String = ""
         For Each p In Me
             For i = 1 To p.Ident
-                par = par.Append(vbTab)
+                par &= (vbTab)
             Next
-            par = par.Append(p.ToString & Environment.NewLine)
+            par &= (p.ToString & Environment.NewLine)
         Next
         Return par
     End Function

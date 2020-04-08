@@ -80,7 +80,7 @@
                 Dim val = prop.Value.ToString.QuoteIf(prop.Value.ToString.Contains(" ") Or prop.Value.ToString.IsBlank Or prop.Value.ToString.IsURL)
                 If val.IsIn({"True", "False"}) Then val = val.ToLower
                 If val.IsNumber Then val = val.ChangeType(Of Decimal).ToString("00,00")
-                dotstring &= prop.Key & "=" & val & " "
+                dotstring  &=  prop.Key & "=" & val & " "
             Next
             Return dotstring.Quote("[") & ";" & Environment.NewLine
         End Function

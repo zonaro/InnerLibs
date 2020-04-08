@@ -27,26 +27,26 @@ Public Class AsxFile
 
     Public Overrides Function ToString() As String
         Dim Variable As String = ""
-        Variable &= "<asx version=""3.0"">"
-        Variable &= "  <title>" & Me.Title & "</title>"
+        Variable  &=  "<asx version=""3.0"">"
+        Variable  &=  "  <title>" & Me.Title & "</title>"
         For Each item In Entries
-            Variable &= "  <entry>"
-            Variable &= "    <title>" & item.Title & "</title>"
-            Variable &= "    <ref href=" & item.URL.ToString & " />"
+            Variable  &=  "  <entry>"
+            Variable  &=  "    <title>" & item.Title & "</title>"
+            Variable  &=  "    <ref href=" & item.URL.ToString & " />"
             'Dim nv = HttpUtility.ParseQueryString(item.URL.Query)
             'For Each p As String In nv
-            '    Variable &= "    <param name=" & p.Quote & " value=" & nv(p).Quote & " />"
+            '    Variable  &=  "    <param name=" & p.Quote & " value=" & nv(p).Quote & " />"
             'Next
             If item.Author.IsNotBlank Then
-                Variable &= "  <author>" & item.Author & "</author>"
+                Variable  &=  "  <author>" & item.Author & "</author>"
             End If
             If item.Copyright.IsNotBlank Then
-                Variable &= "  <copyright>" & item.Copyright & "</copyright>"
+                Variable  &=  "  <copyright>" & item.Copyright & "</copyright>"
             End If
-            Variable &= "  </entry>"
+            Variable  &=  "  </entry>"
         Next
-        Variable &= "</asx>"
-        Variable &= ""
+        Variable  &=  "</asx>"
+        Variable  &=  ""
         Return Variable
     End Function
 

@@ -340,24 +340,24 @@ Namespace HtmlParser
         <Category("Output"), Description("The HTML string representation of this element and all childnodes")>
         Public Overrides ReadOnly Property HTML() As String
             Get
-                Dim shtml As New StringBuilder()
-                shtml = shtml.Append(Convert.ToString("<") & mName)
+                Dim shtml = ""
+                shtml &= (Convert.ToString("<") & mName)
                 For Each attribute As HtmlAttribute In Attributes
-                    shtml = shtml.Append(" " + attribute.HTML)
+                    shtml &= (" " + attribute.HTML)
                 Next
                 If Nodes.Count > 0 Then
-                    shtml = shtml.Append(">")
+                    shtml &= (">")
                     For Each node As HtmlNode In Nodes
-                        shtml = shtml.Append(node.HTML)
+                        shtml &= (node.HTML)
                     Next
-                    shtml = shtml.Append((Convert.ToString("</") & mName) + ">")
+                    shtml &= ((Convert.ToString("</") & mName) + ">")
                 Else
                     If IsExplicitlyTerminated Then
-                        shtml = shtml.Append((Convert.ToString("></") & mName) + ">")
+                        shtml &= ((Convert.ToString("></") & mName) + ">")
                     ElseIf IsTerminated Then
-                        shtml = shtml.Append("/>")
+                        shtml &= ("/>")
                     Else
-                        shtml = shtml.Append(">")
+                        shtml &= (">")
                     End If
                 End If
                 Return shtml.ToString()
@@ -392,9 +392,9 @@ Namespace HtmlParser
                 Dim s = ""
                 For Each node As HtmlNode In Nodes
                     If TypeOf node Is HtmlElement Then
-                        s = s.Append(node.HTML)
+                        s &= (node.HTML)
                     Else
-                        s = s.Append(CType(node, HtmlText).Text)
+                        s &= (CType(node, HtmlText).Text)
                     End If
                 Next
                 Return s
@@ -415,28 +415,28 @@ Namespace HtmlParser
                 Dim txt = ""
                 For Each n In Nodes
                     If n.IsText Then
-                        txt &= CType(n, HtmlText).Text & " "
+                        txt  &=  CType(n, HtmlText).Text & " "
                     Else
                         Dim el = CType(n, HtmlElement)
                         Select Case el.Name
                             Case "script", "style", "head", "video", "audio", "media", "img"
                                 'faz nada
                             Case "br"
-                                txt &= Environment.NewLine
+                                txt  &=  Environment.NewLine
                             Case "hr"
-                                txt &= Environment.NewLine & "-------" & Environment.NewLine
+                                txt  &=  Environment.NewLine & "-------" & Environment.NewLine
                             Case "li"
                                 Dim t = el.InnerText
                                 If t.IsNotBlank Then
-                                    txt &= Environment.NewLine & " • " & t
+                                    txt  &=  Environment.NewLine & " • " & t
                                 End If
                             Case "p", "div"
                                 Dim t = el.InnerText
                                 If t.IsNotBlank Then
-                                    txt &= t & Environment.NewLine
+                                    txt  &=  t & Environment.NewLine
                                 End If
                             Case Else
-                                txt &= el.InnerText
+                                txt  &=  el.InnerText
                         End Select
                     End If
                 Next
@@ -496,25 +496,25 @@ Namespace HtmlParser
                 If "html".Equals(mName) AndAlso Me.Attributes("xmlns") Is Nothing Then
                     Attributes.Add(New HtmlAttribute("xmlns", "http://www.w3.org/1999/xhtml"))
                 End If
-                Dim html As New StringBuilder()
-                html = html.Append("<" + mName.ToLower())
+                Dim html = ""
+                html &= ("<" + mName.ToLower())
                 For Each attribute As HtmlAttribute In Attributes
-                    html = html.Append(" " + attribute.XHTML)
+                    html &= (" " + attribute.XHTML)
                 Next
                 If IsTerminated Then
-                    html = html.Append("/>")
+                    html &= ("/>")
                 Else
                     If Nodes.Count > 0 Then
-                        html = html.Append(">")
+                        html &= (">")
                         For Each node As HtmlNode In Nodes
-                            html = html.Append(node.XHTML)
+                            html &= (node.XHTML)
                         Next
-                        html = html.Append("</" + mName.ToLower() + ">")
+                        html &= ("</" + mName.ToLower() + ">")
                     Else
-                        html = html.Append("/>")
+                        html &= ("/>")
                     End If
                 End If
-                Return html.ToString()
+                Return html
             End Get
         End Property
 

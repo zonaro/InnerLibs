@@ -511,9 +511,9 @@ Public Module Calendars
         Dim minutos As String = (If(TimeElapsed.Minutes > 0, (If(TimeElapsed.Minutes = 1, TimeElapsed.Minutes & " " & MinuteWord & " ", TimeElapsed.Minutes & " " & MinuteWord & "s ")), ""))
         Dim segundos As String = (If(TimeElapsed.Seconds > 0, (If(TimeElapsed.Seconds = 1, TimeElapsed.Seconds & " " & SecondWord & " ", TimeElapsed.Seconds & " " & SecondWord & "s ")), ""))
 
-        dia.AppendIf(",", dia.IsNotBlank And (horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
-        horas.AppendIf(",", horas.IsNotBlank And (minutos.IsNotBlank Or segundos.IsNotBlank))
-        minutos.AppendIf(",", minutos.IsNotBlank And (segundos.IsNotBlank))
+        dia &= If(",", dia.IsNotBlank And (horas.IsNotBlank Or minutos.IsNotBlank Or segundos.IsNotBlank))
+        horas &= If(",", horas.IsNotBlank And (minutos.IsNotBlank Or segundos.IsNotBlank))
+        minutos &= If(",", minutos.IsNotBlank And (segundos.IsNotBlank))
         Dim current As String = dia & " " & horas & " " & minutos & " " & segundos
         If current.Contains(",") Then
             current = current.Insert(current.LastIndexOf(","), " e ")

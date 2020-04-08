@@ -95,7 +95,7 @@ inner.disableScriptsCache = function () {
             script.async = true;
             script.src = scripts[0].src + "?v=" + Math.floor(Math.random() * 100000000000) + 1;
             var head = document.getElementsByTagName('head')[0];
-            head.appendChild(script);
+            head &= Child(script);
             scripts[0].parentNode.removeChild(scripts[0]);
 
         } else { }
@@ -371,7 +371,7 @@ inner.clipboard.copy = function (stringToCopy) {
         txtarea.style.position = "absolute";
         txtarea.style.visibility = "hidden";
         txtarea.style.marginLeft = "10000000000000000000000000000000000px";
-        document.body.appendChild(txtarea);
+        document.body &= Child(txtarea);
         txtarea.select();
         var successful = document.execCommand('copy');
         var msg = successful ? 'successful' : 'unsuccessful';

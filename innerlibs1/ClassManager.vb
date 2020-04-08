@@ -24,7 +24,7 @@ Public Module ClassTools
         Dim ExceptionString = ex.Message
         While ex.InnerException IsNot Nothing
             ex = ex.InnerException
-            ExceptionString &= " >> " & ex.Message
+            ExceptionString  &=  " >> " & ex.Message
         End While
         Return ExceptionString
     End Function
@@ -45,7 +45,7 @@ Public Module ClassTools
     <Extension()> Public Function ToQueryString(Dic As Dictionary(Of String, String)) As String
         Dim param As String = ""
         For Each k In Dic
-            param.Append("&" & k.Key & "=" & HttpUtility.UrlEncode("" & k.Value))
+            param &= ("&" & k.Key & "=" & HttpUtility.UrlEncode("" & k.Value))
         Next
         Return param
     End Function
@@ -73,7 +73,7 @@ Public Module ClassTools
         Dim props = Obj.GetProperties.AsEnumerable
         For Each propertyname In PropertyNames
             Dim prop = Obj.GetPropertyInfo(propertyname)
-            txt &= "&" & prop.Name & "=" & ToFlatString(prop.GetValue(Obj)).UrlEncode
+            txt  &=  "&" & prop.Name & "=" & ToFlatString(prop.GetValue(Obj)).UrlEncode
         Next
         Return txt
     End Function
@@ -91,7 +91,7 @@ Public Module ClassTools
         Dim props = Obj.GetProperties.AsEnumerable
         For Each propertyname In PropertyNames
             If props.Count(Function(x) x.Name = propertyname) > 0 Then
-                txt &= "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
+                txt  &=  "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
             End If
         Next
         Return txt
@@ -107,7 +107,7 @@ Public Module ClassTools
     <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As IEnumerable(Of T), ParamArray PropertyNames As String()) As String
         Dim txt = ""
         For Each i In Obj
-            txt &= i.GetPropertyAsQueryStringParameter(PropertyNames)
+            txt  &=  i.GetPropertyAsQueryStringParameter(PropertyNames)
         Next
         Return txt
     End Function
@@ -750,15 +750,15 @@ Public Module ClassTools
             Dim obj = MyObject
             Dim parts = New List(Of String)()
             Dim [stop] = False
-            Dim current = New StringBuilder()
+            Dim current = ""
 
             For i As Integer = 0 To PropertyName.Length - 1
-                If PropertyName(i) <> "."c Then current.Append(PropertyName(i))
+                If PropertyName(i) <> "."c Then current &= (PropertyName(i))
                 If PropertyName(i) = "("c Then [stop] = True
                 If PropertyName(i) = ")"c Then [stop] = False
                 If (PropertyName(i) = "."c AndAlso Not [stop]) OrElse i = PropertyName.Length - 1 Then
                     parts.Add(current.ToString())
-                    current.Length = 0
+                    current = ""
                 End If
             Next
 
@@ -875,15 +875,15 @@ Public Module ClassTools
 
         Dim parts = New List(Of String)()
         Dim [stop] = False
-        Dim current = New StringBuilder()
+        Dim current = ""
 
         For i As Integer = 0 To PropertyName.Length - 1
-            If PropertyName(i) <> "."c Then current.Append(PropertyName(i))
+            If PropertyName(i) <> "."c Then current &= (PropertyName(i))
             If PropertyName(i) = "("c Then [stop] = True
             If PropertyName(i) = ")"c Then [stop] = False
             If (PropertyName(i) = "."c AndAlso Not [stop]) OrElse i = PropertyName.Length - 1 Then
                 parts.Add(current.ToString())
-                current.Length = 0
+                current = ""
             End If
         Next
 

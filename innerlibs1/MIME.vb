@@ -278,7 +278,7 @@ Public Class FileType
     Public Function ToFilterString() As String
         Dim r As String = ""
         For Each ext In Me.Extensions
-            r = r.Append("*" & ext & ";")
+            r &= ("*" & ext & ";")
         Next
         r = Me.Description & "|" & r.RemoveLastIf(";")
         Return r
@@ -316,8 +316,6 @@ Public Class FileTypeList
         Me.New(FileType.GetFileTypeList.Where(predicate).ToArray)
     End Sub
 
-
-
     ''' <summary>
     ''' Retorna uma string representando um filtro de caixa de dialogo WinForms
     ''' </summary>
@@ -325,7 +323,7 @@ Public Class FileTypeList
     Public Function ToFilterString() As String
         Dim r As String = ""
         For Each ext In Me
-            r = r.Append(ext.ToFilterString & "|")
+            r &= (ext.ToFilterString & "|")
         Next
         Return r.RemoveLastIf("|")
     End Function

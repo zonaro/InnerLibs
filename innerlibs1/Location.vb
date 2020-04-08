@@ -167,16 +167,16 @@ Namespace Locations
             Get
                 ParseType()
                 Dim retorno As String = Street
-                If Number.IsNotBlank Then retorno.Append(", " & Number)
-                If Complement.IsNotBlank Then retorno.Append(", " & Complement)
-                If Neighborhood.IsNotBlank Then retorno.Append(" - " & Neighborhood)
-                If City.IsNotBlank Then retorno.Append(" - " & City)
+                If Number.IsNotBlank Then retorno &= (", " & Number)
+                If Complement.IsNotBlank Then retorno &= (", " & Complement)
+                If Neighborhood.IsNotBlank Then retorno &= (" - " & Neighborhood)
+                If City.IsNotBlank Then retorno &= (" - " & City)
                 If StateCode.IsNotBlank Then
-                    retorno.Append(" - " & StateCode)
+                    retorno &= (" - " & StateCode)
                 Else
-                    If State.IsNotBlank Then retorno.Append(" - " & State)
+                    If State.IsNotBlank Then retorno &= (" - " & State)
                 End If
-                If PostalCode.IsNotBlank Then retorno.Append(" - " & PostalCode)
+                If PostalCode.IsNotBlank Then retorno &= (" - " & PostalCode)
                 Return retorno
             End Get
         End Property

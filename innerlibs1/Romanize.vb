@@ -170,7 +170,7 @@ Public Module Romanize
         Dim algarismosRomanos As String() = New String() {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
 
         ' inicializa o string builder
-        Dim resultado As New StringBuilder()
+        Dim resultado = ""
 
         ' percorre os valores nos arrays
         For i As Integer = 0 To 12
@@ -178,7 +178,7 @@ Public Module Romanize
             ' o numero correspondente ou o par ao resultado
             While ArabicNumber >= algarismosArabicos(i)
                 ArabicNumber -= algarismosArabicos(i)
-                resultado.Append(algarismosRomanos(i))
+                resultado &= (algarismosRomanos(i))
             End While
         Next
 

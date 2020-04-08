@@ -18,7 +18,7 @@ Public Class Alphabet
         End While
 
         While s.Length < 4
-            s.Append("0")
+            s &= "0"
         End While
 
         Return String.Join(String.Empty, s.Reverse())

@@ -42,13 +42,13 @@ Public Module SoundEx
             ' Conver to the word to a character array for faster processing
             Dim Chars() As Char = Text.ToCharArray()
             ' Buffer to build up with character codes
-            Dim Buffer As New System.Text.StringBuilder
-            Buffer.Length = 0
+            Dim Buffer = ""
+
             ' The current and previous character codes
             Dim PrevCode As Integer = 0
             Dim CurrCode As Integer = 0
             ' Append the first character to the buffer
-            Buffer.Append(Chars(0))
+            Buffer &= (Chars(0))
             ' Prepare variables for loop
             Dim i As Integer
             Dim LoopLimit As Integer = Size - 1
@@ -74,7 +74,7 @@ Public Module SoundEx
                 If (CurrCode <> PrevCode) Then
                     ' Check to see if the current code is 0 (a vowel); do not proceed
                     If (CurrCode <> 0) Then
-                        Buffer.Append(CurrCode)
+                        Buffer &= (CurrCode)
                     End If
                 End If
                 ' If the buffer size meets the length limit, then exit the loop
@@ -85,7 +85,7 @@ Public Module SoundEx
             ' Padd the buffer if required
             Size = Buffer.Length
             If (Size < Length) Then
-                Buffer.Append("0", (Length - Size))
+                Buffer = Buffer.PadLeft(Size, "0")
             End If
             ' Set the return value
             Value = Buffer.ToString()
@@ -243,14 +243,14 @@ Public NotInheritable Class Phonetic
                     End If
                 End If
 
-                Dim frasesaida As New StringBuilder()
+                Dim frasesaida = ""
                 Try
-                    frasesaida.Append(sb(0))
+                    frasesaida &= (sb(0))
                 Catch ex As Exception
                 End Try
                 For i As Integer = 1 To sb.Length - 1
                     If frasesaida(frasesaida.Length - 1) <> sb(i) OrElse Char.IsDigit(sb(i)) Then
-                        frasesaida.Append(sb(i))
+                        frasesaida &= (sb(i))
                     End If
                 Next
                 Return frasesaida.ToString

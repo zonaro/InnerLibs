@@ -301,7 +301,7 @@ Namespace QuestionTest
                 Dim head = ""
                 head &= Title.WrapInTag("title").ToString.WrapInTag("head").ToString
 
-                Dim body = (Title.WrapInTag("h1").ToString.Append(Header.WrapInTag("header").ToString))
+                Dim body = (Title.WrapInTag("h1").ToString & (Header.WrapInTag("header").ToString))
 
                 body &= Me.Select(Function(q) q.HTML).ToArray.Join("").WrapInTag("ol").ToString.WrapInTag("article").Class.Add("Questions").ToString
 
@@ -398,7 +398,7 @@ Namespace QuestionTest
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
-            Return Number.ToString.Append(") ").Append(Statement.Text)
+            Return Number.ToString & (") ") & (Statement.Text)
         End Function
 
         ''' <summary>
@@ -517,9 +517,9 @@ Namespace QuestionTest
             Get
                 HTML = ""
                 If Question IsNot Nothing Then
-                    HTML.Append(Text.WrapInTag("h3").ToString)
+                    HTML &= (Text.WrapInTag("h3").ToString)
                     If Images.Count > 0 Then
-                        HTML.Append(Images.HTML)
+                        HTML &= (Images.HTML)
                     End If
                     Dim otr = HTML.WrapInTag("label").Class.Add("Statement")
                     otr.Attributes.Add("for", Me.Question.ID)
@@ -953,7 +953,7 @@ Namespace QuestionTest
         Public ReadOnly Property ID As String
             Get
                 If Question IsNot Nothing Then
-                    Return Me.Question.ID.Append("A").Append(Number)
+                    Return Me.Question.ID & ("A") & (Number)
                 End If
                 Return Nothing
             End Get

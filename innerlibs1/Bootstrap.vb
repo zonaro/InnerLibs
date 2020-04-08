@@ -1,10 +1,7 @@
-﻿Imports System.Runtime.CompilerServices
-Imports System.Web.UI.HtmlControls
-Imports System.Xml
-Namespace HtmlParser.Bootstrap
-
+﻿Namespace HtmlParser.Bootstrap
 
     Public Class BootstrapBuilder
+
         Public Enum ElementType
             [Default]
             Primary
@@ -14,19 +11,18 @@ Namespace HtmlParser.Bootstrap
             Danger
         End Enum
 
-
         Public ReadOnly Property Panel(Title As String, Optional Footer As String = Nothing, Optional Content As String = "", Optional Type As ElementType = ElementType.Default) As HtmlElement
             Get
                 Dim el As New HtmlElement("div", "")
                 el.Class.Add(CreateObjectClass("panel", Type))
-                el.InnerHTML.Append("<div class='panel-heading'>")
-                el.InnerHTML.Append("<h3 class='panel-title'>" & Title & "</h3>")
-                el.InnerHTML.Append("</div>")
-                el.InnerHTML.Append("<div class='panel-body'>")
-                el.InnerHTML.Append(Content)
-                el.InnerHTML.Append("</div>")
+                el.InnerHTML &= ("<div class='panel-heading'>")
+                el.InnerHTML &= ("<h3 class='panel-title'>" & Title & "</h3>")
+                el.InnerHTML &= ("</div>")
+                el.InnerHTML &= ("<div class='panel-body'>")
+                el.InnerHTML &= (Content)
+                el.InnerHTML &= ("</div>")
                 If Footer.IsNotBlank() Then
-                    el.InnerHTML.Append("<div class='panel-footer'>" & Footer & "</div>")
+                    el.InnerHTML &= ("<div class='panel-footer'>" & Footer & "</div>")
                 End If
                 Return el
             End Get
@@ -38,9 +34,9 @@ Namespace HtmlParser.Bootstrap
                 el.Class.Add(CreateObjectClass("alert", Type))
                 el.Attribute("role") = "alert"
                 If Dismissible Then
-                    el.InnerHTML.Append("<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>")
+                    el.InnerHTML &= ("<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>")
                 End If
-                el.InnerHTML.Append(Content)
+                el.InnerHTML &= (Content)
                 Return el
             End Get
         End Property
@@ -71,10 +67,6 @@ Namespace HtmlParser.Bootstrap
             End Get
         End Property
 
-
-
-
-
         Public ReadOnly Property Container(ParamArray Rows As HtmlElement()) As HtmlElement
             Get
                 Dim el As New HtmlElement("div")
@@ -83,7 +75,6 @@ Namespace HtmlParser.Bootstrap
                 Return el
             End Get
         End Property
-
 
         ''' <summary>
         ''' Retorna uma classe baseada no tipo do element criado
@@ -110,7 +101,5 @@ Namespace HtmlParser.Bootstrap
         End Function
 
     End Class
-
-
 
 End Namespace

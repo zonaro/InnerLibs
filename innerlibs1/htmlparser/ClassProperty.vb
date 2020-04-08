@@ -1,6 +1,4 @@
-﻿Imports System.ComponentModel
-
-Namespace HtmlParser
+﻿Namespace HtmlParser
 
     Public Class ClassList
         Inherits List(Of String)
@@ -46,7 +44,7 @@ Namespace HtmlParser
                 End If
                 Dim p = ""
                 For Each k In styledic.Distinct
-                    p.Append(k.ToLower & " ")
+                    p &= (k.ToLower & " ")
                 Next
                 mElement.Attribute("class") = p.Trim
             End Set
@@ -183,7 +181,6 @@ Namespace HtmlParser
             Next
             Return Me.ToString
         End Function
-
 
     End Class
 

@@ -79,7 +79,7 @@ Namespace Locations.GoogleMaps
                 html = html.Replace("YOUR_API_KEY", APIKey)
                 html = html.Replace("[zoom]", Zoom)
 
-                mk.Append(MakeMarker(Marker, contador))
+                mk &= (MakeMarker(Marker, contador))
                 contador.Increment
             Next
             html = html.Replace("[marker_area]", mk)
@@ -90,19 +90,19 @@ Namespace Locations.GoogleMaps
 
         Private Function MakeMarker(Marker As Marker, Iterator As Integer) As String
             Dim html = "var latlang" & Iterator & " = new google.maps.LatLng(" & Marker.Location.Latitude & "," & Marker.Location.Longitude & ");  " & Environment.NewLine
-            html.Append(" var infowindow" & Iterator & " = new google.maps.InfoWindow({" & Environment.NewLine)
-            html.Append("content: """ & Marker.Description & " """ & Environment.NewLine)
-            html.Append("});" & Environment.NewLine)
-            If Marker.Pin.IsNotBlank Then html.Append("var pin" & Iterator & " = '" & Marker.Pin & "'" & Environment.NewLine)
-            html.Append("var marker" & Iterator & " = new google.maps.Marker({" & Environment.NewLine)
-            html.Append(" position:  latlang" & Iterator & ", " & Environment.NewLine)
-            If Marker.Pin.IsNotBlank Then html.Append("  icon:   """ & Marker.Pin & """," & Environment.NewLine)
-            html.Append("  title:  """ & Marker.Title & """" & Environment.NewLine)
-            html.Append(" });" & Environment.NewLine & Environment.NewLine)
-            html.Append(" marker" & Iterator & ".setMap(innermap);" & Environment.NewLine & Environment.NewLine)
-            html.Append("marker" & Iterator & ".addListener('click', function() {" & Environment.NewLine)
-            html.Append(" infowindow" & Iterator & ".open(innermap, marker" & Iterator & ");" & Environment.NewLine)
-            html.Append(" });" & Environment.NewLine)
+            html &= (" var infowindow" & Iterator & " = new google.maps.InfoWindow({" & Environment.NewLine)
+            html &= ("content: """ & Marker.Description & " """ & Environment.NewLine)
+            html &= ("});" & Environment.NewLine)
+            If Marker.Pin.IsNotBlank Then html &= ("var pin" & Iterator & " = '" & Marker.Pin & "'" & Environment.NewLine)
+            html &= ("var marker" & Iterator & " = new google.maps.Marker({" & Environment.NewLine)
+            html &= (" position:  latlang" & Iterator & ", " & Environment.NewLine)
+            If Marker.Pin.IsNotBlank Then html &= ("  icon:   """ & Marker.Pin & """," & Environment.NewLine)
+            html &= ("  title:  """ & Marker.Title & """" & Environment.NewLine)
+            html &= (" });" & Environment.NewLine & Environment.NewLine)
+            html &= (" marker" & Iterator & ".setMap(innermap);" & Environment.NewLine & Environment.NewLine)
+            html &= ("marker" & Iterator & ".addListener('click', function() {" & Environment.NewLine)
+            html &= (" infowindow" & Iterator & ".open(innermap, marker" & Iterator & ");" & Environment.NewLine)
+            html &= (" });" & Environment.NewLine)
             Return html
         End Function
 

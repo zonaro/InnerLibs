@@ -8,7 +8,7 @@ Public Class tokenizer
 
     Public startpos As Integer
     Public type As eTokenType
-    Public value As New System.Text.StringBuilder
+    Public value = ""
 
     Friend Sub New(ByVal Parser As parser, ByVal str As String, Optional ByVal syntax As eParserSyntax = eParserSyntax.Vb)
         mString = str
@@ -21,11 +21,11 @@ Public Class tokenizer
 
     Friend Sub RaiseError(ByVal msg As String, Optional ByVal ex As Exception = Nothing)
         If TypeOf ex Is Evaluator.parserException Then
-            msg &= ". " & ex.Message
+            msg  &=  ". " & ex.Message
         Else
-            msg &= " " & " at position " & startpos
+            msg  &=  " " & " at position " & startpos
             If Not ex Is Nothing Then
-                msg &= ". " & ex.Message
+                msg  &=  ". " & ex.Message
             End If
         End If
         Throw New Evaluator.parserException(msg, Me.mString, Me.mPos)
@@ -35,7 +35,7 @@ Public Class tokenizer
         If Len(msg) = 0 Then
             msg = ""
         Else
-            msg &= "; "
+            msg  &=  "; "
         End If
         RaiseError(msg & "Unexpected " & type.ToString().Replace("_"c, " "c) & " : " & value.ToString)
     End Sub
@@ -43,16 +43,16 @@ Public Class tokenizer
     Friend Sub RaiseWrongOperator(ByVal tt As eTokenType, ByVal ValueLeft As Object, ByVal valueRight As Object, Optional ByVal msg As String = Nothing)
         If Len(msg) > 0 Then
             msg.Replace("[op]", tt.GetType.ToString)
-            msg &= ". "
+            msg  &=  ". "
         End If
         msg = "Cannot apply the operator " & tt.ToString
         If ValueLeft Is Nothing Then
-            msg &= " on nothing"
+            msg  &=  " on nothing"
         Else
-            msg &= " on a " & ValueLeft.GetType.ToString()
+            msg  &=  " on a " & ValueLeft.GetType.ToString()
         End If
         If Not valueRight Is Nothing Then
-            msg &= " and a " & valueRight.GetType.ToString()
+            msg  &=  " and a " & valueRight.GetType.ToString()
         End If
         RaiseError(msg)
     End Sub
@@ -175,14 +175,14 @@ Public Class tokenizer
     Private Sub ParseNumber()
         type = eTokenType.value_number
         While mCurChar >= "0"c And mCurChar <= "9"c
-            value.Append(mCurChar)
+            value &= (mCurChar)
             NextChar()
         End While
         If mCurChar = "."c Then
-            value.Append(mCurChar)
+            value &= (mCurChar)
             NextChar()
             While mCurChar >= "0"c And mCurChar <= "9"c
-                value.Append(mCurChar)
+                value &= (mCurChar)
                 NextChar()
             End While
         End If
@@ -195,7 +195,7 @@ Public Class tokenizer
             Or (mCurChar >= "A"c And mCurChar <= "Z"c) _
             Or (mCurChar >= Chr(128)) _
             Or (mCurChar = "_"c)
-            value.Append(mCurChar)
+            value &= (mCurChar)
             NextChar()
         End While
         Select Case value.ToString.ToLower
@@ -236,7 +236,7 @@ Public Class tokenizer
             If InQuote AndAlso mCurChar = OriginalChar Then
                 NextChar()
                 If mCurChar = OriginalChar Then
-                    value.Append(mCurChar)
+                    value &= (mCurChar)
                 Else
                     'End of String
                     Exit Sub
@@ -245,7 +245,7 @@ Public Class tokenizer
                 NextChar()
                 If mCurChar = "["c Then
                     NextChar()
-                    Dim SaveValue As System.Text.StringBuilder = value
+                    Dim SaveValue As String = value
                     Dim SaveStartPos As Integer = startpos
                     Me.value = New System.Text.StringBuilder
                     Me.NextToken() ' restart the tokenizer for the subExpr
@@ -253,22 +253,22 @@ Public Class tokenizer
                     Try
                         ' subExpr = mParser.ParseExpr(0, ePriority.none)
                         If subExpr Is Nothing Then
-                            Me.value.Append("<nothing>")
+                            Me.value &= ("<nothing>")
                         Else
-                            Me.value.Append(Evaluator.ConvertToString(subExpr))
+                            Me.value &= (Evaluator.ConvertToString(subExpr))
                         End If
                     Catch ex As Exception
                         ' XML don't like < and >
-                        Me.value.Append("[Error " & ex.Message & "]")
+                        Me.value &= ("[Error " & ex.Message & "]")
                     End Try
-                    SaveValue.Append(value.ToString)
+                    SaveValue &= (value.ToString)
                     value = SaveValue
                     startpos = SaveStartPos
                 Else
-                    value.Append("%"c)
+                    value &= ("%"c)
                 End If
             Else
-                value.Append(mCurChar)
+                value &= (mCurChar)
                 NextChar()
             End If
         Loop
@@ -281,7 +281,7 @@ Public Class tokenizer
         NextChar() ' eat the #
         Dim zone As Integer = 0
         While (mCurChar >= "0"c And mCurChar <= "9"c) Or (mCurChar = "/"c) Or (mCurChar = ":"c) Or (mCurChar = " "c)
-            value.Append(mCurChar)
+            value &= (mCurChar)
             NextChar()
         End While
         If mCurChar <> "#" Then

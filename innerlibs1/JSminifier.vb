@@ -219,7 +219,7 @@ Public Class JSMin
     End Function
 
     Private Sub put(ByVal c As Integer)
-        sw = sw.Append(ChrW(c))
+        sw &= (ChrW(c))
     End Sub
 
     Function IsAlphanum(ByVal c As Integer) As Boolean

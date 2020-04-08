@@ -46,7 +46,7 @@ Namespace HtmlParser
 
         Private Shared Function ReadWord(reader As System.IO.StringReader) As String
 
-            Dim sb As New StringBuilder()
+            Dim sb = ""
 
             While True
 
@@ -64,7 +64,7 @@ Namespace HtmlParser
 
                 End If
 
-                sb.Append(c)
+                sb &= (c)
             End While
 
             Return sb.ToString()

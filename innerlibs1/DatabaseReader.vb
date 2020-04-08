@@ -731,7 +731,7 @@ Partial Public Class DataBase
             If Me.HasRows Then
                 While Me.Read()
                     For Each it In Me.GetColumns()
-                        param.Append("&" & it & "=" & HttpUtility.UrlEncode("" & If(Me(it), "")))
+                        param &= ("&" & it & "=" & HttpUtility.UrlEncode("" & If(Me(it), "")))
                     Next
                 End While
             End If
@@ -822,7 +822,7 @@ Partial Public Class DataBase
             dt.TableName = ItemName.IsNull("Row", False)
             Dim xmlWriter = New StringWriter()
             dt.WriteXml(xmlWriter)
-            stringas.Append(xmlWriter.ToString)
+            stringas &= (xmlWriter.ToString)
             doc.LoadXml(stringas)
             Dim newDocElem As System.Xml.XmlElement = doc.CreateElement(TableName.IsNull("Table", False))
 
@@ -893,24 +893,24 @@ Partial Public Class DataBase
                     Dim header As String = ""
                     Dim base As String = ""
                     For Each item As String In Me.GetColumns()
-                        header.Append("|" & item)
-                        base.Append("|" & item.Censor("-", {item}))
+                        header &= ("|" & item)
+                        base &= ("|" & item.Censor("-", {item}))
                     Next
-                    header.Append("|" & Environment.NewLine)
-                    base.Append("|" & Environment.NewLine)
+                    header &= ("|" & Environment.NewLine)
+                    base &= ("|" & Environment.NewLine)
 
-                    Returned.Append(header)
-                    Returned.Append(base)
+                    Returned &= (header)
+                    Returned &= (base)
 
                     While Me.Read()
                         For Each item As String In Me.GetColumns()
-                            Returned.Append("|" & OldJsonSerializer.SerializeJSON(Me(item)))
+                            Returned &= ("|" & OldJsonSerializer.SerializeJSON(Me(item)))
                         Next
-                        Returned.Append("|" & Environment.NewLine)
+                        Returned &= ("|" & Environment.NewLine)
                     End While
                 End If
-                Returned.Append(Environment.NewLine)
-                Returned.Append(Environment.NewLine)
+                Returned &= (Environment.NewLine)
+                Returned &= (Environment.NewLine)
             Loop While Me.NextResult()
             Return Returned
 
@@ -927,23 +927,23 @@ Partial Public Class DataBase
                 Dim Returned As String = ""
                 If Me.HasRows Then
                     Dim col = Me.GetColumns()
-                    Returned.Append(" <thead>")
-                    Returned.Append("     <tr>")
+                    Returned &= (" <thead>")
+                    Returned &= ("     <tr>")
                     For Each item As String In col
-                        Returned.Append("         <th>" & If(BeautfyColumnNames, item.ToProperCase.Replace("_", " ").AdjustBlankSpaces, item) & "</th>")
+                        Returned &= ("         <th>" & If(BeautfyColumnNames, item.ToProperCase.Replace("_", " ").AdjustBlankSpaces, item) & "</th>")
                     Next
-                    Returned.Append("     </tr>")
-                    Returned.Append(" </thead>")
-                    Returned.Append(" <tbody>")
+                    Returned &= ("     </tr>")
+                    Returned &= (" </thead>")
+                    Returned &= (" <tbody>")
                     While Me.Read()
-                        Returned.Append("     <tr>")
+                        Returned &= ("     <tr>")
                         For Each item As String In col
-                            Returned.Append(" <td>" & If(Me(item), "") & "</td>")
+                            Returned &= (" <td>" & If(Me(item), "") & "</td>")
 
                         Next
-                        Returned.Append("     </tr>")
+                        Returned &= ("     </tr>")
                     End While
-                    Returned.Append(" </tbody>")
+                    Returned &= (" </tbody>")
 
                 End If
                 Dim tabletag As New HtmlParser.HtmlElement("table")

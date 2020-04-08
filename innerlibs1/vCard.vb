@@ -2,6 +2,7 @@ Imports System.IO
 Imports System.Text
 Imports System.Web
 Imports InnerLibs
+
 ''' <summary>
 ''' Um objeto vCard
 ''' </summary>
@@ -23,6 +24,7 @@ Public Class vCard
 
     'Collections
     Public Property URLs As New vURLs()
+
     Public Property Emails As New vEmails()
     Public Property Telephones As New vTelephones()
     Public Property Addresses As New vAddresss()
@@ -34,29 +36,30 @@ Public Class vCard
     End Sub
 
     Public Overrides Function ToString() As String
-        Dim result As New System.Text.StringBuilder()
-        result.AppendFormat("BEGIN:VCARD{0}", System.Environment.NewLine)
-        result.AppendFormat("VERSION:2.1{0}", System.Environment.NewLine)
-        result.AppendFormat("N:{0};{1};{2};{3};{4}{5}", LastName, FirstName, MiddleName, Title, Suffix, System.Environment.NewLine)
-        If isNotBlank(FormattedName) Then result.AppendFormat("FN:{0}{1}", FormattedName, System.Environment.NewLine)
-        If isNotBlank(Nickname) Then result.AppendFormat("NICKNAME:{0}{1}", Nickname, System.Environment.NewLine)
-        If Birthday.HasValue AndAlso Birthday.Value > Date.MinValue Then result.AppendFormat("BDAY:{0}{1}", Birthday.Value.ToUniversalTime.ToString("yyyyMMdd"), System.Environment.NewLine)
-        If isNotBlank(Note) Then result.AppendFormat("NOTE;ENCODING=QUOTED-PRINTABLE:{0}{1}", Note.Replace(System.Environment.NewLine, "=0D=0A"), System.Environment.NewLine)
-        result.AppendFormat("ORG:{0};{1}{2}", Organization, OrganizationalUnit, System.Environment.NewLine)
-        If isNotBlank(JobTitle) Then result.AppendFormat("TITLE:{0}{1}", JobTitle, System.Environment.NewLine)
-        If isNotBlank(Role) Then result.AppendFormat("ROLE:{0}{1}", Role, System.Environment.NewLine)
-        result.Append(Emails.ToString())
-        result.Append(Telephones.ToString())
-        result.Append(URLs.ToString())
-        result.Append(Addresses.ToString())
-        result.AppendFormat("REV:{0}{1}", LastModified.ToUniversalTime.ToString("yyyyMMdd\THHmmss\Z"), System.Environment.NewLine)
-        result.AppendFormat("END:VCARD{0}", System.Environment.NewLine)
+        Dim result = ""
+        result &= Format("BEGIN:VCARD{0}", System.Environment.NewLine)
+        result &= Format("VERSION:2.1{0}", System.Environment.NewLine)
+        result &= Format("N:{0};{1};{2};{3};{4}{5}", LastName, FirstName, MiddleName, Title, Suffix, System.Environment.NewLine)
+        If IsNotBlank(FormattedName) Then result &= Format("FN:{0}{1}", FormattedName, System.Environment.NewLine)
+        If IsNotBlank(Nickname) Then result &= Format("NICKNAME:{0}{1}", Nickname, System.Environment.NewLine)
+        If Birthday.HasValue AndAlso Birthday.Value > Date.MinValue Then result &= Format("BDAY:{0}{1}", Birthday.Value.ToUniversalTime.ToString("yyyyMMdd"), System.Environment.NewLine)
+        If IsNotBlank(Note) Then result &= Format("NOTE;ENCODING=QUOTED-PRINTABLE:{0}{1}", Note.Replace(System.Environment.NewLine, "=0D=0A"), System.Environment.NewLine)
+        result &= Format("ORG:{0};{1}{2}", Organization, OrganizationalUnit, System.Environment.NewLine)
+        If IsNotBlank(JobTitle) Then result &= Format("TITLE:{0}{1}", JobTitle, System.Environment.NewLine)
+        If IsNotBlank(Role) Then result &= Format("ROLE:{0}{1}", Role, System.Environment.NewLine)
+        result &= (Emails.ToString())
+        result &= (Telephones.ToString())
+        result &= (URLs.ToString())
+        result &= (Addresses.ToString())
+        result &= Format("REV:{0}{1}", LastModified.ToUniversalTime.ToString("yyyyMMdd\THHmmss\Z"), System.Environment.NewLine)
+        result &= Format("END:VCARD{0}", System.Environment.NewLine)
         Return result.ToString
     End Function
 
     Public Function ToQRCode(Optional Size As Integer = 100) As Drawing.Image
         Return HttpUtility.UrlEncode(ToString).ToQRCode(Size)
     End Function
+
     Public Function ToFile(FullPath As String) As FileInfo
         Dim writer As New StreamWriter(FullPath & ".vcf", False, Encoding.UTF8)
         writer.WriteLine(ToString)
@@ -97,13 +100,14 @@ Public Class vCard
         End Sub
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
+            Dim result = ""
             Dim item As vEmail
             For Each item In Me.InnerList
-                result.AppendFormat("{0}", item.ToString)
+                result &= Format("{0}", item.ToString)
             Next
             Return result.ToString
         End Function
+
     End Class
 
     Public Class vEmail
@@ -121,13 +125,14 @@ Public Class vCard
         End Sub
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
-            result.Append("EMAIL")
-            If Preferred Then result.Append(";PREF")
-            result.AppendFormat(";{0}", Type.ToUpper)
-            result.AppendFormat(":{0}{1}", EmailAddress, System.Environment.NewLine)
+            Dim result = ""
+            result &= ("EMAIL")
+            If Preferred Then result &= (";PREF")
+            result &= Format(";{0}", Type.ToUpper)
+            result &= Format(":{0}{1}", EmailAddress, System.Environment.NewLine)
             Return result.ToString
         End Function
+
     End Class
 
     Public Class vURLs
@@ -163,13 +168,14 @@ Public Class vCard
         End Sub
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
+            Dim result = ""
             Dim item As vURL
             For Each item In Me.InnerList
-                result.AppendFormat("{0}", item.ToString)
+                result &= Format("{0}", item.ToString)
             Next
             Return result.ToString
         End Function
+
     End Class
 
     Public Class vURL
@@ -187,13 +193,14 @@ Public Class vCard
         End Sub
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
-            result.Append("URL")
-            If Preferred Then result.Append(";PREF")
-            If Not IsNothing(Location) Then result.AppendFormat(";{0}", Location.ToString.ToUpper)
-            result.AppendFormat(":{0}{1}", URL, System.Environment.NewLine)
+            Dim result = ""
+            result &= ("URL")
+            If Preferred Then result &= (";PREF")
+            If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+            result &= Format(":{0}{1}", URL, System.Environment.NewLine)
             Return result.ToString
         End Function
+
     End Class
 
     Public Class vTelephones
@@ -229,13 +236,14 @@ Public Class vCard
         End Sub
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
+            Dim result = ""
             Dim item As vTelephone
             For Each item In Me.InnerList
-                result.AppendFormat("{0}", item.ToString)
+                result &= Format("{0}", item.ToString)
             Next
             Return result.ToString
         End Function
+
     End Class
 
     Public Class vTelephone
@@ -261,12 +269,12 @@ Public Class vCard
         End Sub
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
-            result.Append("TEL")
-            If Preferred Then result.Append(";PREF")
-            If Not IsNothing(Location) Then result.AppendFormat(";{0}", Location.ToString.ToUpper)
-            If Not IsNothing(Type) Then result.AppendFormat(";{0}", Type.ToString.ToUpper)
-            result.AppendFormat(":{0}{1}", TelephoneNumber, System.Environment.NewLine)
+            Dim result = ""
+            result &= ("TEL")
+            If Preferred Then result &= (";PREF")
+            If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+            If Not IsNothing(Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
+            result &= Format(":{0}{1}", TelephoneNumber, System.Environment.NewLine)
             Return result.ToString
         End Function
 
@@ -305,13 +313,14 @@ Public Class vCard
         End Sub
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
+            Dim result = ""
             Dim item As vAddress
             For Each item In Me.InnerList
-                result.AppendFormat("{0}", item.ToString)
+                result &= Format("{0}", item.ToString)
             Next
             Return result.ToString
         End Function
+
     End Class
 
     Public Class vAddress
@@ -327,31 +336,32 @@ Public Class vCard
         Public Type As vAddressTypes    'PARCEL, DOM, INT
 
         Public Overrides Function ToString() As String
-            Dim result As New System.Text.StringBuilder()
+            Dim result = ""
 
             'Write the Address
-            result.Append("ADR")
-            If Preferred Then result.Append(";PREF")
-            If Not IsNothing(Location) Then result.AppendFormat(";{0}", Location.ToString.ToUpper)
-            If Not IsNothing(Type) Then result.AppendFormat(";{0}", Type.ToString.ToUpper)
-            result.AppendFormat(";ENCODING=QUOTED-PRINTABLE:;{0}", AddressName)
-            result.AppendFormat(";{0}", StreetAddress.Replace(System.Environment.NewLine, "=0D=0A"))
-            result.AppendFormat(";{0}", City.Replace(System.Environment.NewLine, "=0D=0A"))
-            result.AppendFormat(";{0}", State.Replace(System.Environment.NewLine, "=0D=0A"))
-            result.AppendFormat(";{0}", Zip.Replace(System.Environment.NewLine, "=0D=0A"))
-            result.AppendFormat(";{0}", Country.Replace(System.Environment.NewLine, "=0D=0A"))
-            result.Append(System.Environment.NewLine)
+            result &= ("ADR")
+            If Preferred Then result &= (";PREF")
+            If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+            If Not IsNothing(Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
+            result &= Format(";ENCODING=QUOTED-PRINTABLE:;{0}", AddressName)
+            result &= Format(";{0}", StreetAddress.Replace(System.Environment.NewLine, "=0D=0A"))
+            result &= Format(";{0}", City.Replace(System.Environment.NewLine, "=0D=0A"))
+            result &= Format(";{0}", State.Replace(System.Environment.NewLine, "=0D=0A"))
+            result &= Format(";{0}", Zip.Replace(System.Environment.NewLine, "=0D=0A"))
+            result &= Format(";{0}", Country.Replace(System.Environment.NewLine, "=0D=0A"))
+            result &= (System.Environment.NewLine)
 
             'Write the Address label
             If AddressLabel.Length > 0 Then
-                result.Append("LABEL")
-                If Not IsNothing(Location) Then result.AppendFormat(";{0}", Location.ToString.ToUpper)
-                If Not IsNothing(Type) Then result.AppendFormat(";{0}", Type.ToString.ToUpper)
-                result.AppendFormat(";ENCODING=QUOTED-PRINTABLE:{0}", AddressLabel.Replace(System.Environment.NewLine, "=0D=0A"))
+                result &= ("LABEL")
+                If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+                If Not IsNothing(Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
+                result &= Format(";ENCODING=QUOTED-PRINTABLE:{0}", AddressLabel.Replace(System.Environment.NewLine, "=0D=0A"))
             End If
 
             Return result.ToString
         End Function
+
     End Class
 
     Public Enum vLocations

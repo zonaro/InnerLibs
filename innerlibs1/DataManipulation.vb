@@ -51,7 +51,7 @@ Public Module DataManipulation
     <Extension()> Public Function [SELECT](Context As Data.Linq.DataContext, TableName As String, Optional WhereConditions As String = "", Optional Columns As String() = Nothing) As DataBase.Reader
         Dim cmd = "SELECT " & If(Columns.IsEmpty, "*", Columns.Join(",")) & " FROM " & TableName
         If WhereConditions.IsNotBlank Then
-            cmd.Append(" where " & WhereConditions.TrimAny(" ", "where", "WHERE"))
+            cmd &= (" where " & WhereConditions.TrimAny(" ", "where", "WHERE"))
         End If
         Return Context.RunSQL(cmd)
     End Function
@@ -106,12 +106,12 @@ Public Module DataManipulation
         Dim param = " @" & Key & "=" & Value.IsNull(Quotes:=Not Value.IsNumber)
         If (Command.Contains("@")) Then
             If Command.Trim.EndsWith(",") Then
-                Command.Append(" " & param)
+                Command &= (" " & param)
             Else
-                Command.Append(", " & param)
+                Command &= (", " & param)
             End If
         Else
-            Command.Append(param)
+            Command &= (param)
         End If
         Return Command
     End Function
@@ -212,7 +212,7 @@ Public Module DataManipulation
     <Extension()> Public Function ToUPDATE(Of T)(Dic As IDictionary(Of String, T), TableName As String, WhereClausule As String) As String
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In Dic.Keys
-            cmd.Append(String.Format(" {0} = {1},", col, Dic(col).ToString.IsNull(Quotes:=Not Dic(col).ToString.IsNumber)) & Environment.NewLine)
+            cmd &= (String.Format(" {0} = {1},", col, Dic(col).ToString.IsNull(Quotes:=Not Dic(col).ToString.IsNumber)) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Return cmd

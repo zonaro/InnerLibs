@@ -870,20 +870,9 @@ Public Module Text
     <Extension()>
     Public Function AppendUrlParameter(Url As String, Key As String, ParamArray Value As String()) As String
         For Each v In If(Value, {})
-            Url = Url.Append(String.Format("&{0}={1}", Key, v.IfBlank("")))
+            Url &= (String.Format("&{0}={1}", Key, v.IfBlank("")))
         Next
         Return Url
-    End Function
-
-    ''' <summary>
-    ''' Adiciona texto ao final de uma string
-    ''' </summary>
-    ''' <param name="Text">      Texto</param>
-    ''' <param name="AppendText">Texto adicional</param>
-    <Extension()>
-    Public Function Append(Text As String, AppendText As String) As String
-        Text = Text & AppendText
-        Return Text
     End Function
 
     ''' <summary>
@@ -893,7 +882,7 @@ Public Module Text
     ''' <param name="AppendText">Texto adicional</param>
     <Extension()>
     Public Function AppendLine(Text As String, AppendText As String) As String
-        Return Text.Append(AppendText & Environment.NewLine)
+        Return Text & (AppendText & Environment.NewLine)
     End Function
 
     ''' <summary>
@@ -914,7 +903,7 @@ Public Module Text
     ''' <param name="Test">      Teste</param>
     <Extension()> Public Function AppendIf(Text As String, AppendText As String, Test As Boolean) As String
         If Test Then
-            Text = Text.Append(AppendText)
+            Text &= (AppendText)
         End If
         Return Text
     End Function
@@ -985,7 +974,7 @@ Public Module Text
             For Each bad In BadWords
                 Dim censored = ""
                 For index = 1 To bad.Length
-                    censored = censored.Append(CensorshipCharacter)
+                    censored &= (CensorshipCharacter)
                 Next
                 For index = 0 To words.Length - 1
                     If words(index).RemoveDiacritics.RemoveAny(WordSplitters).ToLower = bad.RemoveDiacritics.RemoveAny(WordSplitters).ToLower Then
@@ -1295,14 +1284,14 @@ Public Module Text
             Dim palavra = c
             If palavra.EndsWith(".") AndAlso palavra.Length = 2 Then
                 palavra = palavra.ToUpper
-                Text = Text.Append(palavra)
+                Text &= (palavra)
 
                 Dim proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, "")
                 If Not (proximapalavra.EndsWith(".") AndAlso palavra.Length = 2) Then
-                    Text = Text.Append(" ")
+                    Text &= (" ")
                 End If
             Else
-                Text.Append(c & " ")
+                Text &= (c & " ")
             End If
         Next
 
@@ -2118,9 +2107,9 @@ Public Module Text
         Dim newstring As String = ""
         For Each c In Text.ToArray
             If c.IsIn(chars) Then
-                newstring = newstring.Append("\" & c)
+                newstring &= ("\" & c)
             Else
-                newstring = newstring.Append(c)
+                newstring &= (c)
             End If
         Next
         Return newstring
@@ -2543,19 +2532,19 @@ Public Module Text
                     'nao alterar estes tipos
                     Exit Select
                 Case phrase(index).EndsWith("ões")
-                    phrase(index) = phrase(index).RemoveLastIf("ões").Append("ão")
+                    phrase(index) = phrase(index).RemoveLastIf("ões") & ("ão")
                     Exit Select
                 Case phrase(index).EndsWith("ãos")
-                    phrase(index) = phrase(index).RemoveLastIf("ãos").Append("ão")
+                    phrase(index) = phrase(index).RemoveLastIf("ãos") & ("ão")
                     Exit Select
                 Case phrase(index).EndsWith("ães")
-                    phrase(index) = phrase(index).RemoveLastIf("ães").Append("ão")
+                    phrase(index) = phrase(index).RemoveLastIf("ães") & ("ão")
                     Exit Select
                 Case phrase(index).EndsWith("es")
                     phrase(index) = phrase(index).RemoveLastIf("es")
                     Exit Select
                 Case phrase(index).EndsWith("ns")
-                    phrase(index) = phrase(index).RemoveLastIf("ns").Append("m")
+                    phrase(index) = phrase(index).RemoveLastIf("ns") & ("m")
                     Exit Select
                 Case phrase(index).EndsWith("s")
                     phrase(index) = phrase(index).RemoveLastIf("s")
@@ -2564,7 +2553,7 @@ Public Module Text
                     'ja esta no singular
             End Select
             If endchar.IsAny(WordSplitters) Then
-                phrase(index).Append(endchar)
+                phrase(index) = phrase(index) & (endchar)
             End If
         Next
         Return phrase.Join(" ").AdjustWhiteSpaces
@@ -3537,7 +3526,7 @@ Public Module Text
         If Decimals > -1 Then
             Number = Decimal.Round(Number, Decimals)
         End If
-        Return Number.ToString.Append("%")
+        Return Number.ToString & ("%")
     End Function
 
     ''' <summary>
@@ -3546,7 +3535,7 @@ Public Module Text
     ''' <param name="Number"></param>
     ''' <returns></returns>
     <Extension()> Public Function ToPercentString(Number As Integer) As String
-        Return Number.ToString.Append("%")
+        Return Number.ToString & ("%")
     End Function
 
     ''' <summary>
@@ -3558,7 +3547,7 @@ Public Module Text
         If Decimals > -1 Then
             Number = Decimal.Round(Number.ChangeType(Of Decimal), Decimals)
         End If
-        Return Number.ToString.Append("%")
+        Return Number.ToString & ("%")
     End Function
 
     ''' <summary>
@@ -3567,7 +3556,7 @@ Public Module Text
     ''' <param name="Number"></param>
     ''' <returns></returns>
     <Extension()> Public Function ToPercentString(Number As Short) As String
-        Return Number.ToString.Append("%")
+        Return Number.ToString & ("%")
     End Function
 
     ''' <summary>
@@ -3576,7 +3565,7 @@ Public Module Text
     ''' <param name="Number"></param>
     ''' <returns></returns>
     <Extension()> Public Function ToPercentString(Number As Long) As String
-        Return Number.ToString.Append("%")
+        Return Number.ToString & ("%")
     End Function
 
     ''' <summary>

@@ -49,7 +49,7 @@ Public Module Verify
             For j = 0 To 9 + (k - 1)
                 soma += Integer.Parse(Text(j).ToString()) * (10 + k - j)
             Next
-            digito &= If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
+            digito  &=  If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
         Next
         Return (digito(0) = Text(9) And digito(1) = Text(10))
     End Function

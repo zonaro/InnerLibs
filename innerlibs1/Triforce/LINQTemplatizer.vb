@@ -531,7 +531,7 @@ Namespace Triforce
             Dim html As String = ""
             If Me.Count > 0 Then
                 For Each i In Me
-                    html &= i.ToString
+                    html  &=  i.ToString
                 Next
             Else
                 html = Empty
@@ -756,7 +756,7 @@ Namespace Triforce
                     Dim n = repeattag.Attribute("value")
                     If Not n.IsNumber Then n = n.Length
                     For index2 = 1 To n.ChangeType(Of Integer)
-                        repeattag.InnerHTML &= base.Replace("_index", index2)
+                        repeattag.InnerHTML  &=  base.Replace("_index", index2)
                     Next
                 Else
                     repeattag.Destroy()
@@ -786,7 +786,7 @@ Namespace Triforce
                         Dim html = ""
                         If othertag.Count > 0 Then
                             For Each node As HtmlElement In othertag
-                                html = html.Append(node.InnerHTML)
+                                html &= (node.InnerHTML)
                                 If node.HasAttribute("break") Then
                                     Exit For
                                 End If
@@ -957,7 +957,7 @@ Namespace Triforce
 
                         If after > 1 And after < PageCount Then
                             dic("##PageNumber##") = after
-                            pagestring = pagestring.Append(page.InnerHTML.ReplaceFrom(dic))
+                            pagestring &= (page.InnerHTML.ReplaceFrom(dic))
                             'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                         End If
                     Next
@@ -975,13 +975,13 @@ Namespace Triforce
 
                     dic("##PageNumber##") = PageNumber + 1
                     If nex IsNot Nothing Then
-                        pagestring = pagestring.AppendIf(nex.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
+                        pagestring &= If(nex.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
                         'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                     End If
 
                     dic("##PageNumber##") = PageCount
                     If last IsNot Nothing Then
-                        pagestring = pagestring.AppendIf(last.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
+                        pagestring &= If(last.InnerHTML.ReplaceFrom(dic), PageNumber < PageCount)
                         'pagestring = pagestring.Replace("##PaginationUrl##", PaginationUrlTemplate.ReplaceFrom(dic))
                     End If
 
@@ -1074,7 +1074,7 @@ Namespace Triforce
             Dim html As String = ""
             If Me.Count > 0 Then
                 For Each i In Me
-                    html &= i.ToString
+                    html  &=  i.ToString
                 Next
             Else
                 html = Empty

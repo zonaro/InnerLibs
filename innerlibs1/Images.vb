@@ -13,45 +13,6 @@ Imports System.Windows.Forms
 Public Module Images
 
     ''' <summary>
-    ''' Otimiza uma imagem para web
-    ''' </summary>
-    ''' <param name="Img">Imagem</param>
-    ''' <param name="Size">Tamanho base</param>
-    ''' <param name="Quality">Qualdiade Base</param>
-    ''' <returns></returns>
-    <Extension> Public Function OptimizeForWeb(Img As Image, Optional Size As Integer = 150, Optional Quality As Integer = 75) As Image
-
-        Using image = New Bitmap(Img)
-            Dim width, height As Integer
-
-            If image.Width > image.Height Then
-                width = Size
-                height = Convert.ToInt32(image.Height * Size / image.Width)
-            Else
-                width = Convert.ToInt32(image.Width * Size / image.Height)
-                height = Size
-            End If
-
-            Dim resized = New Bitmap(width, height)
-
-            Using graphics = System.Drawing.Graphics.FromImage(resized)
-                graphics.CompositingQuality = CompositingQuality.HighSpeed
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic
-                graphics.CompositingMode = CompositingMode.SourceCopy
-                graphics.DrawImage(image, 0, 0, width, height)
-                Using output As New MemoryStream
-                    Dim qualityParamId = Encoder.Quality
-                    Dim encoderParameters = New EncoderParameters(1)
-                    encoderParameters.Param(0) = New EncoderParameter(qualityParamId, Quality)
-                    Dim codec = ImageCodecInfo.GetImageDecoders().FirstOrDefault(Function(x) x.FormatID = ImageFormat.Png.Guid)
-                    resized.Save(output, codec, encoderParameters)
-                    Return System.Drawing.Image.FromStream(output)
-                End Using
-            End Using
-        End Using
-    End Function
-
-    ''' <summary>
     ''' Inverte as cores de uma imagem
     ''' </summary>
     ''' <param name="Img"></param>
@@ -398,6 +359,76 @@ Public Module Images
             Next
         Next
         Return bm
+    End Function
+
+    ''' <summary>
+    ''' Redimensiona uma imagem para o tamanho definido por uma porcentagem
+    ''' </summary>
+    ''' <param name="Original"></param>
+    ''' <param name="Percent">Porcentagem ( no formato '30% 'ou '20% x 10%')</param>
+    ''' <param name="OnlyResizeIfWider"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function ResizePercent(Original As Image, Percent As String, Optional OnlyResizeIfWider As Boolean = True) As Image
+        Dim size = New Size
+        If Percent.Contains("x") Then
+            Dim parts = Percent.Split("x")
+            If parts(0).AdjustBlankSpaces.EndsWith("%") Then
+                parts(0) = CalculateValueFromPercent(parts(0).AdjustBlankSpaces, Original.Width).Round.ToString
+            End If
+
+            If parts(1).AdjustBlankSpaces.EndsWith("%") Then
+                parts(1) = CalculateValueFromPercent(parts(1).AdjustBlankSpaces, Original.Height).Round.ToString
+            End If
+
+            size = New Size(parts(0).ToInteger, parts(1).ToInteger)
+        Else
+            If Percent.AdjustBlankSpaces.EndsWith("%") Then
+                Percent = Percent.Trim("%").AdjustBlankSpaces
+            End If
+            If Percent.IsNumber Then
+                size.Width = CalculateValueFromPercent(Percent.ToInteger, Original.Width).Round.ToString
+                size.Height = CalculateValueFromPercent(Percent.ToInteger, Original.Height).Round.ToString
+            End If
+
+        End If
+
+        Return Original.Resize(size, OnlyResizeIfWider)
+    End Function
+
+    <Extension()>
+    Public Function ResizePercent(Original As Image, Percent As Decimal, Optional OnlyResizeIfWider As Boolean = True) As Image
+        Return Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider)
+    End Function
+
+    ''' <summary>
+    ''' Redimensiona e converte uma Imagem
+    ''' </summary>
+    ''' <param name="Original">Imagem Original</param>
+    ''' <param name="ResizeExpression">uma string contendo uma expressão de tamanho</param>
+    ''' <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function Resize(Original As Image, ResizeExpression As String, Optional OnlyResizeIfWider As Boolean = True) As Image
+        If ResizeExpression.Contains("%") Then
+            Return Original.ResizePercent(ResizeExpression, OnlyResizeIfWider)
+        Else
+            Dim s = ResizeExpression.ToSize()
+            Return Original.Resize(s, OnlyResizeIfWider)
+        End If
+
+    End Function
+
+    ''' <summary>
+    ''' Redimensiona e converte uma Imagem
+    ''' </summary>
+    ''' <param name="Original">Imagem Original</param>
+    ''' <param name="Size">Tamanho</param>
+    ''' <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function Resize(Original As Image, Size As Size, Optional OnlyResizeIfWider As Boolean = True) As Image
+        Return Original.Resize(Size.Width, Size.Height, OnlyResizeIfWider)
     End Function
 
     ''' <summary>
@@ -807,14 +838,14 @@ Public Class PictureService
     Public Function Unsplash(Optional Index As Integer = -1, Optional Grayscale As Boolean = False, Optional Blur As Boolean = False) As Picture
 
         Dim url = "https://unsplash.it/"
-        url = url.AppendIf("g/", Grayscale)
-        url = url.Append(Me.Size.Width & "/" & Me.Size.Height)
-        url = url.Append("?")
-        url = url.AppendIf("&blur", Blur)
+        url &= If("g/", Grayscale)
+        url &= (Me.Size.Width & "/" & Me.Size.Height)
+        url &= ("?")
+        url &= If("&blur", Blur)
         If Index > -1 Then
-            url.Append("&image=" & Index)
+            url &= ("&image=" & Index)
         Else
-            url.Append("&random")
+            url &= ("&random")
         End If
         Return New Picture(url)
     End Function
@@ -830,11 +861,11 @@ Public Class PictureService
     Public Function LoremPixel(Optional Category As String = "", Optional Index As Integer = -1, Optional Grayscale As Boolean = False, Optional Text As String = "") As Picture
 
         Dim url = "http://lorempixel.com/"
-        url.AppendIf("g/", Grayscale)
-        url.Append(Me.Size.Width & "/" & Me.Size.Height)
-        url.AppendIf("/" & Category, Category.IsNotBlank)
-        url.AppendIf("/" & Index.LimitRange(1, 10), Index > -1)
-        url.AppendIf("/" & System.Web.HttpUtility.UrlEncode(Text), Text.IsNotBlank)
+        url &= If("g/", Grayscale)
+        url &= (Me.Size.Width & "/" & Me.Size.Height)
+        url &= If("/" & Category, Category.IsNotBlank)
+        url &= If("/" & Index.LimitRange(1, 10), Index > -1)
+        url &= If("/" & System.Web.HttpUtility.UrlEncode(Text), Text.IsNotBlank)
         Return New Picture(url)
 
     End Function

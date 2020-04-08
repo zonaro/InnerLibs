@@ -252,7 +252,6 @@
   <ItemGroup>
     <Content Include="Triforce\Fonema.sql" />
     <EmbeddedResource Include="DocumentationPage\DocumentationPage.html" />
-    <Content Include="js\InnerFormValidation.js" />
     <Content Include="js\InnerLibs.js" />
     <Content Include="js\jquery.innerform.js" />
     <None Include="Resources\logo_escuro.png" />

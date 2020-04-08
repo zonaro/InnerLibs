@@ -7773,15 +7773,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <remarks></remarks>
 
 </member>
-<member name="M:InnerLibs.Images.OptimizeForWeb(System.Drawing.Image,System.Int32,System.Int32)">
- <summary>
- Otimiza uma imagem para web
- </summary>
- <param name="Img">Imagem</param>
- <param name="Size">Tamanho base</param>
- <param name="Quality">Qualdiade Base</param>
- <returns></returns>
-</member>
 <member name="M:InnerLibs.Images.InvertImageColors(System.Drawing.Image)">
  <summary>
  Inverte as cores de uma imagem
@@ -7872,6 +7863,33 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Converte uma Imagem para Escala de cinza
  </summary>
  <param name="source">imagem original</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Images.ResizePercent(System.Drawing.Image,System.String,System.Boolean)">
+ <summary>
+ Redimensiona uma imagem para o tamanho definido por uma porcentagem
+ </summary>
+ <param name="Original"></param>
+ <param name="Percent">Porcentagem ( no formato '30% 'ou '20% x 10%')</param>
+ <param name="OnlyResizeIfWider"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Images.Resize(System.Drawing.Image,System.String,System.Boolean)">
+ <summary>
+ Redimensiona e converte uma Imagem
+ </summary>
+ <param name="Original">Imagem Original</param>
+ <param name="ResizeExpression">uma string contendo uma expressão de tamanho</param>
+ <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Images.Resize(System.Drawing.Image,System.Drawing.Size,System.Boolean)">
+ <summary>
+ Redimensiona e converte uma Imagem
+ </summary>
+ <param name="Original">Imagem Original</param>
+ <param name="Size">Tamanho</param>
+ <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Images.Resize(System.Drawing.Image,System.Int32,System.Int32,System.Boolean)">
@@ -9871,13 +9889,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <param name="Text"></param>
  <returns></returns>
-</member>
-<member name="M:InnerLibs.Text.Append(System.String,System.String)">
- <summary>
- Adiciona texto ao final de uma string
- </summary>
- <param name="Text">      Texto</param>
- <param name="AppendText">Texto adicional</param>
 </member>
 <member name="M:InnerLibs.Text.AppendLine(System.String,System.String)">
  <summary>

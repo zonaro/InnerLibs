@@ -698,7 +698,10 @@ Namespace HtmlParser
         ''' <returns></returns>
         Public Overrides Function ToString() As String
             Dim html As String = ""
-            Me.ForEach(Function(x) html.Append(x.ToString))
+            Me.ForEach(Function(x)
+                           html &= (x.ToString)
+                           Return html
+                       End Function)
             Return html
         End Function
 

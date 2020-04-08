@@ -123,7 +123,7 @@ Public Module Directories
         If OutputFile.IsBlank Then
             OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") & FilesDirectory.Name
         End If
-        OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
+        OutputFile &= If(".zip", Not OutputFile.EndsWith(".zip"))
         ZipFile.CreateFromDirectory(FilesDirectory.FullName, OutputFile, CompressionLevel, True)
         Return New FileInfo(OutputFile)
     End Function
@@ -141,7 +141,7 @@ Public Module Directories
         If OutputFile.IsBlank Then
             OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") & FilesDirectory.Name
         End If
-        OutputFile.AppendIf(".zip", Not OutputFile.EndsWith(".zip"))
+        OutputFile &= If(".zip", Not OutputFile.EndsWith(".zip"))
         For Each arq In FilesDirectory.SearchFiles(SearchOption, Searches)
             Using archive As ZipArchive = ZipFile.Open(OutputFile, If(File.Exists(OutputFile), ZipArchiveMode.Update, ZipArchiveMode.Create))
                 Dim arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).ReplaceMany("/", Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), CompressionLevel)

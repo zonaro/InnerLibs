@@ -11,9 +11,9 @@ Public Module TableGenerator
     Public Function TableRow(ID As String, ParamArray Tds() As String) As String
         Dim retorno As String = "<tr id=" & ID.Quote & ">"
         For Each Td In Tds
-            retorno.Append("<td>" & Td & "</td>")
+            retorno &= ("<td>" & Td & "</td>")
         Next
-        retorno.Append("</tr>")
+        retorno &= ("</tr>")
         Return retorno
     End Function
 
@@ -25,9 +25,9 @@ Public Module TableGenerator
     Public Function TableHeader(ParamArray Ths() As String) As String
         Dim retorno As String = "<thead><tr>"
         For Each th In Ths
-            retorno.Append("<th>" & th & "</th>")
+            retorno &= ("<th>" & th & "</th>")
         Next
-        retorno.Append("</tr></thead>")
+        retorno &= ("</tr></thead>")
         Return retorno
     End Function
 
@@ -42,12 +42,12 @@ Public Module TableGenerator
     Public Function Table(TableHeader As String, Rows As String, Optional ID As String = "", Optional [Class] As String = "") As String
         Dim retorno As String = "<table class=" & [Class].Quote & " id=" & ID.Quote & ">"
         If TableHeader.IsNotBlank Then
-            retorno.Append(TableHeader)
+            retorno &= (TableHeader)
         End If
         If Rows.IsNotBlank Then
-            retorno.Append("<tbody>" & Rows & "</tbody>")
+            retorno &= ("<tbody>" & Rows & "</tbody>")
         End If
-        retorno.Append("</table>")
+        retorno &= ("</table>")
         Return retorno
     End Function
 

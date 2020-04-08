@@ -1,8 +1,5 @@
-Imports System.IO
-Imports System.Text
-Imports System.Collections
 Imports System.Collections.Specialized
-Imports InnerLibs.HtmlParser
+Imports System.Text
 
 Namespace HtmlParser
 
@@ -13,7 +10,6 @@ Namespace HtmlParser
     ''' Bascially, this class will build a tree containing HtmlNode elements.
     ''' </summary>
     Friend Class HtmlParser
-
 
         ''' <summary>
         ''' Internal FSM to represent the state of the parser
@@ -32,7 +28,6 @@ Namespace HtmlParser
         ''' </summary>
         Public Sub New()
         End Sub
-
 
 #Region "The main parser"
 
@@ -209,7 +204,7 @@ Namespace HtmlParser
         ''' <returns>HTML containing no comments</returns>
 
         Private Function RemoveComments(input As String) As String
-            Dim output As New StringBuilder()
+            Dim output = ""
 
             Dim i As Integer = 0
             Dim inTag As Boolean = False
@@ -224,11 +219,11 @@ Namespace HtmlParser
                     i += 3
                 ElseIf input.Substring(i, 1).Equals("<") Then
                     inTag = True
-                    output = output.Append("<")
+                    output &= ("<")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals(">") Then
                     inTag = False
-                    output = output.Append(">")
+                    output &= (">")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals("""") AndAlso inTag Then
                     Dim string_start As Integer = i
@@ -238,7 +233,7 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output = output.Append(input.Substring(string_start, i - string_start))
+                    output &= (input.Substring(string_start, i - string_start))
                 ElseIf input.Substring(i, 1).Equals("'") AndAlso inTag Then
                     Dim string_start As Integer = i
                     i += 1
@@ -247,9 +242,9 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output = output.Append(input.Substring(string_start, i - string_start))
+                    output &= (input.Substring(string_start, i - string_start))
                 Else
-                    output = output.Append(input.Substring(i, 1))
+                    output &= (input.Substring(i, 1))
                     i += 1
                 End If
             End While
@@ -265,7 +260,7 @@ Namespace HtmlParser
         ''' <returns>HTML containing no comments</returns>
 
         Private Function RemoveSGMLComments(input As String) As String
-            Dim output As New StringBuilder()
+            Dim output = ""
 
             Dim i As Integer = 0
             Dim inTag As Boolean = False
@@ -280,11 +275,11 @@ Namespace HtmlParser
                     i += 3
                 ElseIf input.Substring(i, 1).Equals("<") Then
                     inTag = True
-                    output = output.Append("<")
+                    output &= ("<")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals(">") Then
                     inTag = False
-                    output = output.Append(">")
+                    output &= (">")
                     i += 1
                 ElseIf input.Substring(i, 1).Equals("""") AndAlso inTag Then
                     Dim string_start As Integer = i
@@ -294,7 +289,7 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output = output.Append(input.Substring(string_start, i - string_start))
+                    output &= (input.Substring(string_start, i - string_start))
                 ElseIf input.Substring(i, 1).Equals("'") AndAlso inTag Then
                     Dim string_start As Integer = i
                     i += 1
@@ -303,9 +298,9 @@ Namespace HtmlParser
                         Exit While
                     End If
                     i += 1
-                    output = output.Append(input.Substring(string_start, i - string_start))
+                    output &= (input.Substring(string_start, i - string_start))
                 Else
-                    output = output.Append(input.Substring(i, 1))
+                    output &= (input.Substring(i, 1))
                     i += 1
                 End If
             End While
@@ -322,7 +317,7 @@ Namespace HtmlParser
         ''' <param name="input">The HTML to examine</param>
         ''' <returns>The HTML with the scripts marked up differently</returns>
         Private Function PreprocessScript(input As String, tag_name As String) As String
-            Dim output As New StringBuilder()
+            Dim output = ""
             Dim index As Integer = 0
             Dim tag_name_len As Integer = tag_name.Length
             While index < input.Length
@@ -333,38 +328,38 @@ Namespace HtmlParser
                         If index >= input.Length Then
                             Exit Do
                         ElseIf input.Substring(index, 1).Equals(">") Then
-                            output = output.Append(">")
+                            output &= (">")
                             index += 1
                             Exit Do
                         ElseIf index + 1 < input.Length AndAlso input.Substring(index, 2).Equals("/>") Then
-                            output = output.Append("/>")
+                            output &= ("/>")
                             index += 2
                             omit_body = True
                             Exit Do
                         ElseIf input.Substring(index, 1).Equals("""") Then
-                            output = output.Append("""")
+                            output &= ("""")
                             index += 1
                             While index < input.Length AndAlso Not input.Substring(index, 1).Equals("""")
-                                output = output.Append(input.Substring(index, 1))
+                                output &= (input.Substring(index, 1))
                                 index += 1
                             End While
                             If index < input.Length Then
                                 index += 1
-                                output = output.Append("""")
+                                output &= ("""")
                             End If
                         ElseIf input.Substring(index, 1).Equals("'") Then
-                            output = output.Append("'")
+                            output &= ("'")
                             index += 1
                             While index < input.Length AndAlso Not input.Substring(index, 1).Equals("'")
-                                output = output.Append(input.Substring(index, 1))
+                                output &= (input.Substring(index, 1))
                                 index += 1
                             End While
                             If index < input.Length Then
                                 index += 1
-                                output = output.Append("'")
+                                output &= ("'")
                             End If
                         Else
-                            output = output.Append(input.Substring(index, 1))
+                            output &= (input.Substring(index, 1))
                             index += 1
                         End If
                     Loop While True
@@ -374,20 +369,20 @@ Namespace HtmlParser
                     ' Phew! Ok now we are reading the script body
 
                     If Not omit_body Then
-                        Dim script_body As New StringBuilder()
+                        Dim script_body = ""
                         While index + tag_name_len + 3 < input.Length AndAlso Not input.Substring(index, tag_name_len + 3).ToLower().Equals((Convert.ToString("</") & tag_name) + ">")
-                            script_body = script_body.Append(input.Substring(index, 1))
+                            script_body &= (input.Substring(index, 1))
                             index += 1
                         End While
                         ' Done - now encode the script
-                        output = output.Append(EncodeScript(script_body.ToString()))
-                        output = output.Append((Convert.ToString("</") & tag_name) + ">")
+                        output &= (EncodeScript(script_body.ToString()))
+                        output &= ((Convert.ToString("</") & tag_name) + ">")
                         If index + tag_name_len + 3 < input.Length Then
                             index += tag_name_len + 3
                         End If
                     End If
                 Else
-                    output = output.Append(input.Substring(index, 1))
+                    output &= (input.Substring(index, 1))
                     index += 1
                 End If
             End While
@@ -578,4 +573,3 @@ Namespace HtmlParser
     End Class
 
 End Namespace
-

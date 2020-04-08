@@ -6,7 +6,6 @@ Imports System.Runtime.Serialization.Json
 Imports System.Text
 Imports System.Web.Script.Serialization
 Imports System.Xml
-Imports System.Linq
 
 Namespace JsonReader
 
@@ -27,11 +26,11 @@ Namespace JsonReader
         End Function
 
         Public Shared Function Deserialize(ByVal json As String) As Object
-            Return Parse(json, Encoding.Unicode)
+            Return Parse(json)
         End Function
 
         Public Shared Function Deserialize(Of T)(ByVal json As String) As T
-            Return CType(Parse(json, Encoding.Unicode), T)
+            Return Parse(Of T)(json)
         End Function
 
         Public Shared Function Parse(Of T)(ByVal json As String) As T

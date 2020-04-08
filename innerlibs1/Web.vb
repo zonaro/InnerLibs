@@ -600,7 +600,7 @@ Public Module Web
         End If
         Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
         For Each col In Keys
-            cmd = cmd.Append(String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Quotes:=Not UrlDecode(Request(col)).IsNumber)) & Environment.NewLine)
+            cmd &= (String.Format(" {0} = {1},", col, UrlDecode(Request(col)).IsNull(Quotes:=Not UrlDecode(Request(col)).IsNumber)) & Environment.NewLine)
         Next
         cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
         Debug.WriteLine(cmd.Wrap(Environment.NewLine))
@@ -1034,7 +1034,7 @@ Public Module Web
     <Extension()> Public Function ExtractOptions(Control As HtmlSelect) As String
         Dim options = ""
         For Each item In Control.Items
-            options = options.Append("<option value=" & item.Value.ToString.Quote & " " & If(item.Selected, "selected", "") & ">" & item.Text & "</option>")
+            options &= ("<option value=" & item.Value.ToString.Quote & " " & If(item.Selected, "selected", "") & ">" & item.Text & "</option>")
         Next
         Return options
     End Function

@@ -113,7 +113,7 @@ Namespace HtmlParser
             Get
                 Dim s = ""
                 For Each node As HtmlNode In Nodes
-                    s &= node.HTML
+                    s  &=  node.HTML
                 Next
                 Return s
             End Get
@@ -135,9 +135,9 @@ Namespace HtmlParser
                 Dim txt = ""
                 For Each el In Me.Nodes
                     If el.IsText Then
-                        txt &= el.AsText.Text & " "
+                        txt  &=  el.AsText.Text & " "
                     Else
-                        txt &= el.AsElement.InnerText
+                        txt  &=  el.AsElement.InnerText
                     End If
                 Next
                 Return txt
@@ -184,10 +184,10 @@ Namespace HtmlParser
         Public ReadOnly Property HTML() As String
 
             Get
-                Dim html1 As New StringBuilder()
+                Dim html1 = ""
 
                 For Each node As HtmlNode In Nodes
-                    html1.Append(node.HTML)
+                    html1 &= (node.HTML)
 
                 Next
                 Return html1.ToString()
@@ -201,16 +201,16 @@ Namespace HtmlParser
         Public ReadOnly Property XHTML() As String
 
             Get
-                Dim html As New StringBuilder()
+                Dim html = ""
 
                 If mXhtmlHeader IsNot Nothing Then
-                    html.Append(mXhtmlHeader)
+                    html &= (mXhtmlHeader)
 
-                    html.Append(vbCr & vbLf)
+                    html &= (vbCr & vbLf)
                 End If
 
                 For Each node As HtmlNode In Nodes
-                    html.Append(node.XHTML)
+                    html &= (node.XHTML)
 
                 Next
                 Return html.ToString()
