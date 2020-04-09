@@ -69,7 +69,7 @@ Public Class tokenizer
     End Function
 
     Public Sub NextToken()
-        value.Length = 0
+        value = ""
         type = eTokenType.none
         Do
             startpos = mPos

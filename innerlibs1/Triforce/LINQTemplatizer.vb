@@ -735,7 +735,9 @@ Namespace Triforce
                 For i = 0 To attrs.Count - 1
                     Dim attr = attrs(i)
                     Dim condition = EvaluateExpression(Of Boolean)(attr.Value)
-                    el.Class(attr.Name.RemoveFirstIf("ifclass:")) = condition
+                    If condition Then
+                        el.Class.Add(attr.Name.RemoveFirstIf("ifclass:"))
+                    End If
                     el.RemoveAttribute(attr.Name)
                 Next
 
