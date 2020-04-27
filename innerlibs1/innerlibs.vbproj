@@ -245,6 +245,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="Triforce\howto.md" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

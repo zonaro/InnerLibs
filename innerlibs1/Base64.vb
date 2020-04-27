@@ -54,7 +54,6 @@ Public Class DataURI
     ''' <returns></returns>
     ReadOnly Property Extension As String
 
-
     ''' <summary>
     ''' MIME type completo
     ''' </summary>
@@ -106,7 +105,6 @@ End Class
 ''' <remarks></remarks>
 Public Module Base64
 
-
     ''' <summary>
     ''' Retorna TRUE se o texto for um dataurl valido
     ''' </summary>
@@ -119,7 +117,6 @@ Public Module Base64
             Return False
         End Try
     End Function
-
 
     ''' <summary>
     ''' Encoda uma string em Base64
@@ -172,6 +169,17 @@ Public Module Base64
     <Extension>
     Public Function ToDataURL(Bytes As Byte(), Optional Type As FileType = Nothing) As String
         Return "data:" & If(Type, New FileType).ToString & ";base64," & Bytes.ToBase64()
+    End Function
+
+    ''' <summary>
+    ''' Converte um Array de Bytes em uma DATA URL Completa
+    ''' </summary>
+    ''' <param name="Bytes">Array de Bytes</param>
+    ''' <param name="MimeType">Tipo de arquivo</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function ToDataURL(Bytes As Byte(), MimeType As String) As String
+        Return "data:" & MimeType & ";base64," & Bytes.ToBase64()
     End Function
 
     ''' <summary>
@@ -234,7 +242,6 @@ Public Module Base64
             Return Convert.ToBase64String(imageBytes)
         End Using
     End Function
-
 
     ''' <summary>
     ''' Converte uma Imagem da WEB para String Base64
@@ -308,8 +315,6 @@ Public Module Base64
     Public Function ToImage(PostedFile As HttpPostedFile) As Image
         Return Image.FromStream(PostedFile.InputStream)
     End Function
-
-
 
     ''' <summary>
     ''' Converte um array de bytes para imagem

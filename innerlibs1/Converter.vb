@@ -299,8 +299,8 @@ Public Module Converter
     ''' <param name="groupings"></param>
     ''' <returns></returns>
     <Extension()>
-    Public Function ToDictionary(Of TKey, TValue)(ByVal groupings As IEnumerable(Of IGrouping(Of TKey, TValue))) As Dictionary(Of TKey, List(Of TValue))
-        Return groupings.ToDictionary(Function(group) group.Key, Function(group) group.ToList())
+    Public Function ToDictionary(Of TKey, TValue)(ByVal groupings As IEnumerable(Of IGrouping(Of TKey, TValue))) As Dictionary(Of TKey, IEnumerable(Of TValue))
+        Return groupings.ToDictionary(Function(group) group.Key, Function(group) group.AsEnumerable)
     End Function
 
     ''' <summary>

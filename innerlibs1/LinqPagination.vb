@@ -514,7 +514,7 @@ Namespace LINQ
         ''' <param name="source">  </param>
         ''' <param name="PageSize"></param>
         ''' <returns></returns>
-        <Extension> Public Function GroupByPage(Of Tsource)(source As IQueryable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
+        <Extension> Public Function GroupByPage(Of Tsource)(source As IQueryable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, IEnumerable(Of Tsource))
             Return source.AsEnumerable.GroupByPage(PageSize)
         End Function
 
@@ -525,7 +525,7 @@ Namespace LINQ
         ''' <param name="source">  </param>
         ''' <param name="PageSize"></param>
         ''' <returns></returns>
-        <Extension> Public Function GroupByPage(Of Tsource)(source As IEnumerable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, List(Of Tsource))
+        <Extension> Public Function GroupByPage(Of Tsource)(source As IEnumerable(Of Tsource), ByVal PageSize As Integer) As Dictionary(Of Long, IEnumerable(Of Tsource))
             PageSize = PageSize.SetMinValue(1)
             Return source.Select(Function(item, index) New With {item, Key .Page = index / PageSize}).GroupBy(Function(g) g.Page.Floor + 1, Function(x) x.item).ToDictionary
         End Function

@@ -320,72 +320,74 @@ Namespace HtmlParser
             Dim output = ""
             Dim index As Integer = 0
             Dim tag_name_len As Integer = tag_name.Length
-            While index < input.Length
-                Dim omit_body As Boolean = False
-                If index + tag_name_len + 1 < input.Length AndAlso input.Substring(index, tag_name_len + 1).ToLower().Equals(Convert.ToString("<") & tag_name) Then
-                    ' Look for the end of the tag (we pass the attributes through as normal)
-                    Do
-                        If index >= input.Length Then
-                            Exit Do
-                        ElseIf input.Substring(index, 1).Equals(">") Then
-                            output &= (">")
-                            index += 1
-                            Exit Do
-                        ElseIf index + 1 < input.Length AndAlso input.Substring(index, 2).Equals("/>") Then
-                            output &= ("/>")
-                            index += 2
-                            omit_body = True
-                            Exit Do
-                        ElseIf input.Substring(index, 1).Equals("""") Then
-                            output &= ("""")
-                            index += 1
-                            While index < input.Length AndAlso Not input.Substring(index, 1).Equals("""")
-                                output &= (input.Substring(index, 1))
+            If input IsNot Nothing Then
+                While index < input.Length
+                    Dim omit_body As Boolean = False
+                    If index + tag_name_len + 1 < input.Length AndAlso input.Substring(index, tag_name_len + 1).ToLower().Equals(Convert.ToString("<") & tag_name) Then
+                        ' Look for the end of the tag (we pass the attributes through as normal)
+                        Do
+                            If index >= input.Length Then
+                                Exit Do
+                            ElseIf input.Substring(index, 1).Equals(">") Then
+                                output &= (">")
                                 index += 1
-                            End While
-                            If index < input.Length Then
-                                index += 1
+                                Exit Do
+                            ElseIf index + 1 < input.Length AndAlso input.Substring(index, 2).Equals("/>") Then
+                                output &= ("/>")
+                                index += 2
+                                omit_body = True
+                                Exit Do
+                            ElseIf input.Substring(index, 1).Equals("""") Then
                                 output &= ("""")
-                            End If
-                        ElseIf input.Substring(index, 1).Equals("'") Then
-                            output &= ("'")
-                            index += 1
-                            While index < input.Length AndAlso Not input.Substring(index, 1).Equals("'")
+                                index += 1
+                                While index < input.Length AndAlso Not input.Substring(index, 1).Equals("""")
+                                    output &= (input.Substring(index, 1))
+                                    index += 1
+                                End While
+                                If index < input.Length Then
+                                    index += 1
+                                    output &= ("""")
+                                End If
+                            ElseIf input.Substring(index, 1).Equals("'") Then
+                                output &= ("'")
+                                index += 1
+                                While index < input.Length AndAlso Not input.Substring(index, 1).Equals("'")
+                                    output &= (input.Substring(index, 1))
+                                    index += 1
+                                End While
+                                If index < input.Length Then
+                                    index += 1
+                                    output &= ("'")
+                                End If
+                            Else
                                 output &= (input.Substring(index, 1))
                                 index += 1
-                            End While
-                            If index < input.Length Then
-                                index += 1
-                                output &= ("'")
                             End If
-                        Else
-                            output &= (input.Substring(index, 1))
-                            index += 1
+                        Loop While True
+                        If index >= input.Length Then
+                            Exit While
                         End If
-                    Loop While True
-                    If index >= input.Length Then
-                        Exit While
-                    End If
-                    ' Phew! Ok now we are reading the script body
+                        ' Phew! Ok now we are reading the script body
 
-                    If Not omit_body Then
-                        Dim script_body = ""
-                        While index + tag_name_len + 3 < input.Length AndAlso Not input.Substring(index, tag_name_len + 3).ToLower().Equals((Convert.ToString("</") & tag_name) + ">")
-                            script_body &= (input.Substring(index, 1))
-                            index += 1
-                        End While
-                        ' Done - now encode the script
-                        output &= (EncodeScript(script_body.ToString()))
-                        output &= ((Convert.ToString("</") & tag_name) + ">")
-                        If index + tag_name_len + 3 < input.Length Then
-                            index += tag_name_len + 3
+                        If Not omit_body Then
+                            Dim script_body = ""
+                            While index + tag_name_len + 3 < input.Length AndAlso Not input.Substring(index, tag_name_len + 3).ToLower().Equals((Convert.ToString("</") & tag_name) + ">")
+                                script_body &= (input.Substring(index, 1))
+                                index += 1
+                            End While
+                            ' Done - now encode the script
+                            output &= (EncodeScript(script_body.ToString()))
+                            output &= ((Convert.ToString("</") & tag_name) + ">")
+                            If index + tag_name_len + 3 < input.Length Then
+                                index += tag_name_len + 3
+                            End If
                         End If
+                    Else
+                        output &= (input.Substring(index, 1))
+                        index += 1
                     End If
-                Else
-                    output &= (input.Substring(index, 1))
-                    index += 1
-                End If
-            End While
+                End While
+            End If
             Return output.ToString()
         End Function
 

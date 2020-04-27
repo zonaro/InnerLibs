@@ -3526,7 +3526,7 @@ Public Module Text
         If Decimals > -1 Then
             Number = Decimal.Round(Number, Decimals)
         End If
-        Return Number.ToString & ("%")
+        Return Number.ToString & "%"
     End Function
 
     ''' <summary>

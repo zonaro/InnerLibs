@@ -139,6 +139,14 @@ InnerLibs
  <param name="Type">Tipo de arquivo</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Base64.ToDataURL(System.Byte[],System.String)">
+ <summary>
+ Converte um Array de Bytes em uma DATA URL Completa
+ </summary>
+ <param name="Bytes">Array de Bytes</param>
+ <param name="MimeType">Tipo de arquivo</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Base64.ToDataURL(System.IO.FileInfo)">
  <summary>
  Converte um arquivo uma DATA URL Completa
@@ -4678,6 +4686,19 @@ Verifica se o objeto é do tipo numérico.
  <param name="Path">Caminho do arquivo</param>
  <returns>o nome do diretório sem o caminho</returns>
 </member>
+<member name="M:InnerLibs.DateRange`1.#ctor(System.DateTime,System.DateTime,System.Collections.Generic.List{`0},System.Func{`0,System.DateTime}[])">
+ <summary>
+ Instancia um novo periodo entre 2 datas
+ </summary>
+ <param name="StartDate"></param>
+ <param name="EndDate"></param>
+</member>
+<member name="M:InnerLibs.DateRange`1.GroupDataBy(System.String,Microsoft.VisualBasic.DateInterval)">
+ <summary>
+ Agrupa as informaçoes de <see cref="P:InnerLibs.DateRange`1.DataCollection"/> por <paramref cref="T:Microsoft.VisualBasic.DateFormat"/>
+ </summary>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.DateRange">
  <summary>
  Classe que representa um periodo entre 2 datas
@@ -4740,7 +4761,7 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <param name="Period"></param>
  <returns></returns>
- 
+
 </member>
 <member name="M:InnerLibs.DateRange.Contains(InnerLibs.DateRange)">
  <summary>

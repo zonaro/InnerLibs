@@ -531,7 +531,7 @@ Namespace Triforce
             Dim html As String = ""
             If Me.Count > 0 Then
                 For Each i In Me
-                    html  &=  i.ToString
+                    html &= i.ToString
                 Next
             Else
                 html = Empty
@@ -586,6 +586,7 @@ Namespace Triforce
             Me.DataIndex = DataIndex
             Dim doc As New HtmlDocument(ProcessedTemplate)
             QuantifyStrings(doc.Nodes)
+            Me.ProccessCalc(doc)
             Me.ProccessIfParameter(doc)
             Me.ProccessIfClass(doc)
             Me.ProccessConditions(doc)
@@ -655,6 +656,32 @@ Namespace Triforce
                     End If
                 Catch ex As Exception
                     conditiontag.Destroy()
+                End Try
+            Next
+        End Sub
+
+        Friend Sub ProccessCalc(doc As HtmlDocument)
+            Dim lista = doc.Nodes.GetElementsByTagName("eval", True)
+            For index = 0 To lista.Count - 1
+                Dim calctag As HtmlElement = lista(index)
+                If calctag.HasAttribute("disabled") Then
+                    calctag.Destroy()
+                    Continue For
+                End If
+                Try
+                    If calctag.Name = "eval" Then
+                        Dim expression = calctag.InnerHTML.HtmlDecode()
+                        Dim resultexp = EvaluateExpression(expression)
+                        If calctag.HasAttribute("renderas") Then
+                            calctag.Name = calctag.Attribute("renderas")
+                            calctag.RemoveAttribute("renderas")
+                            calctag.InnerHTML = resultexp
+                        Else
+                            calctag.Parent.InnerHTML = resultexp
+                        End If
+                    End If
+                Catch ex As Exception
+                    calctag.Destroy()
                 End Try
             Next
         End Sub
@@ -758,7 +785,7 @@ Namespace Triforce
                     Dim n = repeattag.Attribute("value")
                     If Not n.IsNumber Then n = n.Length
                     For index2 = 1 To n.ChangeType(Of Integer)
-                        repeattag.InnerHTML  &=  base.Replace("_index", index2)
+                        repeattag.InnerHTML &= base.Replace("_index", index2)
                     Next
                 Else
                     repeattag.Destroy()
@@ -1076,7 +1103,7 @@ Namespace Triforce
             Dim html As String = ""
             If Me.Count > 0 Then
                 For Each i In Me
-                    html  &=  i.ToString
+                    html &= i.ToString
                 Next
             Else
                 html = Empty
@@ -1677,6 +1704,12 @@ Namespace Triforce
                                              End If
 
                                              If formatter IsNot Nothing Then
+                                                 If formatter.TraillingZeros Then
+                                                     If val < 0 Then
+                                                         String.Format(formatter.Culture, formatter.Format, val).RemoveFirstIf("-").TrimStart("0").Prepend("-")
+                                                     End If
+                                                     Return String.Format(formatter.Culture, formatter.Format, val).TrimStart("0")
+                                                 End If
                                                  Return String.Format(formatter.Culture, formatter.Format, val)
                                              End If
 
@@ -1772,8 +1805,9 @@ Namespace Triforce
     Public Class TriforceNumberFormat
         Inherits Attribute
 
-        Sub New(Optional Format As String = "{0:0,0.00}", Optional Culture As String = Nothing)
+        Sub New(Optional Format As String = "{0:0,0.00}", Optional Culture As String = Nothing, Optional TraillingZeros As Boolean = False)
             Me.Format = Format
+            Me.TraillingZeros = TraillingZeros
             If Culture.IsNotBlank Then
                 Try
                     Me.Culture = CultureInfo.CreateSpecificCulture(Culture)
@@ -1785,6 +1819,7 @@ Namespace Triforce
 
         ReadOnly Property Format As String = "{0:0,0.00}"
         ReadOnly Property Culture As CultureInfo
+        ReadOnly Property TraillingZeros As Boolean = False
     End Class
 
     ''' <summary>

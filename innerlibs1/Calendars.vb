@@ -1,11 +1,37 @@
-﻿Imports System.Collections.Specialized
-Imports System.Globalization
+﻿Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports System.Web
 Imports System.Web.UI.WebControls
-Imports System.Windows.Forms
+Imports InnerLibs.LINQ
 Imports InnerLibs.TimeMachine
 
+Public Class DateRange(Of DataType)
+    Inherits DateRange
+
+    Property DataCollection As New List(Of DataType)
+
+    Property DateSelector As New List(Of Func(Of DataType, Date))
+
+    ''' <summary>
+    ''' Instancia um novo periodo entre 2 datas
+    ''' </summary>
+    ''' <param name="StartDate"></param>
+    ''' <param name="EndDate"></param>
+    Sub New(StartDate As Date, EndDate As Date, Data As List(Of DataType), ParamArray DateSelector As Func(Of DataType, Date)())
+        MyBase.New(StartDate, EndDate)
+        Me.DataCollection = If(Data, New List(Of DataType))
+        Me.DateSelector.AddRange(If(DateSelector, {}))
+    End Sub
+
+    ''' <summary>
+    ''' Agrupa as informaçoes de <see cref="DataCollection"/> por <paramref cref="DateFormat"/>
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GroupDataBy(DateFormat As String, Optional DateInterval As DateInterval = DateInterval.Minute) As Dictionary(Of String, IEnumerable(Of DataType))
+        Return Me.ToList(DateInterval).DistinctBy(Function(x) x.ToString(DateFormat)).ToDictionary(Function(x) x.ToString(DateFormat), Function(x) DateSelector.SelectMany(Function(s) DataCollection.OrderBy(Function(d) s(d).Date).Where(Function(d) s(d).Date.ToString(DateFormat) = x.ToString(DateFormat))).Distinct())
+    End Function
+
+End Class
 
 ''' <summary>
 ''' Classe que representa um periodo entre 2 datas
@@ -122,7 +148,7 @@ Public Class DateRange
     ''' </summary>
     ''' <param name="Period"></param>
     ''' <returns></returns>
-    ''' 
+    '''
     Public Function MatchAny(Period As DateRange) As Boolean
         FixDateOrder(StartDate, EndDate)
         Return Me.Overlaps(Period) Or Me.Contains(Period) Or Me.IsIn(Period)
@@ -175,7 +201,6 @@ Public Class DateRange
         Return If([Date], Now).CalculatePercent(StartDate, EndDate)
     End Function
 
-
     ''' <summary>
     ''' Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
     ''' </summary>
@@ -197,8 +222,8 @@ Public Class DateRange
     Public Function Filter(Of T)(Selector As Func(Of T, Date?), List As IEnumerable(Of T)) As IEnumerable(Of T)
         Return List.Where(Function(x) Selector(x).HasValue).Where(Function(x) Me.StartDate <= Selector(x).Value AndAlso Selector(x).Value <= Me.EndDate)
     End Function
-End Class
 
+End Class
 
 ''' <summary>
 ''' Modulo para manipulação de calendário
@@ -230,8 +255,6 @@ Public Module Calendars
         Return TimeZoneInfo.ConvertTimeFromUtc([Date], TimeZone)
     End Function
 
-
-
     ''' <summary>
     ''' Converte um <see cref="Date"/> para um timezone Especifico
     ''' </summary>
@@ -241,7 +264,6 @@ Public Module Calendars
     <Extension()> Public Function ToTimeZone([Date] As Date, TimeZoneId As String) As Date
         Return TimeZoneInfo.ConvertTime([Date], TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId))
     End Function
-
 
     ''' <summary>
     ''' Converte uma string em datetime a partir de um formato especifico
@@ -275,7 +297,6 @@ Public Module Calendars
     <Extension> Public Function NextFortnight(FromDate As Date, Optional Num As Integer = 1) As DateTime
         Return New FortnightGroup(FromDate, Num).Last.Period.StartDate
     End Function
-
 
     ''' <summary>
     ''' Retorna o primeiro dia da semana da data especificada
@@ -323,7 +344,6 @@ Public Module Calendars
         Return New DateTime([Date].Year, [Date].Month, DateTime.DaysInMonth([Date].Year, [Date].Month), [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
     End Function
 
-
     ''' <summary>
     ''' Retorna a ultima data do mes a partir de uma outra data
     ''' </summary>
@@ -355,7 +375,6 @@ Public Module Calendars
     Public Function GetFirstDayOfMonth([Date] As DateTime) As DateTime
         Return New DateTime([Date].Year, [Date].Month, 1, [Date].Hour, [Date].Minute, [Date].Second, [Date].Millisecond, [Date].Kind)
     End Function
-
 
     ''' <summary>
     ''' Retorna a primeira data da quinzena a partir de uma outra data
@@ -389,7 +408,6 @@ Public Module Calendars
         Return If(Culture, CultureInfo.InvariantCulture).Calendar.GetWeekOfYear([Date], CalendarWeekRule.FirstFourDayWeek, FirstDayOfWeek)
     End Function
 
-
     ''' <summary>
     ''' Verifica se uma data é do mesmo mês e ano que outra data
     ''' </summary>
@@ -400,6 +418,7 @@ Public Module Calendars
     Public Function IsSameMonth([Date] As DateTime, AnotherDate As DateTime) As Boolean
         Return [Date].IsBetween(AnotherDate.GetFirstDayOfMonth, AnotherDate.GetLastDayOfMonth)
     End Function
+
     ''' <summary>
     ''' Verifica se a Data de hoje é um aniversário
     ''' </summary>
@@ -656,8 +675,6 @@ Public Module Calendars
         End Get
     End Property
 
-
-
     ''' <summary>
     ''' Verifica se o dia se encontra no fim de semana
     ''' </summary>
@@ -876,7 +893,5 @@ Public Module Calendars
         If MidDate > EndDate Then Return 100
         Return (MidDate - StartDate).Ticks * 100 / (EndDate - StartDate).Ticks
     End Function
-
-
 
 End Module
