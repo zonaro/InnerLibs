@@ -2727,8 +2727,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Byte()) As String
-        Return Size.LongLength.ToFileSizeString
+    Public Function ToFileSizeString(ByVal Size As Byte(), Optional DecimalPlaces As Integer = -1) As String
+        Return Size.LongLength.ToFileSizeString(DecimalPlaces)
     End Function
 
     ''' <summary>
@@ -2737,8 +2737,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As FileInfo) As String
-        Return Size.Length.ToFileSizeString
+    Public Function ToFileSizeString(ByVal Size As FileInfo, Optional DecimalPlaces As Integer = -1) As String
+        Return Size.Length.ToFileSizeString(DecimalPlaces)
     End Function
 
     ''' <summary>
@@ -2747,8 +2747,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Double) As String
-        Return Size.ChangeType(Of Decimal).ToFileSizeString
+    Public Function ToFileSizeString(ByVal Size As Double, Optional DecimalPlaces As Integer = -1) As String
+        Return Size.ChangeType(Of Decimal).ToFileSizeString(DecimalPlaces)
     End Function
 
     ''' <summary>
@@ -2757,8 +2757,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Integer) As String
-        Return Size.ChangeType(Of Decimal).ToFileSizeString
+    Public Function ToFileSizeString(ByVal Size As Integer, Optional DecimalPlaces As Integer = -1) As String
+        Return Size.ChangeType(Of Decimal).ToFileSizeString(DecimalPlaces)
     End Function
 
     ''' <summary>
@@ -2767,8 +2767,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Long) As String
-        Return Size.ChangeType(Of Decimal).ToFileSizeString
+    Public Function ToFileSizeString(ByVal Size As Long, Optional DecimalPlaces As Integer = -1) As String
+        Return Size.ChangeType(Of Decimal).ToFileSizeString(DecimalPlaces)
     End Function
 
     ''' <summary>
@@ -2777,8 +2777,8 @@ Public Module Text
     ''' <param name="Size">Tamanho</param>
     ''' <returns>String com o tamanho + unidade de medida</returns>
     <Extension()>
-    Public Function ToFileSizeString(ByVal Size As Decimal) As String
-        Return UnitConverter.CreateFileSizeConverter.Abreviate(Size)
+    Public Function ToFileSizeString(ByVal Size As Decimal, Optional DecimalPlaces As Integer = -1) As String
+        Return UnitConverter.CreateFileSizeConverter.Abreviate(Size, DecimalPlaces)
     End Function
 
     ''' <summary>

@@ -3,6 +3,7 @@ Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
+Imports System.Web.Script.Serialization
 Imports System.Windows.Forms
 
 ''' <summary>
@@ -173,7 +174,9 @@ Public Class FileType
     ''' <returns></returns>
     Public Shared Function GetFileTypeList() As FileTypeList
         Dim r As String = [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.mimes.json")
-        Return New FileTypeList(r.ParseJSON(Of List(Of FileType)))
+        Dim jss As New JavaScriptSerializer()
+        Dim dict = jss.Deserialize(Of List(Of FileType))(r)
+        Return New FileTypeList(dict)
     End Function
 
     ''' <summary>

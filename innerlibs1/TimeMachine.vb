@@ -639,7 +639,7 @@ Namespace TimeMachine
             If current.Contains(",") Then
                 current = current.ReplaceLast(",", " e ")
             End If
-            Return current.AdjustWhiteSpaces
+            Return current.AdjustWhiteSpaces.TrimAny(True, ",", " ")
         End Function
 
         ''' <summary>

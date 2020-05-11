@@ -263,4 +263,24 @@ Public Class StructuredText
         Next
     End Sub
 
+    Public Shared Widening Operator CType(ByVal s As StructuredText) As String
+        Return s.ToString()
+    End Operator
+
+    Public Shared Widening Operator CType(ByVal s As StructuredText) As Integer
+        Return s.Count
+    End Operator
+
+    Public Shared Widening Operator CType(ByVal s As StructuredText) As Long
+        Return s.LongCount
+    End Operator
+
+    Public Shared Operator &(a As StructuredText, b As StructuredText) As StructuredText
+        Return New StructuredText(a.ToString() & b.ToString())
+    End Operator
+
+    Public Shared Operator +(a As StructuredText, b As StructuredText) As StructuredText
+        Return New StructuredText(a.ToString() & b.ToString())
+    End Operator
+
 End Class

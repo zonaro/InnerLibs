@@ -593,6 +593,8 @@ Namespace Triforce
             Me.ProccessSwitch(doc)
             Me.ProccessIf(doc)
             Me.ProccessRepeat(doc)
+            Me.ProccessEnableIF(doc)
+            Me.ProccessDisableIF(doc)
             Me.ProcessedTemplate = doc
             Me.Culture = If(Culture, CultureInfo.CurrentCulture)
         End Sub
@@ -618,7 +620,7 @@ Namespace Triforce
         ReadOnly Property ProcessedTemplate As HtmlDocument
 
         Public Overrides Function ToString() As String
-            Return Me.ProcessedTemplate.ToString
+            Return Me.ProcessedTemplate.Body.ToString()
         End Function
 
         Friend Sub ProccessConditions(doc As HtmlDocument)
@@ -766,6 +768,40 @@ Namespace Triforce
                         el.Class.Add(attr.Name.RemoveFirstIf("ifclass:"))
                     End If
                     el.RemoveAttribute(attr.Name)
+                Next
+
+            Next
+        End Sub
+
+        Friend Sub ProccessDisableIF(doc As HtmlDocument)
+            Dim lista = doc.FindElements(Of HtmlElement)(Function(x) x.AttributesNames.Any(Function(y) y.StartsWith("disableif")))
+            For index = 0 To lista.Count - 1
+                Dim el As HtmlElement = lista(index)
+                Dim attrs = el.Attributes.Where(Function(x) x.Name.StartsWith("disableif"))
+                For i = 0 To attrs.Count - 1
+                    Dim attr = attrs(i)
+                    Dim condition = EvaluateExpression(Of Boolean)(attr.Value)
+                    el.RemoveAttribute(attr.Name)
+                    If condition Then
+                        el.Destroy()
+                    End If
+                Next
+
+            Next
+        End Sub
+
+        Friend Sub ProccessEnableIF(doc As HtmlDocument)
+            Dim lista = doc.FindElements(Of HtmlElement)(Function(x) x.AttributesNames.Any(Function(y) y.StartsWith("enableif")))
+            For index = 0 To lista.Count - 1
+                Dim el As HtmlElement = lista(index)
+                Dim attrs = el.Attributes.Where(Function(x) x.Name.StartsWith("enableif"))
+                For i = 0 To attrs.Count - 1
+                    Dim attr = attrs(i)
+                    Dim condition = EvaluateExpression(Of Boolean)(attr.Value)
+                    el.RemoveAttribute(attr.Name)
+                    If Not condition Then
+                        el.Destroy()
+                    End If
                 Next
 
             Next
@@ -1262,7 +1298,7 @@ Namespace Triforce
                 post_proccess.Add(pp.Key, oo.Proccess)
             Next
 
-            Dim doc = New HtmlDocument(pegartemplate(Template))
+            Dim doc = New HtmlDocument(pegartemplate(Template), Nothing, True)
 
             ProccessGet(doc)
 

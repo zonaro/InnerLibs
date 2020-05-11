@@ -1,10 +1,7 @@
-Imports System.Text
-Imports System.Collections
 Imports System.ComponentModel
 Imports System.IO
+Imports System.Text
 Imports System.Xml
-Imports System.IO.Packaging
-Imports System.Web
 
 Namespace HtmlParser
     ''' <summary>
@@ -18,13 +15,21 @@ Namespace HtmlParser
         Private mNodes As New HtmlNodeCollection(Nothing)
         Private mXhtmlHeader As String = "<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"">"
 
+        Public Sub New()
+            Build(Nothing, Nothing)
+        End Sub
+
+        Public Sub New(Encoding As Encoding)
+            Build(Nothing, Encoding)
+        End Sub
+
         ''' <summary>
         ''' This will create a new document object by parsing the HTML specified.
         ''' </summary>
         ''' <param name="UrlOrHTMLString">The URL or HTML to parse.</param>
 
-        Public Sub New(Optional UrlOrHTMLString As String = Nothing, Optional Encoding As Encoding = Nothing)
-            Build(UrlOrHTMLString, Encoding)
+        Public Sub New(UrlOrHTMLString As String, Optional Encoding As Encoding = Nothing, Optional ForceBody As Boolean = False)
+            Build(UrlOrHTMLString, Encoding, ForceBody)
         End Sub
 
         ''' <summary>
@@ -43,18 +48,26 @@ Namespace HtmlParser
             Return OldJsonSerializer.SerializeJSON(New With {.Encoding = Me.Encoding.EncodingName, .Document = Me.Nodes.Select(Function(x) x.JsonRepresentation)})
         End Function
 
-        Private Sub Build(Optional UrlOrHTMLString As String = Nothing, Optional Encoding As Encoding = Nothing)
+        Private Sub Build(Optional UrlOrHTMLString As String = Nothing, Optional Encoding As Encoding = Nothing, Optional Forcebody As Boolean = False)
             If Encoding IsNot Nothing Then
                 Me.Encoding = Encoding
             End If
             If UrlOrHTMLString Is Nothing Then
                 UrlOrHTMLString = Html5Structure
             End If
+
             If UrlOrHTMLString.IsURL Then
                 UrlOrHTMLString = AJAX.GET(Of String)(UrlOrHTMLString, Me.Encoding)
             End If
             Dim parser As New HtmlParser
             mNodes = parser.Parse(UrlOrHTMLString)
+
+            If Forcebody AndAlso Me.Body Is Nothing Then
+                Dim b As New HtmlElement("body", Me.ToString())
+                mNodes.Clear()
+                mNodes.Add(b)
+            End If
+
         End Sub
 
         ''' <summary>
@@ -113,7 +126,7 @@ Namespace HtmlParser
             Get
                 Dim s = ""
                 For Each node As HtmlNode In Nodes
-                    s  &=  node.HTML
+                    s &= node.HTML
                 Next
                 Return s
             End Get
@@ -135,9 +148,9 @@ Namespace HtmlParser
                 Dim txt = ""
                 For Each el In Me.Nodes
                     If el.IsText Then
-                        txt  &=  el.AsText.Text & " "
+                        txt &= el.AsText.Text & " "
                     Else
-                        txt  &=  el.AsElement.InnerText
+                        txt &= el.AsElement.InnerText
                     End If
                 Next
                 Return txt
@@ -166,7 +179,6 @@ Namespace HtmlParser
                 Me.Title.InnerText = value
             End Set
         End Property
-
 
         ''' <summary>
         ''' This is the collection of nodes used to represent this document.
@@ -263,7 +275,6 @@ Namespace HtmlParser
             End Using
         End Sub
 
-
         ''' <summary>
         ''' Save the document as file
         ''' </summary>
@@ -290,10 +301,6 @@ Namespace HtmlParser
             TreeView.Nodes.Clear()
             BuildTree(Me.Nodes, TreeView.Nodes)
         End Sub
-
-
-
-
 
         Private Sub BuildTree(ByVal nodes As HtmlNodeCollection, ByVal treeNodes As Windows.Forms.TreeNodeCollection)
             Dim value As String = ""
@@ -328,7 +335,7 @@ Namespace HtmlParser
         End Function
 
         ''' <summary>
-        ''' Return the body element if exist 
+        ''' Return the body element if exist
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Body As HtmlElement
@@ -338,7 +345,7 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Return the Head element if exist 
+        ''' Return the Head element if exist
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Head As HtmlElement
@@ -348,7 +355,7 @@ Namespace HtmlParser
         End Property
 
         ''' <summary>
-        ''' Return the Title element if exist 
+        ''' Return the Title element if exist
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property Title As HtmlElement
@@ -387,7 +394,6 @@ Namespace HtmlParser
             End Get
         End Property
 
-
         ''' <summary>
         ''' Travesse DOM with a CSS selector an retireve the first node
         ''' </summary>
@@ -396,8 +402,6 @@ Namespace HtmlParser
         Public Function QuerySelector(CssSelector As String) As HtmlElement
             Return Me(CssSelector).First
         End Function
-
-
 
     End Class
 

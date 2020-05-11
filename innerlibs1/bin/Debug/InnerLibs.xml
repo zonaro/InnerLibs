@@ -471,7 +471,7 @@ InnerLibs
  This is the basic HTML document object used to represent a sequence of HTML.
  </summary>
 </member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.String,System.Text.Encoding)">
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.String,System.Text.Encoding,System.Boolean)">
  <summary>
  This will create a new document object by parsing the HTML specified.
  </summary>
@@ -604,19 +604,19 @@ InnerLibs
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlDocument.Body">
  <summary>
- Return the body element if exist 
+ Return the body element if exist
  </summary>
  <returns></returns>
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlDocument.Head">
  <summary>
- Return the Head element if exist 
+ Return the Head element if exist
  </summary>
  <returns></returns>
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlDocument.Title">
  <summary>
- Return the Title element if exist 
+ Return the Title element if exist
  </summary>
  <returns></returns>
 </member>
@@ -8153,6 +8153,24 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Active">
+ <summary>
+ Indica se o menu está ativo (selecionado)
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Enabled">
+ <summary>
+ Indica se o menu está habilitado
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Visible">
+ <summary>
+ Indica se o menu está visivel
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.HasItems">
  <summary>
  Verifica se este item possui subitens
@@ -8174,6 +8192,11 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
  <param name="Title">Titulo do Menu</param>
  <param name="SubItems">Subitens do menu</param>
+</member>
+<member name="M:InnerLibs.MenuBuilder.MenuBuilderItem.#ctor">
+ <summary>
+ Construtor padrão
+ </summary>
 </member>
 <member name="T:InnerLibs.EquationPair">
  <summary>
@@ -10750,42 +10773,42 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">Texto a ser manipulado</param>
  <returns>Uma String com o texto am CameCase</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Byte[])">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Byte[],System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.IO.FileInfo)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.IO.FileInfo,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Double)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Double,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Int32)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Int32,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Int64)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Int64,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Decimal)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Decimal,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>

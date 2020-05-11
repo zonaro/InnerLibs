@@ -1,10 +1,11 @@
-﻿
-Namespace MenuBuilder
+﻿Namespace MenuBuilder
+
     ''' <summary>
     ''' Estrutura para criação de menus com submenus
     ''' </summary>
     Public Class MenuBuilder
         Inherits List(Of MenuBuilderItem)
+
         ''' <summary>
         ''' Verifica se este menu possui itens
         ''' </summary>
@@ -29,31 +30,55 @@ Namespace MenuBuilder
     ''' Item de um InnerMenu
     ''' </summary>
     Public Class MenuBuilderItem
+
         ''' <summary>
         ''' Icone correspondente a este menu
         ''' </summary>
         ''' <returns></returns>
         Public Property Icon As String
+
         ''' <summary>
         ''' Titulo do menu
         ''' </summary>
         ''' <returns></returns>
         Public Property Title As String
+
         ''' <summary>
         ''' URL do menu
         ''' </summary>
         ''' <returns></returns>
         Public Property URL As String = "#"
+
         ''' <summary>
         ''' Target do menu
         ''' </summary>
         ''' <returns></returns>
         Public Property Target As String = "_self"
+
         ''' <summary>
         ''' Subitens do menu
         ''' </summary>
         ''' <returns></returns>
         Public Property SubItems As New List(Of MenuBuilderItem)
+
+        ''' <summary>
+        ''' Indica se o menu está ativo (selecionado)
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Active As Boolean = False
+
+        ''' <summary>
+        ''' Indica se o menu está habilitado
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Enabled As Boolean = True
+
+        ''' <summary>
+        ''' Indica se o menu está visivel
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Visible As Boolean = True
+
         ''' <summary>
         ''' Verifica se este item possui subitens
         ''' </summary>
@@ -87,6 +112,14 @@ Namespace MenuBuilder
             Me.Title = Title
             Me.SubItems = SubItems
         End Sub
-    End Class
-End Namespace
 
+        ''' <summary>
+        ''' Construtor padrão
+        ''' </summary>
+        Public Sub New()
+
+        End Sub
+
+    End Class
+
+End Namespace

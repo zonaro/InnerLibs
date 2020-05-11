@@ -788,7 +788,7 @@
   {
     "Extensions": [ ".pdf" ],
     "MimeTypes": [ "application/pdf", "application/acrobat", " application/nappdf", " application/x-pdf", " application/vnd.pdf", " text/pdf", " text/x-pdf" ],
-    "Description": "Adobe Acrobat File"
+    "Description": "Adobe Acrobat Document"
   },
   {
     "Extensions": [ ".pfx" ],
@@ -1209,7 +1209,7 @@
   {
     "Extensions": [ ".vsd" ],
     "MimeTypes": [ "application/vnd.visio", "application/visio", " application/visio.drawing", " application/vsd", " application/x-visio", " application/x-vsd", " image/x-vsd" ],
-    "Description": "Microsoft Visio File"
+    "Description": "Microsoft Visio Document"
   },
   {
     "Extensions": [ ".w3d" ],
@@ -1304,7 +1304,7 @@
   {
     "Extensions": [ ".xlam" ],
     "MimeTypes": [ "application/vnd.ms-excel.addin.macroEnabled.12" ],
-    "Description": "Microsoft Excel File"
+    "Description": "Microsoft Excel Document"
   },
   {
     "Extensions": [ ".xlc" ],
@@ -1314,7 +1314,7 @@
   {
     "Extensions": [ ".xll" ],
     "MimeTypes": [ "application/vnd.ms-excel", "application/excel", " application/msexcel", " application/msexcell", " application/x-dos_ms_excel", " application/x-excel", " application/x-ms-excel", " application/x-msexcel", " application/x-xls", " application/xls" ],
-    "Description": "Microsoft Excel File"
+    "Description": "Microsoft Excel Document"
   },
   {
     "Extensions": [ ".xlm" ],
@@ -1324,22 +1324,22 @@
   {
     "Extensions": [ ".xls" ],
     "MimeTypes": [ "application/vnd.ms-excel", "application/excel", " application/msexcel", " application/msexcell", " application/x-dos_ms_excel", " application/x-excel", " application/x-ms-excel", " application/x-msexcel", " application/x-xls", " application/xls" ],
-    "Description": "Microsoft Excel File"
+    "Description": "Microsoft Excel Document"
   },
   {
     "Extensions": [ ".xlsb" ],
     "MimeTypes": [ "application/vnd.ms-excel.sheet.binary.macroEnabled.12" ],
-    "Description": "Microsoft Excel File"
+    "Description": "Microsoft Excel Document"
   },
   {
     "Extensions": [ ".xlsm" ],
     "MimeTypes": [ "application/vnd.ms-excel.sheet.macroEnabled.12" ],
-    "Description": "Microsoft Excel File"
+    "Description": "Microsoft Excel Document"
   },
   {
     "Extensions": [ ".xlsx" ],
     "MimeTypes": [ "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ],
-    "Description": "Microsoft Excel File"
+    "Description": "Microsoft Excel Document"
   },
   {
     "Extensions": [ ".xlt" ],
@@ -1349,7 +1349,7 @@
   {
     "Extensions": [ ".xltm" ],
     "MimeTypes": [ "application/vnd.ms-excel.template.macroEnabled.12" ],
-    "Description": "Microsoft Excel File"
+    "Description": "Microsoft Excel Document"
   },
   {
     "Extensions": [ ".xltx" ],
