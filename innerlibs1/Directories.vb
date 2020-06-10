@@ -173,7 +173,7 @@ Public Module Directories
     <Extension>
     Public Function SearchFiles(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileInfo)
         Dim FilteredList As New List(Of FileInfo)
-        For Each pattern As String In Searches
+        For Each pattern As String In If(Searches, {}).Where(Function(x) x.IsNotBlank()).DefaultIfEmpty("*")
             FilteredList.AddRange(Directory.GetFiles(pattern.Trim, SearchOption))
         Next
         Return FilteredList
@@ -189,7 +189,7 @@ Public Module Directories
     <Extension>
     Public Function SearchDirectories(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of DirectoryInfo)
         Dim FilteredList As New List(Of DirectoryInfo)
-        For Each pattern As String In Searches
+        For Each pattern As String In If(Searches, {}).Where(Function(x) x.IsNotBlank()).DefaultIfEmpty("*")
             FilteredList.AddRange(Directory.GetDirectories(pattern.Trim, SearchOption))
         Next
         Return FilteredList
@@ -205,7 +205,7 @@ Public Module Directories
     <Extension>
     Public Function Search(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileSystemInfo)
         Dim FilteredList As New List(Of FileSystemInfo)
-        For Each pattern As String In Searches
+        For Each pattern As String In If(Searches, {}).Where(Function(x) x.IsNotBlank()).DefaultIfEmpty("*")
             FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim, SearchOption))
         Next
         Return FilteredList

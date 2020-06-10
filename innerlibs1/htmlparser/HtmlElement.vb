@@ -1,6 +1,4 @@
 Imports System.ComponentModel
-Imports System.Text
-
 
 Imports System.Xml
 Imports InnerLibs.LINQ
@@ -112,8 +110,6 @@ Namespace HtmlParser
             Next
         End Sub
 
-
-
         ''' <summary>
         ''' Return the first child element thats match de CssSelector
         ''' </summary>
@@ -151,8 +147,6 @@ Namespace HtmlParser
         Public Sub AddNode(ParamArray Node As HtmlNode())
             Me.Nodes.Add(Node)
         End Sub
-
-
 
         ''' <summary>
         ''' Add a node to collection using a HTML string as base
@@ -415,28 +409,28 @@ Namespace HtmlParser
                 Dim txt = ""
                 For Each n In Nodes
                     If n.IsText Then
-                        txt  &=  CType(n, HtmlText).Text & " "
+                        txt &= CType(n, HtmlText).Text & " "
                     Else
                         Dim el = CType(n, HtmlElement)
                         Select Case el.Name
                             Case "script", "style", "head", "video", "audio", "media", "img"
                                 'faz nada
                             Case "br"
-                                txt  &=  Environment.NewLine
+                                txt &= Environment.NewLine
                             Case "hr"
-                                txt  &=  Environment.NewLine & "-------" & Environment.NewLine
+                                txt &= Environment.NewLine & "-------" & Environment.NewLine
                             Case "li"
                                 Dim t = el.InnerText
                                 If t.IsNotBlank Then
-                                    txt  &=  Environment.NewLine & " • " & t
+                                    txt &= Environment.NewLine & " • " & t
                                 End If
                             Case "p", "div"
                                 Dim t = el.InnerText
                                 If t.IsNotBlank Then
-                                    txt  &=  t & Environment.NewLine
+                                    txt &= t & Environment.NewLine
                                 End If
                             Case Else
-                                txt  &=  el.InnerText
+                                txt &= el.InnerText
                         End Select
                     End If
                 Next
@@ -608,8 +602,6 @@ Namespace HtmlParser
         Public Overrides Function Censor(CensorChar As Char, ParamArray BadWords As String()) As Boolean
             Return Me.GetTextElements.Any(Function(b) b.Censor(CensorChar, BadWords))
         End Function
-
-
 
         ''' <summary>
         ''' Remove this element from parent element. If parent element is null, nothing happens
@@ -796,11 +788,14 @@ Namespace HtmlParser
         ''' <summary>
         ''' Remove an attribute from element
         ''' </summary>
-        ''' <param name="Name"></param>
-        Public Function RemoveAttribute(Name As String) As HtmlElement
-            If Me.HasAttribute(Name) Then
-                Me.Attributes.Remove(Name)
-            End If
+        ''' <param name="Names"></param>
+        Public Function RemoveAttribute(ParamArray Names As String()) As HtmlElement
+            Names = If(Names, {}).Where(Function(x) x.IsNotBlank()).ToArray()
+            For Each n In Names
+                If Me.HasAttribute(n) Then
+                    Me.Attributes.Remove(n)
+                End If
+            Next
             Return Me
         End Function
 
@@ -1121,8 +1116,6 @@ Namespace HtmlParser
         End Property
 
         Property Group As String = ""
-
-
 
     End Class
 

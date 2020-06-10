@@ -1741,6 +1741,17 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Compara se uma string é não igual a outras strings
+    ''' </summary>
+    ''' <param name="Text"> string principal</param>
+    ''' <param name="Texts">strings para comparar</param>
+    ''' <returns>TRUE se nenhuma das strings for igual a principal</returns>
+    <Extension()>
+    Public Function IsNotAny(Text As String, ParamArray Texts As String()) As Boolean
+        Return Not Text.IsAny(Texts)
+    End Function
+
+    ''' <summary>
     ''' Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da esqueda
     ''' para direita
     ''' </summary>

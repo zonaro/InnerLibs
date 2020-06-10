@@ -6,6 +6,7 @@ Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Web
+Imports System.Web.Script.Serialization
 Imports System.Web.SessionState
 Imports System.Web.UI.HtmlControls
 Imports System.Web.UI.WebControls
@@ -209,7 +210,8 @@ Public Module Web
     ''' <param name="Request"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetBody(Of T)(Request As HttpRequest) As T
-        Return CType(JsonReader.JsonReader.Parse(Request.GetBody), T)
+        Dim j = New JavaScriptSerializer()
+        Return j.Deserialize(Request.GetBody(), GetType(T))
     End Function
 
     ''' <summary>
@@ -228,8 +230,17 @@ Public Module Web
     ''' <param name="Server"></param>
     ''' <param name="Path"></param>
     ''' <returns></returns>
-    <Extension()> Public Function CreateDirectory(Server As HttpServerUtility, Path As String) As String
+    <Extension()> Public Function CreateDirectoryInfo(Server As HttpServerUtility, Path As String) As DirectoryInfo
+        Return New DirectoryInfo(Server.CreateDirectory(Path))
+    End Function
 
+    ''' <summary>
+    ''' Cria um diretório a partir da raiz da aplicação do servidor
+    ''' </summary>
+    ''' <param name="Server"></param>
+    ''' <param name="Path"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CreateDirectory(Server As HttpServerUtility, Path As String) As String
         If Not Directory.Exists(Server.MapPath("~/" & Path)) Then
             Directory.CreateDirectory(Server.MapPath("~/") & "/" & Path)
         End If
@@ -268,7 +279,7 @@ Public Module Web
                 l.Add(CType(Files(index), HttpPostedFile))
             End If
         Next
-        Return l.AsEnumerable
+        Return l.Where(Function(x) x.ContentLength > 0)
     End Function
 
     ''' <summary>
@@ -278,6 +289,16 @@ Public Module Web
     ''' <returns></returns>
     <Extension()> Public Function GetAllFiles(Request As HttpRequest) As IEnumerable(Of HttpPostedFile)
         Return Request.Files.AsEnumerable
+    End Function
+
+    ''' <summary>
+    ''' Retorna todos os arquivos de um <paramref name="ContentType"/> específico de uma <see cref="HttpRequest"/> em um  <see cref="IEnumerable(Of HttpPostedfile)"/> 
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetAllFiles(Request As HttpRequest, ParamArray ContentType As String()) As IEnumerable(Of HttpPostedFile)
+        ContentType = If(ContentType, {"*"})
+        Return Request.Files.AsEnumerable.Where(Function(x) x.ContentType.IsLikeAny(ContentType))
     End Function
 
     ''' <summary>

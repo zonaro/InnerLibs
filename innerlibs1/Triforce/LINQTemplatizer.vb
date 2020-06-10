@@ -470,6 +470,8 @@ Namespace Triforce
     End Enum
 
     ''' <summary>
+
+    ''' <summary>
     ''' Classe que mescla paginas de um mesmo tipo de template. Particulamente util para união de
     ''' diferentes resultados filtrados de um mesmo tipo de objeto
     ''' </summary>
@@ -581,7 +583,7 @@ Namespace Triforce
         ''' </summary>
         ''' <param name="Data">             </param>
         ''' <param name="ProcessedTemplate"></param>
-        Friend Sub New(Data As T, ProcessedTemplate As String, Culture As CultureInfo, DatatIndex As Integer)
+        Friend Sub New(Data As T, ProcessedTemplate As String, Culture As CultureInfo, DataIndex As Integer)
             Me.Data = Data
             Me.DataIndex = DataIndex
             Dim doc As New HtmlDocument(ProcessedTemplate)
@@ -742,17 +744,18 @@ Namespace Triforce
 
         Friend Sub ProccessIfParameter(doc As HtmlDocument)
             Dim lista = doc.FindElements(Of HtmlElement)(Function(x) x.AttributesNames.Any(Function(y) y.StartsWith("if:")))
-            For index = 1 To lista.Count - 1
+            For index = 0 To lista.Count - 1
                 Dim el As HtmlElement = lista(index)
                 Dim attrs = el.Attributes.Where(Function(x) x.Name.StartsWith("if:"))
-                For i = 1 To attrs.Count - 1
+                For i = 0 To attrs.Count - 1
                     Dim attr = attrs(i)
                     Dim condition = EvaluateExpression(Of Boolean)(attr.Value)
                     If condition = False Then
                         el.RemoveAttribute(attr.Name.RemoveFirstIf("if:"))
                     End If
-                    el.RemoveAttribute(attr.Name)
+
                 Next
+                el.RemoveAttribute(attrs.Select(Function(x) x.Name).ToArray())
             Next
         End Sub
 
@@ -767,8 +770,8 @@ Namespace Triforce
                     If condition Then
                         el.Class.Add(attr.Name.RemoveFirstIf("ifclass:"))
                     End If
-                    el.RemoveAttribute(attr.Name)
                 Next
+                el.RemoveAttribute(attrs.Select(Function(x) x.Name).ToArray())
 
             Next
         End Sub
@@ -789,6 +792,8 @@ Namespace Triforce
 
             Next
         End Sub
+
+
 
         Friend Sub ProccessEnableIF(doc As HtmlDocument)
             Dim lista = doc.FindElements(Of HtmlElement)(Function(x) x.AttributesNames.Any(Function(y) y.StartsWith("enableif")))
@@ -913,6 +918,7 @@ Namespace Triforce
                 End If
             Next
         End Sub
+
 
     End Class
 
@@ -1315,6 +1321,8 @@ Namespace Triforce
             TravesseAndReplace(doc.Nodes, CustomValues, False)
             TravesseAndReplace(doc.Nodes, post_proccess, False)
 
+
+
             Return New Template(Of T)(Item, doc.ToString, Me.Culture, DataIndex)
         End Function
 
@@ -1707,18 +1715,23 @@ Namespace Triforce
                                      Dim d As Date? = val
                                      If d.HasValue Then
                                          Try
-                                             Select Case True
-                                                 Case Item.GetProperties().FirstOrDefault(Function(x) x.Name = key) IsNot Nothing
-                                                     Dim format = Item.GetProperties().First(Function(x) x.Name = key).GetCustomAttribute(Of TriforceDateTimeFormat).Format
-                                                     Return d.Value.ToString(format.ToString)
-                                                 Case Item.GetType().GetAttributeValue(Of TriforceDateTimeFormat, String)(Function(x) x.Format.IsNotBlank)
-                                                     Dim format = Item.GetType().GetAttributeValue(Of TriforceDateTimeFormat, String)(Function(x) x.Format)
-                                                     Return d.Value.ToString(format.ToString)
-                                                 Case Else
-                                                     Return d.Value.ToString(Culture.DateTimeFormat)
-                                             End Select
-                                         Catch ex As Exception
+                                             Dim formatter As TriforceDateTimeFormat = Nothing
+                                             Dim prop = Item.GetProperties().FirstOrDefault(Function(x) x.Name = key)
+                                             If prop IsNot Nothing Then
+                                                 formatter = prop.GetCustomAttribute(Of TriforceDateTimeFormat)
+                                             End If
+
+                                             If formatter Is Nothing Then
+                                                 formatter = Item.GetType().GetCustomAttribute(Of TriforceDateTimeFormat)
+                                             End If
+
+                                             If formatter IsNot Nothing Then
+                                                 Return d.Value.ToString(formatter.Format, formatter.Culture)
+                                             End If
+
                                              Return d.Value.ToString(Culture.DateTimeFormat)
+                                         Catch ex As Exception
+                                             Return d.ToString()
                                          End Try
                                      Else
                                          Return ""
@@ -1826,9 +1839,19 @@ Namespace Triforce
     Public Class TriforceDateTimeFormat
         Inherits Attribute
 
-        Sub New(Optional Format As String = "dd/MM/yyyy HH:mm:ss")
+        Sub New(Optional Format As String = "dd/MM/yyyy HH:mm:ss", Optional Culture As String = Nothing)
             Me.Format = Format
+
+            If Culture.IsNotBlank Then
+                Try
+                    Me.Culture = CultureInfo.CreateSpecificCulture(Culture)
+                Catch ex As Exception
+                End Try
+            End If
+            Me.Culture = If(Me.Culture, CultureInfo.CurrentCulture)
         End Sub
+
+        ReadOnly Property Culture As CultureInfo
 
         ReadOnly Property Format As String = "dd/MM/yyyy HH:mm:ss"
     End Class

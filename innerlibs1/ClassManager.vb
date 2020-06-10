@@ -14,6 +14,20 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    ''' <summary>
+    ''' Cria um <see cref="Guid"/> a partir de uma string ou um novo <see cref="Guid"/> se a conversão falhar
+    ''' </summary>
+    ''' <param name="Source"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CreateGuid(Source As String) As Guid
+        Dim g = Guid.NewGuid()
+        If Source.IsNotBlank() Then
+            If Not Guid.TryParse(Source, g) Then
+                g = Guid.NewGuid()
+            End If
+        End If
+        Return g
+    End Function
 
     ''' <summary>
     ''' Concatena todas as  <see cref="Exception.InnerException"/> em uma única string
@@ -24,7 +38,7 @@ Public Module ClassTools
         Dim ExceptionString = ex.Message
         While ex.InnerException IsNot Nothing
             ex = ex.InnerException
-            ExceptionString  &=  " >> " & ex.Message
+            ExceptionString &= " >> " & ex.Message
         End While
         Return ExceptionString
     End Function
@@ -73,7 +87,7 @@ Public Module ClassTools
         Dim props = Obj.GetProperties.AsEnumerable
         For Each propertyname In PropertyNames
             Dim prop = Obj.GetPropertyInfo(propertyname)
-            txt  &=  "&" & prop.Name & "=" & ToFlatString(prop.GetValue(Obj)).UrlEncode
+            txt &= "&" & prop.Name & "=" & ToFlatString(prop.GetValue(Obj)).UrlEncode
         Next
         Return txt
     End Function
@@ -91,7 +105,7 @@ Public Module ClassTools
         Dim props = Obj.GetProperties.AsEnumerable
         For Each propertyname In PropertyNames
             If props.Count(Function(x) x.Name = propertyname) > 0 Then
-                txt  &=  "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
+                txt &= "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
             End If
         Next
         Return txt
@@ -107,7 +121,7 @@ Public Module ClassTools
     <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As IEnumerable(Of T), ParamArray PropertyNames As String()) As String
         Dim txt = ""
         For Each i In Obj
-            txt  &=  i.GetPropertyAsQueryStringParameter(PropertyNames)
+            txt &= i.GetPropertyAsQueryStringParameter(PropertyNames)
         Next
         Return txt
     End Function
@@ -139,7 +153,7 @@ Public Module ClassTools
         Dim lista = New List(Of Object)
         Dim header = New List(Of Object)
         header.Add(HeaderProp.Method.GetParameters.First().Name)
-        For Each h In maps.SelectMany(Function(x) x.Value.Keys.ToArray())
+        For Each h In maps.SelectMany(Function(x) x.Value.Keys.ToArray()).Distinct()
             header.Add(HeaderProp(h))
         Next
         lista.Add(header)
@@ -316,6 +330,8 @@ Public Module ClassTools
             Return FalseValue
         End If
     End Function
+
+
 
     ''' <summary>
     ''' Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que

@@ -749,6 +749,18 @@ Public Module Images
         Return Image.Resize(Width, Height, False).Crop(Width, Height)
     End Function
 
+
+    ''' <summary>
+    ''' redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+    ''' </summary>
+    ''' <param name="Image"></param>
+    ''' <param name="Width"></param>
+    ''' <param name="Height"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ResizeCrop(Image As Image, Width As Integer, Height As Integer, OnlyResizeIfWider As Boolean) As Image
+        Return Image.Resize(Width, Height, OnlyResizeIfWider).Crop(Width, Height)
+    End Function
+
 End Module
 
 ''' <summary>

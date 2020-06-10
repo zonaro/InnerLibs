@@ -112,12 +112,16 @@ Public Module Verify
     <Extension()>
     Public Function IsFilePath(ByVal Text As String) As Boolean
         Text = Text.Trim()
-        If Directory.Exists(Text) Then
-            Return False
-        End If
-        If File.Exists(Text) Then
-            Return True
-        End If
+        Try
+            If Directory.Exists(Text) Then
+                Return False
+            End If
+            If File.Exists(Text) Then
+                Return True
+            End If
+        Catch ex As Exception
+        End Try
+
         ' if has extension then its a file; directory otherwise
         Return Not Text.EndsWith(Path.DirectorySeparatorChar) And Path.GetExtension(Text).IsNotBlank
     End Function
@@ -130,12 +134,15 @@ Public Module Verify
     <Extension()>
     Public Function IsDirectoryPath(ByVal Text As String) As Boolean
         Text = Text.Trim()
-        If Directory.Exists(Text) Then
-            Return True
-        End If
-        If File.Exists(Text) Then
-            Return False
-        End If
+        Try
+            If Directory.Exists(Text) Then
+                Return True
+            End If
+            If File.Exists(Text) Then
+                Return False
+            End If
+        Catch ex As Exception
+        End Try
 
         ' if has trailing slash then it's a directory
         If New String() {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}.Any(Function(x) Text.EndsWith(x)) Then

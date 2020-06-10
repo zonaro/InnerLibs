@@ -3,8 +3,8 @@
     ''' <summary>
     ''' Estrutura para criação de menus com submenus
     ''' </summary>
-    Public Class MenuBuilder
-        Inherits List(Of MenuBuilderItem)
+    Public Class MenuList(Of T)
+        Inherits List(Of MenuItem(Of T))
 
         ''' <summary>
         ''' Verifica se este menu possui itens
@@ -26,10 +26,18 @@
 
     End Class
 
+    Public Class MenuItem
+        Inherits MenuItem(Of Object)
+    End Class
+
+    Public Class MenuList
+        Inherits MenuList(Of Object)
+    End Class
+
     ''' <summary>
     ''' Item de um InnerMenu
     ''' </summary>
-    Public Class MenuBuilderItem
+    Public Class MenuItem(Of T)
 
         ''' <summary>
         ''' Icone correspondente a este menu
@@ -59,7 +67,14 @@
         ''' Subitens do menu
         ''' </summary>
         ''' <returns></returns>
-        Public Property SubItems As New List(Of MenuBuilderItem)
+
+        Property SubItems As MenuList(Of T)
+
+        ''' <summary>
+        ''' Informações relacionadas a este item
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Data As T
 
         ''' <summary>
         ''' Indica se o menu está ativo (selecionado)
@@ -108,7 +123,7 @@
         ''' </summary>
         ''' <param name="Title">Titulo do Menu</param>
         ''' <param name="SubItems">Subitens do menu</param>
-        Public Sub New(Title As String, SubItems As List(Of MenuBuilderItem), Optional Icon As String = "")
+        Public Sub New(Title As String, SubItems As List(Of MenuItem(Of T)), Optional Icon As String = "")
             Me.Title = Title
             Me.SubItems = SubItems
         End Sub

@@ -1,5 +1,6 @@
 ﻿Imports System.Collections.ObjectModel
 Imports InnerLibs.LINQ
+
 Namespace TimeMachine
 
     Public Class FortnightGroup(Of DataType)
@@ -8,7 +9,6 @@ Namespace TimeMachine
         Property DataCollection As New List(Of DataType)
 
         Property DateSelector As New List(Of Func(Of DataType, Date))
-
 
         ''' <summary>
         ''' Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada
@@ -54,7 +54,6 @@ Namespace TimeMachine
             Return lista
         End Function
 
-
         ''' <summary>
         ''' Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informaçoes agrupadas por quinzena
         ''' </summary>
@@ -69,7 +68,6 @@ Namespace TimeMachine
             Next
             Return d
         End Function
-
 
         Public Function ToJSON(Optional IncludeFortnightsWithoutData As Boolean = True)
             Return OldJsonSerializer.SerializeJSON(Me.ToDataDictionary(IncludeFortnightsWithoutData))
@@ -143,7 +141,6 @@ Namespace TimeMachine
 
     End Class
 
-
     Public Class Fortnight
 
         ''' <summary>
@@ -200,9 +197,9 @@ Namespace TimeMachine
         '''<remarks>
         '''<list type="number">
         '''<listheader>
-        ''' <term> Marcação </term>  
-        ''' <description> Descrição </description>  
-        ''' </listheader>  
+        ''' <term> Marcação </term>
+        ''' <description> Descrição </description>
+        ''' </listheader>
         '''<item><term>{f} ou {q}</term><description> Retorna o numero da quinzena com 1 digito. EX.: "1", "2"</description></item>
         '''<item><term>{ff} ou {qq}</term><description> Retorna o numero da quinzena com 2 digitos. EX.: "01", "02"</description></item>
         '''<item><term>{o}</term><description> Retorna sufixo ordinal da quinzena atual. EX.: "st", "nd", "rd", "th"</description></item>
@@ -266,7 +263,6 @@ Namespace TimeMachine
     Public Class FortnightGroup
         Inherits ReadOnlyCollection(Of Fortnight)
 
-
         ''' <summary>
         ''' Retorna uma quinzena a partir da sua Key
         ''' </summary>
@@ -288,7 +284,6 @@ Namespace TimeMachine
                 Return MyBase.Item(Index)
             End Get
         End Property
-
 
         ''' <summary>
         ''' Retorna a data inicial do periodo
@@ -378,9 +373,6 @@ Namespace TimeMachine
         Public Shared Function CreateFromDateRange(Range As DateRange) As FortnightGroup
             Return CreateFromDateRange(Range.StartDate, Range.EndDate)
         End Function
-
-
-
 
     End Class
 
@@ -493,7 +485,6 @@ Namespace TimeMachine
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property RelevantDays As New List(Of Date)
-
 
         Public ReadOnly Property TotalSeconds As Decimal
             Get
@@ -639,7 +630,7 @@ Namespace TimeMachine
             If current.Contains(",") Then
                 current = current.ReplaceLast(",", " e ")
             End If
-            Return current.AdjustWhiteSpaces.TrimAny(True, ",", " ")
+            Return current.AdjustWhiteSpaces.TrimAny(True, ",", " ", "e")
         End Function
 
         ''' <summary>
