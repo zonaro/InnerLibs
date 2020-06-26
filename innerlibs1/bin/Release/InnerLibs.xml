@@ -139,6 +139,14 @@ InnerLibs
  <param name="Type">Tipo de arquivo</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Base64.ToDataURL(System.Byte[],System.String)">
+ <summary>
+ Converte um Array de Bytes em uma DATA URL Completa
+ </summary>
+ <param name="Bytes">Array de Bytes</param>
+ <param name="MimeType">Tipo de arquivo</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Base64.ToDataURL(System.IO.FileInfo)">
  <summary>
  Converte um arquivo uma DATA URL Completa
@@ -463,7 +471,7 @@ InnerLibs
  This is the basic HTML document object used to represent a sequence of HTML.
  </summary>
 </member>
-<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.String,System.Text.Encoding)">
+<member name="M:InnerLibs.HtmlParser.HtmlDocument.#ctor(System.String,System.Text.Encoding,System.Boolean)">
  <summary>
  This will create a new document object by parsing the HTML specified.
  </summary>
@@ -596,19 +604,19 @@ InnerLibs
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlDocument.Body">
  <summary>
- Return the body element if exist 
+ Return the body element if exist
  </summary>
  <returns></returns>
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlDocument.Head">
  <summary>
- Return the Head element if exist 
+ Return the Head element if exist
  </summary>
  <returns></returns>
 </member>
 <member name="P:InnerLibs.HtmlParser.HtmlDocument.Title">
  <summary>
- Return the Title element if exist 
+ Return the Title element if exist
  </summary>
  <returns></returns>
 </member>
@@ -924,11 +932,11 @@ InnerLibs
  <param name="Method">        </param>
  <param name="SearchChildren"></param>
 </member>
-<member name="M:InnerLibs.HtmlParser.HtmlElement.RemoveAttribute(System.String)">
+<member name="M:InnerLibs.HtmlParser.HtmlElement.RemoveAttribute(System.String[])">
  <summary>
  Remove an attribute from element
  </summary>
- <param name="Name"></param>
+ <param name="Names"></param>
 </member>
 <member name="M:InnerLibs.HtmlParser.HtmlElement.ToString">
  <summary>
@@ -1883,6 +1891,13 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.CreateGuid(System.String)">
+ <summary>
+ Cria um <see cref="T:System.Guid"/> a partir de uma string ou um novo <see cref="T:System.Guid"/> se a conversão falhar
+ </summary>
+ <param name="Source"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.ToFullExceptionString(System.Exception)">
  <summary>
  Concatena todas as  <see cref="P:System.Exception.InnerException"/> em uma única string
@@ -1944,13 +1959,13 @@ InnerLibs
  <summary>
  Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
  </summary>
- <typeparam name="A"></typeparam>
- <typeparam name="B"></typeparam>
- <typeparam name="C"></typeparam>
- <param name="maps"></param>
+ <typeparam name="GroupKey"></typeparam>
+ <typeparam name="SubGroupKey"></typeparam>
+ <typeparam name="SubGroupValue"></typeparam>
+ <param name="Groups"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassTools.ToTableArray``3(System.Collections.Generic.Dictionary{``0,``1})">
+<member name="M:InnerLibs.ClassTools.ToTableArray``2(System.Collections.Generic.Dictionary{``0,``1})">
  <summary>
  Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
  </summary>
@@ -1969,7 +1984,17 @@ InnerLibs
 </member>
 <member name="M:InnerLibs.ClassTools.GroupAndCountBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
  <summary>
- Agrupa e conta os itens de uma lista a aprtir de uma propriedade
+ Agrupa e conta os itens de uma lista a partir de uma propriedade
+ </summary>
+ <typeparam name="Type"></typeparam>
+ <typeparam name="Group"></typeparam>
+ <param name="obj"></param>
+ <param name="GroupSelector"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.GroupFirstAndCountBy``2(System.Collections.Generic.IEnumerable{``0},System.Int32,System.Func{``0,``1},``1)">
+ <summary>
+ Agrupa e conta os itens de uma lista a partir de uma propriedade
  </summary>
  <typeparam name="Type"></typeparam>
  <typeparam name="Group"></typeparam>
@@ -2844,9 +2869,9 @@ Verifica se o objeto é do tipo numérico.
 <remarks>
 <list type="number">
 <listheader>
- <term> Marcação </term>  
- <description> Descrição </description>  
- </listheader>  
+ <term> Marcação </term>
+ <description> Descrição </description>
+ </listheader>
 <item><term>{f} ou {q}</term><description> Retorna o numero da quinzena com 1 digito. EX.: "1", "2"</description></item>
 <item><term>{ff} ou {qq}</term><description> Retorna o numero da quinzena com 2 digitos. EX.: "01", "02"</description></item>
 <item><term>{o}</term><description> Retorna sufixo ordinal da quinzena atual. EX.: "st", "nd", "rd", "th"</description></item>
@@ -5920,6 +5945,15 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Searches">        </param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.OrderByList``1(System.Linq.IOrderedEnumerable{``0},``0[])">
+ <summary>
+ Ordena um <see cref="T:System.Collections.Generic.IEnumerable`1"/> a partir de outra lista do mesmo tipo
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Source"></param>
+ <param name="OrderSource"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.OrderByRandom``1(System.Collections.Generic.IEnumerable{``0})">
  <summary>
  Randomiza a ordem de um <see cref="T:System.Collections.IEnumerable"/>
@@ -5994,6 +6028,16 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Context">    </param>
  <param name="SearchTerms"></param>
  <param name="Properties"> </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Search``1(System.Collections.Generic.IEnumerable{``0},System.String[],System.Func{``0,System.String}[])">
+ <summary>
+ Retorna um <see cref="T:System.Linq.IQueryable`1"/> procurando em varios campos diferentes de uma entidade
+ </summary>
+ <typeparam name="ClassType">Tipo da Entidade</typeparam>
+ <param name="Table">Tabela da Entidade</param>
+ <param name="SearchTerms">Termos da pesquisa</param>
+ <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.Search``1(System.Data.Linq.Table{``0},System.String[],System.Linq.Expressions.Expression{System.Func{``0,System.String}}[])">
@@ -6085,6 +6129,15 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="source">      </param>
  <param name="sortProperty"></param>
  <param name="Ascending">   </param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.ThenByList``1(System.Linq.IOrderedEnumerable{``0},``0[])">
+ <summary>
+ Ordena um <see cref="T:System.Collections.Generic.IEnumerable`1"/> a partir de outra lista do mesmo tipo
+ </summary>
+ <typeparam name="T"></typeparam>
+ <param name="Source"></param>
+ <param name="OrderSource"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.ThenByLike``1(System.Linq.IOrderedQueryable{``0},System.String[],System.String,System.Boolean)">
@@ -8003,6 +8056,15 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Height"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Images.ResizeCrop(System.Drawing.Image,System.Int32,System.Int32,System.Boolean)">
+ <summary>
+ redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+ </summary>
+ <param name="Image"></param>
+ <param name="Width"></param>
+ <param name="Height"></param>
+ <returns></returns>
+</member>
 <member name="T:InnerLibs.PictureService">
  <summary>
  Retorna imagens de diversos serviços para serem usadas como marcação ou sugestão.
@@ -8093,65 +8155,89 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Width">Largura</param>
  <param name="Height">Altura</param>
 </member>
-<member name="T:InnerLibs.MenuBuilder.MenuBuilder">
+<member name="T:InnerLibs.MenuBuilder.MenuList`1">
  <summary>
  Estrutura para criação de menus com submenus
  </summary>
 </member>
-<member name="P:InnerLibs.MenuBuilder.MenuBuilder.HasItems">
+<member name="P:InnerLibs.MenuBuilder.MenuList`1.HasItems">
  <summary>
  Verifica se este menu possui itens
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.MenuBuilder.MenuBuilder.ToJSON">
+<member name="M:InnerLibs.MenuBuilder.MenuList`1.ToJSON">
  <summary>
  Transforma a classe em um json
  </summary>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.MenuBuilder.MenuBuilderItem">
+<member name="T:InnerLibs.MenuBuilder.MenuItem`1">
  <summary>
  Item de um InnerMenu
  </summary>
 </member>
-<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Icon">
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.Icon">
  <summary>
  Icone correspondente a este menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Title">
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.Title">
  <summary>
  Titulo do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.URL">
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.URL">
  <summary>
  URL do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.Target">
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.Target">
  <summary>
  Target do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.SubItems">
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.SubItems">
  <summary>
  Subitens do menu
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.MenuBuilder.MenuBuilderItem.HasItems">
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.Data">
+ <summary>
+ Informações relacionadas a este item
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.Active">
+ <summary>
+ Indica se o menu está ativo (selecionado)
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.Enabled">
+ <summary>
+ Indica se o menu está habilitado
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.Visible">
+ <summary>
+ Indica se o menu está visivel
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.MenuBuilder.MenuItem`1.HasItems">
  <summary>
  Verifica se este item possui subitens
  </summary>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.MenuBuilder.MenuBuilderItem.#ctor(System.String,System.String,System.String,System.String)">
+<member name="M:InnerLibs.MenuBuilder.MenuItem`1.#ctor(System.String,System.String,System.String,System.String)">
  <summary>
  Inicializa um novo MenuBuilderItem
  </summary>
@@ -8160,12 +8246,17 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Target">Alvo do menu, nomralmente _self</param>
  <param name="Icon">icone do menu</param>
 </member>
-<member name="M:InnerLibs.MenuBuilder.MenuBuilderItem.#ctor(System.String,System.Collections.Generic.List{InnerLibs.MenuBuilder.MenuBuilderItem},System.String)">
+<member name="M:InnerLibs.MenuBuilder.MenuItem`1.#ctor(System.String,System.Collections.Generic.List{InnerLibs.MenuBuilder.MenuItem{`0}},System.String)">
  <summary>
  Inicializa um novo MenuBuilderItem
  </summary>
  <param name="Title">Titulo do Menu</param>
  <param name="SubItems">Subitens do menu</param>
+</member>
+<member name="M:InnerLibs.MenuBuilder.MenuItem`1.#ctor">
+ <summary>
+ Construtor padrão
+ </summary>
 </member>
 <member name="T:InnerLibs.EquationPair">
  <summary>
@@ -10304,6 +10395,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Texts">strings para comparar</param>
  <returns>TRUE se alguma das strings for igual a principal</returns>
 </member>
+<member name="M:InnerLibs.Text.IsNotAny(System.String,System.String[])">
+ <summary>
+ Compara se uma string é não igual a outras strings
+ </summary>
+ <param name="Text"> string principal</param>
+ <param name="Texts">strings para comparar</param>
+ <returns>TRUE se nenhuma das strings for igual a principal</returns>
+</member>
 <member name="M:InnerLibs.Text.IsPalindrome(System.String,System.Boolean)">
  <summary>
  Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da esqueda
@@ -10742,42 +10841,42 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">Texto a ser manipulado</param>
  <returns>Uma String com o texto am CameCase</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Byte[])">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Byte[],System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.IO.FileInfo)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.IO.FileInfo,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Double)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Double,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Int32)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Int32,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Int64)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Int64,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
  <param name="Size">Tamanho</param>
  <returns>String com o tamanho + unidade de medida</returns>
 </member>
-<member name="M:InnerLibs.Text.ToFileSizeString(System.Decimal)">
+<member name="M:InnerLibs.Text.ToFileSizeString(System.Decimal,System.Int32)">
  <summary>
  Retorna o uma string representando um valor em bytes, KB, MB ou TB
  </summary>
@@ -11759,6 +11858,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="File"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Web.CreateDirectoryInfo(System.Web.HttpServerUtility,System.String)">
+ <summary>
+ Cria um diretório a partir da raiz da aplicação do servidor
+ </summary>
+ <param name="Server"></param>
+ <param name="Path"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Web.CreateDirectory(System.Web.HttpServerUtility,System.String)">
  <summary>
  Cria um diretório a partir da raiz da aplicação do servidor
@@ -11793,6 +11900,13 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 <member name="M:InnerLibs.Web.GetAllFiles(System.Web.HttpRequest)">
  <summary>
  Retorna todos os arquivos de uma <see cref="T:System.Web.HttpRequest"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+ </summary>
+ <param name="Request"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetAllFiles(System.Web.HttpRequest,System.String[])">
+ <summary>
+ Retorna todos os arquivos de um <paramref name="ContentType"/> específico de uma <see cref="T:System.Web.HttpRequest"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/> 
  </summary>
  <param name="Request"></param>
  <returns></returns>

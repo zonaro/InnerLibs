@@ -600,6 +600,17 @@ Namespace LINQ
         End Function
 
         ''' <summary>
+        ''' Ordena um <see cref="ienumerable(Of T)"/> a partir de outra lista do mesmo tipo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="OrderSource"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function OrderByList(Of T)(ByVal Source As IOrderedEnumerable(Of T), ParamArray OrderSource As T()) As IOrderedEnumerable(Of T)
+            Return Source.OrderBy(Function(x) True).ThenByList(OrderSource)
+        End Function
+
+        ''' <summary>
         ''' Randomiza a ordem de um <see cref="IEnumerable"/>
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
@@ -726,6 +737,8 @@ Namespace LINQ
             Return Table.Context.Search(Of ClassType)(SearchTerms, Properties)
         End Function
 
+
+
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
         ''' </summary>
@@ -738,6 +751,38 @@ Namespace LINQ
             Return Context.GetTable(Of ClassType).Search(SearchTerms, Properties)
         End Function
 
+
+
+        ''' <summary>
+        ''' Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes de uma entidade
+        ''' </summary>
+        ''' <typeparam name="ClassType">Tipo da Entidade</typeparam>
+        ''' <param name="Table">Tabela da Entidade</param>
+        ''' <param name="SearchTerms">Termos da pesquisa</param>
+        ''' <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
+        ''' <returns></returns>
+        <Extension()> Public Function Search(Of ClassType As Class)(ByVal Table As IEnumerable(Of ClassType), SearchTerms As String(), ParamArray Properties() As Func(Of ClassType, String)) As IOrderedEnumerable(Of ClassType)
+            Properties = If(Properties, {})
+            'If Properties.Count = 0 Then
+            '    Properties = GetType(ClassType).GetProperties().Where(Function(x) x.PropertyType = GetType(String)).Select(Function(x) Expression.Property(param, x.Name))
+            'End If
+            Search = Nothing
+            Dim predi = CreateExpression(Of ClassType)(False)
+            For Each prop In Properties
+                For Each s In SearchTerms
+                    If Not IsNothing(s) AndAlso s.IsNotBlank() Then
+                        predi = predi.Or(Function(x) prop(x).Contains(s))
+                    End If
+                Next
+            Next
+            Table = Table.Where(predi.Compile())
+            For Each prop In Properties
+                Search = If(Search, Table.OrderBy(Function(x) True)).ThenByLike(prop, True, SearchTerms)
+            Next
+            Return Search
+        End Function
+
+
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes de uma entidade
         ''' </summary>
@@ -747,11 +792,15 @@ Namespace LINQ
         ''' <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         ''' <returns></returns>
         <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
+            Properties = If(Properties, {})
+            If Properties.Count = 0 Then
+                Dim s As String() = {}
+                Return Table.Search(SearchTerms, s)
+            End If
             Search = Nothing
             Dim tab = Table.AsQueryable
             Dim predi = CreateExpression(Of ClassType)(False)
             Dim mapping = Table.Context.Mapping.GetTable(GetType(ClassType))
-            Properties = If(Properties, {})
             For Each prop In Properties
                 For Each s In SearchTerms
                     If Not IsNothing(s) AndAlso s.IsNotBlank() Then
@@ -768,6 +817,17 @@ Namespace LINQ
                 Search = If(Search, tab.OrderBy(Function(x) True)).ThenByLike(SearchTerms, prop)
             Next
             Return Search
+        End Function
+
+
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerm As String) As IOrderedQueryable(Of ClassType)
+            Dim s As String() = {}
+            Return Table.Search(SearchTerm, s)
+        End Function
+
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String()) As IOrderedQueryable(Of ClassType)
+            Dim s As String() = {}
+            Return Table.Search(SearchTerms, s)
         End Function
 
         ''' <summary>
@@ -892,6 +952,18 @@ Namespace LINQ
                 source = source.ThenBy(Function(x) x.GetPropertyValue(prop))
             Next
             Return source
+        End Function
+
+
+        ''' <summary>
+        ''' Ordena um <see cref="ienumerable(Of T)"/> a partir de outra lista do mesmo tipo
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Source"></param>
+        ''' <param name="OrderSource"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function ThenByList(Of T)(ByVal Source As IOrderedEnumerable(Of T), ParamArray OrderSource As T()) As IOrderedEnumerable(Of T)
+            Return Source.ThenBy(Function(d) Array.IndexOf(OrderSource, d))
         End Function
 
         ''' <summary>

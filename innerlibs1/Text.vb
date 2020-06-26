@@ -14,7 +14,7 @@ Public Class QuantityTextPair
 
     Public Sub New(Plural As String, Optional Singular As String = "")
         Me.Plural = Plural
-        Me.Singular = Singular.IfBlank(Plural.QuantifyText(1, Nothing))
+        Me.Singular = Singular.IfBlank(Plural.QuantifyText(1))
     End Sub
 
     Sub New()
@@ -1992,11 +1992,10 @@ Public Module Text
     ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em <paramref name="Identifier"/>.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>
-    ''' <param name="Culture">   Cultura</param>
     ''' <param name="Identifier">Identificador da variavel quantificadora</param>
     ''' <returns></returns>
     ''' <example>texto = "total de {q=2 pães}"</example>
-    <Extension()> Public Function QuantifyText(PluralText As String, Optional Culture As CultureInfo = Nothing, Optional Identifier As String = "q") As String
+    <Extension()> Public Function QuantifyText(PluralText As String, Optional Identifier As String = "q") As String
         Dim inst = PluralText.GetAllBetween("{" & Identifier & "=", "}")
         Dim no_wrap As Boolean = False
         If inst.Length = 0 Then
@@ -2011,7 +2010,7 @@ Public Module Text
             Dim texto = q.GetAfter(" ")
             Dim has_number As Boolean = texto.ContainsAny("[" & Identifier & "]")
 
-            texto = texto.QuantifyText(numero, Culture)
+            texto = texto.QuantifyText(numero)
             Dim newtxt = numero & " " & texto
             If has_number Then
                 texto = texto.Replace("[" & Identifier & "]", numero)
@@ -2031,10 +2030,8 @@ Public Module Text
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>
     ''' <param name="Quantity">  Quantidade de Itens</param>
-    ''' <param name="culture">   Cultura</param>
     ''' <returns></returns>
-    <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object, Optional Culture As CultureInfo = Nothing) As String
-        If Culture Is Nothing Then Culture = CultureInfo.CurrentCulture
+    <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object) As String
         Dim nums As Integer() = {}
         Dim numero As Decimal = 0
         Select Case True
@@ -2051,13 +2048,7 @@ Public Module Text
                 numero = CType(Quantity, Decimal)
         End Select
 
-        If CultureInfo.GetCultureInfo("pt-BR").Equals(Culture) Then
-            nums = {-1, 0, 1}
-        Else
-            nums = {-1, 1}
-        End If
-
-        If nums.Contains(numero) Then
+        If numero = 1 OrElse numero = -1 Then
             Return PluralText.Singularize()
         End If
         Return PluralText
@@ -2525,9 +2516,9 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna a frase especificada em sua forma singular
+    ''' Retorna a frase ou termo especificado em sua forma singular
     ''' </summary>
-    ''' <param name="Text">Texto no pluiral</param>
+    ''' <param name="Text">Texto no plural</param>
     ''' <returns></returns>
     <Extension()> Public Function Singularize(Text As String) As String
         Dim phrase As String() = Text.ApplySpaceOnWrapChars.Split(" ")
@@ -2551,8 +2542,24 @@ Public Module Text
                 Case phrase(index).EndsWith("ães")
                     phrase(index) = phrase(index).RemoveLastIf("ães") & ("ão")
                     Exit Select
+                Case phrase(index).EndsWith("ais")
+                    phrase(index) = phrase(index).RemoveLastIf("ais") & ("al")
+                    Exit Select
+                Case phrase(index).EndsWith("eis")
+                    phrase(index) = phrase(index).RemoveLastIf("eis") & ("el")
+                    Exit Select
+                Case phrase(index).EndsWith("ois")
+                    phrase(index) = phrase(index).RemoveLastIf("ois") & ("ol")
+                    Exit Select
+                Case phrase(index).EndsWith("uis")
+                    phrase(index) = phrase(index).RemoveLastIf("uis") & ("ul")
+                    Exit Select
                 Case phrase(index).EndsWith("es")
-                    phrase(index) = phrase(index).RemoveLastIf("es")
+                    If phrase(index).RemoveLastIf("es").EndsWithAny("z", "r") Then
+                        phrase(index) = phrase(index).RemoveLastIf("es")
+                    Else
+                        phrase(index) = phrase(index).RemoveLastIf("s")
+                    End If
                     Exit Select
                 Case phrase(index).EndsWith("ns")
                     phrase(index) = phrase(index).RemoveLastIf("ns") & ("m")

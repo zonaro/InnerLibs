@@ -144,40 +144,42 @@ Public Module ClassTools
     ''' <summary>
     ''' Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
     ''' </summary>
-    ''' <typeparam name="A"></typeparam>
-    ''' <typeparam name="B"></typeparam>
-    ''' <typeparam name="C"></typeparam>
-    ''' <param name="maps"></param>
+    ''' <typeparam name="GroupKey"></typeparam>
+    ''' <typeparam name="SubGroupKey"></typeparam>
+    ''' <typeparam name="SubGroupValue"></typeparam>
+    ''' <param name="Groups"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToTableArray(Of A, B, C, D)(ByVal maps As Dictionary(Of A, Dictionary(Of B, C)), HeaderProp As Func(Of B, D)) As IEnumerable(Of Object)
+    <Extension()> Public Function ToTableArray(Of GroupKey, SubGroupKey, SubGroupValue, HeaderProperty)(ByVal Groups As Dictionary(Of GroupKey, Dictionary(Of SubGroupKey, SubGroupValue)), HeaderProp As Func(Of SubGroupKey, HeaderProperty)) As IEnumerable(Of Object)
         Dim lista = New List(Of Object)
         Dim header = New List(Of Object)
         header.Add(HeaderProp.Method.GetParameters.First().Name)
-        For Each h In maps.SelectMany(Function(x) x.Value.Keys.ToArray()).Distinct()
+
+        Groups.Values.Uniform()
+        For Each h In Groups.SelectMany(Function(x) x.Value.Keys.ToArray()).Distinct().OrderBy(Function(x) x)
             header.Add(HeaderProp(h))
         Next
         lista.Add(header)
-        lista.AddRange(maps.Select(Function(x)
-                                       Dim l = New List(Of Object)
-                                       l.Add(x.Key) 'A
-                                       For Each y In x.Value.Values
-                                           l.Add(y) 'C
-                                       Next
-                                       Return l.ToArray()
-                                   End Function))
+        lista.AddRange(Groups.Select(Function(x)
+                                         Dim l = New List(Of Object)
+                                         l.Add(x.Key) 'GroupKey
+                                         For Each item In x.Value.OrderBy(Function(k) k.Key).Select(Function(v) v.Value)
+                                             l.Add(item) 'SubGroupValue
+                                         Next
+                                         Return l
+                                     End Function))
         Return lista
     End Function
 
     ''' <summary>
     ''' Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
     ''' </summary>
-    <Extension()> Public Function ToTableArray(Of A, B, C)(ByVal maps As Dictionary(Of A, B))
-        Return maps.Select(Function(x)
-                               Dim l = New List(Of Object)
-                               l.Add(x.Key)
-                               l.Add(x.Value)
-                               Return l.ToArray()
-                           End Function)
+    <Extension()> Public Function ToTableArray(Of GroupKeyType, GroupValueType)(ByVal Groups As Dictionary(Of GroupKeyType, GroupValueType))
+        Return Groups.Select(Function(x)
+                                 Dim l = New List(Of Object)
+                                 l.Add(x.Key)
+                                 l.Add(x.Value)
+                                 Return l.ToArray()
+                             End Function)
     End Function
 
 
@@ -198,7 +200,7 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Agrupa e conta os itens de uma lista a aprtir de uma propriedade
+    ''' Agrupa e conta os itens de uma lista a partir de uma propriedade
     ''' </summary>
     ''' <typeparam name="Type"></typeparam>
     ''' <typeparam name="Group"></typeparam>
@@ -207,6 +209,19 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function GroupAndCountBy(Of Type, Group)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group)) As Dictionary(Of Group, Long)
         Return obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Long)(x.Key, x.LongCount())).ToDictionary()
+    End Function
+
+    ''' <summary>
+    ''' Agrupa e conta os itens de uma lista a partir de uma propriedade
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <typeparam name="Group"></typeparam>
+    ''' <param name="obj"></param>
+    ''' <param name="GroupSelector"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GroupFirstAndCountBy(Of Type, Group)(obj As IEnumerable(Of Type), First As Integer, GroupSelector As Func(Of Type, Group), OtherLabel As Group) As Dictionary(Of Group, Long)
+        Dim grouped = obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Long)(x.Key, x.LongCount())).OrderByDescending(Function(x) x.Value)
+        Return grouped.Take(First).Union({New KeyValuePair(Of Group, Long)(OtherLabel, grouped.Skip(First).Sum(Function(s) s.Value))}).ToDictionary()
     End Function
 
     ''' <summary>

@@ -59,7 +59,7 @@ Public Module Converter
     ''' <typeparam name="TValue">Tipo do Valor</typeparam>
     ''' <param name="Dics">Dicionarios</param>
     '''<param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
-    <Extension()> Function Uniform(Of TKey, TValue)(ByRef Dics As IEnumerable(Of Dictionary(Of TKey, TValue)), ParamArray AditionalKeys As TKey())
+    <Extension()> Function Uniform(Of TKey, TValue)(ByRef Dics As IEnumerable(Of Dictionary(Of TKey, TValue)), ParamArray AditionalKeys As TKey()) As IEnumerable(Of Dictionary(Of TKey, TValue))
         AditionalKeys = If(AditionalKeys, {})
         Dim chave = Dics.SelectMany(Function(x) x.Keys).Distinct.Union(AditionalKeys)
         For Each dic In Dics
