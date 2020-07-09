@@ -292,7 +292,7 @@ Public Module Web
     End Function
 
     ''' <summary>
-    ''' Retorna todos os arquivos de um <paramref name="ContentType"/> específico de uma <see cref="HttpRequest"/> em um  <see cref="IEnumerable(Of HttpPostedfile)"/> 
+    ''' Retorna todos os arquivos de um <paramref name="ContentType"/> específico de uma <see cref="HttpRequest"/> em um  <see cref="IEnumerable(Of HttpPostedfile)"/>
     ''' </summary>
     ''' <param name="Request"></param>
     ''' <returns></returns>
@@ -684,11 +684,15 @@ Public Module Web
     Public Function ToSQLFilter(Dic As IDictionary(Of String, Object), ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As String
         Dim CMD = "SELECT " & CommaSeparatedColumns.IfBlank("*") & " FROM " & TableName
         FilterKeys = If(FilterKeys, {})
+
         If FilterKeys.Count = 0 Then
             FilterKeys = Dic.Keys.ToArray()
         Else
             FilterKeys = Dic.Keys.ToArray().Where(Function(x) x.IsLikeAny(FilterKeys)).ToArray
         End If
+
+        FilterKeys = FilterKeys.Where(Function(x) Dic(x) IsNot Nothing AndAlso Dic(x).ToString().IsNotBlank()).ToArray()
+
         If FilterKeys.Count > 0 Then
             CMD = CMD & " WHERE " & FilterKeys.Select(Function(key) " " & key & "=" & UrlDecode("" & Dic(key)).IsNull()).ToArray.Join(" " & [Enum].GetName(GetType(LogicConcatenationOperator), LogicConcatenation) & " ")
         End If

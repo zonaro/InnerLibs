@@ -10514,23 +10514,21 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="PrependText">Texto adicional</param>
  <param name="Test">       Teste</param>
 </member>
-<member name="M:InnerLibs.Text.QuantifyText(System.String,System.Globalization.CultureInfo,System.String)">
+<member name="M:InnerLibs.Text.QuantifyText(System.String,System.String)">
  <summary>
  Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em <paramref name="Identifier"/>.
  </summary>
  <param name="PluralText">Texto no plural</param>
- <param name="Culture">   Cultura</param>
  <param name="Identifier">Identificador da variavel quantificadora</param>
  <returns></returns>
  <example>texto = "total de {q=2 pães}"</example>
 </member>
-<member name="M:InnerLibs.Text.QuantifyText(System.String,System.Object,System.Globalization.CultureInfo)">
+<member name="M:InnerLibs.Text.QuantifyText(System.String,System.Object)">
  <summary>
  Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
  </summary>
  <param name="PluralText">Texto no plural</param>
  <param name="Quantity">  Quantidade de Itens</param>
- <param name="culture">   Cultura</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.Quote(System.String,System.Char)">
@@ -10776,9 +10774,9 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Text.Singularize(System.String)">
  <summary>
- Retorna a frase especificada em sua forma singular
+ Retorna a frase ou termo especificado em sua forma singular
  </summary>
- <param name="Text">Texto no pluiral</param>
+ <param name="Text">Texto no plural</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Text.Slice(System.String,System.Int32,System.String)">
@@ -11906,7 +11904,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.Web.GetAllFiles(System.Web.HttpRequest,System.String[])">
  <summary>
- Retorna todos os arquivos de um <paramref name="ContentType"/> específico de uma <see cref="T:System.Web.HttpRequest"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/> 
+ Retorna todos os arquivos de um <paramref name="ContentType"/> específico de uma <see cref="T:System.Web.HttpRequest"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/>
  </summary>
  <param name="Request"></param>
  <returns></returns>

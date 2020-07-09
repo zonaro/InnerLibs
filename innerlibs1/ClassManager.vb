@@ -6,7 +6,6 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
-Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Web
 Imports InnerLibs.HtmlParser
@@ -63,7 +62,6 @@ Public Module ClassTools
         Next
         Return param
     End Function
-
 
     ''' <summary>
     ''' Retorna um <see cref="NameValueCollection"/> em QueryString
@@ -181,7 +179,6 @@ Public Module ClassTools
                                  Return l.ToArray()
                              End Function)
     End Function
-
 
     ''' <summary>
     ''' Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade do mesmo objeto
@@ -345,8 +342,6 @@ Public Module ClassTools
             Return FalseValue
         End If
     End Function
-
-
 
     ''' <summary>
     ''' Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que
@@ -735,7 +730,6 @@ Public Module ClassTools
     <Extension()> Public Function GetPropertyParameterFromString(Of Type)(Text As String) As Object()
         Return GetType(Type).GetPropertyParametersFromString(Text)
     End Function
-
 
     <Extension()> Public Function ParamSplit(Text As String) As String()
         Dim name As String = Text.GetBefore("(")
@@ -1274,7 +1268,10 @@ Public Module ClassTools
     ''' </typeparam>
     <Extension()>
     Public Sub SetPropertyValue(Of Type)(MyObject As Object, PropertyName As String, Value As Type)
-        GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.SetValue(MyObject, Value)
+        Dim prop = GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault
+        If prop IsNot Nothing Then
+            prop.SetValue(MyObject, Convert.ChangeType(Value, prop.PropertyType))
+        End If
     End Sub
 
     <Extension()>

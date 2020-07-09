@@ -636,6 +636,8 @@ End Class
 ''' <remarks></remarks>
 Public Module Text
 
+
+
     <Extension()> Function ParseQueryString(querystring As String) As NameValueCollection
         Dim queryParameters As NameValueCollection = New NameValueCollection()
         Dim querySegments As String() = querystring.Split("&"c)
@@ -2010,7 +2012,7 @@ Public Module Text
             Dim texto = q.GetAfter(" ")
             Dim has_number As Boolean = texto.ContainsAny("[" & Identifier & "]")
 
-            texto = texto.QuantifyText(numero)
+            texto = texto.QuantifyText(numero.ToDecimal)
             Dim newtxt = numero & " " & texto
             If has_number Then
                 texto = texto.Replace("[" & Identifier & "]", numero)
@@ -2032,7 +2034,6 @@ Public Module Text
     ''' <param name="Quantity">  Quantidade de Itens</param>
     ''' <returns></returns>
     <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object) As String
-        Dim nums As Integer() = {}
         Dim numero As Decimal = 0
         Select Case True
             Case GetType(String) Is Quantity.GetType AndAlso CType(Quantity, String).IsNumber
@@ -2043,6 +2044,9 @@ Public Module Text
                 Exit Select
             Case GetType(IDictionary).IsAssignableFrom(Quantity.GetType)
                 numero = CType(Quantity, IDictionary).Count
+                Exit Select
+            Case GetType(Array).IsAssignableFrom(Quantity.GetType)
+                numero = CType(Quantity, Array).Length
                 Exit Select
             Case Else
                 numero = CType(Quantity, Decimal)
@@ -2377,7 +2381,7 @@ Public Module Text
     <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String(), String), Optional Comparison As StringComparison = StringComparison.InvariantCultureIgnoreCase) As String
         If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
             For Each p In Dic
-                Text = Text.SensitiveReplace(p.Value, p.Key.ToArray)
+                Text = Text.SensitiveReplace(p.Value, p.Key.ToArray, Comparison)
             Next
         End If
         Return Text
@@ -2395,7 +2399,7 @@ Public Module Text
                     tos.Add(String.Empty)
                 End While
                 For i = 0 To froms.Count - 1
-                    Text = Text.SensitiveReplace(froms(i), tos(i))
+                    Text = Text.SensitiveReplace(froms(i), tos(i), Comparison)
                 Next
             Next
         End If
