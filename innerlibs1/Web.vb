@@ -241,8 +241,9 @@ Public Module Web
     ''' <param name="Path"></param>
     ''' <returns></returns>
     <Extension()> Public Function CreateDirectory(Server As HttpServerUtility, Path As String) As String
-        If Not Directory.Exists(Server.MapPath("~/" & Path)) Then
-            Directory.CreateDirectory(Server.MapPath("~/") & "/" & Path)
+        Path = Server.MapPath("~/" & Path.SplitAny("\", "/").Join("/"))
+        If Not Directory.Exists(Path) Then
+            Directory.CreateDirectory(Path)
         End If
         Return Path
     End Function
