@@ -11888,6 +11888,22 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="File"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Web.GetFullFileUrl(System.Web.HttpRequest,System.String)">
+ <summary>
+ Retorna a URL de um arquivo de acordo com seu caminho absoluto
+ </summary>
+ <param name="Request"></param>
+ <param name="File"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFullFileUrl(System.Web.HttpRequest,System.IO.FileInfo)">
+ <summary>
+ Retorna a URL de um arquivo de acordo com seu caminho absoluto
+ </summary>
+ <param name="Request"></param>
+ <param name="File"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Web.AsEnumerable(System.Web.HttpFileCollection)">
  <summary>
  Retorna todos os arquivos de uma <see cref="T:System.Web.HttpFileCollection"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/>

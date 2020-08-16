@@ -241,7 +241,7 @@ Public Module Web
     ''' <param name="Path"></param>
     ''' <returns></returns>
     <Extension()> Public Function CreateDirectory(Server As HttpServerUtility, Path As String) As String
-        Path = Server.MapPath("~/" & Path.SplitAny("\", "/").Join("/"))
+        Path = Server.MapPath("~/" & Path.Trim("~").SplitAny("\", "/").Join("/"))
         If Not Directory.Exists(Path) Then
             Directory.CreateDirectory(Path)
         End If
@@ -266,6 +266,26 @@ Public Module Web
     ''' <returns></returns>
     <Extension()> Public Function GetFileUrl(Request As HttpRequest, File As String) As String
         Return Request.GetFileUrl(New FileInfo(File))
+    End Function
+
+    ''' <summary>
+    ''' Retorna a URL de um arquivo de acordo com seu caminho absoluto
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <param name="File"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFullFileUrl(Request As HttpRequest, File As String) As String
+        Return Request.Url.Scheme & "://" & Request.Url.Authority & Request.GetFileUrl(File)
+    End Function
+
+    ''' <summary>
+    ''' Retorna a URL de um arquivo de acordo com seu caminho absoluto
+    ''' </summary>
+    ''' <param name="Request"></param>
+    ''' <param name="File"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFullFileUrl(Request As HttpRequest, File As FileInfo) As String
+        Return Request.Url.Scheme & "://" & Request.Url.Authority & Request.GetFileUrl(File)
     End Function
 
     ''' <summary>
