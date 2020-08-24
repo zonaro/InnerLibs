@@ -69,7 +69,7 @@ Public Module ClassTools
     ''' <param name="NVC"></param>
     ''' <returns></returns>
     <Extension()> Public Function ToQueryString(NVC As NameValueCollection) As String
-        Return NVC.AllKeys.SelectManyJoin(Function(n) NVC.GetValues(n).Select(Function(v) n & "=" & v), "&")
+        Return NVC.AllKeys.SelectManyJoin(Function(n) NVC.GetValues(n).Select(Function(v) n & "=" & v).Where(Function(x) x.IsNotBlank() AndAlso x <> "="), "&")
     End Function
 
     ''' <summary>

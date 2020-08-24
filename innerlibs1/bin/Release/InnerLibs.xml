@@ -5581,6 +5581,18 @@ Verifica se o objeto é do tipo numérico.
  <typeparam name="T"></typeparam>
  <typeparam name="ListType"></typeparam>
 </member>
+<member name="P:InnerLibs.PaginationInfo`2.PaginationOffset">
+ <summary>
+ Quantidade minima de "botões de paginação" contidas no <see cref="P:InnerLibs.PaginationInfo`2.PageRange"/>
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.PageRange">
+ <summary>
+ Retorna um range de páginas a partir da pagina atual
+ </summary>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.WhereExpression``1(System.String,System.String,System.Object,System.Boolean)">
  <summary>
  Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor

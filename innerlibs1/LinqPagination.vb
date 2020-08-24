@@ -11,6 +11,16 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+        <Extension>
+        Public Function CreatePaginationInfo(Of T)(ByVal List As IQueryable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing) As PaginationInfo(Of T, IQueryable(Of T))
+            Return New PaginationInfo(Of T, IQueryable(Of T))(List, PageNumber, PageSize, PaginationOffset, Filter)
+        End Function
+
+        <Extension>
+        Public Function CreatePaginationInfo(Of T)(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing) As PaginationInfo(Of T, IEnumerable(Of T))
+            Return New PaginationInfo(Of T, IEnumerable(Of T))(List, PageNumber, PageSize, PaginationOffset, Filter)
+        End Function
+
         ''' <summary>
         ''' Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
         ''' </summary>
@@ -556,7 +566,6 @@ Namespace LINQ
             Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
         End Function
 
-
         ''' <summary>
         ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
         ''' </summary>
@@ -568,9 +577,6 @@ Namespace LINQ
         <Extension> Public Function OrderBy(Of T)(ByVal source As IEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
             Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
         End Function
-
-
-
 
         ''' <summary>
         ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
@@ -639,6 +645,10 @@ Namespace LINQ
         ''' <param name="PageSize">  </param>
         ''' <returns></returns>
         <Extension()> Function Page(Of TSource)(ByVal Source As IQueryable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IQueryable(Of TSource)
+            If PageNumber <= 0 Then
+                Return Source
+            End If
+
             Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
         End Function
 
@@ -652,10 +662,10 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension()>
         Function Page(Of TSource)(ByVal Source As IEnumerable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IEnumerable(Of TSource)
-            If PageNumber < 0 Then
+            If PageNumber <= 0 Then
                 Return Source
             End If
-            Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
+            Return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize)
         End Function
 
         ''' <summary>
@@ -737,8 +747,6 @@ Namespace LINQ
             Return Table.Context.Search(Of ClassType)(SearchTerms, Properties)
         End Function
 
-
-
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
         ''' </summary>
@@ -750,8 +758,6 @@ Namespace LINQ
         <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
             Return Context.GetTable(Of ClassType).Search(SearchTerms, Properties)
         End Function
-
-
 
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes de uma entidade
@@ -781,7 +787,6 @@ Namespace LINQ
             Next
             Return Search
         End Function
-
 
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes de uma entidade
@@ -818,7 +823,6 @@ Namespace LINQ
             Next
             Return Search
         End Function
-
 
         <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerm As String) As IOrderedQueryable(Of ClassType)
             Dim s As String() = {}
@@ -953,7 +957,6 @@ Namespace LINQ
             Next
             Return source
         End Function
-
 
         ''' <summary>
         ''' Ordena um <see cref="ienumerable(Of T)"/> a partir de outra lista do mesmo tipo
