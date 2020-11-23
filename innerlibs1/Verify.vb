@@ -26,14 +26,60 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se a string é um CNH válido
+    ''' </summary>
+    ''' <param name="Text">CNH</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsValidCNH(cnh As String) As Boolean
+        Dim isValid As Boolean = False
+
+        Dim firstChar = cnh(0)
+
+        If cnh.Length = 11 AndAlso cnh <> New String("1"c, 11) Then
+            Dim dsc = 0
+            Dim v = 0
+            Dim i As Integer = 0, j As Integer = 9
+
+            While i < 9
+                v += (Convert.ToInt32(cnh(i).ToString()) * j)
+                i += 1
+                j -= 1
+            End While
+
+            Dim vl1 = v Mod 11
+
+            If vl1 >= 10 Then
+                vl1 = 0
+                dsc = 2
+            End If
+
+            v = 0
+            i = 0
+            j = 1
+
+            While i < 9
+                v += (Convert.ToInt32(cnh(i).ToString()) * j)
+                i += 1
+                j += 1
+            End While
+
+            Dim x = v Mod 11
+            Dim vl2 = If((x >= 10), 0, x - dsc)
+            isValid = vl1.ToString() & vl2.ToString() = cnh.Substring(cnh.Length - 2, 2)
+        End If
+
+        Return isValid
+
+    End Function
+
+    ''' <summary>
     ''' Verifica se a string é um CPF ou CNPJ válido
     ''' </summary>
     ''' <param name="Text">CPF ou CNPJ</param>
     ''' <returns></returns>
-    <Extension()> Public Function IsValidDocument(Text As String) As Boolean
+    <Extension()> Public Function IsValidCPFOrCNPJ(Text As String) As Boolean
         Return Text.IsValidCPF() OrElse Text.IsValidCNPJ()
     End Function
-
 
     ''' <summary>
     ''' Verifica se a string é um CPF válido
@@ -49,7 +95,7 @@ Public Module Verify
             For j = 0 To 9 + (k - 1)
                 soma += Integer.Parse(Text(j).ToString()) * (10 + k - j)
             Next
-            digito  &=  If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
+            digito &= If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
         Next
         Return (digito(0) = Text(9) And digito(1) = Text(10))
     End Function

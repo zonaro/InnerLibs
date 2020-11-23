@@ -636,8 +636,6 @@ End Class
 ''' <remarks></remarks>
 Public Module Text
 
-
-
     <Extension()> Function ParseQueryString(querystring As String) As NameValueCollection
         Dim queryParameters As NameValueCollection = New NameValueCollection()
         Dim querySegments As String() = querystring.Split("&"c)
@@ -695,7 +693,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Document"></param>
     ''' <returns></returns>
-    <Extension()> Public Function FormatDocument(Document As Long) As String
+    <Extension()> Public Function FormatCPFOrCNPJ(Document As Long) As String
         If Document.ToString().IsValidCPF() Then
             Return Document.FormatCPF()
         End If
@@ -715,12 +713,40 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Formata um numero para CNPJ
+    ''' </summary>
+    ''' <param name="CNPJ"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FormatCNPJ(CNPJ As String) As String
+        If CNPJ.IsValidCNPJ Then
+            If CNPJ.IsNumber Then CNPJ = CNPJ.ToLong.FormatCNPJ()
+        Else
+            Throw New FormatException("String is not a valid CNPJ")
+        End If
+        Return CNPJ
+    End Function
+
+    ''' <summary>
     ''' Formata um numero para CPF
     ''' </summary>
     ''' <param name="CPF"></param>
     ''' <returns></returns>
     <Extension()> Public Function FormatCPF(CPF As Long) As String
         Return String.Format("{0:000\.000\.000\-00}", CPF)
+    End Function
+
+    ''' <summary>
+    ''' Formata um numero para CPF
+    ''' </summary>
+    ''' <param name="CPF"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FormatCPF(CPF As String) As String
+        If CPF.IsValidCPF Then
+            If CPF.IsNumber Then CPF = CPF.ToLong.FormatCPF()
+        Else
+            Throw New FormatException("String is not a valid CPF")
+        End If
+        Return CPF
     End Function
 
     ''' <summary>

@@ -71,6 +71,16 @@ Public Class PaginationInfo(Of T, ListType As IEnumerable(Of T))
         End If
     End Sub
 
+
+    Sub New(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Total As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing)
+        Me.Data = List
+        Me.PageNumber = PageNumber
+        Me.PageSize = PageSize
+        Me.Total = Total
+        Me.PaginationOffset = PaginationOffset
+        Me.Filter = Filter
+    End Sub
+
     ''' <summary>
     ''' Quantidade média de "botões de paginação" contidas no <see cref="PageRange"/>
     ''' </summary>

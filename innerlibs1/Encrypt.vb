@@ -1,4 +1,5 @@
-﻿Imports System.Runtime.CompilerServices
+﻿Imports System.Globalization
+Imports System.Runtime.CompilerServices
 Imports System.Security.Cryptography
 Imports System.Text
 
@@ -38,6 +39,48 @@ Public Module Encryption
     Public Function TryReverseMD5(Text As String) As String
         Return AJAX.Request(Of String)("http://md5.gromweb.com/query/" & Text)
     End Function
+
+
+    ''' <summary>
+    ''' Criptografa um string em RSA
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Key"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function EncryptRSA(ByVal Text As String, ByVal Key As String) As String
+        Dim cspp = New CspParameters With {
+            .KeyContainerName = Key
+        }
+        Dim rsa = New RSACryptoServiceProvider(cspp) With {
+            .PersistKeyInCsp = True
+        }
+        Dim bytes As Byte() = rsa.Encrypt(Encoding.UTF8.GetBytes(Text), True)
+        Return BitConverter.ToString(bytes)
+    End Function
+
+
+    ''' <summary>
+    ''' Descriptografa uma string encriptada em RSA
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Key"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function DecryptRSA(ByVal Text As String, ByVal Key As String) As String
+        Dim cspp = New CspParameters With {
+            .KeyContainerName = Key
+        }
+        Dim rsa = New RSACryptoServiceProvider(cspp) With {
+            .PersistKeyInCsp = True
+        }
+        Dim decryptArray As String() = Text.Split({"-"}, StringSplitOptions.None)
+        Dim decryptByteArray As Byte() = Array.ConvertAll(decryptArray, (Function(s) Convert.ToByte(Byte.Parse(s, NumberStyles.HexNumber))))
+        Dim bytes As Byte() = rsa.Decrypt(decryptByteArray, True)
+        Return Encoding.UTF8.GetString(bytes)
+    End Function
+
+
 
     ''' <summary>
     ''' Criptografa uma string

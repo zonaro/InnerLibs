@@ -7454,6 +7454,22 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">String MD5</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Encryption.EncryptRSA(System.String,System.String)">
+ <summary>
+ Criptografa um string em RSA
+ </summary>
+ <param name="Text"></param>
+ <param name="Key"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Encryption.DecryptRSA(System.String,System.String)">
+ <summary>
+ Descriptografa uma string encriptada em RSA
+ </summary>
+ <param name="Text"></param>
+ <param name="Key"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Encryption.Encrypt(System.String,System.String)">
  <summary>
  Criptografa uma string
@@ -9962,7 +9978,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Patterns"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.FormatDocument(System.Int64)">
+<member name="M:InnerLibs.Text.FormatCPFOrCNPJ(System.Int64)">
  <summary>
  Formata um numero para CNPJ ou CNPJ se forem validos
  </summary>
@@ -9976,7 +9992,21 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="CNPJ"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Text.FormatCNPJ(System.String)">
+ <summary>
+ Formata um numero para CNPJ
+ </summary>
+ <param name="CNPJ"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.FormatCPF(System.Int64)">
+ <summary>
+ Formata um numero para CPF
+ </summary>
+ <param name="CPF"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.FormatCPF(System.String)">
  <summary>
  Formata um numero para CPF
  </summary>
@@ -11489,7 +11519,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Verify.IsValidDocument(System.String)">
+<member name="M:InnerLibs.Verify.IsValidCNH(System.String)">
+ <summary>
+ Verifica se a string é um CNH válido
+ </summary>
+ <param name="Text">CNH</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Verify.IsValidCPFOrCNPJ(System.String)">
  <summary>
  Verifica se a string é um CPF ou CNPJ válido
  </summary>

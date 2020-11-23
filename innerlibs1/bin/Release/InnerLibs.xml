@@ -5576,14 +5576,50 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="T:InnerLibs.PaginationInfo`2">
  <summary>
- Classe para manipulaçcao de coleções de forma paginada
+ Classe para manipulação de coleções de forma paginada
  </summary>
  <typeparam name="T"></typeparam>
  <typeparam name="ListType"></typeparam>
 </member>
+<member name="P:InnerLibs.PaginationInfo`2.Filter">
+ <summary>
+ Filtro aplicado previaménte em lista. Guarda qualquer objeto
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.Data">
+ <summary>
+ Registros desta pagina
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.PageNumber">
+ <summary>
+ Numero desta pagina
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.Total">
+ <summary>
+ Total de itens da Lista
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.PageSize">
+ <summary>
+ Quantidade de itens por página
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.PageCount">
+ <summary>
+ Quantidade de páginas
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.PaginationInfo`2.PaginationOffset">
  <summary>
- Quantidade minima de "botões de paginação" contidas no <see cref="P:InnerLibs.PaginationInfo`2.PageRange"/>
+ Quantidade média de "botões de paginação" contidas no <see cref="P:InnerLibs.PaginationInfo`2.PageRange"/>
  </summary>
  <returns></returns>
 </member>
