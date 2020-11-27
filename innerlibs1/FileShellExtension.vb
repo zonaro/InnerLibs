@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Windows.Forms
 Imports Microsoft.Win32
@@ -52,20 +53,22 @@ Public Module WindowsStartup
     Private runKey As String = "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
     Private startupKey As Microsoft.Win32.RegistryKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(runKey)
 
-    <Extension()>
-    Public Sub AddToWindowsStartup(MyApplication As Application, AppName As String)
-        If startupKey.GetValue(AppName) = Nothing Then
-            startupKey.Close()
+
+    Public Sub AddToWindowsStartup(Optional AppName As String = Nothing)
+        If startupKey.GetValue(AppName.IfBlank(Assembly.GetExecutingAssembly().GetName().Name)) = Nothing Then
             startupKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(runKey, True)
             startupKey.SetValue(Path.GetFileNameWithoutExtension(Application.ExecutablePath.ToString()), Application.ExecutablePath.ToString())
             startupKey.Close()
         End If
     End Sub
-    <Extension>
-    Public Sub RemoveFromWindowsStartup(MyApplication As Application, AppName As String)
+
+    Public Sub RemoveFromWindowsStartup()
         startupKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(runKey, True)
-        startupKey.DeleteValue(Path.GetFileNameWithoutExtension(Application.ExecutablePath.ToString()), False)
-        startupKey.Close()
+        If startupKey IsNot Nothing Then
+            startupKey.DeleteValue(Path.GetFileNameWithoutExtension(Application.ExecutablePath.ToString()), False)
+            startupKey.Close()
+        End If
+
     End Sub
 
 

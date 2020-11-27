@@ -1,4 +1,5 @@
 ﻿Imports System.Globalization
+
 ''' <summary>
 ''' Classe para manipulaçao de numeros e conversão unidades
 ''' </summary>
@@ -17,16 +18,31 @@ Public Class UnitConverter
     End Sub
 
     ''' <summary>
-    ''' Cria um <see cref="UnitConverter"/> de Base 1000
+    ''' Cria um <see cref="UnitConverter"/> de Base 1000 (de y a E)
     ''' </summary>
     ''' <returns></returns>
     Public Shared Function CreateBase1000Converter() As UnitConverter
         Return New UnitConverter(0.000000000000000000000001D, 1000, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E")
-
     End Function
 
     ''' <summary>
-    ''' Cria um <see cref="UnitConverter"/> de Base 1024 (Bytes)
+    ''' Cria um <see cref="UnitConverter"/> de de Massa (peso) complexos de base 10 (de mg a kg)
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared Function CreateComplexMassConverter() As UnitConverter
+        Return New UnitConverter(10, "mg", "cg", "dg", "g", "dag", "hg", "kg")
+    End Function
+
+    ''' <summary>
+    ''' Cria um <see cref="UnitConverter"/> de de Massa (peso) simples de base 1000 (de mg a T)
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared Function CreateSimpleMassConverter() As UnitConverter
+        Return New UnitConverter(1000, "mg", "g", "kg", "T")
+    End Function
+
+    ''' <summary>
+    ''' Cria um <see cref="UnitConverter"/> de Base 1024 (Bytes) de (B a EB)
     ''' </summary>
     ''' <returns></returns>
     Public Shared Function CreateFileSizeConverter() As UnitConverter
@@ -83,7 +99,7 @@ Public Class UnitConverter
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    Function Abreviate(Number As Decimal, Optional DecimalPlaces As Integer = -1) As String
+    Function Abreviate(Number As Decimal, DecimalPlaces As Integer) As String
         Select Case Units.Count
             Case 0
                 Return Number.Slice(DecimalPlaces).ToString
@@ -108,6 +124,10 @@ Public Class UnitConverter
                 End If
                 Return (abr & " " & u).Trim
         End Select
+    End Function
+
+    Function Abreviate(Number As Decimal) As String
+        Return Abreviate(Number, Culture.NumberFormat.NumberDecimalDigits)
     End Function
 
     ''' <summary>

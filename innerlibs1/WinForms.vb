@@ -131,7 +131,7 @@ Public Module WinForms
     ''' <returns>TRUE ou FALSE</returns>
 
     Public Function Confirm(Message As String, Optional Caption As String = "") As Boolean
-        Return If(MessageBox.Show(Message, Caption.IfBlank(My.Application.Info.AssemblyName), MessageBoxButtons.YesNo, MessageBoxIcon.Question) = MsgBoxResult.Ok, True, False)
+        Return If(MessageBox.Show(Message, Caption.IfBlank(My.Application.Info.AssemblyName), MessageBoxButtons.YesNo, MessageBoxIcon.Question) = MsgBoxResult.Yes, True, False)
     End Function
 
     ''' <summary>

@@ -11385,13 +11385,25 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.UnitConverter.CreateBase1000Converter">
  <summary>
- Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1000
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1000 (de y a E)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.CreateComplexMassConverter">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de de Massa (peso) complexos de base 10 (de mg a kg)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.CreateSimpleMassConverter">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de de Massa (peso) simples de base 1000 (de mg a T)
  </summary>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.UnitConverter.CreateFileSizeConverter">
  <summary>
- Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1024 (Bytes)
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1024 (Bytes) de (B a EB)
  </summary>
  <returns></returns>
 </member>
