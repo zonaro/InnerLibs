@@ -241,7 +241,10 @@ Public Module Web
     ''' <param name="Path"></param>
     ''' <returns></returns>
     <Extension()> Public Function CreateDirectory(Server As HttpServerUtility, Path As String) As String
-        Path = Server.MapPath("~/" & Path.Trim("~").SplitAny("\", "/").Join("/"))
+        Try
+            Path = Server.MapPath("~/" & Path.Trim("~").SplitAny("\", "/").Join("/"))
+        Catch ex As Exception
+        End Try
         If Not Directory.Exists(Path) Then
             Directory.CreateDirectory(Path)
         End If
@@ -249,12 +252,59 @@ Public Module Web
     End Function
 
     ''' <summary>
+    ''' Retorna o Titulo do arquivo a partir do nome do arquivo
+    ''' </summary>
+    ''' <param name="Info"> Arquivo ou Diretório</param>
+    ''' <returns></returns>
+    <Extension()> Function FileNameAsTitle(Info As FileSystemInfo) As String
+        Return Path.GetFileNameWithoutExtension(Info.Name).CamelSplit().Replace("_", " ").ToTitle
+    End Function
+
+    ''' <summary>
+    ''' Retorna o Titulo do arquivo a partir do nome do arquivo
+    ''' </summary>
+    ''' <param name="FileName"> Arquivo ou Diretório</param>
+    ''' <returns></returns>
+    <Extension()> Function FileNameAsTitle(FileName As String) As String
+        Return Path.GetFileNameWithoutExtension(FileName).CamelSplit().Replace("_", " ").ToTitle
+    End Function
+
+
+    ''' <summary>
+    ''' Retorna o Titulo do arquivo a partir do nome do arquivo
+    ''' </summary>
+    ''' <param name="Request">Requisição</param>
+    ''' <returns></returns>
+    <Extension()> Function FileNameAsTitle(Request As HttpRequest) As String
+        Return Path.GetFileNameWithoutExtension(Request.FilePath).CamelSplit().Replace("_", " ")
+    End Function
+
+    ''' <summary>
+    ''' Retorna o Titulo do arquivo a partir do nome do arquivo
+    ''' </summary>
+    ''' <param name="Request">Requisição</param>
+    ''' <returns></returns>
+    <Extension()> Function FileNameAsTitle(Request As HttpRequest, File As String) As String
+        Return Request.GetFileUrl(File).FileNameAsTitle()
+    End Function
+
+    ''' <summary>
+    ''' Retorna o Titulo do arquivo a partir do nome do arquivo
+    ''' </summary>
+    ''' <param name="Request">Requisição</param>
+    ''' <returns></returns>
+    <Extension()> Function FileNameAsTitle(Request As HttpRequest, File As FileSystemInfo) As String
+        Return Request.GetFileUrl(File).FileNameAsTitle()
+    End Function
+
+
+    ''' <summary>
     ''' Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
     ''' </summary>
     ''' <param name="Request"></param>
     ''' <param name="File"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GetFileUrl(Request As HttpRequest, File As FileInfo) As String
+    <Extension()> Public Function GetFileUrl(Request As HttpRequest, File As FileSystemInfo) As String
         Return "/" + (File.FullName.Replace(Request.PhysicalApplicationPath, String.Empty)).TrimAny(" ", "\\", "/")
     End Function
 
@@ -284,7 +334,7 @@ Public Module Web
     ''' <param name="Request"></param>
     ''' <param name="File"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GetFullFileUrl(Request As HttpRequest, File As FileInfo) As String
+    <Extension()> Public Function GetFullFileUrl(Request As HttpRequest, File As FileSystemInfo) As String
         Return Request.Url.Scheme & "://" & Request.Url.Authority & Request.GetFileUrl(File)
     End Function
 

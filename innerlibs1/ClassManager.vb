@@ -653,6 +653,18 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Traz o valor de uma enumeração a partir de uma string
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <returns></returns>
+    <Extension()> Public Function GetEnumValueAsString(Of T)(Value As T) As String
+        If Not GetType(T).IsEnum Then
+            Throw New Exception("T must be an Enumeration type.")
+        End If
+        Return [Enum].GetName(GetType(T), Value)
+    End Function
+
+    ''' <summary>
     ''' Traz todos os Valores de uma enumeração
     ''' </summary>
     ''' <typeparam name="T"></typeparam>

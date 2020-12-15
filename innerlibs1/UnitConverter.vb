@@ -22,7 +22,7 @@ Public Class UnitConverter
     ''' </summary>
     ''' <returns></returns>
     Public Shared Function CreateBase1000Converter() As UnitConverter
-        Return New UnitConverter(0.000000000000000000000001D, 1000, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E")
+        Return New UnitConverter(1000, 0.000000000000000000000001D, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E")
     End Function
 
     ''' <summary>
@@ -30,7 +30,7 @@ Public Class UnitConverter
     ''' </summary>
     ''' <returns></returns>
     Public Shared Function CreateComplexMassConverter() As UnitConverter
-        Return New UnitConverter(10, "mg", "cg", "dg", "g", "dag", "hg", "kg")
+        Return New UnitConverter(10, "mg", "cg", "dg", "g", "dag", "hg", "kg") With {.UnitComparisonType = StringComparison.OrdinalIgnoreCase}
     End Function
 
     ''' <summary>
@@ -38,15 +38,17 @@ Public Class UnitConverter
     ''' </summary>
     ''' <returns></returns>
     Public Shared Function CreateSimpleMassConverter() As UnitConverter
-        Return New UnitConverter(1000, "mg", "g", "kg", "T")
+        Return New UnitConverter(1000, "mg", "g", "kg", "T") With {.UnitComparisonType = StringComparison.OrdinalIgnoreCase}
     End Function
+
+
 
     ''' <summary>
     ''' Cria um <see cref="UnitConverter"/> de Base 1024 (Bytes) de (B a EB)
     ''' </summary>
     ''' <returns></returns>
     Public Shared Function CreateFileSizeConverter() As UnitConverter
-        Return New UnitConverter(1024, "B", "KB", "MB", "GB", "TB", "PB", "EB")
+        Return New UnitConverter(1024, "B", "KB", "MB", "GB", "TB", "PB", "EB") With {.UnitComparisonType = StringComparison.OrdinalIgnoreCase}
     End Function
 
     ''' <summary>

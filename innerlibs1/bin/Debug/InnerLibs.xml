@@ -2233,6 +2233,13 @@ InnerLibs
  <typeparam name="T"></typeparam>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.GetEnumValueAsString``1(``0)">
+ <summary>
+ Traz o valor de uma enumeração a partir de uma string
+ </summary>
+ <typeparam name="T"></typeparam>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.GetEnumValues``1">
  <summary>
  Traz todos os Valores de uma enumeração
@@ -11969,7 +11976,42 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Path"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.IO.FileInfo)">
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.IO.FileSystemInfo)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Info"> Arquivo ou Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.String)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="FileName"> Arquivo ou Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.Web.HttpRequest)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Request">Requisição</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.Web.HttpRequest,System.String)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Request">Requisição</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.Web.HttpRequest,System.IO.FileSystemInfo)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Request">Requisição</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.IO.FileSystemInfo)">
  <summary>
  Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
  </summary>
@@ -11993,7 +12035,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="File"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Web.GetFullFileUrl(System.Web.HttpRequest,System.IO.FileInfo)">
+<member name="M:InnerLibs.Web.GetFullFileUrl(System.Web.HttpRequest,System.IO.FileSystemInfo)">
  <summary>
  Retorna a URL de um arquivo de acordo com seu caminho absoluto
  </summary>
