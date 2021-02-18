@@ -194,7 +194,9 @@ Public Module Generate
         If Text.IsNumber Then
             Return Color.FromArgb(Text.ToInteger())
         End If
-        Return Color.FromArgb(Text.ToArray().Select(Function(a) Asc(a).ToString()).Join().ToInteger())
+        Dim coresInt = Text.GetWords.Select(Function(p) p.ToCharArray().Sum(Function(a) AscW(a) ^ 2 * p.Length)).Sum()
+
+        Return Color.FromArgb(coresInt)
     End Function
 
     ''' <summary>
