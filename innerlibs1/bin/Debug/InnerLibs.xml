@@ -7780,7 +7780,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">Um texto qualquer a ser usado como exemplo</param>
  <param name="FontName">Nome da fonte (verifique no site)</param>
  <param name="FontSize">Tamanho da fonte</param>
- <returns>Uma Imagem (Image())</returns>
+ <returns>Uma (<see cref="T:System.Drawing.Image"/>)</returns>
 </member>
 <member name="M:InnerLibs.Generate.ScreenshotFromWebsite(System.String,System.String,System.Boolean,System.Int32,System.String,System.Int32)">
  <summary>
@@ -7843,23 +7843,31 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Max">Numero Maximo, Padrão 999999</param>
  <returns>Um numero Inteiro (Integer ou Int)</returns>
 </member>
+<member name="M:InnerLibs.Generate.WordToColor(System.String)">
+ <summary>
+ Gera uma cor a partir de uma palavra
+ </summary>
+ <param name="Text"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Generate.RandomColor(System.Int32,System.Int32,System.Int32)">
  <summary>
  Gera uma cor aleatória misturandoo ou não os canais RGB
  </summary>
- <param name="Red">-1 para Random ou de 0 a 256 para especificar o valor</param>
- <param name="Green">-1 para Random ou de 0 a 256 para especificar o valor</param>
- <param name="Blue">-1 para Random ou de 0 a 256 para especificar o valor</param>
+ <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
+ <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
+ <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Generate.RandomColorList(System.Int32,System.Int32,System.Int32,System.Int32)">
  <summary>
- 
+ Gera uma lista com <paramref name="Quantity"/> cores diferentes
  </summary>
- <param name="Quantity"></param>
+ <param name="Quantity">Quantidade máxima de cores</param>
  <param name="Red"></param>
  <param name="Green"></param>
  <param name="Blue"></param>
+ <remarks></remarks>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Generate.InnerIpsum(System.Int32)">

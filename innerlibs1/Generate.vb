@@ -74,7 +74,7 @@ Public Module Generate
     ''' <param name="Text">Um texto qualquer a ser usado como exemplo</param>
     ''' <param name="FontName">Nome da fonte (verifique no site)</param>
     ''' <param name="FontSize">Tamanho da fonte</param>
-    ''' <returns>Uma Imagem (Image())</returns>
+    ''' <returns>Uma (<see cref="System.Drawing.Image"/>)</returns>
     <Obsolete("Muito Impreciso, API em fase experimental")>
     Public Function DaFontLogo(Text As String, FontName As String, Optional FontSize As String = "") As Image
         Dim Client As New WebClient
@@ -180,6 +180,21 @@ Public Module Generate
     ''' <returns>Um numero Inteiro (Integer ou Int)</returns>
     Function RandomNumber(Optional Min As Long = 0, Optional Max As Long = 999999) As Integer
         Return init_rnd.Next(Min, Max + 1)
+    End Function
+
+    ''' <summary>
+    ''' Gera uma cor a partir de uma palavra
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Public Function WordToColor(Text As String) As Color
+        If Text.IsBlank() Then
+            Return RandomColor()
+        End If
+        If Text.IsNumber Then
+            Return Color.FromArgb(Text.ToInteger())
+        End If
+        Return Color.FromArgb(Text.ToArray().Select(Function(a) Asc(a).ToString()).Join().ToInteger())
     End Function
 
     ''' <summary>
