@@ -142,6 +142,11 @@ Public Module ColorConvert
         Return "RGB(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & ")"
     End Function
 
+    <Extension()>
+    Public Function ToRGBA(Color As System.Drawing.Color) As String
+        Return "rgba(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & "," & Color.A.ToString() & ")"
+    End Function
+
     ''' <summary>
     ''' Converte uma string hexadecimal (HTML) para objeto Color
     ''' </summary>

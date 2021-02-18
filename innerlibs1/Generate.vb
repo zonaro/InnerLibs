@@ -182,6 +182,52 @@ Public Module Generate
         Return init_rnd.Next(Min, Max + 1)
     End Function
 
+    ''' <summary>
+    ''' Gera uma cor aleatória misturandoo ou não os canais RGB
+    ''' </summary>
+    ''' <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
+    ''' <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
+    ''' <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
+    ''' <returns></returns>
+    Public Function RandomColor(Optional Red As Integer = -1, Optional Green As Integer = -1, Optional Blue As Integer = -1) As Color
+        Red = If(Red < 0, RandomNumber(0, 255), Red).LimitRange(0, 255)
+        Green = If(Green < 0, RandomNumber(0, 255), Green).LimitRange(0, 255)
+        Blue = If(Blue < 0, RandomNumber(0, 255), Blue).LimitRange(0, 255)
+        Dim cor = Color.FromArgb(Red, Green, Blue)
+        Return cor
+    End Function
+
+    ''' <summary>
+    ''' Gera uma lista com <paramref name="Quantity"/> cores diferentes
+    ''' </summary>
+    ''' <param name="Quantity">Quantidade máxima de cores</param>
+    ''' <param name="Red"></param>
+    ''' <param name="Green"></param>
+    ''' <param name="Blue"></param>
+    ''' <remarks></remarks>
+    ''' <returns></returns>
+    Public Function RandomColorList(Quantity As Integer, Optional Red As Integer = -1, Optional Green As Integer = -1, Optional Blue As Integer = -1) As List(Of Color)
+        Dim l As New List(Of Color)
+        If Red = Green AndAlso Green = Blue AndAlso Blue <> -1 Then
+            l.Add(Color.FromArgb(Red, Green, Blue))
+            Return l
+        End If
+        Dim errorcount = 0
+        While l.Count < Quantity
+            Dim r = RandomColor(Red, Green, Blue)
+            If l.Any(Function(x) x.ToHexadecimal = r.ToHexadecimal) Then
+                errorcount = errorcount + 1
+                If errorcount = 5 Then
+                    Return l
+                End If
+            Else
+                errorcount = 0
+                l.Add(r)
+            End If
+        End While
+        Return l
+    End Function
+
     Private init_rnd = New Random()
 
     ''' <summary>
@@ -200,7 +246,7 @@ Public Module Generate
         paragraphs(4) = "Interdum et malesuada fames ac ante ipsum primis In fakepath. send efficitur, leo Get amet accumsan drag n drop, urna Inner pulvinar erat, AJAX dapibus arcu mauris vel felis. Nam in ante get amet vsplit drag n drop tincidunt. display: none at arcu at quam gravida fringilla. Proin et vehicula lacus. nullm leo turpis, auctor ac volutpat euismod, posuere quis felis. nullm dapibus diam vel #000000 facilisis. Curabitur at purus in ante aliquet porta."
 
         For i = 1 To ParagraphNumber
-            loremipusm  &=  paragraphs(RandomNumber(0, paragraphs.Length)) & vbNewLine & vbNewLine
+            loremipusm &= paragraphs(RandomNumber(0, paragraphs.Length)) & vbNewLine & vbNewLine
         Next
         Return loremipusm
     End Function

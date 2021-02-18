@@ -7843,6 +7843,25 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Max">Numero Maximo, Padrão 999999</param>
  <returns>Um numero Inteiro (Integer ou Int)</returns>
 </member>
+<member name="M:InnerLibs.Generate.RandomColor(System.Int32,System.Int32,System.Int32)">
+ <summary>
+ Gera uma cor aleatória misturandoo ou não os canais RGB
+ </summary>
+ <param name="Red">-1 para Random ou de 0 a 256 para especificar o valor</param>
+ <param name="Green">-1 para Random ou de 0 a 256 para especificar o valor</param>
+ <param name="Blue">-1 para Random ou de 0 a 256 para especificar o valor</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Generate.RandomColorList(System.Int32,System.Int32,System.Int32,System.Int32)">
+ <summary>
+ 
+ </summary>
+ <param name="Quantity"></param>
+ <param name="Red"></param>
+ <param name="Green"></param>
+ <param name="Blue"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Generate.InnerIpsum(System.Int32)">
  <summary>
  Gera um InnerIpsum (InnerIpsum é uma modificação do classico Lorem Ipsum)
