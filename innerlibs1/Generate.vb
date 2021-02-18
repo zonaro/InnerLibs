@@ -3,6 +3,7 @@ Imports System.Net
 Imports System.Runtime.CompilerServices
 Imports System.Web
 Imports InnerLibs.Locations
+
 ''' <summary>
 ''' Geradores de conteudo
 ''' </summary>
@@ -82,6 +83,7 @@ Public Module Generate
         Return Image.FromStream(Client.OpenRead(URL))
 
     End Function
+
     ''' <summary>
     ''' Tira uma screenshot de um site usando o servico ATS
     ''' </summary>
@@ -95,7 +97,6 @@ Public Module Generate
             Throw New Exception("Url inválida")
         End If
     End Function
-
 
     ''' <summary>
     ''' Gera uma URL do google MAPs baseado na localização
@@ -116,6 +117,7 @@ Public Module Generate
         Return New Uri("https://www.google.com.br/maps/search/" & s)
 
     End Function
+
     ''' <summary>
     ''' Cria um Mapa estatico utilizando a API do google Maps
     ''' </summary>
@@ -144,6 +146,7 @@ Public Module Generate
         Dim URL As String = "http//maps.googleapis.com/maps/api/staticmap?center=" & thecenter & "&zoom=" & Zoom & "&size=" & Width & "x" & Height & "&scale=" & Scale & "&maptype=" & mapstring.ToLower
         Return AJAX.GET(Of Image)(URL)
     End Function
+
     ''' <summary>
     ''' Tipo de mapa do Google Maps
     ''' </summary>
@@ -191,12 +194,17 @@ Public Module Generate
         If Text.IsBlank() Then
             Return RandomColor()
         End If
+
+        If Text.IsIn([Enum].GetNames(GetType(KnownColor))) Then Return Color.FromName(Text)
+
         If Text.IsNumber Then
             Return Color.FromArgb(Text.ToInteger())
         End If
+
         Dim coresInt = Text.GetWords.Select(Function(p) p.ToCharArray().Sum(Function(a) AscW(a) ^ 2 * p.Length)).Sum()
 
-        Return Color.FromArgb(coresInt)
+        Return Color.FromArgb(255, Color.FromArgb(coresInt))
+
     End Function
 
     ''' <summary>
