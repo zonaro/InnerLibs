@@ -5443,7 +5443,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="groupings"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Converter.ToDictionary(System.Web.HttpRequest,System.String[])">
+<member name="M:InnerLibs.Converter.CreateDictionary(System.Web.HttpRequest,System.String[])">
  <summary>
  Transforma um <see cref="T:System.Web.HttpRequest"/> em um <see cref="T:System.Collections.Generic.Dictionary`2"/>
  </summary>
@@ -7847,7 +7847,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <summary>
  Gera uma cor a partir de uma palavra
  </summary>
- <param name="Text"></param>
+ <param name="Text">Pode ser um texto em branco (Cor aleatória), uma <see cref="T:System.Drawing.KnownColor"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Generate.RandomColor(System.Int32,System.Int32,System.Int32)">
@@ -12070,7 +12070,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="File"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Web.AsEnumerable(System.Web.HttpFileCollection)">
+<member name="M:InnerLibs.Web.CreateEnumerable(System.Web.HttpFileCollection)">
  <summary>
  Retorna todos os arquivos de uma <see cref="T:System.Web.HttpFileCollection"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/>
  </summary>

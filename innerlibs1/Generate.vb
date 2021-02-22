@@ -188,7 +188,7 @@ Public Module Generate
     ''' <summary>
     ''' Gera uma cor a partir de uma palavra
     ''' </summary>
-    ''' <param name="Text"></param>
+    ''' <param name="Text">Pode ser um texto em branco (Cor aleatória), uma <see cref="KnownColor"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
     ''' <returns></returns>
     <Extension> Public Function WordToColor(Text As String) As Color
         If Text.IsBlank() Then

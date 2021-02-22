@@ -343,7 +343,7 @@ Public Module Web
     ''' </summary>
     ''' <param name="Files"></param>
     ''' <returns></returns>
-    <Extension()> Public Function AsEnumerable(Files As HttpFileCollection) As IEnumerable(Of HttpPostedFile)
+    <Extension()> Public Function CreateEnumerable(Files As HttpFileCollection) As IEnumerable(Of HttpPostedFile)
         Dim l As New List(Of HttpPostedFile)
         For index = 0 To Files.Count - 1
             If Files(index).ContentLength > 0 Then
@@ -359,7 +359,7 @@ Public Module Web
     ''' <param name="Request"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetAllFiles(Request As HttpRequest) As IEnumerable(Of HttpPostedFile)
-        Return Request.Files.AsEnumerable
+        Return Request.Files.CreateEnumerable
     End Function
 
     ''' <summary>
@@ -369,7 +369,7 @@ Public Module Web
     ''' <returns></returns>
     <Extension()> Public Function GetAllFiles(Request As HttpRequest, ParamArray ContentType As String()) As IEnumerable(Of HttpPostedFile)
         ContentType = If(ContentType, {"*"})
-        Return Request.Files.AsEnumerable.Where(Function(x) x.ContentType.IsLikeAny(ContentType))
+        Return Request.Files.CreateEnumerable.Where(Function(x) x.ContentType.IsLikeAny(ContentType))
     End Function
 
     ''' <summary>

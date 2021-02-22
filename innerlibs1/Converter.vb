@@ -309,7 +309,7 @@ Public Module Converter
     ''' <param name="Request">HttpRequest</param>
     ''' <param name="Keys">Keys que devem ser incluidas</param>
     ''' <returns></returns>
-    <Extension()> Public Function ToDictionary(Request As HttpRequest, ParamArray keys As String()) As Dictionary(Of String, Object)
+    <Extension()> Public Function CreateDictionary(Request As HttpRequest, ParamArray keys As String()) As Dictionary(Of String, Object)
         If IsNothing(keys) OrElse keys.LongCount = 0 Then
             Dim l As New List(Of String)
             l.AddRange(Request.Form.AllKeys)
@@ -352,7 +352,7 @@ Public Module Converter
     <Extension()>
     Public Function SetPropertiesIn(Of T As Class)(Request As HttpRequest, ByRef Obj As T, ParamArray Keys As String()) As T
         Obj = If(Obj, Activator.CreateInstance(Of T))
-        Request.ToDictionary(Keys).SetPropertiesIn(Of T)(Obj)
+        Request.CreateDictionary(Keys).SetPropertiesIn(Of T)(Obj)
         Return Obj
     End Function
 

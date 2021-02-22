@@ -1184,7 +1184,7 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension()>
         Public Function UpdateObjectFromRequest(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Request As HttpRequest, ParamArray Keys As String()) As T
-            Return Context.UpdateObjectFromDictionary(Of T, PKType)(Request.ToDictionary(Keys))
+            Return Context.UpdateObjectFromDictionary(Of T, PKType)(Request.CreateDictionary(Keys))
         End Function
 
         Private Function ReplaceExpression(ByVal body As Expression, ByVal source As Expression, ByVal dest As Expression) As Expression

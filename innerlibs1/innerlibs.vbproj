@@ -88,6 +88,7 @@
     <Compile Include="BrowserImageCapture.vb" />
     <Compile Include="ClassManager.vb" />
     <Compile Include="CollectionEditos.vb" />
+    <Compile Include="ColorEx.vb" />
     <Compile Include="Console.vb" />
     <Compile Include="Cronometer.vb">
       <SubType>Component</SubType>
