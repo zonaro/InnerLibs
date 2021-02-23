@@ -8,6 +8,10 @@ Imports InnerLibs.HtmlParser
 
 Namespace QuestionTest
 
+
+
+
+
     ''' <summary>
     ''' Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     ''' </summary>
@@ -15,6 +19,20 @@ Namespace QuestionTest
     <Category("Avaliação"), Description("Representa uma avaliação de perguntas e respostas")>
     Public Class QuestionTest
         Inherits ObservableCollection(Of Question)
+
+        ''' <summary>
+        ''' Informações adicionais, normalmente nome do usuario e outras informações unicas
+        ''' </summary>
+        ''' <returns></returns>
+        <Category("Usuário"), Description("Informações relacionadas ao usuário/aluno, como Nome, documentos e outras informações pessoais")>
+        Public Property PersonalInfo As New Dictionary(Of String, Object)
+
+        ''' <summary>
+        ''' Informações adicionais, normalmente nome do usuario e outras informações unicas
+        ''' </summary>
+        ''' <returns></returns>
+        <Category("ID"), Description("ID único desta prova")>
+        Public Property ID As String
 
         Protected NotOverridable Overrides Sub OnCollectionChanged(e As NotifyCollectionChangedEventArgs)
             MyBase.OnCollectionChanged(e)
@@ -346,7 +364,10 @@ Namespace QuestionTest
         ''' <returns></returns>
         Public ReadOnly Property ID As String
             Get
-                Return Test.IndexOf(Me).Increment.ToString.Prepend("Q")
+                If Test IsNot Nothing Then
+                    Return Test.IndexOf(Me).Increment.ToString.Prepend("Q")
+                End If
+                Return Nothing
             End Get
         End Property
 
@@ -430,7 +451,7 @@ Namespace QuestionTest
         ''' Indica se esta questão foi revisada pelo professor
         ''' </summary>
         ''' <returns></returns>
-        Property Reviewed As Boolean
+        Property Reviewed As Boolean = False
 
     End Class
 

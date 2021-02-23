@@ -9042,6 +9042,18 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
  </summary>
 </member>
+<member name="P:InnerLibs.QuestionTest.QuestionTest.PersonalInfo">
+ <summary>
+ Informações adicionais, normalmente nome do usuario e outras informações unicas
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.QuestionTest.QuestionTest.ID">
+ <summary>
+ Informações adicionais, normalmente nome do usuario e outras informações unicas
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.QuestionTest.QuestionTest.IsValid">
  <summary>
  Verifica se o peso da prova equivale a soma dos pesos das questões
