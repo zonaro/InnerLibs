@@ -459,6 +459,25 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
+    ''' Calcula a variação percentual entre 2 valores
+    ''' </summary>
+    ''' <param name="StartValue"></param>
+    ''' <param name="EndValue"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CalculatePercentVariation(StartValue As Decimal, EndValue As Decimal) As Decimal
+        If StartValue = 0 Then
+            If EndValue > 0 Then
+                Return 100
+            Else
+                Return 0
+            End If
+        End If
+
+        Return (EndValue / StartValue - 1) * 100
+    End Function
+
+
+    ''' <summary>
     ''' Retorna o percentual de um valor
     ''' </summary>
     ''' <param name="Value">Valor a ser calculado</param>

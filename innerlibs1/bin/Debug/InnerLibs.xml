@@ -8603,6 +8603,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
  </summary>
 </member>
+<member name="M:InnerLibs.Mathematic.CalculatePercentVariation(System.Decimal,System.Decimal)">
+ <summary>
+ Calcula a variação percentual entre 2 valores
+ </summary>
+ <param name="StartValue"></param>
+ <param name="EndValue"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Mathematic.CalculatePercent(System.Decimal,System.Decimal)">
  <summary>
  Retorna o percentual de um valor
