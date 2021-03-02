@@ -486,6 +486,13 @@ Namespace TimeMachine
         ''' <returns></returns>
         Public ReadOnly Property RelevantDays As New List(Of Date)
 
+
+        Public ReadOnly Property TotalMilliseconds As Decimal
+            Get
+                Return (Me.EndDate - Me.StartDate).TotalMilliseconds
+            End Get
+        End Property
+
         Public ReadOnly Property TotalSeconds As Decimal
             Get
                 Return (Me.EndDate - Me.StartDate).TotalSeconds
@@ -495,6 +502,12 @@ Namespace TimeMachine
         Public ReadOnly Property TotalMinutes As Decimal
             Get
                 Return (Me.EndDate - Me.StartDate).TotalMinutes
+            End Get
+        End Property
+
+        Public ReadOnly Property TotalHours As Decimal
+            Get
+                Return (Me.EndDate - Me.StartDate).TotalHours
             End Get
         End Property
 

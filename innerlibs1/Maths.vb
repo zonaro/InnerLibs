@@ -476,6 +476,25 @@ Public Module Mathematic
         Return (EndValue / StartValue - 1) * 100
     End Function
 
+    ''' <summary>
+    ''' Calcula a variação percentual entre 2 valores
+    ''' </summary>
+    ''' <param name="StartValue"></param>
+    ''' <param name="EndValue"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CalculatePercentVariation(StartValue As Integer, EndValue As Integer) As Decimal
+        Return StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal())
+    End Function
+
+    ''' <summary>
+    ''' Calcula a variação percentual entre 2 valores
+    ''' </summary>
+    ''' <param name="StartValue"></param>
+    ''' <param name="EndValue"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CalculatePercentVariation(StartValue As Long, EndValue As Long) As Decimal
+        Return StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal())
+    End Function
 
     ''' <summary>
     ''' Retorna o percentual de um valor

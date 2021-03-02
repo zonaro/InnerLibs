@@ -4728,12 +4728,69 @@ Verifica se o objeto é do tipo numérico.
  Classe que representa um periodo entre 2 datas
  </summary>
 </member>
+<member name="P:InnerLibs.DateRange.ForceFirstAndLastMoments">
+ <summary>
+ Se true, ajusta as horas de <see cref="P:InnerLibs.DateRange.StartDate"/> para o primeiro momento do dia e as horas de <see cref="P:InnerLibs.DateRange.EndDate"/> para o último momento do dia
+ </summary>
+</member>
+<member name="M:InnerLibs.DateRange.IsDefaultDateRange">
+ <summary>
+ Indica se este <see cref="T:InnerLibs.DateRange"/> foi construido sem nenhuma data definida
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.#ctor">
+ <summary>
+ Instancia um novo periodo do dia de hoje
+ </summary>
+</member>
 <member name="M:InnerLibs.DateRange.#ctor(System.DateTime,System.DateTime)">
  <summary>
  Instancia um novo periodo entre 2 datas
  </summary>
  <param name="StartDate"></param>
  <param name="EndDate"></param>
+</member>
+<member name="M:InnerLibs.DateRange.#ctor(System.DateTime,System.DateTime,System.Boolean)">
+ <summary>
+ Instancia um novo periodo entre 2 datas
+ </summary>
+ <param name="StartDate"></param>
+ <param name="EndDate"></param>
+ <param name="ForceFirstAndLastMoments"> Ajusta as horas de <see cref="P:InnerLibs.DateRange.StartDate"/> para o primeiro momento do dia e as horas de <see cref="P:InnerLibs.DateRange.EndDate"/> para o último momento do dia</param>
+</member>
+<member name="M:InnerLibs.DateRange.GetPeriodAs(InnerLibs.DateRangeInterval)">
+ <summary>
+ Retorna o periodo em um total especificado por <see cref="T:InnerLibs.DateRangeInterval"/>
+ </summary>
+ <param name="DateRangeInterval"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.MovePeriod(InnerLibs.DateRangeInterval,System.Decimal)">
+ <summary>
+ Move um poeriodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
+ </summary>
+ <param name="DateRangeInterval"></param>
+ <param name="Total"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.PreviousPeriod(InnerLibs.DateRangeInterval)">
+ <summary>
+ Move par ao proximo periodo equivalente
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.NextPeriod(InnerLibs.DateRangeInterval)">
+ <summary>
+ Move par ao proximo periodo equivalente
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.GetLessAccurateDateRangeInterval">
+ <summary>
+ Retorna o <see cref="T:InnerLibs.DateRangeInterval"/> menos preciso para calcular periodos
+ </summary>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.DateRange.IsSingleDate">
  <summary>
@@ -4961,6 +5018,20 @@ Verifica se o objeto é do tipo numérico.
  <param name="[Date]">Data</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfYear(System.DateTime)">
+ <summary>
+ Retorna o prmeiro dia de um ano especifico de outra data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfYear(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um ano especifico de outra data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetWeekOfYear(System.DateTime,System.Globalization.CultureInfo,System.DayOfWeek)">
  <summary>
  Retorna o numero da semana relativa ao ano
@@ -4970,7 +5041,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="FirstDayOfWeek"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Calendars.IsSameMonth(System.DateTime,System.DateTime)">
+<member name="M:InnerLibs.Calendars.IsSameMonthAndYear(System.DateTime,System.DateTime)">
  <summary>
  Verifica se uma data é do mesmo mês e ano que outra data
  </summary>
@@ -8604,6 +8675,22 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  </summary>
 </member>
 <member name="M:InnerLibs.Mathematic.CalculatePercentVariation(System.Decimal,System.Decimal)">
+ <summary>
+ Calcula a variação percentual entre 2 valores
+ </summary>
+ <param name="StartValue"></param>
+ <param name="EndValue"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.CalculatePercentVariation(System.Int32,System.Int32)">
+ <summary>
+ Calcula a variação percentual entre 2 valores
+ </summary>
+ <param name="StartValue"></param>
+ <param name="EndValue"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.CalculatePercentVariation(System.Int64,System.Int64)">
  <summary>
  Calcula a variação percentual entre 2 valores
  </summary>

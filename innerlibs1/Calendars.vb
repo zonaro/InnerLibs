@@ -33,6 +33,18 @@ Public Class DateRange(Of DataType)
 
 End Class
 
+Public Enum DateRangeInterval
+    LessAccurate = -1
+    Milliseconds = 0
+    Seconds = 1
+    Minutes = 2
+    Hours = 3
+    Days = 4
+    Weeks = 5
+    Months = 6
+    Years = 7
+End Enum
+
 ''' <summary>
 ''' Classe que representa um periodo entre 2 datas
 ''' </summary>
@@ -41,9 +53,13 @@ Public Class DateRange
     Public Property StartDate As Date
         Get
             FixDateOrder(_startDate, _enddate)
+            If ForceFirstAndLastMoments Then
+                _startDate = _startDate.Date
+            End If
             Return _startDate
         End Get
         Set(value As Date)
+            _isdefault = False
             _startDate = value
         End Set
     End Property
@@ -51,15 +67,42 @@ Public Class DateRange
     Public Property EndDate As Date
         Get
             FixDateOrder(_startDate, _enddate)
+            If ForceFirstAndLastMoments Then
+                _enddate = _enddate.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999)
+            End If
             Return _enddate
         End Get
         Set(value As Date)
+            _isdefault = False
             _enddate = value
         End Set
     End Property
 
+    ''' <summary>
+    ''' Se true, ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia
+    ''' </summary>
+    Property ForceFirstAndLastMoments As Boolean = True
+
+    Private _isdefault = False
+
+    ''' <summary>
+    ''' Indica se este <see cref="DateRange"/> foi construido sem nenhuma data definida
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsDefaultDateRange() As Boolean
+        Return _isdefault
+    End Function
+
     Private _startDate As Date
     Private _enddate As Date
+
+    ''' <summary>
+    ''' Instancia um novo periodo do dia de hoje
+    ''' </summary>
+    Public Sub New()
+        Me.New(DateTime.Now, DateTime.Now, True)
+        _isdefault = True
+    End Sub
 
     ''' <summary>
     ''' Instancia um novo periodo entre 2 datas
@@ -69,7 +112,132 @@ Public Class DateRange
     Sub New(StartDate As Date, EndDate As Date)
         Me.StartDate = StartDate
         Me.EndDate = EndDate
+        Me.ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours
+        _isdefault = False
     End Sub
+
+    ''' <summary>
+    ''' Instancia um novo periodo entre 2 datas
+    ''' </summary>
+    ''' <param name="StartDate"></param>
+    ''' <param name="EndDate"></param>
+    ''' <param name="ForceFirstAndLastMoments"> Ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia</param>
+    Sub New(StartDate As Date, EndDate As Date, ForceFirstAndLastMoments As Boolean)
+        Me.StartDate = StartDate
+        Me.EndDate = EndDate
+        Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
+        _isdefault = False
+    End Sub
+
+    ''' <summary>
+    ''' Retorna o periodo em um total especificado por <see cref="DateRangeInterval"/>
+    ''' </summary>
+    ''' <param name="DateRangeInterval"></param>
+    ''' <returns></returns>
+    Public Function GetPeriodAs(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As Decimal
+        If DateRangeInterval = DateRangeInterval.LessAccurate Then
+            DateRangeInterval = GetLessAccurateDateRangeInterval()
+        End If
+        Dim rangedias = Difference()
+        Select Case DateRangeInterval
+            Case DateRangeInterval.Milliseconds
+                Return rangedias.TotalMilliseconds
+            Case DateRangeInterval.Seconds
+                Return rangedias.TotalSeconds
+            Case DateRangeInterval.Minutes
+                Return rangedias.TotalMinutes
+            Case DateRangeInterval.Hours
+                Return rangedias.TotalHours
+            Case DateRangeInterval.Days
+                Return rangedias.TotalDays
+            Case DateRangeInterval.Weeks
+                Return rangedias.TotalWeeks
+            Case DateRangeInterval.Months
+                Return rangedias.TotalMonths
+            Case DateRangeInterval.Years
+                Return rangedias.TotalYears
+        End Select
+        Return -1
+    End Function
+
+    ''' <summary>
+    ''' Move um poeriodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
+    ''' </summary>
+    ''' <param name="DateRangeInterval"></param>
+    ''' <param name="Total"></param>
+    ''' <returns></returns>
+    Public Function MovePeriod(DateRangeInterval As DateRangeInterval, Total As Decimal) As DateRange
+        If DateRangeInterval = DateRangeInterval.LessAccurate Then
+            DateRangeInterval = GetLessAccurateDateRangeInterval()
+        End If
+        Select Case DateRangeInterval
+            Case DateRangeInterval.Milliseconds
+                Return New DateRange(StartDate.AddMilliseconds(Total), EndDate.AddMilliseconds(Total), ForceFirstAndLastMoments)
+            Case DateRangeInterval.Seconds
+                Return New DateRange(StartDate.AddSeconds(Total), EndDate.AddSeconds(Total), ForceFirstAndLastMoments)
+            Case DateRangeInterval.Minutes
+                Return New DateRange(StartDate.AddMinutes(Total), EndDate.AddMinutes(Total), ForceFirstAndLastMoments)
+            Case DateRangeInterval.Hours
+                Return New DateRange(StartDate.AddHours(Total), EndDate.AddHours(Total), ForceFirstAndLastMoments)
+            Case DateRangeInterval.Days
+                Return New DateRange(StartDate.AddDays(Total), EndDate.AddDays(Total), ForceFirstAndLastMoments)
+            Case DateRangeInterval.Weeks
+                Return New DateRange(StartDate.AddDays(Total * 7), EndDate.AddDays(Total * 7), ForceFirstAndLastMoments)
+            Case DateRangeInterval.Months
+                Return New DateRange(StartDate.AddMonths(Total), EndDate.AddMonths(Total), ForceFirstAndLastMoments)
+            Case DateRangeInterval.Years
+                Return New DateRange(StartDate.AddYears(Total), EndDate.AddYears(Total), ForceFirstAndLastMoments)
+        End Select
+        Return New DateRange()
+    End Function
+
+    ''' <summary>
+    ''' Move par ao proximo periodo equivalente
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function PreviousPeriod(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange
+        Return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval))
+    End Function
+
+    ''' <summary>
+    ''' Move par ao proximo periodo equivalente
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function NextPeriod(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange
+        Return MovePeriod(DateRangeInterval, -1 * GetPeriodAs(DateRangeInterval))
+    End Function
+
+    ''' <summary>
+    ''' Retorna o <see cref="DateRangeInterval"/> menos preciso para calcular periodos
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetLessAccurateDateRangeInterval() As DateRangeInterval
+        Dim t = Difference()
+        If t.TotalYears >= 1 OrElse t.TotalYears <= -1 Then
+            Return DateRangeInterval.Years
+        End If
+        If t.TotalMonths >= 1 OrElse t.TotalMonths <= -1 Then
+            Return DateRangeInterval.Months
+        End If
+        If t.TotalWeeks >= 1 OrElse t.TotalWeeks <= -1 Then
+            Return DateRangeInterval.Weeks
+        End If
+        If t.TotalDays >= 1 OrElse t.TotalDays <= -1 Then
+            Return DateRangeInterval.Days
+        End If
+        If t.TotalHours >= 1 OrElse t.TotalHours <= -1 Then
+            Return DateRangeInterval.Hours
+        End If
+        If t.TotalMinutes >= 1 OrElse t.TotalMinutes <= -1 Then
+            Return DateRangeInterval.Minutes
+        End If
+        If t.TotalSeconds >= 1 OrElse t.TotalSeconds <= -1 Then
+            Return DateRangeInterval.Seconds
+        End If
+
+        Return DateRangeInterval.Milliseconds
+
+    End Function
 
     ''' <summary>
     ''' Retorna TRUE se a data de inicio e fim for a mesma
@@ -397,6 +565,24 @@ Public Module Calendars
     End Function
 
     ''' <summary>
+    ''' Retorna o prmeiro dia de um ano especifico de outra data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFirstDayOfYear([Date] As DateTime) As DateTime
+        Return New DateTime([Date].Year, 1, 1).Date
+    End Function
+
+    ''' <summary>
+    ''' Retorna o ultimo dia de um ano especifico de outra data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetLastDayOfYear([Date] As DateTime) As DateTime
+        Return New DateTime([Date].Year, 12, 31).Date
+    End Function
+
+    ''' <summary>
     ''' Retorna o numero da semana relativa ao ano
     ''' </summary>
     ''' <param name="[Date]"></param>
@@ -415,7 +601,7 @@ Public Module Calendars
     ''' <param name="AnotherDate">Segunda data</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function IsSameMonth([Date] As DateTime, AnotherDate As DateTime) As Boolean
+    Public Function IsSameMonthAndYear([Date] As DateTime, AnotherDate As DateTime) As Boolean
         Return [Date].IsBetween(AnotherDate.GetFirstDayOfMonth, AnotherDate.GetLastDayOfMonth)
     End Function
 
