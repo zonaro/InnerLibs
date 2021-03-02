@@ -1,6 +1,7 @@
 ﻿Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports System.Web
+Imports System.Web.Script.Serialization
 Imports System.Web.UI.WebControls
 Imports InnerLibs.LINQ
 Imports InnerLibs.TimeMachine
@@ -60,7 +61,10 @@ Public Class DateRange
         End Get
         Set(value As Date)
             _isdefault = False
-            _startDate = value
+            If _startDate <> value Then
+                _Difference = Nothing
+                _startDate = value
+            End If
         End Set
     End Property
 
@@ -74,7 +78,10 @@ Public Class DateRange
         End Get
         Set(value As Date)
             _isdefault = False
-            _enddate = value
+            If _enddate <> value Then
+                _Difference = Nothing
+                _enddate = value
+            End If
         End Set
     End Property
 
@@ -260,8 +267,13 @@ Public Class DateRange
     ''' </summary>
     ''' <returns></returns>
     Function Difference() As TimeFlow
-        Return StartDate.GetDifference(EndDate)
+        If _Difference Is Nothing Then
+            _Difference = StartDate.GetDifference(EndDate)
+        End If
+        Return _Difference
     End Function
+
+    Private _Difference As TimeFlow = Nothing
 
     ''' <summary>
     ''' Cria um grupo de quinzenas que contenham este periodo

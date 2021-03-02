@@ -405,7 +405,10 @@ Namespace TimeMachine
                 Else
                     Me.NonRelevantDays.Add(CurDate)
                 End If
-                CurDate = CurDate.AddDays(1)
+                Try
+                    CurDate = CurDate.AddDays(1)
+                Catch ex As Exception
+                End Try
             End While
 
             CurDate = StartDate
