@@ -4878,7 +4878,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="[Date]">Data correspondente</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DateRange.Filter``1(System.Func{``0,System.DateTime},System.Collections.Generic.IEnumerable{``0})">
+<member name="M:InnerLibs.DateRange.Filter``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.DateTime})">
  <summary>
  Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
  </summary>

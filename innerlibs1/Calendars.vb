@@ -388,7 +388,7 @@ Public Class DateRange
     ''' <param name="Selector"></param>
     ''' <param name="List"></param>
     ''' <returns></returns>
-    Public Function Filter(Of T)(Selector As Func(Of T, Date), List As IEnumerable(Of T)) As IEnumerable(Of T)
+    Public Function Filter(Of T)(List As IEnumerable(Of T), Selector As Func(Of T, Date)) As IEnumerable(Of T)
         Return List.Where(Function(x) Me.StartDate <= Selector(x) AndAlso Selector(x) <= Me.EndDate)
     End Function
 
