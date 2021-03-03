@@ -535,7 +535,7 @@ Public Module ClassTools
         Dim topN = a.Take(Top).ToDictionary()
         Dim o = a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value)
         If o > 0 Then
-            topN.Add(Others, 0)
+            topN.Add(Others, o)
         End If
         Return topN
     End Function
@@ -562,7 +562,7 @@ Public Module ClassTools
         Dim topN = a.Take(Top).ToDictionary()
         Dim o = a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value)
         If o > 0 Then
-            topN.Add(Others, 0)
+            topN.Add(Others, o)
         End If
         Return topN
     End Function
