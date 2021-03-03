@@ -524,6 +524,20 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Conta de maneira distinta N items de uma coleçao e agrupa o resto
+    ''' </summary>
+    ''' <typeparam name="Type">TIpo de Objeto</typeparam>
+    ''' <param name="Arr">colecao</param>
+    ''' <returns></returns>
+    <Extension()> Public Function DistinctCountTop(Of Type)(Arr As IEnumerable(Of Type), Top As Integer, Others As Type) As Dictionary(Of Type, Long)
+        Dim a = Arr.DistinctCount()
+        If Top < 1 Then Return a
+        Dim topN = a.Take(Top).ToDictionary()
+        topN.Add(Others, a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value))
+        Return topN
+    End Function
+
+    ''' <summary>
     ''' Conta de maneira distinta items de uma coleçao a partir de uma propriedade
     ''' </summary>
     ''' <typeparam name="Type">TIpo de Objeto</typeparam>
@@ -532,6 +546,21 @@ Public Module ClassTools
     <Extension()> Public Function DistinctCount(Of Type, PropT)(Arr As IEnumerable(Of Type), Prop As Func(Of Type, PropT)) As Dictionary(Of PropT, Long)
         Return Arr.GroupBy(Prop).ToDictionary(Function(x) x.Key, Function(x) x.LongCount).OrderByDescending(Function(p) p.Value).ToDictionary
     End Function
+
+    ''' <summary>
+    ''' Conta de maneira distinta N items de uma coleçao a partir de uma propriedade e agrupa o resto em outra
+    ''' </summary>
+    ''' <typeparam name="Type">TIpo de Objeto</typeparam>
+    ''' <param name="Arr">colecao</param>
+    ''' <returns></returns>
+    <Extension()> Public Function DistinctCountTop(Of Type, PropT)(Arr As IEnumerable(Of Type), Prop As Func(Of Type, PropT), Top As Integer, Others As PropT) As Dictionary(Of PropT, Long)
+        Dim a = Arr.DistinctCount(Prop)
+        If Top < 1 Then Return a
+        Dim topN = a.Take(Top).ToDictionary()
+        topN.Add(Others, a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value))
+        Return topN
+    End Function
+
 
     ''' <summary>
     ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia

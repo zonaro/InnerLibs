@@ -2159,9 +2159,25 @@ InnerLibs
  <param name="Arr">colecao</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.DistinctCountTop``1(System.Collections.Generic.IEnumerable{``0},System.Int32,``0)">
+ <summary>
+ Conta de maneira distinta N items de uma coleçao e agrupa o resto
+ </summary>
+ <typeparam name="Type">TIpo de Objeto</typeparam>
+ <param name="Arr">colecao</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.DistinctCount``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
  <summary>
  Conta de maneira distinta items de uma coleçao a partir de uma propriedade
+ </summary>
+ <typeparam name="Type">TIpo de Objeto</typeparam>
+ <param name="Arr">colecao</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.DistinctCountTop``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Int32,``1)">
+ <summary>
+ Conta de maneira distinta N items de uma coleçao a partir de uma propriedade e agrupa o resto em outra
  </summary>
  <typeparam name="Type">TIpo de Objeto</typeparam>
  <param name="Arr">colecao</param>
