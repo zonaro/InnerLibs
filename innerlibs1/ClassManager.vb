@@ -533,7 +533,10 @@ Public Module ClassTools
         Dim a = Arr.DistinctCount()
         If Top < 1 Then Return a
         Dim topN = a.Take(Top).ToDictionary()
-        topN.Add(Others, a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value))
+        Dim o = a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value)
+        If o > 0 Then
+            topN.Add(Others, 0)
+        End If
         Return topN
     End Function
 
@@ -557,7 +560,10 @@ Public Module ClassTools
         Dim a = Arr.DistinctCount(Prop)
         If Top < 1 Then Return a
         Dim topN = a.Take(Top).ToDictionary()
-        topN.Add(Others, a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value))
+        Dim o = a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value)
+        If o > 0 Then
+            topN.Add(Others, 0)
+        End If
         Return topN
     End Function
 
