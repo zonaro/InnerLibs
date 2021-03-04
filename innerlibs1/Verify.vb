@@ -87,17 +87,22 @@ Public Module Verify
     ''' <param name="Text">CPF</param>
     ''' <returns></returns>
     <Extension()> Public Function IsValidCPF(Text As String) As Boolean
-        Text = Text.RemoveAny(".", "-")
-        Dim digito As String = ""
-        Dim k As Integer, j As Integer, soma As Integer
-        For k = 0 To 1
-            soma = 0
-            For j = 0 To 9 + (k - 1)
-                soma += Integer.Parse(Text(j).ToString()) * (10 + k - j)
+        Try
+
+            Text = Text.RemoveAny(".", "-")
+            Dim digito As String = ""
+            Dim k As Integer, j As Integer, soma As Integer
+            For k = 0 To 1
+                soma = 0
+                For j = 0 To 9 + (k - 1)
+                    soma += Integer.Parse(Text(j).ToString()) * (10 + k - j)
+                Next
+                digito &= If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
             Next
-            digito &= If((soma Mod 11 = 0 OrElse soma Mod 11 = 1), 0, (11 - (soma Mod 11)))
-        Next
-        Return (digito(0) = Text(9) And digito(1) = Text(10))
+            Return (digito(0) = Text(9) And digito(1) = Text(10))
+        Catch ex As Exception
+            Return False
+        End Try
     End Function
 
     ''' <summary>
@@ -107,7 +112,6 @@ Public Module Verify
     ''' <returns></returns>
     <Extension()> Public Function IsValidCNPJ(ByVal Text As String) As Boolean
         Try
-
 
             Dim multiplicador1 As Integer() = New Integer(11) {5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2}
             Dim multiplicador2 As Integer() = New Integer(12) {6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2}
