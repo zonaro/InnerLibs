@@ -18,7 +18,7 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="Source"></param>
     ''' <returns></returns>
-    <Extension()> Public Function CreateGuid(Source As String) As Guid
+    <Extension()> Public Function CreateGuidOrDefault(Source As String) As Guid
         Dim g = Guid.NewGuid()
         If Source.IsNotBlank() Then
             If Not Guid.TryParse(Source, g) Then
@@ -566,7 +566,6 @@ Public Module ClassTools
         End If
         Return topN
     End Function
-
 
     ''' <summary>
     ''' Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia

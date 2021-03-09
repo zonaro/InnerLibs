@@ -1891,7 +1891,7 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassTools.CreateGuid(System.String)">
+<member name="M:InnerLibs.ClassTools.CreateGuidOrDefault(System.String)">
  <summary>
  Cria um <see cref="T:System.Guid"/> a partir de uma string ou um novo <see cref="T:System.Guid"/> se a conversão falhar
  </summary>
@@ -2159,9 +2159,25 @@ InnerLibs
  <param name="Arr">colecao</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.ClassTools.DistinctCountTop``1(System.Collections.Generic.IEnumerable{``0},System.Int32,``0)">
+ <summary>
+ Conta de maneira distinta N items de uma coleçao e agrupa o resto
+ </summary>
+ <typeparam name="Type">TIpo de Objeto</typeparam>
+ <param name="Arr">colecao</param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.ClassTools.DistinctCount``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
  <summary>
  Conta de maneira distinta items de uma coleçao a partir de uma propriedade
+ </summary>
+ <typeparam name="Type">TIpo de Objeto</typeparam>
+ <param name="Arr">colecao</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.DistinctCountTop``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Int32,``1)">
+ <summary>
+ Conta de maneira distinta N items de uma coleçao a partir de uma propriedade e agrupa o resto em outra
  </summary>
  <typeparam name="Type">TIpo de Objeto</typeparam>
  <param name="Arr">colecao</param>
@@ -2227,6 +2243,13 @@ InnerLibs
  <returns></returns>
 </member>
 <member name="M:InnerLibs.ClassTools.GetEnumValue``1(System.String)">
+ <summary>
+ Traz o valor de uma enumeração a partir de uma string
+ </summary>
+ <typeparam name="T"></typeparam>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.ClassTools.GetEnumValueAsString``1(``0)">
  <summary>
  Traz o valor de uma enumeração a partir de uma string
  </summary>
@@ -4721,12 +4744,69 @@ Verifica se o objeto é do tipo numérico.
  Classe que representa um periodo entre 2 datas
  </summary>
 </member>
+<member name="P:InnerLibs.DateRange.ForceFirstAndLastMoments">
+ <summary>
+ Se true, ajusta as horas de <see cref="P:InnerLibs.DateRange.StartDate"/> para o primeiro momento do dia e as horas de <see cref="P:InnerLibs.DateRange.EndDate"/> para o último momento do dia
+ </summary>
+</member>
+<member name="M:InnerLibs.DateRange.IsDefaultDateRange">
+ <summary>
+ Indica se este <see cref="T:InnerLibs.DateRange"/> foi construido sem nenhuma data definida
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.#ctor">
+ <summary>
+ Instancia um novo periodo do dia de hoje
+ </summary>
+</member>
 <member name="M:InnerLibs.DateRange.#ctor(System.DateTime,System.DateTime)">
  <summary>
  Instancia um novo periodo entre 2 datas
  </summary>
  <param name="StartDate"></param>
  <param name="EndDate"></param>
+</member>
+<member name="M:InnerLibs.DateRange.#ctor(System.DateTime,System.DateTime,System.Boolean)">
+ <summary>
+ Instancia um novo periodo entre 2 datas
+ </summary>
+ <param name="StartDate"></param>
+ <param name="EndDate"></param>
+ <param name="ForceFirstAndLastMoments"> Ajusta as horas de <see cref="P:InnerLibs.DateRange.StartDate"/> para o primeiro momento do dia e as horas de <see cref="P:InnerLibs.DateRange.EndDate"/> para o último momento do dia</param>
+</member>
+<member name="M:InnerLibs.DateRange.GetPeriodAs(InnerLibs.DateRangeInterval)">
+ <summary>
+ Retorna o periodo em um total especificado por <see cref="T:InnerLibs.DateRangeInterval"/>
+ </summary>
+ <param name="DateRangeInterval"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.MovePeriod(InnerLibs.DateRangeInterval,System.Decimal)">
+ <summary>
+ Move um poeriodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
+ </summary>
+ <param name="DateRangeInterval"></param>
+ <param name="Total"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.PreviousPeriod(InnerLibs.DateRangeInterval)">
+ <summary>
+ Move para o periodo equivalente anterior
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.NextPeriod(InnerLibs.DateRangeInterval)">
+ <summary>
+ Move para ao proximo periodo equivalente
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.DateRange.GetLessAccurateDateRangeInterval">
+ <summary>
+ Retorna o <see cref="T:InnerLibs.DateRangeInterval"/> menos preciso para calcular periodos
+ </summary>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.DateRange.IsSingleDate">
  <summary>
@@ -4814,7 +4894,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="[Date]">Data correspondente</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.DateRange.Filter``1(System.Func{``0,System.DateTime},System.Collections.Generic.IEnumerable{``0})">
+<member name="M:InnerLibs.DateRange.Filter``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.DateTime})">
  <summary>
  Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
  </summary>
@@ -4954,6 +5034,20 @@ Verifica se o objeto é do tipo numérico.
  <param name="[Date]">Data</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfYear(System.DateTime)">
+ <summary>
+ Retorna o prmeiro dia de um ano especifico de outra data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfYear(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um ano especifico de outra data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetWeekOfYear(System.DateTime,System.Globalization.CultureInfo,System.DayOfWeek)">
  <summary>
  Retorna o numero da semana relativa ao ano
@@ -4963,7 +5057,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="FirstDayOfWeek"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Calendars.IsSameMonth(System.DateTime,System.DateTime)">
+<member name="M:InnerLibs.Calendars.IsSameMonthAndYear(System.DateTime,System.DateTime)">
  <summary>
  Verifica se uma data é do mesmo mês e ano que outra data
  </summary>
@@ -5436,7 +5530,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="groupings"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Converter.ToDictionary(System.Web.HttpRequest,System.String[])">
+<member name="M:InnerLibs.Converter.CreateDictionary(System.Web.HttpRequest,System.String[])">
  <summary>
  Transforma um <see cref="T:System.Web.HttpRequest"/> em um <see cref="T:System.Collections.Generic.Dictionary`2"/>
  </summary>
@@ -7454,6 +7548,22 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">String MD5</param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Encryption.EncryptRSA(System.String,System.String)">
+ <summary>
+ Criptografa um string em RSA
+ </summary>
+ <param name="Text"></param>
+ <param name="Key"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Encryption.DecryptRSA(System.String,System.String)">
+ <summary>
+ Descriptografa uma string encriptada em RSA
+ </summary>
+ <param name="Text"></param>
+ <param name="Key"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Encryption.Encrypt(System.String,System.String)">
  <summary>
  Criptografa uma string
@@ -7757,7 +7867,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text">Um texto qualquer a ser usado como exemplo</param>
  <param name="FontName">Nome da fonte (verifique no site)</param>
  <param name="FontSize">Tamanho da fonte</param>
- <returns>Uma Imagem (Image())</returns>
+ <returns>Uma (<see cref="T:System.Drawing.Image"/>)</returns>
 </member>
 <member name="M:InnerLibs.Generate.ScreenshotFromWebsite(System.String,System.String,System.Boolean,System.Int32,System.String,System.Int32)">
  <summary>
@@ -7819,6 +7929,33 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Min">Numero minimo, Padrão 0 </param>
  <param name="Max">Numero Maximo, Padrão 999999</param>
  <returns>Um numero Inteiro (Integer ou Int)</returns>
+</member>
+<member name="M:InnerLibs.Generate.WordToColor(System.String)">
+ <summary>
+ Gera uma cor a partir de uma palavra
+ </summary>
+ <param name="Text">Pode ser um texto em branco (Cor aleatória), uma <see cref="T:System.Drawing.KnownColor"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Generate.RandomColor(System.Int32,System.Int32,System.Int32)">
+ <summary>
+ Gera uma cor aleatória misturandoo ou não os canais RGB
+ </summary>
+ <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
+ <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
+ <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Generate.RandomColorList(System.Int32,System.Int32,System.Int32,System.Int32)">
+ <summary>
+ Gera uma lista com <paramref name="Quantity"/> cores diferentes
+ </summary>
+ <param name="Quantity">Quantidade máxima de cores</param>
+ <param name="Red"></param>
+ <param name="Green"></param>
+ <param name="Blue"></param>
+ <remarks></remarks>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Generate.InnerIpsum(System.Int32)">
  <summary>
@@ -8553,6 +8690,30 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
  </summary>
 </member>
+<member name="M:InnerLibs.Mathematic.CalculatePercentVariation(System.Decimal,System.Decimal)">
+ <summary>
+ Calcula a variação percentual entre 2 valores
+ </summary>
+ <param name="StartValue"></param>
+ <param name="EndValue"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.CalculatePercentVariation(System.Int32,System.Int32)">
+ <summary>
+ Calcula a variação percentual entre 2 valores
+ </summary>
+ <param name="StartValue"></param>
+ <param name="EndValue"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Mathematic.CalculatePercentVariation(System.Int64,System.Int64)">
+ <summary>
+ Calcula a variação percentual entre 2 valores
+ </summary>
+ <param name="StartValue"></param>
+ <param name="EndValue"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Mathematic.CalculatePercent(System.Decimal,System.Decimal)">
  <summary>
  Retorna o percentual de um valor
@@ -8991,6 +9152,18 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <summary>
  Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
  </summary>
+</member>
+<member name="P:InnerLibs.QuestionTest.QuestionTest.PersonalInfo">
+ <summary>
+ Informações adicionais, normalmente nome do usuario e outras informações unicas
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.QuestionTest.QuestionTest.ID">
+ <summary>
+ Informações adicionais, normalmente nome do usuario e outras informações unicas
+ </summary>
+ <returns></returns>
 </member>
 <member name="P:InnerLibs.QuestionTest.QuestionTest.IsValid">
  <summary>
@@ -9962,7 +10135,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Patterns"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Text.FormatDocument(System.Int64)">
+<member name="M:InnerLibs.Text.FormatCPFOrCNPJ(System.Int64)">
  <summary>
  Formata um numero para CNPJ ou CNPJ se forem validos
  </summary>
@@ -9976,7 +10149,21 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="CNPJ"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Text.FormatCNPJ(System.String)">
+ <summary>
+ Formata um numero para CNPJ
+ </summary>
+ <param name="CNPJ"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Text.FormatCPF(System.Int64)">
+ <summary>
+ Formata um numero para CPF
+ </summary>
+ <param name="CPF"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Text.FormatCPF(System.String)">
  <summary>
  Formata um numero para CPF
  </summary>
@@ -11355,13 +11542,25 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
 </member>
 <member name="M:InnerLibs.UnitConverter.CreateBase1000Converter">
  <summary>
- Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1000
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1000 (de y a E)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.CreateComplexMassConverter">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de de Massa (peso) complexos de base 10 (de mg a kg)
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.UnitConverter.CreateSimpleMassConverter">
+ <summary>
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de de Massa (peso) simples de base 1000 (de mg a T)
  </summary>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.UnitConverter.CreateFileSizeConverter">
  <summary>
- Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1024 (Bytes)
+ Cria um <see cref="T:InnerLibs.UnitConverter"/> de Base 1024 (Bytes) de (B a EB)
  </summary>
  <returns></returns>
 </member>
@@ -11489,7 +11688,14 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Text"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Verify.IsValidDocument(System.String)">
+<member name="M:InnerLibs.Verify.IsValidCNH(System.String)">
+ <summary>
+ Verifica se a string é um CNH válido
+ </summary>
+ <param name="Text">CNH</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Verify.IsValidCPFOrCNPJ(System.String)">
  <summary>
  Verifica se a string é um CPF ou CNPJ válido
  </summary>
@@ -11920,7 +12126,42 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Path"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.IO.FileInfo)">
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.IO.FileSystemInfo)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Info"> Arquivo ou Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.String)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="FileName"> Arquivo ou Diretório</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.Web.HttpRequest)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Request">Requisição</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.Web.HttpRequest,System.String)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Request">Requisição</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.FileNameAsTitle(System.Web.HttpRequest,System.IO.FileSystemInfo)">
+ <summary>
+ Retorna o Titulo do arquivo a partir do nome do arquivo
+ </summary>
+ <param name="Request">Requisição</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Web.GetFileUrl(System.Web.HttpRequest,System.IO.FileSystemInfo)">
  <summary>
  Retorna a URL de um arquivo relativo a raiz aplicação de acordo com seu caminho absoluto
  </summary>
@@ -11944,7 +12185,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="File"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Web.GetFullFileUrl(System.Web.HttpRequest,System.IO.FileInfo)">
+<member name="M:InnerLibs.Web.GetFullFileUrl(System.Web.HttpRequest,System.IO.FileSystemInfo)">
  <summary>
  Retorna a URL de um arquivo de acordo com seu caminho absoluto
  </summary>
@@ -11952,7 +12193,7 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="File"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Web.AsEnumerable(System.Web.HttpFileCollection)">
+<member name="M:InnerLibs.Web.CreateEnumerable(System.Web.HttpFileCollection)">
  <summary>
  Retorna todos os arquivos de uma <see cref="T:System.Web.HttpFileCollection"/> em um  <see cref="T:System.Collections.Generic.IEnumerable`1"/>
  </summary>

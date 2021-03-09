@@ -199,7 +199,7 @@ Public Class DateRange
     End Function
 
     ''' <summary>
-    ''' Move par ao proximo periodo equivalente
+    ''' Move para o periodo equivalente anterior
     ''' </summary>
     ''' <returns></returns>
     Public Function PreviousPeriod(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange
@@ -207,7 +207,7 @@ Public Class DateRange
     End Function
 
     ''' <summary>
-    ''' Move par ao proximo periodo equivalente
+    ''' Move para ao proximo periodo equivalente
     ''' </summary>
     ''' <returns></returns>
     Public Function NextPeriod(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange

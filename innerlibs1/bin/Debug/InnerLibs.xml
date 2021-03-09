@@ -1891,7 +1891,7 @@ InnerLibs
  <param name="URL">URL</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.ClassTools.CreateGuid(System.String)">
+<member name="M:InnerLibs.ClassTools.CreateGuidOrDefault(System.String)">
  <summary>
  Cria um <see cref="T:System.Guid"/> a partir de uma string ou um novo <see cref="T:System.Guid"/> se a conversão falhar
  </summary>
@@ -4792,13 +4792,13 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.DateRange.PreviousPeriod(InnerLibs.DateRangeInterval)">
  <summary>
- Move par ao proximo periodo equivalente
+ Move para o periodo equivalente anterior
  </summary>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.DateRange.NextPeriod(InnerLibs.DateRangeInterval)">
  <summary>
- Move par ao proximo periodo equivalente
+ Move para ao proximo periodo equivalente
  </summary>
  <returns></returns>
 </member>
