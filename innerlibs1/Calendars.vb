@@ -203,7 +203,7 @@ Public Class DateRange
     ''' </summary>
     ''' <returns></returns>
     Public Function PreviousPeriod(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange
-        Return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval))
+        Return MovePeriod(DateRangeInterval, -1 * GetPeriodAs(DateRangeInterval))
     End Function
 
     ''' <summary>
@@ -211,7 +211,7 @@ Public Class DateRange
     ''' </summary>
     ''' <returns></returns>
     Public Function NextPeriod(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange
-        Return MovePeriod(DateRangeInterval, -1 * GetPeriodAs(DateRangeInterval))
+        Return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval))
     End Function
 
     ''' <summary>
