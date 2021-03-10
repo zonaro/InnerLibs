@@ -145,7 +145,12 @@ Public Class DateRange
         If DateRangeInterval = DateRangeInterval.LessAccurate Then
             DateRangeInterval = GetLessAccurateDateRangeInterval()
         End If
-        Dim rangedias = Difference()
+        Dim sd = StartDate
+        Dim ed = EndDate
+        If ForceFirstAndLastMoments Then
+            ed = ed.AddMilliseconds(1)
+        End If
+        Dim rangedias = sd.GetDifference(ed)
         Select Case DateRangeInterval
             Case DateRangeInterval.Milliseconds
                 Return rangedias.TotalMilliseconds
@@ -219,7 +224,14 @@ Public Class DateRange
     ''' </summary>
     ''' <returns></returns>
     Public Function GetLessAccurateDateRangeInterval() As DateRangeInterval
-        Dim t = Difference()
+        Dim sd = StartDate
+        Dim ed = EndDate
+        If ForceFirstAndLastMoments Then
+            ed = ed.AddMilliseconds(1)
+        End If
+
+        Dim t = sd.GetDifference(ed)
+
         If t.TotalYears >= 1 OrElse t.TotalYears <= -1 Then
             Return DateRangeInterval.Years
         End If

@@ -522,19 +522,19 @@ Namespace TimeMachine
 
         Public ReadOnly Property TotalMonths As Decimal
             Get
-                Return StartDate.Subtract(EndDate).Days / (365.25 / 12)
+                Return Math.Round((Me.EndDate - Me.StartDate).TotalDays / (365.25 / 12), 2)
             End Get
         End Property
 
         Public ReadOnly Property TotalYears As Decimal
             Get
-                Return Me.TotalMonths / 12
+                Return Math.Round(Me.TotalMonths / 12, 2)
             End Get
         End Property
 
         Public ReadOnly Property TotalWeeks As Decimal
             Get
-                Return Me.TotalDays / 7
+                Return Math.Round(Me.TotalDays / 7, 2)
             End Get
         End Property
 
