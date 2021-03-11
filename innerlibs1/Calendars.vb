@@ -1,7 +1,6 @@
 ﻿Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports System.Web
-Imports System.Web.Script.Serialization
 Imports System.Web.UI.WebControls
 Imports InnerLibs.LINQ
 Imports InnerLibs.TimeMachine
@@ -422,6 +421,47 @@ End Class
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Calendars
+
+    ''' <summary>
+    ''' Pega o numero da semana a partir de uma data
+    ''' </summary>
+    ''' <param name="DateAndTime"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetWeekNumberOfMonth(ByVal DateAndTime As DateTime) As Integer
+        DateAndTime = DateAndTime.Date
+        Dim firstMonthDay As DateTime = DateAndTime.GetFirstDayOfMonth
+        Dim firstMonthMonday As DateTime = firstMonthDay.AddDays((DayOfWeek.Monday + 7 - firstMonthDay.DayOfWeek) Mod 7)
+
+        If firstMonthMonday > DateAndTime Then
+            firstMonthDay = firstMonthDay.AddMonths(-1)
+            firstMonthMonday = firstMonthDay.AddDays((DayOfWeek.Monday + 7 - firstMonthDay.DayOfWeek) Mod 7)
+        End If
+
+        Return (DateAndTime - firstMonthMonday).Days / 7 + 1
+    End Function
+
+
+    <Extension()>
+    Public Function GetQuarterOfYear(ByVal DateAndTime As DateTime) As Integer
+        If DateAndTime.Month <= 3 Then
+            Return 1
+        ElseIf DateAndTime.Month <= 6 Then
+            Return 2
+        ElseIf DateAndTime.Month <= 9 Then
+            Return 3
+        Else
+            Return 4
+        End If
+    End Function
+
+    <Extension()>
+    Public Function GetHalfOfYear(ByVal DateAndTime As DateTime) As Integer
+        If DateAndTime.Month <= 6 Then
+            Return 1
+        Else
+            Return 4
+        End If
+    End Function
 
     ''' <summary>
     ''' Retorna a idade

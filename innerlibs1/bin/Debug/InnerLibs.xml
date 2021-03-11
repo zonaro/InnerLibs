@@ -4918,6 +4918,13 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Calendars.GetWeekNumberOfMonth(System.DateTime)">
+ <summary>
+ Pega o numero da semana a partir de uma data
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetAge(System.DateTime,System.Nullable{System.DateTime})">
  <summary>
  Retorna a idade
