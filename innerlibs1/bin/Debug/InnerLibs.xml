@@ -4925,6 +4925,27 @@ Verifica se o objeto é do tipo numérico.
  <param name="DateAndTime"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Calendars.GetDoubleMonthOfYear(System.DateTime)">
+ <summary>
+ Pega o numero do Bimestre a partir de uma data
+ </summary>
+ <param name="DateAndtime"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetQuarterOfYear(System.DateTime)">
+ <summary>
+ Pega o numero do trimestre a partir de uma data
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetHalfOfYear(System.DateTime)">
+ <summary>
+ Pega o numero do semestre a partir de uma data
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetAge(System.DateTime,System.Nullable{System.DateTime})">
  <summary>
  Retorna a idade

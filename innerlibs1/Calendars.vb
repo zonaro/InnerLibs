@@ -439,8 +439,33 @@ Public Module Calendars
 
         Return (DateAndTime - firstMonthMonday).Days / 7 + 1
     End Function
+    ''' <summary>
+    ''' Pega o numero do Bimestre a partir de uma data
+    ''' </summary>
+    ''' <param name="DateAndtime"></param>
+    ''' <returns></returns>
+    <Extension> Public Function GetDoubleMonthOfYear(DateAndtime As DateTime)
+        If DateAndtime.Month <= 2 Then
+            Return 1
+        ElseIf DateAndtime.Month <= 4 Then
+            Return 2
+        ElseIf DateAndtime.Month <= 6 Then
+            Return 3
+        ElseIf DateAndtime.Month <= 8 Then
+            Return 4
+        ElseIf DateAndtime.Month <= 10 Then
+            Return 5
+        Else
+            Return 6
+        End If
+    End Function
 
 
+    ''' <summary>
+    ''' Pega o numero do trimestre a partir de uma data
+    ''' </summary>
+    ''' <param name="DateAndTime"></param>
+    ''' <returns></returns>
     <Extension()>
     Public Function GetQuarterOfYear(ByVal DateAndTime As DateTime) As Integer
         If DateAndTime.Month <= 3 Then
@@ -454,6 +479,11 @@ Public Module Calendars
         End If
     End Function
 
+    ''' <summary>
+    ''' Pega o numero do semestre a partir de uma data
+    ''' </summary>
+    ''' <param name="DateAndTime"></param>
+    ''' <returns></returns>
     <Extension()>
     Public Function GetHalfOfYear(ByVal DateAndTime As DateTime) As Integer
         If DateAndTime.Month <= 6 Then
