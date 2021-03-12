@@ -428,6 +428,15 @@ Public Module Calendars
     ''' <param name="DateAndTime"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetWeekNumberOfMonth(ByVal DateAndTime As DateTime) As Integer
+        Return GetWeekInfoOfMonth(DateAndTime).FirstOrDefault()
+    End Function
+
+    ''' <summary>
+    ''' Pega o numero da semana, do mês e ano pertencente
+    ''' </summary>
+    ''' <param name="DateAndTime"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetWeekInfoOfMonth(DateAndTime As DateTime) As Integer()
         DateAndTime = DateAndTime.Date
         Dim firstMonthDay As DateTime = DateAndTime.GetFirstDayOfMonth
         Dim firstMonthMonday As DateTime = firstMonthDay.AddDays((DayOfWeek.Monday + 7 - firstMonthDay.DayOfWeek) Mod 7)
@@ -437,14 +446,16 @@ Public Module Calendars
             firstMonthMonday = firstMonthDay.AddDays((DayOfWeek.Monday + 7 - firstMonthDay.DayOfWeek) Mod 7)
         End If
 
-        Return (DateAndTime - firstMonthMonday).Days / 7 + 1
+        Return New Integer() {(DateAndTime - firstMonthMonday).Days / 7 + 1, firstMonthDay.Month, firstMonthDay.Year}
     End Function
+
+
     ''' <summary>
     ''' Pega o numero do Bimestre a partir de uma data
     ''' </summary>
     ''' <param name="DateAndtime"></param>
     ''' <returns></returns>
-    <Extension> Public Function GetDoubleMonthOfYear(DateAndtime As DateTime)
+    <Extension> Public Function GetDoubleMonthOfYear(DateAndtime As DateTime) As Integer
         If DateAndtime.Month <= 2 Then
             Return 1
         ElseIf DateAndtime.Month <= 4 Then
@@ -489,7 +500,7 @@ Public Module Calendars
         If DateAndTime.Month <= 6 Then
             Return 1
         Else
-            Return 4
+            Return 2
         End If
     End Function
 
