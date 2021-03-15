@@ -449,7 +449,6 @@ Public Module Calendars
         Return New Integer() {(DateAndTime - firstMonthMonday).Days / 7 + 1, firstMonthDay.Month, firstMonthDay.Year}
     End Function
 
-
     ''' <summary>
     ''' Pega o numero do Bimestre a partir de uma data
     ''' </summary>
@@ -470,7 +469,6 @@ Public Module Calendars
             Return 6
         End If
     End Function
-
 
     ''' <summary>
     ''' Pega o numero do trimestre a partir de uma data
@@ -688,6 +686,87 @@ Public Module Calendars
     End Function
 
     ''' <summary>
+    ''' Retorna o prmeiro dia de um semestre a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFirstDayOfHalf([Date] As DateTime) As DateTime
+        If [Date].GetHalfOfYear() = 1 Then
+            Return [Date].GetFirstDayOfYear()
+        Else
+            Return New Date([Date].Year, 7, 1).Date
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Retorna o ultimo dia de um semestre a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetLastDayOfHalf([Date] As DateTime) As DateTime
+        If [Date].GetHalfOfYear() = 1 Then
+            Return New Date([Date].Year, 6, 1).GetLastDayOfMonth
+        Else
+            Return [Date].GetLastDayOfYear
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Retorna o ultimo dia de um trimestre a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetLastDayOfQuarter([Date] As DateTime) As DateTime
+        If [Date].GetQuarterOfYear() = 1 Then Return New Date([Date].Year, 3, 1).GetLastDayOfMonth()
+        If [Date].GetQuarterOfYear() = 2 Then Return New Date([Date].Year, 6, 1).GetLastDayOfMonth()
+        If [Date].GetQuarterOfYear() = 3 Then Return New Date([Date].Year, 9, 1).GetLastDayOfMonth()
+        Return New Date([Date].Year, 12, 1).GetLastDayOfMonth()
+    End Function
+
+    ''' <summary>
+    ''' Retorna o ultimo dia de um trimestre a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFirstDayOfQuarter([Date] As DateTime) As DateTime
+        If [Date].GetQuarterOfYear() = 1 Then Return New Date([Date].Year, 1, 1).Date
+        If [Date].GetQuarterOfYear() = 2 Then Return New Date([Date].Year, 4, 1).Date
+        If [Date].GetQuarterOfYear() = 3 Then Return New Date([Date].Year, 7, 1).Date
+        Return New Date([Date].Year, 10, 1).Date
+    End Function
+
+    ''' <summary>
+    ''' Retorna o ultimo dia de um bimestre a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetLastDayOfDoubleMonth([Date] As DateTime) As DateTime
+        If [Date].GetDoubleMonthOfYear() = 1 Then Return New Date([Date].Year, 2, 1).GetLastDayOfMonth
+        If [Date].GetDoubleMonthOfYear() = 2 Then Return New Date([Date].Year, 4, 1).GetLastDayOfMonth
+        If [Date].GetDoubleMonthOfYear() = 3 Then Return New Date([Date].Year, 6, 1).GetLastDayOfMonth
+        If [Date].GetDoubleMonthOfYear() = 4 Then Return New Date([Date].Year, 8, 1).GetLastDayOfMonth
+        If [Date].GetDoubleMonthOfYear() = 5 Then Return New Date([Date].Year, 10, 1).GetLastDayOfMonth
+        Return New Date([Date].Year, 12, 1).GetLastDayOfMonth
+    End Function
+
+    ''' <summary>
+    ''' Retorna o ultimo dia de um bimestre a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetFirstDayOfDouleMonth([Date] As DateTime) As DateTime
+        If [Date].GetDoubleMonthOfYear() = 1 Then Return New Date([Date].Year, 1, 1).Date
+        If [Date].GetDoubleMonthOfYear() = 2 Then Return New Date([Date].Year, 3, 1).Date
+        If [Date].GetDoubleMonthOfYear() = 3 Then Return New Date([Date].Year, 5, 1).Date
+        If [Date].GetDoubleMonthOfYear() = 4 Then Return New Date([Date].Year, 7, 1).Date
+        If [Date].GetDoubleMonthOfYear() = 5 Then Return New Date([Date].Year, 9, 1).Date
+        Return New Date([Date].Year, 11, 1).Date
+    End Function
+
+
+
+
+    ''' <summary>
     ''' Retorna o numero da semana relativa ao ano
     ''' </summary>
     ''' <param name="[Date]"></param>
@@ -719,6 +798,28 @@ Public Module Calendars
     Public Function IsAnniversary(BirthDate As Date, Optional CompareWith As Date? = Nothing) As Boolean
         If Not CompareWith.HasValue Then CompareWith = Today
         Return (BirthDate.Day & "/" & BirthDate.Month) = (CompareWith.Value.Day & "/" & CompareWith.Value.Month)
+    End Function
+
+    ''' <summary>
+    ''' Retorna o nome do mês a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <param name="Culture"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function GetLongMonthName([Date] As DateTime, Optional Culture As CultureInfo = Nothing) As String
+        Return [Date].ToString("MMMM", If(Culture, CultureInfo.CurrentCulture))
+    End Function
+
+    ''' <summary>
+    ''' Retorna o nome do mês a partir da data
+    ''' </summary>
+    ''' <param name="[Date]"></param>
+    ''' <param name="Culture"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function GetShortMonthName([Date] As DateTime, Optional Culture As CultureInfo = Nothing) As String
+        Return [Date].ToString("MM", If(Culture, CultureInfo.CurrentCulture))
     End Function
 
     ''' <summary>
