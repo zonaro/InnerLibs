@@ -4925,6 +4925,13 @@ Verifica se o objeto é do tipo numérico.
  <param name="DateAndTime"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Calendars.GetWeekInfoOfMonth(System.DateTime)">
+ <summary>
+ Pega o numero da semana, do mês e ano pertencente
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetDoubleMonthOfYear(System.DateTime)">
  <summary>
  Pega o numero do Bimestre a partir de uma data

@@ -71,7 +71,7 @@ Public Class DateRange
         Get
             FixDateOrder(_startDate, _enddate)
             If ForceFirstAndLastMoments Then
-                _enddate = _enddate.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999)
+                _enddate = _enddate.Date.AddHours(23).AddMinutes(59).AddSeconds(59)
             End If
             Return _enddate
         End Get
