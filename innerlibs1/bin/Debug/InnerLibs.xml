@@ -5083,6 +5083,48 @@ Verifica se o objeto é do tipo numérico.
  <param name="[Date]"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfHalf(System.DateTime)">
+ <summary>
+ Retorna o prmeiro dia de um semestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfHalf(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um semestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfQuarter(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um trimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfQuarter(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um trimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfDoubleMonth(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um bimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfDouleMonth(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um bimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetWeekOfYear(System.DateTime,System.Globalization.CultureInfo,System.DayOfWeek)">
  <summary>
  Retorna o numero da semana relativa ao ano
@@ -5105,6 +5147,22 @@ Verifica se o objeto é do tipo numérico.
  Verifica se a Data de hoje é um aniversário
  </summary>
  <param name="BirthDate">  Data de nascimento</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLongMonthName(System.DateTime,System.Globalization.CultureInfo)">
+ <summary>
+ Retorna o nome do mês a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <param name="Culture"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetShortMonthName(System.DateTime,System.Globalization.CultureInfo)">
+ <summary>
+ Retorna o nome do mês a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <param name="Culture"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Calendars.ToSQLDateString(System.DateTime)">
