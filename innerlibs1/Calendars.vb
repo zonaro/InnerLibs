@@ -584,7 +584,7 @@ Public Module Calendars
     End Function
 
     ''' <summary>
-    ''' Retorna o primeiro dia da semana da data especificada
+    ''' Retorna o ultimo dia da semana da data especificada
     ''' </summary>
     ''' <param name="[Date]">Data</param>
     ''' <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>

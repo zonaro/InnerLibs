@@ -4918,6 +4918,41 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <remarks></remarks>
 </member>
+<member name="M:InnerLibs.Calendars.GetWeekNumberOfMonth(System.DateTime)">
+ <summary>
+ Pega o numero da semana a partir de uma data
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetWeekInfoOfMonth(System.DateTime)">
+ <summary>
+ Pega o numero da semana, do mês e ano pertencente
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetDoubleMonthOfYear(System.DateTime)">
+ <summary>
+ Pega o numero do Bimestre a partir de uma data
+ </summary>
+ <param name="DateAndtime"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetQuarterOfYear(System.DateTime)">
+ <summary>
+ Pega o numero do trimestre a partir de uma data
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetHalfOfYear(System.DateTime)">
+ <summary>
+ Pega o numero do semestre a partir de uma data
+ </summary>
+ <param name="DateAndTime"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetAge(System.DateTime,System.Nullable{System.DateTime})">
  <summary>
  Retorna a idade
@@ -4978,7 +5013,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Calendars.GetLastDayOfWeek(System.DateTime,System.DayOfWeek)">
  <summary>
- Retorna o primeiro dia da semana da data especificada
+ Retorna o ultimo dia da semana da data especificada
  </summary>
  <param name="[Date]">Data</param>
  <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
@@ -5048,6 +5083,48 @@ Verifica se o objeto é do tipo numérico.
  <param name="[Date]"></param>
  <returns></returns>
 </member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfHalf(System.DateTime)">
+ <summary>
+ Retorna o prmeiro dia de um semestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfHalf(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um semestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfQuarter(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um trimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfQuarter(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um trimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLastDayOfDoubleMonth(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um bimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetFirstDayOfDouleMonth(System.DateTime)">
+ <summary>
+ Retorna o ultimo dia de um bimestre a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.Calendars.GetWeekOfYear(System.DateTime,System.Globalization.CultureInfo,System.DayOfWeek)">
  <summary>
  Retorna o numero da semana relativa ao ano
@@ -5070,6 +5147,22 @@ Verifica se o objeto é do tipo numérico.
  Verifica se a Data de hoje é um aniversário
  </summary>
  <param name="BirthDate">  Data de nascimento</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetLongMonthName(System.DateTime,System.Globalization.CultureInfo)">
+ <summary>
+ Retorna o nome do mês a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <param name="Culture"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Calendars.GetShortMonthName(System.DateTime,System.Globalization.CultureInfo)">
+ <summary>
+ Retorna o nome do mês a partir da data
+ </summary>
+ <param name="[Date]"></param>
+ <param name="Culture"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Calendars.ToSQLDateString(System.DateTime)">

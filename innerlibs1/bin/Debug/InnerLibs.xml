@@ -5013,7 +5013,7 @@ Verifica se o objeto é do tipo numérico.
 </member>
 <member name="M:InnerLibs.Calendars.GetLastDayOfWeek(System.DateTime,System.DayOfWeek)">
  <summary>
- Retorna o primeiro dia da semana da data especificada
+ Retorna o ultimo dia da semana da data especificada
  </summary>
  <param name="[Date]">Data</param>
  <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
