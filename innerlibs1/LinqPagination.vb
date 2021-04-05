@@ -1096,6 +1096,33 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="List"></param>
         ''' <returns></returns>
+        <Extension()> Public Function Most(Of T)(List As IEnumerable(Of T), predicate As Func(Of T, Boolean), Optional Result As Boolean = True) As Boolean
+            Return List.Select(predicate).Most(Result)
+        End Function
+
+        ''' <summary>
+        ''' Retorna TRUE se a maioria dos testes em uma lista retornarem true
+        ''' </summary>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function MostTrue(Of T)(List As IEnumerable(Of T), predicate As Func(Of T, Boolean)) As Boolean
+            Return MostTrue(List.Select(predicate).ToArray())
+        End Function
+
+        ''' <summary>
+        ''' Retorna TRUE se a maioria dos testes em uma lista retornarem false
+        ''' </summary>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function MostFalse(Of T)(List As IEnumerable(Of T), predicate As Func(Of T, Boolean)) As Boolean
+            Return MostFalse(List.Select(predicate).ToArray())
+        End Function
+
+        ''' <summary>
+        ''' Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
+        ''' </summary>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
         <Extension()> Public Function Most(List As IEnumerable(Of Boolean), Optional Result As Boolean = True) As Boolean
             If List.Count > 0 Then
                 Dim arr = List.DistinctCount

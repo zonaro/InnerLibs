@@ -523,6 +523,34 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
+    ''' Retorna o valor de um determinado percentual de um valor total
+    ''' </summary>
+    ''' <param name="Percent">
+    ''' Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
+    ''' </param>
+    ''' <param name="Total">  Valor Total (Representa 100%)</param>
+    ''' <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
+
+    <Extension()>
+    Function CalculateValueFromPercent(Percent As Integer, Total As Decimal) As Decimal
+        Return Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100))
+    End Function
+
+    ''' <summary>
+    ''' Retorna o valor de um determinado percentual de um valor total
+    ''' </summary>
+    ''' <param name="Percent">
+    ''' Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
+    ''' </param>
+    ''' <param name="Total">  Valor Total (Representa 100%)</param>
+    ''' <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
+
+    <Extension()>
+    Function CalculateValueFromPercent(Percent As Decimal, Total As Decimal) As Decimal
+        Return Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100))
+    End Function
+
+    ''' <summary>
     ''' Corta um numero decimal com a quantidade de casas especiicadas
     ''' </summary>
     ''' <param name="Value"> Numero</param>

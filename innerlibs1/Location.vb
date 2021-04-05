@@ -210,7 +210,6 @@ Namespace Locations
         End Function
 
         Public Function ToJSON() As String
-
             Return OldJsonSerializer.SerializeJSON(Me)
         End Function
 
@@ -218,8 +217,7 @@ Namespace Locations
         ''' Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
         ''' </summary>
         Public Sub GetInfoByPostalCode()
-            Dim cep As Object = AJAX.GET(Of Object)("https://viacep.com.br/ws/" & Me.PostalCode & "/json/")
-
+            Dim cep As Object = OldJsonSerializer.DeserializeJSON(Of Object)(AJAX.GET(Of String)("https://viacep.com.br/ws/" & Me.PostalCode & "/json/"))
             Me.Neighborhood = cep("bairro")
             Me.City = cep("localidade")
             Me.StateCode = cep("uf")
@@ -227,7 +225,6 @@ Namespace Locations
             Me.StreetName = cep("logradouro")
             Me.Country = "Brasil"
             ParseType()
-
         End Sub
 
         ''' <summary>
@@ -303,7 +300,7 @@ Namespace Locations
 
     End Class
 
-    Friend Class AddressTypes
+    Public Class AddressTypes
 
         Public Shared Function GetAddressType(Endereco As String) As String
             Dim tp = Endereco.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).FirstOr("")

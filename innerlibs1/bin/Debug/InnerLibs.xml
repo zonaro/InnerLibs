@@ -6419,6 +6419,27 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="Table">Tabela</param>
  <param name="predicate">predicado</param>
 </member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.Most``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean},System.Boolean)">
+ <summary>
+ Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
+ </summary>
+ <param name="List"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.MostTrue``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+ <summary>
+ Retorna TRUE se a maioria dos testes em uma lista retornarem true
+ </summary>
+ <param name="List"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.LINQ.LINQExtensions.MostFalse``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+ <summary>
+ Retorna TRUE se a maioria dos testes em uma lista retornarem false
+ </summary>
+ <param name="List"></param>
+ <returns></returns>
+</member>
 <member name="M:InnerLibs.LINQ.LINQExtensions.Most(System.Collections.Generic.IEnumerable{System.Boolean},System.Boolean)">
  <summary>
  Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
@@ -8816,6 +8837,26 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <returns>Um numero decimal contendo a porcentagem</returns>
 </member>
 <member name="M:InnerLibs.Mathematic.CalculateValueFromPercent(System.String,System.Decimal)">
+ <summary>
+ Retorna o valor de um determinado percentual de um valor total
+ </summary>
+ <param name="Percent">
+ Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
+ </param>
+ <param name="Total">  Valor Total (Representa 100%)</param>
+ <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
+</member>
+<member name="M:InnerLibs.Mathematic.CalculateValueFromPercent(System.Int32,System.Decimal)">
+ <summary>
+ Retorna o valor de um determinado percentual de um valor total
+ </summary>
+ <param name="Percent">
+ Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
+ </param>
+ <param name="Total">  Valor Total (Representa 100%)</param>
+ <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
+</member>
+<member name="M:InnerLibs.Mathematic.CalculateValueFromPercent(System.Decimal,System.Decimal)">
  <summary>
  Retorna o valor de um determinado percentual de um valor total
  </summary>

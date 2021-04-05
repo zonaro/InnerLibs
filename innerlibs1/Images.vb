@@ -686,13 +686,13 @@ Public Module Images
                 pixelColor = Image.GetPixel(row, col).ToArgb()
 
                 If dctColorIncidence.Keys.Contains(pixelColor) Then
-                    pixelColor.Increment
+                    pixelColor = pixelColor.Increment
                 Else
                     dctColorIncidence.Add(pixelColor, 1)
                 End If
-                col.Increment
+                col = col.Increment
             End While
-            row.Increment
+            row = row.Increment
         End While
 
         ' note that there are those who argue that a
@@ -711,7 +711,7 @@ Public Module Images
 
         MostUsedColor = Color.FromArgb(dctSortedByValueHighToLow.First().Key)
         MostUsedColorIncidence = dctSortedByValueHighToLow.First().Value
-        Return TenMostUsedColors.Take(Count)
+        Return TenMostUsedColors.Take(Count).ToList()
     End Function
 
     ''' <summary>
