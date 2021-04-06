@@ -277,19 +277,6 @@ Public Module Directories
 
 
 
-
-    ''' <summary>
-    ''' Copia um diretório para dentro de outro diretório
-    ''' </summary>
-    ''' <param name="Directory">Diretório</param>
-    ''' <param name="DestinationDirectory">Diretório de destino</param>
-    ''' <returns></returns>
-    <Extension> Public Function CopyTo(Directory As DirectoryInfo, DestinationDirectory As DirectoryInfo) As DirectoryInfo
-        If Not DestinationDirectory.Exists Then DestinationDirectory.Create()
-        My.Computer.FileSystem.CopyDirectory(Directory.FullName, DestinationDirectory.FullName & Path.DirectorySeparatorChar & Directory.Name)
-        Return New DirectoryInfo(DestinationDirectory.FullName & Path.DirectorySeparatorChar & Directory.Name)
-    End Function
-
     ''' <summary>
     ''' Copia arquivos para dentro de outro diretório
     ''' </summary>

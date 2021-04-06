@@ -1,8 +1,6 @@
 ﻿Imports System.IO
 Imports System.Text
-Imports System.Web
-Imports System.Web.Script.Serialization
-Imports System.Web.UI
+
 Imports InnerLibs.LINQ
 
 Public Class OnlineList(Of UserType As Class, IdType As Structure)
@@ -60,20 +58,9 @@ Public Class OnlineList(Of UserType As Class, IdType As Structure)
                 MyBase.Item(ID) = New OnlineUser(Of UserType, IdType)(Obj, Me)
             End If
             If Online Then
-                MyBase.Item(ID).LastOnline = Now
+                MyBase.Item(ID).LastOnline = DateTime.Now
                 If Activity.IsNotBlank Then
                     MyBase.Item(ID).LastActivity = Activity
-                End If
-                If HttpContext.Current IsNot Nothing Then
-                    MyBase.Item(ID).LastUrl = HttpContext.Current.Request.Url.AbsoluteUri
-                    Dim Page = HttpContext.Current.Handler
-                    If Page IsNot Nothing AndAlso Page.GetType Is GetType(Page) Then
-                        Dim title = CType(Page, Page).Title
-                        If title.IsNotBlank Then
-                            MyBase.Item(ID).LastPage = Page
-                        End If
-
-                    End If
                 End If
             End If
             MyBase.Item(ID).IsOnline = Online
@@ -138,9 +125,9 @@ Public Class OnlineUser(Of UserType As Class, IdType As Structure)
         Get
             If list.ContainsUser(Me.Data) Then
                 If online Then
-                    online = LastOnline.HasValue AndAlso LastOnline >= Now.Add(list.ToleranceTime)
+                    online = LastOnline.HasValue AndAlso LastOnline >= DateTime.Now.Add(list.ToleranceTime)
                     If online Then
-                        LastOnline = Now
+                        LastOnline = DateTime.Now
                     End If
                 End If
                 Return online
@@ -149,17 +136,17 @@ Public Class OnlineUser(Of UserType As Class, IdType As Structure)
         End Get
         Set(value As Boolean)
             If online Then
-                LastOnline = Now
+                LastOnline = DateTime.Now
             End If
             online = value
         End Set
     End Property
 
-    <ScriptIgnore> ReadOnly Property Data As UserType
+    ReadOnly Property Data As UserType
     Property LastActivity As String = "Offline"
     Property LastOnline As Date? = Nothing
 
-    <ScriptIgnore> Property LastPage As Page
+
     Property LastUrl As String
 
     ReadOnly Property Conversations(Optional WithUser As UserType = Nothing) As UserConversation(Of UserType, IdType)()
@@ -192,14 +179,8 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
 
     Property Encoding As Encoding = Encoding.UTF8
 
-    Function Backup() As Byte()
-        Dim str = Me.Select(Function(x) New UserConversationBackup(Of IdType) With {.FromId = x.FromUser.ID, .ToId = x.ToUser.ID, .Message = x.Message.InnCrypt, .SentDate = x.SentDate.Ticks, .ViewedDate = If(x.ViewedDate.HasValue, x.ViewedDate.Value.Ticks, -1)}).SerializeJSON
-        Return Encoding.GetBytes(str)
-    End Function
 
-    Function Backup(Path As String) As FileInfo
-        Return Backup().WriteToFile(Path)
-    End Function
+
 
     Function GetConversation(User As UserType, Optional WithUser As UserType = Nothing) As IEnumerable(Of UserConversation(Of UserType, IdType))
         Dim lista As UserConversation(Of UserType, IdType)()
@@ -225,17 +206,6 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
         Next
     End Sub
 
-    Sub Restore(Backup As Byte())
-        Dim backupstring = Encoding.GetString(Backup)
-        Dim obj = backupstring.ParseJSON(Of IEnumerable(Of UserConversationBackup(Of IdType)))
-        Dim conversas = obj.Where(Function(x) Me.list.ContainsKey(x.FromId) AndAlso Me.list.ContainsKey(x.ToId)).Select(Function(x) New UserConversation(Of UserType, IdType)(Me) With {.FromUser = Me.list(Me.list.UserById(x.FromId)), .ToUser = Me.list(Me.list.UserById(x.ToId)), .Message = x.Message.UnnCrypt, .SentDate = New Date(x.SentDate), .ViewedDate = If(x.ViewedDate = -1, Nothing, New Date(x.ViewedDate))}).ToArray
-        Dim datafinal = conversas.Max(Function(x) x.SentDate)
-        Me.AddRange(conversas.Where(Function(x) x.ID.IsNotIn(Me.Select(Function(y) y.ID))).ToArray)
-    End Sub
-
-    Sub Restore(File As FileInfo)
-        Restore(IO.File.ReadAllBytes(File.FullName))
-    End Sub
 
     Function Send(FromUser As UserType, ToUser As UserType, Message As String) As UserConversation(Of UserType, IdType)
         Dim i = New UserConversation(Of UserType, IdType)(Me) With {.Message = Message, .FromUser = list(FromUser), .ToUser = list(ToUser), .ViewedDate = Nothing}
@@ -243,21 +213,11 @@ Public Class UserChat(Of UserType As Class, IdType As Structure)
         Return i
     End Function
 
-    Sub SetPeriodicBackup(Path As String, Interval As Double)
-        BackupTimer.Interval = Interval
-        BackupPath = New FileInfo(Path)
-        AddHandler BackupTimer.Elapsed, AddressOf periodic
-        BackupTimer.Enabled = True
-    End Sub
 
-    Sub StopPeriodicBackup()
-        RemoveHandler BackupTimer.Elapsed, AddressOf periodic
-        BackupTimer.Enabled = False
-    End Sub
 
-    Private Sub periodic(sender As Object, e As EventArgs)
-        Backup(BackupPath.FullName)
-    End Sub
+
+
+
 
 End Class
 
@@ -277,11 +237,11 @@ Public Class UserConversation(Of UserType As Class, IdType As Structure)
 
     Property Viewed As Boolean
         Get
-            Return ViewedDate.HasValue AndAlso ViewedDate <= Now
+            Return ViewedDate.HasValue AndAlso ViewedDate <= DateTime.Now
         End Get
         Set(value As Boolean)
             If value Then
-                ViewedDate = Now
+                ViewedDate = DateTime.Now
             Else
                 ViewedDate = Nothing
             End If
@@ -290,7 +250,7 @@ Public Class UserConversation(Of UserType As Class, IdType As Structure)
 
     Property FromUser As OnlineUser(Of UserType, IdType)
     Property Message As String
-    Property SentDate As DateTime = Now
+    Property SentDate As DateTime = DateTime.Now
     Property ToUser As OnlineUser(Of UserType, IdType)
     Property ViewedDate As Date? = Nothing
 

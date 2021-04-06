@@ -33,24 +33,14 @@ Public Module Converter
     ''' <returns></returns>
     Public Function ForceArray(Of OutputType)(ByVal Obj As Object) As OutputType()
         Dim a As New List(Of OutputType)
-        If IsNothing(Obj) Then Return a.ToArray
-        If Not IsArray(Obj) Then
+        If Obj = Nothing Then Return a.ToArray
+        If Not Obj.GetType().IsArray Then
             If Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
         End If
         Return Array.ConvertAll(Of Object, OutputType)(Obj, Function(x) CType(x, OutputType))
     End Function
 
-    ''' <summary>
-    ''' Converte uma lista de dicionários para uma tabela HTML
-    ''' </summary>
-    ''' <param name="Table"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToHtmlTable(Table As IEnumerable(Of Dictionary(Of String, Object)), Optional IncludeFooter As Boolean = False) As HtmlElement
-        Dim ks = Table.SelectMany(Function(x) x.Keys).Distinct()
-        Dim thead = ks.Select(Function(x) x.WrapInTag("th").ToString()).Join("").WrapInTag("tr").ToString()
-        Dim body = Table.Uniform().Select(Function(linha) ks.Select(Function(x) linha.GetValueOr(x, "").ToString().WrapInTag("td").ToString()).Join("").WrapInTag("tr").ToString()).Join("").WrapInTag("tbody").ToString()
-        Return New HtmlElement("table", thead.WrapInTag("thead").ToString() & body.ToString() & If(IncludeFooter, thead.WrapInTag("tfooter").ToString(), ""))
-    End Function
+
 
     ''' <summary>
     ''' Aplica as mesmas keys a todos os dicionarios de uma lista
@@ -303,30 +293,7 @@ Public Module Converter
         Return groupings.ToDictionary(Function(group) group.Key, Function(group) group.AsEnumerable)
     End Function
 
-    ''' <summary>
-    ''' Transforma um <see cref="HttpRequest"/> em um <see cref="Dictionary(Of String, Object)"/>
-    ''' </summary>
-    ''' <param name="Request">HttpRequest</param>
-    ''' <param name="Keys">Keys que devem ser incluidas</param>
-    ''' <returns></returns>
-    <Extension()> Public Function CreateDictionary(Request As HttpRequest, ParamArray keys As String()) As Dictionary(Of String, Object)
-        If IsNothing(keys) OrElse keys.LongCount = 0 Then
-            Dim l As New List(Of String)
-            l.AddRange(Request.Form.AllKeys)
-            l.AddRange(Request.Files.AllKeys)
-            l.AddRange(Request.QueryString.AllKeys)
-            keys = l.Distinct.ToArray
-        End If
-        Dim result = Request.QueryString.ToDictionary(keys)
-        Dim result2 = Request.Form.ToDictionary(keys)
-        result = result.Merge(result2)
-        For Each f As String In Request.Files.AllKeys.Where(Function(k) k.IsLikeAny(keys))
-            If Request.Files(f).ContentLength > 0 Then
-                result(f) = Request.Files(f).ToBytes
-            End If
-        Next
-        Return result
-    End Function
+
 
     ''' <summary>
     ''' Seta as propriedades de uma classe a partir de um dictionary
@@ -343,18 +310,7 @@ Public Module Converter
         Next
     End Sub
 
-    ''' <summary>
-    ''' Seta as propriedades de uma classe a partir de um HttpRequest
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Request"></param>
-    ''' <param name="Obj"></param>
-    <Extension()>
-    Public Function SetPropertiesIn(Of T As Class)(Request As HttpRequest, ByRef Obj As T, ParamArray Keys As String()) As T
-        Obj = If(Obj, Activator.CreateInstance(Of T))
-        Request.CreateDictionary(Keys).SetPropertiesIn(Of T)(Obj)
-        Return Obj
-    End Function
+
 
     ''' <summary>
     ''' Transforma uma lista de pares em um Dictionary
@@ -375,7 +331,7 @@ Public Module Converter
     <Extension>
     Public Function ToDictionary([NameValueCollection] As NameValueCollection, ParamArray Keys As String()) As Dictionary(Of String, Object)
         Dim result = New Dictionary(Of String, Object)()
-        If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = NameValueCollection.AllKeys
+        If If(Keys, {}).LongCount = 0 Then Keys = NameValueCollection.AllKeys
         For Each key As String In [NameValueCollection].Keys
             If key.IsNotBlank AndAlso key.IsLikeAny(Keys) Then
                 Dim values As String() = [NameValueCollection].GetValues(key)
@@ -453,27 +409,7 @@ Public Module Converter
         Return result
     End Function
 
-    ''' <summary>
-    ''' Converte um NameValueCollection para string JSON
-    ''' </summary>
-    ''' <param name="[NameValueCollection]">Formulário</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function ToJSON([NameValueCollection] As NameValueCollection) As String
-        Return OldJsonSerializer.SerializeJSON(NameValueCollection.ToDictionary)
-    End Function
 
-    ''' <summary>
-    ''' COnverte os Valores de um Formulário enviado por GET ou POST em JSON
-    ''' </summary>
-    ''' <param name="Request">Request GET ou POST</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function ToJSON(Request As System.Web.HttpRequest) As String
-        Dim d As New Dictionary(Of String, Object)
-        d.Add("QueryString", Request.QueryString.ToDictionary)
-        d.Add("Form", Request.Form.ToDictionary)
-        Return OldJsonSerializer.SerializeJSON(d)
-    End Function
+
 
 End Module

@@ -16,13 +16,7 @@
             End Get
         End Property
 
-        ''' <summary>
-        ''' Transforma a classe em um json
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function ToJSON() As String
-            Return OldJsonSerializer.SerializeJSON(Me)
-        End Function
+
 
     End Class
 

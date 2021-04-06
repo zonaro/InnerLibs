@@ -5,7 +5,6 @@ Imports System.Web.Script.Serialization
 
 Public Class FileTree
 
-    <ScriptIgnore>
     ReadOnly Property Parent As FileTree
 
     ReadOnly Property Name As String
@@ -20,7 +19,7 @@ Public Class FileTree
         End Get
     End Property
 
-    <ScriptIgnore>
+
     ReadOnly Property Info As FileSystemInfo
 
     ReadOnly Property Children As New List(Of FileTree)

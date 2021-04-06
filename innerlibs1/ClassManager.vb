@@ -72,57 +72,10 @@ Public Module ClassTools
         Return NVC.AllKeys.SelectManyJoin(Function(n) NVC.GetValues(n).Select(Function(v) n & "=" & v).Where(Function(x) x.IsNotBlank() AndAlso x <> "="), "&")
     End Function
 
-    ''' <summary>
-    ''' Retorna a propriedade de um objeto como um parametro de query string
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Obj"></param>
-    ''' <param name="PropertyNames"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T, TProperty)(Obj As T, ParamArray PropertyNames As Expressions.Expression(Of Func(Of T, TProperty))()) As String
-        Dim txt = ""
-        PropertyNames = If(PropertyNames, {})
-        Dim props = Obj.GetProperties.AsEnumerable
-        For Each propertyname In PropertyNames
-            Dim prop = Obj.GetPropertyInfo(propertyname)
-            txt &= "&" & prop.Name & "=" & ToFlatString(prop.GetValue(Obj)).UrlEncode
-        Next
-        Return txt
-    End Function
 
-    ''' <summary>
-    ''' Retorna a propriedade de um objeto como um parametro de query string
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Obj"></param>
-    ''' <param name="PropertyNames"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As T, ParamArray PropertyNames As String()) As String
-        Dim txt = ""
-        PropertyNames = If(PropertyNames, {})
-        Dim props = Obj.GetProperties.AsEnumerable
-        For Each propertyname In PropertyNames
-            If props.Count(Function(x) x.Name = propertyname) > 0 Then
-                txt &= "&" & propertyname & "=" & ToFlatString(Obj.GetPropertyValue(propertyname)).UrlEncode
-            End If
-        Next
-        Return txt
-    End Function
 
-    ''' <summary>
-    ''' Retorna a propriedade de varios objetos em uma lista como um parametro de query string
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Obj"></param>
-    ''' <param name="PropertyNames"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function GetPropertyAsQueryStringParameter(Of T)(Obj As IEnumerable(Of T), ParamArray PropertyNames As String()) As String
-        Dim txt = ""
-        For Each i In Obj
-            txt &= i.GetPropertyAsQueryStringParameter(PropertyNames)
-        Next
-        Return txt
-    End Function
+
+
 
     ''' <summary>
     ''' Remove um item de uma lista e retorna este item
@@ -237,24 +190,7 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
-    ''' <summary>
-    ''' Copia os valores de um dicionário para as propriedades de uma classe
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <typeparam name="v"></typeparam>
-    ''' <param name="Dic"></param>
-    ''' <param name="Obj"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function Map(Of T As Class, v)(Dic As Dictionary(Of String, v), Optional ByRef Obj As T = Nothing) As T
-        Obj = If(Obj, Activator.CreateInstance(Of T))
-        Dim props = Obj.GetProperties
-        For Each k In Dic
-            If Obj.HasProperty(k.Key) Then
-                Obj.SetPropertyValue(k.Key, Conversion.CTypeDynamic(k.Value, props.SingleOrDefault(Function(i) i.Name = k.Key).PropertyType))
-            End If
-        Next
-        Return Obj
-    End Function
+
 
     ''' <summary>
     ''' Mapeia os objetos de um datareader para uma classe
@@ -289,29 +225,8 @@ Public Module ClassTools
         Return l
     End Function
 
-    ''' <summary>
-    ''' Adiciona uma fonte a uma PrivateFontCollection a partir de um Resource
-    ''' </summary>
-    ''' <param name="FontCollection">Colecao</param>
-    <Extension()> Public Sub AddFontFromBytes(ByRef FontCollection As PrivateFontCollection, FontBytes As Byte())
-        Dim fontData = Marshal.AllocCoTaskMem(FontBytes.Length)
-        Marshal.Copy(FontBytes, 0, fontData, FontBytes.Length)
-        FontCollection.AddMemoryFont(fontData, FontBytes.Length)
-        Marshal.FreeCoTaskMem(fontData)
-    End Sub
 
-    ''' <summary>
-    ''' Adiciona uma fonte a uma PrivateFontCollection a partir de um Resource
-    ''' </summary>
-    ''' <param name="FontCollection">Colecao</param>
-    ''' <param name="FileName">      Nome do arquivo da fonte</param>
-    <Extension()> Public Sub AddFontFromResource(ByRef FontCollection As PrivateFontCollection, Assembly As Assembly, FileName As String)
-        Dim fontBytes = Assembly.GetResourceBytes(FileName)
-        Dim fontData = Marshal.AllocCoTaskMem(fontBytes.Length)
-        Marshal.Copy(fontBytes, 0, fontData, fontBytes.Length)
-        FontCollection.AddMemoryFont(fontData, fontBytes.Length)
-        Marshal.FreeCoTaskMem(fontData)
-    End Sub
+
 
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -418,11 +333,11 @@ Public Module ClassTools
     <Extension()> Public Function ContainsAll(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
         For Each value As Type In List2
             If Comparer Is Nothing Then
-                If IsNothing(List1) OrElse IsNothing(List2) OrElse Not List1.Contains(value) Then
+                If Not List1.Contains(value) Then
                     Return False
                 End If
             Else
-                If IsNothing(List1) OrElse IsNothing(List2) OrElse Not List1.Contains(value, Comparer) Then
+                If Not List1.Contains(value, Comparer) Then
                     Return False
                 End If
             End If
@@ -452,11 +367,11 @@ Public Module ClassTools
     <Extension()> Public Function ContainsAny(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
         For Each value As Type In List2
             If Comparer Is Nothing Then
-                If Not IsNothing(List1) AndAlso List1.Contains(value) Then
+                If List1.Contains(value) Then
                     Return True
                 End If
             Else
-                If Not IsNothing(List1) AndAlso List1.Contains(value, Comparer) Then
+                If List1.Contains(value, Comparer) Then
                     Return True
                 End If
             End If
@@ -464,32 +379,7 @@ Public Module ClassTools
         Return False
     End Function
 
-    ''' <summary>
-    ''' Copia os valores de um <see cref="NameValueCollection"/> para um objeto de um tipo especifico
-    ''' </summary>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
-    ''' <param name="Collection">Colecao</param>
-    ''' <returns></returns>
-    <Extension()> Public Function CopyToObject(Of Type As Class)(Collection As NameValueCollection, ByRef Obj As Type, ParamArray Keys As String()) As Type
 
-        Dim PROPS = Obj.GetProperties
-        If IsNothing(Keys) OrElse Keys.LongCount = 0 Then Keys = Collection.AllKeys
-        For Each key As String In Collection.Keys
-            If key.IsIn(Keys) And key.IsIn(PROPS.Select(Function(p) p.Name)) Then
-                For Each prop In PROPS
-                    Try
-                        If prop.PropertyType.IsArray Then
-                            prop.SetValue(Obj, Conversion.CTypeDynamic(Collection.GetValues(prop.Name), prop.PropertyType))
-                        Else
-                            prop.SetValue(Obj, Conversion.CTypeDynamic(Collection(prop.Name), prop.PropertyType))
-                        End If
-                    Catch ex As Exception
-                    End Try
-                Next
-            End If
-        Next
-        Return Obj
-    End Function
 
     ''' <summary>
     ''' Converte uma classe para um <see cref="Dictionary"/>
@@ -501,17 +391,7 @@ Public Module ClassTools
         Return Obj.[GetType]().GetProperties(BindingFlags.Instance Or BindingFlags.[Public]).ToDictionary(Function(prop) prop.Name, Function(prop) prop.GetValue(Obj, Nothing))
     End Function
 
-    ''' <summary>
-    ''' Cria um objeto de um tipo especifico a partir de um <see cref="NameValueCollection"/>
-    ''' </summary>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
-    ''' <param name="Collection">Colecao</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function CreateObject(Of Type As Class)(Collection As NameValueCollection, ParamArray Keys As String()) As Type
-        Dim obj = Activator.CreateInstance(Of Type)()
-        Return CopyToObject(Of Type)(Collection, obj, Keys)
-    End Function
+
 
     ''' <summary>
     ''' Conta de maneira distinta items de uma coleçao
@@ -626,15 +506,7 @@ Public Module ClassTools
         Return If(source.FirstAny(predicate), Alternate)
     End Function
 
-    ''' <summary>
-    ''' Cria um unico <see cref="NamevalueCollection"/> a partir de um
-    ''' <see cref="HttpRequest.QueryString"/> e um <see cref="HttpRequest.Form"/>
-    ''' </summary>
-    ''' <param name="Request">HttpRequest</param>
-    ''' <returns></returns>
-    <Extension()> Public Function ToFlatRequest(Request As HttpRequest) As NameValueCollection
-        Return ClassTools.Merge(Request.QueryString, Request.Form)
-    End Function
+
 
     <Extension()>
     Function GetAttributeValue(Of TAttribute As Attribute, TValue)(ByVal type As Type, ByVal ValueSelector As Func(Of TAttribute, TValue)) As TValue
@@ -808,86 +680,10 @@ Public Module ClassTools
         Return {}
     End Function
 
-    ''' <summary>
-    ''' Traz o valor de uma propriedade de um objeto
-    ''' </summary>
-    ''' <param name="MyObject">    Objeto</param>
-    ''' <param name="PropertyName">Nome da properiedade</param>
-    ''' <param name="Type">        Tipo do Objeto</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function GetPropertyValue(MyObject As Object, PropertyName As String, Type As Type, Optional GetPrivate As Boolean = False)
-        Try
-            Dim obj = MyObject
-            Dim parts = New List(Of String)()
-            Dim [stop] = False
-            Dim current = ""
 
-            For i As Integer = 0 To PropertyName.Length - 1
-                If PropertyName(i) <> "."c Then current &= (PropertyName(i))
-                If PropertyName(i) = "("c Then [stop] = True
-                If PropertyName(i) = ")"c Then [stop] = False
-                If (PropertyName(i) = "."c AndAlso Not [stop]) OrElse i = PropertyName.Length - 1 Then
-                    parts.Add(current.ToString())
-                    current = ""
-                End If
-            Next
 
-            For Each part As String In parts
-                If MyObject Is Nothing Then
-                    Return Nothing
-                End If
-                Dim t = obj.[GetType]()
-                If t.IsValueType Or t = GetType(String) Then
-                    Return MyObject
-                End If
-                Dim info As PropertyInfo
-                If GetPrivate Then
-                    info = ClassTools.GetProperties(obj, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).FirstOrDefault
-                Else
-                    info = ClassTools.GetProperties(obj).Where(Function(x) x.Name.ToLower = part.GetBefore("(").ToLower).FirstOrDefault
-                End If
-                If info Is Nothing Then
-                    Return Nothing
-                End If
 
-                If part.RemoveFirstIf(info.Name).StartsWith("(") Then
-                    Dim allparams = obj.GetType().GetPropertyParametersFromString(part)
-                    obj = info.GetValue(obj, allparams)
-                Else
 
-                    obj = info.GetValue(obj)
-                End If
-            Next
-            Return Conversion.CTypeDynamic(obj, Type)
-        Catch ex As Exception
-            Debug.WriteLine(ex)
-            Return Nothing
-        End Try
-    End Function
-
-    ''' <summary>
-    ''' Traz o valor de uma propriedade de um objeto
-    ''' </summary>
-    ''' <param name="MyObject">    Objeto</param>
-    ''' <param name="PropertyName">Nome da properiedade</param>
-    ''' <typeparam name="Type">Tipo do Objeto</typeparam>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function GetPropertyValue(Of Type)(MyObject As Object, PropertyName As String, Optional GetPrivate As Boolean = False) As Type
-        Return GetPropertyValue(MyObject, PropertyName, GetType(Type), GetPrivate)
-    End Function
-
-    ''' <summary>
-    ''' Traz o valor de uma propriedade de um objeto
-    ''' </summary>
-    ''' <param name="MyObject">    Objeto</param>
-    ''' <param name="PropertyName">Nome da properiedade</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function GetPropertyValue(MyObject As Object, PropertyName As String, Optional GetPrivate As Boolean = True) As Object
-        Return GetPropertyValue(Of Object)(MyObject, PropertyName, GetPrivate)
-    End Function
 
     ''' <summary>
     ''' Pega os bytes de um arquivo embutido no assembly
@@ -916,16 +712,7 @@ Public Module ClassTools
         End Using
     End Function
 
-    ''' <summary>
-    ''' Pega o texto de um arquivo embutido no assembly
-    ''' </summary>
-    ''' <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
-    ''' <returns></returns>
-    <Extension()> Public Function GetResourceHtmlDocument(Assembly As Assembly, FileName As String) As HtmlDocument
-        Using d As New StreamReader(Assembly.GetManifestResourceStream(FileName))
-            Return New HtmlDocument(d.ReadToEnd)
-        End Using
-    End Function
+
 
     <Extension()>
     Function GetValueOr(Of tkey, Tvalue)(Dic As IDictionary(Of tkey, Tvalue), Key As tkey, Optional ReplaceValue As Tvalue = Nothing) As Tvalue
@@ -1053,9 +840,9 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function IsIn(Of Type)(Obj As Type, Text As String, Optional Comparer As IEqualityComparer(Of Char) = Nothing) As Boolean
         If Comparer Is Nothing Then
-            Return Not IsNothing(Obj) AndAlso Text.Contains(Obj.ToString)
+            Return Text.Contains(Obj.ToString)
         Else
-            Return Not IsNothing(Obj) AndAlso Text.Contains(Obj.ToString, Comparer)
+            Return Text.Contains(Obj.ToString, Comparer)
         End If
     End Function
 
@@ -1107,9 +894,9 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function IsNotIn(Of Type)(Obj As Type, Text As String, Optional Comparer As IEqualityComparer(Of Char) = Nothing) As Boolean
         If Comparer Is Nothing Then
-            Return IsNothing(Obj) OrElse Text.Contains(Obj.ToString)
+            Return Text.Contains(Obj.ToString)
         Else
-            Return IsNothing(Obj) OrElse Text.Contains(Obj.ToString, Comparer)
+            Return Text.Contains(Obj.ToString, Comparer)
         End If
     End Function
 
@@ -1177,27 +964,7 @@ Public Module ClassTools
         Return all
     End Function
 
-    ''' <summary>
-    ''' Mescla varios tipos de objeto em um unico dicionario a partir de suas propriedades
-    ''' </summary>
-    ''' <param name="Items"></param>
-    ''' <returns></returns>
-    Public Function MergeProperties(ParamArray Items As Object()) As Dictionary(Of String, Object)
-        Dim result As New Dictionary(Of String, Object)
-        For Each item In Items
-            If IsDictionary(item) Then
-                Dim dic = CType(item, IDictionary)
-                For Each k In dic.Keys
-                    result(k) = dic(k)
-                Next
-            Else
-                For Each fi As PropertyInfo In GetProperties(item)
-                    result(fi.Name) = GetPropertyValue(item, fi.Name)
-                Next
-            End If
-        Next
-        Return result
-    End Function
+
 
     ''' <summary>
     ''' Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
@@ -1259,23 +1026,7 @@ Public Module ClassTools
         Return Nothing
     End Function
 
-    ''' <summary>
-    ''' Transforma todas as propriedades String em NULL quando suas estiverem em branco
-    ''' </summary>
-    ''' <typeparam name="Type"></typeparam>
-    ''' <param name="Obj"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function NullifyProperties(Of Type)(Obj As Type) As Type
-        For Each prop In Obj.GetProperties
-            Try
-                If Obj.GetPropertyValue(prop.Name).ToString.IsBlank Then
-                    prop.SetValue(Obj, Nothing)
-                End If
-            Catch ex As Exception
-            End Try
-        Next
-        Return Obj
-    End Function
+
 
     ''' <summary>
     ''' Remove de um dicionario as respectivas Keys se as mesmas existirem
@@ -1325,27 +1076,6 @@ Public Module ClassTools
         GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.SetValue(MyObject, Collection(PropertyName))
     End Sub
 
-    ''' <summary>
-    ''' Retorna o objeto em seu formato padrão de String, ou serializa o objeto em Json se o mesmo
-    ''' não possuir formato em string
-    ''' </summary>
-    ''' <param name="obj">       </param>
-    ''' <param name="DateFormat"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function ToFlatString(Obj As Object, Optional DateFormat As String = "") As String
 
-        Select Case Obj.GetType
-            Case GetType(DateTime), GetType(Date)
-                Return CType(Obj, Date).ToString(DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss"))
-            Case GetType(String), GetType(Integer), GetType(Long), GetType(Short), GetType(Double), GetType(Decimal), GetType(Money), GetType(HtmlDocument), GetType(HtmlElement)
-                Return Obj.ToString
-            Case Else
-                If (Obj.GetType.GetMethod("ToString").DeclaringType IsNot GetType(Object)) Then
-                    Return Obj.ToString
-                Else
-                    Return OldJsonSerializer.SerializeJSON(Obj)
-                End If
-        End Select
-    End Function
 
 End Module

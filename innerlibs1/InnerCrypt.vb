@@ -15,10 +15,10 @@ Public Module InnerCrypt
         Dim letras = Text.ToArray()
         Dim num As New List(Of String)
         For Each c In letras
-            Dim ll = Asc(c).ToString
+            Dim ll = AscW(c).ToString
             Dim i As Integer = ll.GetFirstChars(1).IfBlank(1) + ll.GetLastChars(1).IfBlank(1)
             i = i.LimitRange(0, letrasc.Length - 1)
-            num.Add(letrasc(i) & Math.Pow(Asc(c), 3 * Seed.SetMinValue(1)))
+            num.Add(letrasc(i) & Math.Pow(AscW(c), 3 * Seed.SetMinValue(1)))
         Next
         num.Reverse()
         Return num.Join("")
@@ -35,7 +35,7 @@ Public Module InnerCrypt
             Dim num = EncryptedText.Split(letrasc, StringSplitOptions.RemoveEmptyEntries)
             Dim letras As New List(Of Char)
             For Each n In num
-                letras.Add(Chr(n ^ (1 / (3 * Seed.SetMinValue(1)))))
+                letras.Add(ChrW(n ^ (1 / (3 * Seed.SetMinValue(1)))))
             Next
             letras.Reverse()
             Return letras.Join("")

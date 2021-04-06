@@ -3,7 +3,7 @@ Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Web
+
 
 ''' <summary>
 ''' Classe para Extrair informaçoes de uma DATAURL
@@ -198,7 +198,7 @@ Public Module Base64
     ''' <param name="Image">Imagem</param>
     ''' <returns>Uma DataURI em string</returns>
     <Extension()>
-    Public Function ToDataURL(Image As Image) As String
+    Public Function ToDataURL(Image As System.Drawing.Image) As String
         Return "data:" & Image.GetFileType.First.ToLower.Replace("application/octet-stream", GetFileType(".png").First) & ";base64," & Image.ToBase64()
     End Function
 
@@ -251,7 +251,7 @@ Public Module Base64
 
     <Extension()>
     Public Function ToBase64(ImageURL As Uri) As String
-        Dim imagem As System.Drawing.Image = AJAX.GET(Of Image)(ImageURL.AbsoluteUri)
+        Dim imagem As System.Drawing.Image = GetImage(ImageURL.AbsoluteUri)
         Using m As New MemoryStream()
             imagem.Save(m, imagem.RawFormat)
             Dim imageBytes As Byte() = m.ToArray()
@@ -306,15 +306,6 @@ Public Module Base64
         End Try
     End Function
 
-    ''' <summary>
-    ''' Converte um httpPostedFile para imagem
-    ''' </summary>
-    ''' <param name="PostedFile">Arquivo HttpPostedFile</param>
-    ''' <returns>uma Image</returns>
-    <Extension>
-    Public Function ToImage(PostedFile As HttpPostedFile) As Image
-        Return Image.FromStream(PostedFile.InputStream)
-    End Function
 
     ''' <summary>
     ''' Converte um array de bytes para imagem
@@ -328,32 +319,9 @@ Public Module Base64
         End Using
     End Function
 
-    ''' <summary>
-    ''' Converte um arquivo em HttpPostedFile para String Base64
-    ''' </summary>
-    ''' <param name="PostedFile">Arquivo</param>
-    ''' <param name="DataUrl">Especifica se a resposta deve ser em DataURI ou apenas a Base64</param>
-    ''' <returns>Uma string em formato Base64</returns>
-    <Extension>
-    Public Function ToBase64(PostedFile As HttpPostedFile, Optional DataUrl As Boolean = False) As String
 
-        Dim input As Stream = PostedFile.InputStream
-        Dim streamLength As Integer = Convert.ToInt32(input.Length)
-        Dim fileData As Byte() = New Byte(streamLength) {}
-        input.Read(fileData, 0, streamLength)
-        Return If(DataUrl, "data:" & PostedFile.ContentType.ToLower() & ";base64," & Convert.ToBase64String(fileData.ToArray()), Convert.ToBase64String(fileData.ToArray()))
 
-    End Function
 
-    ''' <summary>
-    ''' Converte uma Imagem dem HttpPostedFile para uma Data URI
-    ''' </summary>
-    ''' <param name="PostedFile">Arquivo de Imagem</param>
-    ''' <returns>Uma data URI Base64</returns>
-    <Extension>
-    Public Function ToDataURL(PostedFile As HttpPostedFile) As String
-        Return PostedFile.ToBase64(True)
-    End Function
 
     ''' <summary>
     ''' Converte uma DATAURL ou Base64 String em um array de Bytes

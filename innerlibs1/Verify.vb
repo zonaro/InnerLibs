@@ -10,20 +10,7 @@ Imports System.Web
 ''' <remarks></remarks>
 Public Module Verify
 
-    ''' <summary>
-    ''' Verifica se o texto é um JSON valido
-    ''' </summary>
-    ''' <typeparam name="Type"></typeparam>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function IsJson(Of Type)(Text As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As Boolean
-        Try
-            ParseJSON(Of Type)(Text, DateFormat)
-            Return True
-        Catch ex As Exception
-            Return False
-        End Try
-    End Function
+
 
     ''' <summary>
     ''' Verifica se a string é um CNH válido
@@ -246,14 +233,7 @@ Public Module Verify
         Return New Regex("\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", RegexOptions.Singleline + RegexOptions.IgnoreCase).IsMatch(Text.RemoveAny("(", ")"))
     End Function
 
-    ''' <summary>
-    ''' Verifica se a aplicação está rodando como administrador
-    ''' </summary>
-    ''' <returns>TRUE ou FALSE</returns>
 
-    Public Function IsRunningAsAdministrator() As Boolean
-        Return New WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator)
-    End Function
 
     ''' <summary>
     ''' Verifica se o arquivo está em uso por outro procedimento
@@ -340,66 +320,8 @@ Public Module Verify
 
     End Function
 
-    ''' <summary>
-    ''' Verifica se o User Agent da requisição é um dispositivel móvel (Celulares e Tablets)
-    ''' </summary>
-    ''' <param name="HttpRequest">Requisição HTTP</param>
-    ''' <returns>TRUE para mobile ou FALSE para desktop</returns>
-    <Extension()>
-    Public Function IsMobile(HttpRequest As HttpRequest) As Boolean
-        Return HttpRequest.UserAgent.ToLower.ContainsAny("iphone", "ppc", "windows ce", "blackberry", "opera mini", "mobile", "palm", "portable", "opera mobi", "android", "phone")
-    End Function
 
-    ''' <summary>
-    ''' Verifica se o User Agent da requisição é um Ipad
-    ''' </summary>
-    ''' <param name="HttpRequest">Requisição HTTP</param>
-    ''' <returns>TRUE para ipad ou FALSE para outro dispositivo</returns>
 
-    <Extension()>
-    Public Function IsIpad(HttpRequest As HttpRequest) As Boolean
-        Return HttpRequest.UserAgent.ToLower.Contains("ipad")
-    End Function
-
-    ''' <summary>
-    ''' Verifica se o User Agent da requisição é um Android
-    ''' </summary>
-    ''' <param name="HttpRequest">Requisição HTTP</param>
-    ''' <returns>TRUE para ipad ou FALSE para outro dispositivo</returns>
-
-    <Extension()>
-    Public Function IsAndroid(HttpRequest As HttpRequest) As Boolean
-        Return HttpRequest.UserAgent.ToLower.Contains("android") And Not HttpRequest.IsIpad
-    End Function
-
-    ''' <summary>
-    ''' Verifica se o User Agent da requisição é um PC/NOTEBOOK/MAC
-    ''' </summary>
-    ''' <param name="HttpRequest">Requisição HTTP</param>
-    ''' <returns>TRUE para desktops, FALSE para mobile</returns>
-
-    <Extension()> Public Function IsDesktop(HttpRequest As HttpRequest) As Boolean
-        Return Not HttpRequest.IsMobile() And Not HttpRequest.IsIpad()
-    End Function
-
-    ''' <summary>
-    ''' Verifica se um valor é NULO e prepara a string para uma query TransactSQL
-    ''' </summary>
-    ''' <param name="Text">        Valor a ser testado</param>
-    ''' <param name="DefaultValue">Valor para retornar se o valor testado for Nulo, Vazio ou branco</param>
-    ''' <param name="Quotes">
-    ''' Indica se o valor testado deve ser retornado entre aspas simples (prepara a string para SQL)
-    ''' </param>
-    ''' <returns>uma String contento o valor ou o valor se Nulo</returns>
-    <Extension()>
-    Public Function IsNull(Text As String, Optional DefaultValue As String = Nothing, Optional Quotes As Boolean = True) As String
-        DefaultValue = If(DefaultValue, "NULL")
-        If Not String.IsNullOrWhiteSpace(Text) Then
-            Return If(Quotes, Text.EscapeQuotesToQuery.Quote("'"), Text)
-        Else
-            Return DefaultValue
-        End If
-    End Function
 
     ''' <summary>
     ''' Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir
@@ -486,7 +408,7 @@ Public Module Verify
     ''' <returns></returns>
     <Extension()>
     Public Function IfBlank(Of T)(ByVal Value As Object, Optional ValueIfBlank As T = Nothing) As T
-        If IsNothing(Value) Then
+        If Nothing = (Value) Then
             Return ValueIfBlank
         Else
             Dim blankas As Boolean
@@ -514,7 +436,7 @@ Public Module Verify
                 Case GetType(TimeSpan)
                     blankas = (Value = TimeSpan.MinValue)
                 Case Else
-                    blankas = (IsNothing(Value))
+                    blankas = (Nothing = (Value))
             End Select
             Return If(blankas, CType(ValueIfBlank, T), CType(Value, T))
         End If
@@ -574,6 +496,24 @@ Public Module Verify
         Return Value
     End Function
 
+    Public Function IsDate(Obj As String) As Boolean
+        Try
+            Dim d As Date
+            Return Date.TryParse(Obj, d)
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+
+    Public Function IsArray(Obj As Object) As Boolean
+        Try
+            Dim ValueType = Obj.GetType()
+            Return ValueType.IsArray 'AndAlso GetType(T).IsAssignableFrom(ValueType.GetElementType())
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+
     ''' <summary>
     ''' Verifica se um <see cref="IEnumerable"/> é nulo ou está vazio
     ''' </summary>
@@ -581,7 +521,7 @@ Public Module Verify
     ''' <param name="Col">Colecao</param>
     ''' <returns></returns>
     <Extension()> Public Function IsEmpty(Of T)(Col As IEnumerable(Of T)) As Boolean
-        Return Not IsNothing(Col) AndAlso Col.Count > 0
+        Return Not (Col) Is Nothing AndAlso Col.Count > 0
     End Function
 
     ''' <summary>
@@ -591,7 +531,7 @@ Public Module Verify
     ''' <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
     <Extension>
     Public Function IsBlank(Text As String) As Boolean
-        Return IsNothing(Text) OrElse String.IsNullOrWhiteSpace(Text.RemoveAny(Environment.NewLine))
+        Return Nothing = (Text) OrElse String.IsNullOrWhiteSpace(Text.RemoveAny(Environment.NewLine))
     End Function
 
     ''' <summary>

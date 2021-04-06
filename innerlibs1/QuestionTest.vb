@@ -81,7 +81,7 @@ Namespace QuestionTest
         ''' Retorna as questões desta avaliação
         ''' </summary>
         ''' <returns></returns>
-        <Editor(GetType(QuestionEditor), GetType(System.Drawing.Design.UITypeEditor))>
+
         Public ReadOnly Property Questions As QuestionTest
             Get
                 Return Me
@@ -308,25 +308,7 @@ Namespace QuestionTest
             Me.MinimumWeightAllowed = CalculateValueFromPercent(Percent, Me.Weight)
         End Sub
 
-        ''' <summary>
-        ''' Monta uma prova HTML
-        ''' </summary>
-        ''' <returns></returns>
-        <ScriptIgnore>
-        <Category("HTML"), Description("Estrutura HTML gerada automaticamente")>
-        ReadOnly Property HTML As HtmlDocument
-            Get
-                Dim head = ""
-                head &= Title.WrapInTag("title").ToString.WrapInTag("head").ToString
 
-                Dim body = (Title.WrapInTag("h1").ToString & (Header.WrapInTag("header").ToString))
-
-                body &= Me.Select(Function(q) q.HTML).ToArray.Join("").WrapInTag("ol").ToString.WrapInTag("article").Class.Add("Questions").ToString
-
-                Dim foot = Footer.WrapInTag("footer").ToString
-                Return New HtmlDocument(head & body & foot)
-            End Get
-        End Property
 
     End Class
 
@@ -349,7 +331,7 @@ Namespace QuestionTest
         ''' Teste a qual esta questão pertence
         ''' </summary>
         ''' <returns></returns>
-        <ScriptIgnore>
+
         Public ReadOnly Property Test As QuestionTest
             Get
                 Return _test
@@ -440,12 +422,7 @@ Namespace QuestionTest
             End Set
         End Property
 
-        ''' <summary>
-        '''  HTML referente a essa questão
-        ''' </summary>
-        ''' <returns></returns>
-        <ScriptIgnore>
-        MustOverride ReadOnly Property HTML As String
+
 
         ''' <summary>
         ''' Indica se esta questão foi revisada pelo professor
@@ -461,7 +438,7 @@ Namespace QuestionTest
     Public Class StatementImages
         Inherits List(Of StatementImage)
 
-        <ScriptIgnore>
+
         ReadOnly Property Statement As QuestionStatement
 
         Friend Sub New(Statement As QuestionStatement)
@@ -480,12 +457,8 @@ Namespace QuestionTest
             i.Subtitle = Subtitle
         End Sub
 
-        <ScriptIgnore>
-        ReadOnly Property HTML As String
-            Get
-                Return Me.Select(Function(i) i.HTML).ToArray().Join("").WrapInTag("ul").ToString
-            End Get
-        End Property
+
+
 
         Public Overrides Function ToString() As String
             Return Me.Count
@@ -499,7 +472,7 @@ Namespace QuestionTest
     <TypeConverter(GetType(ExpandableObjectConverter))>
     Public Class QuestionStatement
 
-        <ScriptIgnore>
+
         ReadOnly Property Question As Question
             Get
                 Return _question
@@ -533,22 +506,7 @@ Namespace QuestionTest
             Return Me.Text
         End Function
 
-        <ScriptIgnore>
-        ReadOnly Property HTML As String
-            Get
-                HTML = ""
-                If Question IsNot Nothing Then
-                    HTML &= (Text.WrapInTag("h3").ToString)
-                    If Images.Count > 0 Then
-                        HTML &= (Images.HTML)
-                    End If
-                    Dim otr = HTML.WrapInTag("label").Class.Add("Statement")
-                    otr.Attributes.Add("for", Me.Question.ID)
-                    HTML = otr.ToString()
-                End If
-                Return HTML
-            End Get
-        End Property
+
 
     End Class
 
@@ -573,10 +531,10 @@ Namespace QuestionTest
             Me.StatementImages = l
         End Sub
 
-        <ScriptIgnore>
+
         ReadOnly Property StatementImages As StatementImages
 
-        <ScriptIgnore>
+
         Public ReadOnly Property HTML As String
             Get
                 If StatementImages IsNot Nothing Then
@@ -641,23 +599,6 @@ Namespace QuestionTest
             End Get
         End Property
 
-        <ScriptIgnore>
-        Public Overrides ReadOnly Property HTML As String
-            Get
-                If Test IsNot Nothing Then
-                    Dim mElement = New HtmlInputElement(HtmlInputElement.HtmlInputElementType.number)
-                    mElement.Value = Me.Answer
-                    mElement.ID = ID
-                    mElement.Attribute("name") = ID
-                    mElement.Attribute("min") = MinValue
-                    mElement.Attribute("max") = MaxValue
-                    mElement.Class.Add("Numeric")
-                    Return (Statement.HTML & mElement.ToString.WrapInTag("div").ToString).WrapInTag("li").Class.Add("Question").ToString
-                End If
-                Return ""
-            End Get
-        End Property
-
     End Class
 
     ''' <summary>
@@ -666,21 +607,8 @@ Namespace QuestionTest
     Public Class DissertativeQuestion
         Inherits Question
 
-        <ScriptIgnore>
-        Overrides ReadOnly Property HTML As String
-            Get
-                If Test IsNot Nothing Then
-                    Dim mElement = New HtmlElement("textarea")
-                    mElement.Attribute("rows") = Lines
-                    mElement.ID = ID
-                    mElement.Attribute("name") = ID
-                    mElement.Class.Add("Dissertative")
-                    mElement.IsExplicitlyTerminated = True
-                    Return (Statement.HTML & mElement.ToString.WrapInTag("div").ToString).WrapInTag("li").Class.Add("Question").ToString
-                End If
-                Return ""
-            End Get
-        End Property
+
+
 
         ''' <summary>
         ''' Resposta dissertativa da pergunta
@@ -781,11 +709,7 @@ Namespace QuestionTest
             End Get
         End Property
 
-        Public Overrides ReadOnly Property HTML As String
-            Get
-                Return Me.Alternatives.HTML
-            End Get
-        End Property
+
 
 
     End Class
@@ -915,18 +839,11 @@ Namespace QuestionTest
             End If
         End Sub
 
-        <ScriptIgnore>
+
         ReadOnly Property Question As AlternativeQuestion
 
-        <ScriptIgnore>
-        Public ReadOnly Property HTML As String
-            Get
-                If Question IsNot Nothing Then
-                    Return Me.Select(Function(p) p.HTML).ToArray.Join("").WrapInTag(If(Question.RenderAsSelect, "select", "ol")).AddAttribute(If(Question.RenderAsSelect AndAlso Question.AllowMultiple, "multiple", "")).Class.Add("Alternatives").ToString
-                End If
-                Return ""
-            End Get
-        End Property
+
+
 
         Friend Sub New(l As AlternativeQuestion)
             Me.Question = l
@@ -1026,33 +943,9 @@ Namespace QuestionTest
             End Get
         End Property
 
-        <ScriptIgnore>
-        ReadOnly Property HTML As String
-            Get
-                If Question IsNot Nothing Then
-                    If _question.RenderAsSelect Then
-                        Dim el = New HtmlElement("option", Text)
-                        el.Class.Add("Alternative")
-                        el.Class.Add(If(Question.GetType Is GetType(SingleAlternativeQuestion), "Single", "Multiple"))
-                        el.AddAttribute("value", ID)
-                        el.ID = ID
-                        Return el.ToString()
-                    Else
-                        Dim el = New HtmlElement("input") With {.IsTerminated = True}
-                        el.Class.Add("Alternative")
-                        el.Class.Add(If(Question.GetType Is GetType(SingleAlternativeQuestion), "Single", "Multiple"))
-                        el.AddAttribute("type", If(Question.GetType Is GetType(SingleAlternativeQuestion), "radio", "checkbox"))
-                        el.ID = ID
-                        el.AddAttribute("name", Question.ID)
-                        el.AddAttribute("value", ID)
-                        Return el.ToString() & "<label for=" & ID.Quote & ">" & Text & "</label>"
-                    End If
-                End If
-                Return ""
-            End Get
-        End Property
 
-        <ScriptIgnore>
+
+
         ReadOnly Property Question As AlternativeQuestion
             Get
                 Return _question
@@ -1063,18 +956,6 @@ Namespace QuestionTest
 
     End Class
 
-    Public Class QuestionEditor
-        Inherits EnhancedCollectionEditor
 
-        Public Sub New(t As Type)
-            MyBase.New(t)
-
-            MyBase.FormCaption = "Question Editor"
-            MyBase.ShowPropGridHelp = False
-            MyBase.AllowMultipleSelect = False
-
-        End Sub
-
-    End Class
 
 End Namespace

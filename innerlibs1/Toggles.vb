@@ -27,14 +27,7 @@ Public Module Toggles
             Int = 1
         End If
     End Sub
-    ''' <summary>
-    ''' Inverte a visibilidade do form
-    ''' </summary>
-    ''' <param name="Form">Variavel INTEIRA que será invertida</param>
-    <Extension()>
-    Public Sub Toggle(ByRef Form As Form)
-        If Form.Visible Then Form.Hide() Else Form.Show()
-    End Sub
+
 
     ''' <summary>
     ''' Alterna uma String ente 2 valores diferentes

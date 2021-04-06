@@ -383,14 +383,7 @@ Public Class FullNumberWriter
         Next
     End Sub
 
-    ''' <summary>
-    ''' Cria um <see cref="FullNumberWriter"/> a partir de um JSON
-    ''' </summary>
-    ''' <param name="JsonString"></param>
-    ''' <returns></returns>
-    Public Shared Function CreateFromJSON(JsonString As String) As FullNumberWriter
-        Return JsonString.ParseJSON(Of FullNumberWriter)
-    End Function
+
 
     ''' <summary>
     ''' Escreve um numero por extenso
@@ -619,14 +612,6 @@ Public Class FullMoneyWriter
         End Get
     End Property
 
-    ''' <summary>
-    ''' Cria um <see cref="FullMoneyWriter"/> a partir de um JSON
-    ''' </summary>
-    ''' <param name="JsonString"></param>
-    ''' <returns></returns>
-    Public Overloads Shared Function CreateFromJSON(JsonString As String) As FullMoneyWriter
-        Return JsonString.ParseJSON(Of FullMoneyWriter)
-    End Function
 
 End Class
 
@@ -1070,7 +1055,7 @@ Public Module Text
         Dim l As New List(Of Boolean)
         If Values.Count > 0 Then
             For Each value In Values
-                l.Add(Not IsNothing(Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1)
+                l.Add(Not Nothing = (Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1)
             Next
         End If
         Return l.Most
@@ -1110,7 +1095,7 @@ Public Module Text
         Values = If(Values, {})
         If Values.Count > 0 Then
             For Each value As String In Values
-                If IsNothing(Text) OrElse Text.IndexOf(value, ComparisonType) = -1 Then
+                If Nothing = (Text) OrElse Text.IndexOf(value, ComparisonType) = -1 Then
                     Return False
                 End If
             Next
@@ -1142,7 +1127,7 @@ Public Module Text
         Values = If(Values, {})
         If Values.Count > 0 Then
             For Each value As String In If(Values, {})
-                If Not IsNothing(Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1 Then
+                If Not Nothing = (Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1 Then
                     Return True
                 End If
             Next
@@ -1404,8 +1389,8 @@ Public Module Text
     ''' <returns>Uma string com o valor posterior ao valor especificado.</returns>
     <Extension>
     Public Function GetAfter(Text As String, Value As String) As String
-        If IsNothing(Value) Then Value = ""
-        If IsNothing(Text) OrElse Text.IndexOf(Value) = -1 Then
+        If Nothing = (Value) Then Value = ""
+        If Nothing = (Text) OrElse Text.IndexOf(Value) = -1 Then
             Return "" & Text
         End If
         Return Text.Substring(Text.IndexOf(Value) + Value.Length)
@@ -1436,8 +1421,8 @@ Public Module Text
     ''' <returns>Uma string com o valor anterior ao valor especificado.</returns>
     <Extension>
     Public Function GetBefore(Text As String, Value As String) As String
-        If IsNothing(Value) Then Value = ""
-        If IsNothing(Text) OrElse Text.IndexOf(Value) = -1 Then
+        If Nothing = (Value) Then Value = ""
+        If Nothing = (Text) OrElse Text.IndexOf(Value) = -1 Then
             Return "" & Text
         End If
         Return Text.Substring(0, Text.IndexOf(Value))
@@ -1502,70 +1487,6 @@ Public Module Text
 
     End Function
 
-    ''' <summary>
-    ''' Extrai palavras chave de um texto seguindo critérios especificos.
-    ''' </summary>
-    ''' <param name="TextOrURL">       Texto principal ou URL</param>
-    ''' <param name="MinWordCount">    Minimo de aparições da palavra no texto</param>
-    ''' <param name="MinWordLenght">   Tamanho minimo da palavra</param>
-    ''' <param name="IgnoredWords">    palavras que sempre serão ignoradas</param>
-    ''' <param name="RemoveDiacritics">TRUE para remover acentos</param>
-    ''' <param name="ImportantWords">
-    ''' Palavras importantes. elas sempre serão adicionadas a lista de tags desde que não estejam nas <paramref name="IgnoredWords"/>
-    ''' </param>
-    ''' <returns></returns>
-    <Extension()> Function GetKeyWords(TextOrURL As String, Optional MinWordCount As Integer = 1, Optional MinWordLenght As Integer = 1, Optional LimitCollection As Integer = 0, Optional RemoveDiacritics As Boolean = True, Optional ByVal IgnoredWords As String() = Nothing, Optional ImportantWords As String() = Nothing) As Dictionary(Of String, Long)
-        Dim l As New List(Of String)
-
-        Dim tg As String = ""
-        Dim doc As HtmlDocument
-        Try
-            doc = New HtmlDocument(TextOrURL)
-
-            Dim kw = doc.FindElements(Function(e As HtmlParser.HtmlElement) e.Name = "meta" AndAlso e.Attribute("name").ToLower = "keywords")
-            For Each item As HtmlParser.HtmlElement In kw
-                l.AddRange(item.Attribute("content").Split(","))
-            Next
-
-            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("style", True)
-                node.Destroy()
-            Next
-
-            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("script", True)
-                node.Destroy()
-            Next
-
-            For Each node As HtmlParser.HtmlElement In doc.Nodes.GetElementsByTagName("head", True)
-                node.Destroy()
-            Next
-
-            If doc.Nodes.GetElementsByTagName("article", True).Count > 0 Then
-                TextOrURL = CType(doc.Nodes.GetElementsByTagName("article", True)(0), HtmlParser.HtmlElement).InnerHTML
-            ElseIf doc.Nodes.GetElementsByTagName("body", True).Count > 0 Then
-                TextOrURL = CType(doc.Nodes.GetElementsByTagName("body", True)(0), HtmlParser.HtmlElement).InnerHTML
-            Else
-                'texto limpo
-            End If
-
-            'comeca a extrair as palavras por quantidade
-            Dim palavras = TextOrURL.FixBreakLines.RemoveHTML.CountWords(RemoveDiacritics).Where(Function(p) Not p.IsNumber).ToArray
-            IgnoredWords = If(IgnoredWords, {}).ToArray
-            ImportantWords = If(ImportantWords, {}).Where(Function(p) Not p.IsIn(IgnoredWords)).ToArray
-            l.AddRange(ImportantWords)
-            ImportantWords = l.ToArray
-
-            If RemoveDiacritics Then
-                IgnoredWords = IgnoredWords.Select(Function(p) p.RemoveDiacritics).ToArray
-                ImportantWords = ImportantWords.Select(Function(p) p.RemoveDiacritics).ToArray
-            End If
-
-            palavras = palavras.Where(Function(p) p.Key.IsIn(ImportantWords)).Union(palavras.Where(Function(p) p.Key.Length >= MinWordLenght).Where(Function(p) p.Value >= MinWordCount).Where(Function(p) Not IgnoredWords.Contains(p.Key)).Take(If(LimitCollection < 1, palavras.Count, LimitCollection))).Distinct().OrderByDescending(Function(p) p.Value).ToArray
-            Return palavras.ToDictionary(Function(p) p.Key, Function(p) p.Value)
-        Catch ex As Exception
-            Debug.Write(ex)
-            Return New Dictionary(Of String, Long)
-        End Try
-    End Function
 
     <Extension()>
     Public Function GetLastChars(Text As String, Optional Number As Integer = 1) As String
@@ -1942,24 +1863,6 @@ Public Module Text
         Return CType(CType(Text.ParseDigits(Culture), Object), Type)
     End Function
 
-    ''' <summary>
-    ''' Transforma uma JSON String em um Objeto ou Classe
-    ''' </summary>
-    ''' <typeparam name="TypeClass">Objeto ou Classe</typeparam>
-    ''' <param name="JSON">String JSON</param>
-    ''' <returns>Um objeto do tipo T</returns>
-    <Extension()> Public Function ParseJSON(Of TypeClass)(JSON As String, Optional DateFormat As String = "yyyy-MM-dd HH:mm:ss") As TypeClass
-        Return JsonReader.JsonReader.Parse(Of TypeClass)(JSON)
-    End Function
-
-    ''' <summary>
-    ''' Transforma uma JSON String em um Objeto ou Classe
-    ''' </summary>
-    ''' <param name="JSON">String JSON</param>
-    ''' <returns>Um objeto do tipo T</returns>
-    <Extension()> Public Function ParseJSON(JSON As String) As Object
-        Return JsonReader.JsonReader.Parse(JSON)
-    End Function
 
     ''' <summary>
     ''' Retorna uma string em sua forma poop
@@ -2400,18 +2303,18 @@ Public Module Text
     ''' <summary>
     ''' Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
     ''' </summary>
-    <Extension> Public Function ReplaceFrom(ByVal Text As String, Dic As IDictionary(Of String, Object)) As String
+    <Extension> Public Function ReplaceFrom(Of T)(ByVal Text As String, Dic As IDictionary(Of String, T)) As String
         If Dic IsNot Nothing AndAlso Text.IsNotBlank Then
             For Each p In Dic
                 Select Case True
                     Case IsDictionary(p.Value)
                         Text = Text.ReplaceFrom(CType(p.Value, IDictionary(Of String, Object)))
-                    Case IsArray(p)
+                    Case GetType(T).IsAssignableFrom(GetType(Array))
                         For Each item In ForceArray(p.Value)
-                            Text = Text.ReplaceMany(p.Key, CType(p.Value, String()))
+                            Text = Text.ReplaceMany(p.Key, ForceArray(p.Value).Cast(Of String).ToArray())
                         Next
                     Case Else
-                        Text = Text.Replace(p.Key, p.Value)
+                        Text = Text.Replace(p.Key, p.Value.ToString())
                 End Select
 
             Next
@@ -2531,19 +2434,7 @@ Public Module Text
         Return Text
     End Function
 
-    ''' <summary>
-    ''' Transforma um Objeto em JSON utilizando o método ToJson() do objeto. Caso o método não existir, utiliza-se <see cref="OldJsonSerializer.SerializeJSON(Object)"/>
-    ''' </summary>
-    ''' <param name="Obj">Objeto</param>
-    ''' <returns>Uma String JSON</returns>
-    <Extension()> Public Function SerializeJSON(Obj As Object, ParamArray params As Object()) As String
-        Dim mds = Obj.GetType.GetMethods().Where(Function(x) x.ReturnType = GetType(String) AndAlso x.Name.ToLower.ContainsAny("tojson"))
-        If mds.Count > 0 Then
-            Return mds.First.Invoke(Obj, params)
-        Else
-            Return OldJsonSerializer.SerializeJSON(Obj)
-        End If
-    End Function
+
 
     ''' <summary>
     ''' Randomiza a ordem dos itens de um Array
@@ -2725,69 +2616,6 @@ Public Module Text
         Return Text.Shuffle().AdjustWhiteSpaces
     End Function
 
-    ''' <summary>
-    ''' Retorna uma lista com todos os anagramas de uma palavra (Metodo Lento)
-    ''' </summary>
-    ''' <param name="Text">Texto</param>
-    ''' <returns>Lista de anagramas</returns>
-    <Extension()> Public Function ToAnagramList(ByVal Text As String) As List(Of String)
-        ToAnagramList = New List(Of String) From {Text}
-        Dim i As Int32
-        Dim y As Int32
-        Dim x As Int32
-        Dim tempChar As String
-        Dim newString As String
-        Dim strings(,) As String
-        Dim rowCount As Long
-
-        If Text.Length < 2 Then
-            Exit Function
-        End If
-
-        'use the factorial function to determine the number of rows needed
-        'because redim preserve is slow
-        ReDim strings(Text.Length - 1, Factorial(Text.Length - 1) - 1)
-        strings(0, 0) = Text
-
-        'swap each character(I) from the second postion to the second to last position
-        For i = 1 To (Text.Length - 2)
-            'for each of the already created numbers
-            For y = 0 To rowCount
-                'do swaps for the character(I) with each of the characters to the right
-                For x = Text.Length To i + 2 Step -1
-                    tempChar = strings(0, y).Substring(i, 1)
-                    newString = strings(0, y)
-                    Mid(newString, i + 1, 1) = newString.Substring(x - 1, 1)
-                    Mid(newString, x, 1) = tempChar
-                    rowCount = rowCount + 1
-                    strings(0, rowCount) = newString
-                Next
-            Next
-        Next
-
-        'Shift Characters
-        'for each empty column
-        For i = 1 To Text.Length - 1
-            'move the shift character over one
-            For x = 0 To strings.GetUpperBound(1)
-                strings(i, x) = strings(i - 1, x)
-                Mid(strings(i, x), i, 1) = strings(i - 1, x).Substring(i, 1)
-                Mid(strings(i, x), i + 1, 1) = strings(i - 1, x).Substring(i - 1, 1)
-            Next
-        Next
-
-        Dim jagged As String()() = New String(strings.GetLength(0) - 1)() {}
-        For ii As Integer = 0 To strings.GetLength(0) - 1
-            jagged(ii) = New String(strings.GetLength(1) - 1) {}
-            For j As Integer = 0 To strings.GetLength(1) - 1
-                jagged(ii)(j) = strings(ii, j)
-            Next
-        Next
-        For Each item In jagged
-            ToAnagramList.AddRange(item)
-        Next
-        Return ToAnagramList.Distinct().OrderBy(Function(o) o).ToList()
-    End Function
 
     ''' <summary>
     ''' Transforma uma frase em uma palavra CamelCase
@@ -2892,32 +2720,9 @@ Public Module Text
         Return Text.Split({"/", "\"}, StringSplitOptions.RemoveEmptyEntries).Select(Function(x) x.ToFriendlyPathName).Join("/")
     End Function
 
-    ''' <summary>
-    ''' Transforma uma lista em uma lista HTML (OL ou UL)
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="List">       </param>
-    ''' <param name="OrdenedList"></param>
-    ''' <returns></returns>
-    <Extension> Public Function ToHtmlList(Of T)(List As IEnumerable(Of T), Optional OrdenedList As Boolean = False) As HtmlParser.HtmlElement
-        Return List.Select(Function(x) x.ToString.WrapInTag("li").ToString).Join("").WrapInTag(If(OrdenedList, "ol", "ul"))
-    End Function
 
-    ''' <summary>
-    ''' Transforma um HtmlGenericControl em uma stringHTML
-    ''' </summary>
-    ''' <param name="Control">Controle HTML</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function ToHtmlString(Control As HtmlGenericControl) As String
-        Dim c As New HtmlParser.HtmlElement(Control.TagName, Control.InnerHtml)
-        For Each k In Control.Attributes.Keys
-            If Not k = "innerhtml" Then
-                c.Attributes.Add(k, Control.Attributes(k))
-            End If
-        Next
-        Return c.ToString
-    End Function
+
+
 
     ''' <summary>
     ''' Converte um texo para Leet (1337)
@@ -3654,17 +3459,15 @@ Public Module Text
     <Extension()>
     Public Function ToProperCase(Text As String, Optional ForceCase As Boolean = False) As String
         If Text.IsBlank Then Return Text
-        If ForceCase Then
-            Return StrConv(Text, vbProperCase)
-        Else
-            Dim l = Text.Split(" ", StringSplitOptions.None).ToList
-            For index = 0 To l.Count - 1
-                Dim pal = l(index)
 
-                Dim artigo = index > 0 AndAlso pal.IsIn("o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e")
+        Dim l = Text.Split(" ", StringSplitOptions.None).ToList
+        For index = 0 To l.Count - 1
+            Dim pal = l(index)
 
+            Dim artigo = index > 0 AndAlso pal.IsIn("o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e")
 
-                If pal.IsNotBlank AndAlso artigo = False Then
+            If pal.IsNotBlank Then
+                If ForceCase OrElse artigo = False Then
                     Dim c = pal.First
 
                     If Not Char.IsUpper(c) Then
@@ -3673,9 +3476,10 @@ Public Module Text
 
                     l(index) = pal
                 End If
-            Next
-            Return l.SelectJoin(" ")
-        End If
+            End If
+        Next
+        Return l.SelectJoin(" ")
+
     End Function
 
     ''' <summary>
@@ -3900,16 +3704,5 @@ Public Module Text
         Return Text
     End Function
 
-    ''' <summary>
-    ''' Encapsula um texto dentro de um elemento HTML
-    ''' </summary>
-    ''' <param name="Text">   Texto</param>
-    ''' <param name="TagName">Nome da Tag (Exemplo: div)</param>
-    ''' <returns>Uma string HTML com seu texto dentro de uma tag</returns>
-    <Extension>
-    Function WrapInTag(Text As String, TagName As String) As HtmlParser.HtmlElement
-        TagName = TagName.RemoveAny("<", ">", "/").ToLower()
-        Return New HtmlParser.HtmlElement(TagName, Text)
-    End Function
 
 End Module

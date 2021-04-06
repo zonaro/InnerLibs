@@ -30,15 +30,7 @@ Public Module Encryption
         Return Text
     End Function
 
-    ''' <summary>
-    ''' Tenta reverter uma string MD5 para seu valor original
-    ''' </summary>
-    ''' <param name="Text">String MD5</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function TryReverseMD5(Text As String) As String
-        Return AJAX.Request(Of String)("http://md5.gromweb.com/query/" & Text)
-    End Function
+
 
 
     ''' <summary>

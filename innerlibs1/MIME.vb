@@ -5,6 +5,8 @@ Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Web.Script.Serialization
 Imports System.Windows.Forms
+Imports System.Xml
+Imports System.Xml.Serialization
 
 ''' <summary>
 ''' Módulo de manipulaçao de MIME Types
@@ -173,10 +175,13 @@ Public Class FileType
     ''' </summary>
     ''' <returns></returns>
     Public Shared Function GetFileTypeList() As FileTypeList
-        Dim r As String = [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.mimes.json")
-        Dim jss As New JavaScriptSerializer()
-        Dim dict = jss.Deserialize(Of List(Of FileType))(r)
-        Return New FileTypeList(dict)
+        Dim l = New List(Of FileType)
+        Dim r As String = [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.mimes.xml")
+        Using s = r.ToStream()
+            Dim serializer = New XmlSerializer(GetType(List(Of FileType)), New XmlRootAttribute("mimes"))
+            l = serializer.Deserialize(s)
+        End Using
+        Return New FileTypeList(l)
     End Function
 
     ''' <summary>
@@ -259,7 +264,7 @@ Public Class FileType
         Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower)
     End Sub
 
-    Private Sub Build(Extension As String)
+    Friend Sub Build(Extension As String)
         Dim item = GetFileType(Extension)
         Me.Extensions = item.Extensions
         Me.MimeTypes = item.MimeTypes
@@ -331,21 +336,8 @@ Public Class FileTypeList
         Return r.RemoveLastIf("|")
     End Function
 
-    ''' <summary>
-    ''' Aplica um filtro no OpenFileDialog
-    ''' </summary>
-    ''' <param name="Dialog">Dialogo</param>
-    Public Sub ApplyDialogFilter(ByRef Dialog As OpenFileDialog)
-        Dialog.Filter = Me.ToFilterString
-    End Sub
 
-    ''' <summary>
-    ''' Aplica um filtro no SaveFileDialog
-    ''' </summary>
-    ''' <param name="Dialog">Dialogo</param>
-    Public Sub ApplyDialogFilter(ByRef Dialog As SaveFileDialog)
-        Dialog.Filter = Me.ToFilterString
-    End Sub
+
 
     ''' <summary>
     ''' Busca arquivos que correspondam com as extensões desta lista

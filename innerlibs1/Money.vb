@@ -1,5 +1,5 @@
 ﻿Imports System.Globalization
-Imports System.Web.Script.Serialization
+
 Imports InnerLibs
 
 
@@ -40,41 +40,6 @@ Public Structure Money
         Me.Culture = GetCultureInfosByCurrencySymbol(ISOCurrencySymbol).FirstOrDefault
         Me.Region = New RegionInfo(Me.Culture.Name)
     End Sub
-
-
-
-    ''' <summary>
-    ''' Converte de uma moeda para a outra utilizando a api http://cryptonator.com
-    ''' </summary>
-    ''' <param name="Symbol">Simbolo de moeda, ISO ou nome da cultura</param>
-    ''' <returns></returns>
-    Function ConvertCurrency(Symbol As String) As Money
-        Dim cult = GetCultureInfosByCurrencySymbol(Symbol).FirstOrDefault
-        If cult.Equals(CultureInfo.InvariantCulture) Then
-            Return New Money(ConvertMoney(Symbol), Symbol)
-        Else
-            Return ConvertCurrency(cult)
-        End If
-    End Function
-
-    ''' <summary>
-    ''' Converte de uma moeda para a outra utilizando a api http://cryptonator.com
-    ''' </summary>
-    ''' <param name="Culture">Cultura</param>
-    ''' <returns></returns>
-    Function ConvertCurrency(Culture As CultureInfo) As Money
-        If Me.ISOCurrencySymbol.ToLower = New RegionInfo(Culture.Name).ISOCurrencySymbol.ToLower Then Return New Money(Me.Value, Culture)
-        Return New Money(ConvertMoney(New RegionInfo(Culture.Name).ISOCurrencySymbol.ToLower), Culture)
-    End Function
-
-    Private Function ConvertMoney(ToSymbol As String) As Decimal
-        If Not IsConnected() Then
-            Throw New Exception("Internet is not available to convert currency.")
-        End If
-        Dim rep = AJAX.GET(Of Object)("https://api.cryptonator.com/api/ticker/" & Me.ISOCurrencySymbol & "-" & ToSymbol.ToLower)
-
-        Return Me.Value * Convert.ToDecimal(rep("ticker")("price").ToString, New CultureInfo("en-US"))
-    End Function
 
 
     ''' <summary>
@@ -156,13 +121,13 @@ Public Structure Money
     ''' Região correspondente a essa moeda
     ''' </summary>
     ''' <returns></returns>
-    <ScriptIgnore>
+
     Property Region As RegionInfo
     ''' <summary>
     ''' Cultura correspondente a esta moeda
     ''' </summary>
     ''' <returns></returns>
-    <ScriptIgnore>
+
     Property Culture As CultureInfo
 
 
@@ -218,12 +183,7 @@ Public Structure Money
         Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
     End Operator
 
-    Public Shared Operator +(Value2 As Money, Value1 As Money) As Money
-        If Not Value1.ISOCurrencySymbol = Value2.ISOCurrencySymbol Then
-            Value1 = Value1.ConvertCurrency(Value2.ISOCurrencySymbol)
-        End If
-        Return New Money(Value1.Value + Value2.Value, Value2.ISOCurrencySymbol)
-    End Operator
+
 
     Public Shared Operator -(Value1 As Double, Value2 As Money) As Money
         Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
@@ -285,12 +245,7 @@ Public Structure Money
         Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
     End Operator
 
-    Public Shared Operator *(Value2 As Money, Value1 As Money) As Money
-        If Not Value1.ISOCurrencySymbol = Value2.ISOCurrencySymbol Then
-            Value1 = Value1.ConvertCurrency(Value2.ISOCurrencySymbol)
-        End If
-        Return New Money(Value1.Value * Value2.Value, Value2.ISOCurrencySymbol)
-    End Operator
+
 
     Public Shared Operator /(Value1 As Double, Value2 As Money) As Money
         Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
@@ -320,16 +275,8 @@ Public Structure Money
         Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
     End Operator
 
-    Public Shared Operator /(Value2 As Money, Value1 As Money) As Money
-        If Not Value1.ISOCurrencySymbol = Value2.ISOCurrencySymbol Then
-            Value1 = Value1.ConvertCurrency(Value2.ISOCurrencySymbol)
-        End If
-        Return New Money(Value1.Value / Value2.Value, Value2.ISOCurrencySymbol)
-    End Operator
 
-    Public Shared Operator =(Value2 As Money, Value1 As Money) As Boolean
-        Return Value1.Value = Value2.ConvertCurrency(Value1.ISOCurrencySymbol)
-    End Operator
+
 
     Public Shared Operator =(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 = Value2.Value
@@ -368,6 +315,10 @@ Public Structure Money
         Return Not Value1 = Value2
     End Operator
 
+    Public Shared Operator =(Value2 As Money, Value1 As Money) As Boolean
+        Return Not Value1.Value = Value2.Value
+    End Operator
+
     Public Shared Operator <>(Value1 As Double, Value2 As Money) As Boolean
         Return Not Value1 = Value2.Value
     End Operator
@@ -399,9 +350,6 @@ Public Structure Money
         Return Not Value1 = Value2.Value
     End Operator
 
-    Public Shared Operator >=(Value2 As Money, Value1 As Money) As Boolean
-        Return Value1.Value >= Value2.ConvertCurrency(Value1.ISOCurrencySymbol).Value
-    End Operator
 
     Public Shared Operator >=(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 >= Value2.Value
@@ -436,9 +384,7 @@ Public Structure Money
 
     End Operator
 
-    Public Shared Operator <=(Value2 As Money, Value1 As Money) As Boolean
-        Return Value1.Value <= Value2.ConvertCurrency(Value1.ISOCurrencySymbol).Value
-    End Operator
+
 
     Public Shared Operator <=(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 <= Value2.Value
@@ -473,9 +419,6 @@ Public Structure Money
 
     End Operator
 
-    Public Shared Operator >(Value2 As Money, Value1 As Money) As Boolean
-        Return Value1.Value > Value2.ConvertCurrency(Value1.ISOCurrencySymbol).Value
-    End Operator
 
     Public Shared Operator >(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 > Value2.Value
@@ -507,12 +450,9 @@ Public Structure Money
 
     Public Shared Operator >(Value1 As Long, Value2 As Money) As Boolean
         Return Value1 > Value2.Value
-
     End Operator
 
-    Public Shared Operator <(Value2 As Money, Value1 As Money) As Boolean
-        Return Value1.Value < Value2.ConvertCurrency(Value1.ISOCurrencySymbol).Value
-    End Operator
+
 
     Public Shared Operator <(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 < Value2.Value

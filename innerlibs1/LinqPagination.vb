@@ -1,11 +1,6 @@
-﻿Imports System.Collections.Specialized
-Imports System.Data.Linq
-Imports System.Data.Linq.Mapping
-Imports System.Linq.Expressions
+﻿Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
-Imports System.Web
-Imports System.Web.UI.HtmlControls
 
 Namespace LINQ
 
@@ -101,38 +96,7 @@ Namespace LINQ
             Return List.SingleOrDefault(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
         End Function
 
-        ''' <summary>
-        '''Atualiza objetos de entidade usando <see cref="Data.Linq.RefreshMode.KeepChanges"/> e envia as alteraçoes ao banco de dados
-        ''' </summary>
-        ''' <param name="Entities">Entidades</param>
-        <Extension()> Public Sub RefreshAndSubmitChanges(Context As DataContext, ParamArray Entities As Object())
-            Entities = If(Entities, {})
-            If Entities.Count > 0 Then
-                Context.Refresh(Data.Linq.RefreshMode.KeepChanges, Entities)
-                Context.SubmitChanges()
-            End If
-        End Sub
 
-        ''' <summary>
-        ''' Aplica o mesmo valor de uma propriedade a todos os objetos de uma coleção a partir de uma ordem especificada
-        ''' </summary>
-        ''' <typeparam name="TObject">Tipo do objeto</typeparam>
-        ''' <typeparam name="TOrder">Tipo do objeto de ordenacao</typeparam>
-        ''' <param name="objs">colecao de objetos</param>
-        ''' <param name="PropertyName">seletor da propriedade</param>
-        ''' <param name="Order">seletor da ordem</param>
-        ''' <param name="Ascending">ordem ascendente ou descendente</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function MergeProperty(Of TObject, TOrder)(objs As IEnumerable(Of TObject), PropertyName As String, Order As Func(Of TObject, TOrder), Optional Ascending As Boolean = True) As IEnumerable(Of TObject)
-            objs = If(objs, {})
-            objs = If(Ascending, objs.OrderBy(Order), objs.OrderByDescending(Order)).ToArray
-            Dim value = objs.First().GetPropertyValue(PropertyName)
-            For Each obj In objs
-                obj.SetPropertyValue(PropertyName, value)
-            Next
-            Return objs
-        End Function
 
         ''' <summary>
         ''' Retorna as informacoes de uma propriedade a partir de um seletor
@@ -249,49 +213,6 @@ Namespace LINQ
             Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](expr1.Body, invokedExpr), expr1.Parameters)
         End Function
 
-        ''' <summary>
-        ''' Aplica os valores encontrados nas propriedades de uma entidade em controles com mesmo ID
-        ''' das colunas. Se os conroles não existirem no resultado eles serão ignorados.
-        ''' </summary>
-        ''' <param name="Controls">Controles que serão Manipulados</param>
-        ''' <returns>Um array contendo os inputs manipulados</returns>
-        <Extension()> Public Function ApplyToControls(Of T As Class)(Obj As T, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
-            For Each c In Controls
-                Try
-                    Select Case c.TagName.ToLower
-                        Case "input"
-                            CType(c, HtmlInputControl).Value = Obj.GetPropertyValue(c.ID)
-                        Case "select"
-                            CType(c, HtmlSelect).SelectValues(Obj.GetPropertyValue(c.ID).ToString)
-                        Case "img"
-                            CType(c, HtmlImage).Src = Obj.GetPropertyValue(c.ID).ToString
-                        Case Else
-                            CType(c, HtmlContainerControl).InnerHtml = Obj.GetPropertyValue(c.ID)
-                    End Select
-                Catch ex As Exception
-                End Try
-            Next
-            Return Controls
-        End Function
-
-        <Extension()> Public Function ApplyToControls(Obj As NameValueCollection, ParamArray Controls As System.Web.UI.HtmlControls.HtmlControl()) As System.Web.UI.HtmlControls.HtmlControl()
-            For Each c In Controls
-                Try
-                    Select Case c.TagName.ToLower
-                        Case "input"
-                            CType(c, HtmlInputControl).Value = Obj(c.ID).ToString
-                        Case "select"
-                            CType(c, HtmlSelect).SelectValues(Obj(c.ID))
-                        Case "img"
-                            CType(c, HtmlImage).Src = Obj(c.ID).ToString
-                        Case Else
-                            CType(c, HtmlContainerControl).InnerHtml = Obj(c.ID)
-                    End Select
-                Catch ex As Exception
-                End Try
-            Next
-            Return Controls
-        End Function
 
         ''' <summary>
         ''' Retorna uma expressão genérica a partir de uma expressão tipada
@@ -393,131 +314,6 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
-        ''' opcionalmente criar o objeto se o mesmo não existir
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="Table">Tabela da entidade</param>
-        ''' <param name="IDs">Valores das chaves primárias</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Table As Table(Of T), ByVal IDs As Object) As IEnumerable(Of T)
-            Dim mapping = Table.Context.Mapping.GetTable(GetType(T))
-            Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
-            If pkfield Is Nothing Then Throw New Exception(String.Format("Table {0} does not contain a Primary Key field or is a composite primary key", mapping.TableName))
-            Dim param = Expression.Parameter(GetType(T), "e")
-            Dim l As New List(Of T)
-            For Each ID In IDs
-                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(CTypeDynamic(ID, pkfield.Type))), param)
-                Dim obj = Table.SingleOrDefault(predicate)
-                If obj IsNot Nothing Then
-                    l.Add(obj)
-                End If
-            Next
-            Return l.AsEnumerable
-        End Function
-
-        ''' <summary>
-        ''' Retorna um array  de objetos de uma tabela especifica de acordo com uma coleção de chaves primárias.
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="context">Datacontext utilizado para conexão com o banco de dados</param>
-        ''' <param name="IDs">    Valor da chave primárias</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function GetByPrimaryKeys(Of T As Class)(ByVal Context As DataContext, ParamArray IDs As Object()) As IEnumerable(Of T)
-            Return Context.GetTable(Of T)().GetByPrimaryKeys(IDs)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
-        ''' opcionalmente criar o objeto se o mesmo não existir
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
-        ''' <param name="ID">               Valor da chave primária</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object) As T
-            Return Context.GetByPrimaryKey(Of T)(ID, False)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
-        ''' opcionalmente criar o objeto se o mesmo não existir
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="Table">          Tabela da entidade</param>
-        ''' <param name="ID">               Valor da chave primária</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object) As T
-            Return Table.Context.GetByPrimaryKey(Of T)(ID, False)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária. é um alias de <see cref="GetByPrimaryKey(Of T)(Data.Linq.Table(Of T), Object)"/>
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="Table">          Tabela da entidade</param>
-        ''' <param name="ID">               Valor da chave primária</param>
-        ''' <returns></returns>
-        <Extension> Public Function GetPK(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object) As T
-            Return Table.GetByPrimaryKey(ID)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
-        ''' opcionalmente criar o objeto se o mesmo não existir. é um alias para <see cref="GetByPrimaryKey(Of T)(Data.Linq.Table(Of T), Object, Boolean, ByRef Boolean)"/>
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="Table">          Tabela da entidade</param>
-        ''' <param name="ID">               Valor da chave primária</param>
-        ''' <returns></returns>
-        <Extension> Public Function GetPK(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object, CreateIfNotExists As Boolean, Optional ByRef IsNew As Boolean = False) As T
-            Return Table.GetByPrimaryKey(ID, CreateIfNotExists, IsNew)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.  Pode
-        ''' opcionalmente criar o objeto se o mesmo não existir
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="Table">          Tabela da entidade</param>
-        ''' <param name="ID">               Valor da chave primária</param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class)(ByVal Table As Table(Of T), ByVal ID As Object, CreateIfNotExists As Boolean, Optional ByRef IsNew As Boolean = False) As T
-            Return Table.Context.GetByPrimaryKey(Of T)(ID, CreateIfNotExists, IsNew)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um objeto de uma tabela especifica de acordo com uma chave primária.
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="context">          Datacontext utilizado para conexão com o banco de dados</param>
-        ''' <param name="ID">               Valor da chave primária</param>
-        ''' <param name="CreateIfNotExists">
-        ''' Se true, cria o objeto e coloca o status de INSERT pendente para este
-        ''' </param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function GetByPrimaryKey(Of T As Class)(ByVal Context As DataContext, ByVal ID As Object, CreateIfNotExists As Boolean, Optional ByRef IsNew As Boolean = False) As T
-            Dim obj = Nothing
-            Try
-                obj = Context.GetByPrimaryKeys(Of T)({ID}.ToArray).SingleOrDefault
-                IsNew = False
-            Catch ex As Exception
-            End Try
-            If obj Is Nothing AndAlso CreateIfNotExists Then
-                IsNew = True
-                obj = Activator.CreateInstance(Of T)
-                Context.GetTable(Of T).InsertOnSubmit(obj)
-            End If
-            Return obj
-        End Function
-
-        ''' <summary>
         ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
         ''' </summary>
         ''' <typeparam name="Tsource"></typeparam>
@@ -575,7 +371,7 @@ Namespace LINQ
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
         <Extension> Public Function OrderBy(Of T)(ByVal source As IEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
-            Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
+            Return source.OrderBy(Function(x) True).ThenBProperty(SortProperty, Ascending)
         End Function
 
         ''' <summary>
@@ -668,96 +464,7 @@ Namespace LINQ
             Return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize)
         End Function
 
-        ''' <summary>
-        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
-        ''' </summary>
-        ''' <typeparam name="ClassType"></typeparam>
-        ''' <param name="Context">   </param>
-        ''' <param name="SearchTerm"></param>
-        ''' <param name="Properties"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerm As String, ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
-            Return Context.Search(Of ClassType)({SearchTerm}, Properties)
-        End Function
 
-        ''' <summary>
-        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
-        ''' </summary>
-        ''' <typeparam name="ClassType"></typeparam>
-        ''' <param name="Context">    </param>
-        ''' <param name="SearchTerms"></param>
-        ''' <param name="Properties"> </param>
-        ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
-            Search = Nothing
-            Dim tab = Context.GetTable(Of ClassType).AsQueryable
-            Dim predi = CreateExpression(Of ClassType)(False)
-            Dim mapping = Context.Mapping.GetTable(GetType(ClassType))
-            Properties = If(Properties, {})
-            If Properties.Count = 0 Then
-                Properties = GetType(ClassType).GetProperties.Where(Function(x) x.PropertyType.Equals(GetType(String)) AndAlso x.GetCustomAttribute(Of ColumnAttribute) IsNot Nothing).Select(Function(x) x.Name).ToArray
-            End If
-            Properties = Properties.Select(Function(x) x.ToLower).Distinct.ToArray
-            For Each prop In Properties
-                Dim field = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.Name.ToLower = prop)
-                If field IsNot Nothing Then
-                    For Each s In SearchTerms
-                        If Not IsNothing(s) Then
-                            Dim param = Expression.Parameter(GetType(ClassType), "e")
-                            Dim ac = Expression.[Property](param, field.Name)
-                            Dim con = Expression.Constant(s)
-                            Dim lk = Expression.Call(ac, containsMethod, con)
-                            Dim lbd = Expression.Lambda(Of Func(Of ClassType, Boolean))(lk, param)
-                            predi = predi.Or(lbd)
-                        End If
-                    Next
-                End If
-            Next
-            tab = tab.Where(predi)
-            For Each prop In Properties
-                Dim field = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.Name.ToLower = prop)
-                If field IsNot Nothing Then
-                    Search = If(Search, tab.OrderBy(Function(x) True)).ThenByLike(SearchTerms, field.Name)
-                End If
-            Next
-            Return Search
-        End Function
-
-        ''' <summary>
-        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
-        ''' </summary>
-        ''' <typeparam name="ClassType"></typeparam>
-        ''' <param name="Context">    </param>
-        ''' <param name="SearchTerm"></param>
-        ''' <param name="Properties"> </param>
-        ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerm As String, ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
-            Return Context.Search({SearchTerm}, Properties)
-        End Function
-
-        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerm As String, ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
-            Return Table.Search({SearchTerm}, Properties)
-        End Function
-
-        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerm As String, ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
-            Return Table.Context.Search(Of ClassType)({SearchTerm}, Properties)
-        End Function
-
-        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String(), ParamArray Properties() As String) As IOrderedQueryable(Of ClassType)
-            Return Table.Context.Search(Of ClassType)(SearchTerms, Properties)
-        End Function
-
-        ''' <summary>
-        ''' Retorna um <see cref="IQueryable(Of T)"/> procurando em varios campos diferentes de uma entidade
-        ''' </summary>
-        ''' <typeparam name="ClassType"></typeparam>
-        ''' <param name="Context">    </param>
-        ''' <param name="SearchTerms"></param>
-        ''' <param name="Properties"> </param>
-        ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Context As DataContext, SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
-            Return Context.GetTable(Of ClassType).Search(SearchTerms, Properties)
-        End Function
 
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes de uma entidade
@@ -776,7 +483,7 @@ Namespace LINQ
             Dim predi = CreateExpression(Of ClassType)(False)
             For Each prop In Properties
                 For Each s In SearchTerms
-                    If Not IsNothing(s) AndAlso s.IsNotBlank() Then
+                    If Not s = Nothing AndAlso s.IsNotBlank() Then
                         predi = predi.Or(Function(x) prop(x).Contains(s))
                     End If
                 Next
@@ -796,19 +503,18 @@ Namespace LINQ
         ''' <param name="SearchTerms">Termos da pesquisa</param>
         ''' <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As IQueryable(Of ClassType), SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
             Properties = If(Properties, {})
             If Properties.Count = 0 Then
                 Dim s As String() = {}
-                Return Table.Search(SearchTerms, s)
+                'Return Table.Search(SearchTerms, s) 'TODO implementar esse
             End If
             Search = Nothing
             Dim tab = Table.AsQueryable
             Dim predi = CreateExpression(Of ClassType)(False)
-            Dim mapping = Table.Context.Mapping.GetTable(GetType(ClassType))
             For Each prop In Properties
                 For Each s In SearchTerms
-                    If Not IsNothing(s) AndAlso s.IsNotBlank() Then
+                    If Not s = Nothing AndAlso s.IsNotBlank() Then
                         Dim param = prop.Parameters.First
                         Dim con = Expression.Constant(s)
                         Dim lk = Expression.Call(prop.Body, containsMethod, con)
@@ -822,16 +528,6 @@ Namespace LINQ
                 Search = If(Search, tab.OrderBy(Function(x) True)).ThenByLike(SearchTerms, prop)
             Next
             Return Search
-        End Function
-
-        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerm As String) As IOrderedQueryable(Of ClassType)
-            Dim s As String() = {}
-            Return Table.Search(SearchTerm, s)
-        End Function
-
-        <Extension()> Public Function Search(Of ClassType As Class)(Table As Table(Of ClassType), SearchTerms As String()) As IOrderedQueryable(Of ClassType)
-            Dim s As String() = {}
-            Return Table.Search(SearchTerms, s)
         End Function
 
         ''' <summary>
@@ -950,10 +646,11 @@ Namespace LINQ
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function ThenBy(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
+        Public Function ThenBProperty(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
             Dim type = GetType(T)
             For Each prop In SortProperty
-                source = source.ThenBy(Function(x) x.GetPropertyValue(prop))
+                Dim exp = Function(x As T) x.GetPropertyValue(Of Object)(prop)
+                source = source.ThenBy(exp)
             Next
             Return source
         End Function
@@ -1082,16 +779,6 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Coloca todos os abjetos que atendem a um predicado em um estado de PENDING DELETE
-        ''' </summary>
-        ''' <typeparam name="T">Tipo do objeto</typeparam>
-        ''' <param name="Table">Tabela</param>
-        ''' <param name="predicate">predicado</param>
-        <Extension()> Public Sub DeleteAllOnSubmitWhere(Of T As Class)(Table As Table(Of T), predicate As Func(Of T, Boolean))
-            Table.DeleteAllOnSubmit(Table.Where(predicate))
-        End Sub
-
-        ''' <summary>
         ''' Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
         ''' </summary>
         ''' <param name="List"></param>
@@ -1171,48 +858,8 @@ Namespace LINQ
             Return If(Tests, {}).All(Function(x) x = False)
         End Function
 
-        ''' <summary>
-        ''' Atualiza um objeto de entidade a partir de valores em um Dictionary
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <typeparam name="PKType"></typeparam>
-        ''' <param name="Context"></param>
-        ''' <param name="Dic">    </param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function UpdateObjectFromDictionary(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Dic As IDictionary(Of String, Object)) As T
-            Dim table = Context.GetTable(Of T)()
-            Dim mapping = Context.Mapping.GetTable(GetType(T))
-            Dim pkfield = mapping.RowType.DataMembers.SingleOrDefault(Function(d) d.IsPrimaryKey)
-            If pkfield Is Nothing Then Throw New Exception(String.Format("Table {0} does not contain a Primary Key field", mapping.TableName))
-            Dim obj As T = Nothing
-            If Dic.ContainsKey(pkfield.Name) Then
-                Dim ID As PKType = CType(Dic(pkfield.Name), PKType)
-                Dim param = Expression.Parameter(GetType(T), "e")
-                Dim predicate = Expression.Lambda(Of Func(Of T, Boolean))(Expression.Equal(Expression.[Property](param, pkfield.Name), Expression.Constant(ID)), param)
-                obj = table.SingleOrDefault(predicate)
-            End If
-            If obj Is Nothing Then
-                obj = Activator.CreateInstance(Of T)
-                Context.GetTable(Of T).InsertOnSubmit(obj)
-            End If
-            Dic.SetPropertiesIn(obj)
-            Return obj
-        End Function
 
-        ''' <summary>
-        ''' Atualiza um objeto de entidade a partir de valores em um HttpRequest
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <typeparam name="PKType"></typeparam>
-        ''' <param name="Context"></param>
-        ''' <param name="Request"></param>
-        ''' <param name="Keys">   </param>
-        ''' <returns></returns>
-        <Extension()>
-        Public Function UpdateObjectFromRequest(Of T As Class, PKType As Structure)(ByVal Context As DataContext, Request As HttpRequest, ParamArray Keys As String()) As T
-            Return Context.UpdateObjectFromDictionary(Of T, PKType)(Request.CreateDictionary(Keys))
-        End Function
+
 
         Private Function ReplaceExpression(ByVal body As Expression, ByVal source As Expression, ByVal dest As Expression) As Expression
             Dim replacer = New ExpressionReplacer(source, dest)

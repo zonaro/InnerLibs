@@ -27,7 +27,6 @@ Public Class Paragraph
         Return ss.Trim
     End Function
 
-    <ScriptIgnore>
     Property StructuredText As StructuredText
 
 End Class
@@ -111,7 +110,6 @@ Public Class Sentence
         Return sent
     End Function
 
-    <ScriptIgnore>
     ReadOnly Property Paragraph As Paragraph
 
 End Class
@@ -190,7 +188,6 @@ Public Class SentencePart
         Me.Sentence = Sentence
     End Sub
 
-    <ScriptIgnore>
     ReadOnly Property Sentence As Sentence
 
     ''' <summary>

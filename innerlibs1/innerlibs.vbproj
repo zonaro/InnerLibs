@@ -80,30 +80,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alphabet.vb" />
-    <Compile Include="AsxFile.vb" />
     <Compile Include="Base64.vb" />
-    <Compile Include="bitly.vb" />
-    <Compile Include="Bootstrap.vb" />
     <Compile Include="Brasil.vb" />
-    <Compile Include="BrowserImageCapture.vb" />
+    <Compile Include="Calendars.vb" />
+    <Compile Include="Class1.vb" />
     <Compile Include="ClassManager.vb" />
-    <Compile Include="CollectionEditos.vb" />
+    <Compile Include="ColorConvert.vb" />
     <Compile Include="ColorEx.vb" />
     <Compile Include="Console.vb" />
-    <Compile Include="Cronometer.vb">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="DatabaseReader.vb" />
-    <Compile Include="Databases.vb" />
-    <Compile Include="DataGridViewManager.vb" />
-    <Compile Include="DataGridViewProgressCell.vb" />
-    <Compile Include="DataManipulation.vb" />
+    <Compile Include="Converter.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="DictionarySelector.vb" />
-    <Compile Include="DocumentationPage\DocumentationPage.vb">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Include="Directories.vb" />
     <Compile Include="DOT Language.vb" />
+    <Compile Include="Encrypt.vb" />
     <Compile Include="Evalz\Evaluator.vb" />
     <Compile Include="Evalz\EvalVariable.vb" />
     <Compile Include="Evalz\Globals.vb" />
@@ -116,79 +106,21 @@
     <Compile Include="Evalz\Parser.vb" />
     <Compile Include="Evalz\Tokenizer.vb" />
     <Compile Include="Evalz\VariableNotFoundException.vb" />
-    <Compile Include="FileLogger.vb" />
     <Compile Include="Files.vb" />
-    <Compile Include="Calendars.vb" />
-    <Compile Include="ColorConvert.vb" />
-    <Compile Include="Converter.vb" />
     <Compile Include="FileTree.vb" />
-    <Compile Include="GeoIP.vb" />
-    <Compile Include="htmlparser\ClassProperty.vb" />
-    <Compile Include="htmlparser\CssParser.vb" />
-    <Compile Include="htmlparser\CSSProperty.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\AllSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\AttributeSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\ClassNameSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\IdSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\ImediateChildrenSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\PseudoClassSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\SiblingImediateSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\SiblingSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\ClassSelectors\TagNameSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\CssSelector.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassNameAttribute.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\EmptyPseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\FirstChildPseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\LastChildPseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\ContainsPseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\ReadOnlyPseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\NotPseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\PseudoClassSelectors\NthChildPseudoClass.vb" />
-    <Compile Include="htmlparser\CSSSelectors\Token.vb" />
-    <Compile Include="htmlparser\CSSSelectors\Tokenizer.vb" />
-    <Compile Include="htmlparser\HtmlAttribute.vb" />
-    <Compile Include="htmlparser\HtmlDocument.vb" />
-    <Compile Include="htmlparser\HtmlElement.vb" />
-    <Compile Include="htmlparser\HtmlNode.vb" />
-    <Compile Include="htmlparser\HtmlParser.vb" />
-    <Compile Include="htmlparser\HtmlText.vb" />
-    <Compile Include="htmlparser\MentionParser.vb" />
-    <Compile Include="InnerCrypt.vb" />
-    <Compile Include="InnerForm.vb">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="IPaginatedEnumerable.vb" />
-    <Compile Include="JSminifier.vb" />
-    <Compile Include="JsonViewer.vb" />
-    <Compile Include="JSON\JSON.vb" />
-    <Compile Include="LinqPagination.vb" />
-    <Compile Include="OnlineList.vb" />
-    <Compile Include="OptGroupAdapter.vb" />
-    <Compile Include="TextCleaner.vb" />
-    <Compile Include="Triforce\LINQTemplatizer.vb" />
-    <Compile Include="Money.vb" />
-    <Compile Include="oEmbed.vb" />
-    <Compile Include="Select2Data.vb" />
-    <Compile Include="Serializer.vb" />
-    <Compile Include="Stopwatch.vb">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="TimeMachine.vb" />
-    <Compile Include="Directories.vb" />
-    <Compile Include="Encrypt.vb" />
-    <Compile Include="FileShellExtension.vb" />
     <Compile Include="FontAwesome.vb" />
-    <Compile Include="FormAnimator.vb" />
     <Compile Include="Generate.vb" />
-    <Compile Include="GoogleMap.vb" />
-    <Compile Include="GoogleSuggestion.vb" />
     <Compile Include="HtmlGenerator.vb" />
     <Compile Include="Images.vb" />
+    <Compile Include="InnerCrypt.vb" />
     <Compile Include="InnerMenu.vb" />
+    <Compile Include="IPaginatedEnumerable.vb" />
+    <Compile Include="JSminifier.vb" />
+    <Compile Include="LinqPagination.vb" />
     <Compile Include="Location.vb" />
     <Compile Include="Maths.vb" />
     <Compile Include="MIME.vb" />
+    <Compile Include="Money.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -204,23 +136,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="OnlineList.vb" />
     <Compile Include="QuestionTest.vb" />
     <Compile Include="Romanize.vb" />
-    <Compile Include="Shortcuts.vb" />
     <Compile Include="Soundex.vb" />
     <Compile Include="Text.vb" />
-    <Compile Include="NotificationForm.designer.vb">
-      <DependentUpon>NotificationForm.vb</DependentUpon>
-    </Compile>
-    <Compile Include="NotificationForm.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="TextCleaner.vb" />
+    <Compile Include="TimeMachine.vb" />
     <Compile Include="Toggles.vb" />
     <Compile Include="UnitConverter.vb" />
     <Compile Include="vCard.vb" />
     <Compile Include="Verify.vb" />
     <Compile Include="Web.vb" />
-    <Compile Include="WinForms.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -229,15 +156,10 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="NotificationForm.resx">
-      <DependentUpon>NotificationForm.vb</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="mimes.json" />
-    <EmbeddedResource Include="brasil.xml" />
-    <EmbeddedResource Include="facts.json" />
     <None Include="app.config" />
+    <None Include="facts.json" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -247,19 +169,9 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
-    <None Include="Triforce\howto.md" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Triforce\Fonema.sql" />
-    <EmbeddedResource Include="DocumentationPage\DocumentationPage.html" />
-    <Content Include="js\InnerLibs.js" />
-    <Content Include="js\jquery.innerform.js" />
-    <None Include="Resources\logo_escuro.png" />
-    <EmbeddedResource Include="providers.json" />
-    <EmbeddedResource Include="GoogleMap.html" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="IWshRuntimeLibrary">
@@ -284,7 +196,10 @@
   <ItemGroup>
     <Service Include="{94E38DFF-614B-4CBD-B67C-F211BB35CE8B}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="brasil.xml" />
+    <Content Include="mimes.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>

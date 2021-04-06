@@ -69,9 +69,7 @@ Namespace TimeMachine
             Return d
         End Function
 
-        Public Function ToJSON(Optional IncludeFortnightsWithoutData As Boolean = True)
-            Return OldJsonSerializer.SerializeJSON(Me.ToDataDictionary(IncludeFortnightsWithoutData))
-        End Function
+
 
         ''' <summary>
         ''' Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
@@ -148,7 +146,7 @@ Namespace TimeMachine
         ''' </summary>
         ''' <param name="AnyDate">Qualquer data. Se NULL, a data atual é utilizada</param>
         Sub New(Optional AnyDate As Date? = Nothing)
-            AnyDate = If(AnyDate, Now)
+            AnyDate = If(AnyDate, DateTime.Now)
             AnyDate = New Date(AnyDate.Value.Year, AnyDate.Value.Month, If(AnyDate.Value.Day > 15, 16, 1), AnyDate.Value.Hour, AnyDate.Value.Minute, AnyDate.Value.Second, AnyDate.Value.Millisecond, AnyDate.Value.Kind)
             Dim EndDate = AnyDate
             EndDate = EndDate.Value.AddDays(1)
@@ -311,7 +309,7 @@ Namespace TimeMachine
         ''' <returns></returns>
         ReadOnly Property AllDays As IEnumerable(Of Date)
             Get
-                Return Me.SelectMany(Function(x) x.Period.ToList())
+                Return Me.SelectMany(Function(x) x.Period.StartDate.GetBetween(x.Period.EndDate))
             End Get
         End Property
 
@@ -881,7 +879,7 @@ Namespace TimeMachine
         ''' inicia uma nova demanda
         ''' </summary>
         Public Sub New()
-            StartDate = Now
+            StartDate = Date.Now
         End Sub
 
         ''' <summary>

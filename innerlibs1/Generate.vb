@@ -92,7 +92,7 @@ Public Module Generate
     <Extension>
     Function ScreenshotFromWebsite(Url As String, AccessKey As String, Optional FullPage As Boolean = True, Optional Delay As Integer = 1, Optional Viewport As String = "1440x900", Optional ImageWidth As Integer = 500) As Image
         If Url.IsURL Then
-            Return AJAX.GET(Of Image)("http://api.screenshotlayer.com/api/capture?access_key=" & AccessKey & "&delay=" & Delay & "&url=" & Url & "&fullpage=" & If(FullPage, 1, 0) & "&viewport=" & Viewport & "&width=" & ImageWidth)
+            Return GetImage("http://api.screenshotlayer.com/api/capture?access_key=" & AccessKey & "&delay=" & Delay & "&url=" & Url & "&fullpage=" & If(FullPage, 1, 0) & "&viewport=" & Viewport & "&width=" & ImageWidth)
         Else
             Throw New Exception("Url inválida")
         End If
@@ -243,10 +243,10 @@ Public Module Generate
     ''' <returns>Um componente Image() com o QR code</returns>
 
     <Extension()>
-    Public Function ToQRCode(Data As String, Optional Size As Integer = 100) As Image
+    Public Function ToQRCode(Data As String, Optional Size As Integer = 100) As Byte()
         Data = If(Data.IsURL, HttpUtility.UrlEncode(Data), Data)
         Dim URL As String = "https://chart.googleapis.com/chart?cht=qr&chl=" & Data.UrlEncode & "&chs=" & Size & "x" & Size
-        Return AJAX.GET(Of Image)(URL)
+        Return GetFile(URL)
     End Function
 
 End Module

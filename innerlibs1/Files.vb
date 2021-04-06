@@ -8,14 +8,6 @@ Imports System.Web
 ''' <remarks></remarks>
 Public Module Files
 
-    ''' <summary>
-    ''' Cria um <see cref="System.Net.Mail.Attachment"/> a a partir de um <see cref="HttpPostedFile"/>
-    ''' </summary>
-    ''' <param name="File"></param>
-    ''' <returns></returns>
-    <Extension()> Function ToAttachment(File As HttpPostedFile) As System.Net.Mail.Attachment
-        Return New Net.Mail.Attachment(File.InputStream, File.FileName, File.ContentType)
-    End Function
 
     ''' <summary>
     ''' Salva um anexo para um diretório    
@@ -116,19 +108,6 @@ Public Module Files
         End Using
     End Function
 
-    ''' <summary>
-    ''' Transforma um HttpPostedFile em array de bytes
-    ''' </summary>
-    ''' <param name="File">Arquivo postado</param>
-    ''' <returns>Um array do tipo Byte()</returns>
-    <Extension> Public Function ToBytes(File As HttpPostedFile) As Byte()
-        Try
-            Dim br As New BinaryReader(File.InputStream)
-            Return br.ReadBytes(CInt(File.InputStream.Length))
-        Catch ex As Exception
-            Return {}
-        End Try
-    End Function
 
     ''' <summary>
     ''' Salva um texto em um arquivo

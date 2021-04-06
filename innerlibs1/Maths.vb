@@ -1,4 +1,5 @@
-﻿Imports System.Globalization
+﻿Imports System.Data
+Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports InnerLibs.Locations
 
@@ -26,9 +27,7 @@ Public Class EquationPair
         Return {X, Y}
     End Function
 
-    Function ToJson()
-        Return OldJsonSerializer.SerializeJSON(Me.ToArray)
-    End Function
+
 
 End Class
 
@@ -124,13 +123,7 @@ Public Class RuleOfThree
     ''' <returns></returns>
     Public ReadOnly Property SecondEquation As New EquationPair
 
-    ''' <summary>
-    ''' Retorna a representacao em JSON desta regra de tres
-    ''' </summary>
-    ''' <returns></returns>
-    Function ToJson() As String
-        Return OldJsonSerializer.SerializeJSON(Me.ToArray)
-    End Function
+
 
 
     Function ToArray() As Decimal?()()
@@ -673,11 +666,11 @@ Public Module Mathematic
         If If(MinValue, 0) = If(MaxValue, 0) Then
             Return MinValue
         Else
-            If Not IsNothing(MaxValue) Then
+            If Not Nothing = (MaxValue) Then
                 Number = If(Number < MaxValue, Number, MaxValue)
             End If
 
-            If Not IsNothing(MinValue) Then
+            If Not Nothing = (MinValue) Then
                 Number = If(Number > MinValue, Number, MinValue)
             End If
         End If

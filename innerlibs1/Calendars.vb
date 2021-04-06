@@ -23,13 +23,7 @@ Public Class DateRange(Of DataType)
         Me.DateSelector.AddRange(If(DateSelector, {}))
     End Sub
 
-    ''' <summary>
-    ''' Agrupa as informaçoes de <see cref="DataCollection"/> por <paramref cref="DateFormat"/>
-    ''' </summary>
-    ''' <returns></returns>
-    Public Function GroupDataBy(DateFormat As String, Optional DateInterval As DateInterval = DateInterval.Minute) As Dictionary(Of String, IEnumerable(Of DataType))
-        Return Me.ToList(DateInterval).DistinctBy(Function(x) x.ToString(DateFormat)).ToDictionary(Function(x) x.ToString(DateFormat), Function(x) DateSelector.SelectMany(Function(s) DataCollection.OrderBy(Function(d) s(d).Date).Where(Function(d) s(d).Date.ToString(DateFormat) = x.ToString(DateFormat))).Distinct())
-    End Function
+
 
 End Class
 
@@ -302,20 +296,7 @@ Public Class DateRange
         Return Difference.ToString
     End Function
 
-    ''' <summary>
-    ''' Cria uma lista de datas contendo todas as datas entre os periodos
-    ''' </summary>
-    ''' <param name="Interval">Intervalo que deverá ser incrementado</param>
-    ''' <returns></returns>
-    Public Function ToList(Optional Interval As DateInterval = DateInterval.Day) As List(Of Date)
-        Dim curdate = StartDate
-        Dim l As New List(Of Date)
-        Do
-            l.Add(curdate.Date)
-            curdate = DateAdd(Interval, 1, curdate)
-        Loop While curdate <= EndDate
-        Return l
-    End Function
+
 
     ''' <summary>
     ''' Verifica se 2 periodos possuem interseção de datas
@@ -370,7 +351,7 @@ Public Class DateRange
     ''' </summary>
     ''' <returns></returns>
     Public Function IsNow() As Boolean
-        Return Contains(Now)
+        Return Contains(DateTime.Now)
     End Function
 
     ''' <summary>
@@ -389,7 +370,7 @@ Public Class DateRange
     ''' <param name="[Date]">Data correspondente</param>
     ''' <returns></returns>
     Public Function CalculatePercent(Optional [Date] As Date? = Nothing) As Decimal
-        Return If([Date], Now).CalculatePercent(StartDate, EndDate)
+        Return If([Date], DateTime.Now).CalculatePercent(StartDate, EndDate)
     End Function
 
     ''' <summary>
@@ -509,10 +490,10 @@ Public Module Calendars
     ''' <param name="FromDate"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetAge(BirthDate As DateTime, Optional FromDate As DateTime? = Nothing) As Integer
-        FromDate = If(FromDate, Now)
+        FromDate = If(FromDate, DateTime.Now)
         Dim age As Integer
         age = FromDate.Value.Year - BirthDate.Year
-        If (BirthDate > Today.AddYears(-age)) Then age -= 1
+        If (BirthDate > DateTime.Today.AddYears(-age)) Then age -= 1
         Return age
     End Function
 
@@ -622,7 +603,7 @@ Public Module Calendars
     ''' <returns></returns>
     <Extension()>
     Public Function GetLastDayOfMonth(MonthNumber As Integer, Optional Year As Integer? = Nothing) As DateTime
-        Year = If(Year, Now.Month).SetMinValue(DateTime.MinValue.Month)
+        Year = If(Year, DateTime.Now.Month).SetMinValue(DateTime.MinValue.Month)
         Return New Date(Year, MonthNumber, 1).GetLastDayOfMonth
     End Function
 
@@ -633,7 +614,7 @@ Public Module Calendars
     ''' <returns></returns>
     <Extension()>
     Public Function GetFirstDayOfMonth(MonthNumber As Integer, Optional Year As Integer? = Nothing) As DateTime
-        Year = If(Year, Now.Month).SetMinValue(DateTime.MinValue.Month)
+        Year = If(Year, DateTime.Now.Month).SetMinValue(DateTime.MinValue.Month)
         Return New Date(Year, MonthNumber, 1)
     End Function
 
@@ -796,7 +777,7 @@ Public Module Calendars
     ''' <returns></returns>
     <Extension>
     Public Function IsAnniversary(BirthDate As Date, Optional CompareWith As Date? = Nothing) As Boolean
-        If Not CompareWith.HasValue Then CompareWith = Today
+        If Not CompareWith.HasValue Then CompareWith = DateTime.Today
         Return (BirthDate.Day & "/" & BirthDate.Month) = (CompareWith.Value.Day & "/" & CompareWith.Value.Month)
     End Function
 
@@ -887,20 +868,26 @@ Public Module Calendars
     End Function
 
     ''' <summary>
-    ''' Retorna uma lista com as datas de dias especificos da semana entre 2 datas
+    ''' Retorna as datas entre um periodo
     ''' </summary>
-    ''' <param name="StartDate">Data inicial</param>
-    ''' <param name="EndDate">  data Final</param>
-    ''' <param name="Days">     Dias da semana</param>
+    ''' <param name="StartDate"></param>
+    ''' <param name="EndDate"></param>
+    ''' <param name="DaysOfWeek"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GetBetween(StartDate As DateTime, EndDate As DateTime, ParamArray Days() As DayOfWeek) As List(Of Date)
-        Dim dt As New DateRange(StartDate, EndDate)
-        If Days IsNot Nothing AndAlso Days.Count > 0 Then
-            Return dt.ToList.Where(Function(x) x.DayOfWeek.IsIn(Days)).Select(Function(x) x.Date).ToList
-        Else
-            Return dt.ToList.Select(Function(x) x.Date).ToList
+    <Extension()> Public Function GetBetween(StartDate As Date, EndDate As Date, ParamArray DaysOfWeek() As DayOfWeek) As IEnumerable(Of Date)
+        Dim l = New List(Of Date)
+        DaysOfWeek = If(DaysOfWeek, {})
+        If DaysOfWeek.Length = 0 Then
+            DaysOfWeek = {DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday}
         End If
+        Dim curdate = StartDate.Date
+        While curdate <= EndDate.Date
+            curdate = curdate.AddDays(1)
+            l.Add(curdate)
+        End While
+        Return l.Where(Function(x) x.DayOfWeek.IsIn(DaysOfWeek))
     End Function
+
 
     ''' <summary>
     ''' Remove o tempo de todas as datas de uma lista e retorna uma nova lista
@@ -941,7 +928,7 @@ Public Module Calendars
 
     <Extension()>
     Function ToLongMonthName(MonthNumber As Integer) As String
-        Return New Date(Now.Year, MonthNumber, 1).TolongMonthName
+        Return New Date(DateTime.Now.Year, MonthNumber, 1).TolongMonthName
     End Function
 
     ''' <summary>
@@ -1049,7 +1036,7 @@ Public Module Calendars
 
     Public ReadOnly Property LastDay(DayOfWeek As DayOfWeek, Optional FromDate As Date? = Nothing) As Date
         Get
-            FromDate = If(FromDate, Now)
+            FromDate = If(FromDate, DateTime.Now)
             While FromDate.Value.DayOfWeek <> DayOfWeek
                 FromDate = FromDate.Value.AddDays(-1)
             End While
@@ -1059,7 +1046,7 @@ Public Module Calendars
 
     Public ReadOnly Property NextDay(DayOfWeek As DayOfWeek, Optional FromDate As Date? = Nothing) As Date
         Get
-            FromDate = If(FromDate, Now)
+            FromDate = If(FromDate, DateTime.Now)
             While FromDate.Value.DayOfWeek <> DayOfWeek
                 FromDate = FromDate.Value.AddDays(1)
             End While
@@ -1145,7 +1132,7 @@ Public Module Calendars
     ''' <returns>Uma string com a saudação</returns>
     Public ReadOnly Property Greeting(Optional Language As String = "pt") As String
         Get
-            Return Now.ToGreetingFarewell(Language)
+            Return DateTime.Now.ToGreetingFarewell(Language)
         End Get
     End Property
 
@@ -1156,7 +1143,7 @@ Public Module Calendars
     ''' <returns>Uma string com a despedida</returns>
     Public ReadOnly Property Farewell(Optional Language As String = "pt") As String
         Get
-            Return Now.ToGreetingFarewell(Language, True)
+            Return DateTime.Now.ToGreetingFarewell(Language, True)
         End Get
     End Property
 
@@ -1228,17 +1215,7 @@ Public Module Calendars
         End Get
     End Property
 
-    ''' <summary>
-    ''' Preenche um HtmlSelect com MESES ou DIAS DA SEMANA
-    ''' </summary>
-    ''' <param name="Box">Select HTML</param>
-    ''' <param name="ValueType">Apresentação dos meses no valor</param>
-    '''<param name="TextType">Apresentação dos meses no texto</param>
-    <Extension> Public Sub FillWith(Box As UI.HtmlControls.HtmlSelect, CalendarType As CalendarType, Optional TextType As TypeOfFill = TypeOfFill.LongName, Optional ValueType As TypeOfFill = TypeOfFill.Number)
-        For Each item In If(CalendarType = CalendarType.Months, Months(TextType, ValueType), WeekDays(TextType, ValueType))
-            Box.Items.Add(New ListItem(item.Key, item.Value))
-        Next
-    End Sub
+
 
     ''' <summary>
     ''' Tipo de Apresentação dos Meses/Dias da Semana/Estado

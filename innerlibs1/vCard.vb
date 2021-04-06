@@ -57,7 +57,7 @@ Public Class vCard
     End Function
 
     Public Function ToQRCode(Optional Size As Integer = 100) As Drawing.Image
-        Return HttpUtility.UrlEncode(ToString).ToQRCode(Size)
+        Return HttpUtility.UrlEncode(Me.ToString).ToQRCode(Size).ToImage
     End Function
 
     Public Function ToFile(FullPath As String) As FileInfo
@@ -196,7 +196,7 @@ Public Class vCard
             Dim result = ""
             result &= ("URL")
             If Preferred Then result &= (";PREF")
-            If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+            If Not Nothing = (Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
             result &= Format(":{0}{1}", URL, System.Environment.NewLine)
             Return result.ToString
         End Function
@@ -272,8 +272,8 @@ Public Class vCard
             Dim result = ""
             result &= ("TEL")
             If Preferred Then result &= (";PREF")
-            If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
-            If Not IsNothing(Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
+            If Not Nothing = (Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+            If Not Nothing = (Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
             result &= Format(":{0}{1}", TelephoneNumber, System.Environment.NewLine)
             Return result.ToString
         End Function
@@ -341,8 +341,8 @@ Public Class vCard
             'Write the Address
             result &= ("ADR")
             If Preferred Then result &= (";PREF")
-            If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
-            If Not IsNothing(Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
+            If Not Nothing = (Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+            If Not Nothing = (Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
             result &= Format(";ENCODING=QUOTED-PRINTABLE:;{0}", AddressName)
             result &= Format(";{0}", StreetAddress.Replace(System.Environment.NewLine, "=0D=0A"))
             result &= Format(";{0}", City.Replace(System.Environment.NewLine, "=0D=0A"))
@@ -354,8 +354,8 @@ Public Class vCard
             'Write the Address label
             If AddressLabel.Length > 0 Then
                 result &= ("LABEL")
-                If Not IsNothing(Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
-                If Not IsNothing(Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
+                If Not Nothing = (Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
+                If Not Nothing = (Type) Then result &= Format(";{0}", Type.ToString.ToUpper)
                 result &= Format(";ENCODING=QUOTED-PRINTABLE:{0}", AddressLabel.Replace(System.Environment.NewLine, "=0D=0A"))
             End If
 
