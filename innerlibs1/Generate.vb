@@ -106,7 +106,7 @@ Public Module Generate
     ''' <returns>Uma URI do Google Maps</returns>
 
     <Extension()>
-    Public Function ToGoogleMapsURL(local As Location, Optional LatLong As Boolean = False) As Uri
+    Public Function ToGoogleMapsURL(local As AddressInfo, Optional LatLong As Boolean = False) As Uri
         Dim s As String
         If LatLong = True Then
             s = Uri.EscapeUriString(AdjustWhiteSpaces(local.LatitudeLongitude))

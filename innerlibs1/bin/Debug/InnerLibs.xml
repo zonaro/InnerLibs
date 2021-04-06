@@ -321,134 +321,140 @@ InnerLibs
  <param name="Name"></param>
  <returns></returns>
 </member>
-<member name="T:InnerLibs.Locations.Location">
+<member name="T:InnerLibs.Locations.AddressInfo">
  <summary>
  Representa um deteminado local com suas Informações
  </summary>
  <remarks></remarks>
 </member>
-<member name="M:InnerLibs.Locations.Location.#ctor">
+<member name="M:InnerLibs.Locations.AddressInfo.#ctor">
  <summary>
  Cria um novo objeto de localização vazio
  </summary>
 </member>
-<member name="M:InnerLibs.Locations.Location.#ctor(System.String,System.String)">
+<member name="M:InnerLibs.Locations.AddressInfo.#ctor(System.String,System.String)">
  <summary>
  Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
  </summary>
  <param name="PostalCode"></param>
  <param name="Number">Numero da casa</param>
 </member>
-<member name="P:InnerLibs.Locations.Location.StreetType">
+<member name="P:InnerLibs.Locations.AddressInfo.StreetType">
  <summary>
  Tipo do Endereço
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.StreetName">
+<member name="P:InnerLibs.Locations.AddressInfo.StreetName">
  <summary>
  O nome do endereço
  </summary>
  <value></value>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Street">
+<member name="P:InnerLibs.Locations.AddressInfo.DDD">
+ <summary>
+ DDD do local
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.AddressInfo.Street">
  <summary>
  Logradouro
  </summary>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Number">
+<member name="P:InnerLibs.Locations.AddressInfo.Number">
  <summary>
  Numero da casa, predio etc.
  </summary>
  <value></value>
  <returns>Numero</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Complement">
+<member name="P:InnerLibs.Locations.AddressInfo.Complement">
  <summary>
  Complemento
  </summary>
  <value></value>
  <returns>Complemento</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Neighborhood">
+<member name="P:InnerLibs.Locations.AddressInfo.Neighborhood">
  <summary>
  Bairro
  </summary>
  <value></value>
  <returns>Bairro</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.PostalCode">
+<member name="P:InnerLibs.Locations.AddressInfo.PostalCode">
  <summary>
  CEP - Codigo de Endereçamento Postal
  </summary>
  <value></value>
  <returns>CEP</returns>
 </member>
-<member name="M:InnerLibs.Locations.Location.FormatPostalCode(System.String)">
+<member name="M:InnerLibs.Locations.AddressInfo.FormatPostalCode(System.String)">
  <summary>
  Formata uma string de CEP
  </summary>
  <param name="CEP"></param>
  <returns></returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.ZipCode">
+<member name="P:InnerLibs.Locations.AddressInfo.ZipCode">
  <summary>
- CEP - Codigo de Endereçamento Postal. Alias de <see cref="P:InnerLibs.Locations.Location.PostalCode"/>
+ CEP - Codigo de Endereçamento Postal. Alias de <see cref="P:InnerLibs.Locations.AddressInfo.PostalCode"/>
  </summary>
  <value></value>
  <returns>CEP</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.City">
+<member name="P:InnerLibs.Locations.AddressInfo.City">
  <summary>
  Cidade
  </summary>
  <value></value>
  <returns>Cidade</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.State">
+<member name="P:InnerLibs.Locations.AddressInfo.State">
  <summary>
  Estado
  </summary>
  <value></value>
  <returns>Estado</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.StateCode">
+<member name="P:InnerLibs.Locations.AddressInfo.StateCode">
  <summary>
  Unidade federativa
  </summary>
  <value></value>
  <returns>Sigla do estado</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Country">
+<member name="P:InnerLibs.Locations.AddressInfo.Country">
  <summary>
  País
  </summary>
  <value></value>
  <returns>País</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Latitude">
+<member name="P:InnerLibs.Locations.AddressInfo.Latitude">
  <summary>
  Coordenada geográfica LATITUDE
  </summary>
  <value></value>
  <returns>Latitude</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Longitude">
+<member name="P:InnerLibs.Locations.AddressInfo.Longitude">
  <summary>
  Coordenada geográfica LONGITUDE
  </summary>
  <value></value>
  <returns>Longitude</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.Address">
+<member name="P:InnerLibs.Locations.AddressInfo.Address">
  <summary>
  Retorna o endereço completo
  </summary>
  <returns>Uma String com o endereço completo devidamente formatado</returns>
 </member>
-<member name="M:InnerLibs.Locations.Location.ToString(System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
+<member name="M:InnerLibs.Locations.AddressInfo.ToString(System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
  <summary>
  Retorna as string do endereço omitindo ou não informações
  </summary>
@@ -461,19 +467,33 @@ InnerLibs
  <param name="IncludeCountry"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Locations.Location.ToString">
+<member name="M:InnerLibs.Locations.AddressInfo.CreateLocation(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+ <summary>
+ Cria uma localização a partir de informações
+ </summary>
+ <param name="Address"></param>
+ <param name="Number"></param>
+ <param name="Complement"></param>
+ <param name="Neighborhood"></param>
+ <param name="City"></param>
+ <param name="State"></param>
+ <param name="Country"></param>
+ <param name="PostalCode"></param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Locations.AddressInfo.ToString">
  <summary>
  Retorna uma String contendo as informações do Local
  </summary>
  <returns>string</returns>
 </member>
-<member name="M:InnerLibs.Locations.Location.LatitudeLongitude">
+<member name="M:InnerLibs.Locations.AddressInfo.LatitudeLongitude">
  <summary>
  Retorna as coordenadas geográficas do Local
  </summary>
  <returns>Uma String contendo LATITUDE e LONGITUDE separados por virgula</returns>
 </member>
-<member name="M:InnerLibs.Locations.Location.GetInfoByPostalCode">
+<member name="M:InnerLibs.Locations.AddressInfo.GetInfoByPostalCode">
  <summary>
  Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
  </summary>
@@ -2700,7 +2720,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Url">Url do site</param>
  <returns>Um objeto Image() contendo o screenshot do site</returns>
 </member>
-<member name="M:InnerLibs.Generate.ToGoogleMapsURL(InnerLibs.Locations.Location,System.Boolean)">
+<member name="M:InnerLibs.Generate.ToGoogleMapsURL(InnerLibs.Locations.AddressInfo,System.Boolean)">
  <summary>
  Gera uma URL do google MAPs baseado na localização
  </summary>
@@ -4137,7 +4157,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="Degrees"></param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Locations.Location,InnerLibs.Locations.Location)">
+<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Locations.AddressInfo,InnerLibs.Locations.AddressInfo)">
  <summary>
  Calcula a distancia entre 2 locais
  </summary>
@@ -4145,7 +4165,7 @@ Verifica se o objeto é do tipo numérico.
  <param name="SecondLocation">Segundo Local</param>
  <returns>A distancia em kilometros</returns>
 </member>
-<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Locations.Location[])">
+<member name="M:InnerLibs.Mathematic.CalculateDistance(InnerLibs.Locations.AddressInfo[])">
  <summary>
  Calcula a distancia passando por todos os pontos
  </summary>

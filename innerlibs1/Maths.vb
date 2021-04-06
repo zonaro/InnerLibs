@@ -813,7 +813,7 @@ Public Module Mathematic
     ''' <param name="FirstLocation"> Primeiro Local</param>
     ''' <param name="SecondLocation">Segundo Local</param>
     ''' <returns>A distancia em kilometros</returns>
-    Public Function CalculateDistance(FirstLocation As Location, SecondLocation As Location) As Double
+    Public Function CalculateDistance(FirstLocation As AddressInfo, SecondLocation As AddressInfo) As Double
         Dim circumference As Double = 40000.0
         ' Earth's circumference at the equator in km
         Dim distance As Double = 0.0
@@ -842,12 +842,12 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Locations">Localizacoes</param>
     ''' <returns></returns>
-    Public Function CalculateDistance(ParamArray Locations As Location()) As Double
+    Public Function CalculateDistance(ParamArray Locations As AddressInfo()) As Double
         Dim totalDistance As Double = 0.0
 
         For i As Integer = 0 To Locations.Length - 2
-            Dim current As Location = Locations(i)
-            Dim [next] As Location = Locations(i + 1)
+            Dim current As AddressInfo = Locations(i)
+            Dim [next] As AddressInfo = Locations(i + 1)
 
             totalDistance += CalculateDistance(current, [next])
         Next

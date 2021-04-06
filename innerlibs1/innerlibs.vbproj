@@ -111,7 +111,7 @@
     <Compile Include="IPaginatedEnumerable.vb" />
     <Compile Include="JSminifier.vb" />
     <Compile Include="LinqPagination.vb" />
-    <Compile Include="Location.vb" />
+    <Compile Include="AddressInfo.vb" />
     <Compile Include="Maths.vb" />
     <Compile Include="MIME.vb" />
     <Compile Include="Money.vb" />
@@ -153,7 +153,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="facts.json" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -171,8 +170,8 @@
     <Service Include="{94E38DFF-614B-4CBD-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="brasil.xml" />
-    <Content Include="mimes.xml" />
+    <EmbeddedResource Include="brasil.xml" />
+    <EmbeddedResource Include="mimes.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

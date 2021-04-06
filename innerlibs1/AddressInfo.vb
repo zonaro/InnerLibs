@@ -7,7 +7,7 @@ Namespace Locations
     ''' Representa um deteminado local com suas Informações
     ''' </summary>
     ''' <remarks></remarks>
-    Public Class Location
+    Public Class AddressInfo
 
         ''' <summary>
         ''' Cria um novo objeto de localização vazio
@@ -39,6 +39,15 @@ Namespace Locations
         ''' <value></value>
         ''' <returns></returns>
         Property StreetName As String
+
+        ''' <summary>
+        ''' DDD do local
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property DDD As String
+        Public Property IBGE As String
+        Public Property GIA As String
+        Public Property SIAFI As String
 
         ''' <summary>
         ''' Logradouro
@@ -82,7 +91,7 @@ Namespace Locations
                 Return _cep
             End Get
             Set(value As String)
-                _cep = Location.FormatPostalCode(value)
+                _cep = AddressInfo.FormatPostalCode(value)
             End Set
         End Property
 
@@ -217,6 +226,36 @@ Namespace Locations
         End Sub
 
         ''' <summary>
+        ''' Cria uma localização a partir de informações
+        ''' </summary>
+        ''' <param name="Address"></param>
+        ''' <param name="Number"></param>
+        ''' <param name="Complement"></param>
+        ''' <param name="Neighborhood"></param>
+        ''' <param name="City"></param>
+        ''' <param name="State"></param>
+        ''' <param name="Country"></param>
+        ''' <param name="PostalCode"></param>
+        ''' <returns></returns>
+        Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
+            Dim l = New AddressInfo()
+            l.StreetName = Address.ToTitle().AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.Neighborhood = Neighborhood.ToTitle().AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.Complement = Complement.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.Number = Number.NullIf(Function(x) x.IsBlank())
+            l.City = City.ToTitle().AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            If State.Length = 2 Then
+                l.StateCode = State.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            Else
+                l.State = State.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            End If
+            l.Country = Country
+            l.PostalCode = PostalCode.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.ParseType()
+            Return l
+        End Function
+
+        ''' <summary>
         ''' Retorna uma String contendo as informações do Local
         ''' </summary>
         ''' <returns>string</returns>
@@ -248,6 +287,10 @@ Namespace Locations
                 Me.StateCode = cep("uf").InnerText
                 Me.State = Brasil.GetNameOf(Me.StateCode)
                 Me.StreetName = cep("logradouro").InnerText
+                Me.DDD = cep("ddd").InnerText
+                Me.IBGE = cep("ibge").InnerText
+                Me.GIA = cep("gia").InnerText
+                Me.SIAFI = cep("SIAFI").InnerText
                 Me.Country = "Brasil"
                 ParseType()
             End Using
