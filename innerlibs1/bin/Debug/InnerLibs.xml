@@ -1714,19 +1714,12 @@ InnerLibs
  Cria um novo objeto de localização vazio
  </summary>
 </member>
-<member name="M:InnerLibs.Locations.Location.#ctor(System.String,System.Int32,System.Boolean)">
+<member name="M:InnerLibs.Locations.Location.#ctor(System.String,System.String)">
  <summary>
- Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP e opcionalmente Google Maps
+ Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
  </summary>
  <param name="PostalCode"></param>
  <param name="Number">Numero da casa</param>
-</member>
-<member name="M:InnerLibs.Locations.Location.#ctor(System.String,System.String,System.Boolean)">
- <summary>
- Cria um objeto de localização e imediatamente pesquisa as informações de um local através da Latitude e Longitude usando a API do Google Maps
- </summary>
- <param name="Latitude"></param>
- <param name="Longitude"></param>
 </member>
 <member name="P:InnerLibs.Locations.Location.StreetType">
  <summary>
@@ -1774,6 +1767,13 @@ InnerLibs
  </summary>
  <value></value>
  <returns>CEP</returns>
+</member>
+<member name="M:InnerLibs.Locations.Location.FormatPostalCode(System.String)">
+ <summary>
+ Formata uma string de CEP
+ </summary>
+ <param name="CEP"></param>
+ <returns></returns>
 </member>
 <member name="P:InnerLibs.Locations.Location.ZipCode">
  <summary>
@@ -1824,17 +1824,24 @@ InnerLibs
  <value></value>
  <returns>Longitude</returns>
 </member>
-<member name="P:InnerLibs.Locations.Location.GoogleMapsURL">
- <summary>
- URL do Google Maps
- </summary>
- <returns></returns>
-</member>
 <member name="P:InnerLibs.Locations.Location.Address">
  <summary>
  Retorna o endereço completo
  </summary>
  <returns>Uma String com o endereço completo devidamente formatado</returns>
+</member>
+<member name="M:InnerLibs.Locations.Location.ToString(System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
+ <summary>
+ Retorna as string do endereço omitindo ou não informações
+ </summary>
+ <param name="IncludeNumber"></param>
+ <param name="IncludeComplement"></param>
+ <param name="IncludeNeighborhood"></param>
+ <param name="IncludeCity"></param>
+ <param name="IncludeState"></param>
+ <param name="IncludePostalCode"></param>
+ <param name="IncludeCountry"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.Locations.Location.ToString">
  <summary>
@@ -1851,18 +1858,6 @@ InnerLibs
 <member name="M:InnerLibs.Locations.Location.GetInfoByPostalCode">
  <summary>
  Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
- </summary>
-</member>
-<member name="M:InnerLibs.Locations.Location.SearchOnGoogleMaps(System.String,System.Boolean)">
- <summary>
- Realiza uma busca detalhada no google Maps
- </summary>
- <param name="Location">String contendo os detalhes da busca ex.: Av. Rio Pequeno, 240</param>
- <param name="Sensor">Indica se a pesquisa deve ser baseada na sua localização atual. Padrao TRUE</param>
-</member>
-<member name="M:InnerLibs.Locations.Location.Update">
- <summary>
- Realiza uma nova busca no google maps usando o endereço completo
  </summary>
 </member>
 <member name="M:InnerLibs.BrowserClipper.Capture(System.String,System.Int32)">
@@ -7998,44 +7993,6 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="LatLong">Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro</param>
  <returns>Uma URI do Google Maps</returns>
 </member>
-<member name="M:InnerLibs.Generate.ToStaticGoogleMap(InnerLibs.Locations.Location,System.Int32,System.Int32,System.Int32,System.Int32,InnerLibs.Generate.MapType)">
- <summary>
- Cria um Mapa estatico utilizando a API do google Maps
- </summary>
- <param name="Location">Objeto contendo as Coordenadas</param>
- <param name="Width">Largura do Mapa</param>
- <param name="Height">Altura do Mapa</param>
- <param name="Zoom">Numero correspondente a aproximação da vizualização do Mapa</param>
- <param name="Scale">Escala do mapa (qualidade)</param>
- <param name="Maptype">Tipo do Mapa (roadmap, satellite, hybrid, ou terrain)</param>
- <returns>Um componente Image() com o mapa</returns>
-</member>
-<member name="T:InnerLibs.Generate.MapType">
- <summary>
- Tipo de mapa do Google Maps
- </summary>
-
-</member>
-<member name="F:InnerLibs.Generate.MapType.RoadMap">
- <summary>
- Rotas
- </summary>
-</member>
-<member name="F:InnerLibs.Generate.MapType.Satellite">
- <summary>
- Visao de satelite
- </summary>
-</member>
-<member name="F:InnerLibs.Generate.MapType.Hybrid">
- <summary>
- Hibrido (Rotas + Satelite)
- </summary>
-</member>
-<member name="F:InnerLibs.Generate.MapType.Terrain">
- <summary>
- Terreno/Relevo
- </summary>
-</member>
 <member name="M:InnerLibs.Generate.RandomNumber(System.Int64,System.Int64)">
  <summary>
  Gera um numero Aleatório entre 2 números
@@ -10393,9 +10350,25 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  <param name="AppendText">Texto adicional</param>
  <param name="Test">      Teste</param>
 </member>
-<member name="M:InnerLibs.Text.PrependIf(System.String@,System.String,System.Func{System.String,System.Boolean})">
+<member name="M:InnerLibs.Text.PrependIf(System.String,System.String,System.Func{System.String,System.Boolean})">
  <summary>
  Adiciona texto ao final de uma string se um criterio for cumprido
+ </summary>
+ <param name="Text">      Texto</param>
+ <param name="PrependText">Texto adicional</param>
+ <param name="Test">      Teste</param>
+</member>
+<member name="M:InnerLibs.Text.PrependWhile(System.String,System.String,System.Func{System.String,System.Boolean})">
+ <summary>
+ Adiciona texto ao inicio de uma string enquanto um criterio for cumprido
+ </summary>
+ <param name="Text">      Texto</param>
+ <param name="PrependText">Texto adicional</param>
+ <param name="Test">      Teste</param>
+</member>
+<member name="M:InnerLibs.Text.AppendWhile(System.String,System.String,System.Func{System.String,System.Boolean})">
+ <summary>
+ Adiciona texto ao final de uma string enquanto um criterio for cumprido
  </summary>
  <param name="Text">      Texto</param>
  <param name="AppendText">Texto adicional</param>
@@ -11841,6 +11814,13 @@ Atualiza objetos de entidade usando <see cref="F:System.Data.Linq.RefreshMode.Ke
  Verifica se a string é um CPF válido
  </summary>
  <param name="Text">CPF</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Verify.IsValidCEP(System.String)">
+ <summary>
+ Verifica se uma string é um cep válido
+ </summary>
+ <param name="CEP"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Verify.IsValidCNPJ(System.String)">

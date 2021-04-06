@@ -106,6 +106,15 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se uma string é um cep válido
+    ''' </summary>
+    ''' <param name="CEP"></param>
+    ''' <returns></returns>
+    <Extension> Public Function IsValidCEP(CEP As String) As Boolean
+        Return New Regex("^\d{5}-\d{3}$").IsMatch(CEP) OrElse (CEP.RemoveAny("-").IsNumber() AndAlso CEP.RemoveAny("-").Length = 8)
+    End Function
+
+    ''' <summary>
     ''' Verifica se a string é um CNPJ válido
     ''' </summary>
     ''' <param name="Text">CPF</param>

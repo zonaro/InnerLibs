@@ -118,62 +118,11 @@ Public Module Generate
 
     End Function
 
-    ''' <summary>
-    ''' Cria um Mapa estatico utilizando a API do google Maps
-    ''' </summary>
-    ''' <param name="Location">Objeto contendo as Coordenadas</param>
-    ''' <param name="Width">Largura do Mapa</param>
-    ''' <param name="Height">Altura do Mapa</param>
-    ''' <param name="Zoom">Numero correspondente a aproximação da vizualização do Mapa</param>
-    ''' <param name="Scale">Escala do mapa (qualidade)</param>
-    ''' <param name="Maptype">Tipo do Mapa (roadmap, satellite, hybrid, ou terrain)</param>
-    ''' <returns>Um componente Image() com o mapa</returns>
 
-    <Extension()>
-    Public Function ToStaticGoogleMap(Location As Location, Optional Width As Integer = 400, Optional Height As Integer = 400, Optional Zoom As Integer = 16, Optional Scale As Integer = 2, Optional Maptype As MapType = Generate.MapType.RoadMap) As Image
-        Dim thecenter = If(Location.Latitude.IsBlank, Location.Address.Replace(" ", "+"), Location.LatitudeLongitude)
-        Dim mapstring = ""
-        Select Case Maptype
-            Case 1
-                mapstring = "Satellite"
-            Case 2
-                mapstring = "Hybrid"
-            Case 3
-                mapstring = "Terrain"
-            Case Else
-                mapstring = "RoadMap"
-        End Select
-        Dim URL As String = "http//maps.googleapis.com/maps/api/staticmap?center=" & thecenter & "&zoom=" & Zoom & "&size=" & Width & "x" & Height & "&scale=" & Scale & "&maptype=" & mapstring.ToLower
-        Return AJAX.GET(Of Image)(URL)
-    End Function
 
-    ''' <summary>
-    ''' Tipo de mapa do Google Maps
-    ''' </summary>
-    '''
 
-    Enum MapType
-        ''' <summary>
-        ''' Rotas
-        ''' </summary>
 
-        RoadMap = 0
-        ''' <summary>
-        ''' Visao de satelite
-        ''' </summary>
 
-        Satellite = 1
-        ''' <summary>
-        ''' Hibrido (Rotas + Satelite)
-        ''' </summary>
-
-        Hybrid = 2
-        ''' <summary>
-        ''' Terreno/Relevo
-        ''' </summary>
-
-        Terrain = 3
-    End Enum
 
     ''' <summary>
     ''' Gera um numero Aleatório entre 2 números

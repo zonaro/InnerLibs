@@ -1,4 +1,5 @@
-﻿Imports System.Xml
+﻿Imports System.Net
+Imports System.Xml
 
 Namespace Locations
 
@@ -12,34 +13,18 @@ Namespace Locations
         ''' Cria um novo objeto de localização vazio
         ''' </summary>
         Public Sub New()
-
         End Sub
 
+
         ''' <summary>
-        ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP e opcionalmente Google Maps
+        ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
         ''' </summary>
         ''' <param name="PostalCode"></param>
         ''' <param name="Number">Numero da casa</param>
-        Public Sub New(PostalCode As String, Optional Number As Integer = Nothing, Optional SearchOnMaps As Boolean = False)
+        Public Sub New(PostalCode As String, Optional Number As String = Nothing)
             Me.PostalCode = PostalCode
             If Not Number = Nothing Then Me.Number = Number
             Me.GetInfoByPostalCode()
-            If SearchOnMaps Then
-                Me.Update()
-            End If
-        End Sub
-
-        ''' <summary>
-        ''' Cria um objeto de localização e imediatamente pesquisa as informações de um local através da Latitude e Longitude usando a API do Google Maps
-        ''' </summary>
-        ''' <param name="Latitude"></param>
-        ''' <param name="Longitude"></param>
-        Public Sub New(Latitude As String, Longitude As String, Optional Search As Boolean = True)
-            Me.Latitude = Latitude
-            Me.Longitude = Longitude
-            If Search Then
-                Me.SearchOnGoogleMaps(Me.LatitudeLongitude, False)
-            End If
         End Sub
 
         ''' <summary>
@@ -53,7 +38,6 @@ Namespace Locations
         ''' </summary>
         ''' <value></value>
         ''' <returns></returns>
-
         Property StreetName As String
 
         ''' <summary>
@@ -94,6 +78,31 @@ Namespace Locations
         ''' <returns>CEP</returns>
 
         Property PostalCode As String
+            Get
+                Return _cep
+            End Get
+            Set(value As String)
+                _cep = Location.FormatPostalCode(value)
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' Formata uma string de CEP
+        ''' </summary>
+        ''' <param name="CEP"></param>
+        ''' <returns></returns>
+        Public Shared Function FormatPostalCode(CEP As String) As String
+            CEP = CEP.Trim()
+            If CEP.IsValidCEP Then
+                If CEP.IsNumber() Then
+                    CEP = CEP.Insert(5, "-")
+                End If
+                Return CEP
+            End If
+            Return Nothing
+        End Function
+
+        Private _cep As String
 
         ''' <summary>
         ''' CEP - Codigo de Endereçamento Postal. Alias de <see cref="PostalCode"/>
@@ -108,6 +117,7 @@ Namespace Locations
                 PostalCode = value
             End Set
         End Property
+
 
         ''' <summary>
         ''' Cidade
@@ -143,21 +153,16 @@ Namespace Locations
         ''' </summary>
         ''' <value></value>
         ''' <returns>Latitude</returns>
+        Property Latitude As Decimal
 
-        Property Latitude As String
         ''' <summary>
         ''' Coordenada geográfica LONGITUDE
         ''' </summary>
         ''' <value></value>
         ''' <returns>Longitude</returns>
+        Property Longitude As Decimal
 
-        Property Longitude As String
 
-        ''' <summary>
-        ''' URL do Google Maps
-        ''' </summary>
-        ''' <returns></returns>
-        Property GoogleMapsURL As Uri
 
         ''' <summary>
         ''' Retorna o endereço completo
@@ -165,28 +170,47 @@ Namespace Locations
         ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
         ReadOnly Property Address As String
             Get
-                ParseType()
-                Dim retorno As String = Street
-                If Number.IsNotBlank Then retorno &= (", " & Number)
-                If Complement.IsNotBlank Then retorno &= (", " & Complement)
-                If Neighborhood.IsNotBlank Then retorno &= (" - " & Neighborhood)
-                If City.IsNotBlank Then retorno &= (" - " & City)
+                Return ToString(True, True, True, True, True, True, False)
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Retorna as string do endereço omitindo ou não informações
+        ''' </summary>
+        ''' <param name="IncludeNumber"></param>
+        ''' <param name="IncludeComplement"></param>
+        ''' <param name="IncludeNeighborhood"></param>
+        ''' <param name="IncludeCity"></param>
+        ''' <param name="IncludeState"></param>
+        ''' <param name="IncludePostalCode"></param>
+        ''' <param name="IncludeCountry"></param>
+        ''' <returns></returns>
+        Public Overloads Function ToString(Optional IncludeNumber As Boolean = True, Optional IncludeComplement As Boolean = True, Optional IncludeNeighborhood As Boolean = True, Optional IncludeCity As Boolean = True, Optional IncludeState As Boolean = True, Optional IncludePostalCode As Boolean = True, Optional IncludeCountry As Boolean = False) As String
+            ParseType()
+            Dim retorno As String = Street
+            If Number.IsNotBlank AndAlso IncludeNumber Then retorno &= (", " & Number)
+            If Complement.IsNotBlank AndAlso IncludeComplement Then retorno &= (", " & Complement)
+            If Neighborhood.IsNotBlank AndAlso IncludeNeighborhood Then retorno &= (" - " & Neighborhood)
+            If City.IsNotBlank AndAlso IncludeCity Then retorno &= (" - " & City)
+            If IncludeState Then
                 If StateCode.IsNotBlank Then
                     retorno &= (" - " & StateCode)
                 Else
                     If State.IsNotBlank Then retorno &= (" - " & State)
                 End If
-                If PostalCode.IsNotBlank Then retorno &= (" - " & PostalCode)
-                Return retorno
-            End Get
-        End Property
+            End If
+            If PostalCode.IsNotBlank AndAlso IncludePostalCode Then retorno &= (" - " & PostalCode)
+            If Country.IsNotBlank AndAlso IncludeCountry Then retorno &= (" - " & Country)
+            Return retorno
+        End Function
 
-        Private Sub ParseType()
+
+        Friend Sub ParseType()
             If Me.StreetType.IsBlank() Then
                 If Me.StreetName.IsNotBlank Then
                     Me.StreetType = AddressTypes.GetAddressType(Me.StreetName)
                     If Me.StreetType.IsNotBlank Then
-                        Me.StreetName = Me.StreetName.Trim().RemoveFirstIf(StreetType).Trim()
+                        Me.StreetName = Me.StreetName.Trim().RemoveFirstIf(StreetType).Trim().AdjustBlankSpaces().ToTitle()
                     End If
                 End If
             End If
@@ -197,7 +221,7 @@ Namespace Locations
         ''' </summary>
         ''' <returns>string</returns>
         Public Overrides Function ToString() As String
-            Return Address()
+            Return Address
         End Function
 
         ''' <summary>
@@ -209,93 +233,25 @@ Namespace Locations
             Return Latitude & "," & Longitude
         End Function
 
-        Public Function ToJSON() As String
-            Return OldJsonSerializer.SerializeJSON(Me)
-        End Function
 
         ''' <summary>
         ''' Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
         ''' </summary>
         Public Sub GetInfoByPostalCode()
-            Dim cep As Object = OldJsonSerializer.DeserializeJSON(Of Object)(AJAX.GET(Of String)("https://viacep.com.br/ws/" & Me.PostalCode & "/json/"))
-            Me.Neighborhood = cep("bairro")
-            Me.City = cep("localidade")
-            Me.StateCode = cep("uf")
-            Me.State = Brasil.GetNameOf(Me.StateCode)
-            Me.StreetName = cep("logradouro")
-            Me.Country = "Brasil"
-            ParseType()
-        End Sub
+            Dim url = "https://viacep.com.br/ws/" & Me.PostalCode.RemoveAny("-") & "/xml/"
+            Using c = New WebClient()
+                Dim x = New XmlDocument()
+                x.LoadXml(c.DownloadString(url))
+                Dim cep = x("xmlcep")
+                Me.Neighborhood = cep("bairro").InnerText
+                Me.City = cep("localidade").InnerText
+                Me.StateCode = cep("uf").InnerText
+                Me.State = Brasil.GetNameOf(Me.StateCode)
+                Me.StreetName = cep("logradouro").InnerText
+                Me.Country = "Brasil"
+                ParseType()
+            End Using
 
-        ''' <summary>
-        ''' Realiza uma busca detalhada no google Maps
-        ''' </summary>
-        ''' <param name="Location">String contendo os detalhes da busca ex.: Av. Rio Pequeno, 240</param>
-        ''' <param name="Sensor">Indica se a pesquisa deve ser baseada na sua localização atual. Padrao TRUE</param>
-
-        Public Sub SearchOnGoogleMaps(Location As String, Optional Sensor As Boolean = True)
-            Dim documento As New XmlDocument
-            Dim searchlocation = Location.AdjustWhiteSpaces.Replace(" ", "+")
-            Dim url = "http://maps.googleapis.com/maps/api/geocode/xml?address=" & searchlocation & "&sensor=" & Sensor.ToString
-            documento.Load(url)
-            If documento.SelectSingleNode("GeocodeResponse").SelectSingleNode("status").InnerText.ToString = "OVER_QUERY_LIMIT" Then
-                Throw New Exception("Você estourou o limite de buscas diárias, continue novamente amanhã! (Em caso de IP dinâmico, reinicie sua conexão com a internet e tente novamente.)")
-            ElseIf documento.SelectSingleNode("GeocodeResponse").SelectSingleNode("status").InnerText.ToString = "OK" Then
-                Try
-                    Me.StreetName = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'route']/long_name").InnerText
-                Catch ex As Exception
-
-                End Try
-                Try
-                    Me.Neighborhood = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'neighborhood']/long_name").InnerText
-                Catch ex As Exception
-                    Try
-                        Me.Neighborhood = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'sublocality_level_1']/long_name").InnerText
-                    Catch ex2 As Exception
-                    End Try
-                End Try
-
-                Try
-                    Me.City = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'administrative_area_level_2']/long_name").InnerText
-                Catch ex As Exception
-
-                End Try
-                Try
-                    Me.State = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'administrative_area_level_1']/long_name").InnerText
-                Catch ex As Exception
-
-                End Try
-                Try
-                    Me.StateCode = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'administrative_area_level_1']/short_name").InnerText
-                Catch ex As Exception
-
-                End Try
-                Try
-                    Me.Country = documento.SelectSingleNode("/GeocodeResponse/result/address_component[type = 'country']/long_name").InnerText
-                Catch ex As Exception
-
-                End Try
-                Try
-                    Me.Latitude = documento.SelectSingleNode("/GeocodeResponse/result/geometry/location/lat").InnerText
-                Catch ex As Exception
-
-                End Try
-                Try
-                    Me.Longitude = documento.SelectSingleNode("/GeocodeResponse/result/geometry/location/lng").InnerText
-                Catch ex As Exception
-
-                End Try
-
-            End If
-            Me.GoogleMapsURL = Me.ToGoogleMapsURL(True)
-            ParseType()
-        End Sub
-
-        ''' <summary>
-        ''' Realiza uma nova busca no google maps usando o endereço completo
-        ''' </summary>
-        Public Sub Update()
-            Me.SearchOnGoogleMaps(Me.Address)
         End Sub
 
     End Class

@@ -2,6 +2,7 @@
 Imports System.Collections.Specialized
 Imports System.IO
 Imports System.Reflection
+Imports System.Xml
 Imports InnerLibs
 
 Namespace Locations
@@ -169,9 +170,22 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared ReadOnly Property States As List(Of State)
             Get
-                Dim r = New StreamReader([Assembly].GetExecutingAssembly().GetManifestResourceStream("InnerLibs.brasil.json"))
+                States = New List(Of State)
+                Dim r = New StreamReader([Assembly].GetExecutingAssembly().GetManifestResourceStream("InnerLibs.brasil.xml"))
                 Dim s = r.ReadToEnd().ToString
-                Return s.ParseJSON(Of List(Of State))
+                Dim doc = New XmlDocument()
+                doc.LoadXml(s)
+                For Each node As XmlNode In doc("brasil").ChildNodes
+                    Dim estado = New State
+                    estado.Acronym = node("Acronym").InnerText
+                    estado.Name = node("Name").InnerText
+                    For Each subnode As XmlNode In node("Cities").ChildNodes
+                        estado.Cities.Add(subnode.InnerText)
+                    Next
+                    States.Add(estado)
+                Next
+                Return States
+                'Return s.ParseJSON(Of List(Of State))
             End Get
         End Property
 

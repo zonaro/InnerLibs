@@ -951,12 +951,42 @@ Public Module Text
     ''' Adiciona texto ao final de uma string se um criterio for cumprido
     ''' </summary>
     ''' <param name="Text">      Texto</param>
+    ''' <param name="PrependText">Texto adicional</param>
+    ''' <param name="Test">      Teste</param>
+    <Extension()> Public Function PrependIf(Text As String, PrependText As String, Test As Func(Of String, Boolean)) As String
+        Test = If(Test, Function(x) False)
+        Return Text.PrependIf(PrependText, Test(Text))
+    End Function
+
+    ''' <summary>
+    ''' Adiciona texto ao inicio de uma string enquanto um criterio for cumprido
+    ''' </summary>
+    ''' <param name="Text">      Texto</param>
+    ''' <param name="PrependText">Texto adicional</param>
+    ''' <param name="Test">      Teste</param>
+    <Extension()> Public Function PrependWhile(Text As String, PrependText As String, Test As Func(Of String, Boolean)) As String
+        Test = If(Test, Function(x) False)
+        While Test(Text)
+            Text = Text.Prepend(PrependText)
+        End While
+        Return Text
+    End Function
+
+    ''' <summary>
+    ''' Adiciona texto ao final de uma string enquanto um criterio for cumprido
+    ''' </summary>
+    ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     ''' <param name="Test">      Teste</param>
-    <Extension()> Public Function PrependIf(ByRef Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
+    <Extension()> Public Function AppendWhile(Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
         Test = If(Test, Function(x) False)
-        Return Text.PrependIf(AppendText, Test(Text))
+        While Test(Text)
+            Text = Text + AppendText
+        End While
+        Return Text
     End Function
+
+
 
     ''' <summary>
     ''' Aplica espacos em todos os caracteres de encapsulamento
@@ -3630,7 +3660,11 @@ Public Module Text
             Dim l = Text.Split(" ", StringSplitOptions.None).ToList
             For index = 0 To l.Count - 1
                 Dim pal = l(index)
-                If pal.IsNotBlank Then
+
+                Dim artigo = index > 0 AndAlso pal.IsIn("o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e")
+
+
+                If pal.IsNotBlank AndAlso artigo = False Then
                     Dim c = pal.First
 
                     If Not Char.IsUpper(c) Then

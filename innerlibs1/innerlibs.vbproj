@@ -235,7 +235,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="mimes.json" />
-    <EmbeddedResource Include="brasil.json" />
+    <EmbeddedResource Include="brasil.xml" />
     <EmbeddedResource Include="facts.json" />
     <None Include="app.config" />
     <None Include="My Project\Application.myapp">
