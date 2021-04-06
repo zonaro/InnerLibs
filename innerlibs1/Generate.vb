@@ -220,7 +220,7 @@ Public Module Generate
         paragraphs(4) = "Interdum et malesuada fames ac ante ipsum primis In fakepath. send efficitur, leo Get amet accumsan drag n drop, urna Inner pulvinar erat, AJAX dapibus arcu mauris vel felis. Nam in ante get amet vsplit drag n drop tincidunt. display: none at arcu at quam gravida fringilla. Proin et vehicula lacus. nullm leo turpis, auctor ac volutpat euismod, posuere quis felis. nullm dapibus diam vel #000000 facilisis. Curabitur at purus in ante aliquet porta."
 
         For i = 1 To ParagraphNumber
-            loremipusm &= paragraphs(RandomNumber(0, paragraphs.Length)) & vbNewLine & vbNewLine
+            loremipusm &= paragraphs(RandomNumber(0, paragraphs.Length - 1)) & vbNewLine & vbNewLine
         Next
         Return loremipusm
     End Function

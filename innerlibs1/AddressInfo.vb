@@ -255,6 +255,11 @@ Namespace Locations
             Return l
         End Function
 
+        Public Shared Function FormatAddress(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As String
+
+            Return CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).Address
+        End Function
+
         ''' <summary>
         ''' Retorna uma String contendo as informações do Local
         ''' </summary>

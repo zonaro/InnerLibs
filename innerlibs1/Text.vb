@@ -5,9 +5,7 @@ Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Web
-Imports System.Web.UI.HtmlControls
 Imports System.Xml
-Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
 Public Class QuantityTextPair
@@ -383,8 +381,6 @@ Public Class FullNumberWriter
         Next
     End Sub
 
-
-
     ''' <summary>
     ''' Escreve um numero por extenso
     ''' </summary>
@@ -611,7 +607,6 @@ Public Class FullMoneyWriter
             Return Text(Number.Value, DecimalPlaces)
         End Get
     End Property
-
 
 End Class
 
@@ -970,8 +965,6 @@ Public Module Text
         End While
         Return Text
     End Function
-
-
 
     ''' <summary>
     ''' Aplica espacos em todos os caracteres de encapsulamento
@@ -1487,7 +1480,6 @@ Public Module Text
 
     End Function
 
-
     <Extension()>
     Public Function GetLastChars(Text As String, Optional Number As Integer = 1) As String
         If Text.Length < Number Or Number < 1 Then
@@ -1862,7 +1854,6 @@ Public Module Text
     <Extension()> Function ParseDigits(Of Type As IConvertible)(ByVal Text As String, Optional Culture As CultureInfo = Nothing) As Type
         Return CType(CType(Text.ParseDigits(Culture), Object), Type)
     End Function
-
 
     ''' <summary>
     ''' Retorna uma string em sua forma poop
@@ -2434,8 +2425,6 @@ Public Module Text
         Return Text
     End Function
 
-
-
     ''' <summary>
     ''' Randomiza a ordem dos itens de um Array
     ''' </summary>
@@ -2616,7 +2605,6 @@ Public Module Text
         Return Text.Shuffle().AdjustWhiteSpaces
     End Function
 
-
     ''' <summary>
     ''' Transforma uma frase em uma palavra CamelCase
     ''' </summary>
@@ -2719,10 +2707,6 @@ Public Module Text
     <Extension()> Public Function AdjustPathChars(Text As String) As String
         Return Text.Split({"/", "\"}, StringSplitOptions.RemoveEmptyEntries).Select(Function(x) x.ToFriendlyPathName).Join("/")
     End Function
-
-
-
-
 
     ''' <summary>
     ''' Converte um texo para Leet (1337)
@@ -3703,6 +3687,5 @@ Public Module Text
         End If
         Return Text
     End Function
-
 
 End Module

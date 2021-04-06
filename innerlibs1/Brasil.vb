@@ -1,6 +1,4 @@
-﻿Imports System.Collections.ObjectModel
-Imports System.Collections.Specialized
-Imports System.IO
+﻿Imports System.IO
 Imports System.Reflection
 Imports System.Xml
 Imports InnerLibs
@@ -23,6 +21,12 @@ Namespace Locations
         ''' </summary>
         ''' <returns></returns>
         Public Property Name As String
+
+        ''' <summary>
+        ''' Região do Estado
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Region As String
 
         ''' <summary>
         ''' Lista de cidades do estado
@@ -74,46 +78,6 @@ Namespace Locations
 
     End Class
 
-    Public NotInheritable Class Celebration
-
-        ReadOnly Property [Date](Optional Year As Integer? = Nothing) As DateTime
-            Get
-                Return New Date(If(Year, DateTime.Now.Year), Month, Day)
-            End Get
-        End Property
-
-        ReadOnly Property Description As String
-            Get
-                Return _fact
-            End Get
-        End Property
-
-        Private _fact As String
-
-        ReadOnly Property Day As Integer
-            Get
-                Return _day
-            End Get
-        End Property
-
-        Private _day As Integer
-
-        ReadOnly Property Month As Integer
-            Get
-                Return _month
-            End Get
-        End Property
-
-        Private _month As Integer
-
-        Friend Sub New(Dia As Integer, Mes As Integer, Fato As String)
-            _day = Dia
-            _month = Mes
-            _fact = Fato
-        End Sub
-
-    End Class
-
     ''' <summary>
     ''' Objeto para manipular cidades e estados do Brasil
     ''' </summary>
@@ -123,9 +87,9 @@ Namespace Locations
         ''' Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes
         ''' </summary>
         ''' <returns></returns>
-        Public Shared ReadOnly Property States As List(Of State)
+        Public Shared ReadOnly Property States As IEnumerable(Of State)
             Get
-                States = New List(Of State)
+                Dim l = New List(Of State)
                 Dim r = New StreamReader([Assembly].GetExecutingAssembly().GetManifestResourceStream("InnerLibs.brasil.xml"))
                 Dim s = r.ReadToEnd().ToString
                 Dim doc = New XmlDocument()
@@ -134,22 +98,41 @@ Namespace Locations
                     Dim estado = New State
                     estado.Acronym = node("Acronym").InnerText
                     estado.Name = node("Name").InnerText
+                    estado.Region = node("Region").InnerText
                     For Each subnode As XmlNode In node("Cities").ChildNodes
                         estado.Cities.Add(subnode.InnerText)
                     Next
-                    States.Add(estado)
+                    l.Add(estado)
                 Next
-                Return States
-                'Return s.ParseJSON(Of List(Of State))
+                Return l
             End Get
         End Property
+
+        ''' <summary>
+        ''' Retorna as Regiões dos estados brasileiros
+        ''' </summary>
+        ''' <returns></returns>
+        Public Shared ReadOnly Property Regions As IEnumerable(Of String)
+            Get
+                Return States.Select(Function(x) x.Region).Distinct().ToList()
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Retorna os estados de uma região
+        ''' </summary>
+        ''' <param name="Region"></param>
+        ''' <returns></returns>
+        Public Shared Function GetStatesOf(Optional Region As String = "", Optional Type As State.StateString = State.StateString.Name) As IEnumerable(Of String)
+            Return States.Where(Function(x) x.Region = Region OrElse Region.IsBlank()).Select(Function(x) x.ToString(Type))
+        End Function
 
         ''' <summary>
         ''' Retorna as cidades de um estado a partir do nome ou sigla do estado
         ''' </summary>
         ''' <param name="NameOrStateCode">Nome ou sigla do estado</param>
         ''' <returns></returns>
-        Public Shared Function GetCitiesOf(Optional NameOrStateCode As String = "") As List(Of String)
+        Public Shared Function GetCitiesOf(Optional NameOrStateCode As String = "") As IEnumerable(Of String)
             Dim cities As New List(Of String)
             For Each estado As State In Brasil.States
                 If estado.Acronym = NameOrStateCode Or estado.Name = NameOrStateCode Or NameOrStateCode.IsBlank() Then
@@ -203,6 +186,5 @@ Namespace Locations
         End Function
 
     End Class
-
 
 End Namespace

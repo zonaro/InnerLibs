@@ -247,6 +247,12 @@ InnerLibs
  </summary>
  <returns></returns>
 </member>
+<member name="P:InnerLibs.Locations.State.Region">
+ <summary>
+ Região do Estado
+ </summary>
+ <returns></returns>
+</member>
 <member name="P:InnerLibs.Locations.State.Cities">
  <summary>
  Lista de cidades do estado
@@ -291,6 +297,19 @@ InnerLibs
  <summary>
  Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes
  </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.Locations.Brasil.Regions">
+ <summary>
+ Retorna as Regiões dos estados brasileiros
+ </summary>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.Locations.Brasil.GetStatesOf(System.String,InnerLibs.Locations.State.StateString)">
+ <summary>
+ Retorna os estados de uma região
+ </summary>
+ <param name="Region"></param>
  <returns></returns>
 </member>
 <member name="M:InnerLibs.Locations.Brasil.GetCitiesOf(System.String)">
