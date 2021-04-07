@@ -2526,7 +2526,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function Slice(Text As String, Optional TextLength As Integer = 0, Optional Ellipsis As String = "...") As String
-        If Text.Length <= TextLength OrElse TextLength < 1 Then
+        If Text.IsBlank() OrElse Text.Length <= TextLength OrElse TextLength < 1 Then
             Return Text
         Else
             Text = Text.GetBefore(Environment.NewLine)
