@@ -5,7 +5,7 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
 
 ## Sobre o Projeto
 
-Uma bliblioteca de classes e méodos para .NET, Bootstrap Jquery e Javascript. Opções flexiveis e fáceis de usar para simplificar e manter seu código limpo.
+Uma bliblioteca de classes e méodos para .NET. Opções flexiveis e fáceis de usar para simplificar e manter seu código limpo.
 
 O projeto nasceu a partir da nescessidade de repetir os códigos em diversos projetos. No início era uma classe com alguns métodos que precisavam sempre ser modificados em cada projeto. Hoje InnerLibs conta com mais de 120 métodos de extensão para as mais diversas operaçoes comuns em ASP.NET e Aplicações Windows Forms. Possuimos algumas funções para Bootstrap, Javascript e JQuery também.
 
