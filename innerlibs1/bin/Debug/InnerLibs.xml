@@ -517,6 +517,13 @@ InnerLibs
  Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
  </summary>
 </member>
+<member name="M:InnerLibs.DateRange`1.#ctor(System.DateTime,System.DateTime,System.Collections.Generic.List{`0},System.Boolean,System.Func{`0,System.DateTime}[])">
+ <summary>
+ Instancia um novo periodo entre 2 datas
+ </summary>
+ <param name="StartDate"></param>
+ <param name="EndDate"></param>
+</member>
 <member name="M:InnerLibs.DateRange`1.#ctor(System.DateTime,System.DateTime,System.Collections.Generic.List{`0},System.Func{`0,System.DateTime}[])">
  <summary>
  Instancia um novo periodo entre 2 datas
@@ -559,6 +566,13 @@ InnerLibs
  <param name="StartDate"></param>
  <param name="EndDate"></param>
  <param name="ForceFirstAndLastMoments"> Ajusta as horas de <see cref="P:InnerLibs.DateRange.StartDate"/> para o primeiro momento do dia e as horas de <see cref="P:InnerLibs.DateRange.EndDate"/> para o último momento do dia</param>
+</member>
+<member name="M:InnerLibs.DateRange.GetDays(System.DayOfWeek[])">
+ <summary>
+ Retorna uma lista de dias entre <see cref="P:InnerLibs.DateRange.StartDate"/> e <see cref="P:InnerLibs.DateRange.EndDate"/>
+ </summary>
+ <param name="DaysOfWeek"></param>
+ <returns></returns>
 </member>
 <member name="M:InnerLibs.DateRange.GetPeriodAs(InnerLibs.DateRangeInterval)">
  <summary>

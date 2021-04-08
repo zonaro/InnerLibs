@@ -281,26 +281,30 @@ Namespace Locations
         ''' <summary>
         ''' Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
         ''' </summary>
-        Public Sub GetInfoByPostalCode()
-            Dim url = "https://viacep.com.br/ws/" & Me.PostalCode.RemoveAny("-") & "/xml/"
-            Using c = New WebClient()
-                Dim x = New XmlDocument()
-                x.LoadXml(c.DownloadString(url))
-                Dim cep = x("xmlcep")
-                Me.Neighborhood = cep("bairro").InnerText
-                Me.City = cep("localidade").InnerText
-                Me.StateCode = cep("uf").InnerText
-                Me.State = Brasil.GetNameOf(Me.StateCode)
-                Me.StreetName = cep("logradouro").InnerText
-                Me.DDD = cep("ddd").InnerText
-                Me.IBGE = cep("ibge").InnerText
-                Me.GIA = cep("gia").InnerText
-                Me.SIAFI = cep("SIAFI").InnerText
-                Me.Country = "Brasil"
-                ParseType()
-            End Using
-
-        End Sub
+        Public Function GetInfoByPostalCode() As Boolean
+            Try
+                Dim url = "https://viacep.com.br/ws/" & Me.PostalCode.RemoveAny("-") & "/xml/"
+                Using c = New WebClient()
+                    Dim x = New XmlDocument()
+                    x.LoadXml(c.DownloadString(url))
+                    Dim cep = x("xmlcep")
+                    Me.Neighborhood = cep("bairro").InnerText
+                    Me.City = cep("localidade").InnerText
+                    Me.StateCode = cep("uf").InnerText
+                    Me.State = Brasil.GetNameOf(Me.StateCode)
+                    Me.StreetName = cep("logradouro").InnerText
+                    Me.DDD = cep("ddd").InnerText
+                    Me.IBGE = cep("ibge").InnerText
+                    Me.GIA = cep("gia").InnerText
+                    Me.SIAFI = cep("SIAFI").InnerText
+                    Me.Country = "Brasil"
+                    ParseType()
+                End Using
+                Return True
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
 
     End Class
 

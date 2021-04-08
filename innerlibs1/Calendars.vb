@@ -17,10 +17,20 @@ Public Class DateRange(Of DataType)
     ''' </summary>
     ''' <param name="StartDate"></param>
     ''' <param name="EndDate"></param>
-    Sub New(StartDate As Date, EndDate As Date, Data As List(Of DataType), ParamArray DateSelector As Func(Of DataType, Date)())
+    Sub New(StartDate As Date, EndDate As Date, Data As List(Of DataType), ForceFirstAndLastMoments As Boolean, ParamArray DateSelector As Func(Of DataType, Date)())
         MyBase.New(StartDate, EndDate)
+        Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
         Me.DataCollection = If(Data, New List(Of DataType))
         Me.DateSelector.AddRange(If(DateSelector, {}))
+    End Sub
+
+    ''' <summary>
+    ''' Instancia um novo periodo entre 2 datas
+    ''' </summary>
+    ''' <param name="StartDate"></param>
+    ''' <param name="EndDate"></param>
+    Sub New(StartDate As Date, EndDate As Date, Data As List(Of DataType), ParamArray DateSelector As Func(Of DataType, Date)())
+        Me.New(StartDate, EndDate, Data, True, DateSelector)
     End Sub
 
 
@@ -128,6 +138,15 @@ Public Class DateRange
         Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
         _isdefault = False
     End Sub
+
+    ''' <summary>
+    ''' Retorna uma lista de dias entre <see cref="StartDate"/> e <see cref="EndDate"/>
+    ''' </summary>
+    ''' <param name="DaysOfWeek"></param>
+    ''' <returns></returns>
+    Public Function GetDays(ParamArray DaysOfWeek As DayOfWeek()) As IEnumerable(Of Date)
+        Return StartDate.GetBetween(EndDate, DaysOfWeek)
+    End Function
 
     ''' <summary>
     ''' Retorna o periodo em um total especificado por <see cref="DateRangeInterval"/>
