@@ -12,7 +12,6 @@ Properties
 | --- | --- | --- | 
 | `Boolean` | Checked | Valor que indica se esta alternativa foi assinalada | 
 | `Boolean` | Correct | Valor que indica se a alternativa está correta ou verdadeira | 
-| `String` | HTML |  | 
 | `String` | ID | ID da alternativa | 
 | `Boolean` | IsCorrect | Verifica se a resposta do usuário é correta para esta alternativa | 
 | `Int32` | Number | O numero da alternativa | 
@@ -40,7 +39,6 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | HTML |  | 
 | `AlternativeQuestion` | Question |  | 
 
 
@@ -69,7 +67,7 @@ Properties
 | `Boolean` | AllowMultiple | Verifica se esta pergunta permite multiplas alternativas | 
 | `AlternativeList` | Alternatives | Lista de alternativas da questão | 
 | `IEnumerable<Alternative>` | Answer | Retorna as alternativas marcadas pelo usuário | 
-| `Boolean` | RenderAsSelect | Indica se esta alternativa deve ser renderizada no HTML como um `InnerLibs.HtmlParser.HtmlSelectElement`. Caso Contrario, serão renderizadas como listas de Check Box ou Radio Button | 
+| `Boolean` | RenderAsSelect | Indica se esta alternativa deve ser renderizada no HTML como um <see cref="!:HtmlSelectElement" />. Caso Contrario, serão renderizadas como listas de Check Box ou Radio Button | 
 
 
 ## `DissertativeQuestion`
@@ -89,7 +87,6 @@ Properties
 | `Decimal` | Assertiveness | Assertividade da questão, uma valor entre 0 e o peso da questão que representa o quanto esta questão está correta | 
 | `Boolean` | Correct | Valor que indica se a questão está de alguma forma correta | 
 | `Decimal` | Hits | Representa quantos pontos essa questão vale de acordo com a assertividade | 
-| `String` | HTML |  | 
 | `Boolean` | IsCorrect | Verifica se a pergunta está preenchida | 
 | `Int32` | Lines | Numero de linhas que devem ser impressas para esta questão | 
 
@@ -108,7 +105,6 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Decimal` | Hits | Retorna um numero que representa o quanto o usuario acertou essa pergunta | 
-| `String` | HTML |  | 
 | `Boolean` | IsCorrect | Verifica se a pergunta está corretamente assinalada | 
 
 
@@ -127,7 +123,6 @@ Properties
 | --- | --- | --- | 
 | `Decimal` | Answer | Pontos que o usuario atribuiu a esta questão | 
 | `Decimal` | Hits | Pontos multiplicados pelo peso da questão | 
-| `String` | HTML |  | 
 | `Boolean` | IsCorrect | Perguntas numericas sempre estão corretas. Neste caso, o que vale é a resposta multiplicada pelo peso que implica diretamente no peso da avaliação | 
 | `Decimal` | MaxValue | Maior valor permitido pela questão | 
 | `Decimal` | MinValue | Menor valor permitido pela questão | 
@@ -146,7 +141,6 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Decimal` | Hits | Retorna um numero que representa o quanto o usuario acertou essa pergunta | 
-| `String` | HTML |  | 
 | `String` | ID | O codigo de identificação desta questão | 
 | `Boolean` | IsCorrect | Verifica se a pergunta está corretamente assinalada | 
 | `Int32` | Number | Numero da questão | 
@@ -164,14 +158,6 @@ Methods
 | `String` | ToString() | Return the statment text for this question | 
 
 
-## `QuestionEditor`
-
-```csharp
-public class InnerLibs.QuestionTest.QuestionEditor
-    : EnhancedCollectionEditor
-
-```
-
 ## `QuestionStatement`
 
 Enunciado de uma pergunta
@@ -184,7 +170,6 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | HTML |  | 
 | `StatementImages` | Images | Imagens adicionadas ao enunciado (com legenda) | 
 | `Question` | Question |  | 
 | `String` | Text | Texto do enunciado | 
@@ -219,10 +204,11 @@ Properties
 | `String` | Header | Cabeçalho da prova. Texto adicional que ficará antes das questões e apoós o título | 
 | `Int32` | HitPercent | Porcentagem de Acertos do Usuário | 
 | `Int32` | Hits | Numero de questões que o usuário acertou | 
-| `HtmlDocument` | HTML | Monta uma prova HTML | 
-| `Object` | IsApproved | Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo permitido, caso contrário, FALSE | 
+| `String` | ID | Informações adicionais, normalmente nome do usuario e outras informações unicas | 
+| `Boolean` | IsApproved | Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo permitido, caso contrário, FALSE | 
 | `Boolean` | IsValid | Verifica se o peso da prova equivale a soma dos pesos das questões | 
 | `Decimal` | MinimumWeightAllowed | Valor Minimo da nota para aprovação (Normalmente 6) | 
+| `Dictionary<String, Object>` | PersonalInfo | Informações adicionais, normalmente nome do usuario e outras informações unicas | 
 | `QuestionTest` | Questions | Retorna as questões desta avaliação | 
 | `String` | Title | Titulo da Avaliação | 
 | `Decimal` | Weight | Peso da Avaliação (Normalmente 10) | 
@@ -254,7 +240,6 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Decimal` | Hits | Retorna um numero que representa o quanto o usuario acertou essa pergunta | 
-| `String` | HTML |  | 
 | `Boolean` | IsCorrect | Verifica se a pergunta está corretamente assinalada. Anula a questão automaticamente se estiver mal formada (com mais de uma alternativa correta ou nenhuma alternativa correta) | 
 | `Boolean` | IsValidQuestion | Verifica se as existe apenas uma unica alternativa correta na questão | 
 
@@ -290,7 +275,6 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | HTML |  | 
 | `QuestionStatement` | Statement |  | 
 
 

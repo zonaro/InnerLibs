@@ -1,4 +1,4 @@
-# InnerLibs
+# InnerLibs 🦞
  ### Uma biblioteca de classes e métodos para .NET. Opções flexiveis e fáceis de usar para simplificar e manter seu código limpo.
  
 O projeto nasceu a partir da nescessidade de repetir os códigos em diversos projetos. No início era uma classe com alguns métodos que precisavam sempre ser modificados em cada projeto. Hoje InnerLibs conta com mais de 120 métodos de extensão para as mais diversas operaçoes comuns em ASP.NET e Aplicações Windows Forms. Entre as funções, você pode encontrar manipuladores de texto, manipuladores de imagem, conexão de banco de dados genérica, criação de vCards,integrações com API de terceiros (como o goqr.me, ViaCEP e o Google Maps) etc.
@@ -36,85 +36,61 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## [InnerLibs](InnerLibs)
 
-- [`AJAX`](InnerLibs#ajax)
 - [`Alphabet`](InnerLibs#alphabet)
-- [`AsxEntry`](InnerLibs#asxentry)
-- [`AsxFile`](InnerLibs#asxfile)
 - [`Base64`](InnerLibs#base64)
-- [`BrowserClipper`](InnerLibs#browserclipper)
 - [`Calendars`](InnerLibs#calendars)
+- [`Class1`](InnerLibs#class1)
 - [`ClassTools`](InnerLibs#classtools)
 - [`ColorConvert`](InnerLibs#colorconvert)
+- [`ColorEx`](InnerLibs#colorex)
 - [`Converter`](InnerLibs#converter)
-- [`CssParser`](InnerLibs#cssparser)
-- [`DataBase`](InnerLibs#database)
-- [`DataGridViewManager`](InnerLibs#datagridviewmanager)
-- [`DataGridViewProgressCell`](InnerLibs#datagridviewprogresscell)
-- [`DataGridViewProgressColumn`](InnerLibs#datagridviewprogresscolumn)
-- [`DataManipulation`](InnerLibs#datamanipulation)
 - [`DataURI`](InnerLibs#datauri)
 - [`DateRange`](InnerLibs#daterange)
-- [`DictionaryPropertyGridAdapter`](InnerLibs#dictionarypropertygridadapter)
+- [`DateRange<DataType>`](InnerLibs#daterangedatatype)
+- [`DateRangeInterval`](InnerLibs#daterangeinterval)
 - [`Directories`](InnerLibs#directories)
-- [`DocumentationPage`](InnerLibs#documentationpage)
-- [`DropDownListAdapter`](InnerLibs#dropdownlistadapter)
-- [`EditorCreatedEventArgs`](InnerLibs#editorcreatedeventargs)
 - [`Encryption`](InnerLibs#encryption)
-- [`EnhancedCollectionEditor`](InnerLibs#enhancedcollectioneditor)
 - [`eParserSyntax`](InnerLibs#eparsersyntax)
 - [`EquationPair`](InnerLibs#equationpair)
 - [`eTokenType`](InnerLibs#etokentype)
 - [`EvalType`](InnerLibs#evaltype)
 - [`Evaluator`](InnerLibs#evaluator)
 - [`EvalVariable`](InnerLibs#evalvariable)
-- [`FileContextMenu`](InnerLibs#filecontextmenu)
-- [`FileLogger`](InnerLibs#filelogger)
 - [`Files`](InnerLibs#files)
 - [`FileTree`](InnerLibs#filetree)
 - [`FileType`](InnerLibs#filetype)
 - [`FileTypeExtensions`](InnerLibs#filetypeextensions)
 - [`FileTypeList`](InnerLibs#filetypelist)
 - [`FontAwesome`](InnerLibs#fontawesome)
-- [`FormAnimator`](InnerLibs#formanimator)
 - [`FullMoneyWriter`](InnerLibs#fullmoneywriter)
 - [`FullNumberWriter`](InnerLibs#fullnumberwriter)
 - [`Generate`](InnerLibs#generate)
 - [`Globals`](InnerLibs#globals)
-- [`GoogleSuggestion`](InnerLibs#googlesuggestion)
 - [`iEvalFunctions`](InnerLibs#ievalfunctions)
 - [`iEvalHasDescription`](InnerLibs#ievalhasdescription)
 - [`iEvalTypedValue`](InnerLibs#ievaltypedvalue)
 - [`iEvalValue`](InnerLibs#ievalvalue)
 - [`Images`](InnerLibs#images)
-- [`INameProvider`](InnerLibs#inameprovider)
 - [`InnerCrypt`](InnerLibs#innercrypt)
 - [`iVariableBag`](InnerLibs#ivariablebag)
 - [`JSMin`](InnerLibs#jsmin)
-- [`Json`](InnerLibs#json)
-- [`JsonViewer`](InnerLibs#jsonviewer)
 - [`Mathematic`](InnerLibs#mathematic)
 - [`Money`](InnerLibs#money)
-- [`NameServices`](InnerLibs#nameservices)
-- [`NewItemCreatedEventArgs`](InnerLibs#newitemcreatedeventargs)
-- [`NotificationForm`](InnerLibs#notificationform)
-- [`oEmbed`](InnerLibs#oembed)
 - [`OnlineList<UserType, IdType>`](InnerLibs#onlinelistusertype-idtype)
 - [`OnlineUser<UserType, IdType>`](InnerLibs#onlineuserusertype-idtype)
 - [`opCode`](InnerLibs#opcode)
 - [`opCodeCallMethod`](InnerLibs#opcodecallmethod)
 - [`opCodeGetArrayEntry`](InnerLibs#opcodegetarrayentry)
 - [`opCodeGetVariable`](InnerLibs#opcodegetvariable)
+- [`PaginationInfo<T, ListType>`](InnerLibs#paginationinfot-listtype)
 - [`Paragraph`](InnerLibs#paragraph)
 - [`Phonetic`](InnerLibs#phonetic)
-- [`PictureService`](InnerLibs#pictureservice)
 - [`QuantityTextPair`](InnerLibs#quantitytextpair)
-- [`RemainTimeBehavior`](InnerLibs#remaintimebehavior)
 - [`Romanize`](InnerLibs#romanize)
 - [`RuleOfThree`](InnerLibs#ruleofthree)
 - [`SelfKeyDictionary<KeyType, ClassType>`](InnerLibs#selfkeydictionarykeytype-classtype)
 - [`Sentence`](InnerLibs#sentence)
 - [`SentencePart`](InnerLibs#sentencepart)
-- [`Shortcuts`](InnerLibs#shortcuts)
 - [`SoundEx`](InnerLibs#soundex)
 - [`StructuredText`](InnerLibs#structuredtext)
 - [`TableGenerator`](InnerLibs#tablegenerator)
@@ -129,12 +105,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`vCard`](InnerLibs#vcard)
 - [`Verify`](InnerLibs#verify)
 - [`Web`](InnerLibs#web)
-- [`WindowsStartup`](InnerLibs#windowsstartup)
-- [`WinForms`](InnerLibs#winforms)
-
-## [InnerLibs.BitLy](InnerLibs.BitLy)
-
-- [`BitLy`](InnerLibs.BitLy#bitly)
 
 ## [InnerLibs.Console](InnerLibs.Console)
 
@@ -149,66 +119,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DotObject`](InnerLibs.DOTLanguage#dotobject)
 - [`Graph`](InnerLibs.DOTLanguage#graph)
 
-## [InnerLibs.HtmlParser](InnerLibs.HtmlParser)
-
-- [`ClassList`](InnerLibs.HtmlParser#classlist)
-- [`CssProperties`](InnerLibs.HtmlParser#cssproperties)
-- [`CssSelector`](InnerLibs.HtmlParser#cssselector)
-- [`Emoji`](InnerLibs.HtmlParser#emoji)
-- [`HtmlAnchorElement`](InnerLibs.HtmlParser#htmlanchorelement)
-- [`HtmlAttribute`](InnerLibs.HtmlParser#htmlattribute)
-- [`HtmlAttributeCollection`](InnerLibs.HtmlParser#htmlattributecollection)
-- [`HtmlBreakLine`](InnerLibs.HtmlParser#htmlbreakline)
-- [`HtmlDocument`](InnerLibs.HtmlParser#htmldocument)
-- [`HtmlElement`](InnerLibs.HtmlParser#htmlelement)
-- [`HtmlHorizontalRule`](InnerLibs.HtmlParser#htmlhorizontalrule)
-- [`HtmlImageElement`](InnerLibs.HtmlParser#htmlimageelement)
-- [`HtmlInputElement`](InnerLibs.HtmlParser#htmlinputelement)
-- [`HtmlListElement`](InnerLibs.HtmlParser#htmllistelement)
-- [`HtmlNode`](InnerLibs.HtmlParser#htmlnode)
-- [`HtmlNodeCollection`](InnerLibs.HtmlParser#htmlnodecollection)
-- [`HtmlOptionElement`](InnerLibs.HtmlParser#htmloptionelement)
-- [`HtmlSelectElement`](InnerLibs.HtmlParser#htmlselectelement)
-- [`HtmlText`](InnerLibs.HtmlParser#htmltext)
-- [`HtmlTimeElement`](InnerLibs.HtmlParser#htmltimeelement)
-- [`MentionParser`](InnerLibs.HtmlParser#mentionparser)
-- [`PseudoClass`](InnerLibs.HtmlParser#pseudoclass)
-- [`PseudoClassNameAttribute`](InnerLibs.HtmlParser#pseudoclassnameattribute)
-- [`Token`](InnerLibs.HtmlParser#token)
-- [`Tokenizer`](InnerLibs.HtmlParser#tokenizer)
-
-## [InnerLibs.HtmlParser.Bootstrap](InnerLibs.HtmlParser.Bootstrap)
-
-- [`BootstrapBuilder`](InnerLibs.HtmlParser.Bootstrap#bootstrapbuilder)
-
-## [InnerLibs.InnerForm](InnerLibs.InnerForm)
-
-- [`InnerForm`](InnerLibs.InnerForm#innerform)
-
-## [InnerLibs.JsonReader](InnerLibs.JsonReader)
-
-- [`JsonReader`](InnerLibs.JsonReader#jsonreader)
-
 ## [InnerLibs.LINQ](InnerLibs.LINQ)
 
 - [`LINQExtensions`](InnerLibs.LINQ#linqextensions)
 
 ## [InnerLibs.Locations](InnerLibs.Locations)
 
+- [`AddressInfo`](InnerLibs.Locations#addressinfo)
+- [`AddressTypes`](InnerLibs.Locations#addresstypes)
 - [`Brasil`](InnerLibs.Locations#brasil)
-- [`Celebration`](InnerLibs.Locations#celebration)
-- [`GeoIP`](InnerLibs.Locations#geoip)
-- [`Location`](InnerLibs.Locations#location)
 - [`State`](InnerLibs.Locations#state)
-
-## [InnerLibs.Locations.GoogleMaps](InnerLibs.Locations.GoogleMaps)
-
-- [`Map`](InnerLibs.Locations.GoogleMaps#map)
 
 ## [InnerLibs.MenuBuilder](InnerLibs.MenuBuilder)
 
-- [`MenuBuilder`](InnerLibs.MenuBuilder#menubuilder)
-- [`MenuBuilderItem`](InnerLibs.MenuBuilder#menubuilderitem)
+- [`MenuItem`](InnerLibs.MenuBuilder#menuitem)
+- [`MenuItem<T>`](InnerLibs.MenuBuilder#menuitemt)
+- [`MenuList`](InnerLibs.MenuBuilder#menulist)
+- [`MenuList<T>`](InnerLibs.MenuBuilder#menulistt)
 
 ## [InnerLibs.QuestionTest](InnerLibs.QuestionTest)
 
@@ -219,7 +146,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`MultipleAlternativeQuestion`](InnerLibs.QuestionTest#multiplealternativequestion)
 - [`NumericQuestion`](InnerLibs.QuestionTest#numericquestion)
 - [`Question`](InnerLibs.QuestionTest#question)
-- [`QuestionEditor`](InnerLibs.QuestionTest#questioneditor)
 - [`QuestionStatement`](InnerLibs.QuestionTest#questionstatement)
 - [`QuestionTest`](InnerLibs.QuestionTest#questiontest)
 - [`SingleAlternativeQuestion`](InnerLibs.QuestionTest#singlealternativequestion)
@@ -232,56 +158,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DiceRoller`](InnerLibs.RolePlayingGame#diceroller)
 - [`DiceType`](InnerLibs.RolePlayingGame#dicetype)
 
-## [InnerLibs.Select2Data](InnerLibs.Select2Data)
-
-- [`AditionalData`](InnerLibs.Select2Data#aditionaldata)
-- [`Group`](InnerLibs.Select2Data#group)
-- [`Pagination`](InnerLibs.Select2Data#pagination)
-- [`Result`](InnerLibs.Select2Data#result)
-- [`Select2Results<Type>`](InnerLibs.Select2Data#select2resultstype)
-- [`Select2ResultType`](InnerLibs.Select2Data#select2resulttype)
-
-## [InnerLibs.Stilingue](InnerLibs.Stilingue)
-
-- [`StilingueAPI`](InnerLibs.Stilingue#stilingueapi)
-
 ## [InnerLibs.TimeMachine](InnerLibs.TimeMachine)
 
-- [`Cronometer`](InnerLibs.TimeMachine#cronometer)
 - [`Day`](InnerLibs.TimeMachine#day)
 - [`Fortnight`](InnerLibs.TimeMachine#fortnight)
 - [`FortnightGroup`](InnerLibs.TimeMachine#fortnightgroup)
 - [`FortnightGroup<DataType>`](InnerLibs.TimeMachine#fortnightgroupdatatype)
 - [`Item`](InnerLibs.TimeMachine#item)
-- [`LapEventArgs`](InnerLibs.TimeMachine#lapeventargs)
-- [`Stopwatch`](InnerLibs.TimeMachine#stopwatch)
 - [`TimeDemand`](InnerLibs.TimeMachine#timedemand)
 - [`TimeFlow`](InnerLibs.TimeMachine#timeflow)
-
-## [InnerLibs.Triforce](InnerLibs.Triforce)
-
-- [`MixedTemplatePage<T>`](InnerLibs.Triforce#mixedtemplatepaget)
-- [`Template<T>`](InnerLibs.Triforce#templatet)
-- [`TemplatePage<T>`](InnerLibs.Triforce#templatepaget)
-- [`TemplatePropertySelector`](InnerLibs.Triforce#templatepropertyselector)
-- [`TemplateTag`](InnerLibs.Triforce#templatetag)
-- [`Triforce`](InnerLibs.Triforce#triforce)
-- [`TriforceDateTimeFormat`](InnerLibs.Triforce#triforcedatetimeformat)
-- [`TriforceDefaultTemplate`](InnerLibs.Triforce#triforcedefaulttemplate)
-
-## [InnerLibs.Triforce.ADO](InnerLibs.Triforce.ADO)
-
-- [`Triforce<ConnectionType>`](InnerLibs.Triforce.ADO#triforceconnectiontype)
-
-## [InnerLibs.Triforce.LINQ](InnerLibs.Triforce.LINQ)
-
-- [`Triforce<DataContextType>`](InnerLibs.Triforce.LINQ#triforcedatacontexttype)
-
-## [IWshRuntimeLibrary](IWshRuntimeLibrary)
-
-- [`IWshShell`](IWshRuntimeLibrary#iwshshell)
-- [`IWshShell2`](IWshRuntimeLibrary#iwshshell2)
-- [`IWshShell3`](IWshRuntimeLibrary#iwshshell3)
-- [`IWshShortcut`](IWshRuntimeLibrary#iwshshortcut)
-- [`WshShell`](IWshRuntimeLibrary#wshshell)
 

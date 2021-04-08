@@ -1,46 +1,3 @@
-## `Cronometer`
-
-```csharp
-public class InnerLibs.TimeMachine.Cronometer
-    : Timer, IComponent, IDisposable
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | Format | Formato do Cronometro | 
-| `List<TimeSpan>` | Laps | Lista de `System.DateTime` dos valores de cada Lap | 
-| `TimeFlow` | ToTimeFlow | Retorna um `InnerLibs.TimeMachine.TimeFlow` calculado para este cronometro. | 
-| `TimeSpan` | Value | Retorna o valor atual do cronometro | 
-
-
-Events
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `OnChangeEventHandler` | OnChange | Ocorre toda vez que o cronometro iniciar, mudar de valor, parar, reiniciar ou marcar uma volta | 
-| `EventHandler` | OnLap | ocorre toda vez que a função `InnerLibs.TimeMachine.Cronometer.Lap` é chamada | 
-| `EventHandler` | OnReset | Ocorre toda vez que o cronometro Reinicia `InnerLibs.TimeMachine.Cronometer.Reset`) | 
-| `EventHandler` | OnStart | Ocorre toda vez que o cronometro inicia ( `InnerLibs.TimeMachine.Cronometer.Start`) | 
-| `EventHandler` | OnStop | Ocorre toda vez que o cronometro para ( `InnerLibs.TimeMachine.Cronometer.Stop`) | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `List<String>` | GetLaps(`String` Format = ) | Retorna uma lista de strings da extraidas da `InnerLibs.TimeMachine.Cronometer.Laps` em um formato  especifico de data | 
-| `void` | Lap() | Marca um valor no cronometro | 
-| `void` | Reset() | Limpa os valores do cronometro | 
-| `void` | Start() | Inicia o cronometro | 
-| `void` | StartOver() | Renicia o cronometro. é o equivalente em chamar `InnerLibs.TimeMachine.Cronometer.Reset` e `InnerLibs.TimeMachine.Cronometer.Start` | 
-| `void` | Stop() | Para o cronometro | 
-| `String` | ToString() | Texto atual do cronometro | 
-| `String` | ToString(`String` Format) | Texto atual do cronometro | 
-
-
 ## `Day`
 
 Dia de Uma Demanda
@@ -144,7 +101,6 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Dictionary<Fortnight, IEnumerable<DataType>>` | ToDataDictionary(`Boolean` IncludeFortnightsWithoutData = True) | Retorna um `System.Collections.Generic.Dictionary`2` com as informaçoes agrupadas por quinzena | 
-| `Object` | ToJSON(`Boolean` IncludeFortnightsWithoutData = True) |  | 
 
 
 Static Methods
@@ -180,53 +136,6 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `String` | ToString() | Retorna uma string que representa a quantidade do item | 
-
-
-## `LapEventArgs`
-
-```csharp
-public class InnerLibs.TimeMachine.LapEventArgs
-    : EventArgs
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `DateTime` | DateValue |  | 
-| `TimeSpan` | Value |  | 
-
-
-## `Stopwatch`
-
-```csharp
-public class InnerLibs.TimeMachine.Stopwatch
-    : Cronometer, IComponent, IDisposable
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `TimeSpan` | InitialTime | Valor inicial do contador | 
-| `TimeSpan` | Value | Retorna o valor atual do contador | 
-
-
-Events
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `EventHandler` | OnFinish | Ocorre toda vez que o contador chegar a zero | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | ToString() | Texto atual do contador | 
-| `String` | ToString(`String` Format) | Texto atual do contador | 
 
 
 ## `TimeDemand`
@@ -306,6 +215,8 @@ Properties
 | `Int32` | Seconds | Numero de Segundos | 
 | `DateTime` | StartDate | Data Inicial | 
 | `Decimal` | TotalDays |  | 
+| `Decimal` | TotalHours |  | 
+| `Decimal` | TotalMilliseconds |  | 
 | `Decimal` | TotalMinutes |  | 
 | `Decimal` | TotalMonths |  | 
 | `Decimal` | TotalSeconds |  | 
