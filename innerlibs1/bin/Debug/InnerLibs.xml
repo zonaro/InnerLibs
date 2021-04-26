@@ -2095,6 +2095,12 @@ Verifica se o objeto é do tipo numérico.
  </summary>
  <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
 </member>
+<member name="M:InnerLibs.RolePlayingGame.DiceRoller.Roll(System.Int32)">
+ <summary>
+ Rola todos os dados (não travados) e retorna a soma de seus valores
+ </summary>
+ <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
+</member>
 <member name="M:InnerLibs.RolePlayingGame.DiceRoller.op_Addition(InnerLibs.RolePlayingGame.DiceRoller,InnerLibs.RolePlayingGame.Dice)">
  <summary>
  Combina um dado com DiceRoller
@@ -2181,10 +2187,23 @@ Verifica se o objeto é do tipo numérico.
  <param name="FaceNumber">Numero da face</param>
  <returns></returns>
 </member>
-<member name="M:InnerLibs.RolePlayingGame.Dice.NormalizeWeight">
+<member name="M:InnerLibs.RolePlayingGame.Dice.GetFace(System.Int32)">
+ <summary>
+ Retorna a face correspondente ao numero
+ </summary>
+ <param name="FaceNumber">Numero da face</param>
+ <returns></returns>
+</member>
+<member name="M:InnerLibs.RolePlayingGame.Dice.NormalizeWeight(System.Decimal)">
  <summary>
  Normaliza o peso das faces do dado
  </summary>
+</member>
+<member name="P:InnerLibs.RolePlayingGame.Dice.Weight">
+ <summary>
+ Peso do dado
+ </summary>
+ <returns></returns>
 </member>
 <member name="P:InnerLibs.RolePlayingGame.Dice.Faces">
  <summary>
@@ -2209,7 +2228,7 @@ Verifica se o objeto é do tipo numérico.
  Face de um dado. Pode ser viciada ou não
  </summary>
 </member>
-<member name="P:InnerLibs.RolePlayingGame.Dice.DiceFace.Value">
+<member name="P:InnerLibs.RolePlayingGame.Dice.DiceFace.Number">
  <summary>
  Valor Da Face (numero)
  </summary>
@@ -3194,6 +3213,72 @@ Verifica se o objeto é do tipo numérico.
 <member name="P:InnerLibs.PaginationInfo`2.PageNumber">
  <summary>
  Numero desta pagina
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.LastPage">
+ <summary>
+ Numero da ultima pagina
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.FirstPage">
+ <summary>
+ Numero da primeira pagina
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.NextPage">
+ <summary>
+ Numero da proxima pagina
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.PreviousPage">
+ <summary>
+ Numero da pagina anterior
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.IsFirstPage">
+ <summary>
+ Retorna true se esta pagina é a primeira
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.IsLastPage">
+ <summary>
+ Retorna true se esta pagina é a ultima
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.IsNecessary">
+ <summary>
+ Retorna true se existir mais de uma pagina
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.IsFirstPageNecessary">
+ <summary>
+ Retorna true se existir o botão de primeira página for necessário
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.IsLastPageNecessary">
+ <summary>
+ Retorna true se existir o botão de primeira página for necessário
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.IsPreviousPageNecessary">
+ <summary>
+ Retorna true se existir o botão de pagina anterior for necessário
+ </summary>
+ <returns></returns>
+</member>
+<member name="P:InnerLibs.PaginationInfo`2.IsNextPageNecessary">
+ <summary>
+ Retorna true se existir o botão de proxima pagina for necessário
  </summary>
  <returns></returns>
 </member>

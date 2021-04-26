@@ -1,9 +1,7 @@
 ﻿Imports System.Collections.ObjectModel
 Imports InnerLibs
 
-
 Namespace RolePlayingGame
-
 
     ''' <summary>
     ''' Combinação de varios dados de RPG que podem ser rolados ao mesmo tempo
@@ -69,6 +67,19 @@ Namespace RolePlayingGame
                 _value.Increment(d.Roll)
             Next
             Return Value
+        End Function
+
+
+        ''' <summary>
+        ''' Rola todos os dados (não travados) e retorna a soma de seus valores
+        ''' </summary>
+        ''' <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
+        Public Function Roll(Times As Integer) As IEnumerable(Of Integer)
+            Dim l As New List(Of Integer)
+            For index = 1 To Times
+                l.Add(Roll())
+            Next
+            Return l
         End Function
 
         ''' <summary>
@@ -149,7 +160,7 @@ Namespace RolePlayingGame
         ''' <returns></returns>
         Public ReadOnly Property IsVicious As Boolean
             Get
-                Return Faces.AsEnumerable.Count(Function(x) x.IsVicious) > 0
+                Return Faces.AsEnumerable.Any(Function(x) x.IsVicious)
             End Get
         End Property
 
@@ -168,7 +179,7 @@ Namespace RolePlayingGame
                 Return _value
             End Get
             Set(value As Integer)
-                Me._value = value.LimitRange(1, Faces.Last.Value)
+                Me._value = value.LimitRange(1, Faces.Last.Number)
             End Set
         End Property
 
@@ -192,14 +203,14 @@ Namespace RolePlayingGame
         ''' <returns>Integer</returns>
         Public Function Roll() As Integer
             If Not Locked Then
-                _rolledtimes.Increment
+                _rolledtimes = _rolledtimes + 1
                 Dim numfaces As New List(Of DiceFace)
                 For Each f In Faces
                     For index = 1 To f.Weight
                         numfaces.Add(f)
                     Next
                 Next
-                Value = numfaces.GetRandomItem.Value
+                Value = numfaces.GetRandomItem.Number
             End If
             Return Value
         End Function
@@ -211,32 +222,57 @@ Namespace RolePlayingGame
         ''' <returns></returns>
         Default ReadOnly Property Face(FaceNumber As Integer) As DiceFace
             Get
-                Return Me.Faces.Item(FaceNumber.LimitRange(1, Faces.Count) - 1)
+                FaceNumber = FaceNumber.LimitRange(1, Faces.Count)
+                Return Me.Faces.Item(FaceNumber - 1)
             End Get
         End Property
 
+        ''' <summary>
+        ''' Retorna a face correspondente ao numero
+        ''' </summary>
+        ''' <param name="FaceNumber">Numero da face</param>
+        ''' <returns></returns>
+        Public Function GetFace(FaceNumber As Integer) As DiceFace
+            Return Face(FaceNumber)
+        End Function
 
         ''' <summary>
         ''' Normaliza o peso das faces do dado
         ''' </summary>
-        Public Sub NormalizeWeight()
+        Public Sub NormalizeWeight(Optional Weight As Decimal = 1)
+            Weight = Weight.SetMinValue(1)
             For Each f As DiceFace In _Faces
-                f.Weight = 1
+                f.Weight = Weight
             Next
         End Sub
 
         Private Function GetChancePercent(Face As Integer) As Integer
-            Face = Face.LimitRange(1, Faces.Count)
-            Dim ptotal = 0
-            For Each f In Faces
-                ptotal.Increment(f.Weight)
-            Next
-            Return Mathematic.CalculatePercent(Faces(Face - 1).Weight, ptotal)
+            Dim pesototal = Weight
+            Return Mathematic.CalculatePercent(GetFace(Face).Weight, pesototal)
         End Function
+
+        Private Function GetValueOfPercent(Face As Integer) As Integer
+            Dim pesototal = Weight
+            Return Mathematic.CalculateValueFromPercent(GetFace(Face).WeightPercent, pesototal)
+        End Function
+
+        ''' <summary>
+        ''' Peso do dado
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Weight As Decimal
+            Get
+                Return Faces.Sum(Function(x) x.Weight)
+            End Get
+            Set(value As Decimal)
+                NormalizeWeight(value / Faces.Count)
+            End Set
+        End Property
 
         Private Sub ApplyPercent()
             For Each f In Faces
-                f._weightpercent = GetChancePercent(f.Value)
+                f._weightpercent = GetChancePercent(f.Number)
+
             Next
         End Sub
 
@@ -275,11 +311,11 @@ Namespace RolePlayingGame
         Class DiceFace
 
             Public Shared Widening Operator CType(v As DiceFace) As Integer
-                Return v.Value
+                Return v.Number
             End Operator
 
             Friend Sub New(d As Dice, FaceNumber As Integer)
-                Me.Value = FaceNumber.SetMinValue(1)
+                Me.Number = FaceNumber.SetMinValue(1)
                 Me.dice = d
             End Sub
 
@@ -289,8 +325,7 @@ Namespace RolePlayingGame
             ''' Valor Da Face (numero)
             ''' </summary>
             ''' <returns></returns>
-            ReadOnly Property Value As Integer
-
+            ReadOnly Property Number As Integer
 
             ''' <summary>
             ''' Peso da face (vicia o dado)
@@ -301,24 +336,51 @@ Namespace RolePlayingGame
                     Return _weight
                 End Get
                 Set(Value As Decimal)
-                    _weight = Value.LimitRange(1, dice.Faces.Count - 1)
+                    _weight = Value '.LimitRange(1, dice.Faces.Count - 1)
+                    Dim total = Me.dice.Weight
                     dice.ApplyPercent()
                 End Set
             End Property
 
-            Private _weight As Decimal = 1
+            Friend _weight As Decimal = 1
 
             ''' <summary>
             ''' Porcetagem do peso da face (vicia o dado)
             ''' </summary>
             ''' <returns></returns>
-            ReadOnly Property WeightPercent As Integer
+            Property WeightPercent As Decimal
                 Get
                     Return _weightpercent
                 End Get
+                Set(Value As Decimal)
+                    Value = Value.LimitRange(0, 100)
+
+                    Dim total_peso = Me.dice.Weight
+                    Dim total_antigo = Me.dice.Weight
+                    Dim peso_outros = OtherFaces.Sum(Function(x) x.Weight)
+
+                    _weight = Mathematic.CalculateValueFromPercent(Value, total_peso)
+
+                    total_peso = _weight + peso_outros
+                    _weightpercent = Value
+                    For Each item In OtherFaces()
+                        item._weightpercent = item._weight.CalculatePercent(total_peso)
+                    Next
+
+                    For Each item In Me.dice.Faces
+                        item._weight = item.WeightPercent.CalculateValueFromPercent(total_antigo)
+                    Next
+
+                    Me.dice.ApplyPercent()
+                    'Dim total = Value + OtherFaces.Sum(Function(x) x.WeightPercent)
+                    'Value = Value.CalculateValueFromPercent(total)
+                    'total = 100
+
+                End Set
+
             End Property
 
-            Protected Friend _weightpercent As Integer = 1
+            Protected Friend _weightpercent As Decimal = 1
 
             ''' <summary>
             ''' Valor que indica se a face está viciada
@@ -326,9 +388,14 @@ Namespace RolePlayingGame
             ''' <returns></returns>
             ReadOnly Property IsVicious As Boolean
                 Get
-                    Return Weight > 1
+                    Return OtherFaces.Select(Function(x) x.WeightPercent).Distinct().All(Function(x) x <> Me.WeightPercent)
                 End Get
             End Property
+
+            Function OtherFaces() As IEnumerable(Of DiceFace)
+                Return Me.dice.Faces.Where(Function(x) x.Number <> Me.Number)
+            End Function
+
         End Class
 
     End Class
@@ -384,4 +451,5 @@ Namespace RolePlayingGame
         D100 = 100
 
     End Enum
+
 End Namespace

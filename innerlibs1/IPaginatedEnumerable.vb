@@ -7,6 +7,8 @@
 ''' <typeparam name="ListType"></typeparam>
 Public Class PaginationInfo(Of T, ListType As IEnumerable(Of T))
 
+
+
     ''' <summary>
     ''' Filtro aplicado previaménte em lista. Guarda qualquer objeto
     ''' </summary>
@@ -23,6 +25,126 @@ Public Class PaginationInfo(Of T, ListType As IEnumerable(Of T))
     ''' </summary>
     ''' <returns></returns>
     ReadOnly Property PageNumber As Integer = 1
+
+    ''' <summary>
+    ''' Numero da ultima pagina
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property LastPage As Integer
+        Get
+            Return PageCount
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Numero da primeira pagina
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property FirstPage As Integer
+        Get
+            Return 1
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Numero da proxima pagina
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property NextPage As Integer
+        Get
+            Dim pp = PageNumber + 1
+            If pp > LastPage Then
+                pp = FirstPage
+            End If
+            Return pp
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Numero da pagina anterior
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property PreviousPage As Integer
+        Get
+            Dim pp = PageNumber - 1
+            If pp < 1 Then
+                pp = LastPage
+            End If
+            Return pp
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna true se esta pagina é a primeira
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property IsFirstPage As Boolean
+        Get
+            Return PageNumber = FirstPage
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna true se esta pagina é a ultima
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property IsLastPage As Boolean
+        Get
+            Return PageNumber = LastPage
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna true se existir mais de uma pagina
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property IsNecessary As Boolean
+        Get
+            Return PageCount > 1
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna true se existir o botão de primeira página for necessário
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property IsFirstPageNecessary As Boolean
+        Get
+            Return PageNumber > FirstPage
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna true se existir o botão de primeira página for necessário
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property IsLastPageNecessary As Boolean
+        Get
+            Return PageNumber < LastPage
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna true se existir o botão de pagina anterior for necessário
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property IsPreviousPageNecessary As Boolean
+        Get
+            Return IsFirstPageNecessary
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Retorna true se existir o botão de proxima pagina for necessário
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property IsNextPageNecessary As Boolean
+        Get
+            Return IsLastPageNecessary
+        End Get
+    End Property
+
+
     ''' <summary>
     ''' Total de itens da Lista
     ''' </summary>
@@ -45,7 +167,7 @@ Public Class PaginationInfo(Of T, ListType As IEnumerable(Of T))
         End Get
     End Property
 
-    Sub New(ByVal List As IQueryable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing)
+    Sub New(List As IQueryable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing)
         Me.Total = List.Count()
         Me.PageNumber = PageNumber
         Me.PageSize = PageSize
@@ -58,7 +180,7 @@ Public Class PaginationInfo(Of T, ListType As IEnumerable(Of T))
         End If
     End Sub
 
-    Sub New(ByVal List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing)
+    Sub New(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing)
         Me.Total = List.Count()
         Me.PageNumber = PageNumber
         Me.PageSize = PageSize
@@ -107,6 +229,10 @@ Public Class PaginationInfo(Of T, ListType As IEnumerable(Of T))
             Return arr.ToArray
         End Get
     End Property
+
+    Public Function IsCurrentPage(Index As Integer) As Boolean
+        Return Index = PageNumber
+    End Function
 
 End Class
 

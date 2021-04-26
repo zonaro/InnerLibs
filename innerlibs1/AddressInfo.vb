@@ -15,7 +15,6 @@ Namespace Locations
         Public Sub New()
         End Sub
 
-
         ''' <summary>
         ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
         ''' </summary>
@@ -45,6 +44,7 @@ Namespace Locations
         ''' </summary>
         ''' <returns></returns>
         Public Property DDD As String
+
         Public Property IBGE As String
         Public Property GIA As String
         Public Property SIAFI As String
@@ -101,7 +101,7 @@ Namespace Locations
         ''' <param name="CEP"></param>
         ''' <returns></returns>
         Public Shared Function FormatPostalCode(CEP As String) As String
-            CEP = CEP.Trim()
+            CEP = CEP.IfBlank("").Trim()
             If CEP.IsValidCEP Then
                 If CEP.IsNumber() Then
                     CEP = CEP.Insert(5, "-")
@@ -126,7 +126,6 @@ Namespace Locations
                 PostalCode = value
             End Set
         End Property
-
 
         ''' <summary>
         ''' Cidade
@@ -157,6 +156,7 @@ Namespace Locations
         ''' <returns>País</returns>
 
         Property Country As String
+
         ''' <summary>
         ''' Coordenada geográfica LATITUDE
         ''' </summary>
@@ -170,8 +170,6 @@ Namespace Locations
         ''' <value></value>
         ''' <returns>Longitude</returns>
         Property Longitude As Decimal
-
-
 
         ''' <summary>
         ''' Retorna o endereço completo
@@ -213,13 +211,12 @@ Namespace Locations
             Return retorno
         End Function
 
-
         Friend Sub ParseType()
             If Me.StreetType.IsBlank() Then
                 If Me.StreetName.IsNotBlank Then
                     Me.StreetType = AddressTypes.GetAddressType(Me.StreetName)
                     If Me.StreetType.IsNotBlank Then
-                        Me.StreetName = Me.StreetName.Trim().RemoveFirstIf(StreetType).Trim().AdjustBlankSpaces().ToTitle()
+                        Me.StreetName = Me.StreetName.Trim().RemoveFirstIf(StreetType).Trim().AdjustBlankSpaces().ToTitle(True)
                     End If
                 End If
             End If
@@ -239,24 +236,23 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
             Dim l = New AddressInfo()
-            l.StreetName = Address.ToTitle().AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
-            l.Neighborhood = Neighborhood.ToTitle().AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.StreetName = Address.AdjustBlankSpaces().ToTitle(True).NullIf(Function(x) x.IsBlank())
+            l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToTitle(True).NullIf(Function(x) x.IsBlank())
             l.Complement = Complement.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
             l.Number = Number.NullIf(Function(x) x.IsBlank())
-            l.City = City.ToTitle().AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.City = City.AdjustBlankSpaces().ToTitle(True).NullIf(Function(x) x.IsBlank())
             If State.Length = 2 Then
-                l.StateCode = State.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+                l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
             Else
                 l.State = State.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
             End If
-            l.Country = Country
+            l.Country = Country.ToTitle().NullIf(Function(x) x.IsBlank())
             l.PostalCode = PostalCode.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
             l.ParseType()
             Return l
         End Function
 
         Public Shared Function FormatAddress(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As String
-
             Return CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).Address
         End Function
 
@@ -277,7 +273,6 @@ Namespace Locations
             Return Latitude & "," & Longitude
         End Function
 
-
         ''' <summary>
         ''' Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
         ''' </summary>
@@ -288,15 +283,31 @@ Namespace Locations
                     Dim x = New XmlDocument()
                     x.LoadXml(c.DownloadString(url))
                     Dim cep = x("xmlcep")
-                    Me.Neighborhood = cep("bairro").InnerText
-                    Me.City = cep("localidade").InnerText
-                    Me.StateCode = cep("uf").InnerText
+                    Me.Neighborhood = cep("bairro")?.InnerText
+                    Me.City = cep("localidade")?.InnerText
+                    Me.StateCode = cep("uf")?.InnerText
                     Me.State = Brasil.GetNameOf(Me.StateCode)
-                    Me.StreetName = cep("logradouro").InnerText
-                    Me.DDD = cep("ddd").InnerText
-                    Me.IBGE = cep("ibge").InnerText
-                    Me.GIA = cep("gia").InnerText
-                    Me.SIAFI = cep("SIAFI").InnerText
+                    Me.StreetName = cep("logradouro")?.InnerText
+                    Try
+                        Me.DDD = cep("ddd")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
+                    Try
+                        Me.IBGE = cep("ibge")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
+                    Try
+                        Me.GIA = cep("gia")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
+                    Try
+                        Me.SIAFI = cep("SIAFI")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
                     Me.Country = "Brasil"
                     ParseType()
                 End Using
@@ -314,7 +325,7 @@ Namespace Locations
             Dim tp = Endereco.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
             If tp.IsNotBlank Then
                 Dim df = New AddressTypes()
-                Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp).Name
+                Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp)?.Name.IfBlank("")
             End If
             Return ""
         End Function
