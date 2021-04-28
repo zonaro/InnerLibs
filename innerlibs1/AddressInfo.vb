@@ -208,7 +208,7 @@ Namespace Locations
             End If
             If PostalCode.IsNotBlank AndAlso IncludePostalCode Then retorno &= (" - " & PostalCode)
             If Country.IsNotBlank AndAlso IncludeCountry Then retorno &= (" - " & Country)
-            Return retorno
+            Return retorno.AdjustBlankSpaces()
         End Function
 
         Friend Sub ParseType()
@@ -236,17 +236,17 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
             Dim l = New AddressInfo()
-            l.StreetName = Address.AdjustBlankSpaces().ToTitle(True).NullIf(Function(x) x.IsBlank())
-            l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToTitle(True).NullIf(Function(x) x.IsBlank())
-            l.Complement = Complement.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.StreetName = Address.AdjustBlankSpaces().ToLower().ToTitle().AdjustBlankSpaces().Trim(",").Trim(Number.IfBlank("")).Trim(" ").NullIf(Function(x) x.IsBlank())
+            l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+            l.Complement = Complement.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.Number = Number.NullIf(Function(x) x.IsBlank())
-            l.City = City.AdjustBlankSpaces().ToTitle(True).NullIf(Function(x) x.IsBlank())
+            l.City = City.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             If State.Length = 2 Then
                 l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
             Else
-                l.State = State.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+                l.State = State.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             End If
-            l.Country = Country.ToTitle().NullIf(Function(x) x.IsBlank())
+            l.Country = Country.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.PostalCode = PostalCode.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
             l.ParseType()
             Return l
