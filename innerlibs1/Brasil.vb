@@ -56,7 +56,7 @@ Namespace Locations
         Public Sub New(StateCode As String)
             Me.Acronym = StateCode
             Me.Name = Brasil.GetNameOf(StateCode)
-            Me.Cities = Brasil.GetCitiesOf(StateCode)
+            Me.Cities = Brasil.GetCitiesOf(StateCode).ToList()
         End Sub
 
         ''' <summary>
@@ -89,7 +89,13 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared ReadOnly Property States As IEnumerable(Of State)
             Get
-                Dim l = New List(Of State)
+                Return CreateList()
+            End Get
+        End Property
+
+        Private Shared l As List(Of State) = New List(Of State)
+        Private Shared Function CreateList() As List(Of State)
+            If Not l.Any() Then
                 Dim r = New StreamReader([Assembly].GetExecutingAssembly().GetManifestResourceStream("InnerLibs.brasil.xml"))
                 Dim s = r.ReadToEnd().ToString
                 Dim doc = New XmlDocument()
@@ -104,9 +110,9 @@ Namespace Locations
                     Next
                     l.Add(estado)
                 Next
-                Return l
-            End Get
-        End Property
+            End If
+            Return l
+        End Function
 
         ''' <summary>
         ''' Retorna as Regiões dos estados brasileiros

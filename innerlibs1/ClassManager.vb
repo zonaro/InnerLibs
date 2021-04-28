@@ -1,17 +1,34 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Data.Common
-Imports System.Drawing.Text
 Imports System.Dynamic
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
-Imports System.Runtime.InteropServices
 Imports System.Text.RegularExpressions
 Imports System.Web
-Imports InnerLibs.HtmlParser
+
 Imports InnerLibs.LINQ
 
 Public Module ClassTools
+
+    ''' <summary>
+    ''' Retorna as classes de um Namespace
+    ''' </summary>
+    ''' <param name="assembly"></param>
+    ''' <param name="desiredNamespace"></param>
+    ''' <returns></returns>
+    <Extension> Public Function GetTypesFromNamespace(assembly As Assembly, desiredNamespace As String) As Type()
+        Return assembly.GetTypes().Where(Function(x) x.Namespace = desiredNamespace)
+    End Function
+
+    ''' <summary>
+    ''' Retorna as classes de um Namespace
+    ''' </summary>
+    ''' <param name="desiredNamespace"></param>
+    ''' <returns></returns>
+    Public Function GetTypesFromNamespace(desiredNamespace As String) As Type()
+        Return Assembly.GetExecutingAssembly().GetTypesFromNamespace(desiredNamespace)
+    End Function
 
     ''' <summary>
     ''' Cria um <see cref="Guid"/> a partir de uma string ou um novo <see cref="Guid"/> se a conversão falhar
@@ -42,13 +59,7 @@ Public Module ClassTools
         Return ExceptionString
     End Function
 
-    <Extension()> Public Function DictionaryToObject(ByVal dict As IDictionary) As Object
-        Dim eo As IDictionary(Of String, Object) = CType(New ExpandoObject(), IDictionary(Of String, Object))
-        For Each kvp In dict
-            eo.Add(kvp.Key, kvp.Value)
-        Next
-        Return eo
-    End Function
+
 
     ''' <summary>
     ''' Retorna um dicionário em QueryString
@@ -71,11 +82,6 @@ Public Module ClassTools
     <Extension()> Public Function ToQueryString(NVC As NameValueCollection) As String
         Return NVC.AllKeys.SelectManyJoin(Function(n) NVC.GetValues(n).Select(Function(v) n & "=" & v).Where(Function(x) x.IsNotBlank() AndAlso x <> "="), "&")
     End Function
-
-
-
-
-
 
     ''' <summary>
     ''' Remove um item de uma lista e retorna este item
@@ -190,8 +196,6 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
-
-
     ''' <summary>
     ''' Mapeia os objetos de um datareader para uma classe
     ''' </summary>
@@ -224,9 +228,6 @@ Public Module ClassTools
         End While
         Return l
     End Function
-
-
-
 
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -379,8 +380,6 @@ Public Module ClassTools
         Return False
     End Function
 
-
-
     ''' <summary>
     ''' Converte uma classe para um <see cref="Dictionary"/>
     ''' </summary>
@@ -390,8 +389,6 @@ Public Module ClassTools
     <Extension()> Public Function CreateDictionary(Of Type)(Obj As Type) As Dictionary(Of String, Object)
         Return Obj.[GetType]().GetProperties(BindingFlags.Instance Or BindingFlags.[Public]).ToDictionary(Function(prop) prop.Name, Function(prop) prop.GetValue(Obj, Nothing))
     End Function
-
-
 
     ''' <summary>
     ''' Conta de maneira distinta items de uma coleçao
@@ -505,8 +502,6 @@ Public Module ClassTools
     Public Function FirstAnyOr(Of T)(source As IEnumerable(Of T), Alternate As T, ParamArray predicate() As Func(Of T, Boolean)) As T
         Return If(source.FirstAny(predicate), Alternate)
     End Function
-
-
 
     <Extension()>
     Function GetAttributeValue(Of TAttribute As Attribute, TValue)(ByVal type As Type, ByVal ValueSelector As Func(Of TAttribute, TValue)) As TValue
@@ -680,11 +675,6 @@ Public Module ClassTools
         Return {}
     End Function
 
-
-
-
-
-
     ''' <summary>
     ''' Pega os bytes de um arquivo embutido no assembly
     ''' </summary>
@@ -711,8 +701,6 @@ Public Module ClassTools
             Return d.ReadToEnd
         End Using
     End Function
-
-
 
     <Extension()>
     Function GetValueOr(Of tkey, Tvalue)(Dic As IDictionary(Of tkey, Tvalue), Key As tkey, Optional ReplaceValue As Tvalue = Nothing) As Tvalue
@@ -964,8 +952,6 @@ Public Module ClassTools
         Return all
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
     ''' </summary>
@@ -1026,8 +1012,6 @@ Public Module ClassTools
         Return Nothing
     End Function
 
-
-
     ''' <summary>
     ''' Remove de um dicionario as respectivas Keys se as mesmas existirem
     ''' </summary>
@@ -1075,7 +1059,5 @@ Public Module ClassTools
     Public Sub SetPropertyValueFromCollection(Of Type)(MyObject As Object, PropertyName As String, Collection As CollectionBase)
         GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.SetValue(MyObject, Collection(PropertyName))
     End Sub
-
-
 
 End Module

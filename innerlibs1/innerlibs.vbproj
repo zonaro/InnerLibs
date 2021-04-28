@@ -77,7 +77,6 @@
     <Compile Include="Base64.vb" />
     <Compile Include="Brasil.vb" />
     <Compile Include="Calendars.vb" />
-    <Compile Include="Class1.vb" />
     <Compile Include="ClassManager.vb" />
     <Compile Include="ColorConvert.vb" />
     <Compile Include="ColorEx.vb" />
