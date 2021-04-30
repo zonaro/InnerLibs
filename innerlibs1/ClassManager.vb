@@ -1,15 +1,49 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Data.Common
-Imports System.Dynamic
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
 Imports System.Web
-
+Imports System.Xml
+Imports System.Xml.Serialization
 Imports InnerLibs.LINQ
 
 Public Module ClassTools
+
+    <Extension()> Public Function CreateXML(Of Type)(obj As Type) As XmlDocument
+        Dim xs As XmlSerializer = New XmlSerializer(obj.GetType())
+        Dim sw As System.IO.StringWriter = New System.IO.StringWriter()
+        xs.Serialize(sw, obj)
+        Dim doc As XmlDocument = New XmlDocument()
+        doc.LoadXml(sw.ToString())
+        Return doc
+    End Function
+
+    <Extension()> Public Function CreateObjectFromXML(Of Type)(XML As String) As Type
+        Dim serializer = New XmlSerializer(GetType(Type))
+        Dim obj As Type
+        Using reader = New StringReader(XML)
+            obj = serializer.Deserialize(reader)
+        End Using
+        Return obj
+    End Function
+
+    <Extension()> Public Function CreateObjectFromXMLFile(Of Type)(XML As FileInfo) As Type
+        Return File.ReadAllText(XML.FullName).CreateObjectFromXML(Of Type)
+    End Function
+
+
+    ''' <summary>
+    ''' Cria um arquivo a partir de qualquer objeto usando o <see cref="CreateObjectFromXML(Object)"/>
+    ''' </summary>
+    ''' <param name="obj"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CreateXmlFile(obj As Object, FilePath As String) As FileInfo
+        Return CreateXML(obj).ToXMLString().WriteToFile(FilePath)
+    End Function
+
+
 
     ''' <summary>
     ''' Retorna as classes de um Namespace
@@ -58,8 +92,6 @@ Public Module ClassTools
         End While
         Return ExceptionString
     End Function
-
-
 
     ''' <summary>
     ''' Retorna um dicionário em QueryString
