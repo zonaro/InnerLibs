@@ -7,14 +7,22 @@ Namespace LINQ
     Public Module LINQExtensions
 
         <Extension>
-        Public Function CreatePaginationInfo(Of T)(ByVal List As IQueryable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing) As PaginationInfo(Of T, IQueryable(Of T))
-            Return New PaginationInfo(Of T, IQueryable(Of T))(List, PageNumber, PageSize, PaginationOffset, Filter)
+        Public Function CreatePaginationInfo(Of T)(ByVal List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Expression(Of Func(Of T, Boolean)) = Nothing) As PaginationInfo(Of T)
+            Return New PaginationInfo(Of T)(List, PageNumber, PageSize, PaginationOffset, Filter)
         End Function
 
+        ''' <summary>
+        ''' Retorna um <see cref="LambdaFilter(Of T)"/> para a lista especificada
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
         <Extension>
-        Public Function CreatePaginationInfo(Of T)(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Object = Nothing) As PaginationInfo(Of T, IEnumerable(Of T))
-            Return New PaginationInfo(Of T, IEnumerable(Of T))(List, PageNumber, PageSize, PaginationOffset, Filter)
+        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Optional Exclusive As Boolean = True) As LambdaFilter(Of T)
+            Return New LambdaFilter(Of T)(Exclusive).SetData(List)
         End Function
+
+
 
         ''' <summary>
         ''' Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
@@ -29,30 +37,13 @@ Namespace LINQ
             Dim parameter = Expression.Parameter(GetType(Type), GetType(Type).Name.ToLower())
             Dim member = Expression.[Property](parameter, PropertyName)
             Dim constant = Expression.Constant(PropertyValue)
-            Dim body As Expression
-            Select Case [Operator].ToLower()
-                Case "=", "==", "equal"
-                    body = Expression.Equal(member, constant)
-                Case ">=", "greaterthanorequal", "greaterorequal"
-                    body = Expression.GreaterThanOrEqual(member, constant)
-                Case "<=", "lessthanorequal", "lessorequal"
-                    body = Expression.LessThanOrEqual(member, constant)
-                Case ">", "greaterthan", "greater"
-                    body = Expression.GreaterThan(member, constant)
-                Case "<", "lessthan", "less"
-                    body = Expression.LessThan(member, constant)
-                Case "<>", "!=", "notequal"
-                    body = Expression.NotEqual(member, constant)
-                Case "like", "contains"
-                    body = Expression.Call(member, containsMethod, constant)
-                Case Else
-                    body = Expression.Call(member, GetType(Type).GetMethod([Operator], {PropertyValue.GetType()}), constant)
-            End Select
-
+            Dim body As Expression = GetOperatorExpression(Of Type)(member, [Operator], PropertyValue)
             body = Expression.Equal(body, Expression.Constant([Is]))
             Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
             Return finalExpression
         End Function
+
+
 
         ''' <summary>
         ''' Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
@@ -66,6 +57,34 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension()> Function WhereExpression(Of T)(List As IQueryable(Of T), PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As IQueryable(Of T)
             Return List.Where(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
+        End Function
+
+        Function GetOperatorExpression(Of T)(Member As MemberExpression, [Operator] As String, PropertyValue As Object) As BinaryExpression
+            Dim constant = Expression.Constant(PropertyValue)
+            Dim body As BinaryExpression
+            Select Case [Operator].ToLower()
+                Case "=", "==", "equal"
+                    body = Expression.Equal(Member, constant)
+                Case ">=", "greaterthanorequal", "greaterorequal"
+                    body = Expression.GreaterThanOrEqual(Member, constant)
+                Case "<=", "lessthanorequal", "lessorequal"
+                    body = Expression.LessThanOrEqual(Member, constant)
+                Case ">", "greaterthan", "greater"
+                    body = Expression.GreaterThan(Member, constant)
+                Case "<", "lessthan", "less"
+                    body = Expression.LessThan(Member, constant)
+                Case "<>", "!=", "notequal"
+                    body = Expression.NotEqual(Member, constant)
+                Case "like", "contains"
+                    If Member.Type = GetType(String) Then
+                        body = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(PropertyValue.ToString())), Expression.Constant(True))
+                    Else
+                        body = GetOperatorExpression(Of T)(Member, "=", PropertyValue)
+                    End If
+                Case Else
+                    body = Expression.Equal(Expression.Call(Member, GetType(T).GetMethod([Operator], {PropertyValue.GetType()}), constant), Expression.Constant(True))
+            End Select
+            Return body
         End Function
 
         ''' <summary>
@@ -184,7 +203,7 @@ Namespace LINQ
             Return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector)
         End Function
 
-        Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains")
+        Private containsMethod As MethodInfo = GetType(String).GetMethod("Contains", {GetType(String)})
 
         Private endsWithMethod As MethodInfo = GetType(String).GetMethod("EndsWith", {GetType(String)})
 

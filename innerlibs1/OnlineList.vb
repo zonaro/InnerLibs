@@ -1,4 +1,5 @@
-﻿Imports System.Dynamic
+﻿Imports System.ComponentModel
+Imports System.Dynamic
 Imports System.IO
 Imports System.Text
 
@@ -93,7 +94,6 @@ Namespace Online
         End Property
 
         Public Sub SaveLogXML()
-
             Log.Select(Function(x)
                            Dim bkp = New LogEntryBackup()
                            bkp.DateTime = x.DateTime
@@ -122,7 +122,7 @@ Namespace Online
                 Dim x = ClassTools.CreateObjectFromXMLFile(Of LogEntryBackup())(LogFile)
                 For Each ii In x
                     If ii.ID.IsNotBlank() AndAlso ii.ID.IsNotIn(Log.IDs) Then
-                        Dim usu_id = Convert.ChangeType(ii.ID, GetType(IdType))
+                        Dim usu_id As IdType = TypeDescriptor.GetConverter(GetType(IdType)).ConvertFromInvariantString(ii.UserID)
                         Dim log = New UserLogEntry(Of UserType, IdType)(usu_id, Me)
                         log.Message = ii.Message
                         log.DateTime = ii.DateTime
@@ -153,7 +153,7 @@ Namespace Online
         End Sub
 
         ''' <summary>
-        ''' Tolerancia que o servidor consifera um usuário online
+        ''' Tolerancia que o servidor considera um usuário online ou na mesma atividade
         ''' </summary>
         ''' <returns></returns>
         Public Property ToleranceTime As TimeSpan
@@ -232,7 +232,7 @@ Namespace Online
         ''' </summary>
         ''' <param name="Obj"></param>
         ''' <returns></returns>
-        Public Shadows Function Add(Obj As UserType, Optional Online As Boolean? = Nothing, Optional Activity As String = Nothing, Optional Url As String = Nothing, Optional LogData As Object = Nothing, Optional DateTime As DateTime? = Nothing) As OnlineUser(Of UserType, IdType)
+        Public Shadows Function Add(Obj As UserType, Optional Online As Boolean? = Nothing, Optional Activity As String = Nothing, Optional Url As String = Nothing, Optional LogData As Dictionary(Of String, String) = Nothing, Optional DateTime As DateTime? = Nothing) As OnlineUser(Of UserType, IdType)
             If Obj IsNot Nothing Then
                 Dim ID = Me.GetID(Obj)
                 If Not Me.ContainsKey(ID) Then
@@ -326,7 +326,7 @@ Namespace Online
         ''' </summary>
         ''' <param name="Obj"></param>
         ''' <returns></returns>
-        Public Function SetOnlineActivity(Obj As UserType, Activity As String, Optional Url As String = Nothing, Optional LogData As Object = Nothing, Optional DateTime As Date? = Nothing) As OnlineUser(Of UserType, IdType)
+        Public Function SetOnlineActivity(Obj As UserType, Activity As String, Optional Url As String = Nothing, Optional LogData As Dictionary(Of String, String) = Nothing, Optional DateTime As Date? = Nothing) As OnlineUser(Of UserType, IdType)
             Return Me.Add(Obj, True, Activity, Url, LogData, DateTime)
         End Function
 
@@ -376,7 +376,7 @@ Namespace Online
         ''' </summary>
         ''' <param name="Logdata"></param>
         ''' <returns></returns>
-        Public Function CreateLog(User As UserType, Message As String, Optional URL As String = Nothing, Optional LogData As Object = Nothing, Optional DateTime As Date? = Nothing) As UserLogEntry(Of UserType, IdType)
+        Public Function CreateLog(User As UserType, Message As String, Optional URL As String = Nothing, Optional LogData As Dictionary(Of String, String) = Nothing, Optional DateTime As Date? = Nothing) As UserLogEntry(Of UserType, IdType)
             Return Log.CreateLog(User, Message, URL, LogData, Now)
         End Function
 
@@ -409,9 +409,15 @@ Namespace Online
         ''' </summary>
         ''' <param name="Logdata"></param>
         ''' <returns></returns>
-        Public Function CreateLog(User As UserType, Message As String, Optional URL As String = Nothing, Optional LogData As Object = Nothing, Optional DateAndTime As Date? = Nothing) As UserLogEntry(Of UserType, IdType)
+        Public Function CreateLog(User As UserType, Message As String, Optional URL As String = Nothing, Optional LogData As Dictionary(Of String, String) = Nothing, Optional DateAndTime As Date? = Nothing) As UserLogEntry(Of UserType, IdType)
             If User IsNot Nothing AndAlso Message.IsNotBlank Then
                 DateAndTime = If(DateAndTime, Now)
+                If Me.OnlineList(User).LastActivity = Message Then
+                    Dim lo = Me.OnlineList(User).LastOnline 'nao cria log para locais repedidos dentro do tempo de N minutos
+                    If lo.HasValue AndAlso lo.Value.Add(Me.OnlineList.ToleranceTime.Negate) >= DateAndTime Then
+                        Return Nothing
+                    End If
+                End If
                 Dim d = New UserLogEntry(Of UserType, IdType)(OnlineList.GetID(User), Me.OnlineList)
                 d.DateTime = DateAndTime
                 d.Message = Message
@@ -481,7 +487,7 @@ Namespace Online
         ''' Informações adicionais
         ''' </summary>
         ''' <returns></returns>
-        Public Property LogData As New ExpandoObject
+        Public Property LogData As New Dictionary(Of String, String)
 
         ''' <summary>
         ''' ID desta entrada
@@ -507,8 +513,6 @@ Namespace Online
         End Function
 
         Friend OnlineList As OnlineList(Of UserType, IdType)
-
-        Private online As Boolean = True
 
         Friend Sub New(Data As UserType, list As OnlineList(Of UserType, IdType))
             Me.User = Data
@@ -541,14 +545,7 @@ Namespace Online
         ''' <returns></returns>
         ReadOnly Property IsOnline As Boolean
             Get
-                If OnlineList.ContainsUser(Me.User) Then
-                    If online Then
-                        Dim d = DateTime.Now
-                        online = LastOnline >= d.Add(OnlineList.ToleranceTime)
-                    End If
-                    Return online
-                End If
-                Return False
+                Return OnlineList.ContainsUser(Me.User) AndAlso LastOnline.HasValue AndAlso LastOnline >= DateTime.Now.Add(OnlineList.ToleranceTime)
             End Get
         End Property
 
@@ -859,7 +856,7 @@ Namespace Online
         Property Url As String
         Property DateTime As DateTime
 
-        Property LogData As Object
+        Property LogData As Dictionary(Of String, String)
 
     End Class
 

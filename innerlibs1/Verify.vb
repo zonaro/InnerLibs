@@ -485,14 +485,14 @@ Public Module Verify
     End Function
 
     ''' <summary>
-    ''' Anula o valor de um objeto se ele for igual a outro objeto
+    ''' Anula o valor de uma string se ela for igual a outra string
     ''' </summary>
     ''' <param name="Value">Valor</param>
     ''' <param name="TestValue">Outro Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function NullIf(ByVal Value As String, TestValue As String) As String
-        If Value.Equals(TestValue) Then Return Nothing
+    Public Function NullIf(ByVal Value As String, TestValue As String, Optional ComparisonType As StringComparison = StringComparison.InvariantCultureIgnoreCase) As String
+        If Value Is Nothing OrElse Value.Equals(TestValue, ComparisonType) Then Return Nothing
         Return Value
     End Function
 
