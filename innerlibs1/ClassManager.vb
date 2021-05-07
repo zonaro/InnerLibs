@@ -766,10 +766,11 @@ Public Module ClassTools
         Next
 
         Dim prop As PropertyInfo
+        Dim propname = parts.First.GetBefore("(")
         If GetPrivate Then
-            prop = Type.GetProperty(parts.First.GetBefore("("), BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
+            prop = Type.GetProperty(propname, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
         Else
-            prop = Type.GetProperty(parts.First.GetBefore("("))
+            prop = Type.GetProperty(propname)
         End If
 
         Dim exist As Boolean = prop IsNot Nothing

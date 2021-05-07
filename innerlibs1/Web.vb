@@ -21,7 +21,7 @@ Public Module Web
     ''' <param name="Info"> Arquivo ou Diretório</param>
     ''' <returns></returns>
     <Extension()> Function FileNameAsTitle(Info As FileSystemInfo) As String
-        Return Path.GetFileNameWithoutExtension(Info.Name).CamelSplit().Replace("_", " ").ToTitle
+        Return Path.GetFileNameWithoutExtension(Info.Name).CamelAdjust().Replace("_", " ").ToTitle
     End Function
 
     ''' <summary>
@@ -30,7 +30,7 @@ Public Module Web
     ''' <param name="FileName"> Arquivo ou Diretório</param>
     ''' <returns></returns>
     <Extension()> Function FileNameAsTitle(FileName As String) As String
-        Return Path.GetFileNameWithoutExtension(FileName).CamelSplit().Replace("_", " ").ToTitle
+        Return Path.GetFileNameWithoutExtension(FileName).CamelAdjust().Replace("_", " ").ToTitle
     End Function
 
     ''' <summary>

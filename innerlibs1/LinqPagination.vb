@@ -1,4 +1,5 @@
-﻿Imports System.Linq.Expressions
+﻿Imports System.ComponentModel
+Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 
@@ -12,14 +13,14 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Retorna um <see cref="LambdaFilter(Of T)"/> para a lista especificada
+        ''' Retorna um <see cref="PaginationFilter(Of T)"/> para a lista especificada
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="List"></param>
         ''' <returns></returns>
         <Extension>
-        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Optional Exclusive As Boolean = True) As LambdaFilter(Of T)
-            Return New LambdaFilter(Of T)(Exclusive).SetData(List)
+        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Optional Exclusive As Boolean = True) As PaginationFilter(Of T)
+            Return New PaginationFilter(Of T)(Exclusive).SetData(List)
         End Function
 
 
@@ -33,11 +34,10 @@ Namespace LINQ
         ''' <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="Type"/></param>
         ''' <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
         ''' <returns></returns>
-        Public Function WhereExpression(Of Type)(PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As Expression(Of Func(Of Type, Boolean))
+        Public Function WhereExpression(Of Type)(PropertyName As String, [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Exclusive As Boolean = True) As Expression(Of Func(Of Type, Boolean))
             Dim parameter = Expression.Parameter(GetType(Type), GetType(Type).Name.ToLower())
             Dim member = Expression.[Property](parameter, PropertyName)
-            Dim constant = Expression.Constant(PropertyValue)
-            Dim body As Expression = GetOperatorExpression(Of Type)(member, [Operator], PropertyValue)
+            Dim body As Expression = GetOperatorExpression(member, [Operator], PropertyValue, Exclusive)
             body = Expression.Equal(body, Expression.Constant([Is]))
             Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
             Return finalExpression
@@ -55,34 +55,138 @@ Namespace LINQ
         ''' <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
         ''' <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
         ''' <returns></returns>
-        <Extension()> Function WhereExpression(Of T)(List As IQueryable(Of T), PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As IQueryable(Of T)
+        <Extension()> Function WhereExpression(Of T)(List As IQueryable(Of T), PropertyName As String, [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Exclusive As Boolean = True) As IQueryable(Of T)
             Return List.Where(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
         End Function
 
-        Function GetOperatorExpression(Of T)(Member As MemberExpression, [Operator] As String, PropertyValue As Object) As BinaryExpression
-            Dim constant = Expression.Constant(PropertyValue)
-            Dim body As BinaryExpression
+        Public Function CreateNullable(ByVal type As Type) As Type
+            If type.IsValueType AndAlso (Not type.IsGenericType OrElse type.GetGenericTypeDefinition() <> GetType(Nullable(Of))) Then Return GetType(Nullable(Of)).MakeGenericType(type)
+            Return type
+        End Function
+
+        Function FixConstant(Of T As IComparable)(Member As MemberExpression, Value As T) As ConstantExpression
+            Dim Converter = TypeDescriptor.GetConverter(Member.Type)
+            Dim Con = Expression.Constant(Value)
+            If Converter.CanConvertFrom(Value.GetType()) Then
+                Con = Expression.Constant(Converter.ConvertFrom(Value), Member.Type)
+            End If
+            Return Con
+        End Function
+
+        Function GetOperatorExpression(Member As MemberExpression, [Operator] As String, PropertyValues As IEnumerable(Of IComparable), Optional Exclusive As Boolean = True) As BinaryExpression
+            PropertyValues = If(PropertyValues, {})
+            Dim body As BinaryExpression = Nothing
             Select Case [Operator].ToLower()
-                Case "=", "==", "equal"
-                    body = Expression.Equal(Member, constant)
+                Case "=", "==", "equal", "==="
+                    For Each item In PropertyValues
+                        Dim exp = Expression.Equal(Member, FixConstant(Member, item))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                    Next
                 Case ">=", "greaterthanorequal", "greaterorequal"
-                    body = Expression.GreaterThanOrEqual(Member, constant)
+                    For Each item In PropertyValues
+                        Dim exp = Expression.GreaterThanOrEqual(Member, FixConstant(Member, item))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                    Next
                 Case "<=", "lessthanorequal", "lessorequal"
-                    body = Expression.LessThanOrEqual(Member, constant)
+                    For Each item In PropertyValues
+                        Dim exp = Expression.LessThanOrEqual(Member, FixConstant(Member, item))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                    Next
                 Case ">", "greaterthan", "greater"
-                    body = Expression.GreaterThan(Member, constant)
+                    For Each item In PropertyValues
+                        Dim exp = Expression.GreaterThan(Member, FixConstant(Member, item))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                    Next
                 Case "<", "lessthan", "less"
-                    body = Expression.LessThan(Member, constant)
+                    For Each item In PropertyValues
+                        Dim exp = Expression.LessThan(Member, FixConstant(Member, item))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                    Next
                 Case "<>", "!=", "notequal"
-                    body = Expression.NotEqual(Member, constant)
-                Case "like", "contains"
-                    If Member.Type = GetType(String) Then
-                        body = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(PropertyValue.ToString())), Expression.Constant(True))
+                    For Each item In PropertyValues
+                        Dim exp = Expression.NotEqual(Member, FixConstant(Member, item))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                    Next
+                Case "between"
+                    If PropertyValues.Count() > 1 Then
+                        Select Case Member.Type
+                            Case GetType(String)
+                                body = GetOperatorExpression(Member, "=", PropertyValues)
+                            Case Else
+                                body = Expression.And(GetOperatorExpression(Member, ">=", {PropertyValues.Min()}, Exclusive), GetOperatorExpression(Member, "<=", {PropertyValues.Max()}, Exclusive))
+                        End Select
                     Else
-                        body = GetOperatorExpression(Of T)(Member, "=", PropertyValue)
+                        body = GetOperatorExpression(Member, "=", PropertyValues, Exclusive)
                     End If
+                Case "like", "contains"
+                    Select Case Member.Type
+                        Case GetType(String)
+                            For Each item In PropertyValues
+                                Dim exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(True))
+                                If body Is Nothing Then
+                                    body = exp
+                                Else
+                                    If Exclusive Then
+                                        body = Expression.AndAlso(body, exp)
+                                    Else
+                                        body = Expression.OrElse(body, exp)
+                                    End If
+                                End If
+                            Next
+
+                        Case Else
+                            body = GetOperatorExpression(Member, "=", PropertyValues, Exclusive)
+                    End Select
                 Case Else
-                    body = Expression.Equal(Expression.Call(Member, GetType(T).GetMethod([Operator], {PropertyValue.GetType()}), constant), Expression.Constant(True))
+                    body = Expression.Equal(Expression.Call(Member, Member.Type.GetMethod([Operator], {PropertyValues.GetType()}), Expression.Constant(CTypeDynamic(PropertyValues, Member.Type))), Expression.Constant(True))
             End Select
             Return body
         End Function

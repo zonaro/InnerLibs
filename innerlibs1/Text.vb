@@ -370,7 +370,7 @@ Public Class FullNumberWriter
                 Case Else
                     Select Case prop.PropertyType
                         Case GetType(String)
-                            prop.SetValue(Me, prop.Name.CamelSplit)
+                            prop.SetValue(Me, prop.Name.CamelAdjust)
                         Case GetType(QuantityTextPair)
                             If CType(prop.GetValue(Me), QuantityTextPair).Plural.IsBlank Then
                                 prop.SetValue(Me, New QuantityTextPair(prop.Name & "s", prop.Name))
@@ -979,11 +979,21 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Transforma uma palavra em CameCase em varias palavras a partir de suas letras maíusculas
+    ''' Transforma um texto em CamelCase em um array de palavras  a partir de suas letras maíusculas
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function CamelSplit(Text As String) As String
+    <Extension()> Public Function CamelSplit(Text As String) As IEnumerable(Of String)
+        Return Text.CamelAdjust().Split(" ")
+    End Function
+
+    ''' <summary>
+    ''' Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function CamelAdjust(Text As String) As String
+        Text = Text.IfBlank("")
         Dim chars = Text.ToArray
         Text = ""
         For Each c In chars
@@ -1004,7 +1014,7 @@ Public Module Text
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     ''' <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
     <Extension()>
-    Public Function Censor(ByVal Text As String, BadWords As IEnumerable(Of String), Optional CensorshipCharacter As String = "*", Optional IsCensored As Boolean = False) As String
+    Public Function Censor(ByVal Text As String, BadWords As IEnumerable(Of String), Optional CensorshipCharacter As String = "*", ByRef Optional IsCensored As Boolean = False) As String
         Dim words As String() = Text.Split(" ", StringSplitOptions.None)
         If words.ContainsAny(BadWords) Then
             For Each bad In BadWords
