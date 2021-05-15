@@ -177,7 +177,7 @@ Namespace Locations
         ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
         ReadOnly Property Address As String
             Get
-                Return ToString(True, True, True, True, True, True, False)
+                Return New StructuredText(ToString(True, True, True, True, True, True, False)).ToString().AdjustBlankSpaces().TrimAny(True, " ", ".", " ", ",", "-", " ")
             End Get
         End Property
 
@@ -208,7 +208,7 @@ Namespace Locations
             End If
             If PostalCode.IsNotBlank AndAlso IncludePostalCode Then retorno &= (" - " & PostalCode)
             If Country.IsNotBlank AndAlso IncludeCountry Then retorno &= (" - " & Country)
-            Return retorno.AdjustBlankSpaces()
+            Return New StructuredText(retorno).ToString().AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-", " ")
         End Function
 
         Friend Sub ParseType()
@@ -216,7 +216,7 @@ Namespace Locations
                 If Me.StreetName.IsNotBlank Then
                     Me.StreetType = AddressTypes.GetAddressType(Me.StreetName)
                     If Me.StreetType.IsNotBlank Then
-                        Me.StreetName = Me.StreetName.Trim().RemoveFirstIf(StreetType).Trim().AdjustBlankSpaces().ToTitle(True)
+                        Me.StreetName = New StructuredText(Me.StreetName).ToString.TrimAny(False, AddressTypes.GetAddressTypeList(Me.StreetName)).AdjustBlankSpaces().ToTitle(True).TrimAny(True, " ", ".", " ", ",", " ", "-", " ")
                     End If
                 End If
             End If
@@ -236,9 +236,16 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
             Dim l = New AddressInfo()
-            l.StreetName = Address.AdjustBlankSpaces().ToLower().ToTitle().AdjustBlankSpaces().Trim(",").Trim(Number.IfBlank("")).Trim(" ").NullIf(Function(x) x.IsBlank())
+
+            If Number.IsBlank Then
+                Dim maybe_number = Address.GetAfter(",").GetBefore("-").GetBefore(",").TrimAny(True, " ", ".", " ", ",", " ", "-", " ")
+                Number = maybe_number
+            End If
+
+            l.StreetName = Address.RemoveAny(Number.IfBlank("")).ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.Complement = Complement.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+
             l.Number = Number.NullIf(Function(x) x.IsBlank())
             l.City = City.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             If State.Length = 2 Then
@@ -328,6 +335,15 @@ Namespace Locations
                 Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp)?.Name.IfBlank("")
             End If
             Return ""
+        End Function
+
+        Public Shared Function GetAddressTypeList(Endereco As String) As String()
+            Dim tp = Endereco.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
+            If tp.IsNotBlank Then
+                Dim df = New AddressTypes()
+                Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp)?.GetValue(df)
+            End If
+            Return {}
         End Function
 
         Public ReadOnly Property Aeroporto As String() = {"Aeroporto", "Ar", "Aero"}

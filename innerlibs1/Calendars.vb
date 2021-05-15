@@ -894,17 +894,18 @@ Public Module Calendars
     ''' <param name="DaysOfWeek"></param>
     ''' <returns></returns>
     <Extension()> Public Function GetBetween(StartDate As Date, EndDate As Date, ParamArray DaysOfWeek() As DayOfWeek) As IEnumerable(Of Date)
-        Dim l = New List(Of Date)
+        Dim l = New List(Of Date) From {StartDate.Date}
         DaysOfWeek = If(DaysOfWeek, {})
         If DaysOfWeek.Length = 0 Then
             DaysOfWeek = {DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday}
         End If
         Dim curdate = StartDate.Date
-        While curdate <= EndDate.Date
+        While curdate.Date < EndDate.Date
             curdate = curdate.AddDays(1)
             l.Add(curdate)
         End While
-        Return l.Where(Function(x) x.DayOfWeek.IsIn(DaysOfWeek))
+        l.Add(EndDate.Date)
+        Return l.Distinct().Where(Function(x) x.DayOfWeek.IsIn(DaysOfWeek))
     End Function
 
 

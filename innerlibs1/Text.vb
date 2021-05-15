@@ -1288,16 +1288,34 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Procura CEPs em uma string
+    ''' </summary>
+    ''' <param name="TExt"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FindCEP(Text As String) As String()
+        Return Text.FindByRegex("\d{5}-\d{3}")
+    End Function
+
+    ''' <summary>
+    ''' Procura CEPs em uma string
+    ''' </summary>
+    ''' <param name="TExt"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function FindByRegex(Text As String, Regex As String, Optional RegexOptions As RegexOptions = RegexOptions.None) As String()
+        Dim textos As New List(Of String)
+        For Each m As Match In New Regex(Regex, RegexOptions).Matches(Text)
+            textos.Add(m.Value)
+        Next
+        Return textos.ToArray()
+    End Function
+
+    ''' <summary>
     ''' Procurea numeros de telefone em um texto
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function FindTelephoneNumbers(Text As String) As List(Of String)
-        Dim tels As New List(Of String)
-        For Each m As Match In New Regex("\b[\s()\d-]{6,}\d\b", RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
-            tels.Add(m.Value.MaskTelephoneNumber)
-        Next
-        Return tels
+    <Extension()> Public Function FindTelephoneNumbers(Text As String) As String()
+        Return Text.FindByRegex("\b[\s()\d-]{6,}\d\b", RegexOptions.Singleline + RegexOptions.IgnoreCase).Select(Function(x) x.MaskTelephoneNumber()).ToArray()
     End Function
 
     ''' <summary>
@@ -1391,10 +1409,14 @@ Public Module Text
     ''' <param name="Value">Texto Posterior</param>
     ''' <returns>Uma string com o valor posterior ao valor especificado.</returns>
     <Extension>
-    Public Function GetAfter(Text As String, Value As String) As String
+    Public Function GetAfter(Text As String, Value As String, Optional WhiteIfNotFound As Boolean = False) As String
         If Nothing = (Value) Then Value = ""
         If Nothing = (Text) OrElse Text.IndexOf(Value) = -1 Then
-            Return "" & Text
+            If WhiteIfNotFound Then
+                Return ""
+            Else
+                Return "" & Text
+            End If
         End If
         Return Text.Substring(Text.IndexOf(Value) + Value.Length)
     End Function
@@ -1423,10 +1445,14 @@ Public Module Text
     ''' <param name="Value">Texto Anterior</param>
     ''' <returns>Uma string com o valor anterior ao valor especificado.</returns>
     <Extension>
-    Public Function GetBefore(Text As String, Value As String) As String
+    Public Function GetBefore(Text As String, Value As String, Optional WhiteIfNotFound As Boolean = False) As String
         If Nothing = (Value) Then Value = ""
         If Nothing = (Text) OrElse Text.IndexOf(Value) = -1 Then
-            Return "" & Text
+            If WhiteIfNotFound Then
+                Return ""
+            Else
+                Return "" & Text
+            End If
         End If
         Return Text.Substring(0, Text.IndexOf(Value))
     End Function
@@ -1789,6 +1815,17 @@ Public Module Text
     Public Function Join(Of Type)(List As List(Of Type), Optional Separator As String = "") As String
         Return List.ToArray.Join(Separator)
     End Function
+
+    ''' <summary>
+    ''' Verifica se um texto contém outro ou vice versa
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OtherText"></param>
+    ''' <returns></returns>
+    <Extension> Public Function CrossContains(Text As String, OtherText As String) As Boolean
+        Return Text.Contains(OtherText) OrElse OtherText.Contains(Text)
+    End Function
+
 
     '''<summary>
     ''' Computa a distancia de Levenshtein entre 2 strings.
@@ -3453,7 +3490,7 @@ Public Module Text
     <Extension()>
     Public Function ToProperCase(Text As String, Optional ForceCase As Boolean = False) As String
         If Text.IsBlank Then Return Text
-
+        If ForceCase Then Text = Text.ToLower()
         Dim l = Text.Split(" ", StringSplitOptions.None).ToList
         For index = 0 To l.Count - 1
             Dim pal = l(index)

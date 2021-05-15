@@ -7,23 +7,71 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
-        <Extension>
-        Public Function CreatePaginationInfo(Of T)(ByVal List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Expression(Of Func(Of T, Boolean)) = Nothing) As PaginationInfo(Of T)
-            Return New PaginationInfo(Of T)(List, PageNumber, PageSize, PaginationOffset, Filter)
-        End Function
-
         ''' <summary>
-        ''' Retorna um <see cref="PaginationFilter(Of T)"/> para a lista especificada
+        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="List"></param>
         ''' <returns></returns>
         <Extension>
-        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Optional Exclusive As Boolean = True) As PaginationFilter(Of T)
-            Return New PaginationFilter(Of T)(Exclusive).SetData(List)
+        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T)) As PaginationFilter(Of T, T)
+            Return New PaginationFilter(Of T, T)(False).SetData(List)
         End Function
 
+        ''' <summary>
+        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension>
+        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Configuration As Action(Of PaginationFilter(Of T, T))) As PaginationFilter(Of T, T)
+            Return New PaginationFilter(Of T, T)(False).SetData(List).Config(Configuration)
+        End Function
 
+        ''' <summary>
+        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension>
+        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Exclusive As Boolean) As PaginationFilter(Of T, T)
+            Return New PaginationFilter(Of T, T)(Exclusive).SetData(List)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension>
+        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Configuration As Action(Of PaginationFilter(Of T, T)), Exclusive As Boolean) As PaginationFilter(Of T, T)
+            Return New PaginationFilter(Of T, T)(Exclusive).SetData(List).Config(Configuration)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension>
+        Public Function CreateFilter(Of T As Class, R As Class)(ByVal List As IEnumerable(Of T), RemapSelector As Func(Of T, R), Optional Exclusive As Boolean = False) As PaginationFilter(Of T, R)
+            Return New PaginationFilter(Of T, R)(RemapSelector, Exclusive).SetData(List)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        <Extension>
+        Public Function CreateFilter(Of T As Class, R As Class)(ByVal List As IEnumerable(Of T), RemapSelector As Func(Of T, R), Configuration As Action(Of PaginationFilter(Of T, T)), Optional Exclusive As Boolean = False) As PaginationFilter(Of T, R)
+            Return New PaginationFilter(Of T, R)(RemapSelector, Exclusive).SetData(List).Config(Configuration)
+        End Function
 
         ''' <summary>
         ''' Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
@@ -42,8 +90,6 @@ Namespace LINQ
             Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
             Return finalExpression
         End Function
-
-
 
         ''' <summary>
         ''' Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
@@ -64,7 +110,7 @@ Namespace LINQ
             Return type
         End Function
 
-        Function FixConstant(Of T As IComparable)(Member As MemberExpression, Value As T) As ConstantExpression
+        Function FixConstant(Of T As IComparable)(Member As Expression, Value As T) As ConstantExpression
             Dim Converter = TypeDescriptor.GetConverter(Member.Type)
             Dim Con = Expression.Constant(Value)
             If Converter.CanConvertFrom(Value.GetType()) Then
@@ -73,13 +119,39 @@ Namespace LINQ
             Return Con
         End Function
 
-        Function GetOperatorExpression(Member As MemberExpression, [Operator] As String, PropertyValues As IEnumerable(Of IComparable), Optional Exclusive As Boolean = True) As BinaryExpression
+        Function FixConstant(Of T As IComparable)(Value As T, Type As Type) As ConstantExpression
+            Dim Converter = TypeDescriptor.GetConverter(Type)
+            Dim Con = Expression.Constant(Value)
+            If Converter.CanConvertFrom(Value.GetType()) Then
+                Con = Expression.Constant(Converter.ConvertFrom(Value), Type)
+            End If
+            Return Con
+        End Function
+
+        Function FixConstant(Of T As IComparable, Type)(Value As T) As ConstantExpression
+            Return FixConstant(Value, GetType(Type))
+        End Function
+
+        ''' <summary>
+        ''' Retorna uma expressão de comparação para um ou mais valores
+        ''' </summary>
+        ''' <param name="Member"></param>
+        ''' <param name="[Operator]"></param>
+        ''' <param name="PropertyValues"></param>
+        ''' <param name="Exclusive"></param>
+        ''' <returns></returns>
+        Function GetOperatorExpression(Member As Expression, [Operator] As String, PropertyValues As IEnumerable(Of IComparable), Optional Exclusive As Boolean = False) As BinaryExpression
             PropertyValues = If(PropertyValues, {})
+            Dim comparewith As Boolean = Not [Operator].StartsWithAny("!", "not")
+            If comparewith = False Then
+                [Operator] = [Operator].RemoveFirstAny(False, "!", "Not")
+            End If
             Dim body As BinaryExpression = Nothing
-            Select Case [Operator].ToLower()
-                Case "=", "==", "equal", "==="
+            Select Case [Operator].ToLower().IfBlank("equal")
+                Case "=", "==", "equal", "===", "equals"
                     For Each item In PropertyValues
                         Dim exp = Expression.Equal(Member, FixConstant(Member, item))
+                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -90,9 +162,10 @@ Namespace LINQ
                             End If
                         End If
                     Next
-                Case ">=", "greaterthanorequal", "greaterorequal"
+                Case ">=", "greaterthanorequal", "greaterorequal", "greaterequal", "greatequal"
                     For Each item In PropertyValues
                         Dim exp = Expression.GreaterThanOrEqual(Member, FixConstant(Member, item))
+                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -103,9 +176,11 @@ Namespace LINQ
                             End If
                         End If
                     Next
-                Case "<=", "lessthanorequal", "lessorequal"
+                Case "<=", "lessthanorequal", "lessorequal", "lessequal"
                     For Each item In PropertyValues
                         Dim exp = Expression.LessThanOrEqual(Member, FixConstant(Member, item))
+                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -116,9 +191,11 @@ Namespace LINQ
                             End If
                         End If
                     Next
-                Case ">", "greaterthan", "greater"
+                Case ">", "greaterthan", "greater", "great"
                     For Each item In PropertyValues
                         Dim exp = Expression.GreaterThan(Member, FixConstant(Member, item))
+                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -132,6 +209,8 @@ Namespace LINQ
                 Case "<", "lessthan", "less"
                     For Each item In PropertyValues
                         Dim exp = Expression.LessThan(Member, FixConstant(Member, item))
+                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -142,9 +221,11 @@ Namespace LINQ
                             End If
                         End If
                     Next
-                Case "<>", "!=", "notequal"
+                Case "<>", "notequal", "different"
                     For Each item In PropertyValues
                         Dim exp = Expression.NotEqual(Member, FixConstant(Member, item))
+                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -155,22 +236,23 @@ Namespace LINQ
                             End If
                         End If
                     Next
-                Case "between"
+                Case "between", "btw"
                     If PropertyValues.Count() > 1 Then
                         Select Case Member.Type
                             Case GetType(String)
-                                body = GetOperatorExpression(Member, "=", PropertyValues)
+                                body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", Not comparewith), {PropertyValues.First()}, Exclusive), GetOperatorExpression(Member, "ends".PrependIf("!", Not comparewith), {PropertyValues.Last()}, Exclusive))
                             Case Else
-                                body = Expression.And(GetOperatorExpression(Member, ">=", {PropertyValues.Min()}, Exclusive), GetOperatorExpression(Member, "<=", {PropertyValues.Max()}, Exclusive))
+                                body = Expression.And(GetOperatorExpression(Member, "greaterequal".PrependIf("!", Not comparewith), {PropertyValues.Min()}, Exclusive), GetOperatorExpression(Member, "lessequal".PrependIf("!", Not comparewith), {PropertyValues.Max()}, Exclusive))
                         End Select
                     Else
-                        body = GetOperatorExpression(Member, "=", PropertyValues, Exclusive)
+                        body = GetOperatorExpression(Member, "=".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
                     End If
-                Case "like", "contains"
+
+                Case "starts", "start", "startwith", "startswith"
                     Select Case Member.Type
                         Case GetType(String)
                             For Each item In PropertyValues
-                                Dim exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(True))
+                                Dim exp = Expression.Equal(Expression.Call(Member, startsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
                                 If body Is Nothing Then
                                     body = exp
                                 Else
@@ -181,14 +263,93 @@ Namespace LINQ
                                     End If
                                 End If
                             Next
-
                         Case Else
-                            body = GetOperatorExpression(Member, "=", PropertyValues, Exclusive)
+                            body = GetOperatorExpression(Member, ">=", PropertyValues, Exclusive)
+                    End Select
+                Case "ends", "end", "endwith", "endswith"
+                    Select Case Member.Type
+                        Case GetType(String)
+                            For Each item In PropertyValues
+                                Dim exp = Expression.Equal(Expression.Call(Member, endsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                If body Is Nothing Then
+                                    body = exp
+                                Else
+                                    If Exclusive Then
+                                        body = Expression.AndAlso(body, exp)
+                                    Else
+                                        body = Expression.OrElse(body, exp)
+                                    End If
+                                End If
+                            Next
+                        Case Else
+                            body = GetOperatorExpression(Member, "lessequal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                    End Select
+                Case "like", "contains"
+                    Select Case Member.Type
+                        Case GetType(String)
+                            For Each item In PropertyValues
+                                Dim exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                If body Is Nothing Then
+                                    body = exp
+                                Else
+                                    If Exclusive Then
+                                        body = Expression.AndAlso(body, exp)
+                                    Else
+                                        body = Expression.OrElse(body, exp)
+                                    End If
+                                End If
+                            Next
+                        Case Else
+                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                    End Select
+                Case "cross", "crosscontains"
+                    Select Case Member.Type
+                        Case GetType(String)
+                            For Each item In PropertyValues
+                                Dim exp = Expression.Equal(Expression.OrElse(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Call(Member, containsMethod, Expression.Constant(item.ToString()))), Expression.Constant(comparewith))
+                                If body Is Nothing Then
+                                    body = exp
+                                Else
+                                    If Exclusive Then
+                                        body = Expression.AndAlso(body, exp)
+                                    Else
+                                        body = Expression.OrElse(body, exp)
+                                    End If
+                                End If
+                            Next
+                        Case Else
+                            ''TODO: implementar busca de array de inteiro,data etc
+                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
                     End Select
                 Case Else
-                    body = Expression.Equal(Expression.Call(Member, Member.Type.GetMethod([Operator], {PropertyValues.GetType()}), Expression.Constant(CTypeDynamic(PropertyValues, Member.Type))), Expression.Constant(True))
+                    Try
+                        Dim mettodo = Member.Type.GetMethods().FirstOrDefault(Function(x) x.Name.ToLower() = [Operator].ToLower())
+
+                        Dim exp As Expression = mettodo.Invoke(Nothing, {PropertyValues})
+                        exp = Expression.Invoke(exp, Member)
+                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
+
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                    Catch ex As Exception
+                    End Try
             End Select
             Return body
+        End Function
+
+        Function GenerateParameterExpression(Of ClassType)(Optional AppendText As String = "") As ParameterExpression
+            Return GetType(ClassType).GenerateParameterExpression(AppendText)
+        End Function
+
+        <Extension> Function GenerateParameterExpression(Type As Type, Optional AppendText As String = "") As ParameterExpression
+            Return Expression.Parameter(Type, Type.Name.CamelSplit.SelectJoin(Function(x) x.FirstOrDefault().IfBlank(Of Char)(""), "").ToLower() + AppendText.IfBlank(""))
         End Function
 
         ''' <summary>
@@ -218,8 +379,6 @@ Namespace LINQ
         <Extension()> Function SingleOrDefaultExpression(Of T)(List As IQueryable(Of T), PropertyName As String, [Operator] As String, PropertyValue As Object, Optional [Is] As Boolean = True) As T
             Return List.SingleOrDefault(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
         End Function
-
-
 
         ''' <summary>
         ''' Retorna as informacoes de uma propriedade a partir de um seletor
@@ -316,7 +475,7 @@ Namespace LINQ
         Private equalMethod As MethodInfo = GetType(String).GetMethod("Equals", {GetType(String)})
 
         ''' <summary> Concatena uma expressão com outra usando o operador AND (&&) </summary>
-        ''' <typeparam name="T"></typeparam> <param name="expr1"></param> <param
+        ''' <typeparam name="T"></typeparam><param name="expr1"></param><param
         ''' name="expr2"></param> <returns></returns>
         <Extension()>
         Function [And](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
@@ -335,7 +494,6 @@ Namespace LINQ
             Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
             Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](expr1.Body, invokedExpr), expr1.Parameters)
         End Function
-
 
         ''' <summary>
         ''' Retorna uma expressão genérica a partir de uma expressão tipada
@@ -429,7 +587,7 @@ Namespace LINQ
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Items"> </param>
         ''' <param name="Action"></param>
-        <Extension()> Public Function ForEach(Of T)(Items As IEnumerable(Of T), Action As Action(Of T)) As IEnumerable(Of T)
+        <Extension()> Public Function DoForEach(Of T)(Items As IEnumerable(Of T), Action As Action(Of T)) As IEnumerable(Of T)
             For Each item In Items
                 Action(item)
             Next
@@ -481,8 +639,8 @@ Namespace LINQ
         ''' <param name="sortProperty"></param>
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
-        <Extension> Public Function OrderBy(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
-            Return source.OrderBy(Function(x) True).ThenBy(SortProperty, Ascending)
+        <Extension> Public Function OrderByProperty(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+            Return source.OrderBy(Function(x) True).ThenByProperty(SortProperty, Ascending)
         End Function
 
         ''' <summary>
@@ -493,8 +651,8 @@ Namespace LINQ
         ''' <param name="sortProperty"></param>
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
-        <Extension> Public Function OrderBy(Of T)(ByVal source As IEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
-            Return source.OrderBy(Function(x) True).ThenBProperty(SortProperty, Ascending)
+        <Extension> Public Function OrderByProperty(Of T)(ByVal source As IEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
+            Return source.OrderBy(Function(x) True).ThenByProperty(SortProperty, Ascending)
         End Function
 
         ''' <summary>
@@ -586,8 +744,6 @@ Namespace LINQ
             End If
             Return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize)
         End Function
-
-
 
         ''' <summary>
         ''' Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes de uma entidade
@@ -725,7 +881,7 @@ Namespace LINQ
         ''' <param name="DefaultOrder">ordenacao padrao para os outros itens</param>
         ''' <returns></returns>
         <Extension()>
-        Public Iterator Function TakeAndOrder(Of T, DefaultOrderType)(ByVal items As IEnumerable(Of T), ByVal Priority As Func(Of T, Boolean), Optional DefaultOrder As Func(Of T, DefaultOrderType) = Nothing) As IEnumerable(Of T)
+        Public Iterator Function OrderByWithPriority(Of T, DefaultOrderType)(ByVal items As IEnumerable(Of T), ByVal Priority As Func(Of T, Boolean), Optional DefaultOrder As Func(Of T, DefaultOrderType) = Nothing) As IEnumerable(Of T)
             DefaultOrder = If(DefaultOrder, Function(x) True)
             For Each item In items.Where(Priority)
                 Yield item
@@ -745,7 +901,7 @@ Namespace LINQ
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function ThenBy(Of T)(ByVal source As IOrderedQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+        Public Function ThenByProperty(Of T)(ByVal source As IOrderedQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
             Dim type = GetType(T)
             For Each prop In SortProperty
                 Dim [property] = type.GetProperty(prop)
@@ -753,7 +909,7 @@ Namespace LINQ
                 Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
                 Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
                 Dim typeArguments = New Type() {type, [property].PropertyType}
-                Dim methodName = If(Ascending, "OrderBy", "OrderByDescending")
+                Dim methodName = If(Array.IndexOf(SortProperty, prop) > 0, If(Ascending, "ThenBy", "ThenByDescending"), If(Ascending, "OrderBy", "OrderByDescending"))
                 Dim resultExp = Expression.[Call](GetType(Queryable), methodName, typeArguments, source.Expression, Expression.Quote(orderByExp))
                 source = source.Provider.CreateQuery(Of T)(resultExp)
             Next
@@ -769,7 +925,7 @@ Namespace LINQ
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function ThenBProperty(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
+        Public Function ThenByProperty(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
             Dim type = GetType(T)
             For Each prop In SortProperty
                 Dim exp = Function(x As T) x.GetPropertyValue(Of Object)(prop)
@@ -980,9 +1136,6 @@ Namespace LINQ
         Public Function AllFalse(ParamArray Tests As Boolean()) As Boolean
             Return If(Tests, {}).All(Function(x) x = False)
         End Function
-
-
-
 
         Private Function ReplaceExpression(ByVal body As Expression, ByVal source As Expression, ByVal dest As Expression) As Expression
             Dim replacer = New ExpressionReplacer(source, dest)

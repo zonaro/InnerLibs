@@ -1,15 +1,45 @@
-﻿Imports System.Collections.ObjectModel
-Imports System.Collections.Specialized
+﻿Imports System.Collections.Specialized
 Imports System.Linq.Expressions
 Imports System.Web
 
 Namespace LINQ
 
-    Public Class PropertyFilter(Of ClassType As Class)
+    Public Class PropertyFilter(Of ClassType As Class, RemapType)
 
-        Friend Sub New(LB As PaginationFilter(Of ClassType))
+        Friend Sub New(LB As PaginationFilter(Of ClassType, RemapType))
             _config = LB
         End Sub
+
+        Friend _config As PaginationFilter(Of ClassType, RemapType)
+
+        ''' <summary>
+        ''' Expressão binaria deste filtro
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Filter As BinaryExpression
+            Get
+                If Enabled Then
+                    Dim v = If(PropertyValues, {})
+                    If Not UseNullValues Then
+                        v = v.Where(Function(x) x IsNot Nothing)
+                    End If
+                    Return GetOperatorExpression(Member, [Operator].IfBlank(""), v, False)
+                End If
+                Return Nothing
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Configura este filtro para utilização de valores nulos na query
+        ''' </summary>
+        ''' <returns></returns>
+        Property UseNullValues As Boolean = False
+
+        ''' <summary>
+        ''' Indica se este filtro está ativo
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Enabled As Boolean = True
 
         ''' <summary>
         ''' Operador usado nesse filtro
@@ -29,6 +59,7 @@ Namespace LINQ
         ''' <returns></returns>
         Public Property PropertyValues As IEnumerable(Of IComparable)
 
+
         ''' <summary>
         ''' Parametro da expressão lambda
         ''' </summary>
@@ -43,24 +74,22 @@ Namespace LINQ
         ''' Expressão do membro utilizado no filtro
         ''' </summary>
         ''' <returns></returns>
-        Property Member As MemberExpression
+        Property Member As Expression
 
         ''' <summary>
         ''' retorna o lambdafilter deste Filtro
         ''' </summary>
         ''' <returns></returns>
-        Function LambdaFilter() As PaginationFilter(Of ClassType)
+        Function LambdaFilter() As PaginationFilter(Of ClassType, RemapType)
             Return Me._config
         End Function
-
-
 
         ''' <summary>
         ''' Seta varios valores para esse filtro testar. Substitui os valores antigos
         ''' </summary>
         ''' <param name="Values"></param>
         ''' <returns></returns>
-        Function SetValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType)
+        Function SetValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType, RemapType)
             PropertyValues = If(Values, {})
             Return Me
         End Function
@@ -70,7 +99,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="Values"></param>
         ''' <returns></returns>
-        Function SetValues(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function SetValues(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             PropertyValues = If(Values, {})
             Return Me
         End Function
@@ -80,7 +109,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="Values"></param>
         ''' <returns></returns>
-        Function AddValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType)
+        Function AddValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType, RemapType)
             PropertyValues = If(PropertyValues, {}).Union(If(Values, {}))
             Return Me
         End Function
@@ -90,7 +119,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="Value"></param>
         ''' <returns></returns>
-        Function SetValue(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function SetValue(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             PropertyValues = {Value}
             Return Me
         End Function
@@ -100,7 +129,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="PropertySelector"></param>
         ''' <returns></returns>
-        Function SetMember(Of T)(PropertySelector As Expression(Of Func(Of ClassType, T))) As PropertyFilter(Of ClassType)
+        Function SetMember(Of T)(PropertySelector As Expression(Of Func(Of ClassType, T))) As PropertyFilter(Of ClassType, RemapType)
             Return SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).Join("."))
         End Function
 
@@ -109,11 +138,13 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="PropertyName"></param>
         ''' <returns></returns>
-        Function SetMember(PropertyName As String) As PropertyFilter(Of ClassType)
+        Function SetMember(PropertyName As String) As PropertyFilter(Of ClassType, RemapType)
             Dim prop As Expression = Parameter
-            For Each name In PropertyName.SplitAny(".", "/")
-                prop = Expression.[Property](prop, name)
-            Next
+            If PropertyName.IfBlank("this") <> "this" Then
+                For Each name In PropertyName.SplitAny(".", "/")
+                    prop = Expression.[Property](prop, name)
+                Next
+            End If
             Member = prop
             Return Me
         End Function
@@ -123,42 +154,57 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="[Operator]"></param>
         ''' <returns></returns>
-        Function SetOperator([Operator] As String) As PropertyFilter(Of ClassType)
-            Me.Operator = [Operator]
+        Function SetOperator([Operator] As String) As PropertyFilter(Of ClassType, RemapType)
+            Me.Operator = [Operator].IfBlank("=").ToLower
+            Return Me
+        End Function
+
+        Public ReadOnly Property CompareWith As Boolean
+            Get
+                Return Not [Operator].StartsWithAny("!", "not")
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Nega o filtro atual
+        ''' </summary>
+        ''' <returns></returns>
+        Function Negate() As PropertyFilter(Of ClassType, RemapType)
+            If CompareWith = False Then
+                [Operator] = [Operator].RemoveFirstAny(False, "!", "Not")
+            Else
+                [Operator] = "!" & [Operator]
+            End If
             Return Me
         End Function
 
         ''' <summary>
-        ''' Seta o comparador (TRUE/FALSE) para o resultado do filtro. Quando false, o resultado do filtro é negado
+        ''' Força uma comparação positiva para este filtro
         ''' </summary>
-        ''' <param name="TrueOrFalse"></param>
         ''' <returns></returns>
-        Function CompareWith(TrueOrFalse As Boolean) As PropertyFilter(Of ClassType)
-            Me.Is = TrueOrFalse
+        Function CompareTrue() As PropertyFilter(Of ClassType, RemapType)
+            If CompareWith = False Then
+                Me.Negate()
+            End If
             Return Me
         End Function
 
         ''' <summary>
-        ''' Seta TRUE para o comparador  para o resultado do filtro. Quando false, o resultado do filtro é negado
+        ''' Força uma comparação negativa para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function CompareTrue() As PropertyFilter(Of ClassType)
-            Return CompareWith(True)
-        End Function
-
-        ''' <summary>
-        ''' Seta FALSE para o comparador  para o resultado do filtro. Quando false, o resultado do filtro é negado
-        ''' </summary>
-        ''' <returns></returns>
-        Function CompareFalse() As PropertyFilter(Of ClassType)
-            Return CompareWith(False)
+        Function CompareFalse() As PropertyFilter(Of ClassType, RemapType)
+            If CompareWith = True Then
+                Me.Negate()
+            End If
+            Return Me
         End Function
 
         ''' <summary>
         ''' Seta o operador para Contains e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function Contains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function Contains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("contains")
             Return Me
@@ -168,9 +214,69 @@ Namespace LINQ
         ''' Seta o operador para Contains e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function Contains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function Contains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValues(Values)
             Me.SetOperator("contains")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para StartsWith e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function StartsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("StartsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para StartsWith e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function StartsWith(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("StartsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para EndsWith e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function EndsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("EndsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para EndsWith e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function EndsWith(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("EndsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para CrossContains e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function CrossContains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("crosscontains")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para CrossContains e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function CrossContains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("crosscontains")
             Return Me
         End Function
 
@@ -178,7 +284,7 @@ Namespace LINQ
         ''' Seta o operador para = e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function Equal(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function Equal(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("=")
             Return Me
@@ -188,7 +294,7 @@ Namespace LINQ
         ''' Seta o operador para = e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function Equal(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function Equal(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValues(Values)
             Me.SetOperator("=")
             Return Me
@@ -198,7 +304,7 @@ Namespace LINQ
         ''' Seta o operador para > e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function GreaterThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function GreaterThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator(">")
             Return Me
@@ -208,7 +314,7 @@ Namespace LINQ
         ''' Seta o operador para > e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function GreaterThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function GreaterThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValues(Values)
             Me.SetOperator(">")
             Return Me
@@ -218,7 +324,7 @@ Namespace LINQ
         ''' Seta o operador para &lt; e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function LessThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function LessThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("<")
             Return Me
@@ -228,7 +334,7 @@ Namespace LINQ
         ''' Seta o operador para   &lt; e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function LessThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function LessThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValues(Values)
             Me.SetOperator("<")
             Return Me
@@ -238,7 +344,7 @@ Namespace LINQ
         ''' Seta o operador para  >= e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function GreaterThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function GreaterThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator(">=")
             Return Me
@@ -248,7 +354,7 @@ Namespace LINQ
         ''' Seta o operador para  >= e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function GreaterThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function GreaterThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValues(Values)
             Me.SetOperator(">=")
             Return Me
@@ -258,7 +364,7 @@ Namespace LINQ
         ''' Seta o operador para   &lt;= e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function LessThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function LessThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("<=")
             Return Me
@@ -268,7 +374,7 @@ Namespace LINQ
         ''' Seta o operador para   &lt; e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function LessThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function LessThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValues(Values)
             Me.SetOperator("<=")
             Return Me
@@ -278,7 +384,7 @@ Namespace LINQ
         ''' Seta o operador para  != e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function NotEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType)
+        Function NotEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("<>")
             Return Me
@@ -288,39 +394,16 @@ Namespace LINQ
         ''' Seta o operador para  != e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function NotEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType)
+        Function NotEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValues(Values)
             Me.SetOperator("<>")
             Return Me
         End Function
-
-        ''' <summary>
-        ''' Expressão binaria deste filtro
-        ''' </summary>
-        ''' <returns></returns>
-        ReadOnly Property Filter As BinaryExpression
-            Get
-                Dim exp As Expression = Nothing
-                Dim v = If(PropertyValues, {})
-                If Not UseNullValues Then
-                    v = v.Where(Function(x) x IsNot Nothing)
-                End If
-
-                Return GetOperatorExpression(Member, [Operator], v, False)
-            End Get
-        End Property
-
-        ''' <summary>
-        ''' Configura este filtro para utilização de valores nulos na query
-        ''' </summary>
-        ''' <returns></returns>
-        Property UseNullValues As Boolean = False
-
         ''' <summary>
         ''' Permite que valores nulos sejam adcionados ao filtro
         ''' </summary>
         ''' <returns></returns>
-        Function AllowNull() As PropertyFilter(Of ClassType)
+        Function AllowNull() As PropertyFilter(Of ClassType, RemapType)
             UseNullValues = True
             Return Me
         End Function
@@ -329,137 +412,108 @@ Namespace LINQ
         ''' Impede que valores nulos sejam adcionados ao filtro
         ''' </summary>
         ''' <returns></returns>
-        Function IgnoreNull() As PropertyFilter(Of ClassType)
+        Function IgnoreNull() As PropertyFilter(Of ClassType, RemapType)
             UseNullValues = False
             Return Me
         End Function
+        ''' <summary>
+        ''' Ativa ou desativa esse filtro durante a construção da expressão
+        ''' </summary>
+        ''' <param name="Enabled"></param>
+        ''' <returns></returns>
+        Function SetEnabled(Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
+            Me.Enabled = Enabled
+            Return Me
+        End Function
 
-        Friend _config As PaginationFilter(Of ClassType)
+        Public ReadOnly Property PropertyName As String
+            Get
+                Return Me.Member.ToString().GetAfter(".")
+            End Get
+        End Property
 
+        ''' <summary>
+        ''' Separador utilizado pelo <see cref="CreateQueryParameter(Boolean)"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property QueryStringSeparator As String = ":"
+
+        ''' <summary>
+        ''' Retorna uma string em formato de parametro de QueryString deste filtro
+        ''' </summary>
+        ''' <param name="ForceEnabled"></param>
+        ''' <returns></returns>
+        Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False) As String
+            If Enabled OrElse ForceEnabled Then
+                Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===", "equal", "equals")).UrlEncode()
+                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
+            End If
+            Return ""
+        End Function
+
+        Public Overrides Function ToString() As String
+            Return Me.CreateQueryParameter()
+        End Function
     End Class
 
+
+
+
     ''' <summary>
-    ''' Classe para criação de filtros dinâmicos para listas de classes
+    ''' Classe para criação de paginação e filtros dinâmicos para listas de classes
     ''' </summary>
     ''' <typeparam name="ClassType"></typeparam>
-    Public Class PaginationFilter(Of ClassType As Class)
-
-        Friend _filters As New List(Of PropertyFilter(Of ClassType))
+    Public Class PaginationFilter(Of ClassType As Class, RemapType)
 
         ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
         ''' <param name="Exclusive"></param>
-        Sub New(Optional Exclusive As Boolean = True)
+        Sub New(Optional Exclusive As Boolean = False)
             Me.Exclusive = Exclusive
+            Me.RemapExpression = RemapExpression
         End Sub
 
         ''' <summary>
-        ''' Configura este LambdaFilter
+        ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
-        ''' <param name="options"></param>
-        ''' <returns></returns>
-        Function Config(options As Action(Of PaginationFilter(Of ClassType))) As PaginationFilter(Of ClassType)
-            options(Me)
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Configura este LambDafilter para utilizar uma querystring como Filtro.
-        ''' </summary>
-        ''' <param name="Query">QueryString</param>
-        ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
-        ''' <returns></returns>
-        Function UseQueryString(Query As String, Optional CompareWith As Boolean = True, Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType)
-            If Query.IsNotBlank Then
-                UseNameValueCollection(HttpUtility.ParseQueryString(Query), CompareWith, DefaultOperator)
-            End If
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Configura este LambDafilter para utilizar um Dictionary como Filtro.
-        ''' </summary>
-        ''' <param name="Collection">Collection</param>
-        ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
-        ''' <returns></returns>
-        Function UseArrayDictionary(Collection As IDictionary(Of String, IComparable()), Optional CompareWith As Boolean = True, Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType)
-            Collection = If(Collection, New NameValueCollection)
-            For Each K In Collection.Keys
-                Dim t = GetType(ClassType)
-                Dim l = t.GetProperties()
-                If l.Any(Function(x) x.Name = K) Then
-                    Me.SetMember(K).SetValues(Collection(K).ToArray()).CompareWith(CompareWith).SetOperator(DefaultOperator)
-                End If
-            Next
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Configura este LambDafilter para utilizar um Dictionary como Filtro.
-        ''' </summary>
-        ''' <param name="Collection">Collection</param>
-        ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
-        ''' <returns></returns>
-        Function UseDictionary(Collection As IDictionary(Of String, IComparable), Optional CompareWith As Boolean = True, Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType)
-            Collection = If(Collection, New NameValueCollection)
-            For Each K In Collection.Keys
-                Dim t = GetType(ClassType)
-                Dim l = t.GetProperties()
-                If l.Any(Function(x) x.Name = K) Then
-                    Me.SetMember(K).SetValue(Collection(K)).CompareWith(CompareWith).SetOperator(DefaultOperator)
-                End If
-            Next
-            Return Me
-        End Function
-
-        Public Function IsExclusive(Optional Exclusive As Boolean = True) As PaginationFilter(Of ClassType)
+        ''' <param name="Exclusive"></param>
+        Sub New(RemapExpression As Func(Of ClassType, RemapType), Optional Exclusive As Boolean = False)
             Me.Exclusive = Exclusive
+            Me.RemapExpression = RemapExpression
+        End Sub
+
+        Friend _filters As New List(Of PropertyFilter(Of ClassType, RemapType))
+
+        Private remapexp As Func(Of ClassType, RemapType)
+
+        Friend param As ParameterExpression = GenerateParameterExpression(Of ClassType)()
+
+
+        ''' <summary>
+        ''' Força o <see cref="IQueryable"/> a executar (sem paginação)
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function Compute() As PaginationFilter(Of ClassType, RemapType)
+            Me.Data = Me.Data.ToList().AsEnumerable
             Return Me
         End Function
 
-        Public Function SetData(List As IEnumerable(Of ClassType)) As PaginationFilter(Of ClassType)
-            Data = List
-            Return Me
-        End Function
+        ''' <summary>
+        ''' Numero da pagina
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property PageNumber As Integer = 1
 
-        Public Function UseNameValueCollection(Collection As NameValueCollection, Optional CompareWith As Boolean = True, Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType)
-            Collection = If(Collection, New NameValueCollection)
-            For Each K In Collection.AllKeys
-                Dim t = GetType(ClassType)
-                Dim l = t.GetProperties()
-                If l.Any(Function(x) x.Name = K) Then
-                    If Collection(K).IsNotBlank() AndAlso Collection.GetValues(K).Any() Then
-                        Me.SetMember(K).SetValues(Collection.GetValues(K)).CompareWith(CompareWith).SetOperator(DefaultOperator)
-                    End If
-                End If
-            Next
-            Return Me
-        End Function
-
-        Public Property Data As IEnumerable(Of ClassType)
-
-        Default ReadOnly Property Page(PageNumber As Integer) As PaginationInfo(Of ClassType)
-            Get
-                Return GetPage(PageNumber)
-            End Get
-        End Property
-
-        Public Function GetPage(PageNumber As Integer) As PaginationInfo(Of ClassType)
-            Return CreatePaginationInfo(PageNumber, PageSize, PaginationOffset)
-        End Function
-
-        Public Property PageSize As Integer = 10
-        Public Property PaginationOffset As Integer = 3
-
-        Public ReadOnly Property Filters As IEnumerable(Of PropertyFilter(Of ClassType))
+        ''' <summary>
+        ''' Filtros
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Filters As IEnumerable(Of PropertyFilter(Of ClassType, RemapType))
             Get
                 Return _filters
             End Get
-
         End Property
-
-        Friend param As ParameterExpression = Expression.Parameter(GetType(ClassType), GetType(ClassType).Name.CamelSplit.SelectJoin(Function(x) x.FirstOrDefault().IfBlank(Of Char)(""), "").ToLower())
 
         ''' <summary>
         ''' Parametro utilizado na contrução da expressão lambda
@@ -485,7 +539,7 @@ Namespace LINQ
         ReadOnly Property Filter As BinaryExpression
             Get
                 Dim exp As Expression = Nothing
-                For Each valor In Filters.Select(Function(x) x.Filter)
+                For Each valor In Filters.Where(Function(x) x.Enabled).Select(Function(x) x.Filter)
                     If valor IsNot Nothing Then
                         If exp Is Nothing Then
                             exp = valor
@@ -498,61 +552,178 @@ Namespace LINQ
                         End If
                     End If
                 Next
-
+                For Each valor In If(CustomFilters, New List(Of Expression(Of Func(Of ClassType, Boolean))))
+                    If valor IsNot Nothing Then
+                        If exp Is Nothing Then
+                            exp = valor
+                        Else
+                            If Exclusive Then
+                                exp = Expression.AndAlso(valor, exp)
+                            Else
+                                exp = Expression.OrElse(valor, exp)
+                            End If
+                        End If
+                    End If
+                Next
                 Return exp
             End Get
         End Property
 
-        Function SetPagination(PageSize As Integer, PaginationOffset As Integer) As PaginationFilter(Of ClassType)
-            Me.PageSize = PageSize
-            Me.PaginationOffset = PaginationOffset
+        ''' <summary>
+        ''' Cria uma querystring com os filtros ativos 
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function CreateQueryString(Optional ForceEnabled As Boolean = False) As String
+            Return Filters.Select(Function(x) x.CreateQueryParameter(ForceEnabled)).Where(Function(x) x.IsNotBlank()).Join("&")
+        End Function
+
+
+        ''' <summary>
+        ''' Cria uma querystring com  paginacao e os filtros ativos 
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function CreateQueryString(PageNumber As Integer, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+            Dim l As New List(Of String)
+            l.Add(CreateQueryString(ForceEnabled))
+            l.Add(GetPaginationQueryString(PageNumber, IncludePageSize, IncludePaginationOffset))
+            Return l.Where(Function(x) x.IsNotBlank()).Join("&")
+        End Function
+
+        ''' <summary>
+        ''' Cria uma querystring com  paginacao e os filtros ativos 
+        ''' </summary>
+        ''' <returns></returns>
+
+        Public Function CreateQueryString() As String
+            Return CreateQueryString(Me.PageNumber)
+        End Function
+
+
+        ''' <summary>
+        ''' Seta os parametros utilizados na querystring para a paginação
+        ''' </summary>
+        ''' <param name="PageNumber"></param>
+        ''' <param name="PageSize"></param>
+        ''' <param name="PaginationOffset"></param>
+        ''' <returns></returns>
+        Public Function SetPaginationQueryParameters(PageNumber As String, PageSize As String, PaginationOffset As String) As PaginationFilter(Of ClassType, RemapType)
+            Me.PageNumberQueryParameter = PageNumber.IfBlank(NameOf(Me.PageNumber))
+            Me.PageSizeQueryParameter = PageSize.IfBlank(NameOf(Me.PageSize))
+            Me.PaginationOffsetQueryParameter = PaginationOffset.IfBlank(NameOf(Me.PaginationOffset))
             Return Me
         End Function
 
-        Function SetPagination(PageSize As Integer) As PaginationFilter(Of ClassType)
-            Me.PageSize = PageSize
-            Return Me
-        End Function
+
+        Private pnp, psp, pop As String
+
+        Public Property PageNumberQueryParameter As String
+            Get
+                Return pnp.IfBlank(NameOf(PageNumber))
+            End Get
+            Set(value As String)
+                pnp = value
+            End Set
+        End Property
+
+
+        Public Property PageSizeQueryParameter As String
+            Get
+                Return psp.IfBlank(NameOf(PageSize))
+            End Get
+            Set(value As String)
+                psp = value
+            End Set
+        End Property
+
+
+        Public Property PaginationOffsetQueryParameter As String
+            Get
+                Return pop.IfBlank(NameOf(PageSize))
+            End Get
+            Set(value As String)
+                pop = value
+            End Set
+        End Property
+
 
         ''' <summary>
-        ''' Configura um novo membro para este filtro
+        ''' Retorna a parte da querystring usada para paginacao
         ''' </summary>
-        ''' <param name="PropertyName"></param>
+        ''' <param name="PageNumber"></param>
         ''' <returns></returns>
-        Function SetMember(Of T)(PropertyName As Expression(Of Func(Of ClassType, T))) As PropertyFilter(Of ClassType)
-            Dim f = New PropertyFilter(Of ClassType)(Me)
-            f.SetMember(PropertyName)
-            _filters.Add(f)
-            Return f
-        End Function
-
-        ''' <summary>
-        ''' Configura um novo membro para este filtro
-        ''' </summary>
-        ''' <param name="PropertyName"></param>
-        ''' <returns></returns>
-        Function SetMember(PropertyName As String) As PropertyFilter(Of ClassType)
-            Dim f = New PropertyFilter(Of ClassType)(Me)
-            f.SetMember(PropertyName)
-            _filters.Add(f)
-            Return f
-        End Function
-
-        ''' <summary>
-        ''' Retorna os dados de <see cref="Data"/> filtrados pelo <see cref="Filter"/>
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function Apply() As IEnumerable(Of ClassType)
-            If LambdaExpression IsNot Nothing Then
-                If TypeOf Me.Data Is IQueryable(Of ClassType) Then
-                    Dim d = CType(Me.Data, IQueryable(Of ClassType)).Where(LambdaExpression)
-                    Return d
-                Else
-                    Return Me.Data.Where(LambdaExpression.Compile())
-                End If
+        Public Function GetPaginationQueryString(PageNumber As Integer, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+            If PageNumber > 0 Then
+                Dim l As New List(Of String)
+                If PageNumber > 1 Then l.Add($"{PageNumberQueryParameter}={PageNumber}")
+                If IncludePageSize Then l.Add($"{PageSizeQueryParameter}={PageSize}")
+                If IncludePaginationOffset Then l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}")
+                Return l.Join("&")
             End If
-            Return Me.Data
+            Return ""
         End Function
+
+        ''' <summary>
+        ''' Retorna a parte da querystring usada para paginacao
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetPaginationQueryString(Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+            Return GetPaginationQueryString(Me.PageNumber, IncludePageSize, IncludePaginationOffset)
+        End Function
+
+        Public ReadOnly Property NameValueCollection
+            Get
+                Return HttpUtility.ParseQueryString(CreateQueryString())
+            End Get
+
+        End Property
+
+        ''' <summary>
+        ''' Retorna uma QueryString que representa este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Public Overrides Function ToString() As String
+            Return CreateQueryString().ToString()
+        End Function
+
+        ''' <summary>
+        ''' Filtros customizados
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property CustomFilters As New List(Of Expression(Of Func(Of ClassType, Boolean)))
+
+        ''' <summary>
+        ''' Expressão de remapeamento da coleção
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property RemapExpression As Func(Of ClassType, RemapType)
+            Get
+                If remapexp Is Nothing Then
+                    remapexp = ConvertGeneric(Of ClassType, ClassType, ClassType, RemapType)(Function(x) x).Compile()
+                End If
+                Return remapexp
+            End Get
+            Set(value As Func(Of ClassType, RemapType))
+                remapexp = value
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' Fonte de Dados deste filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Data As IEnumerable(Of ClassType)
+
+        ''' <summary>
+        ''' Dados da Pagina Atual
+        ''' </summary>
+        ''' <param name="PageNumber"></param>
+        ''' <returns></returns>
+        Default ReadOnly Property Page(PageNumber As Integer) As RemapType()
+            Get
+                Return GetPage(PageNumber)
+            End Get
+        End Property
+
 
         ''' <summary>
         ''' Expressão lambda deste filtro
@@ -570,50 +741,6 @@ Namespace LINQ
                 Return exp
             End Get
         End Property
-
-        ''' <summary>
-        ''' Cria uma pagina com os resultados deste filtro
-        ''' </summary>
-        ''' <param name="PageNumber"></param>
-        ''' <param name="PageSize"></param>
-        ''' <param name="PaginationOffset"></param>
-        ''' <returns></returns>
-        Public Function CreatePaginationInfo(PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3) As PaginationInfo(Of ClassType)
-            Return CreatePaginationInfo(Me.Data, PageNumber, PageSize, PaginationOffset)
-        End Function
-
-        ''' <summary>
-        ''' Cria uma pagina com os resultados deste filtro usando uma outra lista
-        ''' </summary>
-        ''' <param name="PageNumber"></param>
-        ''' <param name="PageSize"></param>
-        ''' <param name="PaginationOffset"></param>
-        ''' <returns></returns>
-        Public Function CreatePaginationInfo(List As IEnumerable(Of ClassType), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3) As PaginationInfo(Of ClassType)
-            Return New PaginationInfo(Of ClassType)(List, PageNumber, PageSize, PaginationOffset, LambdaExpression)
-        End Function
-
-    End Class
-
-    ''' <summary>
-    ''' Classe para manipulação de coleções de forma paginada
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    Public Class PaginationInfo(Of T)
-        Inherits ReadOnlyCollection(Of T)
-        Implements IEnumerable, IEnumerable(Of T)
-
-        ''' <summary>
-        ''' Filtro aplicado a lista
-        ''' </summary>
-        ''' <returns></returns>
-        ReadOnly Property Filter As Expression(Of Func(Of T, Boolean))
-
-        ''' <summary>
-        ''' Numero desta pagina
-        ''' </summary>
-        ''' <returns></returns>
-        ReadOnly Property PageNumber As Integer = 1
 
         ''' <summary>
         ''' Numero da ultima pagina
@@ -687,7 +814,7 @@ Namespace LINQ
         ''' Retorna true se existir mais de uma pagina
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property IsNecessary As Boolean
+        ReadOnly Property IsPaginationNecessary As Boolean
             Get
                 Return PageCount > 1
             End Get
@@ -738,12 +865,16 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         ReadOnly Property Total As Integer
+            Get
+                Return ApplyFilter().ToArray().Count()
+            End Get
+        End Property
 
         ''' <summary>
         ''' Quantidade de itens por página
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property PageSize As Integer
+        Property PageSize As Integer = 0
 
         ''' <summary>
         ''' Quantidade de páginas
@@ -754,46 +885,6 @@ Namespace LINQ
                 Return (Total / PageSize).Ceil
             End Get
         End Property
-
-        Sub New(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Optional PaginationOffset As Integer = 3, Optional Filter As Expression(Of Func(Of T, Boolean)) = Nothing)
-            MyBase.New(MakeList(List, PageNumber, PageSize, PaginationOffset, Filter))
-            Me.PageNumber = PageNumber
-            Me.PageSize = PageSize
-            Me.Filter = Filter
-            Me.PaginationOffset = PaginationOffset
-            Me.Total = FilterList(List, Filter).Count()
-        End Sub
-
-        Private Shared Function MakeList(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, PaginationOffset As Integer, Filter As Expression(Of Func(Of T, Boolean))) As IEnumerable(Of T)
-            Return PageList(FilterList(List, Filter), PageNumber, PageSize).ToList()
-        End Function
-
-        Private Shared Function FilterList(List As IEnumerable(Of T), Filter As Expression(Of Func(Of T, Boolean))) As IEnumerable(Of T)
-            If Filter IsNot Nothing Then
-                If TypeOf List Is IQueryable(Of T) Then
-                    Dim d = CType(List, IQueryable(Of T)).Where(Filter)
-                    Return d
-                Else
-                    Return List.Where(Filter.Compile())
-                End If
-            End If
-            Return List
-        End Function
-
-        Private Shared Function PageList(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer) As IEnumerable(Of T)
-            If PageNumber > 0 AndAlso PageSize > 0 Then
-                List = List.Skip((PageNumber - 1) * PageSize).Take(PageSize)
-            End If
-            Return List
-        End Function
-
-        Sub New(List As IEnumerable(Of T), PageNumber As Integer, PageSize As Integer, Total As Integer, Optional PaginationOffset As Integer = 3)
-            MyBase.New(List)
-            Me.PageNumber = PageNumber
-            Me.PageSize = PageSize
-            Me.Total = Total
-            Me.PaginationOffset = PaginationOffset
-        End Sub
 
         ''' <summary>
         ''' Quantidade média de "botões de paginação" contidas no <see cref="PageRange"/>
@@ -822,10 +913,333 @@ Namespace LINQ
             End Get
         End Property
 
+        ''' <summary>
+        ''' Configura este Filtro
+        ''' </summary>
+        ''' <param name="options"></param>
+        ''' <returns></returns>
+        Function Config(options As Action(Of PaginationFilter(Of ClassType, RemapType))) As PaginationFilter(Of ClassType, RemapType)
+            options(Me)
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Configura este Filtro para utilizar uma querystring.
+        ''' </summary>
+        ''' <param name="Query">QueryString</param>
+        ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
+        ''' <returns></returns>
+        Function UseQueryString(Query As String, Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType, RemapType)
+            If Query.IsNotBlank Then
+                UseNameValueCollection(HttpUtility.ParseQueryString(Query), DefaultOperator)
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Configura este Filtro para utilizar uma querystring com operadores (&membro=operador:valor)
+        ''' </summary>
+        ''' <param name="QueryExpression"></param>
+        ''' <returns></returns>
+        Function UseQueryStringExpression(QueryExpression As String, Optional Separator As String = ":") As PaginationFilter(Of ClassType, RemapType)
+            Dim Collection = HttpUtility.ParseQueryString(QueryExpression)
+            For Each K In Collection.AllKeys
+                Dim t = GetType(ClassType)
+                Dim l = t.GetProperties()
+                If l.Any(Function(x) x.Name = K OrElse K = "this") Then
+                    If Collection(K).IsNotBlank() AndAlso Collection.GetValues(K).Any() Then
+                        Dim buscas = Collection.GetValues(K).GroupBy(Function(x) x.GetBefore(Separator, True).IfBlank("=")).ToDictionary()
+                        For Each item In buscas
+                            Dim vals = item.Value.Select(Function(x) x.GetAfter(Separator))
+                            Me.SetMember(K).SetValues(vals).SetOperator(item.Key).QueryStringSeparator = Separator
+                        Next
+                    End If
+                End If
+            Next
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Configura este LambDafilter para utilizar um Dictionary como Filtro.
+        ''' </summary>
+        ''' <param name="Collection">Collection</param>
+        ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
+        ''' <returns></returns>
+        Function UseArrayDictionary(Collection As IDictionary(Of String, IComparable()), Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType, RemapType)
+            Collection = If(Collection, New NameValueCollection)
+            For Each K In Collection.Keys
+                Dim t = GetType(ClassType)
+                Dim l = t.GetProperties()
+                If l.Any(Function(x) x.Name = K) Then
+                    Me.SetMember(K).SetValues(Collection(K).ToArray()).SetOperator(DefaultOperator)
+                End If
+            Next
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Configura este LambDafilter para utilizar um Dictionary como Filtro.
+        ''' </summary>
+        ''' <param name="Collection">Collection</param>
+        ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
+        ''' <returns></returns>
+        Function UseDictionary(Collection As IDictionary(Of String, IComparable), Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType, RemapType)
+            Collection = If(Collection, New NameValueCollection)
+            For Each K In Collection.Keys
+                Dim t = GetType(ClassType)
+                Dim l = t.GetProperties()
+                If l.Any(Function(x) x.Name = K) Then
+                    Me.SetMember(K).SetValue(Collection(K)).SetOperator(DefaultOperator)
+                End If
+            Next
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o valor de exclusividade de filtro (quando true)
+        ''' </summary>
+        ''' <param name="Exclusive"></param>
+        ''' <remarks>Valores exclusivos precisam cumprir todos os filtros para retornarem na busca. Filtros não exclusivos retornam se um ou mais forem cumpridos</remarks>
+        ''' <returns></returns>
+        Public Function IsExclusive(Optional Exclusive As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
+            Me.Exclusive = Exclusive
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta a lista com os dados a serem filtrados nesse filtro
+        ''' </summary>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        Public Function SetData(List As IEnumerable(Of ClassType)) As PaginationFilter(Of ClassType, RemapType)
+            Me.Data = List
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Ordena os resultados da lista
+        ''' </summary>
+        ''' <typeparam name="t"></typeparam>
+        ''' <param name="Selector"></param>
+        ''' <param name="Ascent"></param>
+        ''' <returns></returns>
+        Public Function OrderBy(Of T)(Selector As Expression(Of Func(Of ClassType, T)), Optional Ascent As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
+            If Selector IsNot Nothing Then
+                If TypeOf Me.Data Is IOrderedQueryable(Of ClassType) Then
+                    If Ascent Then
+                        Me.Data = CType(Me.Data, IOrderedQueryable(Of ClassType)).ThenBy(Selector)
+                    Else
+                        Me.Data = CType(Me.Data, IOrderedQueryable(Of ClassType)).ThenByDescending(Selector)
+                    End If
+                    Return Me
+                End If
+                If TypeOf Me.Data Is IQueryable(Of ClassType) Then
+                    If Ascent Then
+                        Me.Data = CType(Me.Data, IQueryable(Of ClassType)).OrderBy(Selector)
+                    Else
+                        Me.Data = CType(Me.Data, IQueryable(Of ClassType)).OrderByDescending(Selector)
+                    End If
+                    Return Me
+                End If
+                If TypeOf Me.Data Is IOrderedEnumerable(Of ClassType) Then
+                    If Ascent Then
+                        Me.Data = CType(Me.Data, IOrderedEnumerable(Of ClassType)).ThenBy(Selector.Compile)
+                    Else
+                        Me.Data = CType(Me.Data, IOrderedEnumerable(Of ClassType)).ThenByDescending(Selector.Compile)
+                    End If
+                    Return Me
+                End If
+                If TypeOf Me.Data Is IEnumerable(Of ClassType) Then
+                    If Ascent Then
+                        Me.Data = CType(Me.Data, IEnumerable(Of ClassType)).OrderBy(Selector.Compile)
+                    Else
+                        Me.Data = CType(Me.Data, IEnumerable(Of ClassType)).OrderByDescending(Selector.Compile)
+                    End If
+                    Return Me
+                End If
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Ordena os resultados da lista
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function OrderBy(Selector As String(), Optional Ascending As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
+            If If(Selector, {}).Any() Then
+                If TypeOf Me.Data Is IOrderedQueryable(Of ClassType) Then
+                    Me.Data = CType(Me.Data, IOrderedQueryable(Of ClassType)).ThenByProperty(Selector, Ascending)
+                    Return Me
+                End If
+                If TypeOf Me.Data Is IQueryable(Of ClassType) Then
+                    Me.Data = CType(Me.Data, IQueryable(Of ClassType)).OrderByProperty(Selector, Ascending)
+                    Return Me
+                End If
+                If TypeOf Me.Data Is IOrderedEnumerable(Of ClassType) Then
+                    Me.Data = CType(Me.Data, IOrderedEnumerable(Of ClassType)).ThenByProperty(Selector, Ascending)
+                    Return Me
+                End If
+                If TypeOf Me.Data Is IEnumerable(Of ClassType) Then
+                    Me.Data = CType(Me.Data, IEnumerable(Of ClassType)).OrderByProperty(Selector, Ascending)
+                    Return Me
+                End If
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Ordena os resultados da lista
+        ''' </summary>
+        ''' <param name="Selector"></param>
+        ''' <param name="Ascending"></param>
+        ''' <returns></returns>
+        Public Function OrderBy(Selector As String, Optional Ascending As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
+            Return Me.OrderBy(Selector.IfBlank("").SplitAny(" ", "/", ","), Ascending)
+        End Function
+
+        ''' <summary>
+        ''' Extrai os parametros de um <see cref="NameValueCollection"/> e seta os membros usando as Keys como 
+        ''' </summary>
+        ''' <param name="Collection"></param>
+        ''' <param name="DefaultOperator"></param>
+        ''' <returns></returns>
+        Public Function UseNameValueCollection(Collection As NameValueCollection, Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType, RemapType)
+            Collection = If(Collection, New NameValueCollection)
+            For Each K In Collection.AllKeys
+                Dim t = GetType(ClassType)
+                Dim l = t.GetProperties()
+                If l.Any(Function(x) x.Name = K) Then
+                    If Collection(K).IsNotBlank() AndAlso Collection.GetValues(K).Any() Then
+                        Me.SetMember(K).SetValues(Collection.GetValues(K)).SetOperator(DefaultOperator)
+                    End If
+                End If
+            Next
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Executa o Filtro e retorna os dados paginados
+        ''' </summary>
+        ''' <param name="PageNumber"></param>
+        ''' <returns></returns>
+        Public Function GetPage(PageNumber As Integer) As RemapType()
+            Me.PageNumber = PageNumber
+            Dim filtereddata = ApplyFilter()
+            filtereddata = ApplyPage(filtereddata)
+            Return filtereddata.Select(RemapExpression).ToArray()
+        End Function
+
+
+
+        ''' <summary>
+        ''' Retorna a pagina atual
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetPage() As RemapType()
+            Return GetPage(PageNumber)
+        End Function
+
+        ''' <summary>
+        ''' Adciona um filtro customizado ao construtor de expressões
+        ''' </summary>
+        ''' <param name="Exp"></param>
+        ''' <returns></returns>
+        Function AddFilter(Exp As Expression(Of Func(Of ClassType, Boolean))) As PaginationFilter(Of ClassType, RemapType)
+            CustomFilters = If(CustomFilters, New List(Of Expression(Of Func(Of ClassType, Boolean))))
+            CustomFilters.Add(Exp)
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Configura a paginação do filtro
+        ''' </summary>
+        ''' <param name="PageSize"></param>
+        ''' <param name="PaginationOffset"></param>
+        ''' <returns></returns>
+        Function SetPagination(PageSize As Integer, PaginationOffset As Integer) As PaginationFilter(Of ClassType, RemapType)
+            Me.PageSize = PageSize
+            Me.PaginationOffset = PaginationOffset
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Configura a paginação do filtro
+        ''' </summary>
+        ''' <param name="PageSize"></param>
+        ''' <returns></returns>
+        Function SetPagination(PageSize As Integer) As PaginationFilter(Of ClassType, RemapType)
+            Me.PageSize = PageSize
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta a pagina atual
+        ''' </summary>
+        ''' <param name="PageNumber"></param>
+        ''' <returns></returns>
+        Function SetPage(PageNumber As Integer) As PaginationFilter(Of ClassType, RemapType)
+            Me.PageNumber = PageNumber
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Configura um novo membro para este filtro
+        ''' </summary>
+        ''' <param name="PropertyName"></param>
+        ''' <returns></returns>
+        Function SetMember(Of T)(PropertyName As Expression(Of Func(Of ClassType, T)), Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
+            Dim f = New PropertyFilter(Of ClassType, RemapType)(Me)
+            f.SetMember(PropertyName).SetEnabled(Enabled)
+            _filters.Add(f)
+            Return f
+        End Function
+
+        ''' <summary>
+        ''' Configura um novo membro para este filtro
+        ''' </summary>
+        ''' <param name="PropertyName"></param>
+        ''' <returns></returns>
+        Function SetMember(PropertyName As String, Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
+            Dim f = New PropertyFilter(Of ClassType, RemapType)(Me)
+            f.SetMember(PropertyName).SetEnabled(Enabled)
+            _filters.Add(f)
+            Return f
+        End Function
+
         Public Function IsCurrentPage(Index As Integer) As Boolean
             Return Index = PageNumber
         End Function
+        Private Function ApplyFilter() As IEnumerable(Of ClassType)
+            Dim FilteredData = Me.Data
+            If LambdaExpression IsNot Nothing Then
+                If TypeOf FilteredData Is IOrderedQueryable(Of ClassType) Then
+                    FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Where(LambdaExpression)
+                End If
+                If TypeOf FilteredData Is IQueryable(Of ClassType) Then
+                    FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Where(LambdaExpression)
+                Else
+                    FilteredData = FilteredData.Where(LambdaExpression.Compile())
+                End If
+            End If
+            Return FilteredData
+        End Function
 
+        Private Function ApplyPage(FilteredData As IEnumerable(Of ClassType)) As IEnumerable(Of ClassType)
+            If PageNumber > 0 AndAlso PageSize > 0 Then
+                If TypeOf FilteredData Is IOrderedQueryable(Of ClassType) Then
+                    FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
+                ElseIf TypeOf Me.Data Is IQueryable(Of ClassType) Then
+                    FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
+                Else
+                    FilteredData = FilteredData.Where(LambdaExpression.Compile())
+                End If
+            End If
+            Return FilteredData
+        End Function
+
+        Public Shared Widening Operator CType(obj As PaginationFilter(Of ClassType, RemapType)) As RemapType()
+            Return obj.GetPage()
+        End Operator
     End Class
 
 End Namespace

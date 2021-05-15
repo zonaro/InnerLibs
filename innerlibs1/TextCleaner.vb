@@ -1,5 +1,5 @@
 ﻿Imports System.Text.RegularExpressions
-Imports System.Web.Script.Serialization
+
 
 Public Class Paragraph
     Inherits List(Of Sentence)
@@ -243,6 +243,10 @@ End Class
 Public Class StructuredText
     Inherits List(Of Paragraph)
 
+    ''' <summary>
+    ''' Retorna o texto corretamente formatado
+    ''' </summary>
+    ''' <returns></returns>
     Public Overrides Function ToString() As String
         Dim par As String = ""
         For Each p In Me
@@ -251,9 +255,13 @@ Public Class StructuredText
             Next
             par &= (p.ToString & Environment.NewLine)
         Next
-        Return par
+        Return par.AdjustBlankSpaces().Replace(",,", ",").TrimCarriage()
     End Function
 
+    ''' <summary>
+    ''' Cria um novo texto estruturado (dividido em paragrafos, sentenças e palavras)
+    ''' </summary>
+    ''' <param name="OriginalText"></param>
     Public Sub New(OriginalText As String)
         For Each p In OriginalText.Split(BreakLineChars, StringSplitOptions.RemoveEmptyEntries)
             Me.Add(New Paragraph(p, Me))
