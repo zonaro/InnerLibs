@@ -923,6 +923,8 @@ Namespace LINQ
             Return Me
         End Function
 
+
+
         ''' <summary>
         ''' Configura este Filtro para utilizar uma querystring.
         ''' </summary>

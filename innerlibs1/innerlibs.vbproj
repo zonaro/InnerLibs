@@ -132,6 +132,7 @@
     <Compile Include="OnlineList.vb" />
     <Compile Include="QuestionTest.vb" />
     <Compile Include="Romanize.vb" />
+    <Compile Include="Select2Data.vb" />
     <Compile Include="Soundex.vb" />
     <Compile Include="Text.vb" />
     <Compile Include="TextCleaner.vb" />

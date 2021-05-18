@@ -7,6 +7,9 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+
+
+
         ''' <summary>
         ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
         ''' </summary>
@@ -416,6 +419,29 @@ Namespace LINQ
                     stack.Push(child)
                 Next
             End While
+        End Function
+
+        ''' <summary>
+        ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
+        ''' </summary>
+        ''' <typeparam name="T">Tipo do Objeto</typeparam>
+        ''' <param name="Items">Itens</param>
+        ''' <param name="ParentSelector">Seletor das propriedades filhas</param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Iterator Function Traverse(Of T)(ByVal item As T, ByVal ParentSelector As Func(Of T, T)) As IEnumerable(Of T)
+            If item IsNot Nothing Then
+                Dim current = item
+                Do
+                    Yield current
+                    current = ParentSelector(current)
+                Loop While current IsNot Nothing
+            End If
+        End Function
+
+        <Extension()>
+        Public Function Traverse(Of T)(ByVal items As IEnumerable(Of T), ParentSelector As Func(Of T, T)) As IEnumerable(Of T)
+            Return items.Select(Function(x) x.Traverse(ParentSelector, True))
         End Function
 
         ''' <summary>
