@@ -439,10 +439,6 @@ Namespace LINQ
             End If
         End Function
 
-        <Extension()>
-        Public Function Traverse(Of T)(ByVal items As IEnumerable(Of T), ParentSelector As Func(Of T, T)) As IEnumerable(Of T)
-            Return items.Select(Function(x) x.Traverse(ParentSelector, True))
-        End Function
 
         ''' <summary>
         ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
