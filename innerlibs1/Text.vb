@@ -616,6 +616,10 @@ End Class
 ''' <remarks></remarks>
 Public Module Text
 
+    <Extension()> Public Function WrapInTag(Text As String, ByVal TagName As String) As HtmlTag
+        Return New HtmlTag() With {.Text = Text, .TagName = TagName}
+    End Function
+
     <Extension()> Function ParseQueryString(querystring As String) As NameValueCollection
         Dim queryParameters As NameValueCollection = New NameValueCollection()
         Dim querySegments As String() = querystring.Split("&"c)
@@ -3736,3 +3740,33 @@ Public Module Text
     End Function
 
 End Module
+
+''' <summary>
+''' Classe para criação de strings contendo tags HTML
+''' </summary>
+Public Class HtmlTag
+
+    Public Property TagName As String
+    Public Property Text As String
+    Public Property Attributes As New Dictionary(Of String, String)
+
+    Public Property [Class] As String
+        Get
+            Return Attributes.GetValueOr("class", "")
+        End Get
+        Set(ByVal value As String)
+            Attributes = If(Attributes, New Dictionary(Of String, String))
+            Attributes("class") = value
+        End Set
+    End Property
+    Public Overrides Function ToString() As String
+        TagName = TagName.RemoveAny("/", "\")
+        Attributes = If(Attributes, New Dictionary(Of String, String))
+        Return $"<{TagName.IfBlank("div")} {Attributes.SelectJoin(Function(x) x.Key.ToLower & "=" & x.Value.Wrap())}>{Text}</{TagName.IfBlank("div")}>"
+    End Function
+
+    Public Shared Widening Operator CType(ByVal Tag As HtmlTag) As String
+        Return Tag?.ToString()
+    End Operator
+
+End Class
