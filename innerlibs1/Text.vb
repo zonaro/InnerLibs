@@ -616,6 +616,20 @@ End Class
 ''' <remarks></remarks>
 Public Module Text
 
+    ''' <summary>
+    ''' Parseia uma ConnectionString em um Dicionário
+    ''' </summary>
+    ''' <param name="ConnectionString"></param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function ParseConnectionString(ByVal ConnectionString As String) As ConnectionStringParser
+        Try
+            Return New ConnectionStringParser(ConnectionString)
+        Catch ex As Exception
+            Return New ConnectionStringParser
+        End Try
+    End Function
+
     <Extension()> Public Function WrapInTag(Text As String, ByVal TagName As String) As HtmlTag
         Return New HtmlTag() With {.Text = Text, .TagName = TagName}
     End Function
@@ -825,7 +839,6 @@ Public Module Text
     Public Function AdjustWhiteSpaces(ByVal Text As String) As String
         Text = Text.IfBlank("")
         If Text.IsNotBlank Then
-
             'adiciona espaco quando nescessario
             Text = Text.Replace(")", ") ")
             Text = Text.Replace("]", "] ")
@@ -1829,7 +1842,6 @@ Public Module Text
     <Extension> Public Function CrossContains(Text As String, OtherText As String) As Boolean
         Return Text.Contains(OtherText) OrElse OtherText.Contains(Text)
     End Function
-
 
     '''<summary>
     ''' Computa a distancia de Levenshtein entre 2 strings.
@@ -3741,6 +3753,34 @@ Public Module Text
 
 End Module
 
+Public Class ConnectionStringParser
+    Inherits Dictionary(Of String, String)
+
+    Sub New()
+        MyBase.New
+    End Sub
+
+    Sub New(ConnectionString As String)
+        MyBase.New
+        Try
+            For Each ii In ConnectionString.IfBlank("").Split(";"c).[Select](Function(t) t.Split(New Char() {"="c}, 2)).ToDictionary(Function(t) t(0).Trim().ToLower().ToTitle(True), Function(t) t(1).Trim(), StringComparer.InvariantCultureIgnoreCase)
+                Me(ii.Key.ToLower().ToTitle()) = ii.Value
+            Next
+        Catch ex As Exception
+            Throw New InvalidCastException("Invalid ConnectionString", ex)
+        End Try
+    End Sub
+
+    Public Overrides Function ToString() As String
+        Return Me.SelectJoin(Function(x) $"{x.Key}={x.Value}", ";")
+    End Function
+
+    Public Shared Widening Operator CType(ByVal cs As ConnectionStringParser) As String
+        Return cs.ToString()
+    End Operator
+
+End Class
+
 ''' <summary>
 ''' Classe para criação de strings contendo tags HTML
 ''' </summary>
@@ -3759,6 +3799,7 @@ Public Class HtmlTag
             Attributes("class") = value
         End Set
     End Property
+
     Public Overrides Function ToString() As String
         TagName = TagName.RemoveAny("/", "\")
         Attributes = If(Attributes, New Dictionary(Of String, String))

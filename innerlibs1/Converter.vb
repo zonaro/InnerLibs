@@ -2,7 +2,6 @@
 Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports System.Web
-Imports InnerLibs.HtmlParser
 Imports InnerLibs.LINQ
 
 Public Module Converter
@@ -340,7 +339,7 @@ Public Module Converter
                     If IsArray(result(key)) Then
                         For Each v In result(key)
                             Select Case True
-                                Case Verify.IsNumber(v)
+                                Case IsNumber(v)
                                     l.Add(Convert.ToDouble(v))
                                     Exit Select
 

@@ -440,6 +440,7 @@ Namespace LINQ
         End Function
 
 
+
         ''' <summary>
         ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
         ''' </summary>
