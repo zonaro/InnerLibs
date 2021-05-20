@@ -7,9 +7,6 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
-
-
-
         ''' <summary>
         ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
         ''' </summary>
@@ -439,8 +436,6 @@ Namespace LINQ
             End If
         End Function
 
-
-
         ''' <summary>
         ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
         ''' </summary>
@@ -655,44 +650,6 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="source">      </param>
-        ''' <param name="sortProperty"></param>
-        ''' <param name="Ascending">   </param>
-        ''' <returns></returns>
-        <Extension> Public Function OrderByProperty(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
-            Return source.OrderBy(Function(x) True).ThenByProperty(SortProperty, Ascending)
-        End Function
-
-        ''' <summary>
-        ''' Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="source">      </param>
-        ''' <param name="sortProperty"></param>
-        ''' <param name="Ascending">   </param>
-        ''' <returns></returns>
-        <Extension> Public Function OrderByProperty(Of T)(ByVal source As IEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
-            Return source.OrderBy(Function(x) True).ThenByProperty(SortProperty, Ascending)
-        End Function
-
-        ''' <summary>
-        ''' Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
-        ''' <see cref="String"/> com o valor de um determinado campo
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="items">       </param>
-        ''' <param name="Searches">    </param>
-        ''' <param name="SortProperty"></param>
-        ''' <param name="Ascending">   </param>
-        ''' <returns></returns>
-        <Extension()> Public Function OrderByLike(Of T)(ByVal items As IQueryable(Of T), ByVal Searches As String(), SortProperty As String, Optional ByVal Ascending As Boolean = True)
-            Return items.OrderBy(Function(x) True).ThenByLike(Searches, SortProperty, Ascending)
-        End Function
-
-        ''' <summary>
         ''' Orderna uma lista a partir da aproximaçao de um deerminado campo com uma string
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
@@ -702,18 +659,7 @@ Namespace LINQ
         ''' <param name="Searches">        </param>
         ''' <returns></returns>
         <Extension()> Public Function OrderByLike(Of T As Class)(ByVal items As IEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
-            Return items.OrderBy(Function(x) True).ThenByLike(PropertySelector, Ascending, Searches)
-        End Function
-
-        ''' <summary>
-        ''' Ordena um <see cref="ienumerable(Of T)"/> a partir de outra lista do mesmo tipo
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="Source"></param>
-        ''' <param name="OrderSource"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function OrderByList(Of T)(ByVal Source As IOrderedEnumerable(Of T), ParamArray OrderSource As T()) As IOrderedEnumerable(Of T)
-            Return Source.OrderBy(Function(x) True).ThenByList(OrderSource)
+            Return items.ThenByLike(PropertySelector, Ascending, Searches)
         End Function
 
         ''' <summary>
@@ -924,16 +870,22 @@ Namespace LINQ
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function ThenByProperty(Of T)(ByVal source As IOrderedQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
+        Public Function ThenByProperty(Of T)(ByVal source As IQueryable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedQueryable(Of T)
             Dim type = GetType(T)
+            SortProperty = If(SortProperty, {})
             For Each prop In SortProperty
                 Dim [property] = type.GetProperty(prop)
                 Dim parameter = Expression.Parameter(type, "p")
                 Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
                 Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
                 Dim typeArguments = New Type() {type, [property].PropertyType}
-                Dim methodName = If(Array.IndexOf(SortProperty, prop) > 0, If(Ascending, "ThenBy", "ThenByDescending"), If(Ascending, "OrderBy", "OrderByDescending"))
-                Dim resultExp = Expression.[Call](GetType(Queryable), methodName, typeArguments, source.Expression, Expression.Quote(orderByExp))
+                Dim methodname = "OrderBy"
+                If Not source.GetType() Is GetType(IOrderedQueryable(Of T)) Then
+                    methodname = If(Array.IndexOf(SortProperty, prop) > 0, If(Ascending, "ThenBy", "ThenByDescending"), If(Ascending, "OrderBy", "OrderByDescending"))
+                Else
+                    methodname = If(Ascending, "ThenBy", "ThenByDescending")
+                End If
+                Dim resultExp = Expression.[Call](GetType(Queryable), methodname, typeArguments, source.Expression, Expression.Quote(orderByExp))
                 source = source.Provider.CreateQuery(Of T)(resultExp)
             Next
             Return source
@@ -948,11 +900,16 @@ Namespace LINQ
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
         <Extension()>
-        Public Function ThenByProperty(Of T)(ByVal source As IOrderedEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
+        Public Function ThenByProperty(Of T)(ByVal source As IEnumerable(Of T), ByVal SortProperty As String(), Optional ByVal Ascending As Boolean = True) As IOrderedEnumerable(Of T)
             Dim type = GetType(T)
+            SortProperty = If(SortProperty, {})
             For Each prop In SortProperty
                 Dim exp = Function(x As T) x.GetPropertyValue(Of Object)(prop)
-                source = source.ThenBy(exp)
+                If Not source.GetType() Is GetType(IOrderedEnumerable(Of T)) Then
+                    source = If(Array.IndexOf(SortProperty, prop) > 0, If(Ascending, CType(source, IOrderedEnumerable(Of T)).ThenBy(exp), CType(source, IOrderedEnumerable(Of T)).ThenByDescending(exp)), If(Ascending, source.OrderBy(exp), source.OrderByDescending(exp)))
+                Else
+                    source = If(Ascending, CType(source, IOrderedEnumerable(Of T)).ThenBy(exp), CType(source, IOrderedEnumerable(Of T)).ThenByDescending(exp))
+                End If
             Next
             Return source
         End Function
@@ -1017,33 +974,38 @@ Namespace LINQ
         ''' <param name="SortProperty"></param>
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
-        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IOrderedQueryable(Of T), Searches As String(), SortProperty As Expression(Of Func(Of T, String)), Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
+        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IQueryable(Of T), Searches As String(), SortProperty As Expression(Of Func(Of T, String)), Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
             Dim type = GetType(T)
             Searches = If(Searches, {})
-            For Each t In Searches
-                Dim mem As MemberExpression = SortProperty.Body
-                Dim [property] = mem.Member
-                Dim parameter = SortProperty.Parameters.First
-                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
-                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
+            If Not items.GetType() Is GetType(IOrderedQueryable(Of T)) Then
+                items = items.OrderBy(Function(x) 0)
+            End If
+            If Searches.Any Then
+                For Each t In Searches
+                    Dim mem As MemberExpression = SortProperty.Body
+                    Dim [property] = mem.Member
+                    Dim parameter = SortProperty.Parameters.First
+                    Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
+                    Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
 
-                Dim tests As MethodCallExpression() = {
-                        Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
-                        }
+                    Dim tests As MethodCallExpression() = {
+                            Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)),
+                            Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
+                            Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
+                            Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
+                            }
 
-                For Each exp In tests
-                    Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
-                    If Ascending Then
-                        items = items.ThenByDescending(nv)
-                    Else
-                        items = items.ThenBy(nv)
-                    End If
+                    For Each exp In tests
+                        Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
+                        If Ascending Then
+                            items = CType(items, IOrderedQueryable(Of T)).ThenByDescending(nv)
+                        Else
+                            items = CType(items, IOrderedQueryable(Of T)).ThenBy(nv)
+                        End If
+                    Next
+
                 Next
-
-            Next
+            End If
             Return items
         End Function
 
@@ -1057,9 +1019,12 @@ Namespace LINQ
         ''' <param name="Ascending">       </param>
         ''' <param name="Searches">        </param>
         ''' <returns></returns>
-        <Extension()> Public Function ThenByLike(Of T As Class)(ByVal items As IOrderedEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
+        <Extension()> Public Function ThenByLike(Of T As Class)(ByVal items As IEnumerable(Of T), PropertySelector As Func(Of T, String), Ascending As Boolean, ParamArray Searches As String()) As IOrderedEnumerable(Of T)
             Searches = If(Searches, {})
-            If Searches.Count > 0 Then
+            If Not items.GetType() Is GetType(IOrderedEnumerable(Of T)) Then
+                items = items.OrderBy(Function(x) 0)
+            End If
+            If Searches.Any Then
                 For Each t In Searches
                     For Each exp In {
                         Function(x) PropertySelector(x) = t,
@@ -1069,9 +1034,9 @@ Namespace LINQ
                       }
 
                         If Ascending Then
-                            items = items.ThenByDescending(exp)
+                            items = CType(items, IOrderedEnumerable(Of T)).ThenByDescending(exp)
                         Else
-                            items = items.ThenBy(exp)
+                            items = CType(items, IOrderedEnumerable(Of T)).ThenBy(exp)
                         End If
                     Next
                 Next

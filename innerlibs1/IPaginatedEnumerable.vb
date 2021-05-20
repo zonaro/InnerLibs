@@ -466,12 +466,18 @@ Namespace LINQ
     Public Class PaginationFilter(Of ClassType As Class, RemapType)
 
         ''' <summary>
+        ''' Cria uma nova instancia 
+        ''' </summary>   
+        Sub New()
+            Me.Exclusive = False
+        End Sub
+
+        ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
         ''' <param name="Exclusive"></param>
-        Sub New(Optional Exclusive As Boolean = False)
+        Sub New(Exclusive As Boolean)
             Me.Exclusive = Exclusive
-            Me.RemapExpression = RemapExpression
         End Sub
 
         ''' <summary>
@@ -485,7 +491,6 @@ Namespace LINQ
 
         Friend _filters As New List(Of PropertyFilter(Of ClassType, RemapType))
 
-        Private remapexp As Func(Of ClassType, RemapType)
 
         Friend param As ParameterExpression = GenerateParameterExpression(Of ClassType)()
 
@@ -530,7 +535,7 @@ Namespace LINQ
         ''' </summary>
         ''' <remarks>Valores exclusivos precisam cumprir todos os filtros para retornarem na busca. Filtros não exclusivos retornam se um ou mais forem cumpridos</remarks>
         ''' <returns></returns>
-        Public Property Exclusive As Boolean = True
+        Public Property Exclusive As Boolean = False
 
         ''' <summary>
         ''' Expressão binária contendo todos os filtros
@@ -695,23 +700,14 @@ Namespace LINQ
         ''' Expressão de remapeamento da coleção
         ''' </summary>
         ''' <returns></returns>
-        Public Property RemapExpression As Func(Of ClassType, RemapType)
-            Get
-                If remapexp Is Nothing Then
-                    remapexp = ConvertGeneric(Of ClassType, ClassType, ClassType, RemapType)(Function(x) x).Compile()
-                End If
-                Return remapexp
-            End Get
-            Set(value As Func(Of ClassType, RemapType))
-                remapexp = value
-            End Set
-        End Property
+        Public Property RemapExpression As Func(Of ClassType, RemapType) = Nothing
+
 
         ''' <summary>
         ''' Fonte de Dados deste filtro
         ''' </summary>
         ''' <returns></returns>
-        Public Property Data As IEnumerable(Of ClassType)
+        Public Property Data As IEnumerable(Of ClassType) = Nothing
 
         ''' <summary>
         ''' Dados da Pagina Atual
@@ -1023,12 +1019,12 @@ Namespace LINQ
         ''' </summary>
         ''' <typeparam name="t"></typeparam>
         ''' <param name="Selector"></param>
-        ''' <param name="Ascent"></param>
+        ''' <param name="Ascending"></param>
         ''' <returns></returns>
-        Public Function OrderBy(Of T)(Selector As Expression(Of Func(Of ClassType, T)), Optional Ascent As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
+        Public Function OrderBy(Of T)(Selector As Expression(Of Func(Of ClassType, T)), Optional Ascending As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
             If Selector IsNot Nothing Then
                 If TypeOf Me.Data Is IOrderedQueryable(Of ClassType) Then
-                    If Ascent Then
+                    If Ascending Then
                         Me.Data = CType(Me.Data, IOrderedQueryable(Of ClassType)).ThenBy(Selector)
                     Else
                         Me.Data = CType(Me.Data, IOrderedQueryable(Of ClassType)).ThenByDescending(Selector)
@@ -1036,7 +1032,7 @@ Namespace LINQ
                     Return Me
                 End If
                 If TypeOf Me.Data Is IQueryable(Of ClassType) Then
-                    If Ascent Then
+                    If Ascending Then
                         Me.Data = CType(Me.Data, IQueryable(Of ClassType)).OrderBy(Selector)
                     Else
                         Me.Data = CType(Me.Data, IQueryable(Of ClassType)).OrderByDescending(Selector)
@@ -1044,7 +1040,7 @@ Namespace LINQ
                     Return Me
                 End If
                 If TypeOf Me.Data Is IOrderedEnumerable(Of ClassType) Then
-                    If Ascent Then
+                    If Ascending Then
                         Me.Data = CType(Me.Data, IOrderedEnumerable(Of ClassType)).ThenBy(Selector.Compile)
                     Else
                         Me.Data = CType(Me.Data, IOrderedEnumerable(Of ClassType)).ThenByDescending(Selector.Compile)
@@ -1052,7 +1048,7 @@ Namespace LINQ
                     Return Me
                 End If
                 If TypeOf Me.Data Is IEnumerable(Of ClassType) Then
-                    If Ascent Then
+                    If Ascending Then
                         Me.Data = CType(Me.Data, IEnumerable(Of ClassType)).OrderBy(Selector.Compile)
                     Else
                         Me.Data = CType(Me.Data, IEnumerable(Of ClassType)).OrderByDescending(Selector.Compile)
@@ -1069,20 +1065,13 @@ Namespace LINQ
         ''' <returns></returns>
         Public Function OrderBy(Selector As String(), Optional Ascending As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
             If If(Selector, {}).Any() Then
-                If TypeOf Me.Data Is IOrderedQueryable(Of ClassType) Then
-                    Me.Data = CType(Me.Data, IOrderedQueryable(Of ClassType)).ThenByProperty(Selector, Ascending)
-                    Return Me
-                End If
+
                 If TypeOf Me.Data Is IQueryable(Of ClassType) Then
-                    Me.Data = CType(Me.Data, IQueryable(Of ClassType)).OrderByProperty(Selector, Ascending)
-                    Return Me
-                End If
-                If TypeOf Me.Data Is IOrderedEnumerable(Of ClassType) Then
-                    Me.Data = CType(Me.Data, IOrderedEnumerable(Of ClassType)).ThenByProperty(Selector, Ascending)
+                    Me.Data = CType(Me.Data, IQueryable(Of ClassType)).ThenByProperty(Selector, Ascending)
                     Return Me
                 End If
                 If TypeOf Me.Data Is IEnumerable(Of ClassType) Then
-                    Me.Data = CType(Me.Data, IEnumerable(Of ClassType)).OrderByProperty(Selector, Ascending)
+                    Me.Data = CType(Me.Data, IEnumerable(Of ClassType)).ThenByProperty(Selector, Ascending)
                     Return Me
                 End If
             End If
@@ -1128,6 +1117,9 @@ Namespace LINQ
             Me.PageNumber = PageNumber
             Dim filtereddata = ApplyFilter()
             filtereddata = ApplyPage(filtereddata)
+            If RemapExpression Is Nothing OrElse GetType(ClassType) Is GetType(RemapType) Then
+                Return filtereddata.Cast(Of RemapType).ToArray()
+            End If
             Return filtereddata.Select(RemapExpression).ToArray()
         End Function
 
@@ -1242,6 +1234,23 @@ Namespace LINQ
         Public Shared Widening Operator CType(obj As PaginationFilter(Of ClassType, RemapType)) As RemapType()
             Return obj.GetPage()
         End Operator
+    End Class
+
+
+
+    Public Class PaginationFilter(Of ClassType As Class)
+        Inherits PaginationFilter(Of ClassType, ClassType)
+
+        Public Shadows Property RemapExpression As Func(Of ClassType, ClassType)
+            Get
+                Return Nothing
+            End Get
+            Set(value As Func(Of ClassType, ClassType))
+
+            End Set
+        End Property
+
+
     End Class
 
 End Namespace
