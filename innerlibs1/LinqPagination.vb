@@ -935,32 +935,45 @@ Namespace LINQ
         ''' <param name="SortProperty"></param>
         ''' <param name="Ascending">   </param>
         ''' <returns></returns>
-        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IOrderedQueryable(Of T), Searches As String(), SortProperty As String, Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
+        <Extension()> Public Function ThenByLike(Of T)(ByVal items As IQueryable(Of T), Searches As String(), SortProperty As String, Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
             Dim type = GetType(T)
             Searches = If(Searches, {})
-            For Each t In Searches
-                Dim [property] = type.GetProperty(SortProperty)
-                Dim parameter = Expression.Parameter(type, "p")
-                Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
-                Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
+            If Searches.Any() Then
+                For Each t In Searches
+                    Dim [property] = type.GetProperty(SortProperty)
+                    Dim parameter = Expression.Parameter(type, "p")
+                    Dim propertyAccess = Expression.MakeMemberAccess(parameter, [property])
+                    Dim orderByExp = Expression.Lambda(propertyAccess, parameter)
 
-                Dim testes As MethodCallExpression() = {
-                        Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
-                        Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
-                        }
+                    Dim testes As MethodCallExpression() = {
+                            Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)),
+                            Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)),
+                            Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)),
+                            Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t))
+                            }
 
-                For Each exp In testes
-                    Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
-                    If Ascending Then
-                        items = items.ThenByDescending(nv)
-                    Else
-                        items = items.ThenBy(nv)
-                    End If
+                    For Each exp In testes
+                        Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
+                        If Ascending Then
+                            If Not items.GetType() Is GetType(IOrderedQueryable(Of T)) Then
+                                items = items.OrderByDescending(nv)
+                            Else
+                                items = CType(items, IOrderedQueryable(Of T)).ThenByDescending(nv)
+                            End If
+                        Else
+                            If Not items.GetType() Is GetType(IOrderedQueryable(Of T)) Then
+                                items = items.OrderBy(nv)
+                            Else
+                                items = CType(items, IOrderedQueryable(Of T)).ThenBy(nv)
+                            End If
+                        End If
+                    Next
+
                 Next
+            Else
+                items = items.OrderBy(Function(x) 0)
+            End If
 
-            Next
             Return items
         End Function
 
@@ -977,9 +990,6 @@ Namespace LINQ
         <Extension()> Public Function ThenByLike(Of T)(ByVal items As IQueryable(Of T), Searches As String(), SortProperty As Expression(Of Func(Of T, String)), Optional Ascending As Boolean = True) As IOrderedQueryable(Of T)
             Dim type = GetType(T)
             Searches = If(Searches, {})
-            If Not items.GetType() Is GetType(IOrderedQueryable(Of T)) Then
-                items = items.OrderBy(Function(x) 0)
-            End If
             If Searches.Any Then
                 For Each t In Searches
                     Dim mem As MemberExpression = SortProperty.Body
@@ -998,13 +1008,23 @@ Namespace LINQ
                     For Each exp In tests
                         Dim nv = Expression.Lambda(Of Func(Of T, Boolean))(exp, parameter)
                         If Ascending Then
-                            items = CType(items, IOrderedQueryable(Of T)).ThenByDescending(nv)
+                            If Not items.GetType() Is GetType(IOrderedQueryable(Of T)) Then
+                                items = items.OrderByDescending(nv)
+                            Else
+                                items = CType(items, IOrderedQueryable(Of T)).ThenByDescending(nv)
+                            End If
                         Else
-                            items = CType(items, IOrderedQueryable(Of T)).ThenBy(nv)
+                            If Not items.GetType() Is GetType(IOrderedQueryable(Of T)) Then
+                                items = items.OrderBy(nv)
+                            Else
+                                items = CType(items, IOrderedQueryable(Of T)).ThenBy(nv)
+                            End If
                         End If
                     Next
 
                 Next
+            Else
+                items = items.OrderBy(Function(x) 0)
             End If
             Return items
         End Function
