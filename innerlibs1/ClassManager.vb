@@ -751,34 +751,37 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function HasProperty(Type As Type, PropertyName As String, Optional GetPrivate As Boolean = False) As Boolean
 
-        Dim parts = New List(Of String)()
-        Dim [stop] = False
-        Dim current = ""
+        If PropertyName.IsNotBlank() Then
+            Dim parts = New List(Of String)()
+            Dim [stop] = False
+            Dim current = ""
 
-        For i As Integer = 0 To PropertyName.Length - 1
-            If PropertyName(i) <> "."c Then current &= (PropertyName(i))
-            If PropertyName(i) = "("c Then [stop] = True
-            If PropertyName(i) = ")"c Then [stop] = False
-            If (PropertyName(i) = "."c AndAlso Not [stop]) OrElse i = PropertyName.Length - 1 Then
-                parts.Add(current.ToString())
-                current = ""
+            For i As Integer = 0 To PropertyName.Length - 1
+                If PropertyName(i) <> "."c Then current &= (PropertyName(i))
+                If PropertyName(i) = "("c Then [stop] = True
+                If PropertyName(i) = ")"c Then [stop] = False
+                If (PropertyName(i) = "."c AndAlso Not [stop]) OrElse i = PropertyName.Length - 1 Then
+                    parts.Add(current.ToString())
+                    current = ""
+                End If
+            Next
+
+            Dim prop As PropertyInfo
+            Dim propname = parts.First.GetBefore("(")
+            If GetPrivate Then
+                prop = Type.GetProperty(propname, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
+            Else
+                prop = Type.GetProperty(propname)
             End If
-        Next
 
-        Dim prop As PropertyInfo
-        Dim propname = parts.First.GetBefore("(")
-        If GetPrivate Then
-            prop = Type.GetProperty(propname, BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
-        Else
-            prop = Type.GetProperty(propname)
+            Dim exist As Boolean = prop IsNot Nothing
+            parts.RemoveAt(0)
+            If exist AndAlso parts.Count > 0 Then
+                exist = prop.PropertyType.HasProperty(parts.First, GetPrivate)
+            End If
+            Return exist
         End If
-
-        Dim exist As Boolean = prop IsNot Nothing
-        parts.RemoveAt(0)
-        If exist AndAlso parts.Count > 0 Then
-            exist = prop.PropertyType.HasProperty(parts.First, GetPrivate)
-        End If
-        Return exist
+        Return False
     End Function
 
     ''' <summary>

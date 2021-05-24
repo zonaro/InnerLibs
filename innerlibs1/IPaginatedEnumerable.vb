@@ -59,7 +59,6 @@ Namespace LINQ
         ''' <returns></returns>
         Public Property PropertyValues As IEnumerable(Of IComparable)
 
-
         ''' <summary>
         ''' Parametro da expressão lambda
         ''' </summary>
@@ -148,6 +147,8 @@ Namespace LINQ
             Member = prop
             Return Me
         End Function
+
+
 
         ''' <summary>
         ''' Seta o operador utilizado nesse filtro
@@ -399,6 +400,7 @@ Namespace LINQ
             Me.SetOperator("<>")
             Return Me
         End Function
+
         ''' <summary>
         ''' Permite que valores nulos sejam adcionados ao filtro
         ''' </summary>
@@ -416,6 +418,7 @@ Namespace LINQ
             UseNullValues = False
             Return Me
         End Function
+
         ''' <summary>
         ''' Ativa ou desativa esse filtro durante a construção da expressão
         ''' </summary>
@@ -446,7 +449,7 @@ Namespace LINQ
         Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False) As String
             If Enabled OrElse ForceEnabled Then
                 Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===", "equal", "equals")).UrlEncode()
-                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
+                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{[Alias].IfBlank(PropertyName)}={xx}{x.ToString().UrlEncode()}")
             End If
             Return ""
         End Function
@@ -454,10 +457,8 @@ Namespace LINQ
         Public Overrides Function ToString() As String
             Return Me.CreateQueryParameter()
         End Function
+
     End Class
-
-
-
 
     ''' <summary>
     ''' Classe para criação de paginação e filtros dinâmicos para listas de classes
@@ -466,8 +467,8 @@ Namespace LINQ
     Public Class PaginationFilter(Of ClassType As Class, RemapType)
 
         ''' <summary>
-        ''' Cria uma nova instancia 
-        ''' </summary>   
+        ''' Cria uma nova instancia
+        ''' </summary>
         Sub New()
             Me.Exclusive = False
         End Sub
@@ -491,9 +492,7 @@ Namespace LINQ
 
         Friend _filters As New List(Of PropertyFilter(Of ClassType, RemapType))
 
-
         Friend param As ParameterExpression = GenerateParameterExpression(Of ClassType)()
-
 
         ''' <summary>
         ''' Força o <see cref="IQueryable"/> a executar (sem paginação)
@@ -575,16 +574,15 @@ Namespace LINQ
         End Property
 
         ''' <summary>
-        ''' Cria uma querystring com os filtros ativos 
+        ''' Cria uma querystring com os filtros ativos
         ''' </summary>
         ''' <returns></returns>
         Public Function CreateQueryString(Optional ForceEnabled As Boolean = False) As String
             Return Filters.Select(Function(x) x.CreateQueryParameter(ForceEnabled)).Where(Function(x) x.IsNotBlank()).Join("&")
         End Function
 
-
         ''' <summary>
-        ''' Cria uma querystring com  paginacao e os filtros ativos 
+        ''' Cria uma querystring com  paginacao e os filtros ativos
         ''' </summary>
         ''' <returns></returns>
         Public Function CreateQueryString(PageNumber As Integer, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
@@ -595,14 +593,13 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Cria uma querystring com  paginacao e os filtros ativos 
+        ''' Cria uma querystring com  paginacao e os filtros ativos
         ''' </summary>
         ''' <returns></returns>
 
         Public Function CreateQueryString() As String
             Return CreateQueryString(Me.PageNumber)
         End Function
-
 
         ''' <summary>
         ''' Seta os parametros utilizados na querystring para a paginação
@@ -618,7 +615,6 @@ Namespace LINQ
             Return Me
         End Function
 
-
         Private pnp, psp, pop As String
 
         Public Property PageNumberQueryParameter As String
@@ -630,7 +626,6 @@ Namespace LINQ
             End Set
         End Property
 
-
         Public Property PageSizeQueryParameter As String
             Get
                 Return psp.IfBlank(NameOf(PageSize))
@@ -640,7 +635,6 @@ Namespace LINQ
             End Set
         End Property
 
-
         Public Property PaginationOffsetQueryParameter As String
             Get
                 Return pop.IfBlank(NameOf(PageSize))
@@ -649,7 +643,6 @@ Namespace LINQ
                 pop = value
             End Set
         End Property
-
 
         ''' <summary>
         ''' Retorna a parte da querystring usada para paginacao
@@ -735,7 +728,6 @@ Namespace LINQ
                 Return GetPage(PageNumber)
             End Get
         End Property
-
 
         ''' <summary>
         ''' Expressão lambda deste filtro
@@ -935,8 +927,6 @@ Namespace LINQ
             Return Me
         End Function
 
-
-
         ''' <summary>
         ''' Configura este Filtro para utilizar uma querystring.
         ''' </summary>
@@ -959,8 +949,7 @@ Namespace LINQ
             Dim Collection = HttpUtility.ParseQueryString(QueryExpression)
             For Each K In Collection.AllKeys
                 Dim t = GetType(ClassType)
-                Dim l = t.GetProperties()
-                If l.Any(Function(x) x.Name = K OrElse K = "this") Then
+                If t.HasProperty(K) OrElse K = "this" Then
                     If Collection(K).IsNotBlank() AndAlso Collection.GetValues(K).Any() Then
                         Dim buscas = Collection.GetValues(K).GroupBy(Function(x) x.GetBefore(Separator, True).IfBlank("=")).ToDictionary()
                         For Each item In buscas
@@ -980,11 +969,10 @@ Namespace LINQ
         ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
         ''' <returns></returns>
         Function UseArrayDictionary(Collection As IDictionary(Of String, IComparable()), Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType, RemapType)
-            Collection = If(Collection, New NameValueCollection)
+            Collection = If(Collection, New Dictionary(Of String, IComparable()))
             For Each K In Collection.Keys
                 Dim t = GetType(ClassType)
-                Dim l = t.GetProperties()
-                If l.Any(Function(x) x.Name = K) Then
+                If t.HasProperty(K) OrElse K = "this" Then
                     Me.SetMember(K).SetValues(Collection(K).ToArray()).SetOperator(DefaultOperator)
                 End If
             Next
@@ -998,11 +986,10 @@ Namespace LINQ
         ''' <remarks> Utiliza os names como propriedade e os values como valores do filtro. Propriedade que não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão</remarks>
         ''' <returns></returns>
         Function UseDictionary(Collection As IDictionary(Of String, IComparable), Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType, RemapType)
-            Collection = If(Collection, New NameValueCollection)
+            Collection = If(Collection, New Dictionary(Of String, IComparable))
             For Each K In Collection.Keys
                 Dim t = GetType(ClassType)
-                Dim l = t.GetProperties()
-                If l.Any(Function(x) x.Name = K) Then
+                If t.HasProperty(K) OrElse K = "this" Then
                     Me.SetMember(K).SetValue(Collection(K)).SetOperator(DefaultOperator)
                 End If
             Next
@@ -1105,7 +1092,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Extrai os parametros de um <see cref="NameValueCollection"/> e seta os membros usando as Keys como 
+        ''' Extrai os parametros de um <see cref="NameValueCollection"/> e seta os membros usando as Keys como
         ''' </summary>
         ''' <param name="Collection"></param>
         ''' <param name="DefaultOperator"></param>
@@ -1138,8 +1125,6 @@ Namespace LINQ
             End If
             Return filtereddata.Select(RemapExpression).ToArray()
         End Function
-
-
 
         ''' <summary>
         ''' Retorna a pagina atual
@@ -1219,6 +1204,7 @@ Namespace LINQ
         Public Function IsCurrentPage(Index As Integer) As Boolean
             Return Index = PageNumber
         End Function
+
         Private Function ApplyFilter() As IEnumerable(Of ClassType)
             Dim FilteredData = Me.Data
             If LambdaExpression IsNot Nothing Then
@@ -1254,9 +1240,8 @@ Namespace LINQ
         Public Shared Widening Operator CType(obj As PaginationFilter(Of ClassType, RemapType)) As List(Of RemapType)
             Return obj.GetPage().ToList()
         End Operator
+
     End Class
-
-
 
     Public Class PaginationFilter(Of ClassType As Class)
         Inherits PaginationFilter(Of ClassType, ClassType)
