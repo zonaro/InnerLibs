@@ -700,8 +700,24 @@ Namespace LINQ
         ''' Expressão de remapeamento da coleção
         ''' </summary>
         ''' <returns></returns>
-        Public Property RemapExpression As Func(Of ClassType, RemapType) = Nothing
+        Public Property RemapExpression As Func(Of ClassType, RemapType)
+            Get
+                If GetType(ClassType) Is GetType(RemapType) Then
+                    Return Nothing
+                Else
+                    Return remapexp
+                End If
+            End Get
+            Set(value As Func(Of ClassType, RemapType))
+                If GetType(ClassType) Is GetType(RemapType) Then
+                    remapexp = Nothing
+                Else
+                    remapexp = value
+                End If
+            End Set
+        End Property
 
+        Private remapexp As Func(Of ClassType, RemapType)
 
         ''' <summary>
         ''' Fonte de Dados deste filtro
@@ -1234,23 +1250,16 @@ Namespace LINQ
         Public Shared Widening Operator CType(obj As PaginationFilter(Of ClassType, RemapType)) As RemapType()
             Return obj.GetPage()
         End Operator
+
+        Public Shared Widening Operator CType(obj As PaginationFilter(Of ClassType, RemapType)) As List(Of RemapType)
+            Return obj.GetPage().ToList()
+        End Operator
     End Class
 
 
 
     Public Class PaginationFilter(Of ClassType As Class)
         Inherits PaginationFilter(Of ClassType, ClassType)
-
-        Public Shadows Property RemapExpression As Func(Of ClassType, ClassType)
-            Get
-                Return Nothing
-            End Get
-            Set(value As Func(Of ClassType, ClassType))
-
-            End Set
-        End Property
-
-
     End Class
 
 End Namespace
