@@ -449,7 +449,7 @@ Namespace LINQ
         Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False) As String
             If Enabled OrElse ForceEnabled Then
                 Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===", "equal", "equals")).UrlEncode()
-                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{[Alias].IfBlank(PropertyName)}={xx}{x.ToString().UrlEncode()}")
+                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
             End If
             Return ""
         End Function
