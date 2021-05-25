@@ -754,7 +754,7 @@ Public Module Calendars
     ''' </summary>
     ''' <param name="[Date]"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GetFirstDayOfDouleMonth([Date] As DateTime) As DateTime
+    <Extension()> Public Function GetFirstDayOfDoubleMonth([Date] As DateTime) As DateTime
         If [Date].GetDoubleMonthOfYear() = 1 Then Return New Date([Date].Year, 1, 1).Date
         If [Date].GetDoubleMonthOfYear() = 2 Then Return New Date([Date].Year, 3, 1).Date
         If [Date].GetDoubleMonthOfYear() = 3 Then Return New Date([Date].Year, 5, 1).Date
