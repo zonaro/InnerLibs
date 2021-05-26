@@ -12,8 +12,8 @@ Namespace Console
         ''' </summary>
         ''' <param name="Text">Texto</param>
         ''' <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
-        <Extension()> Public Function ConsoleWrite(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor)) As String
-            Return ConsoleWrite(Text, CustomColoredWords, StringComparison.InvariantCultureIgnoreCase)
+        <Extension()> Public Function ConsoleWrite(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor), Optional Lines As Integer = 0) As String
+            Return ConsoleWrite(Text, CustomColoredWords, StringComparison.InvariantCultureIgnoreCase, Lines)
         End Function
 
         ''' <summary>
@@ -23,19 +23,18 @@ Namespace Console
         ''' <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
         ''' <param name="Comparison">Tipo de comparação</param>
         <Extension()> Public Function ConsoleWrite(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor), Comparison As StringComparison, Optional BreakLines As Integer = 0) As String
-
+            CustomColoredWords = If(CustomColoredWords, New Dictionary(Of String, ConsoleColor))
             Dim lastcolor = System.Console.ForegroundColor
-            Dim substrings As String() = Text.Split(" ")
-            For Each substring As String In substrings
-                For Each cw In CustomColoredWords
-                    If substring.Equals(cw.Key, Comparison) Then
-                        System.Console.ForegroundColor = cw.Value
-                        Exit For
-                    End If
+            Dim maincolor = CustomColoredWords.GetValueOr("", lastcolor)
+            If Text.IsNotBlank Then
+                Dim substrings As String() = Text.Split(" ")
+                For Each substring As String In substrings
+                    System.Console.ForegroundColor = maincolor
+                    System.Console.ForegroundColor = CustomColoredWords.Where(Function(x) x.Key.Equals(substring, Comparison)).Select(Function(x) x.Value).FirstOr(maincolor)
+                    System.Console.Write(substring & " ")
                 Next
-                System.Console.Write(substring & " ")
-                System.Console.ForegroundColor = lastcolor
-            Next
+            End If
+            System.Console.ForegroundColor = lastcolor
             ConsoleBreakLine(BreakLines)
             Return Text
         End Function
@@ -61,7 +60,8 @@ Namespace Console
         ''' <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
 
         <Extension()> Public Function ConsoleWriteLine(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor), Optional Lines As Integer = 1) As String
-            ConsoleWrite(Text, CustomColoredWords, Lines.SetMinValue(1))
+            Lines = Lines.SetMinValue(1)
+            ConsoleWrite(Text, CustomColoredWords, Lines)
             Return Text
         End Function
 
@@ -72,8 +72,8 @@ Namespace Console
         ''' <param name="Color">Cor</param>
 
         <Extension()> Public Function ConsoleWriteLine(Text As String, Optional Color As ConsoleColor = ConsoleColor.White, Optional Lines As Integer = 1) As String
-            ConsoleWrite(Text, Color)
-            ConsoleBreakLine(Lines.SetMinValue(1))
+            Lines = Lines.SetMinValue(1)
+            ConsoleWrite(Text, Color, Lines)
             Return Text
         End Function
 

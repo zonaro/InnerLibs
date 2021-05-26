@@ -29,7 +29,7 @@ Public Class FileTree
         Me.Info = Directory
         Me.Parent = Nothing
         If FileSearchPatterns Is Nothing OrElse FileSearchPatterns.Count = 0 Then
-            FileSearchPatterns = {"*.*"}
+            FileSearchPatterns = {"*"}
         End If
         Me.Children = New List(Of FileTree)({New FileTree(Directory, Me, FileSearchPatterns)}.ToList)
     End Sub

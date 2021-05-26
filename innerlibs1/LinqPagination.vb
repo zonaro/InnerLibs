@@ -344,12 +344,21 @@ Namespace LINQ
             Return body
         End Function
 
-        Function GenerateParameterExpression(Of ClassType)(Optional AppendText As String = "") As ParameterExpression
-            Return GetType(ClassType).GenerateParameterExpression(AppendText)
+        ''' <summary>
+        ''' Cria uma ParameterExpression utilizando o tipo para gerar um nome amigável
+        ''' </summary>
+        ''' <returns></returns>
+        Function GenerateParameterExpression(Of ClassType)() As ParameterExpression
+            Return GetType(ClassType).GenerateParameterExpression()
         End Function
 
-        <Extension> Function GenerateParameterExpression(Type As Type, Optional AppendText As String = "") As ParameterExpression
-            Return Expression.Parameter(Type, Type.Name.CamelSplit.SelectJoin(Function(x) x.FirstOrDefault().IfBlank(Of Char)(""), "").ToLower() + AppendText.IfBlank(""))
+        ''' <summary>
+        ''' Cria uma ParameterExpression utilizando o tipo para gerar um nome amigável
+        ''' </summary>
+        ''' <param name="Type"></param>
+        ''' <returns></returns>
+        <Extension> Function GenerateParameterExpression(Type As Type) As ParameterExpression
+            Return Expression.Parameter(Type, Type.Name.CamelSplit.SelectJoin(Function(x) x.FirstOrDefault().IfBlank(Of Char)(""), "").ToLower())
         End Function
 
         ''' <summary>
