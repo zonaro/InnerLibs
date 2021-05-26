@@ -61,7 +61,7 @@ Public Class vCard
     End Function
 
     Public Function ToFile(FullPath As String) As FileInfo
-        Dim writer As New StreamWriter(FullPath & ".vcf", False, Encoding.UTF8)
+        Dim writer As New StreamWriter(FullPath & ".vcf", False, New UTF8Encoding(False))
         writer.WriteLine(ToString)
         writer.Close()
         Return New FileInfo(FullPath)

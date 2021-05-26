@@ -639,7 +639,7 @@ Namespace Online
             Me.ChatList = List
         End Sub
 
-        Property Encoding As Encoding = Encoding.UTF8
+        Property Encoding As Encoding = New UTF8Encoding(False)
 
         Public ReadOnly Property IDs As IEnumerable(Of String)
             Get

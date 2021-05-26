@@ -22,7 +22,7 @@ Namespace Console
         ''' <param name="Text">Texto</param>
         ''' <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
         ''' <param name="Comparison">Tipo de comparação</param>
-        <Extension()> Public Function ConsoleWrite(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor), Comparison As StringComparison) As String
+        <Extension()> Public Function ConsoleWrite(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor), Comparison As StringComparison, Optional BreakLines As Integer = 0) As String
 
             Dim lastcolor = System.Console.ForegroundColor
             Dim substrings As String() = Text.Split(" ")
@@ -36,6 +36,7 @@ Namespace Console
                 System.Console.Write(substring & " ")
                 System.Console.ForegroundColor = lastcolor
             Next
+            ConsoleBreakLine(BreakLines)
             Return Text
         End Function
 
@@ -44,11 +45,12 @@ Namespace Console
         ''' </summary>
         ''' <param name="Text">Texto</param>
         ''' <param name="Color">Cor</param>
-        <Extension()> Public Function ConsoleWrite(Text As String, Optional Color As ConsoleColor = ConsoleColor.White) As String
+        <Extension()> Public Function ConsoleWrite(Text As String, Optional Color As ConsoleColor = ConsoleColor.White, Optional BreakLines As Integer = 0) As String
             Dim lastcolor = System.Console.ForegroundColor
             System.Console.ForegroundColor = Color
             System.Console.Write(Text)
             System.Console.ForegroundColor = lastcolor
+            ConsoleBreakLine(BreakLines)
             Return Text
         End Function
 
@@ -58,9 +60,8 @@ Namespace Console
         ''' <param name="Text">Texto</param>
         ''' <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
 
-        <Extension()> Public Function ConsoleWriteLine(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor)) As String
-            ConsoleWrite(Text, CustomColoredWords)
-            System.Console.WriteLine("")
+        <Extension()> Public Function ConsoleWriteLine(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor), Optional Lines As Integer = 1) As String
+            ConsoleWrite(Text, CustomColoredWords, Lines.SetMinValue(1))
             Return Text
         End Function
 
@@ -70,9 +71,9 @@ Namespace Console
         ''' <param name="Text">Texto</param>
         ''' <param name="Color">Cor</param>
 
-        <Extension()> Public Function ConsoleWriteLine(Text As String, Optional Color As ConsoleColor = ConsoleColor.White) As String
+        <Extension()> Public Function ConsoleWriteLine(Text As String, Optional Color As ConsoleColor = ConsoleColor.White, Optional Lines As Integer = 1) As String
             ConsoleWrite(Text, Color)
-            System.Console.WriteLine("")
+            ConsoleBreakLine(Lines.SetMinValue(1))
             Return Text
         End Function
 
@@ -81,19 +82,19 @@ Namespace Console
         ''' </summary>
         ''' <param name="Lines">Numero de linhas</param>
         Public Sub ConsoleBreakLine(Optional Lines As Integer = 1)
-            For index = 1 To Lines.SetMinValue(1)
-                System.Console.WriteLine("")
-            Next
+            If Lines > 0 Then
+                For index = 1 To Lines
+                    System.Console.WriteLine("")
+                Next
+            End If
         End Sub
 
         ''' <summary>
         ''' Pula uma ou mais linhas no console e retorna a mesma string (usada como chaining)
         ''' </summary>
         ''' <param name="Lines">Numero de linhas</param>
-        <Extension()> Public Function ConsoleBreakLine(Text As String, Optional Lines As Integer = 1)
-            For index = 1 To Lines.SetMinValue(1)
-                System.Console.WriteLine("")
-            Next
+        <Extension()> Public Function ConsoleBreakLine(Text As String, Optional Lines As Integer = 1) As String
+            ConsoleBreakLine(Lines)
             Return Text
         End Function
 
@@ -112,6 +113,7 @@ Namespace Console
         Public Function ReadChar() As Char
             Return System.Console.ReadKey.KeyChar
         End Function
+
 
         ''' <summary>
         ''' Le a proxima tecla pressionada pelo usuário

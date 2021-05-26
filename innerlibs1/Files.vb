@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Runtime.CompilerServices
+Imports System.Text
 Imports System.Web
 
 ''' <summary>
@@ -116,9 +117,9 @@ Public Module Files
     ''' <param name="FilePath">Caminho do arquivo</param>
     ''' <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
     <Extension()>
-    Public Function WriteToFile(Text As String, FilePath As String, Optional Append As Boolean = False) As FileInfo
+    Public Function WriteToFile(Text As String, FilePath As String, Optional Append As Boolean = False, Optional Enconding As Encoding = Nothing) As FileInfo
         Path.GetDirectoryName(FilePath).ToDirectoryInfo()
-        Using s As New StreamWriter(FilePath, Append, System.Text.Encoding.UTF8)
+        Using s As New StreamWriter(FilePath, Append, If(Enconding, New UTF8Encoding(False)))
             s.Write(Text)
             s.Close()
         End Using
@@ -132,8 +133,8 @@ Public Module Files
     ''' <param name="File">Arquivo</param>
     ''' <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
     <Extension()>
-    Public Function WriteToFile(Text As String, File As FileInfo, Optional Append As Boolean = False) As FileInfo
-        Return Text.WriteToFile(File.FullName, Append)
+    Public Function WriteToFile(Text As String, File As FileInfo, Optional Append As Boolean = False, Optional Enconding As Encoding = Nothing) As FileInfo
+        Return Text.WriteToFile(File.FullName, Append, Enconding)
     End Function
 
     ''' <summary>

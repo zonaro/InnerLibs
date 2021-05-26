@@ -125,7 +125,7 @@ Public Module Base64
     ''' <param name="Encoding"></param>
     ''' <returns></returns>
     <Extension()> Public Function Btoa(Text As String, Optional Encoding As Encoding = Nothing) As String
-        Return Convert.ToBase64String(If(Encoding, Encoding.UTF8).GetBytes(Text))
+        Return Convert.ToBase64String(If(Encoding, New UTF8Encoding(False)).GetBytes(Text))
     End Function
 
     ''' <summary>
@@ -135,7 +135,7 @@ Public Module Base64
     ''' <param name="Encoding"></param>
     ''' <returns></returns>
     <Extension()> Public Function Atob(Base As String, Optional Encoding As Encoding = Nothing) As String
-        Return If(Encoding, Encoding.UTF8).GetString(Convert.FromBase64String(Base))
+        Return If(Encoding, New UTF8Encoding(False)).GetString(Convert.FromBase64String(Base))
     End Function
 
     ''' <summary>

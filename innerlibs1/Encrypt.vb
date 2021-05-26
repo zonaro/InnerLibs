@@ -47,7 +47,7 @@ Public Module Encryption
         Dim rsa = New RSACryptoServiceProvider(cspp) With {
             .PersistKeyInCsp = True
         }
-        Dim bytes As Byte() = rsa.Encrypt(Encoding.UTF8.GetBytes(Text), True)
+        Dim bytes As Byte() = rsa.Encrypt(New UTF8Encoding(False).GetBytes(Text), True)
         Return BitConverter.ToString(bytes)
     End Function
 
@@ -69,7 +69,7 @@ Public Module Encryption
         Dim decryptArray As String() = Text.Split({"-"}, StringSplitOptions.None)
         Dim decryptByteArray As Byte() = Array.ConvertAll(decryptArray, (Function(s) Convert.ToByte(Byte.Parse(s, NumberStyles.HexNumber))))
         Dim bytes As Byte() = rsa.Decrypt(decryptByteArray, True)
-        Return Encoding.UTF8.GetString(bytes)
+        Return New UTF8Encoding(False).GetString(bytes)
     End Function
 
 
@@ -143,11 +143,11 @@ Public Module Encryption
             Dim aes As AesCryptoServiceProvider = New AesCryptoServiceProvider()
             aes.BlockSize = 128
             aes.KeySize = 256
-            aes.IV = Encoding.UTF8.GetBytes(IV)
-            aes.Key = Encoding.UTF8.GetBytes(Key)
+            aes.IV = New UTF8Encoding(False).GetBytes(IV)
+            aes.Key = New UTF8Encoding(False).GetBytes(Key)
             aes.Mode = CipherMode.CBC
             aes.Padding = PaddingMode.PKCS7
-            Dim src As Byte() = Encoding.UTF8.GetBytes(text)
+            Dim src As Byte() = New UTF8Encoding(False).GetBytes(text)
 
             Using eencrypt As ICryptoTransform = aes.CreateEncryptor()
                 Dim dest As Byte() = eencrypt.TransformFinalBlock(src, 0, src.Length)
@@ -168,8 +168,8 @@ Public Module Encryption
             Dim aes As AesCryptoServiceProvider = New AesCryptoServiceProvider()
             aes.BlockSize = 128
             aes.KeySize = 256
-            aes.IV = Encoding.UTF8.GetBytes(IV)
-            aes.Key = Encoding.UTF8.GetBytes(Key)
+            aes.IV = New UTF8Encoding(False).GetBytes(IV)
+            aes.Key = New UTF8Encoding(False).GetBytes(Key)
             aes.Mode = CipherMode.CBC
             aes.Padding = PaddingMode.PKCS7
             Dim src As Byte()
@@ -183,7 +183,7 @@ Public Module Encryption
             Using ddecrypt As ICryptoTransform = aes.CreateDecryptor()
                 Try
                     Dim dest As Byte() = ddecrypt.TransformFinalBlock(src, 0, src.Length)
-                    Return Encoding.UTF8.GetString(dest)
+                    Return New UTF8Encoding(False).GetString(dest)
                 Catch ex As Exception
                 End Try
             End Using
