@@ -173,6 +173,9 @@
     <EmbeddedResource Include="brasil.xml" />
     <EmbeddedResource Include="mimes.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>
