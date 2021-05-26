@@ -144,7 +144,7 @@ Public Module Generate
             Return RandomColor()
         End If
 
-        If Text.IsIn([Enum].GetNames(GetType(KnownColor))) Then Return Color.FromName(Text)
+        If Text.IsIn([Enum].GetNames(GetType(KnownColor)), StringComparer.InvariantCultureIgnoreCase) Then Return Color.FromName(Text)
 
         If Text.IsNumber Then
             Return Color.FromArgb(Text.ToInteger())

@@ -53,7 +53,6 @@ Public Module ColorConvert
     ''' <returns></returns>
     <Extension>
     Public Function IsDark(TheColor As Color) As Boolean
-        '  Return (colour.R.ToInteger + colour.G.ToInteger + colour.B.ToInteger) < (382)
         Dim Y = 0.2126 * TheColor.R + 0.7152 * TheColor.G + 0.0722 * TheColor.B
         Return Y < 128
     End Function

@@ -84,13 +84,13 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="ex"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToFullExceptionString(ex As Exception) As String
+    <Extension()> Public Function ToFullExceptionString(ex As Exception, Optional Separator As String = ">>") As String
         Dim ExceptionString = ex.Message
-        While ex.InnerException IsNot Nothing
+        While ex IsNot Nothing
             ex = ex.InnerException
-            ExceptionString &= " >> " & ex.Message
+            ExceptionString &= $" {Separator} {ex.Message}"
         End While
-        Return ExceptionString
+        Return ExceptionString.AdjustBlankSpaces()
     End Function
 
     ''' <summary>
