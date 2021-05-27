@@ -105,7 +105,7 @@ Namespace LINQ
             Return List.Where(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
         End Function
 
-        Public Function CreateNullable(ByVal type As Type) As Type
+        <Extension> Public Function CreateNullable(ByVal type As Type) As Type
             If type.IsValueType AndAlso (Not type.IsGenericType OrElse type.GetGenericTypeDefinition() <> GetType(Nullable(Of))) Then Return GetType(Nullable(Of)).MakeGenericType(type)
             Return type
         End Function
@@ -128,8 +128,135 @@ Namespace LINQ
             Return Con
         End Function
 
-        Function FixConstant(Of T As IComparable, Type)(Value As T) As ConstantExpression
+        Function FixConstant(Of Type, T As IComparable)(Value As T) As ConstantExpression
             Return FixConstant(Value, GetType(Type))
+        End Function
+
+        Function FixConstant(Of T As IComparable)(Value As T) As ConstantExpression
+            Return FixConstant(Value, GetType(T))
+        End Function
+
+        <Extension()> Public Function FilterDateRange(Of T)(List As IQueryable(Of T), ByVal [Property] As Expression(Of Func(Of T, DateTime)), Range As DateRange) As IQueryable(Of T)
+            Return List.Where([Property].IsBetween(Range))
+        End Function
+
+        <Extension()> Public Function FilterDateRange(Of T)(List As IQueryable(Of T), ByVal [Property] As Expression(Of Func(Of T, DateTime?)), Range As DateRange) As IQueryable(Of T)
+            Return List.Where([Property].IsBetween(Range))
+        End Function
+
+        <Extension()>
+        Public Function IsBetween(Of T)(ByVal [Property] As Expression(Of Func(Of T, DateTime)), DateRange As DateRange) As Expression(Of Func(Of T, Boolean))
+            Return [Property].IsBetween(DateRange.StartDate, DateRange.EndDate)
+        End Function
+
+        <Extension()>
+        Public Function IsBetween(Of T)(ByVal [Property] As Expression(Of Func(Of T, DateTime?)), DateRange As DateRange) As Expression(Of Func(Of T, Boolean))
+            Return [Property].IsBetween(DateRange.StartDate, DateRange.EndDate)
+        End Function
+
+        <Extension()>
+        Public Function IsBetween(Of T, V As Structure)(ByVal [Property] As Expression(Of Func(Of T, V?)), MinValue? As V, MaxValue? As V) As Expression(Of Func(Of T, Boolean))
+            If MinValue.HasValue AndAlso MaxValue.HasValue Then
+                Return [Property].IsBetween(MinValue.Value, MaxValue.Value)
+            End If
+            If MinValue.HasValue = False AndAlso MaxValue.HasValue Then
+                Return [Property].IsBetween(Nothing, MaxValue.Value)
+            End If
+            If MinValue.HasValue AndAlso MaxValue.HasValue = False Then
+                Return [Property].IsBetween(MinValue.Value, Nothing)
+            End If
+
+            Return Expression.Lambda(Of Func(Of T, Boolean))([Property].CreatePropertyExpression().Equal(Nothing), [Property].Parameters.FirstOrDefault())
+
+        End Function
+
+        <Extension()>
+        Public Function IsBetween(Of T, V As Structure)(ByVal [Property] As Expression(Of Func(Of T, V)), MinValue As V, MaxValue As V) As Expression(Of Func(Of T, Boolean))
+
+            Dim PropertyExpression As Expression = [Property].CreatePropertyExpression
+            Dim parameter = [Property].Parameters.FirstOrDefault()
+            Dim MinExpression As Expression = Nothing
+            Dim MaxExpression As Expression = Nothing
+            Dim GreaterExp As Expression = Nothing
+            Dim LessExp As Expression = Nothing
+
+            Dim v1 As IComparable = MinValue
+            Dim v2 As IComparable = MaxValue
+            FixOrder(v1, v2)
+
+            If (v1 IsNot Nothing) Then
+                MinExpression = FixConstant(v1)
+                GreaterExp = PropertyExpression.GreaterThanOrEqual(MinExpression)
+            End If
+
+            If (v2 IsNot Nothing) Then
+                MaxExpression = FixConstant(v2)
+                LessExp = PropertyExpression.LessThanOrEqual(v2)
+            End If
+
+            If v1 IsNot Nothing AndAlso v2 IsNot Nothing Then
+                If v1.IsEqual(v2) Then
+                    Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(MinExpression), parameter)
+                Else
+                    Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[And](GreaterExp, LessExp), parameter)
+                End If
+            End If
+
+            If LessExp IsNot Nothing Then
+                Return Expression.Lambda(Of Func(Of T, Boolean))(LessExp, parameter)
+            End If
+
+            If GreaterExp IsNot Nothing Then
+                Return Expression.Lambda(Of Func(Of T, Boolean))(GreaterExp, parameter)
+            End If
+
+            Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(Nothing), parameter)
+
+        End Function
+
+        <Extension> Public Function CreatePropertyExpression(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V))) As MemberExpression
+            Return Expression.[Property](GetType(T).GenerateParameterExpression(), GetPropertyInfo([Property]))
+        End Function
+
+        Public Function GetPropertyInfo(Of TSource, TProperty)(ByVal propertyLambda As Expression(Of Func(Of TSource, TProperty))) As PropertyInfo
+            Dim type As Type = GetType(TSource)
+            Dim member As MemberExpression = TryCast(propertyLambda.Body, MemberExpression)
+            If member Is Nothing Then Throw New ArgumentException(String.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()))
+            Dim propInfo As PropertyInfo = TryCast(member.Member, PropertyInfo)
+            If propInfo Is Nothing Then Throw New ArgumentException(String.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()))
+            Return propInfo
+        End Function
+
+        <Extension()> Public Sub FixNullable(ByRef e1 As Expression, ByRef e2 As Expression)
+            If IsNullableType(e1.Type) AndAlso Not IsNullableType(e2.Type) Then
+                e2 = Expression.Convert(e2, e1.Type)
+            ElseIf Not IsNullableType(e1.Type) AndAlso IsNullableType(e2.Type) Then
+                e1 = Expression.Convert(e1, e2.Type)
+            End If
+        End Sub
+
+        <Extension> Public Function GreaterThanOrEqual(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
+            FixNullable(MemberExpression, ValueExpression)
+            Return Expression.GreaterThanOrEqual(MemberExpression, ValueExpression)
+        End Function
+
+        <Extension> Public Function LessThanOrEqual(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
+            FixNullable(MemberExpression, ValueExpression)
+            Return Expression.LessThanOrEqual(MemberExpression, ValueExpression)
+        End Function
+
+        <Extension> Public Function Equal(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
+            FixNullable(MemberExpression, ValueExpression)
+            Return Expression.Equal(MemberExpression, ValueExpression)
+        End Function
+
+        <Extension> Public Function NotEqual(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
+            FixNullable(MemberExpression, ValueExpression)
+            Return Expression.Equal(Expression.Equal(MemberExpression, ValueExpression), Expression.Constant(False))
+        End Function
+
+        <Extension> Public Function IsNullableType(ByVal t As Type) As Boolean
+            Return t.IsGenericType AndAlso t.GetGenericTypeDefinition() = GetType(Nullable(Of))
         End Function
 
         ''' <summary>
@@ -236,7 +363,7 @@ Namespace LINQ
                             End If
                         End If
                     Next
-                Case "between", "btw"
+                Case "between", "btw", "><"
                     If PropertyValues.Count() > 1 Then
                         Select Case Member.Type
                             Case GetType(String)
@@ -431,7 +558,7 @@ Namespace LINQ
         ''' Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente
         ''' </summary>
         ''' <typeparam name="T">Tipo do Objeto</typeparam>
-        ''' <param name="Items">Itens</param>
+        ''' <param name="Item">Itens</param>
         ''' <param name="ParentSelector">Seletor das propriedades filhas</param>
         ''' <returns></returns>
         <Extension()>

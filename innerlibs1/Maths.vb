@@ -855,44 +855,7 @@ Public Module Mathematic
         Return totalDistance
     End Function
 
-    ''' <summary>
-    ''' Verifica se um valor numerico ou data está entre outros 2 valores
-    ''' </summary>
-    ''' <param name="Value">      Numero</param>
-    ''' <param name="FirstValue"> Primeiro numero comparador</param>
-    ''' <param name="SecondValue">Segundo numero comparador</param>
-    ''' <returns></returns>
-    <Extension()> Public Function IsBetween(Of Type As Structure)(Value As Type, FirstValue As Object, SecondValue As Object) As Boolean
-        FirstValue = DirectCast(FirstValue, Type)
-        SecondValue = DirectCast(SecondValue, Type)
-        Select Case True
-            Case FirstValue < SecondValue
-                Return FirstValue < Value And Value < SecondValue
-            Case FirstValue > SecondValue
-                Return FirstValue > Value And Value > SecondValue
-            Case Else
-                Return FirstValue = Value And Value = SecondValue
-        End Select
-    End Function
 
-    ''' <summary>
-    ''' Verifica se um valor é igual ou está entre outros 2 valores
-    ''' </summary>
-    ''' <param name="Value">      Numero</param>
-    ''' <param name="FirstValue"> Primeiro numero comparador</param>
-    ''' <param name="SecondValue">Segundo numero comparador</param>
-    ''' <returns></returns>
-    <Extension()> Public Function IsEqualOrBetween(Of Type)(Value As Type, FirstValue As Object, SecondValue As Object) As Boolean
-        FirstValue = DirectCast(FirstValue, Type)
-        SecondValue = DirectCast(SecondValue, Type)
-        Select Case True
-            Case FirstValue < SecondValue
-                Return FirstValue <= Value And Value <= SecondValue
-            Case FirstValue > SecondValue
-                Return FirstValue >= Value And Value >= SecondValue
-            Case Else
-                Return FirstValue = Value And Value = SecondValue
-        End Select
-    End Function
+
 
 End Module

@@ -862,11 +862,7 @@ Public Module Calendars
     ''' <param name="StartDate">Data Inicial</param>
     ''' <param name="EndDate">  Data Final</param>
     Public Sub FixDateOrder(ByRef StartDate As DateTime, ByRef EndDate As DateTime)
-        If StartDate > EndDate Then
-            Dim temp = StartDate
-            StartDate = EndDate
-            EndDate = temp
-        End If
+        FixOrder(StartDate, EndDate)
     End Sub
 
     ''' <summary>

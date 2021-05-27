@@ -11,6 +11,70 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    <Extension()>
+    Public Function IsEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
+        Return Not Value1.IsGreaterThan(Value2) AndAlso Not Value1.IsLessThan(Value2)
+    End Function
+
+    <Extension()>
+    Public Function IsGreaterThan(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
+        Return Value1.CompareTo(Value2) > 0
+    End Function
+
+    <Extension()>
+    Public Function IsGreaterThanOrEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
+        Return Value1.IsGreaterThan(Value2) OrElse Value1.IsEqual(Value2)
+    End Function
+
+    <Extension()>
+    Public Function IsLessThan(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
+        Return Value1.CompareTo(Value2) < 0
+    End Function
+
+    <Extension()>
+    Public Function IsLessThanOrEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
+        Return Value1.IsLessThan(Value2) OrElse Value1.IsEqual(Value2)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um valor numerico ou data está entre outros 2 valores
+    ''' </summary>
+    ''' <param name="Value">      Numero</param>
+    ''' <param name="Value1"> Primeiro numero comparador</param>
+    ''' <param name="Value2">Segundo numero comparador</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsBetween(Value As IComparable, Value1 As IComparable, Value2 As IComparable) As Boolean
+        FixOrder(Value1, Value2)
+        Return Value.IsLessThan(Value2) AndAlso Value.IsGreaterThan(Value1)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um valor numerico ou data está entre outros 2 valores
+    ''' </summary>
+    ''' <param name="Value">      Numero</param>
+    ''' <param name="Value1"> Primeiro numero comparador</param>
+    ''' <param name="Value2">Segundo numero comparador</param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsBetweenOrEqual(Value As IComparable, Value1 As IComparable, Value2 As IComparable) As Boolean
+        FixOrder(Value1, Value2)
+        Return Value.IsLessThanOrEqual(Value2) AndAlso Value.IsGreaterThanOrEqual(Value1)
+    End Function
+
+    ''' <summary>
+    ''' Troca ou não a ordem das variaveis de inicio e fim  fazendo com que a Value1
+    ''' sempre seja menor que a Value2. Util para tratar ranges
+    ''' </summary>
+
+    Public Sub FixOrder(Of T As IComparable)(ByRef Value1 As T, ByRef Value2 As T)
+        If Value1 IsNot Nothing AndAlso Value2 IsNot Nothing Then
+            If Value1.IsGreaterThan(Value2) Then
+                Dim temp = Value1
+                Value1 = Value2
+                Value2 = temp
+            End If
+        End If
+    End Sub
+
     <Extension()> Public Function CreateXML(Of Type)(obj As Type) As XmlDocument
         Dim xs As XmlSerializer = New XmlSerializer(obj.GetType())
         Dim sw As System.IO.StringWriter = New System.IO.StringWriter()
@@ -33,7 +97,6 @@ Public Module ClassTools
         Return File.ReadAllText(XML.FullName).CreateObjectFromXML(Of Type)
     End Function
 
-
     ''' <summary>
     ''' Cria um arquivo a partir de qualquer objeto usando o <see cref="CreateObjectFromXML(Object)"/>
     ''' </summary>
@@ -42,8 +105,6 @@ Public Module ClassTools
     <Extension()> Public Function CreateXmlFile(obj As Object, FilePath As String) As FileInfo
         Return CreateXML(obj).ToXMLString().WriteToFile(FilePath)
     End Function
-
-
 
     ''' <summary>
     ''' Retorna as classes de um Namespace
@@ -84,13 +145,8 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="ex"></param>
     ''' <returns></returns>
-    <Extension()> Public Function ToFullExceptionString(ex As Exception, Optional Separator As String = ">>") As String
-        Dim ExceptionString = ex.Message
-        While ex IsNot Nothing
-            ex = ex.InnerException
-            ExceptionString &= $" {Separator} {ex.Message}"
-        End While
-        Return ExceptionString.AdjustBlankSpaces()
+    <Extension()> Public Function ToFullExceptionString(ex As Exception, Optional Separator As String = " >> ") As String
+        Return ex.Traverse(Function(x) x.InnerException).SelectJoin(Function(x) x.Message, Separator).AdjustBlankSpaces
     End Function
 
     ''' <summary>
