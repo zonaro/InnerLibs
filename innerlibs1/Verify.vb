@@ -1,16 +1,12 @@
 ﻿Imports System.IO
 Imports System.Runtime.CompilerServices
-Imports System.Security.Principal
 Imports System.Text.RegularExpressions
-Imports System.Web
 
 ''' <summary>
 ''' Verifica determinados valores como Arquivos, Numeros e URLs
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Verify
-
-
 
     ''' <summary>
     ''' Verifica se a string é um CNH válido
@@ -233,8 +229,6 @@ Public Module Verify
         Return New Regex("\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", RegexOptions.Singleline + RegexOptions.IgnoreCase).IsMatch(Text.RemoveAny("(", ")"))
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se o arquivo está em uso por outro procedimento
     ''' </summary>
@@ -320,8 +314,19 @@ Public Module Verify
 
     End Function
 
-
-
+    ''' <summary>
+    ''' Tenta retornar um index de um IEnumerable a partir de um valor especifico. retorna -1 se o index nao existir
+    ''' </summary>
+    ''' <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
+    ''' <param name="Arr">Array</param>
+    ''' <returns></returns>
+    <Extension()> Public Function GetIndexOf(Of T)(Arr As IEnumerable(Of T), item As T) As Integer
+        Try
+            Return Arr.ToList().IndexOf(item)
+        Catch ex As Exception
+            Return -1
+        End Try
+    End Function
 
     ''' <summary>
     ''' Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir
