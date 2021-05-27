@@ -137,46 +137,19 @@ Namespace LINQ
         End Function
 
         <Extension()> Public Function FilterDateRange(Of T)(List As IQueryable(Of T), ByVal [Property] As Expression(Of Func(Of T, DateTime)), Range As DateRange) As IQueryable(Of T)
-            Return List.Where([Property].IsBetween(Range))
+            Return List.Where(IsBetween([Property], Range.StartDate, Range.EndDate))
         End Function
 
         <Extension()> Public Function FilterDateRange(Of T)(List As IQueryable(Of T), ByVal [Property] As Expression(Of Func(Of T, DateTime?)), Range As DateRange) As IQueryable(Of T)
-            Return List.Where([Property].IsBetween(Range))
+            Return List.Where(IsBetween([Property], Range.StartDate, Range.EndDate))
         End Function
 
         <Extension()>
-        Public Function IsBetween(Of T)(ByVal [Property] As Expression(Of Func(Of T, DateTime)), DateRange As DateRange) As Expression(Of Func(Of T, Boolean))
-            Return [Property].IsBetween(DateRange.StartDate, DateRange.EndDate)
-        End Function
+        Public Function IsBetween(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V)), MinValue As V, MaxValue As V) As Expression(Of Func(Of T, Boolean))
 
-        <Extension()>
-        Public Function IsBetween(Of T)(ByVal [Property] As Expression(Of Func(Of T, DateTime?)), DateRange As DateRange) As Expression(Of Func(Of T, Boolean))
-            Return [Property].IsBetween(DateRange.StartDate, DateRange.EndDate)
-        End Function
-
-        <Extension()>
-        Public Function IsBetween(Of T, V As Structure)(ByVal [Property] As Expression(Of Func(Of T, V?)), MinValue? As V, MaxValue? As V) As Expression(Of Func(Of T, Boolean))
-            If MinValue.HasValue AndAlso MaxValue.HasValue Then
-                Return [Property].IsBetween(MinValue.Value, MaxValue.Value)
-            End If
-            If MinValue.HasValue = False AndAlso MaxValue.HasValue Then
-                Return [Property].IsBetween(Nothing, MaxValue.Value)
-            End If
-            If MinValue.HasValue AndAlso MaxValue.HasValue = False Then
-                Return [Property].IsBetween(MinValue.Value, Nothing)
-            End If
-
-            Return Expression.Lambda(Of Func(Of T, Boolean))([Property].CreatePropertyExpression().Equal(Nothing), [Property].Parameters.FirstOrDefault())
-
-        End Function
-
-        <Extension()>
-        Public Function IsBetween(Of T, V As Structure)(ByVal [Property] As Expression(Of Func(Of T, V)), MinValue As V, MaxValue As V) As Expression(Of Func(Of T, Boolean))
-
-            Dim PropertyExpression As Expression = [Property].CreatePropertyExpression
+            Dim PropertyExpression As MemberExpression = [Property].CreatePropertyExpression
             Dim parameter = [Property].Parameters.FirstOrDefault()
-            Dim MinExpression As Expression = Nothing
-            Dim MaxExpression As Expression = Nothing
+
             Dim GreaterExp As Expression = Nothing
             Dim LessExp As Expression = Nothing
 
@@ -185,18 +158,16 @@ Namespace LINQ
             FixOrder(v1, v2)
 
             If (v1 IsNot Nothing) Then
-                MinExpression = FixConstant(v1)
-                GreaterExp = PropertyExpression.GreaterThanOrEqual(MinExpression)
+                GreaterExp = PropertyExpression.GreaterThanOrEqual(FixConstant(v1))
             End If
 
             If (v2 IsNot Nothing) Then
-                MaxExpression = FixConstant(v2)
-                LessExp = PropertyExpression.LessThanOrEqual(v2)
+                LessExp = PropertyExpression.LessThanOrEqual(FixConstant(v2))
             End If
 
             If v1 IsNot Nothing AndAlso v2 IsNot Nothing Then
                 If v1.IsEqual(v2) Then
-                    Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(MinExpression), parameter)
+                    Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(FixConstant(v1)), parameter)
                 Else
                     Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[And](GreaterExp, LessExp), parameter)
                 End If
@@ -215,7 +186,7 @@ Namespace LINQ
         End Function
 
         <Extension> Public Function CreatePropertyExpression(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V))) As MemberExpression
-            Return Expression.[Property](GetType(T).GenerateParameterExpression(), GetPropertyInfo([Property]))
+            Return Expression.[Property](If([Property].Parameters.FirstOrDefault(), GetType(T).GenerateParameterExpression()), GetPropertyInfo([Property]))
         End Function
 
         Public Function GetPropertyInfo(Of TSource, TProperty)(ByVal propertyLambda As Expression(Of Func(Of TSource, TProperty))) As PropertyInfo
