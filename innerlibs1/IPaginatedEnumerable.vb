@@ -148,8 +148,6 @@ Namespace LINQ
             Return Me
         End Function
 
-
-
         ''' <summary>
         ''' Seta o operador utilizado nesse filtro
         ''' </summary>
@@ -1118,12 +1116,15 @@ Namespace LINQ
         ''' <returns></returns>
         Public Function GetPage(PageNumber As Integer) As RemapType()
             Me.PageNumber = PageNumber
-            Dim filtereddata = ApplyFilter()
-            filtereddata = ApplyPage(filtereddata)
-            If RemapExpression Is Nothing OrElse GetType(ClassType) Is GetType(RemapType) Then
-                Return filtereddata.Cast(Of RemapType).ToArray()
+            If Me.Data IsNot Nothing Then
+                Dim filtereddata = ApplyFilter()
+                filtereddata = ApplyPage(filtereddata)
+                If RemapExpression Is Nothing OrElse GetType(ClassType) Is GetType(RemapType) Then
+                    Return filtereddata.Cast(Of RemapType).ToArray()
+                End If
+                Return filtereddata.Select(RemapExpression).ToArray()
             End If
-            Return filtereddata.Select(RemapExpression).ToArray()
+            Return {}
         End Function
 
         ''' <summary>
@@ -1245,6 +1246,15 @@ Namespace LINQ
 
     Public Class PaginationFilter(Of ClassType As Class)
         Inherits PaginationFilter(Of ClassType, ClassType)
+
+        Public Sub New()
+            MyBase.New()
+        End Sub
+
+        Public Sub New(Exclusive As Boolean)
+            MyBase.New(Exclusive)
+        End Sub
+
     End Class
 
 End Namespace
