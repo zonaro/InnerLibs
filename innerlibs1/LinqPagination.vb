@@ -59,7 +59,7 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension>
         Public Function CreateFilter(Of T As Class, R As Class)(ByVal List As IEnumerable(Of T), RemapSelector As Func(Of T, R), Optional Exclusive As Boolean = False) As PaginationFilter(Of T, R)
-            Return New PaginationFilter(Of T, R)(RemapSelector, Exclusive).SetData(List)
+            Return New PaginationFilter(Of T, R)(RemapSelector).IsExclusive(Exclusive).SetData(List)
         End Function
 
         ''' <summary>
@@ -70,7 +70,7 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension>
         Public Function CreateFilter(Of T As Class, R As Class)(ByVal List As IEnumerable(Of T), RemapSelector As Func(Of T, R), Configuration As Action(Of PaginationFilter(Of T, T)), Optional Exclusive As Boolean = False) As PaginationFilter(Of T, R)
-            Return New PaginationFilter(Of T, R)(RemapSelector, Exclusive).SetData(List).Config(Configuration)
+            Return New PaginationFilter(Of T, R)(RemapSelector).IsExclusive(Exclusive).SetData(List).Config(Configuration)
         End Function
 
         ''' <summary>
@@ -189,7 +189,7 @@ Namespace LINQ
             Return Expression.[Property](If([Property].Parameters.FirstOrDefault(), GetType(T).GenerateParameterExpression()), GetPropertyInfo([Property]))
         End Function
 
-        Public Function GetPropertyInfo(Of TSource, TProperty)(ByVal propertyLambda As Expression(Of Func(Of TSource, TProperty))) As PropertyInfo
+        <Extension()> Public Function GetPropertyInfo(Of TSource, TProperty)(ByVal propertyLambda As Expression(Of Func(Of TSource, TProperty))) As PropertyInfo
             Dim type As Type = GetType(TSource)
             Dim member As MemberExpression = TryCast(propertyLambda.Body, MemberExpression)
             If member Is Nothing Then Throw New ArgumentException(String.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()))
@@ -246,10 +246,9 @@ Namespace LINQ
             End If
             Dim body As BinaryExpression = Nothing
             Select Case [Operator].ToLower().IfBlank("equal")
-                Case "=", "==", "equal", "===", "equals"
+                Case "blank", "compareblank", "isblank"
                     For Each item In PropertyValues
-                        Dim exp = Expression.Equal(Member, FixConstant(Member, item))
-                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
+                        Dim exp = Expression.Equal(Member, Expression.Constant("", Member.Type))
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -258,12 +257,49 @@ Namespace LINQ
                             Else
                                 body = Expression.OrElse(body, exp)
                             End If
+                        End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
+                        End If
+                    Next
+                Case "isnull", "comparenull", "null"
+                    For Each item In PropertyValues
+                        Dim exp = Expression.Equal(Member, Expression.Constant(Nothing, Member.Type))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
+                        End If
+                    Next
+                Case "=", "==", "equal", "===", "equals"
+                    For Each item In PropertyValues
+                        Dim exp = Expression.Equal(Member, FixConstant(Member, item))
+                        If body Is Nothing Then
+                            body = exp
+                        Else
+                            If Exclusive Then
+                                body = Expression.AndAlso(body, exp)
+                            Else
+                                body = Expression.OrElse(body, exp)
+                            End If
+                        End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Next
                 Case ">=", "greaterthanorequal", "greaterorequal", "greaterequal", "greatequal"
                     For Each item In PropertyValues
+                        If item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
+                            item = item.ToString().Length
+                        End If
                         Dim exp = Expression.GreaterThanOrEqual(Member, FixConstant(Member, item))
-                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -273,11 +309,16 @@ Namespace LINQ
                                 body = Expression.OrElse(body, exp)
                             End If
                         End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
+                        End If
                     Next
                 Case "<=", "lessthanorequal", "lessorequal", "lessequal"
                     For Each item In PropertyValues
+                        If item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
+                            item = item.ToString().Length
+                        End If
                         Dim exp = Expression.LessThanOrEqual(Member, FixConstant(Member, item))
-                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
 
                         If body Is Nothing Then
                             body = exp
@@ -287,12 +328,14 @@ Namespace LINQ
                             Else
                                 body = Expression.OrElse(body, exp)
                             End If
+                        End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Next
                 Case ">", "greaterthan", "greater", "great"
                     For Each item In PropertyValues
                         Dim exp = Expression.GreaterThan(Member, FixConstant(Member, item))
-                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
 
                         If body Is Nothing Then
                             body = exp
@@ -303,12 +346,14 @@ Namespace LINQ
                                 body = Expression.OrElse(body, exp)
                             End If
                         End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
+                        End If
                     Next
+
                 Case "<", "lessthan", "less"
                     For Each item In PropertyValues
                         Dim exp = Expression.LessThan(Member, FixConstant(Member, item))
-                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
-
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -317,13 +362,14 @@ Namespace LINQ
                             Else
                                 body = Expression.OrElse(body, exp)
                             End If
+                        End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Next
                 Case "<>", "notequal", "different"
                     For Each item In PropertyValues
                         Dim exp = Expression.NotEqual(Member, FixConstant(Member, item))
-                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
-
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -332,6 +378,9 @@ Namespace LINQ
                             Else
                                 body = Expression.OrElse(body, exp)
                             End If
+                        End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Next
                 Case "between", "btw", "><"
@@ -360,6 +409,9 @@ Namespace LINQ
                                         body = Expression.OrElse(body, exp)
                                     End If
                                 End If
+                                If comparewith = False Then
+                                    body = Expression.Equal(exp, Expression.Constant(False))
+                                End If
                             Next
                         Case Else
                             body = GetOperatorExpression(Member, ">=", PropertyValues, Exclusive)
@@ -377,6 +429,9 @@ Namespace LINQ
                                     Else
                                         body = Expression.OrElse(body, exp)
                                     End If
+                                End If
+                                If comparewith = False Then
+                                    body = Expression.Equal(exp, Expression.Constant(False))
                                 End If
                             Next
                         Case Else
@@ -396,11 +451,36 @@ Namespace LINQ
                                         body = Expression.OrElse(body, exp)
                                     End If
                                 End If
+                                If comparewith = False Then
+                                    body = Expression.Equal(exp, Expression.Constant(False))
+                                End If
                             Next
                         Case Else
                             body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
                     End Select
-                Case "cross", "crosscontains"
+                Case "isin", "inside"
+                    Select Case Member.Type
+                        Case GetType(String)
+                            For Each item In PropertyValues
+                                Dim exp = Expression.Equal(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Constant(comparewith))
+                                If body Is Nothing Then
+                                    body = exp
+                                Else
+                                    If Exclusive Then
+                                        body = Expression.AndAlso(body, exp)
+                                    Else
+                                        body = Expression.OrElse(body, exp)
+                                    End If
+                                End If
+                                If comparewith = False Then
+                                    body = Expression.Equal(exp, Expression.Constant(False))
+                                End If
+                            Next
+                        Case Else
+                            ''TODO: implementar busca de array de inteiro,data etc
+                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                    End Select
+                Case "cross", "crosscontains", "insidecontains"
                     Select Case Member.Type
                         Case GetType(String)
                             For Each item In PropertyValues
@@ -414,6 +494,9 @@ Namespace LINQ
                                         body = Expression.OrElse(body, exp)
                                     End If
                                 End If
+                                If comparewith = False Then
+                                    body = Expression.Equal(exp, Expression.Constant(False))
+                                End If
                             Next
                         Case Else
                             ''TODO: implementar busca de array de inteiro,data etc
@@ -425,8 +508,6 @@ Namespace LINQ
 
                         Dim exp As Expression = mettodo.Invoke(Nothing, {PropertyValues})
                         exp = Expression.Invoke(exp, Member)
-                        exp = Expression.Equal(exp, Expression.Constant(comparewith))
-
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -435,6 +516,9 @@ Namespace LINQ
                             Else
                                 body = Expression.OrElse(body, exp)
                             End If
+                        End If
+                        If comparewith = False Then
+                            body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Catch ex As Exception
                     End Try

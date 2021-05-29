@@ -4,473 +4,14 @@ Imports System.Web
 
 Namespace LINQ
 
-    Public Class PropertyFilter(Of ClassType As Class, RemapType)
-
-        Friend Sub New(LB As PaginationFilter(Of ClassType, RemapType))
-            _config = LB
-        End Sub
-
-        Friend _config As PaginationFilter(Of ClassType, RemapType)
-
-        ''' <summary>
-        ''' Expressão binaria deste filtro
-        ''' </summary>
-        ''' <returns></returns>
-        ReadOnly Property Filter As BinaryExpression
-            Get
-                If Enabled Then
-                    Dim v = If(PropertyValues, {})
-                    If Not UseNullValues Then
-                        v = v.Where(Function(x) x IsNot Nothing)
-                    End If
-                    Return GetOperatorExpression(Member, [Operator].IfBlank(""), v, False)
-                End If
-                Return Nothing
-            End Get
-        End Property
-
-        ''' <summary>
-        ''' Configura este filtro para utilização de valores nulos na query
-        ''' </summary>
-        ''' <returns></returns>
-        Property UseNullValues As Boolean = False
-
-        ''' <summary>
-        ''' Indica se este filtro está ativo
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property Enabled As Boolean = True
-
-        ''' <summary>
-        ''' Operador usado nesse filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property [Operator] As String = "="
-
-        ''' <summary>
-        ''' Comparara o valor do filtro com TRUE ou FALSE
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property [Is] As Boolean = True
-
-        ''' <summary>
-        ''' Valores a serem testados por esse filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property PropertyValues As IEnumerable(Of IComparable)
-
-        ''' <summary>
-        ''' Parametro da expressão lambda
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property Parameter As ParameterExpression
-            Get
-                Return _config.Parameter
-            End Get
-        End Property
-
-        ''' <summary>
-        ''' Expressão do membro utilizado no filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Property Member As Expression
-
-        ''' <summary>
-        ''' retorna o lambdafilter deste Filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function LambdaFilter() As PaginationFilter(Of ClassType, RemapType)
-            Return Me._config
-        End Function
-
-        ''' <summary>
-        ''' Seta varios valores para esse filtro testar. Substitui os valores antigos
-        ''' </summary>
-        ''' <param name="Values"></param>
-        ''' <returns></returns>
-        Function SetValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType, RemapType)
-            PropertyValues = If(Values, {})
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta varios valores para esse filtro testar. Substitui os valores antigos
-        ''' </summary>
-        ''' <param name="Values"></param>
-        ''' <returns></returns>
-        Function SetValues(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            PropertyValues = If(Values, {})
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Adciona varios valores para esse filtro testar.
-        ''' </summary>
-        ''' <param name="Values"></param>
-        ''' <returns></returns>
-        Function AddValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType, RemapType)
-            PropertyValues = If(PropertyValues, {}).Union(If(Values, {}))
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta um unico valor para esse filtro testar. Substitui os antigos
-        ''' </summary>
-        ''' <param name="Value"></param>
-        ''' <returns></returns>
-        Function SetValue(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            PropertyValues = {Value}
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão nulos ou vazios
-        ''' </summary>
-        ''' <param name="PropertySelector"></param>
-        ''' <returns></returns>
-        Function SetMember(Of T)(PropertySelector As Expression(Of Func(Of ClassType, T))) As PropertyFilter(Of ClassType, RemapType)
-            Return SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).Join("."))
-        End Function
-
-        ''' <summary>
-        ''' Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão nulos ou vazios
-        ''' </summary>
-        ''' <param name="PropertyName"></param>
-        ''' <returns></returns>
-        Function SetMember(PropertyName As String) As PropertyFilter(Of ClassType, RemapType)
-            Dim prop As Expression = Parameter
-            If PropertyName.IfBlank("this") <> "this" Then
-                For Each name In PropertyName.SplitAny(".", "/")
-                    prop = Expression.[Property](prop, name)
-                Next
-            End If
-            Member = prop
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador utilizado nesse filtro
-        ''' </summary>
-        ''' <param name="[Operator]"></param>
-        ''' <returns></returns>
-        Function SetOperator([Operator] As String) As PropertyFilter(Of ClassType, RemapType)
-            Me.Operator = [Operator].IfBlank("=").ToLower
-            Return Me
-        End Function
-
-        Public ReadOnly Property CompareWith As Boolean
-            Get
-                Return Not [Operator].StartsWithAny("!", "not")
-            End Get
-        End Property
-
-        ''' <summary>
-        ''' Nega o filtro atual
-        ''' </summary>
-        ''' <returns></returns>
-        Function Negate() As PropertyFilter(Of ClassType, RemapType)
-            If CompareWith = False Then
-                [Operator] = [Operator].RemoveFirstAny(False, "!", "Not")
-            Else
-                [Operator] = "!" & [Operator]
-            End If
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Força uma comparação positiva para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function CompareTrue() As PropertyFilter(Of ClassType, RemapType)
-            If CompareWith = False Then
-                Me.Negate()
-            End If
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Força uma comparação negativa para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function CompareFalse() As PropertyFilter(Of ClassType, RemapType)
-            If CompareWith = True Then
-                Me.Negate()
-            End If
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para Contains e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function Contains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("contains")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para Contains e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function Contains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("contains")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para StartsWith e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function StartsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("StartsWith")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para StartsWith e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function StartsWith(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("StartsWith")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para EndsWith e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function EndsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("EndsWith")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para EndsWith e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function EndsWith(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("EndsWith")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para CrossContains e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function CrossContains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("crosscontains")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para CrossContains e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function CrossContains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("crosscontains")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para = e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function Equal(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("=")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para = e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function Equal(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("=")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para > e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function GreaterThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator(">")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para > e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function GreaterThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator(">")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para &lt; e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function LessThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("<")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para   &lt; e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function LessThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("<")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para  >= e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function GreaterThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator(">=")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para  >= e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function GreaterThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator(">=")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para   &lt;= e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function LessThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("<=")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para   &lt; e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function LessThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("<=")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para  != e o Valor para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function NotEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValue(Value)
-            Me.SetOperator("<>")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Seta o operador para  != e os Valores para este filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function NotEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
-            Me.SetOperator("<>")
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Permite que valores nulos sejam adcionados ao filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function AllowNull() As PropertyFilter(Of ClassType, RemapType)
-            UseNullValues = True
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Impede que valores nulos sejam adcionados ao filtro
-        ''' </summary>
-        ''' <returns></returns>
-        Function IgnoreNull() As PropertyFilter(Of ClassType, RemapType)
-            UseNullValues = False
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Ativa ou desativa esse filtro durante a construção da expressão
-        ''' </summary>
-        ''' <param name="Enabled"></param>
-        ''' <returns></returns>
-        Function SetEnabled(Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
-            Me.Enabled = Enabled
-            Return Me
-        End Function
-
-        Public ReadOnly Property PropertyName As String
-            Get
-                Return Me.Member.ToString().GetAfter(".")
-            End Get
-        End Property
-
-        ''' <summary>
-        ''' Separador utilizado pelo <see cref="CreateQueryParameter(Boolean)"/>
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property QueryStringSeparator As String = ":"
-
-        ''' <summary>
-        ''' Retorna uma string em formato de parametro de QueryString deste filtro
-        ''' </summary>
-        ''' <param name="ForceEnabled"></param>
-        ''' <returns></returns>
-        Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False) As String
-            If Enabled OrElse ForceEnabled Then
-                Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===", "equal", "equals")).UrlEncode()
-                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
-            End If
-            Return ""
-        End Function
-
-        Public Overrides Function ToString() As String
-            Return Me.CreateQueryParameter()
-        End Function
-
-    End Class
-
     ''' <summary>
     ''' Classe para criação de paginação e filtros dinâmicos para listas de classes
     ''' </summary>
     ''' <typeparam name="ClassType"></typeparam>
     Public Class PaginationFilter(Of ClassType As Class, RemapType)
 
-        ''' <summary>
-        ''' Cria uma nova instancia
-        ''' </summary>
         Sub New()
-            Me.Exclusive = False
         End Sub
-
         ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
@@ -482,10 +23,18 @@ Namespace LINQ
         ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
-        ''' <param name="Exclusive"></param>
-        Sub New(RemapExpression As Func(Of ClassType, RemapType), Optional Exclusive As Boolean = False)
-            Me.Exclusive = Exclusive
+        Sub New(RemapExpression As Func(Of ClassType, RemapType))
             Me.RemapExpression = RemapExpression
+        End Sub
+
+        Sub New(RemapExpression As Func(Of ClassType, RemapType), Options As Action(Of PaginationFilter(Of ClassType, RemapType)))
+
+            Me.RemapExpression = RemapExpression
+            Config(Options)
+        End Sub
+        Sub New(Options As Action(Of PaginationFilter(Of ClassType, RemapType)))
+            Me.RemapExpression = RemapExpression
+            Config(Options)
         End Sub
 
         Friend _filters As New List(Of PropertyFilter(Of ClassType, RemapType))
@@ -666,11 +215,10 @@ Namespace LINQ
             Return GetPaginationQueryString(Me.PageNumber, IncludePageSize, IncludePaginationOffset)
         End Function
 
-        Public ReadOnly Property NameValueCollection
+        Public ReadOnly Property NameValueCollection As NameValueCollection
             Get
                 Return HttpUtility.ParseQueryString(CreateQueryString())
             End Get
-
         End Property
 
         ''' <summary>
@@ -1208,17 +756,20 @@ Namespace LINQ
 
         Private Function ApplyFilter() As IEnumerable(Of ClassType)
             Dim FilteredData = Me.Data
-            If LambdaExpression IsNot Nothing Then
-                If TypeOf FilteredData Is IOrderedQueryable(Of ClassType) Then
-                    FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Where(LambdaExpression)
+            If FilteredData IsNot Nothing Then
+                If LambdaExpression IsNot Nothing Then
+                    If TypeOf FilteredData Is IOrderedQueryable(Of ClassType) Then
+                        FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Where(LambdaExpression)
+                    End If
+                    If TypeOf FilteredData Is IQueryable(Of ClassType) Then
+                        FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Where(LambdaExpression)
+                    Else
+                        FilteredData = FilteredData.Where(LambdaExpression.Compile())
+                    End If
                 End If
-                If TypeOf FilteredData Is IQueryable(Of ClassType) Then
-                    FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Where(LambdaExpression)
-                Else
-                    FilteredData = FilteredData.Where(LambdaExpression.Compile())
-                End If
+                Return FilteredData
             End If
-            Return FilteredData
+            Return {}
         End Function
 
         Private Function ApplyPage(FilteredData As IEnumerable(Of ClassType)) As IEnumerable(Of ClassType)
@@ -1244,17 +795,478 @@ Namespace LINQ
 
     End Class
 
+
+
     Public Class PaginationFilter(Of ClassType As Class)
         Inherits PaginationFilter(Of ClassType, ClassType)
 
-        Public Sub New()
-            MyBase.New()
+        Sub New()
+        End Sub
+        ''' <summary>
+        ''' Cria uma nova instancia e seta a exclusividade de filtro
+        ''' </summary>
+        ''' <param name="Exclusive"></param>
+        Sub New(Exclusive As Boolean)
+            Me.Exclusive = Exclusive
         End Sub
 
-        Public Sub New(Exclusive As Boolean)
-            MyBase.New(Exclusive)
+        Sub New(Options As Action(Of PaginationFilter(Of ClassType)))
+            Options(Me)
         End Sub
 
     End Class
 
+    Public Class PropertyFilter(Of ClassType As Class, RemapType)
+
+        Friend Sub New(LB As PaginationFilter(Of ClassType, RemapType))
+            _config = LB
+        End Sub
+
+        Friend _config As PaginationFilter(Of ClassType, RemapType)
+
+        ''' <summary>
+        ''' Expressão binaria deste filtro
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property Filter As BinaryExpression
+            Get
+                If Enabled Then
+                    Dim v = If(PropertyValues, {})
+                    If Not UseNullValues Then
+                        v = v.Where(Function(x) x IsNot Nothing)
+                    End If
+                    Return GetOperatorExpression(Member, [Operator].IfBlank(""), v, False)
+                End If
+                Return Nothing
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Configura este filtro para utilização de valores nulos na query
+        ''' </summary>
+        ''' <returns></returns>
+        Property UseNullValues As Boolean = False
+
+        ''' <summary>
+        ''' Indica se este filtro está ativo
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Enabled As Boolean = True
+
+        ''' <summary>
+        ''' Operador usado nesse filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property [Operator] As String = "="
+
+        ''' <summary>
+        ''' Comparara o valor do filtro com TRUE ou FALSE
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property [Is] As Boolean = True
+
+        ''' <summary>
+        ''' Valores a serem testados por esse filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property PropertyValues As IEnumerable(Of IComparable)
+
+        ''' <summary>
+        ''' Parametro da expressão lambda
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Parameter As ParameterExpression
+            Get
+                Return _config.Parameter
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Expressão do membro utilizado no filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Property Member As Expression
+
+        ''' <summary>
+        ''' retorna o lambdafilter deste Filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function LambdaFilter() As PaginationFilter(Of ClassType, RemapType)
+            Return Me._config
+        End Function
+
+        ''' <summary>
+        ''' Seta varios valores para esse filtro testar. Substitui os valores antigos
+        ''' </summary>
+        ''' <param name="Values"></param>
+        ''' <returns></returns>
+        Function SetValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType, RemapType)
+            PropertyValues = If(Values, {})
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta varios valores para esse filtro testar. Substitui os valores antigos
+        ''' </summary>
+        ''' <param name="Values"></param>
+        ''' <returns></returns>
+        Function SetValues(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            PropertyValues = If(Values, {})
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Adciona varios valores para esse filtro testar.
+        ''' </summary>
+        ''' <param name="Values"></param>
+        ''' <returns></returns>
+        Function AddValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType, RemapType)
+            PropertyValues = If(PropertyValues, {}).Union(If(Values, {}))
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta um unico valor para esse filtro testar. Substitui os antigos
+        ''' </summary>
+        ''' <param name="Value"></param>
+        ''' <returns></returns>
+        Function SetValue(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            PropertyValues = {Value}
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão nulos ou vazios
+        ''' </summary>
+        ''' <param name="PropertySelector"></param>
+        ''' <returns></returns>
+        Function SetMember(Of T)(PropertySelector As Expression(Of Func(Of ClassType, T))) As PropertyFilter(Of ClassType, RemapType)
+            Return SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).Join("."))
+        End Function
+
+        ''' <summary>
+        ''' Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão nulos ou vazios
+        ''' </summary>
+        ''' <param name="PropertyName"></param>
+        ''' <returns></returns>
+        Function SetMember(PropertyName As String) As PropertyFilter(Of ClassType, RemapType)
+            Dim prop As Expression = Parameter
+            If PropertyName.IfBlank("this") <> "this" Then
+                For Each name In PropertyName.SplitAny(".", "/")
+                    prop = Expression.[Property](prop, name)
+                Next
+            End If
+            Member = prop
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador utilizado nesse filtro
+        ''' </summary>
+        ''' <param name="[Operator]"></param>
+        ''' <returns></returns>
+        Function SetOperator([Operator] As String) As PropertyFilter(Of ClassType, RemapType)
+            Me.Operator = [Operator].IfBlank("=").ToLower
+            Return Me
+        End Function
+
+        Public ReadOnly Property CompareWith As Boolean
+            Get
+                Return Not [Operator].StartsWithAny("!", "not")
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Nega o filtro atual
+        ''' </summary>
+        ''' <returns></returns>
+        Function Negate() As PropertyFilter(Of ClassType, RemapType)
+            If CompareWith = False Then
+                [Operator] = [Operator].RemoveFirstAny(False, "!", "Not")
+            Else
+                [Operator] = "!" & [Operator]
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Força uma comparação positiva para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function CompareTrue() As PropertyFilter(Of ClassType, RemapType)
+            If CompareWith = False Then
+                Me.Negate()
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Força uma comparação negativa para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function CompareFalse() As PropertyFilter(Of ClassType, RemapType)
+            If CompareWith = True Then
+                Me.Negate()
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para Contains e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function Contains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("contains")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para Contains e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function Contains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("contains")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para StartsWith e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function StartsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("StartsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para StartsWith e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function StartsWith(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("StartsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para EndsWith e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function EndsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("EndsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para EndsWith e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function EndsWith(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("EndsWith")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para CrossContains e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function CrossContains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("crosscontains")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para CrossContains e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function CrossContains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("crosscontains")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para = e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function Equal(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("=")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para = e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function Equal(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("=")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para > e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function GreaterThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator(">")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para > e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function GreaterThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator(">")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para &lt; e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function LessThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("<")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para   &lt; e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function LessThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("<")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para  >= e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function GreaterThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator(">=")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para  >= e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function GreaterThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator(">=")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para   &lt;= e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function LessThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("<=")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para   &lt; e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function LessThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("<=")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para  != e o Valor para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function NotEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValue(Value)
+            Me.SetOperator("<>")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta o operador para  != e os Valores para este filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function NotEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values)
+            Me.SetOperator("<>")
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Permite que valores nulos sejam adcionados ao filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function AllowNull() As PropertyFilter(Of ClassType, RemapType)
+            UseNullValues = True
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Impede que valores nulos sejam adcionados ao filtro
+        ''' </summary>
+        ''' <returns></returns>
+        Function IgnoreNull() As PropertyFilter(Of ClassType, RemapType)
+            UseNullValues = False
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Ativa ou desativa esse filtro durante a construção da expressão
+        ''' </summary>
+        ''' <param name="Enabled"></param>
+        ''' <returns></returns>
+        Function SetEnabled(Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
+            Me.Enabled = Enabled
+            Return Me
+        End Function
+
+        Public ReadOnly Property PropertyName As String
+            Get
+                Return Me.Member.ToString().GetAfter(".")
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Separador utilizado pelo <see cref="CreateQueryParameter(Boolean)"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property QueryStringSeparator As String = ":"
+
+        ''' <summary>
+        ''' Retorna uma string em formato de parametro de QueryString deste filtro
+        ''' </summary>
+        ''' <param name="ForceEnabled"></param>
+        ''' <returns></returns>
+        Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False) As String
+            If Enabled OrElse ForceEnabled Then
+                Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===", "equal", "equals")).UrlEncode()
+                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
+            End If
+            Return ""
+        End Function
+
+        Public Overrides Function ToString() As String
+            Return Me.CreateQueryParameter()
+        End Function
+
+    End Class
 End Namespace
