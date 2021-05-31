@@ -790,18 +790,7 @@ Namespace LINQ
             Return Items.GroupBy([Property]).[Select](Function(x) x.First())
         End Function
 
-        ''' <summary>
-        ''' Realiza uma acão para cada item de uma lista.
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="Items"> </param>
-        ''' <param name="Action"></param>
-        <Extension()> Public Function DoForEach(Of T)(Items As IEnumerable(Of T), Action As Action(Of T)) As IEnumerable(Of T)
-            For Each item In Items
-                Action(item)
-            Next
-            Return Items
-        End Function
+
 
         ''' <summary>
         ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
