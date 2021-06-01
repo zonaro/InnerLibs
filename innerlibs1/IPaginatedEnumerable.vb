@@ -1,6 +1,5 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Linq.Expressions
-Imports System.Web
 
 Namespace LINQ
 
@@ -12,6 +11,7 @@ Namespace LINQ
 
         Sub New()
         End Sub
+
         ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
@@ -32,6 +32,7 @@ Namespace LINQ
             Me.RemapExpression = RemapExpression
             Config(Options)
         End Sub
+
         Sub New(Options As Action(Of PaginationFilter(Of ClassType, RemapType)))
             Me.RemapExpression = RemapExpression
             Config(Options)
@@ -124,7 +125,7 @@ Namespace LINQ
         ''' Cria uma querystring com os filtros ativos
         ''' </summary>
         ''' <returns></returns>
-        Public Function CreateQueryString(Optional ForceEnabled As Boolean = False) As String
+        Public Function GetFilterQueryString(Optional ForceEnabled As Boolean = False) As String
             Return Filters.Select(Function(x) x.CreateQueryParameter(ForceEnabled)).Where(Function(x) x.IsNotBlank()).Join("&")
         End Function
 
@@ -132,20 +133,11 @@ Namespace LINQ
         ''' Cria uma querystring com  paginacao e os filtros ativos
         ''' </summary>
         ''' <returns></returns>
-        Public Function CreateQueryString(PageNumber As Integer, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+        Public Function CreateQueryString(Optional PageNumber? As Integer = Nothing, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
             Dim l As New List(Of String)
-            l.Add(CreateQueryString(ForceEnabled))
-            l.Add(GetPaginationQueryString(PageNumber, IncludePageSize, IncludePaginationOffset))
+            l.Add(GetFilterQueryString(ForceEnabled))
+            l.Add(GetPaginationQueryString(If(PageNumber, Me.PageNumber), IncludePageSize, IncludePaginationOffset))
             Return l.Where(Function(x) x.IsNotBlank()).Join("&")
-        End Function
-
-        ''' <summary>
-        ''' Cria uma querystring com  paginacao e os filtros ativos
-        ''' </summary>
-        ''' <returns></returns>
-
-        Public Function CreateQueryString() As String
-            Return CreateQueryString(Me.PageNumber)
         End Function
 
         ''' <summary>
@@ -196,7 +188,8 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="PageNumber"></param>
         ''' <returns></returns>
-        Public Function GetPaginationQueryString(PageNumber As Integer, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+        Public Function GetPaginationQueryString(Optional PageNumber? As Integer = Nothing, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+            PageNumber = If(PageNumber, Me.PageNumber)
             If PageNumber > 0 Then
                 Dim l As New List(Of String)
                 If PageNumber > 1 Then l.Add($"{PageNumberQueryParameter}={PageNumber}")
@@ -207,19 +200,13 @@ Namespace LINQ
             Return ""
         End Function
 
-        ''' <summary>
-        ''' Retorna a parte da querystring usada para paginacao
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function GetPaginationQueryString(Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
-            Return GetPaginationQueryString(Me.PageNumber, IncludePageSize, IncludePaginationOffset)
+        Public Function ToNameValueCollection(Optional PageNumber? As Integer = Nothing, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As NameValueCollection
+            Return CreateQueryString(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ParseQueryString()
         End Function
 
-        Public ReadOnly Property NameValueCollection As NameValueCollection
-            Get
-                Return HttpUtility.ParseQueryString(CreateQueryString())
-            End Get
-        End Property
+        Public Function ToDictionary(Optional PageNumber? As Integer = Nothing, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As Dictionary(Of String, Object)
+            Return ToNameValueCollection(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ToDictionary()
+        End Function
 
         ''' <summary>
         ''' Retorna uma QueryString que representa este filtro
@@ -227,6 +214,58 @@ Namespace LINQ
         ''' <returns></returns>
         Public Overrides Function ToString() As String
             Return CreateQueryString().ToString()
+        End Function
+
+        ''' <summary>
+        ''' Cria uma Url com a query string deste filtro
+        ''' </summary>
+        ''' <param name="Url"></param>
+        ''' <param name="PageNumber"></param>
+        ''' <param name="ForceEnabled"></param>
+        ''' <param name="IncludePageSize"></param>
+        ''' <param name="IncludePaginationOffset"></param>
+        ''' <returns></returns>
+        Public Function CreateUrl(Url As String, Optional PageNumber As Integer? = Nothing, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+            Dim qs = CreateQueryString(If(PageNumber, Me.PageNumber), ForceEnabled, IncludePageSize, IncludePaginationOffset)
+            If Url.IsURL Then
+                Dim u = New Uri(Url)
+                Url = u.GetLeftPart(UriPartial.Path)
+                qs = {u.Query, qs}.Join("&")
+                Url = Url
+            End If
+            Return Url & "?" & qs
+        End Function
+
+        ''' <summary>
+        ''' Cria uma url a partir de um pattern de Url e concatena a query string
+        ''' </summary>
+        ''' <param name="UrlPattern"></param>
+        ''' <param name="ForceEnabled"></param>
+        ''' <returns></returns>
+        Public Function CreateUrlFromPattern(UrlPattern As String, Optional PageNumber? As Integer = Nothing, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+
+            Dim dic = Me.ToDictionary(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset)
+
+            Dim parametros = UrlPattern.GetAllBetween("{", "}").Select(Function(x) x.GetBefore(":"))
+
+            Dim querystring = ""
+            For Each q In dic
+                Dim v = ForceArray(Of String)(q.Value)
+                If v.Any Then
+                    If parametros.Contains(q.Key, StringComparer.InvariantCultureIgnoreCase) Then
+                        UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(""))
+                        v = v.Skip(1)
+                    End If
+                    If v.Any() Then
+                        querystring = {querystring, v.SelectJoin(Function(x) q.Key & "=" & x.IfBlank("").ToString().UrlDecode(), "&")}.Join("&")
+                    End If
+                End If
+            Next
+            If querystring.IsNotBlank() Then
+                UrlPattern = UrlPattern & "?" & querystring
+            End If
+
+            Return UrlPattern
         End Function
 
         ''' <summary>
@@ -481,7 +520,7 @@ Namespace LINQ
         ''' <returns></returns>
         Function UseQueryString(Query As String, Optional DefaultOperator As String = "=") As PaginationFilter(Of ClassType, RemapType)
             If Query.IsNotBlank Then
-                UseNameValueCollection(HttpUtility.ParseQueryString(Query), DefaultOperator)
+                UseNameValueCollection(Query.ParseQueryString, DefaultOperator)
             End If
             Return Me
         End Function
@@ -492,7 +531,7 @@ Namespace LINQ
         ''' <param name="QueryExpression"></param>
         ''' <returns></returns>
         Function UseQueryStringExpression(QueryExpression As String, Optional Separator As String = ":") As PaginationFilter(Of ClassType, RemapType)
-            Dim Collection = HttpUtility.ParseQueryString(QueryExpression)
+            Dim Collection = QueryExpression.ParseQueryString()
             For Each K In Collection.AllKeys
                 Dim t = GetType(ClassType)
                 If t.HasProperty(K) OrElse K = "this" Then
@@ -638,7 +677,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Extrai os parametros de um <see cref="NameValueCollection"/> e seta os membros usando as Keys como
+        ''' Extrai os parametros de um <see cref="ToNameValueCollection"/> e seta os membros usando as Keys como
         ''' </summary>
         ''' <param name="Collection"></param>
         ''' <param name="DefaultOperator"></param>
@@ -750,6 +789,11 @@ Namespace LINQ
             Return f
         End Function
 
+        ''' <summary>
+        ''' Verifica se á pagina atual é igual a uma pagina especifica
+        ''' </summary>
+        ''' <param name="Index"></param>
+        ''' <returns></returns>
         Public Function IsCurrentPage(Index As Integer) As Boolean
             Return Index = PageNumber
         End Function
@@ -793,15 +837,22 @@ Namespace LINQ
             Return obj.GetPage().ToList()
         End Operator
 
+        Public Shared Widening Operator CType(NVC As NameValueCollection) As PaginationFilter(Of ClassType, RemapType)
+            Return New PaginationFilter(Of ClassType, RemapType)().UseNameValueCollection(NVC)
+        End Operator
+
+        Public Shared Widening Operator CType(QueryString As String) As PaginationFilter(Of ClassType, RemapType)
+            Return New PaginationFilter(Of ClassType, RemapType)().UseQueryStringExpression(QueryString)
+        End Operator
+
     End Class
-
-
 
     Public Class PaginationFilter(Of ClassType As Class)
         Inherits PaginationFilter(Of ClassType, ClassType)
 
         Sub New()
         End Sub
+
         ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
@@ -1269,4 +1320,5 @@ Namespace LINQ
         End Function
 
     End Class
+
 End Namespace

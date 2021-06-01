@@ -1,7 +1,8 @@
 ﻿Imports System.Collections.Specialized
+Imports System.ComponentModel
 Imports System.Globalization
 Imports System.Runtime.CompilerServices
-Imports System.Web
+
 Imports InnerLibs.LINQ
 
 Public Module Converter
@@ -13,6 +14,38 @@ Public Module Converter
     ''' <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
     ''' <returns></returns>
     <Extension()> Function DefineEmptyList(Of T)(ObjectForDefinition As T) As List(Of T)
+        Return DefineEmptyList(Of T)()
+    End Function
+
+    ''' <summary>
+    ''' Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <returns></returns>
+    Function DefineEmptyList(Of T)() As List(Of T)
+        Return New List(Of T)
+    End Function
+
+    ''' <summary>
+    ''' Cria uma e adciona um objeto a ela. Util para tipos anonimos
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <returns></returns>
+    <Extension()> Function StartList(Of T)(ObjectForDefinition As T) As List(Of T)
+        Dim d = DefineEmptyList(Of T)()
+        If ObjectForDefinition IsNot Nothing Then
+            d.Add(ObjectForDefinition)
+        End If
+        Return d
+    End Function
+
+    ''' <summary>
+    ''' Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
+    ''' <returns></returns>
+    <Extension()> Function ForceList(Of T)(ObjectForDefinition As T) As List(Of T)
         Return New List(Of T)
     End Function
 
@@ -26,20 +59,20 @@ Public Module Converter
     End Function
 
     ''' <summary>
-    ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
+    ''' Verifica se um objeto é um array, e se não, cria um array com oeste objeto
     ''' </summary>
     ''' <param name="Obj">Objeto</param>
     ''' <returns></returns>
     Public Function ForceArray(Of OutputType)(ByVal Obj As Object) As OutputType()
         Dim a As New List(Of OutputType)
-        If Obj = Nothing Then Return a.ToArray
-        If Not Obj.GetType().IsArray Then
-            If Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
+        If Obj IsNot Nothing Then
+            If Not Obj.GetType().IsArray Then
+                If Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
+                a.Add(CType(Obj, OutputType))
+            End If
         End If
-        Return Array.ConvertAll(Of Object, OutputType)(Obj, Function(x) CType(x, OutputType))
+        Return a.ToArray
     End Function
-
-
 
     ''' <summary>
     ''' Aplica as mesmas keys a todos os dicionarios de uma lista
@@ -48,7 +81,7 @@ Public Module Converter
     ''' <typeparam name="TValue">Tipo do Valor</typeparam>
     ''' <param name="Dics">Dicionarios</param>
     '''<param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
-    <Extension()> Function Uniform(Of TKey, TValue)(ByRef Dics As IEnumerable(Of Dictionary(Of TKey, TValue)), ParamArray AditionalKeys As TKey()) As IEnumerable(Of Dictionary(Of TKey, TValue))
+    <Extension()> Function MergeKeys(Of TKey, TValue)(Dics As IEnumerable(Of Dictionary(Of TKey, TValue)), ParamArray AditionalKeys As TKey()) As IEnumerable(Of Dictionary(Of TKey, TValue))
         AditionalKeys = If(AditionalKeys, {})
         Dim chave = Dics.SelectMany(Function(x) x.Keys).Distinct.Union(AditionalKeys)
         For Each dic In Dics
@@ -155,24 +188,23 @@ Public Module Converter
     ''' <typeparam name="ToType">Tipo</typeparam>
     ''' <typeparam name="FromType">Tipo de origem</typeparam>
     ''' <param name="Value">Variavel com valor</param>
-    ''' <returns>Valor convertido em novo tipo</returns>
+    ''' <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
     <Extension>
     Public Function ChangeType(Of ToType, FromType)(Value As FromType) As ToType
         Try
-            Dim a As Type = GetType(ToType)
-            Dim u As Type = Nullable.GetUnderlyingType(a)
+            Dim tipo As Type = If(Nullable.GetUnderlyingType(GetType(ToType)), GetType(ToType))
 
-            If Not (u Is Nothing) Then
-                If Value Is Nothing OrElse Value.Equals("") Then
-                    Return Nothing
-                End If
-                Return CType(Convert.ChangeType(Value, u), ToType)
-            Else
-                If Value Is Nothing OrElse Value.Equals("") Then
-                    Return Nothing
-                End If
-                Return CType(Convert.ChangeType(Value, a), ToType)
+            If Value Is Nothing Then
+                Return Nothing
             End If
+
+            Dim Converter = TypeDescriptor.GetConverter(tipo)
+
+            If Converter.CanConvertFrom(GetType(FromType)) Then
+                Return CType(Converter.ConvertTo(Value, tipo), ToType)
+            End If
+
+            Return CType(Convert.ChangeType(Value, tipo), ToType)
         Catch ex As Exception
             Debug.WriteLine(ex)
             Return Nothing
@@ -292,8 +324,6 @@ Public Module Converter
         Return groupings.ToDictionary(Function(group) group.Key, Function(group) group.AsEnumerable)
     End Function
 
-
-
     ''' <summary>
     ''' Seta as propriedades de uma classe a partir de um dictionary
     ''' </summary>
@@ -308,8 +338,6 @@ Public Module Converter
             End If
         Next
     End Sub
-
-
 
     ''' <summary>
     ''' Transforma uma lista de pares em um Dictionary
@@ -407,8 +435,5 @@ Public Module Converter
 
         Return result
     End Function
-
-
-
 
 End Module

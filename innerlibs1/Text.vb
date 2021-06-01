@@ -1,614 +1,13 @@
 ﻿Imports System.Collections.Specialized
+Imports System.ComponentModel
 Imports System.Globalization
 Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Web
+
 Imports System.Xml
 Imports InnerLibs.LINQ
-
-Public Class QuantityTextPair
-
-    Public Sub New(Plural As String, Optional Singular As String = "")
-        Me.Plural = Plural
-        Me.Singular = Singular.IfBlank(Plural.QuantifyText(1))
-    End Sub
-
-    Sub New()
-
-    End Sub
-
-    Default Property Text(Number As Object) As String
-        Get
-            Return Me.Tostring(CType(Number, Decimal))
-        End Get
-        Set(value As String)
-            If CType(Number, Decimal) = 1 Then
-                Singular = value
-            Else
-                Plural = value
-            End If
-        End Set
-    End Property
-
-    Property Singular As String
-
-    Property Plural As String
-
-    Public Overrides Function ToString() As String
-        Return Plural
-    End Function
-
-    Public Overloads Function Tostring(Number As Long)
-        Return If(Number = 1, Singular, Plural)
-    End Function
-
-    Public Overloads Function Tostring(Number As Decimal)
-        Return If(Number = 1, Singular, Plural)
-    End Function
-
-    Public Overloads Function Tostring(Number As Short)
-        Return If(Number = 1, Singular, Plural)
-    End Function
-
-    Public Overloads Function Tostring(Number As Integer)
-        Return If(Number = 1, Singular, Plural)
-    End Function
-
-    Public Overloads Function Tostring(Number As Double)
-        Return If(Number = 1, Singular, Plural)
-    End Function
-
-    Public Overloads Function Tostring(Number As Single)
-        Return If(Number = 1, Singular, Plural)
-    End Function
-
-End Class
-
-''' <summary>
-''' Classe para escrever numeros por extenso com suporte até 999 quintilhoes
-''' </summary>
-Public Class FullNumberWriter
-
-    ''' <summary>
-    ''' String que representa a palavra "Menos". Utilizada quando os números são negativos
-    ''' </summary>
-    ''' <returns></returns>
-    Property Minus As String
-
-    ''' <summary>
-    ''' String que representa o numero 0.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Zero As String
-
-    ''' <summary>
-    ''' String que representa a palavra "e". Utilizada na concatenação de expressões
-    ''' </summary>
-    ''' <returns></returns>
-    Property [And] As String
-
-    ''' <summary>
-    ''' String que representa o numero 1.
-    ''' </summary>
-    ''' <returns></returns>
-    Property One As String
-
-    ''' <summary>
-    ''' String que representa o numero 2.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Two As String
-
-    ''' <summary>
-    ''' String que representa o numero 3.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Three As String
-
-    ''' <summary>
-    ''' String que representa o numero 4.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Four As String
-
-    ''' <summary>
-    ''' String que representa o numero 5.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Five As String
-
-    ''' <summary>
-    ''' String que representa o numero 6.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Six As String
-
-    ''' <summary>
-    ''' String que representa o numero 7.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Seven As String
-
-    ''' <summary>
-    ''' String que representa o numero 8.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Eight As String
-
-    ''' <summary>
-    ''' String que representa o numero 9.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Nine As String
-
-    ''' <summary>
-    ''' String que representa o numero 10.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Ten As String
-
-    ''' <summary>
-    ''' String que representa o numero 11.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Eleven As String
-
-    ''' <summary>
-    ''' String que representa o numero 12.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Twelve As String
-
-    ''' <summary>
-    ''' String que representa o numero 13.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Thirteen As String
-
-    ''' <summary>
-    ''' String que representa o numero 14.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Fourteen As String
-
-    ''' <summary>
-    ''' String que representa o numero 15.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Fifteen As String
-
-    ''' <summary>
-    ''' String que representa o numero 16.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Sixteen As String
-
-    ''' <summary>
-    ''' String que representa o numero 17.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Seventeen As String
-
-    ''' <summary>
-    ''' String que representa o numero 18.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Eighteen As String
-
-    ''' <summary>
-    ''' String que representa o numero 19.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Nineteen As String
-
-    ''' <summary>
-    ''' String que representa os numeros 20 a 29 .
-    ''' </summary>
-    ''' <returns></returns>
-    Property Twenty As String
-
-    ''' <summary>
-    ''' String que representa os numeros 30 a 39.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Thirty As String
-
-    ''' <summary>
-    ''' String que representa os numeros 40 a 49.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Fourty As String
-
-    ''' <summary>
-    ''' String que representa os numeros 50 a 59.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Fifty As String
-
-    ''' <summary>
-    ''' String que representa os numeros 60 a 69.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Sixty As String
-
-    ''' <summary>
-    ''' String que representa os numeros 70 a 79.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Seventy As String
-
-    ''' <summary>
-    ''' String que representa os numeros 80 a 89.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Eighty As String
-
-    ''' <summary>
-    ''' String que representa os numeros 90 a 99.
-    ''' </summary>
-    ''' <returns></returns>
-    Property Ninety As String
-
-    ''' <summary>
-    ''' String que represena o exato numero 100. Em alguns idiomas esta string não é nescessária
-    ''' </summary>
-    ''' <returns></returns>
-    Property ExactlyOneHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 100 a 199.
-    ''' </summary>
-    ''' <returns></returns>
-    Property OneHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 200 a 299.
-    ''' </summary>
-    ''' <returns></returns>
-    Property TwoHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 300 a 399.
-    ''' </summary>
-    ''' <returns></returns>
-    Property ThreeHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 400 a 499.
-    ''' </summary>
-    ''' <returns></returns>
-    Property FourHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 500 a 599.
-    ''' </summary>
-    ''' <returns></returns>
-    Property FiveHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 600 a 699.
-    ''' </summary>
-    ''' <returns></returns>
-    Property SixHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 700 a 799.
-    ''' </summary>
-    ''' <returns></returns>
-    Property SevenHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 800 a 899.
-    ''' </summary>
-    ''' <returns></returns>
-    Property EightHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 900 a 999.
-    ''' </summary>
-    ''' <returns></returns>
-    Property NineHundred As String
-
-    ''' <summary>
-    ''' String que representa os numeros 1000 a 9999
-    ''' </summary>
-    ''' <returns></returns>
-    Property Thousand As String
-
-    ''' <summary>
-    ''' Par de strings que representam os numeros 1 milhão a 999 milhões
-    ''' </summary>
-    ''' <returns></returns>
-    Property Million As New QuantityTextPair
-
-    ''' <summary>
-    ''' Par de strings que representam os numeros 1 bilhão a 999 bilhões
-    ''' </summary>
-    ''' <returns></returns>
-    Property Billion As New QuantityTextPair
-
-    ''' <summary>
-    ''' Par de strings que representam os numeros 1 trilhão a 999 trilhões
-    ''' </summary>
-    ''' <returns></returns>
-    Property Trillion As New QuantityTextPair
-
-    ''' <summary>
-    ''' Par de strings que representam os numeros 1 quadrilhão a 999 quadrilhões
-    ''' </summary>
-    ''' <returns></returns>
-    Property Quadrillion As New QuantityTextPair
-
-    ''' <summary>
-    ''' Par de strings que representam os numeros 1 quintilhão a 999 quintilhões
-    ''' </summary>
-    ''' <returns></returns>
-    Property Quintillion As New QuantityTextPair
-
-    ''' <summary>
-    ''' String utilizada quando o numero é maior que 999 quintilhões. Retorna uma string "Mais de 999 quintilhões"
-    ''' </summary>
-    ''' <returns></returns>
-    Property MoreThan As String
-
-    ''' <summary>
-    ''' String utilizada quando um numero possui casa decimais. Normalmente "virgula"
-    ''' </summary>
-    ''' <returns></returns>
-    Property Dot As String
-
-    ''' <summary>
-    ''' Instancia um novo <see cref="FullNumberWriter"/> com as configurações default (inglês)
-    ''' </summary>
-    Sub New()
-        For Each prop In Me.GetProperties.Where(Function(x) x.CanWrite)
-            Select Case prop.Name
-                Case "ExactlyOneHundred"
-                    Continue For
-                Case Else
-                    Select Case prop.PropertyType
-                        Case GetType(String)
-                            prop.SetValue(Me, prop.Name.CamelAdjust)
-                        Case GetType(QuantityTextPair)
-                            If CType(prop.GetValue(Me), QuantityTextPair).Plural.IsBlank Then
-                                prop.SetValue(Me, New QuantityTextPair(prop.Name & "s", prop.Name))
-                            End If
-                        Case Else
-                    End Select
-            End Select
-        Next
-    End Sub
-
-    ''' <summary>
-    ''' Escreve um numero por extenso
-    ''' </summary>
-    ''' <param name="Number"></param>
-    ''' <returns></returns>
-    Default Public Overridable ReadOnly Property Text(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
-        Get
-            Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
-            Dim num As Long = Number.Floor
-            Return (InExtensive(num) & If(dec = 0 Or DecimalPlaces = 0, "", Dot.Wrap(" ") & InExtensive(dec))).ToLower.AdjustWhiteSpaces
-        End Get
-    End Property
-
-    Friend Function InExtensive(ByVal Number As Decimal) As String
-
-        Select Case Number
-            Case Is < 0
-                Return Minus & " " & InExtensive(Number * (-1))
-            Case 0
-                Return Zero
-            Case 1 To 19
-                Dim strArray() As String = {One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve,
-                   Thirteen, Fourteen, Fifteen, Sixteen, Seventeen, Eighteen, Nineteen}
-                Return strArray(Number - 1) & " "
-            Case 20 To 99
-                Dim strArray() As String = {Twenty, Thirty, Fourty, Fifty, Sixty, Seventy, Eighty, Ninety}
-                If (Number Mod 10) = 0 Then
-                    Return strArray(Number \ 10 - 2)
-                Else
-                    Return strArray(Number \ 10 - 2) & [And].Wrap(" ") + InExtensive(Number Mod 10)
-                End If
-            Case 100
-                Return ExactlyOneHundred.IfBlank(OneHundred)
-            Case 101 To 999
-                Dim strArray() As String = {OneHundred, TwoHundred, ThreeHundred, FourHundred, FiveHundred, SixHundred, SevenHundred, EightHundred, NineHundred}
-                If (Number Mod 100) = 0 Then
-                    Return strArray(Number \ 100 - 1) & " "
-                Else
-                    Return strArray(Number \ 100 - 1) & [And].Wrap(" ") + InExtensive(Number Mod 100)
-                End If
-            Case 1000 To 1999
-                Select Case (Number Mod 1000)
-                    Case 0
-                        Return Thousand
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return Thousand & [And].Wrap(" ") & InExtensive(Number Mod 1000)
-                    Case Else
-                        Return Thousand & " " & InExtensive(Number Mod 1000)
-                End Select
-            Case 2000 To 999999
-                Select Case (Number Mod 1000)
-                    Case 0
-                        Return InExtensive(Number \ 1000) & " " & Thousand
-                    Case Is <= 100
-                        Return InExtensive(Number \ 1000) & " " & Thousand & [And].Wrap(" ") & InExtensive(Number Mod 1000)
-                    Case Else
-                        Return InExtensive(Number \ 1000) & " " & Thousand & " " & InExtensive(Number Mod 1000)
-                End Select
-
-#Region "Milhao"
-
-            Case 1000000 To 1999999
-                Select Case (Number Mod 1000000)
-                    Case 0
-                        Return One & " " & Million.Singular
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return One & " " & Million.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000)
-                    Case Else
-                        Return One & " " & Million.Singular & " " & InExtensive(Number Mod 1000000)
-                End Select
-            Case 2000000 To 999999999
-                Select Case (Number Mod 1000000)
-                    Case 0
-                        Return InExtensive(Number \ 1000000) & Million.Plural.Wrap(" ")
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return InExtensive(Number \ 1000000) & Million.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000)
-                    Case Else
-                        Return InExtensive(Number \ 1000000) & Million.Plural.Wrap(" ") & InExtensive(Number Mod 1000000)
-                End Select
-
-#End Region
-
-#Region "Bilhao"
-
-            Case 1000000000 To 1999999999
-                Select Case (Number Mod 1000000000)
-                    Case 0
-                        Return One & " " & Billion.Singular
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return One & " " & Billion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000)
-                    Case Else
-                        Return One & " " & Billion.Singular & " " & InExtensive(Number Mod 1000000000)
-                End Select
-            Case 2000000000 To 999999999999
-                Select Case (Number Mod 1000000)
-                    Case 0
-                        Return InExtensive(Number \ 1000000000) & Billion.Plural.Wrap(" ")
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return InExtensive(Number \ 1000000000) & Billion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000)
-                    Case Else
-                        Return InExtensive(Number \ 1000000000) & Billion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000)
-                End Select
-
-#End Region
-
-#Region "Trilhao"
-
-            Case 1000000000000 To 1999999999999
-                Select Case (Number Mod 1000000000000)
-                    Case 0
-                        Return One & " " & Trillion.Singular
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return One & " " & Trillion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000)
-                    Case Else
-                        Return One & " " & Trillion.Singular & " " & InExtensive(Number Mod 1000000000000)
-                End Select
-                                  '9.223.372.036.854.775.807
-            Case 2000000000000 To 999999999999999
-                Select Case (Number Mod 1000000000000)
-                    Case 0
-                        Return InExtensive(Number \ 1000000000000) & Trillion.Plural.Wrap(" ")
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return InExtensive(Number \ 1000000000000) & Trillion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000)
-                    Case Else
-                        Return InExtensive(Number \ 1000000000000) & Trillion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000000)
-                End Select
-
-#End Region
-
-#Region "Quadilhao"
-
-            Case 1000000000000000 To 1999999999999999
-                Select Case (Number Mod 1000000000000000)
-                    Case 0
-                        Return One & " " & Quadrillion.Singular
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return One & " " & Quadrillion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000)
-                    Case Else
-                        Return One & " " & Quadrillion.Singular & " " & InExtensive(Number Mod 1000000000000)
-                End Select
-
-            Case 2000000000000000 To 999999999999999999
-                Select Case (Number Mod 1000000000000000)
-                    Case 0
-                        Return InExtensive(Number \ 1000000000000000) & Quadrillion.Plural.Wrap(" ")
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return InExtensive(Number \ 1000000000000000) & Quadrillion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000000)
-                    Case Else
-                        Return InExtensive(Number \ 1000000000000000) & Quadrillion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000000000)
-                End Select
-
-#End Region
-
-#Region "Quintilhao"
-
-            Case 1000000000000000000 To 1999999999999999999
-                Select Case (Number Mod 1000000000000000000)
-                    Case 0
-                        Return One & " " & Quintillion.Singular
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return One & " " & Quintillion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000000000)
-                    Case Else
-                        Return One & " " & Quintillion.Singular & " " & InExtensive(Number Mod 1000000000000000000)
-                End Select
-
-            Case 2000000000000000000 To 999999999999999999999D
-                Select Case (Number Mod 1000000000000000000)
-                    Case 0
-                        Return InExtensive(Number \ 1000000000000000000) & Quintillion.Plural.Wrap(" ")
-                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
-                        Return InExtensive(Number \ 1000000000000000000) & Quintillion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000000000)
-                    Case Else
-                        Return InExtensive(Number \ 1000000000000000000) & Quintillion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000000000000)
-                End Select
-
-#End Region
-
-            Case Else
-                Return MoreThan & " " & InExtensive(999999999999999999999D)
-        End Select
-
-    End Function
-
-End Class
-
-''' <summary>
-''' Classe para escrever moedas por extenso com suporte até 999 quintilhoes de $$
-''' </summary>
-Public Class FullMoneyWriter
-    Inherits FullNumberWriter
-
-    ''' <summary>
-    ''' Par de strings que representam os nomes da moeda em sua forma singular ou plural
-    ''' </summary>
-    ''' <returns></returns>
-    Property CurrencyName As New QuantityTextPair("dollar", "dollars")
-
-    ''' <summary>
-    ''' Par de strings que representam os centavos desta moeda em sua forma singular ou plural
-    ''' </summary>
-    ''' <returns></returns>
-    Property CurrencyCentsName As New QuantityTextPair("cents", "cent")
-
-    ''' <summary>
-    ''' Escreve um numero por extenso
-    ''' </summary>
-    ''' <param name="Number"></param>
-    ''' <returns></returns>
-    Default Public Overrides ReadOnly Property Text(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
-        Get
-            Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
-            Dim num As Long = Number.Floor
-            Return (InExtensive(num) & CurrencyCentsName(num).Wrap(" ") & If(dec = 0 Or DecimalPlaces = 0, "", [And].Wrap(" ") & InExtensive(dec) & CurrencyCentsName(dec).Wrap(" "))).ToLower.AdjustWhiteSpaces
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Escreve um numero por extenso
-    ''' </summary>
-    ''' <param name="Number"></param>
-    ''' <returns></returns>
-    Default Public Overloads ReadOnly Property Text(Number As Money, Optional DecimalPlaces As Integer = 2) As String
-        Get
-            Return Text(Number.Value, DecimalPlaces)
-        End Get
-    End Property
-
-End Class
 
 ''' <summary>
 ''' Modulo de manipulação de Texto
@@ -634,15 +33,23 @@ Public Module Text
         Return New HtmlTag() With {.Text = Text, .TagName = TagName}
     End Function
 
-    <Extension()> Function ParseQueryString(querystring As String) As NameValueCollection
-        Dim queryParameters As NameValueCollection = New NameValueCollection()
-        Dim querySegments As String() = querystring.Split("&"c)
+    ''' <summary>
+    '''
+    ''' </summary>
+    ''' <param name="querystring"></param>
+    ''' <returns></returns>
+    <Extension()> Function ParseQueryString(Querystring As String) As NameValueCollection
+        Dim queryParameters = New NameValueCollection()
+        Dim querySegments As String() = Querystring.Split("&"c)
         For Each segment As String In querySegments
             Dim parts As String() = segment.Split("="c)
-            If parts.Length > 0 Then
+            If parts.Any Then
                 Dim key As String = parts(0).Trim(New Char() {"?"c, " "c})
-                Dim val As String = parts(1).Trim()
-                queryParameters.Add(key, val)
+                Dim val = ""
+                If parts.Skip(1).Any Then
+                    val = parts(1).Trim()
+                End If
+                queryParameters.Add(key, val.UrlDecode())
             End If
         Next
         Return queryParameters
@@ -1698,7 +1105,7 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlDecode(ByVal Text As String) As String
-        Return System.Web.HttpUtility.HtmlDecode("" & Text).ReplaceMany(vbCr & vbLf, "<br/>", "<br />", "<br>")
+        Return System.Net.WebUtility.HtmlDecode("" & Text).ReplaceMany(vbCr & vbLf, "<br/>", "<br />", "<br>")
     End Function
 
     ''' <summary>
@@ -1708,7 +1115,7 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
-        Return System.Web.HttpUtility.HtmlEncode("" & Text.ReplaceMany("<br>", BreakLineChars))
+        Return System.Net.WebUtility.HtmlEncode("" & Text.ReplaceMany("<br>", BreakLineChars))
     End Function
 
     ''' <summary>
@@ -3724,7 +3131,10 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function UrlDecode(ByVal Text As String) As String
-        Return HttpUtility.UrlDecode("" & Text)
+        If Text.IsNotBlank Then
+            Return Net.WebUtility.UrlDecode(Text)
+        End If
+        Return ""
     End Function
 
     ''' <summary>
@@ -3734,7 +3144,10 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function UrlEncode(ByVal Text As String) As String
-        Return HttpUtility.UrlEncode("" & Text)
+        If Text.IsNotBlank Then
+            Return Net.WebUtility.UrlEncode(Text)
+        End If
+        Return ""
     End Function
 
     ''' <summary>
@@ -3751,7 +3164,667 @@ Public Module Text
         Return Text
     End Function
 
+    <Extension()>
+    Function Inject(ByVal formatString As String, ByVal injectionObject As Object) As String
+        Return formatString.Inject(GetPropertyHash(injectionObject))
+    End Function
+
+    <Extension()>
+    Function Inject(ByVal formatString As String, ByVal dictionary As IDictionary) As String
+        Return formatString.Inject(New Hashtable(dictionary))
+    End Function
+
+    <Extension()>
+    Function Inject(ByVal formatString As String, ByVal attributes As Hashtable) As String
+        Dim result As String = formatString
+        If attributes Is Nothing OrElse formatString Is Nothing Then Return result
+
+        For Each attributeKey As String In attributes.Keys
+            result = result.InjectSingleValue(attributeKey, attributes(attributeKey))
+        Next
+
+        Return result
+    End Function
+
+    <Extension()>
+    Function InjectSingleValue(ByVal formatString As String, ByVal key As String, ByVal replacementValue As Object) As String
+        Dim result As String = formatString
+        Dim attributeRegex As Regex = New Regex("{(" & key & ")(?:}|(?::(.[^}]*)}))")
+
+        For Each m As Match In attributeRegex.Matches(formatString)
+            Dim replacement As String = m.ToString()
+
+            If m.Groups(2).Length > 0 Then
+                Dim attributeFormatString As String = String.Format(CultureInfo.InvariantCulture, "{{0:{0}}}", m.Groups(2))
+                replacement = String.Format(CultureInfo.CurrentCulture, attributeFormatString, replacementValue)
+            Else
+                replacement = (If(replacementValue, String.Empty)).ToString()
+            End If
+
+            result = result.Replace(m.ToString(), replacement)
+        Next
+
+        Return result
+    End Function
+
+    Private Function GetPropertyHash(ByVal properties As Object) As Hashtable
+        Dim values As Hashtable = Nothing
+
+        If properties IsNot Nothing Then
+            values = New Hashtable()
+            Dim props As PropertyDescriptorCollection = TypeDescriptor.GetProperties(properties)
+
+            For Each prop As PropertyDescriptor In props
+                values.Add(prop.Name, prop.GetValue(properties))
+            Next
+        End If
+
+        Return values
+    End Function
+
 End Module
+
+Public Class QuantityTextPair
+
+    Public Sub New(Plural As String, Optional Singular As String = "")
+        Me.Plural = Plural
+        Me.Singular = Singular.IfBlank(Plural.QuantifyText(1))
+    End Sub
+
+    Sub New()
+
+    End Sub
+
+    Default Property Text(Number As Object) As String
+        Get
+            Return Me.ToString(CType(Number, Decimal))
+        End Get
+        Set(value As String)
+            If CType(Number, Decimal) = 1 Then
+                Singular = value
+            Else
+                Plural = value
+            End If
+        End Set
+    End Property
+
+    Property Singular As String
+
+    Property Plural As String
+
+    Public Overrides Function ToString() As String
+        Return Plural
+    End Function
+
+    Public Overloads Function ToString(Number As Long)
+        Return If(Number = 1, Singular, Plural)
+    End Function
+
+    Public Overloads Function ToString(Number As Decimal)
+        Return If(Number = 1, Singular, Plural)
+    End Function
+
+    Public Overloads Function ToString(Number As Short)
+        Return If(Number = 1, Singular, Plural)
+    End Function
+
+    Public Overloads Function ToString(Number As Integer)
+        Return If(Number = 1, Singular, Plural)
+    End Function
+
+    Public Overloads Function ToString(Number As Double)
+        Return If(Number = 1, Singular, Plural)
+    End Function
+
+    Public Overloads Function ToString(Number As Single)
+        Return If(Number = 1, Singular, Plural)
+    End Function
+
+End Class
+
+''' <summary>
+''' Classe para escrever numeros por extenso com suporte até 999 quintilhoes
+''' </summary>
+Public Class FullNumberWriter
+
+    ''' <summary>
+    ''' String que representa a palavra "Menos". Utilizada quando os números são negativos
+    ''' </summary>
+    ''' <returns></returns>
+    Property Minus As String
+
+    ''' <summary>
+    ''' String que representa o numero 0.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Zero As String
+
+    ''' <summary>
+    ''' String que representa a palavra "e". Utilizada na concatenação de expressões
+    ''' </summary>
+    ''' <returns></returns>
+    Property [And] As String
+
+    ''' <summary>
+    ''' String que representa o numero 1.
+    ''' </summary>
+    ''' <returns></returns>
+    Property One As String
+
+    ''' <summary>
+    ''' String que representa o numero 2.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Two As String
+
+    ''' <summary>
+    ''' String que representa o numero 3.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Three As String
+
+    ''' <summary>
+    ''' String que representa o numero 4.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Four As String
+
+    ''' <summary>
+    ''' String que representa o numero 5.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Five As String
+
+    ''' <summary>
+    ''' String que representa o numero 6.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Six As String
+
+    ''' <summary>
+    ''' String que representa o numero 7.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Seven As String
+
+    ''' <summary>
+    ''' String que representa o numero 8.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Eight As String
+
+    ''' <summary>
+    ''' String que representa o numero 9.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Nine As String
+
+    ''' <summary>
+    ''' String que representa o numero 10.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Ten As String
+
+    ''' <summary>
+    ''' String que representa o numero 11.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Eleven As String
+
+    ''' <summary>
+    ''' String que representa o numero 12.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Twelve As String
+
+    ''' <summary>
+    ''' String que representa o numero 13.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Thirteen As String
+
+    ''' <summary>
+    ''' String que representa o numero 14.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Fourteen As String
+
+    ''' <summary>
+    ''' String que representa o numero 15.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Fifteen As String
+
+    ''' <summary>
+    ''' String que representa o numero 16.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Sixteen As String
+
+    ''' <summary>
+    ''' String que representa o numero 17.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Seventeen As String
+
+    ''' <summary>
+    ''' String que representa o numero 18.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Eighteen As String
+
+    ''' <summary>
+    ''' String que representa o numero 19.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Nineteen As String
+
+    ''' <summary>
+    ''' String que representa os numeros 20 a 29 .
+    ''' </summary>
+    ''' <returns></returns>
+    Property Twenty As String
+
+    ''' <summary>
+    ''' String que representa os numeros 30 a 39.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Thirty As String
+
+    ''' <summary>
+    ''' String que representa os numeros 40 a 49.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Fourty As String
+
+    ''' <summary>
+    ''' String que representa os numeros 50 a 59.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Fifty As String
+
+    ''' <summary>
+    ''' String que representa os numeros 60 a 69.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Sixty As String
+
+    ''' <summary>
+    ''' String que representa os numeros 70 a 79.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Seventy As String
+
+    ''' <summary>
+    ''' String que representa os numeros 80 a 89.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Eighty As String
+
+    ''' <summary>
+    ''' String que representa os numeros 90 a 99.
+    ''' </summary>
+    ''' <returns></returns>
+    Property Ninety As String
+
+    ''' <summary>
+    ''' String que represena o exato numero 100. Em alguns idiomas esta string não é nescessária
+    ''' </summary>
+    ''' <returns></returns>
+    Property ExactlyOneHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 100 a 199.
+    ''' </summary>
+    ''' <returns></returns>
+    Property OneHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 200 a 299.
+    ''' </summary>
+    ''' <returns></returns>
+    Property TwoHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 300 a 399.
+    ''' </summary>
+    ''' <returns></returns>
+    Property ThreeHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 400 a 499.
+    ''' </summary>
+    ''' <returns></returns>
+    Property FourHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 500 a 599.
+    ''' </summary>
+    ''' <returns></returns>
+    Property FiveHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 600 a 699.
+    ''' </summary>
+    ''' <returns></returns>
+    Property SixHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 700 a 799.
+    ''' </summary>
+    ''' <returns></returns>
+    Property SevenHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 800 a 899.
+    ''' </summary>
+    ''' <returns></returns>
+    Property EightHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 900 a 999.
+    ''' </summary>
+    ''' <returns></returns>
+    Property NineHundred As String
+
+    ''' <summary>
+    ''' String que representa os numeros 1000 a 9999
+    ''' </summary>
+    ''' <returns></returns>
+    Property Thousand As String
+
+    ''' <summary>
+    ''' Par de strings que representam os numeros 1 milhão a 999 milhões
+    ''' </summary>
+    ''' <returns></returns>
+    Property Million As New QuantityTextPair
+
+    ''' <summary>
+    ''' Par de strings que representam os numeros 1 bilhão a 999 bilhões
+    ''' </summary>
+    ''' <returns></returns>
+    Property Billion As New QuantityTextPair
+
+    ''' <summary>
+    ''' Par de strings que representam os numeros 1 trilhão a 999 trilhões
+    ''' </summary>
+    ''' <returns></returns>
+    Property Trillion As New QuantityTextPair
+
+    ''' <summary>
+    ''' Par de strings que representam os numeros 1 quadrilhão a 999 quadrilhões
+    ''' </summary>
+    ''' <returns></returns>
+    Property Quadrillion As New QuantityTextPair
+
+    ''' <summary>
+    ''' Par de strings que representam os numeros 1 quintilhão a 999 quintilhões
+    ''' </summary>
+    ''' <returns></returns>
+    Property Quintillion As New QuantityTextPair
+
+    ''' <summary>
+    ''' String utilizada quando o numero é maior que 999 quintilhões. Retorna uma string "Mais de 999 quintilhões"
+    ''' </summary>
+    ''' <returns></returns>
+    Property MoreThan As String
+
+    ''' <summary>
+    ''' String utilizada quando um numero possui casa decimais. Normalmente "virgula"
+    ''' </summary>
+    ''' <returns></returns>
+    Property Dot As String
+
+    ''' <summary>
+    ''' Instancia um novo <see cref="FullNumberWriter"/> com as configurações default (inglês)
+    ''' </summary>
+    Sub New()
+        For Each prop In Me.GetProperties.Where(Function(x) x.CanWrite)
+            Select Case prop.Name
+                Case "ExactlyOneHundred"
+                    Continue For
+                Case Else
+                    Select Case prop.PropertyType
+                        Case GetType(String)
+                            prop.SetValue(Me, prop.Name.CamelAdjust)
+                        Case GetType(QuantityTextPair)
+                            If CType(prop.GetValue(Me), QuantityTextPair).Plural.IsBlank Then
+                                prop.SetValue(Me, New QuantityTextPair(prop.Name & "s", prop.Name))
+                            End If
+                        Case Else
+                    End Select
+            End Select
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' Escreve um numero por extenso
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    Default Public Overridable ReadOnly Property Text(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
+        Get
+            Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
+            Dim num As Long = Number.Floor
+            Return (InExtensive(num) & If(dec = 0 Or DecimalPlaces = 0, "", Dot.Wrap(" ") & InExtensive(dec))).ToLower.AdjustWhiteSpaces
+        End Get
+    End Property
+
+    Friend Function InExtensive(ByVal Number As Decimal) As String
+
+        Select Case Number
+            Case Is < 0
+                Return Minus & " " & InExtensive(Number * (-1))
+            Case 0
+                Return Zero
+            Case 1 To 19
+                Dim strArray() As String = {One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve,
+                   Thirteen, Fourteen, Fifteen, Sixteen, Seventeen, Eighteen, Nineteen}
+                Return strArray(Number - 1) & " "
+            Case 20 To 99
+                Dim strArray() As String = {Twenty, Thirty, Fourty, Fifty, Sixty, Seventy, Eighty, Ninety}
+                If (Number Mod 10) = 0 Then
+                    Return strArray(Number \ 10 - 2)
+                Else
+                    Return strArray(Number \ 10 - 2) & [And].Wrap(" ") + InExtensive(Number Mod 10)
+                End If
+            Case 100
+                Return ExactlyOneHundred.IfBlank(OneHundred)
+            Case 101 To 999
+                Dim strArray() As String = {OneHundred, TwoHundred, ThreeHundred, FourHundred, FiveHundred, SixHundred, SevenHundred, EightHundred, NineHundred}
+                If (Number Mod 100) = 0 Then
+                    Return strArray(Number \ 100 - 1) & " "
+                Else
+                    Return strArray(Number \ 100 - 1) & [And].Wrap(" ") + InExtensive(Number Mod 100)
+                End If
+            Case 1000 To 1999
+                Select Case (Number Mod 1000)
+                    Case 0
+                        Return Thousand
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return Thousand & [And].Wrap(" ") & InExtensive(Number Mod 1000)
+                    Case Else
+                        Return Thousand & " " & InExtensive(Number Mod 1000)
+                End Select
+            Case 2000 To 999999
+                Select Case (Number Mod 1000)
+                    Case 0
+                        Return InExtensive(Number \ 1000) & " " & Thousand
+                    Case Is <= 100
+                        Return InExtensive(Number \ 1000) & " " & Thousand & [And].Wrap(" ") & InExtensive(Number Mod 1000)
+                    Case Else
+                        Return InExtensive(Number \ 1000) & " " & Thousand & " " & InExtensive(Number Mod 1000)
+                End Select
+
+#Region "Milhao"
+
+            Case 1000000 To 1999999
+                Select Case (Number Mod 1000000)
+                    Case 0
+                        Return One & " " & Million.Singular
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return One & " " & Million.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000)
+                    Case Else
+                        Return One & " " & Million.Singular & " " & InExtensive(Number Mod 1000000)
+                End Select
+            Case 2000000 To 999999999
+                Select Case (Number Mod 1000000)
+                    Case 0
+                        Return InExtensive(Number \ 1000000) & Million.Plural.Wrap(" ")
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return InExtensive(Number \ 1000000) & Million.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000)
+                    Case Else
+                        Return InExtensive(Number \ 1000000) & Million.Plural.Wrap(" ") & InExtensive(Number Mod 1000000)
+                End Select
+
+#End Region
+
+#Region "Bilhao"
+
+            Case 1000000000 To 1999999999
+                Select Case (Number Mod 1000000000)
+                    Case 0
+                        Return One & " " & Billion.Singular
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return One & " " & Billion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000)
+                    Case Else
+                        Return One & " " & Billion.Singular & " " & InExtensive(Number Mod 1000000000)
+                End Select
+            Case 2000000000 To 999999999999
+                Select Case (Number Mod 1000000)
+                    Case 0
+                        Return InExtensive(Number \ 1000000000) & Billion.Plural.Wrap(" ")
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return InExtensive(Number \ 1000000000) & Billion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000)
+                    Case Else
+                        Return InExtensive(Number \ 1000000000) & Billion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000)
+                End Select
+
+#End Region
+
+#Region "Trilhao"
+
+            Case 1000000000000 To 1999999999999
+                Select Case (Number Mod 1000000000000)
+                    Case 0
+                        Return One & " " & Trillion.Singular
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return One & " " & Trillion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000)
+                    Case Else
+                        Return One & " " & Trillion.Singular & " " & InExtensive(Number Mod 1000000000000)
+                End Select
+                                  '9.223.372.036.854.775.807
+            Case 2000000000000 To 999999999999999
+                Select Case (Number Mod 1000000000000)
+                    Case 0
+                        Return InExtensive(Number \ 1000000000000) & Trillion.Plural.Wrap(" ")
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return InExtensive(Number \ 1000000000000) & Trillion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000)
+                    Case Else
+                        Return InExtensive(Number \ 1000000000000) & Trillion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000000)
+                End Select
+
+#End Region
+
+#Region "Quadilhao"
+
+            Case 1000000000000000 To 1999999999999999
+                Select Case (Number Mod 1000000000000000)
+                    Case 0
+                        Return One & " " & Quadrillion.Singular
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return One & " " & Quadrillion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000)
+                    Case Else
+                        Return One & " " & Quadrillion.Singular & " " & InExtensive(Number Mod 1000000000000)
+                End Select
+
+            Case 2000000000000000 To 999999999999999999
+                Select Case (Number Mod 1000000000000000)
+                    Case 0
+                        Return InExtensive(Number \ 1000000000000000) & Quadrillion.Plural.Wrap(" ")
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return InExtensive(Number \ 1000000000000000) & Quadrillion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000000)
+                    Case Else
+                        Return InExtensive(Number \ 1000000000000000) & Quadrillion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000000000)
+                End Select
+
+#End Region
+
+#Region "Quintilhao"
+
+            Case 1000000000000000000 To 1999999999999999999
+                Select Case (Number Mod 1000000000000000000)
+                    Case 0
+                        Return One & " " & Quintillion.Singular
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return One & " " & Quintillion.Singular & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000000000)
+                    Case Else
+                        Return One & " " & Quintillion.Singular & " " & InExtensive(Number Mod 1000000000000000000)
+                End Select
+
+            Case 2000000000000000000 To 999999999999999999999D
+                Select Case (Number Mod 1000000000000000000)
+                    Case 0
+                        Return InExtensive(Number \ 1000000000000000000) & Quintillion.Plural.Wrap(" ")
+                    Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
+                        Return InExtensive(Number \ 1000000000000000000) & Quintillion.Plural.Wrap(" ") & [And].Wrap(" ") & InExtensive(Number Mod 1000000000000000000)
+                    Case Else
+                        Return InExtensive(Number \ 1000000000000000000) & Quintillion.Plural.Wrap(" ") & InExtensive(Number Mod 1000000000000000000)
+                End Select
+
+#End Region
+
+            Case Else
+                Return MoreThan & " " & InExtensive(999999999999999999999D)
+        End Select
+
+    End Function
+
+End Class
+
+''' <summary>
+''' Classe para escrever moedas por extenso com suporte até 999 quintilhoes de $$
+''' </summary>
+Public Class FullMoneyWriter
+    Inherits FullNumberWriter
+
+    ''' <summary>
+    ''' Par de strings que representam os nomes da moeda em sua forma singular ou plural
+    ''' </summary>
+    ''' <returns></returns>
+    Property CurrencyName As New QuantityTextPair("dollar", "dollars")
+
+    ''' <summary>
+    ''' Par de strings que representam os centavos desta moeda em sua forma singular ou plural
+    ''' </summary>
+    ''' <returns></returns>
+    Property CurrencyCentsName As New QuantityTextPair("cents", "cent")
+
+    ''' <summary>
+    ''' Escreve um numero por extenso
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    Default Public Overrides ReadOnly Property Text(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
+        Get
+            Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
+            Dim num As Long = Number.Floor
+            Return (InExtensive(num) & CurrencyCentsName(num).Wrap(" ") & If(dec = 0 Or DecimalPlaces = 0, "", [And].Wrap(" ") & InExtensive(dec) & CurrencyCentsName(dec).Wrap(" "))).ToLower.AdjustWhiteSpaces
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Escreve um numero por extenso
+    ''' </summary>
+    ''' <param name="Number"></param>
+    ''' <returns></returns>
+    Default Public Overloads ReadOnly Property Text(Number As Money, Optional DecimalPlaces As Integer = 2) As String
+        Get
+            Return Text(Number.Value, DecimalPlaces)
+        End Get
+    End Property
+
+End Class
 
 Public Class ConnectionStringParser
     Inherits Dictionary(Of String, String)

@@ -1,7 +1,7 @@
 ﻿Imports System.Drawing
 Imports System.Net
 Imports System.Runtime.CompilerServices
-Imports System.Web
+ 
 Imports InnerLibs.Locations
 
 ''' <summary>
@@ -244,7 +244,7 @@ Public Module Generate
 
     <Extension()>
     Public Function ToQRCode(Data As String, Optional Size As Integer = 100) As Byte()
-        Data = If(Data.IsURL, HttpUtility.UrlEncode(Data), Data)
+        Data = If(Data.IsURL, UrlEncode(Data), Data)
         Dim URL As String = "https://chart.googleapis.com/chart?cht=qr&chl=" & Data.UrlEncode & "&chs=" & Size & "x" & Size
         Return GetFile(URL)
     End Function

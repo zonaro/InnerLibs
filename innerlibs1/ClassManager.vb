@@ -4,7 +4,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
-Imports System.Web
+
 Imports System.Xml
 Imports System.Xml.Serialization
 Imports InnerLibs.LINQ
@@ -156,10 +156,10 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function ToQueryString(Dic As Dictionary(Of String, String)) As String
         Dim param As String = ""
-        For Each k In Dic
-            param &= ("&" & k.Key & "=" & HttpUtility.UrlEncode("" & k.Value))
-        Next
-        Return param
+        If Dic IsNot Nothing Then
+            Return Dic.Where(Function(x) x.Key.IsNotBlank()).SelectJoin(Function(x) {x.Key, If(x.Value, "").UrlEncode}.Join("="), "&")
+        End If
+        Return ""
     End Function
 
     ''' <summary>
@@ -199,7 +199,7 @@ Public Module ClassTools
         Dim header = New List(Of Object)
         header.Add(HeaderProp.Method.GetParameters.First().Name)
 
-        Groups.Values.Uniform()
+        Groups.Values.MergeKeys()
         For Each h In Groups.SelectMany(Function(x) x.Value.Keys.ToArray()).Distinct().OrderBy(Function(x) x)
             header.Add(HeaderProp(h))
         Next
@@ -239,7 +239,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function GroupAndCountSubGroupBy(Of Type, Group, Count)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group), CountObjectBy As Func(Of Type, Count)) As Dictionary(Of Group, Dictionary(Of Count, Long))
         Dim dic_of_dic = obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Dictionary(Of Count, Long))(x.Key, x.GroupBy(CountObjectBy).ToDictionary(Function(y) y.Key, Function(y) y.LongCount))).ToDictionary()
-        dic_of_dic.Values.Uniform
+        dic_of_dic.Values.MergeKeys
         Return dic_of_dic
     End Function
 
@@ -280,7 +280,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function GroupAndSubGroupBy(Of Type, Group, SubGroup)(obj As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group), SubGroupSelector As Func(Of Type, SubGroup)) As Dictionary(Of Group, Dictionary(Of SubGroup, IEnumerable(Of Type)))
         Dim dic_of_dic = obj.GroupBy(GroupSelector).Select(Function(x) New KeyValuePair(Of Group, Dictionary(Of SubGroup, IEnumerable(Of Type)))(x.Key, x.GroupBy(SubGroupSelector).ToDictionary(Function(y) y.Key, Function(y) y.AsEnumerable))).ToDictionary()
-        dic_of_dic.Values.Uniform
+        dic_of_dic.Values.MergeKeys
         Return dic_of_dic
     End Function
 

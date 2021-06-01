@@ -1,7 +1,7 @@
 ﻿Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
-Imports System.Web
+ 
 
 ''' <summary>
 ''' Módulo para criação de arquivos baseados em Array de Bytes()

@@ -3,14 +3,8 @@ Imports System.Collections.Specialized
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.IO
-Imports System.Web.Script.Serialization
-Imports InnerLibs.HtmlParser
 
 Namespace QuestionTest
-
-
-
-
 
     ''' <summary>
     ''' Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
@@ -63,7 +57,6 @@ Namespace QuestionTest
 
             End Select
 
-
         End Sub
 
         ''' <summary>
@@ -107,8 +100,6 @@ Namespace QuestionTest
         End Property
 
         Private _title As String = ""
-
-
 
         ''' <summary>
         ''' Adiciona uma nova questão a avaliação.
@@ -308,8 +299,6 @@ Namespace QuestionTest
             Me.MinimumWeightAllowed = CalculateValueFromPercent(Percent, Me.Weight)
         End Sub
 
-
-
     End Class
 
     ''' <summary>
@@ -422,8 +411,6 @@ Namespace QuestionTest
             End Set
         End Property
 
-
-
         ''' <summary>
         ''' Indica se esta questão foi revisada pelo professor
         ''' </summary>
@@ -437,7 +424,6 @@ Namespace QuestionTest
     ''' </summary>
     Public Class StatementImages
         Inherits List(Of StatementImage)
-
 
         ReadOnly Property Statement As QuestionStatement
 
@@ -457,9 +443,6 @@ Namespace QuestionTest
             i.Subtitle = Subtitle
         End Sub
 
-
-
-
         Public Overrides Function ToString() As String
             Return Me.Count
         End Function
@@ -471,7 +454,6 @@ Namespace QuestionTest
     ''' </summary>
     <TypeConverter(GetType(ExpandableObjectConverter))>
     Public Class QuestionStatement
-
 
         ReadOnly Property Question As Question
             Get
@@ -506,8 +488,6 @@ Namespace QuestionTest
             Return Me.Text
         End Function
 
-
-
     End Class
 
     ''' <summary>
@@ -531,9 +511,7 @@ Namespace QuestionTest
             Me.StatementImages = l
         End Sub
 
-
         ReadOnly Property StatementImages As StatementImages
-
 
         Public ReadOnly Property HTML As String
             Get
@@ -606,9 +584,6 @@ Namespace QuestionTest
     ''' </summary>
     Public Class DissertativeQuestion
         Inherits Question
-
-
-
 
         ''' <summary>
         ''' Resposta dissertativa da pergunta
@@ -709,9 +684,6 @@ Namespace QuestionTest
             End Get
         End Property
 
-
-
-
     End Class
 
     ''' <summary>
@@ -748,8 +720,6 @@ Namespace QuestionTest
             End Get
         End Property
 
-
-
         ''' <summary>
         ''' Verifica se as existe apenas uma unica alternativa correta na questão
         ''' </summary>
@@ -773,8 +743,6 @@ Namespace QuestionTest
     ''' </summary>
     Public Class MultipleAlternativeQuestion
         Inherits AlternativeQuestion
-
-
 
         Public Sub New()
             MyBase.New()
@@ -811,8 +779,6 @@ Namespace QuestionTest
             End Get
         End Property
 
-
-
     End Class
 
     ''' <summary>
@@ -839,11 +805,7 @@ Namespace QuestionTest
             End If
         End Sub
 
-
         ReadOnly Property Question As AlternativeQuestion
-
-
-
 
         Friend Sub New(l As AlternativeQuestion)
             Me.Question = l
@@ -943,9 +905,6 @@ Namespace QuestionTest
             End Get
         End Property
 
-
-
-
         ReadOnly Property Question As AlternativeQuestion
             Get
                 Return _question
@@ -955,7 +914,5 @@ Namespace QuestionTest
         Friend _question As AlternativeQuestion
 
     End Class
-
-
 
 End Namespace

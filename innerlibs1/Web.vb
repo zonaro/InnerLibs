@@ -4,7 +4,7 @@ Imports System.Net
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Web
+
 Imports System.Xml
 
 
@@ -14,6 +14,11 @@ Imports System.Xml
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Web
+
+
+    <Extension> Public Function ParseQueryString(ByVal URL As Uri) As NameValueCollection
+        Return URL.Query.ParseQueryString()
+    End Function
 
     ''' <summary>
     ''' Retorna o Titulo do arquivo a partir do nome do arquivo
@@ -87,15 +92,15 @@ Public Module Web
     ''' <param name="Values">Valor do Parâmetro</param>
     ''' <returns></returns>
     <Extension>
-    Public Function AddParameter(Url As Uri, Key As String, ParamArray Values As String()) As Uri
+    Public Function AddParameter(Url As Uri, Key As String, Append As Boolean, ParamArray Values As String()) As Uri
         Dim UriBuilder = New UriBuilder(Url)
-        Dim query = HttpUtility.ParseQueryString(UriBuilder.Query)
-        If Values Is Nothing Then
+        Dim query = UriBuilder.Query.ParseQueryString()
+        If Values Is Nothing OrElse Append = False Then
             If query.AllKeys.Contains(Key) Then
                 query.Remove(Key)
             End If
         End If
-        For Each v In Values
+        For Each v In If(Values, {})
             query.Add(Key, v)
         Next
         UriBuilder.Query = query.ToString()
@@ -103,9 +108,28 @@ Public Module Web
         Return Url
     End Function
 
+    ''' <summary>
+    ''' Adciona um parametro a Query String de uma URL
+    ''' </summary>
+    ''' <param name="Url">  Uri</param>
+    ''' <param name="Key">  Nome do parâmetro</param>
+    ''' <param name="Values">Valor do Parâmetro</param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function AddParameter(Url As Uri, Key As String, ParamArray Values As String()) As Uri
+        Return Url.AddParameter(Key, True, Values)
+    End Function
+
+    ''' <summary>
+    ''' Adciona um parametro a Query String de uma URL
+    ''' </summary>
+    ''' <param name="Url">  Uri</param>
+    ''' <param name="Key">  Nome do parâmetro</param>
+    ''' <param name="Values">Valor do Parâmetro</param>
+    ''' <returns></returns>
     <Extension()> Public Function RemoveParameter(Url As Uri, ParamArray Keys As String()) As Uri
         Dim UriBuilder = New UriBuilder(Url)
-        Dim query = HttpUtility.ParseQueryString(UriBuilder.Query)
+        Dim query = (UriBuilder.Query).ParseQueryString
         Keys = If(Keys IsNot Nothing AndAlso Keys.Count > 0, Keys, query.AllKeys)
         For Each k In Keys
             Try
@@ -134,6 +158,20 @@ Public Module Web
         Return l
 
     End Function
+
+    ''' <summary>
+    ''' Substitui os parametros de rota de uma URL por valores de um objeto
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="obj"></param>
+    ''' <param name="UrlPattern"></param>
+    ''' <returns></returns>
+    Public Function ReplaceUrlParameters(Of T)(obj As T, UrlPattern As String) As String
+        UrlPattern = Regex.Replace(UrlPattern, "{([^:]+)\s*:\s*(.+?)(?<!\\)}", "$1")
+        If obj IsNot Nothing Then UrlPattern = UrlPattern.Inject(obj)
+        Return UrlPattern
+    End Function
+
 
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de

@@ -3,7 +3,7 @@ Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
-Imports System.Web.Script.Serialization
+
 Imports System.Windows.Forms
 Imports System.Xml
 Imports System.Xml.Serialization

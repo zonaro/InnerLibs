@@ -24,6 +24,9 @@ Namespace Console
         ''' <param name="Comparison">Tipo de comparação</param>
         <Extension()> Public Function ConsoleWrite(Text As String, CustomColoredWords As Dictionary(Of String, ConsoleColor), Comparison As StringComparison, Optional BreakLines As Integer = 0) As String
             CustomColoredWords = If(CustomColoredWords, New Dictionary(Of String, ConsoleColor))
+
+            CustomColoredWords = CustomColoredWords.SelectMany(Function(x) x.Key.Split(" ").Distinct().ToDictionary(Function(y) y, Function(y) x.Value)).ToDictionary()
+
             Dim lastcolor = System.Console.ForegroundColor
             Dim maincolor = CustomColoredWords.GetValueOr("", lastcolor)
             If Text.IsNotBlank Then

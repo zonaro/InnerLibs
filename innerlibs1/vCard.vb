@@ -1,6 +1,6 @@
 Imports System.IO
 Imports System.Text
-Imports System.Web
+ 
 Imports InnerLibs
 
 ''' <summary>
@@ -57,7 +57,7 @@ Public Class vCard
     End Function
 
     Public Function ToQRCode(Optional Size As Integer = 100) As Drawing.Image
-        Return HttpUtility.UrlEncode(Me.ToString).ToQRCode(Size).ToImage
+        Return UrlEncode(Me.ToString).ToQRCode(Size).ToImage
     End Function
 
     Public Function ToFile(FullPath As String) As FileInfo
