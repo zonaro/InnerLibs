@@ -243,18 +243,19 @@ Namespace LINQ
         ''' <param name="ForceEnabled"></param>
         ''' <returns></returns>
         Public Function CreateUrlFromPattern(UrlPattern As String, Optional PageNumber? As Integer = Nothing, Optional ForceEnabled As Boolean = False, Optional IncludePageSize As Boolean = False, Optional IncludePaginationOffset As Boolean = False) As String
+            Dim parametros = UrlPattern.GetAllBetween("{", "}").Select(Function(x) x.GetBefore(":"))
 
             Dim dic = Me.ToDictionary(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset)
 
-            Dim parametros = UrlPattern.GetAllBetween("{", "}").Select(Function(x) x.GetBefore(":"))
+            UrlPattern = UrlPattern.ReplaceUrlParameters(dic)
 
             Dim querystring = ""
             For Each q In dic
-                Dim v = ForceArray(Of String)(q.Value)
+                Dim v = ForceArray(Of String)(q.Value).ToList()
                 If v.Any Then
                     If parametros.Contains(q.Key, StringComparer.InvariantCultureIgnoreCase) Then
                         UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(""))
-                        v = v.Skip(1)
+                        v.RemoveAt(0)
                     End If
                     If v.Any() Then
                         querystring = {querystring, v.SelectJoin(Function(x) q.Key & "=" & x.IfBlank("").ToString().UrlDecode(), "&")}.Join("&")
@@ -264,6 +265,7 @@ Namespace LINQ
             If querystring.IsNotBlank() Then
                 UrlPattern = UrlPattern & "?" & querystring
             End If
+            UrlPattern.RemoveUrlParameters()
 
             Return UrlPattern
         End Function

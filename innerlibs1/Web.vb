@@ -166,10 +166,15 @@ Public Module Web
     ''' <param name="obj"></param>
     ''' <param name="UrlPattern"></param>
     ''' <returns></returns>
-    Public Function ReplaceUrlParameters(Of T)(obj As T, UrlPattern As String) As String
-        UrlPattern = Regex.Replace(UrlPattern, "{([^:]+)\s*:\s*(.+?)(?<!\\)}", "$1")
+    <Extension()> Public Function ReplaceUrlParameters(Of T)(UrlPattern As String, obj As T) As String
+        UrlPattern = Regex.Replace(UrlPattern, "{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}")
         If obj IsNot Nothing Then UrlPattern = UrlPattern.Inject(obj)
-        Return UrlPattern
+        Return UrlPattern.RemoveLastIf("/")
+    End Function
+
+    <Extension()> Public Function RemoveUrlParameters(UrlPattern As String) As String
+        UrlPattern = Regex.Replace(UrlPattern, "{([^:]+)\s*:\s*(.+?)(?<!\\)}", "")
+        Return UrlPattern.RemoveLastIf("/")
     End Function
 
 

@@ -68,7 +68,7 @@ Public Module Converter
         If Obj IsNot Nothing Then
             If Not Obj.GetType().IsArray Then
                 If Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
-                a.Add(CType(Obj, OutputType))
+                a.AddRange(ChangeArrayType(Of OutputType, Object)(Obj))
             End If
         End If
         Return a.ToArray
