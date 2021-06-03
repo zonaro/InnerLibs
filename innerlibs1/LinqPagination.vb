@@ -114,7 +114,10 @@ Namespace LINQ
             Dim Converter = TypeDescriptor.GetConverter(Member.Type)
             Dim Con = Expression.Constant(Value)
             If Converter.CanConvertFrom(Value.GetType()) Then
-                Con = Expression.Constant(Converter.ConvertFrom(Value), Member.Type)
+                Try
+                    Con = Expression.Constant(Converter.ConvertFrom(Value), Member.Type)
+                Catch ex As Exception
+                End Try
             End If
             Return Con
         End Function
@@ -280,7 +283,13 @@ Namespace LINQ
                     Next
                 Case "=", "==", "equal", "===", "equals"
                     For Each item In PropertyValues
-                        Dim exp = Expression.Equal(Member, FixConstant(Member, item))
+                        Dim exp = Nothing
+                        Try
+                            exp = Expression.Equal(Member, FixConstant(Member, item))
+                        Catch ex As Exception
+                            Continue For
+                        End Try
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -299,7 +308,13 @@ Namespace LINQ
                         If item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
                             item = item.ToString().Length
                         End If
-                        Dim exp = Expression.GreaterThanOrEqual(Member, FixConstant(Member, item))
+                        Dim exp = Nothing
+                        Try
+                            exp = Expression.GreaterThanOrEqual(Member, FixConstant(Member, item))
+                        Catch ex As Exception
+                            Continue For
+                        End Try
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -318,8 +333,12 @@ Namespace LINQ
                         If item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
                             item = item.ToString().Length
                         End If
-                        Dim exp = Expression.LessThanOrEqual(Member, FixConstant(Member, item))
-
+                        Dim exp = Nothing
+                        Try
+                            exp = Expression.LessThanOrEqual(Member, FixConstant(Member, item))
+                        Catch ex As Exception
+                            Continue For
+                        End Try
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -335,7 +354,12 @@ Namespace LINQ
                     Next
                 Case ">", "greaterthan", "greater", "great"
                     For Each item In PropertyValues
-                        Dim exp = Expression.GreaterThan(Member, FixConstant(Member, item))
+                        Dim exp = Nothing
+                        Try
+                            exp = Expression.GreaterThan(Member, FixConstant(Member, item))
+                        Catch ex As Exception
+                            Continue For
+                        End Try
 
                         If body Is Nothing Then
                             body = exp
@@ -353,7 +377,13 @@ Namespace LINQ
 
                 Case "<", "lessthan", "less"
                     For Each item In PropertyValues
-                        Dim exp = Expression.LessThan(Member, FixConstant(Member, item))
+                        Dim exp = Nothing
+                        Try
+                            exp = Expression.LessThan(Member, FixConstant(Member, item))
+                        Catch ex As Exception
+                            Continue For
+                        End Try
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -369,7 +399,13 @@ Namespace LINQ
                     Next
                 Case "<>", "notequal", "different"
                     For Each item In PropertyValues
-                        Dim exp = Expression.NotEqual(Member, FixConstant(Member, item))
+                        Dim exp = Nothing
+                        Try
+                            exp = Expression.NotEqual(Member, FixConstant(Member, item))
+                        Catch ex As Exception
+                            Continue For
+                        End Try
+
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -399,7 +435,13 @@ Namespace LINQ
                     Select Case Member.Type
                         Case GetType(String)
                             For Each item In PropertyValues
-                                Dim exp = Expression.Equal(Expression.Call(Member, startsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                Dim exp = Nothing
+                                Try
+                                    exp = Expression.Equal(Expression.Call(Member, startsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                Catch ex As Exception
+                                    Continue For
+                                End Try
+
                                 If body Is Nothing Then
                                     body = exp
                                 Else
@@ -420,7 +462,13 @@ Namespace LINQ
                     Select Case Member.Type
                         Case GetType(String)
                             For Each item In PropertyValues
-                                Dim exp = Expression.Equal(Expression.Call(Member, endsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                Dim exp = Nothing
+                                Try
+                                    exp = Expression.Equal(Expression.Call(Member, endsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                Catch ex As Exception
+                                    Continue For
+                                End Try
+
                                 If body Is Nothing Then
                                     body = exp
                                 Else
@@ -441,7 +489,13 @@ Namespace LINQ
                     Select Case Member.Type
                         Case GetType(String)
                             For Each item In PropertyValues
-                                Dim exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                Dim exp = Nothing
+                                Try
+                                    exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith))
+                                Catch ex As Exception
+                                    Continue For
+                                End Try
+
                                 If body Is Nothing Then
                                     body = exp
                                 Else
@@ -462,7 +516,13 @@ Namespace LINQ
                     Select Case Member.Type
                         Case GetType(String)
                             For Each item In PropertyValues
-                                Dim exp = Expression.Equal(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Constant(comparewith))
+                                Dim exp = Nothing
+                                Try
+                                    exp = Expression.Equal(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Constant(comparewith))
+                                Catch ex As Exception
+                                    Continue For
+                                End Try
+
                                 If body Is Nothing Then
                                     body = exp
                                 Else
@@ -484,7 +544,13 @@ Namespace LINQ
                     Select Case Member.Type
                         Case GetType(String)
                             For Each item In PropertyValues
-                                Dim exp = Expression.Equal(Expression.OrElse(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Call(Member, containsMethod, Expression.Constant(item.ToString()))), Expression.Constant(comparewith))
+                                Dim exp = Nothing
+                                Try
+                                    exp = Expression.Equal(Expression.OrElse(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Call(Member, containsMethod, Expression.Constant(item.ToString()))), Expression.Constant(comparewith))
+                                Catch ex As Exception
+                                    Continue For
+                                End Try
+
                                 If body Is Nothing Then
                                     body = exp
                                 Else
@@ -789,8 +855,6 @@ Namespace LINQ
         <Extension()> Public Function DistinctBy(Of T, TKey)(ByVal Items As IQueryable(Of T), ByVal [Property] As Expression(Of Func(Of T, TKey))) As IQueryable(Of T)
             Return Items.GroupBy([Property]).[Select](Function(x) x.First())
         End Function
-
-
 
         ''' <summary>
         ''' Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico

@@ -61,7 +61,7 @@ Namespace Select2
         Property Disabled As Boolean
     End Interface
 
-    Public Class Select2Option
+    Public NotInheritable Class Select2Option
         Implements ISelect2Option
 
         Sub New()

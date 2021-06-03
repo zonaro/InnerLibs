@@ -457,7 +457,7 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property Total As Integer
             Get
-                Return ApplyFilter().ToArray().Count()
+                Return If(ApplyFilter()?.ToArray().Count(), -1)
             End Get
         End Property
 
@@ -577,7 +577,8 @@ Namespace LINQ
             For Each K In Collection.Keys
                 Dim t = GetType(ClassType)
                 If t.HasProperty(K) OrElse K = "this" Then
-                    Me.SetMember(K).SetValue(Collection(K)).SetOperator(DefaultOperator)
+                    Dim item As IComparable = Collection(K)
+                    Me.SetMember(K).SetValue(item).SetOperator(DefaultOperator)
                 End If
             Next
             Return Me
@@ -704,10 +705,8 @@ Namespace LINQ
         ''' <param name="PageNumber"></param>
         ''' <returns></returns>
         Public Function GetPage(PageNumber As Integer) As RemapType()
-            Me.PageNumber = PageNumber
             If Me.Data IsNot Nothing Then
-                Dim filtereddata = ApplyFilter()
-                filtereddata = ApplyPage(filtereddata)
+                Dim filtereddata = GetQueryablePage(PageNumber)
                 If RemapExpression Is Nothing OrElse GetType(ClassType) Is GetType(RemapType) Then
                     Return filtereddata.Cast(Of RemapType).ToArray()
                 End If
@@ -723,6 +722,28 @@ Namespace LINQ
         Public Function GetPage() As RemapType()
             Return GetPage(PageNumber)
         End Function
+
+        Public Function GetQueryablePage() As IQueryable(Of ClassType)
+            Return GetQueryablePage(PageNumber)
+        End Function
+        Public Function GetQueryablePage(PageNumber As Integer) As IQueryable(Of ClassType)
+            Me.PageNumber = PageNumber
+            If Me.Data IsNot Nothing Then
+                Dim filtereddata = ApplyFilter()
+                filtereddata = ApplyPage(filtereddata)
+                Return filtereddata
+            End If
+            Return Me.Data
+        End Function
+
+        Public Function GetEnumerablePage() As IQueryable(Of ClassType)
+            Return GetEnumerablePage(PageNumber)
+        End Function
+
+        Public Function GetEnumerablePage(PageNumber As Integer) As IEnumerable(Of ClassType)
+            Return GetQueryablePage(PageNumber).AsEnumerable()
+        End Function
+
 
         ''' <summary>
         ''' Adciona um filtro customizado ao construtor de expressões
@@ -815,20 +836,23 @@ Namespace LINQ
                 End If
                 Return FilteredData
             End If
-            Return {}
+            Return Me.Data
         End Function
 
         Private Function ApplyPage(FilteredData As IEnumerable(Of ClassType)) As IEnumerable(Of ClassType)
-            If PageNumber > 0 AndAlso PageSize > 0 Then
-                If TypeOf FilteredData Is IOrderedQueryable(Of ClassType) Then
-                    FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
-                ElseIf TypeOf Me.Data Is IQueryable(Of ClassType) Then
-                    FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
-                Else
-                    FilteredData = FilteredData.Where(LambdaExpression.Compile())
+            If Me.Data IsNot Nothing Then
+                If PageNumber > 0 AndAlso PageSize > 0 Then
+                    If TypeOf FilteredData Is IOrderedQueryable(Of ClassType) Then
+                        FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
+                    ElseIf TypeOf Me.Data Is IQueryable(Of ClassType) Then
+                        FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
+                    Else
+                        FilteredData = FilteredData.Where(LambdaExpression.Compile())
+                    End If
                 End If
+                Return FilteredData
             End If
-            Return FilteredData
+            Return Me.Data
         End Function
 
         Public Shared Widening Operator CType(obj As PaginationFilter(Of ClassType, RemapType)) As RemapType()
@@ -948,6 +972,8 @@ Namespace LINQ
             Return Me._config
         End Function
 
+
+
         ''' <summary>
         ''' Seta varios valores para esse filtro testar. Substitui os valores antigos
         ''' </summary>
@@ -973,7 +999,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="Values"></param>
         ''' <returns></returns>
-        Function AddValues(Of T As IComparable)(ParamArray Values As T()) As PropertyFilter(Of ClassType, RemapType)
+        Function AddValues(Of T As Structure)(ParamArray Values As T?()) As PropertyFilter(Of ClassType, RemapType)
             PropertyValues = If(PropertyValues, {}).Union(If(Values, {}))
             Return Me
         End Function
@@ -984,6 +1010,16 @@ Namespace LINQ
         ''' <param name="Value"></param>
         ''' <returns></returns>
         Function SetValue(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+            PropertyValues = {Value}
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta um unico valor para esse filtro testar. Substitui os antigos
+        ''' </summary>
+        ''' <param name="Value"></param>
+        ''' <returns></returns>
+        Function SetValue(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             PropertyValues = {Value}
             Return Me
         End Function
@@ -1068,7 +1104,7 @@ Namespace LINQ
         ''' Seta o operador para Contains e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function Contains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function Contains(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("contains")
             Return Me
@@ -1088,7 +1124,7 @@ Namespace LINQ
         ''' Seta o operador para StartsWith e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function StartsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function StartsWith(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("StartsWith")
             Return Me
@@ -1108,7 +1144,7 @@ Namespace LINQ
         ''' Seta o operador para EndsWith e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function EndsWith(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function EndsWith(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("EndsWith")
             Return Me
@@ -1119,7 +1155,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function EndsWith(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator("EndsWith")
             Return Me
         End Function
@@ -1128,7 +1164,7 @@ Namespace LINQ
         ''' Seta o operador para CrossContains e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function CrossContains(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function CrossContains(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("crosscontains")
             Return Me
@@ -1139,16 +1175,18 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function CrossContains(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator("crosscontains")
             Return Me
         End Function
+
+
 
         ''' <summary>
         ''' Seta o operador para = e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function Equal(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function Equal(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("=")
             Return Me
@@ -1159,7 +1197,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function Equal(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator("=")
             Return Me
         End Function
@@ -1168,7 +1206,7 @@ Namespace LINQ
         ''' Seta o operador para > e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function GreaterThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function GreaterThan(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator(">")
             Return Me
@@ -1178,8 +1216,8 @@ Namespace LINQ
         ''' Seta o operador para > e os Valores para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function GreaterThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+        Function GreaterThan(Of T As Structure)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator(">")
             Return Me
         End Function
@@ -1188,7 +1226,7 @@ Namespace LINQ
         ''' Seta o operador para &lt; e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function LessThan(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function LessThan(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("<")
             Return Me
@@ -1199,7 +1237,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function LessThan(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator("<")
             Return Me
         End Function
@@ -1208,7 +1246,7 @@ Namespace LINQ
         ''' Seta o operador para  >= e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function GreaterThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function GreaterThanOrEqual(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator(">=")
             Return Me
@@ -1219,7 +1257,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function GreaterThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator(">=")
             Return Me
         End Function
@@ -1228,7 +1266,7 @@ Namespace LINQ
         ''' Seta o operador para   &lt;= e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function LessThanOrEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function LessThanOrEqual(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("<=")
             Return Me
@@ -1239,7 +1277,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function LessThanOrEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator("<=")
             Return Me
         End Function
@@ -1248,7 +1286,7 @@ Namespace LINQ
         ''' Seta o operador para  != e o Valor para este filtro
         ''' </summary>
         ''' <returns></returns>
-        Function NotEqual(Of T As IComparable)(Value As T) As PropertyFilter(Of ClassType, RemapType)
+        Function NotEqual(Of T As Structure)(Value As T?) As PropertyFilter(Of ClassType, RemapType)
             Me.SetValue(Value)
             Me.SetOperator("<>")
             Return Me
@@ -1259,7 +1297,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function NotEqual(Of T As IComparable)(Values As IEnumerable(Of T)) As PropertyFilter(Of ClassType, RemapType)
-            Me.SetValues(Values)
+            Me.SetValues(Values.Cast(Of IComparable))
             Me.SetOperator("<>")
             Return Me
         End Function
