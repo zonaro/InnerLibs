@@ -81,6 +81,10 @@ Namespace Select2
 
         Public Property Text As String Implements ISelect2Result.Text
 
+        Public Overrides Function ToString() As String
+            Return $"<option value='{ID}' {Disabled.AsIf("disabled")} {Selected.AsIf("selected")}>{Text}</option>"
+        End Function
+
     End Class
 
     Public Module Select2Extensions

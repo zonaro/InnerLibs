@@ -605,6 +605,26 @@ Namespace LINQ
             Return Me
         End Function
 
+
+        Public Function OrderBy(Of T)(ParamArray Selectors As Expression(Of Func(Of ClassType, T))()) As PaginationFilter(Of ClassType, RemapType)
+            For Each Selector In If(Selectors, {})
+                If Selector IsNot Nothing Then
+                    Me.OrderBy(Selector, True)
+                End If
+            Next
+            Return Me
+        End Function
+
+        Public Function OrderByDescending(Of T)(ParamArray Selectors As Expression(Of Func(Of ClassType, T))()) As PaginationFilter(Of ClassType, RemapType)
+            For Each Selector In If(Selectors, {})
+                If Selector IsNot Nothing Then
+                    Me.OrderBy(Selector, False)
+                End If
+            Next
+            Return Me
+        End Function
+
+
         ''' <summary>
         ''' Ordena os resultados da lista
         ''' </summary>
