@@ -12,8 +12,7 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
 ### Veja algumas de nossas funções:
 
  - Conexão com Bancos de Dados simplificada utilizando a classe `InnerLibs.DataBase` (Compativel com `SQL Server`, `Access`, `Oracle`, `MySQL` entre outros);
- - Classe de representação geográfica `InnerLibs.Location` com integração a API do Google Maps e a API dos Correios;
- - Conversão de DataReader para `JSON`, `HTML`, `XML` e `CSV`;
+ - Classe de representação geográfica/Endereço `InnerLibs.AddressInfo` com integração a API dos Correios;
  - Conversão de números para algarismos romanos e vice versa;
  - Conversão de números para sua forma extensa;
  - Classe para criação e edição de vCards;
@@ -21,6 +20,14 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
  - Calculo de prazo de entrega baseado em jornada de trabalho utilizando `InnerLibs.TimeMachine`;
  - Vários manipuladores e validadores de texto;
  - Identificação de MIME Type a partir da extensão de arquivos;
+ - Geradores de expressões lambda para filtros compativel com `EntityFramework` e `LINQ to SQL`;
+ - Classes para gerar `DOT Language` a partir de outras classes;
+ - Extensões para `System.Console`;
+ - Lista de Cidades e Estados do Brasil;
+ - Manipuladores de cor e imagem;
+ - Classes e interfaces para adaptação de APIs para `Select2`;
+ - Ajuste ortográfico básico;
+ - SoundEx em português;
  
 # License
 
