@@ -715,6 +715,14 @@ Namespace LINQ
             Return {}
         End Function
 
+
+        Public Function Where(predicate As Func(Of ClassType, Boolean)) As PaginationFilter(Of ClassType, RemapType)
+            Me.Data = Me.Data.Where(predicate)
+            Return Me
+        End Function
+
+
+
         ''' <summary>
         ''' Retorna a pagina atual
         ''' </summary>
