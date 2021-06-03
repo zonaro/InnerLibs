@@ -97,6 +97,9 @@ Public Class DataURI
         Return Me.ToBytes.WriteToFile(Path)
     End Function
 
+
+
+
 End Class
 
 ''' <summary>

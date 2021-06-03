@@ -101,6 +101,10 @@ End Module
 ''' </summary>
 Public NotInheritable Class Phonetic
 
+    Public Overrides Function ToString() As String
+        Return SoundExCode
+    End Function
+
     ''' <summary>
     ''' Compara o fonema de uma palavra em portugues com outra palavra
     ''' </summary>

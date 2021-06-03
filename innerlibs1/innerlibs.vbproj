@@ -105,7 +105,6 @@
     <Compile Include="FileTree.vb" />
     <Compile Include="FontAwesome.vb" />
     <Compile Include="Generate.vb" />
-    <Compile Include="HtmlGenerator.vb" />
     <Compile Include="Images.vb" />
     <Compile Include="InnerCrypt.vb" />
     <Compile Include="InnerMenu.vb" />
