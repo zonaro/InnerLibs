@@ -825,8 +825,6 @@ Namespace LINQ
                         FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
                     ElseIf TypeOf Me.Data Is IQueryable(Of ClassType) Then
                         FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Skip((PageNumber - 1) * PageSize).Take(PageSize)
-                    Else
-                        FilteredData = FilteredData.Where(LambdaExpression.Compile())
                     End If
                 End If
                 Return FilteredData
