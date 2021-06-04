@@ -12,13 +12,6 @@ Namespace LINQ
         Sub New()
         End Sub
 
-        ''' <summary>
-        ''' Cria uma nova instancia e seta a exclusividade de filtro
-        ''' </summary>
-        ''' <param name="Exclusive"></param>
-        Sub New(Exclusive As Boolean)
-            Me.Exclusive = Exclusive
-        End Sub
 
         ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
@@ -28,13 +21,11 @@ Namespace LINQ
         End Sub
 
         Sub New(RemapExpression As Func(Of ClassType, RemapType), Options As Action(Of PaginationFilter(Of ClassType, RemapType)))
-
             Me.RemapExpression = RemapExpression
             Config(Options)
         End Sub
 
         Sub New(Options As Action(Of PaginationFilter(Of ClassType, RemapType)))
-            Me.RemapExpression = RemapExpression
             Config(Options)
         End Sub
 
@@ -77,12 +68,7 @@ Namespace LINQ
             End Get
         End Property
 
-        ''' <summary>
-        ''' Indica se os filtros são exclusivos.
-        ''' </summary>
-        ''' <remarks>Valores exclusivos precisam cumprir todos os filtros para retornarem na busca. Filtros não exclusivos retornam se um ou mais forem cumpridos</remarks>
-        ''' <returns></returns>
-        Public Property Exclusive As Boolean = False
+
 
         ''' <summary>
         ''' Expressão binária contendo todos os filtros
@@ -91,28 +77,15 @@ Namespace LINQ
         ReadOnly Property Filter As BinaryExpression
             Get
                 Dim exp As Expression = Nothing
-                For Each valor In Filters.Where(Function(x) x.Enabled).Select(Function(x) x.Filter)
+                For Each valor In Filters.Where(Function(x) x.Enabled)
                     If valor IsNot Nothing Then
                         If exp Is Nothing Then
-                            exp = valor
+                            exp = valor.Filter
                         Else
-                            If Exclusive Then
-                                exp = Expression.AndAlso(valor, exp)
+                            If valor.Conditional = FilterConditional.And Then
+                                exp = Expression.AndAlso(valor.Filter, exp)
                             Else
-                                exp = Expression.OrElse(valor, exp)
-                            End If
-                        End If
-                    End If
-                Next
-                For Each valor In If(CustomFilters, New List(Of Expression(Of Func(Of ClassType, Boolean))))
-                    If valor IsNot Nothing Then
-                        If exp Is Nothing Then
-                            exp = valor
-                        Else
-                            If Exclusive Then
-                                exp = Expression.AndAlso(valor, exp)
-                            Else
-                                exp = Expression.OrElse(valor, exp)
+                                exp = Expression.OrElse(valor.Filter, exp)
                             End If
                         End If
                     End If
@@ -270,11 +243,7 @@ Namespace LINQ
             Return UrlPattern
         End Function
 
-        ''' <summary>
-        ''' Filtros customizados
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property CustomFilters As New List(Of Expression(Of Func(Of ClassType, Boolean)))
+
 
         ''' <summary>
         ''' Expressão de remapeamento da coleção
@@ -584,16 +553,7 @@ Namespace LINQ
             Return Me
         End Function
 
-        ''' <summary>
-        ''' Seta o valor de exclusividade de filtro (quando true)
-        ''' </summary>
-        ''' <param name="Exclusive"></param>
-        ''' <remarks>Valores exclusivos precisam cumprir todos os filtros para retornarem na busca. Filtros não exclusivos retornam se um ou mais forem cumpridos</remarks>
-        ''' <returns></returns>
-        Public Function IsExclusive(Optional Exclusive As Boolean = True) As PaginationFilter(Of ClassType, RemapType)
-            Me.Exclusive = Exclusive
-            Return Me
-        End Function
+
 
         ''' <summary>
         ''' Seta a lista com os dados a serem filtrados nesse filtro
@@ -773,16 +733,7 @@ Namespace LINQ
         End Function
 
 
-        ''' <summary>
-        ''' Adciona um filtro customizado ao construtor de expressões
-        ''' </summary>
-        ''' <param name="Exp"></param>
-        ''' <returns></returns>
-        Function AddFilter(Exp As Expression(Of Func(Of ClassType, Boolean))) As PaginationFilter(Of ClassType, RemapType)
-            CustomFilters = If(CustomFilters, New List(Of Expression(Of Func(Of ClassType, Boolean))))
-            CustomFilters.Add(Exp)
-            Return Me
-        End Function
+
 
         ''' <summary>
         ''' Configura a paginação do filtro
@@ -821,9 +772,9 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="PropertyName"></param>
         ''' <returns></returns>
-        Function SetMember(Of T)(PropertyName As Expression(Of Func(Of ClassType, T)), Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
+        Function SetMember(Of T)(PropertyName As Expression(Of Func(Of ClassType, T)), Optional Conditional As FilterConditional = FilterConditional.Or, Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
             Dim f = New PropertyFilter(Of ClassType, RemapType)(Me)
-            f.SetMember(PropertyName).SetEnabled(Enabled)
+            f.SetMember(PropertyName, Conditional).SetEnabled(Enabled)
             _filters.Add(f)
             Return f
         End Function
@@ -833,9 +784,9 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="PropertyName"></param>
         ''' <returns></returns>
-        Function SetMember(PropertyName As String, Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
+        Function SetMember(PropertyName As String, Optional Conditional As FilterConditional = FilterConditional.Or, Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
             Dim f = New PropertyFilter(Of ClassType, RemapType)(Me)
-            f.SetMember(PropertyName).SetEnabled(Enabled)
+            f.SetMember(PropertyName, Conditional).SetEnabled(Enabled)
             _filters.Add(f)
             Return f
         End Function
@@ -910,16 +861,17 @@ Namespace LINQ
         ''' <summary>
         ''' Cria uma nova instancia e seta a exclusividade de filtro
         ''' </summary>
-        ''' <param name="Exclusive"></param>
-        Sub New(Exclusive As Boolean)
-            Me.Exclusive = Exclusive
-        End Sub
-
         Sub New(Options As Action(Of PaginationFilter(Of ClassType)))
             Options(Me)
         End Sub
 
     End Class
+
+
+    Public Enum FilterConditional
+        [Or]
+        [And]
+    End Enum
 
     Public Class PropertyFilter(Of ClassType As Class, RemapType)
 
@@ -940,11 +892,17 @@ Namespace LINQ
                     If Not UseNullValues Then
                         v = v.Where(Function(x) x IsNot Nothing)
                     End If
-                    Return GetOperatorExpression(Member, [Operator].IfBlank(""), v, False)
+                    Return GetOperatorExpression(Member, [Operator].IfBlank(""), v, ValuesConditional)
                 End If
                 Return Nothing
             End Get
         End Property
+
+
+        Property Conditional As FilterConditional = FilterConditional.Or
+
+
+        Property ValuesConditional As FilterConditional = FilterConditional.Or
 
         ''' <summary>
         ''' Configura este filtro para utilização de valores nulos na query
@@ -1057,7 +1015,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="PropertySelector"></param>
         ''' <returns></returns>
-        Function SetMember(Of T)(PropertySelector As Expression(Of Func(Of ClassType, T))) As PropertyFilter(Of ClassType, RemapType)
+        Function SetMember(Of T)(PropertySelector As Expression(Of Func(Of ClassType, T)), Optional Conditional As FilterConditional = FilterConditional.Or) As PropertyFilter(Of ClassType, RemapType)
             Return SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).Join("."))
         End Function
 
@@ -1066,14 +1024,9 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="PropertyName"></param>
         ''' <returns></returns>
-        Function SetMember(PropertyName As String) As PropertyFilter(Of ClassType, RemapType)
-            Dim prop As Expression = Parameter
-            If PropertyName.IfBlank("this") <> "this" Then
-                For Each name In PropertyName.SplitAny(".", "/")
-                    prop = Expression.[Property](prop, name)
-                Next
-            End If
-            Member = prop
+        Function SetMember(PropertyName As String, Optional Conditional As FilterConditional = FilterConditional.Or) As PropertyFilter(Of ClassType, RemapType)
+            Me.Conditional = Conditional
+            Member = Parameter.PropertyExpression(PropertyName)
             Return Me
         End Function
 

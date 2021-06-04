@@ -15,7 +15,7 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension>
         Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T)) As PaginationFilter(Of T, T)
-            Return New PaginationFilter(Of T, T)(False).SetData(List)
+            Return New PaginationFilter(Of T, T)().SetData(List)
         End Function
 
         ''' <summary>
@@ -26,7 +26,7 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension>
         Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Configuration As Action(Of PaginationFilter(Of T, T))) As PaginationFilter(Of T, T)
-            Return New PaginationFilter(Of T, T)(False).SetData(List).Config(Configuration)
+            Return New PaginationFilter(Of T, T)(Configuration).SetData(List)
         End Function
 
         ''' <summary>
@@ -36,8 +36,8 @@ Namespace LINQ
         ''' <param name="List"></param>
         ''' <returns></returns>
         <Extension>
-        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Exclusive As Boolean) As PaginationFilter(Of T, T)
-            Return New PaginationFilter(Of T, T)(Exclusive).SetData(List)
+        Public Function CreateFilter(Of T As Class, R)(ByVal List As IEnumerable(Of T), RemapExpression As Func(Of T, R), Configuration As Action(Of PaginationFilter(Of T, R))) As PaginationFilter(Of T, R)
+            Return New PaginationFilter(Of T, R)(RemapExpression, Configuration).SetData(List)
         End Function
 
         ''' <summary>
@@ -47,30 +47,19 @@ Namespace LINQ
         ''' <param name="List"></param>
         ''' <returns></returns>
         <Extension>
-        Public Function CreateFilter(Of T As Class)(ByVal List As IEnumerable(Of T), Configuration As Action(Of PaginationFilter(Of T, T)), Exclusive As Boolean) As PaginationFilter(Of T, T)
-            Return New PaginationFilter(Of T, T)(Exclusive).SetData(List).Config(Configuration)
+        Public Function CreateFilter(Of T As Class, R)(ByVal List As IEnumerable(Of T), RemapExpression As Func(Of T, R)) As PaginationFilter(Of T, R)
+            Return New PaginationFilter(Of T, R)(RemapExpression).SetData(List)
         End Function
 
-        ''' <summary>
-        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="List"></param>
-        ''' <returns></returns>
-        <Extension>
-        Public Function CreateFilter(Of T As Class, R As Class)(ByVal List As IEnumerable(Of T), RemapSelector As Func(Of T, R), Optional Exclusive As Boolean = False) As PaginationFilter(Of T, R)
-            Return New PaginationFilter(Of T, R)(RemapSelector).IsExclusive(Exclusive).SetData(List)
-        End Function
 
-        ''' <summary>
-        ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="List"></param>
-        ''' <returns></returns>
-        <Extension>
-        Public Function CreateFilter(Of T As Class, R As Class)(ByVal List As IEnumerable(Of T), RemapSelector As Func(Of T, R), Configuration As Action(Of PaginationFilter(Of T, T)), Optional Exclusive As Boolean = False) As PaginationFilter(Of T, R)
-            Return New PaginationFilter(Of T, R)(RemapSelector).IsExclusive(Exclusive).SetData(List).Config(Configuration)
+        <Extension()> Public Function PropertyExpression(Parameter As ParameterExpression, PropertyName As String) As Expression
+            Dim prop As Expression = Parameter
+            If PropertyName.IfBlank("this") <> "this" Then
+                For Each name In PropertyName.SplitAny(".", "/")
+                    prop = Expression.[Property](prop, name)
+                Next
+            End If
+            Return prop
         End Function
 
         ''' <summary>
@@ -82,10 +71,20 @@ Namespace LINQ
         ''' <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="Type"/></param>
         ''' <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
         ''' <returns></returns>
-        Public Function WhereExpression(Of Type)(PropertyName As String, [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Exclusive As Boolean = True) As Expression(Of Func(Of Type, Boolean))
-            Dim parameter = Expression.Parameter(GetType(Type), GetType(Type).Name.ToLower())
-            Dim member = Expression.[Property](parameter, PropertyName)
-            Dim body As Expression = GetOperatorExpression(member, [Operator], PropertyValue, Exclusive)
+        Public Function WhereExpression(Of Type)(PropertyName As String, [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
+            Dim parameter = GenerateParameterExpression(Of Type)()
+            Dim member = PropertyExpression(parameter, PropertyName)
+            Dim body As Expression = GetOperatorExpression(member, [Operator], PropertyValue, Conditional)
+            body = Expression.Equal(body, Expression.Constant([Is]))
+            Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
+            Return finalExpression
+        End Function
+
+
+        Public Function WhereExpression(Of Type, V)(PropertyExpression As Expression(Of Func(Of Type, V)), [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
+            Dim member = PropertyExpression
+            Dim parameter = member.Parameters.First()
+            Dim body As Expression = GetOperatorExpression(member, [Operator], PropertyValue, Conditional)
             body = Expression.Equal(body, Expression.Constant([Is]))
             Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
             Return finalExpression
@@ -111,13 +110,24 @@ Namespace LINQ
         End Function
 
         Function FixConstant(Of T As IComparable)(Member As Expression, Value As T) As ConstantExpression
-            Dim Converter = TypeDescriptor.GetConverter(Member.Type)
+            Dim otipo As Type = Nothing
+            Try
+                otipo = CType(Member, LambdaExpression).ReturnType
+            Catch ex As Exception
+                otipo = Member.Type
+            End Try
+            Dim Converter = TypeDescriptor.GetConverter(otipo)
             Dim Con = Expression.Constant(Value)
             If Converter.CanConvertFrom(Value.GetType()) Then
                 Try
-                    Con = Expression.Constant(Converter.ConvertFrom(Value), Member.Type)
+                    Con = Expression.Constant(Converter.ConvertFrom(Value), otipo)
                 Catch ex As Exception
                 End Try
+            End If
+            If otipo.IsNullableType() Then
+                Con = Expression.Constant(Activator.CreateInstance(otipo, Value), otipo)
+            Else
+                Con = Expression.Constant(Convert.ChangeType(Value, otipo), otipo)
             End If
             Return Con
         End Function
@@ -150,45 +160,49 @@ Namespace LINQ
         <Extension()>
         Public Function IsBetween(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V)), MinValue As V, MaxValue As V) As Expression(Of Func(Of T, Boolean))
 
-            Dim PropertyExpression As MemberExpression = [Property].CreatePropertyExpression
-            Dim parameter = [Property].Parameters.FirstOrDefault()
 
-            Dim GreaterExp As Expression = Nothing
-            Dim LessExp As Expression = Nothing
+            Return WhereExpression([Property], "between", {MinValue, MaxValue})
 
-            Dim v1 As IComparable = MinValue
-            Dim v2 As IComparable = MaxValue
-            FixOrder(v1, v2)
+            'Dim PropertyExpression As MemberExpression = [Property].CreatePropertyExpression
+            'Dim parameter = [Property].Parameters.FirstOrDefault()
 
-            If (v1 IsNot Nothing) Then
-                GreaterExp = PropertyExpression.GreaterThanOrEqual(FixConstant(v1))
-            End If
+            'Dim GreaterExp As Expression = Nothing
+            'Dim LessExp As Expression = Nothing
 
-            If (v2 IsNot Nothing) Then
-                LessExp = PropertyExpression.LessThanOrEqual(FixConstant(v2))
-            End If
+            'Dim v1 As IComparable = MinValue
+            'Dim v2 As IComparable = MaxValue
+            'FixOrder(v1, v2)
 
-            If v1 IsNot Nothing AndAlso v2 IsNot Nothing Then
-                If v1.IsEqual(v2) Then
-                    Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(FixConstant(v1)), parameter)
-                Else
-                    Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[And](GreaterExp, LessExp), parameter)
-                End If
-            End If
+            'If (v1 IsNot Nothing) Then
+            '    GreaterExp = PropertyExpression.GreaterThanOrEqual(FixConstant(v1))
+            'End If
 
-            If LessExp IsNot Nothing Then
-                Return Expression.Lambda(Of Func(Of T, Boolean))(LessExp, parameter)
-            End If
+            'If (v2 IsNot Nothing) Then
+            '    LessExp = PropertyExpression.LessThanOrEqual(FixConstant(v2))
+            'End If
 
-            If GreaterExp IsNot Nothing Then
-                Return Expression.Lambda(Of Func(Of T, Boolean))(GreaterExp, parameter)
-            End If
+            'If v1 IsNot Nothing AndAlso v2 IsNot Nothing Then
+            '    If v1.IsEqual(v2) Then
+            '        Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(FixConstant(v1)), parameter)
+            '    Else
+            '        Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[And](GreaterExp, LessExp), parameter)
+            '    End If
+            'End If
 
-            Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(Nothing), parameter)
+            'If LessExp IsNot Nothing Then
+            '    Return Expression.Lambda(Of Func(Of T, Boolean))(LessExp, parameter)
+            'End If
+
+            'If GreaterExp IsNot Nothing Then
+            '    Return Expression.Lambda(Of Func(Of T, Boolean))(GreaterExp, parameter)
+            'End If
+
+            ' Return Expression.Lambda(Of Func(Of T, Boolean))(exp)
 
         End Function
 
         <Extension> Public Function CreatePropertyExpression(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V))) As MemberExpression
+
             Return Expression.[Property](If([Property].Parameters.FirstOrDefault(), GetType(T).GenerateParameterExpression()), GetPropertyInfo([Property]))
         End Function
 
@@ -202,11 +216,36 @@ Namespace LINQ
         End Function
 
         <Extension()> Public Sub FixNullable(ByRef e1 As Expression, ByRef e2 As Expression)
-            If IsNullableType(e1.Type) AndAlso Not IsNullableType(e2.Type) Then
-                e2 = Expression.Convert(e2, e1.Type)
-            ElseIf Not IsNullableType(e1.Type) AndAlso IsNullableType(e2.Type) Then
-                e1 = Expression.Convert(e1, e2.Type)
+            Dim e1type As Type = Nothing
+            Dim e2type As Type = Nothing
+
+            Try
+                e1type = CType(e1, LambdaExpression).ReturnType
+            Catch ex As Exception
+                e1type = e1.Type
+            End Try
+
+            Try
+                e2type = CType(e2, LambdaExpression).ReturnType
+            Catch ex As Exception
+                e2type = e2.Type
+            End Try
+
+
+            If IsNullableType(e1type) AndAlso Not IsNullableType(e2type) Then
+                e2 = Expression.Convert(e2, e1type)
+            ElseIf Not IsNullableType(e1type) AndAlso IsNullableType(e2type) Then
+                e1 = Expression.Convert(e1, e2type)
             End If
+
+            If e1.NodeType = ExpressionType.Lambda Then
+                e1 = Expression.Invoke(e1, CType(e1, LambdaExpression).Parameters)
+            End If
+
+            If e2.NodeType = ExpressionType.Lambda Then
+                e2 = Expression.Invoke(e2, CType(e2, LambdaExpression).Parameters)
+            End If
+
         End Sub
 
         <Extension> Public Function GreaterThanOrEqual(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
@@ -219,6 +258,16 @@ Namespace LINQ
             Return Expression.LessThanOrEqual(MemberExpression, ValueExpression)
         End Function
 
+        <Extension> Public Function GreaterThan(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
+            FixNullable(MemberExpression, ValueExpression)
+            Return Expression.GreaterThan(MemberExpression, ValueExpression)
+        End Function
+
+        <Extension> Public Function LessThan(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
+            FixNullable(MemberExpression, ValueExpression)
+            Return Expression.LessThan(MemberExpression, ValueExpression)
+        End Function
+
         <Extension> Public Function Equal(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
             FixNullable(MemberExpression, ValueExpression)
             Return Expression.Equal(MemberExpression, ValueExpression)
@@ -226,7 +275,7 @@ Namespace LINQ
 
         <Extension> Public Function NotEqual(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
             FixNullable(MemberExpression, ValueExpression)
-            Return Expression.Equal(Expression.Equal(MemberExpression, ValueExpression), Expression.Constant(False))
+            Return Expression.NotEqual(MemberExpression, ValueExpression)
         End Function
 
         <Extension> Public Function IsNullableType(ByVal t As Type) As Boolean
@@ -239,9 +288,9 @@ Namespace LINQ
         ''' <param name="Member"></param>
         ''' <param name="[Operator]"></param>
         ''' <param name="PropertyValues"></param>
-        ''' <param name="Exclusive"></param>
+        ''' <param name="Conditional"></param>
         ''' <returns></returns>
-        Function GetOperatorExpression(Member As Expression, [Operator] As String, PropertyValues As IEnumerable(Of IComparable), Optional Exclusive As Boolean = False) As BinaryExpression
+        Function GetOperatorExpression(Member As Expression, [Operator] As String, PropertyValues As IEnumerable(Of IComparable), Optional Conditional As FilterConditional = FilterConditional.Or) As BinaryExpression
             PropertyValues = If(PropertyValues, {})
             Dim comparewith As Boolean = Not [Operator].StartsWithAny("!", "not")
             If comparewith = False Then
@@ -255,7 +304,7 @@ Namespace LINQ
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -271,7 +320,7 @@ Namespace LINQ
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -285,15 +334,16 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = Expression.Equal(Member, FixConstant(Member, item))
+                            exp = LINQExtensions.Equal(Member, Expression.Constant(Member, item))
                         Catch ex As Exception
+                            exp = Expression.Constant(False)
                             Continue For
                         End Try
 
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -305,20 +355,21 @@ Namespace LINQ
                     Next
                 Case ">=", "greaterthanorequal", "greaterorequal", "greaterequal", "greatequal"
                     For Each item In PropertyValues
-                        If item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
+                        If item.GetType() IsNot GetType(DateTime) AndAlso item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
                             item = item.ToString().Length
                         End If
                         Dim exp = Nothing
                         Try
-                            exp = Expression.GreaterThanOrEqual(Member, FixConstant(Member, item))
+                            exp = GreaterThanOrEqual(Member, Expression.Constant(item))
                         Catch ex As Exception
+                            exp = Expression.Constant(False)
                             Continue For
                         End Try
 
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -330,19 +381,20 @@ Namespace LINQ
                     Next
                 Case "<=", "lessthanorequal", "lessorequal", "lessequal"
                     For Each item In PropertyValues
-                        If item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
+                        If item.GetType() IsNot GetType(DateTime) AndAlso item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
                             item = item.ToString().Length
                         End If
                         Dim exp = Nothing
                         Try
-                            exp = Expression.LessThanOrEqual(Member, FixConstant(Member, item))
+                            exp = LINQExtensions.LessThanOrEqual(Member, Expression.Constant(item))
                         Catch ex As Exception
+                            exp = Expression.Constant(False)
                             Continue For
                         End Try
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -356,7 +408,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = Expression.GreaterThan(Member, FixConstant(Member, item))
+                            exp = LINQExtensions.GreaterThan(Member, Expression.Constant(item))
                         Catch ex As Exception
                             Continue For
                         End Try
@@ -364,7 +416,7 @@ Namespace LINQ
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -379,7 +431,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = Expression.LessThan(Member, FixConstant(Member, item))
+                            exp = LINQExtensions.LessThan(Member, Expression.Constant(item))
                         Catch ex As Exception
                             Continue For
                         End Try
@@ -387,7 +439,7 @@ Namespace LINQ
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -401,7 +453,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = Expression.NotEqual(Member, FixConstant(Member, item))
+                            exp = LINQExtensions.NotEqual(Member, Expression.Constant(item))
                         Catch ex As Exception
                             Continue For
                         End Try
@@ -409,7 +461,7 @@ Namespace LINQ
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
@@ -419,16 +471,27 @@ Namespace LINQ
                             body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Next
-                Case "between", "btw", "><"
+                Case "between", "btw", "=><="
                     If PropertyValues.Count() > 1 Then
                         Select Case Member.Type
                             Case GetType(String)
-                                body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", Not comparewith), {PropertyValues.First()}, Exclusive), GetOperatorExpression(Member, "ends".PrependIf("!", Not comparewith), {PropertyValues.Last()}, Exclusive))
+                                body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", Not comparewith), {PropertyValues.First()}, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", Not comparewith), {PropertyValues.Last()}, Conditional))
                             Case Else
-                                body = Expression.And(GetOperatorExpression(Member, "greaterequal".PrependIf("!", Not comparewith), {PropertyValues.Min()}, Exclusive), GetOperatorExpression(Member, "lessequal".PrependIf("!", Not comparewith), {PropertyValues.Max()}, Exclusive))
+                                body = Expression.And(GetOperatorExpression(Member, "greaterequal".PrependIf("!", Not comparewith), {PropertyValues.Min()}, Conditional), GetOperatorExpression(Member, "lessequal".PrependIf("!", Not comparewith), {PropertyValues.Max()}, Conditional))
                         End Select
                     Else
-                        body = GetOperatorExpression(Member, "=".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                        body = GetOperatorExpression(Member, "=".PrependIf("!", Not comparewith), PropertyValues, Conditional)
+                    End If
+                Case "><"
+                    If PropertyValues.Count() > 1 Then
+                        Select Case Member.Type
+                            Case GetType(String)
+                                body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", Not comparewith), {PropertyValues.First()}, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", Not comparewith), {PropertyValues.Last()}, Conditional))
+                            Case Else
+                                body = Expression.And(GetOperatorExpression(Member, "greater".PrependIf("!", Not comparewith), {PropertyValues.Min()}, Conditional), GetOperatorExpression(Member, "less".PrependIf("!", Not comparewith), {PropertyValues.Max()}, Conditional))
+                        End Select
+                    Else
+                        body = GetOperatorExpression(Member, "=".PrependIf("!", Not comparewith), PropertyValues, Conditional)
                     End If
 
                 Case "starts", "start", "startwith", "startswith"
@@ -445,7 +508,7 @@ Namespace LINQ
                                 If body Is Nothing Then
                                     body = exp
                                 Else
-                                    If Exclusive Then
+                                    If Conditional = FilterConditional.And Then
                                         body = Expression.AndAlso(body, exp)
                                     Else
                                         body = Expression.OrElse(body, exp)
@@ -456,7 +519,7 @@ Namespace LINQ
                                 End If
                             Next
                         Case Else
-                            body = GetOperatorExpression(Member, ">=", PropertyValues, Exclusive)
+                            body = GetOperatorExpression(Member, ">=", PropertyValues, Conditional)
                     End Select
                 Case "ends", "end", "endwith", "endswith"
                     Select Case Member.Type
@@ -472,7 +535,7 @@ Namespace LINQ
                                 If body Is Nothing Then
                                     body = exp
                                 Else
-                                    If Exclusive Then
+                                    If Conditional = FilterConditional.And Then
                                         body = Expression.AndAlso(body, exp)
                                     Else
                                         body = Expression.OrElse(body, exp)
@@ -483,7 +546,7 @@ Namespace LINQ
                                 End If
                             Next
                         Case Else
-                            body = GetOperatorExpression(Member, "lessequal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                            body = GetOperatorExpression(Member, "lessequal".PrependIf("!", Not comparewith), PropertyValues, Conditional)
                     End Select
                 Case "like", "contains"
                     Select Case Member.Type
@@ -499,7 +562,7 @@ Namespace LINQ
                                 If body Is Nothing Then
                                     body = exp
                                 Else
-                                    If Exclusive Then
+                                    If Conditional = FilterConditional.And Then
                                         body = Expression.AndAlso(body, exp)
                                     Else
                                         body = Expression.OrElse(body, exp)
@@ -510,7 +573,7 @@ Namespace LINQ
                                 End If
                             Next
                         Case Else
-                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Conditional)
                     End Select
                 Case "isin", "inside"
                     Select Case Member.Type
@@ -526,7 +589,7 @@ Namespace LINQ
                                 If body Is Nothing Then
                                     body = exp
                                 Else
-                                    If Exclusive Then
+                                    If Conditional = FilterConditional.And Then
                                         body = Expression.AndAlso(body, exp)
                                     Else
                                         body = Expression.OrElse(body, exp)
@@ -538,7 +601,7 @@ Namespace LINQ
                             Next
                         Case Else
                             ''TODO: implementar busca de array de inteiro,data etc
-                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Conditional)
                     End Select
                 Case "cross", "crosscontains", "insidecontains"
                     Select Case Member.Type
@@ -554,7 +617,7 @@ Namespace LINQ
                                 If body Is Nothing Then
                                     body = exp
                                 Else
-                                    If Exclusive Then
+                                    If Conditional = FilterConditional.And Then
                                         body = Expression.AndAlso(body, exp)
                                     Else
                                         body = Expression.OrElse(body, exp)
@@ -566,7 +629,7 @@ Namespace LINQ
                             Next
                         Case Else
                             ''TODO: implementar busca de array de inteiro,data etc
-                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Exclusive)
+                            body = GetOperatorExpression(Member, "equal".PrependIf("!", Not comparewith), PropertyValues, Conditional)
                     End Select
                 Case Else
                     Try
@@ -577,7 +640,7 @@ Namespace LINQ
                         If body Is Nothing Then
                             body = exp
                         Else
-                            If Exclusive Then
+                            If Conditional = FilterConditional.And Then
                                 body = Expression.AndAlso(body, exp)
                             Else
                                 body = Expression.OrElse(body, exp)
