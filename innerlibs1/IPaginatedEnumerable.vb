@@ -294,6 +294,17 @@ Namespace LINQ
                 Dim exp As Expression(Of Func(Of ClassType, Boolean)) = Nothing
                 If Filter IsNot Nothing Then
                     exp = Expression.Lambda(Of Func(Of ClassType, Boolean))(Filter, param)
+                End If
+                For Each valor In If(WhereFilters, New List(Of Expression(Of Func(Of ClassType, Boolean))))
+                    If valor IsNot Nothing Then
+                        If exp Is Nothing Then
+                            exp = valor
+                        Else
+                            exp = LINQExtensions.And(exp, valor)
+                        End If
+                    End If
+                Next
+                If exp IsNot Nothing Then
                     While exp.CanReduce
                         exp = exp.Reduce()
                     End While
@@ -696,8 +707,12 @@ Namespace LINQ
         End Function
 
 
-        Public Function Where(predicate As Func(Of ClassType, Boolean)) As PaginationFilter(Of ClassType, RemapType)
-            Me.Data = Me.Data.Where(predicate)
+        Public Property WhereFilters As New List(Of Expression(Of Func(Of ClassType, Boolean)))
+
+
+        Public Function Where(predicate As Expression(Of Func(Of ClassType, Boolean))) As PaginationFilter(Of ClassType, RemapType)
+            WhereFilters = If(WhereFilters, New List(Of Expression(Of Func(Of ClassType, Boolean))))
+            WhereFilters.Add(predicate)
             Return Me
         End Function
 
