@@ -104,49 +104,9 @@ Namespace LINQ
             Return List.Where(WhereExpression(Of T)(PropertyName, [Operator], PropertyValue, [Is]))
         End Function
 
-        <Extension> Public Function CreateNullable(ByVal type As Type) As Type
+        <Extension> Public Function CreateNullableType(ByVal type As Type) As Type
             If type.IsValueType AndAlso (Not type.IsGenericType OrElse type.GetGenericTypeDefinition() <> GetType(Nullable(Of))) Then Return GetType(Nullable(Of)).MakeGenericType(type)
             Return type
-        End Function
-
-        Function FixConstant(Of T As IComparable)(Member As Expression, Value As T) As ConstantExpression
-            Dim otipo As Type = Nothing
-            Try
-                otipo = CType(Member, LambdaExpression).ReturnType
-            Catch ex As Exception
-                otipo = Member.Type
-            End Try
-            Dim Converter = TypeDescriptor.GetConverter(otipo)
-            Dim Con = Expression.Constant(Value)
-            If Converter.CanConvertFrom(Value.GetType()) Then
-                Try
-                    Con = Expression.Constant(Converter.ConvertFrom(Value), otipo)
-                Catch ex As Exception
-                End Try
-            End If
-            If otipo.IsNullableType() Then
-                Con = Expression.Constant(Activator.CreateInstance(otipo, Value), otipo)
-            Else
-                Con = Expression.Constant(Convert.ChangeType(Value, otipo), otipo)
-            End If
-            Return Con
-        End Function
-
-        Function FixConstant(Of T As IComparable)(Value As T, Type As Type) As ConstantExpression
-            Dim Converter = TypeDescriptor.GetConverter(Type)
-            Dim Con = Expression.Constant(Value)
-            If Converter.CanConvertFrom(Value.GetType()) Then
-                Con = Expression.Constant(Converter.ConvertFrom(Value), Type)
-            End If
-            Return Con
-        End Function
-
-        Function FixConstant(Of Type, T As IComparable)(Value As T) As ConstantExpression
-            Return FixConstant(Value, GetType(Type))
-        End Function
-
-        Function FixConstant(Of T As IComparable)(Value As T) As ConstantExpression
-            Return FixConstant(Value, GetType(T))
         End Function
 
         <Extension()> Public Function FilterDateRange(Of T)(List As IQueryable(Of T), ByVal [Property] As Expression(Of Func(Of T, DateTime)), Range As DateRange) As IQueryable(Of T)
@@ -159,46 +119,17 @@ Namespace LINQ
 
         <Extension()>
         Public Function IsBetween(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V)), MinValue As V, MaxValue As V) As Expression(Of Func(Of T, Boolean))
-
-
             Return WhereExpression([Property], "between", {MinValue, MaxValue})
+        End Function
 
-            'Dim PropertyExpression As MemberExpression = [Property].CreatePropertyExpression
-            'Dim parameter = [Property].Parameters.FirstOrDefault()
+        <Extension()>
+        Public Function IsBetween(Of T)(ByVal [Property] As Expression(Of Func(Of T, DateTime)), DateRange As DateRange) As Expression(Of Func(Of T, Boolean))
+            Return WhereExpression([Property], "between", {DateRange.StartDate, DateRange.EndDate})
+        End Function
 
-            'Dim GreaterExp As Expression = Nothing
-            'Dim LessExp As Expression = Nothing
-
-            'Dim v1 As IComparable = MinValue
-            'Dim v2 As IComparable = MaxValue
-            'FixOrder(v1, v2)
-
-            'If (v1 IsNot Nothing) Then
-            '    GreaterExp = PropertyExpression.GreaterThanOrEqual(FixConstant(v1))
-            'End If
-
-            'If (v2 IsNot Nothing) Then
-            '    LessExp = PropertyExpression.LessThanOrEqual(FixConstant(v2))
-            'End If
-
-            'If v1 IsNot Nothing AndAlso v2 IsNot Nothing Then
-            '    If v1.IsEqual(v2) Then
-            '        Return Expression.Lambda(Of Func(Of T, Boolean))(PropertyExpression.Equal(FixConstant(v1)), parameter)
-            '    Else
-            '        Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[And](GreaterExp, LessExp), parameter)
-            '    End If
-            'End If
-
-            'If LessExp IsNot Nothing Then
-            '    Return Expression.Lambda(Of Func(Of T, Boolean))(LessExp, parameter)
-            'End If
-
-            'If GreaterExp IsNot Nothing Then
-            '    Return Expression.Lambda(Of Func(Of T, Boolean))(GreaterExp, parameter)
-            'End If
-
-            ' Return Expression.Lambda(Of Func(Of T, Boolean))(exp)
-
+        <Extension()>
+        Public Function IsBetween(Of T)(ByVal [Property] As Expression(Of Func(Of T, DateTime?)), DateRange As DateRange) As Expression(Of Func(Of T, Boolean))
+            Return WhereExpression([Property], "between", {DateRange.StartDate, DateRange.EndDate})
         End Function
 
         <Extension> Public Function CreatePropertyExpression(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V))) As MemberExpression
