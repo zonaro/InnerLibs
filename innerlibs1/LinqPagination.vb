@@ -81,10 +81,14 @@ Namespace LINQ
         End Function
 
 
-        Public Function WhereExpression(Of Type, V)(Prop As Expression(Of Func(Of Type, V)), [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
+        Public Function WhereExpression(Of Type, V)(PropertySelector As Expression(Of Func(Of Type, V)), [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
+            'TODO: Sapoha da erro na segunda vez
+            Dim parameter = GenerateParameterExpression(Of Type)()
+            Dim member = PropertySelector.Body.ToString().Split(".").Skip(1).Join(".")
+            Dim prop = PropertyExpression(parameter, member)
             Dim body As Expression = GetOperatorExpression(Prop, [Operator], PropertyValue, Conditional)
             body = Expression.Equal(body, Expression.Constant([Is]))
-            Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, Prop.Parameters.First())
+            Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
             Return finalExpression
         End Function
 
@@ -800,16 +804,7 @@ Namespace LINQ
             Return predicate
         End Function
 
-        ''' <summary>
-        ''' Cria uma Expression a partir de uma outra Expression
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <typeparam name="T2"></typeparam>
-        ''' <param name="predicate"></param>
-        ''' <returns></returns>
-        <Extension()> Function CreateExpression(Of T, T2)(predicate As Expression(Of Func(Of T, T2))) As Expression(Of Func(Of T, T2))
-            Return predicate
-        End Function
+
 
         ''' <summary>
         ''' Distingui os items de uma lista a partir de uma propriedade da classe
