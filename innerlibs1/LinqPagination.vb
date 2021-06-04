@@ -81,12 +81,10 @@ Namespace LINQ
         End Function
 
 
-        Public Function WhereExpression(Of Type, V)(PropertyExpression As Expression(Of Func(Of Type, V)), [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
-            Dim member = PropertyExpression
-            Dim parameter = member.Parameters.First()
-            Dim body As Expression = GetOperatorExpression(member, [Operator], PropertyValue, Conditional)
+        Public Function WhereExpression(Of Type, V)(Prop As Expression(Of Func(Of Type, V)), [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
+            Dim body As Expression = GetOperatorExpression(Prop, [Operator], PropertyValue, Conditional)
             body = Expression.Equal(body, Expression.Constant([Is]))
-            Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
+            Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, Prop.Parameters.First())
             Return finalExpression
         End Function
 
