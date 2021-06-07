@@ -162,24 +162,24 @@ Public Class DateRange
         If ForceFirstAndLastMoments Then
             ed = ed.AddMilliseconds(1)
         End If
-        Dim rangedias = sd.GetDifference(ed)
+        Dim range_diferenca = sd.GetDifference(ed)
         Select Case DateRangeInterval
             Case DateRangeInterval.Milliseconds
-                Return rangedias.TotalMilliseconds
+                Return range_diferenca.TotalMilliseconds
             Case DateRangeInterval.Seconds
-                Return rangedias.TotalSeconds
+                Return range_diferenca.TotalSeconds
             Case DateRangeInterval.Minutes
-                Return rangedias.TotalMinutes
+                Return range_diferenca.TotalMinutes
             Case DateRangeInterval.Hours
-                Return rangedias.TotalHours
+                Return range_diferenca.TotalHours
             Case DateRangeInterval.Days
-                Return rangedias.TotalDays
+                Return range_diferenca.TotalDays
             Case DateRangeInterval.Weeks
-                Return rangedias.TotalWeeks
+                Return range_diferenca.TotalWeeks
             Case DateRangeInterval.Months
-                Return rangedias.TotalMonths
+                Return range_diferenca.TotalMonths
             Case DateRangeInterval.Years
-                Return rangedias.TotalYears
+                Return range_diferenca.TotalYears
         End Select
         Return -1
     End Function
@@ -287,17 +287,17 @@ Public Class DateRange
     End Function
 
     ''' <summary>
-    ''' Retorna um <see cref="TimeFlow"/> contendo a diferença entre as datas
+    ''' Retorna um <see cref="LongTimeSpan"/> contendo a diferença entre as datas
     ''' </summary>
     ''' <returns></returns>
-    Function Difference() As TimeFlow
+    Function Difference() As LongTimeSpan
         If _Difference Is Nothing Then
             _Difference = StartDate.GetDifference(EndDate)
         End If
         Return _Difference
     End Function
 
-    Private _Difference As TimeFlow = Nothing
+    Private _Difference As LongTimeSpan = Nothing
 
     ''' <summary>
     ''' Cria um grupo de quinzenas que contenham este periodo
@@ -315,20 +315,46 @@ Public Class DateRange
         Return Difference.ToString
     End Function
 
+    ''' <summary>
+    ''' Filtra uma lista considerando o periodo deste DateRange
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="PropertyExpression"></param>
+    ''' <returns></returns>
     Public Function FilterList(Of T)(List As IEnumerable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime))) As IEnumerable(Of T)
         Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me).Compile())
     End Function
 
-
+    ''' <summary>
+    ''' Filtra uma lista considerando o periodo deste DateRange
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="PropertyExpression"></param>
+    ''' <returns></returns>
     Public Function FilterList(Of T)(List As IQueryable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime))) As IQueryable(Of T)
         Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me))
     End Function
 
+    ''' <summary>
+    ''' Filtra uma lista considerando o periodo deste DateRange
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="PropertyExpression"></param>
+    ''' <returns></returns>
     Public Function FilterList(Of T)(List As IEnumerable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime?))) As IEnumerable(Of T)
         Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me).Compile())
     End Function
 
-
+    ''' <summary>
+    ''' Filtra uma lista considerando o periodo deste DateRange
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="PropertyExpression"></param>
+    ''' <returns></returns>
     Public Function FilterList(Of T)(List As IQueryable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime?))) As IQueryable(Of T)
         Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me))
     End Function
@@ -408,16 +434,7 @@ Public Class DateRange
         Return If([Date], DateTime.Now).CalculatePercent(StartDate, EndDate)
     End Function
 
-    ''' <summary>
-    ''' Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Selector"></param>
-    ''' <param name="List"></param>
-    ''' <returns></returns>
-    Public Function Filter(Of T)(List As IEnumerable(Of T), Selector As Func(Of T, Date)) As IEnumerable(Of T)
-        Return List.Where(Function(x) Me.StartDate <= Selector(x) AndAlso Selector(x) <= Me.EndDate)
-    End Function
+
 
     ''' <summary>
     ''' Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
@@ -862,15 +879,15 @@ Public Module Calendars
     End Function
 
     ''' <summary>
-    ''' Retorna uma <see cref="TimeFlow"/> com a diferença entre 2 Datas
+    ''' Retorna uma <see cref="LongTimeSpan"/> com a diferença entre 2 Datas
     ''' </summary>
     ''' <param name="InitialDate"></param>
     ''' <param name="SecondDate"> </param>
     ''' <returns></returns>
     <Extension>
-    Public Function GetDifference(InitialDate As DateTime, SecondDate As DateTime) As TimeFlow
+    Public Function GetDifference(InitialDate As DateTime, SecondDate As DateTime) As LongTimeSpan
         FixDateOrder(InitialDate, SecondDate)
-        Return New TimeFlow(InitialDate, SecondDate)
+        Return New LongTimeSpan(InitialDate, SecondDate)
     End Function
 
     ''' <summary>

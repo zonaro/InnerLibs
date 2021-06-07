@@ -377,7 +377,7 @@ Namespace TimeMachine
     ''' <summary>
     ''' Classe para comapração entre 2 Datas com possibilidade de validação de dias Relevantes
     ''' </summary>
-    Public Class TimeFlow
+    Public Class LongTimeSpan
 
         ''' <summary>
         ''' Inicia uma instancia de TimeFlow
@@ -445,7 +445,7 @@ Namespace TimeMachine
                             Me.RelevantDaysOfWeek = RelevantDaysOfWeek.ToList
                             _phase = Phase.Done
                         Else
-                            days.Increment
+                            days = days + 1
                         End If
                         Exit Select
                 End Select
@@ -743,7 +743,7 @@ Namespace TimeMachine
 
                 Dim FinalDate = StartDate.Add(Item.ProductionTime)
 
-                Dim t As New TimeFlow(StartDate, FinalDate, Me.RelevantDaysOfWeek.ToArray)
+                Dim t As New LongTimeSpan(StartDate, FinalDate, Me.RelevantDaysOfWeek.ToArray)
 
                 For Each dia In t.RelevantDays
                     If Not dia.Date = FinalDate.Date Then
@@ -852,8 +852,8 @@ Namespace TimeMachine
         ''' Retorna um TimeFlow desta demanda
         ''' </summary>
         ''' <returns></returns>
-        Public Function BuildTimeFlow() As TimeFlow
-            Return New TimeFlow(Me.StartDate, Me.EndDate, RelevantDaysOfWeek.ToArray)
+        Public Function BuildTimeFlow() As LongTimeSpan
+            Return New LongTimeSpan(Me.StartDate, Me.EndDate, RelevantDaysOfWeek.ToArray)
         End Function
 
         ''' <summary>
@@ -1110,7 +1110,7 @@ Namespace TimeMachine
             FixDateOrder(StartDate, EndDate)
             Dim dias = Me.RelevantDaysOfWeek
             Dim totalhoras = 0
-            Dim cal As New TimeFlow(StartDate, EndDate, dias.ToArray)
+            Dim cal As New LongTimeSpan(StartDate, EndDate, dias.ToArray)
             For Each dia In cal.RelevantDays
                 Select Case dia.DayOfWeek
                     Case DayOfWeek.Sunday

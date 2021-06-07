@@ -602,7 +602,14 @@ Namespace LINQ
         ''' <param name="Type"></param>
         ''' <returns></returns>
         <Extension> Function GenerateParameterExpression(Type As Type) As ParameterExpression
-            Return Expression.Parameter(Type, Type.Name.CamelSplit.SelectJoin(Function(x) x.FirstOrDefault().IfBlank(Of Char)(""), "").ToLower())
+            Return Expression.Parameter(Type, Type.GenerateParameterName())
+        End Function
+
+        <Extension> Function GenerateParameterName(Type As Type) As String
+            If Type IsNot Nothing Then
+                Return Type.Name.CamelSplit.SelectJoin(Function(x) x.FirstOrDefault().IfBlank(Of Char)(""), "").ToLower()
+            End If
+            Return "p"
         End Function
 
         ''' <summary>
