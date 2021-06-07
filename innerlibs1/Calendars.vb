@@ -1,4 +1,5 @@
 ﻿Imports System.Globalization
+Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 
 Imports InnerLibs.LINQ
@@ -194,8 +195,6 @@ Public Class DateRange
             DateRangeInterval = GetLessAccurateDateRangeInterval()
         End If
         Select Case DateRangeInterval
-            Case DateRangeInterval.Milliseconds
-                Return New DateRange(StartDate.AddMilliseconds(Total), EndDate.AddMilliseconds(Total), ForceFirstAndLastMoments)
             Case DateRangeInterval.Seconds
                 Return New DateRange(StartDate.AddSeconds(Total), EndDate.AddSeconds(Total), ForceFirstAndLastMoments)
             Case DateRangeInterval.Minutes
@@ -210,6 +209,8 @@ Public Class DateRange
                 Return New DateRange(StartDate.AddMonths(Total), EndDate.AddMonths(Total), ForceFirstAndLastMoments)
             Case DateRangeInterval.Years
                 Return New DateRange(StartDate.AddYears(Total), EndDate.AddYears(Total), ForceFirstAndLastMoments)
+            Case Else
+                Return New DateRange(StartDate.AddMilliseconds(Total), EndDate.AddMilliseconds(Total), ForceFirstAndLastMoments)
         End Select
         Return New DateRange()
     End Function
@@ -238,7 +239,7 @@ Public Class DateRange
         Dim sd = StartDate
         Dim ed = EndDate
         If ForceFirstAndLastMoments Then
-            ed = ed.AddMilliseconds(1)
+            ed = ed.AddDays(1).Date
         End If
 
         Dim t = sd.GetDifference(ed)
@@ -314,7 +315,23 @@ Public Class DateRange
         Return Difference.ToString
     End Function
 
+    Public Function FilterList(Of T)(List As IEnumerable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime))) As IEnumerable(Of T)
+        Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me).Compile())
+    End Function
 
+
+    Public Function FilterList(Of T)(List As IQueryable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime))) As IQueryable(Of T)
+        Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me))
+    End Function
+
+    Public Function FilterList(Of T)(List As IEnumerable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime?))) As IEnumerable(Of T)
+        Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me).Compile())
+    End Function
+
+
+    Public Function FilterList(Of T)(List As IQueryable(Of T), PropertyExpression As Expression(Of Func(Of T, DateTime?))) As IQueryable(Of T)
+        Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me))
+    End Function
 
     ''' <summary>
     ''' Verifica se 2 periodos possuem interseção de datas

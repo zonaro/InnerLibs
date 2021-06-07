@@ -11,6 +11,15 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    <Extension> Public Function RemoveLast(Of T)(List As List(Of T))
+        If List IsNot Nothing AndAlso List.Any() Then
+            List.RemoveAt(List.Count() - 1)
+        End If
+        Return List
+    End Function
+
+
+
     <Extension()>
     Public Function IsEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
         Return Not Value1.IsGreaterThan(Value2) AndAlso Not Value1.IsLessThan(Value2)

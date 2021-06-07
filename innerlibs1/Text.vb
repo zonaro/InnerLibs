@@ -3859,9 +3859,20 @@ End Class
 ''' </summary>
 Public Class HtmlTag
 
-    Public Property TagName As String
+    Public Property TagName As String = "div"
     Public Property Text As String
     Public Property Attributes As New Dictionary(Of String, String)
+
+    Sub New()
+
+    End Sub
+
+
+
+    Sub New(TagName As String, Optional InnerHtml As String = "")
+        Me.TagName = TagName.IfBlank("div")
+        Me.Text = InnerHtml
+    End Sub
 
     Public Property [Class] As String
         Get
