@@ -447,7 +447,7 @@ Public Class DateRange
         Return List.Where(Function(x) Selector(x).HasValue).Where(Function(x) Me.StartDate <= Selector(x).Value AndAlso Selector(x).Value <= Me.EndDate)
     End Function
 
-    Public Function Pair() As IEnumerable(Of IComparable)
+    Public Function Pair() As IEnumerable(Of DateTime)
         Return {StartDate, EndDate}
     End Function
 End Class
