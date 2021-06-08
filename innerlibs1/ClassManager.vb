@@ -505,13 +505,42 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function DistinctCountTop(Of Type)(Arr As IEnumerable(Of Type), Top As Integer, Others As Type) As Dictionary(Of Type, Long)
         Dim a = Arr.DistinctCount()
-        If Top < 1 Then Return a
-        Dim topN = a.Take(Top).ToDictionary()
-        Dim o = a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value)
-        If o > 0 Then
-            topN.Add(Others, o)
-        End If
+        Dim topN = a.TakeTop(Top, Others)
         Return topN
+    End Function
+
+    ''' <summary>
+    ''' traz os top N valores de um dicionario e agrupa os outros
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Dic"></param>
+    ''' <param name="Top"></param>
+    ''' <param name="GroupOthersLabel"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function TakeTop(Of K, T)(Dic As IDictionary(Of K, T), Top As Integer, GroupOthersLabel As K) As Dictionary(Of K, T)
+        If Top < 1 Then Return Dic
+        Dim novodic = Dic.Take(Top).ToDictionary()
+        If GroupOthersLabel IsNot Nothing Then
+            novodic(GroupOthersLabel) = Dic.Values.Skip(Top).Select(Function(x) x)
+        End If
+        Return novodic
+    End Function
+
+    ''' <summary>
+    ''' traz os top N valores de um dicionario e agrupa os outros
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Dic"></param>
+    ''' <param name="Top"></param>
+    ''' <param name="GroupOthersLabel"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function TakeTop(Of K, T)(Dic As IDictionary(Of K, IEnumerable(Of T)), Top As Integer, GroupOthersLabel As K) As Dictionary(Of K, IEnumerable(Of T))
+        If Top < 1 Then Return Dic
+        Dim novodic = Dic.Take(Top).ToDictionary()
+        If GroupOthersLabel IsNot Nothing Then
+            novodic(GroupOthersLabel) = Dic.Values.Skip(Top).SelectMany(Function(x) x)
+        End If
+        Return novodic
     End Function
 
     ''' <summary>
@@ -533,11 +562,7 @@ Public Module ClassTools
     <Extension()> Public Function DistinctCountTop(Of Type, PropT)(Arr As IEnumerable(Of Type), Prop As Func(Of Type, PropT), Top As Integer, Others As PropT) As Dictionary(Of PropT, Long)
         Dim a = Arr.DistinctCount(Prop)
         If Top < 1 Then Return a
-        Dim topN = a.Take(Top).ToDictionary()
-        Dim o = a.Where(Function(x) x.Key.IsNotIn(topN.Keys)).Sum(Function(x) x.Value)
-        If o > 0 Then
-            topN.Add(Others, o)
-        End If
+        Dim topN = a.TakeTop(Top, Others)
         Return topN
     End Function
 
