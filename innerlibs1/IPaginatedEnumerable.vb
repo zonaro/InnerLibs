@@ -78,7 +78,7 @@ Namespace LINQ
             Get
                 Dim exp As Expression = Nothing
                 For Each valor In Filters.Where(Function(x) x.Enabled)
-                    If valor IsNot Nothing Then
+                    If valor IsNot Nothing AndAlso valor.Filter IsNot Nothing Then
                         If exp Is Nothing Then
                             exp = valor.Filter
                         Else
