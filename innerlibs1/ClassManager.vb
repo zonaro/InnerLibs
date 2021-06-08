@@ -517,11 +517,11 @@ Public Module ClassTools
     ''' <param name="Top"></param>
     ''' <param name="GroupOthersLabel"></param>
     ''' <returns></returns>
-    <Extension()> Public Function TakeTop(Of K, T)(Dic As IDictionary(Of K, T), Top As Integer, GroupOthersLabel As K) As Dictionary(Of K, T)
+    <Extension()> Public Function TakeTop(Of K, T As IConvertible)(Dic As IDictionary(Of K, T), Top As Integer, GroupOthersLabel As K) As Dictionary(Of K, T)
         If Top < 1 Then Return Dic
         Dim novodic = Dic.Take(Top).ToDictionary()
         If GroupOthersLabel IsNot Nothing Then
-            novodic(GroupOthersLabel) = Dic.Values.Skip(Top).Select(Function(x) x)
+            novodic(GroupOthersLabel) = Dic.Values.Skip(Top).Select(Function(x) x.ChangeType(Of Decimal)).Sum().ChangeType(Of T)
         End If
         Return novodic
     End Function
@@ -538,7 +538,7 @@ Public Module ClassTools
         If Top < 1 Then Return Dic
         Dim novodic = Dic.Take(Top).ToDictionary()
         If GroupOthersLabel IsNot Nothing Then
-            novodic(GroupOthersLabel) = Dic.Values.Skip(Top).SelectMany(Function(x) x)
+            novodic(GroupOthersLabel) = Dic.Values.Skip(Top).SelectMany(Function(x) x).Select(Function(x) x.ChangeType(Of Decimal)).Sum().ChangeType(Of T)
         End If
         Return novodic
     End Function
