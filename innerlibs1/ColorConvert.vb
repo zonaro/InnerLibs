@@ -237,7 +237,7 @@ Public Class HSVColor
     End Property
 
 
-    ReadOnly Property Hex As Byte
+    ReadOnly Property Hexadecimal As String
         Get
             Return SystemColor.ToHexadecimal()
         End Get
@@ -331,7 +331,7 @@ Public Class HSVColor
     End Function
 
     Public Overrides Function ToString() As String
-        Return Me.ToColor().ToHexadecimal()
+        Return Me.Name
     End Function
 
     Public Function Tetradic(Optional ExcludeMe As Boolean = False) As HSVColor()
