@@ -134,42 +134,6 @@ Public Module Generate
         Return init_rnd.Next(Min, Max + 1)
     End Function
 
-    ''' <summary>
-    ''' Gera uma cor a partir de uma palavra
-    ''' </summary>
-    ''' <param name="Text">Pode ser um texto em branco (Cor aleatória), uma <see cref="KnownColor"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
-    ''' <returns></returns>
-    <Extension> Public Function WordToColor(Text As String) As Color
-        If Text.IsBlank() Then
-            Return RandomColor()
-        End If
-
-        If Text.IsIn([Enum].GetNames(GetType(KnownColor)), StringComparer.InvariantCultureIgnoreCase) Then Return Color.FromName(Text)
-
-        If Text.IsNumber Then
-            Return Color.FromArgb(Text.ToInteger())
-        End If
-
-        Dim coresInt = Text.GetWords.Select(Function(p) p.ToCharArray().Sum(Function(a) AscW(a) ^ 2 * p.Length)).Sum()
-
-        Return Color.FromArgb(255, Color.FromArgb(coresInt))
-
-    End Function
-
-    ''' <summary>
-    ''' Gera uma cor aleatória misturandoo ou não os canais RGB
-    ''' </summary>
-    ''' <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
-    ''' <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
-    ''' <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
-    ''' <returns></returns>
-    Public Function RandomColor(Optional Red As Integer = -1, Optional Green As Integer = -1, Optional Blue As Integer = -1) As Color
-        Red = If(Red < 0, RandomNumber(0, 255), Red).LimitRange(0, 255)
-        Green = If(Green < 0, RandomNumber(0, 255), Green).LimitRange(0, 255)
-        Blue = If(Blue < 0, RandomNumber(0, 255), Blue).LimitRange(0, 255)
-        Dim cor = Color.FromArgb(Red, Green, Blue)
-        Return cor
-    End Function
 
     ''' <summary>
     ''' Gera uma lista com <paramref name="Quantity"/> cores diferentes

@@ -1,23 +1,31 @@
 ﻿Imports System.Drawing
 Imports System.Runtime.CompilerServices
-Imports System.Security.Cryptography
-Imports System.Text
+Imports System.Text.RegularExpressions
+Imports InnerLibs.LINQ
+
 ''' <summary>
 ''' Modulo de Conversão de Cores
 ''' </summary>
 ''' <remarks></remarks>
 Public Module ColorConvert
 
+    Public Function GrayscalePallete(Amount As Integer) As IEnumerable(Of Color)
+        Return MonochromaticPallete(Color.White, Amount)
+    End Function
 
-    ''' <summary>
-    ''' Gera uma cor de acordo com um texto
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function GenerateColor(Text As String) As Color
-        Dim ba = Encoding.Default.GetBytes(Text)
-        Dim hash = BitConverter.ToString(ba).RemoveAny("-")
-        Return hash.GetMiddleChars(6).ToColor()
+    Public Function MonochromaticPallete(Color As Color, Amount As Integer) As IEnumerable(Of Color)
+
+        Dim t = New RuleOfThree(Amount, 100, 1, Nothing)
+        Dim Percent = t.SecondEquation.Y
+
+        Color = Color.White.MergeWith(Color)
+
+        Dim l As New List(Of Color)
+        For index = 1 To Amount
+            Color = Color.MakeDarker(Percent)
+            l.Add(Color)
+        Next
+        Return l
     End Function
 
     ''' <summary>
@@ -44,8 +52,6 @@ Public Module ColorConvert
         Return TheColor.MergeWith(Color.FromArgb(d, d, d), Percent)
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se uma cor é escura
     ''' </summary>
@@ -56,6 +62,7 @@ Public Module ColorConvert
         Dim Y = 0.2126 * TheColor.R + 0.7152 * TheColor.G + 0.0722 * TheColor.B
         Return Y < 128
     End Function
+
     ''' <summary>
     ''' Verifica se uma clor é clara
     ''' </summary>
@@ -74,9 +81,10 @@ Public Module ColorConvert
     ''' <param name="percent">Porcentagem de mescla</param>
     ''' <returns></returns>
     <Extension>
-    Public Function MergeWith(TheColor As Color, AnotherColor As Color, Optional Percent As Single = 0.6) As Color
-        Return TheColor.Lerp(AnotherColor, Percent)
+    Public Function MergeWith(TheColor As Color, AnotherColor As Color, Optional Percent As Single = 50) As Color
+        Return TheColor.Lerp(AnotherColor, Percent / 100)
     End Function
+
     ''' <summary>
     ''' Escurece a cor mesclando ela com preto
     ''' </summary>
@@ -84,7 +92,7 @@ Public Module ColorConvert
     ''' <param name="percent">porcentagem de mesclagem</param>
     ''' <returns></returns>
     <Extension>
-    Public Function MakeDarker(TheColor As Color, Optional percent As Single = 0.6) As Color
+    Public Function MakeDarker(TheColor As Color, Optional percent As Single = 50) As Color
         Return TheColor.MergeWith(Color.Black, percent)
     End Function
 
@@ -95,7 +103,7 @@ Public Module ColorConvert
     ''' <param name="percent">Porcentagem de mesclagem</param>
     ''' <returns></returns>
     <Extension>
-    Public Function MakeLighter(TheColor As Color, Optional percent As Single = 0.6) As Color
+    Public Function MakeLighter(TheColor As Color, Optional percent As Single = 50) As Color
         Return TheColor.MergeWith(Color.White, percent)
     End Function
 
@@ -130,6 +138,7 @@ Public Module ColorConvert
         Dim Recolor = Color.R.ToString("X2") & Color.G.ToString("X2") & Color.B.ToString("X2")
         Return If(Hash, "#" & Recolor, Recolor)
     End Function
+
     ''' <summary>
     ''' Converte uma cor de sistema para CSS RGB
     ''' </summary>
@@ -146,14 +155,289 @@ Public Module ColorConvert
         Return "rgba(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & "," & Color.A.ToString() & ")"
     End Function
 
+    <Extension> Public Function IsHexaDecimal(ByVal Text As String) As Boolean
+        Dim i As Int32
+        Return Int32.TryParse(Text, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, i)
+    End Function
+
+    <Extension()> Public Function IsHexaDecimalColor(ByVal Text As String) As Boolean
+        Text = Text.RemoveFirstIf("#")
+        Dim myRegex As Regex = New Regex("^[a-fA-F0-9]+$")
+        Return Text.IsNotBlank AndAlso myRegex.IsMatch(Text)
+    End Function
+
     ''' <summary>
-    ''' Converte uma string hexadecimal (HTML) para objeto Color
+    ''' Gera uma cor a partir de uma palavra
     ''' </summary>
-    ''' <param name="HexadecimalColorString">String Hexadecimal</param>
-    ''' <returns>Um objeto color</returns>
-    <Extension()>
-    Public Function ToColor(HexadecimalColorString As String) As Color
-        Return ColorTranslator.FromHtml("#" & HexadecimalColorString.RemoveAny("#").IfBlank("000000"))
+    ''' <param name="Text">Pode ser um texto em branco (Cor aleatória), uma <see cref="KnownColor"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
+    ''' <returns></returns>
+    <Extension> Public Function ToColor(Text As String) As Color
+        If Text.IsBlank() Then
+            Return RandomColor()
+        End If
+
+        If Text.IsIn([Enum].GetNames(GetType(KnownColor)), StringComparer.InvariantCultureIgnoreCase) Then Return Color.FromName(Text)
+
+        If Text.IsNumber Then
+            Return Color.FromArgb(Text.ToInteger())
+        End If
+
+        If Text.IsHexaDecimalColor Then
+            Return ColorTranslator.FromHtml("#" & Text.RemoveFirstIf("#").IfBlank("000000"))
+        End If
+
+        Dim coresInt = Text.GetWords.Select(Function(p) p.ToCharArray().Sum(Function(a) AscW(a) ^ 2 * p.Length)).Sum()
+
+        Return Color.FromArgb(255, Color.FromArgb(coresInt))
+
+    End Function
+
+    ''' <summary>
+    ''' Gera uma cor aleatória misturandoo ou não os canais RGB
+    ''' </summary>
+    ''' <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
+    ''' <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
+    ''' <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
+    ''' <returns></returns>
+    Public Function RandomColor(Optional Red As Integer = -1, Optional Green As Integer = -1, Optional Blue As Integer = -1) As Color
+        Red = If(Red < 0, RandomNumber(0, 255), Red).LimitRange(0, 255)
+        Green = If(Green < 0, RandomNumber(0, 255), Green).LimitRange(0, 255)
+        Blue = If(Blue < 0, RandomNumber(0, 255), Blue).LimitRange(0, 255)
+        Dim cor = Color.FromArgb(Red, Green, Blue)
+        Return cor
     End Function
 
 End Module
+
+Public Class HSVColor
+    ReadOnly Property H As Double
+    ReadOnly Property S As Double
+    ReadOnly Property V As Double
+
+    ReadOnly Property R As Integer
+        Get
+            Return SystemColor.R
+        End Get
+    End Property
+
+    ReadOnly Property G As Integer
+        Get
+            Return SystemColor.G
+        End Get
+    End Property
+    ReadOnly Property B As Integer
+        Get
+            Return SystemColor.B
+        End Get
+    End Property
+    ReadOnly Property A As Byte
+        Get
+            Return SystemColor.A
+        End Get
+    End Property
+
+
+    ReadOnly Property Hex As Byte
+        Get
+            Return SystemColor.ToHexadecimal()
+        End Get
+    End Property
+
+    Sub New()
+        Me.New(RandomColor())
+    End Sub
+
+    Sub New(H As Double, S As Double, V As Double, Optional Name As String = Nothing)
+        Me.H = H
+        Me.S = S
+        Me.V = V
+        SystemColor = Me.ToColor()
+        _name = Name
+    End Sub
+
+    Sub New(R As Integer, G As Integer, B As Integer, A As Integer)
+        Me.New(Color.FromArgb(A, R, G, B))
+    End Sub
+
+    Sub New(Color As Color)
+        SystemColor = Color
+        Me._name = SystemColor.Name
+
+        Dim r As Double = Color.R / 255
+        Dim g As Double = Color.G / 255
+        Dim b As Double = Color.B / 255
+
+        Dim min As Double = Math.Min(Math.Min(r, g), b)
+        Dim max As Double = Math.Max(Math.Max(r, g), b)
+        V = max
+        Dim delta = max - min
+        If max = 0 OrElse delta = 0 Then
+            S = 0
+            H = 0
+        Else
+            S = delta / max
+            If (r = max) Then
+                'entre amarelo e magenta
+                H = (g - b) / delta
+            ElseIf (g = max) Then
+                'Entre ciano e amarelo
+                H = 2 + (b - r) / delta
+            Else
+                'entre magenta e ciano
+                H = 4 + (r - g) / delta
+            End If
+
+            H *= 60
+            If H < 0 Then
+                H += 360
+            End If
+        End If
+    End Sub
+
+    Sub New(Color As String)
+        Me.New(Color.ToColor())
+        _name = Color
+    End Sub
+
+    Public Function CreatePallete(PalleteType As String, Optional Amount As Integer = 4)
+        Dim rl = New List(Of HSVColor)
+        For Each item In Me.Monochromatic(Amount)
+            Dim c = CType(item.GetType().GetMethod(PalleteType).Invoke(item, {False}), HSVColor())
+            rl.AddRange(c)
+        Next
+        Return rl.DistinctBy(Function(x) x.Name).OrderBy(Function(x) x.H).ToArray()
+    End Function
+
+    ''' <summary>
+    ''' Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+    ''' </summary>
+    ''' <param name="excludeMe">Inclui esta cor no array</param>
+    ''' <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
+    ''' <returns></returns>
+    Public Function ModColor(ExcludeMe As Boolean, ParamArray Degrees As Integer()) As HSVColor()
+        If Not ExcludeMe Then
+            Return {Me}.ToArray().Union(ModColor(If(Degrees, {})).ToArray()).ToArray()
+        End If
+        Return ModColor(If(Degrees, {})).ToArray()
+    End Function
+
+    ''' <summary>
+    ''' Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+    ''' </summary>
+    ''' <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
+    ''' <returns></returns>
+    Public Function ModColor(ParamArray Degrees As Integer()) As HSVColor()
+        Return If(Degrees, {}).Select(Function(x) New HSVColor((Me.H + x) Mod 360, Me.S, Me.V)).OrderBy(Function(x) x.H).ToArray()
+    End Function
+
+    Public Overrides Function ToString() As String
+        Return Me.ToColor().ToHexadecimal()
+    End Function
+
+    Public Function Tetradic(Optional ExcludeMe As Boolean = False) As HSVColor()
+        Return Square(ExcludeMe)
+    End Function
+
+    Public Function Analogous(Optional ExcludeMe As Boolean = False) As HSVColor()
+        Return ModColor(ExcludeMe, 45, -45)
+    End Function
+
+    Public Function Square(Optional ExcludeMe As Boolean = False) As HSVColor()
+        Return ModColor(ExcludeMe, 90, 180, 260)
+    End Function
+
+    Public Function Triadic(Optional ExcludeMe As Boolean = False) As HSVColor()
+        Return ModColor(ExcludeMe, 120, -120)
+    End Function
+
+    Public Function Complementary(Optional ExcludeMe As Boolean = False) As HSVColor()
+        Return ModColor(ExcludeMe, 180)
+    End Function
+
+    Public Function SplitComplementary(Optional IncludeMe As Boolean = False) As HSVColor()
+        Return ModColor(IncludeMe, 150, 210)
+    End Function
+
+    Public Function Monochromatic(Optional Amount As Decimal = 4) As HSVColor()
+        Return MonochromaticPallete(Me.ToColor(), Amount).Select(Function(x) New HSVColor(x)).ToArray()
+    End Function
+
+    Public Function TetradicPallete(Optional Amount As Integer = 3) As HSVColor()
+        Return Me.Monochromatic(Amount).SelectMany(Function(item) item.Tetradic()).ToArray()
+    End Function
+
+    Public Function TriadicPallete(Optional Amount As Integer = 3) As HSVColor()
+        Return Me.Monochromatic(Amount).SelectMany(Function(item) item.Triadic()).ToArray()
+
+    End Function
+
+    Public Function ComplementaryPallete(Optional Amount As Integer = 3) As HSVColor()
+        Return Me.Monochromatic(Amount).SelectMany(Function(item) item.Complementary()).ToArray()
+    End Function
+
+    Public Function SplitComplementaryPallete(Optional Amount As Integer = 3) As HSVColor()
+        Return Me.Monochromatic(Amount).SelectMany(Function(item) item.SplitComplementary()).ToArray()
+
+    End Function
+
+    Private _name As String
+
+    Public ReadOnly Property Name As String
+        Get
+            Return _name.IfBlank(SystemColor.Name)
+        End Get
+    End Property
+
+
+    Public ReadOnly Property SystemColor As Color
+
+    Public Function ToColor() As Color
+
+        Dim H, S, V As Double
+        H = Me.H
+        S = Me.S
+        V = Me.V
+
+        While H < 0
+            H += 360
+        End While
+
+        While H > 360
+            H -= 360
+        End While
+
+        H = H / 360
+        Dim MAX As Byte = 255
+
+        If S > 0 Then
+            If H >= 1 Then H = 0
+            H = 6 * H
+            Dim hueFloor As Integer = CInt(Math.Floor(H))
+            Dim a As Byte = CByte(Math.Round(MAX * V * (1.0 - S)))
+            Dim b As Byte = CByte(Math.Round(MAX * V * (1.0 - (S * (H - hueFloor)))))
+            Dim c As Byte = CByte(Math.Round(MAX * V * (1.0 - (S * (1.0 - (H - hueFloor))))))
+            Dim d As Byte = CByte(Math.Round(MAX * V))
+
+            Select Case hueFloor
+                Case 0
+                    Return Color.FromArgb(MAX, d, c, a)
+                Case 1
+                    Return Color.FromArgb(MAX, b, d, a)
+                Case 2
+                    Return Color.FromArgb(MAX, a, d, c)
+                Case 3
+                    Return Color.FromArgb(MAX, a, b, d)
+                Case 4
+                    Return Color.FromArgb(MAX, c, a, d)
+                Case 5
+                    Return Color.FromArgb(MAX, d, a, b)
+                Case Else
+                    Return Color.FromArgb(0, 0, 0, 0)
+            End Select
+        Else
+            Dim d As Byte = CByte((V * MAX))
+            Return Color.FromArgb(255, d, d, d)
+        End If
+    End Function
+
+End Class
