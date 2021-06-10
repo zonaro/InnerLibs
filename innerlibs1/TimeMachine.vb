@@ -40,8 +40,7 @@ Namespace TimeMachine
                     datas.Add(sel(ii))
                 Next
 
-                datas = datas.OrderBy(Function(x) x).ToList
-                Dim periodo1 As New DateRange(datas.First, datas.Last)
+                Dim periodo1 As New DateRange(datas.Min, datas.Max)
                 Dim periodo2 As New DateRange(Me.Item(Key).Period.StartDate, Me.Item(Key).Period.EndDate)
 
                 If periodo1.MatchAny(periodo2) Then
@@ -309,7 +308,7 @@ Namespace TimeMachine
         ''' <returns></returns>
         ReadOnly Property AllDays As IEnumerable(Of Date)
             Get
-                Return Me.SelectMany(Function(x) x.Period.StartDate.GetBetween(x.Period.EndDate))
+                Return Me.SelectMany(Function(x) x.Period.StartDate.GetDaysBetween(x.Period.EndDate))
             End Get
         End Property
 
@@ -797,14 +796,14 @@ Namespace TimeMachine
         ''' <summary>
         ''' Cria uma demanda após a demanda atual com as mesmas caracteristicas
         ''' </summary>
-        ''' <param name="SafeTime">Tempo adicionado entre uma demanda e outra</param>
+        ''' <param name="DelayTime">Tempo adicionado entre uma demanda e outra</param>
         ''' <returns></returns>
-        Public Function CloneAndQueue(Optional SafeTime As TimeSpan = Nothing) As TimeDemand
-            If SafeTime = Nothing Then
-                SafeTime = New TimeSpan(0)
+        Public Function CloneAndQueue(Optional DelayTime As TimeSpan = Nothing) As TimeDemand
+            If DelayTime = Nothing Then
+                DelayTime = New TimeSpan(0)
             End If
             Dim enda = Me.EndDate
-            Return New TimeDemand(enda.Add(SafeTime), Me.Item.Time, Me.Item.Quantity, Me.Item.SingularItem, Me.Item.MultipleItem)
+            Return New TimeDemand(enda.Add(DelayTime), Me.Item.Time, Me.Item.Quantity, Me.Item.SingularItem, Me.Item.MultipleItem)
         End Function
 
         ''' <summary>
@@ -812,9 +811,9 @@ Namespace TimeMachine
         ''' </summary>
         ''' <param name="DaysOfWeek">Dias da semana</param>
         ''' <returns></returns>
-        Public ReadOnly Property WorkDays(ParamArray DaysOfWeek() As DayOfWeek) As List(Of Date)
+        Public ReadOnly Property WorkDays(ParamArray DaysOfWeek() As DayOfWeek) As IEnumerable(Of Date)
             Get
-                Return Calendars.GetBetween(StartDate, EndDate, DaysOfWeek.ToArray)
+                Return Calendars.GetDaysBetween(StartDate, EndDate, DaysOfWeek.ToArray)
             End Get
         End Property
 
@@ -822,9 +821,9 @@ Namespace TimeMachine
         ''' Dias relevantes (letivos) entre as datas inicial e final
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property RelevantDays As List(Of Date)
+        Public ReadOnly Property RelevantDays As IEnumerable(Of Date)
             Get
-                Dim dias = WorkDays(RelevantDaysOfWeek.ToArray).ClearTime
+                Dim dias = WorkDays(RelevantDaysOfWeek.ToArray).ClearTime.ToList
                 For Each feriado In HoliDays.ClearTime
                     If dias.Contains(feriado) Then
                         dias.Remove(feriado)
@@ -838,9 +837,9 @@ Namespace TimeMachine
         ''' Dias não relevantes (nao letivos e feriados) entre as datas inicial e final
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property NonRelevantDays As List(Of Date)
+        Public ReadOnly Property NonRelevantDays As IEnumerable(Of Date)
             Get
-                Dim dias = WorkDays.ClearTime
+                Dim dias = WorkDays.ClearTime.ToList
                 For Each d In RelevantDays()
                     dias.Remove(d)
                 Next

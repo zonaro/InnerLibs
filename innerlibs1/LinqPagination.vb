@@ -82,7 +82,6 @@ Namespace LINQ
 
 
         Public Function WhereExpression(Of Type, V)(PropertySelector As Expression(Of Func(Of Type, V)), [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
-            'TODO: Sapoha da erro na segunda vez
             Dim parameter = GenerateParameterExpression(Of Type)()
             Dim member = PropertySelector.Body.ToString().Split(".").Skip(1).Join(".")
             Dim prop = PropertyExpression(parameter, member)

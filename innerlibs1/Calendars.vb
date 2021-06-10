@@ -5,37 +5,7 @@ Imports System.Runtime.CompilerServices
 Imports InnerLibs.LINQ
 Imports InnerLibs.TimeMachine
 
-Public Class DateRange(Of DataType)
-    Inherits DateRange
 
-    Property DataCollection As New List(Of DataType)
-
-    Property DateSelector As New List(Of Func(Of DataType, Date))
-
-    ''' <summary>
-    ''' Instancia um novo periodo entre 2 datas
-    ''' </summary>
-    ''' <param name="StartDate"></param>
-    ''' <param name="EndDate"></param>
-    Sub New(StartDate As Date, EndDate As Date, Data As List(Of DataType), ForceFirstAndLastMoments As Boolean, ParamArray DateSelector As Func(Of DataType, Date)())
-        MyBase.New(StartDate, EndDate)
-        Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
-        Me.DataCollection = If(Data, New List(Of DataType))
-        Me.DateSelector.AddRange(If(DateSelector, {}))
-    End Sub
-
-    ''' <summary>
-    ''' Instancia um novo periodo entre 2 datas
-    ''' </summary>
-    ''' <param name="StartDate"></param>
-    ''' <param name="EndDate"></param>
-    Sub New(StartDate As Date, EndDate As Date, Data As List(Of DataType), ParamArray DateSelector As Func(Of DataType, Date)())
-        Me.New(StartDate, EndDate, Data, True, DateSelector)
-    End Sub
-
-
-
-End Class
 
 Public Enum DateRangeInterval
     LessAccurate = -1
@@ -114,6 +84,26 @@ Public Class DateRange
         _isdefault = True
     End Sub
 
+    Public Sub New(Dates As IEnumerable(Of Date))
+        If Dates Is Nothing OrElse Not Dates.Any() Then
+            Throw New ArgumentException("Dates list is null or empty")
+        End If
+        Me.StartDate = Dates.Min
+        Me.EndDate = Dates.Max()
+        Me.ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours
+        _isdefault = False
+    End Sub
+
+    Public Sub New(Dates As IEnumerable(Of Date), ForceFirstAndLastMoments As Boolean)
+        If Dates Is Nothing OrElse Not Dates.Any() Then
+            Throw New ArgumentException("Dates list is null or empty")
+        End If
+        Me.StartDate = Dates.Min
+        Me.EndDate = Dates.Max()
+        Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
+        _isdefault = False
+    End Sub
+
     ''' <summary>
     ''' Instancia um novo periodo entre 2 datas
     ''' </summary>
@@ -145,7 +135,7 @@ Public Class DateRange
     ''' <param name="DaysOfWeek"></param>
     ''' <returns></returns>
     Public Function GetDays(ParamArray DaysOfWeek As DayOfWeek()) As IEnumerable(Of Date)
-        Return StartDate.GetBetween(EndDate, DaysOfWeek)
+        Return StartDate.GetDaysBetween(EndDate, DaysOfWeek)
     End Function
 
     ''' <summary>
@@ -184,6 +174,31 @@ Public Class DateRange
         Return -1
     End Function
 
+
+    Public Shared Function AddInterval(Datetime As DateTime, DateRangeInterval As DateRangeInterval, Total As Decimal)
+        If DateRangeInterval = DateRangeInterval.LessAccurate Then
+            Throw New ArgumentException("You cant use LessAcurate on this scenario. LessAccurate only work inside DateRanges")
+        End If
+        Select Case DateRangeInterval
+            Case DateRangeInterval.Seconds
+                Return Datetime.AddSeconds(Total)
+            Case DateRangeInterval.Minutes
+                Return Datetime.AddMinutes(Total)
+            Case DateRangeInterval.Hours
+                Return Datetime.AddHours(Total)
+            Case DateRangeInterval.Days
+                Return Datetime.AddDays(Total)
+            Case DateRangeInterval.Weeks
+                Return Datetime.AddDays(Total * 7)
+            Case DateRangeInterval.Months
+                Return Datetime.AddMonths(Total)
+            Case DateRangeInterval.Years
+                Return Datetime.AddYears(Total)
+            Case Else
+                Return Datetime.AddMilliseconds(Total)
+        End Select
+    End Function
+
     ''' <summary>
     ''' Move um poeriodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
     ''' </summary>
@@ -194,25 +209,7 @@ Public Class DateRange
         If DateRangeInterval = DateRangeInterval.LessAccurate Then
             DateRangeInterval = GetLessAccurateDateRangeInterval()
         End If
-        Select Case DateRangeInterval
-            Case DateRangeInterval.Seconds
-                Return New DateRange(StartDate.AddSeconds(Total), EndDate.AddSeconds(Total), ForceFirstAndLastMoments)
-            Case DateRangeInterval.Minutes
-                Return New DateRange(StartDate.AddMinutes(Total), EndDate.AddMinutes(Total), ForceFirstAndLastMoments)
-            Case DateRangeInterval.Hours
-                Return New DateRange(StartDate.AddHours(Total), EndDate.AddHours(Total), ForceFirstAndLastMoments)
-            Case DateRangeInterval.Days
-                Return New DateRange(StartDate.AddDays(Total), EndDate.AddDays(Total), ForceFirstAndLastMoments)
-            Case DateRangeInterval.Weeks
-                Return New DateRange(StartDate.AddDays(Total * 7), EndDate.AddDays(Total * 7), ForceFirstAndLastMoments)
-            Case DateRangeInterval.Months
-                Return New DateRange(StartDate.AddMonths(Total), EndDate.AddMonths(Total), ForceFirstAndLastMoments)
-            Case DateRangeInterval.Years
-                Return New DateRange(StartDate.AddYears(Total), EndDate.AddYears(Total), ForceFirstAndLastMoments)
-            Case Else
-                Return New DateRange(StartDate.AddMilliseconds(Total), EndDate.AddMilliseconds(Total), ForceFirstAndLastMoments)
-        End Select
-        Return New DateRange()
+        Return New DateRange(AddInterval(StartDate, DateRangeInterval, Total), AddInterval(EndDate, DateRangeInterval, Total), ForceFirstAndLastMoments)
     End Function
 
     ''' <summary>
@@ -220,7 +217,7 @@ Public Class DateRange
     ''' </summary>
     ''' <returns></returns>
     Public Function PreviousPeriod(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange
-        Return MovePeriod(DateRangeInterval, -1 * GetPeriodAs(DateRangeInterval))
+        Return MovePeriod(DateRangeInterval, -GetPeriodAs(DateRangeInterval))
     End Function
 
     ''' <summary>
@@ -359,6 +356,49 @@ Public Class DateRange
         Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me))
     End Function
 
+
+    ''' <summary>
+    ''' Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrugrupamento de datas
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="PropertyExpression"></param>
+    ''' <param name="GroupByExpression"></param>
+    ''' <param name="DateRangeInterval"></param>
+    ''' <returns></returns>
+    Public Function GroupList(Of T)(List As IEnumerable(Of T), PropertyExpression As Func(Of T, DateTime), GroupByExpression As Func(Of DateTime, String), Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As Dictionary(Of String, IEnumerable(Of T))
+        Dim keys = GetBetween(DateRangeInterval).Select(GroupByExpression).Distinct()
+        Dim gp = List.GroupBy(Function(x) GroupByExpression(PropertyExpression(x)))
+        Dim dic As New Dictionary(Of String, IEnumerable(Of T))
+        For Each k In keys
+            If Not dic.ContainsKey(k) Then
+                dic(k) = New List(Of T)
+            End If
+            CType(dic(k), List(Of T)).AddRange(gp(k).AsEnumerable)
+        Next
+        Return dic
+    End Function
+
+    Public Function GroupList(Of T)(List As IEnumerable(Of T), PropertyExpression As Func(Of T, DateTime?), GroupByExpression As Func(Of DateTime?, String), Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As Dictionary(Of String, IEnumerable(Of T))
+        Dim keys = GetBetween(DateRangeInterval).Cast(Of Date?).Select(GroupByExpression).Distinct()
+        Dim gp = List.GroupBy(Function(x) GroupByExpression(PropertyExpression(x))).ToDictionary()
+        Dim dic As New Dictionary(Of String, IEnumerable(Of T))
+        For Each k In keys
+            If Not dic.ContainsKey(k) Then
+                dic(k) = New List(Of T)
+            End If
+            Dim l = CType(dic(k), List(Of T))
+            If (gp.ContainsKey(k)) Then
+                For Each item In gp(k).AsEnumerable
+                    l.Add(item)
+                Next
+            End If
+            dic(k) = l
+        Next
+        Return dic
+    End Function
+
+
     ''' <summary>
     ''' Verifica se 2 periodos possuem interseção de datas
     ''' </summary>
@@ -434,21 +474,27 @@ Public Class DateRange
         Return If([Date], DateTime.Now).CalculatePercent(StartDate, EndDate)
     End Function
 
-
-
-    ''' <summary>
-    ''' Filtra uma lista a partir de um seletor de data trazendo apenas os valores dete periodo
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Selector"></param>
-    ''' <param name="List"></param>
-    ''' <returns></returns>
-    Public Function Filter(Of T)(Selector As Func(Of T, Date?), List As IEnumerable(Of T)) As IEnumerable(Of T)
-        Return List.Where(Function(x) Selector(x).HasValue).Where(Function(x) Me.StartDate <= Selector(x).Value AndAlso Selector(x).Value <= Me.EndDate)
-    End Function
-
     Public Function Pair() As IEnumerable(Of DateTime)
         Return {StartDate, EndDate}
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma lista com as datas entre <see cref="StartDate"/> e <see cref="EndDate"/> utilizando um Intervalo
+    ''' </summary>
+    ''' <param name="DateRangeInterval"></param>
+    ''' <returns></returns>
+    Public Function GetBetween(Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As IEnumerable(Of DateTime)
+        If DateRangeInterval = DateRangeInterval.LessAccurate Then
+            DateRangeInterval = GetLessAccurateDateRangeInterval()
+        End If
+        Dim l = New List(Of Date) From {StartDate}
+        Dim curdate = StartDate
+        While curdate < EndDate
+            curdate = AddInterval(curdate, DateRangeInterval, 1)
+            l.Add(curdate)
+        End While
+        l.Add(EndDate)
+        Return l.Distinct()
     End Function
 End Class
 
@@ -925,7 +971,7 @@ Public Module Calendars
     ''' <param name="EndDate"></param>
     ''' <param name="DaysOfWeek"></param>
     ''' <returns></returns>
-    <Extension()> Public Function GetBetween(StartDate As Date, EndDate As Date, ParamArray DaysOfWeek() As DayOfWeek) As IEnumerable(Of Date)
+    <Extension()> Public Function GetDaysBetween(StartDate As Date, EndDate As Date, ParamArray DaysOfWeek() As DayOfWeek) As IEnumerable(Of Date)
         Dim l = New List(Of Date) From {StartDate.Date}
         DaysOfWeek = If(DaysOfWeek, {})
         If DaysOfWeek.Length = 0 Then
@@ -945,8 +991,8 @@ Public Module Calendars
     ''' Remove o tempo de todas as datas de uma lista e retorna uma nova lista
     ''' </summary>
     ''' <param name="List">Lista que será alterada</param>
-    <Extension()> Function ClearTime(List As List(Of Date)) As List(Of Date)
-        Return List.Select(Function(x) x.Date).ToList
+    <Extension()> Function ClearTime(List As IEnumerable(Of Date)) As IEnumerable(Of Date)
+        Return List.Select(Function(x) x.Date)
     End Function
 
     ''' <summary>
