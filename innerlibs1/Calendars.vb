@@ -494,7 +494,7 @@ Public Class DateRange
             l.Add(curdate)
         End While
         l.Add(EndDate)
-        Return l.Distinct()
+        Return l.Where(Function(x) x <= EndDate).Where(Function(x) x >= StartDate).Distinct()
     End Function
 End Class
 
