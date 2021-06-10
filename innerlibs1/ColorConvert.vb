@@ -210,6 +210,7 @@ Public Module ColorConvert
 End Module
 
 Public Class HSVColor
+
     ReadOnly Property H As Double
     ReadOnly Property S As Double
     ReadOnly Property V As Double
@@ -299,13 +300,13 @@ Public Class HSVColor
         _name = Color
     End Sub
 
-    Public Function CreatePallete(PalleteType As String, Optional Amount As Integer = 4)
+    Public Function CreatePallete(PalleteType As String, Optional Amount As Integer = 4) As HSVColor()
         Dim rl = New List(Of HSVColor)
         For Each item In Me.Monochromatic(Amount)
             Dim c = CType(item.GetType().GetMethod(PalleteType).Invoke(item, {False}), HSVColor())
             rl.AddRange(c)
         Next
-        Return rl.DistinctBy(Function(x) x.Name).OrderBy(Function(x) x.H).ToArray()
+        Return rl.ToArray()
     End Function
 
     ''' <summary>

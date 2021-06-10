@@ -81,7 +81,6 @@
     <Compile Include="Calendars.vb" />
     <Compile Include="ClassManager.vb" />
     <Compile Include="ColorConvert.vb" />
-    <Compile Include="ColorEx.vb" />
     <Compile Include="ConsoleExtensions.vb" />
     <Compile Include="Converter.vb" />
     <Compile Include="Dice.vb" />
