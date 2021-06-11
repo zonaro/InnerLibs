@@ -5,8 +5,6 @@ Imports System.Runtime.CompilerServices
 Imports InnerLibs.LINQ
 Imports InnerLibs.TimeMachine
 
-
-
 Public Enum DateRangeInterval
     LessAccurate = -1
     Milliseconds = 0
@@ -58,6 +56,9 @@ Public Class DateRange
         End Set
     End Property
 
+
+
+
     ''' <summary>
     ''' Se true, ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia
     ''' </summary>
@@ -86,22 +87,35 @@ Public Class DateRange
 
     Public Sub New(Dates As IEnumerable(Of Date))
         If Dates Is Nothing OrElse Not Dates.Any() Then
-            Throw New ArgumentException("Dates list is null or empty")
+            Throw New ArgumentException("Argument 'Dates' is null or empty")
         End If
-        Me.StartDate = Dates.Min
+        Me.StartDate = Dates.Min()
         Me.EndDate = Dates.Max()
         Me.ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours
         _isdefault = False
     End Sub
 
-    Public Sub New(Dates As IEnumerable(Of Date), ForceFirstAndLastMoments As Boolean)
-        If Dates Is Nothing OrElse Not Dates.Any() Then
-            Throw New ArgumentException("Dates list is null or empty")
+    Public Sub New(Dates As IEnumerable(Of Date?))
+        Dates = If(Dates, {})
+        Dates = Dates.Where(Function(x) x.HasValue)
+        If Dates.Any() Then
+            Me.StartDate = Dates.Min().Value
+            Me.EndDate = Dates.Max().Value
+            Me.ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours
+            _isdefault = False
+        Else
+            Throw New ArgumentException("Argument 'Dates' is null or empty")
         End If
-        Me.StartDate = Dates.Min
-        Me.EndDate = Dates.Max()
+    End Sub
+
+    Public Sub New(Dates As IEnumerable(Of Date), ForceFirstAndLastMoments As Boolean)
+        Me.New(Dates)
         Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
-        _isdefault = False
+    End Sub
+
+    Public Sub New(Dates As IEnumerable(Of Date?), ForceFirstAndLastMoments As Boolean)
+        Me.New(Dates)
+        Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
     End Sub
 
     ''' <summary>
@@ -150,7 +164,7 @@ Public Class DateRange
         Dim sd = StartDate
         Dim ed = EndDate
         If ForceFirstAndLastMoments Then
-            ed = ed.AddMilliseconds(1)
+            ed = ed.AddHours(1).Date
         End If
         Dim range_diferenca = sd.GetDifference(ed)
         Select Case DateRangeInterval
@@ -200,7 +214,7 @@ Public Class DateRange
     End Function
 
     ''' <summary>
-    ''' Move um poeriodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
+    ''' Move um periodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
     ''' </summary>
     ''' <param name="DateRangeInterval"></param>
     ''' <param name="Total"></param>
@@ -210,6 +224,25 @@ Public Class DateRange
             DateRangeInterval = GetLessAccurateDateRangeInterval()
         End If
         Return New DateRange(AddInterval(StartDate, DateRangeInterval, Total), AddInterval(EndDate, DateRangeInterval, Total), ForceFirstAndLastMoments)
+    End Function
+
+    ''' <summary>
+    ''' Clona este DateRange
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Clone() As DateRange
+        Return New DateRange(StartDate, EndDate, ForceFirstAndLastMoments) With {._isdefault = Me._isdefault, ._Difference = _Difference}
+    End Function
+
+    ''' <summary>
+    ''' Pula um determinado numero de periodos
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function JumpPeriod(Amount As Integer, Optional DateRangeInterval As DateRangeInterval = DateRangeInterval.LessAccurate) As DateRange
+        If Amount = 0 Then
+            Return Clone()
+        End If
+        Return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval) * Amount)
     End Function
 
     ''' <summary>
@@ -236,7 +269,7 @@ Public Class DateRange
         Dim sd = StartDate
         Dim ed = EndDate
         If ForceFirstAndLastMoments Then
-            ed = ed.AddDays(1).Date
+            ed = ed.AddHours(1).Date
         End If
 
         Dim t = sd.GetDifference(ed)
@@ -293,6 +326,8 @@ Public Class DateRange
         End If
         Return _Difference
     End Function
+
+
 
     Private _Difference As LongTimeSpan = Nothing
 
@@ -356,7 +391,6 @@ Public Class DateRange
         Return List.Where(LINQExtensions.IsBetween(PropertyExpression, Me))
     End Function
 
-
     ''' <summary>
     ''' Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrugrupamento de datas
     ''' </summary>
@@ -397,7 +431,6 @@ Public Class DateRange
         Next
         Return dic
     End Function
-
 
     ''' <summary>
     ''' Verifica se 2 periodos possuem interseção de datas
@@ -496,6 +529,7 @@ Public Class DateRange
         l.Add(EndDate)
         Return l.Where(Function(x) x <= EndDate).Where(Function(x) x >= StartDate).Distinct()
     End Function
+
 End Class
 
 ''' <summary>
@@ -503,6 +537,28 @@ End Class
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Calendars
+
+    <Extension()>
+    Public Function CreateDateRange(Of T As Class)(ByVal List As IQueryable(Of T), ByVal PropertyExpression As Expression(Of Func(Of T, DateTime?)), ByVal Optional StartDate As DateTime? = Nothing, ByVal Optional EndDate As DateTime? = Nothing) As DateRange
+
+        Dim Period = New DateRange()
+
+        Period.ForceFirstAndLastMoments = True
+
+        StartDate = If(StartDate, List.Min(PropertyExpression))
+        EndDate = If(EndDate, List.Max(PropertyExpression))
+
+        If StartDate.HasValue Then
+            Period.StartDate = StartDate.Value
+        End If
+
+        If EndDate.HasValue Then
+            Period.StartDate = EndDate.Value
+        End If
+
+        Return Period
+    End Function
+
 
     ''' <summary>
     ''' Pega o numero da semana a partir de uma data
@@ -845,9 +901,6 @@ Public Module Calendars
         Return New Date([Date].Year, 11, 1).Date
     End Function
 
-
-
-
     ''' <summary>
     ''' Retorna o numero da semana relativa ao ano
     ''' </summary>
@@ -985,7 +1038,6 @@ Public Module Calendars
         l.Add(EndDate.Date)
         Return l.Distinct().Where(Function(x) x.DayOfWeek.IsIn(DaysOfWeek))
     End Function
-
 
     ''' <summary>
     ''' Remove o tempo de todas as datas de uma lista e retorna uma nova lista
@@ -1312,8 +1364,6 @@ Public Module Calendars
             Return WeekDays
         End Get
     End Property
-
-
 
     ''' <summary>
     ''' Tipo de Apresentação dos Meses/Dias da Semana/Estado
