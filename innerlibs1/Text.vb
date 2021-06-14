@@ -1482,22 +1482,22 @@ Public Module Text
     ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
     ''' </summary>
     ''' <param name="Text">     Texto</param>
-    ''' <param name="QuoteChar">Caractere de encapsulamento</param>
+    ''' <param name="OpenQuoteChar">Caractere de encapsulamento</param>
     ''' <returns></returns>
     <Extension()>
-    Function Quote(Text As String, Optional QuoteChar As Char = """"c) As String
-        Return QuoteChar & Text & QuoteChar.ToString.GetOppositeWrapChar
+    Function Quote(Text As String, Optional OpenQuoteChar As Char = """"c) As String
+        Return OpenQuoteChar & Text & OpenQuoteChar.ToString.GetOppositeWrapChar
     End Function
 
     ''' <summary>
     ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) é um alias de <see cref="Quote(String, Char)"/>
     ''' </summary>
     ''' <param name="Text">     Texto</param>
-    ''' <param name="QuoteChar">Caractere de encapsulamento</param>
+    ''' <param name="BracketChar">Caractere de encapsulamento</param>
     ''' <returns></returns>
     <Extension()>
-    Function Brackfy(Text As String, Optional QuoteChar As Char = """"c) As String
-        Return Text.Quote(QuoteChar)
+    Function Brackfy(Text As String, Optional BracketChar As Char = "{"c) As String
+        Return Text.Quote(BracketChar)
     End Function
 
     ''' <summary>
@@ -1609,6 +1609,17 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+    ''' </summary>
+    ''' <param name="Text">              Texto</param>
+    ''' <param name="StartStringTest">     Conjunto de textos que serão comparados</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function RemoveFirstAny(ByVal Text As String, ParamArray StartStringTest As String()) As String
+        Return Text.RemoveFirstAny(True, StartStringTest)
+    End Function
+
+    ''' <summary>
     ''' Remove os X primeiros caracteres
     ''' </summary>
     ''' <param name="Text">     Texto</param>
@@ -1667,6 +1678,18 @@ Public Module Text
         End While
         Return re
     End Function
+
+    ''' <summary>
+    ''' Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+    ''' </summary>
+    ''' <param name="Text">              Texto</param>
+    ''' <param name="EndStringTest">     Conjunto de textos que serão comparados</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function RemoveLastAny(ByVal Text As String, ParamArray EndStringTest As String()) As String
+        Return Text.RemoveLastAny(True, EndStringTest)
+    End Function
+
 
     ''' <summary>
     ''' Remove os X ultimos caracteres
