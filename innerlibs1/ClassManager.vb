@@ -11,7 +11,7 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
-    <Extension> Public Function RemoveLast(Of T)(List As List(Of T))
+    <Extension> Public Function RemoveLast(Of T)(List As List(Of T)) As List(Of T)
         If List IsNot Nothing AndAlso List.Any() Then
             List.RemoveAt(List.Count() - 1)
         End If
@@ -768,7 +768,7 @@ Public Module ClassTools
 
     <Extension()> Public Function ParamSplit(Text As String) As String()
         Dim name As String = Text.GetBefore("(")
-        Dim params = Regex.Split(Text.RemoveFirstIf(name).RemoveFirstIf("(").RemoveLastIf(")"), ",(?=(?:[^""]*""[^""]*"")*[^""]*$)")
+        Dim params = Regex.Split(Text.RemoveFirstEqual(name).RemoveFirstEqual("(").RemoveLastEqual(")"), ",(?=(?:[^""]*""[^""]*"")*[^""]*$)")
         Return params
     End Function
 

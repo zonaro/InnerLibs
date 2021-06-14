@@ -161,7 +161,7 @@ Public Module ColorConvert
     End Function
 
     <Extension()> Public Function IsHexaDecimalColor(ByVal Text As String) As Boolean
-        Text = Text.RemoveFirstIf("#")
+        Text = Text.RemoveFirstEqual("#")
         Dim myRegex As Regex = New Regex("^[a-fA-F0-9]+$")
         Return Text.IsNotBlank AndAlso myRegex.IsMatch(Text)
     End Function
@@ -183,7 +183,7 @@ Public Module ColorConvert
         End If
 
         If Text.IsHexaDecimalColor Then
-            Return ColorTranslator.FromHtml("#" & Text.RemoveFirstIf("#").IfBlank("000000"))
+            Return ColorTranslator.FromHtml("#" & Text.RemoveFirstEqual("#").IfBlank("000000"))
         End If
 
         Dim coresInt = Text.GetWords.Select(Function(p) p.ToCharArray().Sum(Function(a) AscW(a) ^ 2 * p.Length)).Sum()

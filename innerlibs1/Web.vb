@@ -169,12 +169,12 @@ Public Module Web
     <Extension()> Public Function ReplaceUrlParameters(Of T)(UrlPattern As String, obj As T) As String
         UrlPattern = Regex.Replace(UrlPattern, "{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}")
         If obj IsNot Nothing Then UrlPattern = UrlPattern.Inject(obj)
-        Return UrlPattern.RemoveLastIf("/")
+        Return UrlPattern.RemoveLastEqual("/")
     End Function
 
     <Extension()> Public Function RemoveUrlParameters(UrlPattern As String) As String
         UrlPattern = Regex.Replace(UrlPattern, "{([^:]+)\s*:\s*(.+?)(?<!\\)}", "")
-        Return UrlPattern.RemoveLastIf("/")
+        Return UrlPattern.RemoveLastEqual("/")
     End Function
 
 

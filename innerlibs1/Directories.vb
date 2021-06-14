@@ -300,7 +300,7 @@ Public Module Directories
     ''' <returns></returns>
     <Extension>
     Public Function HasFiles(Directory As DirectoryInfo) As Boolean
-        Return Directory.GetFiles.Count > 0
+        Return Directory.GetFiles.Any()
     End Function
 
     ''' <summary>
@@ -310,7 +310,7 @@ Public Module Directories
     ''' <returns></returns>
     <Extension>
     Public Function HasDirectories(Directory As DirectoryInfo) As Boolean
-        Return Directory.GetDirectories.Count > 0
+        Return Directory.GetDirectories.Any()
     End Function
 
     ''' <summary>

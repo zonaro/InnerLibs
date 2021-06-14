@@ -288,7 +288,7 @@ Public Class FileType
         For Each ext In Me.Extensions
             r &= ("*" & ext & ";")
         Next
-        r = Me.Description & "|" & r.RemoveLastIf(";")
+        r = Me.Description & "|" & r.RemoveLastEqual(";")
         Return r
     End Function
 
@@ -333,7 +333,7 @@ Public Class FileTypeList
         For Each ext In Me
             r &= (ext.ToFilterString & "|")
         Next
-        Return r.RemoveLastIf("|")
+        Return r.RemoveLastEqual("|")
     End Function
 
 

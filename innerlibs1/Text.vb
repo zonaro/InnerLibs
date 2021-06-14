@@ -857,7 +857,7 @@ Public Module Text
         Dim regx = Before.RegexEscape & "(.*?)" & After.IfBlank(Of String)(Before).RegexEscape
         Dim mm = New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
         For Each a As Match In mm
-            lista.Add(a.Value.RemoveFirstIf(Before).RemoveLastIf(After))
+            lista.Add(a.Value.RemoveFirstEqual(Before).RemoveLastEqual(After))
         Next
         Return lista.ToArray
     End Function
@@ -1052,7 +1052,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function GetRelativeURL(URL As Uri) As String
-        Return URL.PathAndQuery.RemoveFirstIf(URL.AbsoluteUri)
+        Return URL.PathAndQuery.RemoveFirstEqual(URL.AbsoluteUri)
     End Function
 
     ''' <summary>
@@ -1090,7 +1090,7 @@ Public Module Text
         Dim mm = New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
         For Each a As Match In mm
             If ExcludeWrapChars Then
-                lista.Add(a.Value.RemoveFirstIf(Character).RemoveLastIf(GetOppositeWrapChar(Character)))
+                lista.Add(a.Value.RemoveFirstEqual(Character).RemoveLastEqual(GetOppositeWrapChar(Character)))
             Else
                 lista.Add(a.Value)
             End If
@@ -1600,7 +1600,7 @@ Public Module Text
         While re.StartsWithAny(StartStringTest)
             For Each item In StartStringTest
                 If re.StartsWith(item) Then
-                    re = re.RemoveFirstIf(item)
+                    re = re.RemoveFirstEqual(item)
                     If Not ContinuouslyRemove Then Return re
                 End If
             Next
@@ -1629,7 +1629,7 @@ Public Module Text
     ''' <param name="Text">           Texto</param>
     ''' <param name="StartStringTest">Texto inicial que será comparado</param>
     <Extension>
-    Function RemoveFirstIf(ByVal Text As String, StartStringTest As String) As String
+    Function RemoveFirstEqual(ByVal Text As String, StartStringTest As String) As String
         If Text.StartsWith(StartStringTest) Then
             Text = Text.RemoveFirstChars(StartStringTest.Length)
         End If
@@ -1660,7 +1660,7 @@ Public Module Text
         While re.EndsWithAny(EndStringTest)
             For Each item In EndStringTest
                 If re.EndsWith(item) Then
-                    re = re.RemoveLastIf(item)
+                    re = re.RemoveLastEqual(item)
                     If Not ContinuouslyRemove Then Return re
                 End If
             Next
@@ -1685,7 +1685,7 @@ Public Module Text
     ''' <param name="Text">         Texto</param>
     ''' <param name="EndStringTest">Texto final que será comparado</param>
     <Extension>
-    Function RemoveLastIf(ByVal Text As String, EndStringTest As String) As String
+    Function RemoveLastEqual(ByVal Text As String, EndStringTest As String) As String
         If Text.EndsWith(EndStringTest) Then
             Text = Text.RemoveLastChars(EndStringTest.Length)
         End If
@@ -1936,7 +1936,7 @@ Public Module Text
 
             Dim endchar As String = phrase(index).GetLastChars
             If endchar.IsAny(WordSplitters) Then
-                phrase(index) = phrase(index).RemoveLastIf(endchar)
+                phrase(index) = phrase(index).RemoveLastEqual(endchar)
             End If
 
             Select Case True
@@ -1944,38 +1944,38 @@ Public Module Text
                     'nao alterar estes tipos
                     Exit Select
                 Case phrase(index).EndsWith("ões")
-                    phrase(index) = phrase(index).RemoveLastIf("ões") & ("ão")
+                    phrase(index) = phrase(index).RemoveLastEqual("ões") & ("ão")
                     Exit Select
                 Case phrase(index).EndsWith("ãos")
-                    phrase(index) = phrase(index).RemoveLastIf("ãos") & ("ão")
+                    phrase(index) = phrase(index).RemoveLastEqual("ãos") & ("ão")
                     Exit Select
                 Case phrase(index).EndsWith("ães")
-                    phrase(index) = phrase(index).RemoveLastIf("ães") & ("ão")
+                    phrase(index) = phrase(index).RemoveLastEqual("ães") & ("ão")
                     Exit Select
                 Case phrase(index).EndsWith("ais")
-                    phrase(index) = phrase(index).RemoveLastIf("ais") & ("al")
+                    phrase(index) = phrase(index).RemoveLastEqual("ais") & ("al")
                     Exit Select
                 Case phrase(index).EndsWith("eis")
-                    phrase(index) = phrase(index).RemoveLastIf("eis") & ("el")
+                    phrase(index) = phrase(index).RemoveLastEqual("eis") & ("el")
                     Exit Select
                 Case phrase(index).EndsWith("ois")
-                    phrase(index) = phrase(index).RemoveLastIf("ois") & ("ol")
+                    phrase(index) = phrase(index).RemoveLastEqual("ois") & ("ol")
                     Exit Select
                 Case phrase(index).EndsWith("uis")
-                    phrase(index) = phrase(index).RemoveLastIf("uis") & ("ul")
+                    phrase(index) = phrase(index).RemoveLastEqual("uis") & ("ul")
                     Exit Select
                 Case phrase(index).EndsWith("es")
-                    If phrase(index).RemoveLastIf("es").EndsWithAny("z", "r") Then
-                        phrase(index) = phrase(index).RemoveLastIf("es")
+                    If phrase(index).RemoveLastEqual("es").EndsWithAny("z", "r") Then
+                        phrase(index) = phrase(index).RemoveLastEqual("es")
                     Else
-                        phrase(index) = phrase(index).RemoveLastIf("s")
+                        phrase(index) = phrase(index).RemoveLastEqual("s")
                     End If
                     Exit Select
                 Case phrase(index).EndsWith("ns")
-                    phrase(index) = phrase(index).RemoveLastIf("ns") & ("m")
+                    phrase(index) = phrase(index).RemoveLastEqual("ns") & ("m")
                     Exit Select
                 Case phrase(index).EndsWith("s")
-                    phrase(index) = phrase(index).RemoveLastIf("s")
+                    phrase(index) = phrase(index).RemoveLastEqual("s")
                     Exit Select
                 Case Else
                     'ja esta no singular
