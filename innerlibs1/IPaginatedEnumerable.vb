@@ -705,12 +705,22 @@ Namespace LINQ
         ''' <returns></returns>
         Public Property WhereFilters As New List(Of Expression(Of Func(Of ClassType, Boolean)))
 
+
+        ''' <summary>
+        ''' Adciona Expressões a clausula where junto com os filtros
+        ''' </summary>
+        ''' <returns></returns>
         Public Function Where(predicate As Expression(Of Func(Of ClassType, Boolean))) As PaginationFilter(Of ClassType, RemapType)
             WhereFilters = If(WhereFilters, New List(Of Expression(Of Func(Of ClassType, Boolean))))
             WhereFilters.Add(predicate)
             Return Me
         End Function
 
+
+        ''' <summary>
+        ''' Adciona Expressões a clausula where junto com os filtros se uma condiçao for cumprida
+        ''' </summary>
+        ''' <returns></returns>
         Public Function WhereIf(Test As Boolean, predicate As Expression(Of Func(Of ClassType, Boolean))) As PaginationFilter(Of ClassType, RemapType)
             If Test Then Where(predicate)
             Return Me
@@ -824,6 +834,12 @@ Namespace LINQ
             Return f
         End Function
 
+        ''' <summary>
+        ''' Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"/> para cada propriedade em <paramref name="PropertyNames"/>
+        ''' </summary>
+        ''' <param name="PropertyValues"></param>
+        ''' <param name="PropertyNames"></param>
+        ''' <returns></returns>
         Function CreateSearch(Of T)(PropertyValues As IEnumerable(Of IComparable), ParamArray PropertyNames As Expression(Of Func(Of ClassType, T))()) As PaginationFilter(Of ClassType, RemapType)
             PropertyNames = If(PropertyNames, {}).Where(Function(x) x IsNot Nothing).ToArray()
             PropertyValues = If(PropertyValues, {})
@@ -833,6 +849,13 @@ Namespace LINQ
             Return Me
         End Function
 
+
+        ''' <summary>
+        ''' Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"/> para cada propriedade em <paramref name="PropertyNames"/>
+        ''' </summary>
+        ''' <param name="PropertyValues"></param>
+        ''' <param name="PropertyNames"></param>
+        ''' <returns></returns>
         Function CreateSearch(PropertyValues As IEnumerable(Of IComparable), ParamArray PropertyNames As String()) As PaginationFilter(Of ClassType, RemapType)
             PropertyNames = If(PropertyNames, {}).Where(Function(x) x.IsNotBlank()).ToArray()
             PropertyValues = If(PropertyValues, {})
