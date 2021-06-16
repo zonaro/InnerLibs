@@ -575,7 +575,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function FirstOr(Of T)(source As IEnumerable(Of T), Alternate As T) As T
-        If source IsNot Nothing AndAlso source.Count > 0 Then
+        If source IsNot Nothing AndAlso source.Any() Then
             Return source.First
         Else
             Return Alternate

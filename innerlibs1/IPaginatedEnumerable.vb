@@ -153,6 +153,7 @@ Namespace LINQ
             End Set
         End Property
 
+
         ''' <summary>
         ''' Retorna a parte da querystring usada para paginacao
         ''' </summary>

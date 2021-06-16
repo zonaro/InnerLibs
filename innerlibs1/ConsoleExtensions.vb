@@ -80,6 +80,19 @@ Namespace Console
             Return Text
         End Function
 
+
+        ''' <summary>
+        ''' Escreve o texto de uma exception no console
+        ''' </summary>
+        ''' <param name="Exception">Texto</param>
+        ''' <param name="Color">Cor</param>
+
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Optional Color As ConsoleColor = ConsoleColor.Red, Optional Lines As Integer = 1) As T
+            Lines = Lines.SetMinValue(1)
+            ConsoleWrite(Exception.ToFullExceptionString, Color, Lines)
+            Return Exception
+        End Function
+
         ''' <summary>
         ''' Pula uma ou mais linhas no console
         ''' </summary>
