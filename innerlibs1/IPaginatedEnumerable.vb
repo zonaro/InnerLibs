@@ -824,6 +824,26 @@ Namespace LINQ
             Return f
         End Function
 
+        Function CreateSearch(Of T)(PropertyValues As IEnumerable(Of IComparable), ParamArray PropertyNames As Expression(Of Func(Of ClassType, T))()) As PaginationFilter(Of ClassType, RemapType)
+            PropertyNames = If(PropertyNames, {}).Where(Function(x) x IsNot Nothing).ToArray()
+            PropertyValues = If(PropertyValues, {})
+            For Each sel In PropertyNames
+                Me.SetMember(sel, FilterConditional.Or).Contains(PropertyValues)
+            Next
+            Return Me
+        End Function
+
+        Function CreateSearch(PropertyValues As IEnumerable(Of IComparable), ParamArray PropertyNames As String()) As PaginationFilter(Of ClassType, RemapType)
+            PropertyNames = If(PropertyNames, {}).Where(Function(x) x.IsNotBlank()).ToArray()
+            PropertyValues = If(PropertyValues, {})
+            For Each sel In PropertyNames
+                Me.SetMember(sel, FilterConditional.Or).Contains(PropertyValues)
+            Next
+            Return Me
+        End Function
+
+
+
         ''' <summary>
         ''' Configura um novo membro para este filtro
         ''' </summary>
@@ -930,15 +950,34 @@ Namespace LINQ
         ReadOnly Property Filter As BinaryExpression
             Get
                 If Enabled Then
-                    Dim v = If(PropertyValues, {})
-                    If Not UseNullValues Then
-                        v = v.Where(Function(x) x IsNot Nothing)
-                    End If
+                    Dim v = ValidValues()
+
+
                     Return GetOperatorExpression(Member, [Operator].IfBlank(""), v, ValuesConditional)
                 End If
                 Return Nothing
             End Get
         End Property
+
+
+        Public Property ValueValidation As Expression(Of Func(Of IComparable, Boolean)) = Nothing
+
+
+        ''' <summary>
+        ''' Retorna apenas os valores validos para este filtro (<see cref="AcceptNullValues"/> e <see cref="ValueValidation"/>)
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ValidValues() As IEnumerable(Of IComparable)
+            Dim v = Me.PropertyValues
+            If Not AcceptNullValues Then
+                v = v.Where(Function(x) x IsNot Nothing)
+            End If
+            If ValueValidation IsNot Nothing Then
+                v = v.Where(ValueValidation.Compile())
+            End If
+            Return v
+        End Function
+
 
         Property Conditional As FilterConditional = FilterConditional.Or
 
@@ -949,7 +988,7 @@ Namespace LINQ
         ''' Configura este filtro para utilização de valores nulos na query
         ''' </summary>
         ''' <returns></returns>
-        Property UseNullValues As Boolean = False
+        Property AcceptNullValues As Boolean = False
 
         ''' <summary>
         ''' Indica se este filtro está ativo
@@ -1344,7 +1383,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function AllowNull() As PropertyFilter(Of ClassType, RemapType)
-            UseNullValues = True
+            AcceptNullValues = True
             Return Me
         End Function
 
@@ -1353,7 +1392,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Function IgnoreNull() As PropertyFilter(Of ClassType, RemapType)
-            UseNullValues = False
+            AcceptNullValues = False
             Return Me
         End Function
 
@@ -1384,10 +1423,10 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="ForceEnabled"></param>
         ''' <returns></returns>
-        Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False) As String
+        Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False, Optional OnlyValid As Boolean = True) As String
             If Enabled OrElse ForceEnabled Then
                 Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===", "equal", "equals")).UrlEncode()
-                Return PropertyValues.Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
+                Return If(OnlyValid, ValidValues(), PropertyValues).Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
             End If
             Return ""
         End Function

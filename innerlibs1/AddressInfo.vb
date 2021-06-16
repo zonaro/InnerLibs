@@ -242,6 +242,8 @@ Namespace Locations
                 Number = maybe_number
             End If
 
+            State = State.AdjustBlankSpaces()
+
             l.StreetName = Address.RemoveAny(Number.IfBlank("")).ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.Complement = Complement.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
@@ -253,7 +255,7 @@ Namespace Locations
             Else
                 l.State = State.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             End If
-            l.Country = Country.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+            l.Country = Country.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.PostalCode = PostalCode.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
             l.ParseType()
             Return l
