@@ -102,35 +102,36 @@ Namespace Select2
         <Extension()> Function CreateSelect2Option(Of OptionType As ISelect2Option, T)(item As T, TextSelector As Func(Of T, String), IdSelector As Func(Of T, String), Optional OtherSelectors As Action(Of T, OptionType) = Nothing) As OptionType
             If GetType(T) Is GetType(OptionType) Then
                 Return item.ChangeType(Of OptionType)
+            Else
+                IdSelector = If(IdSelector, TextSelector)
+                TextSelector = If(TextSelector, IdSelector)
+                Dim Optionitem = Activator.CreateInstance(Of OptionType)
+                Optionitem.ID = IdSelector(item)
+                Optionitem.Text = TextSelector(item)
+                If OtherSelectors IsNot Nothing Then
+                    OtherSelectors(item, Optionitem)
+                End If
+                Return Optionitem
             End If
-            IdSelector = If(IdSelector, TextSelector)
-            TextSelector = If(TextSelector, IdSelector)
-            Dim Optionitem = Activator.CreateInstance(Of OptionType)
-            Optionitem.ID = IdSelector(item)
-            Optionitem.Text = TextSelector(item)
-            If OtherSelectors IsNot Nothing Then
-                OtherSelectors(item, Optionitem)
-            End If
-            Return Optionitem
         End Function
 
         <Extension> Public Function CreateSelect2Data(Of OptionsType As ISelect2Option, T1 As Class, T2)(Filter As PaginationFilter(Of T1, T2), TextSelector As Func(Of T2, String), IdSelector As Func(Of T2, String), Optional GroupSelector As Func(Of T2, String) = Nothing, Optional OtherSelectors As Action(Of T2, OptionsType) = Nothing) As Select2Data
-            Return Filter.GetPage().CreateSelect2Data(TextSelector, IdSelector, OtherSelectors, GroupSelector)
+            Dim d = Filter.GetPage().CreateSelect2Data(TextSelector, IdSelector, OtherSelectors, GroupSelector)
+            d.Pagination.More = Filter.PageCount > 1 AndAlso Filter.IsLastPage = False
+            Return d
         End Function
 
         <Extension> Public Function CreateSelect2Data(Of OptionsType As ISelect2Option, T1 As Class, T2)(Filter As PaginationFilter(Of T1, T2), TextSelector As Func(Of T2, String), IdSelector As Func(Of T2, String), OtherSelectors As Action(Of T2, OptionsType)) As Select2Data
-            Return Filter.GetPage().CreateSelect2Data(TextSelector, IdSelector, OtherSelectors, Nothing)
+            Return Filter.CreateSelect2Data(TextSelector, IdSelector, Nothing, OtherSelectors)
         End Function
-
 
         <Extension> Public Function CreateSelect2Data(Of OptionsType As ISelect2Option, T1 As Class)(Filter As PaginationFilter(Of T1, OptionsType)) As Select2Data
             Return Filter.CreateSelect2Data(Of OptionsType)(Function(x As OptionsType) x.Text, Function(x As OptionsType) x.ID)
         End Function
+
         <Extension> Public Function CreateSelect2Data(Of OptionsType As ISelect2Option, T1 As Class)(Filter As PaginationFilter(Of T1, OptionsType), GroupBySelector As Func(Of OptionsType, String)) As Select2Data
             Return Filter.CreateSelect2Data(Of OptionsType)(Function(x As OptionsType) x.Text, Function(x As OptionsType) x.ID, GroupBySelector)
         End Function
-
-
 
     End Module
 End Namespace

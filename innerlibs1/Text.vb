@@ -1018,9 +1018,24 @@ Public Module Text
                 Return ";"
             Case "_"
                 Return "_"
+            Case "*"
+                Return "*"
             Case Else
                 Return Text
         End Select
+    End Function
+
+    ''' <summary>
+    ''' Retorna o caractere de encapsulamento oposto ao caractere indicado
+    ''' </summary>
+    ''' <param name="Text">Caractere</param>
+    ''' <returns></returns>
+    <Extension> Function IsOpenWrapChar(Text As String) As String
+        Return Text.GetFirstChars().IsAny("""", "'", "(", "[", "{", ":", ";", "_", "<", "\", "/", "¿", "¡", "*")
+    End Function
+
+    <Extension> Function IsCloseWrapChar(Text As String) As String
+        Return Text.GetFirstChars().IsAny("""", "'", ")", "]", "}", ":", ";", "_", ">", "\", "/", "?", "!", "*")
     End Function
 
     ''' <summary>
@@ -1486,8 +1501,13 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Function Quote(Text As String, Optional OpenQuoteChar As Char = """"c) As String
+        If OpenQuoteChar.ToString().IsCloseWrapChar Then
+            OpenQuoteChar = OpenQuoteChar.ToString.GetOppositeWrapChar
+        End If
         Return OpenQuoteChar & Text & OpenQuoteChar.ToString.GetOppositeWrapChar
     End Function
+
+
 
     ''' <summary>
     ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) é um alias de <see cref="Quote(String, Char)"/>

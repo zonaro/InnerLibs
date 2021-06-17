@@ -153,7 +153,6 @@ Namespace LINQ
             End Set
         End Property
 
-
         ''' <summary>
         ''' Retorna a parte da querystring usada para paginacao
         ''' </summary>
@@ -433,9 +432,19 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property Total As Integer
             Get
-                Return If(ApplyFilter()?.ToArray().Count(), -1)
+                Dim FilteredData = ApplyFilter()
+                If FilteredData IsNot Nothing Then
+                    If TypeOf FilteredData Is IQueryable(Of ClassType) Then
+                        Return CType(FilteredData, IQueryable(Of ClassType)).Count()
+                    Else
+                        Return FilteredData.Count()
+                    End If
+                End If
+                Return -1
             End Get
         End Property
+
+
 
         ''' <summary>
         ''' Quantidade de itens por página
@@ -705,7 +714,6 @@ Namespace LINQ
         ''' <returns></returns>
         Public Property WhereFilters As New List(Of Expression(Of Func(Of ClassType, Boolean)))
 
-
         ''' <summary>
         ''' Adciona Expressões a clausula where junto com os filtros
         ''' </summary>
@@ -715,7 +723,6 @@ Namespace LINQ
             WhereFilters.Add(predicate)
             Return Me
         End Function
-
 
         ''' <summary>
         ''' Adciona Expressões a clausula where junto com os filtros se uma condiçao for cumprida
@@ -764,6 +771,7 @@ Namespace LINQ
         Public Function GetEnumerablePage() As IQueryable(Of ClassType)
             Return GetEnumerablePage(PageNumber)
         End Function
+
         ''' <summary>
         ''' Retorna <see cref="Data"/> com os filtros aplicados
         ''' </summary>
@@ -804,7 +812,6 @@ Namespace LINQ
             Me.PageNumber = PageNumber
             Return Me
         End Function
-
 
         Function [And](Of T)(PropertyName As String, Optional Enabled As Boolean = True) As PropertyFilter(Of ClassType, RemapType)
             Return SetMember(PropertyName, FilterConditional.And, Enabled)
@@ -849,7 +856,6 @@ Namespace LINQ
             Return Me
         End Function
 
-
         ''' <summary>
         ''' Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"/> para cada propriedade em <paramref name="PropertyNames"/>
         ''' </summary>
@@ -864,8 +870,6 @@ Namespace LINQ
             Next
             Return Me
         End Function
-
-
 
         ''' <summary>
         ''' Configura um novo membro para este filtro
@@ -975,16 +979,13 @@ Namespace LINQ
                 If Enabled Then
                     Dim v = ValidValues()
 
-
                     Return GetOperatorExpression(Member, [Operator].IfBlank(""), v, ValuesConditional)
                 End If
                 Return Nothing
             End Get
         End Property
 
-
         Public Property ValueValidation As Expression(Of Func(Of IComparable, Boolean)) = Nothing
-
 
         ''' <summary>
         ''' Retorna apenas os valores validos para este filtro (<see cref="AcceptNullValues"/> e <see cref="ValueValidation"/>)
@@ -1001,9 +1002,7 @@ Namespace LINQ
             Return v
         End Function
 
-
         Property Conditional As FilterConditional = FilterConditional.Or
-
 
         Property ValuesConditional As FilterConditional = FilterConditional.Or
 
@@ -1052,8 +1051,6 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Property Member As Expression
-
-
 
         ''' <summary>
         ''' Seta varios valores para esse filtro testar. Substitui os valores antigos
@@ -1125,8 +1122,6 @@ Namespace LINQ
             Return Me
         End Function
 
-
-
         ''' <summary>
         ''' Seta o operador utilizado nesse filtro
         ''' </summary>
@@ -1177,7 +1172,6 @@ Namespace LINQ
             End If
             Return Me
         End Function
-
 
         ''' <summary>
         ''' Seta o operador para Contains e o Valor para este filtro
