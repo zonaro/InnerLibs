@@ -44,14 +44,16 @@ Public Module Web
     ''' <param name="CSS">String contendo o CSS</param>
     ''' <returns></returns>
     <Extension()> Public Function MinifyCSS(CSS As String) As String
-        CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#")
-        CSS = Regex.Replace(CSS, "[\n\r]+\s*", String.Empty)
-        CSS = Regex.Replace(CSS, "\s+", " ")
-        CSS = Regex.Replace(CSS, "\s?([:,;{}])\s?", "$1")
-        CSS = CSS.Replace(";}", "}")
-        CSS = Regex.Replace(CSS, "([\s:]0)(px|pt|%|em)", "$1")
-        ' Remove comments from CSS
-        CSS = Regex.Replace(CSS, "/\*[\d\D]*?\*/", String.Empty)
+        If CSS.IsNotBlank() Then
+            CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#")
+            CSS = Regex.Replace(CSS, "[\n\r]+\s*", String.Empty)
+            CSS = Regex.Replace(CSS, "\s+", " ")
+            CSS = Regex.Replace(CSS, "\s?([:,;{}])\s?", "$1")
+            CSS = CSS.Replace(";}", "}")
+            CSS = Regex.Replace(CSS, "([\s:]0)(px|pt|%|em)", "$1")
+            ' Remove comments from CSS
+            CSS = Regex.Replace(CSS, "/\*[\d\D]*?\*/", String.Empty)
+        End If
         Return CSS
     End Function
 
