@@ -85,7 +85,7 @@ Namespace LINQ
             Dim parameter = GenerateParameterExpression(Of Type)()
             Dim member = PropertySelector.Body.ToString().Split(".").Skip(1).Join(".")
             Dim prop = PropertyExpression(parameter, member)
-            Dim body As Expression = GetOperatorExpression(Prop, [Operator], PropertyValue, Conditional)
+            Dim body As Expression = GetOperatorExpression(prop, [Operator], PropertyValue, Conditional)
             body = Expression.Equal(body, Expression.Constant([Is]))
             Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
             Return finalExpression
@@ -224,11 +224,12 @@ Namespace LINQ
         ''' <returns></returns>
         Function GetOperatorExpression(Member As Expression, [Operator] As String, PropertyValues As IEnumerable(Of IComparable), Optional Conditional As FilterConditional = FilterConditional.Or) As BinaryExpression
             PropertyValues = If(PropertyValues, {})
-            Dim comparewith As Boolean = Not [Operator].StartsWithAny("!", "not")
+            Dim comparewith As Boolean = Not [Operator].StartsWithAny("!")
             If comparewith = False Then
-                [Operator] = [Operator].RemoveFirstAny(False, "!", "Not")
+                [Operator] = [Operator].RemoveFirstAny(False, "!")
             End If
             Dim body As BinaryExpression = Nothing
+            'Dim body As Expression = Nothing
             Select Case [Operator].ToLower().IfBlank("equal")
                 Case "blank", "compareblank", "isblank"
                     For Each item In PropertyValues
@@ -568,7 +569,8 @@ Namespace LINQ
                         Dim mettodo = Member.Type.GetMethods().FirstOrDefault(Function(x) x.Name.ToLower() = [Operator].ToLower())
 
                         Dim exp As Expression = mettodo.Invoke(Nothing, {PropertyValues})
-                        exp = Expression.Invoke(exp, Member)
+
+                        exp = Expression.Equal(Expression.Invoke(exp, {Member}), Expression.Constant(comparewith))
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -577,9 +579,6 @@ Namespace LINQ
                             Else
                                 body = Expression.OrElse(body, exp)
                             End If
-                        End If
-                        If comparewith = False Then
-                            body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Catch ex As Exception
                     End Try
