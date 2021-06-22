@@ -596,12 +596,11 @@ Namespace LINQ
             Return Me
         End Function
 
-        Public Function OrderByDescending(Of T)(ParamArray Selectors As Expression(Of Func(Of ClassType, T))()) As PaginationFilter(Of ClassType, RemapType)
-            For Each Selector In If(Selectors, {})
-                If Selector IsNot Nothing Then
-                    Me.OrderBy(Selector, True)
-                End If
-            Next
+        Public Function OrderByDescending(Of T)(Selector As Expression(Of Func(Of ClassType, T))) As PaginationFilter(Of ClassType, RemapType)
+            If Selector IsNot Nothing Then
+                Me.OrderBy(Selector, True)
+            End If
+
             Return Me
         End Function
 

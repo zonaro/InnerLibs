@@ -3887,6 +3887,10 @@ Public Class ConnectionStringParser
         End Try
     End Sub
 
+    ''' <summary>
+    ''' Retorna a connectionstring deste parser
+    ''' </summary>
+    ''' <returns></returns>
     Public Overrides Function ToString() As String
         Return Me.SelectJoin(Function(x) $"{x.Key}={x.Value}", ";")
     End Function

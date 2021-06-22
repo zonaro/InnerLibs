@@ -260,6 +260,21 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se o valor é um numero ou pode ser convertido em numero
+    ''' </summary>
+    ''' <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
+    ''' <returns>TRUE se for um numero, FALSE se não for um numero</returns>
+    <Extension()>
+    Public Function CanBeNumber(Value As Object) As Boolean
+        Try
+            Convert.ToDecimal(Value)
+            Return True
+        Catch
+            Return False
+        End Try
+    End Function
+
+    ''' <summary>
     ''' Verifica se o valor não é um numero
     ''' </summary>
     ''' <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
