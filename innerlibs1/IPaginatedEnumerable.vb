@@ -444,8 +444,6 @@ Namespace LINQ
             End Get
         End Property
 
-
-
         ''' <summary>
         ''' Quantidade de itens por página
         ''' </summary>
@@ -576,6 +574,16 @@ Namespace LINQ
         ''' <returns></returns>
         Public Function SetData(List As IEnumerable(Of ClassType)) As PaginationFilter(Of ClassType, RemapType)
             Me.Data = List
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Seta a lista com os dados a serem filtrados nesse filtro
+        ''' </summary>
+        ''' <param name="List"></param>
+        ''' <returns></returns>
+        Public Function SetData(List As IQueryable(Of ClassType)) As PaginationFilter(Of ClassType, RemapType)
+            Me.Data = List.AsQueryable()
             Return Me
         End Function
 

@@ -322,7 +322,11 @@ Public Class DateRange
     ''' <returns></returns>
     Function Difference() As LongTimeSpan
         If _Difference Is Nothing Then
-            _Difference = StartDate.GetDifference(EndDate)
+            If ForceFirstAndLastMoments Then
+                _Difference = StartDate.GetDifference(EndDate.AddSeconds(1))
+            Else
+                _Difference = StartDate.GetDifference(EndDate)
+            End If
         End If
         Return _Difference
     End Function

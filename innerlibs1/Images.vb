@@ -3,7 +3,6 @@ Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Runtime.CompilerServices
-Imports System.Windows.Forms
 
 ''' <summary>
 ''' Modulo de Imagem
@@ -101,7 +100,6 @@ Public Module Images
         Return bReturn
 
     End Function
-
 
     ''' <summary>
     ''' Insere uma imagem de marca Dágua na imagem
@@ -223,7 +221,6 @@ Public Module Images
             Throw New Exception(String.Format("Values are top={0} bottom={1} left={2} right={3}", topMost, bottomMost, leftMost, rightMost), ex)
         End Try
     End Function
-
 
     ''' <summary>
     ''' Cropa uma imagem a patir do centro
@@ -590,78 +587,51 @@ Public Module Images
     End Function
 
     ''' <summary>
-    ''' Retorna uma lista com as 10 cores mais utilizadas na imagem
+    ''' Retorna uma lista com as N cores mais utilizadas na imagem
     ''' </summary>
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColors(Image As Image, Optional Count As Integer = 10) As List(Of Color)
-        Return New Bitmap(Image).GetMostUsedColors
+    Public Function GetMostUsedColors(Image As Image, Optional Count As Integer = 10) As IEnumerable(Of Color)
+        Return New Bitmap(Image).GetMostUsedColors().Take(Count)
     End Function
 
     ''' <summary>
-    ''' Retorna uma lista com as <paramref name="Count"/> cores mais utilizadas na imagem
+    ''' Retorna uma lista com as cores utilizadas na imagem
     ''' </summary>
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColors(Image As Bitmap, Optional Count As Integer = 10) As List(Of Color)
-        Dim TenMostUsedColorIncidences As List(Of Integer)
-        Dim TenMostUsedColors As List(Of Color)
-        Dim MostUsedColor As Color
-        Dim MostUsedColorIncidence As Integer
+    Public Function GetMostUsedColors(Image As Bitmap) As IEnumerable(Of Color)
+        Return GetMostUsedColorsIncidence(Image).Select(Function(x) x.Key).Where(Function(cor) cor <> Color.Empty AndAlso cor <> Color.Transparent AndAlso {cor.R, cor.G, cor.B}.All(Function(x) x > 0))
+    End Function
 
-        Dim pixelColor As Integer
+    ''' <summary>
+    ''' Retorna uma lista com as cores utilizadas na imagem
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <returns>uma lista de Color</returns>
+    <Extension>
+    Public Function GetMostUsedColorsIncidence(Image As Bitmap) As Dictionary(Of Color, Integer)
 
-        Dim dctColorIncidence As Dictionary(Of Integer, Integer)
-        TenMostUsedColors = New List(Of Color)()
-        TenMostUsedColorIncidences = New List(Of Integer)()
-
-        MostUsedColor = Color.Empty
-        MostUsedColorIncidence = 0
-
-        ' does using Dictionary<int,int> here
-        ' really pay-off compared to using
-        ' Dictionary<Color, int> ?
-
-        ' would using a SortedDictionary be much slower, or ?
-
-        dctColorIncidence = New Dictionary(Of Integer, Integer)()
-
-        ' this is what you want to speed up with unmanaged code
-        Dim row As Integer = 0
-        While row < Image.Size.Width
-            Dim col As Integer = 0
-            While col < Image.Size.Height
-                pixelColor = Image.GetPixel(row, col).ToArgb()
-
-                If dctColorIncidence.Keys.Contains(pixelColor) Then
-                    pixelColor = pixelColor.Increment
-                Else
-                    dctColorIncidence.Add(pixelColor, 1)
-                End If
-                col = col.Increment
+        Dim dctColorIncidence As New Dictionary(Of Integer, Integer)
+        If Image IsNot Nothing AndAlso Image.Width > 0 AndAlso Image.Height > 0 Then
+            Dim coluna As Integer = 0
+            While coluna < Image.Size.Width
+                Dim linha As Integer = 0
+                While linha < Image.Size.Height
+                    Dim pixelColor = Image.GetPixel(coluna, linha).ToArgb()
+                    If dctColorIncidence.Keys.Contains(pixelColor) Then
+                        dctColorIncidence(pixelColor) = dctColorIncidence(pixelColor) + 1
+                    Else
+                        dctColorIncidence.Add(pixelColor, 1)
+                    End If
+                    linha = linha + 1
+                End While
+                coluna = coluna + 1
             End While
-            row = row.Increment
-        End While
-
-        ' note that there are those who argue that a
-        ' .NET Generic Dictionary is never guaranteed
-        ' to be sorted by methods like this
-        Dim dctSortedByValueHighToLow = dctColorIncidence.OrderByDescending(Function(x) x.Value).ToDictionary(Function(x) x.Key, Function(x) x.Value)
-
-        ' this should be replaced with some elegant Linq ?
-        For Each kvp As KeyValuePair(Of Integer, Integer) In dctSortedByValueHighToLow
-            Dim cor = Color.FromArgb(kvp.Key)
-            If cor <> Color.Empty AndAlso cor <> Color.Transparent Then
-                TenMostUsedColors.Add(cor)
-                TenMostUsedColorIncidences.Add(kvp.Value)
-            End If
-        Next
-
-        MostUsedColor = Color.FromArgb(dctSortedByValueHighToLow.First().Key)
-        MostUsedColorIncidence = dctSortedByValueHighToLow.First().Value
-        Return TenMostUsedColors.Take(Count).ToList()
+        End If
+        Return dctColorIncidence.OrderByDescending(Function(x) x.Value).ToDictionary(Function(x) Color.FromArgb(x.Key), Function(x) x.Value)
     End Function
 
     ''' <summary>
@@ -699,7 +669,6 @@ Public Module Images
         Return Image.Resize(Width, Height, False).Crop(Width, Height)
     End Function
 
-
     ''' <summary>
     ''' redimensiona e Cropa uma imagem, aproveitando a maior parte dela
     ''' </summary>
@@ -712,4 +681,3 @@ Public Module Images
     End Function
 
 End Module
-
