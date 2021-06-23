@@ -83,7 +83,6 @@
     <Compile Include="ColorConvert.vb" />
     <Compile Include="ConsoleExtensions.vb" />
     <Compile Include="Converter.vb" />
-    <Compile Include="CSSParser.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="DictionarySelector.vb" />
     <Compile Include="Directories.vb" />
