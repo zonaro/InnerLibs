@@ -167,7 +167,7 @@
         ''' <returns></returns>
         Public Overrides Function ToString() As String
             Dim dotstring = ""
-            If Me.Attributes.Count > 0 Then
+            If Me.Attributes.Any() Then
                 dotstring = Me.ID & " " & Me.Attributes.ToString & Environment.NewLine
             End If
             Return dotstring
