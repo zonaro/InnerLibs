@@ -267,7 +267,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = LINQExtensions.Equal(Member, Expression.Constant(Member, item))
+                            exp = LINQExtensions.Equal(Member, Expression.Constant(item))
                         Catch ex As Exception
                             exp = Expression.Constant(False)
                             Continue For
