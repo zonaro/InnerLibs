@@ -228,14 +228,14 @@ Namespace LINQ
                         v.RemoveAt(0)
                     End If
                     If v.Any() Then
-                        querystring = {querystring, v.SelectJoin(Function(x) q.Key & "=" & x.IfBlank("").ToString().UrlDecode(), "&")}.Join("&")
+                        querystring = {querystring, v.SelectJoin(Function(x) q.Key & "=" & x.IfBlank("").ToString().UrlDecode(), "&")}.Where(Function(x) x.IsNotBlank).Join("&")
                     End If
                 End If
             Next
             If querystring.IsNotBlank() Then
                 UrlPattern = UrlPattern & "?" & querystring
             End If
-            UrlPattern.RemoveUrlParameters()
+            UrlPattern = UrlPattern.RemoveUrlParameters()
 
             Return UrlPattern
         End Function
@@ -486,6 +486,126 @@ Namespace LINQ
                 Return arr.ToArray
             End Get
         End Property
+
+        ''' <summary>
+        ''' Quantidade de botões de paginação
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ButtonCount(Optional Trailling = "...") As Integer
+            Return CreatePaginationButtons(Trailling).Count()
+        End Function
+
+        ''' <summary>
+        ''' Verifica se o <see cref="PageRange"/> contém algumas páginas especificas
+        ''' </summary>
+        ''' <param name="PageNumbers"></param>
+        ''' <returns></returns>
+        Public Function ContainsPage(PageNumbers As IEnumerable(Of Integer)) As Boolean
+            Return PageRange.ContainsAny(PageNumbers)
+        End Function
+
+        ''' <summary>
+        ''' Verifica se o <see cref="PageRange"/> contém algumas páginas especificas
+        ''' </summary>
+        ''' <param name="PageNumbers"></param>
+        ''' <returns></returns>
+        Public Function ContainsPage(ParamArray PageNumbers As Integer()) As Boolean
+            Return ContainsPage(If(PageNumbers, {}).AsEnumerable())
+        End Function
+
+        ''' <summary>
+        ''' Indica se o primeiro botão de reticencias é necessário
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property IsFirstTraillingNecessary
+            Get
+                Return IsFirstPageNecessary AndAlso Not ContainsPage(FirstPage, FirstPage + 1)
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Indica se o ultimo botão de reticencias é necessário
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property IsLastTraillingNecessary
+            Get
+                Return IsLastPageNecessary AndAlso Not ContainsPage(LastPage, LastPage - 1)
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Botões de paginação
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property PageButtons As IEnumerable(Of String)
+            Get
+                Return CreatePaginationButtons()
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Cria uma lista de strings utilizadas nos botões de paginação
+        ''' </summary>
+        ''' <param name="Trailling"></param>
+        ''' <returns></returns>
+        Public Function CreatePaginationButtons(Optional Trailling As String = "...") As IEnumerable(Of String)
+            Dim l As New List(Of String)
+            If IsPaginationNecessary Then
+                If IsFirstPageNecessary Then
+                    l.Add(FirstPage.ToString())
+                End If
+                If Trailling.IsNotBlank AndAlso IsFirstTraillingNecessary Then
+                    l.Add(Trailling)
+                End If
+                l.AddRange(PageRange.Select(Function(x) x.ToString()))
+                If Trailling.IsNotBlank AndAlso IsLastTraillingNecessary Then
+                    l.Add(Trailling)
+                End If
+                If IsLastPageNecessary Then
+                    l.Add(LastPage.ToString())
+                End If
+            End If
+            Return l
+        End Function
+
+        ''' <summary>
+        ''' Aplica a paginação a um template
+        ''' </summary>
+        ''' <param name="Template">Template de pagina</param>
+        ''' <param name="TraillingTemplate">emplate de botoes de reticencias</param>
+        ''' <param name="Trailling">botao de reticencias</param>
+        ''' <returns></returns>
+        Public Function PageButtonsFromTemplate(Template As String, TraillingTemplate As String, Optional SeparatorTemplate As String = "", Optional Trailling As String = "...") As String
+            If Template.IsNotBlank Then
+                If TraillingTemplate.IsBlank OrElse Trailling.IsBlank Then
+                    Return PageButtonsFromTemplate(Template, SeparatorTemplate)
+                Else
+                    If Trailling.IsNumber() Then Throw New ArgumentException($"Trailling cannot be a number! => {Trailling}")
+                    Return CreatePaginationButtons(Trailling).Select(Function(x)
+
+                                                                         If x.IsNumber Then
+                                                                             Return Template.Inject(New With {.Page = x})
+                                                                         End If
+                                                                         If x = Trailling Then
+                                                                             Return TraillingTemplate.Inject(New With {.Page = x, .Trailling = Trailling})
+                                                                         End If
+                                                                         Return ""
+                                                                     End Function).Join(SeparatorTemplate.IfBlank(""))
+
+                End If
+            End If
+            Return ""
+        End Function
+        ''' <summary>
+        ''' Aplica a paginação a um template
+        ''' </summary>
+        ''' <param name="Template">Template de pagina</param>
+        ''' <returns></returns>
+        Public Function PageButtonsFromTemplate(Template As String, Optional SeparatorTemplate As String = "") As String
+            If Template.IsNotBlank() Then Return CreatePaginationButtons("").Select(Function(x) Template.Inject(New With {.Page = x})).Join(SeparatorTemplate.IfBlank(""))
+            Return ""
+        End Function
+
 
         ''' <summary>
         ''' Configura este Filtro
@@ -1449,7 +1569,7 @@ Namespace LINQ
         ''' <returns></returns>
         Public Function CreateQueryParameter(Optional ForceEnabled As Boolean = False, Optional OnlyValid As Boolean = True) As String
             If Enabled OrElse ForceEnabled Then
-                Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===", "equal", "equals")).UrlEncode()
+                Dim xx = [Operator].AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() AndAlso [Operator].ToLower().IsNotAny("", "=", "==", "===")).UrlEncode()
                 Return If(OnlyValid, ValidValues(), PropertyValues).Where(Function(x) x IsNot Nothing AndAlso x.ToString().IsNotBlank()).SelectJoin(Function(x) $"{PropertyName}={xx}{x.ToString().UrlEncode()}")
             End If
             Return ""
