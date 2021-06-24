@@ -638,13 +638,14 @@ Namespace LINQ
         Function UseQueryStringExpression(QueryExpression As String, Optional Separator As String = ":") As PaginationFilter(Of ClassType, RemapType)
             Dim Collection = QueryExpression.ParseQueryString()
             For Each K In Collection.AllKeys
+                Dim prop = K.UrlDecode()
                 Dim t = GetType(ClassType)
-                If t.HasProperty(K) OrElse K = "this" Then
+                If t.HasProperty(prop) OrElse K = "this" Then
                     If Collection(K).IsNotBlank() AndAlso Collection.GetValues(K).Any() Then
                         Dim buscas = Collection.GetValues(K).GroupBy(Function(x) x.GetBefore(Separator, True).IfBlank("=")).ToDictionary()
                         For Each item In buscas
                             Dim vals = item.Value.Select(Function(x) x.GetAfter(Separator))
-                            Me.SetMember(K).SetValues(vals).SetOperator(item.Key).QueryStringSeparator = Separator
+                            Me.SetMember(prop).SetValues(vals).SetOperator(item.Key).QueryStringSeparator = Separator
                         Next
                     End If
                 End If

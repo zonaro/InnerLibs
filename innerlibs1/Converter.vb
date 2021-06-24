@@ -191,8 +191,19 @@ Public Module Converter
     ''' <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
     <Extension>
     Public Function ChangeType(Of ToType, FromType)(Value As FromType) As ToType
+        Return ChangeType(Of FromType)(Value, GetType(ToType))
+    End Function
+
+    ''' <summary>
+    ''' Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
+    <Extension>
+    Public Function ChangeType(Of FromType)(Value As FromType, ToType As Type)
         Try
-            Dim tipo As Type = If(Nullable.GetUnderlyingType(GetType(ToType)), GetType(ToType))
+            Dim tipo As Type = If(Nullable.GetUnderlyingType(ToType), ToType)
 
             If Value Is Nothing Then
                 Return Nothing
@@ -201,10 +212,10 @@ Public Module Converter
             Dim Converter = TypeDescriptor.GetConverter(tipo)
 
             If Converter.CanConvertFrom(GetType(FromType)) Then
-                Return CType(Converter.ConvertTo(Value, tipo), ToType)
+                Return Converter.ConvertTo(Value, tipo)
             End If
 
-            Return CType(Convert.ChangeType(Value, tipo), ToType)
+            Return Convert.ChangeType(Value, tipo)
         Catch ex As Exception
             Debug.WriteLine(ex)
             Return Nothing

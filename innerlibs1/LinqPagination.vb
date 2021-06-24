@@ -147,28 +147,32 @@ Namespace LINQ
             Return propInfo
         End Function
 
+
+
         <Extension()> Public Sub FixNullable(ByRef e1 As Expression, ByRef e2 As Expression)
-            Dim e1type As Type = Nothing
-            Dim e2type As Type = Nothing
+            Dim e1type As Type = e1.Type
+            Dim e2type As Type = e2.Type
 
             Try
                 e1type = CType(e1, LambdaExpression).ReturnType
             Catch ex As Exception
-                e1type = e1.Type
             End Try
 
             Try
                 e2type = CType(e2, LambdaExpression).ReturnType
             Catch ex As Exception
-                e2type = e2.Type
             End Try
 
 
-            If IsNullableType(e1type) AndAlso Not IsNullableType(e2type) Then
+            If e1type.IsNullableType AndAlso Not e2type.IsNullableType Then
                 e2 = Expression.Convert(e2, e1type)
-            ElseIf Not IsNullableType(e1type) AndAlso IsNullableType(e2type) Then
+            End If
+
+            If Not e1type.IsNullableType AndAlso e2type.IsNullableType Then
                 e1 = Expression.Convert(e1, e2type)
             End If
+
+
 
             If e1.NodeType = ExpressionType.Lambda Then
                 e1 = Expression.Invoke(e1, CType(e1, LambdaExpression).Parameters)
@@ -179,6 +183,8 @@ Namespace LINQ
             End If
 
         End Sub
+
+
 
         <Extension> Public Function GreaterThanOrEqual(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
             FixNullable(MemberExpression, ValueExpression)
@@ -212,6 +218,21 @@ Namespace LINQ
 
         <Extension> Public Function IsNullableType(ByVal t As Type) As Boolean
             Return t.IsGenericType AndAlso t.GetGenericTypeDefinition() = GetType(Nullable(Of))
+        End Function
+
+        Public Function CreateConstant(Member As Expression, Value As IComparable) As ConstantExpression
+            Return CreateConstant(Member.Type, Value)
+        End Function
+
+        Public Function CreateConstant(Type As Type, Value As IComparable) As ConstantExpression
+            If Value Is Nothing Then
+                Return Expression.Constant(Nothing, Type)
+            End If
+            Return Expression.Constant(Value.ChangeType(Type))
+        End Function
+
+        Public Function CreateConstant(Of Type)(Value As IComparable) As ConstantExpression
+            Return CreateConstant(GetType(Type), Value)
         End Function
 
         ''' <summary>
@@ -267,7 +288,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = LINQExtensions.Equal(Member, Expression.Constant(item))
+                            exp = LINQExtensions.Equal(Member, CreateConstant(Member, item))
                         Catch ex As Exception
                             exp = Expression.Constant(False)
                             Continue For
@@ -293,7 +314,7 @@ Namespace LINQ
                         End If
                         Dim exp = Nothing
                         Try
-                            exp = GreaterThanOrEqual(Member, Expression.Constant(item))
+                            exp = GreaterThanOrEqual(Member, CreateConstant(Member, item))
                         Catch ex As Exception
                             exp = Expression.Constant(False)
                             Continue For
@@ -319,7 +340,7 @@ Namespace LINQ
                         End If
                         Dim exp = Nothing
                         Try
-                            exp = LINQExtensions.LessThanOrEqual(Member, Expression.Constant(item))
+                            exp = LINQExtensions.LessThanOrEqual(Member, CreateConstant(Member, item))
                         Catch ex As Exception
                             exp = Expression.Constant(False)
                             Continue For
@@ -341,7 +362,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = LINQExtensions.GreaterThan(Member, Expression.Constant(item))
+                            exp = LINQExtensions.GreaterThan(Member, CreateConstant(Member, item))
                         Catch ex As Exception
                             Continue For
                         End Try
@@ -364,7 +385,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = LINQExtensions.LessThan(Member, Expression.Constant(item))
+                            exp = LINQExtensions.LessThan(Member, CreateConstant(Member, item))
                         Catch ex As Exception
                             Continue For
                         End Try
@@ -386,7 +407,7 @@ Namespace LINQ
                     For Each item In PropertyValues
                         Dim exp = Nothing
                         Try
-                            exp = LINQExtensions.NotEqual(Member, Expression.Constant(item))
+                            exp = LINQExtensions.NotEqual(Member, CreateConstant(Member, item))
                         Catch ex As Exception
                             Continue For
                         End Try
