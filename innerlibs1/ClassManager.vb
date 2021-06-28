@@ -11,6 +11,36 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+
+    <Extension>
+    Public Function IsPrimitiveType(T As Type) As Boolean
+        Return T.IsIn(
+           GetType(String),
+           GetType(Char),
+           GetType(Byte),
+           GetType(SByte),
+           GetType(UShort),
+           GetType(Short),
+           GetType(Integer),
+           GetType(UInt16),
+           GetType(UInt64),
+           GetType(UInt32),
+           GetType(ULong),
+           GetType(Long),
+           GetType(Double),
+           GetType(Decimal),
+           GetType(DateTime))
+    End Function
+
+
+    <Extension>
+    Public Function IsPrimitiveType(Of T)(Obj As T) As Boolean
+        If Obj.GetType() Is GetType(Type) Then
+            Return Obj.ChangeType(Of Type).IsPrimitiveType()
+        End If
+        Return Obj.GetType().IsPrimitiveType()
+    End Function
+
     <Extension> Public Function RemoveLast(Of T)(List As List(Of T)) As List(Of T)
         If List IsNot Nothing AndAlso List.Any() Then
             List.RemoveAt(List.Count() - 1)

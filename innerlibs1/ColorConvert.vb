@@ -1,7 +1,6 @@
 ﻿Imports System.Drawing
 Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
-Imports InnerLibs.LINQ
 
 ''' <summary>
 ''' Modulo de Conversão de Cores
@@ -226,17 +225,18 @@ Public Class HSVColor
             Return SystemColor.G
         End Get
     End Property
+
     ReadOnly Property B As Integer
         Get
             Return SystemColor.B
         End Get
     End Property
+
     ReadOnly Property A As Byte
         Get
             Return SystemColor.A
         End Get
     End Property
-
 
     ReadOnly Property Hexadecimal As String
         Get
@@ -300,6 +300,65 @@ Public Class HSVColor
         _name = Color
     End Sub
 
+    Sub New(Color As String, Name As String)
+        Me.New(Color.ToColor())
+        _name = Name.IfBlank(Color)
+    End Sub
+
+    Sub New(Color As Color, Name As String)
+        Me.New(Color)
+        _name = Name
+    End Sub
+
+    ''' <summary>
+    ''' Verifica se uma cor é legivel sobre outra cor
+    ''' </summary>
+    ''' <param name="BackgroundColor"></param>
+    ''' <param name="Size"></param>
+    ''' <returns></returns>
+    Public Function IsReadable(BackgroundColor As HSVColor, Optional Size As Integer = 10) As Boolean
+        If BackgroundColor IsNot Nothing Then
+            Dim diff = BackgroundColor.R * 0.299 + BackgroundColor.G * 0.587 + BackgroundColor.B * 0.114 - Me.R * 0.299 - Me.G * 0.587 - Me.B * 0.114
+            Return Not ((diff < (1.5 + 141.162 * Math.Pow(0.975, Size)))) AndAlso (diff > (-0.5 - 154.709 * Math.Pow(0.99, Size)))
+        End If
+        Return True
+    End Function
+
+
+    Public Function Clone() As HSVColor
+        Return New HSVColor(Me.SystemColor, Me.Name)
+    End Function
+
+    ''' <summary>
+    ''' Retorna a combinação de 2 cores baseada na comparação binária (Xor)
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    Public Function Combine(Color As HSVColor) As HSVColor
+        If Color IsNot Nothing Then
+            Return New HSVColor(Me.R Xor Color.R, Me.G Xor Color.G, Me.B Xor Color.B, Me.A)
+        End If
+        Return Me.Clone()
+    End Function
+
+    ''' <summary>
+    ''' Retorna a combinação de 2 cores baseada na média
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    Public Function Average(Color As HSVColor) As HSVColor
+        If Color IsNot Nothing Then
+            Return New HSVColor(R:={Me.R, Color.R}.Average(), G:={Me.G, Color.G}.Average(), B:={Me.B, Color.B}.Average(), Me.A)
+        End If
+        Return Me.Clone()
+    End Function
+
+    ''' <summary>
+    ''' Cria uma paleta de cores usando esta cor como base e um metodo especifico
+    ''' </summary>
+    ''' <param name="PalleteType"></param>
+    ''' <param name="Amount"></param>
+    ''' <returns></returns>
     Public Function CreatePallete(PalleteType As String, Optional Amount As Integer = 4) As HSVColor()
         Dim rl = New List(Of HSVColor)
         For Each item In Me.Monochromatic(Amount)
@@ -389,10 +448,9 @@ Public Class HSVColor
         End Get
     End Property
 
-
     Public ReadOnly Property SystemColor As Color
 
-    Public Function ToColor() As Color
+    Public Function ToColor(Optional Alpha As Integer = 255) As Color
 
         Dim H, S, V As Double
         H = Me.H
@@ -421,17 +479,17 @@ Public Class HSVColor
 
             Select Case hueFloor
                 Case 0
-                    Return Color.FromArgb(MAX, d, c, a)
+                    Return Color.FromArgb(Alpha, d, c, a)
                 Case 1
-                    Return Color.FromArgb(MAX, b, d, a)
+                    Return Color.FromArgb(Alpha, b, d, a)
                 Case 2
-                    Return Color.FromArgb(MAX, a, d, c)
+                    Return Color.FromArgb(Alpha, a, d, c)
                 Case 3
-                    Return Color.FromArgb(MAX, a, b, d)
+                    Return Color.FromArgb(Alpha, a, b, d)
                 Case 4
-                    Return Color.FromArgb(MAX, c, a, d)
+                    Return Color.FromArgb(Alpha, c, a, d)
                 Case 5
-                    Return Color.FromArgb(MAX, d, a, b)
+                    Return Color.FromArgb(Alpha, d, a, b)
                 Case Else
                     Return Color.FromArgb(0, 0, 0, 0)
             End Select
