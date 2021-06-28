@@ -635,7 +635,7 @@ Namespace LINQ
         ''' </summary>
         ''' <param name="QueryExpression"></param>
         ''' <returns></returns>
-        Function UseQueryStringExpression(QueryExpression As String, Optional Separator As String = ":") As PaginationFilter(Of ClassType, RemapType)
+        Function UseQueryStringExpression(QueryExpression As String, Optional Separator As String = ":", Optional Conditional As FilterConditional = FilterConditional.And) As PaginationFilter(Of ClassType, RemapType)
             Dim Collection = QueryExpression.ParseQueryString()
             For Each K In Collection.AllKeys
                 Dim prop = K.UrlDecode()
@@ -645,7 +645,7 @@ Namespace LINQ
                         Dim buscas = Collection.GetValues(K).GroupBy(Function(x) x.GetBefore(Separator, True).IfBlank("=")).ToDictionary()
                         For Each item In buscas
                             Dim vals = item.Value.Select(Function(x) x.GetAfter(Separator))
-                            Me.SetMember(prop).SetValues(vals).SetOperator(item.Key).QueryStringSeparator = Separator
+                            Me.SetMember(prop, Conditional).SetValues(vals).SetOperator(item.Key).QueryStringSeparator = Separator
                         Next
                     End If
                 End If

@@ -932,21 +932,26 @@ Public Module Text
 
     <Extension()>
     Public Function GetFirstChars(Text As String, Optional Number As Integer = 1) As String
-        If Text.Length < Number Or Number < 1 Then
-            Return Text
-        Else
-            Return Text.Substring(0, Number)
+        If Text.IsNotBlank Then
+            If Text.Length < Number Or Number < 1 Then
+                Return Text
+            Else
+                Return Text.Substring(0, Number)
+            End If
         End If
-
+        Return ""
     End Function
 
     <Extension()>
     Public Function GetLastChars(Text As String, Optional Number As Integer = 1) As String
-        If Text.Length < Number Or Number < 1 Then
-            Return Text
-        Else
-            Return Text.Substring(Text.Length - Number)
+        If Text.IsNotBlank Then
+            If Text.Length < Number Or Number < 1 Then
+                Return Text
+            Else
+                Return Text.Substring(Text.Length - Number)
+            End If
         End If
+        Return ""
     End Function
 
     ''' <summary>
@@ -1507,8 +1512,6 @@ Public Module Text
         Return OpenQuoteChar & Text & OpenQuoteChar.ToString.GetOppositeWrapChar
     End Function
 
-
-
     ''' <summary>
     ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) é um alias de <see cref="Quote(String, Char)"/>
     ''' </summary>
@@ -1709,7 +1712,6 @@ Public Module Text
     Public Function RemoveLastAny(ByVal Text As String, ParamArray EndStringTest As String()) As String
         Return Text.RemoveLastAny(True, EndStringTest)
     End Function
-
 
     ''' <summary>
     ''' Remove os X ultimos caracteres
@@ -3913,8 +3915,6 @@ Public Class HtmlTag
     Sub New()
 
     End Sub
-
-
 
     Sub New(TagName As String, Optional InnerHtml As String = "")
         Me.TagName = TagName.IfBlank("div")
