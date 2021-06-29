@@ -456,7 +456,11 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property PageCount As Integer
             Get
-                Return (Total / PageSize).Ceil
+                If (PageSize > 0) Then
+                    Return (Total / PageSize).Ceil()
+                Else
+                    Return 1
+                End If
             End Get
         End Property
 
