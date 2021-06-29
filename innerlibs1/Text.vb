@@ -357,7 +357,7 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="PrependText">Texto adicional</param>
     ''' <param name="Test">      Teste</param>
-    <Extension()> Public Function PrependIf(Text As String, PrependText As String, Test As Func(Of String, Boolean)) As String
+    <Extension()> Public Function PrependIf(ByVal Text As String, PrependText As String, Test As Func(Of String, Boolean)) As String
         Test = If(Test, Function(x) False)
         Return Text.PrependIf(PrependText, Test(Text))
     End Function
@@ -368,7 +368,7 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="PrependText">Texto adicional</param>
     ''' <param name="Test">      Teste</param>
-    <Extension()> Public Function PrependWhile(Text As String, PrependText As String, Test As Func(Of String, Boolean)) As String
+    <Extension()> Public Function PrependWhile(ByVal Text As String, PrependText As String, Test As Func(Of String, Boolean)) As String
         Test = If(Test, Function(x) False)
         While Test(Text)
             Text = Text.Prepend(PrependText)
@@ -382,7 +382,7 @@ Public Module Text
     ''' <param name="Text">      Texto</param>
     ''' <param name="AppendText">Texto adicional</param>
     ''' <param name="Test">      Teste</param>
-    <Extension()> Public Function AppendWhile(Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
+    <Extension()> Public Function AppendWhile(ByVal Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
         Test = If(Test, Function(x) False)
         While Test(Text)
             Text = Text + AppendText
