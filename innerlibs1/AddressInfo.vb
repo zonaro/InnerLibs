@@ -239,6 +239,13 @@ Namespace Locations
 
             If Number.IsBlank Then
                 Dim maybe_number = Address.GetAfter(",").GetBefore("-").GetBefore(",").TrimAny(True, " ", ".", " ", ",", " ", "-", " ")
+                If maybe_number.Contains(" ") Then
+                    Dim parts = maybe_number.Split(" ")
+                    maybe_number = parts.FirstOrDefault(Function(x) x.IsNumber())
+                    If Complement.IsBlank Then
+                        Complement = parts.Where(Function(x) x <> maybe_number).Join(" ")
+                    End If
+                End If
                 Number = maybe_number
             End If
 
