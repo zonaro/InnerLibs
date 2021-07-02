@@ -1124,7 +1124,7 @@ Namespace LINQ
         ''' </summary>
         ''' <returns></returns>
         Public Function ValidValues() As IEnumerable(Of IComparable)
-            Dim v = Me.PropertyValues
+            Dim v = If(Me.PropertyValues, {}).AsEnumerable()
             If Not AcceptNullValues Then
                 v = v.Where(Function(x) x IsNot Nothing)
             End If

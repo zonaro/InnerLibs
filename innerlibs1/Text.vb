@@ -1072,7 +1072,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function GetRelativeURL(URL As Uri) As String
-        Return URL.PathAndQuery.RemoveFirstEqual(URL.AbsoluteUri)
+        Return URL.PathAndQuery
     End Function
 
     ''' <summary>
@@ -1082,7 +1082,8 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Public Function GetRelativeURL(URL As String) As String
-        Return New Uri(URL).GetRelativeURL()
+        If URL.IsURL Then Return New Uri(URL).GetRelativeURL()
+        Return Nothing
     End Function
 
     ''' <summary>
