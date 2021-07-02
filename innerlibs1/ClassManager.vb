@@ -3,6 +3,7 @@ Imports System.Data.Common
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
+Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Text.RegularExpressions
 
 Imports System.Xml
@@ -11,6 +12,29 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    <Extension()> Function ObjectToByteArray(ByVal obj As Object) As Byte()
+        If obj Is Nothing Then Return Nothing
+        Dim bf As BinaryFormatter = New BinaryFormatter()
+        Dim ms As MemoryStream = New MemoryStream()
+        bf.Serialize(ms, obj)
+        Dim b = ms.ToArray()
+        ms.Dispose()
+        Return b
+    End Function
+
+    Function ByteArrayToObject(ByVal arrBytes As Byte()) As Object
+        Return ByteArrayToObject(Of Object)(arrBytes)
+    End Function
+
+    <Extension()> Function ByteArrayToObject(Of T)(ByVal arrBytes As Byte()) As T
+        Dim memStream As MemoryStream = New MemoryStream()
+        Dim binForm As BinaryFormatter = New BinaryFormatter()
+        memStream.Write(arrBytes, 0, arrBytes.Length)
+        memStream.Seek(0, SeekOrigin.Begin)
+        Dim obj = CType(binForm.Deserialize(memStream), T)
+        memStream.Dispose()
+        Return obj
+    End Function
 
     <Extension>
     Public Function IsPrimitiveType(T As Type) As Boolean
@@ -32,7 +56,6 @@ Public Module ClassTools
            GetType(DateTime))
     End Function
 
-
     <Extension>
     Public Function IsPrimitiveType(Of T)(Obj As T) As Boolean
         If Obj.GetType() Is GetType(Type) Then
@@ -47,8 +70,6 @@ Public Module ClassTools
         End If
         Return List
     End Function
-
-
 
     <Extension()>
     Public Function IsEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
