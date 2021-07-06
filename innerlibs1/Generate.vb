@@ -1,7 +1,7 @@
 ﻿Imports System.Drawing
 Imports System.Net
 Imports System.Runtime.CompilerServices
- 
+
 Imports InnerLibs.Locations
 
 ''' <summary>
@@ -119,6 +119,15 @@ Public Module Generate
     End Function
 
 
+
+
+    ''' <summary>
+    ''' Gera um valor boolean aleatorio considerando uma porcentagem de chance
+    ''' </summary>
+    ''' <returns>TRUE ou FALSE.</returns>
+    Function RandomBoolean(Percent As Integer) As Boolean
+        Return RandomBoolean(Function(x) x <= Percent, 0, 100)
+    End Function
 
     ''' <summary>
     ''' Gera um valor boolean aleatorio considerando uma condiçao
