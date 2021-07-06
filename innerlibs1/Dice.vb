@@ -211,8 +211,33 @@ Namespace RolePlayingGame
                     Next
                 Next
                 Value = numfaces.GetRandomItem.Number
+                _h.Add(Value)
             End If
             Return Value
+        End Function
+
+
+        Private _h As New List(Of Integer)
+
+        ''' <summary>
+        ''' Historico de valores rolados para este dado
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property History As IEnumerable(Of Integer)
+            Get
+                Return _h.AsEnumerable()
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Se este Dice for uma moeda  (2 lados apenas) retorna true ou false baseado no lado da moeda qua saiu, caso seja um dado com mais de 2 lados retorna sempre true
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function Flip() As Boolean
+            If Me.Faces.Count = 2 Then
+                Return (Roll() - 1).ToBoolean
+            End If
+            Return True
         End Function
 
         ''' <summary>

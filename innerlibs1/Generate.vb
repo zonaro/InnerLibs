@@ -120,7 +120,23 @@ Public Module Generate
 
 
 
+    ''' <summary>
+    ''' Gera um valor boolean aleatorio considerando uma condiçao
+    ''' </summary>
+    ''' <param name="Min">Numero minimo, Padrão 0 </param>
+    ''' <param name="Max">Numero Maximo, Padrão 999999</param>
+    ''' <returns>TRUE ou FALSE</returns>
+    Function RandomBoolean(Condition As Func(Of Long, Boolean), Optional Min As Long = 0, Optional Max As Long = 999999) As Boolean
+        Return Condition(init_rnd.Next(Min, Max + 1))
+    End Function
 
+    ''' <summary>
+    ''' Gera um valor boolean aleatorio
+    ''' </summary>
+    ''' <returns>TRUE ou FALSE</returns>
+    Function RandomBoolean() As Boolean
+        Return init_rnd.Next(0, 1).ToBoolean()
+    End Function
 
 
 
@@ -166,7 +182,7 @@ Public Module Generate
         Return l
     End Function
 
-    Private init_rnd = New Random()
+    Private init_rnd As Random = New Random()
 
     ''' <summary>
     ''' Gera um InnerIpsum (InnerIpsum é uma modificação do classico Lorem Ipsum)
