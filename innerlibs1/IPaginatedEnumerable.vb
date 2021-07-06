@@ -432,17 +432,11 @@ Namespace LINQ
         ''' <returns></returns>
         ReadOnly Property Total As Integer
             Get
-                Dim FilteredData = ApplyFilter()
-                If FilteredData IsNot Nothing Then
-                    If TypeOf FilteredData Is IQueryable(Of ClassType) Then
-                        Return CType(FilteredData, IQueryable(Of ClassType)).Count()
-                    Else
-                        Return FilteredData.Count()
-                    End If
-                End If
-                Return -1
+                Return If(_total, -1)
             End Get
         End Property
+
+        Private _total As Integer? = Nothing
 
         ''' <summary>
         ''' Quantidade de itens por página
@@ -1026,15 +1020,21 @@ Namespace LINQ
 
         Private Function ApplyFilter() As IEnumerable(Of ClassType)
             Dim FilteredData = Me.Data
+            _total = Nothing
             If FilteredData IsNot Nothing Then
                 If LambdaExpression IsNot Nothing Then
                     If TypeOf FilteredData Is IOrderedQueryable(Of ClassType) Then
                         FilteredData = CType(FilteredData, IOrderedQueryable(Of ClassType)).Where(LambdaExpression)
+                        Dim dq = CType(FilteredData, IOrderedQueryable(Of ClassType)).Select(Function(x) 0)
+                        _total = dq.Count()
                     End If
                     If TypeOf FilteredData Is IQueryable(Of ClassType) Then
                         FilteredData = CType(FilteredData, IQueryable(Of ClassType)).Where(LambdaExpression)
+                        Dim dq = CType(FilteredData, IQueryable(Of ClassType)).Select(Function(x) 0)
+                        _total = dq.Count()
                     Else
                         FilteredData = FilteredData.Where(LambdaExpression.Compile())
+                        _total = FilteredData.Count()
                     End If
                 End If
                 Return FilteredData

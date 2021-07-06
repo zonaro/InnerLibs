@@ -13,8 +13,18 @@ Namespace Select2
             Me.Results = If(Options, {})
         End Sub
 
+        Sub New(Options As IEnumerable(Of ISelect2Option), PaginationMore As Boolean)
+            Me.Results = If(Options, {})
+            Me.Pagination.More = PaginationMore
+        End Sub
+
         Sub New(Groups As IEnumerable(Of Select2Group))
             Me.Results = If(Groups, {})
+        End Sub
+
+        Sub New(Groups As IEnumerable(Of Select2Group), PaginationMore As Boolean)
+            Me.Results = If(Groups, {})
+            Me.Pagination.More = PaginationMore
         End Sub
 
         Public Property Results As IEnumerable(Of ISelect2Result) = {}
