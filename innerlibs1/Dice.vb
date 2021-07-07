@@ -69,7 +69,6 @@ Namespace RolePlayingGame
             Return Value
         End Function
 
-
         ''' <summary>
         ''' Rola todos os dados (não travados) e retorna a soma de seus valores
         ''' </summary>
@@ -216,7 +215,6 @@ Namespace RolePlayingGame
             Return Value
         End Function
 
-
         Private _h As New List(Of Integer)
 
         ''' <summary>
@@ -313,7 +311,6 @@ Namespace RolePlayingGame
         ''' <param name="Type">Tipo de dado</param>
         Public Sub New(Optional Type As DiceType = DiceType.D6)
             Me.New(Type.ChangeType(Of Integer))
-
         End Sub
 
         ''' <summary>

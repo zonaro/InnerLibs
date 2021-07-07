@@ -209,33 +209,85 @@ Public Module Text
     ''' Caracteres usado para encapsular palavras em textos
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property WordWrappers As String()
+    ReadOnly Property WordWrappers As IEnumerable(Of String)
         Get
-            Return OpenWrappers.Union(CloseWrappers).ToArray
+            Return OpenWrappers.Union(CloseWrappers)
         End Get
     End Property
 
-    ReadOnly Property BreakLineChars As String() = {Environment.NewLine, vbCr, vbLf, vbCrLf, vbNewLine}
+    ReadOnly Property AlphaUpperChars As IEnumerable(Of String)
+        Get
+            Return {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}.AsEnumerable
+        End Get
+    End Property
 
-    ReadOnly Property CloseWrappers As String() = {"""", "'", ")", "}", "]", ">"}
+    ReadOnly Property AlphaLowerChars As IEnumerable(Of String)
+        Get
+            Return AlphaUpperChars.Select(Function(x) x.ToLower())
+        End Get
+    End Property
 
-    ReadOnly Property EndOfSentencePunctuation As String() = {".", "?", "!"}
+    ReadOnly Property AlphaChars As IEnumerable(Of String)
+        Get
+            Return AlphaUpperChars.Union(AlphaLowerChars)
+        End Get
+    End Property
 
-    ReadOnly Property MidSentencePunctuation As String() = {":", ";", ","}
+    ReadOnly Property NumberChars As IEnumerable(Of String)
+        Get
+            Return {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}.AsEnumerable
+        End Get
+    End Property
 
-    ReadOnly Property OpenWrappers As String() = {"""", "'", "(", "{", "[", "<"}
+    ReadOnly Property BreakLineChars As String()
+        Get
+            Return {Environment.NewLine, vbCr, vbLf, vbCrLf, vbNewLine}.AsEnumerable
+        End Get
+    End Property
+
+    ReadOnly Property CloseWrappers As IEnumerable(Of String)
+        Get
+            Return {"""", "'", ")", "}", "]", ">"}.AsEnumerable
+        End Get
+    End Property
+
+    ReadOnly Property EndOfSentencePunctuation As IEnumerable(Of String)
+        Get
+            Return {".", "?", "!"}.AsEnumerable
+        End Get
+    End Property
+
+    ReadOnly Property MidSentencePunctuation As IEnumerable(Of String)
+        Get
+            Return {":", ";", ","}.AsEnumerable
+        End Get
+    End Property
+
+    ReadOnly Property OpenWrappers As IEnumerable(Of String)
+        Get
+            Return {"""", "'", "(", "{", "[", "<"}.AsEnumerable
+        End Get
+    End Property
 
     ''' <summary>
     ''' Caracteres em branco
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property WhiteSpaceChars As String() = {Environment.NewLine, " ", vbTab, vbLf, vbCr, vbCrLf}
+    ReadOnly Property WhiteSpaceChars As IEnumerable(Of String)
+        Get
+            Return {Environment.NewLine, " ", vbTab, vbLf, vbCr, vbCrLf}.AsEnumerable
+        End Get
+    End Property
 
     ''' <summary>
     ''' Strings utilizadas para descobrir as palavras em uma string
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property WordSplitters As String() = {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br/>", Environment.NewLine, vbCr, vbCrLf}
+    ReadOnly Property WordSplitters As IEnumerable(Of String)
+        Get
+            Return {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br/>", Environment.NewLine, vbCr, vbCrLf}.AsEnumerable
+        End Get
+    End Property
 
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String
@@ -586,7 +638,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()> Function CountWords(Text As String, Optional RemoveDiacritics As Boolean = True, Optional Words As String() = Nothing) As Dictionary(Of String, Long)
         If Words Is Nothing Then Words = {}
-        Dim palavras = Text.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).ToArray
+        Dim palavras = Text.Split(WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToArray
 
         If Words.Count > 0 Then
             palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x.ToLower)).ToArray
@@ -1093,7 +1145,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()> Function GetWords(Text As String) As IOrderedEnumerable(Of String)
         Dim txt As New List(Of String)
-        Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).ToList
+        Dim palavras As List(Of String) = Text.AdjustWhiteSpaces.FixBreakLines.ToLower.RemoveHTML.Split(WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList
         For Each w In palavras
             txt.Add(w)
         Next
@@ -1186,10 +1238,7 @@ Public Module Text
     ''' <returns>TRUE se alguma das strings for igual a principal</returns>
     <Extension()>
     Public Function IsAny(Text As String, ParamArray Texts As String()) As Boolean
-        For Each t As String In Texts
-            If t = Text Then Return True
-        Next
-        Return False
+        Texts.Any(Function(x) Text = x)
     End Function
 
     ''' <summary>
@@ -1981,7 +2030,7 @@ Public Module Text
         For index = 0 To phrase.Count - 1
 
             Dim endchar As String = phrase(index).GetLastChars
-            If endchar.IsAny(WordSplitters) Then
+            If endchar.IsAny(WordSplitters.ToArray()) Then
                 phrase(index) = phrase(index).RemoveLastEqual(endchar)
             End If
 
@@ -3167,7 +3216,7 @@ Public Module Text
     ''' <param name="Text"></param>
     ''' <returns></returns>
     <Extension()> Function TrimCarriage(Text As String) As String
-        Return Text.TrimAny(WhiteSpaceChars)
+        Return Text.TrimAny(WhiteSpaceChars.ToArray())
     End Function
 
     ''' <summary>

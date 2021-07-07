@@ -210,59 +210,200 @@ End Module
 
 Public Class HSVColor
 
-    ReadOnly Property H As Double
-    ReadOnly Property S As Double
-    ReadOnly Property V As Double
+    Private _h, _s, _v As Double
 
+    ''' <summary>
+    ''' Hue (Matiz)
+    ''' </summary>
+    ''' <returns></returns>
+    Property H As Double
+        Get
+            Return _h
+        End Get
+        Set(value As Double)
+            If _h <> value Then
+                _h = value
+                SetColor()
+            End If
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Saturation (Saturação)
+    ''' </summary>
+    ''' <returns></returns>
+    Property S As Double
+        Get
+            Return _s
+        End Get
+        Set(value As Double)
+            If _s <> value Then
+                _s = value
+                SetColor()
+            End If
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Value (Brilho)
+    ''' </summary>
+    ''' <returns></returns>
+    Property V As Double
+        Get
+            Return _v
+        End Get
+        Set(value As Double)
+            If _v <> value Then
+                _v = value
+                SetColor()
+            End If
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Red (Vermelho)
+    ''' </summary>
+    ''' <returns></returns>
     ReadOnly Property R As Integer
         Get
-            Return SystemColor.R
+            Return _scolor.R
         End Get
     End Property
 
+    ''' <summary>
+    ''' Green (Verde)
+    ''' </summary>
+    ''' <returns></returns>
     ReadOnly Property G As Integer
         Get
-            Return SystemColor.G
+            Return _scolor.G
         End Get
     End Property
 
+    ''' <summary>
+    ''' Blue (Azul)
+    ''' </summary>
+    ''' <returns></returns>
     ReadOnly Property B As Integer
         Get
-            Return SystemColor.B
+            Return _scolor.B
         End Get
     End Property
 
+    ''' <summary>
+    ''' Alpha (Transparencia)
+    ''' </summary>
+    ''' <returns></returns>
     ReadOnly Property A As Byte
         Get
-            Return SystemColor.A
+            Return _scolor.A
         End Get
     End Property
 
+    Private Sub SetColor()
+
+        Dim H, S, V As Double
+        Dim alpha = _scolor.A
+
+        H = Me.H
+        S = Me.S
+        V = Me.V
+
+        While H < 0
+            H += 360
+        End While
+
+        While H > 360
+            H -= 360
+        End While
+
+        H = H / 360
+        Dim MAX As Byte = 255
+
+        If S > 0 Then
+            If H >= 1 Then H = 0
+            H = 6 * H
+            Dim hueFloor As Integer = CInt(Math.Floor(H))
+            Dim a As Byte = CByte(Math.Round(MAX * V * (1.0 - S)))
+            Dim b As Byte = CByte(Math.Round(MAX * V * (1.0 - (S * (H - hueFloor)))))
+            Dim c As Byte = CByte(Math.Round(MAX * V * (1.0 - (S * (1.0 - (H - hueFloor))))))
+            Dim d As Byte = CByte(Math.Round(MAX * V))
+
+            Select Case hueFloor
+                Case 0
+                    _scolor = Color.FromArgb(alpha, d, c, a)
+                Case 1
+                    _scolor = Color.FromArgb(alpha, b, d, a)
+                Case 2
+                    _scolor = Color.FromArgb(alpha, a, d, c)
+                Case 3
+                    _scolor = Color.FromArgb(alpha, a, b, d)
+                Case 4
+                    _scolor = Color.FromArgb(alpha, c, a, d)
+                Case 5
+                    _scolor = Color.FromArgb(alpha, d, a, b)
+                Case Else
+                    _scolor = Color.FromArgb(0, 0, 0, 0)
+            End Select
+        Else
+            Dim d As Byte = CByte((V * MAX))
+            _scolor = Color.FromArgb(255, d, d, d)
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Valor hexadecimal desta cor
+    ''' </summary>
+    ''' <returns></returns>
     ReadOnly Property Hexadecimal As String
         Get
-            Return SystemColor.ToHexadecimal()
+            Return _scolor.ToHexadecimal()
         End Get
     End Property
 
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> aleatória
+    ''' </summary>
     Sub New()
         Me.New(RandomColor())
     End Sub
 
-    Sub New(H As Double, S As Double, V As Double, Optional Name As String = Nothing)
-        Me.H = H
-        Me.S = S
-        Me.V = V
-        SystemColor = Me.ToColor()
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> a partir de seus valores de Matiz, Saturação, Brilho e Nome de cor
+    ''' </summary>
+    ''' <param name="H"></param>
+    ''' <param name="S"></param>
+    ''' <param name="V"></param>
+    ''' <param name="Name"></param>
+    Sub New(H As Double, S As Double, V As Double, Optional Name As String = Nothing, Optional Alpha As Integer = 255)
+        _h = H
+        _s = S
+        _v = V
+        SetColor()
         _name = Name
     End Sub
 
-    Sub New(R As Integer, G As Integer, B As Integer, A As Integer)
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> a partir dos valores RGB
+    ''' </summary>
+    ''' <param name="R">Vermelho</param>
+    ''' <param name="G">Verde</param>
+    ''' <param name="B">Azul</param>
+    ''' <param name="A">Transparencia</param>
+    ''' <param name="Name">Nome da cor</param>
+    Sub New(R As Integer, G As Integer, B As Integer, Optional A As Integer = 255, Optional Name As String = Nothing)
         Me.New(Color.FromArgb(A, R, G, B))
+        _name = Name
     End Sub
 
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="System.Drawing.Color"/>
+    ''' </summary>
+    ''' <param name="Color">Cor do sistema</param>
     Sub New(Color As Color)
-        SystemColor = Color
-        Me._name = SystemColor.Name
+        _scolor = Color
+        Me._name = _scolor.Name
 
         Dim r As Double = Color.R / 255
         Dim g As Double = Color.G / 255
@@ -270,45 +411,100 @@ Public Class HSVColor
 
         Dim min As Double = Math.Min(Math.Min(r, g), b)
         Dim max As Double = Math.Max(Math.Max(r, g), b)
-        V = max
+        _v = max
         Dim delta = max - min
         If max = 0 OrElse delta = 0 Then
-            S = 0
-            H = 0
+            _s = 0
+            _h = 0
         Else
-            S = delta / max
+            _s = delta / max
             If (r = max) Then
                 'entre amarelo e magenta
-                H = (g - b) / delta
+                _h = (g - b) / delta
             ElseIf (g = max) Then
                 'Entre ciano e amarelo
-                H = 2 + (b - r) / delta
+                _h = 2 + (b - r) / delta
             Else
                 'entre magenta e ciano
-                H = 4 + (r - g) / delta
+                _h = 4 + (r - g) / delta
             End If
 
-            H *= 60
-            If H < 0 Then
-                H += 360
+            _h *= 60
+            If _h < 0 Then
+                _h += 360
             End If
         End If
     End Sub
 
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria) e um Nome
+    ''' </summary>
+    ''' <param name="Color">Cor</param>
     Sub New(Color As String)
         Me.New(Color.ToColor())
         _name = Color
     End Sub
 
+    ''' <summary>
+    ''' Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou  string aleatoria) e um Nome
+    ''' </summary>
+    ''' <param name="Color">Cor</param>
+    ''' <param name="Name">Nome da cor</param>
     Sub New(Color As String, Name As String)
         Me.New(Color.ToColor())
         _name = Name.IfBlank(Color)
     End Sub
 
+    ''' <summary>
+    ''' Instancia uma nova HSVColor a partir de uma <see cref="System.Drawing.Color"/> e um Nome
+    ''' </summary>
+    ''' <param name="Color">Cor</param>
+    ''' <param name="Name">Nome da cor</param>
     Sub New(Color As Color, Name As String)
         Me.New(Color)
         _name = Name
     End Sub
+
+    Private _name As String
+
+    ''' <summary>
+    ''' Nome atribuido a esta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Name As String
+        Get
+            Return _name.IfBlank(ColorName)
+        End Get
+        Set(value As String)
+            _name = value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Nome original desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property ColorName As String
+        Get
+            Return _scolor.Name
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Descricao desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Description As String
+
+    ''' <summary>
+    ''' Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function ToSystemColor() As Color
+        Return _scolor
+    End Function
+
+    Private _scolor As Color
 
     ''' <summary>
     ''' Verifica se uma cor é legivel sobre outra cor
@@ -324,13 +520,16 @@ Public Class HSVColor
         Return True
     End Function
 
-
+    ''' <summary>
+    ''' Retorna uma cópia desta cor
+    ''' </summary>
+    ''' <returns></returns>
     Public Function Clone() As HSVColor
-        Return New HSVColor(Me.SystemColor, Me.Name)
+        Return New HSVColor(Me._scolor, Me.Name)
     End Function
 
     ''' <summary>
-    ''' Retorna a combinação de 2 cores baseada na comparação binária (Xor)
+    ''' Retorna a combinação de 2 cores
     ''' </summary>
     ''' <param name="Color"></param>
     ''' <returns></returns>
@@ -342,7 +541,7 @@ Public Class HSVColor
     End Function
 
     ''' <summary>
-    ''' Retorna a combinação de 2 cores baseada na média
+    ''' Retorna a cor media entre 2 cores
     ''' </summary>
     ''' <param name="Color"></param>
     ''' <returns></returns>
@@ -394,109 +593,104 @@ Public Class HSVColor
         Return Me.Name
     End Function
 
+    ''' <summary>
+    ''' Retorna as cores Quadraadas (tetradicas) desta cor
+    ''' </summary>
+    ''' <param name="ExcludeMe"></param>
+    ''' <returns></returns>
     Public Function Tetradic(Optional ExcludeMe As Boolean = False) As HSVColor()
         Return Square(ExcludeMe)
     End Function
 
+    ''' <summary>
+    ''' Retorna as cores análogas desta cor
+    ''' </summary>
+    ''' <param name="ExcludeMe"></param>
+    ''' <returns></returns>
     Public Function Analogous(Optional ExcludeMe As Boolean = False) As HSVColor()
         Return ModColor(ExcludeMe, 45, -45)
     End Function
 
+    ''' <summary>
+    ''' Retorna as cores Quadraadas (tetradicas) desta cor
+    ''' </summary>
+    ''' <param name="ExcludeMe"></param>
+    ''' <returns></returns>
     Public Function Square(Optional ExcludeMe As Boolean = False) As HSVColor()
         Return ModColor(ExcludeMe, 90, 180, 260)
     End Function
 
+    ''' <summary>
+    ''' Retorna as cores triadicas desta cor
+    ''' </summary>
+    ''' <param name="ExcludeMe"></param>
+    ''' <returns></returns>
     Public Function Triadic(Optional ExcludeMe As Boolean = False) As HSVColor()
         Return ModColor(ExcludeMe, 120, -120)
     End Function
 
+    ''' <summary>
+    ''' Retorna as cores complementares desta cor
+    ''' </summary>
+    ''' <param name="ExcludeMe"></param>
+    ''' <returns></returns>
     Public Function Complementary(Optional ExcludeMe As Boolean = False) As HSVColor()
         Return ModColor(ExcludeMe, 180)
     End Function
 
+    ''' <summary>
+    '''  Retorna as cores split-complementares desta cor
+    ''' </summary>
+    ''' <param name="IncludeMe"></param>
+    ''' <returns></returns>
     Public Function SplitComplementary(Optional IncludeMe As Boolean = False) As HSVColor()
         Return ModColor(IncludeMe, 150, 210)
     End Function
 
+    ''' <summary>
+    ''' Retorna <paramref name="Amount"/> variacoes cores a partir da cor atual
+    ''' </summary>
+    ''' <param name="Amount"></param>
+    ''' <returns></returns>
     Public Function Monochromatic(Optional Amount As Decimal = 4) As HSVColor()
-        Return MonochromaticPallete(Me.ToColor(), Amount).Select(Function(x) New HSVColor(x)).ToArray()
+        Return MonochromaticPallete(ToSystemColor, Amount).Select(Function(x) New HSVColor(x)).ToArray()
     End Function
 
+    ''' <summary>
+    ''' Retorna uma paleta de cores tetradica (Monochromatica + Tetradica)
+    ''' </summary>
+    ''' <param name="Amount"></param>
+    ''' <returns></returns>
     Public Function TetradicPallete(Optional Amount As Integer = 3) As HSVColor()
         Return Me.Monochromatic(Amount).SelectMany(Function(item) item.Tetradic()).ToArray()
     End Function
 
+    ''' <summary>
+    ''' Retorna uma paleta de cores triadica (Monochromatica + Triadica)
+    ''' </summary>
+    ''' <param name="Amount"></param>
+    ''' <returns></returns>
     Public Function TriadicPallete(Optional Amount As Integer = 3) As HSVColor()
         Return Me.Monochromatic(Amount).SelectMany(Function(item) item.Triadic()).ToArray()
 
     End Function
 
+    ''' <summary>
+    ''' Retorna uma paleta de cores complementares (complementares + monocromatica)
+    ''' </summary>
+    ''' <param name="Amount"></param>
+    ''' <returns></returns>
     Public Function ComplementaryPallete(Optional Amount As Integer = 3) As HSVColor()
         Return Me.Monochromatic(Amount).SelectMany(Function(item) item.Complementary()).ToArray()
     End Function
 
+    ''' <summary>
+    ''' Retorna uma paleta de cores split-complementares (split-complementares + monocromatica)
+    ''' </summary>
+    ''' <param name="Amount"></param>
+    ''' <returns></returns>
     Public Function SplitComplementaryPallete(Optional Amount As Integer = 3) As HSVColor()
         Return Me.Monochromatic(Amount).SelectMany(Function(item) item.SplitComplementary()).ToArray()
-
-    End Function
-
-    Private _name As String
-
-    Public ReadOnly Property Name As String
-        Get
-            Return _name.IfBlank(SystemColor.Name)
-        End Get
-    End Property
-
-    Public ReadOnly Property SystemColor As Color
-
-    Public Function ToColor(Optional Alpha As Integer = 255) As Color
-
-        Dim H, S, V As Double
-        H = Me.H
-        S = Me.S
-        V = Me.V
-
-        While H < 0
-            H += 360
-        End While
-
-        While H > 360
-            H -= 360
-        End While
-
-        H = H / 360
-        Dim MAX As Byte = 255
-
-        If S > 0 Then
-            If H >= 1 Then H = 0
-            H = 6 * H
-            Dim hueFloor As Integer = CInt(Math.Floor(H))
-            Dim a As Byte = CByte(Math.Round(MAX * V * (1.0 - S)))
-            Dim b As Byte = CByte(Math.Round(MAX * V * (1.0 - (S * (H - hueFloor)))))
-            Dim c As Byte = CByte(Math.Round(MAX * V * (1.0 - (S * (1.0 - (H - hueFloor))))))
-            Dim d As Byte = CByte(Math.Round(MAX * V))
-
-            Select Case hueFloor
-                Case 0
-                    Return Color.FromArgb(Alpha, d, c, a)
-                Case 1
-                    Return Color.FromArgb(Alpha, b, d, a)
-                Case 2
-                    Return Color.FromArgb(Alpha, a, d, c)
-                Case 3
-                    Return Color.FromArgb(Alpha, a, b, d)
-                Case 4
-                    Return Color.FromArgb(Alpha, c, a, d)
-                Case 5
-                    Return Color.FromArgb(Alpha, d, a, b)
-                Case Else
-                    Return Color.FromArgb(0, 0, 0, 0)
-            End Select
-        Else
-            Dim d As Byte = CByte((V * MAX))
-            Return Color.FromArgb(255, d, d, d)
-        End If
     End Function
 
 End Class

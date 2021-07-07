@@ -338,7 +338,7 @@ Namespace Locations
     Public Class AddressTypes
 
         Public Shared Function GetAddressType(Endereco As String) As String
-            Dim tp = Endereco.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
+            Dim tp = Endereco.Split(WordSplitters.ToArray, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
             If tp.IsNotBlank Then
                 Dim df = New AddressTypes()
                 Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp)?.Name.IfBlank("")
@@ -347,7 +347,7 @@ Namespace Locations
         End Function
 
         Public Shared Function GetAddressTypeList(Endereco As String) As String()
-            Dim tp = Endereco.Split(WordSplitters, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
+            Dim tp = Endereco.Split(WordSplitters.ToArray, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
             If tp.IsNotBlank Then
                 Dim df = New AddressTypes()
                 Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp)?.GetValue(df)

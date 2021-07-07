@@ -1,6 +1,5 @@
 ﻿Imports System.Text.RegularExpressions
 
-
 Public Class Paragraph
     Inherits List(Of Sentence)
 
@@ -67,7 +66,7 @@ Public Class Sentence
                     palavra = ""
                     'senao, adiciona o proximo caractere a palavra atual
                 Case Else
-                    palavra  &=  p
+                    palavra &= p
             End Select
         Next
 
@@ -263,7 +262,7 @@ Public Class StructuredText
     ''' </summary>
     ''' <param name="OriginalText"></param>
     Public Sub New(OriginalText As String)
-        For Each p In OriginalText.Split(BreakLineChars, StringSplitOptions.RemoveEmptyEntries)
+        For Each p In OriginalText.Split(BreakLineChars.ToArray(), StringSplitOptions.RemoveEmptyEntries)
             Me.Add(New Paragraph(p, Me))
         Next
     End Sub
