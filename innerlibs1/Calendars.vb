@@ -56,9 +56,6 @@ Public Class DateRange
         End Set
     End Property
 
-
-
-
     ''' <summary>
     ''' Se true, ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia
     ''' </summary>
@@ -116,6 +113,16 @@ Public Class DateRange
     Public Sub New(Dates As IEnumerable(Of Date?), ForceFirstAndLastMoments As Boolean)
         Me.New(Dates)
         Me.ForceFirstAndLastMoments = ForceFirstAndLastMoments
+    End Sub
+
+    Public Sub New(StartEndDate As DateTime)
+        Me.New(StartEndDate, StartEndDate)
+        Me.ForceFirstAndLastMoments = True
+    End Sub
+
+    Public Sub New(StartEndDate As DateTime?)
+        Me.New(StartEndDate.Value, StartEndDate.Value)
+        Me.ForceFirstAndLastMoments = True
     End Sub
 
     ''' <summary>
@@ -187,7 +194,6 @@ Public Class DateRange
         End Select
         Return -1
     End Function
-
 
     Public Shared Function AddInterval(Datetime As DateTime, DateRangeInterval As DateRangeInterval, Total As Decimal)
         If DateRangeInterval = DateRangeInterval.LessAccurate Then
@@ -330,8 +336,6 @@ Public Class DateRange
         End If
         Return _Difference
     End Function
-
-
 
     Private _Difference As LongTimeSpan = Nothing
 
@@ -562,7 +566,6 @@ Public Module Calendars
 
         Return Period
     End Function
-
 
     ''' <summary>
     ''' Pega o numero da semana a partir de uma data
