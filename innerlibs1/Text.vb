@@ -2075,7 +2075,7 @@ Public Module Text
                 Case Else
                     'ja esta no singular
             End Select
-            If endchar.IsAny(WordSplitters) Then
+            If endchar.IsAny(WordSplitters.ToArray()) Then
                 phrase(index) = phrase(index) & (endchar)
             End If
         Next
