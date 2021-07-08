@@ -245,7 +245,65 @@ End Module
 Public Class HSVColor
 
     Private _h, _s, _v As Double
+    Private _name As String
+    Private _scolor As Color
 
+    ''' <summary>
+    ''' Gera uma <see cref="HSVColor"/> aleatoria
+    ''' </summary>
+    ''' <param name="Name"></param>
+    ''' <returns></returns>
+    Public Shared Function RandomColor(Optional Name As String = Nothing) As HSVColor
+        Return New HSVColor(ColorConvert.RandomColor(), Name)
+    End Function
+
+    Public Shared Function RandomTransparentColor(Optional Name As String = Nothing) As HSVColor
+        Return New HSVColor(ColorConvert.RandomColor(), Name) With {.Opacity = Generate.RandomNumber(0, 100)}
+    End Function
+
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> transparente
+    ''' </summary>
+    Sub New()
+        Me.New(Color.Transparent)
+    End Sub
+
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="System.Drawing.Color"/>
+    ''' </summary>
+    ''' <param name="Color">Cor do sistema</param>
+    Sub New(Color As Color)
+        FromColor(Color)
+    End Sub
+
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria) e um Nome
+    ''' </summary>
+    ''' <param name="Color">Cor</param>
+    Sub New(Color As String)
+        Me.New(Color.ToColor())
+        _name = Color
+    End Sub
+
+    ''' <summary>
+    ''' Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou  string aleatoria) e um Nome
+    ''' </summary>
+    ''' <param name="Color">Cor</param>
+    ''' <param name="Name">Nome da cor</param>
+    Sub New(Color As String, Name As String)
+        Me.New(Color.ToColor())
+        _name = Name.IfBlank(Color)
+    End Sub
+
+    ''' <summary>
+    ''' Instancia uma nova HSVColor a partir de uma <see cref="System.Drawing.Color"/> e um Nome
+    ''' </summary>
+    ''' <param name="Color">Cor</param>
+    ''' <param name="Name">Nome da cor</param>
+    Sub New(Color As Color, Name As String)
+        Me.New(Color)
+        _name = Name
+    End Sub
     ''' <summary>
     ''' Hue (Matiz)
     ''' </summary>
@@ -350,7 +408,6 @@ Public Class HSVColor
         End Set
     End Property
 
-
     ''' <summary>
     ''' Opacidade (de 1 a 100%)
     ''' </summary>
@@ -363,6 +420,44 @@ Public Class HSVColor
             A = CType(CalculateValueFromPercent(value.LimitRange(0, 255), 255), Byte)
         End Set
     End Property
+
+    ''' <summary>
+    ''' Valor hexadecimal desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    ReadOnly Property Hexadecimal As String
+        Get
+            Return _scolor.ToHexadecimal()
+        End Get
+    End Property
+    ''' <summary>
+    ''' Nome atribuido a esta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Name As String
+        Get
+            Return _name.IfBlank(ColorName)
+        End Get
+        Set(value As String)
+            _name = value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Nome original mais proximo desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property ColorName As String
+        Get
+            Return _scolor.GetClosestColorName()
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Descricao desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Description As String
 
     Private Sub SetColor()
 
@@ -411,74 +506,12 @@ Public Class HSVColor
             End Select
         Else
             Dim d As Byte = CByte((V * MAX))
-            _scolor = Color.FromArgb(255, d, d, d)
+            _scolor = Color.FromArgb(alpha, d, d, d)
         End If
 
     End Sub
 
-    ''' <summary>
-    ''' Valor hexadecimal desta cor
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property Hexadecimal As String
-        Get
-            Return _scolor.ToHexadecimal()
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Instancia uma nova <see cref="HSVColor"/> transparente
-    ''' </summary>
-    Sub New()
-        Me.New(Color.Transparent)
-    End Sub
-
-    ''' <summary>
-    ''' Gera uma <see cref="HSVColor"/> aleatoria
-    ''' </summary>
-    ''' <param name="Name"></param>
-    ''' <returns></returns>
-    Public Shared Function RandomColor(Optional Name As String = Nothing) As HSVColor
-        Return New HSVColor(ColorConvert.RandomColor(), Name)
-    End Function
-
-    ''' <summary>
-    ''' Instancia uma nova <see cref="HSVColor"/> a partir de seus valores de Matiz, Saturação, Brilho e Nome de cor
-    ''' </summary>
-    ''' <param name="H"></param>
-    ''' <param name="S"></param>
-    ''' <param name="V"></param>
-    ''' <param name="Name"></param>
-    Sub New(H As Double, S As Double, V As Double, Optional Name As String = Nothing, Optional Alpha As Integer = 255)
-        _h = H
-        _s = S
-        _v = V
-        SetColor()
-        _name = Name
-    End Sub
-
-    ''' <summary>
-    ''' Instancia uma nova <see cref="HSVColor"/> a partir dos valores RGB
-    ''' </summary>
-    ''' <param name="R">Vermelho</param>
-    ''' <param name="G">Verde</param>
-    ''' <param name="B">Azul</param>
-    ''' <param name="A">Transparencia</param>
-    ''' <param name="Name">Nome da cor</param>
-    Sub New(R As Integer, G As Integer, B As Integer, Optional A As Integer = 255, Optional Name As String = Nothing)
-        Me.New(Color.FromArgb(A, R, G, B))
-        _name = Name
-    End Sub
-
-    ''' <summary>
-    ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="System.Drawing.Color"/>
-    ''' </summary>
-    ''' <param name="Color">Cor do sistema</param>
-    Sub New(Color As Color)
-        FromColor(Color)
-    End Sub
-
-    Sub FromColor(Color As Color)
+    Private Sub FromColor(Color As Color)
         _scolor = Color
         Me._name = _scolor.Name
 
@@ -513,77 +546,13 @@ Public Class HSVColor
         End If
     End Sub
 
-
-    ''' <summary>
-    ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria) e um Nome
-    ''' </summary>
-    ''' <param name="Color">Cor</param>
-    Sub New(Color As String)
-        Me.New(Color.ToColor())
-        _name = Color
-    End Sub
-
-    ''' <summary>
-    ''' Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou  string aleatoria) e um Nome
-    ''' </summary>
-    ''' <param name="Color">Cor</param>
-    ''' <param name="Name">Nome da cor</param>
-    Sub New(Color As String, Name As String)
-        Me.New(Color.ToColor())
-        _name = Name.IfBlank(Color)
-    End Sub
-
-    ''' <summary>
-    ''' Instancia uma nova HSVColor a partir de uma <see cref="System.Drawing.Color"/> e um Nome
-    ''' </summary>
-    ''' <param name="Color">Cor</param>
-    ''' <param name="Name">Nome da cor</param>
-    Sub New(Color As Color, Name As String)
-        Me.New(Color)
-        _name = Name
-    End Sub
-
-    Private _name As String
-
-    ''' <summary>
-    ''' Nome atribuido a esta cor
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property Name As String
-        Get
-            Return _name.IfBlank(ColorName)
-        End Get
-        Set(value As String)
-            _name = value
-        End Set
-    End Property
-
-    ''' <summary>
-    ''' Nome original desta cor
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property ColorName As String
-        Get
-            Return _scolor.GetClosestColorName()
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Descricao desta cor
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property Description As String
-
     ''' <summary>
     ''' Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
     ''' </summary>
     ''' <returns></returns>
     Public Function ToSystemColor() As Color
-        Return _scolor
+        Return Color.FromArgb(A, R, G, B)
     End Function
-
-    Private _scolor As Color
-
     ''' <summary>
     ''' Verifica se uma cor é legivel sobre outra cor
     ''' </summary>
@@ -599,11 +568,27 @@ Public Class HSVColor
     End Function
 
     ''' <summary>
+    ''' Verifica se uma cor e considerada escura
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsDark() As Boolean
+        Return _scolor.IsDark()
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma cor e considerada clara
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsLight() As Boolean
+        Return _scolor.IsLight()
+    End Function
+
+    ''' <summary>
     ''' Retorna uma cópia desta cor
     ''' </summary>
     ''' <returns></returns>
     Public Function Clone() As HSVColor
-        Return New HSVColor(Me._scolor, Me.Name)
+        Return New HSVColor(Me._scolor, Me.Name) With {.Description = Me.Description}
     End Function
 
     ''' <summary>
@@ -613,7 +598,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Function Combine(Color As HSVColor) As HSVColor
         If Color IsNot Nothing Then
-            Return New HSVColor(Me.R Xor Color.R, Me.G Xor Color.G, Me.B Xor Color.B, Me.A)
+            Return New HSVColor() With {.R = Me.R Xor Color.R, .G = Me.G Xor Color.G, .B = Me.B Xor Color.B, .A = Me.A}
         End If
         Return Me.Clone()
     End Function
@@ -625,7 +610,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Function Average(Color As HSVColor) As HSVColor
         If Color IsNot Nothing Then
-            Return New HSVColor(R:={Me.R, Color.R}.Average(), G:={Me.G, Color.G}.Average(), B:={Me.B, Color.B}.Average(), Me.A)
+            Return New HSVColor() With {.R = {Me.R, Color.R}.Average(), .G = {Me.G, Color.G}.Average(), .B = {Me.B, Color.B}.Average(), .A = Me.A}
         End If
         Return Me.Clone()
     End Function
@@ -664,7 +649,7 @@ Public Class HSVColor
     ''' <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
     ''' <returns></returns>
     Public Function ModColor(ParamArray Degrees As Integer()) As HSVColor()
-        Return If(Degrees, {}).Select(Function(x) New HSVColor((Me.H + x) Mod 360, Me.S, Me.V)).OrderBy(Function(x) x.H).ToArray()
+        Return If(Degrees, {}).Select(Function(x) New HSVColor() With {.H = ((Me.H + x) Mod 360), .S = Me.S, .V = Me.V}).OrderBy(Function(x) x.H).ToArray()
     End Function
 
     Public Overrides Function ToString() As String
@@ -679,7 +664,6 @@ Public Class HSVColor
     Public Function Tetradic(Optional ExcludeMe As Boolean = False) As HSVColor()
         Return Square(ExcludeMe)
     End Function
-
     ''' <summary>
     ''' Retorna as cores análogas desta cor
     ''' </summary>
@@ -731,7 +715,7 @@ Public Class HSVColor
     ''' <param name="Amount"></param>
     ''' <returns></returns>
     Public Function Monochromatic(Optional Amount As Decimal = 4) As HSVColor()
-        Return MonochromaticPallete(ToSystemColor, Amount).Select(Function(x) New HSVColor(x)).ToArray()
+        Return MonochromaticPallete(_scolor, Amount).Select(Function(x) New HSVColor(x)).ToArray()
     End Function
 
     ''' <summary>

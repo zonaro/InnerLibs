@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Data.Common
 Imports System.IO
+Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.Serialization.Formatters.Binary
@@ -11,6 +12,14 @@ Imports System.Xml.Serialization
 Imports InnerLibs.LINQ
 
 Public Module ClassTools
+
+
+
+
+
+    <Extension()> Public Function IsNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
+        Return Not If(List, {}).Any()
+    End Function
 
     <Extension()> Function ObjectToByteArray(ByVal obj As Object) As Byte()
         If obj Is Nothing Then Return Nothing
@@ -1225,16 +1234,24 @@ Public Module ClassTools
     ''' Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
     ''' </typeparam>
     <Extension()>
-    Public Sub SetPropertyValue(Of Type)(MyObject As Object, PropertyName As String, Value As Type)
+    Public Function SetPropertyValue(Of Type)(MyObject As Type, PropertyName As String, Value As Object) As Type
         Dim prop = GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault
         If prop IsNot Nothing Then
             prop.SetValue(MyObject, Convert.ChangeType(Value, prop.PropertyType))
         End If
-    End Sub
+        Return MyObject
+    End Function
+
 
     <Extension()>
-    Public Sub SetPropertyValueFromCollection(Of Type)(MyObject As Object, PropertyName As String, Collection As CollectionBase)
-        GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).First.SetValue(MyObject, Collection(PropertyName))
-    End Sub
+    Public Function SetPropertyValueFromCollection(Of Type)(MyObject As Type, PropertyName As String, Collection As CollectionBase) As Type
+        GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault()?.SetValue(MyObject, Collection(PropertyName))
+        Return MyObject
+    End Function
 
+
+    <Extension()> Public Function SetPropertyValue(Of Type As Class, Prop)(obj As Type, Selector As Expression(Of Func(Of Type, Prop)), Value As Prop) As Type
+        obj.GetPropertyInfo(Selector).SetValue(obj, Value)
+        Return obj
+    End Function
 End Module
