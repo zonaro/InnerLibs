@@ -206,6 +206,40 @@ Public Module ColorConvert
         Return cor
     End Function
 
+    Public ReadOnly Property KnowColors As IEnumerable(Of Color)
+        Get
+            Return [Enum].GetValues(GetType(KnownColor)).Cast(Of KnownColor)().Where(Function(x) x.ToInteger() >= 27).Select(Function(x) Color.FromKnownColor(x))
+        End Get
+    End Property
+
+    <Extension()> Public Function GetClosestKnowColor(Color As Color) As Color
+        Dim closest_distance As Double = Double.MaxValue
+        Dim closest As Color = Color.White
+        For Each kc In KnowColors
+            'Calculate Euclidean Distance
+            Dim r_dist_sqrd As Double = Math.Pow(CDbl(Color.R) - CDbl(kc.R), 2)
+            Dim g_dist_sqrd As Double = Math.Pow(CDbl(Color.G) - CDbl(kc.G), 2)
+            Dim b_dist_sqrd As Double = Math.Pow(CDbl(Color.B) - CDbl(kc.B), 2)
+            Dim d As Double = Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd)
+            If d < closest_distance Then
+                closest_distance = d
+                closest = kc
+            End If
+        Next
+        Return closest
+    End Function
+
+    <Extension()> Public Function GetClosestColorName(Color As Color) As String
+        Return Color.GetClosestKnowColor().Name
+    End Function
+
+    <Extension()> Public Function GetColorName(Color As Color) As String
+        For Each namedColor In KnowColors
+            Return namedColor.Name
+        Next
+        Return Color.Name
+    End Function
+
 End Module
 
 Public Class HSVColor
@@ -264,40 +298,70 @@ Public Class HSVColor
     ''' Red (Vermelho)
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property R As Integer
+    Property R As Integer
         Get
             Return _scolor.R
         End Get
+        Set(value As Integer)
+            _scolor = Color.FromArgb(A, value.LimitRange(0, 255), G, B)
+            FromColor(_scolor)
+        End Set
     End Property
 
     ''' <summary>
     ''' Green (Verde)
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property G As Integer
+    Property G As Integer
         Get
             Return _scolor.G
         End Get
+        Set(value As Integer)
+            _scolor = Color.FromArgb(A, R, value.LimitRange(0, 255), B)
+            FromColor(_scolor)
+        End Set
     End Property
 
     ''' <summary>
     ''' Blue (Azul)
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property B As Integer
+    Property B As Integer
         Get
             Return _scolor.B
         End Get
+        Set(value As Integer)
+            _scolor = Color.FromArgb(A, R, G, value.LimitRange(0, 255))
+            FromColor(_scolor)
+        End Set
     End Property
 
     ''' <summary>
     ''' Alpha (Transparencia)
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property A As Byte
+    Property A As Byte
         Get
             Return _scolor.A
         End Get
+        Set(value As Byte)
+            _scolor = Color.FromArgb(value.LimitRange(0, 255), R, G, B)
+            FromColor(_scolor)
+        End Set
+    End Property
+
+
+    ''' <summary>
+    ''' Opacidade (de 1 a 100%)
+    ''' </summary>
+    ''' <returns></returns>
+    Property Opacity As Decimal
+        Get
+            Return A.ToDecimal().CalculatePercent(255)
+        End Get
+        Set(value As Decimal)
+            A = CType(CalculateValueFromPercent(value.LimitRange(0, 255), 255), Byte)
+        End Set
     End Property
 
     Private Sub SetColor()
@@ -363,11 +427,20 @@ Public Class HSVColor
     End Property
 
     ''' <summary>
-    ''' Instancia uma nova <see cref="HSVColor"/> aleatória
+    ''' Instancia uma nova <see cref="HSVColor"/> transparente
     ''' </summary>
     Sub New()
-        Me.New(RandomColor())
+        Me.New(Color.Transparent)
     End Sub
+
+    ''' <summary>
+    ''' Gera uma <see cref="HSVColor"/> aleatoria
+    ''' </summary>
+    ''' <param name="Name"></param>
+    ''' <returns></returns>
+    Public Shared Function RandomColor(Optional Name As String = Nothing) As HSVColor
+        Return New HSVColor(ColorConvert.RandomColor(), Name)
+    End Function
 
     ''' <summary>
     ''' Instancia uma nova <see cref="HSVColor"/> a partir de seus valores de Matiz, Saturação, Brilho e Nome de cor
@@ -402,6 +475,10 @@ Public Class HSVColor
     ''' </summary>
     ''' <param name="Color">Cor do sistema</param>
     Sub New(Color As Color)
+        FromColor(Color)
+    End Sub
+
+    Sub FromColor(Color As Color)
         _scolor = Color
         Me._name = _scolor.Name
 
@@ -435,6 +512,7 @@ Public Class HSVColor
             End If
         End If
     End Sub
+
 
     ''' <summary>
     ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria) e um Nome
@@ -486,7 +564,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public ReadOnly Property ColorName As String
         Get
-            Return _scolor.Name
+            Return _scolor.GetClosestColorName()
         End Get
     End Property
 
