@@ -1548,6 +1548,69 @@ Public Module Text
         Return PluralText
     End Function
 
+
+
+
+    ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="List">Lista com itens</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(Of T)(List As IEnumerable(Of T), PluralText As String) As String
+        Return QuantifyText(PluralText, If(List, {}))
+    End Function
+
+    ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="Quantity">Quantidade de Itens</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(Quantity As Integer, PluralText As String) As String
+        Return QuantifyText(PluralText, Quantity)
+    End Function
+    ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="Quantity">Quantidade de Itens</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(Quantity As Decimal, PluralText As String) As String
+        Return QuantifyText(PluralText, Quantity)
+    End Function
+
+    ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="Quantity">Quantidade de Itens</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(Quantity As Short, PluralText As String) As String
+        Return QuantifyText(PluralText, Quantity)
+    End Function
+
+    ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="Quantity">Quantidade de Itens</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(Quantity As Long, PluralText As String) As String
+        Return QuantifyText(PluralText, Quantity)
+    End Function
+
+    ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="Quantity">Quantidade de Itens</param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(Quantity As Double, PluralText As String) As String
+        Return QuantifyText(PluralText, Quantity)
+    End Function
+
+
     ''' <summary>
     ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
     ''' </summary>
