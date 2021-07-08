@@ -588,7 +588,7 @@ Public Class HSVColor
     ''' </summary>
     ''' <returns></returns>
     Public Function Clone() As HSVColor
-        Return New HSVColor(Me._scolor, Me.Name) With {.Description = Me.Description}
+        Return New HSVColor(Me.ToSystemColor, Me.Name) With {.Description = Me.Description}
     End Function
 
     ''' <summary>
