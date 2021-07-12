@@ -1238,11 +1238,22 @@ Public Module Text
     ''' <returns>TRUE se alguma das strings for igual a principal</returns>
     <Extension()>
     Public Function IsAny(Text As String, ParamArray Texts As String()) As Boolean
-        Texts.Any(Function(x) Text = x)
+        Return Text.IsAny(StringComparison.CurrentCultureIgnoreCase, Texts)
     End Function
 
     ''' <summary>
-    ''' Compara se uma string é não igual a outras strings
+    ''' Compara se uma string é igual a outras strings
+    ''' </summary>
+    ''' <param name="Text"> string principal</param>
+    ''' <param name="Texts">strings para comparar</param>
+    ''' <returns>TRUE se alguma das strings for igual a principal</returns>
+    <Extension()>
+    Public Function IsAny(Text As String, Comparison As StringComparison, ParamArray Texts As String()) As Boolean
+        Return If(Texts, {}).Any(Function(x) Text.Equals(x, Comparison))
+    End Function
+
+    ''' <summary>
+    ''' Compara se uma string nao é igual a outras strings
     ''' </summary>
     ''' <param name="Text"> string principal</param>
     ''' <param name="Texts">strings para comparar</param>
@@ -1250,6 +1261,17 @@ Public Module Text
     <Extension()>
     Public Function IsNotAny(Text As String, ParamArray Texts As String()) As Boolean
         Return Not Text.IsAny(Texts)
+    End Function
+
+    ''' <summary>
+    ''' Compara se uma string nao é igual a outras strings
+    ''' </summary>
+    ''' <param name="Text"> string principal</param>
+    ''' <param name="Texts">strings para comparar</param>
+    ''' <returns>TRUE se alguma das strings for igual a principal</returns>
+    <Extension()>
+    Public Function IsNotAny(Text As String, Comparison As StringComparison, ParamArray Texts As String()) As Boolean
+        Return Not Text.IsAny(Comparison, Texts)
     End Function
 
     ''' <summary>
@@ -1392,7 +1414,7 @@ Public Module Text
     End Function
 
     <Extension()> Function ParseDigits(Of Type As IConvertible)(ByVal Text As String, Optional Culture As CultureInfo = Nothing) As Type
-        Return CType(CType(Text.ParseDigits(Culture), Object), Type)
+        Return Text.ParseDigits(Culture).ChangeType(Of Type)
     End Function
 
     ''' <summary>

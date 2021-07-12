@@ -1268,7 +1268,7 @@ Namespace LINQ
 
         Public ReadOnly Property CompareWith As Boolean
             Get
-                Return Not [Operator].StartsWithAny("!", "not")
+                Return Not [Operator].StartsWithAny("!")
             End Get
         End Property
 
@@ -1278,7 +1278,7 @@ Namespace LINQ
         ''' <returns></returns>
         Function Negate() As PropertyFilter(Of ClassType, RemapType)
             If CompareWith = False Then
-                [Operator] = [Operator].RemoveFirstAny(False, "!", "Not")
+                [Operator] = [Operator].RemoveFirstAny(False, "!")
             Else
                 [Operator] = "!" & [Operator]
             End If

@@ -252,9 +252,9 @@ Namespace LINQ
             Dim body As BinaryExpression = Nothing
             'Dim body As Expression = Nothing
             Select Case [Operator].ToLower().IfBlank("equal")
-                Case "blank", "compareblank", "isblank"
+                Case "blank", "compareblank", "isblank", "isempty", "empty"
                     For Each item In PropertyValues
-                        Dim exp = Expression.Equal(Member, Expression.Constant("", Member.Type))
+                        Dim exp = Expression.Equal(Member, Expression.Constant(String.Empty, Member.Type))
                         If body Is Nothing Then
                             body = exp
                         Else
@@ -268,7 +268,7 @@ Namespace LINQ
                             body = Expression.Equal(exp, Expression.Constant(False))
                         End If
                     Next
-                Case "isnull", "comparenull", "null"
+                Case "isnull", "comparenull", "null", "nothing", "isnothing"
                     For Each item In PropertyValues
                         Dim exp = Expression.Equal(Member, Expression.Constant(Nothing, Member.Type))
                         If body Is Nothing Then
