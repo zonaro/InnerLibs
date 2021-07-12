@@ -968,7 +968,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"/> para cada propriedade em <paramref name="PropertyNames"/>
+        ''' Seta uma busca usando <see cref="Contains()"/> em <paramref name="PropertyValues"/> para cada propriedade em <paramref name="PropertyNames"/>
         ''' </summary>
         ''' <param name="PropertyValues"></param>
         ''' <param name="PropertyNames"></param>
@@ -1036,6 +1036,8 @@ Namespace LINQ
                         FilteredData = FilteredData.Where(LambdaExpression.Compile())
                         _total = FilteredData.Count()
                     End If
+                Else
+                    _total = FilteredData.Count()
                 End If
                 Return FilteredData
             End If

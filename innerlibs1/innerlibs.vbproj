@@ -163,6 +163,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -182,19 +183,6 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Este projeto faz referência a pacotes do NuGet que não estão presentes neste computador. Use a Restauração de Pacotes do NuGet para baixá-los.  Para obter mais informações, consulte http://go.microsoft.com/fwlink/?LinkID=322105. O arquivo ausente é {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\DashboardHES\packages\SS.NuGet.Publish.1.0.1912.22\build\SS.NuGet.Publish.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\DashboardHES\packages\SS.NuGet.Publish.1.0.1912.22\build\SS.NuGet.Publish.props'))" />
-    <Error Condition="!Exists('..\..\DashboardHES\packages\SS.NuGet.Publish.1.0.1912.22\build\SS.NuGet.Publish.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\DashboardHES\packages\SS.NuGet.Publish.1.0.1912.22\build\SS.NuGet.Publish.targets'))" />
-  </Target>
-  <Import Project="..\..\DashboardHES\packages\SS.NuGet.Publish.1.0.1912.22\build\SS.NuGet.Publish.targets" Condition="Exists('..\..\DashboardHES\packages\SS.NuGet.Publish.1.0.1912.22\build\SS.NuGet.Publish.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+
 </Project>
