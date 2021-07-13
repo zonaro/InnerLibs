@@ -94,6 +94,7 @@ Namespace Locations
         End Property
 
         Private Shared l As List(Of State) = New List(Of State)
+
         Private Shared Function CreateList() As List(Of State)
             If Not l.Any() Then
                 Dim r = New StreamReader([Assembly].GetExecutingAssembly().GetManifestResourceStream("InnerLibs.brasil.xml"))
@@ -189,6 +190,21 @@ Namespace Locations
                 End If
             Next
             Return StateCode
+        End Function
+
+        ''' <summary>
+        ''' Retorna a as informações do estado a partir de um nome de estado ou sua sigla
+        ''' </summary>
+        ''' <param name="NameOrAcronym">Nome ou UF</param>
+        ''' <returns></returns>
+        Public Shared Function GetState(NameOrAcronym As String) As State
+            Dim StateCode = ""
+            For Each estado As State In Brasil.States
+                If estado.Name = NameOrAcronym OrElse estado.Acronym = NameOrAcronym Then
+                    Return estado
+                End If
+            Next
+            Return Nothing
         End Function
 
     End Class

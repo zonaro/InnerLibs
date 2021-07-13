@@ -40,16 +40,6 @@ Public Module Converter
     End Function
 
     ''' <summary>
-    ''' Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
-    ''' <returns></returns>
-    <Extension()> Function ForceList(Of T)(ObjectForDefinition As T) As List(Of T)
-        Return New List(Of T)
-    End Function
-
-    ''' <summary>
     ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
     ''' </summary>
     ''' <param name="Obj">Objeto</param>
