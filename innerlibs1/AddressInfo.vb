@@ -20,9 +20,10 @@ Namespace Locations
         ''' </summary>
         ''' <param name="PostalCode"></param>
         ''' <param name="Number">Numero da casa</param>
-        Public Sub New(PostalCode As String, Optional Number As String = Nothing)
+        Public Sub New(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing)
             Me.PostalCode = PostalCode
-            If Not Number = Nothing Then Me.Number = Number
+            If Number.IsNotBlank() Then Me.Number = Number
+            If Complement.IsNotBlank() Then Me.Complement = Complement
             Me.GetInfoByPostalCode()
         End Sub
 
@@ -177,38 +178,67 @@ Namespace Locations
         ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
         ReadOnly Property Address As String
             Get
-                Return New StructuredText(ToString(True, True, True, True, True, True, False)).ToString().AdjustBlankSpaces().TrimAny(True, " ", ".", " ", ",", "-", " ")
+                Return New StructuredText(ToString(AddressPart.FullAddress)).ToString().AdjustBlankSpaces().TrimAny(True, " ", ".", " ", ",", "-", " ")
             End Get
         End Property
 
         ''' <summary>
-        ''' Retorna as string do endereço omitindo ou não informações
+        ''' Retorna uma string com as partes dos endereço especificas
         ''' </summary>
-        ''' <param name="IncludeNumber"></param>
-        ''' <param name="IncludeComplement"></param>
-        ''' <param name="IncludeNeighborhood"></param>
-        ''' <param name="IncludeCity"></param>
-        ''' <param name="IncludeState"></param>
-        ''' <param name="IncludePostalCode"></param>
-        ''' <param name="IncludeCountry"></param>
+        ''' <param name="Parts"></param>
         ''' <returns></returns>
-        Public Overloads Function ToString(Optional IncludeNumber As Boolean = True, Optional IncludeComplement As Boolean = True, Optional IncludeNeighborhood As Boolean = True, Optional IncludeCity As Boolean = True, Optional IncludeState As Boolean = True, Optional IncludePostalCode As Boolean = True, Optional IncludeCountry As Boolean = False) As String
-            ParseType()
-            Dim retorno As String = Street
-            If Number.IsNotBlank AndAlso IncludeNumber Then retorno &= (", " & Number)
-            If Complement.IsNotBlank AndAlso IncludeComplement Then retorno &= (", " & Complement)
-            If Neighborhood.IsNotBlank AndAlso IncludeNeighborhood Then retorno &= (" - " & Neighborhood)
-            If City.IsNotBlank AndAlso IncludeCity Then retorno &= (" - " & City)
-            If IncludeState Then
-                If StateCode.IsNotBlank Then
-                    retorno &= (" - " & StateCode)
-                Else
-                    If State.IsNotBlank Then retorno &= (" - " & State)
-                End If
+        Public Overloads Function ToString(Parts As IEnumerable(Of AddressPart)) As String
+            Parts = If(Parts, {})
+            If Parts.Any Then
+                Dim d As AddressPart = Parts.First()
+                For Each p In Parts.Skip(1)
+                    d = d Or p
+                Next
+                Return ToString(d)
             End If
-            If PostalCode.IsNotBlank AndAlso IncludePostalCode Then retorno &= (" - " & PostalCode)
-            If Country.IsNotBlank AndAlso IncludeCountry Then retorno &= (" - " & Country)
+            Return ToString()
+        End Function
+
+        ''' <summary>
+        ''' Retorna uma string com as partes dos endereço especificas
+        ''' </summary>
+        ''' <param name="Parts"></param>
+        ''' <returns></returns>
+        Public Overloads Function ToString(ParamArray Parts As AddressPart()) As String
+            Return ToString(Parts.AsEnumerable())
+        End Function
+
+
+        ''' <summary>
+        ''' Retorna uma string com as partes dos endereço especificas 
+        ''' </summary>
+        ''' <param name="Parts"></param>
+        ''' <returns></returns>
+        Public Overloads Function ToString(Parts As AddressPart) As String
+
+            ParseType()
+            Dim retorno As String = ""
+
+            If StreetType.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetType) Then retorno &= StreetType
+            If StreetName.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetName) Then retorno &= " " & StreetName
+            If Number.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Number) Then retorno &= (", " & Number)
+            If Complement.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Complement) Then retorno &= (", " & Complement)
+            If Neighborhood.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Neighborhood) Then retorno &= (" - " & Neighborhood)
+            If City.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.City) Then retorno &= (" - " & City)
+
+            If Parts And ContainsPart(Parts, AddressPart.StateCode) AndAlso StateCode.IsNotBlank Then
+                retorno &= (" - " & StateCode)
+            Else
+                If ContainsPart(Parts, AddressPart.State) AndAlso State.IsNotBlank Then retorno &= (" - " & State)
+            End If
+
+            If PostalCode.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.PostalCode) Then retorno &= (" - " & PostalCode)
+            If Country.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Country) Then retorno &= (" - " & Country)
             Return New StructuredText(retorno).ToString().AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-", " ")
+        End Function
+
+        Public Shared Function ContainsPart(Parts As AddressPart, OtherPart As AddressPart) As Boolean
+            Return ((Parts) And OtherPart) <> 0
         End Function
 
         Friend Sub ParseType()
@@ -334,6 +364,80 @@ Namespace Locations
         End Function
 
     End Class
+
+    ''' <summary>
+    ''' Partes de um Endereço
+    ''' </summary>
+    <Flags>
+    Public Enum AddressPart
+        ''' <summary>
+        ''' Tipo do Lograoduro
+        ''' </summary>
+        StreetType = 1
+        ''' <summary>
+        ''' Nome do Logradouro
+        ''' </summary>
+        StreetName = 2
+        ''' <summary>
+        ''' Logradouro
+        ''' </summary>
+        Street = StreetType + StreetName
+        ''' <summary>
+        ''' Numero do local
+        ''' </summary>
+        Number = 4
+        ''' <summary>
+        ''' Complemento do local
+        ''' </summary>
+        Complement = 8
+        ''' <summary>
+        ''' Numero e complemento
+        ''' </summary>
+        LocationInfo = Number + Complement
+
+        ''' <summary>
+        ''' Logradouro, Numero e complemento
+        ''' </summary>
+        FullLocationInfo = Street + Number + Complement
+        ''' <summary>
+        ''' Bairro
+        ''' </summary>
+        Neighborhood = 16
+        ''' <summary>
+        ''' Cidade
+        ''' </summary>
+        City = 32
+        ''' <summary>
+        ''' Estado
+        ''' </summary>
+        State = 64
+        ''' <summary>
+        ''' Cidade e Estado
+        ''' </summary>
+        CityState = City + State
+        ''' <summary>
+        ''' UF
+        ''' </summary>
+        StateCode = 128
+        ''' <summary>
+        ''' Cidade e UF
+        ''' </summary>
+        CityStateCode = City + StateCode
+        ''' <summary>
+        ''' País
+        ''' </summary>
+        Country = 256
+        ''' <summary>
+        ''' CEP
+        ''' </summary>
+        PostalCode = 512
+
+        ''' <summary>
+        ''' Endereço completo
+        ''' </summary>
+        FullAddress = Street + LocationInfo + Neighborhood + CityStateCode + Country + PostalCode
+
+    End Enum
 
     Public Class AddressTypes
 
