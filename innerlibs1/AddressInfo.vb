@@ -178,7 +178,7 @@ Namespace Locations
         ''' <returns>Uma String com o endereço completo devidamente formatado</returns>
         ReadOnly Property Address As String
             Get
-                Return New StructuredText(ToString(AddressPart.FullAddress)).ToString().AdjustBlankSpaces().TrimAny(True, " ", ".", " ", ",", "-", " ")
+                Return ToString(AddressPart.FullAddress)
             End Get
         End Property
 
