@@ -56,7 +56,7 @@ Namespace Locations
         ''' <returns></returns>
         ReadOnly Property Street As String
             Get
-                Return StreetType & " " & StreetName
+                Return ToString(AddressPart.StreetName, AddressPart.StreetType)
             End Get
         End Property
 
@@ -163,14 +163,14 @@ Namespace Locations
         ''' </summary>
         ''' <value></value>
         ''' <returns>Latitude</returns>
-        Property Latitude As Decimal
+        Property Latitude As Decimal? = Nothing
 
         ''' <summary>
         ''' Coordenada geográfica LONGITUDE
         ''' </summary>
         ''' <value></value>
         ''' <returns>Longitude</returns>
-        Property Longitude As Decimal
+        Property Longitude As Decimal? = Nothing
 
         ''' <summary>
         ''' Retorna o endereço completo
@@ -181,6 +181,14 @@ Namespace Locations
                 Return ToString(AddressPart.FullAddress)
             End Get
         End Property
+
+        ''' <summary>
+        ''' Retorna uma String contendo as informações do Local
+        ''' </summary>
+        ''' <returns>string</returns>
+        Public Overrides Function ToString() As String
+            Return ToString(Format)
+        End Function
 
         ''' <summary>
         ''' Retorna uma string com as partes dos endereço especificas
@@ -210,6 +218,15 @@ Namespace Locations
 
 
         ''' <summary>
+        ''' Retorna uma string com as partes dos endereço especificas pelo codigo da formataçao
+        ''' </summary>
+        ''' <param name="FormatCode"></param>
+        ''' <returns></returns>
+        Public Overloads Function ToString(FormatCode As Integer) As String
+            Return ToString(CType(FormatCode, AddressPart))
+        End Function
+
+        ''' <summary>
         ''' Retorna uma string com as partes dos endereço especificas 
         ''' </summary>
         ''' <param name="Parts"></param>
@@ -218,6 +235,10 @@ Namespace Locations
 
             ParseType()
             Dim retorno As String = ""
+
+            If Parts <= 0 Then
+                Parts = Format
+            End If
 
             If StreetType.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetType) Then retorno &= StreetType
             If StreetName.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetName) Then retorno &= " " & StreetName
@@ -234,6 +255,10 @@ Namespace Locations
 
             If PostalCode.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.PostalCode) Then retorno &= (" - " & PostalCode)
             If Country.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Country) Then retorno &= (" - " & Country)
+
+            If Latitude.HasValue AndAlso ContainsPart(Parts, AddressPart.Latitude) Then retorno &= (" - lat:" & Latitude.ToString())
+            If Longitude.HasValue AndAlso ContainsPart(Parts, AddressPart.Longitude) Then retorno &= (" - long:" & Longitude.ToString())
+
             Return New StructuredText(retorno).ToString().AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-", " ")
         End Function
 
@@ -313,15 +338,6 @@ Namespace Locations
         Public Shared Function FormatAddress(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As String
             Return CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).Address
         End Function
-
-        ''' <summary>
-        ''' Retorna uma String contendo as informações do Local
-        ''' </summary>
-        ''' <returns>string</returns>
-        Public Overrides Function ToString() As String
-            Return Address
-        End Function
-
         ''' <summary>
         ''' Retorna as coordenadas geográficas do Local
         ''' </summary>
@@ -375,6 +391,48 @@ Namespace Locations
             End Try
         End Function
 
+        ''' <summary>
+        ''' Formato desta instancia de <see cref="AddressInfo"/> quando chamada pelo <see cref="AddressInfo.ToString()"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Format As AddressPart
+            Get
+                If _format = AddressPart.Default Then
+                    Return GlobalFormat
+                End If
+                Return _format
+            End Get
+            Set(value As AddressPart)
+                If value = AddressPart.Default Then
+                    _format = GlobalFormat
+                Else
+                    _format = value
+                End If
+            End Set
+        End Property
+
+        Private _format As AddressPart = AddressPart.Default
+        Private Shared _globalformat As AddressPart = AddressPart.FullAddress
+
+        ''' <summary>
+        ''' Formato global de todas as intancias de <see cref="AddressInfo"/> quando chamadas pelo <see cref="AddressInfo.ToString()"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Shared Property GlobalFormat As AddressPart
+            Get
+                If _globalformat = AddressPart.Default Then
+                    Return AddressPart.FullAddress
+                End If
+                Return _globalformat
+            End Get
+            Set(value As AddressPart)
+                If value = AddressPart.Default Then
+                    _globalformat = AddressPart.FullAddress
+                Else
+                    _globalformat = value
+                End If
+            End Set
+        End Property
     End Class
 
     ''' <summary>
@@ -382,6 +440,12 @@ Namespace Locations
     ''' </summary>
     <Flags>
     Public Enum AddressPart
+
+        ''' <summary>
+        ''' Formato default definido pela propriedade <see cref="AddressInfo.Format"/> ou <see cref="AddressInfo.GlobalFormat"/>
+        ''' </summary>
+        [Default] = 0
+
         ''' <summary>
         ''' Tipo do Lograoduro
         ''' </summary>
@@ -445,10 +509,24 @@ Namespace Locations
         PostalCode = 512
 
         ''' <summary>
+        ''' Latitude
+        ''' </summary>
+        Latitude = 1024
+
+        ''' <summary>
+        ''' Longitude
+        ''' </summary>
+        Longitude = 2048
+
+        ''' <summary>
         ''' Endereço completo
         ''' </summary>
         FullAddress = Street + LocationInfo + Neighborhood + CityStateCode + Country + PostalCode
 
+        ''' <summary>
+        ''' Latitude e Longitude
+        ''' </summary>
+        LatitudeLongitude = Latitude + Longitude
     End Enum
 
     Public Class AddressTypes
