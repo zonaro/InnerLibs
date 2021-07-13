@@ -309,6 +309,8 @@ Public Module Text
             Text = Text.Replace("{", " {")
             Text = Text.Replace(":", ": ")
             Text = Text.Replace(";", "; ")
+            Text = Text.Replace(" -", " - ")
+            Text = Text.Replace("- ", " - ")
             Text = Text.Replace("""", " """)
 
             'remove espaco quando nescessario
@@ -752,15 +754,15 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function FindNumbers(Text As String) As Decimal()
-        Dim l As New List(Of Decimal)
+    <Extension()> Public Function FindNumbers(Text As String) As IEnumerable(Of String)
+        Dim l As New List(Of String)
         Dim numbers As String() = Regex.Split(Text, "\D+")
         For Each value In numbers
             If Not value.IsBlank Then
-                l.Add(value.ChangeType(Of Decimal))
+                l.Add(value)
             End If
         Next
-        Return l.ToArray
+        Return l
     End Function
 
     ''' <summary>
@@ -769,7 +771,7 @@ Public Module Text
     ''' <param name="TExt"></param>
     ''' <returns></returns>
     <Extension()> Public Function FindCEP(Text As String) As String()
-        Return Text.FindByRegex("\d{5}-\d{3}")
+        Return Text.FindByRegex("\d{5}-\d{3}").Union(Text.FindNumbers().Where(Function(x) x.Length = 8)).ToArray()
     End Function
 
     ''' <summary>
@@ -1338,8 +1340,18 @@ Public Module Text
     ''' <param name="Text"></param>
     ''' <param name="OtherText"></param>
     ''' <returns></returns>
-    <Extension> Public Function CrossContains(Text As String, OtherText As String) As Boolean
-        Return Text.Contains(OtherText) OrElse OtherText.Contains(Text)
+    <Extension> Public Function CrossContains(Text As String, OtherText As String, Optional StringComparison As StringComparison = StringComparison.InvariantCultureIgnoreCase) As Boolean
+        Return Text.Contains(OtherText, StringComparison) OrElse OtherText.Contains(Text, StringComparison)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um texto contém outro
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OtherText"></param>
+    ''' <returns></returns>
+    <Extension> Public Function Contains(Text As String, OtherText As String, StringComparison As StringComparison) As Boolean
+        Return Text.IndexOf(OtherText, StringComparison) > -1
     End Function
 
     '''<summary>
@@ -2017,7 +2029,7 @@ Public Module Text
     <Extension>
     Public Function ReplaceMany(ByVal Text As String, NewValue As String, ParamArray OldValues As String()) As String
         Text = If(Text, "")
-        For Each word In OldValues
+        For Each word In If(OldValues, {})
             Text = Text.Replace(word, NewValue)
         Next
         Return Text

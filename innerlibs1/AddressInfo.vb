@@ -216,7 +216,6 @@ Namespace Locations
             Return ToString(Parts.AsEnumerable())
         End Function
 
-
         ''' <summary>
         ''' Retorna uma string com as partes dos endereço especificas pelo codigo da formataçao
         ''' </summary>
@@ -227,7 +226,7 @@ Namespace Locations
         End Function
 
         ''' <summary>
-        ''' Retorna uma string com as partes dos endereço especificas 
+        ''' Retorna uma string com as partes dos endereço especificas
         ''' </summary>
         ''' <param name="Parts"></param>
         ''' <returns></returns>
@@ -277,6 +276,101 @@ Namespace Locations
             End If
         End Sub
 
+
+        ''' <summary>
+        ''' Tenta extrair as partes de um endereço de uma string e completa com API do viacep
+        ''' </summary>
+        ''' <param name="Address"></param>
+        ''' <returns></returns>
+        Public Shared Function TryParseAndComplete(Address As String) As AddressInfo
+            Dim d = TryParse(Address)
+            If d.PostalCode.IsNotBlank Then
+                d.GetInfoByPostalCode()
+            End If
+            Return d
+        End Function
+
+
+
+        ''' <summary>
+        ''' Tenta extrair as partes de um endereço de uma string
+        ''' </summary>
+        ''' <param name="Address"></param>
+        ''' <returns></returns>
+        Public Shared Function TryParse(Address As String) As AddressInfo
+
+            Dim PostalCode = "", State = "", City = "", Neighborhood = "", Complement = "", Number = ""
+
+            Address = Address.AdjustBlankSpaces() 'arruma os espacos do endereco
+
+            Dim ceps = Address.FindCEP() ' procura ceps no endereco
+            Address = Address.RemoveAny(ceps) 'remove ceps
+
+            Address = Address.AdjustBlankSpaces() 'arruma os espacos do endereco
+
+            If ceps.Any() Then
+                PostalCode = AddressInfo.FormatPostalCode(ceps.First())
+            End If
+
+            If Address.Contains(" - ") Then
+
+                Dim parts = Address.Split(" - ").ToList()
+                If parts.Count() = 1 Then
+                    Address = parts.First()
+                End If
+
+                If parts.Count() = 2 Then
+                    Address = parts.First().IfBlank("")
+                    Dim maybe_neigh = parts.Last().IfBlank("")
+                    If maybe_neigh.Length = 2 Then
+                        State = maybe_neigh
+                    Else
+                        Neighborhood = maybe_neigh
+                    End If
+                End If
+
+                If parts.Count() = 3 Then
+                    Address = parts.First().IfBlank("")
+                    Dim maybe_city = parts.Last().IfBlank("")
+                    If maybe_city.Length = 2 Then
+                        State = maybe_city
+                    Else
+                        City = maybe_city
+                    End If
+
+                    parts.RemoveLast()
+                    parts = parts.Skip(1).ToList()
+                    Neighborhood = parts.FirstOrDefault().IfBlank("")
+                End If
+
+                If parts.Count() = 4 Then
+                    Address = parts.First().IfBlank("")
+                    Dim maybe_state = parts.Last().IfBlank("")
+                    parts.RemoveLast()
+                    Dim maybe_city = parts.Last().IfBlank("")
+                    parts.RemoveLast()
+                    City = maybe_city
+                    State = maybe_state
+                    parts = parts.Skip(1).ToList()
+                    Neighborhood = parts.FirstOrDefault().IfBlank("")
+                End If
+
+            End If
+
+            Address = Address.AdjustBlankSpaces()
+
+            Dim adparts = Address.SplitAny(" ", ",", "-").ToList()
+
+            If adparts.Any() Then
+                Dim maybe_number = adparts.FirstOrDefault(Function(x) x.IsNumber()).IfBlank("").TrimAny(" ", ",")
+                Complement = adparts.Join(" ").GetAfter(maybe_number).TrimAny(" ", ",")
+                Number = maybe_number
+                Address = adparts.Join(" ").GetBefore(maybe_number).TrimAny(" ", ",")
+            End If
+
+            Return CreateLocation(Address, Number, Complement, Neighborhood, City, State, "", PostalCode)
+        End Function
+
         ''' <summary>
         ''' Cria uma localização a partir de partes de endereço
         ''' </summary>
@@ -291,22 +385,7 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
             Dim l = New AddressInfo()
-
-            If Number.IsBlank Then
-                Dim maybe_number = Address.GetAfter(",").GetBefore("-").GetBefore(",").TrimAny(True, " ", ".", " ", ",", " ", "-", " ")
-                If maybe_number.Contains(" ") Then
-                    Dim parts = maybe_number.Split(" ")
-                    maybe_number = parts.FirstOrDefault(Function(x) x.IsNumber())
-                    If Complement.IsBlank Then
-                        Complement = parts.Where(Function(x) x <> maybe_number).Join(" ")
-                    End If
-                End If
-                Number = maybe_number
-            End If
-
-            State = State.AdjustBlankSpaces()
-
-            l.StreetName = Address.RemoveAny(Number.IfBlank("")).ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
+            l.StreetName = Address.ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.Complement = Complement.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
 
@@ -314,12 +393,18 @@ Namespace Locations
             l.City = City.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             If State.Length = 2 Then
                 l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
+                l.State = Brasil.GetNameOf(l.StateCode)
+                If l.State.IsNotBlank Then
+                    l.Country = "Brasil"
+                End If
             Else
                 l.State = State.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             End If
             l.Country = Country.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.PostalCode = PostalCode.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+
             l.ParseType()
+
             Return l
         End Function
 
@@ -338,6 +423,7 @@ Namespace Locations
         Public Shared Function FormatAddress(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As String
             Return CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).Address
         End Function
+
         ''' <summary>
         ''' Retorna as coordenadas geográficas do Local
         ''' </summary>
@@ -433,6 +519,7 @@ Namespace Locations
                 End If
             End Set
         End Property
+
     End Class
 
     ''' <summary>
@@ -450,22 +537,27 @@ Namespace Locations
         ''' Tipo do Lograoduro
         ''' </summary>
         StreetType = 1
+
         ''' <summary>
         ''' Nome do Logradouro
         ''' </summary>
         StreetName = 2
+
         ''' <summary>
         ''' Logradouro
         ''' </summary>
         Street = StreetType + StreetName
+
         ''' <summary>
         ''' Numero do local
         ''' </summary>
         Number = 4
+
         ''' <summary>
         ''' Complemento do local
         ''' </summary>
         Complement = 8
+
         ''' <summary>
         ''' Numero e complemento
         ''' </summary>
@@ -475,34 +567,42 @@ Namespace Locations
         ''' Logradouro, Numero e complemento
         ''' </summary>
         FullLocationInfo = Street + Number + Complement
+
         ''' <summary>
         ''' Bairro
         ''' </summary>
         Neighborhood = 16
+
         ''' <summary>
         ''' Cidade
         ''' </summary>
         City = 32
+
         ''' <summary>
         ''' Estado
         ''' </summary>
         State = 64
+
         ''' <summary>
         ''' Cidade e Estado
         ''' </summary>
         CityState = City + State
+
         ''' <summary>
         ''' UF
         ''' </summary>
         StateCode = 128
+
         ''' <summary>
         ''' Cidade e UF
         ''' </summary>
         CityStateCode = City + StateCode
+
         ''' <summary>
         ''' País
         ''' </summary>
         Country = 256
+
         ''' <summary>
         ''' CEP
         ''' </summary>
@@ -527,6 +627,7 @@ Namespace Locations
         ''' Latitude e Longitude
         ''' </summary>
         LatitudeLongitude = Latitude + Longitude
+
     End Enum
 
     Public Class AddressTypes

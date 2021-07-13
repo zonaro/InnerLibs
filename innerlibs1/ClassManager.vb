@@ -73,10 +73,12 @@ Public Module ClassTools
         Return Obj.GetType().IsPrimitiveType()
     End Function
 
-    <Extension> Public Function RemoveLast(Of T)(List As List(Of T)) As List(Of T)
-        If List IsNot Nothing AndAlso List.Any() Then
-            List.RemoveAt(List.Count() - 1)
-        End If
+    <Extension> Public Function RemoveLast(Of T)(List As List(Of T), Optional Count As Integer = 1) As List(Of T)
+        For index = 1 To Count
+            If List IsNot Nothing AndAlso List.Any() Then
+                List.RemoveAt(List.Count() - 1)
+            End If
+        Next
         Return List
     End Function
 
