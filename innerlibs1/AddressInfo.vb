@@ -226,7 +226,7 @@ Namespace Locations
             If Neighborhood.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Neighborhood) Then retorno &= (" - " & Neighborhood)
             If City.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.City) Then retorno &= (" - " & City)
 
-            If Parts And ContainsPart(Parts, AddressPart.StateCode) AndAlso StateCode.IsNotBlank Then
+            If ContainsPart(Parts, AddressPart.StateCode) AndAlso StateCode.IsNotBlank Then
                 retorno &= (" - " & StateCode)
             Else
                 If ContainsPart(Parts, AddressPart.State) AndAlso State.IsNotBlank Then retorno &= (" - " & State)
@@ -237,7 +237,7 @@ Namespace Locations
             Return New StructuredText(retorno).ToString().AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-", " ")
         End Function
 
-        Public Shared Function ContainsPart(Parts As AddressPart, OtherPart As AddressPart) As Boolean
+        Friend Shared Function ContainsPart(Parts As AddressPart, OtherPart As AddressPart) As Boolean
             Return ((Parts) And OtherPart) <> 0
         End Function
 
@@ -253,7 +253,7 @@ Namespace Locations
         End Sub
 
         ''' <summary>
-        ''' Cria uma localização a partir de informações
+        ''' Cria uma localização a partir de partes de endereço
         ''' </summary>
         ''' <param name="Address"></param>
         ''' <param name="Number"></param>
@@ -298,6 +298,18 @@ Namespace Locations
             Return l
         End Function
 
+        ''' <summary>
+        ''' Retorna uma string de endereço a partir de varias partes de endereco
+        ''' </summary>
+        ''' <param name="Address"></param>
+        ''' <param name="Number"></param>
+        ''' <param name="Complement"></param>
+        ''' <param name="Neighborhood"></param>
+        ''' <param name="City"></param>
+        ''' <param name="State"></param>
+        ''' <param name="Country"></param>
+        ''' <param name="PostalCode"></param>
+        ''' <returns></returns>
         Public Shared Function FormatAddress(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As String
             Return CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).Address
         End Function
