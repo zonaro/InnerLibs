@@ -31,7 +31,7 @@ Public Module ClassTools
         Return b
     End Function
 
-    Function ByteArrayToObject(ByVal arrBytes As Byte()) As Object
+    <Extension()> Function ByteArrayToObject(ByVal arrBytes As Byte()) As Object
         Return ByteArrayToObject(Of Object)(arrBytes)
     End Function
 

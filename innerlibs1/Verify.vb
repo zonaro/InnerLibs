@@ -419,6 +419,7 @@ Public Module Verify
         End If
     End Function
 
+
     ''' <summary>
     ''' Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
     ''' </summary>
@@ -534,15 +535,7 @@ Public Module Verify
         End Try
     End Function
 
-    ''' <summary>
-    ''' Verifica se um <see cref="IEnumerable"/> é nulo ou está vazio
-    ''' </summary>
-    ''' <typeparam name="T">Tipo dos objetos do <see cref="IEnumerable"/></typeparam>
-    ''' <param name="Col">Colecao</param>
-    ''' <returns></returns>
-    <Extension()> Public Function IsEmpty(Of T)(Col As IEnumerable(Of T)) As Boolean
-        Return Not (Col) Is Nothing AndAlso Col.Count > 0
-    End Function
+
 
     ''' <summary>
     ''' Verifica se uma String está em branco

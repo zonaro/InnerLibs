@@ -42,12 +42,22 @@ Namespace Console
             Return Text
         End Function
 
+
+        ''' <summary>
+        ''' Escreve no console usando uma cor especifica
+        ''' </summary>
+        ''' <param name="Text">Texto</param>
+        <Extension()> Public Function ConsoleWrite(Text As String, Optional BreakLines As Integer = 0) As String
+            Return ConsoleWrite(Text, System.Console.ForegroundColor, BreakLines)
+        End Function
+
+
         ''' <summary>
         ''' Escreve no console usando uma cor especifica
         ''' </summary>
         ''' <param name="Text">Texto</param>
         ''' <param name="Color">Cor</param>
-        <Extension()> Public Function ConsoleWrite(Text As String, Optional Color As ConsoleColor = ConsoleColor.White, Optional BreakLines As Integer = 0) As String
+        <Extension()> Public Function ConsoleWrite(Text As String, Color As ConsoleColor, Optional BreakLines As Integer = 0) As String
             Dim lastcolor = System.Console.ForegroundColor
             System.Console.ForegroundColor = Color
             System.Console.Write(Text)
@@ -74,11 +84,20 @@ Namespace Console
         ''' <param name="Text">Texto</param>
         ''' <param name="Color">Cor</param>
 
-        <Extension()> Public Function ConsoleWriteLine(Text As String, Optional Color As ConsoleColor = ConsoleColor.White, Optional Lines As Integer = 1) As String
+        <Extension()> Public Function ConsoleWriteLine(Text As String, Color As ConsoleColor, Optional Lines As Integer = 1) As String
             Lines = Lines.SetMinValue(1)
             ConsoleWrite(Text, Color, Lines)
             Return Text
         End Function
+
+        ''' <summary>
+        ''' Escreve uma linha no console usando uma cor especifica
+        ''' </summary>
+        ''' <param name="Text">Texto</param>
+        <Extension()> Public Function ConsoleWriteLine(Text As String, Optional Lines As Integer = 1) As String
+            Return ConsoleWriteLine(Text, System.Console.ForegroundColor, Lines)
+        End Function
+
 
 
         ''' <summary>
@@ -154,8 +173,10 @@ Namespace Console
         ''' </summary>
         ''' <param name="Frequency">Frequencia</param>
         ''' <param name="Duration">Duracao em milisegundos</param>
-        Public Sub Beep(Frequency As Integer, Duration As Integer)
-            System.Console.Beep(Frequency.LimitRange(37, 32767), Duration)
+        Public Sub Beep(Frequency As Integer, Duration As Integer, Optional Times As Integer = 1)
+            For index = 1 To Times.SetMinValue(1)
+                System.Console.Beep(Frequency.LimitRange(37, 32767), Duration)
+            Next
         End Sub
 
         ''' <summary>

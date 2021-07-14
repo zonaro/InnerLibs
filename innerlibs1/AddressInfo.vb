@@ -10,22 +10,17 @@ Namespace Locations
     Public Class AddressInfo
 
         ''' <summary>
-        ''' Cria um novo objeto de localização vazio
+        ''' Cria um novo objeto de localização
         ''' </summary>
         Public Sub New()
         End Sub
 
-        ''' <summary>
-        ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
-        ''' </summary>
-        ''' <param name="PostalCode"></param>
-        ''' <param name="Number">Numero da casa</param>
-        Public Sub New(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing)
-            Me.PostalCode = PostalCode
-            If Number.IsNotBlank() Then Me.Number = Number
-            If Complement.IsNotBlank() Then Me.Complement = Complement
-            Me.GetInfoByPostalCode()
-        End Sub
+        ReadOnly Property OriginalString As String
+            Get
+                Return _original
+            End Get
+        End Property
+        Friend _original As String = ""
 
         ''' <summary>
         ''' Tipo do Endereço
@@ -276,21 +271,54 @@ Namespace Locations
             End If
         End Sub
 
-
         ''' <summary>
-        ''' Tenta extrair as partes de um endereço de uma string e completa com API do viacep
+        ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
         ''' </summary>
-        ''' <param name="Address"></param>
-        ''' <returns></returns>
-        Public Shared Function TryParseAndComplete(Address As String) As AddressInfo
-            Dim d = TryParse(Address)
-            If d.PostalCode.IsNotBlank Then
-                d.GetInfoByPostalCode()
-            End If
+        ''' <param name="PostalCode"></param>
+        ''' <param name="Number">Numero da casa</param>
+        Public Shared Function FromViaCEP(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing) As AddressInfo
+            Dim d = New AddressInfo()
+            d.PostalCode = PostalCode
+            If Number.IsNotBlank() Then d.Number = Number
+            If Complement.IsNotBlank() Then d.Complement = Complement
+            Try
+                Dim url = "https://viacep.com.br/ws/" & d.PostalCode.RemoveAny("-") & "/xml/"
+                Using c = New WebClient()
+                    Dim x = New XmlDocument()
+                    x.LoadXml(c.DownloadString(url))
+                    Dim cep = x("xmlcep")
+                    d.Neighborhood = cep("bairro")?.InnerText
+                    d.City = cep("localidade")?.InnerText
+                    d.StateCode = cep("uf")?.InnerText
+                    d.State = Brasil.GetNameOf(d.StateCode)
+                    d.StreetName = cep("logradouro")?.InnerText
+                    Try
+                        d.DDD = cep("ddd")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
+                    Try
+                        d.IBGE = cep("ibge")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
+                    Try
+                        d.GIA = cep("gia")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
+                    Try
+                        d.SIAFI = cep("SIAFI")?.InnerText
+                    Catch ex As Exception
+
+                    End Try
+                    d.Country = "Brasil"
+                    d.ParseType()
+                End Using
+            Catch ex As Exception
+            End Try
             Return d
         End Function
-
-
 
         ''' <summary>
         ''' Tenta extrair as partes de um endereço de uma string
@@ -299,7 +327,8 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function TryParse(Address As String) As AddressInfo
 
-            Dim PostalCode = "", State = "", City = "", Neighborhood = "", Complement = "", Number = ""
+            Dim original = Address
+            Dim PostalCode = "", State = "", City = "", Neighborhood = "", Complement = "", Number = "", Country = ""
 
             Address = Address.AdjustBlankSpaces() 'arruma os espacos do endereco
 
@@ -309,19 +338,22 @@ Namespace Locations
             Address = Address.AdjustBlankSpaces() 'arruma os espacos do endereco
 
             If ceps.Any() Then
-                PostalCode = AddressInfo.FormatPostalCode(ceps.First())
+                PostalCode = FormatPostalCode(ceps.First())
             End If
+
+
+            Address = Address.AdjustBlankSpaces().TrimAny("-", ",", "/") 'arruma os espacos do endereco
 
             If Address.Contains(" - ") Then
 
                 Dim parts = Address.Split(" - ").ToList()
                 If parts.Count() = 1 Then
-                    Address = parts.First()
+                    Address = parts.First().IfBlank("").TrimAny(" ", ",", "-")
                 End If
 
                 If parts.Count() = 2 Then
                     Address = parts.First().IfBlank("")
-                    Dim maybe_neigh = parts.Last().IfBlank("")
+                    Dim maybe_neigh = parts.Last().IfBlank("").TrimAny(" ", ",", "-")
                     If maybe_neigh.Length = 2 Then
                         State = maybe_neigh
                     Else
@@ -331,7 +363,7 @@ Namespace Locations
 
                 If parts.Count() = 3 Then
                     Address = parts.First().IfBlank("")
-                    Dim maybe_city = parts.Last().IfBlank("")
+                    Dim maybe_city = parts.Last().IfBlank("").TrimAny(" ", ",", "-")
                     If maybe_city.Length = 2 Then
                         State = maybe_city
                     Else
@@ -340,35 +372,63 @@ Namespace Locations
 
                     parts.RemoveLast()
                     parts = parts.Skip(1).ToList()
-                    Neighborhood = parts.FirstOrDefault().IfBlank("")
+                    Neighborhood = parts.FirstOrDefault().IfBlank("").TrimAny(" ", ",", "-")
+                End If
+
+                If parts.Count() = 6 Then
+                    Dim ad = parts(0) & ", " & parts(1) & " " & parts(2)
+                    parts.RemoveAt(1)
+                    parts.RemoveAt(2)
+                    parts(0) = ad
+                End If
+
+                If parts.Count() = 5 Then
+                    Dim ad = parts(0) & ", " & parts(1)
+                    parts.RemoveAt(1)
+                    parts(0) = ad
                 End If
 
                 If parts.Count() = 4 Then
                     Address = parts.First().IfBlank("")
-                    Dim maybe_state = parts.Last().IfBlank("")
+                    Dim maybe_state = parts.Last().IfBlank("").TrimAny(" ", ",", "-")
                     parts.RemoveLast()
-                    Dim maybe_city = parts.Last().IfBlank("")
+                    Dim maybe_city = parts.Last().IfBlank("").TrimAny(" ", ",", "-")
                     parts.RemoveLast()
                     City = maybe_city
                     State = maybe_state
                     parts = parts.Skip(1).ToList()
-                    Neighborhood = parts.FirstOrDefault().IfBlank("")
+                    Neighborhood = parts.FirstOrDefault().IfBlank("").TrimAny(" ", ",", "-")
                 End If
-
             End If
 
             Address = Address.AdjustBlankSpaces()
 
-            Dim adparts = Address.SplitAny(" ", ",", "-").ToList()
-
-            If adparts.Any() Then
-                Dim maybe_number = adparts.FirstOrDefault(Function(x) x.IsNumber()).IfBlank("").TrimAny(" ", ",")
-                Complement = adparts.Join(" ").GetAfter(maybe_number).TrimAny(" ", ",")
-                Number = maybe_number
-                Address = adparts.Join(" ").GetBefore(maybe_number).TrimAny(" ", ",")
+            If (Address.Contains(",")) Then
+                Dim parts = Address.GetAfter(",").GetWords().ToList()
+                Number = parts.FirstOrDefault(Function(x) x = "s/n" OrElse x = "sn" OrElse x.IsNumber)
+                parts.Remove(Number)
+                Complement = parts.Join(" ")
+                Address = Address.GetBefore(",")
+            Else
+                Dim adparts = Address.SplitAny(" ", "-").ToList()
+                If adparts.Any() Then
+                    Dim maybe_number = adparts.FirstOrDefault(Function(x) x = "s/n" OrElse x = "sn" OrElse x.IsNumber).IfBlank("").TrimAny(" ", ",")
+                    Complement = adparts.Join(" ").GetAfter(maybe_number).TrimAny(" ", ",")
+                    Number = maybe_number
+                    Address = adparts.Join(" ").GetBefore(maybe_number).TrimAny(" ", ",")
+                End If
             End If
 
-            Return CreateLocation(Address, Number, Complement, Neighborhood, City, State, "", PostalCode)
+            Number = Number.AdjustBlankSpaces().TrimAny(" ", ",", "-")
+            Complement = Complement.AdjustBlankSpaces().TrimAny(" ", ",", "-")
+
+            If Brasil.GetState(State) IsNot Nothing Then
+                Country = "Brasil"
+            End If
+
+            Dim d = CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode)
+            d._original = original
+            Return d
         End Function
 
         ''' <summary>
@@ -385,12 +445,22 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
             Dim l = New AddressInfo()
+
+            Address = Address.AdjustBlankSpaces()
+            Number = Number.AdjustBlankSpaces()
+            Complement = Complement.AdjustBlankSpaces()
+            Neighborhood = Neighborhood.AdjustBlankSpaces()
+            City = City.AdjustBlankSpaces()
+            State = State.AdjustBlankSpaces()
+            Country = Country.AdjustBlankSpaces()
+            PostalCode = PostalCode.AdjustBlankSpaces()
+
             l.StreetName = Address.ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.Complement = Complement.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
 
             l.Number = Number.NullIf(Function(x) x.IsBlank())
-            l.City = City.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+            l.City = City.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             If State.Length = 2 Then
                 l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
                 l.State = Brasil.GetNameOf(l.StateCode)
@@ -398,10 +468,10 @@ Namespace Locations
                     l.Country = "Brasil"
                 End If
             Else
-                l.State = State.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+                l.State = State.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             End If
-            l.Country = Country.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
-            l.PostalCode = PostalCode.AdjustBlankSpaces().NullIf(Function(x) x.IsBlank())
+            l.Country = Country.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+            l.PostalCode = PostalCode.NullIf(Function(x) x.IsBlank())
 
             l.ParseType()
 
@@ -431,50 +501,6 @@ Namespace Locations
 
         Public Function LatitudeLongitude() As String
             Return Latitude & "," & Longitude
-        End Function
-
-        ''' <summary>
-        ''' Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/
-        ''' </summary>
-        Public Function GetInfoByPostalCode() As Boolean
-            Try
-                Dim url = "https://viacep.com.br/ws/" & Me.PostalCode.RemoveAny("-") & "/xml/"
-                Using c = New WebClient()
-                    Dim x = New XmlDocument()
-                    x.LoadXml(c.DownloadString(url))
-                    Dim cep = x("xmlcep")
-                    Me.Neighborhood = cep("bairro")?.InnerText
-                    Me.City = cep("localidade")?.InnerText
-                    Me.StateCode = cep("uf")?.InnerText
-                    Me.State = Brasil.GetNameOf(Me.StateCode)
-                    Me.StreetName = cep("logradouro")?.InnerText
-                    Try
-                        Me.DDD = cep("ddd")?.InnerText
-                    Catch ex As Exception
-
-                    End Try
-                    Try
-                        Me.IBGE = cep("ibge")?.InnerText
-                    Catch ex As Exception
-
-                    End Try
-                    Try
-                        Me.GIA = cep("gia")?.InnerText
-                    Catch ex As Exception
-
-                    End Try
-                    Try
-                        Me.SIAFI = cep("SIAFI")?.InnerText
-                    Catch ex As Exception
-
-                    End Try
-                    Me.Country = "Brasil"
-                    ParseType()
-                End Using
-                Return True
-            Catch ex As Exception
-                Return False
-            End Try
         End Function
 
         ''' <summary>

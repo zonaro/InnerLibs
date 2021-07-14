@@ -1739,7 +1739,7 @@ Public Module Text
     ''' <returns>Uma string com os valores removidos</returns>
     <Extension>
     Public Function RemoveAny(ByVal Text As String, ParamArray Values() As String) As String
-        Text = Text.ReplaceMany("", Values)
+        Text = Text.ReplaceMany("", If(Values, {}))
         Return Text
     End Function
 
@@ -2029,7 +2029,7 @@ Public Module Text
     <Extension>
     Public Function ReplaceMany(ByVal Text As String, NewValue As String, ParamArray OldValues As String()) As String
         Text = If(Text, "")
-        For Each word In If(OldValues, {})
+        For Each word In If(OldValues, {}).Where(Function(x) x.Length > 0)
             Text = Text.Replace(word, NewValue)
         Next
         Return Text
