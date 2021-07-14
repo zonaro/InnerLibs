@@ -1,11 +1,39 @@
 ﻿
+Imports System.Text
+
 Public Class Alphabet
 
 
-    Public Shared ReadOnly Alphabet As String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
-    Public Shared ReadOnly Base As Integer = Alphabet.Length
+    Public Sub New()
+    End Sub
 
-    Public Shared Function Encode(i As Integer) As String
+    Public Sub New(Seed As String)
+        If Seed.IsNotBlank Then
+            For index = 1 To Seed.Length
+                Dim ii = index - 1
+                Alphabet = Alphabet.OrderBy(Function(x)
+                                                Return Encoding.ASCII.GetBytes(x.ToString).FirstOrDefault() Xor Encoding.ASCII.GetBytes(Seed(ii).ToString).FirstOrDefault()
+                                            End Function).Join("")
+            Next
+
+        End If
+    End Sub
+
+    Public ReadOnly Property Alphabet As String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
+
+    Public ReadOnly Property Base As Integer
+        Get
+            Return Alphabet.Length
+        End Get
+    End Property
+
+    Public ReadOnly OrderSeed As String = Nothing
+
+    Public Function RandomHash() As String
+        Return Encode(RandomNumber)
+    End Function
+
+    Public Function Encode(i As Integer) As String
         If i = 0 Then
             Return Alphabet(0).ToString()
         End If
@@ -25,14 +53,13 @@ Public Class Alphabet
 
     End Function
 
-    Public Shared Function Decode(s As String) As Integer
+    Public Function Decode(s As String) As Integer
         Dim i = 0
         Try
             For Each c In s.Trim().Trim("0")
                 i = (i * Base) + Alphabet.IndexOf(c)
             Next
-
-            Return i.SetMinValue(1)
+            Return i
         Catch ex As Exception
             Return -1
         End Try
