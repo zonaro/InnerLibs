@@ -151,6 +151,14 @@ Namespace Locations
         ''' <value></value>
         ''' <returns>País</returns>
 
+        Property Region As String
+
+        ''' <summary>
+        ''' País
+        ''' </summary>
+        ''' <value></value>
+        ''' <returns>País</returns>
+
         Property Country As String
 
         ''' <summary>
@@ -422,7 +430,8 @@ Namespace Locations
             Number = Number.AdjustBlankSpaces().TrimAny(" ", ",", "-")
             Complement = Complement.AdjustBlankSpaces().TrimAny(" ", ",", "-")
 
-            If Brasil.GetState(State) IsNot Nothing Then
+            Dim st = Brasil.GetState(State)
+            If st IsNot Nothing Then
                 Country = "Brasil"
             End If
 
@@ -465,6 +474,7 @@ Namespace Locations
                 l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
                 l.State = Brasil.GetNameOf(l.StateCode)
                 If l.State.IsNotBlank Then
+                    l.Region = Brasil.GetRegionOf(l.StateCode)
                     l.Country = "Brasil"
                 End If
             Else

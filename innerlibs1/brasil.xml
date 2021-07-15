@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <brasil>
   <item>
-    <Acronym>AC</Acronym>
+    <StateCode>AC</StateCode>
     <Region>Norte</Region>
     <Cities>
       <item>Acrelândia</item>
@@ -31,7 +31,7 @@
   </item>
   <item>
     <Region>Nordeste</Region>
-    <Acronym>AL</Acronym>
+    <StateCode>AL</StateCode>
     <Cities>
       <item>Água Branca</item>
       <item>Anadia</item>
@@ -139,7 +139,7 @@
     <Name>Alagoas</Name>
   </item>
   <item>
-    <Acronym>AM</Acronym>
+    <StateCode>AM</StateCode>
     <Region>Norte</Region>
     <Cities>
       <item>Alvarães</item>
@@ -209,7 +209,7 @@
   </item>
   <item>
     <Region>Norte</Region>
-    <Acronym>AP</Acronym>
+    <StateCode>AP</StateCode>
     <Cities>
       <item>Amapá</item>
       <item>Calçoene</item>
@@ -232,7 +232,7 @@
   </item>
   <item>
     <Region>Nordeste</Region>
-    <Acronym>BA</Acronym>
+    <StateCode>BA</StateCode>
     <Cities>
       <item>Abaíra</item>
       <item>Abaré</item>
@@ -657,7 +657,7 @@
   <item>
     <Region>Nordeste</Region>
 
-    <Acronym>CE</Acronym>
+    <StateCode>CE</StateCode>
     <Cities>
       <item>Abaiara</item>
       <item>Acarapé</item>
@@ -847,7 +847,7 @@
     <Name>Ceará</Name>
   </item>
   <item>
-    <Acronym>DF</Acronym>
+    <StateCode>DF</StateCode>
     <Region>Centro-Oeste</Region>
     <Cities>
       <item>Brasília</item>
@@ -855,7 +855,7 @@
     <Name>Distrito Federal</Name>
   </item>
   <item>
-    <Acronym>ES</Acronym>
+    <StateCode>ES</StateCode>
     <Region>Sudeste</Region>
 
     <Cities>
@@ -941,7 +941,7 @@
     <Name>Espírito Santo</Name>
   </item>
   <item>
-    <Acronym>GO</Acronym>
+    <StateCode>GO</StateCode>
     <Region>Centro-Oeste</Region>
 
     <Cities>
@@ -1195,7 +1195,7 @@
     <Name>Goiás</Name>
   </item>
   <item>
-    <Acronym>MA</Acronym>
+    <StateCode>MA</StateCode>
     <Region>Nordeste</Region>
 
     <Cities>
@@ -1420,8 +1420,8 @@
     <Name>Maranhão</Name>
   </item>
   <item>
-    <Acronym>MG</Acronym>
-    <Region>Centro-Oeste</Region>
+    <StateCode>MG</StateCode>
+    <Region>Sudeste</Region>
 
     <Cities>
       <item>Abadia dos Dourados</item>
@@ -2281,7 +2281,7 @@
     <Name>Minas Gerais</Name>
   </item>
   <item>
-    <Acronym>MS</Acronym>
+    <StateCode>MS</StateCode>
     <Region>Centro-Oeste</Region>
     <Cities>
       <item>Água Clara</item>
@@ -2365,7 +2365,7 @@
     <Name>Mato Grosso do Sul</Name>
   </item>
   <item>
-    <Acronym>MT</Acronym>
+    <StateCode>MT</StateCode>
     <Region>Centro-Oeste</Region>
     <Cities>
       <item>Acorizal</item>
@@ -2511,7 +2511,7 @@
     <Name>Mato Grosso</Name>
   </item>
   <item>
-    <Acronym>PA</Acronym>
+    <StateCode>PA</StateCode>
     <Region>Norte</Region>
     <Cities>
       <item>Abaetetuba</item>
@@ -2661,7 +2661,7 @@
     <Name>Pará</Name>
   </item>
   <item>
-    <Acronym>PB</Acronym>
+    <StateCode>PB</StateCode>
     <Region>Nordeste</Region>
 
     <Cities>
@@ -2892,7 +2892,7 @@
     <Name>Paraíba</Name>
   </item>
   <item>
-    <Acronym>PE</Acronym>
+    <StateCode>PE</StateCode>
     <Region>Nordeste</Region>
     <Cities>
       <item>Abreu e Lima</item>
@@ -3084,7 +3084,7 @@
     <Name>Pernambuco</Name>
   </item>
   <item>
-    <Acronym>PI</Acronym>
+    <StateCode>PI</StateCode>
     <Region>Nordeste</Region>
     <Cities>
       <item>Acauã</item>
@@ -3313,7 +3313,7 @@
     <Name>Piauí</Name>
   </item>
   <item>
-    <Acronym>PR</Acronym>
+    <StateCode>PR</StateCode>
     <Region>Sul</Region>
 
     <Cities>
@@ -3720,7 +3720,7 @@
     <Name>Paraná</Name>
   </item>
   <item>
-    <Acronym>RJ</Acronym>
+    <StateCode>RJ</StateCode>
     <Region>Sudeste</Region>
 
     <Cities>
@@ -3820,7 +3820,7 @@
     <Name>Rio de Janeiro</Name>
   </item>
   <item>
-    <Acronym>RN</Acronym>
+    <StateCode>RN</StateCode>
     <Region>Nordeste</Region>
 
     <Cities>
@@ -3995,7 +3995,7 @@
     <Name>Rio Grande do Norte</Name>
   </item>
   <item>
-    <Acronym>RO</Acronym>
+    <StateCode>RO</StateCode>
     <Region>Norte</Region>
     <Cities>
       <item>Alta Floresta d'Oeste</item>
@@ -4055,7 +4055,7 @@
   </item>
   <item>
     <Region>Norte</Region>
-    <Acronym>RR</Acronym>
+    <StateCode>RR</StateCode>
     <Cities>
       <item>Alto Alegre</item>
       <item>Amajari</item>
@@ -4076,7 +4076,7 @@
     <Name>Roraima</Name>
   </item>
   <item>
-    <Acronym>RS</Acronym>
+    <StateCode>RS</StateCode>
     <Region>Sul</Region>
 
     <Cities>
@@ -4580,7 +4580,7 @@
     <Name>Rio Grande do Sul</Name>
   </item>
   <item>
-    <Acronym>SC</Acronym>
+    <StateCode>SC</StateCode>
     <Region>Sul</Region>
 
     <Cities>
@@ -4881,7 +4881,7 @@
     <Name>Santa Catarina</Name>
   </item>
   <item>
-    <Acronym>SE</Acronym>
+    <StateCode>SE</StateCode>
     <Region>Nordeste</Region>
     <Cities>
       <item>Amparo de São Francisco</item>
@@ -4963,7 +4963,7 @@
     <Name>Sergipe</Name>
   </item>
   <item>
-    <Acronym>SP</Acronym>
+    <StateCode>SP</StateCode>
     <Region>Sudeste</Region>
 
     <Cities>
@@ -5617,7 +5617,7 @@
   </item>
   <item>
     <Region>Norte</Region>
-    <Acronym>TO</Acronym>
+    <StateCode>TO</StateCode>
     <Cities>
       <item>Abreulândia</item>
       <item>Aguiarnópolis</item>

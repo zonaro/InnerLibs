@@ -14,7 +14,7 @@ Namespace Locations
         ''' Sigla do estado
         ''' </summary>
         ''' <returns></returns>
-        Public Property Acronym As String
+        Public Property StateCode As String
 
         ''' <summary>
         ''' Nome do estado
@@ -32,14 +32,14 @@ Namespace Locations
         ''' Lista de cidades do estado
         ''' </summary>
         ''' <returns></returns>
-        Public Property Cities As New List(Of String)
+        Public Property Cities As IEnumerable(Of String)
 
         ''' <summary>
         ''' Tipo de string representativa do estado (sigla ou nome)
         ''' </summary>
         Public Enum StateString
             Name
-            Acronym
+            StateCode
         End Enum
 
         ''' <summary>
@@ -54,7 +54,7 @@ Namespace Locations
         ''' </summary>
         ''' <param name="StateCode"></param>
         Public Sub New(StateCode As String)
-            Me.Acronym = StateCode
+            Me.StateCode = StateCode
             Me.Name = Brasil.GetNameOf(StateCode)
             Me.Cities = Brasil.GetCitiesOf(StateCode).ToList()
         End Sub
@@ -64,7 +64,7 @@ Namespace Locations
         ''' </summary>
         ''' <returns></returns>
         Public Overrides Function ToString() As String
-            Return Acronym
+            Return StateCode
         End Function
 
         ''' <summary>
@@ -72,8 +72,8 @@ Namespace Locations
         ''' </summary>
         ''' <param name="Type">Tipo de String (Sigla ou Nome)</param>
         ''' <returns></returns>
-        Public Overloads Function ToString(Optional Type As StateString = StateString.Acronym) As String
-            Return If(Type = StateString.Name, Name, Acronym)
+        Public Overloads Function ToString(Optional Type As StateString = StateString.StateCode) As String
+            Return If(Type = StateString.Name, Name, StateCode)
         End Function
 
     End Class
@@ -103,12 +103,14 @@ Namespace Locations
                 doc.LoadXml(s)
                 For Each node As XmlNode In doc("brasil").ChildNodes
                     Dim estado = New State
-                    estado.Acronym = node("Acronym").InnerText
+                    estado.StateCode = node("StateCode").InnerText
                     estado.Name = node("Name").InnerText
                     estado.Region = node("Region").InnerText
+                    Dim lc = New List(Of String)
                     For Each subnode As XmlNode In node("Cities").ChildNodes
-                        estado.Cities.Add(subnode.InnerText)
+                        lc.Add(subnode.InnerText)
                     Next
+                    estado.Cities = lc.AsEnumerable()
                     l.Add(estado)
                 Next
             End If
@@ -121,17 +123,40 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared ReadOnly Property Regions As IEnumerable(Of String)
             Get
-                Return States.Select(Function(x) x.Region).Distinct().ToList()
+                Return States.Select(Function(x) x.Region).Distinct()
             End Get
         End Property
+
+        ''' <summary>
+        ''' Retorna todas as Cidades dos estados brasileiros
+        ''' </summary>
+        ''' <returns></returns>
+        Public Shared ReadOnly Property Cities As IEnumerable(Of String)
+            Get
+                Return States.SelectMany(Function(x) x.Cities)
+            End Get
+        End Property
+
+        Public Shared Function FindStateByCity(CityName As String) As IEnumerable(Of State)
+            Return States.Where(Function(x) x.Cities.Any(Function(c) c.ToSlugCase() = CityName.ToSlugCase()))
+        End Function
 
         ''' <summary>
         ''' Retorna os estados de uma região
         ''' </summary>
         ''' <param name="Region"></param>
         ''' <returns></returns>
-        Public Shared Function GetStatesOf(Optional Region As String = "", Optional Type As State.StateString = State.StateString.Name) As IEnumerable(Of String)
-            Return States.Where(Function(x) x.Region = Region OrElse Region.IsBlank()).Select(Function(x) x.ToString(Type))
+        Public Shared Function GetStatesOf(Type As State.StateString, Optional Region As String = "") As IEnumerable(Of String)
+            Return GetStatesOf(Region).Select(Function(x) x.ToString(Type))
+        End Function
+
+        ''' <summary>
+        ''' Retorna os estados de uma região
+        ''' </summary>
+        ''' <param name="Region"></param>
+        ''' <returns></returns>
+        Public Shared Function GetStatesOf(Optional Region As String = "") As IEnumerable(Of State)
+            Return States.Where(Function(x) x.Region.ToSlugCase = Region.ToSlugCase.AdjustBlankSpaces() OrElse Region.IsBlank())
         End Function
 
         ''' <summary>
@@ -139,14 +164,8 @@ Namespace Locations
         ''' </summary>
         ''' <param name="NameOrStateCode">Nome ou sigla do estado</param>
         ''' <returns></returns>
-        Public Shared Function GetCitiesOf(Optional NameOrStateCode As String = "") As IEnumerable(Of String)
-            Dim cities As New List(Of String)
-            For Each estado As State In Brasil.States
-                If estado.Acronym = NameOrStateCode Or estado.Name = NameOrStateCode Or NameOrStateCode.IsBlank() Then
-                    cities.AddRange(estado.Cities)
-                End If
-            Next
-            Return cities
+        Public Shared Function GetCitiesOf(NameOrStateCode As String) As IEnumerable(Of String)
+            Return If(GetState(NameOrStateCode)?.Cities, New List(Of String)).AsEnumerable()
         End Function
 
         ''' <summary>
@@ -155,56 +174,44 @@ Namespace Locations
         ''' <param name="Type">Tipo de retorno (sigla ou nome)</param>
         ''' <returns></returns>
         Public Shared Function GetStateList(Optional Type As State.StateString = State.StateString.Name) As List(Of String)
-            Dim StateCodes As New List(Of String)
-            For Each es As State In States
-                StateCodes.Add(es.ToString(Type))
-            Next
-            Return StateCodes
+            Return States.Select(Function(x) x.ToString(Type))
         End Function
 
         ''' <summary>
         ''' Retorna o nome do estado a partir da sigla
         ''' </summary>
-        ''' <param name="StateCode"></param>
+        ''' <param name="NameOrStateCode"></param>
         ''' <returns></returns>
-        Public Shared Function GetNameOf(StateCode As String) As String
-            Dim name = ""
-            For Each estado As State In Brasil.States
-                If estado.Acronym = StateCode Then
-                    name = estado.Name
-                End If
-            Next
-            Return name
+        Public Shared Function GetNameOf(NameOrStateCode As String) As String
+            Return GetState(NameOrStateCode)?.Name
         End Function
 
         ''' <summary>
         ''' Retorna a Sigla a partir de um nome de estado
         ''' </summary>
-        ''' <param name="Name"></param>
+        ''' <param name="NameOrStateCode"></param>
         ''' <returns></returns>
-        Public Shared Function GetAcronymOf(Name As String) As String
-            Dim StateCode = ""
-            For Each estado As State In Brasil.States
-                If estado.Name = Name Then
-                    StateCode = estado.Acronym
-                End If
-            Next
-            Return StateCode
+        Public Shared Function GetStateCodeOf(NameOrStateCode As String) As String
+            Return GetState(NameOrStateCode)?.StateCode
+        End Function
+
+        ''' <summary>
+        ''' Retorna a região a partir de um nome de estado
+        ''' </summary>
+        ''' <param name="NameOrStateCode"></param>
+        ''' <returns></returns>
+        Public Shared Function GetRegionOf(NameOrStateCode As String) As String
+            Return GetState(NameOrStateCode)?.Region
         End Function
 
         ''' <summary>
         ''' Retorna a as informações do estado a partir de um nome de estado ou sua sigla
         ''' </summary>
-        ''' <param name="NameOrAcronym">Nome ou UF</param>
+        ''' <param name="NameOrStateCode">Nome ou UF</param>
         ''' <returns></returns>
-        Public Shared Function GetState(NameOrAcronym As String) As State
-            Dim StateCode = ""
-            For Each estado As State In Brasil.States
-                If estado.Name = NameOrAcronym OrElse estado.Acronym = NameOrAcronym Then
-                    Return estado
-                End If
-            Next
-            Return Nothing
+        Public Shared Function GetState(NameOrStateCode As String) As State
+            NameOrStateCode = NameOrStateCode.AdjustBlankSpaces().ToSlugCase
+            Return Brasil.States.FirstOrDefault(Function(x) x.Name.ToSlugCase = NameOrStateCode OrElse x.StateCode = NameOrStateCode)
         End Function
 
     End Class

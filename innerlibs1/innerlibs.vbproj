@@ -163,7 +163,6 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -183,6 +182,4 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-
-
 </Project>

@@ -55,17 +55,7 @@ Public Module Text
         Return queryParameters
     End Function
 
-    ''' <summary>
-    ''' Verifica se um texto é parecido com outro outro usando comparação com caratere curinga
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <param name="Pattern"></param>
-    ''' <returns></returns>
-    <Extension> Function IsLikeAny(Text As String, Pattern As String) As Boolean
-        Text = Text.IfBlank(Text)
-        Pattern = Pattern.IfBlank(Pattern)
-        Return Text Like Pattern
-    End Function
+
 
     ''' <summary>
     ''' Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
