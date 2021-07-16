@@ -34,13 +34,8 @@ Namespace Locations
         ''' <returns></returns>
         Public Property Cities As IEnumerable(Of String)
 
-        ''' <summary>
-        ''' Tipo de string representativa do estado (sigla ou nome)
-        ''' </summary>
-        Public Enum StateString
-            Name
-            StateCode
-        End Enum
+
+
 
         ''' <summary>
         ''' inicializa um estado vazio
@@ -52,11 +47,12 @@ Namespace Locations
         ''' <summary>
         ''' Inicializa um objeto Estado a partir de uma sigla
         ''' </summary>
-        ''' <param name="StateCode"></param>
-        Public Sub New(StateCode As String)
-            Me.StateCode = StateCode
-            Me.Name = Brasil.GetNameOf(StateCode)
-            Me.Cities = Brasil.GetCitiesOf(StateCode).ToList()
+        ''' <param name="NameOrStateCode"></param>
+        Public Sub New(NameOrStateCode As String)
+            Me.Name = Brasil.GetNameOf(NameOrStateCode)
+            Me.StateCode = Brasil.GetStateCodeOf(NameOrStateCode)
+            Me.Cities = Brasil.GetCitiesOf(NameOrStateCode)
+            Me.Region = Brasil.GetRegionOf(NameOrStateCode)
         End Sub
 
         ''' <summary>
@@ -65,15 +61,6 @@ Namespace Locations
         ''' <returns></returns>
         Public Overrides Function ToString() As String
             Return StateCode
-        End Function
-
-        ''' <summary>
-        ''' Retorna a String correspondente ao estado
-        ''' </summary>
-        ''' <param name="Type">Tipo de String (Sigla ou Nome)</param>
-        ''' <returns></returns>
-        Public Overloads Function ToString(Optional Type As StateString = StateString.StateCode) As String
-            Return If(Type = StateString.Name, Name, StateCode)
         End Function
 
     End Class
@@ -141,21 +128,13 @@ Namespace Locations
             Return States.Where(Function(x) x.Cities.Any(Function(c) c.ToSlugCase() = CityName.ToSlugCase()))
         End Function
 
-        ''' <summary>
-        ''' Retorna os estados de uma região
-        ''' </summary>
-        ''' <param name="Region"></param>
-        ''' <returns></returns>
-        Public Shared Function GetStatesOf(Type As State.StateString, Optional Region As String = "") As IEnumerable(Of String)
-            Return GetStatesOf(Region).Select(Function(x) x.ToString(Type))
-        End Function
 
         ''' <summary>
         ''' Retorna os estados de uma região
         ''' </summary>
         ''' <param name="Region"></param>
         ''' <returns></returns>
-        Public Shared Function GetStatesOf(Optional Region As String = "") As IEnumerable(Of State)
+        Public Shared Function GetStatesOf(Region As String) As IEnumerable(Of State)
             Return States.Where(Function(x) x.Region.ToSlugCase = Region.ToSlugCase.AdjustBlankSpaces() OrElse Region.IsBlank())
         End Function
 
@@ -168,14 +147,6 @@ Namespace Locations
             Return If(GetState(NameOrStateCode)?.Cities, New List(Of String)).AsEnumerable()
         End Function
 
-        ''' <summary>
-        ''' Retorna uma lista contendo os nomes ou siglas dos estados do Brasil
-        ''' </summary>
-        ''' <param name="Type">Tipo de retorno (sigla ou nome)</param>
-        ''' <returns></returns>
-        Public Shared Function GetStateList(Optional Type As State.StateString = State.StateString.Name) As List(Of String)
-            Return States.Select(Function(x) x.ToString(Type))
-        End Function
 
         ''' <summary>
         ''' Retorna o nome do estado a partir da sigla
@@ -211,7 +182,7 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function GetState(NameOrStateCode As String) As State
             NameOrStateCode = NameOrStateCode.AdjustBlankSpaces().ToSlugCase
-            Return Brasil.States.FirstOrDefault(Function(x) x.Name.ToSlugCase = NameOrStateCode OrElse x.StateCode = NameOrStateCode)
+            Return Brasil.States.FirstOrDefault(Function(x) x.Name.ToSlugCase = NameOrStateCode OrElse x.StateCode.ToSlugCase() = NameOrStateCode)
         End Function
 
     End Class

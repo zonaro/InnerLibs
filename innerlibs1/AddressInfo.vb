@@ -1,4 +1,6 @@
-﻿Imports System.Net
+﻿Imports System.Collections.Specialized
+Imports System.Globalization
+Imports System.Net
 Imports System.Xml
 
 Namespace Locations
@@ -15,18 +17,18 @@ Namespace Locations
         Public Sub New()
         End Sub
 
-        ReadOnly Property OriginalString As String
-            Get
-                Return _original
-            End Get
-        End Property
-        Friend _original As String = ""
-
         ''' <summary>
         ''' Tipo do Endereço
         ''' </summary>
         ''' <returns></returns>
         Property StreetType As String
+            Get
+                Return Info.GetValueOr("street_type")
+            End Get
+            Set(value As String)
+                Info("street_type") = value
+            End Set
+        End Property
 
         ''' <summary>
         ''' O nome do endereço
@@ -34,16 +36,13 @@ Namespace Locations
         ''' <value></value>
         ''' <returns></returns>
         Property StreetName As String
-
-        ''' <summary>
-        ''' DDD do local
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property DDD As String
-
-        Public Property IBGE As String
-        Public Property GIA As String
-        Public Property SIAFI As String
+            Get
+                Return Info.GetValueOr("street_name")
+            End Get
+            Set(value As String)
+                Info("street_name") = value
+            End Set
+        End Property
 
         ''' <summary>
         ''' Logradouro
@@ -62,6 +61,14 @@ Namespace Locations
         ''' <returns>Numero</returns>
 
         Property Number As String
+            Get
+                Return Info.GetValueOr("street_number")
+            End Get
+            Set(value As String)
+                Info("street_number") = value
+            End Set
+        End Property
+
         ''' <summary>
         ''' Complemento
         ''' </summary>
@@ -69,6 +76,14 @@ Namespace Locations
         ''' <returns>Complemento</returns>
 
         Property Complement As String
+            Get
+                Return Info.GetValueOr("subpremise")
+            End Get
+            Set(value As String)
+                Info("subpremise") = value
+            End Set
+        End Property
+
         ''' <summary>
         ''' Bairro
         ''' </summary>
@@ -76,6 +91,14 @@ Namespace Locations
         ''' <returns>Bairro</returns>
 
         Property Neighborhood As String
+            Get
+                Return Info.GetValueOr("neighborhood")
+            End Get
+            Set(value As String)
+                Info("neighborhood") = value
+            End Set
+        End Property
+
         ''' <summary>
         ''' CEP - Codigo de Endereçamento Postal
         ''' </summary>
@@ -84,10 +107,10 @@ Namespace Locations
 
         Property PostalCode As String
             Get
-                Return _cep
+                Return Info.GetValueOr("postal_code")
             End Get
             Set(value As String)
-                _cep = AddressInfo.FormatPostalCode(value)
+                Info("postal_code") = AddressInfo.FormatPostalCode(value)
             End Set
         End Property
 
@@ -106,8 +129,6 @@ Namespace Locations
             End If
             Return Nothing
         End Function
-
-        Private _cep As String
 
         ''' <summary>
         ''' CEP - Codigo de Endereçamento Postal. Alias de <see cref="PostalCode"/>
@@ -130,6 +151,14 @@ Namespace Locations
         ''' <returns>Cidade</returns>
 
         Property City As String
+            Get
+                Return Info.GetValueOr("city")
+            End Get
+            Set(value As String)
+                Info("city") = value
+            End Set
+        End Property
+
         ''' <summary>
         ''' Estado
         ''' </summary>
@@ -137,6 +166,14 @@ Namespace Locations
         ''' <returns>Estado</returns>
 
         Property State As String
+            Get
+                Return Info.GetValueOr("state")
+            End Get
+            Set(value As String)
+                Info("state") = value
+            End Set
+        End Property
+
         ''' <summary>
         ''' Unidade federativa
         ''' </summary>
@@ -144,6 +181,13 @@ Namespace Locations
         ''' <returns>Sigla do estado</returns>
 
         Property StateCode As String
+            Get
+                Return Info.GetValueOr("statecode")
+            End Get
+            Set(value As String)
+                Info("statecode") = value
+            End Set
+        End Property
 
         ''' <summary>
         ''' País
@@ -152,6 +196,13 @@ Namespace Locations
         ''' <returns>País</returns>
 
         Property Region As String
+            Get
+                Return Info.GetValueOr("region")
+            End Get
+            Set(value As String)
+                Info("region") = value
+            End Set
+        End Property
 
         ''' <summary>
         ''' País
@@ -160,20 +211,68 @@ Namespace Locations
         ''' <returns>País</returns>
 
         Property Country As String
+            Get
+                Return Info.GetValueOr("country")
+            End Get
+            Set(value As String)
+                Info("country") = value
+            End Set
+        End Property
+
+        ''' <summary>
+        ''' País
+        ''' </summary>
+        ''' <value></value>
+        ''' <returns>País</returns>
+
+        Property CountryCode As String
+            Get
+                Return Info.GetValueOr("country_code")
+            End Get
+            Set(value As String)
+                Info("country_code") = value
+            End Set
+        End Property
 
         ''' <summary>
         ''' Coordenada geográfica LATITUDE
         ''' </summary>
         ''' <value></value>
         ''' <returns>Latitude</returns>
-        Property Latitude As Decimal? = Nothing
+        Property Latitude As Decimal?
+            Get
+                Dim value = Info.GetValueOr("lat", Nothing)
+                If value IsNot Nothing Then
+                    Return Convert.ToDecimal(value, CultureInfo.InvariantCulture)
+                End If
+                Return Nothing
+            End Get
+            Set(value As Decimal?)
+                If value.HasValue Then
+                    Info("lat") = value
+                End If
+            End Set
+        End Property
 
         ''' <summary>
         ''' Coordenada geográfica LONGITUDE
         ''' </summary>
         ''' <value></value>
         ''' <returns>Longitude</returns>
-        Property Longitude As Decimal? = Nothing
+        Property Longitude As Decimal?
+            Get
+                Dim value = Info.GetValueOr("lng", Nothing)
+                If value IsNot Nothing Then
+                    Return Convert.ToDecimal(value, CultureInfo.InvariantCulture)
+                End If
+                Return Nothing
+            End Get
+            Set(value As Decimal?)
+                If value.HasValue Then
+                    Info("lng") = value
+                End If
+            End Set
+        End Property
 
         ''' <summary>
         ''' Retorna o endereço completo
@@ -286,11 +385,13 @@ Namespace Locations
         ''' <param name="Number">Numero da casa</param>
         Public Shared Function FromViaCEP(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing) As AddressInfo
             Dim d = New AddressInfo()
+            d.Info("original_string") = PostalCode
             d.PostalCode = PostalCode
             If Number.IsNotBlank() Then d.Number = Number
             If Complement.IsNotBlank() Then d.Complement = Complement
             Try
                 Dim url = "https://viacep.com.br/ws/" & d.PostalCode.RemoveAny("-") & "/xml/"
+                d.Info("search_url") = url
                 Using c = New WebClient()
                     Dim x = New XmlDocument()
                     x.LoadXml(c.DownloadString(url))
@@ -299,28 +400,30 @@ Namespace Locations
                     d.City = cep("localidade")?.InnerText
                     d.StateCode = cep("uf")?.InnerText
                     d.State = Brasil.GetNameOf(d.StateCode)
+                    d.Region = Brasil.GetRegionOf(d.StateCode)
                     d.StreetName = cep("logradouro")?.InnerText
                     Try
-                        d.DDD = cep("ddd")?.InnerText
+                        d.Info("DDD") = cep("ddd")?.InnerText
                     Catch ex As Exception
 
                     End Try
                     Try
-                        d.IBGE = cep("ibge")?.InnerText
+                        d.Info("IBGE") = cep("ibge")?.InnerText
                     Catch ex As Exception
 
                     End Try
                     Try
-                        d.GIA = cep("gia")?.InnerText
+                        d.Info("GIA") = cep("gia")?.InnerText
                     Catch ex As Exception
 
                     End Try
                     Try
-                        d.SIAFI = cep("SIAFI")?.InnerText
+                        d.Info("SIAFI") = cep("SIAFI")?.InnerText
                     Catch ex As Exception
 
                     End Try
                     d.Country = "Brasil"
+                    d.CountryCode = "BR"
                     d.ParseType()
                 End Using
             Catch ex As Exception
@@ -348,7 +451,6 @@ Namespace Locations
             If ceps.Any() Then
                 PostalCode = FormatPostalCode(ceps.First())
             End If
-
 
             Address = Address.AdjustBlankSpaces().TrimAny("-", ",", "/") 'arruma os espacos do endereco
 
@@ -429,14 +531,83 @@ Namespace Locations
 
             Number = Number.AdjustBlankSpaces().TrimAny(" ", ",", "-")
             Complement = Complement.AdjustBlankSpaces().TrimAny(" ", ",", "-")
-
-            Dim st = Brasil.GetState(State)
-            If st IsNot Nothing Then
-                Country = "Brasil"
-            End If
-
             Dim d = CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode)
-            d._original = original
+            d.Info("original_string") = original
+            Return d
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para completar as informações
+        ''' </summary>
+        ''' <param name="Address">Endereço para Busca</param>
+        ''' <param name="Key">Chave de acesso da API</param>
+        ''' <returns></returns>
+        Public Shared Function FromGoogleMaps(Address As String, Key As String, Optional NVC As NameValueCollection = Nothing) As AddressInfo
+            Dim d = New AddressInfo()
+
+            NVC = If(NVC, New NameValueCollection)
+
+            NVC("key") = Key
+            NVC("address") = Address
+
+            d.Info("original_string") = Address
+            Dim url = $"https://maps.googleapis.com/maps/api/geocode/xml?{NVC.ToQueryString()}"
+            d.Info("search_url") = url
+            Using c = New WebClient()
+                Dim xml = New XmlDocument()
+                xml.LoadXml(c.DownloadString(url))
+                Dim x = xml("GeocodeResponse")
+                Dim status = x("status").InnerText
+
+                If status = "OK" Then
+
+                    For Each item As XmlNode In x("result").ChildNodes
+
+                        If item.Name = "geometry" Then
+                            d.Latitude = Convert.ToDecimal(item("location")("lat").InnerText, CultureInfo.InvariantCulture)
+                            d.Longitude = Convert.ToDecimal(item("location")("lng").InnerText, CultureInfo.InvariantCulture)
+                        End If
+
+                        If item.Name = "place_id" Then
+                            d.Info("place_id") = item.InnerText
+                        End If
+
+                        If item.Name = "address_component" Then
+
+                            For Each subitem As XmlNode In item.ChildNodes
+                                If subitem.Name = "type" Then
+                                    d.Info(subitem.InnerText) = item("long_name").InnerText
+                                    Select Case subitem.InnerText
+                                        Case "postal_code"
+                                            d.PostalCode = item("long_name").InnerText
+                                        Case "country"
+                                            d.Country = item("long_name").InnerText
+                                            d.CountryCode = item("short_name").InnerText
+                                        Case "administrative_area_level_1"
+                                            d.State = item("long_name").InnerText
+                                            d.StateCode = item("short_name").InnerText
+                                            d.Region = Brasil.GetRegionOf(d.StateCode)
+                                        Case "administrative_area_level_2"
+                                            d.City = item("long_name").InnerText
+                                        Case "administrative_area_level_3", "locality", "sublocality"
+                                            d.Neighborhood = d.Neighborhood.IfBlank(item("long_name").InnerText)
+                                        Case "route"
+                                            d.StreetName = item("long_name").InnerText
+                                        Case "street_number"
+                                            d.Number = item("long_name").InnerText
+                                        Case Else
+                                    End Select
+                                End If
+
+                            Next
+                        End If
+                    Next
+                Else
+                    Throw New Exception($"{status} - {x("error_message").InnerText}")
+                End If
+                d.ParseType()
+            End Using
+
             Return d
         End Function
 
@@ -470,19 +641,29 @@ Namespace Locations
 
             l.Number = Number.NullIf(Function(x) x.IsBlank())
             l.City = City.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
-            If State.Length = 2 Then
-                l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
-                l.State = Brasil.GetNameOf(l.StateCode)
-                If l.State.IsNotBlank Then
-                    l.Region = Brasil.GetRegionOf(l.StateCode)
-                    l.Country = "Brasil"
-                End If
-            Else
-                l.State = State.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
-            End If
-            l.Country = Country.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
-            l.PostalCode = PostalCode.NullIf(Function(x) x.IsBlank())
 
+            Dim st = Brasil.GetState(State)
+            If st IsNot Nothing Then
+                l.State = st.Name
+                l.StateCode = st.StateCode
+                l.Region = st.Region
+                Country = "Brasil"
+                l.CountryCode = "BR"
+            Else
+                If State.Length = 2 Then
+                    l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
+                Else
+                    l.State = State.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+                End If
+
+                If Country.Length = 2 Then
+                    l.CountryCode = Country.ToUpper().NullIf(Function(x) x.IsBlank())
+                Else
+                    l.Country = Country.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+                End If
+            End If
+
+            l.PostalCode = PostalCode.NullIf(Function(x) x.IsBlank())
             l.ParseType()
 
             Return l
@@ -554,6 +735,23 @@ Namespace Locations
                     _globalformat = value
                 End If
             End Set
+        End Property
+
+        ''' <summary>
+        ''' Todas as Informações relacionadas a este endereço
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Info As New Dictionary(Of String, String)
+
+        ''' <summary>
+        ''' Retona uma informação deste endereço
+        ''' </summary>
+        ''' <param name="Key"></param>
+        ''' <returns></returns>
+        Default Public ReadOnly Property GetInfo(Key As String) As String
+            Get
+                Return Info.GetValueOr(Key, Nothing)
+            End Get
         End Property
 
     End Class
