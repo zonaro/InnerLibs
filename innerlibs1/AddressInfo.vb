@@ -183,10 +183,10 @@ Namespace Locations
 
         Property StateCode As String
             Get
-                Return Me("statecode")
+                Return Me("state_code")
             End Get
             Set(value As String)
-                Me("statecode") = value
+                Me("state_code") = value
             End Set
         End Property
 
@@ -798,20 +798,14 @@ Namespace Locations
 
         Default Public Property Item(key As String) As String Implements IDictionary(Of String, String).Item
             Get
-                Dim props = Me.GetProperties().Where(Function(x) x.CanRead AndAlso x.Name.ToLower() = key.ToLower())
-                If props.Any() Then
-                    Return props.FirstOrDefault().GetValue(Me)?.ToString()
-                Else
+                If Me.ContainsKey(key) Then
                     Return Info.GetValueOr(key.ToLower(), Nothing)
+                Else
+                    Return Me.GetPropertyValue(Of String)(key)
                 End If
             End Get
             Set(value As String)
-                Dim props = Me.GetProperties().Where(Function(x) x.CanWrite AndAlso x.Name.ToLower() = key.ToLower())
-                If props.Any() Then
-                    props.FirstOrDefault().SetValue(Me, value)
-                Else
-                    Info(key.ToLower()) = value
-                End If
+                Info(key.ToLower()) = value
             End Set
         End Property
 
