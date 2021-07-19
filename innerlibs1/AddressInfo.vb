@@ -533,7 +533,7 @@ Namespace Locations
             Number = Number.AdjustBlankSpaces().TrimAny(" ", ",", "-")
             Complement = Complement.AdjustBlankSpaces().TrimAny(" ", ",", "-")
             Dim d = CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode)
-            d.Info("original_string") = original
+            d("original_string") = original
             Return d
         End Function
 
@@ -551,9 +551,9 @@ Namespace Locations
             NVC("key") = Key
             NVC("address") = Address
 
-            d.Info("original_string") = Address
+            d("original_string") = Address
             Dim url = $"https://maps.googleapis.com/maps/api/geocode/xml?{NVC.ToQueryString()}"
-            d.Info("search_url") = url
+            d("search_url") = url
             Using c = New WebClient()
                 Dim xml = New XmlDocument()
                 xml.LoadXml(c.DownloadString(url))
@@ -570,14 +570,14 @@ Namespace Locations
                         End If
 
                         If item.Name = "place_id" Then
-                            d.Info("place_id") = item.InnerText
+                            d("place_id") = item.InnerText
                         End If
 
                         If item.Name = "address_component" Then
 
                             For Each subitem As XmlNode In item.ChildNodes
                                 If subitem.Name = "type" Then
-                                    d.Info(subitem.InnerText) = item("long_name").InnerText
+                                    d(subitem.InnerText) = item("long_name").InnerText
                                     Select Case subitem.InnerText
                                         Case "postal_code"
                                             d.PostalCode = item("long_name").InnerText
@@ -726,11 +726,11 @@ Namespace Locations
         End Sub
 
         Public Function Contains(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Contains
-            Return Info.Contains(item)
+            Return Keys.Contains(item.Key)
         End Function
 
         Public Sub CopyTo(array() As KeyValuePair(Of String, String), arrayIndex As Integer) Implements ICollection(Of KeyValuePair(Of String, String)).CopyTo
-            Info.ToArray.CopyTo(array, arrayIndex)
+            Me.ToArray.CopyTo(array, arrayIndex)
         End Sub
 
         Public Function Remove(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Remove
@@ -798,28 +798,38 @@ Namespace Locations
 
         Default Public Property Item(key As String) As String Implements IDictionary(Of String, String).Item
             Get
-                Return Info.GetValueOr(key.ToLower(), Nothing)
+                Dim props = Me.GetProperties().Where(Function(x) x.CanRead AndAlso x.Name.ToLower() = key.ToLower())
+                If props.Any() Then
+                    Return props.FirstOrDefault().GetValue(Me)?.ToString()
+                Else
+                    Return Info.GetValueOr(key.ToLower(), Nothing)
+                End If
             End Get
             Set(value As String)
-                Info(key.ToLower()) = value
+                Dim props = Me.GetProperties().Where(Function(x) x.CanWrite AndAlso x.Name.ToLower() = key.ToLower())
+                If props.Any() Then
+                    props.FirstOrDefault().SetValue(Me, value)
+                Else
+                    Info(key.ToLower()) = value
+                End If
             End Set
         End Property
 
         Public ReadOnly Property Keys As ICollection(Of String) Implements IDictionary(Of String, String).Keys
             Get
-                Return Info.Keys
+                Return Info.Keys.Union(Me.GetProperties().Where(Function(x) x.CanRead).Select(Function(x) x.Name.ToLower()))
             End Get
         End Property
 
         Public ReadOnly Property Values As ICollection(Of String) Implements IDictionary(Of String, String).Values
             Get
-                Return Info.Values
+                Return Keys.Select(Function(x) Me(x))
             End Get
         End Property
 
         Public ReadOnly Property Count As Integer Implements ICollection(Of KeyValuePair(Of String, String)).Count
             Get
-                Return Info.Count
+                Return Values.Count
             End Get
         End Property
 
