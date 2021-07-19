@@ -798,11 +798,7 @@ Namespace Locations
 
         Default Public Property Item(key As String) As String Implements IDictionary(Of String, String).Item
             Get
-                If Me.ContainsKey(key) Then
-                    Return Info.GetValueOr(key.ToLower(), Nothing)
-                Else
-                    Return Me.GetPropertyValue(Of String)(key)
-                End If
+                Return Info.GetValueOr(key.ToLower(), Nothing)
             End Get
             Set(value As String)
                 Info(key.ToLower()) = value
@@ -811,7 +807,7 @@ Namespace Locations
 
         Public ReadOnly Property Keys As ICollection(Of String) Implements IDictionary(Of String, String).Keys
             Get
-                Return Info.Keys.Union(Me.GetProperties().Where(Function(x) x.CanRead).Select(Function(x) x.Name.ToLower()))
+                Return Info.Keys
             End Get
         End Property
 
