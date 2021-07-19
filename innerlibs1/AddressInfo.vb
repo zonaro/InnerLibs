@@ -10,6 +10,7 @@ Namespace Locations
     ''' </summary>
     ''' <remarks></remarks>
     Public Class AddressInfo
+        Implements IDictionary(Of String, String)
 
         ''' <summary>
         ''' Cria um novo objeto de localização
@@ -23,10 +24,10 @@ Namespace Locations
         ''' <returns></returns>
         Property StreetType As String
             Get
-                Return Info.GetValueOr("street_type")
+                Return Me("street_type")
             End Get
             Set(value As String)
-                Info("street_type") = value
+                Me("street_type") = value
             End Set
         End Property
 
@@ -37,10 +38,10 @@ Namespace Locations
         ''' <returns></returns>
         Property StreetName As String
             Get
-                Return Info.GetValueOr("street_name")
+                Return Me("street_name")
             End Get
             Set(value As String)
-                Info("street_name") = value
+                Me("street_name") = value
             End Set
         End Property
 
@@ -62,10 +63,10 @@ Namespace Locations
 
         Property Number As String
             Get
-                Return Info.GetValueOr("street_number")
+                Return Me("street_number")
             End Get
             Set(value As String)
-                Info("street_number") = value
+                Me("street_number") = value
             End Set
         End Property
 
@@ -77,10 +78,10 @@ Namespace Locations
 
         Property Complement As String
             Get
-                Return Info.GetValueOr("subpremise")
+                Return Me("subpremise")
             End Get
             Set(value As String)
-                Info("subpremise") = value
+                Me("subpremise") = value
             End Set
         End Property
 
@@ -92,10 +93,10 @@ Namespace Locations
 
         Property Neighborhood As String
             Get
-                Return Info.GetValueOr("neighborhood")
+                Return Me("sublocality")
             End Get
             Set(value As String)
-                Info("neighborhood") = value
+                Me("sublocality") = value
             End Set
         End Property
 
@@ -107,10 +108,10 @@ Namespace Locations
 
         Property PostalCode As String
             Get
-                Return Info.GetValueOr("postal_code")
+                Return Me("postal_code")
             End Get
             Set(value As String)
-                Info("postal_code") = AddressInfo.FormatPostalCode(value)
+                Me("postal_code") = AddressInfo.FormatPostalCode(value)
             End Set
         End Property
 
@@ -152,10 +153,10 @@ Namespace Locations
 
         Property City As String
             Get
-                Return Info.GetValueOr("city")
+                Return Me("city")
             End Get
             Set(value As String)
-                Info("city") = value
+                Me("city") = value
             End Set
         End Property
 
@@ -167,10 +168,10 @@ Namespace Locations
 
         Property State As String
             Get
-                Return Info.GetValueOr("state")
+                Return Me("state")
             End Get
             Set(value As String)
-                Info("state") = value
+                Me("state") = value
             End Set
         End Property
 
@@ -182,10 +183,10 @@ Namespace Locations
 
         Property StateCode As String
             Get
-                Return Info.GetValueOr("statecode")
+                Return Me("statecode")
             End Get
             Set(value As String)
-                Info("statecode") = value
+                Me("statecode") = value
             End Set
         End Property
 
@@ -197,10 +198,10 @@ Namespace Locations
 
         Property Region As String
             Get
-                Return Info.GetValueOr("region")
+                Return Me("region")
             End Get
             Set(value As String)
-                Info("region") = value
+                Me("region") = value
             End Set
         End Property
 
@@ -212,10 +213,10 @@ Namespace Locations
 
         Property Country As String
             Get
-                Return Info.GetValueOr("country")
+                Return Me("country")
             End Get
             Set(value As String)
-                Info("country") = value
+                Me("country") = value
             End Set
         End Property
 
@@ -227,10 +228,10 @@ Namespace Locations
 
         Property CountryCode As String
             Get
-                Return Info.GetValueOr("country_code")
+                Return Me("country_code")
             End Get
             Set(value As String)
-                Info("country_code") = value
+                Me("country_code") = value
             End Set
         End Property
 
@@ -241,7 +242,7 @@ Namespace Locations
         ''' <returns>Latitude</returns>
         Property Latitude As Decimal?
             Get
-                Dim value = Info.GetValueOr("lat", Nothing)
+                Dim value = Me("lat")
                 If value IsNot Nothing Then
                     Return Convert.ToDecimal(value, CultureInfo.InvariantCulture)
                 End If
@@ -249,7 +250,7 @@ Namespace Locations
             End Get
             Set(value As Decimal?)
                 If value.HasValue Then
-                    Info("lat") = value
+                    Me("lat") = value
                 End If
             End Set
         End Property
@@ -261,7 +262,7 @@ Namespace Locations
         ''' <returns>Longitude</returns>
         Property Longitude As Decimal?
             Get
-                Dim value = Info.GetValueOr("lng", Nothing)
+                Dim value = Me("lng")
                 If value IsNot Nothing Then
                     Return Convert.ToDecimal(value, CultureInfo.InvariantCulture)
                 End If
@@ -269,7 +270,7 @@ Namespace Locations
             End Get
             Set(value As Decimal?)
                 If value.HasValue Then
-                    Info("lng") = value
+                    Me("lng") = value
                 End If
             End Set
         End Property
@@ -403,22 +404,22 @@ Namespace Locations
                     d.Region = Brasil.GetRegionOf(d.StateCode)
                     d.StreetName = cep("logradouro")?.InnerText
                     Try
-                        d.Info("DDD") = cep("ddd")?.InnerText
+                        d("DDD") = cep("ddd")?.InnerText
                     Catch ex As Exception
 
                     End Try
                     Try
-                        d.Info("IBGE") = cep("ibge")?.InnerText
+                        d("IBGE") = cep("ibge")?.InnerText
                     Catch ex As Exception
 
                     End Try
                     Try
-                        d.Info("GIA") = cep("gia")?.InnerText
+                        d("GIA") = cep("gia")?.InnerText
                     Catch ex As Exception
 
                     End Try
                     Try
-                        d.Info("SIAFI") = cep("SIAFI")?.InnerText
+                        d("SIAFI") = cep("SIAFI")?.InnerText
                     Catch ex As Exception
 
                     End Try
@@ -694,6 +695,56 @@ Namespace Locations
             Return Latitude & "," & Longitude
         End Function
 
+        Public Function ContainsKey(key As String) As Boolean Implements IDictionary(Of String, String).ContainsKey
+            Return Info.ContainsKey(key.ToLower())
+        End Function
+
+        Public Sub Add(key As String, value As String) Implements IDictionary(Of String, String).Add
+            Me(key) = value
+        End Sub
+
+        Public Function Remove(key As String) As Boolean Implements IDictionary(Of String, String).Remove
+            If Me.ContainsKey(key) Then
+                Info.Remove(key)
+                Return True
+            End If
+            Return False
+        End Function
+
+        Public Function TryGetValue(key As String, ByRef value As String) As Boolean Implements IDictionary(Of String, String).TryGetValue
+            Return Info.TryGetValue(key.ToLower, value)
+        End Function
+
+        Public Sub Add(item As KeyValuePair(Of String, String)) Implements ICollection(Of KeyValuePair(Of String, String)).Add
+            If Not IsNothing(item) Then
+                Info.Add(item.Key, item.Value)
+            End If
+        End Sub
+
+        Public Sub Clear() Implements ICollection(Of KeyValuePair(Of String, String)).Clear
+            Info.Clear()
+        End Sub
+
+        Public Function Contains(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Contains
+            Return Info.Contains(item)
+        End Function
+
+        Public Sub CopyTo(array() As KeyValuePair(Of String, String), arrayIndex As Integer) Implements ICollection(Of KeyValuePair(Of String, String)).CopyTo
+            Info.ToArray.CopyTo(array, arrayIndex)
+        End Sub
+
+        Public Function Remove(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Remove
+            Return Remove(item.Key)
+        End Function
+
+        Public Function GetEnumerator() As IEnumerator(Of KeyValuePair(Of String, String)) Implements IEnumerable(Of KeyValuePair(Of String, String)).GetEnumerator
+            Return Info.GetEnumerator
+        End Function
+
+        Private Function IEnumerable_GetEnumerator() As IEnumerator Implements IEnumerable.GetEnumerator
+            Return GetEnumerator()
+        End Function
+
         ''' <summary>
         ''' Formato desta instancia de <see cref="AddressInfo"/> quando chamada pelo <see cref="AddressInfo.ToString()"/>
         ''' </summary>
@@ -737,20 +788,44 @@ Namespace Locations
             End Set
         End Property
 
-        ''' <summary>
-        ''' Todas as Informações relacionadas a este endereço
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property Info As New Dictionary(Of String, String)
+        Private Info As New Dictionary(Of String, String)
 
         ''' <summary>
         ''' Retona uma informação deste endereço
         ''' </summary>
         ''' <param name="Key"></param>
         ''' <returns></returns>
-        Default Public ReadOnly Property GetInfo(Key As String) As String
+
+        Default Public Property Item(key As String) As String Implements IDictionary(Of String, String).Item
             Get
-                Return Info.GetValueOr(Key, Nothing)
+                Return Info.GetValueOr(key.ToLower(), Nothing)
+            End Get
+            Set(value As String)
+                Info(key.ToLower()) = value
+            End Set
+        End Property
+
+        Public ReadOnly Property Keys As ICollection(Of String) Implements IDictionary(Of String, String).Keys
+            Get
+                Return Info.Keys
+            End Get
+        End Property
+
+        Public ReadOnly Property Values As ICollection(Of String) Implements IDictionary(Of String, String).Values
+            Get
+                Return Info.Values
+            End Get
+        End Property
+
+        Public ReadOnly Property Count As Integer Implements ICollection(Of KeyValuePair(Of String, String)).Count
+            Get
+                Return Info.Count
+            End Get
+        End Property
+
+        Public ReadOnly Property IsReadOnly As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).IsReadOnly
+            Get
+                Return False
             End Get
         End Property
 
