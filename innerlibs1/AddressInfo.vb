@@ -22,13 +22,10 @@ Namespace Locations
         ''' Tipo do Endereço
         ''' </summary>
         ''' <returns></returns>
-        Property StreetType As String
+        ReadOnly Property StreetType As String
             Get
-                Return Me("streettype")
+                Return AddressTypes.GetAddressType(Me.Street)
             End Get
-            Set(value As String)
-                Me("streettype") = value
-            End Set
         End Property
 
         ''' <summary>
@@ -36,23 +33,23 @@ Namespace Locations
         ''' </summary>
         ''' <value></value>
         ''' <returns></returns>
-        Property StreetName As String
+        ReadOnly Property StreetName As String
             Get
-                Return Me("streetname")
+                Return Street.TrimAny(AddressTypes.GetAddressTypeList(Me.Street))
             End Get
-            Set(value As String)
-                Me("streetname") = value
-            End Set
         End Property
 
         ''' <summary>
         ''' Logradouro
         ''' </summary>
         ''' <returns></returns>
-        ReadOnly Property Street As String
+        Property Street As String
             Get
-                Return ToString(AddressPart.StreetName, AddressPart.StreetType)
+                Return Me("street")
             End Get
+            Set(value As String)
+                Me("street") = value
+            End Set
         End Property
 
         ''' <summary>
@@ -336,7 +333,7 @@ Namespace Locations
         ''' <returns></returns>
         Public Overloads Function ToString(Parts As AddressPart) As String
 
-            ParseType()
+
             Dim retorno As String = ""
 
             If Parts <= 0 Then
@@ -366,16 +363,7 @@ Namespace Locations
             Return ((Parts) And OtherPart) <> 0
         End Function
 
-        Friend Sub ParseType()
-            If Me.StreetType.IsBlank() Then
-                If Me.StreetName.IsNotBlank Then
-                    Me.StreetType = AddressTypes.GetAddressType(Me.StreetName)
-                    If Me.StreetType.IsNotBlank Then
-                        Me.StreetName = New StructuredText(Me.StreetName).ToString.TrimAny(False, AddressTypes.GetAddressTypeList(Me.StreetName)).AdjustBlankSpaces().ToTitle(True).TrimAny(True, " ", ".", " ", ",", " ", "-", " ")
-                    End If
-                End If
-            End If
-        End Sub
+
 
         ''' <summary>
         ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
@@ -400,7 +388,7 @@ Namespace Locations
                     d.StateCode = cep("uf")?.InnerText
                     d.State = Brasil.GetNameOf(d.StateCode)
                     d.Region = Brasil.GetRegionOf(d.StateCode)
-                    d.StreetName = cep("logradouro")?.InnerText
+                    d.Street = cep("logradouro")?.InnerText
                     Try
                         d("DDD") = cep("ddd")?.InnerText
                     Catch ex As Exception
@@ -423,7 +411,8 @@ Namespace Locations
                     End Try
                     d.Country = "Brasil"
                     d.CountryCode = "BR"
-                    d.ParseType()
+                    d.Street = d.ToString(AddressPart.StreetName, AddressPart.StreetType)
+
                 End Using
             Catch ex As Exception
             End Try
@@ -595,7 +584,8 @@ Namespace Locations
                                         Case "administrative_area_level_3", "locality", "sublocality"
                                             d.Neighborhood = d.Neighborhood.IfBlank(item("long_name").InnerText)
                                         Case "route"
-                                            d.StreetName = item("long_name").InnerText
+                                            d.Street = item("long_name").InnerText
+                                            d.Street = d.ToString(AddressPart.StreetName, AddressPart.StreetType)
                                         Case "street_number"
                                             d.Number = item("long_name").InnerText
                                         Case Else
@@ -610,7 +600,7 @@ Namespace Locations
                         d("error_message") = x("error_message").InnerText
                     End If
                 End If
-                d.ParseType()
+
             End Using
 
             Return d
@@ -640,7 +630,7 @@ Namespace Locations
             Country = Country.AdjustBlankSpaces()
             PostalCode = PostalCode.AdjustBlankSpaces()
 
-            l.StreetName = Address.ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
+            l.Street = Address.ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
             l.Complement = Complement.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
 
@@ -669,7 +659,8 @@ Namespace Locations
             End If
 
             l.PostalCode = PostalCode.NullIf(Function(x) x.IsBlank())
-            l.ParseType()
+
+            l.Street = l.ToString(AddressPart.StreetName, AddressPart.StreetType)
 
             Return l
         End Function
@@ -794,7 +785,22 @@ Namespace Locations
 
         Default Public Property Item(key As String) As String Implements IDictionary(Of String, String).Item
             Get
-                Return Info.GetValueOr(key.ToLower(), Nothing)
+                key = key.ToLower()
+                If Not Info.ContainsKey(key) Then
+                    Select Case key
+                        Case "geolocation"
+                            Return LatitudeLongitude()
+                        Case "fulladdress", "tostring", "address"
+                            Return Address
+                        Case "streetname", "name"
+                            Return StreetName
+                        Case "streettype", "type"
+                            Return StreetType
+                        Case Else
+                    End Select
+                End If
+
+                Return Info.GetValueOr(key, Nothing)
             End Get
             Set(value As String)
                 Info(key.ToLower()) = value
@@ -809,7 +815,7 @@ Namespace Locations
 
         Public ReadOnly Property Values As ICollection(Of String) Implements IDictionary(Of String, String).Values
             Get
-                Return Keys.Select(Function(x) Me(x))
+                Return Info.Values
             End Get
         End Property
 
@@ -913,14 +919,10 @@ Namespace Locations
         ''' </summary>
         PostalCode = 512
 
-
-
         ''' <summary>
         ''' Endereço completo
         ''' </summary>
         FullAddress = Street + LocationInfo + Neighborhood + CityStateCode + Country + PostalCode
-
-
 
     End Enum
 
@@ -935,6 +937,14 @@ Namespace Locations
             Return ""
         End Function
 
+        Public Shared Function GetAddressTypeProperty(Endereco As String) As PropertyInfo
+            Dim tp = Endereco.Split(WordSplitters.ToArray, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
+            If tp.IsNotBlank Then
+                Dim df = New AddressTypes()
+                Return df.GetProperties().FirstOrDefault(Function(x) tp.IsIn(CType(x.GetValue(df), String())) OrElse x.Name = tp)
+            End If
+            Return Nothing
+        End Function
         Public Shared Function GetAddressTypeList(Endereco As String) As String()
             Dim tp = Endereco.Split(WordSplitters.ToArray, StringSplitOptions.RemoveEmptyEntries).FirstOr("")
             If tp.IsNotBlank Then
