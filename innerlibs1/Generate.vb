@@ -111,7 +111,7 @@ Public Module Generate
         If LatLong = True Then
             s = Uri.EscapeUriString(AdjustWhiteSpaces(local.LatitudeLongitude))
         Else
-            s = Uri.EscapeUriString(AdjustWhiteSpaces(local.Address))
+            s = Uri.EscapeUriString(AdjustWhiteSpaces(local.FullAddress))
         End If
 
         Return New Uri("https://www.google.com.br/maps/search/" & s)
