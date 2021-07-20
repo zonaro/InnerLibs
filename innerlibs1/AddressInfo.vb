@@ -24,10 +24,10 @@ Namespace Locations
         ''' <returns></returns>
         Property StreetType As String
             Get
-                Return Me("street_type")
+                Return Me("streettype")
             End Get
             Set(value As String)
-                Me("street_type") = value
+                Me("streettype") = value
             End Set
         End Property
 
@@ -38,10 +38,10 @@ Namespace Locations
         ''' <returns></returns>
         Property StreetName As String
             Get
-                Return Me("street_name")
+                Return Me("streetname")
             End Get
             Set(value As String)
-                Me("street_name") = value
+                Me("streetname") = value
             End Set
         End Property
 
@@ -63,10 +63,10 @@ Namespace Locations
 
         Property Number As String
             Get
-                Return Me("street_number")
+                Return Me("number")
             End Get
             Set(value As String)
-                Me("street_number") = value
+                Me("number") = value
             End Set
         End Property
 
@@ -78,10 +78,10 @@ Namespace Locations
 
         Property Complement As String
             Get
-                Return Me("subpremise")
+                Return Me("complement")
             End Get
             Set(value As String)
-                Me("subpremise") = value
+                Me("complement") = value
             End Set
         End Property
 
@@ -93,10 +93,10 @@ Namespace Locations
 
         Property Neighborhood As String
             Get
-                Return Me("sublocality")
+                Return Me("Neighborhood")
             End Get
             Set(value As String)
-                Me("sublocality") = value
+                Me("Neighborhood") = value
             End Set
         End Property
 
@@ -108,10 +108,10 @@ Namespace Locations
 
         Property PostalCode As String
             Get
-                Return Me("postal_code")
+                Return Me("PostalCode")
             End Get
             Set(value As String)
-                Me("postal_code") = AddressInfo.FormatPostalCode(value)
+                Me("PostalCode") = AddressInfo.FormatPostalCode(value)
             End Set
         End Property
 
@@ -183,10 +183,10 @@ Namespace Locations
 
         Property StateCode As String
             Get
-                Return Me("state_code")
+                Return Me("statecode")
             End Get
             Set(value As String)
-                Me("state_code") = value
+                Me("statecode") = value
             End Set
         End Property
 
@@ -228,10 +228,10 @@ Namespace Locations
 
         Property CountryCode As String
             Get
-                Return Me("country_code")
+                Return Me("countrycode")
             End Get
             Set(value As String)
-                Me("country_code") = value
+                Me("countrycode") = value
             End Set
         End Property
 
@@ -242,15 +242,16 @@ Namespace Locations
         ''' <returns>Latitude</returns>
         Property Latitude As Decimal?
             Get
-                Dim value = Me("lat")
+                Dim value = Me("Latitude")
                 If value IsNot Nothing Then
-                    Return Convert.ToDecimal(value, CultureInfo.InvariantCulture)
+                    Return Convert.ToDecimal(value, New CultureInfo("en-US"))
+
                 End If
                 Return Nothing
             End Get
             Set(value As Decimal?)
                 If value.HasValue Then
-                    Me("lat") = value
+                    Me("Latitude") = Convert.ToString(value.Value, New CultureInfo("en-US"))
                 End If
             End Set
         End Property
@@ -262,15 +263,15 @@ Namespace Locations
         ''' <returns>Longitude</returns>
         Property Longitude As Decimal?
             Get
-                Dim value = Me("lng")
+                Dim value = Me("Longitude")
                 If value IsNot Nothing Then
-                    Return Convert.ToDecimal(value, CultureInfo.InvariantCulture)
+                    Return Convert.ToDecimal(value, New CultureInfo("en-US"))
                 End If
                 Return Nothing
             End Get
             Set(value As Decimal?)
                 If value.HasValue Then
-                    Me("lng") = value
+                    Me("Longitude") = Convert.ToString(value, New CultureInfo("en-US"))
                 End If
             End Set
         End Property
@@ -357,11 +358,8 @@ Namespace Locations
 
             If PostalCode.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.PostalCode) Then retorno &= (" - " & PostalCode)
             If Country.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Country) Then retorno &= (" - " & Country)
-
-            If Latitude.HasValue AndAlso ContainsPart(Parts, AddressPart.Latitude) Then retorno &= (" - lat:" & Latitude.ToString())
-            If Longitude.HasValue AndAlso ContainsPart(Parts, AddressPart.Longitude) Then retorno &= (" - long:" & Longitude.ToString())
-
-            Return New StructuredText(retorno).ToString().AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-", " ")
+            retorno = retorno.AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-", " ")
+            Return retorno
         End Function
 
         Friend Shared Function ContainsPart(Parts As AddressPart, OtherPart As AddressPart) As Boolean
@@ -386,7 +384,7 @@ Namespace Locations
         ''' <param name="Number">Numero da casa</param>
         Public Shared Function FromViaCEP(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing) As AddressInfo
             Dim d = New AddressInfo()
-            d.Info("original_string") = PostalCode
+            d("original_string") = PostalCode
             d.PostalCode = PostalCode
             If Number.IsNotBlank() Then d.Number = Number
             If Complement.IsNotBlank() Then d.Complement = Complement
@@ -560,13 +558,17 @@ Namespace Locations
                 Dim x = xml("GeocodeResponse")
                 Dim status = x("status").InnerText
 
-                If status = "OK" Then
+                d("status") = status
 
+                If status = "OK" Then
                     For Each item As XmlNode In x("result").ChildNodes
 
                         If item.Name = "geometry" Then
-                            d.Latitude = Convert.ToDecimal(item("location")("lat").InnerText, CultureInfo.InvariantCulture)
-                            d.Longitude = Convert.ToDecimal(item("location")("lng").InnerText, CultureInfo.InvariantCulture)
+                            Dim cultura = New CultureInfo("en-US")
+                            Dim lat = Convert.ToDecimal(item("location")("lat").InnerText, cultura)
+                            Dim lng = Convert.ToDecimal(item("location")("lng").InnerText, cultura)
+                            d.Latitude = lat
+                            d.Longitude = lng
                         End If
 
                         If item.Name = "place_id" Then
@@ -604,7 +606,9 @@ Namespace Locations
                         End If
                     Next
                 Else
-                    Throw New Exception($"{status} - {x("error_message").InnerText}")
+                    If x("error_message") IsNot Nothing Then
+                        d("error_message") = x("error_message").InnerText
+                    End If
                 End If
                 d.ParseType()
             End Using
@@ -692,7 +696,7 @@ Namespace Locations
         ''' <returns>Uma String contendo LATITUDE e LONGITUDE separados por virgula</returns>
 
         Public Function LatitudeLongitude() As String
-            Return Latitude & "," & Longitude
+            Return Latitude?.ToString(New CultureInfo("en-US")) & ", " & Longitude?.ToString(New CultureInfo("en-US"))
         End Function
 
         Public Function ContainsKey(key As String) As Boolean Implements IDictionary(Of String, String).ContainsKey
@@ -757,11 +761,7 @@ Namespace Locations
                 Return _format
             End Get
             Set(value As AddressPart)
-                If value = AddressPart.Default Then
-                    _format = GlobalFormat
-                Else
-                    _format = value
-                End If
+                _format = value
             End Set
         End Property
 
@@ -780,11 +780,7 @@ Namespace Locations
                 Return _globalformat
             End Get
             Set(value As AddressPart)
-                If value = AddressPart.Default Then
-                    _globalformat = AddressPart.FullAddress
-                Else
-                    _globalformat = value
-                End If
+                _globalformat = value
             End Set
         End Property
 
@@ -917,25 +913,14 @@ Namespace Locations
         ''' </summary>
         PostalCode = 512
 
-        ''' <summary>
-        ''' Latitude
-        ''' </summary>
-        Latitude = 1024
 
-        ''' <summary>
-        ''' Longitude
-        ''' </summary>
-        Longitude = 2048
 
         ''' <summary>
         ''' Endereço completo
         ''' </summary>
         FullAddress = Street + LocationInfo + Neighborhood + CityStateCode + Country + PostalCode
 
-        ''' <summary>
-        ''' Latitude e Longitude
-        ''' </summary>
-        LatitudeLongitude = Latitude + Longitude
+
 
     End Enum
 

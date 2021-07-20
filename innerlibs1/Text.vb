@@ -1559,6 +1559,7 @@ Public Module Text
             Case GetType(IDictionary).IsAssignableFrom(Quantity.GetType)
                 numero = CType(Quantity, IDictionary).Count
                 Exit Select
+
             Case GetType(Array).IsAssignableFrom(Quantity.GetType)
                 numero = CType(Quantity, Array).Length
                 Exit Select
