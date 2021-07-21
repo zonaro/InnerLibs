@@ -1,5 +1,4 @@
-﻿Imports System.Collections.Generic.Dictionary(Of String, String)
-Imports System.Collections.Specialized
+﻿Imports System.Collections.Specialized
 Imports System.Globalization
 Imports System.Net
 Imports System.Reflection
@@ -51,7 +50,7 @@ Namespace Locations
             End Get
             Set(value As String)
                 If value.IsNotBlank Then
-                    Me("street") = $"{AddressTypes.GetAddressType(value)} {value.TrimAny(AddressTypes.GetAddressTypeList(value))}".AdjustBlankSpaces()
+                    Me("street") = $"{AddressTypes.GetAddressType(value)} {value.TrimAny(True, AddressTypes.GetAddressTypeList(value))}".AdjustBlankSpaces().ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
                 Else
                     Me("street") = Nothing
                 End If
@@ -84,7 +83,7 @@ Namespace Locations
                 Return Me("complement")
             End Get
             Set(value As String)
-                Me("complement") = value
+                Me("complement") = value.IfBlank("").TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -99,7 +98,7 @@ Namespace Locations
                 Return Me("Neighborhood")
             End Get
             Set(value As String)
-                Me("Neighborhood") = value
+                Me("Neighborhood") = value.IfBlank("").ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -144,7 +143,7 @@ Namespace Locations
                 Return PostalCode
             End Get
             Set(value As String)
-                PostalCode = value
+                PostalCode = value.IfBlank("").TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -159,7 +158,7 @@ Namespace Locations
                 Return Me("city")
             End Get
             Set(value As String)
-                Me("city") = value
+                Me("city") = value.IfBlank("").ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -174,7 +173,7 @@ Namespace Locations
                 Return Me("state")
             End Get
             Set(value As String)
-                Me("state") = value
+                Me("state") = value.IfBlank("").ToLower.ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -189,7 +188,7 @@ Namespace Locations
                 Return Me("statecode")
             End Get
             Set(value As String)
-                Me("statecode") = value
+                Me("statecode") = value.IfBlank("").ToUpper().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -204,7 +203,7 @@ Namespace Locations
                 Return Me("region")
             End Get
             Set(value As String)
-                Me("region") = value
+                Me("region") = value.IfBlank("").ToLower.ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -219,7 +218,7 @@ Namespace Locations
                 Return Me("country")
             End Get
             Set(value As String)
-                Me("country") = value
+                Me("country") = value.IfBlank("").ToLower.ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -234,7 +233,7 @@ Namespace Locations
                 Return Me("countrycode")
             End Get
             Set(value As String)
-                Me("countrycode") = value
+                Me("countrycode") = value.IfBlank("").ToUpper().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
             End Set
         End Property
 
@@ -359,7 +358,6 @@ Namespace Locations
         ''' <returns></returns>
         Public Overloads Function ToString(Parts As AddressPart) As String
 
-
             Dim retorno As String = ""
 
             If Parts <= 0 Then
@@ -388,8 +386,6 @@ Namespace Locations
         Friend Shared Function ContainsPart(Parts As AddressPart, OtherPart As AddressPart) As Boolean
             Return ((Parts) And OtherPart) <> 0
         End Function
-
-
 
         ''' <summary>
         ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
@@ -437,7 +433,6 @@ Namespace Locations
                     End Try
                     d.Country = "Brasil"
                     d.CountryCode = "BR"
-
 
                 End Using
             Catch ex As Exception
@@ -528,7 +523,7 @@ Namespace Locations
             Address = Address.AdjustBlankSpaces()
 
             If (Address.Contains(",")) Then
-                Dim parts = Address.GetAfter(",").GetWords().ToList()
+                Dim parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList()
                 Number = parts.FirstOrDefault(Function(x) x = "s/n" OrElse x = "sn" OrElse x.IsNumber)
                 parts.Remove(Number)
                 Complement = parts.Join(" ")
@@ -645,48 +640,32 @@ Namespace Locations
         ''' <returns></returns>
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
             Dim l = New AddressInfo()
-
-            Address = Address.AdjustBlankSpaces()
-            Number = Number.AdjustBlankSpaces()
-            Complement = Complement.AdjustBlankSpaces()
-            Neighborhood = Neighborhood.AdjustBlankSpaces()
-            City = City.AdjustBlankSpaces()
-            State = State.AdjustBlankSpaces()
-            Country = Country.AdjustBlankSpaces()
-            PostalCode = PostalCode.AdjustBlankSpaces()
-
-            l.Street = Address.ToLower().ToTitle().TrimAny(True, " ", ".", " ", ",", " ", "-", " ").NullIf(Function(x) x.IsBlank())
-            l.Neighborhood = Neighborhood.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
-            l.Complement = Complement.AdjustBlankSpaces().ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
-
-            l.Number = Number.NullIf(Function(x) x.IsBlank())
-            l.City = City.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+            l.Street = Address
+            l.Neighborhood = Neighborhood
+            l.Complement = Complement
+            l.Number = Number
+            l.City = City
+            l.PostalCode = PostalCode
 
             Dim st = Brasil.GetState(State)
             If st IsNot Nothing Then
                 l.State = st.Name
                 l.StateCode = st.StateCode
                 l.Region = st.Region
-                Country = "Brasil"
+                l.Country = "Brasil"
                 l.CountryCode = "BR"
             Else
                 If State.Length = 2 Then
-                    l.StateCode = State.AdjustBlankSpaces().ToUpper().NullIf(Function(x) x.IsBlank())
+                    l.StateCode = State
                 Else
-                    l.State = State.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+                    l.State = State
                 End If
-
                 If Country.Length = 2 Then
-                    l.CountryCode = Country.ToUpper().NullIf(Function(x) x.IsBlank())
+                    l.CountryCode = Country
                 Else
-                    l.Country = Country.ToLower().ToTitle().NullIf(Function(x) x.IsBlank())
+                    l.Country = Country
                 End If
             End If
-
-            l.PostalCode = PostalCode.NullIf(Function(x) x.IsBlank())
-
-
-
             Return l
         End Function
 
@@ -811,7 +790,9 @@ Namespace Locations
         ''' <param name="Value">Valor do Value</param>
         ''' <returns>o mesmo objeto do tipo <see cref="AddressInfo"/> que chamou este método</returns>
         Public Function [Set](Of KeyType, ValueType)(Key As KeyType, Value As ValueType) As AddressInfo
-            Me(Key.ToString()) = Value.ToString()
+            If Key IsNot Nothing AndAlso Key.ToString().IsNotBlank() Then
+                Me(Key.ToString()) = Value?.ToString()
+            End If
             Return Me
         End Function
 
@@ -979,8 +960,9 @@ Namespace Locations
             End If
             Return Nothing
         End Function
+
         Public Shared Function GetAddressTypeList(Endereco As String) As String()
-            Return If(ForceArray(Of String)(GetAddressTypeProperty(Endereco)?.GetValue(New AddressTypes)), {})
+            Return If(AddressTypes.GetAddressTypeProperty(Endereco)?.GetValue(New AddressTypes()), New String() {})
         End Function
 
         Public ReadOnly Property Aeroporto As String() = {"Aeroporto", "Ar", "Aero"}
