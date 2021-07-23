@@ -7,6 +7,16 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+        <Extension()> Public Function TakeRandom(Of T)(l As IEnumerable(Of T), Count As Integer) As IEnumerable(Of T)
+            Return l.OrderByRandom().Take(Count)
+        End Function
+
+        <Extension()> Public Function FirstRandom(Of T)(l As IEnumerable(Of T)) As T
+            Return l.OrderByRandom().FirstOrDefault()
+        End Function
+
+
+
         ''' <summary>
         ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
         ''' </summary>

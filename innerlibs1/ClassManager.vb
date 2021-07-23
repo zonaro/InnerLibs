@@ -15,7 +15,20 @@ Public Module ClassTools
 
 
 
-
+    ''' <summary>
+    ''' Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/>
+    ''' </summary>
+    ''' <typeparam name="KeyType">Tipo da Key</typeparam>
+    ''' <typeparam name="ValueType">Tipo do valor</typeparam>
+    ''' <param name="Key">Valor da key</param>
+    ''' <param name="Value">Valor do Value</param>
+    ''' <returns>o mesmo objeto do tipo <see cref="AddressInfo"/> que chamou este método</returns>
+    <Extension> Public Function [Set](Of KeyType, ValueType, KT, VT)(Dic As IDictionary(Of KeyType, ValueType), Key As KT, Value As VT) As IDictionary(Of KeyType, ValueType)
+        If Key IsNot Nothing Then
+            Dic(Key.ChangeType(Of KeyType)) = Value.ChangeType(Of ValueType)
+        End If
+        Return Dic
+    End Function
 
     <Extension()> Public Function IsNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
         Return Not If(List, {}).Any()
@@ -1257,3 +1270,10 @@ Public Module ClassTools
         Return obj
     End Function
 End Module
+
+
+Public Class FluentSwitch
+
+
+
+End Class

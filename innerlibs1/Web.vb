@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.Specialized
 Imports System.IO
 Imports System.Net
+Imports System.Net.Sockets
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
@@ -14,6 +15,18 @@ Imports System.Xml
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Web
+
+    Public Iterator Function GetLocalIP() As IEnumerable(Of String)
+
+        Dim host = Dns.GetHostEntry(Dns.GetHostName())
+        For Each ip In host.AddressList
+            If (ip.AddressFamily = AddressFamily.InterNetwork) Then
+                Yield ip.ToString()
+            End If
+        Next
+
+
+    End Function
 
 
     <Extension> Public Function ParseQueryString(ByVal URL As Uri) As NameValueCollection

@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alphabet.vb" />
+    <Compile Include="ASCIIArt.vb" />
     <Compile Include="Base64.vb" />
     <Compile Include="Brasil.vb" />
     <Compile Include="Calendars.vb" />

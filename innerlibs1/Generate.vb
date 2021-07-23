@@ -1,7 +1,7 @@
 ﻿Imports System.Drawing
 Imports System.Net
 Imports System.Runtime.CompilerServices
-
+Imports InnerLibs.LINQ
 Imports InnerLibs.Locations
 
 ''' <summary>
@@ -16,7 +16,7 @@ Public Module Generate
     ''' <param name="Length">Tamanho da palavra</param>
     ''' <returns>Uma string contendo uma palavra aleatória</returns>
     Public Function RandomWord(Optional Length As Integer = 0) As String
-        Length = If(Length < 1, RandomNumber(4, 15), Length)
+        Length = If(Length < 1, RandomNumber(2, 15), Length)
         Dim rnd As New Random()
         Dim consonants As String() = {"b", "c", "d", "f", "g", "h",
         "j", "k", "l", "m", "n", "p",
@@ -56,6 +56,14 @@ Public Module Generate
         Return word
     End Function
 
+    Public Function RandomString()
+        For index = 1 To 10
+
+        Next
+
+        AlphaChars.OrderByRandom()
+    End Function
+
     ''' <summary>
     ''' Gera uma palavra aleatória a partir de uma outra palavra
     ''' </summary>
@@ -69,34 +77,8 @@ Public Module Generate
         Return letters(rnd.[Next](0, letters.Length - 1))
     End Function
 
-    ''' <summary>
-    ''' Gera uma Imagem com uma fonte específica do site Dafont (Muito Impreciso, API em fase experimental)
-    ''' </summary>
-    ''' <param name="Text">Um texto qualquer a ser usado como exemplo</param>
-    ''' <param name="FontName">Nome da fonte (verifique no site)</param>
-    ''' <param name="FontSize">Tamanho da fonte</param>
-    ''' <returns>Uma (<see cref="System.Drawing.Image"/>)</returns>
-    <Obsolete("Muito Impreciso, API em fase experimental")>
-    Public Function DaFontLogo(Text As String, FontName As String, Optional FontSize As String = "") As Image
-        Dim Client As New WebClient
-        Dim URL As String = "http://img.dafont.com/preview.php?text=" & Text & "&ttf=" & FontName.Replace(" ", "_") & "0&ext=1&size=68&psize=" & FontSize & "&y=70"
-        Return Image.FromStream(Client.OpenRead(URL))
 
-    End Function
 
-    ''' <summary>
-    ''' Tira uma screenshot de um site usando o servico ATS
-    ''' </summary>
-    ''' <param name="Url">Url do site</param>
-    ''' <returns>Um objeto Image() contendo o screenshot do site</returns>
-    <Extension>
-    Function ScreenshotFromWebsite(Url As String, AccessKey As String, Optional FullPage As Boolean = True, Optional Delay As Integer = 1, Optional Viewport As String = "1440x900", Optional ImageWidth As Integer = 500) As Image
-        If Url.IsURL Then
-            Return GetImage("http://api.screenshotlayer.com/api/capture?access_key=" & AccessKey & "&delay=" & Delay & "&url=" & Url & "&fullpage=" & If(FullPage, 1, 0) & "&viewport=" & Viewport & "&width=" & ImageWidth)
-        Else
-            Throw New Exception("Url inválida")
-        End If
-    End Function
 
     ''' <summary>
     ''' Gera uma URL do google MAPs baseado na localização
@@ -108,7 +90,7 @@ Public Module Generate
     <Extension()>
     Public Function ToGoogleMapsURL(local As AddressInfo, Optional LatLong As Boolean = False) As Uri
         Dim s As String
-        If LatLong = True Then
+        If LatLong = True AndAlso local.Latitude.HasValue AndAlso local.Longitude.HasValue Then
             s = Uri.EscapeUriString(AdjustWhiteSpaces(local.LatitudeLongitude))
         Else
             s = Uri.EscapeUriString(AdjustWhiteSpaces(local.FullAddress))
@@ -155,7 +137,7 @@ Public Module Generate
     ''' <param name="Min">Numero minimo, Padrão 0 </param>
     ''' <param name="Max">Numero Maximo, Padrão 999999</param>
     ''' <returns>Um numero Inteiro (Integer ou Int)</returns>
-    Function RandomNumber(Optional Min As Long = 0, Optional Max As Long = 999999) As Integer
+    Function RandomNumber(Optional Min As Integer = 0, Optional Max As Integer = 999999) As Integer
         Return init_rnd.Next(Min, Max + 1)
     End Function
 
@@ -194,35 +176,18 @@ Public Module Generate
     Private init_rnd As Random = New Random()
 
     ''' <summary>
-    ''' Gera um InnerIpsum (InnerIpsum é uma modificação do classico Lorem Ipsum)
+    ''' Gera um texto aleatorio
     ''' </summary>
-    ''' <param name="ParagraphNumber">Quantidade de parágrafos do texto</param>
-    ''' <returns>Uma String contendo diversos paragrafos com texto aleatório</returns>
-
-    Function InnerIpsum(Optional ParagraphNumber As Integer = 5) As String
-        Dim paragraphs(0 To 4) As String
-        Dim loremipusm As String = ""
-        paragraphs(0) = "Null Set aliquam est. display none efficitur Inner vitae augue imperdiet scelerisque. Vivamus fermentum arcu pulvinar fermentum laoreet. Phasellus id ante _POST. Praesent at blandit null, at ornare nisl. Quisque cursus non mi vitae facilisis. Maecenas command sem _POST, send tincidunt felis cursus Set. Return at fakepath enim, malesuada consequat justo. Mauris blandit egestas Inner, Get amet interdum eros ullamcorper Set. Fusce mollis, risus id rutrum efficitur, magna risus rhoncus release, id #000000 lacus magna AJAX sapien. null facilisi."
-        paragraphs(1) = "Python sagittis orci est, quis egestas cakePHP request quis. Pellentesque sodales suscipit consequat. Fusce semper nunc quis leo porttitor, eu command est imperdiet. Integer euismod fringilla aliquet. Etiam nisl risus, tincidunt quis fakepath vel, venenatis ut tellus. Vivamus hendrerit gravida imperdiet. display none get amet hendrerit ante. Donuts tincidunt turpis get amet split viverra sodales."
-        paragraphs(2) = "Praesent vitae vehicula arcu. Interdum et malesuada fames ac ante ipsum primis in fakepath. null get amet ante get amet nisi drag n drop gravida in quis null. Curabitur arcu code, lacinia In nisi congue, getElementById condimentum lectus. In eu sapien vitae nunc imperdiet blandit vel get amet quam. display: none vel drag n drop massa, eu scelerisque est. Quisque vel purus sem."
-        paragraphs(3) = "Inner ipsum code GET amet, getElementById adipiscing split. Mauris finibus, felis id command dapibus, nisl ex #000000 nisl, id euismod mauris magna vel purus. send luctus augue euismod sapien rhoncus, et mattis lectus malesuada. Dispose fermentum turpis a getElementById accumsan. Aliquam send orci nibh. In code sem, pulvinar ultrices drop id, ultrices eu release. Ut tempor metus urna. Return Get amet imperdiet turpis. Integer command ac ipsum send tempor. Aenean AJAX mollis null, volutpat euismod eros. _POSTs vitae ante Set _POST luctus viverra condimentum id _POST. Cras vehicula congue ante, fakepath viverra quam rutrum Set. Return non finibus ipsum, send ultrices lectus. Donuts tempus convallis purus ut ornare. Nam vel split sem."
-        paragraphs(4) = "Interdum et malesuada fames ac ante ipsum primis In fakepath. send efficitur, leo Get amet accumsan drag n drop, urna Inner pulvinar erat, AJAX dapibus arcu mauris vel felis. Nam in ante get amet vsplit drag n drop tincidunt. display: none at arcu at quam gravida fringilla. Proin et vehicula lacus. nullm leo turpis, auctor ac volutpat euismod, posuere quis felis. nullm dapibus diam vel #000000 facilisis. Curabitur at purus in ante aliquet porta."
-
-        For i = 1 To ParagraphNumber
-            loremipusm &= paragraphs(RandomNumber(0, paragraphs.Length - 1)) & vbNewLine & vbNewLine
-        Next
-        Return loremipusm
+    ''' <param name="ParagraphCount">Quantidade de paragrafos</param>
+    ''' <param name="SentenceCount">QUantidade de sentecas por paragrafo</param>
+    ''' <param name="MinWordCount"></param>
+    ''' <param name="MaxWordCount"></param>
+    ''' <returns></returns>
+    Function RandomIpsum(Optional ParagraphCount As Integer = 5, Optional SentenceCount As Integer = 3, Optional MinWordCount As Integer = 10, Optional MaxWordCount As Integer = 50, Optional IdentSize As Integer = 0, Optional BreakLinesBetweenParagraph As Integer = 0) As StructuredText
+        Return New StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoin(Function(pp) Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoin(Function(s) Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoin(Function(p) RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) & RandomBoolean(30).AsIf(","), " "), EndOfSentencePunctuation.FirstRandom() & " "), Environment.NewLine)) With {.Ident = IdentSize, .BreakLinesBetweenParagraph = BreakLinesBetweenParagraph}
     End Function
 
-    ''' <summary>
-    ''' Gera um InnerIpsum (InnerIpsum é uma modificação do classico Lorem Ipsum)
-    ''' </summary>
-    ''' <param name="ParagraphNumber">Quantidade de parágrafos do texto</param>
-    ''' <returns>Uma String contendo diversos paragrafos com texto aleatório</returns>
-    '''
-    Function LoremIpsum(Optional ParagraphNumber As Integer = 5) As String
-        Return InnerIpsum(ParagraphNumber)
-    End Function
+
 
     ''' <summary>
     ''' Converte uma String para um QR Code usando uma API (Nescessita de Internet)

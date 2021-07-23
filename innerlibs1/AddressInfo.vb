@@ -655,12 +655,12 @@ Namespace Locations
                 l.Country = "Brasil"
                 l.CountryCode = "BR"
             Else
-                If State.Length = 2 Then
+                If State?.Length = 2 Then
                     l.StateCode = State
                 Else
                     l.State = State
                 End If
-                If Country.Length = 2 Then
+                If Country?.Length = 2 Then
                     l.CountryCode = Country
                 Else
                     l.Country = Country
@@ -781,20 +781,7 @@ Namespace Locations
 
         Private Info As New Dictionary(Of String, String)
 
-        ''' <summary>
-        ''' Adciona ou substitui um valor a este <see cref="AddressInfo"/>
-        ''' </summary>
-        ''' <typeparam name="KeyType">Tipo da Key, será convertido para string</typeparam>
-        ''' <typeparam name="ValueType">Tipo do valor, Será convertido para string</typeparam>
-        ''' <param name="Key">Valor da key</param>
-        ''' <param name="Value">Valor do Value</param>
-        ''' <returns>o mesmo objeto do tipo <see cref="AddressInfo"/> que chamou este método</returns>
-        Public Function [Set](Of KeyType, ValueType)(Key As KeyType, Value As ValueType) As AddressInfo
-            If Key IsNot Nothing AndAlso Key.ToString().IsNotBlank() Then
-                Me(Key.ToString()) = Value?.ToString()
-            End If
-            Return Me
-        End Function
+
 
         ''' <summary>
         ''' Retona uma informação deste endereço
