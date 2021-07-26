@@ -98,14 +98,22 @@ Namespace Console
             Return ConsoleWriteLine(Text, System.Console.ForegroundColor, Lines)
         End Function
 
-
+        ''' <summary>
+        ''' Escreve o texto de uma exception no console
+        ''' </summary>
+        ''' <param name="Exception">Texto</param>
+        ''' <param name="Message">Mensagem Adicional de erro</param>
+        ''' <param name="Color">Cor</param>
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Message As String, Optional Color As ConsoleColor = ConsoleColor.Red, Optional Lines As Integer = 1) As T
+            Dim ex As New Exception(Message.IfBlank("Error"), Exception)
+            Return ex.ConsoleWriteError(Color, Lines)
+        End Function
 
         ''' <summary>
         ''' Escreve o texto de uma exception no console
         ''' </summary>
         ''' <param name="Exception">Texto</param>
         ''' <param name="Color">Cor</param>
-
         <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Optional Color As ConsoleColor = ConsoleColor.Red, Optional Lines As Integer = 1) As T
             Lines = Lines.SetMinValue(1)
             ConsoleWrite(Exception.ToFullExceptionString, Color, Lines)

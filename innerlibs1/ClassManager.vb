@@ -13,6 +13,30 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    ''' <summary>
+    ''' Substitui todas as propriedades nulas de uma classe pelos seus valores Default
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ReplaceNullProperties(Of T)(Obj As T) As T
+        If Obj IsNot Nothing Then
+            For Each item In Obj.GetProperties()
+                If item.GetValue(Obj) Is Nothing Then
+                    Select Case item.PropertyType
+                        Case GetType(String)
+                            item.SetValue(Obj, "")
+                        Case Else
+                            Dim o = Activator.CreateInstance(If(Nullable.GetUnderlyingType(item.PropertyType), item.PropertyType))
+                            item.SetValue(Obj, o)
+                    End Select
+                End If
+            Next
+        End If
+        Return Obj
+    End Function
+
+
 
 
     ''' <summary>
