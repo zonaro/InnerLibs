@@ -4032,7 +4032,7 @@ Public Class ConnectionStringParser
     ''' </summary>
     ''' <returns></returns>
     Public Overrides Function ToString() As String
-        Return Me.SelectJoin(Function(x) $"{x.Key}={x.Value}", ";")
+        Return Me.SelectJoin(Function(x) $"{x.Key.ToTitle()}={x.Value}", ";")
     End Function
 
     Public Shared Widening Operator CType(ByVal cs As ConnectionStringParser) As String
