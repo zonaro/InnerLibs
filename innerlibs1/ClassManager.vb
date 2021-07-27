@@ -36,9 +36,6 @@ Public Module ClassTools
         Return Obj
     End Function
 
-
-
-
     ''' <summary>
     ''' Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/>
     ''' </summary>
@@ -1281,23 +1278,15 @@ Public Module ClassTools
         Return MyObject
     End Function
 
-
     <Extension()>
     Public Function SetPropertyValueFromCollection(Of Type)(MyObject As Type, PropertyName As String, Collection As CollectionBase) As Type
         GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault()?.SetValue(MyObject, Collection(PropertyName))
         Return MyObject
     End Function
 
-
     <Extension()> Public Function SetPropertyValue(Of Type As Class, Prop)(obj As Type, Selector As Expression(Of Func(Of Type, Prop)), Value As Prop) As Type
         obj.GetPropertyInfo(Selector).SetValue(obj, Value)
         Return obj
     End Function
+
 End Module
-
-
-Public Class FluentSwitch
-
-
-
-End Class

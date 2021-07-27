@@ -7,6 +7,9 @@ Namespace Console
     ''' </summary>
     Public Module ConsoleExtensions
 
+
+
+
         ''' <summary>
         ''' Escreve no console colorindo palavras especificas
         ''' </summary>
