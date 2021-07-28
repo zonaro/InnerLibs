@@ -371,6 +371,9 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
+
+
+
     ''' <summary>
     ''' Mapeia os objetos de um datareader para uma classe
     ''' </summary>
@@ -378,17 +381,18 @@ Public Module ClassTools
     ''' <param name="Reader"></param>
     ''' <returns></returns>
     <Extension()> Public Function Map(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As List(Of T)
-        Dim l As New List(Of T)
+        Dim Type = GetType(T)
+        Dim l = New List(Of T)
         Params = If(Params, {})
         While Reader IsNot Nothing AndAlso Reader.Read
-            Dim d As T
+            Dim d
             If Params.Any Then
-                d = Activator.CreateInstance(GetType(T), Params)
+                d = Activator.CreateInstance(Type, Params)
             Else
-                d = Activator.CreateInstance(Of T)()
+                d = Activator.CreateInstance(Type)
             End If
 
-            If GetType(T) = GetType(Dictionary(Of String, Object)) Then
+            If Type = GetType(Dictionary(Of String, Object)) Then
                 For i As Integer = 0 To Reader.FieldCount - 1
                     CType(CType(d, Object), Dictionary(Of String, Object)).Set(Reader.GetName(i), Reader(Reader.GetName(i)))
                 Next
