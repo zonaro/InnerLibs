@@ -55,8 +55,6 @@ Public Module Text
         Return queryParameters
     End Function
 
-
-
     ''' <summary>
     ''' Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
     ''' </summary>
@@ -1573,9 +1571,6 @@ Public Module Text
         Return PluralText
     End Function
 
-
-
-
     ''' <summary>
     ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     ''' </summary>
@@ -1595,6 +1590,7 @@ Public Module Text
     <Extension()> Public Function QuantifyText(Quantity As Integer, PluralText As String) As String
         Return QuantifyText(PluralText, Quantity)
     End Function
+
     ''' <summary>
     ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     ''' </summary>
@@ -1634,7 +1630,6 @@ Public Module Text
     <Extension()> Public Function QuantifyText(Quantity As Double, PluralText As String) As String
         Return QuantifyText(PluralText, Quantity)
     End Function
-
 
     ''' <summary>
     ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
@@ -4037,6 +4032,10 @@ Public Class ConnectionStringParser
 
     Public Shared Widening Operator CType(ByVal cs As ConnectionStringParser) As String
         Return cs.ToString()
+    End Operator
+
+    Public Shared Widening Operator CType(s As String) As ConnectionStringParser
+        Return New ConnectionStringParser(s)
     End Operator
 
 End Class
