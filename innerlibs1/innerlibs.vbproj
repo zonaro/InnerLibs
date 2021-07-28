@@ -79,6 +79,7 @@
     <Compile Include="Alphabet.vb" />
     <Compile Include="ASCIIArt.vb" />
     <Compile Include="Base64.vb" />
+    <Compile Include="BeautyStrings.vb" />
     <Compile Include="Brasil.vb" />
     <Compile Include="Calendars.vb" />
     <Compile Include="ClassManager.vb" />

@@ -392,6 +392,16 @@ Namespace Locations
         ''' </summary>
         ''' <param name="PostalCode"></param>
         ''' <param name="Number">Numero da casa</param>
+        Public Shared Function FromViaCEP(PostalCode As Long, Optional Number As String = Nothing, Optional Complement As String = Nothing) As AddressInfo
+            Return FromViaCEP(PostalCode.ToString.PadLeft(8, "0"c), Number, Complement)
+        End Function
+
+
+        ''' <summary>
+        ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
+        ''' </summary>
+        ''' <param name="PostalCode"></param>
+        ''' <param name="Number">Numero da casa</param>
         Public Shared Function FromViaCEP(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing) As AddressInfo
             Dim d = New AddressInfo()
             d("original_string") = PostalCode

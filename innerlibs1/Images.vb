@@ -11,6 +11,7 @@ Imports System.Runtime.CompilerServices
 '''
 Public Module Images
 
+
     ''' <summary>
     ''' Inverte as cores de uma imagem
     ''' </summary>
@@ -55,6 +56,17 @@ Public Module Images
     ''' <param name="Background">Cor do fundo</param>
     ''' <returns></returns>
     <Extension()> Public Function CropToCircle(Img As Image, Optional Background As Color? = Nothing) As Image
+        Return Img.CropToSquare()?.CropToEllipsis()
+    End Function
+
+
+    ''' <summary>
+    ''' Corta a imagem em uma elipse
+    ''' </summary>
+    ''' <param name="Img">Imagem</param>
+    ''' <param name="Background">Cor do fundo</param>
+    ''' <returns></returns>
+    <Extension()> Public Function CropToEllipsis(Img As Image, Optional Background As Color? = Nothing) As Image
         Dim dstImage As Bitmap = New Bitmap(Img.Width, Img.Height)
         Dim g As Graphics = Graphics.FromImage(dstImage)
         Background = If(Background, Color.Transparent)
@@ -418,7 +430,11 @@ Public Module Images
     ''' <returns></returns>
     <Extension> Public Function ToSize(ByVal Text As String) As Size
         Dim s As New Size
-        Text = Text.ReplaceMany("", "px", " ", ";", ":").ToLower.Trim
+        Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLower.Trim
+        Text = Text.Replace("largura", "width")
+        Text = Text.Replace("altura", "height")
+        Text = Text.Replace("l ", "w ")
+        Text = Text.Replace("a ", "h ")
         Try
             Select Case True
                 Case Text.IsNumber
@@ -479,7 +495,17 @@ Public Module Images
                     s.Width = Text.Split({","}, StringSplitOptions.RemoveEmptyEntries)(0)
                     s.Height = Text.Split({","}, StringSplitOptions.RemoveEmptyEntries)(1)
                     Exit Select
+                Case Text Like "*-*"
+                    s.Width = Text.Split({"-"}, StringSplitOptions.RemoveEmptyEntries)(0)
+                    s.Height = Text.Split({"-"}, StringSplitOptions.RemoveEmptyEntries)(1)
+                    Exit Select
+                Case Text Like "*_*"
+                    s.Width = Text.Split({"_"}, StringSplitOptions.RemoveEmptyEntries)(0)
+                    s.Height = Text.Split({"_"}, StringSplitOptions.RemoveEmptyEntries)(1)
+                    Exit Select
                 Case Else
+                    s.Width = Text.Split({" "}, StringSplitOptions.RemoveEmptyEntries)(0)
+                    s.Height = Text.Split({" "}, StringSplitOptions.RemoveEmptyEntries)(1)
             End Select
         Catch ex As Exception
 

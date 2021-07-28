@@ -128,6 +128,27 @@ Namespace LINQ
             Return List.Where(IsBetween([Property], Range.StartDate, Range.EndDate))
         End Function
 
+        <Extension()> Public Function FilterDateRange(Of T, V)(List As IQueryable(Of T), ByVal MinProperty As Expression(Of Func(Of T, V)), [MaxProperty] As Expression(Of Func(Of T, V)), Values As IEnumerable(Of V)) As IQueryable(Of T)
+            Return List.Where(IsBetween(MinProperty, MaxProperty, Values))
+        End Function
+
+        <Extension()> Public Function FilterDateRange(Of T, V)(List As IQueryable(Of T), ByVal MinProperty As Expression(Of Func(Of T, V)), [MaxProperty] As Expression(Of Func(Of T, V)), ParamArray Values As V()) As IQueryable(Of T)
+            Return List.Where(IsBetween(MinProperty, MaxProperty, Values))
+        End Function
+
+        <Extension()> Public Function IsBetween(Of T, V)(ByVal MinProperty As Expression(Of Func(Of T, V)), [MaxProperty] As Expression(Of Func(Of T, V)), Values As IEnumerable(Of V)) As Expression(Of Func(Of T, Boolean))
+            Dim exp = LINQExtensions.CreateExpression(Of T)(False)
+            For Each item In If(Values, {})
+                exp = exp.Or(WhereExpression(MinProperty, "<=", {item}).And(WhereExpression(MaxProperty, ">=", {item})))
+            Next
+            Return exp
+        End Function
+
+        <Extension()> Public Function IsBetween(Of T, V)(ByVal MinProperty As Expression(Of Func(Of T, V)), [MaxProperty] As Expression(Of Func(Of T, V)), ParamArray Values As V()) As Expression(Of Func(Of T, Boolean))
+            Return IsBetween(MinProperty, MaxProperty, Values.AsEnumerable())
+        End Function
+
+
         <Extension()>
         Public Function IsBetween(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V)), MinValue As V, MaxValue As V) As Expression(Of Func(Of T, Boolean))
             Return WhereExpression([Property], "between", {MinValue, MaxValue})
@@ -144,7 +165,6 @@ Namespace LINQ
         End Function
 
         <Extension> Public Function CreatePropertyExpression(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V))) As MemberExpression
-
             Return Expression.[Property](If([Property].Parameters.FirstOrDefault(), GetType(T).GenerateParameterExpression()), GetPropertyInfo([Property]))
         End Function
 
@@ -781,9 +801,13 @@ Namespace LINQ
 
         Private equalMethod As MethodInfo = GetType(String).GetMethod("Equals", {GetType(String)})
 
-        ''' <summary> Concatena uma expressão com outra usando o operador AND (&&) </summary>
-        ''' <typeparam name="T"></typeparam><param name="expr1"></param><param
-        ''' name="expr2"></param> <returns></returns>
+        ''' <summary>
+        ''' Concatena uma expressão com outra usando o operador And (&&)
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="expr1"></param>
+        ''' <param name="expr2"></param>
+        ''' <returns></returns>
         <Extension()>
         Function [And](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
             Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
