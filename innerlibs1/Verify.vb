@@ -312,6 +312,7 @@ Public Module Verify
     ''' </summary>
     ''' <param name="DomainOrEmail">Uma String contendo a URL ou email</param>
     ''' <returns>TRUE se o dominio existir, FALSE se o dominio não existir</returns>
+    ''' <remarks>Retornara sempre false quando nao houver conexao com a internet</remarks>
 
     <Extension()>
     Public Function IsValidDomain(DomainOrEmail As String) As Boolean
@@ -380,7 +381,7 @@ Public Module Verify
     ''' <returns></returns>
     <Extension()>
     Public Function IfNullOrEmpty(Of T)(ByVal Value As Object(), ParamArray ValuesIfBlank As T()) As T()
-        If Value Is Nothing OrElse Value.Count = 0 Then
+        If Value Is Nothing OrElse Not Value.Any Then
             Return If(ValuesIfBlank, {})
         Else
             Return Value.ChangeArrayType(Of T)
@@ -526,9 +527,9 @@ Public Module Verify
         End Try
     End Function
 
-    Public Function IsArray(Obj As Object) As Boolean
+    Public Function IsArray(Of T)(Obj As T) As Boolean
         Try
-            Dim ValueType = Obj.GetType()
+            Dim ValueType = Obj.GetNullableTypeOf()
             Return ValueType.IsArray 'AndAlso GetType(T).IsAssignableFrom(ValueType.GetElementType())
         Catch ex As Exception
             Return False

@@ -6,7 +6,6 @@ Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Text.RegularExpressions
-
 Imports System.Xml
 Imports System.Xml.Serialization
 Imports InnerLibs.LINQ
@@ -19,7 +18,7 @@ Public Module ClassTools
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    <Extension> Public Function ReplaceNullProperties(Of T)(Obj As T) As T
+    <Extension> Public Function ReplaceNullProperties(Of T As Class)(Obj As T) As T
         If Obj IsNot Nothing Then
             For Each item In Obj.GetProperties()
                 If item.GetValue(Obj) Is Nothing Then
@@ -43,7 +42,7 @@ Public Module ClassTools
     ''' <typeparam name="ValueType">Tipo do valor</typeparam>
     ''' <param name="Key">Valor da key</param>
     ''' <param name="Value">Valor do Value</param>
-    ''' <returns>o mesmo objeto do tipo <see cref="AddressInfo"/> que chamou este método</returns>
+    ''' <returns>o mesmo objeto do tipo <see cref="Dictionary"/> que chamou este método</returns>
     <Extension> Public Function [Set](Of KeyType, ValueType, KT, VT)(Dic As IDictionary(Of KeyType, ValueType), Key As KT, Value As VT) As IDictionary(Of KeyType, ValueType)
         If Key IsNot Nothing Then
             Dic(Key.ChangeType(Of KeyType)) = Value.ChangeType(Of ValueType)
@@ -79,33 +78,17 @@ Public Module ClassTools
         Return obj
     End Function
 
-    <Extension>
-    Public Function IsPrimitiveType(T As Type) As Boolean
-        Return T.IsIn(
-           GetType(String),
-           GetType(Char),
-           GetType(Byte),
-           GetType(SByte),
-           GetType(UShort),
-           GetType(Short),
-           GetType(Integer),
-           GetType(UInt16),
-           GetType(UInt64),
-           GetType(UInt32),
-           GetType(ULong),
-           GetType(Long),
-           GetType(Double),
-           GetType(Decimal),
-           GetType(DateTime))
-    End Function
+    Public ReadOnly Property PrimitiveTypes As Type()
+        Get
+            Return {GetType(String), GetType(Char), GetType(Byte), GetType(SByte), GetType(DateTime)}.Union(PrimitiveNumericTypes).ToArray()
+        End Get
+    End Property
 
-    <Extension>
-    Public Function IsPrimitiveType(Of T)(Obj As T) As Boolean
-        If Obj.GetType() Is GetType(Type) Then
-            Return Obj.ChangeType(Of Type).IsPrimitiveType()
-        End If
-        Return Obj.GetType().IsPrimitiveType()
-    End Function
+    Public ReadOnly Property PrimitiveNumericTypes As Type()
+        Get
+            Return {GetType(Single), GetType(UShort), GetType(Short), GetType(Integer), GetType(UInt16), GetType(UInt64), GetType(UInt32), GetType(ULong), GetType(Long), GetType(Double), GetType(Decimal)}
+        End Get
+    End Property
 
     <Extension> Public Function RemoveLast(Of T)(List As List(Of T), Optional Count As Integer = 1) As List(Of T)
         For index = 1 To Count
@@ -116,8 +99,7 @@ Public Module ClassTools
         Return List
     End Function
 
-    <Extension()>
-    Public Function IsEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
+    <Extension()> Public Function IsEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
         Return Not Value1.IsGreaterThan(Value2) AndAlso Not Value1.IsLessThan(Value2)
     End Function
 
@@ -180,7 +162,7 @@ Public Module ClassTools
         End If
     End Sub
 
-    <Extension()> Public Function CreateXML(Of Type)(obj As Type) As XmlDocument
+    <Extension()> Public Function CreateXML(Of Type As Class)(obj As Type) As XmlDocument
         Dim xs As XmlSerializer = New XmlSerializer(obj.GetType())
         Dim sw As System.IO.StringWriter = New System.IO.StringWriter()
         xs.Serialize(sw, obj)
@@ -395,12 +377,12 @@ Public Module ClassTools
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Reader"></param>
     ''' <returns></returns>
-    <Extension()> Public Function Map(Of T)(Reader As DbDataReader, ParamArray Params As Object()) As List(Of T)
+    <Extension()> Public Function Map(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As List(Of T)
         Dim l As New List(Of T)
         Params = If(Params, {})
-        While Reader.Read
+        While Reader IsNot Nothing AndAlso Reader.Read
             Dim d As T
-            If Params.Count > 0 Then
+            If Params.Any Then
                 d = Activator.CreateInstance(GetType(T), Params)
             Else
                 d = Activator.CreateInstance(Of T)()
@@ -412,7 +394,7 @@ Public Module ClassTools
                 Next
             Else
                 For i As Integer = 0 To Reader.FieldCount - 1
-                    If d.HasProperty(Reader.GetName(i)) Then
+                    If d.HasProperty(Reader.GetName(i)) AndAlso d.GetProperty(Reader.GetName(i)).CanWrite Then
                         d.SetPropertyValue(Reader.GetName(i), Reader(Reader.GetName(i)))
                     End If
                 Next
@@ -420,6 +402,18 @@ Public Module ClassTools
             l.Add(d)
         End While
         Return l
+    End Function
+
+    <Extension()> Public Function MapMany(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As IEnumerable(Of IEnumerable(Of T))
+        Dim l As New List(Of IEnumerable(Of T))
+        Do
+            l.Add(Reader.Map(Of T)(Params))
+        Loop While Reader.NextResult()
+        Return l
+    End Function
+
+    <Extension()> Public Function MapFirst(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As T
+        Return Reader.Map(Of T).FirstOrDefault()
     End Function
 
     ''' <summary>
@@ -432,7 +426,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()>
     Public Function AsIf(Of T)(Bool As Boolean, TrueValue As T, Optional FalseValue As T = Nothing) As T
-        Return Bool.Choose(Of T)(TrueValue, FalseValue)
+        Return If(Bool, TrueValue, FalseValue)
     End Function
 
     ''' <summary>
@@ -482,33 +476,22 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Escolhe um valor de acordo com o resultado de uma variavel booliana
-    ''' </summary>
-    ''' <param name="BooleanValue"> Resultado da expressão booliana</param>
-    ''' <param name="ChooseIfTrue"> Valor retornado se a expressão for verdadeira</param>
-    ''' <param name="ChooseIfFalse">Valor retornado se a expressão for falsa</param>
-    ''' <returns></returns>
-    <Extension()> Public Function Choose(Of T)(BooleanValue As Boolean, ChooseIfTrue As T, ChooseIfFalse As T) As T
-        Return If(BooleanValue, ChooseIfTrue, ChooseIfFalse)
-    End Function
-
-    ''' <summary>
     ''' Escolhe um valor de acordo com o resultado de uma expressão
     ''' </summary>
     ''' <param name="Expression">   Resultado da expressão booliana</param>
     ''' <param name="ChooseIfTrue"> Valor retornado se a expressão for verdadeira</param>
     ''' <param name="ChooseIfFalse">Valor retornado se a expressão for falsa</param>
     ''' <returns></returns>
-    <Extension()> Public Function Choose(Of T)(Expression As String, ChooseIfTrue As T, ChooseIfFalse As T) As T
+    <Extension()> Public Function AsIf(Of T)(Expression As String, ChooseIfTrue As T, ChooseIfFalse As T) As T
         Try
             Dim vv = EvaluateExpression(Expression)
             Select Case vv.GetType
                 Case GetType(Integer), GetType(Decimal), GetType(Short), GetType(Long)
-                    Return CType(vv > 0, Boolean).Choose(ChooseIfTrue, ChooseIfFalse)
+                    Return CType(vv > 0, Boolean).AsIf(ChooseIfTrue, ChooseIfFalse)
                 Case GetType(Boolean)
-                    CType(vv, Boolean).Choose(ChooseIfTrue, ChooseIfFalse)
+                    CType(vv, Boolean).AsIf(ChooseIfTrue, ChooseIfFalse)
                 Case GetType(String)
-                    Return (vv.ToString.ToLower = "true" OrElse vv.ToString.ChangeType(Of Integer) > 0).Choose(ChooseIfTrue, ChooseIfFalse)
+                    Return (vv.ToString.ToLower = "true" OrElse vv.ToString.ChangeType(Of Integer) > 0).AsIf(ChooseIfTrue, ChooseIfFalse)
                 Case Else
                     Return ChooseIfFalse
             End Select
@@ -699,9 +682,9 @@ Public Module ClassTools
     ''' <param name="predicate"></param>
     ''' <returns></returns>
     <Extension>
-    Public Function FirstAny(Of T)(source As IEnumerable(Of T), ParamArray predicate() As Func(Of T, Boolean)) As T
+    Public Function FirstAny(Of T)(source As IEnumerable(Of T), ParamArray predicate() As Expression(Of Func(Of T, Boolean))) As T
         For index = 0 To predicate.Length - 1
-            Dim v = source.FirstOrDefault(predicate(index))
+            Dim v = source.FirstOrDefault(predicate(index).Compile())
             If v IsNot Nothing Then
                 Return v
             End If
@@ -717,7 +700,7 @@ Public Module ClassTools
     ''' <param name="predicate"></param>
     ''' <returns></returns>
     <Extension>
-    Public Function FirstAnyOr(Of T)(source As IEnumerable(Of T), Alternate As T, ParamArray predicate() As Func(Of T, Boolean)) As T
+    Public Function FirstAnyOr(Of T)(source As IEnumerable(Of T), Alternate As T, ParamArray predicate() As Expression(Of Func(Of T, Boolean))) As T
         Return If(source.FirstAny(predicate), Alternate)
     End Function
 
@@ -801,9 +784,9 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetProperties(MyObject As Object, BindAttr As BindingFlags) As List(Of PropertyInfo)
+    Public Function GetProperties(Of O As Class)(MyObject As O, BindAttr As BindingFlags) As List(Of PropertyInfo)
         If MyObject IsNot Nothing Then
-            Return MyObject.GetType().GetProperties(BindAttr).ToList()
+            Return MyObject.GetTypeOf().GetProperties(BindAttr).ToList()
         Else
             Return New List(Of PropertyInfo)
         End If
@@ -815,12 +798,8 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetProperties(MyObject As Object) As List(Of PropertyInfo)
-        If MyObject IsNot Nothing Then
-            Return MyObject.GetType().GetProperties().ToList()
-        Else
-            Return New List(Of PropertyInfo)
-        End If
+    Public Function GetProperties(Of O As Class)(MyObject As O) As List(Of PropertyInfo)
+        Return MyObject.GetTypeOf().GetProperties().ToList()
     End Function
 
     ''' <summary>
@@ -829,12 +808,8 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetProperty(MyObject As Object, Name As String) As PropertyInfo
-        If MyObject IsNot Nothing Then
-            Return MyObject.GetType().GetProperties().SingleOrDefault(Function(x) x.Name = Name)
-        Else
-            Return Nothing
-        End If
+    Public Function GetProperty(Of O)(MyObject As O, Name As String) As PropertyInfo
+        Return MyObject.GetTypeOf().GetProperties().SingleOrDefault(Function(x) x.Name = Name)
     End Function
 
     ''' <summary>
@@ -843,9 +818,9 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetPropertyValue(Of T)(MyObject As Object, Name As String) As T
+    Public Function GetPropertyValue(Of T, O)(MyObject As O, Name As String) As T
         If MyObject IsNot Nothing Then
-            Dim prop = MyObject.GetType().GetProperties().SingleOrDefault(Function(x) x.Name.ToLower = Name.ToLower)
+            Dim prop = MyObject.GetProperty(Name)
             If prop IsNot Nothing Then
                 Return CType(prop.GetValue(MyObject), T)
             End If
@@ -1110,28 +1085,33 @@ Public Module ClassTools
         End If
     End Function
 
+    <Extension>
+    Public Function IsPrimitiveType(T As Type) As Boolean
+        Return T.IsIn(PrimitiveTypes)
+    End Function
+
+    <Extension>
+    Public Function IsPrimitiveType(Of T)(Obj As T) As Boolean
+        Return Obj.GetNullableTypeOf.IsPrimitiveType()
+    End Function
+
     ''' <summary>
     '''Verifica se o objeto é do tipo numérico.
     ''' </summary>
     ''' <remarks>
     ''' Boolean is not considered numeric.
     ''' </remarks>
-    <Extension> Public Function IsNumericType(Obj As Type) As Boolean
-        If Obj Is Nothing Then
-            Return False
-        End If
+    <Extension> Public Function IsNumericType(Of T)(Obj As T) As Boolean
+        Return Obj.GetNullableTypeOf.IsIn(PrimitiveNumericTypes)
+    End Function
 
-        Select Case Type.GetTypeCode(Obj)
-            Case TypeCode.[Byte], TypeCode.[Decimal], TypeCode.[Double], TypeCode.Int16, TypeCode.Int32, TypeCode.Int64,
-            TypeCode.[SByte], TypeCode.[Single], TypeCode.UInt16, TypeCode.UInt32, TypeCode.UInt64
-                Return True
-            Case TypeCode.[Object]
-                If Obj.IsGenericType AndAlso Obj.GetGenericTypeDefinition() = GetType(Nullable(Of )) Then
-                    Return IsNumericType(Nullable.GetUnderlyingType(Obj))
-                End If
-                Return False
-        End Select
-        Return False
+    <Extension> Public Function IsNullableType(ByVal t As Type) As Boolean
+        Return t.IsGenericType AndAlso t.GetGenericTypeDefinition() = GetType(Nullable(Of))
+    End Function
+
+    <Extension> Public Function IsNullableType(Of O)(ByVal Obj As O) As Boolean
+        Dim t = Obj.GetTypeOf()
+        Return t.IsGenericType AndAlso t.GetGenericTypeDefinition() = GetType(Nullable(Of))
     End Function
 
     ''' <summary>
@@ -1140,8 +1120,64 @@ Public Module ClassTools
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    <Extension()> Public Function IsType(Of T)(Obj As [Object]) As Boolean
-        Return Obj.GetType() Is GetType(T)
+    <Extension()> Public Function IsTypeOf(Of O, T)(Obj As O) As Boolean
+        Return IsTypeOf(Obj, GetType(T))
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um objeto é de um determinado tipo
+    ''' </summary>
+    ''' <typeparam name="O"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsTypeOf(Of O)(Obj As O, Type As Type) As Boolean
+        Return GetTypeOf(Obj) Is GetTypeOf(Type)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um objeto é de um determinado tipo
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsNullableTypeOf(Of O, T)(Obj As O) As Boolean
+        Return IsNullableTypeOf(Obj, GetType(T))
+    End Function
+
+    ''' <summary>
+    ''' Verifica se um objeto é de um determinado tipo
+    ''' </summary>
+    ''' <typeparam name="O"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsNullableTypeOf(Of O)(Obj As O, Type As Type) As Boolean
+        Return GetNullableTypeOf(Obj) Is GetNullableTypeOf(Type)
+    End Function
+
+    ''' <summary>
+    ''' Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
+    ''' </summary>
+    ''' <typeparam name="O"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns>o tipo do objeto ou o prorio objeto se ele for um <see cref="Type"/></returns>
+    <Extension()> Public Function GetTypeOf(Of O)(Obj As O) As Type
+        If GetType(O) Is GetType(Type) Then
+            Return CType(CType(Obj, Object), Type)
+        Else
+            Return If(GetType(O), GetType(Object))
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Retorna o <see cref="Type"/> equivalente a <typeparamref name="T"/>   ou o <see cref="Type"/> do objeto <see cref="Nullable(Of T)"/>
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <returns>o tipo do objeto ou o tipo do objeto anulavel ou o prorio objeto se ele for um <see cref="Type"/></returns>
+    <Extension()> Public Function GetNullableTypeOf(Of T)(Obj As T) As Type
+        Dim tt = GetTypeOf(Obj)
+        tt = If(Nullable.GetUnderlyingType(tt), tt)
+        Return tt
     End Function
 
     ''' <summary>
@@ -1153,12 +1189,11 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function LastOr(Of T)(source As IEnumerable(Of T), Alternate As T) As T
-        If source IsNot Nothing AndAlso source.Count > 0 Then
+        If source IsNot Nothing AndAlso source.Any Then
             Return source.Last
         Else
             Return Alternate
         End If
-
     End Function
 
     ''' <summary>
@@ -1270,7 +1305,7 @@ Public Module ClassTools
     ''' Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
     ''' </typeparam>
     <Extension()>
-    Public Function SetPropertyValue(Of Type)(MyObject As Type, PropertyName As String, Value As Object) As Type
+    Public Function SetPropertyValue(Of Type As Class)(MyObject As Type, PropertyName As String, Value As Object) As Type
         Dim prop = GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault
         If prop IsNot Nothing Then
             prop.SetValue(MyObject, Convert.ChangeType(Value, prop.PropertyType))
@@ -1279,7 +1314,7 @@ Public Module ClassTools
     End Function
 
     <Extension()>
-    Public Function SetPropertyValueFromCollection(Of Type)(MyObject As Type, PropertyName As String, Collection As CollectionBase) As Type
+    Public Function SetPropertyValueFromCollection(Of Type As Class)(MyObject As Type, PropertyName As String, Collection As CollectionBase) As Type
         GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault()?.SetValue(MyObject, Collection(PropertyName))
         Return MyObject
     End Function

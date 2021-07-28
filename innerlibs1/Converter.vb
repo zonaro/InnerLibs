@@ -181,7 +181,18 @@ Public Module Converter
     ''' <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
     <Extension>
     Public Function ChangeType(Of ToType, FromType)(Value As FromType) As ToType
-        Return ChangeType(Of FromType)(Value, GetType(ToType))
+        Return ChangeType(Value, GetType(ToType).GetNullableTypeOf())
+    End Function
+
+    ''' <summary>
+    ''' Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="ToType">Tipo</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
+    <Extension>
+    Public Function ChangeType(Of ToType)(Value As Object) As ToType
+        Return ChangeType(Value, GetType(ToType).GetNullableTypeOf())
     End Function
 
     ''' <summary>
@@ -193,19 +204,21 @@ Public Module Converter
     <Extension>
     Public Function ChangeType(Of FromType)(Value As FromType, ToType As Type)
         Try
-            Dim tipo As Type = If(Nullable.GetUnderlyingType(ToType), ToType)
+            Dim tipo As Type = GetNullableTypeOf(ToType)
 
             If Value Is Nothing Then
                 Return Nothing
             End If
 
-            Dim Converter = TypeDescriptor.GetConverter(tipo)
-
-            If Converter.CanConvertFrom(GetType(FromType)) Then
-                Return Converter.ConvertTo(Value, tipo)
+            If tipo.IsPrimitiveType() Then
+                Dim Converter = TypeDescriptor.GetConverter(tipo)
+                If Converter.CanConvertFrom(GetType(FromType)) Then
+                    Return Converter.ConvertTo(Value, tipo)
+                End If
+                Return Convert.ChangeType(Value, tipo)
             End If
 
-            Return Convert.ChangeType(Value, tipo)
+            Return CTypeDynamic(Value, ToType)
         Catch ex As Exception
             Debug.WriteLine(ex)
             Return Nothing
@@ -220,14 +233,7 @@ Public Module Converter
     ''' <returns>Array convertido em novo tipo</returns>
     <Extension>
     Public Function ChangeArrayType(Of ToType, FromType)(Value As FromType()) As ToType()
-        Dim d As New List(Of ToType)
-        If Value.Count > 0 Then
-            For Each el As FromType In Value
-                d.Add(el.ChangeType(Of ToType))
-            Next
-            Return d.ToArray
-        End If
-        Return {}
+        Return Value.ChangeIEnumerableType(Of ToType).ToArray()
     End Function
 
     ''' <summary>
@@ -238,14 +244,7 @@ Public Module Converter
     ''' <returns>Array convertido em novo tipo</returns>
     <Extension>
     Public Function ChangeIEnumerableType(Of ToType, FromType)(Value As IEnumerable(Of FromType)) As IEnumerable(Of ToType)
-        Dim d As New List(Of ToType)
-        If Value.Count > 0 Then
-            For Each el As FromType In Value
-                d.Add(el.ChangeType(Of ToType))
-            Next
-            Return d.AsEnumerable
-        End If
-        Return {}
+        Return If(Value, {}).Select(Function(el) el.ChangeType(Of ToType))
     End Function
 
     ''' <summary>
@@ -359,7 +358,7 @@ Public Module Converter
     <Extension>
     Public Function ToDictionary([NameValueCollection] As NameValueCollection, ParamArray Keys As String()) As Dictionary(Of String, Object)
         Dim result = New Dictionary(Of String, Object)()
-        If If(Keys, {}).LongCount = 0 Then Keys = NameValueCollection.AllKeys
+        If Not If(Keys, {}).Any Then Keys = NameValueCollection.AllKeys
         For Each key As String In [NameValueCollection].Keys
             If key.IsNotBlank AndAlso key.IsLikeAny(Keys) Then
                 Dim values As String() = [NameValueCollection].GetValues(key)

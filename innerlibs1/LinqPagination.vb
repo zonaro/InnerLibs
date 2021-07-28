@@ -246,9 +246,7 @@ Namespace LINQ
             Return Expression.NotEqual(MemberExpression, ValueExpression)
         End Function
 
-        <Extension> Public Function IsNullableType(ByVal t As Type) As Boolean
-            Return t.IsGenericType AndAlso t.GetGenericTypeDefinition() = GetType(Nullable(Of))
-        End Function
+
 
         Public Function CreateConstant(Member As Expression, Value As IComparable) As ConstantExpression
             Return CreateConstant(Member.Type, Value)
@@ -339,7 +337,7 @@ Namespace LINQ
                     Next
                 Case ">=", "greaterthanorequal", "greaterorequal", "greaterequal", "greatequal"
                     For Each item In PropertyValues
-                        If item.GetType() IsNot GetType(DateTime) AndAlso item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
+                        If item.GetNullableTypeOf() IsNot GetType(DateTime) AndAlso item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
                             item = item.ToString().Length
                         End If
                         Dim exp = Nothing
@@ -365,7 +363,7 @@ Namespace LINQ
                     Next
                 Case "<=", "lessthanorequal", "lessorequal", "lessequal"
                     For Each item In PropertyValues
-                        If item.GetType() IsNot GetType(DateTime) AndAlso item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
+                        If item.GetNullableTypeOf() IsNot GetType(DateTime) AndAlso item.IsNotNumber() AndAlso item.ToString().IsNotBlank() Then
                             item = item.ToString().Length
                         End If
                         Dim exp = Nothing

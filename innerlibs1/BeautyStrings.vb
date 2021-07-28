@@ -10,7 +10,7 @@ Public Module BeautyStrings
         Return $"/* {Text} */"
     End Function
 
-    <Extension> Public Function PropertiesInFrame(Of T)(obj As T) As String
+    <Extension> Public Function PropertiesInFrame(Of T As Class)(obj As T) As String
         Dim l As New List(Of String)
         If obj IsNot Nothing Then
 

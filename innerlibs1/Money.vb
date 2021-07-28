@@ -2,14 +2,12 @@
 
 Imports InnerLibs
 
-
-
 ''' <summary>
-''' Estrutura que representa valores em dinheiro de uma determinada <see cref="CultureInfo"/>. Utiliza uma API (http://fixer.io) para conversão de moedas.
+''' Estrutura que representa valores em dinheiro de uma determinada <see cref="CultureInfo"/>.
 ''' </summary>
 Public Structure Money
 
-    Public Property Value As Decimal
+    Public ReadOnly Property Value As Decimal
 
     ''' <summary>
     ''' Cria uma nova instancia de moeda
@@ -27,20 +25,16 @@ Public Structure Money
     Public Sub New(Value As Decimal, Culture As CultureInfo)
         Me.Value = Value
         Me.Culture = Culture
-        Me.Region = New RegionInfo(Culture.Name)
     End Sub
 
     ''' <summary>
     ''' Cria uma nova instancia de moeda
     ''' </summary>
     ''' <param name="Value">Valor</param>
-    ''' <param name="ISOCurrencySymbol">Simbolo de moeda, ISO ou nome da cultura</param>
-    Public Sub New(Value As Decimal, ISOCurrencySymbol As String, Optional CurrencySymbol As String = "")
-        Me.Value = Value
-        Me.Culture = GetCultureInfosByCurrencySymbol(ISOCurrencySymbol).FirstOrDefault
-        Me.Region = New RegionInfo(Me.Culture.Name)
+    ''' <param name="Culture">Cultura</param>
+    Public Sub New(Value As Decimal, Culture As String)
+        Me.New(Value, CultureInfo.GetCultureInfo(Culture.IfBlank(CultureInfo.CurrentCulture.Name)))
     End Sub
-
 
     ''' <summary>
     ''' String do valor formatado como moeda, é um alias para <see cref="MoneyString"/>
@@ -56,7 +50,7 @@ Public Structure Money
     ''' <returns></returns>
     Public ReadOnly Property MoneyString As String
         Get
-            Return Me.ToString(0)
+            Return Me.ToString(-1)
         End Get
     End Property
 
@@ -66,38 +60,12 @@ Public Structure Money
     ''' <param name="Precision">Precisao de casas decimais</param>
     ''' <returns></returns>
     Public Overloads Function ToString(Precision As Integer) As String
-        Dim c = Me.Culture
-        If c.Equals(CultureInfo.InvariantCulture) Then
-            c = CultureInfo.CurrentCulture
+        If Precision >= 0 Then
+            Return Value.ToString($"C{Precision.LimitRange(0, 99)}", Me.Culture)
+        Else
+            Return Value.ToString($"C", Me.Culture)
         End If
-        Dim ss = CurrencySymbol & " " & If(Precision > 0, Me.Value.Slice(Precision.SetMinValue(2)), Me.Value).ToString(c)
-        If Me.Value.HasDecimalPart Then
-            ss = ss.TrimEnd("0")
-        End If
-        Return ss.IfBlank("0")
     End Function
-
-    ''' <summary>
-    ''' Simbolo de moeda
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property CurrencySymbol As String
-        Get
-            Return Me.Region.CurrencySymbol
-        End Get
-    End Property
-
-
-    ''' <summary>
-    ''' Simbolo de moeda utilizada em cambio (ISO)
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property ISOCurrencySymbol As String
-        Get
-            Return Me.Region.ISOCurrencySymbol
-        End Get
-    End Property
-
 
     ''' <summary>
     ''' Traz uma lista de <see cref="CultureInfo"/> que utilizam uma determinada moeda de acordo com o simbolo, simbolo ISO ou
@@ -114,22 +82,40 @@ Public Structure Money
         Return l
     End Function
 
-
-    Shared DefaultPattern As String = "{value} {money|moneys} and {cent|cents}"
-
     ''' <summary>
     ''' Região correspondente a essa moeda
     ''' </summary>
     ''' <returns></returns>
+    ReadOnly Property Region As RegionInfo
+        Get
+            If reg Is Nothing Then
+                reg = New RegionInfo(Culture.Name)
+            End If
+            Return reg
+        End Get
+    End Property
 
-    Property Region As RegionInfo
+    Private reg As RegionInfo
+
     ''' <summary>
     ''' Cultura correspondente a esta moeda
     ''' </summary>
     ''' <returns></returns>
 
     Property Culture As CultureInfo
+        Get
+            Return _culture
+        End Get
+        Set(value As CultureInfo)
+            If value.Equals(CultureInfo.InvariantCulture) Then
+                value = Nothing
+            End If
+            _culture = If(value, CultureInfo.CurrentCulture)
+            reg = Nothing
+        End Set
+    End Property
 
+    Private _culture As CultureInfo
 
     Public Shared Operator &(Text As String, Value As Money) As String
         Return Text & Value.MoneyString
@@ -140,7 +126,7 @@ Public Structure Money
     End Operator
 
     Public Shared Operator Not(Value As Money)
-        Return New Money(Value.Value * -1, Value.ISOCurrencySymbol)
+        Return New Money(Value.Value * -1, Value.Culture)
     End Operator
 
     Public Shared Operator +(Text As String, Value As Money) As String
@@ -156,127 +142,120 @@ Public Structure Money
     End Operator
 
     Public Shared Operator +(Value1 As Double, Value2 As Money) As Money
-        Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 + Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator +(Value2 As Money, Value1 As Double) As Money
-        Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 + Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator +(Value1 As Decimal, Value2 As Money) As Money
-        Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 + Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator +(Value2 As Money, Value1 As Decimal) As Money
-        Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 + Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator +(Value1 As Integer, Value2 As Money) As Money
-        Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 + Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator +(Value2 As Money, Value1 As Integer) As Money
-        Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 + Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator +(Value1 As Long, Value2 As Money) As Money
-        Return New Money(Value1 + Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 + Value2.Value, Value2.Culture)
     End Operator
 
-
-
     Public Shared Operator -(Value1 As Double, Value2 As Money) As Money
-        Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator -(Value2 As Money, Value1 As Double) As Money
-        Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator -(Value1 As Decimal, Value2 As Money) As Money
-        Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator -(Value2 As Money, Value1 As Decimal) As Money
-        Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator -(Value1 As Integer, Value2 As Money) As Money
-        Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator -(Value2 As Money, Value1 As Integer) As Money
-        Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator -(Value1 As Long, Value2 As Money) As Money
-        Return New Money(Value1 - Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 - Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator -(Value1 As Money, Value2 As Money) As Money
-        Return New Money(Value1.Value - Value2.Value, Value1.ISOCurrencySymbol)
+        Return New Money(Value1.Value - Value2.Value, Value1.Culture)
     End Operator
 
     Public Shared Operator *(Value1 As Double, Value2 As Money) As Money
-        Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator *(Value2 As Money, Value1 As Double) As Money
-        Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator *(Value1 As Decimal, Value2 As Money) As Money
-        Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator *(Value2 As Money, Value1 As Decimal) As Money
-        Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator *(Value1 As Integer, Value2 As Money) As Money
-        Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator *(Value2 As Money, Value1 As Integer) As Money
-        Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator *(Value1 As Long, Value2 As Money) As Money
-        Return New Money(Value1 * Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 * Value2.Value, Value2.Culture)
     End Operator
 
-
-
     Public Shared Operator /(Value1 As Double, Value2 As Money) As Money
-        Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 / Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator /(Value2 As Money, Value1 As Double) As Money
-        Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 / Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator /(Value1 As Decimal, Value2 As Money) As Money
-        Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 / Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator /(Value2 As Money, Value1 As Decimal) As Money
-        Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 / Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator /(Value1 As Integer, Value2 As Money) As Money
-        Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 / Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator /(Value2 As Money, Value1 As Integer) As Money
-        Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 / Value2.Value, Value2.Culture)
     End Operator
 
     Public Shared Operator /(Value1 As Long, Value2 As Money) As Money
-        Return New Money(Value1 / Value2.Value, Value2.ISOCurrencySymbol)
+        Return New Money(Value1 / Value2.Value, Value2.Culture)
     End Operator
-
-
-
 
     Public Shared Operator =(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 = Value2.Value
@@ -350,19 +329,16 @@ Public Structure Money
         Return Not Value1 = Value2.Value
     End Operator
 
-
     Public Shared Operator >=(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 >= Value2.Value
     End Operator
 
     Public Shared Operator >=(Value2 As Money, Value1 As Double) As Boolean
         Return Value1 >= Value2.Value
-
     End Operator
 
     Public Shared Operator >=(Value1 As Decimal, Value2 As Money) As Boolean
         Return Value1 >= Value2.Value
-
     End Operator
 
     Public Shared Operator >=(Value2 As Money, Value1 As Decimal) As Boolean
@@ -383,8 +359,6 @@ Public Structure Money
         Return Value1 >= Value2.Value
 
     End Operator
-
-
 
     Public Shared Operator <=(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 <= Value2.Value
@@ -419,7 +393,6 @@ Public Structure Money
 
     End Operator
 
-
     Public Shared Operator >(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 > Value2.Value
     End Operator
@@ -451,8 +424,6 @@ Public Structure Money
     Public Shared Operator >(Value1 As Long, Value2 As Money) As Boolean
         Return Value1 > Value2.Value
     End Operator
-
-
 
     Public Shared Operator <(Value1 As Double, Value2 As Money) As Boolean
         Return Value1 < Value2.Value
@@ -493,7 +464,7 @@ Public Structure Money
     ''' <param name="Value2"></param>
     ''' <returns></returns>
     Public Shared Operator Like(Value1 As Money, Value2 As Money) As Boolean
-        Return Value1.CurrencySymbol = Value2.CurrencySymbol
+        Return Value1.Region.ISOCurrencySymbol = Value2.Region.CurrencySymbol
     End Operator
 
     Public Shared Widening Operator CType(v As Money) As Decimal
@@ -503,16 +474,24 @@ Public Structure Money
     Public Shared Widening Operator CType(v As Decimal) As Money
         Return New Money(v)
     End Operator
+
     Public Shared Widening Operator CType(v As Integer) As Money
         Return New Money(v)
     End Operator
+
     Public Shared Widening Operator CType(v As Short) As Money
         Return New Money(v)
     End Operator
+
     Public Shared Widening Operator CType(v As Long) As Money
         Return New Money(v)
     End Operator
+
     Public Shared Widening Operator CType(v As Double) As Money
+        Return New Money(v)
+    End Operator
+
+    Public Shared Widening Operator CType(v As Single) As Money
         Return New Money(v)
     End Operator
 
@@ -523,9 +502,26 @@ Public Structure Money
     ''' <returns></returns>
     Public Overrides Function Equals(obj As Object) As Boolean
         If obj.GetType = GetType(Money) Then
-            Return Me.Value = CType(obj, Money).Value AndAlso Me.ISOCurrencySymbol = CType(obj, Money).ISOCurrencySymbol
+            Return Me.Value = CType(obj, Money).Value AndAlso Me.Region.ISOCurrencySymbol = CType(obj, Money).Region.ISOCurrencySymbol
         Else
             Return False
         End If
     End Function
+
+    Public Function ConvertToCurrency(Base As Decimal, Culture As String) As Money
+        Return New Money(Value / Base, Culture)
+    End Function
+
+    Public Function ConvertFromCurrency(Base As Decimal, Culture As String) As Money
+        Return New Money(Base * Value, Culture)
+    End Function
+
+    Public Function ConvertToCurrency(Base As Decimal, Culture As CultureInfo) As Money
+        Return New Money(Value / Base, Culture)
+    End Function
+
+    Public Function ConvertFromCurrency(Base As Decimal, Culture As CultureInfo) As Money
+        Return New Money(Base * Value, Culture)
+    End Function
+
 End Structure
