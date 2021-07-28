@@ -371,9 +371,6 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
-
-
-
     ''' <summary>
     ''' Mapeia os objetos de um datareader para uma classe
     ''' </summary>
@@ -381,18 +378,17 @@ Public Module ClassTools
     ''' <param name="Reader"></param>
     ''' <returns></returns>
     <Extension()> Public Function Map(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As List(Of T)
-        Dim Type = GetType(T)
         Dim l = New List(Of T)
         Params = If(Params, {})
         While Reader IsNot Nothing AndAlso Reader.Read
             Dim d
             If Params.Any Then
-                d = Activator.CreateInstance(Type, Params)
+                d = Activator.CreateInstance(GetType(T), Params)
             Else
-                d = Activator.CreateInstance(Type)
+                d = Activator.CreateInstance(Of T)
             End If
 
-            If Type = GetType(Dictionary(Of String, Object)) Then
+            If GetType(T) = GetType(Dictionary(Of String, Object)) Then
                 For i As Integer = 0 To Reader.FieldCount - 1
                     CType(CType(d, Object), Dictionary(Of String, Object)).Set(Reader.GetName(i), Reader(Reader.GetName(i)))
                 Next
@@ -408,10 +404,10 @@ Public Module ClassTools
         Return l
     End Function
 
-    <Extension()> Public Function MapMany(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As IEnumerable(Of IEnumerable(Of T))
-        Dim l As New List(Of IEnumerable(Of T))
+    <Extension()> Public Function MapMany(Reader As DbDataReader, ParamArray Params As Object()) As IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))
+        Dim l As New List(Of IEnumerable(Of Dictionary(Of String, Object)))
         Do
-            l.Add(Reader.Map(Of T)(Params))
+            l.Add(Reader.Map(Of Dictionary(Of String, Object))(Params))
         Loop While Reader.NextResult()
         Return l
     End Function
