@@ -390,7 +390,7 @@ Public Module ClassTools
 
             If GetType(T) = GetType(Dictionary(Of String, Object)) Then
                 For i As Integer = 0 To Reader.FieldCount - 1
-                    CType(CType(d, Object), Dictionary(Of String, Object)).Add(Reader.GetName(i), Reader(Reader.GetName(i)))
+                    CType(CType(d, Object), Dictionary(Of String, Object)).Set(Reader.GetName(i), Reader(Reader.GetName(i)))
                 Next
             Else
                 For i As Integer = 0 To Reader.FieldCount - 1
