@@ -269,9 +269,9 @@ Public Module DbExtensions
 
 
     <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As DbCommand) As Object
-        Dim v = RunSQLFirst(Connection, SQL).FirstOrDefault()
-        If Not IsNothing(v) Then
-            Return v.Value
+        Dim v = RunSQLFirst(Connection, SQL)
+        If v IsNot Nothing AndAlso v.Any() Then
+            Return v.First().Value
         End If
         Return Nothing
     End Function
