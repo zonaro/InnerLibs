@@ -61,7 +61,11 @@ Public Module DbExtensions
                     Dim arr = ForceArray(v)
                     For index = 0 To arr.Length - 1
                         Dim param As DbParameter = command.CreateParameter()
-                        param.ParameterName = $"{p}{index}"
+                        If arr.Count() = 1 Then
+                            param.ParameterName = $"__{p}"
+                        Else
+                            param.ParameterName = $"__{p}_{index}"
+                        End If
                         param.Value = If(arr(index), DBNull.Value)
                         command.Parameters.Add(param)
                     Next
@@ -83,7 +87,11 @@ Public Module DbExtensions
                     Dim param_names As New List(Of String)
                     For v_index = 0 To v.Count - 1
                         Dim param = cmd.CreateParameter()
-                        param.ParameterName = $"__p{index}_{v_index}"
+                        If v.Count() = 1 Then
+                            param.ParameterName = $"__p{index}"
+                        Else
+                            param.ParameterName = $"__p{index}_{v_index}"
+                        End If
                         param.Value = If(v(v_index), DBNull.Value)
                         cmd.Parameters.Add(param)
                         param_names.Add("@" & param.ParameterName)
@@ -144,7 +152,7 @@ Public Module DbExtensions
 
         Dim sql = "EXEC " & ProcedureName & " " & Keys.SelectJoin(Function(key) " @" & key & " = " & "@__" & key, ", ")
 
-        Return Connection.CreateCommand(sql, Dic.ToDictionary(Function(x) "@__" & x.Key, Function(x) x.Value))
+        Return Connection.CreateCommand(sql, Dic.ToDictionary(Function(x) x.Key, Function(x) x.Value))
 
     End Function
 
