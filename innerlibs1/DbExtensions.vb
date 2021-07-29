@@ -256,7 +256,10 @@ Public Module DbExtensions
             If Not Connection.State = ConnectionState.Open Then
                 Connection.Open()
             End If
-            Debug.WriteLine(Command.CommandText, "Running SQL Command")
+            For Each item As DbParameter In Command.Parameters
+                Debug.WriteLine(item.Value, $"Parameter {item.ParameterName}".ToString())
+            Next
+            Debug.WriteLine(Command.CommandText, "SQL Command")
             Using reader = Command.ExecuteReader()
                 resposta = reader.MapMany()
             End Using
