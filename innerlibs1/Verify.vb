@@ -529,8 +529,8 @@ Public Module Verify
 
     Public Function IsArray(Of T)(Obj As T) As Boolean
         Try
-            Dim ValueType = Obj.GetNullableTypeOf()
-            Return ValueType.IsArray 'AndAlso GetType(T).IsAssignableFrom(ValueType.GetElementType())
+            Dim ValueType = Obj.GetType()
+            Return Not ValueType Is GetType(String) AndAlso ValueType.IsArray 'AndAlso GetType(T).IsAssignableFrom(ValueType.GetElementType())
         Catch ex As Exception
             Return False
         End Try

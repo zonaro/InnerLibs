@@ -5,6 +5,48 @@ Imports InnerLibs.LINQ
 
 Public Module DbExtensions
 
+    Private typeMap As Dictionary(Of Type, DbType)
+
+    Public ReadOnly Property DbTypes As Dictionary(Of Type, DbType)
+        Get
+            If typeMap Is Nothing Then
+                typeMap = New Dictionary(Of Type, DbType)()
+                typeMap(GetType(Byte)) = DbType.Byte
+                typeMap(GetType(SByte)) = DbType.SByte
+                typeMap(GetType(Short)) = DbType.Int16
+                typeMap(GetType(UShort)) = DbType.UInt16
+                typeMap(GetType(Integer)) = DbType.Int32
+                typeMap(GetType(UInteger)) = DbType.UInt32
+                typeMap(GetType(Long)) = DbType.Int64
+                typeMap(GetType(ULong)) = DbType.UInt64
+                typeMap(GetType(Single)) = DbType.Single
+                typeMap(GetType(Double)) = DbType.Double
+                typeMap(GetType(Decimal)) = DbType.Decimal
+                typeMap(GetType(Boolean)) = DbType.Boolean
+                typeMap(GetType(String)) = DbType.String
+                typeMap(GetType(Char)) = DbType.StringFixedLength
+                typeMap(GetType(Guid)) = DbType.Guid
+                typeMap(GetType(DateTime)) = DbType.DateTime
+                typeMap(GetType(DateTimeOffset)) = DbType.DateTimeOffset
+                typeMap(GetType(Byte())) = DbType.Binary
+                typeMap(GetType(Data.Linq.Binary)) = DbType.Binary
+            End If
+            Return typeMap
+        End Get
+    End Property
+
+    <Extension> Public Function GetDbType(Of T)(obj As T) As DbType
+        Return DbTypes.GetValueOr(GetNullableTypeOf(Of T)(obj), DbType.Object)
+    End Function
+
+    <Extension> Public Function GetTypeFromDb(Of T)(obj As DbType) As Type
+        Dim tt = DbTypes.FirstOrDefault(Function(x) x.Value = obj)
+        If Not IsNothing(tt) Then
+            Return tt.Key
+        End If
+        Return GetType(Object)
+    End Function
+
     <Extension()> Public Function CreateCommand(Connection As DbConnection, SQL As String, Parameters As NameValueCollection) As DbCommand
         Return CreateCommand(Connection, SQL, Parameters.ToDictionary())
     End Function
@@ -15,15 +57,14 @@ Public Module DbExtensions
             command.CommandText = SQL
             If Parameters IsNot Nothing AndAlso Parameters.Any() Then
                 For Each p In Parameters.Keys
-                    Dim param As DbParameter = command.CreateParameter()
-                    param.ParameterName = p
                     Dim v = Parameters.GetValueOr(p)
-                    If IsArray(v) OrElse IsList(v) Then
-                        param.Value = ForceArray(v).SelectJoin(Function(x) x.ToString(), ",")
-                    Else
-                        param.Value = v
-                    End If
-                    command.Parameters.Add(param)
+                    Dim arr = ForceArray(v)
+                    For index = 0 To arr.Length - 1
+                        Dim param As DbParameter = command.CreateParameter()
+                        param.ParameterName = $"{p}{index}"
+                        param.Value = If(arr(index), DBNull.Value)
+                        command.Parameters.Add(param)
+                    Next
                 Next
             End If
             Return command
@@ -31,14 +72,40 @@ Public Module DbExtensions
         Return Nothing
     End Function
 
+    <Extension()> Public Function CreateCommand(Connection As DbConnection, SQL As FormattableString) As DbCommand
+        If SQL IsNot Nothing AndAlso Connection IsNot Nothing Then
+            Dim cmd = Connection.CreateCommand()
+            If SQL.ArgumentCount > 0 Then
+                cmd.CommandText = SQL.Format
+                For index = 0 To SQL.ArgumentCount - 1
+                    Dim valores = SQL.GetArgument(index)
+                    Dim v = ForceArray(valores)
+                    Dim param_names As New List(Of String)
+                    For v_index = 0 To v.Count - 1
+                        Dim param = cmd.CreateParameter()
+                        param.ParameterName = $"__p{index}_{v_index}"
+                        param.Value = If(v(v_index), DBNull.Value)
+                        cmd.Parameters.Add(param)
+                        param_names.Add("@" & param.ParameterName)
+                    Next
+                    cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", param_names.Join(",").IfBlank("NULL").QuoteIf("(", param_names.Any()))
+                Next
+            Else
+                cmd.CommandText = SQL.ToString()
+            End If
+            Return cmd
+        End If
+        Return Nothing
+    End Function
+
     ''' <summary>
-    ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
-    ''' uma URL como parametros da procedure
+    ''' Monta um Comando SQL para executar uma procedure especifica e trata valores espicificos de
+    ''' um NameValueCollection como parametros da procedure
     ''' </summary>
-    ''' <param name="NVC">        Requisicao HTTP</param>
+    ''' <param name="NVC">Objeto</param>
     ''' <param name="ProcedureName">  Nome da Procedure</param>
-    ''' <param name="Keys">Parametros da URL que devem ser utilizados</param>
-    ''' <returns>Uma string com o comando montado</returns>
+    ''' <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
+    ''' <returns>Um DbCommand parametrizado</returns>
 
     <Extension()>
     Public Function ToProcedure(Connection As DbConnection, ByVal ProcedureName As String, NVC As NameValueCollection, ParamArray Keys() As String) As DbCommand
@@ -46,13 +113,25 @@ Public Module DbExtensions
     End Function
 
     ''' <summary>
-    ''' Monta um Comando SQL para executar uma procedure especifica e trata parametros espicificos de
-    ''' uma URL como parametros da procedure
+    ''' Monta um Comando SQL para executar uma procedure especifica e trata propriedades espicificas de
+    ''' um objeto como parametros da procedure
     ''' </summary>
-    ''' <param name="Dic">        Requisicao HTTP</param>
+    ''' <param name="Obj">Objeto</param>
+    ''' <param name="ProcedureName">  Nome da Procedure</param>
+    ''' <param name="Keys">propriedades do objeto que devem ser utilizados</param>
+    ''' <returns>Um DbCommand parametrizado</returns>
+    <Extension()>
+    Public Function ToProcedure(Of T)(Connection As DbConnection, ByVal ProcedureName As String, Obj As T, ParamArray Keys() As String) As DbCommand
+        Return Connection.ToProcedure(ProcedureName, Obj.CreateDictionary(), Keys)
+    End Function
+
+    ''' <summary>
+    ''' Monta um Comando SQL para executar uma procedure especifica e utiliza os pares de um dicionario como parametros da procedure
+    ''' </summary>
+    ''' <param name="Dic">Dicionario com os parametros</param>
     ''' <param name="ProcedureName">  Nome da Procedure</param>
     ''' <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
-    ''' <returns>Uma string com o comando montado</returns>
+    ''' <returns>Um DbCommand parametrizado</returns>
 
     <Extension()>
     Public Function ToProcedure(Connection As DbConnection, ByVal ProcedureName As String, Dic As Dictionary(Of String, Object), ParamArray Keys() As String) As DbCommand
@@ -180,6 +259,31 @@ Public Module DbExtensions
         Return Nothing
     End Function
 
+
+    <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Dictionary(Of String, Object))
+        Dim v = RunSQLFirst(Connection, SQL).FirstOrDefault()
+        If Not IsNothing(v) Then
+            Return v.Value
+        End If
+        Return Nothing
+    End Function
+
+    <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Dictionary(Of String, Object))
+        Return ChangeType(Of V)(RunSQLValue(Connection, SQL))
+    End Function
+
+    <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
+        Dim v = RunSQLFirst(Connection, SQL).FirstOrDefault()
+        If Not IsNothing(v) Then
+            Return v.Value
+        End If
+        Return Nothing
+    End Function
+
+    <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
+        Return ChangeType(Of V)(RunSQLValue(Connection, SQL))
+    End Function
+
     <Extension()> Public Function RunSQL(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
         Return RunSQL(Of Dictionary(Of String, Object))(Connection, SQL)
     End Function
@@ -264,26 +368,6 @@ Public Module DbExtensions
                 resposta = reader.MapMany()
             End Using
             Return resposta
-        End If
-        Return Nothing
-    End Function
-
-    <Extension()> Public Function CreateCommand(Connection As DbConnection, SQL As FormattableString) As DbCommand
-        If SQL IsNot Nothing AndAlso Connection IsNot Nothing Then
-            Dim cmd = Connection.CreateCommand()
-            If SQL.ArgumentCount > 0 Then
-                cmd.CommandText = SQL.Format
-                For index = 0 To SQL.ArgumentCount - 1
-                    Dim param = cmd.CreateParameter()
-                    param.ParameterName = $"__p{index}"
-                    param.Value = SQL.GetArgument(index)
-                    cmd.Parameters.Add(param)
-                    cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", $"@{param.ParameterName}")
-                Next
-            Else
-                cmd.CommandText = SQL.ToString()
-            End If
-            Return cmd
         End If
         Return Nothing
     End Function

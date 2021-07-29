@@ -1266,7 +1266,11 @@ Public Module ClassTools
     Public Function SetPropertyValue(Of Type As Class)(MyObject As Type, PropertyName As String, Value As Object) As Type
         Dim prop = GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault
         If prop IsNot Nothing AndAlso prop.CanWrite Then
-            prop.SetValue(MyObject, Convert.ChangeType(Value, prop.PropertyType))
+            If Value.GetType() Is GetType(System.DBNull) Then
+                prop.SetValue(MyObject, Nothing)
+            Else
+                prop.SetValue(MyObject, ChangeType(Value, prop.PropertyType))
+            End If
         End If
         Return MyObject
     End Function

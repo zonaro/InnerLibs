@@ -39,14 +39,26 @@ Public Module Converter
         Return d
     End Function
 
+
     ''' <summary>
     ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
     ''' </summary>
     ''' <param name="Obj">Objeto</param>
     ''' <returns></returns>
-    Public Function ForceArray(Obj As Object) As Object()
-        Return ForceArray(Of Object)(Obj)
+    Public Function ForceArray(Obj As Object, Optional Type As Type = Nothing) As Object()
+        Dim a As New List(Of Object)
+        Type = If(Type, GetType(Object))
+        If Obj IsNot Nothing Then
+            If Not IsArray(Obj) Then
+                Return ChangeArrayType({Obj}, Type)
+            Else
+                Return ChangeArrayType(Obj, Type)
+            End If
+        End If
+        Return {}
     End Function
+
+
 
     ''' <summary>
     ''' Verifica se um objeto é um array, e se não, cria um array com oeste objeto
@@ -54,14 +66,7 @@ Public Module Converter
     ''' <param name="Obj">Objeto</param>
     ''' <returns></returns>
     Public Function ForceArray(Of OutputType)(ByVal Obj As Object) As OutputType()
-        Dim a As New List(Of OutputType)
-        If Obj IsNot Nothing Then
-            If Not Obj.GetType().IsArray Then
-                If Obj.ToString.IsBlank Then Obj = {} Else Obj = {Obj}
-                a.AddRange(ChangeArrayType(Of OutputType, Object)(Obj))
-            End If
-        End If
-        Return a.ToArray
+        Return ForceArray(Obj, GetType(OutputType))
     End Function
 
     ''' <summary>
@@ -233,7 +238,17 @@ Public Module Converter
     ''' <returns>Array convertido em novo tipo</returns>
     <Extension>
     Public Function ChangeArrayType(Of ToType, FromType)(Value As FromType()) As ToType()
-        Return Value.ChangeIEnumerableType(Of ToType).ToArray()
+        Return ChangeIEnumerableType(Of ToType)(Value, GetType(ToType)).ToArray()
+    End Function
+
+    ''' <summary>
+    ''' Converte um array de um tipo para outro
+    ''' </summary>
+    ''' <param name="Value">Array com elementos</param>
+    ''' <returns>Array convertido em novo tipo</returns>
+    <Extension>
+    Public Function ChangeArrayType(Of FromType)(Value As FromType(), Type As Type) As Object()
+        Return ChangeIEnumerableType(Value, Type).ToArray()
     End Function
 
     ''' <summary>
@@ -244,7 +259,17 @@ Public Module Converter
     ''' <returns>Array convertido em novo tipo</returns>
     <Extension>
     Public Function ChangeIEnumerableType(Of ToType, FromType)(Value As IEnumerable(Of FromType)) As IEnumerable(Of ToType)
-        Return If(Value, {}).Select(Function(el) el.ChangeType(Of ToType))
+        Return ChangeIEnumerableType(Value, GetType(ToType))
+    End Function
+
+    ''' <summary>
+    ''' Converte um IEnumerable de um tipo para outro
+    ''' </summary>
+    ''' <param name="Value">Array com elementos</param>
+    ''' <returns>Array convertido em novo tipo</returns>
+    <Extension>
+    Public Function ChangeIEnumerableType(Of FromType)(Value As IEnumerable(Of FromType), ToType As Type) As IEnumerable(Of Object)
+        Return If(Value, {}).Select(Function(el) el.ChangeType(ToType))
     End Function
 
     ''' <summary>
@@ -357,7 +382,7 @@ Public Module Converter
         End If
         If Dic IsNot Nothing AndAlso Dic.Any() Then
             For Each k In Dic
-                If Obj.HasProperty(k.Key) Then
+                If Obj.HasProperty(k.Key) AndAlso Obj.GetProperty(k.Key).CanWrite Then
                     Obj.SetPropertyValue(k.Key, k.Value)
                 End If
             Next
