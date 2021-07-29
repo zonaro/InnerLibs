@@ -2,6 +2,7 @@
 Imports System.ComponentModel
 Imports System.Globalization
 Imports System.IO
+Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
@@ -1667,6 +1668,8 @@ Public Module Text
     Function QuoteIf(Text As String, Condition As Boolean, Optional QuoteChar As String = """") As String
         Return If(Condition, Text.Quote(QuoteChar), Text)
     End Function
+
+
 
     ''' <summary>
     ''' Sorteia um item da Matriz

@@ -12,6 +12,8 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+
+
     ''' <summary>
     ''' Substitui todas as propriedades nulas de uma classe pelos seus valores Default
     ''' </summary>
@@ -371,50 +373,6 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
-    ''' <summary>
-    ''' Mapeia os objetos de um datareader para uma classe
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Reader"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function Map(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As List(Of T)
-        Dim l = New List(Of T)
-        Params = If(Params, {})
-        While Reader IsNot Nothing AndAlso Reader.Read
-            Dim d
-            If Params.Any Then
-                d = Activator.CreateInstance(GetType(T), Params)
-            Else
-                d = Activator.CreateInstance(Of T)
-            End If
-
-            If GetType(T) = GetType(Dictionary(Of String, Object)) Then
-                For i As Integer = 0 To Reader.FieldCount - 1
-                    CType(CType(d, Object), Dictionary(Of String, Object)).Set(Reader.GetName(i), Reader(Reader.GetName(i)))
-                Next
-            Else
-                For i As Integer = 0 To Reader.FieldCount - 1
-                    If d.HasProperty(Reader.GetName(i)) AndAlso d.GetProperty(Reader.GetName(i)).CanWrite Then
-                        d.SetPropertyValue(Reader.GetName(i), Reader(Reader.GetName(i)))
-                    End If
-                Next
-            End If
-            l.Add(d)
-        End While
-        Return l
-    End Function
-
-    <Extension()> Public Function MapMany(Reader As DbDataReader, ParamArray Params As Object()) As IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))
-        Dim l As New List(Of IEnumerable(Of Dictionary(Of String, Object)))
-        Do
-            l.Add(Reader.Map(Of Dictionary(Of String, Object))(Params))
-        Loop While Reader.NextResult()
-        Return l
-    End Function
-
-    <Extension()> Public Function MapFirst(Of T As Class)(Reader As DbDataReader, ParamArray Params As Object()) As T
-        Return Reader.Map(Of T).FirstOrDefault()
-    End Function
 
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -821,7 +779,7 @@ Public Module ClassTools
     Public Function GetPropertyValue(Of T, O)(MyObject As O, Name As String) As T
         If MyObject IsNot Nothing Then
             Dim prop = MyObject.GetProperty(Name)
-            If prop IsNot Nothing Then
+            If prop IsNot Nothing AndAlso prop.CanRead Then
                 Return CType(prop.GetValue(MyObject), T)
             End If
         End If
@@ -1307,7 +1265,7 @@ Public Module ClassTools
     <Extension()>
     Public Function SetPropertyValue(Of Type As Class)(MyObject As Type, PropertyName As String, Value As Object) As Type
         Dim prop = GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault
-        If prop IsNot Nothing Then
+        If prop IsNot Nothing AndAlso prop.CanWrite Then
             prop.SetValue(MyObject, Convert.ChangeType(Value, prop.PropertyType))
         End If
         Return MyObject

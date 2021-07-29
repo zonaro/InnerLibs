@@ -329,15 +329,42 @@ Public Module Converter
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Dic"></param>
+
+    <Extension()>
+    Public Function SetPropertiesIn(Of T As Class)(Dic As Dictionary(Of String, Object)) As T
+        Return SetPropertiesIn(Of T)(Dic, Nothing)
+    End Function
+
+    ''' <summary>
+    ''' Seta as propriedades de uma classe a partir de um dictionary
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Dic"></param>
     ''' <param name="Obj"></param>
     <Extension()>
-    Public Sub SetPropertiesIn(Of T As Class)(Dic As IDictionary(Of String, Object), Obj As T)
-        For Each k In Dic
-            If Obj.HasProperty(k.Key) Then
-                Obj.SetPropertyValue(k.Key, k.Value)
+    Public Function SetPropertiesIn(Of T As Class)(Dic As Dictionary(Of String, Object), Obj As T, ParamArray args As Object()) As T
+        If GetType(T) Is GetType(Dictionary(Of String, Object)) Then
+            If Dic IsNot Nothing Then
+                Return CType(CType(Dic.AsEnumerable().ToDictionary(), Object), T)
             End If
-        Next
-    End Sub
+        End If
+        If Obj Is Nothing Then
+            If args Is Nothing OrElse args.Any() = False Then
+                Obj = Activator.CreateInstance(GetType(T))
+            Else
+                Obj = Activator.CreateInstance(GetType(T), args)
+            End If
+        End If
+        If Dic IsNot Nothing AndAlso Dic.Any() Then
+            For Each k In Dic
+                If Obj.HasProperty(k.Key) Then
+                    Obj.SetPropertyValue(k.Key, k.Value)
+                End If
+            Next
+        End If
+
+        Return Obj
+    End Function
 
     ''' <summary>
     ''' Transforma uma lista de pares em um Dictionary
