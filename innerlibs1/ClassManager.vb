@@ -742,7 +742,7 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetProperties(Of O As Class)(MyObject As O, BindAttr As BindingFlags) As List(Of PropertyInfo)
+    Public Function GetProperties(Of O)(MyObject As O, BindAttr As BindingFlags) As List(Of PropertyInfo)
         If MyObject IsNot Nothing Then
             Return MyObject.GetTypeOf().GetProperties(BindAttr).ToList()
         Else
@@ -756,8 +756,8 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetProperties(Of O As Class)(MyObject As O) As List(Of PropertyInfo)
-        Return MyObject.GetTypeOf().GetProperties().ToList()
+    Public Function GetProperties(Of O)(MyObject As O) As List(Of PropertyInfo)
+        Return GetTypeOf(MyObject).GetProperties().ToList()
     End Function
 
     ''' <summary>
@@ -1014,6 +1014,16 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
+    ''' Verifica se o objeto é uma lista
+    ''' </summary>
+    ''' <param name="obj"></param>
+    ''' <returns></returns>
+    <Extension>
+    Public Function IsEnumerable(obj As Object) As Boolean
+        Return TypeOf obj Is IEnumerable AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(IEnumerable(Of )))
+    End Function
+
+    ''' <summary>
     ''' Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
     ''' </summary>
     ''' <typeparam name="Type">Tipo do objeto</typeparam>
@@ -1263,7 +1273,7 @@ Public Module ClassTools
     ''' Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
     ''' </typeparam>
     <Extension()>
-    Public Function SetPropertyValue(Of Type As Class)(MyObject As Type, PropertyName As String, Value As Object) As Type
+    Public Function SetPropertyValue(Of Type)(MyObject As Type, PropertyName As String, Value As Object) As Type
         Dim prop = GetProperties(MyObject).Where(Function(p) p.Name = PropertyName).FirstOrDefault
         If prop IsNot Nothing AndAlso prop.CanWrite Then
             If Value.GetType() Is GetType(System.DBNull) Then

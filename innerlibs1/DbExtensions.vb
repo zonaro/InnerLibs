@@ -259,7 +259,7 @@ Public Module DbExtensions
             For Each k In dic.Keys
                 Dim param = cmd.CreateParameter()
                 param.ParameterName = $"__{k}"
-                param.Value = dic.GetValueOr(k)
+                param.Value = dic.GetValueOr(k, DBNull.Value)
                 cmd.Parameters.Add(param)
             Next
             Return cmd
@@ -269,7 +269,7 @@ Public Module DbExtensions
 
 
     <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As DbCommand) As Object
-        Dim v = RunSQLFirst(Connection, SQL)
+        Dim v = RunSQLRow(Connection, SQL)
         If v IsNot Nothing AndAlso v.Any() Then
             Return v.First().Value
         End If
@@ -281,7 +281,7 @@ Public Module DbExtensions
     End Function
 
     <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As FormattableString) As Object
-        Dim v = RunSQLFirst(Connection, SQL).FirstOrDefault()
+        Dim v = RunSQLRow(Connection, SQL).FirstOrDefault()
         If Not IsNothing(v) Then
             Return v.Value
         End If
@@ -292,31 +292,20 @@ Public Module DbExtensions
         Return ChangeType(Of V)(RunSQLValue(Connection, SQL))
     End Function
 
-    <Extension()> Public Function RunSQL(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
-        Return RunSQL(Of Dictionary(Of String, Object))(Connection, SQL)
+    <Extension()> Public Function RunSQLSet(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
+        Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL)
     End Function
 
-    <Extension()> Public Function RunSQLFirst(Connection As DbConnection, SQL As FormattableString) As Dictionary(Of String, Object)
-        Return RunSQLFirst(Of Dictionary(Of String, Object))(Connection, SQL)
+    <Extension()> Public Function RunSQLRow(Connection As DbConnection, SQL As FormattableString) As Dictionary(Of String, Object)
+        Return RunSQLRow(Of Dictionary(Of String, Object))(Connection, SQL)
     End Function
 
-    <Extension()> Public Function RunSQL(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Dictionary(Of String, Object))
-        Return RunSQL(Of Dictionary(Of String, Object))(Connection, SQL)
+    <Extension()> Public Function RunSQLSet(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Dictionary(Of String, Object))
+        Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL)
     End Function
 
-    <Extension()> Public Function RunSQLFirst(Connection As DbConnection, SQL As DbCommand) As Dictionary(Of String, Object)
-        Return RunSQLFirst(Of Dictionary(Of String, Object))(Connection, SQL)
-    End Function
-
-    ''' <summary>
-    ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="T"/>
-    ''' </summary>
-    ''' <typeparam name="T"></typeparam>
-    ''' <param name="Connection"></param>
-    ''' <param name="SQL"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function RunSQLFirst(Of T As Class)(Connection As DbConnection, SQL As DbCommand) As T
-        Return Connection.RunSQL(Of T)(SQL)?.FirstOrDefault()
+    <Extension()> Public Function RunSQLRow(Connection As DbConnection, SQL As DbCommand) As Dictionary(Of String, Object)
+        Return RunSQLRow(Of Dictionary(Of String, Object))(Connection, SQL)
     End Function
 
     ''' <summary>
@@ -326,8 +315,19 @@ Public Module DbExtensions
     ''' <param name="Connection"></param>
     ''' <param name="SQL"></param>
     ''' <returns></returns>
-    <Extension()> Public Function RunSQLFirst(Of T As Class)(Connection As DbConnection, SQL As FormattableString) As T
-        Return Connection.RunSQL(Of T)(SQL)?.FirstOrDefault()
+    <Extension()> Public Function RunSQLRow(Of T)(Connection As DbConnection, SQL As DbCommand) As T
+        Return Connection.RunSQLSet(Of T)(SQL).FirstOrDefault()
+    End Function
+
+    ''' <summary>
+    ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="T"/>
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Connection"></param>
+    ''' <param name="SQL"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function RunSQLRow(Of T)(Connection As DbConnection, SQL As FormattableString) As T
+        Return Connection.RunSQLSet(Of T)(SQL).FirstOrDefault()
     End Function
 
     ''' <summary>
@@ -337,7 +337,7 @@ Public Module DbExtensions
     ''' <param name="Connection"></param>
     ''' <param name="SQL"></param>
     ''' <returns></returns>
-    <Extension()> Public Function RunSQL(Of T As Class)(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of T)
+    <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of T)
         Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetPropertiesIn(Of T))
     End Function
 
@@ -348,7 +348,7 @@ Public Module DbExtensions
     ''' <param name="Connection"></param>
     ''' <param name="SQL"></param>
     ''' <returns></returns>
-    <Extension()> Public Function RunSQL(Of T As Class)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of T)
+    <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of T)
         Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetPropertiesIn(Of T))
     End Function
 

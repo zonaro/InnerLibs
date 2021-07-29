@@ -356,7 +356,7 @@ Public Module Converter
     ''' <param name="Dic"></param>
 
     <Extension()>
-    Public Function SetPropertiesIn(Of T As Class)(Dic As Dictionary(Of String, Object)) As T
+    Public Function SetPropertiesIn(Of T)(Dic As Dictionary(Of String, Object)) As T
         Return SetPropertiesIn(Of T)(Dic, Nothing)
     End Function
 
@@ -367,7 +367,11 @@ Public Module Converter
     ''' <param name="Dic"></param>
     ''' <param name="Obj"></param>
     <Extension()>
-    Public Function SetPropertiesIn(Of T As Class)(Dic As Dictionary(Of String, Object), Obj As T, ParamArray args As Object()) As T
+    Public Function SetPropertiesIn(Of T)(Dic As Dictionary(Of String, Object), Obj As T, ParamArray args As Object()) As T
+        If GetType(T).IsPrimitiveType Then
+            Obj = Dic?.Values.FirstOrDefault()
+        End If
+
         If GetType(T) Is GetType(Dictionary(Of String, Object)) Then
             If Dic IsNot Nothing Then
                 Return CType(CType(Dic.AsEnumerable().ToDictionary(), Object), T)
