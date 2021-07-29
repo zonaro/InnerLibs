@@ -268,7 +268,7 @@ Public Module DbExtensions
     End Function
 
 
-    <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Dictionary(Of String, Object))
+    <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As DbCommand) As Object
         Dim v = RunSQLFirst(Connection, SQL).FirstOrDefault()
         If Not IsNothing(v) Then
             Return v.Value
@@ -276,11 +276,11 @@ Public Module DbExtensions
         Return Nothing
     End Function
 
-    <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Dictionary(Of String, Object))
+    <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As DbCommand) As V
         Return ChangeType(Of V)(RunSQLValue(Connection, SQL))
     End Function
 
-    <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
+    <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As FormattableString) As Object
         Dim v = RunSQLFirst(Connection, SQL).FirstOrDefault()
         If Not IsNothing(v) Then
             Return v.Value
@@ -288,7 +288,7 @@ Public Module DbExtensions
         Return Nothing
     End Function
 
-    <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
+    <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As FormattableString) As V
         Return ChangeType(Of V)(RunSQLValue(Connection, SQL))
     End Function
 
