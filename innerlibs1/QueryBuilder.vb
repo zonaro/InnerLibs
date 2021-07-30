@@ -50,10 +50,23 @@ Namespace QueryLibrary
         ''' <param name="table">Table to be join</param>
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function Join(ByVal table As String, ByVal [on] As String) As [Select]
+        Public Function Join(ByVal table As String, ByVal [on] As FormattableString) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.None, table, New Condition([on].ToFormattable))
+            Return _Join(JoinType.None, table, New Condition([on]))
+        End Function
+
+
+        ''' <summary>
+        ''' Sets a INNER JOIN clause in the SELECT being built.
+        ''' </summary>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function InnerJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
+            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
+            If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
+            Return _Join(JoinType.Inner, table, New Condition([on]))
         End Function
 
         ''' <summary>
@@ -74,10 +87,10 @@ Namespace QueryLibrary
         ''' <param name="table">Table to be join</param>
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function LeftOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
+        Public Function LeftOuterJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.LeftOuterJoin, table, New Condition([on].ToFormattable))
+            Return _Join(JoinType.LeftOuterJoin, table, New Condition([on]))
         End Function
 
         ''' <summary>
@@ -98,10 +111,10 @@ Namespace QueryLibrary
         ''' <param name="table">Table to be join</param>
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function RightOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
+        Public Function RightOuterJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.RightOuterJoin, table, New Condition([on].ToFormattable))
+            Return _Join(JoinType.RightOuterJoin, table, New Condition([on]))
         End Function
 
         ''' <summary>
@@ -122,10 +135,10 @@ Namespace QueryLibrary
         ''' <param name="table">Table to be join</param>
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function FullOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
+        Public Function FullOuterJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.FullOuterJoin, table, New Condition([on].ToFormattable))
+            Return _Join(JoinType.FullOuterJoin, table, New Condition([on]))
         End Function
 
         ''' <summary>
