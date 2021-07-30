@@ -39,7 +39,6 @@ Public Module Converter
         Return d
     End Function
 
-
     ''' <summary>
     ''' Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
     ''' </summary>
@@ -51,17 +50,14 @@ Public Module Converter
         If Obj IsNot Nothing Then
             If IsArray(Obj) Then
                 Return ChangeArrayType(Obj, Type)
+            ElseIf IsList(Obj) Then
+                Return ChangeIEnumerableType(Obj, Type).ToArray()
             Else
-                If IsList(Obj) Then
-                    Return ChangeIEnumerableType({Obj}, Type).ToArray()
-                End If
                 Return ChangeArrayType({Obj}, Type)
             End If
         End If
-        Return {}
+        Return ChangeArrayType({}, Type)
     End Function
-
-
 
     ''' <summary>
     ''' Verifica se um objeto é um array, e se não, cria um array com oeste objeto

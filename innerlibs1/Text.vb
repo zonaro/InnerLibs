@@ -36,7 +36,7 @@ Public Module Text
     End Function
 
     <Extension()> Public Function WrapInTag(Text As String, ByVal TagName As String) As HtmlTag
-        Return New HtmlTag() With {.Text = Text, .TagName = TagName}
+        Return New HtmlTag() With {.InnerHtml = Text, .TagName = TagName}
     End Function
 
     ''' <summary>
@@ -3759,7 +3759,7 @@ Public Class FullNumberWriter
     ''' String utilizada quando um numero possui casa decimais. Normalmente "virgula"
     ''' </summary>
     ''' <returns></returns>
-    Property Dot As String
+    Property DecimalSeparator As String
 
     ''' <summary>
     ''' Instancia um novo <see cref="FullNumberWriter"/> com as configurações default (inglês)
@@ -3792,7 +3792,7 @@ Public Class FullNumberWriter
         Get
             Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
             Dim num As Long = Number.Floor
-            Return (InExtensive(num) & If(dec = 0 Or DecimalPlaces = 0, "", Dot.Wrap(" ") & InExtensive(dec))).ToLower.AdjustWhiteSpaces
+            Return (InExtensive(num) & If(dec = 0 Or DecimalPlaces = 0, "", DecimalSeparator.Wrap(" ") & InExtensive(dec))).ToLower.AdjustWhiteSpaces
         End Get
     End Property
 
@@ -4054,7 +4054,7 @@ End Class
 Public Class HtmlTag
 
     Public Property TagName As String = "div"
-    Public Property Text As String
+    Public Property InnerHtml As String
     Public Property Attributes As New Dictionary(Of String, String)
 
     Sub New()
@@ -4063,7 +4063,7 @@ Public Class HtmlTag
 
     Sub New(TagName As String, Optional InnerHtml As String = "")
         Me.TagName = TagName.IfBlank("div")
-        Me.Text = InnerHtml
+        Me.InnerHtml = InnerHtml
     End Sub
 
     Public Property [Class] As String
@@ -4076,10 +4076,19 @@ Public Class HtmlTag
         End Set
     End Property
 
+    Public Property ClassArray As String()
+        Get
+            Return [Class].Split(" ")
+        End Get
+        Set(ByVal value As String())
+            [Class] = If(value, {}).Join(" ")
+        End Set
+    End Property
+
     Public Overrides Function ToString() As String
         TagName = TagName.RemoveAny("/", "\")
         Attributes = If(Attributes, New Dictionary(Of String, String))
-        Return $"<{TagName.IfBlank("div")} {Attributes.SelectJoin(Function(x) x.Key.ToLower & "=" & x.Value.Wrap())}>{Text}</{TagName.IfBlank("div")}>"
+        Return $"<{TagName.IfBlank("div")} {Attributes.SelectJoin(Function(x) x.Key.ToLower & "=" & x.Value.Wrap())}>{InnerHtml}</{TagName.IfBlank("div")}>"
     End Function
 
     Public Shared Widening Operator CType(ByVal Tag As HtmlTag) As String
