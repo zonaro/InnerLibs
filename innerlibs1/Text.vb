@@ -4022,8 +4022,8 @@ Public Class ConnectionStringParser
     Sub New(ConnectionString As String)
         MyBase.New
         Try
-            For Each ii In ConnectionString.IfBlank("").Split(";"c).[Select](Function(t) t.Split(New Char() {"="c}, 2)).ToDictionary(Function(t) t(0).Trim().ToLower().ToTitle(True), Function(t) t(1).Trim(), StringComparer.InvariantCultureIgnoreCase)
-                Me(ii.Key.ToLower().ToTitle()) = ii.Value
+            For Each ii In ConnectionString.IfBlank("").SplitAny(";").[Select](Function(t) t.Split(New Char() {"="c}, 2)).ToDictionary(Function(t) t(0).Trim(), Function(t) t(1).Trim(), StringComparer.InvariantCultureIgnoreCase)
+                Me(ii.Key.ToTitle(True)) = ii.Value
             Next
         Catch ex As Exception
             Throw New InvalidCastException("Invalid ConnectionString", ex)
