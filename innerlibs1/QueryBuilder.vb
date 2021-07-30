@@ -61,7 +61,6 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function InnerJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
             Return _Join(JoinType.Inner, table, New Condition([on]))
-
         End Function
 
         ''' <summary>
@@ -72,7 +71,6 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function InnerJoin(ByVal table As String, ByVal [on] As Condition) As [Select]
             Return _Join(JoinType.Inner, table, [on])
-
         End Function
 
         ''' <summary>
@@ -83,7 +81,6 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function Join(ByVal table As String, ByVal [on] As Condition) As [Select]
             Return _Join(JoinType.None, table, [on])
-
         End Function
 
         ''' <summary>
@@ -94,7 +91,6 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function LeftOuterJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
             Return _Join(JoinType.LeftOuterJoin, table, New Condition([on]))
-
         End Function
 
         ''' <summary>
@@ -105,7 +101,6 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function LeftOuterJoin(ByVal table As String, ByVal [on] As Condition) As [Select]
             Return _Join(JoinType.LeftOuterJoin, table, [on])
-
         End Function
 
         ''' <summary>
@@ -115,8 +110,6 @@ Namespace QueryLibrary
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function RightOuterJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
-            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
-            If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
             Return _Join(JoinType.RightOuterJoin, table, New Condition([on]))
         End Function
 
@@ -127,8 +120,6 @@ Namespace QueryLibrary
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function RightOuterJoin(ByVal table As String, ByVal [on] As Condition) As [Select]
-            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
-            If [on] Is Nothing Then Throw New ArgumentNullException(NameOf([on]))
             Return _Join(JoinType.RightOuterJoin, table, [on])
         End Function
 
@@ -139,8 +130,6 @@ Namespace QueryLibrary
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function FullOuterJoin(ByVal table As String, ByVal [on] As FormattableString) As [Select]
-            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
-            If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
             Return _Join(JoinType.FullOuterJoin, table, New Condition([on]))
         End Function
 
@@ -151,8 +140,6 @@ Namespace QueryLibrary
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function FullOuterJoin(ByVal table As String, ByVal [on] As Condition) As [Select]
-            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
-            If [on] Is Nothing Then Throw New ArgumentNullException(NameOf([on]))
             Return _Join(JoinType.FullOuterJoin, table, [on])
         End Function
 
@@ -162,7 +149,6 @@ Namespace QueryLibrary
         ''' <param name="table">Table to be join</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function CrossJoin(ByVal table As String) As [Select]
-            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             Return _Join(JoinType.CrossJoin, table, Nothing)
         End Function
 
@@ -172,7 +158,6 @@ Namespace QueryLibrary
         ''' <param name="table">Table to be join</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function CrossApply(ByVal table As String) As [Select]
-            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             Return _Join(JoinType.CrossApply, table, Nothing)
         End Function
 
@@ -199,12 +184,16 @@ Namespace QueryLibrary
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         ''' <exception cref="SelectBuildingException">WHERE clause is already set</exception>
-        Public Function Where(ByVal condition As Condition) As [Select]
+        Public Function Where(condition As Condition) As [Select]
             If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank() Then
                 If _where IsNot Nothing Then [And](condition)
                 _where = New Condition(condition)
             End If
             Return Me
+        End Function
+
+        Public Function Where(ParamArray condition As Condition()) As [Select]
+            Return [And](condition)
         End Function
 
         ''' <summary>
