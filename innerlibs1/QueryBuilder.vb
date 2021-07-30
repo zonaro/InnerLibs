@@ -158,7 +158,7 @@ Namespace QueryLibrary
         Public Function Where(ByVal condition As FormattableString) As [Select]
             If condition.ToString().IsNotBlank Then
                 If _where IsNot Nothing Then
-                    WhereAnd(New Condition(condition))
+                    [AndAlso](New Condition(condition))
                 Else
                     _where = New Condition(condition)
                 End If
@@ -186,7 +186,7 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function WhereAnd(ByVal condition As FormattableString) As [Select]
+        Public Function [AndAlso](ByVal condition As FormattableString) As [Select]
             If condition.ToString().IsNotBlank Then
                 If _where Is Nothing Then Return Where(condition)
                 _where.And(condition)
@@ -200,7 +200,7 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function WhereAnd(ByVal condition As Condition) As [Select]
+        Public Function [AndAlso](ByVal condition As Condition) As [Select]
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
             If _where Is Nothing Then Return Where(condition)
             _where.And(condition)
@@ -213,7 +213,7 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function WhereOr(ByVal condition As FormattableString) As [Select]
+        Public Function [OrElse](ByVal condition As FormattableString) As [Select]
             If condition.IsNotBlank Then
                 If _where Is Nothing Then Return Where(condition)
                 _where.Or(condition)
@@ -227,7 +227,7 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition of the WHERE clause</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function WhereOr(ByVal condition As Condition) As [Select]
+        Public Function [OrElse](ByVal condition As Condition) As [Select]
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
             If _where Is Nothing Then Return Where(condition)
             _where.Or(condition)
