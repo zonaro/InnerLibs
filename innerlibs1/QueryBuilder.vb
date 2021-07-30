@@ -50,7 +50,7 @@ Namespace QueryBuilder
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function Join(ByVal table As String, ByVal [on] As FormattableString) As [Select]
-            Return _Join(JoinType.None, table, New Condition([on]))
+            Return _Join(JoinType.Join, table, New Condition([on]))
         End Function
 
         ''' <summary>
@@ -80,7 +80,7 @@ Namespace QueryBuilder
         ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function Join(ByVal table As String, ByVal [on] As Condition) As [Select]
-            Return _Join(JoinType.None, table, [on])
+            Return _Join(JoinType.Join, table, [on])
         End Function
 
         ''' <summary>
@@ -179,11 +179,9 @@ Namespace QueryBuilder
 
         ''' <summary>
         ''' Sets the WHERE clause in the SELECT being built.
-        ''' Throws exception if WHERE is already set.
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        ''' <exception cref="SelectBuildingException">WHERE clause is already set</exception>
         Public Function Where(condition As Condition) As [Select]
             If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank() Then
                 If _where IsNot Nothing Then [And](condition)
@@ -232,10 +230,10 @@ Namespace QueryBuilder
             If conditions.Any Then
                 If _where Is Nothing Then
                     _where = New Condition(conditions.First())
+                    _where.[AndAny](conditions.Skip(1).ToArray())
+                Else
+                    _where.[AndAny](conditions)
                 End If
-                _where.AndAny(conditions.Skip(1).ToArray())
-            Else
-                _where.AndAny(conditions)
             End If
             Return Me
         End Function
@@ -251,10 +249,10 @@ Namespace QueryBuilder
             If conditions.Any Then
                 If _where Is Nothing Then
                     _where = New Condition(conditions.First())
+                    _where.[OrAny](conditions.Skip(1).ToArray())
+                Else
+                    _where.[OrAny](conditions)
                 End If
-                _where.[OrAny](conditions.Skip(1).ToArray())
-            Else
-                _where.[OrAny](conditions)
             End If
             Return Me
         End Function
@@ -270,10 +268,10 @@ Namespace QueryBuilder
             If conditions.Any Then
                 If _where Is Nothing Then
                     _where = New Condition(conditions.First())
+                    _where.AndAll(conditions.Skip(1).ToArray())
+                Else
+                    _where.AndAll(conditions)
                 End If
-                _where.AndAll(conditions.Skip(1).ToArray())
-            Else
-                _where.AndAll(conditions)
             End If
             Return Me
         End Function
@@ -289,10 +287,10 @@ Namespace QueryBuilder
             If conditions.Any Then
                 If _where Is Nothing Then
                     _where = New Condition(conditions.First())
+                    _where.OrAll(conditions.Skip(1).ToArray())
+                Else
+                    _where.OrAll(conditions)
                 End If
-                _where.OrAll(conditions.Skip(1).ToArray())
-            Else
-                _where.OrAll(conditions)
             End If
             Return Me
         End Function
@@ -338,12 +336,10 @@ Namespace QueryBuilder
         End Function
 
         ''' <summary>
-        ''' Sets the HAVING clause in the SELECT being built.
-        ''' Throws exception if HAVING is already set.
+        ''' Sets or overwrite the HAVING clause in the SELECT being built.
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        ''' <exception cref="SelectBuildingException">HAVING clause is already set</exception>
         Public Function Having(ByVal condition As String) As [Select]
             If condition.IsNotBlank Then
                 _having = condition
@@ -444,23 +440,14 @@ Namespace QueryBuilder
         End Function
 
         Private Function _Join(ByVal type As JoinType, ByVal table As String, ByVal [on] As Condition) As [Select]
-            If table.IsNotBlank AndAlso IsNothing([on]) AndAlso [on].ToString.IsNotBlank Then
-
-                Dim join = New Join With {
+            If table.IsNotBlank AndAlso Not IsNothing([on]) AndAlso [on].ToString.IsNotBlank Then
+                _joins = If(_joins, New List(Of [Join]))
+                _joins.Add(New Join With {
                     .Type = type,
                     .Table = table,
                     .[On] = [on]
-                }
-
-                If _joins Is Nothing Then
-                    _joins = New List(Of Join) From {
-                        join
-                    }
-                Else
-                    _joins.Add(join)
-                End If
+                })
             End If
-
             Return Me
         End Function
 
@@ -472,13 +459,38 @@ Namespace QueryBuilder
     Public Class Condition
         Private ReadOnly _tokens As List(Of String) = New List(Of String)()
 
+        Public Sub New(LogicOperator As String, ParamArray Conditions As FormattableString())
+            For Each condition In If(Conditions, {})
+                If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
+                    If LogicOperator.IsIn("OR", "or") Then
+                        [Or](condition)
+                    Else
+                        [And](condition)
+                    End If
+                End If
+            Next
+        End Sub
+
+        Public Sub New(LogicOperator As String, ParamArray Conditions As Condition())
+            For Each condition In If(Conditions, {})
+                If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
+                    If LogicOperator.IsIn("OR", "or") Then
+                        [Or](condition)
+                    Else
+                        [And](condition)
+                    End If
+                End If
+            Next
+        End Sub
+
         ''' <summary>
         ''' Ctor.
         ''' </summary>
         ''' <param name="condition">Condition to set in this instance</param>
         Public Sub New(ByVal condition As FormattableString)
-            If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
-            _tokens.Add(ToSQLString(condition))
+            If condition.IsNotBlank Then
+                _tokens.Add(ToSQLString(condition))
+            End If
         End Sub
 
         ''' <summary>
@@ -486,16 +498,17 @@ Namespace QueryBuilder
         ''' </summary>
         ''' <param name="condition">Copies to the condition being constructed</param>
         Public Sub New(condition As Condition)
-            If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
-            _tokens.Add(condition.ParenthesisToString())
+            If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
+                _tokens.Add(condition.ParenthesisToString())
+            End If
         End Sub
 
         Public Shared Function OrMany(ParamArray conditions As FormattableString()) As Condition
-            Return If(conditions, {}).Where(Function(x) x.ToString().IsNotBlank()).Select(Function(x) New Condition(x)).Aggregate(Function(a, b) a.Or(b))
+            Return New Condition("OR", conditions)
         End Function
 
         Public Shared Function AndMany(ParamArray conditions As FormattableString()) As Condition
-            Return If(conditions, {}).Where(Function(x) x.ToString().IsNotBlank()).Select(Function(x) New Condition(x)).Aggregate(Function(a, b) a.And(b))
+            Return New Condition("AND", conditions)
         End Function
 
         Public Function OrAll(ParamArray Conditions As FormattableString()) As Condition
@@ -521,7 +534,9 @@ Namespace QueryBuilder
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function [And](ByVal condition As FormattableString) As Condition
             If Not IsNothing(condition) AndAlso condition.ToString.IsNotBlank() Then
-                _tokens.Add("AND")
+                If _tokens.Any Then
+                    _tokens.Add("AND")
+                End If
                 _tokens.Add(ToSQLString(condition))
             End If
             Return Me
@@ -543,7 +558,9 @@ Namespace QueryBuilder
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function [Or](ByVal condition As FormattableString) As Condition
             If Not IsNothing(condition) AndAlso condition.ToString.IsNotBlank() Then
-                _tokens.Add("OR")
+                If _tokens.Any Then
+                    _tokens.Add("OR")
+                End If
                 _tokens.Add(condition.ToSQLString())
             End If
             Return Me
@@ -610,7 +627,7 @@ Namespace QueryBuilder
     End Class
 
     Friend Enum JoinType
-        None
+        Join
         Inner
         LeftOuterJoin
         RightOuterJoin
@@ -619,16 +636,6 @@ Namespace QueryBuilder
         CrossApply
     End Enum
 
-    ''' <summary>
-    ''' Exception thrown when building a SELECT clause.
-    ''' </summary>
-    Public Class SelectBuildingException
-        Inherits Exception
 
-        Friend Sub New(ByVal message As String)
-            MyBase.New(message)
-        End Sub
-
-    End Class
 
 End Namespace
