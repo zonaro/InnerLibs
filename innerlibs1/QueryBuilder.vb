@@ -56,7 +56,6 @@ Namespace QueryLibrary
             Return _Join(JoinType.None, table, New Condition([on]))
         End Function
 
-
         ''' <summary>
         ''' Sets a INNER JOIN clause in the SELECT being built.
         ''' </summary>
@@ -181,7 +180,7 @@ Namespace QueryLibrary
         Public Function Where(ByVal condition As FormattableString) As [Select]
             If condition.ToString().IsNotBlank Then
                 If _where IsNot Nothing Then
-                    [AndAlso](New Condition(condition))
+                    [And](New Condition(condition))
                 Else
                     _where = New Condition(condition)
                 End If
@@ -197,9 +196,10 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         ''' <exception cref="SelectBuildingException">WHERE clause is already set</exception>
         Public Function Where(ByVal condition As Condition) As [Select]
-            If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
-            If _where IsNot Nothing Then Throw New SelectBuildingException("WHERE clause is already set.")
-            _where = New Condition(condition)
+            If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank() Then
+                If _where IsNot Nothing Then [And](condition)
+                _where = New Condition(condition)
+            End If
             Return Me
         End Function
 
@@ -209,7 +209,7 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function [AndAlso](ByVal condition As FormattableString) As [Select]
+        Public Function [And](ByVal condition As FormattableString) As [Select]
             If condition.ToString().IsNotBlank Then
                 If _where Is Nothing Then Return Where(condition)
                 _where.And(condition)
@@ -223,10 +223,11 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function [AndAlso](ByVal condition As Condition) As [Select]
-            If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
-            If _where Is Nothing Then Return Where(condition)
-            _where.And(condition)
+        Public Function [And](ByVal condition As Condition) As [Select]
+            If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
+                If _where Is Nothing Then Return Where(condition)
+                _where.And(condition)
+            End If
             Return Me
         End Function
 
@@ -236,7 +237,7 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function [OrElse](ByVal condition As FormattableString) As [Select]
+        Public Function [Or](ByVal condition As FormattableString) As [Select]
             If condition.IsNotBlank Then
                 If _where Is Nothing Then Return Where(condition)
                 _where.Or(condition)
@@ -250,7 +251,7 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition of the WHERE clause</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function [OrElse](ByVal condition As Condition) As [Select]
+        Public Function [Or](ByVal condition As Condition) As [Select]
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
             If _where Is Nothing Then Return Where(condition)
             _where.Or(condition)
@@ -307,25 +308,6 @@ Namespace QueryLibrary
                 _orderBy.AddRange(columns)
             End If
 
-            _desc = False
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Sets the ORDER BY clause in the SELECT being built with DESC.
-        ''' </summary>
-        ''' <param name="columns">Columns to be ordered by</param>
-        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function OrderByDesc(ParamArray columns As String()) As [Select]
-            If columns Is Nothing Then Throw New ArgumentNullException(NameOf(columns))
-
-            If _orderBy Is Nothing Then
-                _orderBy = New List(Of String)(columns)
-            Else
-                _orderBy.AddRange(columns)
-            End If
-
-            _desc = True
             Return Me
         End Function
 
@@ -387,9 +369,6 @@ Namespace QueryLibrary
                 sql.Append(" ORDER BY ")
                 sql.Append(String.Join(", ", _orderBy))
 
-                If _desc Then
-                    sql.Append(" DESC ")
-                End If
             End If
 
             If _offset.IsNotBlank Then
