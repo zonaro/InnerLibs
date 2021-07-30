@@ -548,7 +548,7 @@ Namespace QueryBuilder
         ''' <param name="condition">Condition to be appended</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function [And](ByVal condition As Condition) As Condition
-            Return [And](condition.ParenthesisToString().ToFormattable())
+            Return [And](condition.ParenthesisToString().ToFormattableString())
         End Function
 
         ''' <summary>
@@ -572,7 +572,7 @@ Namespace QueryBuilder
         ''' <param name="condition">Condition to be appended</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function [Or](ByVal condition As Condition) As Condition
-            Return [Or](condition.ParenthesisToString().ToFormattable)
+            Return [Or](condition.ParenthesisToString().ToFormattableString)
         End Function
 
         ''' <summary>

@@ -17,7 +17,7 @@ Imports InnerLibs.LINQ
 Public Module Text
 
 
-    <Extension()> Public Function ToFormattable(Text As String, Optional args As Object() = Nothing) As FormattableString
+    <Extension()> Public Function ToFormattableString(Text As String, Optional args As Object() = Nothing) As FormattableString
         Return FormattableStringFactory.Create(Text, If(args, {}))
     End Function
 
