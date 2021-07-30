@@ -2,7 +2,7 @@
 Imports System.Globalization
 Imports System.Text
 
-Namespace QueryLibrary
+Namespace QueryBuilder
 
     ''' <summary>
     ''' Class that aids building a SELECT clause.
