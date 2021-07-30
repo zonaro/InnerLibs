@@ -249,6 +249,7 @@ Public Module DbExtensions
         Dim dic As New Dictionary(Of String, Object)
         If obj IsNot Nothing AndAlso Connection IsNot Nothing Then
             If obj.IsDictionary Then
+                dic = CType(CType(obj, Object), Dictionary(Of String, Object))
             ElseIf obj.GetType() Is GetType(NameValueCollection) Then
                 dic = CType(CType(obj, Object), NameValueCollection).ToDictionary()
             Else
