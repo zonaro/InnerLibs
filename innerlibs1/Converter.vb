@@ -49,10 +49,13 @@ Public Module Converter
         Dim a As New List(Of Object)
         Type = If(Type, GetType(Object))
         If Obj IsNot Nothing Then
-            If Not IsArray(Obj) Then
-                Return ChangeArrayType({Obj}, Type)
-            Else
+            If IsArray(Obj) Then
                 Return ChangeArrayType(Obj, Type)
+            Else
+                If IsList(Obj) Then
+                    Return ChangeIEnumerableType({Obj}, Type).ToArray()
+                End If
+                Return ChangeArrayType({Obj}, Type)
             End If
         End If
         Return {}

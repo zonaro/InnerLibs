@@ -113,23 +113,23 @@ Public Module DbExtensions
                 For index = 0 To SQL.ArgumentCount - 1
                     Dim valores = SQL.GetArgument(index)
                     Dim v = ForceArray(valores)
-                    Dim paramvalues As New List(Of String)
+                    Dim paramvalues As New List(Of Object)
                     For v_index = 0 To v.Count - 1
                         paramvalues.Add(v(v_index))
                     Next
-                    paramvalues = paramvalues.Select(Function(x)
-                                                         If x Is Nothing Then
-                                                             Return "NULL"
-                                                         End If
-                                                         If x.IsNumericType Then
-                                                             Return x.ToString()
-                                                         End If
-                                                         If x.GetNullableTypeOf() Is GetType(Date) Then
-                                                             Return CType(x, Date).ToSQLDateString().Quote("'")
-                                                         End If
-                                                         Return x.ToString().Quote("'")
-                                                     End Function).ToList()
-                    CommandText = CommandText.Replace("{" & index & "}", paramvalues.Join(",").IfBlank("NULL").QuoteIf(paramvalues.Count > 1, "("))
+                    Dim pv = paramvalues.Select(Function(x)
+                                                    If x Is Nothing Then
+                                                        Return "NULL"
+                                                    End If
+                                                    If GetNullableTypeOf(x).IsNumericType OrElse x.ToString().IsNumber() Then
+                                                        Return x.ToString()
+                                                    End If
+                                                    If IsDate(x) Then
+                                                        Return CType(x, Date).ToSQLDateString().Quote("'")
+                                                    End If
+                                                    Return x.ToString().Quote("'")
+                                                End Function).ToList()
+                    CommandText = CommandText.Replace("{" & index & "}", pv.Join(",").IfBlank("NULL").QuoteIf(paramvalues.Count > 1, "("))
                 Next
                 Return CommandText
             Else

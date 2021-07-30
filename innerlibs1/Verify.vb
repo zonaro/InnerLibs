@@ -518,13 +518,17 @@ Public Module Verify
         Return Value
     End Function
 
-    Public Function IsDate(Obj As String) As Boolean
+    <Extension()> Public Function IsDate(Obj As String) As Boolean
         Try
             Dim d As Date
             Return Date.TryParse(Obj, d)
         Catch ex As Exception
             Return False
         End Try
+    End Function
+
+    <Extension()> Public Function IsDate(Of T)(Obj As T) As Boolean
+        Return GetNullableTypeOf(Obj) Is GetType(Date) OrElse Obj?.ToString().IsDate()
     End Function
 
 
