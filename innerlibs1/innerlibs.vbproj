@@ -135,34 +135,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="OnlineList.vb" />
-    <Compile Include="QueryBuilder\Query\Exceptions\QueryException.vb" />
-    <Compile Include="QueryBuilder\Query\Exceptions\UnexpectedNumberOfRowsAffectedException.vb" />
-    <Compile Include="QueryBuilder\Query\Exceptions\UnexpectedNumberOfRowsSelectedException.vb" />
-    <Compile Include="QueryBuilder\Query\Internals\CountValidationEnum.vb" />
-    <Compile Include="QueryBuilder\Query\Internals\ParameterSetter.vb" />
-    <Compile Include="QueryBuilder\Query\Internals\WithoutReturn.vb" />
-    <Compile Include="QueryBuilder\Query\Internals\WithReturn.vb" />
-    <Compile Include="QueryBuilder\Query\Query.vb" />
-    <Compile Include="QueryBuilder\Query\WithoutReturn\Change.vb" />
-    <Compile Include="QueryBuilder\Query\WithoutReturn\ChangeExactly.vb" />
-    <Compile Include="QueryBuilder\Query\WithoutReturn\ChangeExactlyOne.vb" />
-    <Compile Include="QueryBuilder\Query\WithoutReturn\ChangeNoLessThan.vb" />
-    <Compile Include="QueryBuilder\Query\WithoutReturn\ChangeNoLessThanOne.vb" />
-    <Compile Include="QueryBuilder\Query\WithoutReturn\ChangeNoMoreThan.vb" />
-    <Compile Include="QueryBuilder\Query\WithoutReturn\ChangeNoMoreThanOne.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\Select.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\SelectExactly.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\SelectExactlyOne.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\SelectNoLessThan.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\SelectNoLessThanOne.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\SelectNoMoreThan.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\SelectNoMoreThanOne.vb" />
-    <Compile Include="QueryBuilder\Query\WithReturn\SelectSingle.vb" />
-    <Compile Include="QueryBuilder\Select\Condition.vb" />
-    <Compile Include="QueryBuilder\Select\Join.vb" />
-    <Compile Include="QueryBuilder\Select\JoinType.vb" />
-    <Compile Include="QueryBuilder\Select\Select.vb" />
-    <Compile Include="QueryBuilder\Select\SelectBuildingException.vb" />
+    <Compile Include="QueryBuilder.vb" />
     <Compile Include="QuestionTest.vb" />
     <Compile Include="Romanize.vb" />
     <Compile Include="Select2Data.vb" />

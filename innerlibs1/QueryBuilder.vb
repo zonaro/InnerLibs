@@ -21,7 +21,7 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Class that aids building a SELECT clause.
         ''' </summary>
-        ''' <paramname="columns">Columns to be selected</param>
+        ''' <param name="columns">Columns to be selected</param>
         Public Sub New(ParamArray columns As String())
             If columns Is Nothing Then Throw New ArgumentNullException(NameOf(columns))
 
@@ -35,7 +35,7 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets the FROM clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be selected from</param>
+        ''' <param name="table">Table to be selected from</param>
         ''' <returns></returns>
         Public Function From(ByVal table As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -47,8 +47,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function Join(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -59,8 +59,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function Join(ByVal table As String, ByVal [on] As Condition) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -71,8 +71,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a LEFT OUTER JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function LeftOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -83,8 +83,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a LEFT OUTER JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function LeftOuterJoin(ByVal table As String, ByVal [on] As Condition) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -95,8 +95,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a RIGHT OUTER JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function RightOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -107,8 +107,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a RIGHT OUTER JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function RightOuterJoin(ByVal table As String, ByVal [on] As Condition) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -119,8 +119,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a FULL OUTER JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function FullOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -131,8 +131,8 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a FULL OUTER JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
-        ''' <paramname="on">Condition of the join (ON clause)</param>
+        ''' <param name="table">Table to be join</param>
+        ''' <param name="on">Condition of the join (ON clause)</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function FullOuterJoin(ByVal table As String, ByVal [on] As Condition) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -143,7 +143,7 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets a CROSS JOIN clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="table">Table to be join</param>
+        ''' <param name="table">Table to be join</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function CrossJoin(ByVal table As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
@@ -153,7 +153,7 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets the WHERE clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="condition">Condition to set</param>
+        ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function Where(ByVal condition As String) As [Select]
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
@@ -166,9 +166,9 @@ Namespace QueryLibrary
         ''' Sets the WHERE clause in the SELECT being built.
         ''' Throws exception if WHERE is already set.
         ''' </summary>
-        ''' <paramname="condition">Condition to set</param>
+        ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        ''' <exceptioncref="SelectBuildingException">WHERE clause is already set</exception>
+        ''' <exception cref="SelectBuildingException">WHERE clause is already set</exception>
         Public Function Where(ByVal condition As Condition) As [Select]
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
             If _where IsNot Nothing Then Throw New SelectBuildingException("WHERE clause is already set.")
@@ -180,7 +180,7 @@ Namespace QueryLibrary
         ''' Sets the WHERE clause in the SELECT being built.
         ''' If WHERE is already set, appends the condition with an AND clause.
         ''' </summary>
-        ''' <paramname="condition">Condition to set</param>
+        ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function WhereAnd(ByVal condition As String) As [Select]
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
@@ -193,7 +193,7 @@ Namespace QueryLibrary
         ''' Sets the WHERE clause in the SELECT being built.
         ''' If WHERE is already set, appends the condition with an AND clause.
         ''' </summary>
-        ''' <paramname="condition">Condition to set</param>
+        ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function WhereAnd(ByVal condition As Condition) As [Select]
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
@@ -206,7 +206,7 @@ Namespace QueryLibrary
         ''' Sets the WHERE clause in the SELECT being built.
         ''' If WHERE is already set, appends the condition with an OR clause.
         ''' </summary>
-        ''' <paramname="condition">Condition to set</param>
+        ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function WhereOr(ByVal condition As String) As [Select]
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
@@ -219,7 +219,7 @@ Namespace QueryLibrary
         ''' Sets the WHERE clause in the SELECT being built.
         ''' If WHERE is already set, appends the condition with an OR clause.
         ''' </summary>
-        ''' <paramname="condition">Condition of the WHERE clause</param>
+        ''' <param name="condition">Condition of the WHERE clause</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function WhereOr(ByVal condition As Condition) As [Select]
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
@@ -231,7 +231,7 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets the GROUP BY clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="columns">Columns to be grouped by</param>
+        ''' <param name="columns">Columns to be grouped by</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function GroupBy(ParamArray columns As String()) As [Select]
             If columns Is Nothing Then Throw New ArgumentNullException(NameOf(columns))
@@ -249,9 +249,9 @@ Namespace QueryLibrary
         ''' Sets the HAVING clause in the SELECT being built.
         ''' Throws exception if HAVING is already set.
         ''' </summary>
-        ''' <paramname="condition">Condition to set</param>
+        ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        ''' <exceptioncref="SelectBuildingException">HAVING clause is already set</exception>
+        ''' <exception cref="SelectBuildingException">HAVING clause is already set</exception>
         Public Function Having(ByVal condition As String) As [Select]
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
             If Not Equals(_having, Nothing) Then Throw New SelectBuildingException("HAVING clause is already set.")
@@ -262,7 +262,7 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets the ORDER BY clause in the SELECT being built.
         ''' </summary>
-        ''' <paramname="columns">Columns to be ordered by</param>
+        ''' <param name="columns">Columns to be ordered by</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function OrderBy(ParamArray columns As String()) As [Select]
             If columns Is Nothing Then Throw New ArgumentNullException(NameOf(columns))
@@ -280,7 +280,7 @@ Namespace QueryLibrary
         ''' <summary>
         ''' Sets the ORDER BY clause in the SELECT being built with DESC.
         ''' </summary>
-        ''' <paramname="columns">Columns to be ordered by</param>
+        ''' <param name="columns">Columns to be ordered by</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function OrderByDesc(ParamArray columns As String()) As [Select]
             If columns Is Nothing Then Throw New ArgumentNullException(NameOf(columns))
@@ -324,8 +324,8 @@ Namespace QueryLibrary
             End If
 
             If _joins IsNot Nothing Then
-                For Each join In _joins
-                    sql.Append(String.Format(CultureInfo.InvariantCulture, " {0}", join))
+                For Each j In _joins
+                    sql.Append(String.Format(CultureInfo.InvariantCulture, " {0}", j))
                 Next
             End If
 
@@ -370,5 +370,143 @@ Namespace QueryLibrary
 
             Return Me
         End Function
+    End Class
+
+    ''' <summary>
+    ''' A condition with optional AND and OR clauses that can be used in WHERE or JOIN ON statements.
+    ''' </summary>
+    Public Class Condition
+        Private ReadOnly _tokens As List(Of String) = New List(Of String)()
+
+        ''' <summary>
+        ''' Ctor.
+        ''' </summary>
+        ''' <param name="condition">Condition to set in this instance</param>
+        Public Sub New(ByVal condition As String)
+            If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
+            _tokens.Add(condition)
+        End Sub
+
+        ''' <summary>
+        ''' Ctor.
+        ''' </summary>
+        ''' <param name="condition">Copies to the condition being constructed</param>
+        Public Sub New(ByVal condition As Condition)
+            If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
+            _tokens.Add(condition.ParenthesisToString())
+        End Sub
+
+        ''' <summary>
+        ''' Appends the given condition with AND in this condition.
+        ''' </summary>
+        ''' <param name="condition">Condition to be appended</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function [And](ByVal condition As String) As Condition
+            If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
+            _tokens.Add("AND")
+            _tokens.Add(condition)
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Appends the given condition with AND in this condition.
+        ''' </summary>
+        ''' <param name="condition">Condition to be appended</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function [And](ByVal condition As Condition) As Condition
+            If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
+            Return [And](condition.ParenthesisToString())
+        End Function
+
+        ''' <summary>
+        ''' Appends the given condition with OR in this condition.
+        ''' </summary>
+        ''' <param name="condition">Condition to be appended</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function [Or](ByVal condition As String) As Condition
+            If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
+            _tokens.Add("OR")
+            _tokens.Add(condition)
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Appends the given condition with OR in this condition.
+        ''' </summary>
+        ''' <param name="condition">Condition to be appended</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function [Or](ByVal condition As Condition) As Condition
+            If condition Is Nothing Then Throw New ArgumentNullException("condition")
+            Return [Or](condition.ParenthesisToString())
+        End Function
+
+        ''' <summary>
+        ''' Returns the condition statement as a SQL query in parenthesis.
+        ''' </summary>
+        ''' <returns>The condition statement as a SQL query in parenthesis</returns>
+        Public Function ParenthesisToString() As String
+            Return ToString().Quote("(")
+        End Function
+
+        ''' <summary>
+        ''' Returns the condition statement as a SQL query.
+        ''' </summary>
+        ''' <returns>The condition statement as a SQL query</returns>
+        Public Overrides Function ToString() As String
+            Return String.Join(" ", _tokens)
+        End Function
+    End Class
+
+    Friend Class Join
+        Friend Property Type As JoinType
+        Friend Property Table As String
+        Friend Property [On] As Condition
+
+        Private ReadOnly Property JoinString As String
+            Get
+
+                Select Case Type
+                    Case JoinType.Inner
+                        Return "INNER JOIN"
+                    Case JoinType.LeftOuterJoin
+                        Return "LEFT OUTER JOIN"
+                    Case JoinType.RightOuterJoin
+                        Return "RIGHT OUTER JOIN"
+                    Case JoinType.FullOuterJoin
+                        Return "FULL OUTER JOIN"
+                    Case JoinType.CrossJoin
+                        Return "CROSS JOIN"
+                    Case JoinType.CrossApply
+                        Return "CROSS APPLY"
+                    Case Else
+                        Return "JOIN"
+                End Select
+            End Get
+        End Property
+
+        Public Overrides Function ToString() As String
+            Return If([On] Is Nothing, String.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table), String.Format(CultureInfo.InvariantCulture, "{0} {1} ON {2}", JoinString, Table, [On]))
+        End Function
+    End Class
+
+    Friend Enum JoinType
+        None
+        Inner
+        LeftOuterJoin
+        RightOuterJoin
+        FullOuterJoin
+        CrossJoin
+        CrossApply
+    End Enum
+
+    ''' <summary>
+    ''' Exception thrown when building a SELECT clause.
+    ''' </summary>
+    Public Class SelectBuildingException
+        Inherits Exception
+
+        Friend Sub New(ByVal message As String)
+            MyBase.New(message)
+        End Sub
     End Class
 End Namespace
