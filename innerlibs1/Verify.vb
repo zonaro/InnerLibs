@@ -527,6 +527,7 @@ Public Module Verify
         End Try
     End Function
 
+
     Public Function IsArray(Of T)(Obj As T) As Boolean
         Try
             Dim ValueType = Obj.GetType()
@@ -549,6 +550,16 @@ Public Module Verify
     End Function
 
     ''' <summary>
+    ''' Verifica se uma String está em branco
+    ''' </summary>
+    ''' <param name="Text">Uma string</param>
+    ''' <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
+    <Extension>
+    Public Function IsBlank(Text As FormattableString) As Boolean
+        Return IsNothing(Text) OrElse Text.ToString().IsBlank()
+    End Function
+
+    ''' <summary>
     ''' Verifica se uma String não está em branco
     ''' </summary>
     ''' <param name="Text">Uma string</param>
@@ -556,6 +567,11 @@ Public Module Verify
     <Extension>
     Public Function IsNotBlank(Text As String) As Boolean
         Return Not Text.IsBlank()
+    End Function
+
+    <Extension>
+    Public Function IsNotBlank(Text As FormattableString) As Boolean
+        Return Not IsNothing(Text) AndAlso Text.ToString().IsNotBlank()
     End Function
 
     ''' <summary>

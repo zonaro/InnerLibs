@@ -1,5 +1,4 @@
-﻿Imports System
-Imports System.Collections.Generic
+﻿Imports System.Data.Common
 Imports System.Globalization
 Imports System.Text
 
@@ -16,6 +15,7 @@ Namespace QueryLibrary
         Friend _groupBy As List(Of String)
         Friend _having As String
         Friend _orderBy As List(Of String)
+        Friend _offset As String
         Friend _desc As Boolean
 
         ''' <summary>
@@ -53,7 +53,7 @@ Namespace QueryLibrary
         Public Function Join(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.None, table, New Condition([on]))
+            Return _Join(JoinType.None, table, New Condition([on].ToFormattable))
         End Function
 
         ''' <summary>
@@ -77,7 +77,7 @@ Namespace QueryLibrary
         Public Function LeftOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.LeftOuterJoin, table, New Condition([on]))
+            Return _Join(JoinType.LeftOuterJoin, table, New Condition([on].ToFormattable))
         End Function
 
         ''' <summary>
@@ -101,7 +101,7 @@ Namespace QueryLibrary
         Public Function RightOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.RightOuterJoin, table, New Condition([on]))
+            Return _Join(JoinType.RightOuterJoin, table, New Condition([on].ToFormattable))
         End Function
 
         ''' <summary>
@@ -125,7 +125,7 @@ Namespace QueryLibrary
         Public Function FullOuterJoin(ByVal table As String, ByVal [on] As String) As [Select]
             If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
             If Equals([on], Nothing) Then Throw New ArgumentNullException(NameOf([on]))
-            Return _Join(JoinType.FullOuterJoin, table, New Condition([on]))
+            Return _Join(JoinType.FullOuterJoin, table, New Condition([on].ToFormattable))
         End Function
 
         ''' <summary>
@@ -155,10 +155,14 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function Where(ByVal condition As String) As [Select]
-            If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
-            If _where IsNot Nothing Then Throw New SelectBuildingException("WHERE clause already set.")
-            _where = New Condition(condition)
+        Public Function Where(ByVal condition As FormattableString) As [Select]
+            If condition.ToString().IsNotBlank Then
+                If _where IsNot Nothing Then
+                    WhereAnd(New Condition(condition))
+                Else
+                    _where = New Condition(condition)
+                End If
+            End If
             Return Me
         End Function
 
@@ -182,10 +186,11 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function WhereAnd(ByVal condition As String) As [Select]
-            If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
-            If _where Is Nothing Then Return Where(condition)
-            _where.And(condition)
+        Public Function WhereAnd(ByVal condition As FormattableString) As [Select]
+            If condition.ToString().IsNotBlank Then
+                If _where Is Nothing Then Return Where(condition)
+                _where.And(condition)
+            End If
             Return Me
         End Function
 
@@ -208,10 +213,11 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function WhereOr(ByVal condition As String) As [Select]
-            If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
-            If _where Is Nothing Then Return Where(condition)
-            _where.Or(condition)
+        Public Function WhereOr(ByVal condition As FormattableString) As [Select]
+            If condition.IsNotBlank Then
+                If _where Is Nothing Then Return Where(condition)
+                _where.Or(condition)
+            End If
             Return Me
         End Function
 
@@ -256,6 +262,11 @@ Namespace QueryLibrary
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
             If Not Equals(_having, Nothing) Then Throw New SelectBuildingException("HAVING clause is already set.")
             _having = condition
+            Return Me
+        End Function
+
+        Public Function OffSet(Page As Integer, PageSize As Integer) As [Select]
+            _offset = $"OFFSET {Page} ROWS FETCH NEXT {PageSize} ROWS ONLY"
             Return Me
         End Function
 
@@ -310,13 +321,17 @@ Namespace QueryLibrary
             Return $"({ToString()})"
         End Function
 
+        Public Function CreateDbCommand(Connection As DbConnection) As DbCommand
+            Return Connection.CreateCommand(ToString(), New Dictionary(Of String, Object))
+        End Function
+
         ''' <summary>
         ''' Returns the SELECT statement as a SQL query.
         ''' </summary>
         ''' <returns>The SELECT statement as a SQL query</returns>
         Public Overrides Function ToString() As String
             Dim sql = New StringBuilder("SELECT ")
-            sql.Append(String.Join(", ", _columns))
+            sql.Append(String.Join(", ", _columns).IfBlank(" * "))
 
             If Not Equals(_from, Nothing) Then
                 sql.Append(" FROM ")
@@ -345,9 +360,18 @@ Namespace QueryLibrary
             End If
 
             If _orderBy IsNot Nothing Then
+
                 sql.Append(" ORDER BY ")
                 sql.Append(String.Join(", ", _orderBy))
-                If _desc Then sql.Append(" DESC")
+
+                If _desc Then
+                    sql.Append(" DESC ")
+                End If
+            End If
+
+            If _offset.IsNotBlank Then
+                sql.Append($" {_offset} ")
+
             End If
 
             Return sql.ToString()
@@ -370,6 +394,7 @@ Namespace QueryLibrary
 
             Return Me
         End Function
+
     End Class
 
     ''' <summary>
@@ -382,29 +407,37 @@ Namespace QueryLibrary
         ''' Ctor.
         ''' </summary>
         ''' <param name="condition">Condition to set in this instance</param>
-        Public Sub New(ByVal condition As String)
+        Public Sub New(ByVal condition As FormattableString)
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
-            _tokens.Add(condition)
+            _tokens.Add(ToSQLString(condition))
         End Sub
 
         ''' <summary>
         ''' Ctor.
         ''' </summary>
         ''' <param name="condition">Copies to the condition being constructed</param>
-        Public Sub New(ByVal condition As Condition)
+        Public Sub New(condition As Condition)
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
             _tokens.Add(condition.ParenthesisToString())
         End Sub
+
+        Public Shared Function GroupOr(ParamArray conditions As FormattableString()) As Condition
+            Return If(conditions, {}).Where(Function(x) x.ToString().IsNotBlank()).Select(Function(x) New Condition(x)).Aggregate(Function(a, b) a.Or(b))
+        End Function
+
+        Public Shared Function GroupAnd(ParamArray conditions As FormattableString()) As Condition
+            Return If(conditions, {}).Where(Function(x) x.ToString().IsNotBlank()).Select(Function(x) New Condition(x)).Aggregate(Function(a, b) a.And(b))
+        End Function
 
         ''' <summary>
         ''' Appends the given condition with AND in this condition.
         ''' </summary>
         ''' <param name="condition">Condition to be appended</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function [And](ByVal condition As String) As Condition
+        Public Function [And](ByVal condition As FormattableString) As Condition
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
             _tokens.Add("AND")
-            _tokens.Add(condition)
+            _tokens.Add(ToSQLString(condition))
             Return Me
         End Function
 
@@ -415,7 +448,7 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function [And](ByVal condition As Condition) As Condition
             If condition Is Nothing Then Throw New ArgumentNullException(NameOf(condition))
-            Return [And](condition.ParenthesisToString())
+            Return [And](condition.ParenthesisToString().ToFormattable())
         End Function
 
         ''' <summary>
@@ -423,10 +456,10 @@ Namespace QueryLibrary
         ''' </summary>
         ''' <param name="condition">Condition to be appended</param>
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
-        Public Function [Or](ByVal condition As String) As Condition
+        Public Function [Or](ByVal condition As FormattableString) As Condition
             If Equals(condition, Nothing) Then Throw New ArgumentNullException(NameOf(condition))
             _tokens.Add("OR")
-            _tokens.Add(condition)
+            _tokens.Add(condition.ToSQLString())
             Return Me
         End Function
 
@@ -437,7 +470,7 @@ Namespace QueryLibrary
         ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function [Or](ByVal condition As Condition) As Condition
             If condition Is Nothing Then Throw New ArgumentNullException("condition")
-            Return [Or](condition.ParenthesisToString())
+            Return [Or](condition.ParenthesisToString().ToFormattable)
         End Function
 
         ''' <summary>
@@ -455,6 +488,7 @@ Namespace QueryLibrary
         Public Overrides Function ToString() As String
             Return String.Join(" ", _tokens)
         End Function
+
     End Class
 
     Friend Class Join
@@ -487,6 +521,7 @@ Namespace QueryLibrary
         Public Overrides Function ToString() As String
             Return If([On] Is Nothing, String.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table), String.Format(CultureInfo.InvariantCulture, "{0} {1} ON {2}", JoinString, Table, [On]))
         End Function
+
     End Class
 
     Friend Enum JoinType
@@ -508,5 +543,7 @@ Namespace QueryLibrary
         Friend Sub New(ByVal message As String)
             MyBase.New(message)
         End Sub
+
     End Class
+
 End Namespace

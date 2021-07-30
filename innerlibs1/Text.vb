@@ -16,6 +16,11 @@ Imports InnerLibs.LINQ
 ''' <remarks></remarks>
 Public Module Text
 
+
+    <Extension()> Public Function ToFormattable(Text As String, Optional args As Object() = Nothing) As FormattableString
+        Return FormattableStringFactory.Create(Text, If(args, {}))
+    End Function
+
     ''' <summary>
     ''' Parseia uma ConnectionString em um Dicionário
     ''' </summary>

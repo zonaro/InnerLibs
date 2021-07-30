@@ -96,7 +96,7 @@ Public Module DbExtensions
                         cmd.Parameters.Add(param)
                         param_names.Add("@" & param.ParameterName)
                     Next
-                    cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", param_names.Join(",").IfBlank("NULL").QuoteIf("(", param_names.Any()))
+                    cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", param_names.Join(",").IfBlank("NULL").QuoteIf(param_names.Any(), "("))
                 Next
             Else
                 cmd.CommandText = SQL.ToString()
@@ -105,6 +105,41 @@ Public Module DbExtensions
         End If
         Return Nothing
     End Function
+
+    <Extension()> Public Function ToSQLString(SQL As FormattableString) As String
+        If SQL IsNot Nothing Then
+            If SQL.ArgumentCount > 0 Then
+                Dim CommandText = SQL.Format
+                For index = 0 To SQL.ArgumentCount - 1
+                    Dim valores = SQL.GetArgument(index)
+                    Dim v = ForceArray(valores)
+                    Dim paramvalues As New List(Of String)
+                    For v_index = 0 To v.Count - 1
+                        paramvalues.Add(v(v_index))
+                    Next
+                    paramvalues = paramvalues.Select(Function(x)
+                                                         If x Is Nothing Then
+                                                             Return "NULL"
+                                                         End If
+                                                         If x.IsNumericType Then
+                                                             Return x.ToString()
+                                                         End If
+                                                         If x.GetNullableTypeOf() Is GetType(Date) Then
+                                                             Return CType(x, Date).ToSQLDateString().Quote("'")
+                                                         End If
+                                                         Return x.ToString().Quote("'")
+                                                     End Function).ToList()
+                    CommandText = CommandText.Replace("{" & index & "}", paramvalues.Join(",").IfBlank("NULL").QuoteIf(paramvalues.Count > 1, "("))
+                Next
+                Return CommandText
+            Else
+                Return SQL.ToString()
+            End If
+        End If
+        Return Nothing
+    End Function
+
+
 
     ''' <summary>
     ''' Monta um Comando SQL para executar uma procedure especifica e trata valores espicificos de
