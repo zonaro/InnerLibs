@@ -151,6 +151,16 @@ Namespace QueryLibrary
         End Function
 
         ''' <summary>
+        ''' Sets a CROSS JOIN clause in the SELECT being built.
+        ''' </summary>
+        ''' <param name="table">Table to be join</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function CrossApply(ByVal table As String) As [Select]
+            If Equals(table, Nothing) Then Throw New ArgumentNullException(NameOf(table))
+            Return _Join(JoinType.CrossApply, table, Nothing)
+        End Function
+
+        ''' <summary>
         ''' Sets the WHERE clause in the SELECT being built.
         ''' </summary>
         ''' <param name="condition">Condition to set</param>
