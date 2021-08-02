@@ -76,6 +76,7 @@ Namespace MicroORM
             Return Me
         End Function
 
+
         Public Function RemoveColumns(ParamArray Columns As String()) As [Select](Of T)
             If _columns IsNot Nothing Then
                 Columns = If(Columns, {}).Where(Function(x) x.IsIn(_columns)).ToArray()
