@@ -86,7 +86,6 @@
     <Compile Include="ColorConvert.vb" />
     <Compile Include="ConsoleExtensions.vb" />
     <Compile Include="Converter.vb" />
-    <Compile Include="DbExtensions.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="DictionarySelector.vb" />
     <Compile Include="Directories.vb" />
@@ -135,7 +134,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="OnlineList.vb" />
-    <Compile Include="QueryBuilder.vb" />
+    <Compile Include="MicroORM.vb" />
     <Compile Include="QuestionTest.vb" />
     <Compile Include="Romanize.vb" />
     <Compile Include="Select2Data.vb" />

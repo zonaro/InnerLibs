@@ -16,8 +16,10 @@ Imports InnerLibs.LINQ
 ''' <remarks></remarks>
 Public Module Text
 
-
-    <Extension()> Public Function ToFormattableString(Text As String, Optional args As Object() = Nothing) As FormattableString
+    <Extension()> Public Function ToFormattableString(Text As String, ParamArray args As Object()) As FormattableString
+        Return FormattableStringFactory.Create(Text, If(args, {}))
+    End Function
+    <Extension()> Public Function ToFormattableString(Text As String, args As IEnumerable(Of Object())) As FormattableString
         Return FormattableStringFactory.Create(Text, If(args, {}))
     End Function
 

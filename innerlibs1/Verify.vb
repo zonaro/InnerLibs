@@ -531,6 +531,10 @@ Public Module Verify
         Return GetNullableTypeOf(Obj) Is GetType(Date) OrElse Obj?.ToString().IsDate()
     End Function
 
+    <Extension()> Public Function IsBoolean(Of T)(Obj As T) As Boolean
+        Return GetNullableTypeOf(Obj) Is GetType(Boolean) OrElse Obj?.ToString().ToLower().IsIn("true", "false")
+    End Function
+
 
     Public Function IsArray(Of T)(Obj As T) As Boolean
         Try
