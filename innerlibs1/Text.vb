@@ -90,6 +90,17 @@ Public Module Text
     End Function
 
     ''' <summary>
+    ''' operador LIKE do VB para C# em forma de extension method
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="OtherText"></param>
+    ''' <returns></returns>
+    <Extension> Function [Like](Text As String, OtherText As String) As Boolean
+        Return Text Like OtherText
+    End Function
+
+
+    ''' <summary>
     ''' Formata um numero para CNPJ ou CNPJ se forem validos
     ''' </summary>
     ''' <param name="Document"></param>

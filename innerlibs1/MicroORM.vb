@@ -21,12 +21,12 @@ Namespace MicroORM
 
         Sub New()
             SetColumns(Of T)()
-            From(ClassTools.GetNullableTypeOf(GetType(T)).Name)
+            From(Of T)()
         End Sub
 
         Sub New(obj As T)
             SetColumns(Of T)()
-            From(ClassTools.GetNullableTypeOf(GetType(T)).Name)
+            From(Of T)()
             WhereObject(obj)
         End Sub
 
@@ -36,15 +36,8 @@ Namespace MicroORM
         ''' <param name="columns">Columns to be selected</param>
         Public Sub New(ParamArray columns As String())
             SetColumns(columns)
+            From(Of T)()
         End Sub
-
-        Public Function RunFirst(Connection As DbConnection) As T
-            Return RunSQLRow(Of T)(Connection)
-        End Function
-
-        Public Function RunSet(Connection As DbConnection) As IEnumerable(Of T)
-            Return RunSQLSet(Of T)(Connection)
-        End Function
 
         Friend _columns As List(Of String)
         Friend _from As String
@@ -63,7 +56,7 @@ Namespace MicroORM
         End Function
 
         Public Function SetColumns(ParamArray Columns As String()) As [Select](Of T)
-            Columns = If(Columns, {}).Distinct().ToArray()
+            Columns = If(Columns, {}).Distinct().Where(Function(x) x.IsNotBlank()).ToArray()
             _columns = New List(Of String)()
             _columns.AddRange(Columns)
             Return Me
@@ -131,6 +124,15 @@ Namespace MicroORM
                     sl.SetColumns(Me._columns)
                 End If
             End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Sets the FROM clause in the SELECT being built.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function From(Of O)() As [Select](Of T)
+            From(ClassTools.GetNullableTypeOf(GetType(O)).Name)
             Return Me
         End Function
 
@@ -260,19 +262,27 @@ Namespace MicroORM
             Return Connection.RunSQLValue(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLRow(Of T)(Connection As DbConnection) As T
+        Public Function RunSQLRow(Of O)(Connection As DbConnection) As O
+            Return Connection.RunSQLRow(Of O)(Me.CreateDbCommand(Connection))
+        End Function
+
+        Public Function RunSQLRow(Connection As DbConnection) As T
             Return Connection.RunSQLRow(Of T)(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLRow(Connection As DbConnection) As Dictionary(Of String, Object)
+        Public Function RunSQLRowDictionary(Connection As DbConnection) As Dictionary(Of String, Object)
             Return Connection.RunSQLRow(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLSet(Of T)(Connection As DbConnection) As IEnumerable(Of T)
+        Public Function RunSQLSet(Of O)(Connection As DbConnection) As IEnumerable(Of T)
+            Return Connection.RunSQLSet(Of O)(Me.CreateDbCommand(Connection))
+        End Function
+
+        Public Function RunSQLSet(Connection As DbConnection) As IEnumerable(Of T)
             Return Connection.RunSQLSet(Of T)(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLSet(Connection As DbConnection) As IEnumerable(Of Dictionary(Of String, Object))
+        Public Function RunSQLSetDictionary(Connection As DbConnection) As IEnumerable(Of Dictionary(Of String, Object))
             Return Connection.RunSQLSet(Me.CreateDbCommand(Connection))
         End Function
 
@@ -314,6 +324,7 @@ Namespace MicroORM
                 p.Replace("OrElse", "OR")
                 p.Replace(" like ", " LIKE ")
                 p.Replace(".Contains", " LIKE ")
+                p.Replace(".Like", " LIKE ")
                 p.Replace(".Equal", " = ")
                 p.Replace("""", "'")
                 Me.Where(p.ToString().ToFormattableString())
@@ -522,12 +533,26 @@ Namespace MicroORM
             Return CreateDbCommand(Connection, Nothing)
         End Function
 
-        Public Function AndSearch(Value As Object, ParamArray Columns As String())
+        Public Function AndSearch(Value As String, ParamArray Columns As String())
             Return Me.AndAny(If(Columns, {}).Select(Function(x) (x & " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray())
         End Function
 
-        Public Function OrSearch(Value As Object, ParamArray Columns As String())
+        Public Function OrSearch(Value As String, ParamArray Columns As String())
             Return Me.OrAny(If(Columns, {}).Select(Function(x) (x & " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray())
+        End Function
+
+        Public Function OrSearch(Value As IEnumerable(Of String), ParamArray Columns As String())
+            For Each item In If(Value, {}).Where(Function(x) x.IsNotBlank)
+                Me.OrSearch(item, Columns)
+            Next
+            Return Me
+        End Function
+
+        Public Function AndSearch(Value As IEnumerable(Of String), ParamArray Columns As String())
+            For Each item In If(Value, {}).Where(Function(x) x.IsNotBlank)
+                Me.AndSearch(item, Columns)
+            Next
+            Return Me
         End Function
 
         ''' <summary>
