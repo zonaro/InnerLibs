@@ -255,8 +255,8 @@ Namespace MicroORM
             Return _Join(JoinType.CrossApply, table, Nothing)
         End Function
 
-        Public Function RunSQLValue(Of T)(Connection As DbConnection) As T
-            Return Connection.RunSQLValue(Of T)(Me.CreateDbCommand(Connection))
+        Public Function RunSQLValue(Of O As Structure)(Connection As DbConnection) As O
+            Return Connection.RunSQLValue(Of O)(Me.CreateDbCommand(Connection))
         End Function
 
         Public Function RunSQLValue(Connection As DbConnection) As Object
@@ -1081,7 +1081,7 @@ Namespace MicroORM
             Return s
         End Function
 
-        <Extension()> Public Function CreateINSERTCommand(Of T As Class)(Connection As DbConnection, obj As T) As DbCommand
+        <Extension()> Public Function CreateINSERTCommand(Of T As Class)(Connection As DbConnection, obj As T, Optional TableName As String = Nothing) As DbCommand
             Dim d = GetType(T)
             Dim dic As New Dictionary(Of String, Object)
             If obj IsNot Nothing AndAlso Connection IsNot Nothing Then
@@ -1093,7 +1093,7 @@ Namespace MicroORM
                     dic = obj.CreateDictionary()
                 End If
                 Dim cmd = Connection.CreateCommand()
-                cmd.CommandText = String.Format($"INSERT INTO " & d.Name & " ({0}) values ({1})", dic.Keys.Join(","), dic.Keys.SelectJoin(Function(x) $"@__{x}", ","))
+                cmd.CommandText = String.Format($"INSERT INTO " & TableName.IfBlank(d.Name).IfBlank("TableName") & " ({0}) values ({1})", dic.Keys.Join(","), dic.Keys.SelectJoin(Function(x) $"@__{x}", ","))
                 For Each k In dic.Keys
                     Dim param = cmd.CreateParameter()
                     param.ParameterName = $"__{k}"
@@ -1105,28 +1105,52 @@ Namespace MicroORM
             Return Nothing
         End Function
 
-        <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As DbCommand) As Object
-            Dim v = RunSQLRow(Connection, SQL)
-            If v IsNot Nothing AndAlso v.Any() Then
-                Return v.First().Value
-            End If
-            Return Nothing
+        <Extension()> Public Function RunSQLNone(Connection As DbConnection, SQL As FormattableString) As Integer
+            Return RunSQLNone(Connection, CreateCommand(Connection, SQL))
         End Function
 
-        <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As DbCommand) As V
-            Return ChangeType(Of V)(RunSQLValue(Connection, SQL))
+        <Extension()> Public Function RunSQLNone(Connection As DbConnection, Command As DbCommand) As Integer
+            If Connection IsNot Nothing AndAlso Command IsNot Nothing Then
+                If Not Connection.State = ConnectionState.Open Then
+                    Connection.Open()
+                End If
+                For Each item As DbParameter In Command.Parameters
+                    Debug.WriteLine(item.Value, $"Parameter {item.ParameterName}".ToString())
+                Next
+                Debug.WriteLine(Command.CommandText, "SQL Command")
+                Return Command.ExecuteNonQuery()
+            End If
+            Return -1
+        End Function
+
+        <Extension()> Public Function RunSQLValue(Connection As DbConnection, Command As DbCommand) As Object
+            If Connection IsNot Nothing AndAlso Command IsNot Nothing Then
+                If Not Connection.State = ConnectionState.Open Then
+                    Connection.Open()
+                End If
+                For Each item As DbParameter In Command.Parameters
+                    Debug.WriteLine(item.Value, $"Parameter {item.ParameterName}".ToString())
+                Next
+                Debug.WriteLine(Command.CommandText, "SQL Command")
+                Return Command.ExecuteScalar()
+            End If
+            Return Nothing
         End Function
 
         <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As FormattableString) As Object
-            Dim v = RunSQLRow(Connection, SQL).FirstOrDefault()
-            If Not IsNothing(v) Then
-                Return v.Value
+            Return RunSQLValue(Connection, CreateCommand(Connection, SQL))
+        End Function
+
+
+        <Extension()> Public Function RunSQLValue(Of V As Structure)(Connection As DbConnection, Command As DbCommand) As V?
+            Dim vv = RunSQLValue(Connection, Command)
+            If vv IsNot Nothing Then
+                Return CType(vv, V)
             End If
             Return Nothing
         End Function
-
-        <Extension()> Public Function RunSQLValue(Of V)(Connection As DbConnection, SQL As FormattableString) As V
-            Return ChangeType(Of V)(RunSQLValue(Connection, SQL))
+        <Extension()> Public Function RunSQLValue(Of V As Structure)(Connection As DbConnection, SQL As FormattableString) As V?
+            Return RunSQLValue(Of V)(Connection, CreateCommand(Connection, SQL))
         End Function
 
         <Extension()> Public Function RunSQLSet(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
