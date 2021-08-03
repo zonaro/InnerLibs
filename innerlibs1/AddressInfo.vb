@@ -392,7 +392,7 @@ Namespace Locations
         ''' <param name="PostalCode"></param>
         ''' <param name="Number">Numero da casa</param>
         Public Shared Function FromViaCEP(PostalCode As Long, Optional Number As String = Nothing, Optional Complement As String = Nothing) As AddressInfo
-            Return FromViaCEP(PostalCode.ToString.PadLeft(8, "0"c), Number, Complement)
+            Return FromViaCEP(Of AddressInfo)(PostalCode, Number, Complement)
         End Function
 
         ''' <summary>
@@ -401,7 +401,27 @@ Namespace Locations
         ''' <param name="PostalCode"></param>
         ''' <param name="Number">Numero da casa</param>
         Public Shared Function FromViaCEP(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing) As AddressInfo
-            Dim d = New AddressInfo()
+            Return FromViaCEP(Of AddressInfo)(PostalCode, Number, Complement)
+        End Function
+
+
+
+        ''' <summary>
+        ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
+        ''' </summary>
+        ''' <param name="PostalCode"></param>
+        ''' <param name="Number">Numero da casa</param>
+        Public Shared Function FromViaCEP(Of T As AddressInfo)(PostalCode As Long, Optional Number As String = Nothing, Optional Complement As String = Nothing) As T
+            Return FromViaCEP(Of T)(PostalCode.ToString.PadLeft(8, "0"c), Number, Complement)
+        End Function
+
+        ''' <summary>
+        ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
+        ''' </summary>
+        ''' <param name="PostalCode"></param>
+        ''' <param name="Number">Numero da casa</param>
+        Public Shared Function FromViaCEP(Of T As AddressInfo)(PostalCode As String, Optional Number As String = Nothing, Optional Complement As String = Nothing) As T
+            Dim d = Activator.CreateInstance(Of T)
             d("original_string") = PostalCode
             d.PostalCode = PostalCode
             If Number.IsNotBlank() Then d.Number = Number
@@ -448,12 +468,22 @@ Namespace Locations
             Return d
         End Function
 
+
         ''' <summary>
         ''' Tenta extrair as partes de um endereço de uma string
         ''' </summary>
         ''' <param name="Address"></param>
         ''' <returns></returns>
         Public Shared Function TryParse(Address As String) As AddressInfo
+            Return TryParse(Of AddressInfo)(Address)
+        End Function
+
+        ''' <summary>
+        ''' Tenta extrair as partes de um endereço de uma string
+        ''' </summary>
+        ''' <param name="Address"></param>
+        ''' <returns></returns>
+        Public Shared Function TryParse(Of T As AddressInfo)(Address As String) As T
 
             Dim original = Address
             Dim PostalCode = "", State = "", City = "", Neighborhood = "", Complement = "", Number = "", Country = ""
@@ -548,10 +578,11 @@ Namespace Locations
 
             Number = Number.AdjustBlankSpaces().TrimAny(" ", ",", "-")
             Complement = Complement.AdjustBlankSpaces().TrimAny(" ", ",", "-")
-            Dim d = CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode)
+            Dim d = CreateLocation(Of T)(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode)
             d("original_string") = original
             Return d
         End Function
+
 
         ''' <summary>
         ''' Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para completar as informações
@@ -560,7 +591,18 @@ Namespace Locations
         ''' <param name="Key">Chave de acesso da API</param>
         ''' <returns></returns>
         Public Shared Function FromGoogleMaps(Address As String, Key As String, Optional NVC As NameValueCollection = Nothing) As AddressInfo
-            Dim d = New AddressInfo()
+            Return FromGoogleMaps(Of AddressInfo)(Address, Key, NVC)
+        End Function
+
+
+        ''' <summary>
+        ''' Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para completar as informações
+        ''' </summary>
+        ''' <param name="Address">Endereço para Busca</param>
+        ''' <param name="Key">Chave de acesso da API</param>
+        ''' <returns></returns>
+        Public Shared Function FromGoogleMaps(Of T As AddressInfo)(Address As String, Key As String, Optional NVC As NameValueCollection = Nothing) As T
+            Dim d = Activator.CreateInstance(Of T)
 
             NVC = If(NVC, New NameValueCollection)
 
@@ -634,6 +676,7 @@ Namespace Locations
             Return d
         End Function
 
+
         ''' <summary>
         ''' Cria uma localização a partir de partes de endereço
         ''' </summary>
@@ -647,7 +690,24 @@ Namespace Locations
         ''' <param name="PostalCode"></param>
         ''' <returns></returns>
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
-            Dim l = New AddressInfo()
+            Return CreateLocation(Of AddressInfo)(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode)
+        End Function
+
+
+        ''' <summary>
+        ''' Cria uma localização a partir de partes de endereço
+        ''' </summary>
+        ''' <param name="Address"></param>
+        ''' <param name="Number"></param>
+        ''' <param name="Complement"></param>
+        ''' <param name="Neighborhood"></param>
+        ''' <param name="City"></param>
+        ''' <param name="State"></param>
+        ''' <param name="Country"></param>
+        ''' <param name="PostalCode"></param>
+        ''' <returns></returns>
+        Public Shared Function CreateLocation(Of T As AddressInfo)(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As T
+            Dim l = Activator.CreateInstance(Of T)
             l.Street = Address
             l.Neighborhood = Neighborhood
             l.Complement = Complement
