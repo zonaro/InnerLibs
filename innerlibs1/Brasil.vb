@@ -34,9 +34,6 @@ Namespace Locations
         ''' <returns></returns>
         Public Property Cities As IEnumerable(Of String)
 
-
-
-
         ''' <summary>
         ''' inicializa um estado vazio
         ''' </summary>
@@ -133,7 +130,6 @@ Namespace Locations
             Return States.Where(Function(x) x.Cities.Any(Function(c) c.ToSlugCase() = CityName.ToSlugCase()))
         End Function
 
-
         ''' <summary>
         ''' Retorna os estados de uma região
         ''' </summary>
@@ -161,7 +157,6 @@ Namespace Locations
             CityName = If(GetState(NameOrStateCode)?.Cities, New List(Of String)).AsEnumerable().OrderBy(Function(x) x.LevenshteinDistance(CityName)).Where(Function(x) CityName.IsNotBlank()).FirstOrDefault().IfBlank(CityName)
             Return CityName
         End Function
-
 
         ''' <summary>
         ''' Retorna o nome do estado a partir da sigla
@@ -207,19 +202,31 @@ Namespace Locations
         ''' <param name="City"></param>
         ''' <returns></returns>
         Public Shared Function CreateAddressInfo(NameOrStateCode As String, City As String) As AddressInfo
+            Return CreateAddressInfo(Of AddressInfo)(NameOrStateCode, City)
+        End Function
+
+        ''' <summary>
+        ''' Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
+        ''' </summary>
+        ''' <param name="NameOrStateCode"></param>
+        ''' <param name="City"></param>
+        ''' <returns></returns>
+        Public Shared Function CreateAddressInfo(Of T As AddressInfo)(NameOrStateCode As String, City As String) As T
             If NameOrStateCode.IsBlank AndAlso City.IsNotBlank Then
                 NameOrStateCode = FindStateByCity(City).FirstOrDefault().IfBlank(NameOrStateCode)
             End If
             Dim s = Brasil.GetState(NameOrStateCode)
             If (s IsNot Nothing) Then
                 City = GetClosestCity(s.StateCode, City)
-                Dim ends = New AddressInfo() With {.City = City, .State = s.Name, .StateCode = s.StateCode, .Region = s.Region}
+                Dim ends = Activator.CreateInstance(Of T)
+                ends.City = City
+                ends.State = s.Name
+                ends.StateCode = s.StateCode
+                ends.Region = s.Region
                 Return ends
             End If
             Return Nothing
         End Function
-
-
 
     End Class
 
