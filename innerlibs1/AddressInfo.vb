@@ -11,7 +11,6 @@ Namespace Locations
     ''' </summary>
     ''' <remarks></remarks>
     Public Class AddressInfo
-        Implements IDictionary(Of String, String)
 
         ''' <summary>
         ''' Cria um novo objeto de localização
@@ -396,7 +395,6 @@ Namespace Locations
             Return FromViaCEP(PostalCode.ToString.PadLeft(8, "0"c), Number, Complement)
         End Function
 
-
         ''' <summary>
         ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
         ''' </summary>
@@ -704,15 +702,15 @@ Namespace Locations
             Return $"{Latitude?.ToString(New CultureInfo("en-US"))}, {Longitude?.ToString(New CultureInfo("en-US"))}"
         End Function
 
-        Public Function ContainsKey(key As String) As Boolean Implements IDictionary(Of String, String).ContainsKey
+        Public Function ContainsKey(key As String) As Boolean
             Return Info.ContainsKey(key.ToLower())
         End Function
 
-        Public Sub Add(key As String, value As String) Implements IDictionary(Of String, String).Add
+        Public Sub Add(key As String, value As String)
             Me(key) = value
         End Sub
 
-        Public Function Remove(key As String) As Boolean Implements IDictionary(Of String, String).Remove
+        Public Function Remove(key As String) As Boolean
             If Me.ContainsKey(key) Then
                 Info.Remove(key)
                 Return True
@@ -720,39 +718,9 @@ Namespace Locations
             Return False
         End Function
 
-        Public Function TryGetValue(key As String, ByRef value As String) As Boolean Implements IDictionary(Of String, String).TryGetValue
-            Return Info.TryGetValue(key.ToLower, value)
-        End Function
-
-        Public Sub Add(item As KeyValuePair(Of String, String)) Implements ICollection(Of KeyValuePair(Of String, String)).Add
-            If Not IsNothing(item) Then
-                Info.Add(item.Key, item.Value)
-            End If
-        End Sub
-
-        Public Sub Clear() Implements ICollection(Of KeyValuePair(Of String, String)).Clear
+        Public Sub Clear()
             Info.Clear()
         End Sub
-
-        Public Function Contains(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Contains
-            Return Keys.Contains(item.Key)
-        End Function
-
-        Public Sub CopyTo(array() As KeyValuePair(Of String, String), arrayIndex As Integer) Implements ICollection(Of KeyValuePair(Of String, String)).CopyTo
-            Me.ToArray.CopyTo(array, arrayIndex)
-        End Sub
-
-        Public Function Remove(item As KeyValuePair(Of String, String)) As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).Remove
-            Return Remove(item.Key)
-        End Function
-
-        Public Function GetEnumerator() As IEnumerator(Of KeyValuePair(Of String, String)) Implements IEnumerable(Of KeyValuePair(Of String, String)).GetEnumerator
-            Return Info.GetEnumerator
-        End Function
-
-        Private Function IEnumerable_GetEnumerator() As IEnumerator Implements IEnumerable.GetEnumerator
-            Return GetEnumerator()
-        End Function
 
         ''' <summary>
         ''' Formato desta instancia de <see cref="AddressInfo"/> quando chamada pelo <see cref="AddressInfo.ToString()"/>
@@ -791,15 +759,13 @@ Namespace Locations
 
         Private Info As New Dictionary(Of String, String)
 
-
-
         ''' <summary>
         ''' Retona uma informação deste endereço
         ''' </summary>
         ''' <param name="Key"></param>
         ''' <returns></returns>
 
-        Default Public Property Item(key As String) As String Implements IDictionary(Of String, String).Item
+        Default Public Property Item(key As String) As String
             Get
                 If Info Is Nothing Then Info = New Dictionary(Of String, String)
                 key = key.ToLower()
@@ -822,30 +788,6 @@ Namespace Locations
             Set(value As String)
                 Info(key.ToLower()) = value
             End Set
-        End Property
-
-        Public ReadOnly Property Keys As ICollection(Of String) Implements IDictionary(Of String, String).Keys
-            Get
-                Return Info.Keys
-            End Get
-        End Property
-
-        Public ReadOnly Property Values As ICollection(Of String) Implements IDictionary(Of String, String).Values
-            Get
-                Return Info.Values
-            End Get
-        End Property
-
-        Public ReadOnly Property Count As Integer Implements ICollection(Of KeyValuePair(Of String, String)).Count
-            Get
-                Return Values.Count
-            End Get
-        End Property
-
-        Public ReadOnly Property IsReadOnly As Boolean Implements ICollection(Of KeyValuePair(Of String, String)).IsReadOnly
-            Get
-                Return False
-            End Get
         End Property
 
     End Class
