@@ -372,7 +372,7 @@ Public Module Converter
     <Extension()>
     Public Function SetPropertiesIn(Of T)(Dic As Dictionary(Of String, Object), Obj As T, ParamArray args As Object()) As T
         If GetType(T).IsPrimitiveType Then
-            Obj = Dic?.Values.FirstOrDefault()
+            Obj = ChangeType(Of T)(Dic?.Values.FirstOrDefault())
         End If
 
         If GetType(T) Is GetType(Dictionary(Of String, Object)) Then
@@ -393,8 +393,13 @@ Public Module Converter
                 If Obj.HasProperty(propname) Then
                     Dim prop = Obj.GetProperty(propname)
                     If prop.CanWrite Then
+                        Debug.WriteLine(propname, "Setting value for " & GetType(T).Name)
                         Obj.SetPropertyValue(propname, k.Value)
+                    Else
+                        Debug.WriteLine(propname, "Readonly property, value skipped for " & GetType(T).Name)
                     End If
+                Else
+                    Debug.WriteLine(propname, "PropertyName not found for " & GetType(T).Name)
                 End If
             Next
         End If
