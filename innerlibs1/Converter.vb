@@ -214,6 +214,10 @@ Public Module Converter
                 Return Nothing
             End If
 
+            If tipo Is GetType(Guid) Then
+                Return Guid.Parse(Value.ToString())
+            End If
+
             If tipo.IsPrimitiveType() Then
                 Dim Converter = TypeDescriptor.GetConverter(tipo)
                 If Converter.CanConvertFrom(GetType(FromType)) Then
@@ -385,12 +389,18 @@ Public Module Converter
         End If
         If Dic IsNot Nothing AndAlso Dic.Any() Then
             For Each k In Dic
-                If Obj.HasProperty(k.Key) AndAlso Obj.GetProperty(k.Key).CanWrite Then
-                    Obj.SetPropertyValue(k.Key, k.Value)
+                If Obj.HasProperty(k.Key) Then
+                    Dim prop = Obj.GetProperty(k.Key)
+                    If prop.CanWrite Then
+                        If k.Value Is Nothing Then
+                            Obj.SetPropertyValue(k.Key, Nothing)
+                        Else
+                            Obj.SetPropertyValue(k.Key, k.Value)
+                        End If
+                    End If
                 End If
             Next
         End If
-
         Return Obj
     End Function
 

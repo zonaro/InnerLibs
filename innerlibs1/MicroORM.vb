@@ -9,10 +9,18 @@ Imports InnerLibs.LINQ
 Namespace MicroORM
 
     Public Class [Select]
-        Inherits [Select](Of Object)
+        Inherits [Select](Of Dictionary(Of String, Object))
 
-        Sub New()
+        Public Sub New()
             MyBase.New
+        End Sub
+
+        Public Sub New(ParamArray columns As String())
+            MyBase.New(columns)
+        End Sub
+
+        Public Sub New(Obj As Dictionary(Of String, Object))
+            MyBase.New(Obj)
         End Sub
 
     End Class
@@ -50,32 +58,34 @@ Namespace MicroORM
         Friend _offset As String
         Friend _desc As Boolean
 
-        Public Function SetColumns(Of O As Class)(Optional Obj As O = Nothing) As [Select](Of T)
-            SetColumns(GetType(O).GetNullableTypeOf().GetProperties().Select(Function(x) x.Name).ToArray())
-            Return Me
-        End Function
-
-        Public Function SetColumns(ParamArray Columns As String()) As [Select](Of T)
-            Columns = If(Columns, {}).Distinct().Where(Function(x) x.IsNotBlank()).ToArray()
-            _columns = New List(Of String)()
-            _columns.AddRange(Columns)
-            Return Me
-        End Function
-
-        Public Function AddColumns(ParamArray Columns As String()) As [Select](Of T)
-            If _columns Is Nothing Then
-                SetColumns(Columns)
+        Public Function AddColumns(Of O As Class)(Optional Obj As O = Nothing) As [Select](Of T)
+            Dim eltipo = GetType(O).GetNullableTypeOf()
+            If eltipo Is GetType(Dictionary(Of String, Object)) Then
+                AddColumns(CType(CType(eltipo, Object), Dictionary(Of String, Object)).Keys.ToArray())
             Else
-                _columns.AddRange(If(Columns, {}).Distinct().ToArray())
+                AddColumns(eltipo.GetProperties().Select(Function(x) x.Name).ToArray())
             End If
             Return Me
         End Function
 
-        Public Function AddColumns(Of O As Class)(Optional Obj As O = Nothing) As [Select](Of T)
-            AddColumns(GetType(O).GetNullableTypeOf().GetProperties().Select(Function(x) x.Name).ToArray())
+        Public Function AddColumns(ParamArray Columns As String()) As [Select](Of T)
+            Columns = If(Columns, {}).Distinct().Where(Function(x) x.IsNotBlank()).ToArray()
+            _columns = If(_columns, New List(Of String)())
+            _columns.AddRange(Columns)
             Return Me
         End Function
 
+        Public Function SetColumns(ParamArray Columns As String()) As [Select](Of T)
+            _columns = Nothing
+            AddColumns(Columns)
+            Return Me
+        End Function
+
+        Public Function SetColumns(Of O As Class)(Optional Obj As O = Nothing) As [Select](Of T)
+            _columns = Nothing
+            AddColumns(Obj)
+            Return Me
+        End Function
 
         Public Function RemoveColumns(ParamArray Columns As String()) As [Select](Of T)
             If _columns IsNot Nothing Then
@@ -255,31 +265,45 @@ Namespace MicroORM
             Return _Join(JoinType.CrossApply, table, Nothing)
         End Function
 
-        Public Function RunSQLValue(Of O As Structure)(Connection As DbConnection) As O
+        Property Connection As DbConnection = Nothing
+
+        Public Function WithConnection(Connection As DbConnection) As [Select](Of T)
+            Me.Connection = If(Connection, Me.Connection)
+            Return Me
+        End Function
+
+        Public Function RunSQLValue(Of O As Structure)(Optional Connection As DbConnection = Nothing) As O
+            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLValue(Of O)(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLValue(Connection As DbConnection) As Object
+        Public Function RunSQLValue(Optional Connection As DbConnection = Nothing) As Object
+            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLValue(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLRow(Of O)(Connection As DbConnection) As O
+        Public Function RunSQLRow(Of O)(Optional Connection As DbConnection = Nothing) As O
+            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLRow(Of O)(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLRow(Connection As DbConnection) As T
+        Public Function RunSQLRow(Optional Connection As DbConnection = Nothing) As T
+            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLRow(Of T)(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLRowDictionary(Connection As DbConnection) As Dictionary(Of String, Object)
+        Public Function RunSQLRowDictionary(Optional Connection As DbConnection = Nothing) As Dictionary(Of String, Object)
+            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLRow(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLSet(Of O)(Connection As DbConnection) As IEnumerable(Of T)
+        Public Function RunSQLSet(Of O)(Optional Connection As DbConnection = Nothing) As IEnumerable(Of T)
+            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLSet(Of O)(Me.CreateDbCommand(Connection))
         End Function
 
-        Public Function RunSQLSet(Connection As DbConnection) As IEnumerable(Of T)
+        Public Function RunSQLSet(Optional Connection As DbConnection = Nothing) As IEnumerable(Of T)
+            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLSet(Of T)(Me.CreateDbCommand(Connection))
         End Function
 
@@ -1141,7 +1165,6 @@ Namespace MicroORM
             Return RunSQLValue(Connection, CreateCommand(Connection, SQL))
         End Function
 
-
         <Extension()> Public Function RunSQLValue(Of V As Structure)(Connection As DbConnection, Command As DbCommand) As V?
             Dim vv = RunSQLValue(Connection, Command)
             If vv IsNot Nothing Then
@@ -1149,6 +1172,7 @@ Namespace MicroORM
             End If
             Return Nothing
         End Function
+
         <Extension()> Public Function RunSQLValue(Of V As Structure)(Connection As DbConnection, SQL As FormattableString) As V?
             Return RunSQLValue(Of V)(Connection, CreateCommand(Connection, SQL))
         End Function

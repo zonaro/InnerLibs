@@ -38,7 +38,7 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/>
+    ''' Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/> e retorna a mesma instancia deste <see cref="Dictionary(Of TKey, TValue)"/>
     ''' </summary>
     ''' <typeparam name="KeyType">Tipo da Key</typeparam>
     ''' <typeparam name="ValueType">Tipo do valor</typeparam>
