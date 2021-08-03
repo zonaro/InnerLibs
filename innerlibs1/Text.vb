@@ -4034,14 +4034,18 @@ Public Class ConnectionStringParser
 
     Sub New(ConnectionString As String)
         MyBase.New
+        Parse(ConnectionString)
+    End Sub
+
+    Public Function Parse(ConnectionString As String) As ConnectionStringParser
         Try
             For Each ii In ConnectionString.IfBlank("").SplitAny(";").[Select](Function(t) t.Split(New Char() {"="c}, 2)).ToDictionary(Function(t) t(0).Trim(), Function(t) t(1).Trim(), StringComparer.InvariantCultureIgnoreCase)
-                Me(ii.Key.ToTitle(True)) = ii.Value
+                Me.Set(ii.Key.ToTitle(True), ii.Value)
             Next
         Catch ex As Exception
-            Throw New InvalidCastException("Invalid ConnectionString", ex)
         End Try
-    End Sub
+        Return Me
+    End Function
 
     ''' <summary>
     ''' Retorna a connectionstring deste parser
