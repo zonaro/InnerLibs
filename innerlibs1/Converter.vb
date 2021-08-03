@@ -389,14 +389,11 @@ Public Module Converter
         End If
         If Dic IsNot Nothing AndAlso Dic.Any() Then
             For Each k In Dic
-                If Obj.HasProperty(k.Key) Then
-                    Dim prop = Obj.GetProperty(k.Key)
+                Dim propname = k.Key.Trim().Replace(" ", "_")
+                If Obj.HasProperty(propname) Then
+                    Dim prop = Obj.GetProperty(propname)
                     If prop.CanWrite Then
-                        If k.Value Is Nothing Then
-                            Obj.SetPropertyValue(k.Key, Nothing)
-                        Else
-                            Obj.SetPropertyValue(k.Key, k.Value)
-                        End If
+                        Obj.SetPropertyValue(propname, k.Value)
                     End If
                 End If
             Next

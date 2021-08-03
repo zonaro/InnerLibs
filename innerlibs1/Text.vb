@@ -2,7 +2,6 @@
 Imports System.ComponentModel
 Imports System.Globalization
 Imports System.IO
-Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
@@ -19,6 +18,7 @@ Public Module Text
     <Extension()> Public Function ToFormattableString(Text As String, ParamArray args As Object()) As FormattableString
         Return FormattableStringFactory.Create(Text, If(args, {}))
     End Function
+
     <Extension()> Public Function ToFormattableString(Text As String, args As IEnumerable(Of Object())) As FormattableString
         Return FormattableStringFactory.Create(Text, If(args, {}))
     End Function
@@ -98,7 +98,6 @@ Public Module Text
     <Extension> Function [Like](Text As String, OtherText As String) As Boolean
         Return Text Like OtherText
     End Function
-
 
     ''' <summary>
     ''' Formata um numero para CNPJ ou CNPJ se forem validos
@@ -1664,6 +1663,24 @@ Public Module Text
         Return OpenQuoteChar & Text & OpenQuoteChar.ToString.GetOppositeWrapChar
     End Function
 
+    <Extension()> Function UnQuote(Text As String) As String
+        Return Text.UnQuote("", True)
+    End Function
+
+    <Extension()> Function UnQuote(Text As String, OpenQuoteChar As String, Optional ContinuouslyRemove As Boolean = False) As String
+        If OpenQuoteChar.IsBlank() Then
+            While Text.EndsWithAny(CloseWrappers.ToArray()) OrElse Text.StartsWithAny(OpenWrappers.ToArray)
+                Text = Text.TrimAny(ContinuouslyRemove, WordWrappers.ToArray())
+            End While
+        Else
+            If OpenQuoteChar.ToString().IsCloseWrapChar Then
+                OpenQuoteChar = OpenQuoteChar.ToString.GetOppositeWrapChar
+            End If
+            Text = Text.TrimAny(ContinuouslyRemove, OpenQuoteChar, OpenQuoteChar.ToString.GetOppositeWrapChar)
+        End If
+        Return Text
+    End Function
+
     ''' <summary>
     ''' Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes) é um alias de <see cref="Quote(String, Char)"/>
     ''' </summary>
@@ -1673,6 +1690,14 @@ Public Module Text
     <Extension()>
     Function Brackfy(Text As String, Optional BracketChar As Char = "{"c) As String
         Return Text.Quote(BracketChar)
+    End Function
+
+    <Extension()> Function UnBrackfy(Text As String) As String
+        Return Text.UnBrackfy("", True)
+    End Function
+
+    <Extension()> Function UnBrackfy(Text As String, BracketChar As String, Optional ContinuouslyRemove As Boolean = False) As String
+        Return Text.UnQuote(BracketChar, ContinuouslyRemove)
     End Function
 
     ''' <summary>
@@ -1686,8 +1711,6 @@ Public Module Text
     Function QuoteIf(Text As String, Condition As Boolean, Optional QuoteChar As String = """") As String
         Return If(Condition, Text.Quote(QuoteChar), Text)
     End Function
-
-
 
     ''' <summary>
     ''' Sorteia um item da Matriz
@@ -3299,8 +3322,10 @@ Public Module Text
     ''' <param name="StringTest">        Conjunto de textos que serão comparados</param>
     ''' <returns></returns>
     <Extension()> Public Function TrimAny(ByVal Text As String, ContinuouslyRemove As Boolean, ParamArray StringTest As String()) As String
-        Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
-        Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest)
+        If Text IsNot Nothing Then
+            Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest)
+            Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest)
+        End If
         Return Text
     End Function
 
@@ -3361,6 +3386,10 @@ Public Module Text
             Return WrapText & Text & WrapText
         End If
         Return Text
+    End Function
+
+    <Extension()> Function UnWrap(Text As String, Optional WrapText As String = """", Optional ContinuouslyRemove As Boolean = False) As String
+        Return Text.TrimAny(ContinuouslyRemove, WrapText)
     End Function
 
     <Extension()>

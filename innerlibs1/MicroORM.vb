@@ -47,6 +47,15 @@ Namespace MicroORM
             From(Of T)()
         End Sub
 
+        Public Function ColumnQuote(QuoteChar As Char) As [Select](Of T)
+            Dim _nova = New List(Of String)
+            For Each item In If(_columns, New List(Of String))
+                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoin(Function(x) x.UnQuote().Quote(QuoteChar), "."))
+            Next
+            SetColumns(_nova.ToArray())
+            Return Me
+        End Function
+
         Friend _columns As List(Of String)
         Friend _from As String
         Friend _fromsub As [Select](Of T)
@@ -126,14 +135,26 @@ Namespace MicroORM
         ''' </summary>
         ''' <param name="SubQuery">Subquery to be selected from</param>
         ''' <returns></returns>
-        Public Function From(ByVal SubQuery As Action(Of [Select])) As [Select](Of T)
+        Public Function From(Of O As Class)(ByVal SubQuery As Action(Of [Select](Of O))) As [Select](Of T)
             If SubQuery IsNot Nothing Then
-                Dim sl = New [Select]()
+                Dim sl = New [Select](Of O)()
                 SubQuery(sl)
                 Me.From(sl)
                 If sl._columns Is Nothing OrElse Not sl._columns.Any() Then
                     sl.SetColumns(Me._columns)
                 End If
+            End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Sets the FROM clause in the SELECT being built.
+        ''' </summary>
+        ''' <param name="SubQuery">Subquery to be selected from</param>
+        ''' <returns></returns>
+        Public Function From(ByVal SubQuery As Action(Of [Select])) As [Select](Of T)
+            If SubQuery IsNot Nothing Then
+                From(Of Dictionary(Of String, Object))(SubQuery)
             End If
             Return Me
         End Function
@@ -265,45 +286,35 @@ Namespace MicroORM
             Return _Join(JoinType.CrossApply, table, Nothing)
         End Function
 
-        Property Connection As DbConnection = Nothing
 
-        Public Function WithConnection(Connection As DbConnection) As [Select](Of T)
-            Me.Connection = If(Connection, Me.Connection)
-            Return Me
-        End Function
+
+
 
         Public Function RunSQLValue(Of O As Structure)(Optional Connection As DbConnection = Nothing) As O
-            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLValue(Of O)(Me.CreateDbCommand(Connection))
         End Function
 
         Public Function RunSQLValue(Optional Connection As DbConnection = Nothing) As Object
-            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLValue(Me.CreateDbCommand(Connection))
         End Function
 
         Public Function RunSQLRow(Of O)(Optional Connection As DbConnection = Nothing) As O
-            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLRow(Of O)(Me.CreateDbCommand(Connection))
         End Function
 
         Public Function RunSQLRow(Optional Connection As DbConnection = Nothing) As T
-            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLRow(Of T)(Me.CreateDbCommand(Connection))
         End Function
 
         Public Function RunSQLRowDictionary(Optional Connection As DbConnection = Nothing) As Dictionary(Of String, Object)
-            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLRow(Me.CreateDbCommand(Connection))
         End Function
 
         Public Function RunSQLSet(Of O)(Optional Connection As DbConnection = Nothing) As IEnumerable(Of T)
-            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLSet(Of O)(Me.CreateDbCommand(Connection))
         End Function
 
         Public Function RunSQLSet(Optional Connection As DbConnection = Nothing) As IEnumerable(Of T)
-            Connection = If(Connection, Me.Connection)
             Return Connection.RunSQLSet(Of T)(Me.CreateDbCommand(Connection))
         End Function
 
@@ -598,7 +609,7 @@ Namespace MicroORM
             End If
 
             If _joins IsNot Nothing AndAlso _joins.Any() Then
-                sql.Append(_joins.Select(Function(j) String.Format(CultureInfo.InvariantCulture, " {0}", j)))
+                sql.Append(_joins.SelectJoin(Function(j) String.Format(CultureInfo.InvariantCulture, " {0}", j), " "))
             End If
 
             If _where IsNot Nothing Then
