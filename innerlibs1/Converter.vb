@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.Specialized
 Imports System.ComponentModel
 Imports System.Globalization
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 
 Imports InnerLibs.LINQ
@@ -200,11 +201,11 @@ Public Module Converter
     End Function
 
     ''' <summary>
-    ''' Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
+    ''' Converte um tipo para outro. Retorna Nothing (NULL) ou DEFAULT se a conversão falhar
     ''' </summary>
     ''' <typeparam name="FromType">Tipo de origem</typeparam>
     ''' <param name="Value">Variavel com valor</param>
-    ''' <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
+    ''' <returns>Valor convertido em novo tipo ou null (ou default) se a conversão falhar</returns>
     <Extension>
     Public Function ChangeType(Of FromType)(Value As FromType, ToType As Type)
         Try
@@ -222,13 +223,14 @@ Public Module Converter
                 Dim Converter = TypeDescriptor.GetConverter(tipo)
                 If Converter.CanConvertFrom(GetType(FromType)) Then
                     Return Converter.ConvertTo(Value, tipo)
+                Else
+                    Return Convert.ChangeType(Value, tipo)
                 End If
-                Return Convert.ChangeType(Value, tipo)
+            Else
+                Return CTypeDynamic(Value, ToType)
             End If
-
-            Return CTypeDynamic(Value, ToType)
         Catch ex As Exception
-            Debug.WriteLine(ex)
+            Debug.WriteLine(ex, "Error on change type")
             Return Nothing
         End Try
     End Function
@@ -359,47 +361,56 @@ Public Module Converter
     ''' <param name="Dic"></param>
 
     <Extension()>
-    Public Function SetPropertiesIn(Of T)(Dic As Dictionary(Of String, Object)) As T
-        Return SetPropertiesIn(Of T)(Dic, Nothing)
+    Public Function SetValuesIn(Of T)(Dic As Dictionary(Of String, Object)) As T
+        Return SetValuesIn(Of T)(Dic, Nothing)
     End Function
 
     ''' <summary>
-    ''' Seta as propriedades de uma classe a partir de um dictionary
+    ''' Seta as propriedades e campos de uma classe a partir de um dictionary
     ''' </summary>
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Dic"></param>
     ''' <param name="Obj"></param>
     <Extension()>
-    Public Function SetPropertiesIn(Of T)(Dic As Dictionary(Of String, Object), Obj As T, ParamArray args As Object()) As T
-        If GetType(T).IsPrimitiveType Then
-            Obj = ChangeType(Of T)(Dic?.Values.FirstOrDefault())
+    Public Function SetValuesIn(Of T)(Dic As Dictionary(Of String, Object), Obj As T, ParamArray args As Object()) As T
+        Dim tipo = GetType(T).GetNullableTypeOf()
+        If tipo.IsPrimitiveType Then
+            Return ChangeType(Of T)(Dic?.Values.FirstOrDefault())
         End If
 
-        If GetType(T) Is GetType(Dictionary(Of String, Object)) Then
+        If Obj Is Nothing Then
+            If args Is Nothing OrElse args.Any() = False Then
+                Obj = CType(Activator.CreateInstance(tipo), T)
+            Else
+                Obj = CType(Activator.CreateInstance(tipo, args), T)
+            End If
+        End If
+
+        If tipo Is GetType(Dictionary(Of String, Object)) Then
             If Dic IsNot Nothing Then
                 Return CType(CType(Dic.AsEnumerable().ToDictionary(), Object), T)
             End If
-        End If
-        If Obj Is Nothing Then
-            If args Is Nothing OrElse args.Any() = False Then
-                Obj = Activator.CreateInstance(GetType(T))
-            Else
-                Obj = Activator.CreateInstance(GetType(T), args)
+            Return Nothing
+        ElseIf tipo Is GetType(Dictionary(Of String, String)) Then
+            If Dic IsNot Nothing Then
+                Return CType(CType(Dic.AsEnumerable().ToDictionary(Function(x) x.Key, Function(x) x.Value?.ToString()), Object), T)
             End If
+            Return Nothing
         End If
+
         If Dic IsNot Nothing AndAlso Dic.Any() Then
             For Each k In Dic
                 Dim propname = k.Key.Trim().Replace(" ", "_")
-                If Obj.HasProperty(propname) Then
-                    Dim prop = Obj.GetProperty(propname)
+                Dim prop = tipo.GetProperty(propname)
+                If prop IsNot Nothing Then
                     If prop.CanWrite Then
-                        Debug.WriteLine(propname, "Setting value for " & GetType(T).Name)
                         Obj.SetPropertyValue(propname, k.Value)
-                    Else
-                        Debug.WriteLine(propname, "Readonly property, value skipped for " & GetType(T).Name)
                     End If
                 Else
-                    Debug.WriteLine(propname, "PropertyName not found for " & GetType(T).Name)
+                    Dim fiif = tipo.GetField(propname)
+                    If fiif IsNot Nothing Then
+                        fiif.SetValue(Obj, ChangeType(k.Value, fiif.FieldType))
+                    End If
                 End If
             Next
         End If

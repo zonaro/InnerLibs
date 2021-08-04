@@ -1234,7 +1234,7 @@ Namespace MicroORM
         ''' <param name="SQL"></param>
         ''' <returns></returns>
         <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of T)
-            Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetPropertiesIn(Of T))
+            Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetValuesIn(Of T))
         End Function
 
         ''' <summary>
@@ -1245,7 +1245,7 @@ Namespace MicroORM
         ''' <param name="SQL"></param>
         ''' <returns></returns>
         <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of T)
-            Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetPropertiesIn(Of T))
+            Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetValuesIn(Of T))
         End Function
 
         ''' <summary>
