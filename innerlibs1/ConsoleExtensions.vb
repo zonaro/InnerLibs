@@ -186,7 +186,7 @@ Namespace Console
         ''' <param name="Duration">Duracao em milisegundos</param>
         Public Sub Beep(Frequency As Integer, Duration As Integer, Optional Times As Integer = 1)
             For index = 1 To Times.SetMinValue(1)
-                System.Console.Beep(Frequency.LimitRange(37, 32767), Duration)
+                System.Console.Beep(Frequency.LimitRange(Of Integer)(37, 32767), Duration)
             Next
         End Sub
 

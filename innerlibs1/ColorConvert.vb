@@ -199,9 +199,9 @@ Public Module ColorConvert
     ''' <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
     ''' <returns></returns>
     Public Function RandomColor(Optional Red As Integer = -1, Optional Green As Integer = -1, Optional Blue As Integer = -1) As Color
-        Red = If(Red < 0, RandomNumber(0, 255), Red).LimitRange(0, 255)
-        Green = If(Green < 0, RandomNumber(0, 255), Green).LimitRange(0, 255)
-        Blue = If(Blue < 0, RandomNumber(0, 255), Blue).LimitRange(0, 255)
+        Red = If(Red < 0, RandomNumber(0, 255), Red).LimitRange(Of Integer)(0, 255)
+        Green = If(Green < 0, RandomNumber(0, 255), Green).LimitRange(Of Integer)(0, 255)
+        Blue = If(Blue < 0, RandomNumber(0, 255), Blue).LimitRange(Of Integer)(0, 255)
         Dim cor = Color.FromArgb(Red, Green, Blue)
         Return cor
     End Function
@@ -361,7 +361,7 @@ Public Class HSVColor
             Return _scolor.R
         End Get
         Set(value As Integer)
-            _scolor = Color.FromArgb(A, value.LimitRange(0, 255), G, B)
+            _scolor = Color.FromArgb(A, value.LimitRange(Of Integer)(0, 255), G, B)
             FromColor(_scolor)
         End Set
     End Property
@@ -375,7 +375,7 @@ Public Class HSVColor
             Return _scolor.G
         End Get
         Set(value As Integer)
-            _scolor = Color.FromArgb(A, R, value.LimitRange(0, 255), B)
+            _scolor = Color.FromArgb(A, R, value.LimitRange(Of Integer)(0, 255), B)
             FromColor(_scolor)
         End Set
     End Property
@@ -389,7 +389,7 @@ Public Class HSVColor
             Return _scolor.B
         End Get
         Set(value As Integer)
-            _scolor = Color.FromArgb(A, R, G, value.LimitRange(0, 255))
+            _scolor = Color.FromArgb(A, R, G, value.LimitRange(Of Integer)(0, 255))
             FromColor(_scolor)
         End Set
     End Property
@@ -403,7 +403,7 @@ Public Class HSVColor
             Return _scolor.A
         End Get
         Set(value As Byte)
-            _scolor = Color.FromArgb(value.LimitRange(0, 255), R, G, B)
+            _scolor = Color.FromArgb(value.LimitRange(Of Integer)(0, 255), R, G, B)
             FromColor(_scolor)
         End Set
     End Property

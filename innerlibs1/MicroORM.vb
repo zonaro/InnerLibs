@@ -546,8 +546,10 @@ Namespace MicroORM
         Public Function OffSet(Page As Integer, PageSize As Integer) As [Select](Of T)
             If Page < 0 Then
                 _offset = Nothing
+            Else
+                PageSize = PageSize.SetMinValue(0)
+                _offset = $"OFFSET {Page} ROWS FETCH NEXT {PageSize} ROWS ONLY"
             End If
-            _offset = $"OFFSET {Page.SetMinValue(0)} ROWS FETCH NEXT {PageSize} ROWS ONLY"
             Return Me
         End Function
 

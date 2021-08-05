@@ -178,7 +178,7 @@ Namespace RolePlayingGame
                 Return _value
             End Get
             Set(value As Integer)
-                Me._value = value.LimitRange(1, Faces.Last.Number)
+                Me._value = value.LimitRange(Of Integer)(1, Faces.Last.Number)
             End Set
         End Property
 
@@ -245,7 +245,7 @@ Namespace RolePlayingGame
         ''' <returns></returns>
         Default ReadOnly Property Face(FaceNumber As Integer) As DiceFace
             Get
-                FaceNumber = FaceNumber.LimitRange(1, Faces.Count)
+                FaceNumber = FaceNumber.LimitRange(Of Integer)(1, Faces.Count)
                 Return Me.Faces.Item(FaceNumber - 1)
             End Get
         End Property

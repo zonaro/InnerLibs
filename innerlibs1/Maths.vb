@@ -703,8 +703,8 @@ Public Module Mathematic
     ''' <param name="MaxValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function SetMaxValue(Of Type As IConvertible)(ByVal Number As Type, MaxValue As Type) As Type
-        Return Number.LimitRange(MaxValue:=MaxValue)
+    Public Function SetMaxValue(Of T As IComparable)(ByVal Number As T, MaxValue As T) As T
+        Return Number.LimitRange(Of T)(MaxValue:=MaxValue)
     End Function
 
     ''' <summary>
@@ -714,8 +714,8 @@ Public Module Mathematic
     ''' <param name="MinValue">Valor Maximo</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function SetMinValue(Of Type As IConvertible)(ByVal Number As Type, MinValue As Type) As Type
-        Return Number.LimitRange(MinValue:=MinValue)
+    Public Function SetMinValue(Of T As IComparable)(ByVal Number As T, MinValue As T) As T
+        Return Number.LimitRange(Of T)(MinValue:=MinValue)
     End Function
 
     ''' <summary>
@@ -726,29 +726,57 @@ Public Module Mathematic
     ''' <param name="MaxValue">Valor máximo para o numero</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function LimitRange(Of Type As IConvertible)(ByVal Number As Type, Optional MinValue As Object = Nothing, Optional MaxValue As Object = Nothing) As Type
-
-        If If(MinValue, 0) = If(MaxValue, 0) Then
-            Return MinValue
-        Else
-            If Not Nothing = (MaxValue) Then
-                Number = If(Number < MaxValue, Number, MaxValue)
-            End If
-
-            If Not Nothing = (MinValue) Then
-                Number = If(Number > MinValue, Number, MinValue)
-            End If
+    Public Function LimitRange(Of T As IComparable)(ByVal Number As IComparable, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As T
+        If MaxValue IsNot Nothing Then
+            Number = If(Number.IsLessThan(ChangeType(Of T)(MaxValue)), Number, MaxValue)
         End If
-
+        If MinValue IsNot Nothing Then
+            Number = If(Number.IsGreaterThan(ChangeType(Of T)(MinValue)), Number, MinValue)
+        End If
         Return Number
     End Function
 
+    ''' <summary>
+    ''' Limita um range para um numero
+    ''' </summary>
+    ''' <param name="Number">  Numero</param>
+    ''' <param name="MinValue">Valor Minimo para o numero</param>
+    ''' <param name="MaxValue">Valor máximo para o numero</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function LimitRange(ByVal Number As Integer, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As Integer
+        Return LimitRange(Of Integer)(Number, MinValue, MaxValue)
+    End Function
+    ''' <summary>
+    ''' Limita um range para um numero
+    ''' </summary>
+    ''' <param name="Number">  Numero</param>
+    ''' <param name="MinValue">Valor Minimo para o numero</param>
+    ''' <param name="MaxValue">Valor máximo para o numero</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function LimitRange(ByVal Number As Decimal, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As Decimal
+        Return LimitRange(Of Decimal)(Number, MinValue, MaxValue)
+    End Function
+
+    ''' <summary>
+    ''' Limita um range para um numero
+    ''' </summary>
+    ''' <param name="Number">  Numero</param>
+    ''' <param name="MinValue">Valor Minimo para o numero</param>
+    ''' <param name="MaxValue">Valor máximo para o numero</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function LimitRange(ByVal Number As Long, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As Long
+        Return LimitRange(Of Long)(Number, MinValue, MaxValue)
+    End Function
+
     <Extension()> Public Function LimitIndex(Of AnyType)(Int As Integer, Collection As IEnumerable(Of AnyType)) As Integer
-        Return LimitRange(Int, 0, Collection.Count - 1)
+        Return LimitRange(Of Integer)(Int, 0, Collection.Count() - 1)
     End Function
 
     <Extension()> Public Function LimitIndex(Of AnyType)(Lng As Long, Collection As IEnumerable(Of AnyType)) As Long
-        Return LimitRange(Lng, 0, Collection.LongCount - 1)
+        Return LimitRange(Of Integer)(Lng, 0, Collection.LongCount - 1)
     End Function
 
     ''' <summary>
@@ -758,7 +786,7 @@ Public Module Mathematic
     ''' <param name="MiddleNumber">Numero Médio</param>
     ''' <returns></returns>
     <Extension()> Public Function Round(Number As Decimal, Optional MiddleNumber As Integer = 5, Optional Culture As CultureInfo = Nothing) As Integer
-        MiddleNumber.LimitRange(1, 10)
+        MiddleNumber.LimitRange(Of Integer)(1, 10)
         Dim split = Number.ToString.Split(If(Culture, CultureInfo.CurrentCulture).NumberFormat.NumberDecimalSeparator)
         If split(1).GetFirstChars(1).ChangeType(Of Integer) > MiddleNumber Then
             Return Number.Ceil
