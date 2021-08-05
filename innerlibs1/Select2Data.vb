@@ -85,14 +85,14 @@ Namespace Select2
 
         Public Property ID As String Implements ISelect2Option.ID
 
-        Property Selected As Boolean Implements ISelect2Option.Selected
+        Public Property Selected As Boolean Implements ISelect2Option.Selected
 
-        Property Disabled As Boolean Implements ISelect2Option.Disabled
+        Public Property Disabled As Boolean Implements ISelect2Option.Disabled
 
         Public Property Text As String Implements ISelect2Result.Text
 
         Public Overrides Function ToString() As String
-            Return $"<option value='{ID}' {Disabled.AsIf("disabled")} {Selected.AsIf("selected")}>{Text}</option>"
+            Return $"<option value='{ID}'{Disabled.AsIf(" disabled")}{Selected.AsIf(" selected")}>{Text}</option>"
         End Function
 
     End Class

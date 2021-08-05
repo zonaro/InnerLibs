@@ -8,8 +8,17 @@ Imports InnerLibs.LINQ
 
 Namespace MicroORM
 
+    Public Interface ISelect
+
+        Overloads Function ToString() As String
+        Overloads Function ToString(SubQuery As Boolean) As String
+
+
+    End Interface
+
     Public Class [Select]
         Inherits [Select](Of Dictionary(Of String, Object))
+
 
         Public Sub New()
             MyBase.New
@@ -26,6 +35,7 @@ Namespace MicroORM
     End Class
 
     Public Class [Select](Of T As Class)
+        Implements ISelect
 
         Sub New()
             SetColumns(Of T)()
@@ -58,7 +68,8 @@ Namespace MicroORM
 
         Friend _columns As List(Of String)
         Friend _from As String
-        Friend _fromsub As [Select](Of T)
+        Friend _fromsub As ISelect
+        Friend _fromsubname As String
         Friend _joins As List(Of Join)
         Friend _where As Condition
         Friend _groupBy As List(Of String)
@@ -122,10 +133,11 @@ Namespace MicroORM
         ''' </summary>
         ''' <param name="SubQuery">Subquery to be selected from</param>
         ''' <returns></returns>
-        Public Function From(ByVal SubQuery As [Select](Of T)) As [Select](Of T)
-            If SubQuery IsNot Nothing AndAlso SubQuery.ToString().IsNotBlank AndAlso SubQuery IsNot Me Then
+        Public Function From(Of O As Class)(ByVal SubQuery As [Select](Of O), Optional SubQueryAlias As String = Nothing) As [Select](Of T)
+            If SubQuery IsNot Nothing AndAlso SubQuery.ToString(True).IsNotBlank AndAlso SubQuery IsNot Me Then
                 _from = Nothing
                 _fromsub = SubQuery
+                _fromsubname = SubQueryAlias.IfBlank(GetType(O).Name & "_" & Now.Ticks)
             End If
             Return Me
         End Function
@@ -135,14 +147,11 @@ Namespace MicroORM
         ''' </summary>
         ''' <param name="SubQuery">Subquery to be selected from</param>
         ''' <returns></returns>
-        Public Function From(Of O As Class)(ByVal SubQuery As Action(Of [Select](Of O))) As [Select](Of T)
+        Public Function From(Of O As Class)(ByVal SubQuery As Action(Of [Select](Of O)), Optional SubQueryAlias As String = Nothing) As [Select](Of T)
             If SubQuery IsNot Nothing Then
                 Dim sl = New [Select](Of O)()
                 SubQuery(sl)
-                Me.From(sl)
-                If sl._columns Is Nothing OrElse Not sl._columns.Any() Then
-                    sl.SetColumns(Me._columns)
-                End If
+                Me.From(sl, SubQueryAlias)
             End If
             Return Me
         End Function
@@ -286,42 +295,6 @@ Namespace MicroORM
             Return _Join(JoinType.CrossApply, table, Nothing)
         End Function
 
-
-
-
-
-        Public Function RunSQLValue(Of O As Structure)(Optional Connection As DbConnection = Nothing) As O
-            Return Connection.RunSQLValue(Of O)(Me.CreateDbCommand(Connection))
-        End Function
-
-        Public Function RunSQLValue(Optional Connection As DbConnection = Nothing) As Object
-            Return Connection.RunSQLValue(Me.CreateDbCommand(Connection))
-        End Function
-
-        Public Function RunSQLRow(Of O)(Optional Connection As DbConnection = Nothing) As O
-            Return Connection.RunSQLRow(Of O)(Me.CreateDbCommand(Connection))
-        End Function
-
-        Public Function RunSQLRow(Optional Connection As DbConnection = Nothing) As T
-            Return Connection.RunSQLRow(Of T)(Me.CreateDbCommand(Connection))
-        End Function
-
-        Public Function RunSQLRowDictionary(Optional Connection As DbConnection = Nothing) As Dictionary(Of String, Object)
-            Return Connection.RunSQLRow(Me.CreateDbCommand(Connection))
-        End Function
-
-        Public Function RunSQLSet(Of O)(Optional Connection As DbConnection = Nothing) As IEnumerable(Of T)
-            Return Connection.RunSQLSet(Of O)(Me.CreateDbCommand(Connection))
-        End Function
-
-        Public Function RunSQLSet(Optional Connection As DbConnection = Nothing) As IEnumerable(Of T)
-            Return Connection.RunSQLSet(Of T)(Me.CreateDbCommand(Connection))
-        End Function
-
-        Public Function RunSQLSetDictionary(Connection As DbConnection) As IEnumerable(Of Dictionary(Of String, Object))
-            Return Connection.RunSQLSet(Me.CreateDbCommand(Connection))
-        End Function
-
         Public Function WhereObject(Of O As Class)(Obj As O) As [Select](Of T)
             Return WhereObject(Obj, "AND")
         End Function
@@ -346,6 +319,42 @@ Namespace MicroORM
                     _where = New Condition(condition)
                 End If
             End If
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Sets the WHERE clause in the SELECT being built.
+        ''' </summary>
+        ''' <param name="conditions">Condition to set</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function Where(ByVal LogicOperator As String, conditions As IEnumerable(Of FormattableString)) As [Select](Of T)
+            For Each condition In If(conditions, {})
+                If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
+                    If LogicOperator.IsIn("OR", "or") Then
+                        [Or](condition)
+                    Else
+                        [And](condition)
+                    End If
+                End If
+            Next
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Sets the WHERE clause in the SELECT being built.
+        ''' </summary>
+        ''' <param name="conditions">Condition to set</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function Where(ByVal LogicOperator As String, conditions As IEnumerable(Of Condition)) As [Select](Of T)
+            For Each condition In If(conditions, {})
+                If condition IsNot Nothing Then
+                    If LogicOperator.IsIn("OR", "or") Then
+                        [Or](condition)
+                    Else
+                        [And](condition)
+                    End If
+                End If
+            Next
             Return Me
         End Function
 
@@ -535,7 +544,10 @@ Namespace MicroORM
         End Function
 
         Public Function OffSet(Page As Integer, PageSize As Integer) As [Select](Of T)
-            _offset = $"OFFSET {Page} ROWS FETCH NEXT {PageSize} ROWS ONLY"
+            If Page < 0 Then
+                _offset = Nothing
+            End If
+            _offset = $"OFFSET {Page.SetMinValue(0)} ROWS FETCH NEXT {PageSize} ROWS ONLY"
             Return Me
         End Function
 
@@ -561,6 +573,13 @@ Namespace MicroORM
             Return If([select] Is Nothing, Nothing, [select].ToString())
         End Operator
 
+        ''' <summary>
+        ''' Operator overload that allows using the class wherever a string is expected.
+        ''' </summary>
+        Public Shared Widening Operator CType(ByVal [select] As [Select](Of T)) As FormattableString
+            Return If([select] Is Nothing, Nothing, [select].ToString()).ToFormattableString()
+        End Operator
+
         Public Function CreateDbCommand(Connection As DbConnection, dic As Dictionary(Of String, Object)) As DbCommand
             Return Connection.CreateCommand(ToString(), dic)
         End Function
@@ -569,38 +588,42 @@ Namespace MicroORM
             Return CreateDbCommand(Connection, Nothing)
         End Function
 
-        Public Function AndSearch(Value As String, ParamArray Columns As String())
+        Public Function AndSearch(Value As String, ParamArray Columns As String()) As [Select](Of T)
             Return Me.AndAny(If(Columns, {}).Select(Function(x) (x & " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray())
         End Function
 
-        Public Function OrSearch(Value As String, ParamArray Columns As String())
+        Public Function OrSearch(Value As String, ParamArray Columns As String()) As [Select](Of T)
             Return Me.OrAny(If(Columns, {}).Select(Function(x) (x & " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray())
         End Function
 
-        Public Function OrSearch(Value As IEnumerable(Of String), ParamArray Columns As String())
+        Public Function OrSearch(Value As IEnumerable(Of String), ParamArray Columns As String()) As [Select](Of T)
             For Each item In If(Value, {}).Where(Function(x) x.IsNotBlank)
                 Me.OrSearch(item, Columns)
             Next
             Return Me
         End Function
 
-        Public Function AndSearch(Value As IEnumerable(Of String), ParamArray Columns As String())
+        Public Function AndSearch(Value As IEnumerable(Of String), ParamArray Columns As String()) As [Select](Of T)
             For Each item In If(Value, {}).Where(Function(x) x.IsNotBlank)
                 Me.AndSearch(item, Columns)
             Next
             Return Me
         End Function
 
+        Public Overrides Function ToString() As String Implements ISelect.ToString
+            Return ToString(False)
+        End Function
+
         ''' <summary>
         ''' Returns the SELECT statement as a SQL query.
         ''' </summary>
         ''' <returns>The SELECT statement as a SQL query</returns>
-        Public Overrides Function ToString() As String
+        Public Overloads Function ToString(AsSubquery As Boolean) As String Implements ISelect.ToString
             Dim sql = New StringBuilder("SELECT ")
             sql.Append(String.Join(", ", _columns.Distinct().ToArray()).IfBlank(" * "))
 
             If _fromsub IsNot Nothing AndAlso _fromsub.ToString().IsNotBlank Then
-                _from = _fromsub.ToString().Quote("(")
+                _from = _fromsub.ToString(True).Quote("(") & " as " & _fromsubname
             End If
 
             If _from.IsNotBlank Then
@@ -627,14 +650,14 @@ Namespace MicroORM
                 sql.Append(_having)
             End If
 
-            If _orderBy IsNot Nothing Then
+            If _orderBy IsNot Nothing AndAlso AsSubquery = False Then
 
                 sql.Append(" ORDER BY ")
                 sql.Append(String.Join(", ", _orderBy))
 
             End If
 
-            If _offset.IsNotBlank Then
+            If _offset.IsNotBlank AndAlso AsSubquery = False Then
                 sql.Append($" {_offset} ")
 
             End If
@@ -665,7 +688,7 @@ Namespace MicroORM
         Public Sub New(LogicOperator As String, ParamArray Conditions As FormattableString())
             For Each condition In If(Conditions, {})
                 If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
-                    If LogicOperator.IsIn("OR", "or") Then
+                    If LogicOperator.IsIn("Or", "Or") Then
                         [Or](condition)
                     Else
                         [And](condition)
@@ -677,7 +700,7 @@ Namespace MicroORM
         Public Sub New(LogicOperator As String, ParamArray Conditions As Condition())
             For Each condition In If(Conditions, {})
                 If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
-                    If LogicOperator.IsIn("OR", "or") Then
+                    If LogicOperator.IsIn("Or", "Or") Then
                         [Or](condition)
                     Else
                         [And](condition)
@@ -707,11 +730,11 @@ Namespace MicroORM
         End Sub
 
         Public Shared Function OrMany(ParamArray conditions As FormattableString()) As Condition
-            Return New Condition("OR", conditions)
+            Return New Condition("Or", conditions)
         End Function
 
         Public Shared Function AndMany(ParamArray conditions As FormattableString()) As Condition
-            Return New Condition("AND", conditions)
+            Return New Condition("And", conditions)
         End Function
 
         Public Function OrAll(ParamArray Conditions As FormattableString()) As Condition
@@ -738,7 +761,7 @@ Namespace MicroORM
         Public Function [And](ByVal condition As FormattableString) As Condition
             If Not IsNothing(condition) AndAlso condition.ToString.IsNotBlank() Then
                 If _tokens.Any Then
-                    _tokens.Add("AND")
+                    _tokens.Add("And")
                 End If
                 _tokens.Add(ToSQLString(condition))
             End If
@@ -762,7 +785,7 @@ Namespace MicroORM
         Public Function [Or](ByVal condition As FormattableString) As Condition
             If Not IsNothing(condition) AndAlso condition.ToString.IsNotBlank() Then
                 If _tokens.Any Then
-                    _tokens.Add("OR")
+                    _tokens.Add("Or")
                 End If
                 _tokens.Add(condition.ToSQLString())
             End If
@@ -824,7 +847,7 @@ Namespace MicroORM
         End Property
 
         Public Overrides Function ToString() As String
-            Return If([On] Is Nothing, String.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table), String.Format(CultureInfo.InvariantCulture, "{0} {1} ON {2}", JoinString, Table, [On]))
+            Return If([On] Is Nothing, String.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table), String.Format(CultureInfo.InvariantCulture, "{0} {1} On {2}", JoinString, Table, [On]))
         End Function
 
     End Class
@@ -942,6 +965,10 @@ Namespace MicroORM
             Return Nothing
         End Function
 
+        Public Function ToSQLString(Obj As Object) As String
+            Return ToSQLString($"{Obj}")
+        End Function
+
         <Extension()> Public Function ToSQLString(SQL As FormattableString) As String
             If SQL IsNot Nothing Then
                 If SQL.ArgumentCount > 0 Then
@@ -968,7 +995,7 @@ Namespace MicroORM
                                                         End If
                                                         Return x.ToString().Quote("'")
                                                     End Function).ToList()
-                        CommandText = CommandText.Replace("{" & index & "}", pv.Join(",").IfBlank("NULL").QuoteIf(paramvalues.Count > 1, "("))
+                        CommandText = CommandText.Replace("{" & index & "}", pv.Join(",").IfBlank("NULL").UnQuote("(", True).Quote("("))
                     Next
                     Return CommandText
                 Else
@@ -1186,6 +1213,34 @@ Namespace MicroORM
 
         <Extension()> Public Function RunSQLValue(Of V As Structure)(Connection As DbConnection, SQL As FormattableString) As V?
             Return RunSQLValue(Of V)(Connection, CreateCommand(Connection, SQL))
+        End Function
+
+        <Extension()> Public Function RunSQLArray(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Object)
+            Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL).Select(Function(x) x.Values.First())
+        End Function
+
+        <Extension()> Public Function RunSQLArray(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Object)
+            Return RunSQLArray(Connection, CreateCommand(Connection, SQL))
+        End Function
+
+        <Extension()> Public Function RunSQLArray(Of T As Structure)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of T)
+            Return RunSQLArray(Connection, SQL).ChangeIEnumerableType(Of T)
+        End Function
+
+        <Extension()> Public Function RunSQLPairs(Connection As DbConnection, SQL As DbCommand) As Dictionary(Of Object, Object)
+            Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL).ToDictionary(Function(x) x.Values.FirstOrDefault(), Function(x) x.Values.LastOrDefault())
+        End Function
+
+        <Extension()> Public Function RunSQLPairs(Connection As DbConnection, SQL As FormattableString) As Dictionary(Of Object, Object)
+            Return RunSQLPairs(Connection, CreateCommand(Connection, SQL))
+        End Function
+
+        <Extension()> Public Function RunSQLPairs(Of K, V)(Connection As DbConnection, SQL As DbCommand) As Dictionary(Of K, V)
+            Return RunSQLPairs(Connection, SQL).ToDictionary(Function(x) ChangeType(Of K)(x.Key), Function(x) ChangeType(Of V)(x.Value))
+        End Function
+
+        <Extension()> Public Function RunSQLPairs(Of K, V)(Connection As DbConnection, SQL As FormattableString) As Dictionary(Of K, V)
+            Return RunSQLPairs(Of K, V)(Connection, CreateCommand(Connection, SQL))
         End Function
 
         <Extension()> Public Function RunSQLSet(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))

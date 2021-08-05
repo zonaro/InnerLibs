@@ -1,5 +1,4 @@
 ﻿Imports System.Collections.Specialized
-Imports System.Data.Common
 Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
@@ -12,7 +11,12 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
-
+    <Extension> Public Function [With](Of T)(Obj As T, a As Action(Of T)) As T
+        If Obj IsNot Nothing AndAlso a IsNot Nothing Then
+            a(Obj)
+        End If
+        Return Obj
+    End Function
 
     ''' <summary>
     ''' Substitui todas as propriedades nulas de uma classe pelos seus valores Default
@@ -373,7 +377,6 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
-
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
     ''' </summary>
@@ -522,6 +525,16 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function CreateDictionary(Of Type)(Obj As Type) As Dictionary(Of String, Object)
         Return Obj.[GetType]().GetProperties(BindingFlags.Instance Or BindingFlags.[Public]).ToDictionary(Function(prop) prop.Name, Function(prop) prop.GetValue(Obj, Nothing))
+    End Function
+
+    ''' <summary>
+    ''' Converte uma classe para um <see cref="Dictionary"/>
+    ''' </summary>
+    ''' <typeparam name="Type">Tipo da classe</typeparam>
+    ''' <param name="Obj">Object</param>
+    ''' <returns></returns>
+    <Extension()> Public Function CreateDictionaryEnumerable(Of Type)(Obj As IEnumerable(Of Type)) As IEnumerable(Of Dictionary(Of String, Object))
+        Return If(Obj, {}).Select(Function(x) x.CreateDictionary())
     End Function
 
     ''' <summary>

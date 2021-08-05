@@ -1,13 +1,11 @@
-﻿Imports System.Data
-Imports System.Globalization
+﻿Imports System.Globalization
 Imports System.Runtime.CompilerServices
 Imports InnerLibs.Locations
-
 
 ''' <summary>
 ''' Representa um Par X,Y para operaçoes matemáticas
 ''' </summary>
-''' 
+'''
 Public Class EquationPair
 
     Sub New()
@@ -22,12 +20,9 @@ Public Class EquationPair
     Property X As Decimal?
     Property Y As Decimal?
 
-
     Function ToArray() As Decimal?()
         Return {X, Y}
     End Function
-
-
 
 End Class
 
@@ -123,22 +118,17 @@ Public Class RuleOfThree
     ''' <returns></returns>
     Public ReadOnly Property SecondEquation As New EquationPair
 
-
-
-
     Function ToArray() As Decimal?()()
         Return {FirstEquation.ToArray, SecondEquation.ToArray}
     End Function
+
 End Class
-
-
 
 ''' <summary>
 ''' Módulo para calculos
 ''' </summary>
 ''' <remarks></remarks>
 Public Module Mathematic
-
 
     ''' <summary>
     ''' Calcula os Juros simples
@@ -221,8 +211,6 @@ Public Module Mathematic
         Return If(Elements, {}).HigherOf
     End Function
 
-
-
     ''' <summary>
     ''' Retorna a diferença entre 2 numeros se o valor minimo for maior que o total
     ''' </summary>
@@ -242,7 +230,6 @@ Public Module Mathematic
     <Extension()> Function DifferenceIfMax(Total As Integer, MaxValue As Integer) As Integer
         Return If(Total > MaxValue, MaxValue - Total, 0)
     End Function
-
 
     ''' <summary>
     ''' retorna o numeor em sua forma ordinal (inglês)
@@ -317,14 +304,13 @@ Public Module Mathematic
         End Try
     End Function
 
-
     ''' <summary>
     ''' Executa uma Expressão matematica/lógica simples
     ''' </summary>
     ''' <param name="Formula">Expressão matematica</param>
     ''' <returns></returns>
     Public Function EvaluateExpression(Of T As Structure)(Formula As String, Optional Exception As Boolean = False) As T
-        Return CType(EvaluateExpression(Formula, Exception), T)
+        Return ChangeType(Of T)(EvaluateExpression(Formula, Exception))
     End Function
 
     ''' <summary>
@@ -334,7 +320,7 @@ Public Module Mathematic
     ''' <param name="[Constant]"> </param>
     ''' <param name="Length">     </param>
     ''' <returns></returns>
-    Public Function ArithmeticProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As List(Of Integer)
+    Public Function ArithmeticProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As IEnumerable(Of Integer)
         Dim PA As New List(Of Integer)
         PA.Add(FirstNumber)
         For index = 1 To Length - 1
@@ -350,7 +336,7 @@ Public Module Mathematic
     ''' <param name="[Constant]"> </param>
     ''' <param name="Length">     </param>
     ''' <returns></returns>
-    Public Function GeometricProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As List(Of Integer)
+    Public Function GeometricProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As IEnumerable(Of Integer)
         Dim PG As New List(Of Integer)
         PG.Add(FirstNumber)
         For index = 1 To Length - 1
@@ -364,7 +350,7 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Sets">Lista de Arrays para combinar</param>
     ''' <returns>Plano Cartesiano</returns>
-    Public Function CartesianProduct(Of T)(ParamArray Sets As T()()) As List(Of T())
+    Public Function CartesianProduct(Of T)(ParamArray Sets As T()()) As IEnumerable(Of T())
         Dim emptyProduct As IEnumerable(Of IEnumerable(Of T)) = New IEnumerable(Of T)() {Enumerable.Empty(Of T)()}
         Dim c = Sets.Aggregate(emptyProduct, Function(accumulator, sequence)
                                                  Return (From accseq In accumulator
@@ -383,7 +369,7 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Length">Quantidade de numeros da sequencia</param>
     ''' <returns>Lista com a sequencia Fibonacci</returns>
-    Public Function Fibonacci(Length As Integer) As List(Of Integer)
+    Public Function Fibonacci(Length As Integer) As IEnumerable(Of Integer)
         Dim lista As New List(Of Integer)
         lista.AddRange({0, 1})
         For index = 2 To Length - 1
@@ -424,7 +410,6 @@ Public Module Mathematic
         Dim total = Dic.Sum(Function(x) x.Value.ChangeType(Of Decimal))
         Return Dic.Select(Function(x) New KeyValuePair(Of TKey, Decimal)(x.Key, CalculatePercent(x.Value.ChangeType(Of Decimal), total))).ToDictionary
     End Function
-
 
     ''' <summary>
     ''' Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
@@ -580,7 +565,7 @@ Public Module Mathematic
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
 
     <Extension()>
-    Public Function Ceil(Number As Decimal) As Long
+    Public Function Ceil(Number As Decimal) As Decimal
         Try
             Return Math.Ceiling(Number)
         Catch ex As Exception
@@ -595,7 +580,7 @@ Public Module Mathematic
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
 
     <Extension()>
-    Public Function Ceil(Number As Double) As Long
+    Public Function Ceil(Number As Double) As Double
         Try
             Return Math.Ceiling(Number)
         Catch ex As Exception
@@ -609,7 +594,7 @@ Public Module Mathematic
     ''' <param name="Number">Numero a ser arredondado</param>
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
     <Extension()>
-    Public Function Floor(Number As Decimal) As Long
+    Public Function Floor(Number As Decimal) As Decimal
         Try
             Return Math.Floor(Number)
         Catch ex As Exception
@@ -623,12 +608,92 @@ Public Module Mathematic
     ''' <param name="Number">Numero a ser arredondado</param>
     ''' <returns>Um numero inteiro (Integer ou Int)</returns>
     <Extension()>
-    Public Function Floor(Number As Double) As Long
+    Public Function Floor(Number As Double) As Double
         Try
             Return Math.Floor(Number)
         Catch ex As Exception
             Return 0
         End Try
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function FloorLong(Number As Double) As Long
+        Return Number.Floor().ToLong()
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function CeilLong(Number As Double) As Long
+        Return Number.Ceil().ToLong()
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function FloorLong(Number As Decimal) As Long
+        Return Number.Floor().ToLong()
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function CeilLong(Number As Decimal) As Long
+        Return Number.Ceil().ToLong()
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function FloorInt(Number As Double) As Integer
+        Return Number.Floor().ToInteger()
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function CeilInt(Number As Double) As Integer
+        Return Number.Ceil().ToInteger()
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function FloorInt(Number As Decimal) As Integer
+        Return Number.Floor().ToInteger()
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+    ''' </summary>
+    ''' <param name="Number">Numero a ser arredondado</param>
+    ''' <returns>Um numero inteiro (Integer ou Int)</returns>
+    <Extension()>
+    Public Function CeilInt(Number As Decimal) As Integer
+        Return Number.Ceil().ToInteger()
     End Function
 
     ''' <summary>
@@ -707,8 +772,53 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function Round(Number As Decimal) As Integer
+    <Extension()> Public Function Round(Number As Decimal) As Decimal
         Return Math.Round(Number)
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para o valor inteiro mais próximo
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Round(Number As Double) As Double
+        Return Math.Round(Number)
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para o valor inteiro mais próximo
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function RoundInt(Number As Decimal) As Integer
+        Return Math.Round(Number).ToInteger
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para o valor inteiro mais próximo
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function RoundInt(Number As Double) As Integer
+        Return Math.Round(Number).ToInteger
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para o valor inteiro mais próximo
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function RoundLong(Number As Decimal) As Long
+        Return Math.Round(Number).ToLong
+    End Function
+
+    ''' <summary>
+    ''' Arredonda um numero para o valor inteiro mais próximo
+    ''' </summary>
+    ''' <param name="Number">Numero</param>
+    ''' <returns></returns>
+    <Extension()> Public Function RoundLong(Number As Double) As Long
+        Return Math.Round(Number).ToLong
     End Function
 
     ''' <summary>
@@ -841,23 +951,13 @@ Public Module Mathematic
         Return distance
     End Function
 
-
-
     ''' <summary>
     ''' Calcula a distancia passando por todos os pontos
     ''' </summary>
     ''' <param name="Locations">Localizacoes</param>
     ''' <returns></returns>
-    Public Function CalculateDistanceMatrix(ParamArray Locations As AddressInfo()) As Double
-        Dim totalDistance As Double = 0.0
-
-        CartesianProduct(Locations, Locations)
-
-
-
+    Public Function CalculateDistanceMatrix(ParamArray Locations As AddressInfo()) As Tuple(Of AddressInfo, AddressInfo, Decimal)
+        Return CartesianProduct(Locations, Locations).Select(Function(x) New Tuple(Of AddressInfo, AddressInfo, Decimal)(x.First(), x.Last(), x.First().CalculateDistance(x.Last())))
     End Function
-
-
-
 
 End Module
