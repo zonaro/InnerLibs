@@ -690,7 +690,7 @@ Namespace MicroORM
         Public Sub New(LogicOperator As String, ParamArray Conditions As FormattableString())
             For Each condition In If(Conditions, {})
                 If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
-                    If LogicOperator.IsIn("Or", "Or") Then
+                    If LogicOperator.IsIn("Or", "OR") Then
                         [Or](condition)
                     Else
                         [And](condition)
@@ -702,7 +702,7 @@ Namespace MicroORM
         Public Sub New(LogicOperator As String, ParamArray Conditions As Condition())
             For Each condition In If(Conditions, {})
                 If condition IsNot Nothing AndAlso condition.ToString().IsNotBlank Then
-                    If LogicOperator.IsIn("Or", "Or") Then
+                    If LogicOperator.IsIn("Or", "OR") Then
                         [Or](condition)
                     Else
                         [And](condition)

@@ -11,6 +11,13 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    ''' <summary>
+    ''' Metodo de extensão para utilizar qualquer objeto usando FluentAPI
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Obj"></param>
+    ''' <param name="a"></param>
+    ''' <returns></returns>
     <Extension> Public Function [With](Of T)(Obj As T, a As Action(Of T)) As T
         If Obj IsNot Nothing AndAlso a IsNot Nothing Then
             a(Obj)
