@@ -1,4 +1,5 @@
 ﻿Imports System.Globalization
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports InnerLibs.Locations
 
@@ -24,6 +25,48 @@ Public Class EquationPair
         Return {X, Y}
     End Function
 
+
+    Public ReadOnly Property IsNotComplete
+        Get
+            Return Not IsComplete
+        End Get
+    End Property
+    Public ReadOnly Property IsComplete
+        Get
+            Return X.HasValue AndAlso Y.HasValue
+        End Get
+    End Property
+
+    Public ReadOnly Property MissX
+        Get
+            Return Not X.HasValue
+        End Get
+    End Property
+
+    Public ReadOnly Property MissY
+        Get
+            Return Not Y.HasValue
+        End Get
+    End Property
+
+    Public Function GetMissing() As PropertyInfo
+        If MissX Then
+            Return Me.GetProperty("X")
+        End If
+        If MissY Then
+            Return Me.GetProperty("Y")
+        End If
+        Return Nothing
+    End Function
+
+
+
+    Public Sub SetMissing(ByVal value As Decimal)
+        If GetMissing() IsNot Nothing Then
+            GetMissing().SetValue(Me, value)
+        End If
+    End Sub
+
 End Class
 
 Public Class RuleOfThree
@@ -36,73 +79,124 @@ Public Class RuleOfThree
     Sub New(FirstEquation As EquationPair, SecondEquation As EquationPair)
         Me.FirstEquation = FirstEquation
         Me.SecondEquation = SecondEquation
-        Start()
+        GetExpression()
     End Sub
 
-    Private Sub Start()
-        Select Case True
-            Case {FirstEquation.Y, SecondEquation.X, SecondEquation.Y}.All(Function(x) x.HasValue)
-                FirstEquation.X = SecondEquation.X * FirstEquation.Y / SecondEquation.Y
-                Exit Select
-            Case {FirstEquation.X, SecondEquation.X, SecondEquation.Y}.All(Function(x) x.HasValue)
-                FirstEquation.Y = FirstEquation.X * SecondEquation.Y / FirstEquation.X
-                Exit Select
-
-            Case {FirstEquation.X, FirstEquation.Y, SecondEquation.X}.All(Function(x) x.HasValue)
-                SecondEquation.Y = SecondEquation.X * FirstEquation.Y / FirstEquation.X
-                Exit Select
-
-            Case {FirstEquation.X, FirstEquation.Y, SecondEquation.Y}.All(Function(x) x.HasValue)
-                SecondEquation.X = SecondEquation.Y * FirstEquation.X / FirstEquation.Y
-                Exit Select
-            Case Else
-                Throw New NoNullAllowedException("Three numbers need to be known to make a rule of three")
-        End Select
-
+    Private Sub GetExpression()
+        If FirstEquation.IsNotComplete AndAlso SecondEquation.IsComplete Then
+            If FirstEquation.MissX Then
+                equationexp = Function() FirstEquation.Y * SecondEquation.X / SecondEquation.Y
+                paramname = "FX"
+            Else
+                equationexp = Function() FirstEquation.X * SecondEquation.Y / SecondEquation.X
+                paramname = "FY"
+            End If
+        ElseIf FirstEquation.IsComplete AndAlso SecondEquation.IsNotComplete Then
+            If SecondEquation.MissX Then
+                equationexp = Function() SecondEquation.Y * FirstEquation.X / FirstEquation.Y
+                paramname = "SX"
+            Else
+                equationexp = Function() SecondEquation.X * FirstEquation.Y / FirstEquation.X
+                paramname = "SY"
+            End If
+        Else
+            equationexp = Function() Nothing
+            paramname = Nothing
+        End If
     End Sub
 
     ''' <summary>
-    ''' Calcula uma regra de três
+    ''' Atualiza o campo nulo da <see cref="EquationPair"/> corrspondente pelo <see cref="UnknowValue"/>
     ''' </summary>
-    ''' <param name="E1X"></param>
-    ''' <param name="E1Y"></param>
-    ''' <param name="E2X"></param>
-    ''' <param name="E2Y"></param>
-    Sub New(E1X As Decimal?, E1Y As Decimal?, E2X As Decimal?, E2Y As Decimal?)
-        Me.New(New EquationPair(E1X, E1Y), New EquationPair(E2X, E2Y))
-    End Sub
+    ''' <returns></returns>
+    Public Function Resolve() As RuleOfThree
+        GetExpression()
+        If FirstEquation.IsComplete AndAlso SecondEquation.IsNotComplete Then
+            SecondEquation.SetMissing(UnknowValue)
+        ElseIf SecondEquation.IsComplete AndAlso FirstEquation.IsNotComplete Then
+            FirstEquation.SetMissing(UnknowValue)
+        End If
+        Return Me
+    End Function
 
     ''' <summary>
     ''' Calcula uma regra de três
     ''' </summary>
     Sub New(ParamArray Numbers As Decimal?())
-        Numbers = If(Numbers, {})
+        exp(Numbers)
+    End Sub
+
+    Private Sub exp(ParamArray numbers As Decimal?())
+        numbers = If(numbers, {})
         Select Case True
-            Case Numbers.Count < 3
+            Case numbers.Count < 3
                 Throw New NoNullAllowedException("Three numbers need to be known to make a rule of three")
                 Exit Select
-            Case Numbers.Count = 3
-                Me.FirstEquation.X = Numbers(0)
-                Me.FirstEquation.Y = Numbers(1)
-                Me.SecondEquation.X = Numbers(2)
+            Case numbers.Count = 3
+                Me.FirstEquation.X = numbers(0)
+                Me.FirstEquation.Y = numbers(1)
+                Me.SecondEquation.X = numbers(2)
                 Me.SecondEquation.Y = Nothing
             Case Else
-                If Numbers.All(Function(x) x.HasValue) Then
+                If numbers.All(Function(x) x.HasValue) Then
                     Throw New NoNullAllowedException("One of numbers must be NULL")
                     Exit Select
                 End If
 
-                If Numbers.Count(Function(x) x.HasValue) < 3 Then
+                If numbers.Count(Function(x) x.HasValue) < 3 Then
                     Throw New NoNullAllowedException("Three numbers need to be known to make a rule of three")
                     Exit Select
                 End If
 
-                Me.FirstEquation.X = Numbers.IfNoIndex(0)
-                Me.FirstEquation.Y = Numbers.IfNoIndex(1)
-                Me.SecondEquation.X = Numbers.IfNoIndex(2)
-                Me.SecondEquation.Y = Numbers.IfNoIndex(3)
-                Start()
+                Me.FirstEquation.X = numbers.IfNoIndex(0)
+                Me.FirstEquation.Y = numbers.IfNoIndex(1)
+                Me.SecondEquation.X = numbers.IfNoIndex(2)
+                Me.SecondEquation.Y = numbers.IfNoIndex(3)
+                GetExpression()
         End Select
+    End Sub
+
+    ReadOnly Property UnknowValue As Decimal?
+        Get
+            Return equationexp()
+        End Get
+    End Property
+
+    ReadOnly Property UnknowName As String
+        Get
+            Return custom_paramname.IfBlank(paramname)
+        End Get
+    End Property
+
+    Private equationexp As Func(Of Decimal?)
+    Private paramname As String
+
+    Private custom_paramname As String
+
+    Sub New(Equation As String)
+        Dim eqs = Equation.SplitAny(";", Environment.NewLine).Take(2)
+
+        Dim e1 = eqs.First().Split("=")
+        Dim e2 = eqs.Last().Split("=")
+
+        Dim e1xs = e1.FirstOrDefault()?.AdjustBlankSpaces()
+        Dim e1ys = e1.LastOrDefault()?.AdjustBlankSpaces()
+        Dim e2xs = e2.FirstOrDefault()?.AdjustBlankSpaces()
+        Dim e2ys = e2.LastOrDefault()?.AdjustBlankSpaces()
+
+        Dim e1x As Decimal? = Nothing
+        If e1xs.IsNumber() Then e1x = Convert.ToDecimal(e1xs) Else custom_paramname = e1xs
+
+        Dim e1y As Decimal? = Nothing
+        If e1ys.IsNumber() Then e1y = Convert.ToDecimal(e1ys) Else custom_paramname = e1ys
+
+        Dim e2x As Decimal? = Nothing
+        If e2xs.IsNumber() Then e2x = Convert.ToDecimal(e2xs) Else custom_paramname = e2xs
+
+        Dim e2y As Decimal? = Nothing
+        If e2ys.IsNumber() Then e2y = Convert.ToDecimal(e2ys) Else custom_paramname = e2ys
+
+        exp(e1x, e1y, e2x, e2y)
 
     End Sub
 
@@ -122,6 +216,16 @@ Public Class RuleOfThree
         Return {FirstEquation.ToArray, SecondEquation.ToArray}
     End Function
 
+    Function ToFlatArray() As Decimal?()
+        Return FirstEquation.ToArray.Union(SecondEquation.ToArray).ToArray()
+    End Function
+
+    Public Overrides Function ToString() As String
+        If UnknowValue IsNot Nothing Then
+            Return $"{UnknowName} = {UnknowValue}"
+        End If
+        Return Nothing
+    End Function
 End Class
 
 ''' <summary>
@@ -169,46 +273,6 @@ Public Module Mathematic
     ''' <returns></returns>
     <Extension> Public Function HasDecimalPart(Value As Double) As Boolean
         Return Value.ChangeType(Of Decimal).HasDecimalPart()
-    End Function
-
-    ''' <summary>
-    ''' Retorna o elemento de menor valor de uma coleção
-    ''' </summary>
-    ''' <typeparam name="T">Tipo do elemento</typeparam>
-    ''' <param name="Elements">Lista de elementos</param>
-    ''' <returns></returns>
-    <Extension()> Function LowerOf(Of T)(Elements As IEnumerable(Of T)) As T
-        Return If(Elements, {}).OrderBy(Function(x) x).FirstOrDefault
-    End Function
-
-    ''' <summary>
-    ''' Retorna o elemento de menor valor de uma coleção
-    ''' </summary>
-    ''' <typeparam name="T">Tipo do elemento</typeparam>
-    ''' <param name="Elements">Lista de elementos</param>
-    ''' <returns></returns>
-    Function LowerOf(Of T)(ParamArray Elements As T()) As T
-        Return If(Elements, {}).LowerOf
-    End Function
-
-    ''' <summary>
-    ''' Retorna o elemento de maior valor de uma coleção
-    ''' </summary>
-    ''' <typeparam name="T">Tipo do elemento</typeparam>
-    ''' <param name="Elements">Lista de elementos</param>
-    ''' <returns></returns>
-    <Extension()> Function HigherOf(Of T)(Elements As IEnumerable(Of T)) As T
-        Return If(Elements, {}).OrderByDescending(Function(x) x).FirstOrDefault
-    End Function
-
-    ''' <summary>
-    ''' Retorna o elemento de maior valor de uma coleção
-    ''' </summary>
-    ''' <typeparam name="T">Tipo do elemento</typeparam>
-    ''' <param name="Elements">Lista de elementos</param>
-    ''' <returns></returns>
-    Function HigherOf(Of T)(ParamArray Elements As T()) As T
-        Return If(Elements, {}).HigherOf
     End Function
 
     ''' <summary>
@@ -268,7 +332,6 @@ Public Module Mathematic
     ''' <returns></returns>
     <Extension> Public Function ToOrdinalNumber(Number As Short) As String
         Return ToOrdinalNumber(CType(Number, Long))
-
     End Function
 
     ''' <summary>
@@ -385,7 +448,6 @@ Public Module Mathematic
     ''' <returns>fatorial do numero inteiro</returns>
     <Extension>
     Public Function Factorial(Number As Integer) As Integer
-        Number = Mathematic.Round(Number)
         If Number = 0 Then Return 0
         If Number < 0 Then
             Number = Number * (-1)
@@ -394,7 +456,7 @@ Public Module Mathematic
         Dim counter = Number - 1
         While counter > 0
             fact = fact * counter
-            counter.Decrement
+            counter = counter - 1
         End While
         Return fact
     End Function
@@ -747,6 +809,7 @@ Public Module Mathematic
     Public Function LimitRange(ByVal Number As Integer, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As Integer
         Return LimitRange(Of Integer)(Number, MinValue, MaxValue)
     End Function
+
     ''' <summary>
     ''' Limita um range para um numero
     ''' </summary>
@@ -757,6 +820,18 @@ Public Module Mathematic
     <Extension()>
     Public Function LimitRange(ByVal Number As Decimal, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As Decimal
         Return LimitRange(Of Decimal)(Number, MinValue, MaxValue)
+    End Function
+
+    ''' <summary>
+    ''' Limita um range para um numero
+    ''' </summary>
+    ''' <param name="Number">  Numero</param>
+    ''' <param name="MinValue">Valor Minimo para o numero</param>
+    ''' <param name="MaxValue">Valor máximo para o numero</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function LimitRange(ByVal Number As Double, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As Long
+        Return LimitRange(Of Double)(Number, MinValue, MaxValue)
     End Function
 
     ''' <summary>
@@ -780,19 +855,12 @@ Public Module Mathematic
     End Function
 
     ''' <summary>
-    ''' Arredonda um numero para baixo ou para cima de acordo com outro numero
+    ''' Arredonda um numero para o valor inteiro mais próximo
     ''' </summary>
-    ''' <param name="Number">      Numero</param>
-    ''' <param name="MiddleNumber">Numero Médio</param>
+    ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function Round(Number As Decimal, Optional MiddleNumber As Integer = 5, Optional Culture As CultureInfo = Nothing) As Integer
-        MiddleNumber.LimitRange(Of Integer)(1, 10)
-        Dim split = Number.ToString.Split(If(Culture, CultureInfo.CurrentCulture).NumberFormat.NumberDecimalSeparator)
-        If split(1).GetFirstChars(1).ChangeType(Of Integer) > MiddleNumber Then
-            Return Number.Ceil
-        Else
-            Return Number.Floor
-        End If
+    <Extension()> Public Function Round(Number As Decimal, Optional Decimals As Integer? = Nothing) As Decimal
+        Return If(Decimals, Math.Round(Number, Decimals.Value), Math.Round(Number))
     End Function
 
     ''' <summary>
@@ -800,17 +868,8 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function Round(Number As Decimal) As Decimal
-        Return Math.Round(Number)
-    End Function
-
-    ''' <summary>
-    ''' Arredonda um numero para o valor inteiro mais próximo
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <returns></returns>
-    <Extension()> Public Function Round(Number As Double) As Double
-        Return Math.Round(Number)
+    <Extension()> Public Function Round(Number As Double, Optional Decimals As Integer? = Nothing) As Double
+        Return If(Decimals, Math.Round(Number, Decimals.Value), Math.Round(Number))
     End Function
 
     ''' <summary>
