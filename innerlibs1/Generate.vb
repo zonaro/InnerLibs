@@ -1,5 +1,4 @@
 ﻿Imports System.Drawing
-Imports System.Net
 Imports System.Runtime.CompilerServices
 Imports InnerLibs.LINQ
 Imports InnerLibs.Locations
@@ -17,51 +16,45 @@ Public Module Generate
     ''' <returns>Uma string contendo uma palavra aleatória</returns>
     Public Function RandomWord(Optional Length As Integer = 0) As String
         Length = If(Length < 1, RandomNumber(2, 15), Length)
-        Dim rnd As New Random()
-        Dim consonants As String() = {"b", "c", "d", "f", "g", "h",
-        "j", "k", "l", "m", "n", "p",
-        "q", "r", "s", "t", "v", "w",
-        "x", "y", "z"}
-        Dim vowels As String() = {"a", "e", "i", "o", "u"}
 
         Dim word As String = ""
 
+        If Length = 1 Then
+            Return RandomItem(Consonants.Union(Vowels).ToArray)
+        End If
+
         ' Generate the word in consonant / vowel pairs
         While word.Length < Length
-            If Length <> 1 Then
-                ' Add the consonant
-                Dim consonant As String = GetRandomLetter(rnd, consonants)
 
-                If consonant = "q" AndAlso word.Length + 3 <= Length Then
-                    ' check +3 because we'd add 3 characters in this case, the "qu" and the vowel.  Change 3 to 2 to allow words that end in "qu"
-                    word += "qu"
-                Else
-                    While consonant = "q"
-                        ' ReplaceFrom an orphaned "q"
-                        consonant = GetRandomLetter(rnd, consonants)
-                    End While
+            ' Add the consonant
+            Dim consonant As String = Consonants.GetRandomItem()
 
-                    If word.Length + 1 <= Length Then
-                        ' Only add a consonant if there's enough room remaining
-                        word += consonant
-                    End If
+            If consonant = "q" AndAlso word.Length + 3 <= Length Then
+                ' check +3 because we'd add 3 characters in this case, the "qu" and the vowel.  Change 3 to 2 to allow words that end in "qu"
+                word += "qu"
+            Else
+                While consonant = "q"
+                    ' ReplaceFrom an orphaned "q"
+                    consonant = Consonants.GetRandomItem()
+                End While
+
+                If word.Length + 1 <= Length Then
+                    ' Only add a consonant if there's enough room remaining
+                    word += consonant
                 End If
+
             End If
 
             If word.Length + 1 <= Length Then
                 ' Only add a vowel if there's enough room remaining
-                word += GetRandomLetter(rnd, vowels)
+                word += Vowels.GetRandomItem()
             End If
         End While
         Return word
     End Function
 
-    Public Function RandomString()
-        For index = 1 To 10
-
-        Next
-
-        AlphaChars.OrderByRandom()
+    Public Function RandomString(Len As Integer)
+        Return RandomWord(Len)
     End Function
 
     ''' <summary>
@@ -72,13 +65,6 @@ Public Module Generate
     Public Function RandomWord(BaseText As String) As String
         Return BaseText.ToArray.Shuffle.Join("")
     End Function
-
-    Private Function GetRandomLetter(rnd As Random, letters As String()) As String
-        Return letters(rnd.[Next](0, letters.Length - 1))
-    End Function
-
-
-
 
     ''' <summary>
     ''' Gera uma URL do google MAPs baseado na localização
@@ -99,9 +85,6 @@ Public Module Generate
         Return New Uri("https://www.google.com.br/maps/search/" & s)
 
     End Function
-
-
-
 
     ''' <summary>
     ''' Gera um valor boolean aleatorio considerando uma porcentagem de chance
@@ -129,8 +112,6 @@ Public Module Generate
         Return init_rnd.Next(0, 1).ToBoolean()
     End Function
 
-
-
     ''' <summary>
     ''' Gera um numero Aleatório entre 2 números
     ''' </summary>
@@ -140,7 +121,6 @@ Public Module Generate
     Function RandomNumber(Optional Min As Integer = 0, Optional Max As Integer = 999999) As Integer
         Return init_rnd.Next(Min, Max + 1)
     End Function
-
 
     ''' <summary>
     ''' Gera uma lista com <paramref name="Quantity"/> cores diferentes
@@ -186,8 +166,6 @@ Public Module Generate
     Function RandomIpsum(Optional ParagraphCount As Integer = 5, Optional SentenceCount As Integer = 3, Optional MinWordCount As Integer = 10, Optional MaxWordCount As Integer = 50, Optional IdentSize As Integer = 0, Optional BreakLinesBetweenParagraph As Integer = 0) As StructuredText
         Return New StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoin(Function(pp) Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoin(Function(s) Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoin(Function(p) RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) & RandomBoolean(30).AsIf(","), " "), EndOfSentencePunctuation.FirstRandom() & " "), Environment.NewLine)) With {.Ident = IdentSize, .BreakLinesBetweenParagraph = BreakLinesBetweenParagraph}
     End Function
-
-
 
     ''' <summary>
     ''' Converte uma String para um QR Code usando uma API (Nescessita de Internet)

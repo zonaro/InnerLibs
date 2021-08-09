@@ -731,6 +731,15 @@ Namespace MicroORM
             End If
         End Sub
 
+        ''' <summary>
+        ''' Ctor.
+        ''' </summary>
+        Public Sub New(Column As String, Value As Object, Optional [Operator] As String = "=")
+            If Column.IsNotBlank() Then
+                _tokens.Add($"{Column} {[Operator].IfBlank("=")} {ToSQLString(Value)}")
+            End If
+        End Sub
+
         Public Shared Function OrMany(ParamArray conditions As FormattableString()) As Condition
             Return New Condition("Or", conditions)
         End Function
@@ -1061,25 +1070,26 @@ Namespace MicroORM
         ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
         ''' uma URL como as colunas da tabela de destino
         ''' </summary>
-        ''' <param name="Request">        Requisicao HTTP</param>
+        ''' <param name="NVC">        Requisicao HTTP</param>
         ''' <param name="TableName">  Nome da tabela</param>
         ''' <param name="Keys">Parametros da URL que devem ser utilizados</param>
         ''' <returns>Uma string com o comando montado</returns>
-        <Extension()> Public Function ToUPDATE(Request As NameValueCollection, ByVal TableName As String, WhereClausule As String, ParamArray Keys As String()) As String
+        <Extension()> Public Function ToUPDATE(NVC As NameValueCollection, ByVal TableName As String, WhereClausule As String, ParamArray Keys As String()) As String
             Keys = If(Keys, {})
             If Keys.Count = 0 Then
-                Keys = Request.AllKeys
+                Keys = NVC.AllKeys
             Else
-                Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys)).ToArray
+                Keys = NVC.AllKeys.Where(Function(x) x.IsLikeAny(Keys)).ToArray
             End If
             Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
             For Each col In Keys
-                cmd &= (String.Format(" {0} = {1},", col, UrlDecode(Request(col)).Wrap("'")) & Environment.NewLine)
+                cmd &= (String.Format(" {0} = {1},", col, UrlDecode(NVC(col)).Wrap("'")) & Environment.NewLine)
             Next
             cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
             Debug.WriteLine(cmd.Wrap(Environment.NewLine))
             Return cmd
         End Function
+
 
         ''' <summary>
         ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="Dictionary(Of String, Object)"/>
@@ -1090,22 +1100,32 @@ Namespace MicroORM
         ''' <returns>Uma string com o comando montado</returns>
 
         <Extension()>
-        Public Function ToSQLFilter(Dic As IDictionary(Of String, Object), ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As String
-            Dim CMD = "SELECT " & CommaSeparatedColumns.IfBlank("*") & " FROM " & TableName
+        Public Function ToSQLFilter(Dic As Dictionary(Of String, Object), ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As [Select]
+
+            Dim s As New [Select](CommaSeparatedColumns.Split(","))
+
+            s.From(TableName)
+
             FilterKeys = If(FilterKeys, {})
 
-            If FilterKeys.Count = 0 Then
-                FilterKeys = Dic.Keys.ToArray()
-            Else
+            If FilterKeys.Any Then
                 FilterKeys = Dic.Keys.ToArray().Where(Function(x) x.IsLikeAny(FilterKeys)).ToArray
+            Else
+                FilterKeys = Dic.Keys.ToArray()
             End If
 
             FilterKeys = FilterKeys.Where(Function(x) Dic(x) IsNot Nothing AndAlso Dic(x).ToString().IsNotBlank()).ToArray()
 
-            If FilterKeys.Count > 0 Then
-                CMD = CMD & " WHERE " & FilterKeys.Select(Function(key) " " & key & "=" & UrlDecode("" & Dic(key)).Wrap("'")).ToArray.Join(" " & [Enum].GetName(GetType(LogicConcatenationOperator), LogicConcatenation) & " ")
+            If FilterKeys.Any Then
+                For Each f In FilterKeys
+                    If LogicConcatenation = LogicConcatenationOperator.OR Then
+                        s.Or(New Condition(f, Dic(f)))
+                    Else
+                        s.And(New Condition(f, Dic(f)))
+                    End If
+                Next
             End If
-            Return CMD
+            Return s
         End Function
 
         ''' <summary>
@@ -1125,24 +1145,10 @@ Namespace MicroORM
             [OR]
         End Enum
 
-        ''' <summary>
-        ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
-        ''' uma URL como as colunas da tabela de destino
-        ''' </summary>
-        ''' <param name="Request">        Requisicao HTTP</param>
-        ''' <param name="TableName">  Nome da tabela</param>
-        ''' <param name="Keys">Parametros da URL que devem ser utilizados</param>
-        ''' <returns>Uma string com o comando montado</returns>
-        <Extension()> Public Function ToINSERT(Request As NameValueCollection, ByVal TableName As String, ParamArray Keys As String()) As String
-            Keys = If(Keys, {})
-            If Keys.Count = 0 Then
-                Keys = Request.AllKeys
-            Else
-                Keys = Request.AllKeys.Where(Function(x) x.IsLikeAny(Keys)).ToArray
-            End If
-            Dim s = String.Format("INSERT INTO " & TableName & " ({0}) values ({1})", Keys.Join(","), Keys.Select(Function(p) Request(p).UrlDecode.Wrap("'")).ToArray.Join(","))
-            Debug.WriteLine(s.Wrap(Environment.NewLine))
-            Return s
+
+
+        <Extension()> Public Function CreateINSERTCommand(Of T As Class)(Connection As DbConnection, obj As IEnumerable(Of T), Optional TableName As String = Nothing) As IEnumerable(Of DbCommand)
+            Return If(obj, {}).Select(Function(x) Connection.CreateINSERTCommand(x, TableName))
         End Function
 
         <Extension()> Public Function CreateINSERTCommand(Of T As Class)(Connection As DbConnection, obj As T, Optional TableName As String = Nothing) As DbCommand
@@ -1157,7 +1163,7 @@ Namespace MicroORM
                     dic = obj.CreateDictionary()
                 End If
                 Dim cmd = Connection.CreateCommand()
-                cmd.CommandText = String.Format($"INSERT INTO " & TableName.IfBlank(d.Name).IfBlank("TableName") & " ({0}) values ({1})", dic.Keys.Join(","), dic.Keys.SelectJoin(Function(x) $"@__{x}", ","))
+                cmd.CommandText = String.Format($"INSERT INTO " & TableName.IfBlank(d.Name).IfBlank("#TableName") & " ({0}) values ({1})", dic.Keys.Join(","), dic.Keys.SelectJoin(Function(x) $"@__{x}", ","))
                 For Each k In dic.Keys
                     Dim param = cmd.CreateParameter()
                     param.ParameterName = $"__{k}"

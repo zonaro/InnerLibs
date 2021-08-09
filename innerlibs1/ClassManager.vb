@@ -67,29 +67,6 @@ Public Module ClassTools
         Return Not If(List, {}).Any()
     End Function
 
-    <Extension()> Function ObjectToByteArray(ByVal obj As Object) As Byte()
-        If obj Is Nothing Then Return Nothing
-        Dim bf As BinaryFormatter = New BinaryFormatter()
-        Dim ms As MemoryStream = New MemoryStream()
-        bf.Serialize(ms, obj)
-        Dim b = ms.ToArray()
-        ms.Dispose()
-        Return b
-    End Function
-
-    <Extension()> Function ByteArrayToObject(ByVal arrBytes As Byte()) As Object
-        Return ByteArrayToObject(Of Object)(arrBytes)
-    End Function
-
-    <Extension()> Function ByteArrayToObject(Of T)(ByVal arrBytes As Byte()) As T
-        Dim memStream As MemoryStream = New MemoryStream()
-        Dim binForm As BinaryFormatter = New BinaryFormatter()
-        memStream.Write(arrBytes, 0, arrBytes.Length)
-        memStream.Seek(0, SeekOrigin.Begin)
-        Dim obj = CType(binForm.Deserialize(memStream), T)
-        memStream.Dispose()
-        Return obj
-    End Function
 
     Public ReadOnly Property PrimitiveTypes As Type()
         Get

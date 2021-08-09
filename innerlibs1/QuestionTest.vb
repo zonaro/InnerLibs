@@ -187,7 +187,7 @@ Namespace QuestionTest
             Get
                 Dim c = 0
                 For Each q In Me
-                    If q.IsCorrect Then c.Increment
+                    If q.IsCorrect Then c = c + 1
                 Next
                 Return c
             End Get
@@ -336,7 +336,7 @@ Namespace QuestionTest
         Public ReadOnly Property ID As String
             Get
                 If Test IsNot Nothing Then
-                    Return Test.IndexOf(Me).Increment.ToString.Prepend("Q")
+                    Return (Test.IndexOf(Me) + 1).ToString.Prepend("Q")
                 End If
                 Return Nothing
             End Get
@@ -400,13 +400,13 @@ Namespace QuestionTest
         Public Property Number As Integer
             Get
                 If Test IsNot Nothing Then
-                    Return Me.Test.IndexOf(Me).Increment
+                    Return (Me.Test.IndexOf(Me) + 1)
                 End If
                 Return -1
             End Get
             Set(value As Integer)
                 If Test IsNot Nothing Then
-                    Me.Test.Move(Me.Test.IndexOf(Me), value.Decrement.LimitRange(0, Test.Count - 1))
+                    Me.Test.Move(Me.Test.IndexOf(Me), (value - 1).LimitRange(0, Test.Count - 1))
                 End If
             End Set
         End Property
@@ -516,7 +516,7 @@ Namespace QuestionTest
         Public ReadOnly Property HTML As String
             Get
                 If StatementImages IsNot Nothing Then
-                    Return "<li class='Image'><img src=" & Image.ToDataURL.Quote & " alt= " & Subtitle.Quote & "/><small>Imagem " & StatementImages.IndexOf(Me).Increment.ToString & ": " & Subtitle & "</small></li>"
+                    Return "<li class='Image'><img src=" & Image.ToDataURL.Quote & " alt= " & Subtitle.Quote & "/><small>Imagem " & (StatementImages.IndexOf(Me) + 1).ToString & ": " & Subtitle & "</small></li>"
                 End If
                 Return ""
             End Get
@@ -729,7 +729,7 @@ Namespace QuestionTest
                 Dim c = 0
                 For Each q In Me.Alternatives
                     If q.Correct Then
-                        c.Increment
+                        c = c + 1
                     End If
                 Next
                 Return c = 1
@@ -759,7 +759,7 @@ Namespace QuestionTest
                     Dim acertos = 0
                     For Each q In Alternatives
                         If q.IsCorrect Then
-                            acertos.Increment
+                            acertos = acertos + 1
                         End If
                     Next
                     Return acertos * Weight / total
@@ -866,13 +866,13 @@ Namespace QuestionTest
         Public Property Number As Integer
             Get
                 If Question IsNot Nothing Then
-                    Return Question.Alternatives.IndexOf(Me).Increment
+                    Return Question.Alternatives.IndexOf(Me) + 1
                 End If
                 Return -1
             End Get
             Set(value As Integer)
                 If Question IsNot Nothing Then
-                    Question.Alternatives.Move(Question.Alternatives.IndexOf(Me), value.Decrement.LimitRange(0, Question.Alternatives.Count - 1))
+                    Question.Alternatives.Move(Question.Alternatives.IndexOf(Me), (value - 1).LimitRange(0, Question.Alternatives.Count - 1))
                 End If
             End Set
         End Property

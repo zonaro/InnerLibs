@@ -221,21 +221,21 @@ Public Module Text
         End Get
     End Property
 
-    ReadOnly Property AlphaUpperChars As IEnumerable(Of String)
+    ReadOnly Property AlphaLowerChars As IEnumerable(Of String)
         Get
-            Return {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}.AsEnumerable
+            Return Consonants.Union(Vowels).AsEnumerable
         End Get
     End Property
 
-    ReadOnly Property AlphaLowerChars As IEnumerable(Of String)
+    ReadOnly Property AlphaUpperChars As IEnumerable(Of String)
         Get
-            Return AlphaUpperChars.Select(Function(x) x.ToLower())
+            Return AlphaLowerChars.Select(Function(x) x.ToUpper())
         End Get
     End Property
 
     ReadOnly Property AlphaChars As IEnumerable(Of String)
         Get
-            Return AlphaUpperChars.Union(AlphaLowerChars)
+            Return AlphaUpperChars.Union(AlphaLowerChars).OrderBy(Function(x) x).AsEnumerable
         End Get
     End Property
 
@@ -245,7 +245,7 @@ Public Module Text
         End Get
     End Property
 
-    ReadOnly Property BreakLineChars As String()
+    ReadOnly Property BreakLineChars As IEnumerable(Of String)
         Get
             Return {Environment.NewLine, vbCr, vbLf, vbCrLf, vbNewLine}.AsEnumerable
         End Get
@@ -294,6 +294,20 @@ Public Module Text
             Return {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br/>", Environment.NewLine, vbCr, vbCrLf}.AsEnumerable
         End Get
     End Property
+
+    Public ReadOnly Property Consonants As IEnumerable(Of String)
+        Get
+            Return {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"}.AsEnumerable
+        End Get
+    End Property
+
+    Public ReadOnly Property Vowels As IEnumerable(Of String)
+        Get
+            Return {"a", "e", "i", "o", "u"}.AsEnumerable
+        End Get
+    End Property
+
+
 
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String
@@ -663,28 +677,6 @@ Public Module Text
             dic.Add(w, 0)
         Next
         Return dic
-    End Function
-
-    ''' <summary>
-    ''' Decrementa em 1 ou mais um numero inteiro
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <param name="Amount">QUantidade que será removida</param>
-    <Extension()>
-    Public Function Decrement(ByRef Number As Integer, Optional Amount As Integer = 1) As Integer
-        Number = Number - Amount.SetMinValue(1)
-        Return Number
-    End Function
-
-    ''' <summary>
-    ''' Decrementa em 1 ou mais um numero inteiro
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <param name="Amount">QUantidade que será removida</param>
-    <Extension()>
-    Public Function Decrement(ByRef Number As Long, Optional Amount As Integer = 1) As Integer
-        Number = Number - Amount.SetMinValue(1)
-        Return Number
     End Function
 
     ''' <summary>
@@ -1110,8 +1102,8 @@ Public Module Text
     ''' <param name="List">Lista</param>
     ''' <returns>Um valor do tipo especificado</returns>
     <Extension>
-    Public Function GetRandomItem(Of Type)(ByVal List As List(Of Type)) As Type
-        Return List.ToArray.GetRandomItem
+    Public Function GetRandomItem(Of Type)(ByVal List As IEnumerable(Of Type)) As Type
+        Return List.ToArray()(RandomNumber(0, List.Count - 1))
     End Function
 
     ''' <summary>
@@ -1122,7 +1114,7 @@ Public Module Text
     ''' <returns>Um valor do tipo especificado</returns>
     <Extension>
     Public Function GetRandomItem(Of Type)(ByVal Array As Type()) As Type
-        Return Array.Shuffle()(0)
+        Return Array(RandomNumber(0, Array.Count - 1))
     End Function
 
     ''' <summary>
@@ -1197,28 +1189,6 @@ Public Module Text
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
         Return System.Net.WebUtility.HtmlEncode("" & Text.ReplaceMany("<br>", BreakLineChars))
-    End Function
-
-    ''' <summary>
-    ''' Incrementa em 1 ou mais um numero inteiro
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <param name="Amount">QUantidade adicionada</param>
-    <Extension()>
-    Public Function Increment(ByRef Number As Integer, Optional Amount As Integer = 1) As Integer
-        Number = Number + Amount.SetMinValue(1)
-        Return Number
-    End Function
-
-    ''' <summary>
-    ''' Incrementa em 1 ou mais um numero inteiro
-    ''' </summary>
-    ''' <param name="Number">Numero</param>
-    ''' <param name="Amount">QUantidade adicionada</param>
-    <Extension()>
-    Public Function Increment(ByRef Number As Long, Optional Amount As Integer = 1) As Long
-        Number = Number + Amount.SetMinValue(1)
-        Return Number
     End Function
 
     ''' <summary>
@@ -1446,7 +1416,7 @@ Public Module Text
             Dim l As Decimal = Text.Length / 2
             l = l.Floor
             If Not Text.GetFirstChars(l).Last.ToString.ToLower.IsIn({"a", "e", "i", "o", "u"}) Then
-                l = l.ChangeType(Of Integer).Decrement
+                l = l.ChangeType(Of Integer) - 1
             End If
             p.Add(Text.GetFirstChars(l).Trim & Text.GetFirstChars(l).Reverse.ToList.Join.ToLower.Trim)
         Next
@@ -1487,13 +1457,16 @@ Public Module Text
             Dim sReader As New StreamReader(mStream)
 
             ' Extract the text from the StreamReader.
-            Return sReader.ReadToEnd()
+            Result = sReader.ReadToEnd()
         Catch generatedExceptionName As XmlException
+        Finally
+            mStream?.Close()
+            writer?.Close()
+            mStream?.Dispose()
+            writer?.Dispose()
         End Try
 
-        mStream.Close()
-        writer.Close()
-        Return ""
+        Return Result
     End Function
 
     ''' <summary>
@@ -1521,40 +1494,23 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado em <paramref name="Identifier"/>.
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado no parametro.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>
-    ''' <param name="Identifier">Identificador da variavel quantificadora</param>
     ''' <returns></returns>
-    ''' <example>texto = "total de {q=2 pães}"</example>
-    <Extension()> Public Function QuantifyText(PluralText As String, Optional Identifier As String = "q") As String
-        Dim inst = PluralText.GetAllBetween("{" & Identifier & "=", "}")
-        Dim no_wrap As Boolean = False
-        If inst.Length = 0 Then
-            no_wrap = True
-            inst = {PluralText}
+    ''' <example>texto = $"{2} pães"</example>
+    <Extension()> Public Function QuantifyText(PluralText As FormattableString) As String
+        If PluralText.IsNotBlank Then
+            If PluralText.ArgumentCount > 0 Then
+                Dim n As Decimal = 0
+                Dim ArgIndex = PluralText.GetArguments.GetIndexOf(PluralText.GetArguments().FirstOrDefault(Function(x) IsNumber(x)))
+                n = PluralText.GetArguments().IfBlankOrNoIndex(ArgIndex, n)
+                If n = 1 OrElse n = -1 Then
+                    Return PluralText.ToString().Singularize()
+                End If
+            End If
         End If
-        For Each q In inst
-            Dim numero = q.GetBefore(" ")
-            If Not numero.IsNumber Then
-                numero = numero.Length
-            End If
-            Dim texto = q.GetAfter(" ")
-            Dim has_number As Boolean = texto.ContainsAny("[" & Identifier & "]")
-
-            texto = texto.QuantifyText(numero.ToDecimal)
-            Dim newtxt = numero & " " & texto
-            If has_number Then
-                texto = texto.Replace("[" & Identifier & "]", numero)
-                newtxt = texto
-            End If
-            If no_wrap Then
-                PluralText = newtxt
-            Else
-                PluralText = PluralText.Replace("{" & Identifier & "=" + q + "}", newtxt)
-            End If
-        Next
-        Return PluralText
+        Return PluralText?.ToString()
     End Function
 
     ''' <summary>
@@ -1564,9 +1520,9 @@ Public Module Text
     ''' <param name="Quantity">  Quantidade de Itens</param>
     ''' <returns></returns>
     <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object) As String
-        Dim numero As Decimal = 0
+        Dim numero As Decimal
         Select Case True
-            Case GetType(String) Is Quantity.GetType AndAlso CType(Quantity, String).IsNumber
+            Case IsNumber(Quantity)
                 numero = CType(Quantity, Decimal)
                 Exit Select
             Case GetType(IList).IsAssignableFrom(Quantity.GetType)
@@ -1756,7 +1712,7 @@ Public Module Text
             If uc <> UnicodeCategory.NonSpacingMark Then
                 sb.Append(s(k))
             End If
-            k.Increment
+            k = k + 1
         End While
         Return sb.ToString()
     End Function
@@ -2123,8 +2079,7 @@ Public Module Text
     ''' <typeparam name="Type">Tipo do Array</typeparam>
     ''' <param name="Array">Matriz</param>
     <Extension()> Public Function Shuffle(Of Type)(ByVal Array As Type()) As Type()
-        Array = Array.OrderByRandom().ToArray
-        Return Array
+        Return Array.OrderByRandom().ToArray
     End Function
 
     ''' <summary>
@@ -2133,8 +2088,7 @@ Public Module Text
     ''' <typeparam name="Type">Tipo de Lista</typeparam>
     ''' <param name="List">Matriz</param>
     <Extension()> Public Function Shuffle(Of Type)(ByRef List As List(Of Type)) As List(Of Type)
-        List = List.ToArray.Shuffle.ToList()
-        Return List
+        Return List.OrderByRandom.ToList()
     End Function
 
     ''' <summary>
@@ -2143,8 +2097,7 @@ Public Module Text
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
     <Extension()> Public Function Shuffle(ByRef Text As String) As String
-        Text = RandomWord(Text)
-        Return Text
+        Return RandomWord(Text)
     End Function
 
     ''' <summary>

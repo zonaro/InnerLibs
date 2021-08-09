@@ -122,7 +122,8 @@ Namespace TimeMachine
             Dim fortcount As Integer = 1
             Dim fort As New FortnightGroup(Of DataType)(StartDate, fortcount)
             While fort.EndDate < EndDate
-                fort = New FortnightGroup(Of DataType)(StartDate, fortcount.Increment)
+                fortcount = fortcount + 1
+                fort = New FortnightGroup(Of DataType)(StartDate, fortcount)
             End While
             Return fort
         End Function
@@ -357,7 +358,8 @@ Namespace TimeMachine
             Dim fortcount As Integer = 1
             Dim fort As New FortnightGroup(StartDate, fortcount)
             While fort.EndDate < EndDate
-                fort = New FortnightGroup(StartDate, fortcount.Increment)
+                fortcount = fortcount + 1
+                fort = New FortnightGroup(StartDate, fortcount)
             End While
             Return fort
         End Function
@@ -417,7 +419,7 @@ Namespace TimeMachine
                             _phase = Phase.Months
                             CurDate = CurDate.AddYears(years)
                         Else
-                            years.Increment
+                            years = years + 1
                         End If
                         Exit Select
                     Case Phase.Months
@@ -425,7 +427,7 @@ Namespace TimeMachine
                             _phase = Phase.Days
                             CurDate = CurDate.AddMonths(months)
                         Else
-                            months.Increment
+                            months = months + 1
                         End If
                         Exit Select
                     Case Phase.Days

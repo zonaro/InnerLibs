@@ -545,7 +545,7 @@ Public Module Mathematic
 
     <Extension()>
     Function CalculatePercent(ByVal Value As Decimal, Total As Decimal) As Decimal
-        Return Convert.ToDecimal(100 * Value / Total)
+        Return Convert.ToDecimal(100D * Value / Total)
     End Function
 
     ''' <summary>

@@ -51,34 +51,18 @@ Namespace RolePlayingGame
         ''' <returns>Integer</returns>
         Public ReadOnly Property Value As Integer
             Get
-                Return _value
+                Return Me.Sum(Function(x) x.Value)
             End Get
         End Property
 
-        Private _value As Integer
+
 
         ''' <summary>
         ''' Rola todos os dados (não travados) e retorna a soma de seus valores
         ''' </summary>
         ''' <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
-        Public Function Roll() As Integer
-            _value = 0
-            For Each d In Me
-                _value.Increment(d.Roll)
-            Next
-            Return Value
-        End Function
-
-        ''' <summary>
-        ''' Rola todos os dados (não travados) e retorna a soma de seus valores
-        ''' </summary>
-        ''' <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
-        Public Function Roll(Times As Integer) As IEnumerable(Of Integer)
-            Dim l As New List(Of Integer)
-            For index = 1 To Times
-                l.Add(Roll())
-            Next
-            Return l
+        Public Function Roll() As IEnumerable(Of Dice.DiceFace)
+            Return Me.Select(Function(x) x.Roll())
         End Function
 
         ''' <summary>
@@ -173,16 +157,23 @@ Namespace RolePlayingGame
         ''' Valor atual deste dado
         ''' </summary>
         ''' <returns></returns>
-        Public Property Value As Integer
+        Public ReadOnly Property Value As Integer?
             Get
-                Return _value
+                If History.Any Then
+                    Return History.FirstOrDefault().Item1
+                End If
+                Return Nothing
             End Get
-            Set(value As Integer)
-                Me._value = value.LimitRange(Of Integer)(1, Faces.Last.Number)
-            End Set
         End Property
 
-        Private _value As Integer = 0
+        Public ReadOnly Property LastRoll As DateTime?
+            Get
+                If History.Any Then
+                    Return History.FirstOrDefault().Item2
+                End If
+                Return Nothing
+            End Get
+        End Property
 
         ''' <summary>
         ''' Numero de vezes que este dado já foi rolado
@@ -200,7 +191,7 @@ Namespace RolePlayingGame
         ''' Rola o dado e retorna seu valor
         ''' </summary>
         ''' <returns>Integer</returns>
-        Public Function Roll() As Integer
+        Public Function Roll() As DiceFace
             If Not Locked Then
                 _rolledtimes = _rolledtimes + 1
                 Dim numfaces As New List(Of DiceFace)
@@ -209,31 +200,38 @@ Namespace RolePlayingGame
                         numfaces.Add(f)
                     Next
                 Next
-                Value = numfaces.GetRandomItem.Number
-                _h.Add(Value)
+                numfaces(Generate.RandomNumber(0, numfaces.Count - 1))._h.Add(DateTime.Now)
             End If
-            Return Value
+            Return Me(Value)
         End Function
 
-        Private _h As New List(Of Integer)
+        Public Sub LoadHistory(history As IEnumerable(Of (Integer, DateTime)))
+            For Each item In If(history, {})
+                If Not Face(item.Item1)._h.Contains(item.Item2) Then
+                    Face(item.Item1)._h.Add(item.Item2)
+                End If
+            Next
+        End Sub
+
 
         ''' <summary>
         ''' Historico de valores rolados para este dado
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property History As IEnumerable(Of Integer)
+        Public ReadOnly Property History As IEnumerable(Of (Value As Integer, TimeStamp As DateTime))
             Get
-                Return _h.AsEnumerable()
+                Return Me.Faces.SelectMany(Function(x) x.History.Select(Function(y) (x.Number, y))).OrderByDescending(Function(x) x.Item2).AsEnumerable()
             End Get
         End Property
 
+
         ''' <summary>
-        ''' Se este Dice for uma moeda  (2 lados apenas) retorna true ou false baseado no lado da moeda qua saiu, caso seja um dado com mais de 2 lados retorna sempre true
+        ''' Se este Dice for uma moeda (2 lados apenas) retorna true ou false baseado no lado da moeda qua saiu, caso seja um dado com mais de 2 lados retorna sempre true
         ''' </summary>
         ''' <returns></returns>
         Public Function Flip() As Boolean
             If Me.Faces.Count = 2 Then
-                Return (Roll() - 1).ToBoolean
+                Return (Roll().Number - 1).ToBoolean
             End If
             Return True
         End Function
@@ -295,7 +293,6 @@ Namespace RolePlayingGame
         Private Sub ApplyPercent()
             For Each f In Faces
                 f._weightpercent = GetChancePercent(f.Number)
-
             Next
         End Sub
 
@@ -305,11 +302,17 @@ Namespace RolePlayingGame
         ''' <returns>Um array com a cópia das faces do dado</returns>
         Public ReadOnly Property Faces As ReadOnlyCollection(Of DiceFace)
 
+
+        Public Sub New()
+            Me.New(DiceType.D6)
+        End Sub
+
+
         ''' <summary>
         ''' Cria um novo dado de um tipo especifico
         ''' </summary>
         ''' <param name="Type">Tipo de dado</param>
-        Public Sub New(Optional Type As DiceType = DiceType.D6)
+        Public Sub New(Type As DiceType)
             Me.New(Type.ChangeType(Of Integer))
         End Sub
 
@@ -348,6 +351,14 @@ Namespace RolePlayingGame
             ''' </summary>
             ''' <returns></returns>
             ReadOnly Property Number As Integer
+
+            ReadOnly Property History As IEnumerable(Of DateTime)
+                Get
+                    Return _h.OrderByDescending(Function(x) x).AsEnumerable()
+                End Get
+            End Property
+
+            Friend _h As New List(Of DateTime)
 
             ''' <summary>
             ''' Peso da face (vicia o dado)
@@ -416,6 +427,27 @@ Namespace RolePlayingGame
 
             Function OtherFaces() As IEnumerable(Of DiceFace)
                 Return Me.dice.Faces.Where(Function(x) x.Number <> Me.Number)
+            End Function
+
+            Public Property FaceName As String
+                Get
+                    If _name.IsBlank Then
+                        If Me.dice.Type = DiceType.Coin Then
+                            Return If(Number = 0, "HEAD", "TAIL")
+                        End If
+                        Return Number
+                    End If
+                    Return _name
+                End Get
+                Set(value As String)
+                    _name = value
+                End Set
+            End Property
+
+            Private _name As String = Nothing
+
+            Public Overrides Function ToString() As String
+                Return FaceName
             End Function
 
         End Class
