@@ -1013,7 +1013,7 @@ Namespace MicroORM
                                                         End If
                                                         Return x.ToString().Quote("'")
                                                     End Function).ToList()
-                        CommandText = CommandText.Replace("{" & index & "}", pv.Join(",").IfBlank("NULL").UnQuote("(", True).Quote("("))
+                        CommandText = CommandText.Replace("{" & index & "}", pv.Join(",").IfBlank("NULL").UnQuote("(", True).QuoteIf(pv.Count > 1, "("))
                     Next
                     Return CommandText
                 Else
