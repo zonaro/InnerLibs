@@ -31,15 +31,15 @@ Public Module ClassTools
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    <Extension> Public Function ReplaceNullProperties(Of T As Class)(Obj As T) As T
+    <Extension> Public Function NullPropertiesAsDefault(Of T As Class)(Obj As T) As T
         If Obj IsNot Nothing Then
             For Each item In Obj.GetProperties()
-                If item.GetValue(Obj) Is Nothing Then
+                If item.CanRead AndAlso item.CanWrite AndAlso item.GetValue(Obj) Is Nothing Then
                     Select Case item.PropertyType
                         Case GetType(String)
                             item.SetValue(Obj, "")
                         Case Else
-                            Dim o = Activator.CreateInstance(If(Nullable.GetUnderlyingType(item.PropertyType), item.PropertyType))
+                            Dim o = Activator.CreateInstance(GetNullableTypeOf(item.PropertyType))
                             item.SetValue(Obj, o)
                     End Select
                 End If
@@ -154,14 +154,15 @@ Public Module ClassTools
 
     <Extension()> Public Function CreateXML(Of Type As Class)(obj As Type) As XmlDocument
         Dim xs As XmlSerializer = New XmlSerializer(obj.GetType())
-        Dim sw As System.IO.StringWriter = New System.IO.StringWriter()
-        xs.Serialize(sw, obj)
         Dim doc As XmlDocument = New XmlDocument()
-        doc.LoadXml(sw.ToString())
+        Using sw As StringWriter = New StringWriter()
+            xs.Serialize(sw, obj)
+            doc.LoadXml(sw.ToString())
+        End Using
         Return doc
     End Function
 
-    <Extension()> Public Function CreateObjectFromXML(Of Type)(XML As String) As Type
+    <Extension()> Public Function CreateObjectFromXML(Of Type As Class)(XML As String) As Type
         Dim serializer = New XmlSerializer(GetType(Type))
         Dim obj As Type
         Using reader = New StringReader(XML)
@@ -170,12 +171,12 @@ Public Module ClassTools
         Return obj
     End Function
 
-    <Extension()> Public Function CreateObjectFromXMLFile(Of Type)(XML As FileInfo) As Type
+    <Extension()> Public Function CreateObjectFromXMLFile(Of Type As Class)(XML As FileInfo) As Type
         Return File.ReadAllText(XML.FullName).CreateObjectFromXML(Of Type)
     End Function
 
     ''' <summary>
-    ''' Cria um arquivo a partir de qualquer objeto usando o <see cref="CreateObjectFromXML(Object)"/>
+    ''' Cria um arquivo a partir de qualquer objeto usando o <see cref="CreateXML()"/>
     ''' </summary>
     ''' <param name="obj"></param>
     ''' <returns></returns>
@@ -361,6 +362,24 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
+
+    ''' <summary>
+    ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="BoolExp">Expressão de teste de Valor boolean</param>
+    ''' <param name="TrueValue"> Valor se verdadeiro</param>
+    ''' <param name="FalseValue">valor se falso</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function AsIf(Of T)(obj As T, BoolExp As Expression(Of Func(Of T, Boolean)), TrueValue As T, Optional FalseValue As T = Nothing) As T
+        If obj Is Nothing OrElse BoolExp Is Nothing Then
+            Return FalseValue
+        Else
+            BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue)
+        End If
+    End Function
+
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
     ''' </summary>
@@ -399,10 +418,7 @@ Public Module ClassTools
     ''' <param name="N">    Outros itens</param>
     ''' <returns></returns>
     <Extension> Public Function BlankCoalesce(First As String, ParamArray N() As String) As String
-        Dim l As New List(Of String)
-        l.Add(First)
-        l.AddRange(N)
-        Return BlankCoalesce(l.ToArray)
+        Return BlankCoalesce({First}.Union(If(N, {})).ToArray())
     End Function
 
     ''' <summary>
@@ -412,12 +428,7 @@ Public Module ClassTools
     ''' <param name="N">Itens</param>
     ''' <returns></returns>
     Public Function BlankCoalesce(ParamArray N() As String) As String
-        For Each i In If(N, {})
-            If i.IsNotBlank Then
-                Return i
-            End If
-        Next
-        Return ""
+        Return If(N, {}).FirstOr(Function(x) x.IsNotBlank, "")
     End Function
 
     ''' <summary>
