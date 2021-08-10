@@ -372,13 +372,15 @@ Public Module ClassTools
     ''' <param name="FalseValue">valor se falso</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function AsIf(Of T)(obj As T, BoolExp As Expression(Of Func(Of T, Boolean)), TrueValue As T, Optional FalseValue As T = Nothing) As T
+    Public Function AsIf(Of T, R)(obj As T, BoolExp As Expression(Of Func(Of T, Boolean)), TrueValue As R, Optional FalseValue As R = Nothing) As R
         If obj Is Nothing OrElse BoolExp Is Nothing Then
             Return FalseValue
         Else
             BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue)
         End If
     End Function
+
+
 
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean

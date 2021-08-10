@@ -11,14 +11,13 @@ Namespace MicroORM
     Public Interface ISelect
 
         Overloads Function ToString() As String
-        Overloads Function ToString(SubQuery As Boolean) As String
 
+        Overloads Function ToString(SubQuery As Boolean) As String
 
     End Interface
 
     Public Class [Select]
         Inherits [Select](Of Dictionary(Of String, Object))
-
 
         Public Sub New()
             MyBase.New
@@ -711,6 +710,14 @@ Namespace MicroORM
             Next
         End Sub
 
+        Public Sub New(LogicOperator As LogicConcatenationOperator, ParamArray Conditions As Condition())
+            Me.New(LogicOperator.AsIf(Function(x) x = LogicConcatenationOperator.OR, "OR", "AND"), Conditions)
+        End Sub
+
+        Public Sub New(LogicOperator As LogicConcatenationOperator, ParamArray Conditions As FormattableString())
+            Me.New(LogicOperator.AsIf(Function(x) x = LogicConcatenationOperator.OR, "OR", "AND"), Conditions)
+        End Sub
+
         ''' <summary>
         ''' Ctor.
         ''' </summary>
@@ -1090,7 +1097,6 @@ Namespace MicroORM
             Return cmd
         End Function
 
-
         ''' <summary>
         ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="Dictionary(Of String, Object)"/>
         ''' </summary>
@@ -1144,8 +1150,6 @@ Namespace MicroORM
             [AND]
             [OR]
         End Enum
-
-
 
         <Extension()> Public Function CreateINSERTCommand(Of T As Class)(Connection As DbConnection, obj As IEnumerable(Of T), Optional TableName As String = Nothing) As IEnumerable(Of DbCommand)
             Return If(obj, {}).Select(Function(x) Connection.CreateINSERTCommand(x, TableName))

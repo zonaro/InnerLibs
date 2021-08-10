@@ -387,7 +387,7 @@ Public Module Mathematic
         Dim PA As New List(Of Integer)
         PA.Add(FirstNumber)
         For index = 1 To Length - 1
-            PA.Add(PA(index - 1) + [Constant])
+            PA.Add(PA.Last() + [Constant])
         Next
         Return PA
     End Function
@@ -403,7 +403,7 @@ Public Module Mathematic
         Dim PG As New List(Of Integer)
         PG.Add(FirstNumber)
         For index = 1 To Length - 1
-            PG.Add(PG(index - 1) * [Constant])
+            PG.Add(PG.Last() * [Constant])
         Next
         Return PG
     End Function
