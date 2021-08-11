@@ -912,16 +912,16 @@ Namespace MicroORM
             End Get
         End Property
 
-        <Extension> Public Function GetDbType(Of T)(obj As T) As DbType
-            Return DbTypes.GetValueOr(GetNullableTypeOf(Of T)(obj), DbType.Object)
+        <Extension> Public Function GetDbType(Of T)(obj As T, Optional Def As DbType = DbType.Object) As DbType
+            Return DbTypes.GetValueOr(GetNullableTypeOf(obj), Def)
         End Function
 
-        <Extension> Public Function GetTypeFromDb(Of T)(obj As DbType) As Type
-            Dim tt = DbTypes.FirstOrDefault(Function(x) x.Value = obj)
+        <Extension> Public Function GetTypeFromDb(Of T)(Type As DbType, Optional Def As Type = Nothing) As Type
+            Dim tt = DbTypes.FirstOrDefault(Function(x) x.Value = Type)
             If Not IsNothing(tt) Then
                 Return tt.Key
             End If
-            Return GetType(Object)
+            Return If(Def, GetType(Object))
         End Function
 
         <Extension()> Public Function CreateCommand(Connection As DbConnection, SQL As String, Parameters As NameValueCollection) As DbCommand

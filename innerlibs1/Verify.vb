@@ -259,6 +259,9 @@ Public Module Verify
         End Try
     End Function
 
+
+
+
     ''' <summary>
     ''' Verifica se o valor é um numero ou pode ser convertido em numero
     ''' </summary>

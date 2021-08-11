@@ -980,11 +980,7 @@ Namespace LINQ
         ''' <param name="PageSize">  </param>
         ''' <returns></returns>
         <Extension()> Function Page(Of TSource)(ByVal Source As IQueryable(Of TSource), ByVal PageNumber As Integer, ByVal PageSize As Integer) As IQueryable(Of TSource)
-            If PageNumber <= 0 Then
-                Return Source
-            End If
-
-            Return Source.Skip((PageNumber - 1) * PageSize).Take(PageSize)
+            Return If(PageNumber <= 0, Source, Source.Skip((PageNumber - 1) * PageSize).Take(PageSize))
         End Function
 
         ''' <summary>

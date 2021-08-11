@@ -1,4 +1,5 @@
 ﻿Imports System.Collections.Specialized
+Imports System.Drawing
 Imports System.Globalization
 Imports System.Net
 Imports System.Reflection
@@ -277,6 +278,28 @@ Namespace Locations
             End Set
         End Property
 
+
+        Public Function GetPoint() As Point
+            If Latitude.HasValue AndAlso Longitude.HasValue Then
+                Return New Point((Longitude * 1000000).ToInteger, (Latitude * 1000000).ToInteger)
+            End If
+            Return New Point
+        End Function
+
+        Public Function SetLatitudeLongitudeFromPoint(Point As Point) As AddressInfo
+            Me.Longitude = Point.X.ToDecimal() * 0.000001
+            Me.Latitude = Point.Y.ToDecimal() * 0.000001
+            Return Me
+        End Function
+
+        Public Shared Widening Operator CType(AddressInfo As AddressInfo) As Point
+            Return AddressInfo?.GetPoint()
+        End Operator
+
+        Public Shared Widening Operator CType(Point As Point) As AddressInfo
+            Return New AddressInfo().SetLatitudeLongitudeFromPoint(Point)
+        End Operator
+
         ''' <summary>
         ''' Retorna o endereço completo
         ''' </summary>
@@ -428,7 +451,7 @@ Namespace Locations
             If Complement.IsNotBlank() Then d.Complement = Complement
             Try
                 Dim url = "https://viacep.com.br/ws/" & d.PostalCode.RemoveAny("-") & "/xml/"
-                d.Info("search_url") = url
+                d.details("search_url") = url
                 Using c = New WebClient()
                     Dim x = New XmlDocument()
                     x.LoadXml(c.DownloadString(url))
@@ -763,7 +786,7 @@ Namespace Locations
         End Function
 
         Public Function ContainsKey(key As String) As Boolean
-            Return Info.ContainsKey(key.ToLower())
+            Return details.ContainsKey(key.ToLower())
         End Function
 
         Public Sub Add(key As String, value As String)
@@ -772,14 +795,14 @@ Namespace Locations
 
         Public Function Remove(key As String) As Boolean
             If Me.ContainsKey(key) Then
-                Info.Remove(key)
+                details.Remove(key)
                 Return True
             End If
             Return False
         End Function
 
         Public Sub Clear()
-            Info.Clear()
+            details.Clear()
         End Sub
 
         ''' <summary>
@@ -817,7 +840,7 @@ Namespace Locations
             End Set
         End Property
 
-        Private Info As New Dictionary(Of String, String)
+        Private details As New Dictionary(Of String, String)
 
         ''' <summary>
         ''' Retona uma informação deste endereço
@@ -825,11 +848,11 @@ Namespace Locations
         ''' <param name="Key"></param>
         ''' <returns></returns>
 
-        Default Public Property Item(key As String) As String
+        Default Public Property Detail(key As String) As String
             Get
-                If Info Is Nothing Then Info = New Dictionary(Of String, String)
+                If details Is Nothing Then details = New Dictionary(Of String, String)
                 key = key.ToLower()
-                If Not Info.ContainsKey(key) Then
+                If Not details.ContainsKey(key) Then
                     Select Case key
                         Case "geolocation"
                             Return LatitudeLongitude()
@@ -842,13 +865,17 @@ Namespace Locations
                         Case Else
                     End Select
                 End If
-
-                Return Info.GetValueOr(key, Nothing)
+                Return details.GetValueOr(key, Nothing)
             End Get
             Set(value As String)
-                Info(key.ToLower()) = value
+                details(key.ToLower()) = value
             End Set
         End Property
+
+
+        Public Function GetDetails() As Dictionary(Of String, String)
+            Return details
+        End Function
 
     End Class
 

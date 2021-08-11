@@ -1539,7 +1539,7 @@ Public Module Text
                 numero = CType(Quantity, Decimal)
         End Select
 
-        If numero = 1 OrElse numero = -1 Then
+        If numero.Floor = 1 OrElse numero.Floor = -1 Then
             Return PluralText.Singularize()
         End If
         Return PluralText
@@ -3413,15 +3413,14 @@ Public Class QuantityTextPair
     End Sub
 
     Sub New()
-
     End Sub
 
-    Default Property Text(Number As Object) As String
+    Default Property Text(Number As IComparable) As String
         Get
             Return Me.ToString(CType(Number, Decimal))
         End Get
         Set(value As String)
-            If CType(Number, Decimal) = 1 Then
+            If Verify.IsNumber(Number) AndAlso CType(Number, Decimal).Floor().IsIn(1, -1) Then
                 Singular = value
             Else
                 Plural = value
@@ -3429,36 +3428,37 @@ Public Class QuantityTextPair
         End Set
     End Property
 
-    Property Singular As String
+    Property Singular As String = "Item"
 
-    Property Plural As String
+    Property Plural As String = "Items"
+
 
     Public Overrides Function ToString() As String
         Return Plural
     End Function
 
-    Public Overloads Function ToString(Number As Long)
-        Return If(Number = 1, Singular, Plural)
+    Public Overloads Function ToString(Number As Long) As String
+        Return If(Number.IsIn(1, -1), Singular, Plural)
     End Function
 
-    Public Overloads Function ToString(Number As Decimal)
-        Return If(Number = 1, Singular, Plural)
+    Public Overloads Function ToString(Number As Decimal) As String
+        Return If(Number.Floor.IsIn(1, -1), Singular, Plural)
     End Function
 
-    Public Overloads Function ToString(Number As Short)
-        Return If(Number = 1, Singular, Plural)
+    Public Overloads Function ToString(Number As Short) As String
+        Return If(Number.IsIn(1, -1), Singular, Plural)
     End Function
 
-    Public Overloads Function ToString(Number As Integer)
-        Return If(Number = 1, Singular, Plural)
+    Public Overloads Function ToString(Number As Integer) As String
+        Return If(Number.IsIn(1, -1), Singular, Plural)
     End Function
 
-    Public Overloads Function ToString(Number As Double)
-        Return If(Number = 1, Singular, Plural)
+    Public Overloads Function ToString(Number As Double) As String
+        Return If(Number.Floor.IsIn(1, -1), Singular, Plural)
     End Function
 
-    Public Overloads Function ToString(Number As Single)
-        Return If(Number = 1, Singular, Plural)
+    Public Overloads Function ToString(Number As Single) As String
+        Return If(Number.IsIn(1, -1), Singular, Plural)
     End Function
 
 End Class
@@ -3762,7 +3762,7 @@ Public Class FullNumberWriter
     Sub New()
         For Each prop In Me.GetProperties.Where(Function(x) x.CanWrite)
             Select Case prop.Name
-                Case "ExactlyOneHundred"
+                Case "ExactlyOneHundred", "MoreThan", "DecimalSeparator"
                     Continue For
                 Case Else
                     Select Case prop.PropertyType
@@ -4009,6 +4009,8 @@ End Class
 
 Public Class ConnectionStringParser
     Inherits Dictionary(Of String, String)
+
+
 
     Sub New()
         MyBase.New

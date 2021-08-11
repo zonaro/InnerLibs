@@ -1,7 +1,6 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
 Imports System.Runtime.CompilerServices
-Imports System.Text.RegularExpressions
 
 Imports InnerLibs.LINQ
 
@@ -70,7 +69,7 @@ Public Module Directories
     ''' Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório
     ''' </summary>
     ''' <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
-    ''' <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns> 
+    ''' <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
     ''' <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste aruqivo.</remarks>
     <Extension()>
     Function ToDirectoryInfo(DirectoryName As String) As DirectoryInfo
@@ -82,6 +81,7 @@ Public Module Directories
         End If
         Return New DirectoryInfo(DirectoryName & Path.DirectorySeparatorChar)
     End Function
+
     ''' <summary>
     ''' Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
     ''' </summary>
@@ -171,12 +171,8 @@ Public Module Directories
     ''' <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
     ''' <returns></returns>
     <Extension>
-    Public Function SearchFiles(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As List(Of FileInfo)
-        Dim FilteredList As New List(Of FileInfo)
-        For Each pattern As String In If(Searches, {}).Where(Function(x) x.IsNotBlank()).DefaultIfEmpty("*")
-            FilteredList.AddRange(Directory.GetFiles(pattern.Trim, SearchOption))
-        Next
-        Return FilteredList
+    Public Function SearchFiles(Directory As DirectoryInfo, SearchOption As SearchOption, ParamArray Searches As String()) As IEnumerable(Of FileInfo)
+        Return If(Searches, {}).Where(Function(x) x.IsNotBlank()).DefaultIfEmpty("*").SelectMany(Function(x) Directory.GetFiles(x.Trim, SearchOption))
     End Function
 
     ''' <summary>
@@ -274,8 +270,6 @@ Public Module Directories
         FixDateOrder(FirstDate, SecondDate)
         Return Directory.SearchDirectories(SearchOption, Searches).Where(Function(file) file.LastWriteTime >= FirstDate AndAlso file.LastWriteTime <= SecondDate).OrderByDescending(Function(f) If(f.LastWriteTime.Year <= 1601, f.CreationTime, f.LastWriteTime)).ToList
     End Function
-
-
 
     ''' <summary>
     ''' Copia arquivos para dentro de outro diretório

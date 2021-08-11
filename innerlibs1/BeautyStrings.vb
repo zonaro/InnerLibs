@@ -24,7 +24,18 @@ Public Module BeautyStrings
         Return l.ListInFrame()
     End Function
 
-    <Extension> Public Function PropertiesInFrame(Of K, V)(obj As IDictionary(Of K, V)) As String
+    <Extension> Public Function FieldsInFrame(Of T As Class)(obj As T) As String
+        Dim l As New List(Of String)
+        If obj IsNot Nothing Then
+            For Each item In GetNullableTypeOf(obj).GetFields()
+                l.Add($"{item.Name}: {item.GetValue(obj)}")
+            Next
+
+        End If
+        Return l.ListInFrame()
+    End Function
+
+    <Extension> Public Function PairsInFrame(Of K, V)(obj As IDictionary(Of K, V)) As String
         Dim l As New List(Of String)
         If obj IsNot Nothing Then
             For Each item In obj

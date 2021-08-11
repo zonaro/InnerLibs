@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<mimes>
+﻿<mimes>
   <item>
     <Description>Internet Telephony</Description>
     <Extensions>
@@ -184,6 +183,8 @@
     <Description>Bitmap Image</Description>
     <Extensions>
       <item>.bmp</item>
+      <item>.dib</item>
+      <item>.xbm</item>
     </Extensions>
     <MimeTypes>
       <item>image/bmp</item>
@@ -488,24 +489,7 @@
       <item> application/keychain_access</item>
     </MimeTypes>
   </item>
-  <item>
-    <Description>Bitmap Image</Description>
-    <Extensions>
-      <item>.dib</item>
-    </Extensions>
-    <MimeTypes>
-      <item>image/bmp</item>
-      <item>application/bmp</item>
-      <item> application/x-bmp</item>
-      <item> image/ms-bmp</item>
-      <item> image/x-bitmap</item>
-      <item> image/x-bmp</item>
-      <item> image/x-ms-bmp</item>
-      <item> image/x-win-bitmap</item>
-      <item> image/x-windows-bmp</item>
-      <item> image/x-xbitmap</item>
-    </MimeTypes>
-  </item>
+ 
   <item>
     <Description>Patch Source File</Description>
     <Extensions>
@@ -2675,15 +2659,7 @@
       <item>x-world/x-vrml</item>
     </MimeTypes>
   </item>
-  <item>
-    <Description>Bitmap Image</Description>
-    <Extensions>
-      <item>.xbm</item>
-    </Extensions>
-    <MimeTypes>
-      <item>image/x-xbitmap</item>
-    </MimeTypes>
-  </item>
+  
   <item>
     <Description>Html File</Description>
     <Extensions>
