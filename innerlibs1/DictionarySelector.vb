@@ -1,32 +1,53 @@
 ﻿
 ''' <summary>
-''' Uma estrutura de <see cref="Idictionary"/> que utiliza como Key uma propriedade de Value
+''' Uma estrutura <see cref="IDictionary"/> que utiliza como Key uma propriedade de Value
 ''' </summary>
 ''' <typeparam name="KeyType">Tipo da Key</typeparam>
 ''' <typeparam name="ClassType">Tipo da</typeparam>
-Public Class SelfKeyDictionary(Of KeyType, ClassType As Class)
+Public Class SelfKeyDictionary(Of KeyType As IComparable, ClassType As Class)
     Implements IDictionary(Of KeyType, ClassType)
 
     Private keyselector As Func(Of ClassType, KeyType)
 
     Sub New(KeySelector As Func(Of ClassType, KeyType))
-        Me.keyselector = KeySelector
+        If KeySelector IsNot Nothing Then
+            Me.keyselector = KeySelector
+        Else
+            Throw New ArgumentException("KeySelector cannot be NULL")
+        End If
     End Sub
 
     Public Function ContainsKey(key As KeyType) As Boolean Implements IDictionary(Of KeyType, ClassType).ContainsKey
-        Return collection.Select(keyselector).Contains(key)
+        Return Keys.Contains(key)
     End Function
 
     Private Sub Add(key As KeyType, value As ClassType) Implements IDictionary(Of KeyType, ClassType).Add
-        If Not Me.ContainsKey(keyselector(value)) Then
-            collection.Add(value)
+        If value IsNot Nothing Then
+            If Not Me.ContainsKey(keyselector(value)) Then
+                collection.Add(value)
+            End If
         End If
     End Sub
 
 
     Public Function Add(Value As ClassType) As KeyType
-        Me.Add(Nothing, Value)
-        Return keyselector(Value)
+        If Value IsNot Nothing Then
+            Me.Add(Nothing, Value)
+            Return keyselector(Value)
+        End If
+        Return Nothing
+    End Function
+
+    Public Function AddRange(ParamArray Values As ClassType()) As IEnumerable(Of KeyType)
+        Return Me.AddRange(If(Values, {}).AsEnumerable())
+    End Function
+
+    Public Function AddRange(Values As IEnumerable(Of ClassType)) As IEnumerable(Of KeyType)
+        Values = If(Values, {}).Where(Function(x) x IsNot Nothing).AsEnumerable()
+        For Each value In Values
+            Me.Add(value)
+        Next
+        Return Values.Select(Function(x) keyselector(x))
     End Function
 
     Public Function Remove(key As KeyType) As Boolean Implements IDictionary(Of KeyType, ClassType).Remove
@@ -63,7 +84,7 @@ Public Class SelfKeyDictionary(Of KeyType, ClassType As Class)
     End Sub
 
     Public Function Contains(item As KeyValuePair(Of KeyType, ClassType)) As Boolean Implements ICollection(Of KeyValuePair(Of KeyType, ClassType)).Contains
-        Return collection.AsEnumerable.Count(Function(x) keyselector(x).Equals(item.Key)) > 0
+        Return collection.Any(Function(x) keyselector(x).Equals(item.Key))
     End Function
 
     Public Sub CopyTo(array() As KeyValuePair(Of KeyType, ClassType), arrayIndex As Integer) Implements ICollection(Of KeyValuePair(Of KeyType, ClassType)).CopyTo
@@ -82,7 +103,7 @@ Public Class SelfKeyDictionary(Of KeyType, ClassType As Class)
         Return GetEnumerator()
     End Function
 
-    Private collection As List(Of ClassType)
+    Private collection As New List(Of ClassType)
 
     Default Public Property Item(key As KeyType) As ClassType Implements IDictionary(Of KeyType, ClassType).Item
         Get
@@ -101,13 +122,13 @@ Public Class SelfKeyDictionary(Of KeyType, ClassType As Class)
 
     Public ReadOnly Property Keys As ICollection(Of KeyType) Implements IDictionary(Of KeyType, ClassType).Keys
         Get
-            Return collection.Select(keyselector)
+            Return CType(collection?.Select(Function(x) keyselector(x)).ToArray(), ICollection(Of KeyType))
         End Get
     End Property
 
     Public ReadOnly Property Values As ICollection(Of ClassType) Implements IDictionary(Of KeyType, ClassType).Values
         Get
-            Return collection
+            Return CType(collection, ICollection(Of ClassType))
         End Get
     End Property
 
