@@ -36,7 +36,7 @@ Namespace Locations
         ''' <returns></returns>
         ReadOnly Property Name As String
             Get
-                Return Street.TrimAny(AddressTypes.GetAddressTypeList(Me.Street))
+                Return Street.TrimAny(" ", AddressTypes.GetAddressTypeList(Me.Street))
             End Get
         End Property
 
@@ -278,7 +278,6 @@ Namespace Locations
             End Set
         End Property
 
-
         Public Function GetPoint() As Point
             If Latitude.HasValue AndAlso Longitude.HasValue Then
                 Return New Point((Longitude * 1000000).ToInteger, (Latitude * 1000000).ToInteger)
@@ -427,8 +426,6 @@ Namespace Locations
             Return FromViaCEP(Of AddressInfo)(PostalCode, Number, Complement)
         End Function
 
-
-
         ''' <summary>
         ''' Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP
         ''' </summary>
@@ -490,7 +487,6 @@ Namespace Locations
             End Try
             Return d
         End Function
-
 
         ''' <summary>
         ''' Tenta extrair as partes de um endereço de uma string
@@ -606,7 +602,6 @@ Namespace Locations
             Return d
         End Function
 
-
         ''' <summary>
         ''' Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para completar as informações
         ''' </summary>
@@ -616,7 +611,6 @@ Namespace Locations
         Public Shared Function FromGoogleMaps(Address As String, Key As String, Optional NVC As NameValueCollection = Nothing) As AddressInfo
             Return FromGoogleMaps(Of AddressInfo)(Address, Key, NVC)
         End Function
-
 
         ''' <summary>
         ''' Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para completar as informações
@@ -699,7 +693,6 @@ Namespace Locations
             Return d
         End Function
 
-
         ''' <summary>
         ''' Cria uma localização a partir de partes de endereço
         ''' </summary>
@@ -715,7 +708,6 @@ Namespace Locations
         Public Shared Function CreateLocation(Address As String, Optional Number As String = "", Optional Complement As String = "", Optional Neighborhood As String = "", Optional City As String = "", Optional State As String = "", Optional Country As String = "", Optional PostalCode As String = "") As AddressInfo
             Return CreateLocation(Of AddressInfo)(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode)
         End Function
-
 
         ''' <summary>
         ''' Cria uma localização a partir de partes de endereço
@@ -868,10 +860,9 @@ Namespace Locations
                 Return details.GetValueOr(key, Nothing)
             End Get
             Set(value As String)
-                details(key.ToLower()) = value
+                details(key.ToLower()) = value.TrimAny(" ")
             End Set
         End Property
-
 
         Public Function GetDetails() As Dictionary(Of String, String)
             Return details
