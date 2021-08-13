@@ -36,7 +36,7 @@ Namespace Locations
         ''' <returns></returns>
         ReadOnly Property Name As String
             Get
-                Return Street.TrimAny(" ", AddressTypes.GetAddressTypeList(Me.Street))
+                Return Street.TrimAny(AddressTypes.GetAddressTypeList(Me.Street)).TrimAny(" ")
             End Get
         End Property
 
@@ -448,7 +448,7 @@ Namespace Locations
             If Complement.IsNotBlank() Then d.Complement = Complement
             Try
                 Dim url = "https://viacep.com.br/ws/" & d.PostalCode.RemoveAny("-") & "/xml/"
-                d.details("search_url") = url
+                d.Detail("search_url") = url
                 Using c = New WebClient()
                     Dim x = New XmlDocument()
                     x.LoadXml(c.DownloadString(url))
@@ -860,7 +860,13 @@ Namespace Locations
                 Return details.GetValueOr(key, Nothing)
             End Get
             Set(value As String)
-                details(key.ToLower()) = value.TrimAny(" ")
+                If value.IsNotBlank Then
+                    details(key.ToLower()) = value.TrimAny(" ")
+                Else
+                    If Me.ContainsKey(key) Then
+                        Me.Remove(key)
+                    End If
+                End If
             End Set
         End Property
 

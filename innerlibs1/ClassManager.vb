@@ -224,7 +224,7 @@ Public Module ClassTools
     ''' <param name="ex"></param>
     ''' <returns></returns>
     <Extension()> Public Function ToFullExceptionString(ex As Exception, Optional Separator As String = " >> ") As String
-        Return ex.Traverse(Function(x) x.InnerException).SelectJoin(Function(x) x.Message, Separator).AdjustBlankSpaces
+        Return ex.Traverse(Function(x) x.InnerException).SelectJoin(Function(x) x.Message, Separator)
     End Function
 
     ''' <summary>
