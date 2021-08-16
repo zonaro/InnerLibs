@@ -556,7 +556,7 @@ Public Module Text
         Dim l As New List(Of Boolean)
         If Values.Count > 0 Then
             For Each value In Values
-                l.Add(Not Nothing = (Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1)
+                l.Add(Text IsNot Nothing AndAlso Text.Contains(value, ComparisonType) <> -1)
             Next
         End If
         Return l.Most
