@@ -281,6 +281,32 @@ Public Class StructuredText
     Property Ident As Integer = 0
     Property BreakLinesBetweenParagraph As Integer = 0
 
+    ReadOnly Property OriginalText As String
+        Get
+            Return _originaltext
+        End Get
+    End Property
+
+    Property Text As String
+        Get
+            Return ToString()
+        End Get
+        Set(value As String)
+            _originaltext = value
+            Me.Clear()
+            If OriginalText.IsNotBlank Then
+                For Each p In OriginalText.Split(BreakLineChars.ToArray(), StringSplitOptions.RemoveEmptyEntries)
+                    If p.IsNotBlank Then
+                        Me.Add(New Paragraph(p, Me))
+                    End If
+                Next
+            End If
+        End Set
+    End Property
+
+    Private _originaltext As String = ""
+
+
     ''' <summary>
     ''' Retorna o texto corretamente formatado
     ''' </summary>
@@ -294,12 +320,11 @@ Public Class StructuredText
     ''' </summary>
     ''' <param name="OriginalText"></param>
     Public Sub New(OriginalText As String)
-        For Each p In OriginalText.Split(BreakLineChars.ToArray(), StringSplitOptions.RemoveEmptyEntries)
-            If p.IsNotBlank Then
-                Me.Add(New Paragraph(p, Me))
-            End If
-        Next
+        Text = OriginalText
     End Sub
+
+
+
 
     Public Shared Widening Operator CType(ByVal s As StructuredText) As String
         Return s.ToString()

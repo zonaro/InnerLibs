@@ -223,7 +223,7 @@ Public Module Text
 
     ReadOnly Property AlphaLowerChars As IEnumerable(Of String)
         Get
-            Return Consonants.Union(Vowels).AsEnumerable
+            Return Consonants.Union(Vowels).OrderBy(Function(x) x).AsEnumerable
         End Get
     End Property
 
@@ -329,7 +329,11 @@ Public Module Text
             Text = Text.Replace("{", " {")
             Text = Text.Replace(":", ": ")
             Text = Text.Replace(";", "; ")
-            Text = Text.Replace(" -", " - ")
+
+            For Each item In AlphaChars
+                Text = Text.SensitiveReplace($" -{item}", $" - {item}")
+            Next
+
             Text = Text.Replace("- ", " - ")
             Text = Text.Replace("""", " """)
 
@@ -388,7 +392,7 @@ Public Module Text
     ''' <param name="AppendText">Texto adicional</param>
     <Extension()>
     Public Function AppendLine(Text As String, AppendText As String) As String
-        Return Text & (AppendText & Environment.NewLine)
+        Return Text.Append(AppendText).Append(Environment.NewLine)
     End Function
 
     ''' <summary>
@@ -398,7 +402,7 @@ Public Module Text
     ''' <param name="AppendText">Texto adicional</param>
     <Extension()>
     Public Function PrependLine(Text As String, AppendText As String) As String
-        Return Text.Prepend(AppendText & Environment.NewLine)
+        Return Text.Prepend(Environment.NewLine).Prepend(AppendText)
     End Function
 
     ''' <summary>
@@ -409,9 +413,9 @@ Public Module Text
     ''' <param name="Test">      Teste</param>
     <Extension()> Public Function AppendIf(Text As String, AppendText As String, Test As Boolean) As String
         If Test Then
-            Text &= (AppendText)
+            Return Text.Append(AppendText)
         End If
-        Return Text
+        Return If(Text, "")
     End Function
 
     ''' <summary>
@@ -459,7 +463,7 @@ Public Module Text
     <Extension()> Public Function AppendWhile(ByVal Text As String, AppendText As String, Test As Func(Of String, Boolean)) As String
         Test = If(Test, Function(x) False)
         While Test(Text)
-            Text = Text + AppendText
+            Text = Text.Append(AppendText)
         End While
         Return Text
     End Function
@@ -514,6 +518,7 @@ Public Module Text
     <Extension()>
     Public Function Censor(ByVal Text As String, BadWords As IEnumerable(Of String), Optional CensorshipCharacter As String = "*", ByRef Optional IsCensored As Boolean = False) As String
         Dim words As String() = Text.Split(" ", StringSplitOptions.None)
+        BadWords = If(BadWords, {})
         If words.ContainsAny(BadWords) Then
             For Each bad In BadWords
                 Dim censored = ""
@@ -521,7 +526,7 @@ Public Module Text
                     censored &= (CensorshipCharacter)
                 Next
                 For index = 0 To words.Length - 1
-                    If words(index).RemoveDiacritics.RemoveAny(WordSplitters).ToLower = bad.RemoveDiacritics.RemoveAny(WordSplitters).ToLower Then
+                    If words(index).RemoveDiacritics.RemoveAny(WordSplitters.ToArray()).ToLower = bad.RemoveDiacritics.RemoveAny(WordSplitters.ToArray).ToLower Then
                         words(index) = words(index).ToLower().Replace(bad, censored)
                         IsCensored = True
                     End If
@@ -541,7 +546,7 @@ Public Module Text
     ''' <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
     <Extension()>
     Public Function Censor(ByVal Text As String, CensorshipCharacter As String, ParamArray BadWords As String()) As String
-        Return Text.Censor(BadWords.ToList, CensorshipCharacter)
+        Return Text.Censor(If(BadWords, {}).ToList, CensorshipCharacter)
     End Function
 
     ''' <summary>
@@ -552,14 +557,7 @@ Public Module Text
     ''' <returns>True se conter a maioria dos valores, false se não</returns>
     <Extension>
     Public Function ContainsMost(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
-        Values = If(Values, {})
-        Dim l As New List(Of Boolean)
-        If Values.Count > 0 Then
-            For Each value In Values
-                l.Add(Text IsNot Nothing AndAlso Text.Contains(value, ComparisonType) <> -1)
-            Next
-        End If
-        Return l.Most
+        Return If(Values, {}).Most(Function(value) Text IsNot Nothing AndAlso Text.Contains(value, ComparisonType))
     End Function
 
     ''' <summary>
@@ -570,7 +568,7 @@ Public Module Text
     ''' <returns>True se conter todos os valores, false se não</returns>
     <Extension>
     Public Function ContainsMost(Text As String, ParamArray Values As String()) As Boolean
-        Return Text.ContainsMost(StringComparison.CurrentCultureIgnoreCase, Values)
+        Return Text.ContainsMost(StringComparison.InvariantCultureIgnoreCase, Values)
     End Function
 
     ''' <summary>
@@ -581,7 +579,7 @@ Public Module Text
     ''' <returns>True se conter todos os valores, false se não</returns>
     <Extension>
     Public Function ContainsAll(Text As String, ParamArray Values As String()) As Boolean
-        Return Text.ContainsAll(StringComparison.CurrentCultureIgnoreCase, Values)
+        Return Text.ContainsAll(StringComparison.InvariantCultureIgnoreCase, Values)
     End Function
 
     ''' <summary>
@@ -594,9 +592,9 @@ Public Module Text
     <Extension>
     Public Function ContainsAll(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
         Values = If(Values, {})
-        If Values.Count > 0 Then
+        If Values.Any Then
             For Each value As String In Values
-                If Nothing = (Text) OrElse Text.IndexOf(value, ComparisonType) = -1 Then
+                If Text Is Nothing OrElse Text.IndexOf(value, ComparisonType) = -1 Then
                     Return False
                 End If
             Next
@@ -613,7 +611,7 @@ Public Module Text
     ''' <returns>True se conter algum valor, false se não</returns>
     <Extension>
     Public Function ContainsAny(Text As String, ParamArray Values As String()) As Boolean
-        Return Text.ContainsAny(StringComparison.CurrentCultureIgnoreCase, Values)
+        Return Text.ContainsAny(StringComparison.InvariantCultureIgnoreCase, Values)
     End Function
 
     ''' <summary>
@@ -626,9 +624,9 @@ Public Module Text
     <Extension>
     Public Function ContainsAny(Text As String, ComparisonType As StringComparison, ParamArray Values As String()) As Boolean
         Values = If(Values, {})
-        If Values.Count > 0 Then
+        If Values.Any Then
             For Each value As String In If(Values, {})
-                If Not Nothing = (Text) AndAlso Text.IndexOf(value, ComparisonType) <> -1 Then
+                If Text IsNot Nothing AndAlso Text.IndexOf(value, ComparisonType) <> -1 Then
                     Return True
                 End If
             Next
@@ -662,7 +660,7 @@ Public Module Text
         If Words Is Nothing Then Words = {}
         Dim palavras = Text.Split(WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToArray
 
-        If Words.Count > 0 Then
+        If Words.Any Then
             palavras = palavras.Where(Function(x) Words.Select(Function(y) y.ToLower).Contains(x.ToLower)).ToArray
         End If
 
@@ -811,7 +809,7 @@ Public Module Text
         Dim dots As String() = {"...", ". ", "? ", "! "}
         Dim sentences As List(Of String)
         For Each dot In dots
-            sentences = Text.Split(dot).ToList
+            sentences = Text.Split(dot, StringSplitOptions.None).ToList
             For index = 0 To sentences.Count - 1
                 sentences(index) = "" & sentences(index).Trim().GetFirstChars(1).ToUpper() & sentences(index).RemoveFirstChars(1)
             Next
@@ -864,8 +862,8 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
-    <Extension()> Public Function FixText(ByVal Text As String) As String
-        Return New StructuredText(Text).ToString
+    <Extension()> Public Function FixText(ByVal Text As String, Optional Ident As Integer = 0, Optional BreakLinesBetweenParagraph As Integer = 0) As String
+        Return New StructuredText(Text) With {.Ident = Ident, .BreakLinesBetweenParagraph = BreakLinesBetweenParagraph}.ToString
     End Function
 
     ''' <summary>
@@ -906,7 +904,7 @@ Public Module Text
     ''' <returns>Uma String com o texto entre o texto anterior e posterior</returns>
     <Extension()> Public Function GetAllBetween(Text As String, Before As String, Optional After As String = "") As String()
         Dim lista As New List(Of String)
-        Dim regx = Before.RegexEscape & "(.*?)" & After.IfBlank(Of String)(Before).RegexEscape
+        Dim regx = Before.RegexEscape & "(.*?)" & After.IfBlank(Before).RegexEscape
         Dim mm = New Regex(regx, RegexOptions.Singleline + RegexOptions.IgnoreCase).Matches(Text)
         For Each a As Match In mm
             lista.Add(a.Value.RemoveFirstEqual(Before).RemoveLastEqual(After))
@@ -922,8 +920,8 @@ Public Module Text
     ''' <returns>Uma string com o valor anterior ao valor especificado.</returns>
     <Extension>
     Public Function GetBefore(Text As String, Value As String, Optional WhiteIfNotFound As Boolean = False) As String
-        If Nothing = (Value) Then Value = ""
-        If Nothing = (Text) OrElse Text.IndexOf(Value) = -1 Then
+        If Value Is Nothing Then Value = ""
+        If Text Is Nothing OrElse Text.IndexOf(Value) = -1 Then
             If WhiteIfNotFound Then
                 Return ""
             Else
@@ -1088,11 +1086,11 @@ Public Module Text
     ''' <param name="Text">Caractere</param>
     ''' <returns></returns>
     <Extension> Function IsOpenWrapChar(Text As String) As String
-        Return Text.GetFirstChars().IsAny("""", "'", "(", "[", "{", ":", ";", "_", "<", "\", "/", "¿", "¡", "*")
+        Return Text.GetFirstChars().IsIn(OpenWrappers)
     End Function
 
     <Extension> Function IsCloseWrapChar(Text As String) As String
-        Return Text.GetFirstChars().IsAny("""", "'", ")", "]", "}", ":", ";", "_", ">", "\", "/", "?", "!", "*")
+        Return Text.GetFirstChars().IsIn(CloseWrappers)
     End Function
 
     ''' <summary>
@@ -1476,7 +1474,18 @@ Public Module Text
     ''' <param name="PrependText">Texto adicional</param>
     <Extension()>
     Public Function Prepend(Text As String, PrependText As String) As String
-        Text = PrependText & Text
+        Text = If(PrependText, "") & If(Text, "")
+        Return Text
+    End Function
+
+    ''' <summary>
+    ''' Adiciona texto ao fim de uma string
+    ''' </summary>
+    ''' <param name="Text">       Texto</param>
+    ''' <param name="AppendText">Texto adicional</param>
+    <Extension()>
+    Public Function Append(Text As String, AppendText As String) As String
+        Text = If(Text, "") & If(AppendText, "")
         Return Text
     End Function
 

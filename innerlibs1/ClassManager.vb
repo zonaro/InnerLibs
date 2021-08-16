@@ -69,6 +69,11 @@ Public Module ClassTools
         Return Not If(List, {}).Any()
     End Function
 
+
+    <Extension()> Public Function IsNotNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
+        Return Not List.IsNullOrEmpty
+    End Function
+
     Public ReadOnly Property PrimitiveTypes As Type()
         Get
             Return {GetType(String), GetType(Char), GetType(Byte), GetType(SByte), GetType(DateTime)}.Union(PrimitiveNumericTypes).ToArray()
