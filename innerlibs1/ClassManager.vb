@@ -3,7 +3,6 @@ Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
-Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Text.RegularExpressions
 Imports System.Xml
 Imports System.Xml.Serialization
@@ -31,7 +30,7 @@ Public Module ClassTools
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Obj"></param>
     ''' <returns></returns>
-    <Extension> Public Function NullPropertiesAsDefault(Of T As Class)(Obj As T) As T
+    <Extension> Public Function NullPropertiesAsDefault(Of T As Class)(Obj As T, Optional IncludeVirtual As Boolean = False) As T
         If Obj IsNot Nothing Then
             For Each item In Obj.GetProperties()
                 If item.CanRead AndAlso item.CanWrite AndAlso item.GetValue(Obj) Is Nothing Then
@@ -39,8 +38,11 @@ Public Module ClassTools
                         Case GetType(String)
                             item.SetValue(Obj, "")
                         Case Else
-                            Dim o = Activator.CreateInstance(GetNullableTypeOf(item.PropertyType))
-                            item.SetValue(Obj, o)
+                            Dim isvirtual = item.GetAccessors().All(Function(x) x.IsVirtual) AndAlso IncludeVirtual
+                            If item.IsPrimitiveType OrElse isvirtual Then
+                                Dim o = Activator.CreateInstance(GetNullableTypeOf(item.PropertyType))
+                                item.SetValue(Obj, o)
+                            End If
                     End Select
                 End If
             Next
@@ -66,7 +68,6 @@ Public Module ClassTools
     <Extension()> Public Function IsNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
         Return Not If(List, {}).Any()
     End Function
-
 
     Public ReadOnly Property PrimitiveTypes As Type()
         Get
@@ -362,7 +363,6 @@ Public Module ClassTools
         Return dic_of_dic
     End Function
 
-
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
     ''' </summary>
@@ -379,8 +379,6 @@ Public Module ClassTools
             BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue)
         End If
     End Function
-
-
 
     ''' <summary>
     ''' Retorna um valor de um tipo especifico de acordo com um valor boolean
