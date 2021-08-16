@@ -774,7 +774,10 @@ Namespace Locations
         ''' <returns>Uma String contendo LATITUDE e LONGITUDE separados por virgula</returns>
 
         Public Function LatitudeLongitude() As String
-            Return $"{Latitude?.ToString(New CultureInfo("en-US"))}, {Longitude?.ToString(New CultureInfo("en-US"))}"
+            If Latitude.HasValue AndAlso Longitude.HasValue Then
+                Return $"{Latitude?.ToString(New CultureInfo("en-US"))}, {Longitude?.ToString(New CultureInfo("en-US"))}"
+            End If
+            Return Nothing
         End Function
 
         Public Function ContainsKey(key As String) As Boolean

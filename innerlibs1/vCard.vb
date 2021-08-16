@@ -9,7 +9,11 @@ Imports InnerLibs.Locations
 ''' Um objeto vCard
 ''' </summary>
 Public Class vCard
-
+    Private _Social As List(Of VSocial)
+    Private _Addresses As List(Of vAddress)
+    Private _Telephones As List(Of vTelephone)
+    Private _Emails As List(Of vEmail)
+    Private _URLs As List(Of vURL)
     Public Property Title As String = ""  'Mr., Mrs., Ms., Dr.
     Public Property FirstName As String = ""
     Public Property MiddleName As String = ""
@@ -23,23 +27,96 @@ Public Class vCard
     End Property
 
     Public Property Nickname As String = ""
-    Public Property Organization As String = ""           'MS Outlook calls this Company
-    Public Property OrganizationalUnit As String = ""     'MS Outlook calls this Department
-    Public Property Role As String = ""   'MS Outlook calls this the profession
+    Public Property Organization As String = ""
+
+    Public Property Company As String
+        Get
+            Return Organization
+        End Get
+        Set(value As String)
+            Organization = value
+        End Set
+    End Property
+
+    Public Property OrganizationalUnit As String = ""
+
+    Public Property Department As String
+        Get
+            Return OrganizationalUnit
+        End Get
+        Set(value As String)
+            OrganizationalUnit = value
+        End Set
+    End Property
+
+    Public Property Profession As String
+        Get
+            Return Role
+        End Get
+        Set(value As String)
+            Role = value
+        End Set
+    End Property
+
+    Public Property Role As String = ""
     Public Property JobTitle As String = ""
     Public Property Note As String = ""
-    Property Gender As String = ""
-    Property UID As String = ""
+    Public Property Gender As String = ""
+    Public Property UID As Guid? = Nothing
 
     Public Property Birthday As Date? = Nothing
 
     'Collections
-    Public Property URLs As New List(Of vURL)
+    Public Property URLs As List(Of vURL)
+        Get
+            _URLs = If(_URLs, New List(Of vURL))
+            Return _URLs
+        End Get
+        Set
+            _URLs = Value
+        End Set
+    End Property
 
-    Public Property Emails As New List(Of vEmail)
-    Public Property Telephones As New List(Of vTelephone)
-    Public Property Addresses As New List(Of vAddress)
-    Public Property Social As New List(Of VSocial)
+    Public Property Emails As List(Of vEmail)
+        Get
+            _Emails = If(_Emails, New List(Of vEmail))
+            Return _Emails
+        End Get
+        Set
+            _Emails = Value
+        End Set
+    End Property
+
+    Public Property Telephones As List(Of vTelephone)
+        Get
+            _Telephones = If(_Telephones, New List(Of vTelephone))
+            Return _Telephones
+        End Get
+        Set
+            _Telephones = Value
+        End Set
+    End Property
+
+    Public Property Addresses As List(Of vAddress)
+        Get
+            _Addresses = If(_Addresses, New List(Of vAddress))
+            Return _Addresses
+        End Get
+        Set
+            _Addresses = Value
+        End Set
+    End Property
+
+    Public Property Social As List(Of VSocial)
+        Get
+            _Social = If(_Social, New List(Of VSocial))
+            Return _Social
+        End Get
+        Set
+            _Social = Value
+        End Set
+    End Property
+
     Public Property LastModified As Date = DateTime.Now
 
     Public Function AddEmail(Email As String) As vEmail
@@ -91,7 +168,7 @@ Public Class vCard
             result = result.AppendLine($"GENDER:{Gender.GetFirstChars().ToUpper()}")
         End If
 
-        If UID.IsNotBlank Then
+        If UID.HasValue Then
             result = result.AppendLine($"UID;CHARSET=UTF-8:{UID}")
         End If
 
@@ -150,7 +227,7 @@ Public Class vCard
 End Class
 
 Public Class vEmail
-    Public Property Preferred As Boolean
+    Public Property Preferred As Boolean = False
     Public Property EmailAddress As String = ""
     Public Property Type As String = "INTERNET"
 
@@ -172,7 +249,7 @@ End Class
 Public Class vURL
     Public Property Preferred As Boolean
     Public Property URL As String = ""
-    Public Property Location As vLocations = vLocations.WORK       'MS Outlook shows the WORK location on the contact form front page
+    Public Property Location As vLocations = vLocations.WORK
 
     Public Sub New(ByVal NewURL As String)
         URL = NewURL
@@ -184,12 +261,7 @@ Public Class vURL
     End Sub
 
     Public Overrides Function ToString() As String
-        Dim result = ""
-        result &= ("URL")
-        If Preferred Then result &= (";PREF")
-        If Not Nothing = (Location) Then result &= Format(";{0}", Location.ToString.ToUpper)
-        result &= Format(":{0}{1}", URL, System.Environment.NewLine)
-        Return result.ToString
+        Return $"URL{Preferred.AsIf(";PREF")};CHARSET=UTF-8;{Location}:{URL}"
     End Function
 
 End Class
@@ -213,8 +285,8 @@ End Class
 Public Class vTelephone
     Public Property Preferred As Boolean
     Public Property TelephoneNumber As String = ""
-    Public Property Location As vLocations
-    Public Property Type As vPhoneTypes
+    Public Property Location As vLocations = vLocations.HOME
+    Public Property Type As vPhoneTypes = vPhoneTypes.VOICE
 
     Public Sub New(ByVal Number As String)
         TelephoneNumber = Number
@@ -240,42 +312,27 @@ End Class
 
 Public Class vAddress
     Inherits AddressInfo
-    Public Property Preferred As Boolean
-    Public Property AddressName As String = ""    'MS Outlook calls this Office
+    Public Property Preferred As Boolean = False
+    Public Property AddressName As String = ""
     Public Property StreetAddress As String = ""
-    Public Property AddressLabel As String = ""   'If you don't want to waste time creating this, don't and let the vCard reader format it for you
-    Public Property Location As vLocations  'HOME, WORK, CELL
-    Public Property AddressType As vAddressTypes    'PARCEL, DOM, INT
+    Public Property AddressLabel As String = ""
+    Public Property Location As vLocations = vLocations.HOME
+    Public Property AddressType As vAddressTypes = vAddressTypes.INT
 
     Sub New()
 
     End Sub
 
-
     Public Overrides Function ToString() As String
-        Dim result = ""
-        'TODO: FIX ADRESSES
-        'Write the Address
-        result &= ("ADR")
-        If Preferred Then result &= (";PREF")
-        If Location <> Nothing Then result &= String.Format(";{0}", Location.ToString.ToUpper)
-        If Type <> Nothing Then result &= String.Format(";{0}", Type.ToString.ToUpper)
-        result &= String.Format(";ENCODING=QUOTED-PRINTABLE:;{0}", AddressName)
-        result &= String.Format(";{0}", StreetAddress.Replace(Environment.NewLine, "=0D=0A"))
-        result &= String.Format(";{0}", City.Replace(Environment.NewLine, "=0D=0A"))
-        result &= String.Format(";{0}", State.Replace(Environment.NewLine, "=0D=0A"))
-        result &= String.Format(";{0}", ZipCode.Replace(Environment.NewLine, "=0D=0A"))
-        result &= String.Format(";{0}", Country.Replace(Environment.NewLine, "=0D=0A"))
-        result &= (System.Environment.NewLine)
-
+        Dim result = $"ADR{Preferred.AsIf(";PREF")};TYPE={Type.ToString.ToUpper}:;;{MyBase.ToString(LocationInfo, Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A")
+        ' Post Office Address; Extended Address; Street; Locality; Region; Postal Code; Country)
         'Write the Address label
         If AddressLabel.IsNotBlank Then
-            result &= ("LABEL")
-            If Not Nothing = (Location) Then result &= String.Format(";{0}", Location.ToString.ToUpper)
-            If Not Nothing = (Type) Then result &= String.Format(";{0}", Type.ToString.ToUpper)
-            result &= String.Format(";ENCODING=QUOTED-PRINTABLE:{0}", AddressLabel.Replace(Environment.NewLine, "=0D=0A"))
+            result = result.Append($"{Environment.NewLine}LABEL;{Location.ToString.ToUpper};{AddressType.ToString.ToUpper}:{AddressLabel.Replace(Environment.NewLine, "=0D=0A")}")
         End If
-
+        If LatitudeLongitude().IsNotBlank Then
+            result = result.Append($"GEO:{Latitude};{Longitude}")
+        End If
         Return result.ToString
     End Function
 
@@ -297,4 +354,10 @@ Public Enum vPhoneTypes
     VOICE
     FAX
     MSG
+    PAGER
+    BBS
+    MODEM
+    CAR
+    ISDN
+    VIDEO
 End Enum
