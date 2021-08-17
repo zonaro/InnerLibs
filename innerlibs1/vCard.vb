@@ -9,7 +9,7 @@ Imports InnerLibs.Locations
 ''' Um objeto vCard
 ''' </summary>
 Public Class vCard
-    Private _Social As List(Of VSocial)
+    Private _Social As List(Of vSocial)
     Private _Addresses As List(Of vAddress)
     Private _Telephones As List(Of vTelephone)
     Private _Emails As List(Of vEmail)
@@ -107,9 +107,9 @@ Public Class vCard
         End Set
     End Property
 
-    Public Property Social As List(Of VSocial)
+    Public Property Social As List(Of vSocial)
         Get
-            _Social = If(_Social, New List(Of VSocial))
+            _Social = If(_Social, New List(Of vSocial))
             Return _Social
         End Get
         Set
@@ -139,11 +139,21 @@ Public Class vCard
         Return Nothing
     End Function
 
-    Public Function AddSocial(Name As String, URL As String) As VSocial
+    Public Function AddSocial(Name As String, URL As String) As vSocial
         If URL.IsNotBlank AndAlso Name.IsNotBlank Then
-            Dim v As New VSocial(Name, URL)
-            Social = If(Social, New List(Of VSocial))
+            Dim v As New vSocial(Name, URL)
+            Social = If(Social, New List(Of vSocial))
             Social.Add(v)
+            Return v
+        End If
+        Return Nothing
+    End Function
+
+    Public Function AddURL(URL As String) As vURL
+        If URL.IsURL Then
+            Dim v As New vURL(URL)
+            URLs = If(URLs, New List(Of vURL))
+            URLs.Add(v)
             Return v
         End If
         Return Nothing
@@ -174,7 +184,7 @@ Public Class vCard
 
         If Birthday.HasValue Then
             result = result.AppendLine($"BDAY:{Birthday?.ToString("yyyyMMdd")}")
-            result = result.AppendLine($"ANNIVERSARY:{Birthday?.ToString("yyyyMMdd")}")
+            result = result.AppendLine($"ANNIVERSARY:{Birthday?.ToString("MMdd")}")
         End If
 
         If Emails.IsNotNullOrEmpty Then
@@ -266,7 +276,7 @@ Public Class vURL
 
 End Class
 
-Public Class VSocial
+Public Class vSocial
 
     Public Property URL As String = ""
     Public Property Name As String = ""
@@ -324,11 +334,10 @@ Public Class vAddress
     End Sub
 
     Public Overrides Function ToString() As String
-        Dim result = $"ADR{Preferred.AsIf(";PREF")};TYPE={Type.ToString.ToUpper}:;;{MyBase.ToString(LocationInfo, Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A")
-        ' Post Office Address; Extended Address; Street; Locality; Region; Postal Code; Country)
-        'Write the Address label
+        Dim result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString.ToUpper}:;;{MyBase.ToString(AddressPart.FullLocationInfo, AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A")
+
         If AddressLabel.IsNotBlank Then
-            result = result.Append($"{Environment.NewLine}LABEL;{Location.ToString.ToUpper};{AddressType.ToString.ToUpper}:{AddressLabel.Replace(Environment.NewLine, "=0D=0A")}")
+            result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString.ToUpper};{AddressType.ToString.ToUpper}:{AddressLabel.Replace(Environment.NewLine, "=0D=0A")}")
         End If
         If LatitudeLongitude().IsNotBlank Then
             result = result.Append($"GEO:{Latitude};{Longitude}")

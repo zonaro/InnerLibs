@@ -333,11 +333,11 @@ Public Module Images
         If Percent.Contains("x") Then
             Dim parts = Percent.Split("x")
             If parts(0).AdjustBlankSpaces.EndsWith("%") Then
-                parts(0) = CalculateValueFromPercent(parts(0).AdjustBlankSpaces, Original.Width).Round.ToString
+                parts(0) = CalculateValueFromPercent(parts(0).AdjustBlankSpaces, Original.Width).RoundTo.ToString
             End If
 
             If parts(1).AdjustBlankSpaces.EndsWith("%") Then
-                parts(1) = CalculateValueFromPercent(parts(1).AdjustBlankSpaces, Original.Height).Round.ToString
+                parts(1) = CalculateValueFromPercent(parts(1).AdjustBlankSpaces, Original.Height).RoundTo.ToString
             End If
 
             size = New Size(parts(0).ToInteger, parts(1).ToInteger)
@@ -346,8 +346,8 @@ Public Module Images
                 Percent = Percent.Trim("%").AdjustBlankSpaces
             End If
             If Percent.IsNumber Then
-                size.Width = CalculateValueFromPercent(Percent.ToInteger, Original.Width).Round.ToString
-                size.Height = CalculateValueFromPercent(Percent.ToInteger, Original.Height).Round.ToString
+                size.Width = CalculateValueFromPercent(Percent.ToInteger, Original.Width).RoundTo.ToString
+                size.Height = CalculateValueFromPercent(Percent.ToInteger, Original.Height).RoundTo.ToString
             End If
 
         End If

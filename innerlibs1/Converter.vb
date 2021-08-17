@@ -66,7 +66,7 @@ Public Module Converter
     ''' <param name="Obj">Objeto</param>
     ''' <returns></returns>
     Public Function ForceArray(Of OutputType)(ByVal Obj As Object) As OutputType()
-        Return ForceArray(Obj, GetType(OutputType))
+        Return ForceArray(Obj, GetType(OutputType)).Cast(Of OutputType).ToArray()
     End Function
 
     ''' <summary>
@@ -243,7 +243,7 @@ Public Module Converter
     ''' <returns>Array convertido em novo tipo</returns>
     <Extension>
     Public Function ChangeArrayType(Of ToType, FromType)(Value As FromType()) As ToType()
-        Return ChangeIEnumerableType(Of ToType)(Value, GetType(ToType)).ToArray()
+        Return ChangeIEnumerableType(Of ToType, FromType)(Value.AsEnumerable()).ToArray()
     End Function
 
     ''' <summary>

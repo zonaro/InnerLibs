@@ -256,13 +256,40 @@ Public Module Mathematic
         Return Capital * ((1 + Rate) ^ Time)
     End Function
 
+
+    Public Function ForcePositive(Value As Decimal) As Decimal
+        If Value < 0 Then Value = Value * -1
+        Return Value
+    End Function
+
+    Public Function ForcePositive(Value As Integer) As Integer
+        If Value < 0 Then Value = Value * -1
+        Return Value
+    End Function
+
+    Public Function ForcePositive(Value As Double) As Double
+        If Value < 0 Then Value = Value * -1
+        Return Value
+    End Function
+
+    Public Function ForcePositive(Value As Single) As Single
+        If Value < 0 Then Value = Value * -1
+        Return Value
+    End Function
+
+    Public Function ForcePositive(Value As Short) As Short
+        If Value < 0 Then Value = Value * -1
+        Return Value
+    End Function
+
+
     ''' <summary>
     ''' Verifica se um numero possui parte decimal
     ''' </summary>
     ''' <param name="Value"></param>
     ''' <returns></returns>
     <Extension> Public Function HasDecimalPart(Value As Decimal) As Boolean
-        If Value < 0 Then Value = Value * -1
+        If Value < 0 Then Value = -Value
         Return Not (Value Mod 1) = 0 AndAlso Value > 0
     End Function
 
@@ -312,11 +339,11 @@ Public Module Mathematic
     <Extension> Public Function ToOrdinalNumber(Number As Long, Optional ExcludeNumber As Boolean = False) As String
         If Number > 0 Then
             Select Case Number
-                Case 1
+                Case 1, -1
                     Return If(ExcludeNumber, "", Number) & "st"
-                Case 2
+                Case 2, -2
                     Return If(ExcludeNumber, "", Number) & "nd"
-                Case 3
+                Case 3, -3
                     Return If(ExcludeNumber, "", Number) & "rd"
                 Case Else
                     Return If(ExcludeNumber, "", Number) & "th"
@@ -590,19 +617,6 @@ Public Module Mathematic
         Return Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100))
     End Function
 
-    ''' <summary>
-    ''' Corta um numero decimal com a quantidade de casas especiicadas
-    ''' </summary>
-    ''' <param name="Value"> Numero</param>
-    ''' <param name="Places">Numero de casas apos a virgula</param>
-    ''' <returns></returns>
-    <Extension>
-    Public Function Slice(Value As Decimal, Optional Places As Integer = 2) As Decimal
-        If Places > -1 Then
-            Return Decimal.Round(Value, Places.LimitRange(0, 28))
-        End If
-        Return Value
-    End Function
 
     ''' <summary>
     ''' Retorna um numero inteiro representando a parte decimal de um numero decimal
@@ -610,15 +624,27 @@ Public Module Mathematic
     ''' <param name="Value">Valor decimal</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetDecimalPlaces(Value As Decimal, Optional DecimalPlaces As Integer = 0, Optional Culture As CultureInfo = Nothing) As Long
-        Culture = If(Culture, CultureInfo.CurrentCulture)
-        Dim f = Value.ToString.Split(Culture.NumberFormat.NumberDecimalSeparator)
-        Try
-            Return If(f(1).IsNotBlank(), f(1).Slice(If(DecimalPlaces > 0, DecimalPlaces, f(1).Length).ChangeType(Of Integer)), 0)
-        Catch ex As Exception
-            Return 0
-        End Try
+    Public Function GetDecimalPlaces(Value As Decimal, Optional DecimalPlaces As Integer = 0) As Long
+        If Value < 0 Then Value = -Value
+        Value = Value - Math.Floor(Value)
+        While Value.HasDecimalPart
+            Value = Value * 10
+        End While
+        If DecimalPlaces > 0 Then
+            Value.ToString().GetFirstChars(DecimalPlaces).ToLong()
+        End If
+        Return Value.ToLong()
     End Function
+
+    <Extension> Public Function IsWholeNumber(Number As Decimal) As Boolean
+        Return Not Number.HasDecimalPart
+    End Function
+
+    <Extension> Public Function IsWholeNumber(Number As Double) As Boolean
+        Return Not Number.HasDecimalPart
+    End Function
+
+
 
     ''' <summary>
     ''' Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
@@ -859,8 +885,8 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function Round(Number As Decimal, Optional Decimals As Integer? = Nothing) As Decimal
-        Return If(Decimals, Math.Round(Number, Decimals.Value), Math.Round(Number))
+    <Extension()> Public Function RoundTo(Number As Decimal, Optional Decimals As Integer? = Nothing) As Decimal
+        Return If(Decimals, Decimal.Round(Number, Decimals.Value), Math.Round(Number))
     End Function
 
     ''' <summary>
@@ -868,7 +894,7 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function Round(Number As Double, Optional Decimals As Integer? = Nothing) As Double
+    <Extension()> Public Function RoundTo(Number As Double, Optional Decimals As Integer? = Nothing) As Double
         Return If(Decimals, Math.Round(Number, Decimals.Value), Math.Round(Number))
     End Function
 

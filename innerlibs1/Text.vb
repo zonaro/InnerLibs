@@ -2051,7 +2051,7 @@ Public Module Text
     ''' <param name="ComparisonType"></param>
     ''' <returns></returns>
     <Extension()>
-    Public Function SensitiveReplace(ByVal Text As String, ByVal NewValue As String, ByVal OldValue As String, Optional ComparisonType As StringComparison = StringComparison.InvariantCulture) As String
+    Public Function SensitiveReplace(ByVal Text As String, ByVal OldValue As String, ByVal NewValue As String, Optional ComparisonType As StringComparison = StringComparison.InvariantCulture) As String
         Return SensitiveReplace(Text, NewValue, {OldValue}, ComparisonType)
     End Function
 
@@ -3816,7 +3816,7 @@ Public Class FullNumberWriter
                 If (Number Mod 10) = 0 Then
                     Return strArray(Number \ 10 - 2)
                 Else
-                    Return strArray(Number \ 10 - 2) & [And].Wrap(" ") + InExtensive(Number Mod 10)
+                    Return strArray(Number \ 10 - 2) & [And].Wrap(" ") & InExtensive(Number Mod 10)
                 End If
             Case 100
                 Return ExactlyOneHundred.IfBlank(OneHundred)
@@ -3825,7 +3825,7 @@ Public Class FullNumberWriter
                 If (Number Mod 100) = 0 Then
                     Return strArray(Number \ 100 - 1) & " "
                 Else
-                    Return strArray(Number \ 100 - 1) & [And].Wrap(" ") + InExtensive(Number Mod 100)
+                    Return strArray(Number \ 100 - 1) & [And].Wrap(" ") & InExtensive(Number Mod 100)
                 End If
             Case 1000 To 1999
                 Select Case (Number Mod 1000)

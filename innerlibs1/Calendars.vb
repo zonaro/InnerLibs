@@ -22,6 +22,10 @@ End Enum
 ''' </summary>
 Public Class DateRange
 
+    Public Shared Widening Operator CType(Dates As ValueTuple(Of Date, Date)) As DateRange
+        Return New DateRange(Dates.Item1, Dates.Item2)
+    End Operator
+
     Public Property StartDate As Date
         Get
             FixDateOrder(_startDate, _enddate)

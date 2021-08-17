@@ -104,13 +104,13 @@ Public Class UnitConverter
     Function Abreviate(Number As Decimal, DecimalPlaces As Integer) As String
         Select Case Units.Count
             Case 0
-                Return Number.Slice(DecimalPlaces).ToString
+                Return Number.Round(DecimalPlaces).ToString
             Case Else
                 Dim k = Units.OrderBy(Function(x) x.Key).LastOrDefault(Function(x) x.Key <= Number)
                 If k.Key = 0 Then
                     k = Units.OrderBy(Function(x) x.Key).First
                 End If
-                Number = (Number / k.Key).Slice(DecimalPlaces)
+                Number = (Number / k.Key).RoundTo(DecimalPlaces)
                 Dim u = k.Value
                 If u.Contains(";") Then
                     If Number = 1 Then
@@ -175,12 +175,12 @@ Public Class UnitConverter
             End While
             Dim p = GetUnit(i)
             If p.Key > 0 Then
-                Return (p.Key * Number.ParseDigits.ChangeType(Of Decimal)).Slice(DecimalPlaces)
+                Return (p.Key * Number.ParseDigits.ToDecimal).RoundTo(DecimalPlaces)
             Else
-                Return Number.ParseDigits.ChangeType(Of Decimal).Slice(DecimalPlaces)
+                Return Number.ParseDigits.ToDecimal.RoundTo(DecimalPlaces)
             End If
         End If
-        Return Number.ChangeType(Of Decimal).Slice(DecimalPlaces)
+        Return Number.ToDecimal.RoundTo(DecimalPlaces)
     End Function
 
     ''' <summary>

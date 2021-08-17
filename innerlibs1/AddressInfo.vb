@@ -385,23 +385,29 @@ Namespace Locations
                 Parts = Format
             End If
 
-            If Type.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetType) Then retorno &= Type
-            If Name.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetName) Then retorno &= " " & Name
-            If Number.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Number) Then retorno &= (", " & Number)
-            If Complement.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Complement) Then retorno &= (", " & Complement)
-            If Neighborhood.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Neighborhood) Then retorno &= (" - " & Neighborhood)
-            If City.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.City) Then retorno &= (" - " & City)
+            retorno = retorno.AppendIf(Type, Type.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetType))
+            retorno = retorno.AppendIf($" {Name}", Name.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StreetName))
+            retorno = retorno.AppendIf($", {Number}", Number.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.Number))
+            retorno = retorno.AppendIf($", {Complement}", Complement.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.Complement))
+            retorno = retorno.AppendIf($" - {Neighborhood}", Neighborhood.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.Neighborhood))
+            retorno = retorno.AppendIf($" - {City}", City.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.City))
 
-            If ContainsPart(Parts, AddressPart.StateCode) AndAlso StateCode.IsNotBlank Then
-                retorno &= (" - " & StateCode)
+            If ContainsPart(Parts, AddressPart.State) AndAlso State.IsNotBlank Then
+                retorno = retorno.AppendIf($" - {State}", State.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.State))
             Else
-                If ContainsPart(Parts, AddressPart.State) AndAlso State.IsNotBlank Then retorno &= (" - " & State)
+                retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.StateCode))
             End If
 
-            If PostalCode.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.PostalCode) Then retorno &= (" - " & PostalCode)
-            If Country.IsNotBlank AndAlso ContainsPart(Parts, AddressPart.Country) Then retorno &= (" - " & Country)
-            retorno = retorno.AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-", " ")
-            Return retorno
+            retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.PostalCode))
+
+            If ContainsPart(Parts, AddressPart.Country) AndAlso Country.IsNotBlank Then
+                retorno = retorno.AppendIf($" - {Country}", State.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.Country))
+            Else
+                retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() AndAlso ContainsPart(Parts, AddressPart.CountryCode))
+            End If
+
+            Return retorno.AdjustBlankSpaces().TrimAny(True, ".", " ", ",", " ", "-")
+
         End Function
 
         Friend Shared Function ContainsPart(Parts As AddressPart, OtherPart As AddressPart) As Boolean
@@ -450,6 +456,7 @@ Namespace Locations
                 Dim url = "https://viacep.com.br/ws/" & d.PostalCode.RemoveAny("-") & "/xml/"
                 d.Detail("search_url") = url
                 Using c = New WebClient()
+
                     Dim x = New XmlDocument()
                     x.LoadXml(c.DownloadString(url))
                     Dim cep = x("xmlcep")
@@ -961,9 +968,14 @@ Namespace Locations
         Country = 256
 
         ''' <summary>
+        ''' País
+        ''' </summary>
+        CountryCode = 512
+
+        ''' <summary>
         ''' CEP
         ''' </summary>
-        PostalCode = 512
+        PostalCode = 1024
 
         ''' <summary>
         ''' Endereço completo
