@@ -885,7 +885,7 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function RoundTo(Number As Decimal, Optional Decimals As Integer? = Nothing) As Decimal
+    <Extension()> Public Function RoundDecimal(Number As Decimal, Optional Decimals As Integer? = Nothing) As Decimal
         Return If(Decimals, Decimal.Round(Number, Decimals.Value), Math.Round(Number))
     End Function
 
@@ -894,7 +894,7 @@ Public Module Mathematic
     ''' </summary>
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
-    <Extension()> Public Function RoundTo(Number As Double, Optional Decimals As Integer? = Nothing) As Double
+    <Extension()> Public Function RoundDouble(Number As Double, Optional Decimals As Integer? = Nothing) As Double
         Return If(Decimals, Math.Round(Number, Decimals.Value), Math.Round(Number))
     End Function
 

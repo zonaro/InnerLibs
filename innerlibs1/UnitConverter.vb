@@ -110,7 +110,7 @@ Public Class UnitConverter
                 If k.Key = 0 Then
                     k = Units.OrderBy(Function(x) x.Key).First
                 End If
-                Number = (Number / k.Key).RoundTo(DecimalPlaces)
+                Number = (Number / k.Key).RoundDecimal(DecimalPlaces)
                 Dim u = k.Value
                 If u.Contains(";") Then
                     If Number = 1 Then
@@ -175,12 +175,12 @@ Public Class UnitConverter
             End While
             Dim p = GetUnit(i)
             If p.Key > 0 Then
-                Return (p.Key * Number.ParseDigits.ToDecimal).RoundTo(DecimalPlaces)
+                Return (p.Key * Number.ParseDigits.ToDecimal).RoundDecimal(DecimalPlaces)
             Else
-                Return Number.ParseDigits.ToDecimal.RoundTo(DecimalPlaces)
+                Return Number.ParseDigits.ToDecimal.RoundDecimal(DecimalPlaces)
             End If
         End If
-        Return Number.ToDecimal.RoundTo(DecimalPlaces)
+        Return Number.ToDecimal.RoundDecimal(DecimalPlaces)
     End Function
 
     ''' <summary>

@@ -23,7 +23,7 @@ Friend Class parser
     End Function
 
     Private Function ParseExpr(ByVal Acc As opCode, ByVal priority As ePriority) As opCode
-        Dim ValueLeft, valueRight As opCode
+        Dim ValueLeft As opCode = Nothing, valueRight As opCode = Nothing
         Dim parameters As New ArrayList
         Do
             Select Case mTokenizer.type

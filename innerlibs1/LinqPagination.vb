@@ -1,5 +1,4 @@
-﻿Imports System.ComponentModel
-Imports System.Linq.Expressions
+﻿Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 
@@ -14,8 +13,6 @@ Namespace LINQ
         <Extension()> Public Function FirstRandom(Of T)(l As IEnumerable(Of T)) As T
             Return l.OrderByRandom().FirstOrDefault()
         End Function
-
-
 
         ''' <summary>
         ''' Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -61,7 +58,6 @@ Namespace LINQ
             Return New PaginationFilter(Of T, R)(RemapExpression).SetData(List)
         End Function
 
-
         <Extension()> Public Function PropertyExpression(Parameter As ParameterExpression, PropertyName As String) As Expression
             Dim prop As Expression = Parameter
             If PropertyName.IfBlank("this") <> "this" Then
@@ -89,7 +85,6 @@ Namespace LINQ
             Dim finalExpression = Expression.Lambda(Of Func(Of Type, Boolean))(body, parameter)
             Return finalExpression
         End Function
-
 
         Public Function WhereExpression(Of Type, V)(PropertySelector As Expression(Of Func(Of Type, V)), [Operator] As String, PropertyValue As IEnumerable(Of IComparable), Optional [Is] As Boolean = True, Optional Conditional As FilterConditional = FilterConditional.Or) As Expression(Of Func(Of Type, Boolean))
             Dim parameter = GenerateParameterExpression(Of Type)()
@@ -137,7 +132,7 @@ Namespace LINQ
         End Function
 
         <Extension()> Public Function IsBetween(Of T, V)(ByVal MinProperty As Expression(Of Func(Of T, V)), [MaxProperty] As Expression(Of Func(Of T, V)), Values As IEnumerable(Of V)) As Expression(Of Func(Of T, Boolean))
-            Dim exp = LINQExtensions.CreateExpression(Of T)(False)
+            Dim exp = LINQExtensions.CreateWhereExpression(Of T)(False)
             For Each item In If(Values, {})
                 exp = exp.Or(WhereExpression(MinProperty, "<=", {item}).And(WhereExpression(MaxProperty, ">=", {item})))
             Next
@@ -147,7 +142,6 @@ Namespace LINQ
         <Extension()> Public Function IsBetween(Of T, V)(ByVal MinProperty As Expression(Of Func(Of T, V)), [MaxProperty] As Expression(Of Func(Of T, V)), ParamArray Values As V()) As Expression(Of Func(Of T, Boolean))
             Return IsBetween(MinProperty, MaxProperty, Values.AsEnumerable())
         End Function
-
 
         <Extension()>
         Public Function IsBetween(Of T, V)(ByVal [Property] As Expression(Of Func(Of T, V)), MinValue As V, MaxValue As V) As Expression(Of Func(Of T, Boolean))
@@ -177,8 +171,6 @@ Namespace LINQ
             Return propInfo
         End Function
 
-
-
         <Extension()> Public Sub FixNullable(ByRef e1 As Expression, ByRef e2 As Expression)
             Dim e1type As Type = e1.Type
             Dim e2type As Type = e2.Type
@@ -193,7 +185,6 @@ Namespace LINQ
             Catch ex As Exception
             End Try
 
-
             If e1type.IsNullableType AndAlso Not e2type.IsNullableType Then
                 e2 = Expression.Convert(e2, e1type)
             End If
@@ -201,8 +192,6 @@ Namespace LINQ
             If Not e1type.IsNullableType AndAlso e2type.IsNullableType Then
                 e1 = Expression.Convert(e1, e2type)
             End If
-
-
 
             If e1.NodeType = ExpressionType.Lambda Then
                 e1 = Expression.Invoke(e1, CType(e1, LambdaExpression).Parameters)
@@ -213,8 +202,6 @@ Namespace LINQ
             End If
 
         End Sub
-
-
 
         <Extension> Public Function GreaterThanOrEqual(ByVal MemberExpression As Expression, ByVal ValueExpression As Expression) As BinaryExpression
             FixNullable(MemberExpression, ValueExpression)
@@ -245,8 +232,6 @@ Namespace LINQ
             FixNullable(MemberExpression, ValueExpression)
             Return Expression.NotEqual(MemberExpression, ValueExpression)
         End Function
-
-
 
         Public Function CreateConstant(Member As Expression, Value As IComparable) As ConstantExpression
             Return CreateConstant(Member.Type, Value)
@@ -799,48 +784,6 @@ Namespace LINQ
 
         Private equalMethod As MethodInfo = GetType(String).GetMethod("Equals", {GetType(String)})
 
-        ''' <summary>
-        ''' Concatena uma expressão com outra usando o operador And (&&)
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="expr1"></param>
-        ''' <param name="expr2"></param>
-        ''' <returns></returns>
-        <Extension()>
-        Function [And](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
-            Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
-            Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[AndAlso](expr1.Body, invokedExpr), expr1.Parameters)
-        End Function
-
-        ''' <summary>
-        ''' Concatena uma expressão com outra usando o operador OR (||)
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="expr1"></param>
-        ''' <param name="expr2"></param>
-        ''' <returns></returns>
-        <Extension()> Function [Or](Of T)(ByVal expr1 As Expression(Of Func(Of T, Boolean)), ByVal expr2 As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
-            Dim invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast(Of Expression)())
-            Return Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](expr1.Body, invokedExpr), expr1.Parameters)
-        End Function
-
-        ''' <summary>
-        ''' Retorna uma expressão genérica a partir de uma expressão tipada
-        ''' </summary>
-        ''' <typeparam name="TParm"></typeparam>
-        ''' <typeparam name="TReturn"></typeparam>
-        ''' <typeparam name="TTargetParm"></typeparam>
-        ''' <typeparam name="TTargetReturn"></typeparam>
-        ''' <param name="input"></param>
-        ''' <returns></returns>
-        <Extension()> Public Function ConvertGeneric(Of TParm, TReturn, TTargetParm, TTargetReturn)(ByVal input As Expression(Of Func(Of TParm, TReturn))) As Expression(Of Func(Of TTargetParm, TTargetReturn))
-            Dim parm = Expression.Parameter(GetType(TTargetParm))
-            Dim castParm = Expression.Convert(parm, GetType(TParm))
-            Dim body = ReplaceExpression(input.Body, input.Parameters(0), castParm)
-            body = Expression.Convert(body, GetType(Object))
-            body = Expression.Convert(body, GetType(TTargetReturn))
-            Return Expression.Lambda(Of Func(Of TTargetParm, TTargetReturn))(body, parm)
-        End Function
 
         ''' <summary>
         ''' Cria uma <see cref="Expression"/> condicional a partir de um valor <see cref="Boolean"/>
@@ -848,8 +791,42 @@ Namespace LINQ
         ''' <typeparam name="T">Tipo do objeto</typeparam>
         ''' <param name="DefaultReturnValue">Valor padrão</param>
         ''' <returns></returns>
-        Function CreateExpression(Of T)(Optional DefaultReturnValue As Boolean = True) As Expression(Of Func(Of T, Boolean))
+        <Extension()> Function CreateWhereExpression(Of T)(DefaultReturnValue As Boolean) As Expression(Of Func(Of T, Boolean))
             Return Function(f) DefaultReturnValue
+        End Function
+
+        ''' <summary>
+        ''' Concatena uma expressão com outra usando o operador And (&&)
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="FirstExpression"></param>
+        ''' <param name="OtherExpressions"></param>
+        ''' <returns></returns>
+        <Extension()>
+        Function [And](Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), ParamArray OtherExpressions As Expression(Of Func(Of T, Boolean))()) As Expression(Of Func(Of T, Boolean))
+            FirstExpression = If(FirstExpression, CreateWhereExpression(Of T)(True))
+            For Each item In If(OtherExpressions, {})
+                Dim invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast(Of Expression)())
+                FirstExpression = Expression.Lambda(Of Func(Of T, Boolean))(Expression.[AndAlso](FirstExpression.Body, invokedExpr), FirstExpression.Parameters)
+            Next
+            Return FirstExpression
+        End Function
+
+
+        ''' <summary>
+        ''' Concatena uma expressão com outra usando o operador OR (||)
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="FirstExpression"></param>
+        ''' <param name="OtherExpressions"></param>
+        ''' <returns></returns>
+        <Extension()> Function [Or](Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), ParamArray OtherExpressions As Expression(Of Func(Of T, Boolean))()) As Expression(Of Func(Of T, Boolean))
+            FirstExpression = If(FirstExpression, CreateWhereExpression(Of T)(False))
+            For Each item In If(OtherExpressions, {})
+                Dim invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast(Of Expression)())
+                FirstExpression = Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](FirstExpression.Body, invokedExpr), FirstExpression.Parameters)
+            Next
+            Return FirstExpression
         End Function
 
         ''' <summary>
@@ -858,11 +835,9 @@ Namespace LINQ
         ''' <typeparam name="T">Tipo do objeto</typeparam>
         ''' <param name="predicate">Valor padrão</param>
         ''' <returns></returns>
-        Function CreateExpression(Of T)(predicate As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
-            Return predicate
+        Function CreateWhereExpression(Of T)(predicate As Expression(Of Func(Of T, Boolean))) As Expression(Of Func(Of T, Boolean))
+            Return If(predicate, CreateWhereExpression(Of T)(False))
         End Function
-
-
 
         ''' <summary>
         ''' Distingui os items de uma lista a partir de uma propriedade da classe
@@ -1013,7 +988,7 @@ Namespace LINQ
             '    Properties = GetType(ClassType).GetProperties().Where(Function(x) x.PropertyType = GetType(String)).Select(Function(x) Expression.Property(param, x.Name))
             'End If
             Search = Nothing
-            Dim predi = CreateExpression(Of ClassType)(False)
+            Dim predi = CreateWhereExpression(Of ClassType)(False)
             For Each prop In Properties
                 For Each s In SearchTerms
                     If Not s = Nothing AndAlso s.IsNotBlank() Then
@@ -1044,7 +1019,7 @@ Namespace LINQ
             End If
             Search = Nothing
             Dim tab = Table.AsQueryable
-            Dim predi = CreateExpression(Of ClassType)(False)
+            Dim predi = CreateWhereExpression(Of ClassType)(False)
             For Each prop In Properties
                 For Each s In SearchTerms
                     If Not s = Nothing AndAlso s.IsNotBlank() Then

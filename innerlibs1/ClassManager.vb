@@ -65,13 +65,17 @@ Public Module ClassTools
         Return Dic
     End Function
 
-    <Extension()> Public Function IsNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
-        Return Not If(List, {}).Any()
+    <Extension()> Public Function IsNotNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
+        Return List.NullAsEmpty().Any()
     End Function
 
 
-    <Extension()> Public Function IsNotNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
-        Return Not List.IsNullOrEmpty
+    <Extension()> Public Function NullAsEmpty(Of T)(ByVal List As IEnumerable(Of T)) As IEnumerable(Of T)
+        Return If(List, Activator.CreateInstance(GetTypeOf(List)))
+    End Function
+
+    <Extension()> Public Function IsNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
+        Return Not List.IsNotNullOrEmpty()
     End Function
 
     Public ReadOnly Property PrimitiveTypes As Type()
@@ -154,6 +158,7 @@ Public Module ClassTools
                 Dim temp = Value1
                 Value1 = Value2
                 Value2 = temp
+                temp = Nothing
             End If
         End If
     End Sub

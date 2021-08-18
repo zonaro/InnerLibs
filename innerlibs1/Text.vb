@@ -3336,6 +3336,8 @@ Public Module Text
         Return ""
     End Function
 
+
+
     ''' <summary>
     ''' Encapsula um tento entre 2 textos
     ''' </summary>
@@ -3367,12 +3369,11 @@ Public Module Text
     <Extension()>
     Function Inject(ByVal formatString As String, ByVal attributes As Hashtable) As String
         Dim result As String = formatString
-        If attributes Is Nothing OrElse formatString Is Nothing Then Return result
-
-        For Each attributeKey As String In attributes.Keys
-            result = result.InjectSingleValue(attributeKey, attributes(attributeKey))
-        Next
-
+        If attributes IsNot Nothing AndAlso formatString IsNot Nothing Then
+            For Each attributeKey As String In attributes.Keys
+                result = result.InjectSingleValue(attributeKey, attributes(attributeKey))
+            Next
+        End If
         Return result
     End Function
 
@@ -3771,7 +3772,7 @@ Public Class FullNumberWriter
     Sub New()
         For Each prop In Me.GetProperties.Where(Function(x) x.CanWrite)
             Select Case prop.Name
-                Case "ExactlyOneHundred", "MoreThan", "DecimalSeparator"
+                Case "ExactlyOneHundred", "DecimalSeparator"
                     Continue For
                 Case Else
                     Select Case prop.PropertyType
@@ -3794,11 +3795,19 @@ Public Class FullNumberWriter
     ''' <returns></returns>
     Default Public Overridable ReadOnly Property Text(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
         Get
-            Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
-            Dim num As Long = Number.Floor
-            Return (InExtensive(num) & If(dec = 0 Or DecimalPlaces = 0, "", DecimalSeparator.Wrap(" ") & InExtensive(dec))).ToLower.AdjustWhiteSpaces
+            Return ToString(Number, DecimalPlaces)
         End Get
     End Property
+
+    Public Overrides Function ToString() As String
+        Return ToString(0)
+    End Function
+
+    Public Overridable Overloads Function ToString(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
+        Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
+        Dim num As Long = Number.Floor
+        Return (InExtensive(num) & If(dec = 0 Or DecimalPlaces = 0, "", DecimalSeparator.Wrap(" ") & InExtensive(dec))).ToLower.AdjustWhiteSpaces
+    End Function
 
     Friend Function InExtensive(ByVal Number As Decimal) As String
 
@@ -3982,7 +3991,7 @@ Public Class FullMoneyWriter
     ''' Par de strings que representam os nomes da moeda em sua forma singular ou plural
     ''' </summary>
     ''' <returns></returns>
-    Property CurrencyName As New QuantityTextPair("dollar", "dollars")
+    Property CurrencyName As New QuantityTextPair("dollars", "dollar")
 
     ''' <summary>
     ''' Par de strings que representam os centavos desta moeda em sua forma singular ou plural
@@ -3995,24 +4004,24 @@ Public Class FullMoneyWriter
     ''' </summary>
     ''' <param name="Number"></param>
     ''' <returns></returns>
-    Default Public Overrides ReadOnly Property Text(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
-        Get
-            Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
-            Dim num As Long = Number.Floor
-            Return (InExtensive(num) & CurrencyCentsName(num).Wrap(" ") & If(dec = 0 Or DecimalPlaces = 0, "", [And].Wrap(" ") & InExtensive(dec) & CurrencyCentsName(dec).Wrap(" "))).ToLower.AdjustWhiteSpaces
-        End Get
-    End Property
+    Public Overrides Function ToString(Number As Decimal, Optional DecimalPlaces As Integer = 2) As String
+        Dim dec As Long = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3))
+        Dim num As Long = Number.Floor
+        Return (InExtensive(num) & CurrencyCentsName(num).Wrap(" ") & If(dec = 0 Or DecimalPlaces = 0, "", [And].Wrap(" ") & InExtensive(dec) & CurrencyCentsName(dec).Wrap(" "))).ToLower.AdjustWhiteSpaces
+    End Function
 
     ''' <summary>
     ''' Escreve um numero por extenso
     ''' </summary>
     ''' <param name="Number"></param>
     ''' <returns></returns>
-    Default Public Overloads ReadOnly Property Text(Number As Money, Optional DecimalPlaces As Integer = 2) As String
-        Get
-            Return Text(Number.Value, DecimalPlaces)
-        End Get
-    End Property
+    Public Overloads Function ToString(Number As Money, Optional DecimalPlaces As Integer = 2) As String
+        Return ToString(Number.Value, DecimalPlaces)
+    End Function
+
+    Public Overrides Function ToString() As String
+        Return Me.ToString(0D)
+    End Function
 
 End Class
 

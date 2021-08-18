@@ -550,6 +550,11 @@ End Class
 ''' <remarks></remarks>
 Public Module Calendars
 
+    <Extension>
+    Public Function ClearMiliseconds([Date] As Date) As DateTime
+        Return [Date].AddTicks(-([Date].Ticks Mod TimeSpan.TicksPerSecond))
+    End Function
+
     <Extension()>
     Public Function CreateDateRange(Of T As Class)(ByVal List As IQueryable(Of T), ByVal PropertyExpression As Expression(Of Func(Of T, DateTime?)), ByVal Optional StartDate As DateTime? = Nothing, ByVal Optional EndDate As DateTime? = Nothing) As DateRange
 
