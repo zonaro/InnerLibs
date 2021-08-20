@@ -45,6 +45,8 @@ Public Module BeautyStrings
         Return l.ListInFrame()
     End Function
 
+
+
     <Extension()> Public Function ListInFrame(Lines As List(Of String)) As String
 
         Dim linha_longa = ""

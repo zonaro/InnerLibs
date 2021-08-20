@@ -886,7 +886,7 @@ Public Module Mathematic
     ''' <param name="Number">Numero</param>
     ''' <returns></returns>
     <Extension()> Public Function RoundDecimal(Number As Decimal, Optional Decimals As Integer? = Nothing) As Decimal
-        Return If(Decimals, Decimal.Round(Number, Decimals.Value), Math.Round(Number))
+        Return If(Decimals, Math.Round(Number, Decimals.Value), Math.Round(Number))
     End Function
 
     ''' <summary>

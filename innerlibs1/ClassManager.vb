@@ -3,7 +3,6 @@ Imports System.IO
 Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
-Imports System.Text.RegularExpressions
 Imports System.Xml
 Imports System.Xml.Serialization
 Imports InnerLibs.LINQ
@@ -68,7 +67,6 @@ Public Module ClassTools
     <Extension()> Public Function IsNotNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
         Return List.NullAsEmpty().Any()
     End Function
-
 
     <Extension()> Public Function NullAsEmpty(Of T)(ByVal List As IEnumerable(Of T)) As IEnumerable(Of T)
         Return If(List, Activator.CreateInstance(GetTypeOf(List)))
@@ -760,12 +758,13 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetProperties(Of O)(MyObject As O, BindAttr As BindingFlags) As List(Of PropertyInfo)
-        If MyObject IsNot Nothing Then
-            Return MyObject.GetTypeOf().GetProperties(BindAttr).ToList()
-        Else
-            Return New List(Of PropertyInfo)
-        End If
+    Public Function GetProperties(Of O)(MyObject As O, BindAttr As BindingFlags) As IEnumerable(Of PropertyInfo)
+        Return GetTypeOf(Of O)(MyObject).GetProperties(BindAttr).ToList()
+    End Function
+
+    <Extension()>
+    Public Function GetFields(Of O)(MyObject As O, BindAttr As BindingFlags) As IEnumerable(Of FieldInfo)
+        Return GetTypeOf(Of O)(MyObject).GetFields(BindAttr).ToList()
     End Function
 
     ''' <summary>
@@ -774,8 +773,18 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
-    Public Function GetProperties(Of O)(MyObject As O) As List(Of PropertyInfo)
+    Public Function GetProperties(Of O)(MyObject As O) As IEnumerable(Of PropertyInfo)
         Return GetTypeOf(MyObject).GetProperties().ToList()
+    End Function
+
+    ''' <summary>
+    ''' Traz uma Lista com todas as propriedades de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function GetFields(Of O)(MyObject As O) As IEnumerable(Of FieldInfo)
+        Return GetTypeOf(MyObject).GetFields().ToList()
     End Function
 
     ''' <summary>
@@ -794,6 +803,16 @@ Public Module ClassTools
     ''' <param name="MyObject">Objeto</param>
     ''' <returns></returns>
     <Extension()>
+    Public Function GetField(Of O)(MyObject As O, Name As String) As FieldInfo
+        Return MyObject.GetTypeOf().GetFields().SingleOrDefault(Function(x) x.Name = Name)
+    End Function
+
+    ''' <summary>
+    ''' Traz uma propriedade de um objeto
+    ''' </summary>
+    ''' <param name="MyObject">Objeto</param>
+    ''' <returns></returns>
+    <Extension()>
     Public Function GetPropertyValue(Of T, O)(MyObject As O, Name As String) As T
         If MyObject IsNot Nothing Then
             Dim prop = MyObject.GetProperty(Name)
@@ -802,46 +821,6 @@ Public Module ClassTools
             End If
         End If
         Return Nothing
-    End Function
-
-    ''' <summary>
-    ''' Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function GetPropertyParameterFromString(Of Type)(Text As String) As Object()
-        Return GetType(Type).GetPropertyParametersFromString(Text)
-    End Function
-
-    <Extension()> Public Function ParamSplit(Text As String) As String()
-        Dim name As String = Text.GetBefore("(")
-        Dim params = Regex.Split(Text.RemoveFirstEqual(name).RemoveFirstEqual("(").RemoveLastEqual(")"), ",(?=(?:[^""]*""[^""]*"")*[^""]*$)")
-        Return params
-    End Function
-
-    ''' <summary>
-    ''' Retorna um array de objetos a partir de uma string que representa uma propriedade de uma classe
-    ''' </summary>
-    ''' <param name="Text"></param>
-    ''' <returns></returns>
-    <Extension> Public Function GetPropertyParametersFromString(Type As Type, Text As String) As Object()
-        Dim props = Type.GetProperties(BindingFlags.Public + BindingFlags.NonPublic + BindingFlags.Instance)
-        Dim name As String = Text.GetBefore("(")
-        Dim params = Text.ParamSplit()
-        Dim info = props.Where(Function(x) x.Name.ToLower = name.ToLower AndAlso x.GetIndexParameters.Count = params.Count).FirstOrDefault
-
-        If info IsNot Nothing Then
-            Dim oParam = info.GetIndexParameters()
-            Dim arr As New List(Of Object)(oParam.Count)
-            For index = 0 To oParam.Count - 1
-                Try
-                    arr.Add(Convert.ChangeType(params(index).GetWrappedText.FirstOr(params(index)), oParam(index).ParameterType))
-                Catch ex As Exception
-                End Try
-            Next
-            Return arr.ToArray
-        End If
-        Return {}
     End Function
 
     ''' <summary>
