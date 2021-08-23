@@ -1,5 +1,7 @@
 ﻿Namespace Printer.Command
-    Friend Interface IDrawer
+    Public Interface IDrawer
+        Property Encoding As Encoding
+
         Function Open() As Byte()
     End Interface
 End Namespace

@@ -137,7 +137,6 @@
     <Compile Include="OnlineList.vb" />
     <Compile Include="Printer\Enums\Justifications.vb" />
     <Compile Include="Printer\Enums\PrinterModeState.vb" />
-    <Compile Include="Printer\Enums\PrinterType.vb" />
     <Compile Include="Printer\Enums\QrCodeSize.vb" />
     <Compile Include="Printer\EscBemaCommands\Alignment.vb" />
     <Compile Include="Printer\EscBemaCommands\BarCode.vb" />
@@ -180,7 +179,6 @@
     <Compile Include="Printer\Interfaces\Command\IPaperCut.vb" />
     <Compile Include="Printer\Interfaces\Command\IPrintCommand.vb" />
     <Compile Include="Printer\Interfaces\Command\IQrCode.vb" />
-    <Compile Include="Printer\Interfaces\Printer\IPrinter.vb" />
     <Compile Include="Printer\Printer.vb" />
     <Compile Include="QuestionTest.vb" />
     <Compile Include="Romanize.vb" />
@@ -228,6 +226,7 @@
   <ItemGroup>
     <Content Include=".gitignore" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>

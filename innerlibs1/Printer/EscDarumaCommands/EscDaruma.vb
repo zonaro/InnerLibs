@@ -1,9 +1,10 @@
-﻿Imports InnerLibs.Printer
+﻿Imports System.Text
+Imports InnerLibs.Printer
 Imports InnerLibs.Printer.Command
 
 Namespace EscDarumaCommands
 
-    Friend Class EscDaruma
+    Public Class EscDaruma
         Implements IPrintCommand
 
 #Region "Properties"
@@ -36,6 +37,17 @@ Namespace EscDarumaCommands
             End Get
         End Property
 
+        Public ReadOnly Property Encoding As Encoding Implements IPrintCommand.Encoding
+            Get
+                Try
+                    Return Encoding.GetEncoding("IBM860")
+                Catch ex As Exception
+                    Debug.WriteLine(ex)
+                    Return Encoding.Default
+                End Try
+            End Get
+        End Property
+
 #End Region
 
 #Region "Constructor"
@@ -57,7 +69,7 @@ Namespace EscDarumaCommands
 #Region "Methods"
 
         Public Function Separator() As Byte() Implements IPrintCommand.Separator
-            Return FontMode.Condensed(PrinterModeState.On).AddBytes(New String("-"c, ColsCondensed)).AddBytes(FontMode.Condensed(PrinterModeState.Off)).AddLF()
+            Return FontMode.Condensed(PrinterModeState.On).AddTextBytes(New String("-"c, ColsCondensed)).AddBytes(FontMode.Condensed(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function AutoTest() As Byte() Implements IPrintCommand.AutoTest

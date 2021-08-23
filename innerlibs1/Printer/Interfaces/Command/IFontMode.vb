@@ -2,7 +2,9 @@
 Imports InnerLibs.Printer
 
 Namespace Printer.Command
-    Friend Interface IFontMode
+    Public Interface IFontMode
+        Property Encoding As Encoding
+
         Function Italic(ByVal value As String) As Byte()
         Function Italic(ByVal state As PrinterModeState) As Byte()
         Function Bold(ByVal value As String) As Byte()

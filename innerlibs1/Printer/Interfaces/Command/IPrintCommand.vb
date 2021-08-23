@@ -1,5 +1,10 @@
-﻿Namespace Printer.Command
-    Friend Interface IPrintCommand
+﻿Imports System.Text
+
+Namespace Printer.Command
+    Public Interface IPrintCommand
+
+
+        ReadOnly Property Encoding As Encoding
         ReadOnly Property ColsNomal As Integer
         ReadOnly Property ColsCondensed As Integer
         ReadOnly Property ColsExpanded As Integer

@@ -1,10 +1,9 @@
-﻿Imports System
-Imports System.Collections.Generic
+﻿Imports System.Runtime.CompilerServices
 Imports System.Text
-Imports System.Runtime.CompilerServices
 
 Namespace Printer
     Friend Module PrinterExtensions
+
         <Extension()>
         Public Function ToByte(ByVal c As Char) As Byte
             Return Microsoft.VisualBasic.AscW(c)
@@ -35,27 +34,28 @@ Namespace Printer
         End Function
 
         <Extension()>
-        Public Function AddBytes(ByVal bytes As Byte(), ByVal value As String) As Byte()
+        Public Function AddTextBytes(ByVal bytes As Byte(), ByVal value As String, Optional Encoding As Encoding = Nothing) As Byte()
             If String.IsNullOrEmpty(value) Then Return bytes
             Dim list = New List(Of Byte)()
             list.AddRange(bytes)
-            list.AddRange(Encoding.GetEncoding("IBM860").GetBytes(value))
+            list.AddRange(If(Encoding, Encoding.Default).GetBytes(value))
             Return list.ToArray()
         End Function
 
         <Extension()>
-        Public Function AddLF(ByVal bytes As Byte()) As Byte()
-            Return bytes.AddBytes(Microsoft.VisualBasic.Constants.vbLf)
+        Public Function AddLF(ByVal bytes As Byte(), Optional Encoding As Encoding = Nothing) As Byte()
+            Return bytes.AddTextBytes(Microsoft.VisualBasic.Constants.vbLf, Encoding)
         End Function
 
         <Extension()>
-        Public Function AddCrLF(ByVal bytes As Byte()) As Byte()
-            Return bytes.AddBytes(Microsoft.VisualBasic.Constants.vbCrLf)
+        Public Function AddCrLF(ByVal bytes As Byte(), Optional Encoding As Encoding = Nothing) As Byte()
+            Return bytes.AddTextBytes(Microsoft.VisualBasic.Constants.vbCrLf, Encoding)
         End Function
 
         <Extension()>
         Public Function IsNullOrEmpty(ByVal value As String) As Boolean
             Return String.IsNullOrEmpty(value)
         End Function
+
     End Module
 End Namespace

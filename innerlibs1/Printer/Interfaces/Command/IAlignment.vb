@@ -1,5 +1,7 @@
 ﻿Namespace Printer.Command
-    Friend Interface IAlignment
+    Public Interface IAlignment
+        Property Encoding As Encoding
+
         Function Left() As Byte()
         Function Right() As Byte()
         Function Center() As Byte()
