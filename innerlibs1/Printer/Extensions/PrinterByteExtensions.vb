@@ -1,8 +1,11 @@
 ﻿Imports System.Runtime.CompilerServices
 Imports System.Text
+Imports InnerLibs.Printer.Command
 
 Namespace Printer
-    Friend Module PrinterExtensions
+
+
+    Friend Module PrinterByteExtensions
 
         <Extension()>
         Public Function ToByte(ByVal c As Char) As Byte

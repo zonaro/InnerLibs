@@ -105,6 +105,7 @@
     <Compile Include="Evalz\VariableNotFoundException.vb" />
     <Compile Include="Files.vb" />
     <Compile Include="FileTree.vb" />
+    <Compile Include="FluentSwitch.vb" />
     <Compile Include="FontAwesome.vb" />
     <Compile Include="Generate.vb" />
     <Compile Include="Images.vb" />
@@ -167,7 +168,7 @@
     <Compile Include="Printer\EscPosCommands\InitializePrint.vb" />
     <Compile Include="Printer\EscPosCommands\PaperCut.vb" />
     <Compile Include="Printer\EscPosCommands\QrCode.vb" />
-    <Compile Include="Printer\Extensions\PrinterExtensions.vb" />
+    <Compile Include="Printer\Extensions\PrinterByteExtensions.vb" />
     <Compile Include="Printer\Helper\RawPrinterHelper.vb" />
     <Compile Include="Printer\Interfaces\Command\IAlignment.vb" />
     <Compile Include="Printer\Interfaces\Command\IBarCode.vb" />

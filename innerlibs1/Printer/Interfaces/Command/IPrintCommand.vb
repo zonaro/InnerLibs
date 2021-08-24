@@ -1,6 +1,7 @@
 ﻿Imports System.Text
 
 Namespace Printer.Command
+
     Public Interface IPrintCommand
 
 
@@ -18,9 +19,11 @@ Namespace Printer.Command
         Property Image As IImage
         Property BarCode As IBarCode
         Property InitializePrint As IInitializePrint
+
         Function Separator() As Byte()
+
         Function AutoTest() As Byte()
 
-
     End Interface
+
 End Namespace

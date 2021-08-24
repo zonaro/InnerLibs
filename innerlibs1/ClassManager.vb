@@ -1129,7 +1129,7 @@ Public Module ClassTools
         If GetType(O) Is GetType(Type) Then
             Return CType(CType(Obj, Object), Type)
         Else
-            Return If(GetType(O), GetType(Object))
+            Return Obj?.GetType().NullCoalesce(GetType(O), GetType(Object))
         End If
     End Function
 

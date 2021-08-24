@@ -28,15 +28,21 @@
 ' ***********************************************************************
 
 Imports System.IO
+Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports InnerLibs.Printer.Command
 
 Namespace Printer
 
+
+
     Public Class Printer(Of CommandType As IPrintCommand)
 
-        Public Property DocumentBuffer As Byte()
 
+
+
+
+        Public Property DocumentBuffer As Byte()
         Public Property PrinterName As String
 
         Public ReadOnly Property Command As CommandType
@@ -47,8 +53,6 @@ Namespace Printer
             End Get
         End Property
 
-
-
         ''' <summary>
         ''' Initializes a new instance of the <see cref="Printer"/> class.
         ''' </summary>
@@ -58,8 +62,22 @@ Namespace Printer
         ''' <param name="colsExpanded">Number of columns for expanded mode print</param>
         ''' <param name="encoding">Custom encoding</param>
         Public Sub New(ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer, ByVal encoding As Encoding)
-            Command = Activator.CreateInstance(GetType(CommandType))
-            Command.Encoding = encoding
+            Me.New(Nothing, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        End Sub
+
+        ''' <summary>
+        ''' Initializes a new instance of the <see cref="Printer"/> class.
+        ''' </summary>
+        ''' <param name="printerName">Printer name, shared name or port of printer install</param>
+        ''' <param name="colsNormal">Number of columns for normal mode print</param>
+        ''' <param name="colsCondensed">Number of columns for condensed mode print</param>
+        ''' <param name="colsExpanded">Number of columns for expanded mode print</param>
+        ''' <param name="encoding">Custom encoding</param>
+        Friend Sub New(Command As CommandType, ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer, ByVal encoding As Encoding)
+            Me.Command = If(Command, Activator.CreateInstance(GetType(CommandType)))
+            If encoding IsNot Nothing Then
+                Me.Command.Encoding = encoding
+            End If
             Me.PrinterName = printerName.IfBlank("temp.prn").Trim()
             Me.ColsNomal = If(colsNormal <= 0, Command.ColsNomal, colsNormal)
             Me.ColsCondensed = If(colsCondensed <= 0, Command.ColsCondensed, colsCondensed)
@@ -440,8 +458,8 @@ Namespace Printer
         Public Function WriteFile(FileOrDirectoryPath As String) As Printer(Of CommandType)
             If DocumentBuffer IsNot Nothing AndAlso DocumentBuffer.Count > 0 Then
                 If FileOrDirectoryPath.IsDirectoryPath Then
-                    FileOrDirectoryPath = FileOrDirectoryPath.ToDirectoryInfo().FullName
-                    FileOrDirectoryPath = $"{FileOrDirectoryPath}\{GetType(CommandType).Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command.GetTypeOf().Name.IfBlank("bin")}".AdjustPathChars()
+                    FileOrDirectoryPath = $"{FileOrDirectoryPath}\{GetType(CommandType).Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"
+                    FileOrDirectoryPath = FileOrDirectoryPath.AdjustPathChars(True)
                 End If
 
                 If FileOrDirectoryPath.IsFilePath Then
@@ -487,6 +505,9 @@ Namespace Printer
 
     Public NotInheritable Class BematechPrinter
         Inherits Printer(Of EscBemaCommands.EscBema)
+
+
+
 
         Public Sub New(printerName As String)
             MyBase.New(printerName)
@@ -568,5 +589,13 @@ Namespace Printer
         End Sub
 
     End Class
+
+
+
+    Public Module PrinterExtensions
+        <Extension()> Public Function CreatePrinter(Of T As IPrintCommand)(Command As T, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer(Of T)
+            Return New Printer(Of T)(Command, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        End Function
+    End Module
 
 End Namespace

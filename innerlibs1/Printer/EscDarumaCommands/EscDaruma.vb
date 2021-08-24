@@ -50,13 +50,14 @@ Namespace EscDarumaCommands
 
         Public Property Encoding As Encoding Implements IPrintCommand.Encoding
             Get
-                Return FontMode.NullCoalesce(DefaultEncoding)
+                Return FontMode.Encoding.NullCoalesce(DefaultEncoding)
             End Get
             Set(value As Encoding)
-                FontMode.Encoding = Encoding
-                FontWidth.Encoding = Encoding
-                QrCode.Encoding = Encoding
-                BarCode.Encoding = Encoding
+                value = value.NullCoalesce(DefaultEncoding)
+                FontMode.Encoding = value
+                FontWidth.Encoding = value
+                QrCode.Encoding = value
+                BarCode.Encoding = value
             End Set
         End Property
 

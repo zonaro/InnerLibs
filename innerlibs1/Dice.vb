@@ -269,12 +269,12 @@ Namespace RolePlayingGame
 
         Private Function GetChancePercent(Face As Integer) As Integer
             Dim pesototal = Weight
-            Return Mathematic.CalculatePercent(GetFace(Face).Weight, pesototal)
+            Return MathExt.CalculatePercent(GetFace(Face).Weight, pesototal)
         End Function
 
         Private Function GetValueOfPercent(Face As Integer) As Integer
             Dim pesototal = Weight
-            Return Mathematic.CalculateValueFromPercent(GetFace(Face).WeightPercent, pesototal)
+            Return MathExt.CalculateValueFromPercent(GetFace(Face).WeightPercent, pesototal)
         End Function
 
         ''' <summary>
@@ -392,7 +392,7 @@ Namespace RolePlayingGame
                     Dim total_antigo = Me.dice.Weight
                     Dim peso_outros = OtherFaces.Sum(Function(x) x.Weight)
 
-                    _weight = Mathematic.CalculateValueFromPercent(Value, total_peso)
+                    _weight = MathExt.CalculateValueFromPercent(Value, total_peso)
 
                     total_peso = _weight + peso_outros
                     _weightpercent = Value

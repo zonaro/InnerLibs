@@ -2358,8 +2358,11 @@ Public Module Text
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <returns></returns>
-    <Extension()> Public Function AdjustPathChars(Text As String) As String
-        Return Text.Split({"/", "\"}, StringSplitOptions.RemoveEmptyEntries).Select(Function(x) x.ToFriendlyPathName).Join("/")
+    <Extension()> Public Function AdjustPathChars(Text As String, Optional InvertedBar As Boolean = False) As String
+        Return Text.Split({"/", "\"}, StringSplitOptions.RemoveEmptyEntries).Select(Function(x, i)
+                                                                                        If i = 0 AndAlso x.Length = 2 AndAlso x.EndsWith(":") Then Return x
+                                                                                        Return x.ToFriendlyPathName
+                                                                                    End Function).Join(InvertedBar.AsIf("\", "/"))
     End Function
 
     ''' <summary>
@@ -2371,7 +2374,7 @@ Public Module Text
     <Extension>
     Public Function ToLeet(Text As String, Optional Degree As Integer = 30) As String
         ' Adjust degree between 0 - 100
-        Degree.LimitRange(0, 100)
+        Degree = Degree.LimitRange(0, 100)
         ' No Leet Translator
         If Degree = 0 Then
             Return Text

@@ -232,7 +232,7 @@ End Class
 ''' Módulo para calculos
 ''' </summary>
 ''' <remarks></remarks>
-Public Module Mathematic
+Public Module MathExt
 
     ''' <summary>
     ''' Calcula os Juros simples
@@ -439,17 +439,17 @@ Public Module Mathematic
     ''' Retorna todas as possiveis combinações de Arrays do mesmo tipo (Produto Cartesiano)
     ''' </summary>
     ''' <param name="Sets">Lista de Arrays para combinar</param>
-    ''' <returns>Plano Cartesiano</returns>
-    Public Function CartesianProduct(Of T)(ParamArray Sets As T()()) As IEnumerable(Of T())
+    ''' <returns>Produto Cartesiano</returns>
+    Public Function CartesianProduct(Of T)(ParamArray Sets As IEnumerable(Of T)()) As IEnumerable(Of IEnumerable(Of T))
         Dim emptyProduct As IEnumerable(Of IEnumerable(Of T)) = New IEnumerable(Of T)() {Enumerable.Empty(Of T)()}
         Dim c = Sets.Aggregate(emptyProduct, Function(accumulator, sequence)
                                                  Return (From accseq In accumulator
                                                          From item In sequence
                                                          Select accseq.Concat(New T() {item}))
                                              End Function)
-        Dim aa As New List(Of T())
+        Dim aa As New List(Of IEnumerable(Of T))
         For Each item In c
-            aa.Add(item.ToArray)
+            aa.Add(item)
         Next
         Return aa
     End Function
@@ -816,10 +816,10 @@ Public Module Mathematic
     <Extension()>
     Public Function LimitRange(Of T As IComparable)(ByVal Number As IComparable, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As T
         If MaxValue IsNot Nothing Then
-            Number = If(Number.IsLessThan(ChangeType(Of T)(MaxValue)), Number, MaxValue)
+            Number = If(Number.IsLessThan(ChangeType(Of T)(MaxValue)), Number, ChangeType(Of T)(MaxValue))
         End If
         If MinValue IsNot Nothing Then
-            Number = If(Number.IsGreaterThan(ChangeType(Of T)(MinValue)), Number, MinValue)
+            Number = If(Number.IsGreaterThan(ChangeType(Of T)(MinValue)), Number, ChangeType(Of T)(MinValue))
         End If
         Return Number
     End Function
@@ -870,6 +870,18 @@ Public Module Mathematic
     <Extension()>
     Public Function LimitRange(ByVal Number As Long, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As Long
         Return LimitRange(Of Long)(Number, MinValue, MaxValue)
+    End Function
+
+    ''' <summary>
+    ''' Limita um range para um numero
+    ''' </summary>
+    ''' <param name="Number">  Numero</param>
+    ''' <param name="MinValue">Valor Minimo para o numero</param>
+    ''' <param name="MaxValue">Valor máximo para o numero</param>
+    ''' <returns></returns>
+    <Extension()>
+    Public Function LimitRange(ByVal Number As DateTime, Optional MinValue As IComparable = Nothing, Optional MaxValue As IComparable = Nothing) As DateTime
+        Return LimitRange(Of DateTime)(Number, MinValue, MaxValue)
     End Function
 
     <Extension()> Public Function LimitIndex(Of AnyType)(Int As Integer, Collection As IEnumerable(Of AnyType)) As Integer
