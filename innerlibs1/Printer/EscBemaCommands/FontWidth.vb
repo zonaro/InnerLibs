@@ -1,10 +1,14 @@
-﻿Imports InnerLibs.Printer
+﻿Imports System.Text
+Imports InnerLibs.Printer
 Imports InnerLibs.Printer.Command
 
 Namespace EscBemaCommands
 
     Friend Class FontWidth
         Implements IFontWidth
+
+        Public Property Encoding As Encoding Implements IFontWidth.Encoding
+
 
         Public Function Normal() As Byte() Implements IFontWidth.Normal
             Return New Byte() {27, "W"c.ToByte(), 0, 27, "d"c.ToByte(), 0}

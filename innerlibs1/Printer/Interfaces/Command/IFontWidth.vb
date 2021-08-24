@@ -1,4 +1,6 @@
-﻿Namespace Printer.Command
+﻿Imports System.Text
+
+Namespace Printer.Command
     Public Interface IFontWidth
         Property Encoding As Encoding
 

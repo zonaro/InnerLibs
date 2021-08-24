@@ -1,8 +1,8 @@
 ﻿Imports System.Drawing
+Imports System.Text
 
 Namespace Printer.Command
     Public Interface IImage
-        Property Encoding As Encoding
 
         Function Print(ByVal image As Image, ByVal highDensity As Boolean) As Byte()
     End Interface

@@ -34,7 +34,7 @@ Namespace Printer
         End Function
 
         <Extension()>
-        Public Function AddTextBytes(ByVal bytes As Byte(), ByVal value As String, Optional Encoding As Encoding = Nothing) As Byte()
+        Public Function AddTextBytes(ByVal bytes As Byte(), ByVal value As String, Encoding As Encoding) As Byte()
             If String.IsNullOrEmpty(value) Then Return bytes
             Dim list = New List(Of Byte)()
             list.AddRange(bytes)

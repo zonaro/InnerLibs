@@ -37,7 +37,7 @@ Namespace EscPosCommands
             End Get
         End Property
 
-        Public ReadOnly Property Encoding As Encoding Implements IPrintCommand.Encoding
+        Public ReadOnly Property DefaultEncoding As Encoding Implements IPrintCommand.DefaultEncoding
             Get
                 Try
                     Return Encoding.GetEncoding("IBM860")
@@ -46,6 +46,20 @@ Namespace EscPosCommands
                     Return Encoding.Default
                 End Try
             End Get
+        End Property
+
+
+        Public Property Encoding As Encoding Implements IPrintCommand.Encoding
+            Get
+                Return FontMode.NullCoalesce(DefaultEncoding)
+            End Get
+            Set(value As Encoding)
+
+                FontMode.Encoding = Encoding
+                FontWidth.Encoding = Encoding
+                QrCode.Encoding = Encoding
+                BarCode.Encoding = Encoding
+            End Set
         End Property
 
 #End Region
@@ -69,7 +83,7 @@ Namespace EscPosCommands
 #Region "Methods"
 
         Public Function Separator() As Byte() Implements IPrintCommand.Separator
-            Return FontMode.Condensed(PrinterModeState.On).AddTextBytes(New String("-"c, ColsCondensed)).AddBytes(FontMode.Condensed(PrinterModeState.Off)).AddLF()
+            Return FontMode.Condensed(PrinterModeState.On).AddTextBytes(New String("-"c, ColsCondensed), DefaultEncoding).AddBytes(FontMode.Condensed(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function AutoTest() As Byte() Implements IPrintCommand.AutoTest

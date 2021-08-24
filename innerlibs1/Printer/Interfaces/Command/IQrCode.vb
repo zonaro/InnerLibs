@@ -1,4 +1,5 @@
-﻿Imports InnerLibs.Printer
+﻿Imports System.Text
+Imports InnerLibs.Printer
 
 Namespace Printer.Command
     Public Interface IQrCode

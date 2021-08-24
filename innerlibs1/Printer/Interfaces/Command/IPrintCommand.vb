@@ -4,7 +4,8 @@ Namespace Printer.Command
     Public Interface IPrintCommand
 
 
-        ReadOnly Property Encoding As Encoding
+        Property Encoding As Encoding
+        ReadOnly Property DefaultEncoding As Encoding
         ReadOnly Property ColsNomal As Integer
         ReadOnly Property ColsCondensed As Integer
         ReadOnly Property ColsExpanded As Integer
@@ -19,5 +20,7 @@ Namespace Printer.Command
         Property InitializePrint As IInitializePrint
         Function Separator() As Byte()
         Function AutoTest() As Byte()
+
+
     End Interface
 End Namespace

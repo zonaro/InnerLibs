@@ -47,7 +47,7 @@ Namespace Printer
             End Get
         End Property
 
-        Public ReadOnly Property Encoding As Encoding
+
 
         ''' <summary>
         ''' Initializes a new instance of the <see cref="Printer"/> class.
@@ -58,9 +58,9 @@ Namespace Printer
         ''' <param name="colsExpanded">Number of columns for expanded mode print</param>
         ''' <param name="encoding">Custom encoding</param>
         Public Sub New(ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer, ByVal encoding As Encoding)
-            Command = Activator.CreateInstance(Of CommandType)
+            Command = Activator.CreateInstance(GetType(CommandType))
+            Command.Encoding = encoding
             Me.PrinterName = printerName.IfBlank("temp.prn").Trim()
-            Me.Encoding = encoding.NullCoalesce(Command.Encoding)
             Me.ColsNomal = If(colsNormal <= 0, Command.ColsNomal, colsNormal)
             Me.ColsCondensed = If(colsCondensed <= 0, Command.ColsCondensed, colsCondensed)
             Me.ColsExpanded = If(colsExpanded <= 0, Command.ColsExpanded, colsExpanded)
@@ -123,7 +123,7 @@ Namespace Printer
                 If useLf Then value += vbLf
                 Dim list = New List(Of Byte)
                 If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
-                Dim bytes = Encoding.GetBytes(value)
+                Dim bytes = _Command.Encoding.GetBytes(value)
                 list.AddRange(bytes)
                 DocumentBuffer = list.ToArray
             End If

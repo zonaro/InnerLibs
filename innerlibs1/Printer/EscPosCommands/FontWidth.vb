@@ -1,4 +1,5 @@
-﻿Imports Extensions
+﻿Imports System.Text
+Imports Extensions
 Imports InnerLibs.Printer
 Imports InnerLibs.Printer.Command
 Imports Interfaces.Command
@@ -6,6 +7,9 @@ Imports Interfaces.Command
 Namespace EscPosCommands
     Friend Class FontWidth
         Implements IFontWidth
+
+        Public Property Encoding As Encoding Implements IFontWidth.Encoding
+
 
         Public Function Normal() As Byte() Implements IFontWidth.Normal
             Return New Byte() {27, "!"c.ToByte(), 0}

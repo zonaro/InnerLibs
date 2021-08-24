@@ -7,6 +7,9 @@ Namespace EscDarumaCommands
     Friend Class QrCode
         Implements IQrCode
 
+        Public Property Encoding As Encoding Implements IQrCode.Encoding
+
+
         Private Shared Function Size(ByVal pSize As QrCodeSize) As Byte()
             Return {(pSize + 3).ToByte()}
         End Function
@@ -25,7 +28,7 @@ Namespace EscDarumaCommands
         Public Function Print(ByVal qrData As String, ByVal qrCodeSize As QrCodeSize) As Byte() Implements IQrCode.Print
             Dim list = New List(Of Byte)()
             list.AddRange(StoreQr(qrData, qrCodeSize))
-            list.AddRange(Encoding.UTF8.GetBytes(qrData))
+            list.AddRange(Encoding.GetBytes(qrData))
             Return list.ToArray()
         End Function
 

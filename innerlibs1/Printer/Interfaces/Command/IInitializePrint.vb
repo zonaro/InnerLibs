@@ -1,6 +1,8 @@
-﻿Namespace Printer.Command
+﻿Imports System.Text
+
+Namespace Printer.Command
     Public Interface IInitializePrint
-        Property Encoding As Encoding
+
 
         Function Initialize() As Byte()
     End Interface

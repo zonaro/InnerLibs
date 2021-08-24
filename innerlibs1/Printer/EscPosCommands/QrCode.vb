@@ -7,6 +7,9 @@ Namespace EscPosCommands
     Friend Class QrCode
         Implements IQrCode
 
+        Public Property Encoding As Encoding Implements IQrCode.Encoding
+
+
         Private Shared Function Size(ByVal pSize As QrCodeSize) As Byte()
             Return New Byte() {29, 40, 107, 3, 0, 49, 67}.AddBytes({(pSize + 3).ToByte()})
         End Function
@@ -40,7 +43,7 @@ Namespace EscPosCommands
             list.AddRange(Size(qrCodeSize))
             list.AddRange(ErrorQr())
             list.AddRange(StoreQr(qrData))
-            list.AddRange(Encoding.UTF8.GetBytes(qrData))
+            list.AddRange(Encoding.GetBytes(qrData))
             list.AddRange(PrintQr())
             Return list.ToArray()
         End Function

@@ -6,8 +6,11 @@ Namespace EscPosCommands
     Friend Class FontMode
         Implements IFontMode
 
+        Public Property Encoding As System.Text.Encoding Implements IFontMode.Encoding
+
+
         Public Function Italic(ByVal value As String) As Byte() Implements IFontMode.Italic
-            Return Italic(PrinterModeState.On).AddTextBytes(value).AddBytes(Italic(PrinterModeState.Off)).AddLF()
+            Return Italic(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Italic(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function Italic(ByVal state As PrinterModeState) As Byte() Implements IFontMode.Italic
@@ -15,7 +18,7 @@ Namespace EscPosCommands
         End Function
 
         Public Function Bold(ByVal value As String) As Byte() Implements IFontMode.Bold
-            Return Bold(PrinterModeState.On).AddTextBytes(value).AddBytes(Bold(PrinterModeState.Off)).AddLF()
+            Return Bold(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Bold(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function Bold(ByVal state As PrinterModeState) As Byte() Implements IFontMode.Bold
@@ -23,7 +26,7 @@ Namespace EscPosCommands
         End Function
 
         Public Function Underline(ByVal value As String) As Byte() Implements IFontMode.Underline
-            Return Underline(PrinterModeState.On).AddTextBytes(value).AddBytes(Underline(PrinterModeState.Off)).AddLF()
+            Return Underline(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Underline(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function Underline(ByVal state As PrinterModeState) As Byte() Implements IFontMode.Underline
@@ -31,7 +34,7 @@ Namespace EscPosCommands
         End Function
 
         Public Function Expanded(ByVal value As String) As Byte() Implements IFontMode.Expanded
-            Return Expanded(PrinterModeState.On).AddTextBytes(value).AddBytes(Expanded(PrinterModeState.Off)).AddLF()
+            Return Expanded(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Expanded(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function Expanded(ByVal state As PrinterModeState) As Byte() Implements IFontMode.Expanded
@@ -39,7 +42,7 @@ Namespace EscPosCommands
         End Function
 
         Public Function Condensed(ByVal value As String) As Byte() Implements IFontMode.Condensed
-            Return Condensed(PrinterModeState.On).AddTextBytes(value).AddBytes(Condensed(PrinterModeState.Off)).AddLF()
+            Return Condensed(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Condensed(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function Condensed(ByVal state As PrinterModeState) As Byte() Implements IFontMode.Condensed

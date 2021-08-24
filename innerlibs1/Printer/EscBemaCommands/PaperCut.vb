@@ -1,9 +1,8 @@
-﻿Imports Extensions
-Imports InnerLibs.Printer
+﻿Imports InnerLibs.Printer
 Imports InnerLibs.Printer.Command
-Imports Interfaces.Command
 
 Namespace EscBemaCommands
+
     Friend Class PaperCut
         Implements IPaperCut
 
@@ -14,5 +13,7 @@ Namespace EscBemaCommands
         Public Function [Partial]() As Byte() Implements IPaperCut.Partial
             Return New Byte() {27, "m"c.ToByte()}
         End Function
+
     End Class
+
 End Namespace

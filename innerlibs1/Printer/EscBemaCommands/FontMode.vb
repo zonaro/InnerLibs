@@ -35,7 +35,7 @@ Namespace EscBemaCommands
         End Function
 
         Public Function Expanded(ByVal value As String) As Byte() Implements IFontMode.Expanded
-            Return Expanded(PrinterModeState.On).AddTextBytes(value).AddBytes(Expanded(PrinterModeState.Off)).AddLF()
+            Return Expanded(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Expanded(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function Expanded(ByVal state As PrinterModeState) As Byte() Implements IFontMode.Expanded

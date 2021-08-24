@@ -37,7 +37,7 @@ Namespace EscBemaCommands
             End Get
         End Property
 
-        Public ReadOnly Property Encoding As Encoding Implements IPrintCommand.Encoding
+        Public ReadOnly Property DefaultEncoding As Encoding Implements IPrintCommand.DefaultEncoding
             Get
                 Try
                     Return Encoding.GetEncoding(850)
@@ -48,6 +48,20 @@ Namespace EscBemaCommands
                 End Try
             End Get
         End Property
+
+        Public Property Encoding As Encoding Implements IPrintCommand.Encoding
+            Get
+                Return FontMode.NullCoalesce(DefaultEncoding)
+            End Get
+            Set(value As Encoding)
+
+                FontMode.Encoding = Encoding
+                FontWidth.Encoding = Encoding
+                QrCode.Encoding = Encoding
+                BarCode.Encoding = Encoding
+            End Set
+        End Property
+
 
 #End Region
 
@@ -70,12 +84,14 @@ Namespace EscBemaCommands
 #Region "Methods"
 
         Public Function Separator() As Byte() Implements IPrintCommand.Separator
-            Return FontMode.Condensed(PrinterModeState.On).AddTextBytes(New String("-"c, ColsCondensed), Encoding).AddBytes(FontMode.Condensed(PrinterModeState.Off)).AddLF()
+            Return FontMode.Condensed(PrinterModeState.On).AddTextBytes(New String("-"c, ColsCondensed), DefaultEncoding).AddBytes(FontMode.Condensed(PrinterModeState.Off)).AddLF()
         End Function
 
         Public Function AutoTest() As Byte() Implements IPrintCommand.AutoTest
             Return New Byte() {&H1D, &HF9, &H29, &H30}
         End Function
+
+
 
 #End Region
 
