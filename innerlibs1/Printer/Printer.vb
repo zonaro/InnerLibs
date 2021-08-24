@@ -34,24 +34,38 @@ Imports InnerLibs.Printer.Command
 
 Namespace Printer
 
+    Public Module PrinterExtension
+
+        <Extension()> Function CreatePrinter(CommandType As IPrintCommand, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
+            Return Printer.CreatePrinter(CommandType, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        End Function
+    End Module
 
 
-    Public Class Printer(Of CommandType As IPrintCommand)
+    Public Class Printer
 
+        Public Shared Function CreatePrinter(Of CommandType As IPrintCommand)(printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
+            Return CreatePrinter(GetType(CommandType), printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        End Function
 
+        Public Shared Function CreatePrinter(CommandType As Type, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
+            Return CreatePrinter(Activator.CreateInstance(CommandType), printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        End Function
 
-
+        Public Shared Function CreatePrinter(CommandType As IPrintCommand, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
+            Return New Printer(CommandType, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        End Function
 
         Public Property DocumentBuffer As Byte()
         Public Property PrinterName As String
 
-        Public ReadOnly Property Command As CommandType
+        Public Property ColsNomal As Integer
 
-        Public ReadOnly Property PrinterCommandType As String
-            Get
-                Return Command.GetNullableTypeOf().Name
-            End Get
-        End Property
+        Public Property ColsCondensed As Integer
+
+        Public Property ColsExpanded As Integer
+
+        Public ReadOnly Property Command As IPrintCommand
 
         ''' <summary>
         ''' Initializes a new instance of the <see cref="Printer"/> class.
@@ -73,8 +87,8 @@ Namespace Printer
         ''' <param name="colsCondensed">Number of columns for condensed mode print</param>
         ''' <param name="colsExpanded">Number of columns for expanded mode print</param>
         ''' <param name="encoding">Custom encoding</param>
-        Friend Sub New(Command As CommandType, ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer, ByVal encoding As Encoding)
-            Me.Command = If(Command, Activator.CreateInstance(GetType(CommandType)))
+        Public Sub New(Command As IPrintCommand, ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer, ByVal encoding As Encoding)
+            Me.Command = If(Command, New EscPosCommands.EscPos())
             If encoding IsNot Nothing Then
                 Me.Command.Encoding = encoding
             End If
@@ -112,17 +126,11 @@ Namespace Printer
             Me.New(printerName, 0, 0, 0, Nothing)
         End Sub
 
-        Public Property ColsNomal As UInteger
-
-        Public Property ColsCondensed As UInteger
-
-        Public Property ColsExpanded As UInteger
-
-        Public Function Write(ByVal value As String) As Printer(Of CommandType)
+        Public Function Write(ByVal value As String) As Printer
             Return WriteString(value, False)
         End Function
 
-        Public Function Write(ByVal value As Byte()) As Printer(Of CommandType)
+        Public Function Write(ByVal value As Byte()) As Printer
             If value IsNot Nothing AndAlso value.Any Then
                 Dim list = New List(Of Byte)
                 If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
@@ -132,11 +140,11 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WriteLine(ByVal value As String) As Printer(Of CommandType)
+        Public Function WriteLine(ByVal value As String) As Printer
             Return WriteString(value, True)
         End Function
 
-        Private Function WriteString(ByVal value As String, ByVal useLf As Boolean) As Printer(Of CommandType)
+        Private Function WriteString(ByVal value As String, ByVal useLf As Boolean) As Printer
             If value.IsNotBlank Then
                 If useLf Then value += vbLf
                 Dim list = New List(Of Byte)
@@ -148,7 +156,7 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function NewLine(Optional lines As Integer = 1) As Printer(Of CommandType)
+        Public Function NewLine(Optional lines As Integer = 1) As Printer
             If lines > 0 Then
                 For i = 1 To lines - 1
                     Write(vbLf)
@@ -157,20 +165,20 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function Clear() As Printer(Of CommandType)
+        Public Function Clear() As Printer
             DocumentBuffer = Nothing
             Return Me
         End Function
 
-        Public Function Separator() As Printer(Of CommandType)
+        Public Function Separator() As Printer
             Return Write(Command.Separator())
         End Function
 
-        Public Function AutoTest() As Printer(Of CommandType)
+        Public Function AutoTest() As Printer
             Return Write(Command.AutoTest())
         End Function
 
-        Public Function TestPrinter() As Printer(Of CommandType)
+        Public Function TestPrinter() As Printer
             AlignLeft()
             WriteLine("INNERLIBS TEST PRINTER - 48 COLUMNS")
             WriteLine("....+....1....+....2....+....3....+....4....+...")
@@ -208,126 +216,126 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function ItalicMode(ByVal value As String) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Italic(value))
+        Public Function ItalicMode(ByVal value As String) As Printer
+            Return Write(Command.Italic(value))
         End Function
 
-        Public Function ItalicMode(ByVal state As PrinterModeState) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Italic(state))
+        Public Function ItalicMode(ByVal state As PrinterModeState) As Printer
+            Return Write(Command.Italic(state))
         End Function
 
-        Public Function BoldMode(ByVal value As String) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Bold(value))
+        Public Function BoldMode(ByVal value As String) As Printer
+            Return Write(Command.Bold(value))
         End Function
 
-        Public Function BoldMode(ByVal state As PrinterModeState) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Bold(state))
+        Public Function BoldMode(ByVal state As PrinterModeState) As Printer
+            Return Write(Command.Bold(state))
         End Function
 
-        Public Function UnderlineMode(ByVal value As String) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Underline(value))
+        Public Function UnderlineMode(ByVal value As String) As Printer
+            Return Write(Command.Underline(value))
         End Function
 
-        Public Function UnderlineMode(ByVal state As PrinterModeState) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Underline(state))
+        Public Function UnderlineMode(ByVal state As PrinterModeState) As Printer
+            Return Write(Command.Underline(state))
         End Function
 
-        Public Function ExpandedMode(ByVal value As String) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Expanded(value))
+        Public Function ExpandedMode(ByVal value As String) As Printer
+            Return Write(Command.Expanded(value))
         End Function
 
-        Public Function ExpandedMode(ByVal state As PrinterModeState) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Expanded(state))
+        Public Function ExpandedMode(ByVal state As PrinterModeState) As Printer
+            Return Write(Command.Expanded(state))
         End Function
 
-        Public Function CondensedMode(ByVal value As String) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Condensed(value))
+        Public Function CondensedMode(ByVal value As String) As Printer
+            Return Write(Command.Condensed(value))
         End Function
 
-        Public Function CondensedMode(ByVal state As PrinterModeState) As Printer(Of CommandType)
-            Return Write(Command.FontMode.Condensed(state))
+        Public Function CondensedMode(ByVal state As PrinterModeState) As Printer
+            Return Write(Command.Condensed(state))
         End Function
 
-        Public Function NormalWidth() As Printer(Of CommandType)
-            Return Write(Command.FontWidth.Normal())
+        Public Function NormalWidth() As Printer
+            Return Write(Command.NormalWidth())
         End Function
 
-        Public Function DoubleWidth2() As Printer(Of CommandType)
-            Return Write(Command.FontWidth.DoubleWidth2())
+        Public Function DoubleWidth2() As Printer
+            Return Write(Command.DoubleWidth2())
         End Function
 
-        Public Function DoubleWidth3() As Printer(Of CommandType)
-            Return Write(Command.FontWidth.DoubleWidth3())
+        Public Function DoubleWidth3() As Printer
+            Return Write(Command.DoubleWidth3())
         End Function
 
-        Public Function AlignLeft() As Printer(Of CommandType)
-            Return Write(Command.Alignment.Left())
+        Public Function AlignLeft() As Printer
+            Return Write(Command.Left())
         End Function
 
-        Public Function AlignRight() As Printer(Of CommandType)
-            Return Write(Command.Alignment.Right())
+        Public Function AlignRight() As Printer
+            Return Write(Command.Right())
         End Function
 
-        Public Function AlignCenter() As Printer(Of CommandType)
-            Return Write(Command.Alignment.Center())
+        Public Function AlignCenter() As Printer
+            Return Write(Command.Center())
         End Function
 
-        Public Function FullPaperCut() As Printer(Of CommandType)
-            Return Write(Command.PaperCut.Full())
+        Public Function FullPaperCut() As Printer
+            Return Write(Command.FullCut())
         End Function
 
-        Public Function FullPaperCut(ByVal predicate As Boolean) As Printer(Of CommandType)
+        Public Function FullPaperCut(ByVal predicate As Boolean) As Printer
             If predicate Then FullPaperCut()
             Return Me
         End Function
 
-        Public Function PartialPaperCut() As Printer(Of CommandType)
-            Return Write(Command.PaperCut.[Partial]())
+        Public Function PartialPaperCut() As Printer
+            Return Write(Command.PartialCut())
         End Function
 
-        Public Function PartialPaperCut(ByVal predicate As Boolean) As Printer(Of CommandType)
+        Public Function PartialPaperCut(ByVal predicate As Boolean) As Printer
             If predicate Then PartialPaperCut()
             Return Me
         End Function
 
-        Public Function OpenDrawer() As Printer(Of CommandType)
-            Return Write(Command.Drawer.Open())
+        Public Function OpenDrawer() As Printer
+            Return Write(Command.OpenDrawer())
         End Function
 
-        Public Function QrCode(ByVal qrData As String) As Printer(Of CommandType)
-            Return Write(Command.QrCode.Print(qrData))
+        Public Function QrCode(ByVal qrData As String) As Printer
+            Return Write(Command.PrintQrData(qrData))
         End Function
 
-        Public Function QrCode(ByVal qrData As String, ByVal qrCodeSize As QrCodeSize) As Printer(Of CommandType)
-            Return Write(Command.QrCode.Print(qrData, qrCodeSize))
+        Public Function QrCode(ByVal qrData As String, ByVal qrCodeSize As QrCodeSize) As Printer
+            Return Write(Command.PrintQrData(qrData, qrCodeSize))
         End Function
 
-        Public Function Code128(ByVal code As String) As Printer(Of CommandType)
-            Return Write(Command.BarCode.Code128(code))
+        Public Function Code128(ByVal code As String) As Printer
+            Return Write(Command.Code128(code))
         End Function
 
-        Public Function Code39(ByVal code As String) As Printer(Of CommandType)
-            Return Write(Command.BarCode.Code39(code))
+        Public Function Code39(ByVal code As String) As Printer
+            Return Write(Command.Code39(code))
         End Function
 
-        Public Function Ean13(ByVal code As String) As Printer(Of CommandType)
-            Return Write(Command.BarCode.Ean13(code))
+        Public Function Ean13(ByVal code As String) As Printer
+            Return Write(Command.Ean13(code))
         End Function
 
-        Public Function InitializePrint() As Printer(Of CommandType)
-            RawPrinterHelper.SendBytesToPrinter(PrinterName, Command.InitializePrint.Initialize())
+        Public Function InitializePrint() As Printer
+            RawPrinterHelper.SendBytesToPrinter(PrinterName, Command.Initialize())
             Return Me
         End Function
 
-        Public Function WriteDictionary(Of T1, T2)(dics As IEnumerable(Of IDictionary(Of T1, T2)), Optional PartialCutOnEach As Boolean = False) As Printer(Of CommandType)
+        Public Function WriteDictionary(Of T1, T2)(dics As IEnumerable(Of IDictionary(Of T1, T2)), Optional PartialCutOnEach As Boolean = False) As Printer
             Return WriteDictionary(PartialCutOnEach, If(dics, {}).ToArray())
         End Function
 
-        Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer(Of CommandType)
+        Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer
             Return WriteDictionary(False, dics)
         End Function
 
-        Public Function WriteDictionary(Of T1, T2)(PartialCutOnEach As Boolean, ParamArray dics As IDictionary(Of T1, T2)()) As Printer(Of CommandType)
+        Public Function WriteDictionary(Of T1, T2)(PartialCutOnEach As Boolean, ParamArray dics As IDictionary(Of T1, T2)()) As Printer
             dics = If(dics, {})
             For Each dic In dics
                 If dic IsNot Nothing Then
@@ -346,11 +354,11 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WriteClass(Of T As Class)(ParamArray objs As T()) As Printer(Of CommandType)
+        Public Function WriteClass(Of T As Class)(ParamArray objs As T()) As Printer
             Return WriteClass(False, objs)
         End Function
 
-        Public Function WriteClass(Of T As Class)(PartialCutOnEach As Boolean, ParamArray objs As T()) As Printer(Of CommandType)
+        Public Function WriteClass(Of T As Class)(PartialCutOnEach As Boolean, ParamArray objs As T()) As Printer
             objs = If(objs, {})
             For Each obj In objs
                 If obj IsNot Nothing Then
@@ -371,11 +379,11 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WriteClass(Of T As Class)(ByVal obj As IEnumerable(Of T), Optional PartialCutOnEach As Boolean = False) As Printer(Of CommandType)
+        Public Function WriteClass(Of T As Class)(ByVal obj As IEnumerable(Of T), Optional PartialCutOnEach As Boolean = False) As Printer
             Return WriteClass(PartialCutOnEach, If(obj, {}).ToArray())
         End Function
 
-        Public Function WriteTemplate(Of T)(TemplateString As String, PartialCutOnEach As Boolean, ParamArray obj As T()) As Printer(Of CommandType)
+        Public Function WriteTemplate(Of T)(TemplateString As String, PartialCutOnEach As Boolean, ParamArray obj As T()) As Printer
             If TemplateString.IsNotBlank Then
                 obj = If(obj, {})
                 If TemplateString.IsFilePath Then
@@ -394,11 +402,11 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WriteTemplate(Of T)(TemplateString As String, ParamArray obj As T()) As Printer(Of CommandType)
+        Public Function WriteTemplate(Of T)(TemplateString As String, ParamArray obj As T()) As Printer
             Return WriteTemplate(TemplateString, False, obj)
         End Function
 
-        Public Function WriteTemplate(Of T)(TemplateString As String, obj As IEnumerable(Of T), Optional PartiaCutOnEach As Boolean = False) As Printer(Of CommandType)
+        Public Function WriteTemplate(Of T)(TemplateString As String, obj As IEnumerable(Of T), Optional PartiaCutOnEach As Boolean = False) As Printer
             Return WriteTemplate(TemplateString, PartiaCutOnEach, If(obj, {}).ToArray())
         End Function
 
@@ -407,7 +415,7 @@ Namespace Printer
         ''' </summary>
         ''' <param name="Copies"></param>
         ''' <returns></returns>
-        Public Function PrintDocument(Optional Copies As Integer = 1) As Printer(Of CommandType)
+        Public Function PrintDocument(Optional Copies As Integer = 1) As Printer
             Return PrintDocument(DocumentBuffer, Copies)
         End Function
 
@@ -417,7 +425,7 @@ Namespace Printer
         ''' <param name="FileOrDirectoryPath"></param>
         ''' <param name="Copies"></param>
         ''' <returns></returns>
-        Public Function PrintDocument(FileOrDirectoryPath As String, Optional Copies As Integer = 1) As Printer(Of CommandType)
+        Public Function PrintDocument(FileOrDirectoryPath As String, Optional Copies As Integer = 1) As Printer
 
             If FileOrDirectoryPath.IsDirectoryPath Then
                 If Directory.Exists(FileOrDirectoryPath) Then
@@ -441,11 +449,15 @@ Namespace Printer
         ''' </summary>
         ''' <param name="Copies"></param>
         ''' <returns></returns>
-        Public Function PrintDocument(Bytes As Byte(), Optional Copies As Integer = 1) As Printer(Of CommandType)
-            If DocumentBuffer IsNot Nothing AndAlso DocumentBuffer.Count > 0 Then
-                For i = 0 To Copies.SetMinValue(1) - 1
-                    If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
-                Next
+        Public Function PrintDocument(Bytes As Byte(), Optional Copies As Integer = 1) As Printer
+            If Bytes IsNot Nothing AndAlso Bytes.Any Then
+                If PrinterName.IsFilePath Then
+                    WriteFile(PrinterName)
+                Else
+                    For i = 0 To Copies.SetMinValue(1) - 1
+                        If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
+                    Next
+                End If
             End If
             Return Me
         End Function
@@ -455,7 +467,7 @@ Namespace Printer
         ''' </summary>
         ''' <param name="FileOrDirectoryPath"></param>
         ''' <returns></returns>
-        Public Function WriteFile(FileOrDirectoryPath As String) As Printer(Of CommandType)
+        Public Function WriteFile(FileOrDirectoryPath As String) As Printer
             If DocumentBuffer IsNot Nothing AndAlso DocumentBuffer.Count > 0 Then
                 If FileOrDirectoryPath.IsDirectoryPath Then
                     FileOrDirectoryPath = $"{FileOrDirectoryPath}\{GetType(CommandType).Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"
@@ -471,131 +483,36 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function Image(ByVal Path As String, Optional highDensity As Boolean = True) As Printer(Of CommandType)
+        Public Function Image(ByVal Path As String, Optional highDensity As Boolean = True) As Printer
             If Not Path.IsFilePath Then Throw New FileNotFoundException("Invalid Path")
             If Not File.Exists(Path) Then Throw New FileNotFoundException("Image file not found")
             Dim img = System.Drawing.Image.FromFile(Path)
-            Write(Command.Image.Print(img, highDensity))
+            Write(Command.PrintImage(img, highDensity))
             img.Dispose()
             Return Me
         End Function
 
-        Public Function Image(ByVal stream As Stream, ByVal Optional HighDensity As Boolean = True) As Printer(Of CommandType)
+        Public Function Image(ByVal stream As Stream, ByVal Optional HighDensity As Boolean = True) As Printer
             Dim img = System.Drawing.Image.FromStream(stream)
-            Write(Command.Image.Print(img, HighDensity))
+            Write(Command.PrintImage(img, HighDensity))
             img.Dispose()
             Return Me
         End Function
 
-        Public Function Image(ByVal bytes As Byte(), ByVal Optional HighDensity As Boolean = True) As Printer(Of CommandType)
+        Public Function Image(ByVal bytes As Byte(), ByVal Optional HighDensity As Boolean = True) As Printer
             Dim img As System.Drawing.Image
             Using ms = New MemoryStream(bytes)
                 img = System.Drawing.Image.FromStream(ms)
             End Using
-            Write(Command.Image.Print(img, HighDensity))
+            Write(Command.PrintImage(img, HighDensity))
             img.Dispose()
             Return Me
         End Function
 
-        Public Function Image(ByVal pImage As System.Drawing.Image, ByVal Optional highDensity As Boolean = True) As Printer(Of CommandType)
-            Return Write(Command.Image.Print(pImage, highDensity))
+        Public Function Image(ByVal pImage As System.Drawing.Image, ByVal Optional highDensity As Boolean = True) As Printer
+            Return Write(Command.PrintImage(pImage, highDensity))
         End Function
 
     End Class
-
-    Public NotInheritable Class BematechPrinter
-        Inherits Printer(Of EscBemaCommands.EscBema)
-
-
-
-
-        Public Sub New(printerName As String)
-            MyBase.New(printerName)
-        End Sub
-
-        Public Sub New(printerName As String, encoding As Encoding)
-            MyBase.New(printerName, encoding)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer, encoding As Encoding)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded, encoding)
-        End Sub
-
-    End Class
-
-    Public NotInheritable Class EpsonPrinter
-        Inherits Printer(Of EscPosCommands.EscPos)
-
-        Public Sub New(printerName As String)
-            MyBase.New(printerName)
-        End Sub
-
-        Public Sub New(printerName As String, encoding As Encoding)
-            MyBase.New(printerName, encoding)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer, encoding As Encoding)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded, encoding)
-        End Sub
-
-    End Class
-
-    Public NotInheritable Class DarumaPrinter
-        Inherits Printer(Of EscDarumaCommands.EscDaruma)
-
-        Public Sub New(printerName As String)
-            MyBase.New(printerName)
-        End Sub
-
-        Public Sub New(printerName As String, encoding As Encoding)
-            MyBase.New(printerName, encoding)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer, encoding As Encoding)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded, encoding)
-        End Sub
-
-    End Class
-
-    Public NotInheritable Class Printer
-        Inherits Printer(Of EscPosCommands.EscPos)
-
-        Public Sub New(printerName As String)
-            MyBase.New(printerName)
-        End Sub
-
-        Public Sub New(printerName As String, encoding As Encoding)
-            MyBase.New(printerName, encoding)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded)
-        End Sub
-
-        Public Sub New(printerName As String, colsNormal As Integer, colsCondensed As Integer, colsExpanded As Integer, encoding As Encoding)
-            MyBase.New(printerName, colsNormal, colsCondensed, colsExpanded, encoding)
-        End Sub
-
-    End Class
-
-
-
-    Public Module PrinterExtensions
-        <Extension()> Public Function CreatePrinter(Of T As IPrintCommand)(Command As T, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer(Of T)
-            Return New Printer(Of T)(Command, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
-        End Function
-    End Module
 
 End Namespace

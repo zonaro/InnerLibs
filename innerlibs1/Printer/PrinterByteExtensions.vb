@@ -1,13 +1,14 @@
 ﻿Imports System.Drawing
-Imports InnerLibs.Printer
+Imports System.Runtime.CompilerServices
+Imports System.Text
 Imports InnerLibs.Printer.Command
 
-Namespace EscPosCommands
+Namespace Printer
 
-    Friend Class Image
-        Implements IImage
 
-        Public Function Print(ByVal image As Drawing.Image, ByVal highDensity As Boolean) As Byte() Implements IImage.Print
+    Friend Module PrinterByteExtensions
+
+        Public Function PrintImage(image As Image, ByVal highDensity As Boolean)
             Dim list = New List(Of Byte)()
             Dim bmp = New Bitmap(image)
 
@@ -65,6 +66,60 @@ Namespace EscPosCommands
             Return list.ToArray()
         End Function
 
-    End Class
 
+
+        <Extension()>
+        Public Function ToByte(ByVal c As Char) As Byte
+            Return Microsoft.VisualBasic.AscW(c)
+        End Function
+
+        <Extension()>
+        Public Function ToByte(ByVal c As [Enum]) As Byte
+            Return Convert.ToInt16(c)
+        End Function
+
+        <Extension()>
+        Public Function ToByte(ByVal c As Short) As Byte
+            Return c
+        End Function
+
+        <Extension()>
+        Public Function ToByte(ByVal c As Integer) As Byte
+            Return c
+        End Function
+
+        <Extension()>
+        Public Function AddBytes(ByVal bytes As Byte(), ByVal pAddBytes As Byte()) As Byte()
+            If pAddBytes Is Nothing Then Return bytes
+            Dim list = New List(Of Byte)()
+            list.AddRange(bytes)
+            list.AddRange(pAddBytes)
+            Return list.ToArray()
+        End Function
+
+        <Extension()>
+        Public Function AddTextBytes(ByVal bytes As Byte(), ByVal value As String, Encoding As Encoding) As Byte()
+            If String.IsNullOrEmpty(value) Then Return bytes
+            Dim list = New List(Of Byte)()
+            list.AddRange(bytes)
+            list.AddRange(If(Encoding, Encoding.Default).GetBytes(value))
+            Return list.ToArray()
+        End Function
+
+        <Extension()>
+        Public Function AddLF(ByVal bytes As Byte(), Optional Encoding As Encoding = Nothing) As Byte()
+            Return bytes.AddTextBytes(Microsoft.VisualBasic.Constants.vbLf, Encoding)
+        End Function
+
+        <Extension()>
+        Public Function AddCrLF(ByVal bytes As Byte(), Optional Encoding As Encoding = Nothing) As Byte()
+            Return bytes.AddTextBytes(Microsoft.VisualBasic.Constants.vbCrLf, Encoding)
+        End Function
+
+        <Extension()>
+        Public Function IsNullOrEmpty(ByVal value As String) As Boolean
+            Return String.IsNullOrEmpty(value)
+        End Function
+
+    End Module
 End Namespace
