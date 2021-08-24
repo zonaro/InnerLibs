@@ -39,8 +39,8 @@ Namespace Printer
         <Extension()> Function CreatePrinter(CommandType As IPrintCommand, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
             Return Printer.CreatePrinter(CommandType, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
         End Function
-    End Module
 
+    End Module
 
     Public Class Printer
 
@@ -92,6 +92,9 @@ Namespace Printer
             If encoding IsNot Nothing Then
                 Me.Command.Encoding = encoding
             End If
+            If Me.Command.Encoding Is Nothing Then
+                Me.Command.Encoding = New UTF8Encoding()
+            End If
             Me.PrinterName = printerName.IfBlank("temp.prn").Trim()
             Me.ColsNomal = If(colsNormal <= 0, Command.ColsNomal, colsNormal)
             Me.ColsCondensed = If(colsCondensed <= 0, Command.ColsCondensed, colsCondensed)
@@ -126,8 +129,8 @@ Namespace Printer
             Me.New(printerName, 0, 0, 0, Nothing)
         End Sub
 
-        Public Function Write(ByVal value As String) As Printer
-            Return WriteString(value, False)
+        Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
+            Return If(Test, WriteString(value, False), Me)
         End Function
 
         Public Function Write(ByVal value As Byte()) As Printer
@@ -140,9 +143,11 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WriteLine(ByVal value As String) As Printer
-            Return WriteString(value, True)
+        Public Function WriteLine(ByVal value As String, Optional Test As Boolean = True) As Printer
+            Return If(Test, WriteString(value, True), Me)
         End Function
+
+
 
         Private Function WriteString(ByVal value As String, ByVal useLf As Boolean) As Printer
             If value.IsNotBlank Then
@@ -187,13 +192,13 @@ Namespace Printer
             ItalicMode("Italic Text")
             BoldMode("Bold Text")
             UnderlineMode("UnderLine Text")
-            ExpandedMode(PrinterModeState.[On])
+            ExpandedMode(True)
             WriteLine("Expanded Text")
             WriteLine("....+....1....+....2....")
-            ExpandedMode(PrinterModeState.Off)
-            CondensedMode(PrinterModeState.[On])
+            ExpandedMode(False)
+            CondensedMode(True)
             WriteLine("Condensed Text")
-            CondensedMode(PrinterModeState.Off)
+            CondensedMode(False)
             Separator()
             DoubleWidth2()
             WriteLine("Font Size 2")
@@ -209,7 +214,7 @@ Namespace Printer
             AlignLeft()
             WriteLine("Text on Left")
             NewLine(3)
-            WriteLine("End of Test :)")
+            WriteLine("EOF :)")
             Separator()
             NewLine()
             PartialPaperCut()
@@ -220,7 +225,7 @@ Namespace Printer
             Return Write(Command.Italic(value))
         End Function
 
-        Public Function ItalicMode(ByVal state As PrinterModeState) As Printer
+        Public Function ItalicMode(ByVal state As Boolean) As Printer
             Return Write(Command.Italic(state))
         End Function
 
@@ -228,7 +233,7 @@ Namespace Printer
             Return Write(Command.Bold(value))
         End Function
 
-        Public Function BoldMode(ByVal state As PrinterModeState) As Printer
+        Public Function BoldMode(ByVal state As Boolean) As Printer
             Return Write(Command.Bold(state))
         End Function
 
@@ -236,7 +241,7 @@ Namespace Printer
             Return Write(Command.Underline(value))
         End Function
 
-        Public Function UnderlineMode(ByVal state As PrinterModeState) As Printer
+        Public Function UnderlineMode(ByVal state As Boolean) As Printer
             Return Write(Command.Underline(state))
         End Function
 
@@ -244,7 +249,7 @@ Namespace Printer
             Return Write(Command.Expanded(value))
         End Function
 
-        Public Function ExpandedMode(ByVal state As PrinterModeState) As Printer
+        Public Function ExpandedMode(ByVal state As Boolean) As Printer
             Return Write(Command.Expanded(state))
         End Function
 
@@ -252,7 +257,7 @@ Namespace Printer
             Return Write(Command.Condensed(value))
         End Function
 
-        Public Function CondensedMode(ByVal state As PrinterModeState) As Printer
+        Public Function CondensedMode(ByVal state As Boolean) As Printer
             Return Write(Command.Condensed(state))
         End Function
 
@@ -293,11 +298,6 @@ Namespace Printer
             Return Write(Command.PartialCut())
         End Function
 
-        Public Function PartialPaperCut(ByVal predicate As Boolean) As Printer
-            If predicate Then PartialPaperCut()
-            Return Me
-        End Function
-
         Public Function OpenDrawer() As Printer
             Return Write(Command.OpenDrawer())
         End Function
@@ -331,6 +331,30 @@ Namespace Printer
             Return WriteDictionary(PartialCutOnEach, If(dics, {}).ToArray())
         End Function
 
+        Public Function WritePair(Key As Object, Value As Object) As Printer
+            AlignLeft()
+            Write($"{Key}")
+            AlignRight()
+            Write($"{Value}")
+            AlignLeft()
+            Return Me
+        End Function
+
+        Public Function WriteList(Items As IEnumerable(Of Object), Optional ListOrdenator As String = Nothing) As Printer
+            For index = 0 To Items.Count - 1
+                WriteLine($"{ListOrdenator.IfBlank($"{index + 1}) ")}{Items}")
+            Next
+            Return Me
+        End Function
+
+        Public Function WriteList(ParamArray Items As Object()) As Printer
+            Return WriteList(If(Items, {}).AsEnumerable)
+        End Function
+
+        Public Function WritePairLine(Key As Object, Value As Object) As Printer
+            Return WritePair(Key, Value).NewLine()
+        End Function
+
         Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer
             Return WriteDictionary(False, dics)
         End Function
@@ -341,11 +365,7 @@ Namespace Printer
                 If dic IsNot Nothing Then
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In dic
-                        AlignLeft()
-                        Write(item.Key?.ToString().IfBlank("-"))
-                        AlignRight()
-                        Write(item.Value?.ToString().IfBlank("-"))
-                        NewLine()
+                        WritePairLine(item.Key?.ToString(), item.Value?.ToString())
                     Next
                     AlignLeft()
                 End If
@@ -365,11 +385,7 @@ Namespace Printer
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In obj.GetNullableTypeOf().GetProperties()
                         If item.CanRead Then
-                            AlignLeft()
-                            Write(item.Name)
-                            AlignRight()
-                            Write(If(item.GetValue(obj)?.ToString(), "-"))
-                            NewLine()
+                            WritePairLine(item.Name, item.GetValue(obj)?.ToString())
                         End If
                     Next
                     AlignLeft()
@@ -452,7 +468,7 @@ Namespace Printer
         Public Function PrintDocument(Bytes As Byte(), Optional Copies As Integer = 1) As Printer
             If Bytes IsNot Nothing AndAlso Bytes.Any Then
                 If PrinterName.IsFilePath Then
-                    WriteFile(PrinterName)
+                    SaveFile(PrinterName)
                 Else
                     For i = 0 To Copies.SetMinValue(1) - 1
                         If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
@@ -467,7 +483,7 @@ Namespace Printer
         ''' </summary>
         ''' <param name="FileOrDirectoryPath"></param>
         ''' <returns></returns>
-        Public Function WriteFile(FileOrDirectoryPath As String) As Printer
+        Public Function SaveFile(FileOrDirectoryPath As String) As Printer
             If DocumentBuffer IsNot Nothing AndAlso DocumentBuffer.Count > 0 Then
                 If FileOrDirectoryPath.IsDirectoryPath Then
                     FileOrDirectoryPath = $"{FileOrDirectoryPath}\{GetType(CommandType).Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"

@@ -36,7 +36,7 @@ Namespace EscBemaCommands
 #Region "Methods"
 
         Public Function Separator() As Byte() Implements IPrintCommand.Separator
-            Return Condensed(PrinterModeState.On).AddTextBytes(New String("-"c, ColsCondensed), Encoding).AddBytes(Condensed(PrinterModeState.Off)).AddLF()
+            Return Condensed(True).AddTextBytes(New String("-"c, ColsCondensed), Encoding).AddBytes(Condensed(False)).AddLF()
         End Function
 
         Public Function AutoTest() As Byte() Implements IPrintCommand.AutoTest
@@ -96,43 +96,43 @@ Namespace EscBemaCommands
         End Function
 
         Public Function Italic(ByVal value As String) As Byte() Implements IPrintCommand.Italic
-            Return Italic(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Italic(PrinterModeState.Off)).AddLF()
+            Return Italic(True).AddTextBytes(value, Encoding).AddBytes(Italic(False)).AddLF()
         End Function
 
-        Public Function Italic(ByVal state As PrinterModeState) As Byte() Implements IPrintCommand.Italic
-            Return If(state = PrinterModeState.On, New Byte() {27, "4"c.ToByte()}, New Byte() {27, "5"c.ToByte()})
+        Public Function Italic(ByVal state As Boolean) As Byte() Implements IPrintCommand.Italic
+            Return If(state = True, New Byte() {27, "4"c.ToByte()}, New Byte() {27, "5"c.ToByte()})
         End Function
 
         Public Function Bold(ByVal value As String) As Byte() Implements IPrintCommand.Bold
-            Return Bold(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Bold(PrinterModeState.Off)).AddLF()
+            Return Bold(True).AddTextBytes(value, Encoding).AddBytes(Bold(False)).AddLF()
         End Function
 
-        Public Function Bold(ByVal state As PrinterModeState) As Byte() Implements IPrintCommand.Bold
-            Return If(state = PrinterModeState.On, New Byte() {27, "E"c.ToByte()}, New Byte() {27, "F"c.ToByte()})
+        Public Function Bold(ByVal state As Boolean) As Byte() Implements IPrintCommand.Bold
+            Return If(state = True, New Byte() {27, "E"c.ToByte()}, New Byte() {27, "F"c.ToByte()})
         End Function
 
         Public Function Underline(ByVal value As String) As Byte() Implements IPrintCommand.Underline
-            Return Underline(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Underline(PrinterModeState.Off)).AddLF()
+            Return Underline(True).AddTextBytes(value, Encoding).AddBytes(Underline(False)).AddLF()
         End Function
 
-        Public Function Underline(ByVal state As PrinterModeState) As Byte() Implements IPrintCommand.Underline
-            Return If(state = PrinterModeState.On, New Byte() {27, "-"c.ToByte(), 1}, New Byte() {27, "-"c.ToByte(), 0})
+        Public Function Underline(ByVal state As Boolean) As Byte() Implements IPrintCommand.Underline
+            Return If(state = True, New Byte() {27, "-"c.ToByte(), 1}, New Byte() {27, "-"c.ToByte(), 0})
         End Function
 
         Public Function Expanded(ByVal value As String) As Byte() Implements IPrintCommand.Expanded
-            Return Expanded(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Expanded(PrinterModeState.Off)).AddLF()
+            Return Expanded(True).AddTextBytes(value, Encoding).AddBytes(Expanded(False)).AddLF()
         End Function
 
-        Public Function Expanded(ByVal state As PrinterModeState) As Byte() Implements IPrintCommand.Expanded
-            Return New Byte() {27, "W"c.ToByte(), If(state = PrinterModeState.On, "1"c.ToByte(), "0"c.ToByte())}
+        Public Function Expanded(ByVal state As Boolean) As Byte() Implements IPrintCommand.Expanded
+            Return New Byte() {27, "W"c.ToByte(), If(state = True, "1"c.ToByte(), "0"c.ToByte())}
         End Function
 
         Public Function Condensed(ByVal value As String) As Byte() Implements IPrintCommand.Condensed
-            Return Condensed(PrinterModeState.On).AddTextBytes(value, Encoding).AddBytes(Condensed(PrinterModeState.Off)).AddLF()
+            Return Condensed(True).AddTextBytes(value, Encoding).AddBytes(Condensed(False)).AddLF()
         End Function
 
-        Public Function Condensed(ByVal state As PrinterModeState) As Byte() Implements IPrintCommand.Condensed
-            Return If(state = PrinterModeState.On, New Byte() {27, 15}, New Byte() {27, "P"c.ToByte()})
+        Public Function Condensed(ByVal state As Boolean) As Byte() Implements IPrintCommand.Condensed
+            Return If(state = True, New Byte() {27, 15}, New Byte() {27, "P"c.ToByte()})
         End Function
 
         Public Function OpenDrawer() As Byte() Implements IPrintCommand.OpenDrawer
@@ -189,7 +189,7 @@ Namespace EscBemaCommands
         End Function
 
         Public Function PrintImage(image As Drawing.Image, highDensity As Boolean) As Byte() Implements IPrintCommand.PrintImage
-            Return PrintImage(image, highDensity)
+            Return SharedImagePrinter(image, highDensity)
         End Function
 
 #End Region

@@ -136,14 +136,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="OnlineList.vb" />
-    <Compile Include="Printer\Justifications.vb" />
-    <Compile Include="Printer\PrinterModeState.vb" />
-    <Compile Include="Printer\QrCodeSize.vb" />
     <Compile Include="Printer\EscBema.vb" />
     <Compile Include="Printer\EscDaruma.vb" />
     <Compile Include="Printer\EscPos.vb" />
     <Compile Include="Printer\PrinterByteExtensions.vb" />
-    <Compile Include="Printer\RawPrinterHelper.vb" />
     <Compile Include="Printer\IPrintCommand.vb" />
     <Compile Include="Printer\Printer.vb" />
     <Compile Include="QuestionTest.vb" />

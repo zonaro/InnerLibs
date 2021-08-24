@@ -33,23 +33,23 @@ Namespace Printer.Command
 
         Function Italic(ByVal value As String) As Byte()
 
-        Function Italic(ByVal state As PrinterModeState) As Byte()
+        Function Italic(ByVal state As Boolean) As Byte()
 
         Function Bold(ByVal value As String) As Byte()
 
-        Function Bold(ByVal state As PrinterModeState) As Byte()
+        Function Bold(ByVal state As Boolean) As Byte()
 
         Function Underline(ByVal value As String) As Byte()
 
-        Function Underline(ByVal state As PrinterModeState) As Byte()
+        Function Underline(ByVal state As Boolean) As Byte()
 
         Function Expanded(ByVal value As String) As Byte()
 
-        Function Expanded(ByVal state As PrinterModeState) As Byte()
+        Function Expanded(ByVal state As Boolean) As Byte()
 
         Function Condensed(ByVal value As String) As Byte()
 
-        Function Condensed(ByVal state As PrinterModeState) As Byte()
+        Function Condensed(ByVal state As Boolean) As Byte()
 
         Function NormalWidth() As Byte()
 
