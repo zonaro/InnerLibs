@@ -232,11 +232,15 @@ Namespace Printer
 
         <Extension()>
         Public Function AddTextBytes(ByVal bytes As Byte(), ByVal value As String, Encoding As Encoding) As Byte()
-            If String.IsNullOrEmpty(value) Then Return bytes
+            If value.IsBlank Then Return bytes
             Dim list = New List(Of Byte)()
             list.AddRange(bytes)
-            list.AddRange(If(Encoding, Encoding.Default).GetBytes(value))
+            list.AddRange(TextBytes(value, Encoding))
             Return list.ToArray()
+        End Function
+
+        <Extension> Public Function TextBytes(Value As String, Encoding As Encoding) As Byte()
+            Return If(Encoding, Encoding.Default).GetBytes(Value)
         End Function
 
         <Extension()>

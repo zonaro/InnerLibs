@@ -57,6 +57,7 @@ Namespace Printer
         End Function
 
         Public Property DocumentBuffer As Byte()
+
         Public Property PrinterName As String
 
         Public Property ColsNomal As Integer
@@ -66,6 +67,22 @@ Namespace Printer
         Public Property ColsExpanded As Integer
 
         Public ReadOnly Property Command As IPrintCommand
+
+        Public Sub New(ByVal encoding As Encoding)
+            Me.New(Nothing, Nothing, 0, 0, 0, encoding)
+        End Sub
+
+        Public Sub New(ByVal Command As IPrintCommand)
+            Me.New(Command, Nothing, 0, 0, 0, Nothing)
+        End Sub
+
+        Public Sub New(ByVal Command As IPrintCommand, Encoding As Encoding)
+            Me.New(Command, Nothing, 0, 0, 0, Encoding)
+        End Sub
+
+        Public Sub New()
+            Me.New(Nothing, Nothing, 0, 0, 0, Nothing)
+        End Sub
 
         ''' <summary>
         ''' Initializes a new instance of the <see cref="Printer"/> class.
@@ -93,7 +110,7 @@ Namespace Printer
                 Me.Command.Encoding = encoding
             End If
             If Me.Command.Encoding Is Nothing Then
-                Me.Command.Encoding = New UTF8Encoding()
+                Me.Command.Encoding = Encoding.Default
             End If
             Me.PrinterName = printerName.IfBlank("temp.prn").Trim()
             Me.ColsNomal = If(colsNormal <= 0, Command.ColsNomal, colsNormal)
@@ -146,8 +163,6 @@ Namespace Printer
         Public Function WriteLine(ByVal value As String, Optional Test As Boolean = True) As Printer
             Return If(Test, WriteString(value, True), Me)
         End Function
-
-
 
         Private Function WriteString(ByVal value As String, ByVal useLf As Boolean) As Printer
             If value.IsNotBlank Then
