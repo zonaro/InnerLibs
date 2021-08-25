@@ -368,9 +368,15 @@ Namespace Printer
             Return WritePair(Key, Value).NewLine()
         End Function
 
-        Public Function WritePriceLine(Description As String, Price As Decimal) As Printer
+        Public Function WritePriceLine(Description As String, Price As Decimal, Optional Columns As Integer? = Nothing) As Printer
+            Columns = If(Columns, Me.ColsNomal)
             Dim sprice = Price.RoundDecimal(2).ToString()
-            Dim dots = New String("."c, (ColsNomal - (Description.Length + sprice.Length)).LimitRange(0, ColsNomal))
+            Dim dots = ""
+            If Columns.HasValue Then
+                Columns = Columns.Value.SetMinValue(0)
+                dots = New String("."c, (Columns.Value - (Description.Length + sprice.Length)).LimitRange(0, Columns))
+            End If
+            dots = dots.IfBlank(" ")
             Dim s = $"{Description}{dots}{sprice}"
             WriteLine(s)
             Return Me
