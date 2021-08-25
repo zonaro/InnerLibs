@@ -84,7 +84,7 @@ Public Module ClassTools
 
     Public ReadOnly Property PrimitiveNumericTypes As Type()
         Get
-            Return {GetType(Single), GetType(UShort), GetType(Short), GetType(Integer), GetType(UInt16), GetType(UInt64), GetType(UInt32), GetType(ULong), GetType(Long), GetType(Double), GetType(Decimal)}
+            Return {GetType(Single), GetType(UShort), GetType(Short), GetType(Integer), GetType(UInteger), GetType(ULong), GetType(Long), GetType(Double), GetType(Decimal)}
         End Get
     End Property
 
@@ -98,7 +98,7 @@ Public Module ClassTools
     End Function
 
     <Extension()> Public Function IsEqual(Of T As IComparable)(ByVal Value1 As T, ByVal Value2 As T) As Boolean
-        Return Not Value1.IsGreaterThan(Value2) AndAlso Not Value1.IsLessThan(Value2)
+        Return Value1.Equals(Value2)
     End Function
 
     <Extension()>
@@ -185,7 +185,7 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    ''' Cria um arquivo a partir de qualquer objeto usando o <see cref="CreateXML()"/>
+    ''' Cria um arquivo a partir de qualquer objeto usando o <see cref="ClassTools.CreateXML()"/>
     ''' </summary>
     ''' <param name="obj"></param>
     ''' <returns></returns>
@@ -628,11 +628,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function FirstOr(Of T)(source As IEnumerable(Of T), Alternate As T) As T
-        If source IsNot Nothing AndAlso source.Any() Then
-            Return source.First
-        Else
-            Return Alternate
-        End If
+        Return If(If(source, {}).FirstOrDefault(), Alternate)
     End Function
 
     ''' <summary>
@@ -644,8 +640,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function FirstOr(Of T)(source As IEnumerable(Of T), predicate As Func(Of T, Boolean), Alternate As T) As T
-        Return If(source.FirstOrDefault(predicate), Alternate)
-
+        Return If(If(source, {}).FirstOrDefault(predicate), Alternate)
     End Function
 
     ''' <summary>
@@ -695,7 +690,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension()> Public Function HasAttribute(target As PropertyInfo, attribType As Type)
         Dim attribs = target.GetCustomAttributes(attribType, False)
-        Return attribs.Length > 0
+        Return attribs.Any
     End Function
 
     ''' <summary>
@@ -1129,7 +1124,7 @@ Public Module ClassTools
         If GetType(O) Is GetType(Type) Then
             Return CType(CType(Obj, Object), Type)
         Else
-            Return Obj?.GetType().NullCoalesce(GetType(O), GetType(Object))
+            Return If(Obj?.GetType(), GetType(O))
         End If
     End Function
 
