@@ -1,7 +1,6 @@
 ﻿Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports System.Text
- 
 
 ''' <summary>
 ''' Módulo para criação de arquivos baseados em Array de Bytes()
@@ -9,9 +8,8 @@ Imports System.Text
 ''' <remarks></remarks>
 Public Module Files
 
-
     ''' <summary>
-    ''' Salva um anexo para um diretório    
+    ''' Salva um anexo para um diretório
     ''' </summary>
     ''' <param name="attachment"></param>
     ''' <param name="Directory"></param>
@@ -22,7 +20,7 @@ Public Module Files
     End Function
 
     ''' <summary>
-    ''' Salva um anexo para um caminho    
+    ''' Salva um anexo para um caminho
     ''' </summary>
     ''' <param name="attachment"></param>
     ''' <param name="Path"></param>
@@ -38,9 +36,8 @@ Public Module Files
         Return New FileInfo(Path)
     End Function
 
-
     ''' <summary>
-    ''' Salva um anexo para Byte()    
+    ''' Salva um anexo para Byte()
     ''' </summary>
     ''' <param name="attachment"></param>
     ''' <returns></returns>
@@ -70,10 +67,29 @@ Public Module Files
 
     <Extension()>
     Public Function WriteToFile(Bytes As Byte(), FilePath As String) As FileInfo
-        Dim p = New FileInfo(FilePath)
-        p.Directory.FullName.ToDirectoryInfo()
-        File.WriteAllBytes(p.FullName, Bytes)
-        Return p
+        If FilePath.IsFilePath Then
+            Dim p = New FileInfo(FilePath)
+            p.Directory.FullName.ToDirectoryInfo()
+            File.WriteAllBytes(p.FullName, Bytes)
+            Debug.WriteLine(FilePath, "File Written")
+            Return p
+        End If
+        Return Nothing
+    End Function
+
+    ''' <summary>
+    ''' Transforma um  Array de Bytes em um arquivo
+    ''' </summary>
+    ''' <param name="Bytes">A MAtriz com os Bytes  a ser escrita</param>
+    ''' <param name="FilePath">Caminho onde o arquivo será gravado</param>
+    ''' <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+    <Extension()> Public Function WriteToFile(Bytes As Byte(), FilePath As String, DateTime As DateTime) As FileInfo
+        FilePath = FilePath.Replace($"#timestamp#", DateTime.Ticks.ToString)
+        FilePath = FilePath.Replace($"#datedir#", $"{DateTime.Year}\{DateTime.Month}\{DateTime.Day}")
+        For Each item As String In {"d", "dd", "ddd", "dddd", "hh", "HH", "m", "mm", "M", "MM", "MMM", "MMMM", "s", "ss", "t", "tt", "Y", "YY", "YYY", "YYYY", "f", "ff", "fff", "ffff", "fffff", "ffffff", "fffffff"}
+            FilePath = FilePath.SensitiveReplace($"#{item}#", DateTime.ToString(item))
+        Next
+        Return WriteToFile(Bytes, FilePath).With(Function(x) x.LastWriteTime = DateTime)
     End Function
 
     ''' <summary>
@@ -108,7 +124,6 @@ Public Module Files
             End Using
         End Using
     End Function
-
 
     ''' <summary>
     ''' Salva um texto em um arquivo
@@ -145,8 +160,5 @@ Public Module Files
     <Extension()> Public Function GetLatestDirectoryName(Path As FileInfo) As String
         Return IO.Path.GetDirectoryName(Path.DirectoryName)
     End Function
-
-
-
 
 End Module

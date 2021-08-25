@@ -35,8 +35,8 @@ Namespace EscBemaCommands
 
 #Region "Methods"
 
-        Public Function Separator() As Byte() Implements IPrintCommand.Separator
-            Return Condensed(True).AddTextBytes(New String("-"c, ColsCondensed), Encoding).AddBytes(Condensed(False)).AddLF()
+        Public Function Separator(Optional Character As Char = "-"c) As Byte() Implements IPrintCommand.Separator
+            Return Condensed(True).AddTextBytes(New String(Character, ColsCondensed), Encoding).AddBytes(Condensed(False)).AddLF()
         End Function
 
         Public Function AutoTest() As Byte() Implements IPrintCommand.AutoTest

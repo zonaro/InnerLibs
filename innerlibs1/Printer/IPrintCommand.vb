@@ -13,7 +13,7 @@ Namespace Printer.Command
 
 
 
-        Function Separator() As Byte()
+        Function Separator(Optional Character As Char = "-"c) As Byte()
 
         Function AutoTest() As Byte()
 

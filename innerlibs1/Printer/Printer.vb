@@ -28,6 +28,7 @@
 ' ***********************************************************************
 
 Imports System.IO
+Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports InnerLibs.Printer.Command
@@ -36,24 +37,24 @@ Namespace Printer
 
     Public Module PrinterExtension
 
-        <Extension()> Function CreatePrinter(CommandType As IPrintCommand, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
-            Return Printer.CreatePrinter(CommandType, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        <Extension()> Function CreatePrinter(CommandType As IPrintCommand, PrinterName As String, Optional ColsNormal As Integer = 0, Optional ColsCondensed As Integer = 0, Optional ColsExpanded As Integer = 0, Optional Encoding As Encoding = Nothing) As Printer
+            Return Printer.CreatePrinter(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
         End Function
 
     End Module
 
     Public Class Printer
 
-        Public Shared Function CreatePrinter(Of CommandType As IPrintCommand)(printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
-            Return CreatePrinter(GetType(CommandType), printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        Public Shared Function CreatePrinter(Of CommandType As IPrintCommand)(PrinterName As String, Optional ColsNormal As Integer = 0, Optional ColsCondensed As Integer = 0, Optional ColsExpanded As Integer = 0, Optional Encoding As Encoding = Nothing) As Printer
+            Return CreatePrinter(GetType(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
         End Function
 
-        Public Shared Function CreatePrinter(CommandType As Type, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
-            Return CreatePrinter(Activator.CreateInstance(CommandType), printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        Public Shared Function CreatePrinter(CommandType As Type, PrinterName As String, Optional ColsNormal As Integer = 0, Optional ColsCondensed As Integer = 0, Optional ColsExpanded As Integer = 0, Optional Encoding As Encoding = Nothing) As Printer
+            Return CreatePrinter(Activator.CreateInstance(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
         End Function
 
-        Public Shared Function CreatePrinter(CommandType As IPrintCommand, printerName As String, Optional colsNormal As Integer = 0, Optional colsCondensed As Integer = 0, Optional colsExpanded As Integer = 0, Optional encoding As Encoding = Nothing) As Printer
-            Return New Printer(CommandType, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        Public Shared Function CreatePrinter(CommandType As IPrintCommand, PrinterName As String, Optional ColsNormal As Integer = 0, Optional ColsCondensed As Integer = 0, Optional ColsExpanded As Integer = 0, Optional Encoding As Encoding = Nothing) As Printer
+            Return New Printer(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
         End Function
 
         Public Property DocumentBuffer As Byte()
@@ -68,8 +69,8 @@ Namespace Printer
 
         Public ReadOnly Property Command As IPrintCommand
 
-        Public Sub New(ByVal encoding As Encoding)
-            Me.New(Nothing, Nothing, 0, 0, 0, encoding)
+        Public Sub New(ByVal Encoding As Encoding)
+            Me.New(Nothing, Nothing, 0, 0, 0, Encoding)
         End Sub
 
         Public Sub New(ByVal Command As IPrintCommand)
@@ -87,63 +88,63 @@ Namespace Printer
         ''' <summary>
         ''' Initializes a new instance of the <see cref="Printer"/> class.
         ''' </summary>
-        ''' <param name="printerName">Printer name, shared name or port of printer install</param>
-        ''' <param name="colsNormal">Number of columns for normal mode print</param>
-        ''' <param name="colsCondensed">Number of columns for condensed mode print</param>
-        ''' <param name="colsExpanded">Number of columns for expanded mode print</param>
-        ''' <param name="encoding">Custom encoding</param>
-        Public Sub New(ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer, ByVal encoding As Encoding)
-            Me.New(Nothing, printerName, colsNormal, colsCondensed, colsExpanded, encoding)
+        ''' <param name="PrinterName">Printer name, shared name or port of printer install</param>
+        ''' <param name="ColsNormal">Number of columns for normal mode print</param>
+        ''' <param name="ColsCondensed">Number of columns for condensed mode print</param>
+        ''' <param name="ColsExpanded">Number of columns for expanded mode print</param>
+        ''' <param name="Encoding">Custom Encoding</param>
+        Public Sub New(ByVal PrinterName As String, ByVal ColsNormal As Integer, ByVal ColsCondensed As Integer, ByVal ColsExpanded As Integer, ByVal Encoding As Encoding)
+            Me.New(Nothing, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
         End Sub
 
         ''' <summary>
         ''' Initializes a new instance of the <see cref="Printer"/> class.
         ''' </summary>
-        ''' <param name="printerName">Printer name, shared name or port of printer install</param>
-        ''' <param name="colsNormal">Number of columns for normal mode print</param>
-        ''' <param name="colsCondensed">Number of columns for condensed mode print</param>
-        ''' <param name="colsExpanded">Number of columns for expanded mode print</param>
-        ''' <param name="encoding">Custom encoding</param>
-        Public Sub New(Command As IPrintCommand, ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer, ByVal encoding As Encoding)
+        ''' <param name="PrinterName">Printer name, shared name or port of printer install</param>
+        ''' <param name="ColsNormal">Number of columns for normal mode print</param>
+        ''' <param name="ColsCondensed">Number of columns for condensed mode print</param>
+        ''' <param name="ColsExpanded">Number of columns for expanded mode print</param>
+        ''' <param name="Encoding">Custom Encoding</param>
+        Public Sub New(Command As IPrintCommand, ByVal PrinterName As String, ByVal ColsNormal As Integer, ByVal ColsCondensed As Integer, ByVal ColsExpanded As Integer, ByVal Encoding As Encoding)
             Me.Command = If(Command, New EscPosCommands.EscPos())
-            If encoding IsNot Nothing Then
-                Me.Command.Encoding = encoding
+            If Encoding IsNot Nothing Then
+                Me.Command.Encoding = Encoding
             End If
             If Me.Command.Encoding Is Nothing Then
                 Me.Command.Encoding = Encoding.Default
             End If
-            Me.PrinterName = printerName.IfBlank("temp.prn").Trim()
-            Me.ColsNomal = If(colsNormal <= 0, Me.Command.ColsNomal, colsNormal)
-            Me.ColsCondensed = If(colsCondensed <= 0, Me.Command.ColsCondensed, colsCondensed)
-            Me.ColsExpanded = If(colsExpanded <= 0, Me.Command.ColsExpanded, colsExpanded)
+            Me.PrinterName = PrinterName.IfBlank("temp.prn").Trim()
+            Me.ColsNomal = If(ColsNormal <= 0, Me.Command.ColsNomal, ColsNormal)
+            Me.ColsCondensed = If(ColsCondensed <= 0, Me.Command.ColsCondensed, ColsCondensed)
+            Me.ColsExpanded = If(ColsExpanded <= 0, Me.Command.ColsExpanded, ColsExpanded)
         End Sub
 
         ''' <summary>
         '''Initializes a new instance of the <see cref="Printer"/> class.
         ''' </summary>
-        ''' <param name="printerName">Printer name, shared name or port of printer install</param>
-        ''' <param name="colsNormal">Number of columns for normal mode print</param>
-        ''' <param name="colsCondensed">Number of columns for condensed mode print</param>
-        ''' <param name="colsExpanded">Number of columns for expanded mode print</param>
-        Public Sub New(ByVal printerName As String, ByVal colsNormal As Integer, ByVal colsCondensed As Integer, ByVal colsExpanded As Integer)
-            Me.New(printerName, colsNormal, colsCondensed, colsExpanded, Nothing)
+        ''' <param name="PrinterName">Printer name, shared name or port of printer install</param>
+        ''' <param name="ColsNormal">Number of columns for normal mode print</param>
+        ''' <param name="ColsCondensed">Number of columns for condensed mode print</param>
+        ''' <param name="ColsExpanded">Number of columns for expanded mode print</param>
+        Public Sub New(ByVal PrinterName As String, ByVal ColsNormal As Integer, ByVal ColsCondensed As Integer, ByVal ColsExpanded As Integer)
+            Me.New(PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Nothing)
         End Sub
 
         ''' <summary>
         '''Initializes a new instance of the <see cref="Printer"/> class.
         ''' </summary>
-        ''' <param name="printerName">Printer name, shared name or port of printer install</param>
-        ''' <param name="encoding">Custom encoding</param>
-        Public Sub New(ByVal printerName As String, ByVal encoding As Encoding)
-            Me.New(printerName, 0, 0, 0, encoding)
+        ''' <param name="PrinterName">Printer name, shared name or port of printer install</param>
+        ''' <param name="Encoding">Custom Encoding</param>
+        Public Sub New(ByVal PrinterName As String, ByVal Encoding As Encoding)
+            Me.New(PrinterName, 0, 0, 0, Encoding)
         End Sub
 
         ''' <summary>
         '''Initializes a new instance of the <see cref="Printer"/> class.
         ''' </summary>
-        ''' <param name="printerName">Printer name, shared name or port of printer install</param>
-        Public Sub New(ByVal printerName As String)
-            Me.New(printerName, 0, 0, 0, Nothing)
+        ''' <param name="PrinterName">Printer name, shared name or port of printer install</param>
+        Public Sub New(ByVal PrinterName As String)
+            Me.New(PrinterName, 0, 0, 0, Nothing)
         End Sub
 
         Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
@@ -177,11 +178,10 @@ Namespace Printer
         End Function
 
         Public Function NewLine(Optional lines As Integer = 1) As Printer
-            If lines > 0 Then
-                For i = 1 To lines - 1
-                    Write(vbLf)
-                Next
-            End If
+            While (lines > 0)
+                Write(vbLf)
+                lines = lines - 1
+            End While
             Return Me
         End Function
 
@@ -190,15 +190,15 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function Separator() As Printer
-            Return Write(Command.Separator())
+        Public Function Separator(Optional Character As Char = "-") As Printer
+            Return Write(Command.Separator(Character))
         End Function
 
         Public Function AutoTest() As Printer
             Return Write(Command.AutoTest())
         End Function
 
-        Public Function TestPrinter() As Printer
+        Public Function WriteTest() As Printer
             AlignLeft()
             WriteLine("INNERLIBS TEST PRINTER - 48 COLUMNS")
             WriteLine("....+....1....+....2....+....3....+....4....+...")
@@ -370,6 +370,26 @@ Namespace Printer
             Return WritePair(Key, Value).NewLine()
         End Function
 
+        Public Function WritePriceLine(Description As String, Price As Decimal) As Printer
+            Dim sprice = Price.RoundDecimal(2).ToString()
+            Dim dots = New String("."c, (ColsNomal - (Description.Length + sprice.Length)).LimitRange(0, ColsNomal))
+            Dim s = $"{Description}{dots}{sprice}"
+            Debug.WriteLine(s)
+            WriteLine(s)
+            Return Me
+        End Function
+
+        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal))) As Printer
+            For Each item In List.NullAsEmpty()
+                WritePriceLine(item.Item1, item.Item2)
+            Next
+            Return Me
+        End Function
+
+        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal))) As Printer
+            Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))))
+        End Function
+
         Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer
             Return WriteDictionary(False, dics)
         End Function
@@ -410,6 +430,8 @@ Namespace Printer
             Return Me
         End Function
 
+
+
         Public Function WriteClass(Of T As Class)(ByVal obj As IEnumerable(Of T), Optional PartialCutOnEach As Boolean = False) As Printer
             Return WriteClass(PartialCutOnEach, If(obj, {}).ToArray())
         End Function
@@ -423,13 +445,13 @@ Namespace Printer
                     End If
                 End If
                 For Each item In obj
-                    For Each linha In TemplateString.Inject(obj).SplitAny(BreakLineChars.ToArray())
+                    Dim ns = TemplateString.Inject(item)
+                    For Each linha In ns.SplitAny(BreakLineChars.ToArray())
                         WriteLine(linha)
                     Next
                 Next
                 If obj.Any() Then If PartialCutOnEach Then PartialPaperCut() Else Separator()
             End If
-
             Return Me
         End Function
 
@@ -469,7 +491,7 @@ Namespace Printer
                     PrintDocument(File.ReadAllBytes(FileOrDirectoryPath), Copies)
                 End If
             Else
-                Throw New ArgumentException($"FileOrDirectoryPath is not a valid Path: {FileOrDirectoryPath}")
+                Throw New ArgumentException($"FileOrDirectoryPath Is Not a valid Path: {FileOrDirectoryPath}")
 
             End If
             Return Me
@@ -504,9 +526,9 @@ Namespace Printer
                     FileOrDirectoryPath = $"{FileOrDirectoryPath}\{GetType(CommandType).Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"
                     FileOrDirectoryPath = FileOrDirectoryPath.AdjustPathChars(True)
                 End If
-
                 If FileOrDirectoryPath.IsFilePath Then
-                    DocumentBuffer.ToArray().WriteToFile(FileOrDirectoryPath)
+                    DocumentBuffer.ToArray().WriteToFile(FileOrDirectoryPath, DateTime.Now)
+
                 Else
                     Throw New ArgumentException($"FileOrDirectoryPath is not a valid Path: {FileOrDirectoryPath}")
                 End If
