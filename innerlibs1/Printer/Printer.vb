@@ -173,6 +173,7 @@ Namespace Printer
                 Dim bytes = _Command.Encoding.GetBytes(value)
                 list.AddRange(bytes)
                 DocumentBuffer = list.ToArray
+                Debug.Write(value)
             End If
             Return Me
         End Function
@@ -301,15 +302,12 @@ Namespace Printer
         End Function
 
         Public Function FullPaperCut() As Printer
+            Debug.WriteLine($"✂{New String("-", Me.ColsNomal - 1)}")
             Return Write(Command.FullCut())
         End Function
 
-        Public Function FullPaperCut(ByVal predicate As Boolean) As Printer
-            If predicate Then FullPaperCut()
-            Return Me
-        End Function
-
         Public Function PartialPaperCut() As Printer
+            Debug.WriteLine($"✂{New String("-", Me.ColsNomal - (Me.ColsNomal / 3).RoundInt())}//")
             Return Write(Command.PartialCut())
         End Function
 
@@ -374,7 +372,6 @@ Namespace Printer
             Dim sprice = Price.RoundDecimal(2).ToString()
             Dim dots = New String("."c, (ColsNomal - (Description.Length + sprice.Length)).LimitRange(0, ColsNomal))
             Dim s = $"{Description}{dots}{sprice}"
-            Debug.WriteLine(s)
             WriteLine(s)
             Return Me
         End Function
@@ -430,8 +427,6 @@ Namespace Printer
             Return Me
         End Function
 
-
-
         Public Function WriteClass(Of T As Class)(ByVal obj As IEnumerable(Of T), Optional PartialCutOnEach As Boolean = False) As Printer
             Return WriteClass(PartialCutOnEach, If(obj, {}).ToArray())
         End Function
@@ -463,13 +458,25 @@ Namespace Printer
             Return WriteTemplate(TemplateString, PartiaCutOnEach, If(obj, {}).ToArray())
         End Function
 
+        Public Function WriteDate([DateAndTime] As Date, Optional Format As String = Nothing)
+            If Format.IsNotBlank Then
+                Return Write(DateAndTime.ToString(Format))
+            Else
+                Return Write(DateAndTime.ToString())
+            End If
+        End Function
+
+        Public Function WriteDate(Optional Format As String = Nothing)
+            Return WriteDate(DateTime.Now, Format)
+        End Function
+
         ''' <summary>
-        ''' Imprime o conteudo do <see cref="DocumentBuffer"/> atual
+        ''' Imprime o conteudo do <see cref="DocumentBuffer"/> atual e limpa o buffer
         ''' </summary>
         ''' <param name="Copies"></param>
         ''' <returns></returns>
         Public Function PrintDocument(Optional Copies As Integer = 1) As Printer
-            Return PrintDocument(DocumentBuffer, Copies)
+            Return PrintDocument(DocumentBuffer, Copies).Clear()
         End Function
 
         ''' <summary>
@@ -504,13 +511,13 @@ Namespace Printer
         ''' <returns></returns>
         Public Function PrintDocument(Bytes As Byte(), Optional Copies As Integer = 1) As Printer
             If Bytes IsNot Nothing AndAlso Bytes.Any Then
-                If PrinterName.IsFilePath Then
-                    SaveFile(PrinterName)
-                Else
-                    For i = 0 To Copies.SetMinValue(1) - 1
+                For i = 0 To Copies.SetMinValue(1) - 1
+                    If PrinterName.IsFilePath Then
+                        SaveFile(PrinterName)
+                    Else
                         If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
-                    Next
-                End If
+                    End If
+                Next
             End If
             Return Me
         End Function
@@ -528,7 +535,6 @@ Namespace Printer
                 End If
                 If FileOrDirectoryPath.IsFilePath Then
                     DocumentBuffer.ToArray().WriteToFile(FileOrDirectoryPath, DateTime.Now)
-
                 Else
                     Throw New ArgumentException($"FileOrDirectoryPath is not a valid Path: {FileOrDirectoryPath}")
                 End If

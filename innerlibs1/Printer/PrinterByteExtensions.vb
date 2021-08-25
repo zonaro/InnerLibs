@@ -63,7 +63,7 @@ Namespace Printer
             Dim hPrinter = New IntPtr(0)
             Dim di = New DOCINFOA()
             Dim bSuccess = False ' Assume failure unless you specifically succeed.
-            di.pDocName = "InnerLibs RAW PrinterDocument"
+            di.pDocName = "InnerLibs RAW Printer Document"
             di.pDataType = "RAW"
 
             ' Open the printer.
