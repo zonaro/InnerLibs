@@ -113,9 +113,9 @@ Namespace Printer
                 Me.Command.Encoding = Encoding.Default
             End If
             Me.PrinterName = printerName.IfBlank("temp.prn").Trim()
-            Me.ColsNomal = If(colsNormal <= 0, Command.ColsNomal, colsNormal)
-            Me.ColsCondensed = If(colsCondensed <= 0, Command.ColsCondensed, colsCondensed)
-            Me.ColsExpanded = If(colsExpanded <= 0, Command.ColsExpanded, colsExpanded)
+            Me.ColsNomal = If(colsNormal <= 0, Me.Command.ColsNomal, colsNormal)
+            Me.ColsCondensed = If(colsCondensed <= 0, Me.Command.ColsCondensed, colsCondensed)
+            Me.ColsExpanded = If(colsExpanded <= 0, Me.Command.ColsExpanded, colsExpanded)
         End Sub
 
         ''' <summary>
