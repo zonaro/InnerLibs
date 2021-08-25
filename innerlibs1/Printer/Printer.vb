@@ -382,15 +382,15 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal))) As Printer
+        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal)), Optional Columns As Integer? = Nothing) As Printer
             For Each item In List.NullAsEmpty()
-                WritePriceLine(item.Item1, item.Item2)
+                WritePriceLine(item.Item1, item.Item2, Columns)
             Next
             Return Me
         End Function
 
-        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal))) As Printer
-            Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))))
+        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal)), Optional Columns As Integer? = Nothing) As Printer
+            Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))), Columns)
         End Function
 
         Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer
