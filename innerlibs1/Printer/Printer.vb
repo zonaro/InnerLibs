@@ -27,8 +27,10 @@
 ' <summary></summary>
 ' ***********************************************************************
 
+Imports System.Globalization
 Imports System.IO
 Imports System.Linq.Expressions
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports InnerLibs.Printer.Command
@@ -59,6 +61,7 @@ Namespace Printer
 
         Public Property DocumentBuffer As Byte()
 
+        Public ReadOnly Property HTMLDocument As XDocument = XDocument.Parse("<body><link rel='stylesheet' href='Printer.css' /></body>")
         Public Property PrinterName As String
 
         Public Property ColsNomal As Integer
@@ -148,8 +151,10 @@ Namespace Printer
         End Sub
 
         Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
-            Return If(Test, WriteString(value, False), Me)
+            Return If(Test, Write(Command.Encoding.GetBytes(value)), Me)
         End Function
+
+        Private _ommit As Boolean = False
 
         Public Function Write(ByVal value As Byte()) As Printer
             If value IsNot Nothing AndAlso value.Any Then
@@ -157,25 +162,22 @@ Namespace Printer
                 If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
                 list.AddRange(value)
                 DocumentBuffer = list.ToArray
+                If _ommit = False Then
+                    Dim v = Command.Encoding.GetString(value).ReplaceMany("<br/>", BreakLineChars.ToArray())
+                    If v = "<br/>" Then
+                        HTMLDocument.Root.Add(<br/>)
+                    Else
+                        HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold", " ")}{IsItalic.AsIf(" italic ")}{IsUnderline.AsIf("underline")}'>{Command.Encoding.GetString(value).Replace(vbLf, "<br/>")}</span>"))
+                    End If
+                End If
+                _ommit = False
+
             End If
             Return Me
         End Function
 
         Public Function WriteLine(ByVal value As String, Optional Test As Boolean = True) As Printer
-            Return If(Test, WriteString(value, True), Me)
-        End Function
-
-        Private Function WriteString(ByVal value As String, ByVal useLf As Boolean) As Printer
-            If value.IsNotBlank Then
-                If useLf Then value += vbLf
-                Dim list = New List(Of Byte)
-                If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
-                Dim bytes = _Command.Encoding.GetBytes(value)
-                list.AddRange(bytes)
-                DocumentBuffer = list.ToArray
-                Debug.Write(value)
-            End If
-            Return Me
+            Return If(Test, Write(Command.Encoding.GetBytes(value)).NewLine(), Me)
         End Function
 
         Public Function NewLine(Optional lines As Integer = 1) As Printer
@@ -188,38 +190,45 @@ Namespace Printer
 
         Public Function Clear() As Printer
             DocumentBuffer = Nothing
+            HTMLDocument.Root.RemoveAll()
+            HTMLDocument.Root.Add(<link rel='stylesheet' href='Printer.css'/>)
             Return Me
         End Function
 
         Public Function Separator(Optional Character As Char = "-") As Printer
-            Return Write(Command.Separator(Character))
+            Dim c = ColsNomal
+            If IsCondensed Then c = ColsCondensed
+            If IsExpanded Then c = ColsExpanded
+            Return WriteLine(New String(Character, c))
         End Function
 
         Public Function AutoTest() As Printer
+            _ommit = True
             Return Write(Command.AutoTest())
         End Function
 
         Public Function WriteTest() As Printer
+            NewLine()
             AlignLeft()
             WriteLine("INNERLIBS TEST PRINTER - 48 COLUMNS")
             WriteLine("....+....1....+....2....+....3....+....4....+...")
             Separator()
             WriteLine("Default Text")
-            ItalicMode("Italic Text")
-            BoldMode("Bold Text")
-            UnderlineMode("UnderLine Text")
-            ExpandedMode(True)
+            Italic.WriteLine("Italic Text").Italic(False)
+            Bold.WriteLine("Bold Text").Bold(False)
+            UnderLine.WriteLine("UnderLine Text").UnderLine(False)
+            Expanded(True)
             WriteLine("Expanded Text")
             WriteLine("....+....1....+....2....")
-            ExpandedMode(False)
-            CondensedMode(True)
+            Expanded(False)
+            Condensed(True)
             WriteLine("Condensed Text")
-            CondensedMode(False)
+            Condensed(False)
             Separator()
             DoubleWidth2()
             WriteLine("Font Size 2")
             DoubleWidth3()
-            WriteLine("Fonte Size 3")
+            WriteLine("Font Size 3")
             NormalWidth()
             WriteLine("Normal Font Size")
             Separator()
@@ -237,101 +246,214 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function ItalicMode(ByVal value As String) As Printer
-            Return Write(Command.Italic(value))
-        End Function
+        Public ReadOnly Property IsItalic As Boolean
+        Public ReadOnly Property IsBold As Boolean
+        Public ReadOnly Property IsUnderline As Boolean
 
-        Public Function ItalicMode(ByVal state As Boolean) As Printer
+        Public Property IsCondensed As Boolean
+            Get
+                Return FontMode = "Condensed"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Condensed"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public Property IsExpanded As Boolean
+            Get
+                Return FontMode = "Expanded"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Expanded"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public Property IsDoubleWidth2 As Boolean
+            Get
+                Return FontMode = "Double2"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Double2"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public Property IsDoubleWidth3 As Boolean
+            Get
+                Return FontMode = "Double3"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Double3"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public ReadOnly Property IsNormal As Boolean
+            Get
+                Return Not IsCondensed AndAlso Not IsExpanded
+            End Get
+        End Property
+
+        Private FontMode As String = "Normal"
+
+        Public ReadOnly Property IsLeftAligned As Boolean
+            Get
+                Return Align = "Left"
+            End Get
+        End Property
+
+        Public ReadOnly Property IsRightAligned As Boolean
+            Get
+                Return Align = "Right"
+            End Get
+        End Property
+
+        Public ReadOnly Property IsCenterAligned As Boolean
+            Get
+                Return Align = "Center"
+            End Get
+        End Property
+
+        Private Align As String = "Left"
+
+        Public Function Italic(Optional state As Boolean = True) As Printer
+            _ommit = True
+            _IsItalic = state
             Return Write(Command.Italic(state))
         End Function
 
-        Public Function BoldMode(ByVal value As String) As Printer
-            Return Write(Command.Bold(value))
+        Public Function NotItalic() As Printer
+            Return Italic(False)
         End Function
 
-        Public Function BoldMode(ByVal state As Boolean) As Printer
+        Public Function Bold(Optional state As Boolean = True) As Printer
+            _ommit = True
+            _IsBold = state
             Return Write(Command.Bold(state))
         End Function
 
-        Public Function UnderlineMode(ByVal value As String) As Printer
-            Return Write(Command.Underline(value))
+        Public Function NotBold() As Printer
+            Return Bold(False)
         End Function
 
-        Public Function UnderlineMode(ByVal state As Boolean) As Printer
+        Public Function UnderLine(Optional state As Boolean = True) As Printer
+            _ommit = True
+            _IsUnderline = state
             Return Write(Command.Underline(state))
         End Function
 
-        Public Function ExpandedMode(ByVal value As String) As Printer
-            Return Write(Command.Expanded(value))
+        Public Function NotUnderline() As Printer
+            Return UnderLine(False)
         End Function
 
-        Public Function ExpandedMode(ByVal state As Boolean) As Printer
+        Public Function Expanded(Optional state As Boolean = True) As Printer
+            _ommit = True
+            IsExpanded = state
             Return Write(Command.Expanded(state))
         End Function
 
-        Public Function CondensedMode(ByVal value As String) As Printer
-            Return Write(Command.Condensed(value))
+        Public Function NotExpanded() As Printer
+            Return Expanded(False)
         End Function
 
-        Public Function CondensedMode(ByVal state As Boolean) As Printer
+        Public Function Condensed(Optional state As Boolean = True) As Printer
+            IsCondensed = state
+            _ommit = True
             Return Write(Command.Condensed(state))
         End Function
 
+        Public Function NotCondensed() As Printer
+            Return Condensed(False)
+        End Function
         Public Function NormalWidth() As Printer
+            FontMode = "Normal"
+            _ommit = True
             Return Write(Command.NormalWidth())
         End Function
 
         Public Function DoubleWidth2() As Printer
+            IsDoubleWidth2 = True
+            _ommit = True
             Return Write(Command.DoubleWidth2())
         End Function
 
         Public Function DoubleWidth3() As Printer
+            IsDoubleWidth3 = True
+            _ommit = True
             Return Write(Command.DoubleWidth3())
         End Function
 
         Public Function AlignLeft() As Printer
+            Align = "Left"
+            _ommit = True
             Return Write(Command.Left())
         End Function
 
         Public Function AlignRight() As Printer
+            Align = "Right"
+            _ommit = True
             Return Write(Command.Right())
         End Function
 
         Public Function AlignCenter() As Printer
+            Align = "Center"
+            _ommit = True
             Return Write(Command.Center())
         End Function
 
         Public Function FullPaperCut() As Printer
-            Debug.WriteLine($"✂{New String("-", Me.ColsNomal - 1)}")
+            HTMLDocument.Root.Add(<hr class='FullPaperCut'/>)
+            _ommit = True
             Return Write(Command.FullCut())
         End Function
 
         Public Function PartialPaperCut() As Printer
-            Debug.WriteLine($"✂{New String("-", Me.ColsNomal - (Me.ColsNomal / 3).RoundInt())}//")
+            HTMLDocument.Root.Add(<hr class='PartialPaperCut'/>)
+            _ommit = True
             Return Write(Command.PartialCut())
         End Function
 
         Public Function OpenDrawer() As Printer
+            _ommit = True
             Return Write(Command.OpenDrawer())
         End Function
 
         Public Function QrCode(ByVal qrData As String) As Printer
+            _ommit = True
             Return Write(Command.PrintQrData(qrData))
         End Function
 
         Public Function QrCode(ByVal qrData As String, ByVal qrCodeSize As QrCodeSize) As Printer
+            _ommit = True
             Return Write(Command.PrintQrData(qrData, qrCodeSize))
         End Function
 
         Public Function Code128(ByVal code As String) As Printer
+            _ommit = True
             Return Write(Command.Code128(code))
         End Function
 
         Public Function Code39(ByVal code As String) As Printer
+            _ommit = True
             Return Write(Command.Code39(code))
         End Function
 
         Public Function Ean13(ByVal code As String) As Printer
+            _ommit = True
             Return Write(Command.Ean13(code))
         End Function
 
@@ -344,18 +466,9 @@ Namespace Printer
             Return WriteDictionary(PartialCutOnEach, If(dics, {}).ToArray())
         End Function
 
-        Public Function WritePair(Key As Object, Value As Object) As Printer
-            AlignLeft()
-            Write($"{Key}")
-            AlignRight()
-            Write($"{Value}")
-            AlignLeft()
-            Return Me
-        End Function
-
         Public Function WriteList(Items As IEnumerable(Of Object), Optional ListOrdenator As String = Nothing) As Printer
             For index = 0 To Items.Count - 1
-                WriteLine($"{ListOrdenator.IfBlank($"{index + 1}) ")}{Items}")
+                WriteLine($"{ListOrdenator.IfBlank($"{index + 1}) ")}{Items(index)}")
             Next
             Return Me
         End Function
@@ -364,13 +477,14 @@ Namespace Printer
             Return WriteList(If(Items, {}).AsEnumerable)
         End Function
 
-        Public Function WritePairLine(Key As Object, Value As Object) As Printer
-            Return WritePair(Key, Value).NewLine()
+        Public Function WritePair(Key As Object, Value As Object) As Printer
+            AlignLeft().Write($"{Key}").AlignRight().Write($"{Value}").AlignLeft().NewLine()
+            Return Me
         End Function
 
-        Public Function WritePriceLine(Description As String, Price As Decimal, Optional Columns As Integer? = Nothing) As Printer
+        Public Function WritePriceLine(Description As String, Price As Decimal, Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing) As Printer
             Columns = If(Columns, Me.ColsNomal)
-            Dim sprice = Price.RoundDecimal(2).ToString()
+            Dim sprice = Price.ToString("C", If(Culture, CultureInfo.CurrentCulture))
             Dim dots = ""
             If Columns.HasValue Then
                 Columns = Columns.Value.SetMinValue(0)
@@ -382,15 +496,15 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal)), Optional Columns As Integer? = Nothing) As Printer
+        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing) As Printer
             For Each item In List.NullAsEmpty()
-                WritePriceLine(item.Item1, item.Item2, Columns)
+                WritePriceLine(item.Item1, item.Item2, Culture, Columns)
             Next
             Return Me
         End Function
 
-        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal)), Optional Columns As Integer? = Nothing) As Printer
-            Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))), Columns)
+        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing) As Printer
+            Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))), Culture, Columns)
         End Function
 
         Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer
@@ -403,7 +517,7 @@ Namespace Printer
                 If dic IsNot Nothing Then
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In dic
-                        WritePairLine(item.Key?.ToString(), item.Value?.ToString())
+                        WritePair(item.Key?.ToString(), item.Value?.ToString())
                     Next
                     AlignLeft()
                 End If
@@ -423,7 +537,7 @@ Namespace Printer
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In obj.GetNullableTypeOf().GetProperties()
                         If item.CanRead Then
-                            WritePairLine(item.Name, item.GetValue(obj)?.ToString())
+                            WritePair(item.Name, item.GetValue(obj)?.ToString())
                         End If
                     Next
                     AlignLeft()
@@ -519,7 +633,7 @@ Namespace Printer
             If Bytes IsNot Nothing AndAlso Bytes.Any Then
                 For i = 0 To Copies.SetMinValue(1) - 1
                     If PrinterName.IsFilePath Then
-                        SaveFile(PrinterName)
+                        SaveFile(PrinterName, True)
                     Else
                         If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
                     End If
@@ -533,14 +647,22 @@ Namespace Printer
         ''' </summary>
         ''' <param name="FileOrDirectoryPath"></param>
         ''' <returns></returns>
-        Public Function SaveFile(FileOrDirectoryPath As String) As Printer
+        Public Function SaveFile(FileOrDirectoryPath As String, Optional IncludeHtmlDoc As Boolean = True) As Printer
             If DocumentBuffer IsNot Nothing AndAlso DocumentBuffer.Count > 0 Then
                 If FileOrDirectoryPath.IsDirectoryPath Then
                     FileOrDirectoryPath = $"{FileOrDirectoryPath}\{GetType(CommandType).Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"
                     FileOrDirectoryPath = FileOrDirectoryPath.AdjustPathChars(True)
                 End If
                 If FileOrDirectoryPath.IsFilePath Then
-                    DocumentBuffer.ToArray().WriteToFile(FileOrDirectoryPath, DateTime.Now)
+                    Dim d = DateTime.Now
+                    Dim info = DocumentBuffer.ToArray().WriteToFile(FileOrDirectoryPath, d)
+                    If IncludeHtmlDoc Then
+                        Dim s = $"{info.Directory.FullName}\{Path.GetFileNameWithoutExtension(info.FullName)}.html"
+                        HTMLDocument.Save(s)
+                        If Not info.Directory.GetFiles("Printer.css").Any Then
+                            [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.Printer.css").Replace("##Cols##", Me.ColsNomal).WriteToFile($"{info.Directory}\Printer.css", False, Encoding.Unicode)
+                        End If
+                    End If
                 Else
                     Throw New ArgumentException($"FileOrDirectoryPath is not a valid Path: {FileOrDirectoryPath}")
                 End If
@@ -552,14 +674,14 @@ Namespace Printer
             If Not Path.IsFilePath Then Throw New FileNotFoundException("Invalid Path")
             If Not File.Exists(Path) Then Throw New FileNotFoundException("Image file not found")
             Dim img = System.Drawing.Image.FromFile(Path)
-            Write(Command.PrintImage(img, highDensity))
+            Image(img, highDensity)
             img.Dispose()
             Return Me
         End Function
 
         Public Function Image(ByVal stream As Stream, ByVal Optional HighDensity As Boolean = True) As Printer
             Dim img = System.Drawing.Image.FromStream(stream)
-            Write(Command.PrintImage(img, HighDensity))
+            Image(img, HighDensity)
             img.Dispose()
             Return Me
         End Function
@@ -569,12 +691,14 @@ Namespace Printer
             Using ms = New MemoryStream(bytes)
                 img = System.Drawing.Image.FromStream(ms)
             End Using
-            Write(Command.PrintImage(img, HighDensity))
+            Image(img, HighDensity)
             img.Dispose()
             Return Me
         End Function
 
         Public Function Image(ByVal pImage As System.Drawing.Image, ByVal Optional highDensity As Boolean = True) As Printer
+            HTMLDocument.Root.Add(XElement.Parse($"<img class='image{highDensity.AsIf(" HighDensity")}'  src='{pImage.ToBase64()}' />"))
+            _ommit = True
             Return Write(Command.PrintImage(pImage, highDensity))
         End Function
 

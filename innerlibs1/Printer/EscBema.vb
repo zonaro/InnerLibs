@@ -35,9 +35,7 @@ Namespace EscBemaCommands
 
 #Region "Methods"
 
-        Public Function Separator(Optional Character As Char = "-"c) As Byte() Implements IPrintCommand.Separator
-            Return Condensed(True).AddTextBytes(New String(Character, ColsCondensed), Encoding).AddBytes(Condensed(False)).AddLF()
-        End Function
+
 
         Public Function AutoTest() As Byte() Implements IPrintCommand.AutoTest
             Return New Byte() {&H1D, &HF9, &H29, &H30}
@@ -95,41 +93,31 @@ Namespace EscBemaCommands
             Return New Byte() {29, "!"c.ToByte(), 32}
         End Function
 
-        Public Function Italic(ByVal value As String) As Byte() Implements IPrintCommand.Italic
-            Return Italic(True).AddTextBytes(value, Encoding).AddBytes(Italic(False)).AddLF()
-        End Function
+
 
         Public Function Italic(ByVal state As Boolean) As Byte() Implements IPrintCommand.Italic
             Return If(state = True, New Byte() {27, "4"c.ToByte()}, New Byte() {27, "5"c.ToByte()})
         End Function
 
-        Public Function Bold(ByVal value As String) As Byte() Implements IPrintCommand.Bold
-            Return Bold(True).AddTextBytes(value, Encoding).AddBytes(Bold(False)).AddLF()
-        End Function
+
 
         Public Function Bold(ByVal state As Boolean) As Byte() Implements IPrintCommand.Bold
             Return If(state = True, New Byte() {27, "E"c.ToByte()}, New Byte() {27, "F"c.ToByte()})
         End Function
 
-        Public Function Underline(ByVal value As String) As Byte() Implements IPrintCommand.Underline
-            Return Underline(True).AddTextBytes(value, Encoding).AddBytes(Underline(False)).AddLF()
-        End Function
+
 
         Public Function Underline(ByVal state As Boolean) As Byte() Implements IPrintCommand.Underline
             Return If(state = True, New Byte() {27, "-"c.ToByte(), 1}, New Byte() {27, "-"c.ToByte(), 0})
         End Function
 
-        Public Function Expanded(ByVal value As String) As Byte() Implements IPrintCommand.Expanded
-            Return Expanded(True).AddTextBytes(value, Encoding).AddBytes(Expanded(False)).AddLF()
-        End Function
+
 
         Public Function Expanded(ByVal state As Boolean) As Byte() Implements IPrintCommand.Expanded
             Return New Byte() {27, "W"c.ToByte(), If(state = True, "1"c.ToByte(), "0"c.ToByte())}
         End Function
 
-        Public Function Condensed(ByVal value As String) As Byte() Implements IPrintCommand.Condensed
-            Return Condensed(True).AddTextBytes(value, Encoding).AddBytes(Condensed(False)).AddLF()
-        End Function
+
 
         Public Function Condensed(ByVal state As Boolean) As Byte() Implements IPrintCommand.Condensed
             Return If(state = True, New Byte() {27, 15}, New Byte() {27, "P"c.ToByte()})

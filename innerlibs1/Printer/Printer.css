@@ -1,0 +1,68 @@
+﻿.align-right {
+    text-align: right;
+    width: ##Cols##ch;
+    position: absolute;
+}
+
+.align-center {
+    text-align: center;
+    width: ##Cols##ch;
+    position: absolute;
+}
+
+body {
+    background-color: #f9f9be;
+    font-family: "Consolas";
+    width: ##Cols##ch;
+    margin: 0 0 0 0;
+}
+
+.font-normal {
+    font-stretch: normal
+}
+
+.font-condensed {
+    font-stretch: condensed
+}
+
+.font-expanded {
+    font-stretch: expanded
+}
+
+.font-double2 {
+    font-size: large;
+}
+
+.font-double3 {
+    font-size: larger;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.underline {
+    text-decoration: underline;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.PartialPaperCut, .FullPaperCut {
+    page-break-after: always;
+    border: 0;
+    border-bottom: 2px;
+    border-bottom-style: dotted;
+    height: 11px;
+}
+
+.PartialPaperCut {
+    width: 80%;
+    margin-left: 0
+}
+
+    .PartialPaperCut::before, .FullPaperCut::before {
+        content: "-✂";
+        font-size: 15px;
+    }

@@ -11,10 +11,6 @@ Namespace Printer.Command
         ReadOnly Property ColsCondensed As Integer
         ReadOnly Property ColsExpanded As Integer
 
-
-
-        Function Separator(Optional Character As Char = "-"c) As Byte()
-
         Function AutoTest() As Byte()
 
         Function Left() As Byte()
@@ -31,23 +27,13 @@ Namespace Printer.Command
 
         Function OpenDrawer() As Byte()
 
-        Function Italic(ByVal value As String) As Byte()
-
         Function Italic(ByVal state As Boolean) As Byte()
-
-        Function Bold(ByVal value As String) As Byte()
 
         Function Bold(ByVal state As Boolean) As Byte()
 
-        Function Underline(ByVal value As String) As Byte()
-
         Function Underline(ByVal state As Boolean) As Byte()
 
-        Function Expanded(ByVal value As String) As Byte()
-
         Function Expanded(ByVal state As Boolean) As Byte()
-
-        Function Condensed(ByVal value As String) As Byte()
 
         Function Condensed(ByVal state As Boolean) As Byte()
 
@@ -66,6 +52,7 @@ Namespace Printer.Command
         Function PartialCut() As Byte()
 
         Function PrintQrData(ByVal qrData As String) As Byte()
+
         Function PrintQrData(ByVal qrData As String, ByVal qrCodeSize As QrCodeSize) As Byte()
 
     End Interface
