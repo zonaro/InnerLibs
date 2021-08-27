@@ -85,6 +85,7 @@
     <Compile Include="ClassManager.vb" />
     <Compile Include="ColorConvert.vb" />
     <Compile Include="ConsoleExtensions.vb" />
+    <Compile Include="ConsoleTable.vb" />
     <Compile Include="Converter.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="DictionarySelector.vb" />

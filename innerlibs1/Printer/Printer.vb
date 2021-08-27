@@ -150,12 +150,93 @@ Namespace Printer
             Me.New(PrinterName, 0, 0, 0, Nothing)
         End Sub
 
+        'substitui caracteres para caracteres acentuados não disponíveis na fonte DOS
+        Public Shared Function FixAccents(ByVal Lin As String) As String
+            Dim T1 As String, T2 As String, i As Integer, p As Integer, C As String
+            T1$ = "áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ" 'tela
+            T2$ = "160130161162163181144214224233131136140147150182210215226219198228199229133138141149151212222227135128" ' ASC impressora
+            p = 1
+            For i = 1 To Len(Lin$)                                      'cada letra
+                C$ = Mid$(Lin$, i, 1)                                      'pega o char
+                p = InStr(T1$, C$)                                         'tem acento correspondente?
+                If p Then                                                  'tem...
+                    'troca usando backspace: letra + bs + acento
+                    Lin$ = Left$(Lin$, i - 1) & Chr(Val(Mid$(T2$, (p * 3) - 2, 3))) & Mid$(Lin$, i + 1)                                  'troca
+                End If
+            Next
+            Return Lin$
+        End Function
+
+
         Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
-            Return If(Test, Write(Command.Encoding.GetBytes(value)), Me)
+            If Test Then
+                If value.ContainsAny(BreakLineChars.ToArray()) Then
+                    For Each line In value.SplitAny(BreakLineChars.ToArray())
+                        WriteLine(line, Test AndAlso line.IsNotBlank)
+                    Next
+                Else
+                    If value.IsNotBlank Then
+                        If Not Diacritics Then
+                            value = value.RemoveDiacritics()
+                        End If
+                        If RewriteFunction IsNot Nothing Then
+                            value = RewriteFunction().Invoke(value)
+                        End If
+                        Write(Command.Encoding.GetBytes(value))
+                    End If
+                End If
+            End If
+            Return Me
+        End Function
+
+        Public Property Diacritics As Boolean = True
+
+        Public Property RewriteFunction As Func(Of String, String) = Nothing
+
+        ''' <summary>
+        ''' Funcao que reescreveo valor antes de chamar o <see cref="Write(String, Boolean)"/>
+        ''' </summary>
+        ''' <param name="StringAction"></param>
+        ''' <returns></returns>
+        Public Function UseRewriteFunction(StringAction As Func(Of String, String)) As Printer
+            Me.RewriteFunction = StringAction
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Remove a função de reescrita de valor definida pela <see cref="UseRewriteFunction(Func(Of String, String))"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function RemoveRewriteFunction() As Printer
+            RewriteFunction = Nothing
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Permite a ultilização de acentos nas chamadas <see cref="Write(String, Boolean)"/> posteriores
+        ''' </summary>
+        ''' <param name="OnOff"></param>
+        ''' <returns></returns>
+        Public Function UseDiacritics(Optional OnOff As Boolean = True) As Printer
+            Diacritics = OnOff
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Remove todos os acentod das chamadas <see cref="Write(String, Boolean)"/> posteriores
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function DontUseDiacritics() As Printer
+            Return UseDiacritics(False)
         End Function
 
         Private _ommit As Boolean = False
 
+        ''' <summary>
+        ''' Escreve os bytes contidos em <paramref name="value"/> no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <param name="value"></param>
+        ''' <returns></returns>
         Public Function Write(ByVal value As Byte()) As Printer
             If value IsNot Nothing AndAlso value.Any Then
                 Dim list = New List(Of Byte)
@@ -163,27 +244,54 @@ Namespace Printer
                 list.AddRange(value)
                 DocumentBuffer = list.ToArray
                 If _ommit = False Then
-                    Dim v = Command.Encoding.GetString(value).ReplaceMany("<br/>", BreakLineChars.ToArray())
-                    If v = "<br/>" Then
-                        HTMLDocument.Root.Add(<br/>)
-                    Else
-                        HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold", " ")}{IsItalic.AsIf(" italic ")}{IsUnderline.AsIf("underline")}'>{Command.Encoding.GetString(value).Replace(vbLf, "<br/>")}</span>"))
-                    End If
+                    Try
+                        Dim v = Command.Encoding.GetString(value).ReplaceMany("<br/>", BreakLineChars.ToArray())
+                        If v = "<br/>" Then
+                            HTMLDocument.Root.Add(<br/>)
+                        Else
+                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v}</span>"))
+                        End If
+                    Catch ex As Exception
+                    End Try
                 End If
                 _ommit = False
-
             End If
             Return Me
         End Function
 
+        ''' <summary>
+        ''' Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE
+        ''' </summary>
+        ''' <param name="value"></param>
+        ''' <param name="Test"></param>
+        ''' <returns></returns>
         Public Function WriteLine(ByVal value As String, Optional Test As Boolean = True) As Printer
-            Return If(Test, Write(Command.Encoding.GetBytes(value)).NewLine(), Me)
+            Return If(Test, Write(value, Test).NewLine(), Me)
         End Function
 
-        Public Function NewLine(Optional lines As Integer = 1) As Printer
-            While (lines > 0)
-                Write(vbLf)
-                lines = lines - 1
+        ''' <summary>
+        ''' Adciona um numero <paramref name="Lines"/> de quebras de linha
+        ''' </summary>
+        ''' <param name="Lines"></param>
+        ''' <returns></returns>
+        Public Function NewLine(Optional Lines As Integer = 1) As Printer
+            While (Lines > 0)
+                Write(Me.Command.Encoding.GetBytes(vbLf))
+                Lines = Lines - 1
+            End While
+            Return Me
+        End Function
+
+
+        ''' <summary>
+        ''' Adciona um numero <paramref name="Spaces"/> de espaços em branco
+        ''' </summary>
+        ''' <param name="Spaces"></param>
+        ''' <returns></returns>
+        Public Function Space(Optional Spaces As Integer = 1) As Printer
+            While (Spaces > 0)
+                Write(Me.Command.Encoding.GetBytes(" "))
+                Spaces = Spaces - 1
             End While
             Return Me
         End Function
@@ -207,6 +315,10 @@ Namespace Printer
             Return Write(Command.AutoTest())
         End Function
 
+        Public Function TestDiacritics() As Printer
+            Return WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ")
+        End Function
+
         Public Function WriteTest() As Printer
             NewLine()
             AlignLeft()
@@ -214,16 +326,11 @@ Namespace Printer
             WriteLine("....+....1....+....2....+....3....+....4....+...")
             Separator()
             WriteLine("Default Text")
-            Italic.WriteLine("Italic Text").Italic(False)
-            Bold.WriteLine("Bold Text").Bold(False)
-            UnderLine.WriteLine("UnderLine Text").UnderLine(False)
-            Expanded(True)
-            WriteLine("Expanded Text")
-            WriteLine("....+....1....+....2....")
-            Expanded(False)
-            Condensed(True)
-            WriteLine("Condensed Text")
-            Condensed(False)
+            Italic().WriteLine("Italic Text").NotItalic()
+            Bold().WriteLine("Bold Text").NotBold()
+            UnderLine.WriteLine("UnderLine Text").NotUnderline()
+            Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded()
+            Condensed().WriteLine("Condensed Text").NotCondensed()
             Separator()
             DoubleWidth2()
             WriteLine("Font Size 2")
@@ -239,6 +346,8 @@ Namespace Printer
             AlignLeft()
             WriteLine("Text on Left")
             NewLine(3)
+            WriteLine("ACENTOS")
+            TestDiacritics()
             WriteLine("EOF :)")
             Separator()
             NewLine()
@@ -379,6 +488,7 @@ Namespace Printer
         Public Function NotCondensed() As Printer
             Return Condensed(False)
         End Function
+
         Public Function NormalWidth() As Printer
             FontMode = "Normal"
             _ommit = True
@@ -509,6 +619,15 @@ Namespace Printer
 
         Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer
             Return WriteDictionary(False, dics)
+        End Function
+
+        Public Function WriteTable(Of T As Class)(Items As IEnumerable(Of T)) As Printer
+            Write(ConsoleTables.ConsoleTable.From(Items).ToString())
+            Return Me
+        End Function
+
+        Public Function WriteTable(Of T As Class)(ParamArray Items As T()) As Printer
+            Return WriteTable(Items.AsEnumerable)
         End Function
 
         Public Function WriteDictionary(Of T1, T2)(PartialCutOnEach As Boolean, ParamArray dics As IDictionary(Of T1, T2)()) As Printer

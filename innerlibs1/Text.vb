@@ -2,6 +2,7 @@
 Imports System.ComponentModel
 Imports System.Globalization
 Imports System.IO
+Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports System.Text.RegularExpressions
@@ -3339,6 +3340,12 @@ Public Module Text
         Return ""
     End Function
 
+    <Extension()> Public Function ForEachLine(Text As String, Action As Expression(Of Func(Of String, String))) As String
+        If Text.IsNotBlank AndAlso Action IsNot Nothing Then
+            Text = Text.SplitAny(BreakLineChars.ToArray).Select(Function(x) Action.Compile.Invoke(x)).Join(Environment.NewLine)
+        End If
+        Return Text
+    End Function
 
 
     ''' <summary>
@@ -3354,6 +3361,8 @@ Public Module Text
         End If
         Return Text
     End Function
+
+
 
     <Extension()> Function UnWrap(Text As String, Optional WrapText As String = """", Optional ContinuouslyRemove As Boolean = False) As String
         Return Text.TrimAny(ContinuouslyRemove, WrapText)

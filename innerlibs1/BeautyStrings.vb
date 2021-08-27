@@ -2,55 +2,13 @@
 
 Public Module BeautyStrings
 
-    <Extension()> Public Function ListInFrameCssComment(Lines As List(Of String)) As String
-        Return Lines.ListInFrame().Wrap(Environment.NewLine).CSSComment()
+    <Extension()> Public Function BoxTextCSS(Text As String) As String
+        Return $"/*{Text.BoxText().Wrap(Environment.NewLine)}*/"
     End Function
 
-    <Extension()> Public Function CSSComment(Text As String) As String
-        Return $"/* {Text} */"
-    End Function
-
-    <Extension> Public Function PropertiesInFrame(Of T As Class)(obj As T) As String
-        Dim l As New List(Of String)
-        If obj IsNot Nothing Then
-
-            For Each item In obj.GetProperties()
-                If item.CanRead Then
-                    l.Add($"{item.Name}: {item.GetValue(obj)}")
-                End If
-            Next
-
-        End If
-        Return l.ListInFrame()
-    End Function
-
-    <Extension> Public Function FieldsInFrame(Of T As Class)(obj As T) As String
-        Dim l As New List(Of String)
-        If obj IsNot Nothing Then
-            For Each item In GetNullableTypeOf(obj).GetFields()
-                l.Add($"{item.Name}: {item.GetValue(obj)}")
-            Next
-
-        End If
-        Return l.ListInFrame()
-    End Function
-
-    <Extension> Public Function PairsInFrame(Of K, V)(obj As IDictionary(Of K, V)) As String
-        Dim l As New List(Of String)
-        If obj IsNot Nothing Then
-            For Each item In obj
-                l.Add($"{item.Key}: {item.Value}")
-            Next
-        End If
-        Return l.ListInFrame()
-    End Function
-
-
-
-    <Extension()> Public Function ListInFrame(Lines As List(Of String)) As String
-
+    <Extension()> Public Function BoxText(Text As String) As String
+        Dim Lines = Text.SplitAny(BreakLineChars.ToArray()).ToList()
         Dim linha_longa = ""
-
         Dim charcount = Lines.Max(Function(x) x.Length)
 
         If charcount.IsEven() Then

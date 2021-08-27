@@ -63,7 +63,7 @@ Namespace Printer
             Dim hPrinter = New IntPtr(0)
             Dim di = New DOCINFOA()
             Dim bSuccess = False ' Assume failure unless you specifically succeed.
-            di.pDocName = "InnerLibs RAW Printer Document"
+            di.pDocName = "RAW Printer Document"
             di.pDataType = "RAW"
 
             ' Open the printer.
@@ -148,21 +148,21 @@ Namespace Printer
             Dim bmp = New Bitmap(image)
 
             ' Set character line spacing to n dotlines
-            Dim send = "" & Microsoft.VisualBasic.ChrW(27) & Microsoft.VisualBasic.ChrW(51) & Microsoft.VisualBasic.ChrW(0)
+            Dim send = "" & ChrW(27) & ChrW(51) & ChrW(0)
             Dim data = New Byte(send.Length - 1) {}
 
             For i = 0 To send.Length - 1
-                data(i) = Microsoft.VisualBasic.AscW(send(i))
+                data(i) = AscW(send(i))
             Next
 
             list.AddRange(data)
-            data(0) = Microsoft.VisualBasic.AscW(Microsoft.VisualBasic.Strings.ChrW(0))
-            data(1) = Microsoft.VisualBasic.AscW(Microsoft.VisualBasic.Strings.ChrW(0))
-            data(2) = Microsoft.VisualBasic.AscW(Microsoft.VisualBasic.Strings.ChrW(0)) ' Clear
+            data(0) = AscW(Strings.ChrW(0))
+            data(1) = AscW(Strings.ChrW(0))
+            data(2) = AscW(Strings.ChrW(0)) ' Clear
 
             ' ESC * m nL nH d1…dk   Select bitmap mode
             Dim escBmp As Byte() = {&H1B, &H2A, &H0, &H0, &H0}
-            escBmp(2) = Microsoft.VisualBasic.AscW("!"c)
+            escBmp(2) = AscW("!"c)
             'nL, nH
             escBmp(3) = CByte(bmp.Width Mod 256)
             escBmp(4) = CByte(bmp.Width / 256)
@@ -188,9 +188,9 @@ Namespace Printer
 
                     ' Write data，24dots
                     list.AddRange(data)
-                    data(0) = Microsoft.VisualBasic.AscW(Microsoft.VisualBasic.Strings.ChrW(0))
-                    data(1) = Microsoft.VisualBasic.AscW(Microsoft.VisualBasic.Strings.ChrW(0))
-                    data(2) = Microsoft.VisualBasic.AscW(Microsoft.VisualBasic.Strings.ChrW(0)) ' Clear
+                    data(0) = AscW(Strings.ChrW(0))
+                    data(1) = AscW(Strings.ChrW(0))
+                    data(2) = AscW(Strings.ChrW(0)) ' Clear
                 Next
 
                 Dim data2 As Byte() = {&HA}
@@ -203,7 +203,7 @@ Namespace Printer
 
         <Extension()>
         Public Function ToByte(ByVal c As Char) As Byte
-            Return Microsoft.VisualBasic.AscW(c)
+            Return AscW(c)
         End Function
 
         <Extension()>
@@ -245,12 +245,12 @@ Namespace Printer
 
         <Extension()>
         Public Function AddLF(ByVal bytes As Byte(), Optional Encoding As Encoding = Nothing) As Byte()
-            Return bytes.AddTextBytes(Microsoft.VisualBasic.Constants.vbLf, Encoding)
+            Return bytes.AddTextBytes(Constants.vbLf, Encoding)
         End Function
 
         <Extension()>
         Public Function AddCrLF(ByVal bytes As Byte(), Optional Encoding As Encoding = Nothing) As Byte()
-            Return bytes.AddTextBytes(Microsoft.VisualBasic.Constants.vbCrLf, Encoding)
+            Return bytes.AddTextBytes(Constants.vbCrLf, Encoding)
         End Function
 
         <Extension()>
