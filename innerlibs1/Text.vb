@@ -3362,7 +3362,18 @@ Public Module Text
         Return Text
     End Function
 
-
+    ''' <summary>
+    ''' Encapsula um tento entre 2 textos
+    ''' </summary>
+    ''' <param name="Text">    Texto</param>
+    ''' <returns></returns>
+    <Extension()>
+    Function Wrap(Text As String, OpenWrapText As String, CloseWrapText As String) As String
+        If Text.IsNotBlank Then
+            Return OpenWrapText & Text & CloseWrapText.IfBlank(OpenWrapText)
+        End If
+        Return Text
+    End Function
 
     <Extension()> Function UnWrap(Text As String, Optional WrapText As String = """", Optional ContinuouslyRemove As Boolean = False) As String
         Return Text.TrimAny(ContinuouslyRemove, WrapText)
