@@ -7,9 +7,6 @@ Namespace Console
     ''' </summary>
     Public Module ConsoleExtensions
 
-
-
-
         ''' <summary>
         ''' Escreve no console colorindo palavras especificas
         ''' </summary>
@@ -45,7 +42,6 @@ Namespace Console
             Return Text
         End Function
 
-
         ''' <summary>
         ''' Escreve no console usando uma cor especifica
         ''' </summary>
@@ -53,7 +49,6 @@ Namespace Console
         <Extension()> Public Function ConsoleWrite(Text As String, Optional BreakLines As Integer = 0) As String
             Return ConsoleWrite(Text, System.Console.ForegroundColor, BreakLines)
         End Function
-
 
         ''' <summary>
         ''' Escreve no console usando uma cor especifica
@@ -107,9 +102,9 @@ Namespace Console
         ''' <param name="Exception">Texto</param>
         ''' <param name="Message">Mensagem Adicional de erro</param>
         ''' <param name="Color">Cor</param>
-        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Message As String, Optional Color As ConsoleColor = ConsoleColor.Red, Optional Lines As Integer = 1) As T
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Message As String, Separator As String, Optional Color As ConsoleColor = ConsoleColor.Red, Optional Lines As Integer = 1) As T
             Dim ex As New Exception(Message.IfBlank("Error"), Exception)
-            Return ex.ConsoleWriteError(Color, Lines)
+            Return ex.ConsoleWriteError(Separator, Color, Lines)
         End Function
 
         ''' <summary>
@@ -117,10 +112,32 @@ Namespace Console
         ''' </summary>
         ''' <param name="Exception">Texto</param>
         ''' <param name="Color">Cor</param>
-        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Optional Color As ConsoleColor = ConsoleColor.Red, Optional Lines As Integer = 1) As T
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Separator As String, Optional Color As ConsoleColor = ConsoleColor.Red, Optional Lines As Integer = 1) As T
             Lines = Lines.SetMinValue(1)
-            ConsoleWrite(Exception.ToFullExceptionString, Color, Lines)
+            ConsoleWrite(Exception.ToFullExceptionString(Separator), Color, Lines)
             Return Exception
+        End Function
+
+        ''' <summary>
+        ''' Escreve o texto de uma exception no console
+        ''' </summary>
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Message As String) As T
+            Return Exception.ConsoleWriteError(Message, " >> ")
+        End Function
+
+        ''' <summary>
+        ''' Escreve o texto de uma exception no console
+        ''' </summary>
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T) As T
+            Return Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, 1)
+        End Function
+
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Color As ConsoleColor, Optional Lines As Integer = 1) As T
+            Return Exception.ConsoleWriteError(" >> ", Color, Lines)
+        End Function
+
+        <Extension()> Public Function ConsoleWriteError(Of T As Exception)(Exception As T, Lines As Integer) As T
+            Return Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, Lines)
         End Function
 
         ''' <summary>
@@ -128,11 +145,10 @@ Namespace Console
         ''' </summary>
         ''' <param name="Lines">Numero de linhas</param>
         Public Sub ConsoleBreakLine(Optional Lines As Integer = 1)
-            If Lines > 0 Then
-                For index = 1 To Lines
-                    System.Console.WriteLine("")
-                Next
-            End If
+            While Lines > 0
+                System.Console.WriteLine(String.Empty)
+                Lines = Lines - 1
+            End While
         End Sub
 
         ''' <summary>
@@ -159,7 +175,6 @@ Namespace Console
         Public Function ReadChar() As Char
             Return System.Console.ReadKey.KeyChar
         End Function
-
 
         ''' <summary>
         ''' Le a proxima tecla pressionada pelo usuário

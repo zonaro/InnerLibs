@@ -138,62 +138,11 @@ Methods
 | `String` | ToString() | Retorna uma string que representa a quantidade do item | 
 
 
-## `TimeDemand`
-
-Classe base para calculo de demandas
-```csharp
-public class InnerLibs.TimeMachine.TimeDemand
-
-```
-
-Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `DateTime` | EndDate | Data de encerramento da produção | 
-| `Day` | Friday | Sexta-Feira | 
-| `List<DateTime>` | HoliDays | Feriados, pontos facuultativos e/ou datas especificas consideradas não relevantes | 
-| `Item` | Item | item da Produção | 
-| `Day` | Monday | Segunda-Feira | 
-| `List<DateTime>` | NonRelevantDays | Dias não relevantes (nao letivos e feriados) entre as datas inicial e final | 
-| `IEnumerable<DayOfWeek>` | NonRelevantDaysOfWeek | Dias da semana não relevantes | 
-| `List<DateTime>` | RelevantDays | Dias relevantes (letivos) entre as datas inicial e final | 
-| `IEnumerable<DayOfWeek>` | RelevantDaysOfWeek | Dias da semana relevantes | 
-| `Day` | Saturday | Sábado | 
-| `DateTime` | StartDate | Data Inicial da produção | 
-| `Day` | Sunday | Domingo | 
-| `Day` | Thursday | Quinta-Feira | 
-| `Day` | Tuesday | Terça-Feira | 
-| `Day` | Wednesday | Quarta-Feira | 
-| `List<DateTime>` | WorkDays | Dias especificos da semana entre as datas inicial e final da demanda | 
-| `TimeSpan` | WorkTime | Intervalo de horas trabalhadas entre as datas de inicio e fim desta demanda | 
-
-
-Methods
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `TimeFlow` | BuildTimeFlow() | Retorna um TimeFlow desta demanda | 
-| `TimeDemand` | CloneAndQueue(`TimeSpan` SafeTime = null) | Cria uma demanda após a demanda atual com as mesmas caracteristicas | 
-| `Decimal` | GetPercentCompletion(`DateTime` MidDate) | Retorna a porcentagem em relacao a posição de uma data entre a data inicial (0%) e final (100%) | 
-| `TimeSpan` | GetWorkTimeBetween(`DateTime` StartDate, `DateTime` EndDate) | Retorna o intervalo de horas trabalhadas entre duas datas baseado nas confuguracoes desta demanda | 
-| `DateTime` | JourneyEndHour(`DateTime` Date) | Retorna a hora final da jornada de uma data acordo com as configuracoes desta demanda | 
-| `DateTime` | JourneyStartHour(`DateTime` Date) | Retorna a hora inicial da jornada de uma data de acordo com as configuracoes desta demanda | 
-| `TimeSpan` | JourneyTime(`DateTime` Date) | Retorna o tempo da jornada de trabalho de uma data de acordo com as configuracoes desta demanda | 
-| `DateTime` | LunchEndHour(`DateTime` Date) | Retorna a hora de termino do almoço de uma data de acordo com as configurações desta demanda | 
-| `DateTime` | LunchStartHour(`DateTime` Date) | Retorno a hora de inicio do almoço de uma data de acordo com as configurações desta demanda | 
-| `TimeSpan` | LunchTime(`DateTime` Date) | Retorna o tempo de almoço de uma data de acordo com as configuracoes desta demanda | 
-| `void` | PushDateIntoJourney(`DateTime&` Date) | Empurra a data para dentro da proxima hora disponivel dentro jornada de trabalho | 
-| `String` | ToString() | Retorna uma string representado a quantidade de itens e o tempo gasto com a produção | 
-| `TimeSpan` | TotalTime(`DateTime` Date) | Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as configuracoes desta demanda | 
-| `String` | ToTimeElapsedString(`Boolean` FullString = True) | Retorna uma String no formato "X anos, Y meses e Z dias" | 
-
-
-## `TimeFlow`
+## `LongTimeSpan`
 
 Classe para comapração entre 2 Datas com possibilidade de validação de dias Relevantes
 ```csharp
-public class InnerLibs.TimeMachine.TimeFlow
+public class InnerLibs.TimeMachine.LongTimeSpan
 
 ```
 
@@ -230,6 +179,57 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `String` | ToString() | Retorna uma string com a quantidade de itens e o tempo de produção | 
+| `String` | ToTimeElapsedString(`Boolean` FullString = True) | Retorna uma String no formato "X anos, Y meses e Z dias" | 
+
+
+## `TimeDemand`
+
+Classe base para calculo de demandas
+```csharp
+public class InnerLibs.TimeMachine.TimeDemand
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `DateTime` | EndDate | Data de encerramento da produção | 
+| `Day` | Friday | Sexta-Feira | 
+| `List<DateTime>` | HoliDays | Feriados, pontos facuultativos e/ou datas especificas consideradas não relevantes | 
+| `Item` | Item | item da Produção | 
+| `Day` | Monday | Segunda-Feira | 
+| `IEnumerable<DateTime>` | NonRelevantDays | Dias não relevantes (nao letivos e feriados) entre as datas inicial e final | 
+| `IEnumerable<DayOfWeek>` | NonRelevantDaysOfWeek | Dias da semana não relevantes | 
+| `IEnumerable<DateTime>` | RelevantDays | Dias relevantes (letivos) entre as datas inicial e final | 
+| `IEnumerable<DayOfWeek>` | RelevantDaysOfWeek | Dias da semana relevantes | 
+| `Day` | Saturday | Sábado | 
+| `DateTime` | StartDate | Data Inicial da produção | 
+| `Day` | Sunday | Domingo | 
+| `Day` | Thursday | Quinta-Feira | 
+| `Day` | Tuesday | Terça-Feira | 
+| `Day` | Wednesday | Quarta-Feira | 
+| `IEnumerable<DateTime>` | WorkDays | Dias especificos da semana entre as datas inicial e final da demanda | 
+| `TimeSpan` | WorkTime | Intervalo de horas trabalhadas entre as datas de inicio e fim desta demanda | 
+
+
+Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `LongTimeSpan` | BuildTimeFlow() | Retorna um TimeFlow desta demanda | 
+| `TimeDemand` | CloneAndQueue(`TimeSpan` DelayTime = null) | Cria uma demanda após a demanda atual com as mesmas caracteristicas | 
+| `Decimal` | GetPercentCompletion(`DateTime` MidDate) | Retorna a porcentagem em relacao a posição de uma data entre a data inicial (0%) e final (100%) | 
+| `TimeSpan` | GetWorkTimeBetween(`DateTime` StartDate, `DateTime` EndDate) | Retorna o intervalo de horas trabalhadas entre duas datas baseado nas confuguracoes desta demanda | 
+| `DateTime` | JourneyEndHour(`DateTime` Date) | Retorna a hora final da jornada de uma data acordo com as configuracoes desta demanda | 
+| `DateTime` | JourneyStartHour(`DateTime` Date) | Retorna a hora inicial da jornada de uma data de acordo com as configuracoes desta demanda | 
+| `TimeSpan` | JourneyTime(`DateTime` Date) | Retorna o tempo da jornada de trabalho de uma data de acordo com as configuracoes desta demanda | 
+| `DateTime` | LunchEndHour(`DateTime` Date) | Retorna a hora de termino do almoço de uma data de acordo com as configurações desta demanda | 
+| `DateTime` | LunchStartHour(`DateTime` Date) | Retorno a hora de inicio do almoço de uma data de acordo com as configurações desta demanda | 
+| `TimeSpan` | LunchTime(`DateTime` Date) | Retorna o tempo de almoço de uma data de acordo com as configuracoes desta demanda | 
+| `void` | PushDateIntoJourney(`DateTime&` Date) | Empurra a data para dentro da proxima hora disponivel dentro jornada de trabalho | 
+| `String` | ToString() | Retorna uma string representado a quantidade de itens e o tempo gasto com a produção | 
+| `TimeSpan` | TotalTime(`DateTime` Date) | Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as configuracoes desta demanda | 
 | `String` | ToTimeElapsedString(`Boolean` FullString = True) | Retorna uma String no formato "X anos, Y meses e Z dias" | 
 
 

@@ -9,6 +9,9 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+
+
+
     ''' <summary>
     ''' Metodo de extensão para utilizar qualquer objeto usando FluentAPI
     ''' </summary>

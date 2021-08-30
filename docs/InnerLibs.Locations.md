@@ -10,24 +10,26 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | Address | Retorna o endereço completo | 
 | `String` | City | Cidade | 
 | `String` | Complement | Complemento | 
 | `String` | Country | País | 
-| `String` | DDD | DDD do local | 
-| `String` | GIA |  | 
-| `String` | IBGE |  | 
-| `Decimal` | Latitude | Coordenada geográfica LATITUDE | 
-| `Decimal` | Longitude | Coordenada geográfica LONGITUDE | 
+| `String` | CountryCode | País | 
+| `String` | Detail | Retona uma informação deste endereço | 
+| `AddressPart` | Format | Formato desta instancia de `InnerLibs.Locations.AddressInfo` quando chamada pelo `InnerLibs.Locations.AddressInfo.ToString` | 
+| `String` | FullAddress | Retorna o endereço completo | 
+| `String` | FullLocationInfo | Logradouro, Numero e Complemento | 
+| `Nullable<Decimal>` | Latitude | Coordenada geográfica LATITUDE | 
+| `String` | LocationInfo | Retorna o Logradouro e numero | 
+| `Nullable<Decimal>` | Longitude | Coordenada geográfica LONGITUDE | 
+| `String` | Name | O nome do endereço | 
 | `String` | Neighborhood | Bairro | 
 | `String` | Number | Numero da casa, predio etc. | 
 | `String` | PostalCode | CEP - Codigo de Endereçamento Postal | 
-| `String` | SIAFI |  | 
+| `String` | Region | País | 
 | `String` | State | Estado | 
 | `String` | StateCode | Unidade federativa | 
 | `String` | Street | Logradouro | 
-| `String` | StreetName | O nome do endereço | 
-| `String` | StreetType | Tipo do Endereço | 
+| `String` | Type | Tipo do Endereço | 
 | `String` | ZipCode | CEP - Codigo de Endereçamento Postal. Alias de `InnerLibs.Locations.AddressInfo.PostalCode` | 
 
 
@@ -35,19 +37,77 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `void` | GetInfoByPostalCode() | Retorna o endereço de acordo com o CEP contidos em uma variavel do tipo InnerLibs.Location usando a API https://viacep.com.br/ | 
+| `void` | Add(`String` key, `String` value) |  | 
+| `void` | Clear() |  | 
+| `Boolean` | ContainsKey(`String` key) |  | 
+| `Dictionary<String, String>` | GetDetails() |  | 
+| `Point` | GetPoint() |  | 
 | `String` | LatitudeLongitude() | Retorna as coordenadas geográficas do Local | 
-| `String` | ToString(`Boolean` IncludeNumber = True, `Boolean` IncludeComplement = True, `Boolean` IncludeNeighborhood = True, `Boolean` IncludeCity = True, `Boolean` IncludeState = True, `Boolean` IncludePostalCode = True, `Boolean` IncludeCountry = False) | Retorna as string do endereço omitindo ou não informações | 
-| `String` | ToString() | Retorna as string do endereço omitindo ou não informações | 
+| `Boolean` | Remove(`String` key) |  | 
+| `AddressInfo` | SetLatitudeLongitudeFromPoint(`Point` Point) |  | 
+| `String` | ToString() | Retorna uma String contendo as informações do Local | 
+| `String` | ToString(`IEnumerable<AddressPart>` Parts) | Retorna uma String contendo as informações do Local | 
+| `String` | ToString(`AddressPart[]` Parts) | Retorna uma String contendo as informações do Local | 
+| `String` | ToString(`Int32` FormatCode) | Retorna uma String contendo as informações do Local | 
+| `String` | ToString(`AddressPart` Parts) | Retorna uma String contendo as informações do Local | 
+
+
+Static Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `AddressPart` | GlobalFormat | Formato global de todas as intancias de `InnerLibs.Locations.AddressInfo` quando chamadas pelo `InnerLibs.Locations.AddressInfo.ToString` | 
 
 
 Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `AddressInfo` | CreateLocation(`String` Address, `String` Number = , `String` Complement = , `String` Neighborhood = , `String` City = , `String` State = , `String` Country = , `String` PostalCode = ) | Cria uma localização a partir de informações | 
-| `String` | FormatAddress(`String` Address, `String` Number = , `String` Complement = , `String` Neighborhood = , `String` City = , `String` State = , `String` Country = , `String` PostalCode = ) |  | 
+| `AddressInfo` | CreateLocation(`String` Address, `String` Number = , `String` Complement = , `String` Neighborhood = , `String` City = , `String` State = , `String` Country = , `String` PostalCode = ) | Cria uma localização a partir de partes de endereço | 
+| `T` | CreateLocation(`String` Address, `String` Number = , `String` Complement = , `String` Neighborhood = , `String` City = , `String` State = , `String` Country = , `String` PostalCode = ) | Cria uma localização a partir de partes de endereço | 
+| `String` | FormatAddress(`String` Address, `String` Number = , `String` Complement = , `String` Neighborhood = , `String` City = , `String` State = , `String` Country = , `String` PostalCode = ) | Retorna uma string de endereço a partir de varias partes de endereco | 
 | `String` | FormatPostalCode(`String` CEP) | Formata uma string de CEP | 
+| `AddressInfo` | FromGoogleMaps(`String` Address, `String` Key, `NameValueCollection` NVC = null) | Retorna um `InnerLibs.Locations.AddressInfo` usando a api de geocode do Google Maps para completar as informações | 
+| `T` | FromGoogleMaps(`String` Address, `String` Key, `NameValueCollection` NVC = null) | Retorna um `InnerLibs.Locations.AddressInfo` usando a api de geocode do Google Maps para completar as informações | 
+| `AddressInfo` | FromViaCEP(`Int64` PostalCode, `String` Number = null, `String` Complement = null) | Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP | 
+| `AddressInfo` | FromViaCEP(`String` PostalCode, `String` Number = null, `String` Complement = null) | Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP | 
+| `T` | FromViaCEP(`Int64` PostalCode, `String` Number = null, `String` Complement = null) | Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP | 
+| `T` | FromViaCEP(`String` PostalCode, `String` Number = null, `String` Complement = null) | Cria um objeto de localização e imadiatamente pesquisa as informações de um local através do CEP usando as APIs ViaCEP | 
+| `AddressInfo` | TryParse(`String` Address) | Tenta extrair as partes de um endereço de uma string | 
+| `T` | TryParse(`String` Address) | Tenta extrair as partes de um endereço de uma string | 
+
+
+## `AddressPart`
+
+Partes de um Endereço
+```csharp
+public enum InnerLibs.Locations.AddressPart
+    : Enum, IComparable, IFormattable, IConvertible
+
+```
+
+Enum
+
+| Value | Name | Summary | 
+| --- | --- | --- | 
+| `0` | Default | Formato default definido pela propriedade `InnerLibs.Locations.AddressInfo.Format` ou `InnerLibs.Locations.AddressInfo.GlobalFormat` | 
+| `1` | StreetType | Tipo do Lograoduro | 
+| `2` | StreetName | Nome do Logradouro | 
+| `3` | Street | Logradouro | 
+| `4` | Number | Numero do local | 
+| `8` | Complement | Complemento do local | 
+| `12` | LocationInfo | Numero e complemento | 
+| `15` | FullLocationInfo | Logradouro, Numero e complemento | 
+| `16` | Neighborhood | Bairro | 
+| `32` | City | Cidade | 
+| `64` | State | Estado | 
+| `96` | CityState | Cidade e Estado | 
+| `128` | StateCode | UF | 
+| `160` | CityStateCode | Cidade e UF | 
+| `256` | Country | País | 
+| `512` | CountryCode | País | 
+| `1024` | PostalCode | CEP | 
+| `1471` | FullAddress | Endereço completo | 
 
 
 ## `AddressTypes`
@@ -112,6 +172,8 @@ Static Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `String` | GetAddressType(`String` Endereco) |  | 
+| `String[]` | GetAddressTypeList(`String` Endereco) |  | 
+| `PropertyInfo` | GetAddressTypeProperty(`String` Endereco) |  | 
 
 
 ## `Brasil`
@@ -126,6 +188,7 @@ Static Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `IEnumerable<String>` | Cities | Retorna todas as Cidades dos estados brasileiros | 
 | `IEnumerable<String>` | Regions | Retorna as Regiões dos estados brasileiros | 
 | `IEnumerable<State>` | States | Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes | 
 
@@ -134,11 +197,16 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | GetAcronymOf(`String` Name) | Retorna a Sigla a partir de um nome de estado | 
-| `IEnumerable<String>` | GetCitiesOf(`String` NameOrStateCode = ) | Retorna as cidades de um estado a partir do nome ou sigla do estado | 
-| `String` | GetNameOf(`String` StateCode) | Retorna o nome do estado a partir da sigla | 
-| `List<String>` | GetStateList(`StateString` Type = Name) | Retorna uma lista contendo os nomes ou siglas dos estados do Brasil | 
-| `IEnumerable<String>` | GetStatesOf(`String` Region = , `StateString` Type = Name) | Retorna os estados de uma região | 
+| `AddressInfo` | CreateAddressInfo(`String` NameOrStateCode, `String` City) | Retorna um `InnerLibs.Locations.AddressInfo` da cidade e estado correspondentes | 
+| `T` | CreateAddressInfo(`String` NameOrStateCode, `String` City) | Retorna um `InnerLibs.Locations.AddressInfo` da cidade e estado correspondentes | 
+| `IEnumerable<State>` | FindStateByCity(`String` CityName) | Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da cidade seja igual em 2 ou mais estados | 
+| `IEnumerable<String>` | GetCitiesOf(`String` NameOrStateCode) | Retorna as cidades de um estado a partir do nome ou sigla do estado | 
+| `String` | GetClosestCity(`String` NameOrStateCode, `String` CityName) | Retorna as cidades de um estado a partir do nome ou sigla do estado | 
+| `String` | GetNameOf(`String` NameOrStateCode) | Retorna o nome do estado a partir da sigla | 
+| `String` | GetRegionOf(`String` NameOrStateCode) | Retorna a região a partir de um nome de estado | 
+| `State` | GetState(`String` NameOrStateCode) | Retorna a as informações do estado a partir de um nome de estado ou sua sigla | 
+| `String` | GetStateCodeOf(`String` NameOrStateCode) | Retorna a Sigla a partir de um nome de estado | 
+| `IEnumerable<State>` | GetStatesOf(`String` Region) | Retorna os estados de uma região | 
 
 
 ## `State`
@@ -153,10 +221,10 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | Acronym | Sigla do estado | 
-| `List<String>` | Cities | Lista de cidades do estado | 
+| `IEnumerable<String>` | Cities | Lista de cidades do estado | 
 | `String` | Name | Nome do estado | 
 | `String` | Region | Região do Estado | 
+| `String` | StateCode | Sigla do estado | 
 
 
 Methods
@@ -164,6 +232,5 @@ Methods
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `String` | ToString() | Retorna a String correspondente ao estado | 
-| `String` | ToString(`StateString` Type = Acronym) | Retorna a String correspondente ao estado | 
 
 
