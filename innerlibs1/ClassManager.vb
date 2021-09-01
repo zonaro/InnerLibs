@@ -9,9 +9,6 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
-
-
-
     ''' <summary>
     ''' Metodo de extensão para utilizar qualquer objeto usando FluentAPI
     ''' </summary>
@@ -475,19 +472,22 @@ Public Module ClassTools
     ''' <param name="List2">Lista2</param>
     ''' <returns></returns>
     <Extension()> Public Function ContainsAll(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
-        For Each value As Type In List2
+        For Each value As Type In List2.NullAsEmpty
             If Comparer Is Nothing Then
-                If Not List1.Contains(value) Then
+                If Not List1.NullAsEmpty().Contains(value) Then
                     Return False
                 End If
             Else
-                If Not List1.Contains(value, Comparer) Then
+                If Not List1.NullAsEmpty().Contains(value, Comparer) Then
                     Return False
                 End If
             End If
-
         Next
         Return True
+    End Function
+
+    <Extension()> Public Function ContainsAll(Of Type)(List1 As IEnumerable(Of Type), Comparer As IEqualityComparer(Of Type), ParamArray List2 As Type()) As Boolean
+        Return ContainsAll(List1, List2.DefaultIfEmpty().AsEnumerable(), Comparer)
     End Function
 
     ''' <summary>
