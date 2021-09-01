@@ -167,7 +167,6 @@ Namespace Printer
             Return Lin$
         End Function
 
-
         Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
             If Test Then
                 If value.ContainsAny(BreakLineChars.ToArray()) Then
@@ -249,7 +248,7 @@ Namespace Printer
                         If v = "<br/>" Then
                             HTMLDocument.Root.Add(<br/>)
                         Else
-                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v}</span>"))
+                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&nbsp;")}</span>"))
                         End If
                     Catch ex As Exception
                     End Try
@@ -281,7 +280,6 @@ Namespace Printer
             End While
             Return Me
         End Function
-
 
         ''' <summary>
         ''' Adciona um numero <paramref name="Spaces"/> de espaços em branco
@@ -587,33 +585,49 @@ Namespace Printer
             Return WriteList(If(Items, {}).AsEnumerable)
         End Function
 
-        Public Function WritePair(Key As Object, Value As Object) As Printer
-            AlignLeft().Write($"{Key}").AlignRight().Write($"{Value}").AlignLeft().NewLine()
-            Return Me
-        End Function
-
-        Public Function WritePriceLine(Description As String, Price As Decimal, Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing) As Printer
-            Columns = If(Columns, Me.ColsNomal)
-            Dim sprice = Price.ToString("C", If(Culture, CultureInfo.CurrentCulture))
+        Public Function WritePair(Key As Object, Value As Object, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As Printer
+            Columns = If(Columns, GetCurrentColumns())
             Dim dots = ""
-            If Columns.HasValue Then
-                Columns = Columns.Value.SetMinValue(0)
-                dots = New String("."c, (Columns.Value - (Description.Length + sprice.Length)).LimitRange(0, Columns))
+            Dim s1 = $"{Key}"
+            Dim s2 = $"{Value}"
+            If s2.IsNotBlank() AndAlso Columns.Value > 0 Then
+                dots = GetDotLine(s1, s2, Columns, CharLine)
+            Else
+                dots = " "
             End If
-            dots = dots.IfBlank(" ")
-            Dim s = $"{Description}{dots}{sprice}"
-            WriteLine(s)
-            Return Me
+            Dim s = $"{s1}{dots}{s2}"
+            Return WriteLine(s, s.IsNotBlank())
         End Function
 
-        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing) As Printer
+        Public Function WritePriceLine(Description As String, Price As Decimal, Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
+            Dim sprice = Price.ToString("C", If(Culture, CultureInfo.CurrentCulture))
+            Return WritePair(Description, sprice, Columns, CharLine)
+        End Function
+
+        Public Function GetCurrentColumns() As Integer
+            If IsCondensed Then
+                Return Me.ColsCondensed
+            ElseIf IsExpanded Then
+                Return Me.ColsExpanded
+            Else
+                Return Me.ColsNomal
+            End If
+        End Function
+
+        Public Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As String
+            Columns = If(Columns, GetCurrentColumns())
+            If Columns > 0 Then Return New String(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange(0, Columns.Value))
+            Return ""
+        End Function
+
+        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
             For Each item In List.NullAsEmpty()
-                WritePriceLine(item.Item1, item.Item2, Culture, Columns)
+                WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine)
             Next
             Return Me
         End Function
 
-        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing) As Printer
+        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
             Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))), Culture, Columns)
         End Function
 
@@ -636,7 +650,7 @@ Namespace Printer
                 If dic IsNot Nothing Then
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In dic
-                        WritePair(item.Key?.ToString(), item.Value?.ToString())
+                        WritePair(item.Key, item.Value)
                     Next
                     AlignLeft()
                 End If
@@ -656,7 +670,7 @@ Namespace Printer
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In obj.GetNullableTypeOf().GetProperties()
                         If item.CanRead Then
-                            WritePair(item.Name, item.GetValue(obj)?.ToString())
+                            WritePair(item.Name, item.GetValue(obj))
                         End If
                     Next
                     AlignLeft()
@@ -769,7 +783,7 @@ Namespace Printer
         Public Function SaveFile(FileOrDirectoryPath As String, Optional IncludeHtmlDoc As Boolean = True) As Printer
             If DocumentBuffer IsNot Nothing AndAlso DocumentBuffer.Count > 0 Then
                 If FileOrDirectoryPath.IsDirectoryPath Then
-                    FileOrDirectoryPath = $"{FileOrDirectoryPath}\{GetType(CommandType).Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"
+                    FileOrDirectoryPath = $"{FileOrDirectoryPath}\{Me.Command.GetTypeOf().Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"
                     FileOrDirectoryPath = FileOrDirectoryPath.AdjustPathChars(True)
                 End If
                 If FileOrDirectoryPath.IsFilePath Then

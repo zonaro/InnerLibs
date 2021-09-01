@@ -784,7 +784,6 @@ Namespace LINQ
 
         Private equalMethod As MethodInfo = GetType(String).GetMethod("Equals", {GetType(String)})
 
-
         ''' <summary>
         ''' Cria uma <see cref="Expression"/> condicional a partir de um valor <see cref="Boolean"/>
         ''' </summary>
@@ -806,12 +805,13 @@ Namespace LINQ
         Function [And](Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), ParamArray OtherExpressions As Expression(Of Func(Of T, Boolean))()) As Expression(Of Func(Of T, Boolean))
             FirstExpression = If(FirstExpression, CreateWhereExpression(Of T)(True))
             For Each item In If(OtherExpressions, {})
-                Dim invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast(Of Expression)())
-                FirstExpression = Expression.Lambda(Of Func(Of T, Boolean))(Expression.[AndAlso](FirstExpression.Body, invokedExpr), FirstExpression.Parameters)
+                If item IsNot Nothing Then
+                    Dim invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast(Of Expression)())
+                    FirstExpression = Expression.Lambda(Of Func(Of T, Boolean))(Expression.[AndAlso](FirstExpression.Body, invokedExpr), FirstExpression.Parameters)
+                End If
             Next
             Return FirstExpression
         End Function
-
 
         ''' <summary>
         ''' Concatena uma expressão com outra usando o operador OR (||)
@@ -823,10 +823,49 @@ Namespace LINQ
         <Extension()> Function [Or](Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), ParamArray OtherExpressions As Expression(Of Func(Of T, Boolean))()) As Expression(Of Func(Of T, Boolean))
             FirstExpression = If(FirstExpression, CreateWhereExpression(Of T)(False))
             For Each item In If(OtherExpressions, {})
-                Dim invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast(Of Expression)())
-                FirstExpression = Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](FirstExpression.Body, invokedExpr), FirstExpression.Parameters)
+                If item IsNot Nothing Then
+                    Dim invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast(Of Expression)())
+                    FirstExpression = Expression.Lambda(Of Func(Of T, Boolean))(Expression.[OrElse](FirstExpression.Body, invokedExpr), FirstExpression.Parameters)
+                End If
             Next
             Return FirstExpression
+        End Function
+
+        <Extension()> Function OrSearch(Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), Text As IEnumerable(Of String), ParamArray Properties As Expression(Of Func(Of T, String))()) As Expression(Of Func(Of T, Boolean))
+            Return If(FirstExpression, CreateWhereExpression(Of T)(False)).Or(SearchExpression(Text, Properties))
+        End Function
+
+        <Extension()> Function OrSearch(Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), Text As String, ParamArray Properties As Expression(Of Func(Of T, String))()) As Expression(Of Func(Of T, Boolean))
+            Return If(FirstExpression, CreateWhereExpression(Of T)(False)).Or(SearchExpression(Text, Properties))
+        End Function
+
+        <Extension()> Function AndSearch(Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), Text As IEnumerable(Of String), ParamArray Properties As Expression(Of Func(Of T, String))()) As Expression(Of Func(Of T, Boolean))
+            Return If(FirstExpression, CreateWhereExpression(Of T)(True)).And(SearchExpression(Text, Properties))
+        End Function
+
+        <Extension()> Function AndSearch(Of T)(ByVal FirstExpression As Expression(Of Func(Of T, Boolean)), Text As String, ParamArray Properties As Expression(Of Func(Of T, String))()) As Expression(Of Func(Of T, Boolean))
+            Return If(FirstExpression, CreateWhereExpression(Of T)(True)).And(SearchExpression(Text, Properties))
+        End Function
+
+        <Extension()> Function SearchExpression(Of T)(Text As IEnumerable(Of String), ParamArray Properties As Expression(Of Func(Of T, String))()) As Expression(Of Func(Of T, Boolean))
+            Properties = Properties.NullAsEmpty()
+            Dim predi = CreateWhereExpression(Of T)(False)
+            For Each prop In Properties
+                For Each s In Text
+                    If Not s = Nothing AndAlso s.IsNotBlank() Then
+                        Dim param = prop.Parameters.First
+                        Dim con = Expression.Constant(s)
+                        Dim lk = Expression.Call(prop.Body, containsMethod, con)
+                        Dim lbd = Expression.Lambda(Of Func(Of T, Boolean))(lk, param)
+                        predi = predi.Or(lbd)
+                    End If
+                Next
+            Next
+            Return predi
+        End Function
+
+        <Extension()> Function SearchExpression(Of T)(Text As String, ParamArray Properties As Expression(Of Func(Of T, String))()) As Expression(Of Func(Of T, Boolean))
+            Return SearchExpression({Text}, Properties)
         End Function
 
         ''' <summary>
@@ -910,7 +949,7 @@ Namespace LINQ
         ''' <returns></returns>
         <Extension()>
         Public Function HasSamePropertyValues(Of T As Class)(Obj1 As T, Obj2 As T, ParamArray Properties As Func(Of T, Object)())
-            Return Properties.All(Function(x) x(Obj1).Equals(x(Obj2)))
+            Return Properties.NullAsEmpty().All(Function(x) x(Obj1).Equals(x(Obj2)))
         End Function
 
         ''' <summary>
@@ -982,23 +1021,13 @@ Namespace LINQ
         ''' <param name="SearchTerms">Termos da pesquisa</param>
         ''' <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(ByVal Table As IEnumerable(Of ClassType), SearchTerms As String(), ParamArray Properties() As Func(Of ClassType, String)) As IOrderedEnumerable(Of ClassType)
+        <Extension()> Public Function Search(Of ClassType As Class)(ByVal Table As IEnumerable(Of ClassType), SearchTerms As IEnumerable(Of String), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedEnumerable(Of ClassType)
             Properties = If(Properties, {})
-            'If Properties.Count = 0 Then
-            '    Properties = GetType(ClassType).GetProperties().Where(Function(x) x.PropertyType = GetType(String)).Select(Function(x) Expression.Property(param, x.Name))
-            'End If
+            SearchTerms = SearchTerms.NullAsEmpty()
             Search = Nothing
-            Dim predi = CreateWhereExpression(Of ClassType)(False)
+            Table = Table.Where(SearchExpression(SearchTerms, Properties).Compile())
             For Each prop In Properties
-                For Each s In SearchTerms
-                    If Not s = Nothing AndAlso s.IsNotBlank() Then
-                        predi = predi.Or(Function(x) prop(x).Contains(s))
-                    End If
-                Next
-            Next
-            Table = Table.Where(predi.Compile())
-            For Each prop In Properties
-                Search = If(Search, Table.OrderBy(Function(x) True)).ThenByLike(prop, True, SearchTerms)
+                Search = If(Search, Table.OrderBy(Function(x) True)).ThenByLike(prop.Compile(), True, SearchTerms.ToArray())
             Next
             Return Search
         End Function
@@ -1011,29 +1040,12 @@ Namespace LINQ
         ''' <param name="SearchTerms">Termos da pesquisa</param>
         ''' <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         ''' <returns></returns>
-        <Extension()> Public Function Search(Of ClassType As Class)(Table As IQueryable(Of ClassType), SearchTerms As String(), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
+        <Extension()> Public Function Search(Of ClassType As Class)(Table As IQueryable(Of ClassType), SearchTerms As IEnumerable(Of String), ParamArray Properties() As Expression(Of Func(Of ClassType, String))) As IOrderedQueryable(Of ClassType)
             Properties = If(Properties, {})
-            If Properties.Count = 0 Then
-                Dim s As String() = {}
-                'Return Table.Search(SearchTerms, s) 'TODO implementar esse
-            End If
-            Search = Nothing
-            Dim tab = Table.AsQueryable
-            Dim predi = CreateWhereExpression(Of ClassType)(False)
+            SearchTerms = SearchTerms.NullAsEmpty()
+            Search = Table.Where(SearchExpression(SearchTerms, Properties)).OrderBy(Function(x) True)
             For Each prop In Properties
-                For Each s In SearchTerms
-                    If Not s = Nothing AndAlso s.IsNotBlank() Then
-                        Dim param = prop.Parameters.First
-                        Dim con = Expression.Constant(s)
-                        Dim lk = Expression.Call(prop.Body, containsMethod, con)
-                        Dim lbd = Expression.Lambda(Of Func(Of ClassType, Boolean))(lk, param)
-                        predi = predi.Or(lbd)
-                    End If
-                Next
-            Next
-            tab = tab.Where(predi)
-            For Each prop In Properties
-                Search = If(Search, tab.OrderBy(Function(x) True)).ThenByLike(SearchTerms, prop)
+                Search = Search.ThenByLike(SearchTerms, prop)
             Next
             Return Search
         End Function

@@ -74,8 +74,8 @@ Namespace ConsoleTables
             Dim table = New ConsoleTable With {
                 .ColumnTypes = GetColumnsType(Of T)().ToArray()
             }
-            Dim columns = GetColumns(Of T)()
-            table.AddColumn(columns)
+            Dim columns = GetColumns(Of T)(False)
+            table.AddColumn(GetColumns(Of T))
             For Each propertyValues In values.[Select](Function(value) columns.[Select](Function(column) GetColumnValue(Of T)(value, column)))
                 table.AddRow(propertyValues.ToArray())
             Next
@@ -186,8 +186,8 @@ Namespace ConsoleTables
             Options.OutputTo.WriteLine(ToString(format))
         End Sub
 
-        Private Shared Function GetColumns(Of T)() As IEnumerable(Of String)
-            Return GetType(T).GetProperties().[Select](Function(x) x.Name).ToArray()
+        Private Shared Function GetColumns(Of T)(Optional FixCase As Boolean = True) As IEnumerable(Of String)
+            Return GetType(T).GetProperties().[Select](Function(x) If(Not FixCase, x.Name, x.Name.CamelAdjust().Replace("_", " ").ToTitle())).ToArray()
         End Function
 
         Private Shared Function GetColumnValue(Of T)(ByVal target As Object, ByVal column As String) As Object

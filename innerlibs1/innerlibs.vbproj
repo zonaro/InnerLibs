@@ -188,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Content Include="AsyncHelpers.vb" />
     <EmbeddedResource Include="Printer\Printer.css" />
   </ItemGroup>
   <ItemGroup />

@@ -12,20 +12,26 @@ Properties
 | --- | --- | --- | 
 | `DiceFace` | Face | Retorna a face correspondente ao numero | 
 | `ReadOnlyCollection<DiceFace>` | Faces | Faces do dado | 
+| `IEnumerable<ValueTuple<Int32, DateTime>>` | History | Historico de valores rolados para este dado | 
 | `Boolean` | IsCustom | Indica se o dado é um dado com faces customizadas | 
 | `Boolean` | IsVicious | Verifica se o dado possui algum lado viciado | 
+| `Nullable<DateTime>` | LastRoll |  | 
 | `Boolean` | Locked | Se TRUE, Impede este dado de ser rolado | 
 | `Int32` | RolledTimes | Numero de vezes que este dado já foi rolado | 
 | `DiceType` | Type | Tipo do dado | 
-| `Int32` | Value | Valor atual deste dado | 
+| `Nullable<Int32>` | Value | Valor atual deste dado | 
+| `Decimal` | Weight | Peso do dado | 
 
 
 Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `void` | NormalizeWeight() | Normaliza o peso das faces do dado | 
-| `Int32` | Roll() | Rola o dado e retorna seu valor | 
+| `Boolean` | Flip() | Se este Dice for uma moeda (2 lados apenas) retorna true ou false baseado no lado da moeda qua saiu, caso seja um dado com mais de 2 lados retorna sempre true | 
+| `DiceFace` | GetFace(`Int32` FaceNumber) | Retorna a face correspondente ao numero | 
+| `void` | LoadHistory(`IEnumerable<ValueTuple<Int32, DateTime>>` history) |  | 
+| `void` | NormalizeWeight(`Decimal` Weight = 1) | Normaliza o peso das faces do dado | 
+| `DiceFace` | Roll() | Rola o dado e retorna seu valor | 
 
 
 ## `DiceRoller`
@@ -48,7 +54,7 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Int32` | Roll() | Rola todos os dados (não travados) e retorna a soma de seus valores | 
+| `IEnumerable<DiceFace>` | Roll() | Rola todos os dados (não travados) e retorna a soma de seus valores | 
 
 
 ## `DiceType`

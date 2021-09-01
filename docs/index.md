@@ -12,8 +12,7 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
 ### Veja algumas de nossas funções:
 
  - Conexão com Bancos de Dados simplificada utilizando a classe `InnerLibs.DataBase` (Compativel com `SQL Server`, `Access`, `Oracle`, `MySQL` entre outros);
- - Classe de representação geográfica `InnerLibs.Location` com integração a API do Google Maps e a API dos Correios;
- - Conversão de DataReader para `JSON`, `HTML`, `XML` e `CSV`;
+ - Classe de representação geográfica/Endereço `InnerLibs.AddressInfo` com integração a API dos Correios;
  - Conversão de números para algarismos romanos e vice versa;
  - Conversão de números para sua forma extensa;
  - Classe para criação e edição de vCards;
@@ -21,6 +20,14 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
  - Calculo de prazo de entrega baseado em jornada de trabalho utilizando `InnerLibs.TimeMachine`;
  - Vários manipuladores e validadores de texto;
  - Identificação de MIME Type a partir da extensão de arquivos;
+ - Geradores de expressões lambda para filtros compativel com `EntityFramework` e `LINQ to SQL`;
+ - Classes para gerar `DOT Language` a partir de outras classes;
+ - Extensões para `System.Console`;
+ - Lista de Cidades e Estados do Brasil;
+ - Manipuladores de cor e imagem;
+ - Classes e interfaces para adaptação de APIs para `Select2`;
+ - Ajuste ortográfico básico;
+ - SoundEx em português;
  
 # License
 
@@ -37,16 +44,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## [InnerLibs](InnerLibs)
 
 - [`Alphabet`](InnerLibs#alphabet)
+- [`AsciiArt`](InnerLibs#asciiart)
 - [`Base64`](InnerLibs#base64)
+- [`BeautyStrings`](InnerLibs#beautystrings)
 - [`Calendars`](InnerLibs#calendars)
-- [`Class1`](InnerLibs#class1)
 - [`ClassTools`](InnerLibs#classtools)
 - [`ColorConvert`](InnerLibs#colorconvert)
-- [`ColorEx`](InnerLibs#colorex)
+- [`ConnectionStringParser`](InnerLibs#connectionstringparser)
 - [`Converter`](InnerLibs#converter)
 - [`DataURI`](InnerLibs#datauri)
 - [`DateRange`](InnerLibs#daterange)
-- [`DateRange<DataType>`](InnerLibs#daterangedatatype)
 - [`DateRangeInterval`](InnerLibs#daterangeinterval)
 - [`Directories`](InnerLibs#directories)
 - [`Encryption`](InnerLibs#encryption)
@@ -61,11 +68,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`FileType`](InnerLibs#filetype)
 - [`FileTypeExtensions`](InnerLibs#filetypeextensions)
 - [`FileTypeList`](InnerLibs#filetypelist)
+- [`FluentSwitch<T1, T2>`](InnerLibs#fluentswitcht1-t2)
+- [`FluentSwitchExt`](InnerLibs#fluentswitchext)
 - [`FontAwesome`](InnerLibs#fontawesome)
 - [`FullMoneyWriter`](InnerLibs#fullmoneywriter)
 - [`FullNumberWriter`](InnerLibs#fullnumberwriter)
 - [`Generate`](InnerLibs#generate)
 - [`Globals`](InnerLibs#globals)
+- [`HSVColor`](InnerLibs#hsvcolor)
+- [`HtmlTag`](InnerLibs#htmltag)
 - [`iEvalFunctions`](InnerLibs#ievalfunctions)
 - [`iEvalHasDescription`](InnerLibs#ievalhasdescription)
 - [`iEvalTypedValue`](InnerLibs#ievaltypedvalue)
@@ -74,15 +85,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`InnerCrypt`](InnerLibs#innercrypt)
 - [`iVariableBag`](InnerLibs#ivariablebag)
 - [`JSMin`](InnerLibs#jsmin)
-- [`Mathematic`](InnerLibs#mathematic)
+- [`MathExt`](InnerLibs#mathext)
 - [`Money`](InnerLibs#money)
-- [`OnlineList<UserType, IdType>`](InnerLibs#onlinelistusertype-idtype)
-- [`OnlineUser<UserType, IdType>`](InnerLibs#onlineuserusertype-idtype)
 - [`opCode`](InnerLibs#opcode)
 - [`opCodeCallMethod`](InnerLibs#opcodecallmethod)
 - [`opCodeGetArrayEntry`](InnerLibs#opcodegetarrayentry)
 - [`opCodeGetVariable`](InnerLibs#opcodegetvariable)
-- [`PaginationInfo<T, ListType>`](InnerLibs#paginationinfot-listtype)
 - [`Paragraph`](InnerLibs#paragraph)
 - [`Phonetic`](InnerLibs#phonetic)
 - [`QuantityTextPair`](InnerLibs#quantitytextpair)
@@ -93,22 +101,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`SentencePart`](InnerLibs#sentencepart)
 - [`SoundEx`](InnerLibs#soundex)
 - [`StructuredText`](InnerLibs#structuredtext)
-- [`TableGenerator`](InnerLibs#tablegenerator)
 - [`Text`](InnerLibs#text)
 - [`Toggles`](InnerLibs#toggles)
 - [`tokenizer`](InnerLibs#tokenizer)
 - [`UnitConverter`](InnerLibs#unitconverter)
-- [`UserChat<UserType, IdType>`](InnerLibs#userchatusertype-idtype)
-- [`UserConversation<UserType, IdType>`](InnerLibs#userconversationusertype-idtype)
+- [`vAddress`](InnerLibs#vaddress)
+- [`vAddressTypes`](InnerLibs#vaddresstypes)
 - [`VariableComplexity`](InnerLibs#variablecomplexity)
 - [`VariableNotFoundException`](InnerLibs#variablenotfoundexception)
 - [`vCard`](InnerLibs#vcard)
+- [`vEmail`](InnerLibs#vemail)
 - [`Verify`](InnerLibs#verify)
+- [`vLocations`](InnerLibs#vlocations)
+- [`vPhoneTypes`](InnerLibs#vphonetypes)
+- [`vSocial`](InnerLibs#vsocial)
+- [`vTelephone`](InnerLibs#vtelephone)
+- [`vURL`](InnerLibs#vurl)
 - [`Web`](InnerLibs#web)
 
 ## [InnerLibs.Console](InnerLibs.Console)
 
-- [`Console`](InnerLibs.Console#console)
+- [`ConsoleExtensions`](InnerLibs.Console#consoleextensions)
+
+## [InnerLibs.ConsoleTables](InnerLibs.ConsoleTables)
+
+- [`Alignment`](InnerLibs.ConsoleTables#alignment)
+- [`ConsoleTable`](InnerLibs.ConsoleTables#consoletable)
+- [`ConsoleTableOptions`](InnerLibs.ConsoleTables#consoletableoptions)
+- [`Format`](InnerLibs.ConsoleTables#format)
 
 ## [InnerLibs.DOTLanguage](InnerLibs.DOTLanguage)
 
@@ -119,13 +139,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DotObject`](InnerLibs.DOTLanguage#dotobject)
 - [`Graph`](InnerLibs.DOTLanguage#graph)
 
+## [InnerLibs.EscBemaCommands](InnerLibs.EscBemaCommands)
+
+- [`EscBema`](InnerLibs.EscBemaCommands#escbema)
+
+## [InnerLibs.EscDarumaCommands](InnerLibs.EscDarumaCommands)
+
+- [`EscDaruma`](InnerLibs.EscDarumaCommands#escdaruma)
+
+## [InnerLibs.EscPosCommands](InnerLibs.EscPosCommands)
+
+- [`EscPos`](InnerLibs.EscPosCommands#escpos)
+
 ## [InnerLibs.LINQ](InnerLibs.LINQ)
 
+- [`FilterConditional`](InnerLibs.LINQ#filterconditional)
 - [`LINQExtensions`](InnerLibs.LINQ#linqextensions)
+- [`PaginationFilter<ClassType>`](InnerLibs.LINQ#paginationfilterclasstype)
+- [`PaginationFilter<ClassType, RemapType>`](InnerLibs.LINQ#paginationfilterclasstype-remaptype)
+- [`PropertyFilter<ClassType, RemapType>`](InnerLibs.LINQ#propertyfilterclasstype-remaptype)
 
 ## [InnerLibs.Locations](InnerLibs.Locations)
 
 - [`AddressInfo`](InnerLibs.Locations#addressinfo)
+- [`AddressPart`](InnerLibs.Locations#addresspart)
 - [`AddressTypes`](InnerLibs.Locations#addresstypes)
 - [`Brasil`](InnerLibs.Locations#brasil)
 - [`State`](InnerLibs.Locations#state)
@@ -136,6 +173,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`MenuItem<T>`](InnerLibs.MenuBuilder#menuitemt)
 - [`MenuList`](InnerLibs.MenuBuilder#menulist)
 - [`MenuList<T>`](InnerLibs.MenuBuilder#menulistt)
+
+## [InnerLibs.MicroORM](InnerLibs.MicroORM)
+
+- [`Condition`](InnerLibs.MicroORM#condition)
+- [`DbExtensions`](InnerLibs.MicroORM#dbextensions)
+- [`ISelect`](InnerLibs.MicroORM#iselect)
+- [`Select`](InnerLibs.MicroORM#select)
+- [`Select<T>`](InnerLibs.MicroORM#selectt)
+
+## [InnerLibs.Online](InnerLibs.Online)
+
+- [`LogEntryBackup`](InnerLibs.Online#logentrybackup)
+- [`OnlineList<UserType, IdType>`](InnerLibs.Online#onlinelistusertype-idtype)
+- [`OnlineUser<UserType, IdType>`](InnerLibs.Online#onlineuserusertype-idtype)
+- [`UserChat<UserType, IdType>`](InnerLibs.Online#userchatusertype-idtype)
+- [`UserConversation<UserType, IdType>`](InnerLibs.Online#userconversationusertype-idtype)
+- [`UserConversationBackup`](InnerLibs.Online#userconversationbackup)
+- [`UserLog<UserType, IdType>`](InnerLibs.Online#userlogusertype-idtype)
+- [`UserLogEntry<UserType, IdType>`](InnerLibs.Online#userlogentryusertype-idtype)
+
+## [InnerLibs.Printer](InnerLibs.Printer)
+
+- [`Printer`](InnerLibs.Printer#printer)
+- [`PrinterExtension`](InnerLibs.Printer#printerextension)
+- [`QrCodeSize`](InnerLibs.Printer#qrcodesize)
+
+## [InnerLibs.Printer.Command](InnerLibs.Printer.Command)
+
+- [`IPrintCommand`](InnerLibs.Printer.Command#iprintcommand)
 
 ## [InnerLibs.QuestionTest](InnerLibs.QuestionTest)
 
@@ -158,6 +224,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`DiceRoller`](InnerLibs.RolePlayingGame#diceroller)
 - [`DiceType`](InnerLibs.RolePlayingGame#dicetype)
 
+## [InnerLibs.Select2](InnerLibs.Select2)
+
+- [`ISelect2Option`](InnerLibs.Select2#iselect2option)
+- [`ISelect2Result`](InnerLibs.Select2#iselect2result)
+- [`Pagination`](InnerLibs.Select2#pagination)
+- [`Select2Data`](InnerLibs.Select2#select2data)
+- [`Select2Extensions`](InnerLibs.Select2#select2extensions)
+- [`Select2Group`](InnerLibs.Select2#select2group)
+- [`Select2Option`](InnerLibs.Select2#select2option)
+
 ## [InnerLibs.TimeMachine](InnerLibs.TimeMachine)
 
 - [`Day`](InnerLibs.TimeMachine#day)
@@ -165,6 +241,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [`FortnightGroup`](InnerLibs.TimeMachine#fortnightgroup)
 - [`FortnightGroup<DataType>`](InnerLibs.TimeMachine#fortnightgroupdatatype)
 - [`Item`](InnerLibs.TimeMachine#item)
+- [`LongTimeSpan`](InnerLibs.TimeMachine#longtimespan)
 - [`TimeDemand`](InnerLibs.TimeMachine#timedemand)
-- [`TimeFlow`](InnerLibs.TimeMachine#timeflow)
 
