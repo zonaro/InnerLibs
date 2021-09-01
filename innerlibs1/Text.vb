@@ -308,8 +308,6 @@ Public Module Text
         End Get
     End Property
 
-
-
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String
         Return AdjustWhiteSpaces(Text)
@@ -635,6 +633,24 @@ Public Module Text
         Else
             Return Text.IsNotBlank
         End If
+    End Function
+
+    <Extension> Public Function ContainsAnyWords(Text As String, ParamArray Words As String()) As Boolean
+        Return Text.ContainsAnyWords(Nothing, Words)
+    End Function
+
+    <Extension>
+    Public Function ContainsAnyWords(Text As String, Comparer As IEqualityComparer(Of String), ParamArray Words As String()) As Boolean
+        Return Text.GetWords().ContainsAny(Words, Comparer)
+    End Function
+
+    <Extension> Public Function ContainsAllWords(Text As String, ParamArray Words As String()) As Boolean
+        Return Text.ContainsAllWords(Nothing, Words)
+    End Function
+
+    <Extension>
+    Public Function ContainsAllWords(Text As String, Comparer As IEqualityComparer(Of String), ParamArray Words As String()) As Boolean
+        Return Text.GetWords().ContainsAll(Words, Comparer)
     End Function
 
     ''' <summary>
@@ -3347,7 +3363,6 @@ Public Module Text
         Return Text
     End Function
 
-
     ''' <summary>
     ''' Encapsula um tento entre 2 textos
     ''' </summary>
@@ -3464,7 +3479,6 @@ Public Class QuantityTextPair
     Property Singular As String = "Item"
 
     Property Plural As String = "Items"
-
 
     Public Overrides Function ToString() As String
         Return Plural
@@ -4050,8 +4064,6 @@ End Class
 
 Public Class ConnectionStringParser
     Inherits Dictionary(Of String, String)
-
-
 
     Sub New()
         MyBase.New

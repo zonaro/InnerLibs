@@ -506,13 +506,13 @@ Public Module ClassTools
     ''' <param name="List2">Lista2</param>
     ''' <returns></returns>
     <Extension()> Public Function ContainsAny(Of Type)(List1 As IEnumerable(Of Type), List2 As IEnumerable(Of Type), Optional Comparer As IEqualityComparer(Of Type) = Nothing) As Boolean
-        For Each value As Type In List2
+        For Each value As Type In List2.NullAsEmpty
             If Comparer Is Nothing Then
-                If List1.Contains(value) Then
+                If List1.NullAsEmpty.Contains(value) Then
                     Return True
                 End If
             Else
-                If List1.Contains(value, Comparer) Then
+                If List1.NullAsEmpty.Contains(value, Comparer) Then
                     Return True
                 End If
             End If
