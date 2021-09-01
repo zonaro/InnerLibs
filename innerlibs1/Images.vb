@@ -11,31 +11,6 @@ Imports System.Runtime.CompilerServices
 '''
 Public Module Images
 
-
-    ''' <summary>
-    ''' Inverte as cores de uma imagem
-    ''' </summary>
-    ''' <param name="Img"></param>
-    ''' <returns></returns>
-    <Extension()> Public Function InvertImageColors(Img As Image) As Bitmap
-        Dim bm As New Bitmap(Img)
-        Dim X As Integer
-        Dim Y As Integer
-        Dim r As Integer
-        Dim g As Integer
-        Dim b As Integer
-
-        For X = 0 To bm.Width - 1
-            For Y = 0 To bm.Height - 1
-                r = 255 - bm.GetPixel(X, Y).R
-                g = 255 - bm.GetPixel(X, Y).G
-                b = 255 - bm.GetPixel(X, Y).B
-                bm.SetPixel(X, Y, Color.FromArgb(r, g, b))
-            Next Y
-        Next X
-        Return bm
-    End Function
-
     ''' <summary>
     ''' Corta uma imagem para um quadrado perfeito a partir do centro
     ''' </summary>
@@ -56,9 +31,8 @@ Public Module Images
     ''' <param name="Background">Cor do fundo</param>
     ''' <returns></returns>
     <Extension()> Public Function CropToCircle(Img As Image, Optional Background As Color? = Nothing) As Image
-        Return Img.CropToSquare()?.CropToEllipsis()
+        Return Img.CropToSquare()?.CropToEllipsis(Background)
     End Function
-
 
     ''' <summary>
     ''' Corta a imagem em uma elipse
@@ -117,16 +91,16 @@ Public Module Images
     ''' Insere uma imagem de marca Dágua na imagem
     ''' </summary>
     ''' <param name="Image">Imagem</param>
-    ''' <param name="Watermark">Imagem de Marca Dagua</param>
+    ''' <param name="WaterMarkImage">Imagem de Marca Dagua</param>
     ''' <param name="X">Posição X</param>
     ''' <param name="Y">Posição Y</param>
     ''' <returns></returns>
-    <Extension()> Public Function InsertWatermark(Image As Image, WaterMark As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
+    <Extension()> Public Function Watermark(Image As Image, WaterMarkImage As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         ' a imagem onde iremos aplicar a marca dágua
         Dim bm_Resultado As New Bitmap(Image)
 
         ' a imagem que será usada como marca d'agua
-        Dim bm_marcaDagua As New Bitmap(WaterMark.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5))
+        Dim bm_marcaDagua As New Bitmap(WaterMarkImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5))
 
         If X < 0 Then X = (bm_Resultado.Width - bm_marcaDagua.Width) \ 2   'centraliza a marca d'agua
         If Y < 0 Then Y = (bm_Resultado.Height - bm_marcaDagua.Height) \ 2   'centraliza a marca d'agua
@@ -148,21 +122,182 @@ Public Module Images
         Return bm_Resultado
     End Function
 
+    <Extension> Public Function CreateImage(Color As Color, Width As Integer, Height As Integer) As Image
+        Dim Bmp = New Bitmap(Width, Height)
+        Using gfx = Graphics.FromImage(Bmp)
+            Using brush = New SolidBrush(Color)
+                gfx.FillRectangle(brush, 0, 0, Width, Height)
+            End Using
+        End Using
+        Return Bmp
+    End Function
+
+    <Extension()> Public Function Monochrome(Image As Image, Color As Color, Optional Alpha As Single = 0) As Image
+        Return Grayscale(Image).Translate(Color.R, Color.G, Color.B, Alpha)
+    End Function
+
+    ''' <summary>
+    ''' Inverte as cores de uma imagem
+    ''' </summary>
+    ''' <param name="Img"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function Negative(ByVal img As Image) As Image
+        Dim copia As New Bitmap(img)
+
+        Dim cm As ColorMatrix = New ColorMatrix(New Single()() _
+                           {New Single() {-1, 0, 0, 0, 0},
+                            New Single() {0, -1, 0, 0, 0},
+                            New Single() {0, 0, -1, 0, 0},
+                            New Single() {0, 0, 0, 1, 0},
+                            New Single() {0, 0, 0, 0, 1}})
+
+        draw_adjusted_image(copia, cm)
+        Return copia
+
+    End Function
+
+    <Extension()> Public Function Translate(ByVal img As Image, Color As Color, Optional ByVal Alpha As Single = 0) As Image
+        Return Translate(img, Color.R, Color.G, Color.B, Alpha)
+    End Function
+
+    <Extension()> Public Function Translate(ByVal img As Image, ByVal Red As Single, ByVal Green As Single, ByVal Blue As Single, Optional ByVal Alpha As Single = 0) As Image
+
+        Dim sr, sg, sb, sa As Single
+        Dim copia As New Bitmap(img)
+        ' noramlize the color components to 1
+        sr = Red / 255
+        sg = Green / 255
+        sb = Blue / 255
+        sa = Alpha / 255
+
+        ' create the color matrix
+        Dim cm = New ColorMatrix(New Single()() _
+                       {New Single() {1, 0, 0, 0, 0},
+                        New Single() {0, 1, 0, 0, 0},
+                        New Single() {0, 0, 1, 0, 0},
+                        New Single() {0, 0, 0, 1, 0},
+                        New Single() {sr, sg, sb, sa, 1}})
+
+        ' apply the matrix to the image
+        draw_adjusted_image(copia, cm)
+        Return copia
+    End Function
+
+    Private Function draw_adjusted_image(ByVal img As Image,
+                ByVal cm As ColorMatrix) As Boolean
+        Try
+            Dim bmp As New Bitmap(img) ' create a copy of the source image
+            Dim imgattr As New ImageAttributes()
+            Dim rc As New Rectangle(0, 0, img.Width, img.Height)
+            Dim g As Graphics = Graphics.FromImage(img)
+
+            ' associate the ColorMatrix object with an ImageAttributes object
+            imgattr.SetColorMatrix(cm)
+
+            ' draw the copy of the source image back over the original image,
+            'applying the ColorMatrix
+            g.DrawImage(bmp, rc, 0, 0, img.Width, img.Height,
+                               GraphicsUnit.Pixel, imgattr)
+
+            g.Dispose()
+
+            Return True
+        Catch
+            Return False
+        End Try
+
+    End Function
+
+    ''' <summary>
+    ''' Converte uma Imagem para Escala de cinza
+    ''' </summary>
+    ''' <param name="img">imagem original</param>
+    ''' <returns></returns>
+    <Extension> Public Function Grayscale(ByVal img As Image) As Image
+        Dim copia = New Bitmap(img)
+        Dim cm As ColorMatrix = New ColorMatrix(New Single()() _
+                           {New Single() {0.299, 0.299, 0.299, 0, 0},
+                            New Single() {0.587, 0.587, 0.587, 0, 0},
+                            New Single() {0.114, 0.114, 0.114, 0, 0},
+                            New Single() {0, 0, 0, 1, 0},
+                            New Single() {0, 0, 0, 0, 1}})
+        draw_adjusted_image(copia, cm)
+        Return copia
+    End Function
+
+    <Extension()> Public Function CompareARGB(Color1 As Color, Color2 As Color, Optional IgnoreAlpha As Boolean = True) As Boolean
+        Return CompareARGB(Color1, IgnoreAlpha, Color2)
+    End Function
+
+    <Extension()> Public Function CompareARGB(Color1 As Color, IgnoreAlpha As Boolean, ParamArray Colors As Color()) As Boolean
+        Colors = Colors.NullAsEmpty()
+        Return Colors.Any(Function(Color2) (Color1.R = Color2.R) AndAlso (Color1.G = Color2.G) AndAlso (Color1.B = Color2.B) AndAlso If(IgnoreAlpha, True, (Color1.A = Color2.A)))
+    End Function
+
+
+    <Extension> Public Function MakeDarker(img As Image, Optional percent As Single = 50) As Image
+        Dim lockedBitmap = New Bitmap(img)
+        For y = 0 To lockedBitmap.Height - 1
+            For x = 0 To lockedBitmap.Width - 1
+                Dim oldColor = lockedBitmap.GetPixel(x, y)
+                If Not oldColor.CompareARGB(True, Color.Transparent, Color.Black, Color.White) Then
+                    Dim newColor = oldColor.MakeDarker(percent)
+                    lockedBitmap.SetPixel(x, y, newColor)
+                End If
+            Next
+        Next
+        Return lockedBitmap
+    End Function
+
+
+
+    <Extension> Public Function MakeLighter(img As Image, Optional percent As Single = 50) As Image
+        Dim lockedBitmap = New Bitmap(img)
+        For y = 0 To lockedBitmap.Height - 1
+            For x = 0 To lockedBitmap.Width - 1
+                Dim oldColor = lockedBitmap.GetPixel(x, y)
+                If Not oldColor.CompareARGB(True, Color.Transparent, Color.Black, Color.White) Then
+                    Dim newColor = oldColor.MakeLighter(percent)
+                    lockedBitmap.SetPixel(x, y, newColor)
+                End If
+            Next
+        Next
+        Return lockedBitmap
+    End Function
+
+
+    <Extension> Public Function BrightnessContrastAndGamma(originalimage As Image, Brightness As Single, Contrast As Single, Gamma As Single) As Image
+        Dim adjustedImage As New Bitmap(originalimage)
+        Gamma = Gamma.SetMinValue(1.0F)
+        Contrast = Contrast.SetMinValue(1.0F)
+        Dim adjustedBrightness As Single = Brightness.SetMinValue(1.0F) - 1.0F
+        Dim ptsArray As Single()() = {New Single() {Contrast, 0, 0, 0, 0}, New Single() {0, Contrast, 0, 0, 0}, New Single() {0, 0, Contrast, 0, 0}, New Single() {0, 0, 0, 1.0F, 0}, New Single() {adjustedBrightness, adjustedBrightness, adjustedBrightness, 0, 1}}
+        Dim imageAttributes As ImageAttributes = New ImageAttributes()
+        imageAttributes.ClearColorMatrix()
+        imageAttributes.SetColorMatrix(New ColorMatrix(ptsArray), ColorMatrixFlag.[Default], ColorAdjustType.Bitmap)
+        imageAttributes.SetGamma(Gamma, ColorAdjustType.Bitmap)
+        Dim g As Graphics = Graphics.FromImage(adjustedImage)
+        g.DrawImage(originalimage, New Rectangle(0, 0, adjustedImage.Width, adjustedImage.Height), 0, 0, originalimage.Width, originalimage.Height, GraphicsUnit.Pixel, imageAttributes)
+        Return adjustedImage
+    End Function
+
     ''' <summary>
     ''' Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
     ''' </summary>
     ''' <param name="Img"></param>
     ''' <param name="Color"></param>
     ''' <returns></returns>
-    <Extension()> Public Function Trim(Img As Image, Color As Color) As Image
-
+    <Extension()> Public Function Trim(Img As Image, Optional Color As Color? = Nothing) As Image
         Dim bitmap = New Bitmap(Img)
+
+        Color = If(Color, bitmap.GetPixel(0, 0))
+
         Dim w As Integer = bitmap.Width
         Dim h As Integer = bitmap.Height
 
         Dim IsAllWhiteRow As Func(Of Integer, Boolean) = Function(row)
                                                              For i As Integer = 0 To w - 1
-                                                                 If bitmap.GetPixel(i, row).ToArgb <> Color.ToArgb Then
+                                                                 If bitmap.GetPixel(i, row).ToArgb <> Color.Value.ToArgb Then
                                                                      Return False
                                                                  End If
                                                              Next
@@ -172,7 +307,7 @@ Public Module Images
 
         Dim IsAllWhiteColumn As Func(Of Integer, Boolean) = Function(col)
                                                                 For i As Integer = 0 To h - 1
-                                                                    If bitmap.GetPixel(col, i).ToArgb <> Color.ToArgb Then
+                                                                    If bitmap.GetPixel(col, i).ToArgb <> Color.Value.ToArgb Then
                                                                         Return False
                                                                     End If
                                                                 Next
@@ -298,26 +433,6 @@ Public Module Images
             Return finalImage
         End Using
 
-    End Function
-
-    ''' <summary>
-    ''' Converte uma Imagem para Escala de cinza
-    ''' </summary>
-    ''' <param name="source">imagem original</param>
-    ''' <returns></returns>
-    <Extension()> Public Function ConvertToGrayscale(ByVal source As Image) As Bitmap
-        Dim source_bit = New Bitmap(source)
-        Dim bm As Bitmap = New Bitmap(source.Width, source.Height)
-        For y As Integer = 0 To bm.Height - 1
-            For x As Integer = 0 To bm.Width - 1
-                Dim c As Color = source_bit.GetPixel(x, y)
-                If Not c = Color.Transparent Then
-                    Dim average As Integer = (Convert.ToInt32(c.R) + Convert.ToInt32(c.G) + Convert.ToInt32(c.B)) / 3
-                    bm.SetPixel(x, y, Color.FromArgb(average, average, average))
-                End If
-            Next
-        Next
-        Return bm
     End Function
 
     ''' <summary>

@@ -15,7 +15,7 @@ Public Module AsciiArt
 
     <Extension()>
     Public Function ToAsciiArt(ByVal image As Bitmap, ByVal ratio As Integer) As String
-        image = image.InvertImageColors()
+        image = image.Negative()
         Dim toggle As Boolean = False
 
         Dim sb As StringBuilder = New StringBuilder()

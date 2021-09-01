@@ -187,7 +187,7 @@ Namespace ConsoleTables
         End Sub
 
         Private Shared Function GetColumns(Of T)(Optional FixCase As Boolean = True) As IEnumerable(Of String)
-            Return GetType(T).GetProperties().[Select](Function(x) If(Not FixCase, x.Name, x.Name.CamelAdjust().Replace("_", " ").ToTitle())).ToArray()
+            Return GetType(T).GetProperties().[Select](Function(x) If(Not FixCase, x.Name, x.Name.ToNormalCase().ToTitle())).ToArray()
         End Function
 
         Private Shared Function GetColumnValue(Of T)(ByVal target As Object, ByVal column As String) As Object

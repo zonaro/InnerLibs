@@ -243,7 +243,9 @@ Public Module ColorConvert
 End Module
 
 Public Class HSVColor
-
+    Implements IComparable(Of Integer)
+    Implements IComparable(Of HSVColor)
+    Implements IComparable(Of System.Drawing.Color)
     Private _h, _s, _v As Double
     Private _name As String
     Private _scolor As Color
@@ -304,6 +306,7 @@ Public Class HSVColor
         Me.New(Color)
         _name = Name
     End Sub
+
     ''' <summary>
     ''' Hue (Matiz)
     ''' </summary>
@@ -430,6 +433,7 @@ Public Class HSVColor
             Return _scolor.ToHexadecimal()
         End Get
     End Property
+
     ''' <summary>
     ''' Nome atribuido a esta cor
     ''' </summary>
@@ -553,6 +557,7 @@ Public Class HSVColor
     Public Function ToSystemColor() As Color
         Return Color.FromArgb(A, R, G, B)
     End Function
+
     ''' <summary>
     ''' Verifica se uma cor é legivel sobre outra cor
     ''' </summary>
@@ -664,6 +669,7 @@ Public Class HSVColor
     Public Function Tetradic(Optional ExcludeMe As Boolean = False) As HSVColor()
         Return Square(ExcludeMe)
     End Function
+
     ''' <summary>
     ''' Retorna as cores análogas desta cor
     ''' </summary>
@@ -753,6 +759,18 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Function SplitComplementaryPallete(Optional Amount As Integer = 3) As HSVColor()
         Return Me.Monochromatic(Amount).SelectMany(Function(item) item.SplitComplementary()).ToArray()
+    End Function
+
+    Public Function CompareTo(other As Integer) As Integer Implements IComparable(Of Integer).CompareTo
+        Return Me._scolor.ToArgb().CompareTo(other)
+    End Function
+
+    Public Function CompareTo(other As HSVColor) As Integer Implements IComparable(Of HSVColor).CompareTo
+        Return Me._scolor.ToArgb().CompareTo(other._scolor.ToArgb())
+    End Function
+
+    Public Function CompareTo(other As Color) As Integer Implements IComparable(Of Color).CompareTo
+        Return Me._scolor.ToArgb.CompareTo(other.ToArgb())
     End Function
 
 End Class

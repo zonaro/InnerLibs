@@ -3,12 +3,7 @@ Imports System.IO
 Imports System.Net
 Imports System.Net.Sockets
 Imports System.Runtime.CompilerServices
-Imports System.Text
 Imports System.Text.RegularExpressions
-
-Imports System.Xml
-
-
 
 ''' <summary>
 ''' Modulo Web
@@ -25,9 +20,7 @@ Public Module Web
             End If
         Next
 
-
     End Function
-
 
     <Extension> Public Function ParseQueryString(ByVal URL As Uri) As NameValueCollection
         Return URL.Query.ParseQueryString()
@@ -39,7 +32,7 @@ Public Module Web
     ''' <param name="Info"> Arquivo ou Diretório</param>
     ''' <returns></returns>
     <Extension()> Function FileNameAsTitle(Info As FileSystemInfo) As String
-        Return Path.GetFileNameWithoutExtension(Info.Name).CamelAdjust().Replace("_", " ").ToTitle
+        Return Path.GetFileNameWithoutExtension(Info.Name).ToNormalCase.ToTitle
     End Function
 
     ''' <summary>
@@ -48,7 +41,7 @@ Public Module Web
     ''' <param name="FileName"> Arquivo ou Diretório</param>
     ''' <returns></returns>
     <Extension()> Function FileNameAsTitle(FileName As String) As String
-        Return Path.GetFileNameWithoutExtension(FileName).CamelAdjust().Replace("_", " ").ToTitle
+        Return Path.GetFileNameWithoutExtension(FileName).ToNormalCase.ToTitle
     End Function
 
     ''' <summary>
@@ -56,7 +49,7 @@ Public Module Web
     ''' </summary>
     ''' <param name="CSS">String contendo o CSS</param>
     ''' <returns></returns>
-    <Extension()> Public Function MinifyCSS(CSS As String) As String
+    <Extension()> Public Function MinifyCSS(CSS As String, Optional PreserveComments As Boolean = False) As String
         If CSS.IsNotBlank() Then
             CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#")
             CSS = Regex.Replace(CSS, "[\n\r]+\s*", String.Empty)
@@ -65,7 +58,7 @@ Public Module Web
             CSS = CSS.Replace(";}", "}")
             CSS = Regex.Replace(CSS, "([\s:]0)(px|pt|%|em)", "$1")
             ' Remove comments from CSS
-            CSS = Regex.Replace(CSS, "/\*[\d\D]*?\*/", String.Empty)
+            If PreserveComments = False Then CSS = Regex.Replace(CSS, "/\*[\d\D]*?\*/", String.Empty)
         End If
         Return CSS
     End Function
@@ -94,10 +87,6 @@ Public Module Web
             Return False
         End Try
     End Function
-
-
-
-
 
     ''' <summary>
     ''' Adciona um parametro a Query String de uma URL
@@ -156,7 +145,6 @@ Public Module Web
         Return UriBuilder.Uri
     End Function
 
-
     ''' <summary>
     ''' Retorna os segmentos de uma url
     ''' </summary>
@@ -191,8 +179,6 @@ Public Module Web
         UrlPattern = Regex.Replace(UrlPattern, "{([^:]+)\s*:\s*(.+?)(?<!\\)}", "")
         Return UrlPattern.RemoveLastEqual("/")
     End Function
-
-
 
     ''' <summary>
     ''' Captura o Username ou UserID de uma URL do Facebook
@@ -232,6 +218,7 @@ Public Module Web
         End Using
         Return s
     End Function
+
     Public Function GetFile(URL As String) As Byte()
         Dim s As Byte()
         Using c As New WebClient
@@ -243,7 +230,6 @@ Public Module Web
     Public Function GetImage(URL As String) As System.Drawing.Image
         Return GetFile(URL).ToImage()
     End Function
-
 
     ''' <summary>
     ''' Captura a Thumbnail de um video do youtube
@@ -331,22 +317,5 @@ Public Module Web
     Public Function IsUp(Url As Uri) As Boolean
         Return Url.AbsoluteUri.IsUp()
     End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 End Module

@@ -497,13 +497,31 @@ Public Module Text
         Text = Text.IfBlank("")
         Dim chars = Text.ToArray
         Text = ""
+        Dim uppercount = 0
         For Each c In chars
             If Char.IsUpper(c) Then
-                Text &= " "
+                If Not uppercount > 0 Then
+                    Text &= " "
+                End If
+                uppercount = uppercount + 1
+            Else
+                If uppercount > 1 Then
+                    Text &= " "
+                End If
+                uppercount = 0
             End If
             Text &= c
         Next
         Return Text.Trim
+    End Function
+
+    ''' <summary>
+    ''' Pega um texto em "CamelCase" ou "Snake_Case" e o retorna na forma "normal case"
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension> Function ToNormalCase(Text As String) As String
+        Return Text.CamelAdjust().Replace("_", " ")
     End Function
 
     ''' <summary>
@@ -3356,6 +3374,12 @@ Public Module Text
         Return ""
     End Function
 
+    ''' <summary>
+    ''' Executa uma ação para cada linha de um texto
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="Action"></param>
+    ''' <returns></returns>
     <Extension()> Public Function ForEachLine(Text As String, Action As Expression(Of Func(Of String, String))) As String
         If Text.IsNotBlank AndAlso Action IsNot Nothing Then
             Text = Text.SplitAny(BreakLineChars.ToArray).Select(Function(x) Action.Compile.Invoke(x)).Join(Environment.NewLine)

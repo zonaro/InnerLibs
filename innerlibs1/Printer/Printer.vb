@@ -1,12 +1,13 @@
 ﻿' ***********************************************************************
-' Assembly         :
-' Author           : Leandro Ferreira
+' Assembly         : InnerLibs
+' Author           : Leandro Ferreira / Zonaro
 ' Created          : 16-03-2019
 '
 ' ***********************************************************************
-' <copyright file="Printer.vb" company="VIP Soluções">
+' <copyright file="Printer.vb" company="InnerCodeTech">
+
 '		        		   The MIT License (MIT)
-'	     		    Copyright (c) 2019 VIP Soluções
+'	     		    Copyright (c) 2019 InnerCodeTech
 '
 '	 Permission is hereby granted, free of charge, to any person obtaining
 ' a copy of this software and associated documentation files (the "Software"),
@@ -24,7 +25,6 @@
 ' ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ' DEALINGS IN THE SOFTWARE.
 ' </copyright>
-' <summary></summary>
 ' ***********************************************************************
 
 Imports System.Globalization
@@ -59,6 +59,9 @@ Namespace Printer
             Return New Printer(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
         End Function
 
+        Private _ommit As Boolean = False
+        Private FontMode As String = "Normal"
+        Private Align As String = "Left"
         Public Property DocumentBuffer As Byte()
 
         Public ReadOnly Property HTMLDocument As XDocument = XDocument.Parse("<body><link rel='stylesheet' href='Printer.css' /></body>")
@@ -71,6 +74,92 @@ Namespace Printer
         Public Property ColsExpanded As Integer
 
         Public ReadOnly Property Command As IPrintCommand
+
+        Public Property Diacritics As Boolean = True
+
+        Public Property RewriteFunction As Func(Of String, String) = Nothing
+
+        Public ReadOnly Property IsItalic As Boolean
+
+        Public ReadOnly Property IsBold As Boolean
+
+        Public ReadOnly Property IsUnderline As Boolean
+
+        Public Property IsCondensed As Boolean
+            Get
+                Return FontMode = "Condensed"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Condensed"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public Property IsExpanded As Boolean
+            Get
+                Return FontMode = "Expanded"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Expanded"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public Property IsDoubleWidth2 As Boolean
+            Get
+                Return FontMode = "Double2"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Double2"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public Property IsDoubleWidth3 As Boolean
+            Get
+                Return FontMode = "Double3"
+            End Get
+            Set(value As Boolean)
+                If value Then
+                    FontMode = "Double3"
+                Else
+                    FontMode = "Normal"
+                End If
+            End Set
+        End Property
+
+        Public ReadOnly Property IsNormal As Boolean
+            Get
+                Return Not IsCondensed AndAlso Not IsExpanded
+            End Get
+        End Property
+
+        Public ReadOnly Property IsLeftAligned As Boolean
+            Get
+                Return Align = "Left"
+            End Get
+        End Property
+
+        Public ReadOnly Property IsRightAligned As Boolean
+            Get
+                Return Align = "Right"
+            End Get
+        End Property
+
+        Public ReadOnly Property IsCenterAligned As Boolean
+            Get
+                Return Align = "Center"
+            End Get
+        End Property
 
         Public Sub New(ByVal Encoding As Encoding)
             Me.New(Nothing, Nothing, 0, 0, 0, Encoding)
@@ -167,33 +256,8 @@ Namespace Printer
             Return Lin$
         End Function
 
-        Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
-            If Test Then
-                If value.ContainsAny(BreakLineChars.ToArray()) Then
-                    For Each line In value.SplitAny(BreakLineChars.ToArray())
-                        WriteLine(line, Test AndAlso line.IsNotBlank)
-                    Next
-                Else
-                    If value.IsNotBlank Then
-                        If Not Diacritics Then
-                            value = value.RemoveDiacritics()
-                        End If
-                        If RewriteFunction IsNot Nothing Then
-                            value = RewriteFunction().Invoke(value)
-                        End If
-                        Write(Command.Encoding.GetBytes(value))
-                    End If
-                End If
-            End If
-            Return Me
-        End Function
-
-        Public Property Diacritics As Boolean = True
-
-        Public Property RewriteFunction As Func(Of String, String) = Nothing
-
         ''' <summary>
-        ''' Funcao que reescreveo valor antes de chamar o <see cref="Write(String, Boolean)"/>
+        ''' Funcao que reescreve o valor antes de chamar o <see cref="Write(String, Boolean)"/>
         ''' </summary>
         ''' <param name="StringAction"></param>
         ''' <returns></returns>
@@ -229,47 +293,8 @@ Namespace Printer
             Return UseDiacritics(False)
         End Function
 
-        Private _ommit As Boolean = False
-
         ''' <summary>
-        ''' Escreve os bytes contidos em <paramref name="value"/> no <see cref="DocumentBuffer"/>
-        ''' </summary>
-        ''' <param name="value"></param>
-        ''' <returns></returns>
-        Public Function Write(ByVal value As Byte()) As Printer
-            If value IsNot Nothing AndAlso value.Any Then
-                Dim list = New List(Of Byte)
-                If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
-                list.AddRange(value)
-                DocumentBuffer = list.ToArray
-                If _ommit = False Then
-                    Try
-                        Dim v = Command.Encoding.GetString(value).ReplaceMany("<br/>", BreakLineChars.ToArray())
-                        If v = "<br/>" Then
-                            HTMLDocument.Root.Add(<br/>)
-                        Else
-                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&nbsp;")}</span>"))
-                        End If
-                    Catch ex As Exception
-                    End Try
-                End If
-                _ommit = False
-            End If
-            Return Me
-        End Function
-
-        ''' <summary>
-        ''' Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE
-        ''' </summary>
-        ''' <param name="value"></param>
-        ''' <param name="Test"></param>
-        ''' <returns></returns>
-        Public Function WriteLine(ByVal value As String, Optional Test As Boolean = True) As Printer
-            Return If(Test, Write(value, Test).NewLine(), Me)
-        End Function
-
-        ''' <summary>
-        ''' Adciona um numero <paramref name="Lines"/> de quebras de linha
+        ''' Adciona um numero <paramref name="Lines"/> de quebras de linha ao <see cref="DocumentBuffer"/>
         ''' </summary>
         ''' <param name="Lines"></param>
         ''' <returns></returns>
@@ -282,7 +307,7 @@ Namespace Printer
         End Function
 
         ''' <summary>
-        ''' Adciona um numero <paramref name="Spaces"/> de espaços em branco
+        ''' Adciona um numero <paramref name="Spaces"/> de espaços em branco ao <see cref="DocumentBuffer"/>
         ''' </summary>
         ''' <param name="Spaces"></param>
         ''' <returns></returns>
@@ -294,6 +319,10 @@ Namespace Printer
             Return Me
         End Function
 
+        ''' <summary>
+        ''' Limpa o <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <returns></returns>
         Public Function Clear() As Printer
             DocumentBuffer = Nothing
             HTMLDocument.Root.RemoveAll()
@@ -301,141 +330,31 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function Separator(Optional Character As Char = "-") As Printer
-            Dim c = ColsNomal
-            If IsCondensed Then c = ColsCondensed
-            If IsExpanded Then c = ColsExpanded
-            Return WriteLine(New String(Character, c))
+        ''' <summary>
+        ''' Escreve um separador 
+        ''' </summary>
+        ''' <param name="Character"></param>
+        ''' <returns></returns>
+        Public Function Separator(Optional Character As Char = "-"c, Optional Columns As Integer? = Nothing) As Printer
+            Return WriteLine(New String(Character, If(Columns, GetCurrentColumns())))
         End Function
 
+        ''' <summary>
+        ''' Imprime o auto-teste da impressora
+        ''' </summary>
+        ''' <returns></returns>
         Public Function AutoTest() As Printer
             _ommit = True
             Return Write(Command.AutoTest())
         End Function
 
+        ''' <summary>
+        ''' Testa os acentos para esta impressora
+        ''' </summary>
+        ''' <returns></returns>
         Public Function TestDiacritics() As Printer
             Return WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ")
         End Function
-
-        Public Function WriteTest() As Printer
-            NewLine()
-            AlignLeft()
-            WriteLine("INNERLIBS TEST PRINTER - 48 COLUMNS")
-            WriteLine("....+....1....+....2....+....3....+....4....+...")
-            Separator()
-            WriteLine("Default Text")
-            Italic().WriteLine("Italic Text").NotItalic()
-            Bold().WriteLine("Bold Text").NotBold()
-            UnderLine.WriteLine("UnderLine Text").NotUnderline()
-            Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded()
-            Condensed().WriteLine("Condensed Text").NotCondensed()
-            Separator()
-            DoubleWidth2()
-            WriteLine("Font Size 2")
-            DoubleWidth3()
-            WriteLine("Font Size 3")
-            NormalWidth()
-            WriteLine("Normal Font Size")
-            Separator()
-            AlignRight()
-            WriteLine("Text on Right")
-            AlignCenter()
-            WriteLine("Text on Center")
-            AlignLeft()
-            WriteLine("Text on Left")
-            NewLine(3)
-            WriteLine("ACENTOS")
-            TestDiacritics()
-            WriteLine("EOF :)")
-            Separator()
-            NewLine()
-            PartialPaperCut()
-            Return Me
-        End Function
-
-        Public ReadOnly Property IsItalic As Boolean
-        Public ReadOnly Property IsBold As Boolean
-        Public ReadOnly Property IsUnderline As Boolean
-
-        Public Property IsCondensed As Boolean
-            Get
-                Return FontMode = "Condensed"
-            End Get
-            Set(value As Boolean)
-                If value Then
-                    FontMode = "Condensed"
-                Else
-                    FontMode = "Normal"
-                End If
-            End Set
-        End Property
-
-        Public Property IsExpanded As Boolean
-            Get
-                Return FontMode = "Expanded"
-            End Get
-            Set(value As Boolean)
-                If value Then
-                    FontMode = "Expanded"
-                Else
-                    FontMode = "Normal"
-                End If
-            End Set
-        End Property
-
-        Public Property IsDoubleWidth2 As Boolean
-            Get
-                Return FontMode = "Double2"
-            End Get
-            Set(value As Boolean)
-                If value Then
-                    FontMode = "Double2"
-                Else
-                    FontMode = "Normal"
-                End If
-            End Set
-        End Property
-
-        Public Property IsDoubleWidth3 As Boolean
-            Get
-                Return FontMode = "Double3"
-            End Get
-            Set(value As Boolean)
-                If value Then
-                    FontMode = "Double3"
-                Else
-                    FontMode = "Normal"
-                End If
-            End Set
-        End Property
-
-        Public ReadOnly Property IsNormal As Boolean
-            Get
-                Return Not IsCondensed AndAlso Not IsExpanded
-            End Get
-        End Property
-
-        Private FontMode As String = "Normal"
-
-        Public ReadOnly Property IsLeftAligned As Boolean
-            Get
-                Return Align = "Left"
-            End Get
-        End Property
-
-        Public ReadOnly Property IsRightAligned As Boolean
-            Get
-                Return Align = "Right"
-            End Get
-        End Property
-
-        Public ReadOnly Property IsCenterAligned As Boolean
-            Get
-                Return Align = "Center"
-            End Get
-        End Property
-
-        Private Align As String = "Left"
 
         Public Function Italic(Optional state As Boolean = True) As Printer
             _ommit = True
@@ -570,40 +489,10 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WriteDictionary(Of T1, T2)(dics As IEnumerable(Of IDictionary(Of T1, T2)), Optional PartialCutOnEach As Boolean = False) As Printer
-            Return WriteDictionary(PartialCutOnEach, If(dics, {}).ToArray())
-        End Function
-
-        Public Function WriteList(Items As IEnumerable(Of Object), Optional ListOrdenator As String = Nothing) As Printer
-            For index = 0 To Items.Count - 1
-                WriteLine($"{ListOrdenator.IfBlank($"{index + 1}) ")}{Items(index)}")
-            Next
-            Return Me
-        End Function
-
-        Public Function WriteList(ParamArray Items As Object()) As Printer
-            Return WriteList(If(Items, {}).AsEnumerable)
-        End Function
-
-        Public Function WritePair(Key As Object, Value As Object, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As Printer
-            Columns = If(Columns, GetCurrentColumns())
-            Dim dots = ""
-            Dim s1 = $"{Key}"
-            Dim s2 = $"{Value}"
-            If s2.IsNotBlank() AndAlso Columns.Value > 0 Then
-                dots = GetDotLine(s1, s2, Columns, CharLine)
-            Else
-                dots = " "
-            End If
-            Dim s = $"{s1}{dots}{s2}"
-            Return WriteLine(s, s.IsNotBlank())
-        End Function
-
-        Public Function WritePriceLine(Description As String, Price As Decimal, Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
-            Dim sprice = Price.ToString("C", If(Culture, CultureInfo.CurrentCulture))
-            Return WritePair(Description, sprice, Columns, CharLine)
-        End Function
-
+        ''' <summary>
+        ''' Retorna o numero de colunas  do modo atual
+        ''' </summary>
+        ''' <returns></returns>
         Public Function GetCurrentColumns() As Integer
             If IsCondensed Then
                 Return Me.ColsCondensed
@@ -620,37 +509,157 @@ Namespace Printer
             Return ""
         End Function
 
-        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
-            For Each item In List.NullAsEmpty()
-                WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine)
-            Next
+        ''' <summary>
+        ''' Escreve os bytes contidos em <paramref name="value"/> no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <param name="value"></param>
+        ''' <returns></returns>
+        Public Function Write(ByVal value As Byte()) As Printer
+            If value IsNot Nothing AndAlso value.Any Then
+                Dim list = New List(Of Byte)
+                If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
+                list.AddRange(value)
+                DocumentBuffer = list.ToArray
+                If _ommit = False Then
+                    Try
+                        Dim v = Command.Encoding.GetString(value).ReplaceMany("<br/>", BreakLineChars.ToArray())
+                        If v = "<br/>" Then
+                            HTMLDocument.Root.Add(<br/>)
+                        Else
+                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&nbsp;")}</span>"))
+                        End If
+                    Catch ex As Exception
+                    End Try
+                End If
+                _ommit = False
+            End If
             Return Me
         End Function
 
-        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
-            Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))), Culture, Columns)
+        ''' <summary>
+        ''' Escreve o <paramref name="value"/> no <see cref="DocumentBuffer"/> se <paramref name="Test"/> for TRUE
+        ''' </summary>
+        ''' <param name="value"></param>
+        ''' <param name="Test"></param>
+        ''' <returns></returns>
+        Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
+            If Test Then
+                If value.ContainsAny(BreakLineChars.ToArray()) Then
+                    For Each line In value.SplitAny(BreakLineChars.ToArray())
+                        WriteLine(line, Test AndAlso line.IsNotBlank)
+                    Next
+                Else
+                    If value.IsNotBlank Then
+                        If Not Diacritics Then
+                            value = value.RemoveDiacritics()
+                        End If
+                        If RewriteFunction IsNot Nothing Then
+                            value = RewriteFunction().Invoke(value)
+                        End If
+                        Write(Command.Encoding.GetBytes(value))
+                    End If
+                End If
+            End If
+            Return Me
         End Function
 
+        ''' <summary>
+        ''' Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE
+        ''' </summary>
+        ''' <param name="value"></param>
+        ''' <param name="Test"></param>
+        ''' <returns></returns>
+        Public Function WriteLine(ByVal value As String, Optional Test As Boolean = True) As Printer
+            Return If(Test, Write(value, Test).NewLine(), Me)
+        End Function
+
+        ''' <summary>
+        ''' Escreve um teste de 48 colunas no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function WriteTest() As Printer
+            NewLine()
+            AlignLeft()
+            WriteLine("INNERLIBS TEST PRINTER - 48 COLUMNS")
+            WriteLine("....+....1....+....2....+....3....+....4....+...")
+            Separator()
+            WriteLine("Default Text")
+            Italic().WriteLine("Italic Text").NotItalic()
+            Bold().WriteLine("Bold Text").NotBold()
+            UnderLine.WriteLine("UnderLine Text").NotUnderline()
+            Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded()
+            Condensed().WriteLine("Condensed Text").NotCondensed()
+            Separator()
+            DoubleWidth2()
+            WriteLine("Font Size 2")
+            DoubleWidth3()
+            WriteLine("Font Size 3")
+            NormalWidth()
+            WriteLine("Normal Font Size")
+            Separator()
+            AlignRight()
+            WriteLine("Text on Right")
+            AlignCenter()
+            WriteLine("Text on Center")
+            AlignLeft()
+            WriteLine("Text on Left")
+            NewLine(3)
+            WriteLine("ACENTOS")
+            TestDiacritics()
+            WriteLine("EOF :)")
+            Separator()
+            NewLine()
+            PartialPaperCut()
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Escreve os valores de um Dictionary como pares
+        ''' </summary>
+        ''' <typeparam name="T1"></typeparam>
+        ''' <typeparam name="T2"></typeparam>
+        ''' <param name="dics"></param>
+        ''' <returns></returns>
+        Public Function WriteDictionary(Of T1, T2)(dics As IEnumerable(Of IDictionary(Of T1, T2)), Optional PartialCutOnEach As Boolean = False) As Printer
+            Return WriteDictionary(PartialCutOnEach, If(dics, {}).ToArray())
+        End Function
+
+        ''' <summary>
+        ''' Escreve os valores de um Dictionary como pares
+        ''' </summary>
+        ''' <typeparam name="T1"></typeparam>
+        ''' <typeparam name="T2"></typeparam>
+        ''' <param name="dic"></param>
+        ''' <returns></returns>
+        Public Function WriteDictionary(Of T1, T2)(dic As IDictionary(Of T1, T2), Optional PartialCutOnEach As Boolean = False) As Printer
+            Return WriteDictionary(PartialCutOnEach, {dic})
+        End Function
+
+        ''' <summary>
+        ''' Escreve os valores de um Dictionary como pares
+        ''' </summary>
+        ''' <typeparam name="T1"></typeparam>
+        ''' <typeparam name="T2"></typeparam>
+        ''' <param name="dics"></param>
+        ''' <returns></returns>
         Public Function WriteDictionary(Of T1, T2)(ParamArray dics As IDictionary(Of T1, T2)()) As Printer
             Return WriteDictionary(False, dics)
         End Function
 
-        Public Function WriteTable(Of T As Class)(Items As IEnumerable(Of T)) As Printer
-            Write(ConsoleTables.ConsoleTable.From(Items).ToString())
-            Return Me
-        End Function
-
-        Public Function WriteTable(Of T As Class)(ParamArray Items As T()) As Printer
-            Return WriteTable(Items.AsEnumerable)
-        End Function
-
+        ''' <summary>
+        ''' Escreve os valores de um Dictionary como pares
+        ''' </summary>
+        ''' <typeparam name="T1"></typeparam>
+        ''' <typeparam name="T2"></typeparam>
+        ''' <param name="dics"></param>
+        ''' <returns></returns>
         Public Function WriteDictionary(Of T1, T2)(PartialCutOnEach As Boolean, ParamArray dics As IDictionary(Of T1, T2)()) As Printer
             dics = If(dics, {})
             For Each dic In dics
                 If dic IsNot Nothing Then
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In dic
-                        WritePair(item.Key, item.Value)
+                        WritePair($"{item.Key}".ToNormalCase(), item.Value)
                     Next
                     AlignLeft()
                 End If
@@ -659,10 +668,116 @@ Namespace Printer
             Return Me
         End Function
 
+        ''' <summary>
+        ''' Escreve uma lista de itens no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <param name="Items"></param>
+        ''' <param name="ListOrdenator"></param>
+        ''' <returns></returns>
+        Public Function WriteList(Items As IEnumerable(Of Object), Optional ListOrdenator As String = Nothing) As Printer
+            For index = 0 To Items.Count - 1
+                WriteLine($"{If(ListOrdenator, $"{index + 1} ")}{Items(index)}")
+            Next
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Escreve uma lista de itens no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        Public Function WriteList(ParamArray Items As Object()) As Printer
+            Return WriteList(If(Items, {}).AsEnumerable)
+        End Function
+
+        ''' <summary>
+        ''' Escreve um par de infomações no <see cref="DocumentBuffer"/>.
+        ''' </summary>
+        Public Function WritePair(Key As Object, Value As Object, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As Printer
+            Columns = If(Columns, GetCurrentColumns())
+            Dim dots = ""
+            Dim s1 = $"{Key}"
+            Dim s2 = $"{Value}"
+            If s2.IsNotBlank() AndAlso Columns.Value > 0 Then
+                dots = GetDotLine(s1, s2, Columns, CharLine)
+            Else
+                dots = " "
+            End If
+            Dim s = $"{s1}{dots}{s2}"
+            Return WriteLine(s, s.IsNotBlank())
+        End Function
+
+        ''' <summary>
+        ''' Escreve uma linha de preço no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <param name="Description"></param>
+        ''' <param name="Price"></param>
+        ''' <param name="Culture"></param>
+        ''' <param name="Columns"></param>
+        ''' <param name="CharLine"></param>
+        ''' <returns></returns>
+        Public Function WritePriceLine(Description As String, Price As Decimal, Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
+            Dim sprice = Price.ToString("C", If(Culture, CultureInfo.CurrentCulture))
+            Return WritePair(Description, sprice, Columns, CharLine)
+        End Function
+
+        ''' <summary>
+        ''' Escreve uma lista de preços no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <param name="Culture"></param>
+        ''' <param name="Columns"></param>
+        ''' <param name="CharLine"></param>
+        ''' <returns></returns>
+        Public Function WritePriceList(List As IEnumerable(Of Tuple(Of String, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
+            For Each item In List.NullAsEmpty()
+                WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine)
+            Next
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Escreve uma lista de preços no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <param name="Culture"></param>
+        ''' <param name="Columns"></param>
+        ''' <param name="CharLine"></param>
+        ''' <returns></returns>
+        Public Function WritePriceList(Of T)(List As IEnumerable(Of T), Description As Expression(Of Func(Of T, String)), Price As Expression(Of Func(Of T, Decimal)), Optional Culture As CultureInfo = Nothing, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As Printer
+            Return WritePriceList(List.Select(Function(x) New Tuple(Of String, Decimal)(Description.Compile()(x), Price.Compile()(x))), Culture, Columns)
+        End Function
+
+        ''' <summary>
+        ''' Escreve uma tabela no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function WriteTable(Of T As Class)(Items As IEnumerable(Of T)) As Printer
+            Write(ConsoleTables.ConsoleTable.From(Items).ToString())
+            Return Me
+        End Function
+
+        ''' <summary>
+        ''' Escreve uma tabela no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function WriteTable(Of T As Class)(ParamArray Items As T()) As Printer
+            Return WriteTable(Items.AsEnumerable)
+        End Function
+
+        ''' <summary>
+        ''' Escreve as Propriedades e valores de uma classe como pares
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="objs"></param>
+        ''' <returns></returns>
         Public Function WriteClass(Of T As Class)(ParamArray objs As T()) As Printer
             Return WriteClass(False, objs)
         End Function
 
+        ''' <summary>
+        ''' Escreve as Propriedades e valores de uma classe como pares
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="objs"></param>
+        ''' <param name="PartialCutOnEach"></param>
+        ''' <returns></returns>
         Public Function WriteClass(Of T As Class)(PartialCutOnEach As Boolean, ParamArray objs As T()) As Printer
             objs = If(objs, {})
             For Each obj In objs
@@ -670,7 +785,7 @@ Namespace Printer
                     If PartialCutOnEach Then PartialPaperCut() Else Separator()
                     For Each item In obj.GetNullableTypeOf().GetProperties()
                         If item.CanRead Then
-                            WritePair(item.Name, item.GetValue(obj))
+                            WritePair(item.Name.ToNormalCase(), item.GetValue(obj))
                         End If
                     Next
                     AlignLeft()
@@ -680,10 +795,25 @@ Namespace Printer
             Return Me
         End Function
 
+        ''' <summary>
+        ''' Escreve as Propriedades e valores de uma classe como pares
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="obj"></param>
+        ''' <param name="PartialCutOnEach"></param>
+        ''' <returns></returns>
         Public Function WriteClass(Of T As Class)(ByVal obj As IEnumerable(Of T), Optional PartialCutOnEach As Boolean = False) As Printer
             Return WriteClass(PartialCutOnEach, If(obj, {}).ToArray())
         End Function
 
+        ''' <summary>
+        ''' Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="TemplateString"></param>
+        ''' <param name="obj"></param>
+        ''' <param name="PartialCutOnEach"></param>
+        ''' <returns></returns>
         Public Function WriteTemplate(Of T)(TemplateString As String, PartialCutOnEach As Boolean, ParamArray obj As T()) As Printer
             If TemplateString.IsNotBlank Then
                 obj = If(obj, {})
@@ -703,14 +833,46 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function WriteTemplate(Of T)(TemplateString As String, ParamArray obj As T()) As Printer
+        ''' <summary>
+        ''' Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="TemplateString"></param>
+        ''' <param name="obj"></param>
+        ''' <returns></returns>
+        Public Function WriteTemplate(Of T As Class)(TemplateString As String, ParamArray obj As T()) As Printer
             Return WriteTemplate(TemplateString, False, obj)
         End Function
 
-        Public Function WriteTemplate(Of T)(TemplateString As String, obj As IEnumerable(Of T), Optional PartiaCutOnEach As Boolean = False) As Printer
-            Return WriteTemplate(TemplateString, PartiaCutOnEach, If(obj, {}).ToArray())
+        ''' <summary>
+        ''' Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="TemplateString"></param>
+        ''' <param name="obj"></param>
+        ''' <param name="PartialCutOnEach"></param>
+        ''' <returns></returns>
+        Public Function WriteTemplate(Of T As Class)(TemplateString As String, obj As IEnumerable(Of T), Optional PartialCutOnEach As Boolean = False) As Printer
+            Return WriteTemplate(TemplateString, PartialCutOnEach, If(obj, {}).ToArray())
         End Function
 
+        ''' <summary>
+        ''' Escreve um template substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="TemplateString"></param>
+        ''' <param name="obj"></param>
+        ''' <param name="PartialCutOnEach"></param>
+        ''' <returns></returns>
+        Public Function WriteTemplate(Of T As Class)(TemplateString As String, obj As T, Optional PartialCutOnEach As Boolean = False) As Printer
+            Return WriteTemplate(TemplateString, PartialCutOnEach, ForceArray(obj))
+        End Function
+
+        ''' <summary>
+        ''' Escreve uma data usando formato especifico
+        ''' </summary>
+        ''' <param name="Format"></param>
+        ''' <returns></returns>
         Public Function WriteDate([DateAndTime] As Date, Optional Format As String = Nothing)
             If Format.IsNotBlank Then
                 Return Write(DateAndTime.ToString(Format))
@@ -719,7 +881,34 @@ Namespace Printer
             End If
         End Function
 
+        ''' <summary>
+        ''' Escreve uma data usando uma Cultura especifica
+        ''' </summary>
+        ''' <param name="Format"></param>
+        ''' <returns></returns>
+        Public Function WriteDate([DateAndTime] As Date, Optional Format As CultureInfo = Nothing)
+            If Format IsNot Nothing Then
+                Return Write(DateAndTime.ToString(Format))
+            Else
+                Return Write(DateAndTime.ToString())
+            End If
+        End Function
+
+        ''' <summary>
+        ''' Escreve a data atual usando formato especifico
+        ''' </summary>
+        ''' <param name="Format"></param>
+        ''' <returns></returns>
         Public Function WriteDate(Optional Format As String = Nothing)
+            Return WriteDate(DateTime.Now, Format)
+        End Function
+
+        ''' <summary>
+        ''' Escreve a data atual usando uma cultura especifica
+        ''' </summary>
+        ''' <param name="Format"></param>
+        ''' <returns></returns>
+        Public Function WriteDate(Optional Format As CultureInfo = Nothing)
             Return WriteDate(DateTime.Now, Format)
         End Function
 
@@ -758,7 +947,7 @@ Namespace Printer
         End Function
 
         ''' <summary>
-        ''' Imprime os Bytes
+        ''' Envia os Bytes para a impressora ou arquivo
         ''' </summary>
         ''' <param name="Copies"></param>
         ''' <returns></returns>
@@ -776,7 +965,7 @@ Namespace Printer
         End Function
 
         ''' <summary>
-        ''' Escreve um Arquivo com os dados binarios desta impressao
+        ''' Escreve um Arquivo com os dados binarios e HTML desta impressao
         ''' </summary>
         ''' <param name="FileOrDirectoryPath"></param>
         ''' <returns></returns>
