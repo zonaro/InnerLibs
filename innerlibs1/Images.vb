@@ -122,6 +122,25 @@ Public Module Images
         Return bm_Resultado
     End Function
 
+
+    ''' <summary>
+    ''' Insere uma imagem em outra imagem
+    ''' </summary>
+    ''' <param name="Image">Imagem</param>
+    ''' <param name="InsertedImage">Imagem de Marca Dagua</param>
+    ''' <param name="X">Posição X</param>
+    ''' <param name="Y">Posição Y</param>
+    ''' <returns></returns>
+    <Extension()> Public Function Insert(Image As Image, InsertedImage As Image, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
+        Dim bm_Resultado As New Bitmap(Image)
+        Dim bm_marcaDagua As New Bitmap(InsertedImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5))
+        If X < 0 Then X = (bm_Resultado.Width - bm_marcaDagua.Width) \ 2
+        If Y < 0 Then Y = (bm_Resultado.Height - bm_marcaDagua.Height) \ 2
+        Dim gr As Graphics = Graphics.FromImage(bm_Resultado)
+        gr.DrawImage(bm_marcaDagua, X, Y)
+        Return bm_Resultado
+    End Function
+
     <Extension> Public Function CreateImage(Color As Color, Width As Integer, Height As Integer) As Image
         Dim Bmp = New Bitmap(Width, Height)
         Using gfx = Graphics.FromImage(Bmp)
