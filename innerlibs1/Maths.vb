@@ -385,9 +385,9 @@ Public Module MathExt
     ''' </summary>
     ''' <param name="Formula">Expressão matematica</param>
     ''' <returns></returns>
-    Public Function EvaluateExpression(Formula As String, Optional Exception As Boolean = False) As Object
+    <Extension> Public Function EvaluateExpression(Formula As String, Optional Exception As Boolean = False) As Object
         Try
-            Return New Evaluator().Parse(Formula).value
+            Return New ExpressionParser.Evaluator().Parse(Formula)?.value
         Catch ex As Exception
             If Exception Then Throw ex
             Return Nothing
@@ -399,7 +399,7 @@ Public Module MathExt
     ''' </summary>
     ''' <param name="Formula">Expressão matematica</param>
     ''' <returns></returns>
-    Public Function EvaluateExpression(Of T As Structure)(Formula As String, Optional Exception As Boolean = False) As T
+    <Extension> Public Function EvaluateExpression(Of T As Structure)(Formula As String, Optional Exception As Boolean = False) As T
         Return ChangeType(Of T)(EvaluateExpression(Formula, Exception))
     End Function
 
@@ -410,7 +410,7 @@ Public Module MathExt
     ''' <param name="[Constant]"> </param>
     ''' <param name="Length">     </param>
     ''' <returns></returns>
-    Public Function ArithmeticProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As IEnumerable(Of Integer)
+    <Extension> Public Function ArithmeticProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As IEnumerable(Of Integer)
         Dim PA As New List(Of Integer)
         PA.Add(FirstNumber)
         For index = 1 To Length - 1
@@ -426,7 +426,7 @@ Public Module MathExt
     ''' <param name="[Constant]"> </param>
     ''' <param name="Length">     </param>
     ''' <returns></returns>
-    Public Function GeometricProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As IEnumerable(Of Integer)
+    <Extension> Public Function GeometricProgression(FirstNumber As Integer, [Constant] As Integer, Length As Integer) As IEnumerable(Of Integer)
         Dim PG As New List(Of Integer)
         PG.Add(FirstNumber)
         For index = 1 To Length - 1
@@ -459,7 +459,7 @@ Public Module MathExt
     ''' </summary>
     ''' <param name="Length">Quantidade de numeros da sequencia</param>
     ''' <returns>Lista com a sequencia Fibonacci</returns>
-    Public Function Fibonacci(Length As Integer) As IEnumerable(Of Integer)
+    <Extension> Public Function Fibonacci(Length As Integer) As IEnumerable(Of Integer)
         Dim lista As New List(Of Integer)
         lista.AddRange({0, 1})
         For index = 2 To Length - 1

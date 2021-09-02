@@ -16,6 +16,52 @@ Imports InnerLibs.LINQ
 ''' <remarks></remarks>
 Public Module Text
 
+    ''' <summary>
+    ''' Encapsula um texto em uma caixa incorporado em comentários CSS
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function BoxTextCSS(Text As String) As String
+        Return $"/*{Text.BoxText().Wrap(Environment.NewLine)}*/"
+    End Function
+
+    ''' <summary>
+    ''' Encapsula um texto em uma caixa
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function BoxText(Text As String) As String
+        Dim Lines = Text.SplitAny(BreakLineChars.ToArray()).ToList()
+        Dim linha_longa = ""
+        Dim charcount = Lines.Max(Function(x) x.Length)
+
+        If charcount.IsEven() Then
+            charcount = charcount + 1
+        End If
+
+        For i As Integer = 0 To Lines.Count() - 1
+            Lines(i) = Lines(i).PadRight(charcount)
+        Next
+
+        For i As Integer = 0 To Lines.Count() - 1
+            Lines(i) = $"* {Lines(i)} *"
+        Next
+
+        charcount = Lines.Max(Function(x) x.Length)
+
+        While linha_longa.Length < charcount
+            linha_longa = linha_longa & "* "
+        End While
+
+        linha_longa = linha_longa.Trim()
+
+        Lines.Insert(0, linha_longa)
+        Lines.Add(linha_longa)
+
+        Dim box = Lines.Join(Environment.NewLine)
+        Return box
+    End Function
+
     <Extension()> Public Function ToFormattableString(Text As String, ParamArray args As Object()) As FormattableString
         Return FormattableStringFactory.Create(Text, If(args, {}))
     End Function
@@ -212,101 +258,6 @@ Public Module Text
         Return Text
     End Function
 
-    ''' <summary>
-    ''' Caracteres usado para encapsular palavras em textos
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property WordWrappers As IEnumerable(Of String)
-        Get
-            Return OpenWrappers.Union(CloseWrappers)
-        End Get
-    End Property
-
-    ReadOnly Property AlphaLowerChars As IEnumerable(Of String)
-        Get
-            Return Consonants.Union(Vowels).OrderBy(Function(x) x).AsEnumerable
-        End Get
-    End Property
-
-    ReadOnly Property AlphaUpperChars As IEnumerable(Of String)
-        Get
-            Return AlphaLowerChars.Select(Function(x) x.ToUpper())
-        End Get
-    End Property
-
-    ReadOnly Property AlphaChars As IEnumerable(Of String)
-        Get
-            Return AlphaUpperChars.Union(AlphaLowerChars).OrderBy(Function(x) x).AsEnumerable
-        End Get
-    End Property
-
-    ReadOnly Property NumberChars As IEnumerable(Of String)
-        Get
-            Return {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}.AsEnumerable
-        End Get
-    End Property
-
-    ReadOnly Property BreakLineChars As IEnumerable(Of String)
-        Get
-            Return {Environment.NewLine, vbCr, vbLf, vbCrLf, vbNewLine}.AsEnumerable
-        End Get
-    End Property
-
-    ReadOnly Property CloseWrappers As IEnumerable(Of String)
-        Get
-            Return {"""", "'", ")", "}", "]", ">"}.AsEnumerable
-        End Get
-    End Property
-
-    ReadOnly Property EndOfSentencePunctuation As IEnumerable(Of String)
-        Get
-            Return {".", "?", "!"}.AsEnumerable
-        End Get
-    End Property
-
-    ReadOnly Property MidSentencePunctuation As IEnumerable(Of String)
-        Get
-            Return {":", ";", ","}.AsEnumerable
-        End Get
-    End Property
-
-    ReadOnly Property OpenWrappers As IEnumerable(Of String)
-        Get
-            Return {"""", "'", "(", "{", "[", "<"}.AsEnumerable
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Caracteres em branco
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property WhiteSpaceChars As IEnumerable(Of String)
-        Get
-            Return {Environment.NewLine, " ", vbTab, vbLf, vbCr, vbCrLf}.AsEnumerable
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Strings utilizadas para descobrir as palavras em uma string
-    ''' </summary>
-    ''' <returns></returns>
-    ReadOnly Property WordSplitters As IEnumerable(Of String)
-        Get
-            Return {"&nbsp;", """", "'", "(", ")", ",", ".", "?", "!", ";", "{", "}", "[", "]", "|", " ", ":", vbNewLine, "<br>", "<br/>", "<br/>", Environment.NewLine, vbCr, vbCrLf}.AsEnumerable
-        End Get
-    End Property
-
-    Public ReadOnly Property Consonants As IEnumerable(Of String)
-        Get
-            Return {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"}.AsEnumerable
-        End Get
-    End Property
-
-    Public ReadOnly Property Vowels As IEnumerable(Of String)
-        Get
-            Return {"a", "e", "i", "o", "u"}.AsEnumerable
-        End Get
-    End Property
 
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String

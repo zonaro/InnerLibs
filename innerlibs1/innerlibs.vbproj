@@ -77,9 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alphabet.vb" />
+    <Compile Include="Arrays.vb" />
     <Compile Include="ASCIIArt.vb" />
     <Compile Include="Base64.vb" />
-    <Compile Include="BeautyStrings.vb" />
     <Compile Include="Brasil.vb" />
     <Compile Include="Calendars.vb" />
     <Compile Include="ClassManager.vb" />
@@ -95,11 +95,7 @@
     <Compile Include="Evalz\Evaluator.vb" />
     <Compile Include="Evalz\EvalVariable.vb" />
     <Compile Include="Evalz\Globals.vb" />
-    <Compile Include="Evalz\interfaces\iEvalFunctions.vb" />
-    <Compile Include="Evalz\interfaces\iEvalHasDescription.vb" />
-    <Compile Include="Evalz\interfaces\iEvalTypedValue.vb" />
-    <Compile Include="Evalz\interfaces\iEvalValue.vb" />
-    <Compile Include="Evalz\interfaces\iVariableBag.vb" />
+    <Compile Include="Evalz\Interfaces.vb" />
     <Compile Include="Evalz\opCode.vb" />
     <Compile Include="Evalz\Parser.vb" />
     <Compile Include="Evalz\Tokenizer.vb" />
@@ -150,7 +146,6 @@
     <Compile Include="Text.vb" />
     <Compile Include="TextCleaner.vb" />
     <Compile Include="TimeMachine.vb" />
-    <Compile Include="Toggles.vb" />
     <Compile Include="UnitConverter.vb" />
     <Compile Include="vCard.vb" />
     <Compile Include="Verify.vb" />

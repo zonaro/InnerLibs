@@ -76,17 +76,6 @@ Public Module ClassTools
         Return Not List.IsNotNullOrEmpty()
     End Function
 
-    Public ReadOnly Property PrimitiveTypes As Type()
-        Get
-            Return {GetType(String), GetType(Char), GetType(Byte), GetType(SByte), GetType(DateTime)}.Union(PrimitiveNumericTypes).ToArray()
-        End Get
-    End Property
-
-    Public ReadOnly Property PrimitiveNumericTypes As Type()
-        Get
-            Return {GetType(Single), GetType(UShort), GetType(Short), GetType(Integer), GetType(UInteger), GetType(ULong), GetType(Long), GetType(Double), GetType(Decimal)}
-        End Get
-    End Property
 
     <Extension> Public Function RemoveLast(Of T)(List As List(Of T), Optional Count As Integer = 1) As List(Of T)
         For index = 1 To Count
@@ -446,7 +435,7 @@ Public Module ClassTools
     ''' <param name="ChooseIfTrue"> Valor retornado se a expressão for verdadeira</param>
     ''' <param name="ChooseIfFalse">Valor retornado se a expressão for falsa</param>
     ''' <returns></returns>
-    <Extension()> Public Function AsIf(Of T)(Expression As String, ChooseIfTrue As T, ChooseIfFalse As T) As T
+    <Extension()> Public Function IfExpression(Of T)(Expression As String, ChooseIfTrue As T, ChooseIfFalse As T) As T
         Try
             Dim vv = EvaluateExpression(Expression)
             Select Case vv.GetType
@@ -1289,6 +1278,19 @@ Public Module ClassTools
     <Extension()> Public Function SetPropertyValue(Of Type As Class, Prop)(obj As Type, Selector As Expression(Of Func(Of Type, Prop)), Value As Prop) As Type
         obj.GetPropertyInfo(Selector).SetValue(obj, Value)
         Return obj
+    End Function
+
+
+
+    ''' <summary>
+    ''' Alterna uma variavel ente 2 valores diferentes
+    ''' </summary>
+    ''' <param name="Current">Objeto contendo o primeiro ou segundo valor</param>
+    ''' <param name="TrueValue">Primeiro valor</param>
+    ''' <param name="FalseValue">Segundo Valor</param>
+    <Extension()>
+    Public Function Toggle(Of T)(Current As T, TrueValue As T, Optional FalseValue As T = Nothing) As T
+        Return If(Current.Equals(TrueValue), FalseValue, TrueValue)
     End Function
 
 End Module

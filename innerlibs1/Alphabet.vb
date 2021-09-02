@@ -1,5 +1,8 @@
 ﻿Imports System.Text
 
+''' <summary>
+''' Classe para encodar IDs numéricos em hashs curtas
+''' </summary>
 Public Class Alphabet
 
     Public Sub New()

@@ -205,18 +205,7 @@ Namespace Console
             Next
         End Sub
 
-        ''' <summary>
-        ''' Titulo da janela do console
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property Title As String
-            Get
-                Return System.Console.Title
-            End Get
-            Set(value As String)
-                System.Console.Title = value
-            End Set
-        End Property
+
 
     End Module
 

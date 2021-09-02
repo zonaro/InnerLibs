@@ -85,7 +85,7 @@ Public Class DataURI
     ''' </summary>
     ''' <returns></returns>
     Public Function ToBytes() As Byte()
-        Return Me.ToString.ToBytes
+        Return Me.ToString.Base64ToBytes
     End Function
 
     ''' <summary>
@@ -228,7 +228,7 @@ Public Module Base64
     ''' <param name="OriginalImageFormat">Formato da Imagem</param>
     ''' <returns>Uma data URI com a imagem convertida</returns>
     <Extension> Public Function ToDataURL(ByVal OriginalImage As Image, ByVal OriginalImageFormat As System.Drawing.Imaging.ImageFormat) As String
-        Return OriginalImage.ToBase64(OriginalImageFormat).ToImage().ToDataURL()
+        Return OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL()
     End Function
 
     ''' <summary>
@@ -290,7 +290,7 @@ Public Module Base64
     ''' <returns>Uma imagem (componente Image)</returns>
 
     <Extension()>
-    Public Function ToImage(DataUrlOrBase64String As String, Optional Width As Integer = 0, Optional Height As Integer = 0) As Image
+    Public Function Base64ToImage(DataUrlOrBase64String As String, Optional Width As Integer = 0, Optional Height As Integer = 0) As Image
         Try
             If DataUrlOrBase64String.IsBlank Then Return Nothing
             If DataUrlOrBase64String.Contains(",") Then
@@ -331,7 +331,7 @@ Public Module Base64
     ''' </summary>
     ''' <param name="Base64StringOrDataURL">Base64 String ou DataURL</param>
     ''' <returns></returns>
-    <Extension()> Public Function ToBytes(Base64StringOrDataURL As String) As Byte()
+    <Extension()> Public Function Base64ToBytes(Base64StringOrDataURL As String) As Byte()
         Return Convert.FromBase64String(Base64StringOrDataURL.FixBase64)
     End Function
 
@@ -342,7 +342,7 @@ Public Module Base64
     ''' <param name="FilePath"></param>
     ''' <returns></returns>
     <Extension()> Public Function CreateFileFromDataURL(Base64StringOrDataURL As String, FilePath As String) As FileInfo
-        Return Base64StringOrDataURL.ToBytes.WriteToFile(FilePath)
+        Return Base64StringOrDataURL.Base64ToBytes.WriteToFile(FilePath)
     End Function
 
 End Module
