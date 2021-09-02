@@ -161,6 +161,8 @@ Namespace Printer
             End Get
         End Property
 
+
+
         Public Sub New(ByVal Encoding As Encoding)
             Me.New(Nothing, Nothing, 0, 0, 0, Encoding)
         End Sub
@@ -564,13 +566,37 @@ Namespace Printer
         End Function
 
         ''' <summary>
-        ''' Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE
+        ''' Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE e quebra uma linha
         ''' </summary>
         ''' <param name="value"></param>
         ''' <param name="Test"></param>
         ''' <returns></returns>
-        Public Function WriteLine(ByVal value As String, Optional Test As Boolean = True) As Printer
+        Public Function WriteLine(ByVal value As String, Test As Boolean) As Printer
             Return If(Test, Write(value, Test).NewLine(), Me)
+        End Function
+
+
+        ''' <summary>
+        ''' Escreve o <paramref name="value"/>   e quebra uma linha
+        ''' </summary>
+        ''' <param name="value"></param>
+        ''' <returns></returns>
+        Public Function WriteLine(ByVal value As String) As Printer
+            Return Write(value, True)
+        End Function
+
+
+        ''' <summary>
+        ''' Escreve varias linhas no <see cref="DocumentBuffer"/>
+        ''' </summary>
+        ''' <param name="values"></param>
+        ''' <returns></returns>
+        Public Function WriteLine(ParamArray values As String()) As Printer
+            values = values.NullAsEmpty().Where(Function(x) x.IsNotBlank())
+            If values.Any() Then
+                WriteLine(values.Join(Environment.NewLine))
+            End If
+            Return Me
         End Function
 
         ''' <summary>
@@ -955,7 +981,7 @@ Namespace Printer
             If Bytes IsNot Nothing AndAlso Bytes.Any Then
                 For i = 0 To Copies.SetMinValue(1) - 1
                     If PrinterName.IsFilePath Then
-                        SaveFile(PrinterName, True)
+                        SaveFile(PrinterName, False)
                     Else
                         If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
                     End If
@@ -969,7 +995,7 @@ Namespace Printer
         ''' </summary>
         ''' <param name="FileOrDirectoryPath"></param>
         ''' <returns></returns>
-        Public Function SaveFile(FileOrDirectoryPath As String, Optional IncludeHtmlDoc As Boolean = True) As Printer
+        Public Function SaveFile(FileOrDirectoryPath As String, Optional IncludeHtmlDoc As Boolean = False) As Printer
             If DocumentBuffer IsNot Nothing AndAlso DocumentBuffer.Count > 0 Then
                 If FileOrDirectoryPath.IsDirectoryPath Then
                     FileOrDirectoryPath = $"{FileOrDirectoryPath}\{Me.Command.GetTypeOf().Name}\{Me.PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Me.Command?.GetTypeOf()?.Name.IfBlank("bin")}"
@@ -1019,7 +1045,7 @@ Namespace Printer
         End Function
 
         Public Function Image(ByVal pImage As System.Drawing.Image, ByVal Optional highDensity As Boolean = True) As Printer
-            HTMLDocument.Root.Add(XElement.Parse($"<img class='image{highDensity.AsIf(" HighDensity")}'  src='{pImage.ToBase64()}' />"))
+            HTMLDocument.Root.Add(XElement.Parse($"<img class='image{highDensity.AsIf(" HighDensity")}'  src='{pImage.ToDataURL()}' />"))
             _ommit = True
             Return Write(Command.PrintImage(pImage, highDensity))
         End Function
