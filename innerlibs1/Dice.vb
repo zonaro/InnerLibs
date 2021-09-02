@@ -243,8 +243,8 @@ Namespace RolePlayingGame
         ''' <returns></returns>
         Default ReadOnly Property Face(FaceNumber As Integer) As DiceFace
             Get
-                FaceNumber = FaceNumber.LimitRange(Of Integer)(1, Faces.Count)
-                Return Me.Faces.Item(FaceNumber - 1)
+                If FaceNumber.IsBetweenOrEqual(1, Faces.Count) Then Return Me.Faces.Item(FaceNumber - 1)
+                Return Nothing
             End Get
         End Property
 
@@ -253,8 +253,8 @@ Namespace RolePlayingGame
         ''' </summary>
         ''' <param name="FaceNumber">Numero da face</param>
         ''' <returns></returns>
-        Public Function GetFace(FaceNumber As Integer) As DiceFace
-            Return Face(FaceNumber)
+        Public Function GetFace(Optional FaceNumber As Integer = 0) As DiceFace
+            Return Face(FaceNumber.LimitRange(1, Faces.Count))
         End Function
 
         ''' <summary>
@@ -267,12 +267,12 @@ Namespace RolePlayingGame
             Next
         End Sub
 
-        Private Function GetChancePercent(Face As Integer) As Integer
+        Function GetChancePercent(Face As Integer) As Integer
             Dim pesototal = Weight
             Return MathExt.CalculatePercent(GetFace(Face).Weight, pesototal)
         End Function
 
-        Private Function GetValueOfPercent(Face As Integer) As Integer
+        Function GetValueOfPercent(Face As Integer) As Integer
             Dim pesototal = Weight
             Return MathExt.CalculateValueFromPercent(GetFace(Face).WeightPercent, pesototal)
         End Function
@@ -291,7 +291,7 @@ Namespace RolePlayingGame
         End Property
 
         Private Sub ApplyPercent()
-            For Each f In Faces
+            For Each f In Faces.NullAsEmpty()
                 f._weightpercent = GetChancePercent(f.Number)
             Next
         End Sub
@@ -340,7 +340,7 @@ Namespace RolePlayingGame
             End Operator
 
             Friend Sub New(d As Dice, FaceNumber As Integer)
-                Me.Number = FaceNumber.SetMinValue(1)
+                'Me.Number = FaceNumber.SetMinValue(1)
                 Me.dice = d
             End Sub
 
@@ -351,6 +351,10 @@ Namespace RolePlayingGame
             ''' </summary>
             ''' <returns></returns>
             ReadOnly Property Number As Integer
+                Get
+                    Return dice.Faces.IndexOf(Me) + 1
+                End Get
+            End Property
 
             ReadOnly Property History As IEnumerable(Of DateTime)
                 Get
@@ -405,10 +409,6 @@ Namespace RolePlayingGame
                     Next
 
                     Me.dice.ApplyPercent()
-                    'Dim total = Value + OtherFaces.Sum(Function(x) x.WeightPercent)
-                    'Value = Value.CalculateValueFromPercent(total)
-                    'total = 100
-
                 End Set
 
             End Property
@@ -433,9 +433,9 @@ Namespace RolePlayingGame
                 Get
                     If _name.IsBlank Then
                         If Me.dice.Type = DiceType.Coin Then
-                            Return If(Number = 0, "HEAD", "TAIL")
+                            Return If(Number = 1, "head", "tail").ToTitle()
                         End If
-                        Return Number
+                        Return New FullNumberWriter().ToString(Number, 0).ToTitle()
                     End If
                     Return _name
                 End Get

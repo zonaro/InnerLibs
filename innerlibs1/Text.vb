@@ -218,7 +218,7 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Seprar uma string em varias partes a partir de varias strings removendo as entradas em branco
+    ''' Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
     ''' </summary>
     ''' <param name="Text"></param>
     ''' <param name="SplitText"></param>
@@ -226,6 +226,16 @@ Public Module Text
     <Extension()> Public Function SplitAny(Text As String, ParamArray SplitText As String()) As String()
         SplitText = If(SplitText, {})
         Return Text.Split(SplitText, StringSplitOptions.RemoveEmptyEntries)
+    End Function
+
+    ''' <summary>
+    ''' Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
+    ''' </summary>
+    ''' <param name="Text"></param>
+    ''' <param name="SplitText"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function SplitAny(Text As String, SplitText As IEnumerable(Of String)) As String()
+        Return SplitAny(Text, SplitText.ToArray())
     End Function
 
     ''' <summary>
@@ -257,7 +267,6 @@ Public Module Text
         End If
         Return Text
     End Function
-
 
     <Extension()>
     Public Function AdjustBlankSpaces(ByVal Text As String) As String
@@ -3346,10 +3355,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Function Wrap(Text As String, Optional WrapText As String = """") As String
-        If Text.IsNotBlank Then
-            Return WrapText & Text & WrapText
-        End If
-        Return Text
+        Return Text.Wrap(WrapText, WrapText)
     End Function
 
     ''' <summary>
@@ -3359,10 +3365,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()>
     Function Wrap(Text As String, OpenWrapText As String, CloseWrapText As String) As String
-        If Text.IsNotBlank Then
-            Return OpenWrapText & Text & CloseWrapText.IfBlank(OpenWrapText)
-        End If
-        Return Text
+        Return $"{OpenWrapText }{Text}{CloseWrapText.IfBlank(OpenWrapText)}"
     End Function
 
     <Extension()> Function UnWrap(Text As String, Optional WrapText As String = """", Optional ContinuouslyRemove As Boolean = False) As String
@@ -3784,12 +3787,12 @@ Public Class FullNumberWriter
     Sub New()
         For Each prop In Me.GetProperties.Where(Function(x) x.CanWrite)
             Select Case prop.Name
-                Case "ExactlyOneHundred", "DecimalSeparator"
+                Case "ExactlyOneHundred", "DecimalSeparator", "And"
                     Continue For
                 Case Else
                     Select Case prop.PropertyType
                         Case GetType(String)
-                            prop.SetValue(Me, prop.Name.CamelAdjust)
+                            prop.SetValue(Me, prop.Name.ToNormalCase())
                         Case GetType(QuantityTextPair)
                             If CType(prop.GetValue(Me), QuantityTextPair).Plural.IsBlank Then
                                 prop.SetValue(Me, New QuantityTextPair(prop.Name & "s", prop.Name))
@@ -3851,7 +3854,7 @@ Public Class FullNumberWriter
             Case 1000 To 1999
                 Select Case (Number Mod 1000)
                     Case 0
-                        Return Thousand
+                        Return Thousand & " "
                     Case Is <= 100, 200, 300, 400, 500, 600, 700, 800, 900
                         Return Thousand & [And].Wrap(" ") & InExtensive(Number Mod 1000)
                     Case Else
