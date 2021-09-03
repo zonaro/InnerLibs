@@ -122,7 +122,6 @@ Public Module Images
         Return bm_Resultado
     End Function
 
-
     ''' <summary>
     ''' Insere uma imagem em outra imagem
     ''' </summary>
@@ -253,7 +252,6 @@ Public Module Images
         Return Colors.Any(Function(Color2) (Color1.R = Color2.R) AndAlso (Color1.G = Color2.G) AndAlso (Color1.B = Color2.B) AndAlso If(IgnoreAlpha, True, (Color1.A = Color2.A)))
     End Function
 
-
     <Extension> Public Function MakeDarker(img As Image, Optional percent As Single = 50) As Image
         Dim lockedBitmap = New Bitmap(img)
         For y = 0 To lockedBitmap.Height - 1
@@ -268,8 +266,6 @@ Public Module Images
         Return lockedBitmap
     End Function
 
-
-
     <Extension> Public Function MakeLighter(img As Image, Optional percent As Single = 50) As Image
         Dim lockedBitmap = New Bitmap(img)
         For y = 0 To lockedBitmap.Height - 1
@@ -283,7 +279,6 @@ Public Module Images
         Next
         Return lockedBitmap
     End Function
-
 
     <Extension> Public Function BrightnessContrastAndGamma(originalimage As Image, Brightness As Single, Contrast As Single, Gamma As Single) As Image
         Dim adjustedImage As New Bitmap(originalimage)
@@ -407,7 +402,7 @@ Public Module Images
     ''' <returns></returns>
     <Extension()> Public Function Crop(Image As Image, MaxWidth As Integer, MaxHeight As Integer) As Image
         Dim jpgInfo As ImageCodecInfo = ImageCodecInfo.GetImageEncoders().Where(Function(codecInfo) codecInfo.MimeType = "image/png").First()
-        Dim finalImage As Image = Image
+        Dim finalImage As Image = New Bitmap(Image)
         Dim bitmap As System.Drawing.Bitmap = Nothing
 
         Dim left As Integer = 0
@@ -534,10 +529,9 @@ Public Module Images
     ''' <returns></returns>
     <Extension()>
     Public Function Resize(Original As Image, NewWidth As Integer, MaxHeight As Integer, Optional OnlyResizeIfWider As Boolean = True) As Image
-        Dim fullsizeImage As Image = Original
+        Dim fullsizeImage As Image = New Bitmap(Original)
 
         ' Prevent using images internal thumbnail
-        fullsizeImage.RotateFlip(RotateFlipType.Rotate180FlipNone)
         fullsizeImage.RotateFlip(RotateFlipType.Rotate180FlipNone)
 
         If OnlyResizeIfWider Then
