@@ -88,7 +88,7 @@ Namespace MicroORM
         End Function
 
         Public Function AddColumns(ParamArray Columns As String()) As [Select](Of T)
-            Columns = If(Columns, {}).Distinct().Where(Function(x) x.IsNotBlank()).ToArray()
+            Columns = If(Columns, {}).SelectMany(Function(x) x.Split(",")).Distinct().Where(Function(x) x.IsNotBlank()).ToArray()
             _columns = If(_columns, New List(Of String)())
             _columns.AddRange(Columns)
             Return Me
@@ -391,6 +391,61 @@ Namespace MicroORM
 
         Public Function Where(ParamArray condition As Condition()) As [Select](Of T)
             Return [And](condition)
+        End Function
+
+        Public Function Where(Dic As Dictionary(Of String, Object), LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys As String())
+
+            FilterKeys = If(FilterKeys, {})
+
+            If FilterKeys.Any Then
+                FilterKeys = Dic.Keys.ToArray().Where(Function(x) x.IsLikeAny(FilterKeys)).ToArray
+            Else
+                FilterKeys = Dic.Keys.ToArray()
+            End If
+
+            FilterKeys = FilterKeys.Where(Function(x) Dic(x) IsNot Nothing AndAlso Dic(x).ToString().IsNotBlank()).ToArray()
+
+            If FilterKeys.Any Then
+                For Each f In FilterKeys
+                    If LogicConcatenation = LogicConcatenationOperator.OR Then
+                        Me.Or(New Condition(f, Dic(f)))
+                    Else
+                        Me.And(New Condition(f, Dic(f)))
+                    End If
+                Next
+            End If
+            Return Me
+        End Function
+
+        Public Function Where(NVC As NameValueCollection, ParamArray FilterKeys As String()) As [Select](Of T)
+            FilterKeys = If(FilterKeys, {})
+            For Each k In NVC.AllKeys
+                If k.IsNotBlank() Then
+                    Dim col = k.UrlDecode()
+                    If Not FilterKeys.Any() OrElse col.IsLikeAny(FilterKeys) Then
+                        Dim values = If(NVC.GetValues(k), New String() {})
+                        For Each v In values
+                            Dim logic = col.GetBefore(":", True).IfBlank("AND")
+                            Dim op = v.GetBefore(":", True).IfBlank("=")
+                            col = col.GetAfter(":")
+                            col = col.Contains(" ").AsIf(col.UnQuote("[", True).Quote("["c), col)
+                            Dim valor = v.GetAfter(":").NullIf("null", StringComparison.InvariantCultureIgnoreCase)
+
+                            If valor Is Nothing Then
+                                op = "is"
+                            End If
+
+                            If valor = "'null'" Then
+                                valor = "null"
+                            End If
+
+                            Dim cond = New Condition(col, valor, op)
+                            Where(logic, {cond})
+                        Next
+                    End If
+                End If
+            Next
+            Return Me
         End Function
 
         ''' <summary>
@@ -719,7 +774,7 @@ Namespace MicroORM
         End Sub
 
         ''' <summary>
-        ''' Ctor.
+        ''' Select class constructor
         ''' </summary>
         ''' <param name="condition">Condition to set in this instance</param>
         Public Sub New(ByVal condition As FormattableString)
@@ -729,7 +784,7 @@ Namespace MicroORM
         End Sub
 
         ''' <summary>
-        ''' Ctor.
+        ''' Select class constructor
         ''' </summary>
         ''' <param name="condition">Copies to the condition being constructed</param>
         Public Sub New(condition As Condition)
@@ -739,7 +794,7 @@ Namespace MicroORM
         End Sub
 
         ''' <summary>
-        ''' Ctor.
+        ''' Select class constructor
         ''' </summary>
         Public Sub New(Column As String, Value As Object, Optional [Operator] As String = "=")
             If Column.IsNotBlank() Then
@@ -882,8 +937,12 @@ Namespace MicroORM
 
     Public Module DbExtensions
 
-        Private typeMap As Dictionary(Of Type, DbType)
+        Private typeMap As Dictionary(Of Type, DbType) = Nothing
 
+        ''' <summary>
+        ''' Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property DbTypes As Dictionary(Of Type, DbType)
             Get
                 If typeMap Is Nothing Then
@@ -906,16 +965,29 @@ Namespace MicroORM
                     typeMap(GetType(DateTime)) = DbType.DateTime
                     typeMap(GetType(DateTimeOffset)) = DbType.DateTimeOffset
                     typeMap(GetType(Byte())) = DbType.Binary
-                    typeMap(GetType(Data.Linq.Binary)) = DbType.Binary
+                    Try
+                        typeMap(GetType(Data.Linq.Binary)) = DbType.Binary
+                    Catch ex As Exception
+                    End Try
                 End If
                 Return typeMap
             End Get
         End Property
 
+        ''' <summary>
+        ''' Retorna um <see cref="DbType"/> de um <see cref="Type"/>
+        ''' </summary>
         <Extension> Public Function GetDbType(Of T)(obj As T, Optional Def As DbType = DbType.Object) As DbType
             Return DbTypes.GetValueOr(GetNullableTypeOf(obj), Def)
         End Function
 
+        ''' <summary>
+        ''' Retorna um <see cref="Type"/> de um <see cref="DbType"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Type"></param>
+        ''' <param name="Def"></param>
+        ''' <returns></returns>
         <Extension> Public Function GetTypeFromDb(Of T)(Type As DbType, Optional Def As Type = Nothing) As Type
             Dim tt = DbTypes.FirstOrDefault(Function(x) x.Value = Type)
             If Not IsNothing(tt) Then
@@ -924,10 +996,22 @@ Namespace MicroORM
             Return If(Def, GetType(Object))
         End Function
 
+        ''' <summary>
+        ''' Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
         <Extension()> Public Function CreateCommand(Connection As DbConnection, SQL As String, Parameters As NameValueCollection) As DbCommand
             Return CreateCommand(Connection, SQL, Parameters.ToDictionary())
         End Function
 
+        ''' <summary>
+        ''' Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of String, Object)"/>, tratando os parametros desta string como parametros SQL
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
         <Extension()> Public Function CreateCommand(Connection As DbConnection, SQL As String, Parameters As Dictionary(Of String, Object)) As DbCommand
             If Connection IsNot Nothing Then
                 Dim command = Connection.CreateCommand()
@@ -953,6 +1037,32 @@ Namespace MicroORM
             Return Nothing
         End Function
 
+        ''' <summary>
+        ''' Cria um <see cref="DbCommand"/> a partir de uma string ou arquivo SQL, tratando os parametros {p} desta string como parametros SQL
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="FilePathOrSQL"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function CreateCommand(Connection As DbConnection, FilePathOrSQL As String, ParamArray Args As String()) As DbCommand
+            If FilePathOrSQL IsNot Nothing Then
+                If FilePathOrSQL.IsFilePath() Then
+                    If IO.File.Exists(FilePathOrSQL.ToString()) Then
+                        Return CreateCommand(Connection, IO.File.ReadAllText(FilePathOrSQL).ToFormattableString(Args))
+                    Else
+                        Return Nothing
+                    End If
+                End If
+                Return CreateCommand(Connection, FilePathOrSQL.ToFormattableString(Args))
+            End If
+            Return Nothing
+        End Function
+
+        ''' <summary>
+        ''' Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os parametros desta string como parametros SQL
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
         <Extension()> Public Function CreateCommand(Connection As DbConnection, SQL As FormattableString) As DbCommand
             If SQL IsNot Nothing AndAlso Connection IsNot Nothing Then
                 Dim cmd = Connection.CreateCommand()
@@ -983,10 +1093,18 @@ Namespace MicroORM
             Return Nothing
         End Function
 
+        ''' <summary>
+        ''' Converte um objeto para uma string SQL, utilizando o objeto como parametro
+        ''' </summary>
+        ''' <param name="Obj"></param>
+        ''' <returns></returns>
         Public Function ToSQLString(Obj As Object) As String
             Return ToSQLString($"{Obj}")
         End Function
 
+        ''' <summary>
+        ''' Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus parametros como parametros da query
+        ''' </summary>
         <Extension()> Public Function ToSQLString(SQL As FormattableString) As String
             If SQL IsNot Nothing Then
                 If SQL.ArgumentCount > 0 Then
@@ -1024,7 +1142,7 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
-        ''' Monta um Comando SQL para executar uma procedure especifica e trata valores espicificos de
+        ''' Monta um Comando SQL para executar uma procedure especifica e trata valores especificos de
         ''' um NameValueCollection como parametros da procedure
         ''' </summary>
         ''' <param name="NVC">Objeto</param>
@@ -1098,6 +1216,20 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
+        ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="NameValueCollection" />
+        ''' </summary>
+        ''' <remarks>
+        ''' NameValueCollection pode usar a seguinte estrutura: &name=value1&or:surname=like:%value2% => WHERE [name] = 'value1' OR [surname] like '%value2%'
+        ''' </remarks>
+        ''' <param name="NVC">        Dicionario</param>
+        ''' <param name="TableName">  Nome da Tabela</param>
+        ''' <returns>Uma string com o comando montado</returns>
+        <Extension()>
+        Public Function ToSQLFilter(NVC As NameValueCollection, ByVal TableName As String, CommaSeparatedColumns As String, ParamArray FilterKeys As String()) As [Select]
+            Return New [Select](CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys)
+        End Function
+
+        ''' <summary>
         ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="Dictionary(Of String, Object)"/>
         ''' </summary>
         ''' <param name="Dic">        Dicionario</param>
@@ -1107,54 +1239,31 @@ Namespace MicroORM
 
         <Extension()>
         Public Function ToSQLFilter(Dic As Dictionary(Of String, Object), ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As [Select]
-
-            Dim s As New [Select](CommaSeparatedColumns.Split(","))
-
-            s.From(TableName)
-
-            FilterKeys = If(FilterKeys, {})
-
-            If FilterKeys.Any Then
-                FilterKeys = Dic.Keys.ToArray().Where(Function(x) x.IsLikeAny(FilterKeys)).ToArray
-            Else
-                FilterKeys = Dic.Keys.ToArray()
-            End If
-
-            FilterKeys = FilterKeys.Where(Function(x) Dic(x) IsNot Nothing AndAlso Dic(x).ToString().IsNotBlank()).ToArray()
-
-            If FilterKeys.Any Then
-                For Each f In FilterKeys
-                    If LogicConcatenation = LogicConcatenationOperator.OR Then
-                        s.Or(New Condition(f, Dic(f)))
-                    Else
-                        s.And(New Condition(f, Dic(f)))
-                    End If
-                Next
-            End If
-            Return s
+            Return New [Select](CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys)
         End Function
 
-        ''' <summary>
-        ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="NameValueCollection"/>
-        ''' </summary>
-        ''' <param name="NVC">        Colecao</param>
-        ''' <param name="TableName">  Nome da Tabela</param>
-        ''' <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
-        ''' <returns>Uma string com o comando montado</returns>
-        <Extension()>
-        Public Function ToSQLFilter(NVC As NameValueCollection, ByVal TableName As String, CommaSeparatedColumns As String, LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys() As String) As String
-            Return NVC.ToDictionary.ToSQLFilter(TableName, CommaSeparatedColumns, LogicConcatenation, FilterKeys)
-        End Function
+
 
         Public Enum LogicConcatenationOperator
             [AND]
             [OR]
         End Enum
 
+        ''' <summary>
+        ''' Cria comandos de INSERT para cada objeto do tipo <typeparamref name="T"/> em uma lista
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Connection"></param>
+        ''' <param name="obj"></param>
+        ''' <param name="TableName"></param>
+        ''' <returns></returns>
         <Extension()> Public Function CreateINSERTCommand(Of T As Class)(Connection As DbConnection, obj As IEnumerable(Of T), Optional TableName As String = Nothing) As IEnumerable(Of DbCommand)
             Return If(obj, {}).Select(Function(x) Connection.CreateINSERTCommand(x, TableName))
         End Function
 
+        ''' <summary>
+        ''' Cria um comando de INSERT para o objeto do tipo <typeparamref name="T"/>
+        ''' </summary>
         <Extension()> Public Function CreateINSERTCommand(Of T As Class)(Connection As DbConnection, obj As T, Optional TableName As String = Nothing) As DbCommand
             Dim d = GetType(T)
             Dim dic As New Dictionary(Of String, Object)
@@ -1167,7 +1276,7 @@ Namespace MicroORM
                     dic = obj.CreateDictionary()
                 End If
                 Dim cmd = Connection.CreateCommand()
-                cmd.CommandText = String.Format($"INSERT INTO " & TableName.IfBlank(d.Name).IfBlank("#TableName") & " ({0}) values ({1})", dic.Keys.Join(","), dic.Keys.SelectJoin(Function(x) $"@__{x}", ","))
+                cmd.CommandText = String.Format($"INSERT INTO " & BlankCoalesce(TableName, d.Name, "#TableName") & " ({0}) values ({1})", dic.Keys.Join(","), dic.Keys.SelectJoin(Function(x) $"@__{x}", ","))
                 For Each k In dic.Keys
                     Dim param = cmd.CreateParameter()
                     param.ParameterName = $"__{k}"
@@ -1179,82 +1288,153 @@ Namespace MicroORM
             Return Nothing
         End Function
 
+        <Extension()> Public Function RunSQL(Connection As DbConnection, Commands As IEnumerable(Of DbCommand)) As Object
+
+        End Function
+
+        ''' <summary>
+        ''' Executa um comando SQL e retorna o numero de linhas afetadas
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
         <Extension()> Public Function RunSQLNone(Connection As DbConnection, SQL As FormattableString) As Integer
             Return RunSQLNone(Connection, CreateCommand(Connection, SQL))
         End Function
 
+        ''' <summary>
+        ''' Executa um comando SQL e retorna o numero de linhas afetadas
+        ''' </summary>
         <Extension()> Public Function RunSQLNone(Connection As DbConnection, Command As DbCommand) As Integer
             If Connection IsNot Nothing AndAlso Command IsNot Nothing Then
                 If Not Connection.State = ConnectionState.Open Then
                     Connection.Open()
                 End If
-                For Each item As DbParameter In Command.Parameters
-                    Debug.WriteLine(item.Value, $"Parameter {item.ParameterName}".ToString())
-                Next
-                Debug.WriteLine(Command.CommandText, "SQL Command")
-                Return Command.ExecuteNonQuery()
+                Return Command.DebugCommand.ExecuteNonQuery()
             End If
             Return -1
         End Function
 
+        ''' <summary>
+        ''' Retorna o primeiro resultado da primeira coluna de uma consulta SQL
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="Command"></param>
+        ''' <returns></returns>
         <Extension()> Public Function RunSQLValue(Connection As DbConnection, Command As DbCommand) As Object
             If Connection IsNot Nothing AndAlso Command IsNot Nothing Then
                 If Not Connection.State = ConnectionState.Open Then
                     Connection.Open()
                 End If
-                For Each item As DbParameter In Command.Parameters
-                    Debug.WriteLine(item.Value, $"Parameter {item.ParameterName}".ToString())
-                Next
-                Debug.WriteLine(Command.CommandText, "SQL Command")
-                Return Command.ExecuteScalar()
+                Return Command.DebugCommand().ExecuteScalar()
             End If
             Return Nothing
         End Function
 
+        ''' <summary>
+        ''' Retorna o primeiro resultado da primeira coluna de uma consulta SQL
+        ''' </summary>
         <Extension()> Public Function RunSQLValue(Connection As DbConnection, SQL As FormattableString) As Object
             Return RunSQLValue(Connection, CreateCommand(Connection, SQL))
         End Function
 
+        ''' <summary>
+        ''' Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo <typeparamref name="V"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLValue(Of V As Structure)(Connection As DbConnection, Command As DbCommand) As V?
             Dim vv = RunSQLValue(Connection, Command)
-            If vv IsNot Nothing Then
+            If vv IsNot Nothing AndAlso vv <> DBNull.Value Then
                 Return CType(vv, V)
             End If
             Return Nothing
         End Function
 
+        ''' <summary>
+        ''' Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo <typeparamref name="V"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLValue(Of V As Structure)(Connection As DbConnection, SQL As FormattableString) As V?
             Return RunSQLValue(Of V)(Connection, CreateCommand(Connection, SQL))
         End Function
 
-        <Extension()> Public Function RunSQLArray(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Object)
-            Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL).Select(Function(x) x.Values.First())
+        <Extension()> Public Function DebugCommand(Command As DbCommand) As DbCommand
+            Debug.WriteLine(New String("="c, 10))
+            If Command IsNot Nothing Then
+                For Each item As DbParameter In Command.Parameters
+                    Dim bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}"
+                    Debug.WriteLine(bx)
+                    Debug.WriteLine(New String("-"c, 10))
+                Next
+                Debug.WriteLine(Command.CommandText, "SQL Command")
+            Else
+                Debug.WriteLine("Command is NULL")
+            End If
+            Debug.WriteLine(New String("="c, 10))
+
+            Return Command
         End Function
 
+        ''' <summary>
+        ''' Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo <typeparamref name="T"/>
+        ''' </summary>
+        <Extension()> Public Function RunSQLArray(Of T As Structure)(Connection As DbConnection, Command As DbCommand) As IEnumerable(Of T)
+            Return RunSQLSet(Connection, Command).Select(Function(x) ChangeType(Of T)(x.Values.FirstOrDefault()))
+        End Function
+
+        ''' <summary>
+        ''' Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo <typeparamref name="T"/>
+        ''' </summary>
+        <Extension()> Public Function RunSQLArray(Of T As Structure)(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of T)
+            Return RunSQLArray(Of T)(Connection, CreateCommand(Connection, SQL))
+        End Function
+
+        ''' <summary>
+        ''' Retorna os resultado da primeira coluna de uma consulta SQL como um array
+        ''' </summary>
+        <Extension()> Public Function RunSQLArray(Connection As DbConnection, Command As DbCommand) As IEnumerable(Of Object)
+            Return RunSQLSet(Connection, Command).Select(Function(x) x.Values.FirstOrDefault())
+        End Function
+
+        ''' <summary>
+        ''' Retorna os resultado da primeira coluna de uma consulta SQL como um array
+        ''' </summary>
         <Extension()> Public Function RunSQLArray(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Object)
             Return RunSQLArray(Connection, CreateCommand(Connection, SQL))
         End Function
 
-        <Extension()> Public Function RunSQLArray(Of T As Structure)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of T)
-            Return RunSQLArray(Connection, SQL).ChangeIEnumerableType(Of T)
-        End Function
-
+        ''' <summary>
+        ''' Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of Object, Object)"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLPairs(Connection As DbConnection, SQL As DbCommand) As Dictionary(Of Object, Object)
-            Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL).ToDictionary(Function(x) x.Values.FirstOrDefault(), Function(x) x.Values.LastOrDefault())
+            Return RunSQLSet(Connection, SQL).ToDictionary(Function(x) x.Values.FirstOrDefault(), Function(x) x.Values.LastOrDefault())
         End Function
 
+        ''' <summary>
+        ''' Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of Object, Object)"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLPairs(Connection As DbConnection, SQL As FormattableString) As Dictionary(Of Object, Object)
             Return RunSQLPairs(Connection, CreateCommand(Connection, SQL))
         End Function
 
+        ''' <summary>
+        ''' Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of K, V)"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLPairs(Of K, V)(Connection As DbConnection, SQL As DbCommand) As Dictionary(Of K, V)
             Return RunSQLPairs(Connection, SQL).ToDictionary(Function(x) ChangeType(Of K)(x.Key), Function(x) ChangeType(Of V)(x.Value))
         End Function
 
+        ''' <summary>
+        ''' Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of K, V)"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLPairs(Of K, V)(Connection As DbConnection, SQL As FormattableString) As Dictionary(Of K, V)
             Return RunSQLPairs(Of K, V)(Connection, CreateCommand(Connection, SQL))
         End Function
 
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
         <Extension()> Public Function RunSQLSet(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of Dictionary(Of String, Object))
             Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL)
         End Function
@@ -1263,16 +1443,22 @@ Namespace MicroORM
             Return RunSQLRow(Of Dictionary(Of String, Object))(Connection, SQL)
         End Function
 
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLSet(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of Dictionary(Of String, Object))
             Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL)
         End Function
 
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para um  <see cref="Dictionary(Of String, Object)"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLRow(Connection As DbConnection, SQL As DbCommand) As Dictionary(Of String, Object)
             Return RunSQLRow(Of Dictionary(Of String, Object))(Connection, SQL)
         End Function
 
         ''' <summary>
-        ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="T"/>
+        ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <typeparamref name="T"/>
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Connection"></param>
@@ -1283,7 +1469,7 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
-        ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="T"/>
+        ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <typeparamref name="T"/>
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Connection"></param>
@@ -1294,7 +1480,7 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
-        ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <see cref="T"/>
+        ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Connection"></param>
@@ -1305,7 +1491,7 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
-        ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <see cref="T"/>
+        ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Connection"></param>
@@ -1325,20 +1511,129 @@ Namespace MicroORM
             Return Connection.RunSQLMany(Connection.CreateCommand(SQL))
         End Function
 
+        ''' <summary>
+        ''' Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see cref="IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))"/>
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="Command"></param>
+        ''' <returns></returns>
         <Extension()> Public Function RunSQLMany(Connection As DbConnection, Command As DbCommand) As IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))
             Dim resposta As IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))
+            Using reader = Connection.RunSQLReader(Command)
+                resposta = reader.MapMany()
+            End Using
+            Return resposta
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class, T3 As Class, T4 As Class, T5 As Class)(Connection As DbConnection, SQL As FormattableString) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4), IEnumerable(Of T5))
+            Return Connection.RunSQLMany(Of T1, T2, T3, T4, T5)(CreateCommand(Connection, SQL))
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="Command"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class, T3 As Class, T4 As Class, T5 As Class)(Connection As DbConnection, Command As DbCommand) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4), IEnumerable(Of T5))
+            Dim resposta As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4), IEnumerable(Of T5))
+            Using reader = Connection.RunSQLReader(Command)
+                resposta = reader.MapMany(Of T1, T2, T3, T4, T5)
+            End Using
+            Return resposta
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class, T3 As Class, T4 As Class)(Connection As DbConnection, SQL As FormattableString) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4))
+            Return Connection.RunSQLMany(Of T1, T2, T3, T4)(CreateCommand(Connection, SQL))
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="Command"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class, T3 As Class, T4 As Class)(Connection As DbConnection, Command As DbCommand) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4))
+            Dim resposta As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4))
+            Using reader = Connection.RunSQLReader(Command)
+                resposta = reader.MapMany(Of T1, T2, T3, T4)
+            End Using
+            Return resposta
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class, T3 As Class)(Connection As DbConnection, SQL As FormattableString) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3))
+            Return Connection.RunSQLMany(Of T1, T2, T3)(CreateCommand(Connection, SQL))
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="Command"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class, T3 As Class)(Connection As DbConnection, Command As DbCommand) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3))
+            Dim resposta As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3))
+            Using reader = Connection.RunSQLReader(Command)
+                resposta = reader.MapMany(Of T1, T2, T3)
+            End Using
+            Return resposta
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="SQL"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class)(Connection As DbConnection, SQL As FormattableString) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2))
+            Return Connection.RunSQLMany(Of T1, T2)(CreateCommand(Connection, SQL))
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Connection"></param>
+        ''' <param name="Command"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLMany(Of T1 As Class, T2 As Class)(Connection As DbConnection, Command As DbCommand) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2))
+            Dim resposta As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2))
+            Using reader = Connection.RunSQLReader(Command)
+                resposta = reader.MapMany(Of T1, T2)
+            End Using
+            Return resposta
+        End Function
+
+        <Extension()> Public Function RunSQLReader(Connection As DbConnection, SQL As FormattableString) As DbDataReader
+            If Connection IsNot Nothing Then
+                Return Connection.RunSQLReader(Connection.CreateCommand(SQL))
+            End If
+            Return Nothing
+        End Function
+
+        <Extension()> Public Function RunSQLReader(Connection As DbConnection, Command As DbCommand) As DbDataReader
             If Connection IsNot Nothing AndAlso Command IsNot Nothing Then
                 If Not Connection.State = ConnectionState.Open Then
                     Connection.Open()
                 End If
-                For Each item As DbParameter In Command.Parameters
-                    Debug.WriteLine(item.Value, $"Parameter {item.ParameterName}".ToString())
-                Next
-                Debug.WriteLine(Command.CommandText, "SQL Command")
-                Using reader = Command.ExecuteReader()
-                    resposta = reader.MapMany()
-                End Using
-                Return resposta
+                Return Command.DebugCommand().ExecuteReader()
             End If
             Return Nothing
         End Function
@@ -1349,7 +1644,7 @@ Namespace MicroORM
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Reader"></param>
         ''' <returns></returns>
-        <Extension()> Public Function Map(Of T As Class)(Reader As DbDataReader, ParamArray args As Object()) As List(Of T)
+        <Extension()> Public Function Map(Of T As Class)(Reader As DbDataReader, ParamArray args As Object()) As IEnumerable(Of T)
             Dim l = New List(Of T)
             args = If(args, {})
             While Reader IsNot Nothing AndAlso Reader.Read
@@ -1367,16 +1662,32 @@ Namespace MicroORM
                     ElseIf GetType(T) = GetType(NameValueCollection) Then
                         CType(CType(d, Object), NameValueCollection).Add(name, value)
                     Else
-                        If d.HasProperty(name) AndAlso d.GetProperty(name).CanWrite Then
-                            d.SetPropertyValue(name, value)
+                        If HasProperty(d, name) AndAlso GetProperty(d, name).CanWrite Then
+                            SetPropertyValue(d, name, value)
                         End If
                     End If
                 Next
                 l.Add(d)
             End While
-            Return l
+            Return l.AsEnumerable()
         End Function
 
+        ''' <summary>
+        ''' Mapeia a primeira linha de um datareader para uma classe POCO do tipo <typeparamref name="T"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Reader"></param>
+        ''' <param name="args">argumentos para o construtor da classe</param>
+        ''' <returns></returns>
+        <Extension()> Public Function MapFirst(Of T As Class)(Reader As DbDataReader, ParamArray args As Object()) As T
+            Return Reader.Map(Of T)(args).FirstOrDefault()
+        End Function
+
+        ''' <summary>
+        ''' Mapeia os resultsets de um datareader para um <see cref="IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))"/>
+        ''' </summary>
+        ''' <param name="Reader"></param>
+        ''' <returns></returns>
         <Extension()> Public Function MapMany(Reader As DbDataReader) As IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))
             Dim l As New List(Of IEnumerable(Of Dictionary(Of String, Object)))
             Do
@@ -1385,8 +1696,122 @@ Namespace MicroORM
             Return l
         End Function
 
-        <Extension()> Public Function MapFirst(Of T As Class)(Reader As DbDataReader, ParamArray args As Object()) As T
-            Return Reader.Map(Of T)(args).FirstOrDefault()
+        ''' <summary>
+        ''' Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Reader"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function MapMany(Of T1 As Class, T2 As Class, T3 As Class, T4 As Class, T5 As Class)(Reader As DbDataReader) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4), IEnumerable(Of T5))
+            Dim o1 As IEnumerable(Of T1) = Nothing
+            Dim o2 As IEnumerable(Of T2) = Nothing
+            Dim o3 As IEnumerable(Of T3) = Nothing
+            Dim o4 As IEnumerable(Of T4) = Nothing
+            Dim o5 As IEnumerable(Of T5) = Nothing
+
+            If Reader IsNot Nothing Then
+
+                o1 = Reader.Map(Of T1)
+
+                If Reader.NextResult() Then
+                    o2 = Reader.Map(Of T2)
+                End If
+
+                If Reader.NextResult() Then
+                    o3 = Reader.Map(Of T3)
+                End If
+
+                If Reader.NextResult() Then
+                    o4 = Reader.Map(Of T4)
+                End If
+
+                If Reader.NextResult() Then
+                    o5 = Reader.Map(Of T5)
+                End If
+
+            End If
+            Return Tuple.Create(o1, o2, o3, o4, o5)
+
+        End Function
+
+        ''' <summary>
+        ''' Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Reader"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function MapMany(Of T1 As Class, T2 As Class, T3 As Class, T4 As Class)(Reader As DbDataReader) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3), IEnumerable(Of T4))
+            Dim o1 As IEnumerable(Of T1) = Nothing
+            Dim o2 As IEnumerable(Of T2) = Nothing
+            Dim o3 As IEnumerable(Of T3) = Nothing
+            Dim o4 As IEnumerable(Of T4) = Nothing
+
+            If Reader IsNot Nothing Then
+
+                o1 = Reader.Map(Of T1)
+
+                If Reader.NextResult() Then
+                    o2 = Reader.Map(Of T2)
+                End If
+
+                If Reader.NextResult() Then
+                    o3 = Reader.Map(Of T3)
+                End If
+
+                If Reader.NextResult() Then
+                    o4 = Reader.Map(Of T4)
+                End If
+
+            End If
+            Return Tuple.Create(o1, o2, o3, o4)
+
+        End Function
+
+        ''' <summary>
+        ''' Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Reader"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function MapMany(Of T1 As Class, T2 As Class, T3 As Class)(Reader As DbDataReader) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2), IEnumerable(Of T3))
+            Dim o1 As IEnumerable(Of T1) = Nothing
+            Dim o2 As IEnumerable(Of T2) = Nothing
+            Dim o3 As IEnumerable(Of T3) = Nothing
+
+            If Reader IsNot Nothing Then
+
+                o1 = Reader.Map(Of T1)
+
+                If Reader.NextResult() Then
+                    o2 = Reader.Map(Of T2)
+                End If
+
+                If Reader.NextResult() Then
+                    o3 = Reader.Map(Of T3)
+                End If
+
+            End If
+            Return Tuple.Create(o1, o2, o3)
+
+        End Function
+
+        ''' <summary>
+        ''' Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        ''' </summary>
+        ''' <param name="Reader"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function MapMany(Of T1 As Class, T2 As Class)(Reader As DbDataReader) As Tuple(Of IEnumerable(Of T1), IEnumerable(Of T2))
+            Dim o1 As IEnumerable(Of T1) = Nothing
+            Dim o2 As IEnumerable(Of T2) = Nothing
+
+            If Reader IsNot Nothing Then
+
+                o1 = Reader.Map(Of T1)
+
+                If Reader.NextResult() Then
+                    o2 = Reader.Map(Of T2)
+                End If
+
+            End If
+            Return Tuple.Create(o1, o2)
+
         End Function
 
     End Module
