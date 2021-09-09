@@ -1,7 +1,9 @@
 ﻿Imports System.Collections.Specialized
 Imports System.Data.Common
 Imports System.Globalization
+Imports System.IO
 Imports System.Linq.Expressions
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Text
 Imports InnerLibs.LINQ
@@ -80,7 +82,9 @@ Namespace MicroORM
         Public Function AddColumns(Of O As Class)(Optional Obj As O = Nothing) As [Select](Of T)
             Dim eltipo = GetType(O).GetNullableTypeOf()
             If eltipo Is GetType(Dictionary(Of String, Object)) Then
-                AddColumns(CType(CType(eltipo, Object), Dictionary(Of String, Object)).Keys.ToArray())
+                If Obj IsNot Nothing Then
+                    AddColumns(CType(CType(Obj, Object), Dictionary(Of String, Object)).Keys.ToArray())
+                End If
             Else
                 AddColumns(eltipo.GetProperties().Select(Function(x) x.Name).ToArray())
             End If
@@ -108,8 +112,7 @@ Namespace MicroORM
 
         Public Function RemoveColumns(ParamArray Columns As String()) As [Select](Of T)
             If _columns IsNot Nothing Then
-                Columns = If(Columns, {}).Where(Function(x) x.IsIn(_columns)).ToArray()
-                Columns.ToList.ForEach(Sub(x) _columns.Remove(x))
+                _columns = _columns.Where(Function(x) x.IsNotIn(If(Columns, {}))).ToList()
             End If
             Return Me
         End Function
@@ -357,6 +360,11 @@ Namespace MicroORM
             Return Me
         End Function
 
+        ''' <summary>
+        ''' Sets the WHERE clause in the SELECT being built using a lambda expression. This method is experimental
+        ''' </summary>
+        ''' <param name="predicate">Condition to set</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
         Public Function Where(predicate As Expression(Of Func(Of T, Boolean))) As [Select](Of T)
             If predicate IsNot Nothing Then
                 Dim p = New StringBuilder(predicate.Body.ToString())
@@ -389,10 +397,22 @@ Namespace MicroORM
             Return Me
         End Function
 
-        Public Function Where(ParamArray condition As Condition()) As [Select](Of T)
-            Return [And](condition)
+        ''' <summary>
+        ''' Sets the WHERE clause in the SELECT being built.
+        ''' If WHERE is already set, appends the condition with an AND clause.
+        ''' </summary>
+        ''' <param name="conditions">Conditions to set</param>
+        ''' <returns>This instance, so you can use it in a fluent fashion</returns>
+        Public Function Where(ParamArray conditions As Condition()) As [Select](Of T)
+            Return [And](conditions)
         End Function
 
+        ''' <summary>
+        ''' Sets the WHERE clause in the SELECT being built using a <see cref="Dictionary(Of String, Object)"/> as column/value
+        ''' </summary>
+        ''' <param name="Dic"></param>
+        ''' <param name="FilterKeys"></param>
+        ''' <returns></returns>
         Public Function Where(Dic As Dictionary(Of String, Object), LogicConcatenation As LogicConcatenationOperator, ParamArray FilterKeys As String())
 
             FilterKeys = If(FilterKeys, {})
@@ -417,6 +437,12 @@ Namespace MicroORM
             Return Me
         End Function
 
+        ''' <summary>
+        ''' Sets the WHERE clause in the SELECT being built using a <see cref="NameValueCollection"/> as column/operator/value
+        ''' </summary>
+        ''' <param name="NVC"></param>
+        ''' <param name="FilterKeys"></param>
+        ''' <returns></returns>
         Public Function Where(NVC As NameValueCollection, ParamArray FilterKeys As String()) As [Select](Of T)
             FilterKeys = If(FilterKeys, {})
             For Each k In NVC.AllKeys
@@ -1242,8 +1268,6 @@ Namespace MicroORM
             Return New [Select](CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys)
         End Function
 
-
-
         Public Enum LogicConcatenationOperator
             [AND]
             [OR]
@@ -1286,10 +1310,6 @@ Namespace MicroORM
                 Return cmd
             End If
             Return Nothing
-        End Function
-
-        <Extension()> Public Function RunSQL(Connection As DbConnection, Commands As IEnumerable(Of DbCommand)) As Object
-
         End Function
 
         ''' <summary>
@@ -1356,20 +1376,23 @@ Namespace MicroORM
             Return RunSQLValue(Of V)(Connection, CreateCommand(Connection, SQL))
         End Function
 
-        <Extension()> Public Function DebugCommand(Command As DbCommand) As DbCommand
-            Debug.WriteLine(New String("="c, 10))
-            If Command IsNot Nothing Then
-                For Each item As DbParameter In Command.Parameters
-                    Dim bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}"
-                    Debug.WriteLine(bx)
-                    Debug.WriteLine(New String("-"c, 10))
-                Next
-                Debug.WriteLine(Command.CommandText, "SQL Command")
-            Else
-                Debug.WriteLine("Command is NULL")
-            End If
-            Debug.WriteLine(New String("="c, 10))
+        Public Property EnableDebug As Boolean = True
 
+        <Extension()> Public Function DebugCommand(Command As DbCommand) As DbCommand
+            If EnableDebug Then
+                Debug.WriteLine(New String("="c, 10))
+                If Command IsNot Nothing Then
+                    For Each item As DbParameter In Command.Parameters
+                        Dim bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}"
+                        Debug.WriteLine(bx)
+                        Debug.WriteLine(New String("-"c, 10))
+                    Next
+                    Debug.WriteLine(Command.CommandText, "SQL Command")
+                Else
+                    Debug.WriteLine("Command is NULL")
+                End If
+                Debug.WriteLine(New String("="c, 10))
+            End If
             Return Command
         End Function
 
@@ -1430,6 +1453,22 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <typeparamref name="T"/>
+        ''' </summary>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLSet(Of T As Class)(Connection As DbConnection, [Select] As [Select](Of T), Optional WithSubQueries As Boolean = False) As IEnumerable(Of T)
+            Return RunSQLSet(Of T)(Connection, [Select].CreateDbCommand(Connection), WithSubQueries)
+        End Function
+
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um <typeparamref name="T"/>
+        ''' </summary>
+        ''' <returns></returns>
+        <Extension()> Public Function RunSQLRow(Of T As Class)(Connection As DbConnection, [Select] As [Select](Of T), Optional WithSubQueries As Boolean = False) As T
+            Return RunSQLRow(Of T)(Connection, [Select].CreateDbCommand(Connection), WithSubQueries)
+        End Function
+
+        ''' <summary>
         ''' Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
         ''' </summary>
         ''' <param name="Connection"></param>
@@ -1439,6 +1478,9 @@ Namespace MicroORM
             Return RunSQLSet(Of Dictionary(Of String, Object))(Connection, SQL)
         End Function
 
+        ''' <summary>
+        ''' Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para um  <see cref="Dictionary(Of String, Object)"/>
+        ''' </summary>
         <Extension()> Public Function RunSQLRow(Connection As DbConnection, SQL As FormattableString) As Dictionary(Of String, Object)
             Return RunSQLRow(Of Dictionary(Of String, Object))(Connection, SQL)
         End Function
@@ -1464,8 +1506,11 @@ Namespace MicroORM
         ''' <param name="Connection"></param>
         ''' <param name="SQL"></param>
         ''' <returns></returns>
-        <Extension()> Public Function RunSQLRow(Of T)(Connection As DbConnection, SQL As DbCommand) As T
-            Return Connection.RunSQLSet(Of T)(SQL).FirstOrDefault()
+        <Extension()> Public Function RunSQLRow(Of T)(Connection As DbConnection, SQL As DbCommand, Optional WithSubQueries As Boolean = False) As T
+            Dim x = Connection.RunSQLSet(Of T)(SQL, False).FirstOrDefault()
+            If x IsNot Nothing AndAlso WithSubQueries Then
+                ProccessSubQuery(Connection, x, WithSubQueries)
+            End If
         End Function
 
         ''' <summary>
@@ -1475,8 +1520,8 @@ Namespace MicroORM
         ''' <param name="Connection"></param>
         ''' <param name="SQL"></param>
         ''' <returns></returns>
-        <Extension()> Public Function RunSQLRow(Of T)(Connection As DbConnection, SQL As FormattableString) As T
-            Return Connection.RunSQLSet(Of T)(SQL).FirstOrDefault()
+        <Extension()> Public Function RunSQLRow(Of T)(Connection As DbConnection, SQL As FormattableString, Optional WithSubQueries As Boolean = False) As T
+            Return Connection.RunSQLRow(Of T)(CreateCommand(Connection, SQL), WithSubQueries)
         End Function
 
         ''' <summary>
@@ -1486,8 +1531,8 @@ Namespace MicroORM
         ''' <param name="Connection"></param>
         ''' <param name="SQL"></param>
         ''' <returns></returns>
-        <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As FormattableString) As IEnumerable(Of T)
-            Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetValuesIn(Of T))
+        <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As FormattableString, Optional WithSubQueries As Boolean = False) As IEnumerable(Of T)
+            Return Connection.RunSQLSet(Of T)(Connection.CreateCommand(SQL), WithSubQueries)
         End Function
 
         ''' <summary>
@@ -1497,8 +1542,14 @@ Namespace MicroORM
         ''' <param name="Connection"></param>
         ''' <param name="SQL"></param>
         ''' <returns></returns>
-        <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As DbCommand) As IEnumerable(Of T)
-            Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x) x.SetValuesIn(Of T))
+        <Extension()> Public Function RunSQLSet(Of T)(Connection As DbConnection, SQL As DbCommand, Optional WithSubQueries As Boolean = False) As IEnumerable(Of T)
+            Return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(Function(x)
+                                                                            Dim v = CType(x.CreateOrSetObject(Nothing, GetType(T)), T)
+                                                                            If WithSubQueries Then
+                                                                                Connection.ProccessSubQuery(v, WithSubQueries)
+                                                                            End If
+                                                                            Return v
+                                                                        End Function).AsEnumerable()
         End Function
 
         ''' <summary>
@@ -1661,15 +1712,95 @@ Namespace MicroORM
                         CType(CType(d, Object), Dictionary(Of String, Object)).Set(name, value)
                     ElseIf GetType(T) = GetType(NameValueCollection) Then
                         CType(CType(d, Object), NameValueCollection).Add(name, value)
-                    Else
-                        If HasProperty(d, name) AndAlso GetProperty(d, name).CanWrite Then
-                            SetPropertyValue(d, name, value)
-                        End If
+                    ElseIf HasProperty(d, name) AndAlso GetProperty(d, name).CanWrite Then
+                        SetPropertyValue(d, name, value)
                     End If
                 Next
                 l.Add(d)
             End While
             Return l.AsEnumerable()
+        End Function
+
+        ''' <summary>
+        ''' Processa uma propriedade de uma classe marcada com <see cref="FromSQL"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Connection"></param>
+        ''' <param name="d"></param>
+        ''' <param name="PropertyName"></param>
+        ''' <param name="Recursive"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function ProccessSubQuery(Of T)(Connection As DbConnection, ByRef d As T, PropertyName As String, Optional Recursive As Boolean = False) As T
+            If d IsNot Nothing Then
+                Dim prop = d.GetProperty(PropertyName)
+                If prop IsNot Nothing Then
+
+                    Dim attr = prop.GetCustomAttributes(Of FromSQL)(True).FirstOrDefault()
+
+                    Dim Sql = attr.SQL.Inject(d)
+
+                    Dim gen = prop.PropertyType.IsGenericType
+                    Dim lista = gen AndAlso prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(GetType(List(Of)))
+                    Dim enume = gen AndAlso prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(GetType(IEnumerable(Of)))
+
+                    If lista OrElse enume Then
+
+                        Dim baselist As IList = Activator.CreateInstance(prop.PropertyType)
+
+                        Dim eltipo = prop.PropertyType.GetGenericArguments().FirstOrDefault()
+
+                        Connection.RunSQLSet(Sql.ToFormattableString).Select(Function(x)
+                                                                                 baselist.Add(x.CreateOrSetObject(Nothing, eltipo))
+                                                                                 Return Nothing
+                                                                             End Function)
+
+                        prop.SetValue(d, baselist)
+
+                        If Recursive Then
+                            For Each uu In baselist
+                                ProccessSubQuery(Connection, uu, Recursive)
+                            Next
+                        End If
+
+                        Return d
+                    ElseIf prop.PropertyType.IsClass Then
+                        If prop.GetValue(d) Is Nothing Then
+                            Dim oo = Connection.RunSQLRow(Sql.ToFormattableString).CreateOrSetObject(Nothing, prop.PropertyType)
+                            prop.SetValue(d, oo)
+                            If Recursive Then
+                                ProccessSubQuery(Connection, oo, Recursive)
+                            End If
+                        End If
+                        Return d
+                    ElseIf prop.PropertyType.IsValueType Then
+                        If prop.GetValue(d) Is Nothing Then
+                            Dim oo = Connection.RunSQLValue(Sql.ToFormattableString)
+                            prop.SetValue(d, CTypeDynamic(oo, prop.PropertyType))
+                            If Recursive Then
+                                ProccessSubQuery(Connection, oo, Recursive)
+                            End If
+                        End If
+                        Return d
+                    End If
+                End If
+            End If
+
+            Return d
+        End Function
+
+        ''' <summary>
+        ''' Processa todas as propriedades de uma classe marcadas com <see cref="FromSQL"/>
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Connection"></param>
+        ''' <param name="d"></param>
+        ''' <param name="Recursive"></param>
+        ''' <returns></returns>
+        <Extension()> Public Function ProccessSubQuery(Of T)(Connection As DbConnection, ByRef d As T, Optional Recursive As Boolean = False) As T
+            For Each prop In GetProperties(d).Where(Function(x) x.HasAttribute(Of FromSQL))
+                ProccessSubQuery(Connection, d, prop.Name, Recursive)
+            Next
+            Return d
         End Function
 
         ''' <summary>
@@ -1815,5 +1946,21 @@ Namespace MicroORM
         End Function
 
     End Module
+
+    <AttributeUsage(AttributeTargets.Property, AllowMultiple:=False, Inherited:=True)>
+    Public Class FromSQL
+        Inherits Attribute
+
+        Sub New(QueryOrFilePath As String)
+            If QueryOrFilePath.IsFilePath AndAlso File.Exists(QueryOrFilePath) Then
+                Me.SQL = File.ReadAllText(QueryOrFilePath)
+            Else
+                Me.SQL = QueryOrFilePath
+            End If
+        End Sub
+
+        Public ReadOnly Property SQL As String
+
+    End Class
 
 End Namespace

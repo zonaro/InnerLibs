@@ -680,9 +680,8 @@ Public Module ClassTools
     ''' <param name="target"></param>
     ''' <param name="attribType"></param>
     ''' <returns></returns>
-    <Extension()> Public Function HasAttribute(target As PropertyInfo, attribType As Type)
-        Dim attribs = target.GetCustomAttributes(attribType, False)
-        Return attribs.Any
+    <Extension()> Public Function HasAttribute(target As PropertyInfo, attribType As Type) As Boolean
+        Return target?.GetCustomAttributes(attribType, False).Any
     End Function
 
     ''' <summary>
@@ -690,8 +689,8 @@ Public Module ClassTools
     ''' </summary>
     ''' <param name="target"></param>
     ''' <returns></returns>
-    <Extension()> Public Function HasAttribute(Of T)(target As PropertyInfo)
-        Return target.HasAttribute(GetType(T))
+    <Extension()> Public Function HasAttribute(Of T)(target As PropertyInfo) As Boolean
+        Return target?.HasAttribute(GetType(T))
     End Function
 
     ''' <summary>
@@ -926,10 +925,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function IsDictionary(obj As Object) As Boolean
-        If obj Is Nothing Then
-            Return False
-        End If
-        Return TypeOf obj Is IDictionary AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(Dictionary(Of , )))
+        Return IsGenericOf(GetTypeOf(obj), GetType(Dictionary(Of,)))
     End Function
 
     ''' <summary>
@@ -984,6 +980,12 @@ Public Module ClassTools
         Return If(List, {}).Any(Function(x) Obj.IsIn(x, Comparer))
     End Function
 
+
+    Private Function IsGenericOf(MainType As Type, Type As Type) As Boolean
+        Return MainType.IsGenericType AndAlso MainType.GetGenericTypeDefinition().IsAssignableFrom(Type)
+    End Function
+
+
     ''' <summary>
     ''' Verifica se o objeto é uma lista
     ''' </summary>
@@ -991,11 +993,12 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function IsList(obj As Object) As Boolean
-        If obj Is Nothing Then
-            Return False
-        End If
-        Return TypeOf obj Is IList AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(List(Of )))
+        Return IsGenericOf(GetTypeOf(obj), GetType(List(Of )))
     End Function
+
+
+
+
 
     ''' <summary>
     ''' Verifica se o objeto é uma lista
@@ -1004,7 +1007,7 @@ Public Module ClassTools
     ''' <returns></returns>
     <Extension>
     Public Function IsEnumerable(obj As Object) As Boolean
-        Return TypeOf obj Is IEnumerable AndAlso obj.[GetType]().IsGenericType AndAlso obj.[GetType]().GetGenericTypeDefinition().IsAssignableFrom(GetType(IEnumerable(Of )))
+        Return IsGenericOf(GetTypeOf(obj), GetType(IEnumerable(Of )))
     End Function
 
     ''' <summary>
@@ -1048,7 +1051,7 @@ Public Module ClassTools
     End Function
 
     ''' <summary>
-    '''Verifica se o objeto é do tipo numérico.
+    ''' Verifica se o objeto é do tipo numérico.
     ''' </summary>
     ''' <remarks>
     ''' Boolean is not considered numeric.

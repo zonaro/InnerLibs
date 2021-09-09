@@ -1,7 +1,6 @@
 ﻿Imports System.Collections.Specialized
 Imports System.ComponentModel
 Imports System.Globalization
-Imports System.Reflection
 Imports System.Runtime.CompilerServices
 
 Imports InnerLibs.LINQ
@@ -362,7 +361,7 @@ Public Module Converter
 
     <Extension()>
     Public Function SetValuesIn(Of T)(Dic As Dictionary(Of String, Object)) As T
-        Return SetValuesIn(Of T)(Dic, Nothing)
+        Return CType(CreateOrSetObject(Dic, Nothing, GetType(T)), T)
     End Function
 
     ''' <summary>
@@ -371,45 +370,71 @@ Public Module Converter
     ''' <typeparam name="T"></typeparam>
     ''' <param name="Dic"></param>
     ''' <param name="Obj"></param>
+    <Extension()> Public Function SetValuesIn(Of T)(Dic As Dictionary(Of String, Object), obj As T, ParamArray args As Object()) As T
+        Return CType(CreateOrSetObject(Dic, obj, GetType(T), args), T)
+    End Function
+
+    ''' <summary>
+    ''' Seta as propriedades e campos de uma classe a partir de um dictionary
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="Dic"></param>
+    ''' <param name="Obj"></param>
+    <Extension()> Public Function SetValuesIn(Of T)(Dic As Dictionary(Of String, Object), obj As T) As T
+        Return CType(CreateOrSetObject(Dic, obj, GetType(T), Nothing), T)
+    End Function
+
     <Extension()>
-    Public Function SetValuesIn(Of T)(Dic As Dictionary(Of String, Object), Obj As T, ParamArray args As Object()) As T
-        Dim tipo = GetType(T).GetNullableTypeOf()
+    Public Function CreateOrSetObject(Dic As Dictionary(Of String, Object), Obj As Object, Type As Type, ParamArray args As Object()) As Object
+        Dim tipo = Type.GetNullableTypeOf()
         If tipo.IsPrimitiveType Then
-            Return ChangeType(Of T)(Dic?.Values.FirstOrDefault())
+            Return ChangeType(Dic?.Values.FirstOrDefault(), tipo)
         End If
 
         If Obj Is Nothing Then
-            If args Is Nothing OrElse args.Any() = False Then
-                Obj = CType(Activator.CreateInstance(tipo), T)
+            If If(args, {}).Any() Then
+                Obj = Activator.CreateInstance(tipo, args)
             Else
-                Obj = CType(Activator.CreateInstance(tipo, args), T)
+                Obj = Activator.CreateInstance(tipo)
             End If
         End If
 
         If tipo Is GetType(Dictionary(Of String, Object)) Then
             If Dic IsNot Nothing Then
-                Return CType(CType(Dic.AsEnumerable().ToDictionary(), Object), T)
+                Return Dic.AsEnumerable().ToDictionary()
             End If
             Return Nothing
         ElseIf tipo Is GetType(Dictionary(Of String, String)) Then
             If Dic IsNot Nothing Then
-                Return CType(CType(Dic.AsEnumerable().ToDictionary(Function(x) x.Key, Function(x) x.Value?.ToString()), Object), T)
+                Return Dic.AsEnumerable().ToDictionary(Function(x) x.Key, Function(x) x.Value?.ToString())
             End If
             Return Nothing
         End If
 
         If Dic IsNot Nothing AndAlso Dic.Any() Then
             For Each k In Dic
-                Dim propname = k.Key.Trim().Replace(" ", "_")
-                Dim prop = tipo.GetProperty(propname)
+                Dim propname1 = k.Key.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_")
+                Dim propname3 = k.Key.Trim().Replace(" ", "").Replace("-", "").Replace("~", "")
+                Dim propname2 = propname1.RemoveAccents()
+                Dim propname4 = propname3.RemoveAccents()
+                Dim prop = NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4))
                 If prop IsNot Nothing Then
                     If prop.CanWrite Then
-                        Obj.SetPropertyValue(propname, k.Value)
+                        If k.Value.GetType() Is GetType(DBNull) Then
+                            prop.SetValue(Obj, Nothing)
+                        Else
+                            prop.SetValue(Obj, ChangeType(k.Value, prop.PropertyType))
+                        End If
                     End If
                 Else
-                    Dim fiif = tipo.GetField(propname)
+                    Dim fiif = NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4))
+
                     If fiif IsNot Nothing Then
-                        fiif.SetValue(Obj, ChangeType(k.Value, fiif.FieldType))
+                        If k.Value.GetType() Is GetType(DBNull) Then
+                            prop.SetValue(Obj, Nothing)
+                        Else
+                            prop.SetValue(Obj, ChangeType(k.Value, fiif.FieldType))
+                        End If
                     End If
                 End If
             Next
