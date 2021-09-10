@@ -150,6 +150,7 @@ Public Module Images
         Return Bmp
     End Function
 
+
     <Extension()> Public Function DrawString(img As Image, Text As String, Optional Font As Font = Nothing, Optional Color As Color? = Nothing, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         Dim bitmap As Bitmap = New Bitmap(img)
         Using graphics As Graphics = Graphics.FromImage(bitmap)

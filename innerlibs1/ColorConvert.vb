@@ -12,6 +12,13 @@ Public Module ColorConvert
         Return MonochromaticPallete(Color.White, Amount)
     End Function
 
+    ''' <summary>
+    ''' Gera uma paleta de cores monocromatica com <paramref name="Amount"/> amostras a partir de uma <paramref name="Color"/> base.
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <param name="Amount"></param>
+    ''' <returns></returns>
+    ''' <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
     Public Function MonochromaticPallete(Color As Color, Amount As Integer) As IEnumerable(Of Color)
 
         Dim t = New RuleOfThree(Amount, 100, 1, Nothing)
@@ -46,9 +53,8 @@ Public Module ColorConvert
     ''' <returns>Uma cor clara se a primeira cor for escura, uma cor escura se a primeira for clara</returns>
     <Extension()>
     Public Function GetContrastColor(TheColor As Color, Optional Percent As Single = 70) As Color
-        Dim d As Integer = 0
         Dim a As Double = 1 - (0.299 * TheColor.R + 0.587 * TheColor.G + 0.114 * TheColor.B) / 255
-        d = If(a < 0.5, 0, 255)
+        Dim d = If(a < 0.5, 0, 255)
         Return TheColor.MergeWith(Color.FromArgb(d, d, d), Percent)
     End Function
 
@@ -74,7 +80,7 @@ Public Module ColorConvert
     End Function
 
     ''' <summary>
-    ''' Mescal duas cores a partir de uma porcentagem
+    ''' Mescla duas cores a partir de uma porcentagem
     ''' </summary>
     ''' <param name="TheColor">Cor principal</param>
     ''' <param name="AnotherColor">Cor de mesclagem</param>
@@ -110,18 +116,18 @@ Public Module ColorConvert
     ''' <summary>
     ''' Mescla duas cores usando Lerp
     ''' </summary>
-    ''' <param name="TheColor">Cor</param>
-    ''' <param name="[to]">Outra cor</param>
+    ''' <param name="FromColor">Cor</param>
+    ''' <param name="ToColor">Outra cor</param>
     ''' <param name="amount">Indice de mesclagem</param>
     ''' <returns></returns>
     <Extension>
-    Public Function Lerp(TheColor As Color, [to] As Color, amount As Single) As Color
+    Public Function Lerp(FromColor As Color, ToColor As Color, Amount As Single) As Color
         ' start colours as lerp-able floats
-        Dim sr As Single = TheColor.R, sg As Single = TheColor.G, sb As Single = TheColor.B
+        Dim sr As Single = FromColor.R, sg As Single = FromColor.G, sb As Single = FromColor.B
         ' end colours as lerp-able floats
-        Dim er As Single = [to].R, eg As Single = [to].G, eb As Single = [to].B
+        Dim er As Single = ToColor.R, eg As Single = ToColor.G, eb As Single = ToColor.B
         ' lerp the colours to get the difference
-        Dim r As Byte = CByte(sr.Lerp(er, amount)), g As Byte = CByte(sg.Lerp(eg, amount)), b As Byte = CByte(sb.Lerp(eb, amount))
+        Dim r As Byte = CByte(sr.Lerp(er, Amount)), g As Byte = CByte(sg.Lerp(eg, Amount)), b As Byte = CByte(sb.Lerp(eb, Amount))
         ' return the new colour
         Return Color.FromArgb(r, g, b)
     End Function
@@ -154,11 +160,6 @@ Public Module ColorConvert
         Return "rgba(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & "," & Color.A.ToString() & ")"
     End Function
 
-    <Extension> Public Function IsHexaDecimal(ByVal Text As String) As Boolean
-        Dim i As Int32
-        Return Int32.TryParse(Text, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, i)
-    End Function
-
     <Extension()> Public Function IsHexaDecimalColor(ByVal Text As String) As Boolean
         Text = Text.RemoveFirstEqual("#")
         Dim myRegex As Regex = New Regex("^[a-fA-F0-9]+$")
@@ -173,6 +174,10 @@ Public Module ColorConvert
     <Extension> Public Function ToColor(Text As String) As Color
         If Text.IsBlank() Then
             Return Color.Transparent
+        End If
+
+        If Text = "random" Then
+            Return RandomColor()
         End If
 
         If Text.IsIn([Enum].GetNames(GetType(KnownColor)), StringComparer.InvariantCultureIgnoreCase) Then Return Color.FromName(Text)
@@ -259,6 +264,13 @@ Public Module ColorConvert
         Return Color.Name
     End Function
 
+    ''' <summary>
+    ''' Verifica se uma cor é legivel sobre outra
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <param name="BackgroundColor"></param>
+    ''' <param name="Size"></param>
+    ''' <returns></returns>
     <Extension()> Public Function IsReadable(Color As Color, BackgroundColor As Color, Optional Size As Integer = 10) As Boolean
         If Color.A = 0 Then Return False
         If BackgroundColor.A = 0 Then Return True
@@ -340,13 +352,17 @@ Public Class HSVColor
     End Sub
 
     ''' <summary>
-    ''' Retorna o valor ARGB de 32 bits dessa cor
+    ''' Retorna ou seta o valor ARGB de 32 bits dessa cor
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property ARGB As Integer
+    Public Property ARGB As Integer
         Get
             Return _scolor.ToArgb()
         End Get
+        Set(value As Integer)
+            _scolor = Color.FromArgb(value)
+            FromColor(_scolor)
+        End Set
     End Property
 
     ''' <summary>
@@ -470,10 +486,17 @@ Public Class HSVColor
     ''' Valor hexadecimal desta cor
     ''' </summary>
     ''' <returns></returns>
-    ReadOnly Property Hexadecimal As String
+    Public Property Hexadecimal As String
         Get
             Return _scolor.ToHexadecimal()
         End Get
+        Set(value As String)
+            If value.IsHexaDecimalColor Then
+                _scolor = value.ToColor()
+                FromColor(_scolor)
+            End If
+        End Set
+
     End Property
 
     ''' <summary>
@@ -658,8 +681,6 @@ Public Class HSVColor
         Return Me.Clone()
     End Function
 
-
-
     ''' <summary>
     ''' Cria uma paleta de cores usando esta cor como base e um metodo especifico
     ''' </summary>
@@ -816,5 +837,47 @@ Public Class HSVColor
     Public Function CompareTo(obj As Object) As Integer Implements IComparable.CompareTo
         Return Me.ToString().CompareTo(obj?.ToString())
     End Function
+
+    Public Shared Operator +(Color1 As HSVColor, Color2 As HSVColor) As HSVColor
+        Return Color1.Combine(Color2)
+    End Operator
+
+    Public Shared Operator +(Color1 As Color, Color2 As HSVColor) As HSVColor
+        Return New HSVColor(Color1).Combine(Color2)
+    End Operator
+
+    Public Shared Operator +(Color1 As HSVColor, Color2 As Color) As HSVColor
+        Return New HSVColor(Color2).Combine(Color1)
+    End Operator
+
+    Public Shared Operator Mod(Color As HSVColor, Degrees As Integer) As HSVColor
+        Return Color.ModColor(True, Degrees).FirstOrDefault
+    End Operator
+
+    Public Shared Operator >(Color1 As HSVColor, Color2 As HSVColor) As Boolean
+        Return Color1.CompareTo(Color2) > 0
+    End Operator
+
+    Public Shared Operator <(Color1 As HSVColor, Color2 As HSVColor) As Boolean
+        Return Color1.CompareTo(Color2) < 0
+    End Operator
+
+    Public Shared Operator >=(Color1 As HSVColor, Color2 As HSVColor) As Boolean
+        Return Color1.CompareTo(Color2) >= 0
+    End Operator
+
+    Public Shared Operator <=(Color1 As HSVColor, Color2 As HSVColor) As Boolean
+        Return Color1.CompareTo(Color2) <= 0
+    End Operator
+
+    Public Shared Operator =(Color1 As HSVColor, Color2 As HSVColor) As Boolean
+        Return Color1.CompareTo(Color2) = 0
+    End Operator
+
+    Public Shared Operator <>(Color1 As HSVColor, Color2 As HSVColor) As Boolean
+        Return Color1.CompareTo(Color2) <> 0
+    End Operator
+
+    'TODO: implementar diferença de cores
 
 End Class
