@@ -153,6 +153,7 @@ Public Class RuleOfThree
                 Me.SecondEquation.X = numbers.IfNoIndex(2)
                 Me.SecondEquation.Y = numbers.IfNoIndex(3)
                 GetExpression()
+                Resolve()
         End Select
     End Sub
 

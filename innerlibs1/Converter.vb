@@ -122,6 +122,17 @@ Public Module Converter
     End Function
 
     ''' <summary>
+    ''' Converte um tipo para Single. Retorna Nothing (NULL) se a conversão falhar
+    ''' </summary>
+    ''' <typeparam name="FromType">Tipo de origem</typeparam>
+    ''' <param name="Value">Variavel com valor</param>
+    ''' <returns>Valor convertido em novo tipo</returns>
+    <Extension>
+    Public Function ToSingle(Of FromType)(Value As FromType) As Single
+        Return Value.ChangeType(Of Single)
+    End Function
+
+    ''' <summary>
     ''' Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
     ''' </summary>
     ''' <typeparam name="FromType">Tipo de origem</typeparam>

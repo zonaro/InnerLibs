@@ -140,7 +140,7 @@ Public Module Images
         Return bm_Resultado
     End Function
 
-    <Extension> Public Function CreateImage(Color As Color, Width As Integer, Height As Integer) As Image
+    <Extension> Public Function CreateSolidImage(Color As Color, Width As Integer, Height As Integer) As Image
         Dim Bmp = New Bitmap(Width, Height)
         Using gfx = Graphics.FromImage(Bmp)
             Using brush = New SolidBrush(Color)
@@ -148,6 +148,36 @@ Public Module Images
             End Using
         End Using
         Return Bmp
+    End Function
+
+    <Extension()> Public Function DrawString(img As Image, Text As String, Optional Font As Font = Nothing, Optional Color As Color? = Nothing, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
+        Dim bitmap As Bitmap = New Bitmap(img)
+        Using graphics As Graphics = Graphics.FromImage(bitmap)
+
+            Font = If(Font, New Font("Arial", bitmap.Width / 10))
+
+            Dim tamanho = graphics.MeasureString(Text, Font, New Size(bitmap.Width, bitmap.Height))
+
+            X = X.LimitRange(-1, img.Width)
+            Y = Y.LimitRange(-1, img.Height)
+
+            If X = -1 Then
+                X = (bitmap.Width / 2) - (tamanho.Width / 2)
+            End If
+
+            If Y = -1 Then
+                Y = (bitmap.Height / 2) - (tamanho.Height / 2)
+            End If
+
+            Color = If(Color, bitmap.GetPixel(X, Y).GetContrastColor(50))
+
+            Dim B = New SolidBrush(Color)
+
+            graphics.DrawString(Text, Font, B, X, Y)
+
+        End Using
+
+        Return bitmap
     End Function
 
     <Extension()> Public Function Monochrome(Image As Image, Color As Color, Optional Alpha As Single = 0) As Image

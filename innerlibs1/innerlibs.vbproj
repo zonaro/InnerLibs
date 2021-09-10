@@ -87,6 +87,7 @@
     <Compile Include="ConsoleExtensions.vb" />
     <Compile Include="ConsoleTable.vb" />
     <Compile Include="Converter.vb" />
+    <Compile Include="MicroORM\DbExtensions.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="DictionarySelector.vb" />
     <Compile Include="Directories.vb" />
@@ -113,7 +114,7 @@
     <Compile Include="LinqPagination.vb" />
     <Compile Include="AddressInfo.vb" />
     <Compile Include="Maths.vb" />
-    <Compile Include="MicroORM.vb" />
+    <Compile Include="MicroORM\MicroORM.vb" />
     <Compile Include="MIME.vb" />
     <Compile Include="Money.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />

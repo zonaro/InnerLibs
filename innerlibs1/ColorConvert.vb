@@ -15,7 +15,8 @@ Public Module ColorConvert
     Public Function MonochromaticPallete(Color As Color, Amount As Integer) As IEnumerable(Of Color)
 
         Dim t = New RuleOfThree(Amount, 100, 1, Nothing)
-        Dim Percent = t.SecondEquation.Y
+
+        Dim Percent = t.UnknowValue?.ToSingle()
 
         Color = Color.White.MergeWith(Color)
 
@@ -44,7 +45,7 @@ Public Module ColorConvert
     ''' <param name="Percent">Grau de mesclagem da cor escura ou clara</param>
     ''' <returns>Uma cor clara se a primeira cor for escura, uma cor escura se a primeira for clara</returns>
     <Extension()>
-    Public Function GetContrastColor(TheColor As Color, Optional Percent As Single = 0.7) As Color
+    Public Function GetContrastColor(TheColor As Color, Optional Percent As Single = 70) As Color
         Dim d As Integer = 0
         Dim a As Double = 1 - (0.299 * TheColor.R + 0.587 * TheColor.G + 0.114 * TheColor.B) / 255
         d = If(a < 0.5, 0, 255)
@@ -91,8 +92,8 @@ Public Module ColorConvert
     ''' <param name="percent">porcentagem de mesclagem</param>
     ''' <returns></returns>
     <Extension>
-    Public Function MakeDarker(TheColor As Color, Optional percent As Single = 50) As Color
-        Return TheColor.MergeWith(Color.Black, percent)
+    Public Function MakeDarker(TheColor As Color, Optional Percent As Single = 50) As Color
+        Return TheColor.MergeWith(Color.Black, Percent)
     End Function
 
     ''' <summary>
@@ -102,8 +103,8 @@ Public Module ColorConvert
     ''' <param name="percent">Porcentagem de mesclagem</param>
     ''' <returns></returns>
     <Extension>
-    Public Function MakeLighter(TheColor As Color, Optional percent As Single = 50) As Color
-        Return TheColor.MergeWith(Color.White, percent)
+    Public Function MakeLighter(TheColor As Color, Optional Percent As Single = 50) As Color
+        Return TheColor.MergeWith(Color.White, Percent)
     End Function
 
     ''' <summary>
@@ -134,8 +135,7 @@ Public Module ColorConvert
 
     <Extension()>
     Public Function ToHexadecimal(Color As System.Drawing.Color, Optional Hash As Boolean = True) As String
-        Dim Recolor = Color.R.ToString("X2") & Color.G.ToString("X2") & Color.B.ToString("X2")
-        Return If(Hash, "#" & Recolor, Recolor)
+        Return (Color.R.ToString("X2") & Color.G.ToString("X2") & Color.B.ToString("X2")).PrependIf("#", Hash)
     End Function
 
     ''' <summary>
@@ -145,12 +145,12 @@ Public Module ColorConvert
     ''' <returns>String contendo a cor em RGB</returns>
 
     <Extension()>
-    Public Function ToRGB(Color As System.Drawing.Color) As String
-        Return "RGB(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & ")"
+    Public Function ToCssRGB(Color As System.Drawing.Color) As String
+        Return "rgb(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & ")"
     End Function
 
     <Extension()>
-    Public Function ToRGBA(Color As System.Drawing.Color) As String
+    Public Function ToCssRGBA(Color As System.Drawing.Color) As String
         Return "rgba(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & "," & Color.A.ToString() & ")"
     End Function
 
@@ -172,7 +172,7 @@ Public Module ColorConvert
     ''' <returns></returns>
     <Extension> Public Function ToColor(Text As String) As Color
         If Text.IsBlank() Then
-            Return RandomColor()
+            Return Color.Transparent
         End If
 
         If Text.IsIn([Enum].GetNames(GetType(KnownColor)), StringComparer.InvariantCultureIgnoreCase) Then Return Color.FromName(Text)
@@ -198,20 +198,29 @@ Public Module ColorConvert
     ''' <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
     ''' <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
     ''' <returns></returns>
-    Public Function RandomColor(Optional Red As Integer = -1, Optional Green As Integer = -1, Optional Blue As Integer = -1) As Color
+    Public Function RandomColor(Optional Red As Integer = -1, Optional Green As Integer = -1, Optional Blue As Integer = -1, Optional Alpha As Integer = 255) As Color
         Red = If(Red < 0, RandomNumber(0, 255), Red).LimitRange(Of Integer)(0, 255)
         Green = If(Green < 0, RandomNumber(0, 255), Green).LimitRange(Of Integer)(0, 255)
         Blue = If(Blue < 0, RandomNumber(0, 255), Blue).LimitRange(Of Integer)(0, 255)
-        Dim cor = Color.FromArgb(Red, Green, Blue)
-        Return cor
+        Alpha = Alpha.LimitRange(Of Integer)(0, 255)
+        Return Color.FromArgb(Alpha, Red, Green, Blue)
     End Function
 
+    ''' <summary>
+    ''' Lista com todas as <see cref="KnownColor"/> convertidas em <see cref="System.Drawing.Color"/>
+    ''' </summary>
+    ''' <returns></returns>
     Public ReadOnly Property KnowColors As IEnumerable(Of Color)
         Get
             Return [Enum].GetValues(GetType(KnownColor)).Cast(Of KnownColor)().Where(Function(x) x.ToInteger() >= 27).Select(Function(x) Color.FromKnownColor(x))
         End Get
     End Property
 
+    ''' <summary>
+    ''' Retorna uma <see cref="KnownColor"/> mais proxima de outra cor
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
     <Extension()> Public Function GetClosestKnowColor(Color As Color) As Color
         Dim closest_distance As Double = Double.MaxValue
         Dim closest As Color = Color.White
@@ -229,15 +238,32 @@ Public Module ColorConvert
         Return closest
     End Function
 
+    ''' <summary>
+    ''' Retorna o nome comum mais proximo a esta cor
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
     <Extension()> Public Function GetClosestColorName(Color As Color) As String
         Return Color.GetClosestKnowColor().Name
     End Function
 
+    ''' <summary>
+    ''' Retorna o nome da cor
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
     <Extension()> Public Function GetColorName(Color As Color) As String
         For Each namedColor In KnowColors
             Return namedColor.Name
         Next
         Return Color.Name
+    End Function
+
+    <Extension()> Public Function IsReadable(Color As Color, BackgroundColor As Color, Optional Size As Integer = 10) As Boolean
+        If Color.A = 0 Then Return False
+        If BackgroundColor.A = 0 Then Return True
+        Dim diff = BackgroundColor.R * 0.299 + BackgroundColor.G * 0.587 + BackgroundColor.B * 0.114 - Color.R * 0.299 - Color.G * 0.587 - Color.B * 0.114
+        Return Not ((diff < (1.5 + 141.162 * Math.Pow(0.975, Size)))) AndAlso (diff > (-0.5 - 154.709 * Math.Pow(0.99, Size)))
     End Function
 
 End Module
@@ -246,12 +272,13 @@ Public Class HSVColor
     Implements IComparable(Of Integer)
     Implements IComparable(Of HSVColor)
     Implements IComparable(Of System.Drawing.Color)
+    Implements IComparable
     Private _h, _s, _v As Double
     Private _name As String
     Private _scolor As Color
 
     ''' <summary>
-    ''' Gera uma <see cref="HSVColor"/> aleatoria
+    ''' Gera uma <see cref="HSVColor"/> opaca aleatoria
     ''' </summary>
     ''' <param name="Name"></param>
     ''' <returns></returns>
@@ -259,6 +286,11 @@ Public Class HSVColor
         Return New HSVColor(ColorConvert.RandomColor(), Name)
     End Function
 
+    ''' <summary>
+    ''' Gera uma <see cref="HSVColor"/>  aleatoria com transparencia
+    ''' </summary>
+    ''' <param name="Name"></param>
+    ''' <returns></returns>
     Public Shared Function RandomTransparentColor(Optional Name As String = Nothing) As HSVColor
         Return New HSVColor(ColorConvert.RandomColor(), Name) With {.Opacity = Generate.RandomNumber(0, 100)}
     End Function
@@ -306,6 +338,16 @@ Public Class HSVColor
         Me.New(Color)
         _name = Name
     End Sub
+
+    ''' <summary>
+    ''' Retorna o valor ARGB de 32 bits dessa cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property ARGB As Integer
+        Get
+            Return _scolor.ToArgb()
+        End Get
+    End Property
 
     ''' <summary>
     ''' Hue (Matiz)
@@ -406,7 +448,7 @@ Public Class HSVColor
             Return _scolor.A
         End Get
         Set(value As Byte)
-            _scolor = Color.FromArgb(value.LimitRange(Of Integer)(0, 255), R, G, B)
+            _scolor = Color.FromArgb(value.LimitRange(Of Byte)(0, 255), R, G, B)
             FromColor(_scolor)
         End Set
     End Property
@@ -420,7 +462,7 @@ Public Class HSVColor
             Return A.ToDecimal().CalculatePercent(255)
         End Get
         Set(value As Decimal)
-            A = CType(CalculateValueFromPercent(value.LimitRange(0, 255), 255), Byte)
+            A = Decimal.ToByte(CalculateValueFromPercent(value.LimitRange(0, 100), 255).LimitRange(0, 255))
         End Set
     End Property
 
@@ -565,11 +607,7 @@ Public Class HSVColor
     ''' <param name="Size"></param>
     ''' <returns></returns>
     Public Function IsReadable(BackgroundColor As HSVColor, Optional Size As Integer = 10) As Boolean
-        If BackgroundColor IsNot Nothing Then
-            Dim diff = BackgroundColor.R * 0.299 + BackgroundColor.G * 0.587 + BackgroundColor.B * 0.114 - Me.R * 0.299 - Me.G * 0.587 - Me.B * 0.114
-            Return Not ((diff < (1.5 + 141.162 * Math.Pow(0.975, Size)))) AndAlso (diff > (-0.5 - 154.709 * Math.Pow(0.99, Size)))
-        End If
-        Return True
+        Return Me._scolor.IsReadable(BackgroundColor._scolor, Size)
     End Function
 
     ''' <summary>
@@ -619,6 +657,8 @@ Public Class HSVColor
         End If
         Return Me.Clone()
     End Function
+
+
 
     ''' <summary>
     ''' Cria uma paleta de cores usando esta cor como base e um metodo especifico
@@ -762,15 +802,19 @@ Public Class HSVColor
     End Function
 
     Public Function CompareTo(other As Integer) As Integer Implements IComparable(Of Integer).CompareTo
-        Return Me._scolor.ToArgb().CompareTo(other)
+        Return Me.ARGB.CompareTo(other)
     End Function
 
     Public Function CompareTo(other As HSVColor) As Integer Implements IComparable(Of HSVColor).CompareTo
-        Return Me._scolor.ToArgb().CompareTo(other._scolor.ToArgb())
+        Return Me.ARGB.CompareTo(other.ARGB)
     End Function
 
     Public Function CompareTo(other As Color) As Integer Implements IComparable(Of Color).CompareTo
-        Return Me._scolor.ToArgb.CompareTo(other.ToArgb())
+        Return Me.ARGB.CompareTo(other.ToArgb())
+    End Function
+
+    Public Function CompareTo(obj As Object) As Integer Implements IComparable.CompareTo
+        Return Me.ToString().CompareTo(obj?.ToString())
     End Function
 
 End Class
