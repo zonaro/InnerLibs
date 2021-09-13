@@ -983,7 +983,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"/> para cada propriedade em <paramref name="PropertyNames"/>
+        ''' Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)" /> para cada propriedade em <paramref name="PropertyNames"/>
         ''' </summary>
         ''' <param name="PropertyValues"></param>
         ''' <param name="PropertyNames"></param>

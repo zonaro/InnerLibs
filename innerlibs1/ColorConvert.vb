@@ -365,6 +365,8 @@ Public Class HSVColor
         End Set
     End Property
 
+
+
     ''' <summary>
     ''' Hue (Matiz)
     ''' </summary>
@@ -496,7 +498,16 @@ Public Class HSVColor
                 FromColor(_scolor)
             End If
         End Set
+    End Property
 
+    ''' <summary>
+    ''' Valor RGBA() desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property CSS As String
+        Get
+            If Me.A = 255 Then Return _scolor.ToCssRGB() Else Return _scolor.ToCssRGBA()
+        End Get
     End Property
 
     ''' <summary>
@@ -634,6 +645,24 @@ Public Class HSVColor
     End Function
 
     ''' <summary>
+    ''' Retorna uma cor mais clara a partir desta cor
+    ''' </summary>
+    ''' <param name="Percent"></param>
+    ''' <returns></returns>
+    Public Function MakeLighter(Optional Percent As Single = 50) As HSVColor
+        Return New HSVColor(_scolor.MakeLighter(Percent))
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma cor mais escura a partir desta cor
+    ''' </summary>
+    ''' <param name="Percent"></param>
+    ''' <returns></returns>
+    Public Function MakeDarker(Optional Percent As Single = 50) As HSVColor
+        Return New HSVColor(_scolor.MakeDarker(Percent))
+    End Function
+
+    ''' <summary>
     ''' Verifica se uma cor e considerada escura
     ''' </summary>
     ''' <returns></returns>
@@ -675,7 +704,7 @@ Public Class HSVColor
     ''' <param name="Color"></param>
     ''' <returns></returns>
     Public Function Distance(Color As HSVColor) As Double
-        Return Math.Sqrt(3 * (Color.R - Me.R) * (Color.R - Me.R) + 4 * (Color.G - Me.G) * (Color.G - Me.G) + 2 * (Color.B - Me.B) * (Color.B - Me.B));
+        Return Math.Sqrt(3 * (Color.R - Me.R) * (Color.R - Me.R) + 4 * (Color.G - Me.G) * (Color.G - Me.G) + 2 * (Color.B - Me.B) * (Color.B - Me.B))
     End Function
 
     ''' <summary>
@@ -684,7 +713,13 @@ Public Class HSVColor
     ''' <param name="Color"></param>
     ''' <returns></returns>
     Public Function Multiply(Color As HSVColor) As HSVColor
-        Return New HSVColor(Drawing.Color.FromArgb((Me.R / 255 * Color.R).LimitRange(0, 255), (Me.G / 255 * Color.G).LimitRange(0, 255), (Me.B / 255 * Color.B).LimitRange(0, 255)))
+        Dim n = Me.Clone()
+        If Color IsNot Nothing Then
+            n.R = (Me.R / 255 * Color.R).LimitRange(0, 255)
+            n.G = (Me.G / 255 * Color.G).LimitRange(0, 255)
+            n.B = (Me.B / 255 * Color.B).LimitRange(0, 255)
+        End If
+        Return n
     End Function
 
     ''' <summary>
@@ -692,11 +727,43 @@ Public Class HSVColor
     ''' </summary>
     ''' <param name="Color"></param>
     ''' <returns></returns>
-    Public Function Subtract(Color As HSVColor) As HSVColor
+    Public Function Subtractive(Color As HSVColor) As HSVColor
         Dim n = Me.Clone()
-        If (n.R += color.r - 255) < 0 Then n.R = 0;
-		If (n.G += Color.g - 255) < 0 Then n.G = 0;
-		If (n.B += Color.b - 255) < 0 Then n.B = 0;
+        If Color IsNot Nothing Then
+            n.R = (n.R + (Color.R - 255)).LimitRange(0, 255)
+            n.G = (n.G + (Color.G - 255)).LimitRange(0, 255)
+            n.B = (n.B + (Color.B - 255)).LimitRange(0, 255)
+        End If
+        Return n
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma nova cor a partir da mistura aditiva de 2 cores
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    Public Function Addictive(Color As HSVColor) As HSVColor
+        Dim n = Me.Clone()
+        If Color IsNot Nothing Then
+            n.R = (n.R + Color.R).LimitRange(0, 255)
+            n.G = (n.G + Color.G).LimitRange(0, 255)
+            n.B = (n.B + Color.B).LimitRange(0, 255)
+        End If
+        Return n
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma nova cor a partir da diferença de 2 cores
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    Public Function Difference(Color As HSVColor) As HSVColor
+        Dim n = Me.Clone()
+        If Color IsNot Nothing Then
+            n.R = (n.R - Color.R).LimitRange(0, 255)
+            n.G = (n.G - Color.G).LimitRange(0, 255)
+            n.B = (n.B - Color.B).LimitRange(0, 255)
+        End If
         Return n
     End Function
 
@@ -909,6 +976,52 @@ Public Class HSVColor
         Return Color1.CompareTo(Color2) <> 0
     End Operator
 
-    'TODO: implementar diferença de cores
+    Public Shared Operator -(Color1 As HSVColor, Color2 As HSVColor) As HSVColor
+        Return Color1.Difference(Color2)
+    End Operator
+
+    Public Shared Operator -(Color1 As Color, Color2 As HSVColor) As HSVColor
+        Return New HSVColor(Color1).Difference(Color2)
+    End Operator
+
+    Public Shared Operator -(Color1 As HSVColor, Color2 As Color) As HSVColor
+        Return New HSVColor(Color2).Difference(Color1)
+    End Operator
+
+    Public Shared Operator *(Color1 As HSVColor, Color2 As HSVColor) As HSVColor
+        Return Color1.Multiply(Color2)
+    End Operator
+
+    Public Shared Operator *(Color1 As Color, Color2 As HSVColor) As HSVColor
+        Return New HSVColor(Color1).Multiply(Color2)
+    End Operator
+
+    Public Shared Operator *(Color1 As HSVColor, Color2 As Color) As HSVColor
+        Return New HSVColor(Color2).Multiply(Color1)
+    End Operator
+
+    Public Shared Widening Operator CType(Color As HSVColor) As Integer
+        Return Color.ARGB
+    End Operator
+
+    Public Shared Widening Operator CType(Value As Integer) As HSVColor
+        Return New HSVColor(Drawing.Color.FromArgb(Value))
+    End Operator
+
+    Public Shared Widening Operator CType(Value As Drawing.Color) As HSVColor
+        Return New HSVColor(Value)
+    End Operator
+
+    Public Shared Widening Operator CType(Value As HSVColor) As Drawing.Color
+        Return Value.ToSystemColor
+    End Operator
+
+    Public Shared Widening Operator CType(Value As String) As HSVColor
+        Return New HSVColor(Value)
+    End Operator
+
+    Public Shared Widening Operator CType(Value As HSVColor) As String
+        Return Value.Hexadecimal
+    End Operator
 
 End Class
