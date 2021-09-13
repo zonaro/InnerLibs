@@ -670,6 +670,37 @@ Public Class HSVColor
     End Function
 
     ''' <summary>
+    ''' Retorna a distancia entre 2 cores
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    Public Function Distance(Color As HSVColor) As Double
+        Return Math.Sqrt(3 * (Color.R - Me.R) * (Color.R - Me.R) + 4 * (Color.G - Me.G) * (Color.G - Me.G) + 2 * (Color.B - Me.B) * (Color.B - Me.B));
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma nova cor a partir da mistura multiplicativa de 2 cores
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    Public Function Multiply(Color As HSVColor) As HSVColor
+        Return New HSVColor(Drawing.Color.FromArgb((Me.R / 255 * Color.R).LimitRange(0, 255), (Me.G / 255 * Color.G).LimitRange(0, 255), (Me.B / 255 * Color.B).LimitRange(0, 255)))
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma nova cor a partir da mistura subtrativa de 2 cores
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    Public Function Subtract(Color As HSVColor) As HSVColor
+        Dim n = Me.Clone()
+        If (n.R += color.r - 255) < 0 Then n.R = 0;
+		If (n.G += Color.g - 255) < 0 Then n.G = 0;
+		If (n.B += Color.b - 255) < 0 Then n.B = 0;
+        Return n
+    End Function
+
+    ''' <summary>
     ''' Retorna a cor media entre 2 cores
     ''' </summary>
     ''' <param name="Color"></param>
