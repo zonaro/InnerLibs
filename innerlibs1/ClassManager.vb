@@ -68,14 +68,16 @@ Public Module ClassTools
         Return List.NullAsEmpty().Any()
     End Function
 
-    <Extension()> Public Function NullAsEmpty(Of T)(ByVal List As IEnumerable(Of T)) As IEnumerable(Of T)
-        Return If(List, Activator.CreateInstance(GetTypeOf(List)))
+    <Extension()> Public Function NullAsEmpty(Of T As IEnumerable)(ByVal List As T) As T
+        If List IsNot Nothing Then
+            Return List
+        End If
+        Return Activator.CreateInstance(Of T)
     End Function
 
     <Extension()> Public Function IsNullOrEmpty(Of T)(ByVal List As IEnumerable(Of T)) As Boolean
         Return Not List.IsNotNullOrEmpty()
     End Function
-
 
     <Extension> Public Function RemoveLast(Of T)(List As List(Of T), Optional Count As Integer = 1) As List(Of T)
         For index = 1 To Count
@@ -980,11 +982,9 @@ Public Module ClassTools
         Return If(List, {}).Any(Function(x) Obj.IsIn(x, Comparer))
     End Function
 
-
     Private Function IsGenericOf(MainType As Type, Type As Type) As Boolean
         Return MainType.IsGenericType AndAlso MainType.GetGenericTypeDefinition().IsAssignableFrom(Type)
     End Function
-
 
     ''' <summary>
     ''' Verifica se o objeto é uma lista
@@ -995,10 +995,6 @@ Public Module ClassTools
     Public Function IsList(obj As Object) As Boolean
         Return IsGenericOf(GetTypeOf(obj), GetType(List(Of )))
     End Function
-
-
-
-
 
     ''' <summary>
     ''' Verifica se o objeto é uma lista
@@ -1282,8 +1278,6 @@ Public Module ClassTools
         obj.GetPropertyInfo(Selector).SetValue(obj, Value)
         Return obj
     End Function
-
-
 
     ''' <summary>
     ''' Alterna uma variavel ente 2 valores diferentes
