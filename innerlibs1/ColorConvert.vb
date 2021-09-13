@@ -365,8 +365,6 @@ Public Class HSVColor
         End Set
     End Property
 
-
-
     ''' <summary>
     ''' Hue (Matiz)
     ''' </summary>
@@ -777,6 +775,35 @@ Public Class HSVColor
             Return New HSVColor() With {.R = {Me.R, Color.R}.Average(), .G = {Me.G, Color.G}.Average(), .B = {Me.B, Color.B}.Average(), .A = Me.A}
         End If
         Return Me.Clone()
+    End Function
+
+    ''' <summary>
+    ''' Extrai os tons marrons de uma cor (filtro sépia)
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Sepia() As HSVColor
+        Dim c = Me.Clone()
+        c.R = Math.Round(R * 0.393 + G * 0.769 + B * 0.189)
+        c.G = Math.Round(R * 0.349 + G * 0.686 + B * 0.168)
+        c.B = Math.Round(R * 0.272 + G * 0.534 + B * 0.131)
+        Return c
+    End Function
+
+    ''' <summary>
+    ''' Extrai a cor negativa desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Negative() As HSVColor
+        Return New HSVColor(_scolor.GetNegativeColor())
+    End Function
+
+    ''' <summary>
+    ''' Extrai o cinza desta cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Grey() As HSVColor
+        Dim v = 0.35 + 13 * (R + G + B) / 60
+        Return New HSVColor(Drawing.Color.FromArgb(v, v, v))
     End Function
 
     ''' <summary>
