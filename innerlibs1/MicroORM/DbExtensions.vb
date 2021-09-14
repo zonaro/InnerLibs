@@ -157,7 +157,7 @@ Namespace MicroORM
                             cmd.Parameters.Add(param)
                             param_names.Add("@" & param.ParameterName)
                         Next
-                        cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", param_names.Join(",").IfBlank("NULL").QuoteIf(param_names.Any(), "("))
+                        cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", param_names.Join(",").IfBlank("NULL").QuoteIf(param_names.Count <> 1, "("))
                     Next
                 Else
                     cmd.CommandText = SQL.ToString()
@@ -741,7 +741,11 @@ Namespace MicroORM
                 If Not Connection.State = ConnectionState.Open Then
                     Connection.Open()
                 End If
-                Return Command.LogCommand().ExecuteReader()
+                Try
+                    Return Command.LogCommand().ExecuteReader()
+                Catch ex As Exception
+                    Debug.WriteLine(ex)
+                End Try
             End If
             Return Nothing
         End Function
