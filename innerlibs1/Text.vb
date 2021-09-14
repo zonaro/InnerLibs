@@ -1408,7 +1408,7 @@ Public Module Text
         For Each Text In Words
             Dim l As Decimal = Text.Length / 2
             l = l.Floor
-            If Not Text.GetFirstChars(l).Last.ToString.ToLower.IsIn({"a", "e", "i", "o", "u"}) Then
+            If Not Text.GetFirstChars(l).Last.ToString.ToLower.IsIn(Vowels) Then
                 l = l.ChangeType(Of Integer) - 1
             End If
             p.Add(Text.GetFirstChars(l).Trim & Text.GetFirstChars(l).Reverse.ToList.Join.ToLower.Trim)
@@ -1498,54 +1498,73 @@ Public Module Text
     End Function
 
     ''' <summary>
-    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado no parametro.
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade determinada em uma lista ou um valor numérico encontrado no primeiro parametro.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>
     ''' <returns></returns>
     ''' <example>texto = $"{2} pães"</example>
     <Extension()> Public Function QuantifyText(PluralText As FormattableString) As String
-        If PluralText.IsNotBlank Then
-            If PluralText.ArgumentCount > 0 Then
-                Dim n As Decimal = 0
-                Dim ArgIndex = PluralText.GetArguments.GetIndexOf(PluralText.GetArguments().FirstOrDefault(Function(x) IsNumber(x)))
-                n = PluralText.GetArguments().IfBlankOrNoIndex(ArgIndex, n)
-                If n = 1 OrElse n = -1 Then
-                    Return PluralText.ToString().Singularize()
-                End If
-            End If
+        If PluralText.IsNotBlank AndAlso PluralText.ArgumentCount > 0 Then
+            Dim numero As Decimal = 0
+            Dim str = QuantifyText(PluralText.Format, PluralText.GetArguments.FirstOrDefault(), numero)
+            str = str.Replace("{0}", numero)
+            For index = 1 To PluralText.GetArguments().Count - 1
+                str = str.Replace($"{{{index}}}", PluralText.GetArgument(index))
+            Next
+            Return str
         End If
         Return PluralText?.ToString()
     End Function
 
     ''' <summary>
-    ''' Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade determinada em uma lista ou um valor numérico.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>
     ''' <param name="Quantity">  Quantidade de Itens</param>
     ''' <returns></returns>
     <Extension()> Public Function QuantifyText(PluralText As String, Quantity As Object) As String
-        Dim numero As Decimal
+        Dim d As Decimal = 0
+        Return QuantifyText(PluralText, Quantity, d)
+    End Function
+
+
+    ''' <summary>
+    ''' Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade determinada em uma lista ou um valor numérico.
+    ''' </summary>
+    ''' <param name="PluralText">Texto no plural</param>
+    ''' <param name="QuantityOrList">  Quantidade de Itens</param>
+    ''' <param name="OutQuantity">Devolve a quantidade encontrada em <paramref name="QuantityOrList"/> </param>
+    ''' <returns></returns>
+    <Extension()> Public Function QuantifyText(PluralText As String, QuantityOrList As Object, ByRef OutQuantity As Decimal) As String
+
         Select Case True
-            Case IsNumber(Quantity)
-                numero = CType(Quantity, Decimal)
+            Case QuantityOrList Is Nothing
+                OutQuantity = 0
                 Exit Select
-            Case GetType(IList).IsAssignableFrom(Quantity.GetType)
-                numero = CType(Quantity, IList).Count
+            Case (QuantityOrList).GetType() = GetType(Boolean)
+                OutQuantity = ToDecimal(QuantityOrList)
                 Exit Select
-            Case GetType(IDictionary).IsAssignableFrom(Quantity.GetType)
-                numero = CType(Quantity, IDictionary).Count
+            Case IsNumber(QuantityOrList)
+                OutQuantity = CType(QuantityOrList, Decimal)
+                Exit Select
+            Case GetType(IList).IsAssignableFrom(QuantityOrList.GetType)
+                OutQuantity = CType(QuantityOrList, IList).Count
+                Exit Select
+            Case GetType(IDictionary).IsAssignableFrom(QuantityOrList.GetType)
+                OutQuantity = CType(QuantityOrList, IDictionary).Count
                 Exit Select
 
-            Case GetType(Array).IsAssignableFrom(Quantity.GetType)
-                numero = CType(Quantity, Array).Length
+            Case GetType(Array).IsAssignableFrom(QuantityOrList.GetType)
+                OutQuantity = CType(QuantityOrList, Array).Length
                 Exit Select
             Case Else
-                numero = CType(Quantity, Decimal)
+                OutQuantity = CType(QuantityOrList, Decimal)
         End Select
 
-        If numero.Floor = 1 OrElse numero.Floor = -1 Then
+        If OutQuantity.Floor = 1 OrElse OutQuantity.Floor = -1 Then
             Return PluralText.Singularize()
         End If
+
         Return PluralText
     End Function
 
