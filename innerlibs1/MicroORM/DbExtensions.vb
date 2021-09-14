@@ -157,7 +157,7 @@ Namespace MicroORM
                             cmd.Parameters.Add(param)
                             param_names.Add("@" & param.ParameterName)
                         Next
-                        cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", param_names.Join(",").IfBlank("NULL").QuoteIf(param_names.Count <> 1, "("))
+                        cmd.CommandText = cmd.CommandText.Replace("{" & index & "}", param_names.Join(",").IfBlank("NULL").QuoteIf(param_names.Count > 1, "("))
                     Next
                 Else
                     cmd.CommandText = SQL.ToString()

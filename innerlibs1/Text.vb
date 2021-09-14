@@ -1403,7 +1403,7 @@ Public Module Text
     ''' </summary>
     ''' <param name="Words"></param>
     ''' <returns></returns>
-    Public Function Poopfy(ParamArray Words As String()) As String
+    Public Function Poopfy(ParamArray Words As String()) As String()
         Dim p As New List(Of String)
         For Each Text In Words
             Dim l As Decimal = Text.Length / 2
@@ -1411,9 +1411,9 @@ Public Module Text
             If Not Text.GetFirstChars(l).Last.ToString.ToLower.IsIn(Vowels) Then
                 l = l.ChangeType(Of Integer) - 1
             End If
-            p.Add(Text.GetFirstChars(l).Trim & Text.GetFirstChars(l).Reverse.ToList.Join.ToLower.Trim)
+            p.Add(Text.GetFirstChars(l).Trim & Text.GetFirstChars(l).Reverse.ToList.Join.ToLower.Trim & Text.RemoveFirstChars(l).RemoveFirstAny(Consonants.ToArray()))
         Next
-        Return p.Join(" ").Trim
+        Return p.ToArray()
     End Function
 
     ''' <summary>
@@ -1422,7 +1422,7 @@ Public Module Text
     ''' <param name="Text"></param>
     ''' <returns></returns>
     <Extension()> Public Function Poopfy(Text As String) As String
-        Return Poopfy(Text.Split(" "))
+        Return Poopfy(Text.Split(" ")).Join(" ")
     End Function
 
     ''' <summary>
@@ -1532,33 +1532,34 @@ Public Module Text
     ''' Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade determinada em uma lista ou um valor numérico.
     ''' </summary>
     ''' <param name="PluralText">Texto no plural</param>
-    ''' <param name="QuantityOrList">  Quantidade de Itens</param>
-    ''' <param name="OutQuantity">Devolve a quantidade encontrada em <paramref name="QuantityOrList"/> </param>
+    ''' <param name="QuantityOrListOrBoolean">  Quantidade de Itens</param>
+    ''' <param name="OutQuantity">Devolve a quantidade encontrada em <paramref name="QuantityOrListOrBoolean"/> </param>
     ''' <returns></returns>
-    <Extension()> Public Function QuantifyText(PluralText As String, QuantityOrList As Object, ByRef OutQuantity As Decimal) As String
+    <Extension()> Public Function QuantifyText(PluralText As String, QuantityOrListOrBoolean As Object, ByRef OutQuantity As Decimal) As String
 
         Select Case True
-            Case QuantityOrList Is Nothing
+            Case QuantityOrListOrBoolean Is Nothing
                 OutQuantity = 0
                 Exit Select
-            Case (QuantityOrList).GetType() = GetType(Boolean)
-                OutQuantity = ToDecimal(QuantityOrList)
+            Case (QuantityOrListOrBoolean).GetType() = GetType(Boolean)
+                OutQuantity = ToDecimal(QuantityOrListOrBoolean)
+                Return PluralText.Singularize() 'de acordo com as normas do portugues, quando a quantidade esperada maxima for 1, zero também é singular.
                 Exit Select
-            Case IsNumber(QuantityOrList)
-                OutQuantity = CType(QuantityOrList, Decimal)
+            Case IsNumber(QuantityOrListOrBoolean)
+                OutQuantity = CType(QuantityOrListOrBoolean, Decimal)
                 Exit Select
-            Case GetType(IList).IsAssignableFrom(QuantityOrList.GetType)
-                OutQuantity = CType(QuantityOrList, IList).Count
+            Case GetType(IList).IsAssignableFrom(QuantityOrListOrBoolean.GetType)
+                OutQuantity = CType(QuantityOrListOrBoolean, IList).Count
                 Exit Select
-            Case GetType(IDictionary).IsAssignableFrom(QuantityOrList.GetType)
-                OutQuantity = CType(QuantityOrList, IDictionary).Count
+            Case GetType(IDictionary).IsAssignableFrom(QuantityOrListOrBoolean.GetType)
+                OutQuantity = CType(QuantityOrListOrBoolean, IDictionary).Count
                 Exit Select
 
-            Case GetType(Array).IsAssignableFrom(QuantityOrList.GetType)
-                OutQuantity = CType(QuantityOrList, Array).Length
+            Case GetType(Array).IsAssignableFrom(QuantityOrListOrBoolean.GetType)
+                OutQuantity = CType(QuantityOrListOrBoolean, Array).Length
                 Exit Select
             Case Else
-                OutQuantity = CType(QuantityOrList, Decimal)
+                OutQuantity = CType(QuantityOrListOrBoolean, Decimal)
         End Select
 
         If OutQuantity.Floor = 1 OrElse OutQuantity.Floor = -1 Then

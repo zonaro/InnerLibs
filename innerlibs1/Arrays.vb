@@ -105,6 +105,12 @@ Public Module Arrays
         End Get
     End Property
 
+    Public ReadOnly Property PasswordSpecialChars As IEnumerable(Of String)
+        Get
+            Return {"@", "#", "$", "%", "&"}.Union(WordWrappers).Union(EndOfSentencePunctuation).Union(MidSentencePunctuation).AsEnumerable
+        End Get
+    End Property
+
 
     Public ReadOnly Property PrimitiveTypes As IEnumerable(Of Type)
         Get

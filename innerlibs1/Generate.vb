@@ -67,6 +67,45 @@ Public Module Generate
     End Function
 
     ''' <summary>
+    ''' Gera uma senha
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Password(AlphaLenght As Integer, NumberLenght As Integer, SpecialLenght As Integer) As String
+        Dim pass = ""
+        If AlphaLenght > 0 Then
+            Dim ss = ""
+            While ss.Length < AlphaLenght
+                ss = ss.Append(AlphaChars.TakeRandom(1).FirstOrDefault())
+            End While
+            pass = pass.Append(ss)
+        End If
+
+        If NumberLenght > 0 Then
+            Dim ss = ""
+            While ss.Length < NumberLenght
+                ss = ss.Append(NumberChars.TakeRandom(1).FirstOrDefault())
+            End While
+            pass = pass.Append(ss)
+        End If
+
+        If SpecialLenght > 0 Then
+            Dim ss = ""
+            While ss.Length < SpecialLenght
+                ss = ss.Append(PasswordSpecialChars.TakeRandom(1).FirstOrDefault())
+            End While
+            pass = pass.Append(ss)
+        End If
+
+        Return pass.Shuffle()
+    End Function
+
+    Public Function Password(Optional Lenght As Integer = 8) As String
+        Dim base = Lenght / 3
+        Return Password(base.CeilInt(), base.FloorInt(), base.FloorInt()).PadRight(Lenght, AlphaChars.TakeRandom(1).FirstOrDefault()).GetFirstChars(Lenght)
+    End Function
+
+
+    ''' <summary>
     ''' Gera uma URL do google MAPs baseado na localização
     ''' </summary>
     ''' <param name="local">Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as coordenadas geográficas</param>
