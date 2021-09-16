@@ -757,8 +757,6 @@ Namespace MicroORM
             Return Nothing
         End Function
 
-
-
         ''' <summary>
         ''' Mapeia os objetos de um datareader para uma classe, Dictionary ou NameValueCollection
         ''' </summary>
@@ -1045,7 +1043,5 @@ Namespace MicroORM
         End Function
 
     End Module
-
-
 
 End Namespace
