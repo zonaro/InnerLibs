@@ -7,8 +7,6 @@ Imports InnerLibs.LINQ
 
 Namespace MicroORM
 
-
-
     Public Module DbExtensions
 
         Private typeMap As Dictionary(Of Type, DbType) = Nothing
@@ -266,30 +264,6 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
-        ''' Monta um Comando SQL para executar um INSERT e trata parametros espicificos de
-        ''' uma URL como as colunas da tabela de destino
-        ''' </summary>
-        ''' <param name="NVC">        Requisicao HTTP</param>
-        ''' <param name="TableName">  Nome da tabela</param>
-        ''' <param name="Keys">Parametros da URL que devem ser utilizados</param>
-        ''' <returns>Uma string com o comando montado</returns>
-        <Extension()> Public Function ToUPDATE(NVC As NameValueCollection, ByVal TableName As String, WhereClausule As String, ParamArray Keys As String()) As String
-            Keys = If(Keys, {})
-            If Keys.Count = 0 Then
-                Keys = NVC.AllKeys
-            Else
-                Keys = NVC.AllKeys.Where(Function(x) x.IsLikeAny(Keys)).ToArray
-            End If
-            Dim cmd As String = "UPDATE " & TableName & Environment.NewLine & " set "
-            For Each col In Keys
-                cmd &= (String.Format(" {0} = {1},", col, UrlDecode(NVC(col)).Wrap("'")) & Environment.NewLine)
-            Next
-            cmd = cmd.TrimAny(Environment.NewLine, " ", ",") & If(WhereClausule.IsNotBlank, " WHERE " & WhereClausule.TrimAny(" ", "where", "WHERE"), "")
-            Debug.WriteLine(cmd.Wrap(Environment.NewLine))
-            Return cmd
-        End Function
-
-        ''' <summary>
         ''' Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="NameValueCollection" />
         ''' </summary>
         ''' <remarks>
@@ -361,6 +335,41 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
+        ''' Cria um comando de INSERT para o objeto do tipo <typeparamref name="T"/>
+        ''' </summary>
+        <Extension()> Public Function CreateUPDATECommand(Of T As Class)(Connection As DbConnection, obj As T, WhereClausule As String, Optional TableName As String = Nothing) As DbCommand
+            Dim d = GetType(T)
+            Dim dic As New Dictionary(Of String, Object)
+            If obj IsNot Nothing AndAlso Connection IsNot Nothing Then
+                If obj.IsDictionary Then
+                    dic = CType(CType(obj, Object), Dictionary(Of String, Object))
+                ElseIf obj.GetType() Is GetType(NameValueCollection) Then
+                    dic = CType(CType(obj, Object), NameValueCollection).ToDictionary()
+                Else
+                    dic = obj.CreateDictionary()
+                End If
+                Dim cmd = Connection.CreateCommand()
+                cmd.CommandText = String.Format($"UPDATE " & BlankCoalesce(TableName, d.Name, "#TableName") & " set" & Environment.NewLine)
+                For Each k In dic.Keys
+                    cmd.CommandText &= $"set {k} = @__{k}, {Environment.NewLine}"
+                    Dim param = cmd.CreateParameter()
+                    param.ParameterName = $"__{k}"
+                    param.Value = dic.GetValueOr(k, DBNull.Value)
+                    cmd.Parameters.Add(param)
+                Next
+                cmd.CommandText = cmd.CommandText.TrimAny(Environment.NewLine, ",", " ")
+                If WhereClausule.IfBlank("").Trim().StartsWith("where") Then WhereClausule = WhereClausule.IfBlank("").RemoveFirstEqual("WHERE").Trim()
+
+                If WhereClausule.IsNotBlank() Then
+                    cmd.CommandText &= $"{Environment.NewLine} WHERE {WhereClausule}"
+                End If
+
+                Return cmd
+            End If
+            Return Nothing
+        End Function
+
+        ''' <summary>
         ''' Executa um comando SQL e retorna o numero de linhas afetadas
         ''' </summary>
         ''' <param name="Connection"></param>
@@ -425,12 +434,10 @@ Namespace MicroORM
         End Function
 
         ''' <summary>
-        ''' Quando TRUE, escreve os parametros e queries executadas no console
+        ''' Quando Configurado, escreve os parametros e queries executadas no TextWriterEspecifico
         ''' </summary>
         ''' <returns></returns>
-        Public Property EnableDebug As Boolean = True
-
-        Public Property LogWriter As TextWriter
+        Public Property LogWriter As TextWriter = New DebugTextWriter()
 
         <Extension()> Public Function LogCommand(Command As DbCommand) As DbCommand
             If LogWriter IsNot Nothing Then
@@ -440,14 +447,14 @@ Namespace MicroORM
                 If Command IsNot Nothing Then
                     For Each item As DbParameter In Command.Parameters
                         Dim bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}"
-                        LogWriter.WriteLine(bx)
-                        LogWriter.WriteLine(New String("-"c, 10))
+                        System.Console.WriteLine(bx)
+                        System.Console.WriteLine(New String("-"c, 10))
                     Next
-                    LogWriter.WriteLine(Command.CommandText, "SQL Command")
+                    System.Console.WriteLine(Command.CommandText, "SQL Command")
                 Else
-                    LogWriter.WriteLine("Command is NULL")
+                    System.Console.WriteLine("Command is NULL")
                 End If
-                LogWriter.WriteLine(New String("="c, 10))
+                System.Console.WriteLine(New String("="c, 10))
                 System.Console.SetOut(oldout)
             End If
             Return Command

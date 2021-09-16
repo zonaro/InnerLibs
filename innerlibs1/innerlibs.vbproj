@@ -87,6 +87,8 @@
     <Compile Include="ConsoleExtensions.vb" />
     <Compile Include="ConsoleTable.vb" />
     <Compile Include="Converter.vb" />
+    <Compile Include="DebugTextWriter.vb" />
+    <Compile Include="Mailer.vb" />
     <Compile Include="MicroORM\DbExtensions.vb" />
     <Compile Include="Dice.vb" />
     <Compile Include="DictionarySelector.vb" />

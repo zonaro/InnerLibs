@@ -3393,8 +3393,15 @@ Public Module Text
     End Function
 
     <Extension()>
-    Function Inject(ByVal formatString As String, ByVal injectionObject As Object) As String
-        Return formatString.Inject(GetPropertyHash(injectionObject))
+    Function Inject(Of T)(ByVal formatString As String, ByVal injectionObject As T) As String
+        If injectionObject IsNot Nothing Then
+            If injectionObject.IsDictionary Then
+                Return Inject(formatString, CType(injectionObject, IDictionary))
+            Else
+                Return formatString.Inject(GetPropertyHash(injectionObject))
+            End If
+        End If
+        Return formatString
     End Function
 
     <Extension()>
@@ -3434,7 +3441,7 @@ Public Module Text
         Return result
     End Function
 
-    Private Function GetPropertyHash(ByVal properties As Object) As Hashtable
+    Private Function GetPropertyHash(Of T)(ByVal properties As T) As Hashtable
         Dim values As Hashtable = Nothing
 
         If properties IsNot Nothing Then
@@ -4074,6 +4081,7 @@ Public Class ConnectionStringParser
 
     Public Function Parse(ConnectionString As String) As ConnectionStringParser
         Try
+            Me.Clear()
             For Each ii In ConnectionString.IfBlank("").SplitAny(";").[Select](Function(t) t.Split(New Char() {"="c}, 2)).ToDictionary(Function(t) t(0).Trim(), Function(t) t(1).Trim(), StringComparer.InvariantCultureIgnoreCase)
                 Me.Set(ii.Key.ToTitle(True), ii.Value)
             Next

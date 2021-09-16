@@ -982,7 +982,13 @@ Public Module ClassTools
         Return If(List, {}).Any(Function(x) Obj.IsIn(x, Comparer))
     End Function
 
-    Private Function IsGenericOf(MainType As Type, Type As Type) As Boolean
+    ''' <summary>
+    ''' Verifica se um tipo e generico de outro
+    ''' </summary>
+    ''' <param name="MainType"></param>
+    ''' <param name="Type"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function IsGenericOf(MainType As Type, Type As Type) As Boolean
         Return MainType.IsGenericType AndAlso MainType.GetGenericTypeDefinition().IsAssignableFrom(Type)
     End Function
 
