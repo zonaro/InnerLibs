@@ -314,6 +314,10 @@ Public Class HSVColor
         Me.New(Color.Transparent)
     End Sub
 
+    Sub New(Image As Image)
+        Me.New(Image.GetMostUsedColors(Image.Width * Image.Height).FirstOrDefault())
+    End Sub
+
     ''' <summary>
     ''' Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="System.Drawing.Color"/>
     ''' </summary>
@@ -505,6 +509,35 @@ Public Class HSVColor
     Public ReadOnly Property CSS As String
         Get
             If Me.A = 255 Then Return _scolor.ToCssRGB() Else Return _scolor.ToCssRGBA()
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Mood da cor
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Mood As ColorMood
+        Get
+            Dim m As ColorMood
+            If Me.V < 25 Then
+                m = ColorMood.Dark
+            ElseIf Me.V <= 75 Then
+                m = ColorMood.Medium
+            Else
+                m = ColorMood.Light
+            End If
+
+            If Opacity < 15 Then
+                m = m Or ColorMood.Unvisible
+            ElseIf Opacity < 60 Then
+                m = m Or ColorMood.SemiVisible
+            Else
+                m = m Or ColorMood.Visible
+            End If
+
+            'TODO: Hot colors, cold colors
+
+            Return m
         End Get
     End Property
 
@@ -1052,3 +1085,17 @@ Public Class HSVColor
     End Operator
 
 End Class
+
+<Flags>
+Public Enum ColorMood
+    Dark = 1
+    Medium = 2
+    Light = 4
+    Sad = 8
+    Vibrant = 16
+    Cold = 32
+    Hot = 64
+    Unvisible = 128
+    SemiVisible = 256
+    Visible = 512
+End Enum

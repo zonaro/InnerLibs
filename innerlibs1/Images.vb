@@ -788,7 +788,7 @@ Public Module Images
     ''' <returns>uma lista de Color</returns>
     <Extension>
     Public Function GetMostUsedColors(Image As Bitmap) As IEnumerable(Of Color)
-        Return GetMostUsedColorsIncidence(Image).Select(Function(x) x.Key).Where(Function(cor) cor <> Color.Empty AndAlso cor <> Color.Transparent AndAlso {cor.R, cor.G, cor.B}.All(Function(x) x > 0))
+        Return GetMostUsedColorsIncidence(Image).Select(Function(x) x.Key).Where(Function(cor) cor <> Color.Empty AndAlso cor <> Color.Transparent AndAlso {cor.R, cor.G, cor.B}.Any(Function(x) x > 0))
     End Function
 
     ''' <summary>
