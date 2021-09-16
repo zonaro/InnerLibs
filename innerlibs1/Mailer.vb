@@ -187,40 +187,45 @@ Public Class FluentMailMessage
     End Function
 
     Public Function Send() As FluentMailMessage
-        For Each item In Me.To
-            If item IsNot Nothing Then
-                Dim msg = Me.Body.IfBlank("")
-                Dim subj = Me.Subject.IfBlank("")
-                If item.GetType() Is GetType(TemplateMailAddress) Then
-                    Dim data = CType(item, TemplateMailAddress)?.TemplateData
-                    If data IsNot Nothing Then
-                        msg = msg.Inject(data)
-                        subj = subj.Inject(data)
+        If Smtp IsNot Nothing Then
+            For Each item In Me.To
+                If item IsNot Nothing Then
+                    Dim msg = Me.Body.IfBlank("")
+                    Dim subj = Me.Subject.IfBlank("")
+                    If item.GetType() Is GetType(TemplateMailAddress) Then
+                        Dim data = CType(item, TemplateMailAddress)?.TemplateData
+                        If data IsNot Nothing Then
+                            msg = msg.Inject(data)
+                            subj = subj.Inject(data)
+                        End If
                     End If
-                End If
-                Try
-                    Dim lista = {item.Address}.ToList
-                    If Me.CC.Any() Then
-                        lista.AddRange(Me.CC)
-                    End If
-                    Dim emails = lista.SelectJoin(Function(x) x.ToString(), ",")
+                    Try
+                        Dim lista = {item.Address}.ToList
+                        If Me.CC.Any() Then
+                            lista.AddRange(Me.CC)
+                        End If
+                        Dim emails = lista.SelectJoin(Function(x) x.ToString(), ",")
 
-                    Smtp.Send(Me.From.ToString(), emails, subj, msg)
-                    If Me.Bcc.Any() Then
-                        Smtp.Send(Me.From.ToString(), Me.Bcc.SelectJoin(Function(x) x.ToString(), ","), subj, msg)
-                    End If
-                    If SuccessAction IsNot Nothing Then
-                        SuccessAction.Invoke(item)
-                    End If
-                Catch ex As SmtpException
-                    If ErrorAction IsNot Nothing Then
-                        ErrorAction.Invoke(item, ex)
-                    End If
-                Catch ex2 As Exception
-                    Throw ex2
-                End Try
-            End If
-        Next
+                        Smtp.Send(Me.From.ToString(), emails, subj, msg)
+                        If Me.Bcc.Any() Then
+                            Smtp.Send(Me.From.ToString(), Me.Bcc.SelectJoin(Function(x) x.ToString(), ","), subj, msg)
+                        End If
+                        If SuccessAction IsNot Nothing Then
+                            SuccessAction.Invoke(item)
+                        End If
+                    Catch ex As SmtpException
+                        If ErrorAction IsNot Nothing Then
+                            ErrorAction.Invoke(item, ex)
+                        End If
+                    Catch ex2 As Exception
+                        Throw ex2
+                    End Try
+                End If
+            Next
+        Else
+            Throw New Exception("Smtp is null")
+        End If
+
         Return Me
     End Function
 

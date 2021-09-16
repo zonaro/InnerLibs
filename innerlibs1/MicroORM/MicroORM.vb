@@ -959,7 +959,7 @@ Namespace MicroORM
         CrossApply
     End Enum
 
-    <AttributeUsage(AttributeTargets.Property, AllowMultiple:=False, Inherited:=True)>
+    <AttributeUsage(AttributeTargets.Property Or AttributeTargets.Field Or AttributeTargets.Class, AllowMultiple:=False, Inherited:=True)>
     Public Class FromSQL
         Inherits Attribute
 
@@ -972,6 +972,17 @@ Namespace MicroORM
         End Sub
 
         Public ReadOnly Property SQL As String
+
+    End Class
+
+    <AttributeUsage(AttributeTargets.Property Or AttributeTargets.Field, AllowMultiple:=True, Inherited:=True)>
+    Public Class ColumnName
+        Inherits Attribute
+        Sub New(ParamArray Name As String())
+            Me.Names = If(Name, {}).Select(Function(x) x.UnQuote())
+        End Sub
+
+        Public ReadOnly Property Names As String()
 
     End Class
 

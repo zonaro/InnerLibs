@@ -9,6 +9,18 @@ Imports InnerLibs.LINQ
 
 Public Module ClassTools
 
+    <Extension()> Public Function PropertyNamesFor(Name As String) As IEnumerable(Of String)
+        Dim propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_")
+        Dim propname3 = Name.Trim().Replace(" ", "").Replace("-", "").Replace("~", "")
+        Dim propname2 = propname1.RemoveAccents()
+        Dim propname4 = propname3.RemoveAccents()
+        Dim propnames = {Name, propname1, propname2, propname3, propname4}.ToList()
+        propnames.AddRange(propnames.Select(Function(x) $"_{x}").ToArray())
+        Return propnames.Distinct()
+    End Function
+
+
+
     ''' <summary>
     ''' Metodo de extensão para utilizar qualquer objeto usando FluentAPI
     ''' </summary>
@@ -897,6 +909,7 @@ Public Module ClassTools
     <Extension()> Public Function HasProperty(Obj As Object, Name As String) As Boolean
         Return ClassTools.HasProperty(Obj.GetType, Name, True)
     End Function
+
 
     ''' <summary>
     ''' Verifica se o tipo é um array de um objeto especifico

@@ -757,8 +757,10 @@ Namespace MicroORM
             Return Nothing
         End Function
 
+
+
         ''' <summary>
-        ''' Mapeia os objetos de um datareader para uma classe
+        ''' Mapeia os objetos de um datareader para uma classe, Dictionary ou NameValueCollection
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="Reader"></param>
@@ -767,7 +769,7 @@ Namespace MicroORM
             Dim l = New List(Of T)
             args = If(args, {})
             While Reader IsNot Nothing AndAlso Reader.Read
-                Dim d
+                Dim d As T
                 If args.Any Then
                     d = Activator.CreateInstance(GetType(T), args)
                 Else
@@ -780,8 +782,34 @@ Namespace MicroORM
                         CType(CType(d, Object), Dictionary(Of String, Object)).Set(name, value)
                     ElseIf GetType(T) = GetType(NameValueCollection) Then
                         CType(CType(d, Object), NameValueCollection).Add(name, value)
-                    ElseIf HasProperty(d, name) AndAlso GetProperty(d, name).CanWrite Then
-                        SetPropertyValue(d, name, value)
+                    Else
+                        Dim propnames = PropertyNamesFor(name)
+                        Dim PropInfos = GetTypeOf(d).GetProperties()
+                        Dim FieldInfos = GetTypeOf(d).GetFields()
+
+                        For Each info In PropInfos
+                            Dim attrs = info.GetCustomAttributes(Of ColumnName).SelectMany(Function(x) x.Names).Union(propnames)
+                            If info.CanWrite AndAlso name.IsIn(attrs, StringComparer.InvariantCultureIgnoreCase) Then
+                                If value.GetType() Is GetType(DBNull) Then
+                                    info.SetValue(d, Nothing)
+                                Else
+                                    info.SetValue(d, ChangeType(value, info.PropertyType))
+                                End If
+                            End If
+                        Next
+
+                        For Each info In FieldInfos
+                            Dim attrs = info.GetCustomAttributes(Of ColumnName).SelectMany(Function(x) x.Names).Union(propnames)
+                            If Not PropInfos.Select(Function(x) x.Name).ContainsAny(attrs, StringComparer.InvariantCultureIgnoreCase) Then
+                                If name.IsIn(attrs, StringComparer.InvariantCultureIgnoreCase) Then
+                                    If value.GetType() Is GetType(DBNull) Then
+                                        info.SetValue(d, Nothing)
+                                    Else
+                                        info.SetValue(d, ChangeType(value, info.FieldType))
+                                    End If
+                                End If
+                            End If
+                        Next
                     End If
                 Next
                 l.Add(d)
@@ -810,8 +838,9 @@ Namespace MicroORM
                     Dim gen = prop.PropertyType.IsGenericType
                     Dim lista = gen AndAlso prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(GetType(List(Of)))
                     Dim enume = gen AndAlso prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(GetType(IEnumerable(Of)))
+                    Dim cole = gen AndAlso prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(GetType(ICollection(Of)))
 
-                    If lista OrElse enume Then
+                    If lista OrElse enume OrElse cole Then
 
                         Dim baselist As IList = Activator.CreateInstance(prop.PropertyType)
 
@@ -889,9 +918,11 @@ Namespace MicroORM
         ''' <returns></returns>
         <Extension()> Public Function MapMany(Reader As DbDataReader) As IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))
             Dim l As New List(Of IEnumerable(Of Dictionary(Of String, Object)))
-            Do
-                l.Add(Reader.Map(Of Dictionary(Of String, Object))())
-            Loop While Reader IsNot Nothing AndAlso Reader.NextResult()
+            If Reader IsNot Nothing Then
+                Do
+                    l.Add(Reader.Map(Of Dictionary(Of String, Object))())
+                Loop While Reader IsNot Nothing AndAlso Reader.NextResult()
+            End If
             Return l.AsEnumerable
         End Function
 
@@ -1014,5 +1045,7 @@ Namespace MicroORM
         End Function
 
     End Module
+
+
 
 End Namespace

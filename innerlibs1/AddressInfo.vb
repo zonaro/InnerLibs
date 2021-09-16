@@ -411,7 +411,9 @@ Namespace Locations
         End Function
 
         Friend Shared Function ContainsPart(Parts As AddressPart, OtherPart As AddressPart) As Boolean
-            Return ((Parts) And OtherPart) <> 0
+            Return Parts.HasFlag(OtherPart)
+            'Return ((Parts) And OtherPart) <> 0
+
         End Function
 
         ''' <summary>

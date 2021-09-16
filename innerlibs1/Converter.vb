@@ -424,6 +424,7 @@ Public Module Converter
 
         If Dic IsNot Nothing AndAlso Dic.Any() Then
             For Each k In Dic
+                PropertyNamesFor(k.Key)
                 Dim propname1 = k.Key.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_")
                 Dim propname3 = k.Key.Trim().Replace(" ", "").Replace("-", "").Replace("~", "")
                 Dim propname2 = propname1.RemoveAccents()
