@@ -299,6 +299,30 @@ Public Class HSVColor
     End Function
 
     ''' <summary>
+    ''' Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de um Mood especifico
+    ''' </summary>
+    ''' <param name="Name"></param>
+    ''' <returns></returns>
+    Public Shared Function RandomColor(Mood As ColorMood, Optional Name As String = Nothing) As HSVColor
+        Return RandomColorList(1, Mood).FirstOrDefault()
+    End Function
+
+    ''' <summary>
+    ''' Gera uma lista com <see cref="HSVColor"/>   aleatorias
+    ''' </summary>
+    ''' <param name="Quantity"></param>
+    ''' <returns></returns>
+    Public Shared Function RandomColorList(Quantity As Integer, Mood As ColorMood) As IEnumerable(Of HSVColor)
+        Return Enumerable.Range(1, Quantity).Select(Function(x)
+                                                        Dim c As HSVColor
+                                                        Do
+                                                            c = HSVColor.RandomColor()
+                                                        Loop While Not c.Mood.HasFlag(Mood)
+                                                        Return c
+                                                    End Function)
+    End Function
+
+    ''' <summary>
     ''' Gera uma <see cref="HSVColor"/>  aleatoria com transparencia
     ''' </summary>
     ''' <param name="Name"></param>
@@ -373,13 +397,22 @@ Public Class HSVColor
     ''' Hue (Matiz)
     ''' </summary>
     ''' <returns></returns>
-    Property H As Double
+    Property Hue As Double
         Get
             Return _h
         End Get
         Set(value As Double)
             If _h <> value Then
                 _h = value
+
+                While _h < 0
+                    _h += 360
+                End While
+
+                While _h > 360
+                    _h -= 360
+                End While
+
                 SetColor()
             End If
         End Set
@@ -389,11 +422,12 @@ Public Class HSVColor
     ''' Saturation (Saturação)
     ''' </summary>
     ''' <returns></returns>
-    Property S As Double
+    Property Saturation As Double
         Get
             Return _s
         End Get
         Set(value As Double)
+            value = value.LimitRange(0.0, 1.0)
             If _s <> value Then
                 _s = value
                 SetColor()
@@ -402,14 +436,25 @@ Public Class HSVColor
     End Property
 
     ''' <summary>
-    ''' Value (Brilho)
+    ''' Luminância
     ''' </summary>
     ''' <returns></returns>
-    Property V As Double
+    Public ReadOnly Property Luminance As Double
+        Get
+            Return (0.2126 * Red) + (0.7152 * Green) + (0.0722 * Blue)
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Brilho
+    ''' </summary>
+    ''' <returns></returns>
+    Property Brightness As Double
         Get
             Return _v
         End Get
         Set(value As Double)
+            value = value.LimitRange(0.0, 1.0)
             If _v <> value Then
                 _v = value
                 SetColor()
@@ -421,12 +466,12 @@ Public Class HSVColor
     ''' Red (Vermelho)
     ''' </summary>
     ''' <returns></returns>
-    Property R As Integer
+    Property Red As Integer
         Get
             Return _scolor.R
         End Get
         Set(value As Integer)
-            _scolor = Color.FromArgb(A, value.LimitRange(Of Integer)(0, 255), G, B)
+            _scolor = Color.FromArgb(Alpha, value.LimitRange(Of Integer)(0, 255), Green, Blue)
             FromColor(_scolor)
         End Set
     End Property
@@ -435,12 +480,12 @@ Public Class HSVColor
     ''' Green (Verde)
     ''' </summary>
     ''' <returns></returns>
-    Property G As Integer
+    Property Green As Integer
         Get
             Return _scolor.G
         End Get
         Set(value As Integer)
-            _scolor = Color.FromArgb(A, R, value.LimitRange(Of Integer)(0, 255), B)
+            _scolor = Color.FromArgb(Alpha, Red, value.LimitRange(Of Integer)(0, 255), Blue)
             FromColor(_scolor)
         End Set
     End Property
@@ -449,12 +494,12 @@ Public Class HSVColor
     ''' Blue (Azul)
     ''' </summary>
     ''' <returns></returns>
-    Property B As Integer
+    Property Blue As Integer
         Get
             Return _scolor.B
         End Get
         Set(value As Integer)
-            _scolor = Color.FromArgb(A, R, G, value.LimitRange(Of Integer)(0, 255))
+            _scolor = Color.FromArgb(Alpha, Red, Green, value.LimitRange(Of Integer)(0, 255))
             FromColor(_scolor)
         End Set
     End Property
@@ -463,12 +508,12 @@ Public Class HSVColor
     ''' Alpha (Transparencia)
     ''' </summary>
     ''' <returns></returns>
-    Property A As Byte
+    Property Alpha As Byte
         Get
             Return _scolor.A
         End Get
         Set(value As Byte)
-            _scolor = Color.FromArgb(value.LimitRange(Of Byte)(0, 255), R, G, B)
+            _scolor = Color.FromArgb(value.LimitRange(Of Byte)(0, 255), Red, Green, Blue)
             FromColor(_scolor)
         End Set
     End Property
@@ -479,10 +524,10 @@ Public Class HSVColor
     ''' <returns></returns>
     Property Opacity As Decimal
         Get
-            Return A.ToDecimal().CalculatePercent(255)
+            Return Alpha.ToDecimal().CalculatePercent(255)
         End Get
         Set(value As Decimal)
-            A = Decimal.ToByte(CalculateValueFromPercent(value.LimitRange(0, 100), 255).LimitRange(0, 255))
+            Alpha = Decimal.ToByte(CalculateValueFromPercent(value.LimitRange(0, 100), 255).LimitRange(0, 255))
         End Set
     End Property
 
@@ -508,7 +553,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public ReadOnly Property CSS As String
         Get
-            If Me.A = 255 Then Return _scolor.ToCssRGB() Else Return _scolor.ToCssRGBA()
+            If Me.Alpha = 255 Then Return _scolor.ToCssRGB() Else Return _scolor.ToCssRGBA()
         End Get
     End Property
 
@@ -518,13 +563,35 @@ Public Class HSVColor
     ''' <returns></returns>
     Public ReadOnly Property Mood As ColorMood
         Get
+
             Dim m As ColorMood
-            If Me.V < 25 Then
+
+            If IsDark() Then
                 m = ColorMood.Dark
-            ElseIf Me.V <= 75 Then
-                m = ColorMood.Medium
-            Else
+            ElseIf IsLight() Then
                 m = ColorMood.Light
+            Else
+                m = ColorMood.Medium
+            End If
+
+            If IsMediumDark() Then
+                m = m Or ColorMood.MediumDark
+            Else
+                m = m Or ColorMood.MediumLight
+            End If
+
+            If IsWarm() Then
+                m = m Or ColorMood.Warm
+            End If
+
+            If IsCool() Then
+                m = m Or ColorMood.Cool
+            End If
+
+            If IsSad() Then
+                m = m Or ColorMood.Sad
+            Else
+                m = m Or ColorMood.Happy
             End If
 
             If Opacity < 15 Then
@@ -535,9 +602,22 @@ Public Class HSVColor
                 m = m Or ColorMood.Visible
             End If
 
-            'TODO: Hot colors, cold colors
-
             Return m
+        End Get
+    End Property
+
+    Public Function CreateSolidImage(Width As Integer, Height As Integer) As Bitmap
+        Return New Bitmap(_scolor.CreateSolidImage(Width, Height))
+    End Function
+
+    Public Function CreateSolidImage(Optional Size As String = "") As Bitmap
+        Dim s = Size.IfBlank("100").ToSize()
+        Return CreateSolidImage(s.Width, s.Height)
+    End Function
+
+    Public ReadOnly Property ImageSample As Bitmap
+        Get
+            Return CreateSolidImage().DrawString(Name)
         End Get
     End Property
 
@@ -547,7 +627,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Property Name As String
         Get
-            Return _name.IfBlank(ColorName)
+            Return _name.IfBlank(ClosestColorName)
         End Get
         Set(value As String)
             _name = value
@@ -558,7 +638,7 @@ Public Class HSVColor
     ''' Nome original mais proximo desta cor
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property ColorName As String
+    Public ReadOnly Property ClosestColorName As String
         Get
             Return _scolor.GetClosestColorName()
         End Get
@@ -575,17 +655,9 @@ Public Class HSVColor
         Dim H, S, V As Double
         Dim alpha = _scolor.A
 
-        H = Me.H
-        S = Me.S
-        V = Me.V
-
-        While H < 0
-            H += 360
-        End While
-
-        While H > 360
-            H -= 360
-        End While
+        H = Me.Hue
+        S = Me.Saturation
+        V = Me.Brightness
 
         H = H / 360
         Dim MAX As Byte = 255
@@ -619,6 +691,9 @@ Public Class HSVColor
             Dim d As Byte = CByte((V * MAX))
             _scolor = Color.FromArgb(alpha, d, d, d)
         End If
+
+        _s = S.LimitRange(0R, 1.0R)
+        _v = V.LimitRange(0R, 1.0R)
 
     End Sub
 
@@ -662,7 +737,7 @@ Public Class HSVColor
     ''' </summary>
     ''' <returns></returns>
     Public Function ToSystemColor() As Color
-        Return Color.FromArgb(A, R, G, B)
+        Return Color.FromArgb(Alpha, Red, Green, Blue)
     End Function
 
     ''' <summary>
@@ -694,19 +769,59 @@ Public Class HSVColor
     End Function
 
     ''' <summary>
-    ''' Verifica se uma cor e considerada escura
-    ''' </summary>
-    ''' <returns></returns>
-    Public Function IsDark() As Boolean
-        Return _scolor.IsDark()
-    End Function
-
-    ''' <summary>
     ''' Verifica se uma cor e considerada clara
     ''' </summary>
     ''' <returns></returns>
     Public Function IsLight() As Boolean
-        Return _scolor.IsLight()
+        Return Luminance.IsGreaterThan(160.0R)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma cor e considerada escura
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsDark() As Boolean
+        Return Luminance.IsLessThan(70.0R)
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma cor e considerada Medio Clara
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsMediumLight() As Boolean
+        Return Luminance > 255 / 2
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma cor e considerada Medio Escura
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsMediumDark() As Boolean
+        Return Not IsMediumLight()
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma cor e considerada média
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsMedium() As Boolean
+        Return Luminance.IsBetweenOrEqual(70.0R, 160.0R)
+    End Function
+
+    Public Function IsWarm() As Boolean
+        Return Hue.IsLessThan(90.0R) OrElse Hue.IsGreaterThan(270.0R)
+    End Function
+
+    Public Function IsCool() As Boolean
+        Return Not IsWarm()
+    End Function
+
+    Public Function IsSad() As Boolean
+        Return Saturation.IsLessThan(0.5) OrElse Brightness.IsLessThan(0.75)
+    End Function
+
+    Public Function IssHappy() As Boolean
+        Return Not IsSad()
     End Function
 
     ''' <summary>
@@ -714,7 +829,7 @@ Public Class HSVColor
     ''' </summary>
     ''' <returns></returns>
     Public Function Clone() As HSVColor
-        Return New HSVColor(Me.ToSystemColor, Me.Name) With {.Description = Me.Description}
+        Return New HSVColor(_scolor, Me.Name) With {.Description = Me.Description}
     End Function
 
     ''' <summary>
@@ -724,7 +839,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Function Combine(Color As HSVColor) As HSVColor
         If Color IsNot Nothing Then
-            Return New HSVColor() With {.R = Me.R Xor Color.R, .G = Me.G Xor Color.G, .B = Me.B Xor Color.B, .A = Me.A}
+            Return New HSVColor() With {.Red = Me.Red Xor Color.Red, .Green = Me.Green Xor Color.Green, .Blue = Me.Blue Xor Color.Blue, .Alpha = Me.Alpha}
         End If
         Return Me.Clone()
     End Function
@@ -735,7 +850,7 @@ Public Class HSVColor
     ''' <param name="Color"></param>
     ''' <returns></returns>
     Public Function Distance(Color As HSVColor) As Double
-        Return Math.Sqrt(3 * (Color.R - Me.R) * (Color.R - Me.R) + 4 * (Color.G - Me.G) * (Color.G - Me.G) + 2 * (Color.B - Me.B) * (Color.B - Me.B))
+        Return Math.Sqrt(3 * (Color.Red - Me.Red) * (Color.Red - Me.Red) + 4 * (Color.Green - Me.Green) * (Color.Green - Me.Green) + 2 * (Color.Blue - Me.Blue) * (Color.Blue - Me.Blue))
     End Function
 
     ''' <summary>
@@ -746,9 +861,9 @@ Public Class HSVColor
     Public Function Multiply(Color As HSVColor) As HSVColor
         Dim n = Me.Clone()
         If Color IsNot Nothing Then
-            n.R = (Me.R / 255 * Color.R).LimitRange(0, 255)
-            n.G = (Me.G / 255 * Color.G).LimitRange(0, 255)
-            n.B = (Me.B / 255 * Color.B).LimitRange(0, 255)
+            n.Red = (Me.Red / 255 * Color.Red).LimitRange(0, 255)
+            n.Green = (Me.Green / 255 * Color.Green).LimitRange(0, 255)
+            n.Blue = (Me.Blue / 255 * Color.Blue).LimitRange(0, 255)
         End If
         Return n
     End Function
@@ -761,9 +876,9 @@ Public Class HSVColor
     Public Function Subtractive(Color As HSVColor) As HSVColor
         Dim n = Me.Clone()
         If Color IsNot Nothing Then
-            n.R = (n.R + (Color.R - 255)).LimitRange(0, 255)
-            n.G = (n.G + (Color.G - 255)).LimitRange(0, 255)
-            n.B = (n.B + (Color.B - 255)).LimitRange(0, 255)
+            n.Red = (n.Red + (Color.Red - 255)).LimitRange(0, 255)
+            n.Green = (n.Green + (Color.Green - 255)).LimitRange(0, 255)
+            n.Blue = (n.Blue + (Color.Blue - 255)).LimitRange(0, 255)
         End If
         Return n
     End Function
@@ -776,9 +891,9 @@ Public Class HSVColor
     Public Function Addictive(Color As HSVColor) As HSVColor
         Dim n = Me.Clone()
         If Color IsNot Nothing Then
-            n.R = (n.R + Color.R).LimitRange(0, 255)
-            n.G = (n.G + Color.G).LimitRange(0, 255)
-            n.B = (n.B + Color.B).LimitRange(0, 255)
+            n.Red = (n.Red + Color.Red).LimitRange(0, 255)
+            n.Green = (n.Green + Color.Green).LimitRange(0, 255)
+            n.Blue = (n.Blue + Color.Blue).LimitRange(0, 255)
         End If
         Return n
     End Function
@@ -791,9 +906,9 @@ Public Class HSVColor
     Public Function Difference(Color As HSVColor) As HSVColor
         Dim n = Me.Clone()
         If Color IsNot Nothing Then
-            n.R = (n.R - Color.R).LimitRange(0, 255)
-            n.G = (n.G - Color.G).LimitRange(0, 255)
-            n.B = (n.B - Color.B).LimitRange(0, 255)
+            n.Red = (n.Red - Color.Red).LimitRange(0, 255)
+            n.Green = (n.Green - Color.Green).LimitRange(0, 255)
+            n.Blue = (n.Blue - Color.Blue).LimitRange(0, 255)
         End If
         Return n
     End Function
@@ -805,7 +920,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Function Average(Color As HSVColor) As HSVColor
         If Color IsNot Nothing Then
-            Return New HSVColor() With {.R = {Me.R, Color.R}.Average(), .G = {Me.G, Color.G}.Average(), .B = {Me.B, Color.B}.Average(), .A = Me.A}
+            Return New HSVColor() With {.Red = {Me.Red, Color.Red}.Average(), .Green = {Me.Green, Color.Green}.Average(), .Blue = {Me.Blue, Color.Blue}.Average(), .Alpha = Me.Alpha}
         End If
         Return Me.Clone()
     End Function
@@ -816,9 +931,9 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Function Sepia() As HSVColor
         Dim c = Me.Clone()
-        c.R = Math.Round(R * 0.393 + G * 0.769 + B * 0.189)
-        c.G = Math.Round(R * 0.349 + G * 0.686 + B * 0.168)
-        c.B = Math.Round(R * 0.272 + G * 0.534 + B * 0.131)
+        c.Red = Math.Round(Red * 0.393 + Green * 0.769 + Blue * 0.189)
+        c.Green = Math.Round(Red * 0.349 + Green * 0.686 + Blue * 0.168)
+        c.Blue = Math.Round(Red * 0.272 + Green * 0.534 + Blue * 0.131)
         Return c
     End Function
 
@@ -835,7 +950,7 @@ Public Class HSVColor
     ''' </summary>
     ''' <returns></returns>
     Public Function Grey() As HSVColor
-        Dim v = 0.35 + 13 * (R + G + B) / 60
+        Dim v = 0.35 + 13 * (Red + Green + Blue) / 60
         Return New HSVColor(Drawing.Color.FromArgb(v, v, v))
     End Function
 
@@ -873,7 +988,7 @@ Public Class HSVColor
     ''' <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
     ''' <returns></returns>
     Public Function ModColor(ParamArray Degrees As Integer()) As HSVColor()
-        Return If(Degrees, {}).Select(Function(x) New HSVColor() With {.H = ((Me.H + x) Mod 360), .S = Me.S, .V = Me.V}).OrderBy(Function(x) x.H).ToArray()
+        Return If(Degrees, {}).Select(Function(x) New HSVColor() With {.Hue = ((Me.Hue + x) Mod 360), .Saturation = Me.Saturation, .Brightness = Me.Brightness}).OrderBy(Function(x) x.Hue).ToArray()
     End Function
 
     Public Overrides Function ToString() As String
@@ -1088,14 +1203,21 @@ End Class
 
 <Flags>
 Public Enum ColorMood
+
     Dark = 1
-    Medium = 2
-    Light = 4
-    Sad = 8
-    Vibrant = 16
-    Cold = 32
-    Hot = 64
-    Unvisible = 128
-    SemiVisible = 256
-    Visible = 512
+    MediumDark = 2
+    Medium = 4
+    MediumLight = 8
+    Light = 16
+
+    Sad = 32
+    Neutral = 64
+    Happy = 128
+
+    Cool = 256
+    Warm = 512
+
+    Unvisible = 1024
+    SemiVisible = 2048
+    Visible = 4096
 End Enum
