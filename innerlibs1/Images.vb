@@ -150,7 +150,6 @@ Public Module Images
         Return Bmp
     End Function
 
-
     <Extension()> Public Function DrawString(img As Image, Text As String, Optional Font As Font = Nothing, Optional Color As Color? = Nothing, Optional X As Integer = -1, Optional Y As Integer = -1) As Image
         Dim bitmap As Bitmap = New Bitmap(img)
         Using graphics As Graphics = Graphics.FromImage(bitmap)
@@ -777,7 +776,7 @@ Public Module Images
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColors(Image As Image, Optional Count As Integer = 10) As IEnumerable(Of Color)
+    Public Function GetMostUsedColors(Image As Image, Count As Integer) As IEnumerable(Of Color)
         Return New Bitmap(Image).GetMostUsedColors().Take(Count)
     End Function
 
@@ -787,25 +786,25 @@ Public Module Images
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColors(Image As Bitmap) As IEnumerable(Of Color)
-        Return GetMostUsedColorsIncidence(Image).Select(Function(x) x.Key).Where(Function(cor) cor <> Color.Empty AndAlso cor <> Color.Transparent AndAlso {cor.R, cor.G, cor.B}.Any(Function(x) x > 0))
+    Public Function GetMostUsedColors(Image As Image) As IEnumerable(Of Color)
+        Return GetMostUsedColorsIncidence(Image).Keys
     End Function
 
     ''' <summary>
     ''' Retorna uma lista com as cores utilizadas na imagem
     ''' </summary>
-    ''' <param name="Image">Imagem</param>
+    ''' <param name="Img">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColorsIncidence(Image As Bitmap) As Dictionary(Of Color, Integer)
-
+    Public Function GetMostUsedColorsIncidence(Img As Image) As Dictionary(Of Color, Integer)
+        Dim image = New Bitmap(Img)
         Dim dctColorIncidence As New Dictionary(Of Integer, Integer)
-        If Image IsNot Nothing AndAlso Image.Width > 0 AndAlso Image.Height > 0 Then
+        If image IsNot Nothing AndAlso image.Width > 0 AndAlso image.Height > 0 Then
             Dim coluna As Integer = 0
-            While coluna < Image.Size.Width
+            While coluna < image.Size.Width
                 Dim linha As Integer = 0
-                While linha < Image.Size.Height
-                    Dim pixelColor = Image.GetPixel(coluna, linha).ToArgb()
+                While linha < image.Size.Height
+                    Dim pixelColor = image.GetPixel(coluna, linha).ToArgb()
                     If dctColorIncidence.Keys.Contains(pixelColor) Then
                         dctColorIncidence(pixelColor) = dctColorIncidence(pixelColor) + 1
                     Else
