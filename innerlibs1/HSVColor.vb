@@ -328,12 +328,21 @@ Public Class HSVColor
                 m = m Or ColorMood.MediumLight
             End If
 
+
+            If Me.IsWarmer Then
+                m = m Or ColorMood.Warmer
+            End If
+
             If IsWarm() Then
                 m = m Or ColorMood.Warm
             End If
 
             If IsCool() Then
                 m = m Or ColorMood.Cool
+            End If
+
+            If Me.IsCooler Then
+                m = m Or ColorMood.Cooler
             End If
 
             If IsSad() Then
@@ -351,10 +360,51 @@ Public Class HSVColor
             End If
 
             If Luminance >= 250 Then
-                m = m Or ColorMood.CloseToWhite
-            ElseIf Luminance <= 5 Then
-                m = m Or ColorMood.CloseToBlack
+                m = m Or ColorMood.LowLuminance
+            ElseIf Luminance <= 15 Then
+                m = m Or ColorMood.HighLuminance
             End If
+
+            If Red = 255 Then
+                m = m Or ColorMood.Red
+            End If
+
+            If Green = 255 Then
+                m = m Or ColorMood.Green
+            End If
+
+            If Blue = 255 Then
+                m = m Or ColorMood.Blue
+            End If
+
+            If Red = 0 Then
+                m = m Or ColorMood.NoRed
+            End If
+
+            If Green = 0 Then
+                m = m Or ColorMood.NoGreen
+            End If
+
+            If Blue = 0 Then
+                m = m Or ColorMood.NoBlue
+            End If
+
+            If Red > Blue AndAlso Red > Green Then
+                m = m Or ColorMood.MostRed
+            End If
+
+            If Green > Red AndAlso Green > Blue Then
+                m = m Or ColorMood.MostGreen
+            End If
+
+            If Blue > Red AndAlso Blue > Green Then
+                m = m Or ColorMood.MostBlue
+            End If
+
+
+
+
+
 
             Return m
         End Get
@@ -566,8 +616,16 @@ Public Class HSVColor
         Return Hue.IsLessThan(90.0R) OrElse Hue.IsGreaterThan(270.0R)
     End Function
 
+    Public Function IsWarmer() As Boolean
+        Return Hue.IsLessThan(45.0R) OrElse Hue.IsGreaterThan(315.0R)
+    End Function
+
     Public Function IsCool() As Boolean
         Return Not IsWarm()
+    End Function
+
+    Public Function IsCooler() As Boolean
+        Return Hue.IsLessThan(225.0R) OrElse Hue.IsGreaterThan(135.0R)
     End Function
 
     Public Function IsSad() As Boolean
@@ -870,7 +928,7 @@ Public Class HSVColor
     End Function
 
     Public Function CompareTo(other As HSVColor) As Integer Implements IComparable(Of HSVColor).CompareTo
-        Return Me.Luminance.CompareTo(other?.Luminance)
+        Return Me.ARGB.CompareTo(other?.ARGB)
     End Function
 
     Public Function CompareTo(other As Color) As Integer Implements IComparable(Of Color).CompareTo
@@ -983,14 +1041,30 @@ Public Enum ColorMood
     Sad = 32
     Happy = 64
 
-    Cool = 128
-    Warm = 256
+    Cooler = 128
+    Cool = 256
+    Warm = 512
+    Warmer = 1024
 
-    Unvisible = 512
-    SemiVisible = 1024
-    Visible = 2048
+    Unvisible = 2048
+    SemiVisible = 4096
+    Visible = 8192
 
-    CloseToBlack = 4096
-    CloseToWhite = 8192
+    LowLuminance = 16384
+    HighLuminance = 32768
+
+    Red = 65536
+    Green = 131072
+    Blue = 262144
+
+    MostRed = 524288
+    MostGreen = 1048576
+    MostBlue = 2097152
+
+    NoRed = 4194304
+    NoGreen = 8388608
+    NoBlue = 16777216
+
+
 
 End Enum
