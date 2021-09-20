@@ -1040,6 +1040,8 @@ Public Enum ColorMood
 
     Sad = 32
     Happy = 64
+    Love = ColorMood.MostRed Or ColorMood.NoGreen Or ColorMood.Happy
+
 
     Cooler = 128
     Cool = 256
