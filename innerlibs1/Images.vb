@@ -11,6 +11,16 @@ Imports System.Runtime.CompilerServices
 '''
 Public Module Images
 
+
+    ''' <summary>
+    ''' Retorna uma <see cref="Bitmap"/> a partir de um Image
+    ''' </summary>
+    ''' <param name="Image"></param>
+    ''' <returns></returns>
+    <Extension()> Public Function ToBitmap(Image As Image) As Bitmap
+        Return New Bitmap(Image)
+    End Function
+
     ''' <summary>
     ''' Corta uma imagem para um quadrado perfeito a partir do centro
     ''' </summary>
@@ -769,6 +779,8 @@ Public Module Images
 
         Return imagemFinal
     End Function
+
+
 
     ''' <summary>
     ''' Retorna uma lista com as N cores mais utilizadas na imagem

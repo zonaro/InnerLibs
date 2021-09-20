@@ -8,6 +8,9 @@ Imports System.Text.RegularExpressions
 ''' <remarks></remarks>
 Public Module ColorExtensions
 
+    <Extension()> Public Function ToHSVColorList(ColorList As IEnumerable(Of Color)) As IEnumerable(Of HSVColor)
+        Return ColorList?.Select(Function(x) New HSVColor(x))
+    End Function
     Public Function GrayscalePallete(Amount As Integer) As IEnumerable(Of Color)
         Return MonochromaticPallete(Color.White, Amount)
     End Function

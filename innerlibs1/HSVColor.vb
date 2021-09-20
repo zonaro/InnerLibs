@@ -1,4 +1,5 @@
 ﻿Imports System.Drawing
+Imports System.Linq.Expressions
 Imports InnerLibs.LINQ
 
 Public Class HSVColor
@@ -22,10 +23,17 @@ Public Class HSVColor
     ''' <summary>
     ''' Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de um Mood especifico
     ''' </summary>
-    ''' <param name="Name"></param>
     ''' <returns></returns>
-    Public Shared Function RandomColor(Mood As ColorMood, Optional Name As String = Nothing) As HSVColor
+    Public Shared Function RandomColor(Mood As ColorMood) As HSVColor
         Return RandomColorList(1, Mood).FirstOrDefault()
+    End Function
+
+    ''' <summary>
+    ''' Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de uma especificacao
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared Function RandomColor(predicate As Expression(Of Func(Of HSVColor, Boolean))) As HSVColor
+        Return RandomColorList(1, predicate).FirstOrDefault()
     End Function
 
     ''' <summary>
@@ -48,12 +56,31 @@ Public Class HSVColor
     End Function
 
     ''' <summary>
+    ''' Gera uma lista com <see cref="HSVColor"/>   aleatorias
+    ''' </summary>
+    ''' <param name="Quantity"></param>
+    ''' <returns></returns>
+    Public Shared Function RandomColorList(Quantity As Integer, predicate As Expression(Of Func(Of HSVColor, Boolean))) As IEnumerable(Of HSVColor)
+        Dim l As New List(Of HSVColor)
+        While l.Count < Quantity
+            Dim c As HSVColor = Nothing
+            Do
+                c = {HSVColor.RandomColor()}.FirstOrDefault(predicate.Compile())
+            Loop While c Is Nothing
+            If Not l.Any(Function(x) x.ARGB = c.ARGB) Then
+                l.Add(c)
+            End If
+        End While
+        Return l
+    End Function
+
+    ''' <summary>
     ''' Gera uma <see cref="HSVColor"/>  aleatoria com transparencia
     ''' </summary>
     ''' <param name="Name"></param>
     ''' <returns></returns>
     Public Shared Function RandomTransparentColor(Optional Name As String = Nothing) As HSVColor
-        Return New HSVColor(ColorExtensions.RandomColor(), Name) With {.Opacity = Generate.RandomNumber(0, 100)}
+        Return RandomColor().With(Sub(x) x.Opacity = Generate.RandomNumber(0, 100))
     End Function
 
     ''' <summary>
@@ -321,6 +348,12 @@ Public Class HSVColor
                 m = m Or ColorMood.SemiVisible
             Else
                 m = m Or ColorMood.Visible
+            End If
+
+            If Luminance >= 250 Then
+                m = m Or ColorMood.CloseToWhite
+            ElseIf Luminance <= 5 Then
+                m = m Or ColorMood.CloseToBlack
             End If
 
             Return m
@@ -837,11 +870,11 @@ Public Class HSVColor
     End Function
 
     Public Function CompareTo(other As HSVColor) As Integer Implements IComparable(Of HSVColor).CompareTo
-        Return Me.Luminance.CompareTo(other.Luminance)
+        Return Me.Luminance.CompareTo(other?.Luminance)
     End Function
 
     Public Function CompareTo(other As Color) As Integer Implements IComparable(Of Color).CompareTo
-        Return Me.CompareTo(New HSVColor)
+        Return Me.CompareTo(New HSVColor(other))
     End Function
 
     Public Function CompareTo(obj As Object) As Integer Implements IComparable.CompareTo
@@ -956,4 +989,8 @@ Public Enum ColorMood
     Unvisible = 512
     SemiVisible = 1024
     Visible = 2048
+
+    CloseToBlack = 4096
+    CloseToWhite = 8192
+
 End Enum
