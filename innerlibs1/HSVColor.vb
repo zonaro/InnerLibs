@@ -1045,6 +1045,8 @@ Public Enum ColorMood
     Cool = 256
     Warm = 512
     Warmer = 1024
+    Ice = Blue Or NoRed Or Cooler
+    Fire = Red Or NoBlue Or Warmer
 
     Unvisible = 2048
     SemiVisible = 4096
@@ -1064,6 +1066,10 @@ Public Enum ColorMood
     NoRed = 4194304
     NoGreen = 8388608
     NoBlue = 16777216
+
+    FullRed = ColorMood.NoGreen Or ColorMood.NoBlue
+    FullGreen = ColorMood.NoRed Or ColorMood.NoBlue
+    FullBlue = ColorMood.NoRed Or ColorMood.NoGreen
 
 
 
