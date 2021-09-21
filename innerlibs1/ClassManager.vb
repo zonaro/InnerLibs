@@ -19,8 +19,6 @@ Public Module ClassTools
         Return propnames.Distinct()
     End Function
 
-
-
     ''' <summary>
     ''' Metodo de extensão para utilizar qualquer objeto usando FluentAPI
     ''' </summary>
@@ -315,6 +313,18 @@ Public Module ClassTools
                                  l.Add(x.Value)
                                  Return l.ToArray()
                              End Function)
+    End Function
+
+    Private Function GetFlags(Of T)(ByVal input) As IEnumerable(Of T)
+        Return [Enum].GetValues(GetType(T)).Cast(Of T)().Where(Function(f) input.HasFlag(f))
+    End Function
+
+    <Extension()> Public Function GroupByFlag(Of Type, Group As Structure)(List As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group)) As IEnumerable(Of IGrouping(Of Group, Type))
+        If GetType(Group).IsEnum Then
+            Return List.[Select](Function(c) New With {Key .Flags = GetFlags(Of Group)(GroupSelector(c)), Key .Item = c}).SelectMany(Function(c) c.Flags.[Select](Function(x) New With {Key .Flag = x, Key .Item = c.Item})).GroupBy(Function(c) c.Flag, Function(i) i.Item)
+        Else
+            Throw New ArgumentException("Group is not a enum")
+        End If
     End Function
 
     ''' <summary>
@@ -909,7 +919,6 @@ Public Module ClassTools
     <Extension()> Public Function HasProperty(Obj As Object, Name As String) As Boolean
         Return ClassTools.HasProperty(Obj.GetType, Name, True)
     End Function
-
 
     ''' <summary>
     ''' Verifica se o tipo é um array de um objeto especifico

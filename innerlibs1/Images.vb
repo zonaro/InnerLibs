@@ -11,7 +11,6 @@ Imports System.Runtime.CompilerServices
 '''
 Public Module Images
 
-
     ''' <summary>
     ''' Retorna uma <see cref="Bitmap"/> a partir de um Image
     ''' </summary>
@@ -541,7 +540,7 @@ Public Module Images
         If ResizeExpression.Contains("%") Then
             Return Original.ResizePercent(ResizeExpression, OnlyResizeIfWider)
         Else
-            Dim s = ResizeExpression.ToSize()
+            Dim s = ResizeExpression.ParseSize()
             Return Original.Resize(s, OnlyResizeIfWider)
         End If
 
@@ -596,7 +595,7 @@ Public Module Images
     ''' </summary>
     ''' <param name="Text">Texto</param>
     ''' <returns></returns>
-    <Extension> Public Function ToSize(ByVal Text As String) As Size
+    <Extension> Public Function ParseSize(ByVal Text As String) As Size
         Dim s As New Size
         Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLower.Trim
         Text = Text.Replace("largura", "width")
@@ -780,15 +779,13 @@ Public Module Images
         Return imagemFinal
     End Function
 
-
-
     ''' <summary>
     ''' Retorna uma lista com as N cores mais utilizadas na imagem
     ''' </summary>
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColors(Image As Image, Count As Integer) As IEnumerable(Of Color)
+    Public Function GetMostUsedColors(Image As Image, Count As Integer) As IEnumerable(Of HSVColor)
         Return New Bitmap(Image).GetMostUsedColors().Take(Count)
     End Function
 
@@ -798,8 +795,8 @@ Public Module Images
     ''' <param name="Image">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColors(Image As Image) As IEnumerable(Of Color)
-        Return GetMostUsedColorsIncidence(Image).Keys
+    Public Function GetMostUsedColors(Image As Image) As IEnumerable(Of HSVColor)
+        Return ColorPallette(Image).Keys
     End Function
 
     ''' <summary>
@@ -808,26 +805,37 @@ Public Module Images
     ''' <param name="Img">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function GetMostUsedColorsIncidence(Img As Image) As Dictionary(Of Color, Integer)
-        Dim image = New Bitmap(Img)
-        Dim dctColorIncidence As New Dictionary(Of Integer, Integer)
-        If image IsNot Nothing AndAlso image.Width > 0 AndAlso image.Height > 0 Then
-            Dim coluna As Integer = 0
-            While coluna < image.Size.Width
-                Dim linha As Integer = 0
-                While linha < image.Size.Height
-                    Dim pixelColor = image.GetPixel(coluna, linha).ToArgb()
-                    If dctColorIncidence.Keys.Contains(pixelColor) Then
-                        dctColorIncidence(pixelColor) = dctColorIncidence(pixelColor) + 1
-                    Else
-                        dctColorIncidence.Add(pixelColor, 1)
-                    End If
-                    linha = linha + 1
-                End While
-                coluna = coluna + 1
-            End While
+    Public Function ColorPallette(Img As Image, Optional Reduce As Integer = -1) As Dictionary(Of HSVColor, Integer)
+        Dim image As Bitmap
+
+        If Reduce > 0 Then
+            Reduce = Math.Sqrt(Reduce).ToInteger()
+            image = New Bitmap(Img.GetThumbnailImage(Reduce, Reduce, New Image.GetThumbnailImageAbort(Function() False), IntPtr.Zero))
+        Else
+            image = New Bitmap(Img)
         End If
-        Return dctColorIncidence.OrderByDescending(Function(x) x.Value).ToDictionary(Function(x) Color.FromArgb(x.Key), Function(x) x.Value)
+
+        Dim dctColorIncidence As New Dictionary(Of Integer, Integer)
+        Using image
+            If image IsNot Nothing AndAlso image.Width > 0 AndAlso image.Height > 0 Then
+                Dim coluna As Integer = 0
+                While coluna < image.Size.Width
+                    Dim linha As Integer = 0
+                    While linha < image.Size.Height
+                        Dim pixelColor = image.GetPixel(coluna, linha).ToArgb()
+                        If dctColorIncidence.Keys.Contains(pixelColor) Then
+                            dctColorIncidence(pixelColor) = dctColorIncidence(pixelColor) + 1
+                        Else
+                            dctColorIncidence.Add(pixelColor, 1)
+                        End If
+                        linha = linha + 1
+                    End While
+                    coluna = coluna + 1
+                End While
+            End If
+        End Using
+
+        Return dctColorIncidence.OrderByDescending(Function(x) x.Value).ToDictionary(Function(x) New HSVColor(Color.FromArgb(x.Key)), Function(x) x.Value)
     End Function
 
     ''' <summary>

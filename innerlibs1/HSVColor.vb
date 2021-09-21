@@ -12,6 +12,35 @@ Public Class HSVColor
     Private _scolor As Color
 
     ''' <summary>
+    ''' Retorna a cor vibrante de uma imagem
+    ''' </summary>
+    ''' <param name="Img"></param>
+    ''' <param name="Reduce"></param>
+    ''' <returns></returns>
+    Public Shared Function FromImage(Img As Image, Optional Reduce As Integer = 16) As HSVColor
+        Return ColorPallette(Img, Reduce).Keys.FirstOr(New HSVColor())
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma cor aleatoria a partir da paleta de cores de uma imagem
+    ''' </summary>
+    ''' <param name="Img"></param>
+    ''' <param name="Reduce"></param>
+    ''' <returns></returns>
+    Public Shared Function RandomColor(Img As Image, Optional Reduce As Integer = 16) As HSVColor
+        Return Img.ColorPallette(Reduce).Keys.FirstRandom()
+    End Function
+
+    ''' <summary>
+    ''' Retorna uma cor aleatória a partir de uma lista de cores
+    ''' </summary>
+    ''' <param name="Colors"></param>
+    ''' <returns></returns>
+    Public Shared Function RandomColor(Colors As IEnumerable(Of Color)) As HSVColor
+        Return New HSVColor(Colors?.OrderByRandom().FirstOr(Color.Transparent))
+    End Function
+
+    ''' <summary>
     ''' Gera uma <see cref="HSVColor"/> opaca aleatoria
     ''' </summary>
     ''' <param name="Name"></param>
@@ -80,8 +109,25 @@ Public Class HSVColor
     ''' <param name="Name"></param>
     ''' <returns></returns>
     Public Shared Function RandomTransparentColor(Optional Name As String = Nothing) As HSVColor
-        Return RandomColor().With(Sub(x) x.Opacity = Generate.RandomNumber(0, 100))
+        Return RandomColor().With(Sub(x) x.Opacity = Generate.RandomNumber(0, 100)).With(Sub(x) x.Name = Name)
     End Function
+
+
+    ''' <summary>
+    ''' Instancia uma nova <see cref="HSVColor"/> a aprtir de seu ARGB
+    ''' </summary>
+    Sub New(ARGB As Integer)
+        Me.New(Color.FromArgb(ARGB))
+    End Sub
+
+
+    Sub New(R As Integer, G As Integer, B As Integer)
+        Me.New(255, R, G, B)
+    End Sub
+
+    Sub New(A As Integer, R As Integer, G As Integer, B As Integer)
+        Me.New(Color.FromArgb(A, R, G, B))
+    End Sub
 
     ''' <summary>
     ''' Instancia uma nova <see cref="HSVColor"/> transparente
@@ -95,7 +141,7 @@ Public Class HSVColor
     ''' </summary>
     ''' <param name="Color">Cor do sistema</param>
     Sub New(Color As Color)
-        FromColor(Color)
+        _loadColor(Color)
     End Sub
 
     ''' <summary>
@@ -137,7 +183,7 @@ Public Class HSVColor
         End Get
         Set(value As Integer)
             _scolor = Color.FromArgb(value)
-            FromColor(_scolor)
+            _loadColor(_scolor)
         End Set
     End Property
 
@@ -220,7 +266,7 @@ Public Class HSVColor
         End Get
         Set(value As Integer)
             _scolor = Color.FromArgb(Alpha, value.LimitRange(Of Integer)(0, 255), Green, Blue)
-            FromColor(_scolor)
+            _loadColor(_scolor)
         End Set
     End Property
 
@@ -234,7 +280,7 @@ Public Class HSVColor
         End Get
         Set(value As Integer)
             _scolor = Color.FromArgb(Alpha, Red, value.LimitRange(Of Integer)(0, 255), Blue)
-            FromColor(_scolor)
+            _loadColor(_scolor)
         End Set
     End Property
 
@@ -248,7 +294,7 @@ Public Class HSVColor
         End Get
         Set(value As Integer)
             _scolor = Color.FromArgb(Alpha, Red, Green, value.LimitRange(Of Integer)(0, 255))
-            FromColor(_scolor)
+            _loadColor(_scolor)
         End Set
     End Property
 
@@ -262,7 +308,7 @@ Public Class HSVColor
         End Get
         Set(value As Byte)
             _scolor = Color.FromArgb(value.LimitRange(Of Byte)(0, 255), Red, Green, Blue)
-            FromColor(_scolor)
+            _loadColor(_scolor)
         End Set
     End Property
 
@@ -290,7 +336,7 @@ Public Class HSVColor
         Set(value As String)
             If value.IsHexaDecimalColor Then
                 _scolor = value.ToColor()
-                FromColor(_scolor)
+                _loadColor(_scolor)
             End If
         End Set
     End Property
@@ -327,7 +373,6 @@ Public Class HSVColor
             Else
                 m = m Or ColorMood.MediumLight
             End If
-
 
             If Me.IsWarmer Then
                 m = m Or ColorMood.Warmer
@@ -401,21 +446,51 @@ Public Class HSVColor
                 m = m Or ColorMood.MostBlue
             End If
 
-
-
-
-
+            If _scolor.IsKnownColor Then
+                m = m Or ColorMood.KnowColor
+            End If
 
             Return m
         End Get
     End Property
+
+    Public Function HasMood(ParamArray Mood As ColorMood()) As Boolean
+        Return Mood?.All(Function(x) Me.Mood.HasFlag(x))
+    End Function
+
+    Public Function HasAnyMood(ParamArray Mood As ColorMood()) As Boolean
+        Return Mood?.Any(Function(x) Me.Mood.HasFlag(x))
+    End Function
+
+    Public Function NotHasMood(ParamArray Mood As ColorMood()) As Boolean
+        Return Mood?.All(Function(x) Me.Mood.HasFlag(x) = False)
+    End Function
+
+    Public ReadOnly Property DominantValue
+        Get
+            Return {Red, Green, Blue}.Max()
+        End Get
+    End Property
+
+    Public Function GetDominantColor() As HSVColor
+        If Mood.HasFlag(ColorMood.MostRed) Then
+            Return Me.RedPart
+        End If
+        If Mood.HasFlag(ColorMood.MostGreen) Then
+            Return Me.GreenPart
+        End If
+        If Mood.HasFlag(ColorMood.MostBlue) Then
+            Return Me.BluePart
+        End If
+        Return Me
+    End Function
 
     Public Function CreateSolidImage(Width As Integer, Height As Integer) As Bitmap
         Return New Bitmap(_scolor.CreateSolidImage(Width, Height))
     End Function
 
     Public Function CreateSolidImage(Optional Size As String = "") As Bitmap
-        Dim s = Size.IfBlank("100").ToSize()
+        Dim s = Size.IfBlank("100").ParseSize()
         Return CreateSolidImage(s.Width, s.Height)
     End Function
 
@@ -501,7 +576,7 @@ Public Class HSVColor
 
     End Sub
 
-    Private Sub FromColor(Color As Color)
+    Private Sub _loadColor(Color As Color)
         _scolor = Color
         Me._name = _scolor.Name
 
@@ -1041,7 +1116,8 @@ Public Enum ColorMood
     Sad = 32
     Happy = 64
     Love = ColorMood.MostRed Or ColorMood.NoGreen Or ColorMood.Happy
-
+    Nature = ColorMood.MostGreen Or ColorMood.Happy
+    Water = Not ColorMood.Red Or ColorMood.Medium
 
     Cooler = 128
     Cool = 256
@@ -1073,6 +1149,6 @@ Public Enum ColorMood
     FullGreen = ColorMood.NoRed Or ColorMood.NoBlue
     FullBlue = ColorMood.NoRed Or ColorMood.NoGreen
 
-
+    KnowColor = 33554432
 
 End Enum
