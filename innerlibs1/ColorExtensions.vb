@@ -8,6 +8,30 @@ Imports System.Text.RegularExpressions
 ''' <remarks></remarks>
 Public Module ColorExtensions
 
+
+    ''' <summary>
+    ''' Retorna a <see cref="ConsoleColor"/> mais proxima de uma <see cref="Color"/>
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToConsoleColor(ByVal Color As System.Drawing.Color) As System.ConsoleColor
+        Dim index As Integer = If((Color.R > 128 Or Color.G > 128 Or Color.B > 128), 8, 0)
+        index = index Or If((Color.R > 64), 4, 0)
+        index = index Or If((Color.G > 64), 2, 0)
+        index = index Or If((Color.B > 64), 1, 0)
+        Return CType(index, System.ConsoleColor)
+    End Function
+
+    ''' <summary>
+    ''' Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToColor(ByVal Color As System.ConsoleColor) As HSVColor
+        Dim cColors As Integer() = {&H0, &H80, &H8000, &H8080, &H800000, &H800080, &H808000, &HC0C0C0, &H808080, &HFF, &HFF00, &HFFFF, &HFF0000, &HFF00FF, &HFFFF00, &HFFFFFF}
+        Return New HSVColor(cColors(CInt(Color)))
+    End Function
+
     <Extension()> Public Function ToHSVColorList(ColorList As IEnumerable(Of Color)) As IEnumerable(Of HSVColor)
         Return ColorList?.Select(Function(x) New HSVColor(x))
     End Function
