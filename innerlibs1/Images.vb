@@ -70,10 +70,19 @@ Public Module Images
     ''' <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
     <Extension()>
     Public Function TestAndRotate(ByRef Img As Image) As Boolean
+        Dim rft As RotateFlipType = Img.GetRotateFlip()
+        If rft <> RotateFlipType.RotateNoneFlipNone Then
+            Img.RotateFlip(rft)
+            Return True
+        End If
+        Return False
+    End Function
+
+
+
+    <Extension()> Public Function GetRotateFlip(Img As Image) As RotateFlipType
         Dim rft As RotateFlipType = RotateFlipType.RotateNoneFlipNone
-        Dim properties As PropertyItem() = Img.PropertyItems
-        Dim bReturn As Boolean = False
-        For Each p As PropertyItem In properties
+        For Each p As PropertyItem In Img.PropertyItems
             If p.Id = 274 Then
                 Dim orientation As Short = BitConverter.ToInt16(p.Value, 0)
                 Select Case orientation
@@ -88,12 +97,7 @@ Public Module Images
                 End Select
             End If
         Next
-        If rft <> RotateFlipType.RotateNoneFlipNone Then
-            Img.RotateFlip(rft)
-            bReturn = True
-        End If
-        Return bReturn
-
+        Return rft
     End Function
 
     ''' <summary>
@@ -483,6 +487,7 @@ Public Module Images
         End Using
         Using encParams As New EncoderParameters(1)
             encParams.Param(0) = New EncoderParameter(Encoder.Quality, CLng(100))
+            finalImage.RotateFlip(Image.GetRotateFlip())
             Return finalImage
         End Using
 
@@ -570,9 +575,6 @@ Public Module Images
     Public Function Resize(Original As Image, NewWidth As Integer, MaxHeight As Integer, Optional OnlyResizeIfWider As Boolean = True) As Image
         Dim fullsizeImage As Image = New Bitmap(Original)
 
-        ' Prevent using images internal thumbnail
-        fullsizeImage.RotateFlip(RotateFlipType.Rotate180FlipNone)
-
         If OnlyResizeIfWider Then
             If fullsizeImage.Width <= NewWidth Then
                 NewWidth = fullsizeImage.Width
@@ -587,6 +589,8 @@ Public Module Images
         End If
 
         fullsizeImage = fullsizeImage.GetThumbnailImage(NewWidth, newHeight, Nothing, IntPtr.Zero)
+
+        fullsizeImage.RotateFlip(Original.GetRotateFlip())
         Return fullsizeImage
     End Function
 
@@ -716,16 +720,7 @@ Public Module Images
         Return CombineImages(Images, VerticalFlow)
     End Function
 
-    ''' <summary>
-    ''' Combina 2 ou mais imagens em uma única imagem
-    ''' </summary>
-    ''' <param name="Images">Lista de Imagens para combinar</param>
-    ''' <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
-    ''' <returns>Um Bitmap com a combinaçao de todas as imagens da Lista</returns>
-    <Extension>
-    Public Function CombineImages(Images As List(Of Image), Optional VerticalFlow As Boolean = False) As System.Drawing.Bitmap
-        Return CombineImages(Images.ToArray(), VerticalFlow)
-    End Function
+
 
     ''' <summary>
     ''' Combina 2 ou mais imagens em uma única imagem
@@ -734,7 +729,7 @@ Public Module Images
     ''' <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
     ''' <returns>Um Bitmap com a combinaçao de todas as imagens do Array</returns>
     <Extension>
-    Public Function CombineImages(Images As Image(), Optional VerticalFlow As Boolean = False) As System.Drawing.Bitmap
+    Public Function CombineImages(Images As IEnumerable(Of Image), Optional VerticalFlow As Boolean = False) As System.Drawing.Bitmap
         Dim imagemFinal As Bitmap = Nothing
         Dim width As Integer = 0
         Dim height As Integer = 0
