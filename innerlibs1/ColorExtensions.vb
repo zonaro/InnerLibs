@@ -29,13 +29,13 @@ Public Module ColorExtensions
     ''' <returns></returns>
     <Extension> Public Function ToColor(ByVal Color As System.ConsoleColor) As HSVColor
         Dim cColors As Integer() = {&H0, &H80, &H8000, &H8080, &H800000, &H800080, &H808000, &HC0C0C0, &H808080, &HFF, &HFF00, &HFFFF, &HFF0000, &HFF00FF, &HFFFF00, &HFFFFFF}
-        Return New HSVColor(cColors(CInt(Color)))
+        Return New HSVColor(cColors(CInt(Color))) With {.Alpha = 255}
     End Function
 
     <Extension()> Public Function ToHSVColorList(ColorList As IEnumerable(Of Color)) As IEnumerable(Of HSVColor)
         Return ColorList?.Select(Function(x) New HSVColor(x))
     End Function
-    Public Function GrayscalePallete(Amount As Integer) As IEnumerable(Of Color)
+    Public Function GrayscalePallete(Amount As Integer) As IEnumerable(Of HSVColor)
         Return MonochromaticPallete(Color.White, Amount)
     End Function
 
@@ -46,7 +46,7 @@ Public Module ColorExtensions
     ''' <param name="Amount"></param>
     ''' <returns></returns>
     ''' <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
-    Public Function MonochromaticPallete(Color As Color, Amount As Integer) As IEnumerable(Of Color)
+    Public Function MonochromaticPallete(Color As Color, Amount As Integer) As IEnumerable(Of HSVColor)
 
         Dim t = New RuleOfThree(Amount, 100, 1, Nothing)
 
@@ -59,7 +59,7 @@ Public Module ColorExtensions
             Color = Color.MakeDarker(Percent)
             l.Add(Color)
         Next
-        Return l
+        Return l.ToHSVColorList
     End Function
 
     ''' <summary>

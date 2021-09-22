@@ -958,7 +958,7 @@ Public Class HSVColor
     ''' <param name="Amount"></param>
     ''' <returns></returns>
     Public Function Monochromatic(Optional Amount As Decimal = 4) As HSVColor()
-        Return MonochromaticPallete(_scolor, Amount).Select(Function(x) New HSVColor(x)).ToArray()
+        Return MonochromaticPallete(_scolor, Amount).ToArray()
     End Function
 
     ''' <summary>
