@@ -805,12 +805,11 @@ Public Module Images
     ''' <param name="Img">Imagem</param>
     ''' <returns>uma lista de Color</returns>
     <Extension>
-    Public Function ColorPallette(Img As Image, Optional Reduce As Integer = -1) As Dictionary(Of HSVColor, Integer)
+    Public Function ColorPallette(Img As Image, Optional PixelateSize As Integer = 0) As Dictionary(Of HSVColor, Integer)
         Dim image As Bitmap
 
-        If Reduce > 0 Then
-            Reduce = Math.Sqrt(Reduce).ToInteger()
-            image = New Bitmap(Img.GetThumbnailImage(Reduce, Reduce, New Image.GetThumbnailImageAbort(Function() False), IntPtr.Zero))
+        If PixelateSize > 0 Then
+            image = Pixelate(Img, PixelateSize)
         Else
             image = New Bitmap(Img)
         End If
@@ -837,6 +836,65 @@ Public Module Images
 
         Return dctColorIncidence.OrderByDescending(Function(x) x.Value).ToDictionary(Function(x) New HSVColor(Color.FromArgb(x.Key)), Function(x) x.Value)
     End Function
+
+    ''' <summary>
+    ''' Pixeliza uma imagem
+    ''' </summary>
+    ''' <param name="Image"></param>
+    ''' <param name="PixelateSize"></param>
+    ''' <returns></returns>
+    <Extension> Public Function Pixelate(ByVal Image As Image, Optional PixelateSize As Integer = 1) As Image
+        Dim rectangle = New Rectangle(0, 0, Image.Width, Image.Height)
+
+        PixelateSize = PixelateSize + 1
+
+        Dim pixelated As Bitmap = New System.Drawing.Bitmap(Image.Width, Image.Height)
+
+        Using graphics As Graphics = System.Drawing.Graphics.FromImage(pixelated)
+            graphics.DrawImage(Image, New System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), New Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel)
+        End Using
+
+        Dim xx As Int32 = rectangle.X
+
+        While xx < rectangle.X + rectangle.Width AndAlso xx < Image.Width
+            Dim yy As Int32 = rectangle.Y
+
+            While yy < rectangle.Y + rectangle.Height AndAlso yy < Image.Height
+                Dim offsetX As Int32 = PixelateSize / 2
+                Dim offsetY As Int32 = PixelateSize / 2
+
+                While xx + offsetX >= Image.Width
+                    offsetX -= 1
+                End While
+
+                While yy + offsetY >= Image.Height
+                    offsetY -= 1
+                End While
+
+                Dim pixel As Color = pixelated.GetPixel(xx + offsetX, yy + offsetY)
+                Dim x As Int32 = xx
+
+                While x < xx + PixelateSize AndAlso x < Image.Width
+                    Dim y As Int32 = yy
+
+                    While y < yy + PixelateSize AndAlso y < Image.Height
+                        pixelated.SetPixel(x, y, pixel)
+                        y += 1
+                    End While
+
+                    x += 1
+                End While
+
+                yy += PixelateSize
+            End While
+
+            xx += PixelateSize
+        End While
+
+        Return pixelated
+    End Function
+
+
 
     ''' <summary>
     ''' Transforma uma imagem em um stream

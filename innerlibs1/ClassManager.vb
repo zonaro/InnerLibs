@@ -267,7 +267,7 @@ Public Module ClassTools
     ''' <param name="Index">Posicao do item</param>
     ''' <returns></returns>
     <Extension()> Public Function Detach(Of T)(List As List(Of T), Index As Integer) As T
-        Dim p = List.IfBlankOrNoIndex(Index, Nothing)
+        Dim p = List.IfNoIndex(Index, Nothing)
         If p IsNot Nothing Then
             List.RemoveAt(Index)
         End If
@@ -319,6 +319,14 @@ Public Module ClassTools
         Return [Enum].GetValues(GetType(T)).Cast(Of T)().Where(Function(f) input.HasFlag(f))
     End Function
 
+    ''' <summary>
+    ''' Agrupa itens por ocorrencias em uma Enum Flag
+    ''' </summary>
+    ''' <typeparam name="Type"></typeparam>
+    ''' <typeparam name="Group"></typeparam>
+    ''' <param name="List"></param>
+    ''' <param name="GroupSelector"></param>
+    ''' <returns></returns>
     <Extension()> Public Function GroupByFlag(Of Type, Group As Structure)(List As IEnumerable(Of Type), GroupSelector As Func(Of Type, Group)) As IEnumerable(Of IGrouping(Of Group, Type))
         If GetType(Group).IsEnum Then
             Return List.[Select](Function(c) New With {Key .Flags = GetFlags(Of Group)(GroupSelector(c)), Key .Item = c}).SelectMany(Function(c) c.Flags.[Select](Function(x) New With {Key .Flag = x, Key .Item = c.Item})).GroupBy(Function(c) c.Flag, Function(i) i.Item)
