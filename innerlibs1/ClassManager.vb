@@ -870,11 +870,11 @@ Public Module ClassTools
 
     <Extension()>
     Function GetValueOr(Of tkey, Tvalue)(Dic As IDictionary(Of tkey, Tvalue), Key As tkey, Optional ReplaceValue As Tvalue = Nothing) As Tvalue
-        Try
+        If Dic IsNot Nothing AndAlso Dic.ContainsKey(Key) Then
             Return Dic(Key)
-        Catch ex As Exception
+        Else
             Return ReplaceValue
-        End Try
+        End If
     End Function
 
     ''' <summary>
