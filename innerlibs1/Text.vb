@@ -225,7 +225,7 @@ Public Module Text
     ''' <returns></returns>
     <Extension()> Public Function SplitAny(Text As String, ParamArray SplitText As String()) As String()
         SplitText = If(SplitText, {})
-        Return Text.Split(SplitText, StringSplitOptions.RemoveEmptyEntries)
+        Return Text?.Split(SplitText, StringSplitOptions.RemoveEmptyEntries)
     End Function
 
     ''' <summary>
