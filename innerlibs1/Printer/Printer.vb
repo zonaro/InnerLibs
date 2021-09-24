@@ -645,7 +645,7 @@ Namespace Printer
         ''' <param name="values"></param>
         ''' <returns></returns>
         Public Shadows Function WriteLine(ParamArray values As String()) As Printer
-            values = If(values, {}).Where(Function(x) x.IsNotBlank())
+            values = If(values, {}).Where(Function(x) x.IsNotBlank()).ToArray()
             If values.Any() Then
                 WriteLine(values.Join(vbNewLine))
             End If
