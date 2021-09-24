@@ -46,6 +46,23 @@ Namespace Printer
     End Module
 
     Public Class Printer
+        Inherits TextWriter
+
+        Public Overrides Sub Write(value As Char)
+            Me.Write($"{value}")
+        End Sub
+
+
+        Public Overrides Sub Flush()
+            Me.PrintDocument()
+        End Sub
+
+        Public Overrides ReadOnly Property Encoding As Encoding
+            Get
+                Return Me.Command?.Encoding
+            End Get
+        End Property
+
 
         Public Shared Function CreatePrinter(Of CommandType As IPrintCommand)(PrinterName As String, Optional ColsNormal As Integer = 0, Optional ColsCondensed As Integer = 0, Optional ColsExpanded As Integer = 0, Optional Encoding As Encoding = Nothing) As Printer
             Return CreatePrinter(GetType(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
@@ -63,6 +80,8 @@ Namespace Printer
         Private FontMode As String = "Normal"
         Private Align As String = "Left"
         Public Property DocumentBuffer As Byte()
+
+        Public Property AutoFlush As Boolean = False
 
         Public ReadOnly Property HTMLDocument As XDocument = XDocument.Parse("<body><link rel='stylesheet' href='Printer.css' /></body>")
         Public Property PrinterName As String
@@ -300,9 +319,9 @@ Namespace Printer
         ''' </summary>
         ''' <param name="Lines"></param>
         ''' <returns></returns>
-        Public Function NewLine(Optional Lines As Integer = 1) As Printer
+        Public Shadows Function NewLine(Optional Lines As Integer = 1) As Printer
             While (Lines > 0)
-                Write(Me.Command.Encoding.GetBytes(vbLf))
+                Write(Encoding.GetBytes(MyBase.NewLine))
                 Lines = Lines - 1
             End While
             Return Me
@@ -516,7 +535,7 @@ Namespace Printer
         ''' </summary>
         ''' <param name="value"></param>
         ''' <returns></returns>
-        Public Function Write(ByVal value As Byte()) As Printer
+        Public Overloads Function Write(ByVal value As Byte()) As Printer
             If value IsNot Nothing AndAlso value.Any Then
                 Dim list = New List(Of Byte)
                 If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
@@ -534,6 +553,11 @@ Namespace Printer
                     End Try
                 End If
                 _ommit = False
+
+                If AutoFlush Then
+                    Flush()
+                End If
+
             End If
             Return Me
         End Function
@@ -544,7 +568,7 @@ Namespace Printer
         ''' <param name="value"></param>
         ''' <param name="Test"></param>
         ''' <returns></returns>
-        Public Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
+        Public Overloads Function Write(ByVal value As String, Optional Test As Boolean = True) As Printer
             If Test Then
                 If value.ContainsAny(BreakLineChars.ToArray()) Then
                     For Each line In value.SplitAny(BreakLineChars.ToArray())
@@ -558,7 +582,8 @@ Namespace Printer
                         If RewriteFunction IsNot Nothing Then
                             value = RewriteFunction().Invoke(value)
                         End If
-                        Write(Command.Encoding.GetBytes(value))
+                        Write(Encoding.GetBytes(value))
+
                     End If
                 End If
             End If
@@ -571,7 +596,7 @@ Namespace Printer
         ''' <param name="value"></param>
         ''' <param name="Test"></param>
         ''' <returns></returns>
-        Public Function WriteLine(ByVal value As String, Test As Boolean) As Printer
+        Public Shadows Function WriteLine(ByVal value As String, Test As Boolean) As Printer
             Return If(Test, Write(value, Test).NewLine(), Me)
         End Function
 
@@ -581,7 +606,7 @@ Namespace Printer
         ''' </summary>
         ''' <param name="value"></param>
         ''' <returns></returns>
-        Public Function WriteLine(ByVal value As String) As Printer
+        Public Shadows Function WriteLine(ByVal value As String) As Printer
             Return Write(value, True)
         End Function
 
@@ -591,7 +616,7 @@ Namespace Printer
         ''' </summary>
         ''' <param name="values"></param>
         ''' <returns></returns>
-        Public Function WriteLine(ParamArray values As String()) As Printer
+        Public Shadows Function WriteLine(ParamArray values As String()) As Printer
             values = values.NullAsEmpty().Where(Function(x) x.IsNotBlank())
             If values.Any() Then
                 WriteLine(values.Join(Environment.NewLine))
@@ -1051,5 +1076,9 @@ Namespace Printer
         End Function
 
     End Class
+
+
+
+
 
 End Namespace
