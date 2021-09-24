@@ -111,15 +111,15 @@ Namespace EscPosCommands
             Return If(state = True, New Byte() {27, "!"c.ToByte(), 1}, New Byte() {27, "!"c.ToByte(), 0})
         End Function
 
-        Public Function NormalWidth() As Byte() Implements IPrintCommand.NormalWidth
+        Public Function NormalFont() As Byte() Implements IPrintCommand.NormalFont
             Return New Byte() {27, "!"c.ToByte(), 0}
         End Function
 
-        Public Function DoubleWidth2() As Byte() Implements IPrintCommand.DoubleWidth2
+        Public Function LargeFont() As Byte() Implements IPrintCommand.LargeFont
             Return New Byte() {29, "!"c.ToByte(), 16}
         End Function
 
-        Public Function DoubleWidth3() As Byte() Implements IPrintCommand.DoubleWidth3
+        Public Function LargerFont() As Byte() Implements IPrintCommand.LargerFont
             Return New Byte() {29, "!"c.ToByte(), 32}
         End Function
 

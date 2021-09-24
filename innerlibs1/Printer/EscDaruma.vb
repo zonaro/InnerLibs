@@ -118,15 +118,15 @@ Namespace EscDarumaCommands
             Return list.ToArray()
         End Function
 
-        Public Function DoubleWidth2() As Byte() Implements IPrintCommand.DoubleWidth2
+        Public Function LargeFont() As Byte() Implements IPrintCommand.LargeFont
             Return New Byte() {27, 14, 0}
         End Function
 
-        Public Function DoubleWidth3() As Byte() Implements IPrintCommand.DoubleWidth3
+        Public Function LargerFont() As Byte() Implements IPrintCommand.LargerFont
             Return New Byte() {27, 14, 0}
         End Function
 
-        Public Function NormalWidth() As Byte() Implements IPrintCommand.NormalWidth
+        Public Function NormalFont() As Byte() Implements IPrintCommand.NormalFont
             Return New Byte() {20}
         End Function
 

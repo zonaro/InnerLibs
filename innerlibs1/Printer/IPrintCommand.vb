@@ -37,11 +37,11 @@ Namespace Printer.Command
 
         Function Condensed(ByVal state As Boolean) As Byte()
 
-        Function NormalWidth() As Byte()
+        Function NormalFont() As Byte()
 
-        Function DoubleWidth2() As Byte()
+        Function LargeFont() As Byte()
 
-        Function DoubleWidth3() As Byte()
+        Function LargerFont() As Byte()
 
         Function PrintImage(ByVal image As Image, ByVal highDensity As Boolean) As Byte()
 

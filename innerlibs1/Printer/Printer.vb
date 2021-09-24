@@ -45,24 +45,51 @@ Namespace Printer
 
     End Module
 
+
+
+
+
     Public Class Printer
-        Inherits TextWriter
+        Private Class PrinterWriter
+            Inherits TextWriter
 
-        Public Overrides Sub Write(value As Char)
-            Me.Write($"{value}")
-        End Sub
+            Private p As Printer
 
+            Public Sub New(p As Printer)
+                Me.p = p
+            End Sub
 
-        Public Overrides Sub Flush()
-            Me.PrintDocument()
-        End Sub
+            Public Sub New(formatProvider As IFormatProvider, p As Printer)
+                MyBase.New(formatProvider)
+                Me.p = p
+            End Sub
 
-        Public Overrides ReadOnly Property Encoding As Encoding
+            Public Overrides Sub Write(value As Char)
+                Me.Write($"{value}")
+            End Sub
+
+            Public Overrides Sub Flush()
+                p.PrintDocument()
+            End Sub
+
+            Public Overrides ReadOnly Property Encoding As Encoding
+                Get
+                    Return p.Command?.Encoding
+                End Get
+            End Property
+        End Class
+
+        Private txw = New PrinterWriter(Me)
+
+        ''' <summary>
+        ''' TextWriter interno desta Printer
+        ''' </summary>
+        ''' <returns></returns>
+        ReadOnly Property TextWriter As TextWriter
             Get
-                Return Me.Command?.Encoding
+                Return txw
             End Get
         End Property
-
 
         Public Shared Function CreatePrinter(Of CommandType As IPrintCommand)(PrinterName As String, Optional ColsNormal As Integer = 0, Optional ColsCondensed As Integer = 0, Optional ColsExpanded As Integer = 0, Optional Encoding As Encoding = Nothing) As Printer
             Return CreatePrinter(GetType(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding)
@@ -79,11 +106,13 @@ Namespace Printer
         Private _ommit As Boolean = False
         Private FontMode As String = "Normal"
         Private Align As String = "Left"
+
         Public Property DocumentBuffer As Byte()
 
-        Public Property AutoFlush As Boolean = False
+        Public Property AutoPrint As Boolean = False
 
         Public ReadOnly Property HTMLDocument As XDocument = XDocument.Parse("<body><link rel='stylesheet' href='Printer.css' /></body>")
+
         Public Property PrinterName As String
 
         Public Property ColsNomal As Integer
@@ -130,7 +159,7 @@ Namespace Printer
             End Set
         End Property
 
-        Public Property IsDoubleWidth2 As Boolean
+        Public Property IsLarge As Boolean
             Get
                 Return FontMode = "Double2"
             End Get
@@ -143,7 +172,7 @@ Namespace Printer
             End Set
         End Property
 
-        Public Property IsDoubleWidth3 As Boolean
+        Public Property IsLarger As Boolean
             Get
                 Return FontMode = "Double3"
             End Get
@@ -261,7 +290,7 @@ Namespace Printer
         End Sub
 
         'substitui caracteres para caracteres acentuados não disponíveis na fonte DOS
-        Public Shared Function FixAccents(ByVal Lin As String) As String
+        <Obsolete> Public Shared Function FixAccents(ByVal Lin As String) As String
             Dim T1 As String, T2 As String, i As Integer, p As Integer, C As String
             T1$ = "áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ" 'tela
             T2$ = "160130161162163181144214224233131136140147150182210215226219198228199229133138141149151212222227135128" ' ASC impressora
@@ -321,7 +350,7 @@ Namespace Printer
         ''' <returns></returns>
         Public Shadows Function NewLine(Optional Lines As Integer = 1) As Printer
             While (Lines > 0)
-                Write(Encoding.GetBytes(MyBase.NewLine))
+                Me.Write(Me.Command.Encoding.GetBytes(vbNewLine))
                 Lines = Lines - 1
             End While
             Return Me
@@ -427,22 +456,22 @@ Namespace Printer
             Return Condensed(False)
         End Function
 
-        Public Function NormalWidth() As Printer
+        Public Function NormalFont() As Printer
             FontMode = "Normal"
             _ommit = True
-            Return Write(Command.NormalWidth())
+            Return Write(Command.NormalFont())
         End Function
 
-        Public Function DoubleWidth2() As Printer
-            IsDoubleWidth2 = True
+        Public Function LargeFont() As Printer
+            IsLarge = True
             _ommit = True
-            Return Write(Command.DoubleWidth2())
+            Return Write(Command.LargeFont())
         End Function
 
-        Public Function DoubleWidth3() As Printer
-            IsDoubleWidth3 = True
+        Public Function LargerFont() As Printer
+            IsLarger = True
             _ommit = True
-            Return Write(Command.DoubleWidth3())
+            Return Write(Command.LargerFont())
         End Function
 
         Public Function AlignLeft() As Printer
@@ -554,8 +583,8 @@ Namespace Printer
                 End If
                 _ommit = False
 
-                If AutoFlush Then
-                    Flush()
+                If AutoPrint Then
+                    PrintDocument()
                 End If
 
             End If
@@ -580,10 +609,9 @@ Namespace Printer
                             value = value.RemoveDiacritics()
                         End If
                         If RewriteFunction IsNot Nothing Then
-                            value = RewriteFunction().Invoke(value)
+                            value = RewriteFunction.Invoke(value)
                         End If
-                        Write(Encoding.GetBytes(value))
-
+                        Write(Me.Command.Encoding.GetBytes(value))
                     End If
                 End If
             End If
@@ -607,7 +635,7 @@ Namespace Printer
         ''' <param name="value"></param>
         ''' <returns></returns>
         Public Shadows Function WriteLine(ByVal value As String) As Printer
-            Return Write(value, True)
+            Return WriteLine(value, True)
         End Function
 
 
@@ -619,7 +647,7 @@ Namespace Printer
         Public Shadows Function WriteLine(ParamArray values As String()) As Printer
             values = values.NullAsEmpty().Where(Function(x) x.IsNotBlank())
             If values.Any() Then
-                WriteLine(values.Join(Environment.NewLine))
+                WriteLine(values.Join(vbNewLine))
             End If
             Return Me
         End Function
@@ -641,11 +669,11 @@ Namespace Printer
             Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded()
             Condensed().WriteLine("Condensed Text").NotCondensed()
             Separator()
-            DoubleWidth2()
+            LargeFont()
             WriteLine("Font Size 2")
-            DoubleWidth3()
+            LargerFont()
             WriteLine("Font Size 3")
-            NormalWidth()
+            NormalFont()
             WriteLine("Normal Font Size")
             Separator()
             AlignRight()
