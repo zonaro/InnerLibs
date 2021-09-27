@@ -81,15 +81,15 @@ Namespace EscBemaCommands
             Return New Byte() {27, 51, range}
         End Function
 
-        Public Function NormalFont() As Byte() Implements IPrintCommand.NormalFont
+        Public Function NormalFontSize() As Byte() Implements IPrintCommand.NormalFontSize
             Return New Byte() {27, "W"c.ToByte(), 0, 27, "d"c.ToByte(), 0}
         End Function
 
-        Public Function LargeFont() As Byte() Implements IPrintCommand.LargeFont
+        Public Function MediumFontSize() As Byte() Implements IPrintCommand.MediumFontSize
             Return New Byte() {27, "W"c.ToByte(), 1, 27, "d"c.ToByte(), 1}
         End Function
 
-        Public Function LargerFont() As Byte() Implements IPrintCommand.LargerFont
+        Public Function LargeFontSize() As Byte() Implements IPrintCommand.LargeFontSize
             Return New Byte() {29, "!"c.ToByte(), 32}
         End Function
 

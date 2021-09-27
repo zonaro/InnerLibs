@@ -3122,15 +3122,15 @@ Public Module Text
 
             Dim artigo = index > 0 AndAlso pal.IsIn("o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e")
 
-            If pal.IsNotBlank Then
+            If pal.IsNotBlank() Then
+                Dim chars = pal.ToCharArray()
                 If ForceCase OrElse artigo = False Then
-                    Dim c = pal.First
-
-                    If Not Char.IsUpper(c) Then
-                        pal = Char.ToUpper(c) & pal.RemoveFirstChars(1)
+                    Dim c = chars.FirstOrDefault(Function(x) x.ToString().IsNotIn(WordWrappers) AndAlso x.ToString().IsNotIn(NumberChars))
+                    If Not c = Nothing AndAlso Not Char.IsUpper(c) Then
+                        Dim ii = pal.IndexOf(c)
+                        chars(ii) = Char.ToUpper(c)
                     End If
-
-                    l(index) = pal
+                    l(index) = New String(chars)
                 End If
             End If
         Next
@@ -3457,6 +3457,7 @@ Public Module Text
     End Function
 
 End Module
+
 
 Public Class QuantityTextPair
 

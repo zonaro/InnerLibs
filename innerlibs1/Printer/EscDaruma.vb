@@ -118,15 +118,15 @@ Namespace EscDarumaCommands
             Return list.ToArray()
         End Function
 
-        Public Function LargeFont() As Byte() Implements IPrintCommand.LargeFont
+        Public Function MediumFontSize() As Byte() Implements IPrintCommand.MediumFontSize
             Return New Byte() {27, 14, 0}
         End Function
 
-        Public Function LargerFont() As Byte() Implements IPrintCommand.LargerFont
+        Public Function LargeFontSize() As Byte() Implements IPrintCommand.LargeFontSize
             Return New Byte() {27, 14, 0}
         End Function
 
-        Public Function NormalFont() As Byte() Implements IPrintCommand.NormalFont
+        Public Function NormalFontSize() As Byte() Implements IPrintCommand.NormalFontSize
             Return New Byte() {20}
         End Function
 

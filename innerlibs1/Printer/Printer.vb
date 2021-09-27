@@ -113,6 +113,8 @@ Namespace Printer
 
         Public ReadOnly Property HTMLDocument As XDocument = XDocument.Parse("<body><link rel='stylesheet' href='Printer.css' /></body>")
 
+        Public Property OnOff As Boolean = True
+
         Public Property PrinterName As String
 
         Public Property ColsNomal As Integer
@@ -159,7 +161,7 @@ Namespace Printer
             End Set
         End Property
 
-        Public Property IsLarge As Boolean
+        Public Property IsMedium As Boolean
             Get
                 Return FontMode = "Double2"
             End Get
@@ -172,7 +174,7 @@ Namespace Printer
             End Set
         End Property
 
-        Public Property IsLarger As Boolean
+        Public Property IsLarge As Boolean
             Get
                 Return FontMode = "Double3"
             End Get
@@ -248,6 +250,7 @@ Namespace Printer
         ''' <param name="ColsExpanded">Number of columns for expanded mode print</param>
         ''' <param name="Encoding">Custom Encoding</param>
         Public Sub New(Command As IPrintCommand, ByVal PrinterName As String, ByVal ColsNormal As Integer, ByVal ColsCondensed As Integer, ByVal ColsExpanded As Integer, ByVal Encoding As Encoding)
+            If PrinterName.IsBlank Then Throw New ArgumentException("Printername cannot be null or empty", "PrinterName")
             Me.Command = If(Command, New EscPosCommands.EscPos())
             If Encoding IsNot Nothing Then
                 Me.Command.Encoding = Encoding
@@ -255,14 +258,14 @@ Namespace Printer
             If Me.Command.Encoding Is Nothing Then
                 Me.Command.Encoding = Encoding.Default
             End If
-            Me.PrinterName = PrinterName.IfBlank("temp.prn").Trim()
+            Me.PrinterName = PrinterName
             Me.ColsNomal = If(ColsNormal <= 0, Me.Command.ColsNomal, ColsNormal)
             Me.ColsCondensed = If(ColsCondensed <= 0, Me.Command.ColsCondensed, ColsCondensed)
             Me.ColsExpanded = If(ColsExpanded <= 0, Me.Command.ColsExpanded, ColsExpanded)
         End Sub
 
         ''' <summary>
-        '''Initializes a new instance of the <see cref="Printer"/> class.
+        ''' Initializes a new instance of the <see cref="Printer"/> class.
         ''' </summary>
         ''' <param name="PrinterName">Printer name, shared name or port of printer install</param>
         ''' <param name="ColsNormal">Number of columns for normal mode print</param>
@@ -290,7 +293,7 @@ Namespace Printer
         End Sub
 
         'substitui caracteres para caracteres acentuados não disponíveis na fonte DOS
-        <Obsolete> Public Shared Function FixAccents(ByVal Lin As String) As String
+        <Obsolete("Use correct encoding or disable diacritics")> Public Shared Function FixAccents(ByVal Lin As String) As String
             Dim T1 As String, T2 As String, i As Integer, p As Integer, C As String
             T1$ = "áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ" 'tela
             T2$ = "160130161162163181144214224233131136140147150182210215226219198228199229133138141149151212222227135128" ' ASC impressora
@@ -317,6 +320,20 @@ Namespace Printer
         End Function
 
         ''' <summary>
+        ''' Funcao que reescreve o valor antes de chamar o <see cref="Write(String, Boolean)"/>
+        ''' </summary>
+        ''' <param name="StringAction"></param>
+        ''' <returns></returns>
+        Public Function UseRewriteFunction(StringAction As Action(Of String)) As Printer
+            Me.RewriteFunction = Function(x)
+                                     StringAction(x)
+                                     Return x
+                                 End Function
+
+            Return Me
+        End Function
+
+        ''' <summary>
         ''' Remove a função de reescrita de valor definida pela <see cref="UseRewriteFunction(Func(Of String, String))"/>
         ''' </summary>
         ''' <returns></returns>
@@ -336,7 +353,7 @@ Namespace Printer
         End Function
 
         ''' <summary>
-        ''' Remove todos os acentod das chamadas <see cref="Write(String, Boolean)"/> posteriores
+        ''' Remove todos os acentos das chamadas <see cref="Write(String, Boolean)"/> posteriores
         ''' </summary>
         ''' <returns></returns>
         Public Function DontUseDiacritics() As Printer
@@ -403,8 +420,14 @@ Namespace Printer
         ''' </summary>
         ''' <returns></returns>
         Public Function TestDiacritics() As Printer
-            Return WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ")
+            Dim ud = Diacritics
+            Return UseDiacritics(True).WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ").UseDiacritics(ud)
         End Function
+
+        Public Function NormalFontStyle() As Printer
+            Return NotBold().NotItalic().NotUnderline()
+        End Function
+
 
         Public Function Italic(Optional state As Boolean = True) As Printer
             _ommit = True
@@ -456,22 +479,22 @@ Namespace Printer
             Return Condensed(False)
         End Function
 
-        Public Function NormalFont() As Printer
+        Public Function NormalFontSize() As Printer
             FontMode = "Normal"
             _ommit = True
-            Return Write(Command.NormalFont())
+            Return Write(Command.NormalFontSize())
         End Function
 
-        Public Function LargeFont() As Printer
+        Public Function MediumFontSize() As Printer
+            IsMedium = True
+            _ommit = True
+            Return Write(Command.MediumFontSize())
+        End Function
+
+        Public Function LargeFontSize() As Printer
             IsLarge = True
             _ommit = True
-            Return Write(Command.LargeFont())
-        End Function
-
-        Public Function LargerFont() As Printer
-            IsLarger = True
-            _ommit = True
-            Return Write(Command.LargerFont())
+            Return Write(Command.LargeFontSize())
         End Function
 
         Public Function AlignLeft() As Printer
@@ -534,8 +557,10 @@ Namespace Printer
             Return Write(Command.Ean13(code))
         End Function
 
-        Public Function InitializePrint() As Printer
-            RawPrinterHelper.SendBytesToPrinter(PrinterName, Command.Initialize())
+        Public Function Initialize() As Printer
+            If OnOff Then
+                RawPrinterHelper.SendBytesToPrinter(PrinterName, Command.Initialize())
+            End If
             Return Me
         End Function
 
@@ -553,7 +578,7 @@ Namespace Printer
             End If
         End Function
 
-        Public Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As String
+        Private Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As String
             Columns = If(Columns, GetCurrentColumns())
             If Columns > 0 Then Return New String(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange(0, Columns.Value))
             Return ""
@@ -576,7 +601,7 @@ Namespace Printer
                         If v = "<br/>" Then
                             HTMLDocument.Root.Add(<br/>)
                         Else
-                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&nbsp;")}</span>"))
+                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&#160;")}</span>"))
                         End If
                     Catch ex As Exception
                     End Try
@@ -669,21 +694,21 @@ Namespace Printer
             Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded()
             Condensed().WriteLine("Condensed Text").NotCondensed()
             Separator()
-            LargeFont()
+            MediumFontSize()
             WriteLine("Font Size 2")
-            LargerFont()
+            LargeFontSize()
             WriteLine("Font Size 3")
-            NormalFont()
+            NormalFontSize()
             WriteLine("Normal Font Size")
             Separator()
             AlignRight()
-            WriteLine("Text on Right")
+            WriteLine("AlignRight")
             AlignCenter()
-            WriteLine("Text on Center")
+            WriteLine("AlignCenter")
             AlignLeft()
-            WriteLine("Text on Left")
+            WriteLine("AlignLeft")
             NewLine(3)
-            WriteLine("ACENTOS")
+            WriteLine("Accents")
             TestDiacritics()
             WriteLine("EOF :)")
             Separator()
@@ -753,12 +778,22 @@ Namespace Printer
         ''' <param name="Items"></param>
         ''' <param name="ListOrdenator"></param>
         ''' <returns></returns>
-        Public Function WriteList(Items As IEnumerable(Of Object), Optional ListOrdenator As String = Nothing) As Printer
+        Public Function WriteList(Items As IEnumerable(Of Object), Optional ListOrdenator As Integer = 1) As Printer
+            Items = If(Items, {}).AsEnumerable()
             For index = 0 To Items.Count - 1
-                WriteLine($"{If(ListOrdenator, $"{index + 1} ")}{Items(index)}")
+                WriteLine($"{index + ListOrdenator} {Items(index)}")
             Next
             Return Me
         End Function
+
+        Public Function WriteList(Items As IEnumerable(Of Object), ListOrdenator As String) As Printer
+            Items = If(Items, {}).AsEnumerable()
+            For index = 0 To Items.Count - 1
+                WriteLine($"{ListOrdenator} {Items(index)}")
+            Next
+            Return Me
+        End Function
+
 
         ''' <summary>
         ''' Escreve uma lista de itens no <see cref="DocumentBuffer"/>
@@ -996,8 +1031,12 @@ Namespace Printer
         ''' </summary>
         ''' <param name="Copies"></param>
         ''' <returns></returns>
-        Public Function PrintDocument(Optional Copies As Integer = 1) As Printer
-            Return PrintDocument(DocumentBuffer, Copies).Clear()
+        Public Function PrintDocument(Optional Copies As Integer = 1, Optional Clear As Boolean = True) As Printer
+            PrintDocument(DocumentBuffer, Copies)
+            If Clear Then
+                Me.Clear()
+            End If
+            Return Me
         End Function
 
         ''' <summary>
@@ -1031,14 +1070,16 @@ Namespace Printer
         ''' <param name="Copies"></param>
         ''' <returns></returns>
         Public Function PrintDocument(Bytes As Byte(), Optional Copies As Integer = 1) As Printer
-            If Bytes IsNot Nothing AndAlso Bytes.Any Then
-                For i = 0 To Copies.SetMinValue(1) - 1
-                    If PrinterName.IsFilePath Then
-                        SaveFile(PrinterName, False)
-                    Else
-                        If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
-                    End If
-                Next
+            If OnOff Then
+                If Bytes IsNot Nothing AndAlso Bytes.Any Then
+                    For i = 0 To Copies.SetMinValue(1) - 1
+                        If PrinterName.IsFilePath Then
+                            SaveFile(PrinterName, False)
+                        Else
+                            If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
+                        End If
+                    Next
+                End If
             End If
             Return Me
         End Function
@@ -1071,25 +1112,25 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function Image(ByVal Path As String, Optional highDensity As Boolean = True) As Printer
+        Public Function Image(ByVal Path As String, Optional HighDensity As Boolean = True) As Printer
             If Not Path.IsFilePath Then Throw New FileNotFoundException("Invalid Path")
             If Not File.Exists(Path) Then Throw New FileNotFoundException("Image file not found")
             Dim img = System.Drawing.Image.FromFile(Path)
-            Image(img, highDensity)
-            img.Dispose()
-            Return Me
-        End Function
-
-        Public Function Image(ByVal stream As Stream, ByVal Optional HighDensity As Boolean = True) As Printer
-            Dim img = System.Drawing.Image.FromStream(stream)
             Image(img, HighDensity)
             img.Dispose()
             Return Me
         End Function
 
-        Public Function Image(ByVal bytes As Byte(), ByVal Optional HighDensity As Boolean = True) As Printer
+        Public Function Image(ByVal Stream As Stream, ByVal Optional HighDensity As Boolean = True) As Printer
+            Dim img = System.Drawing.Image.FromStream(Stream)
+            Image(img, HighDensity)
+            img.Dispose()
+            Return Me
+        End Function
+
+        Public Function Image(ByVal Bytes As Byte(), ByVal Optional HighDensity As Boolean = True) As Printer
             Dim img As System.Drawing.Image
-            Using ms = New MemoryStream(bytes)
+            Using ms = New MemoryStream(Bytes)
                 img = System.Drawing.Image.FromStream(ms)
             End Using
             Image(img, HighDensity)
@@ -1097,10 +1138,10 @@ Namespace Printer
             Return Me
         End Function
 
-        Public Function Image(ByVal pImage As System.Drawing.Image, ByVal Optional highDensity As Boolean = True) As Printer
-            HTMLDocument.Root.Add(XElement.Parse($"<img class='image{highDensity.AsIf(" HighDensity")}'  src='{pImage.ToDataURL()}' />"))
+        Public Function Image(ByVal Img As System.Drawing.Image, ByVal Optional HighDensity As Boolean = True) As Printer
+            HTMLDocument.Root.Add(XElement.Parse($"<img class='image{HighDensity.AsIf(" HighDensity")}'  src='{Img.ToDataURL()}' />"))
             _ommit = True
-            Return Write(Command.PrintImage(pImage, highDensity))
+            Return Write(Command.PrintImage(Img, HighDensity))
         End Function
 
     End Class

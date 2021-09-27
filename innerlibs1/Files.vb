@@ -92,22 +92,7 @@ Public Module Files
         Return WriteToFile(Bytes, FilePath).With(Function(x) x.LastWriteTime = DateTime)
     End Function
 
-    ''' <summary>
-    ''' Retorna o conteudo de um arquivo de texto
-    ''' </summary>
-    ''' <param name="File">Arquivo</param>
-    ''' <returns></returns>
-    <Extension()>
-    Public Function ReadText(File As FileInfo) As String
-        Try
-            Using f = File.OpenText
-                Return f.ReadToEnd
-            End Using
-        Catch ex As Exception
-            Return Nothing
-        End Try
 
-    End Function
 
     ''' <summary>
     ''' Transforma um arquivo em um Array de Bytes
