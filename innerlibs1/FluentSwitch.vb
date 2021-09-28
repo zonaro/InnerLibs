@@ -4,13 +4,13 @@ Imports System.Runtime.CompilerServices
 Public Module FluentSwitchExt
 
     <Extension()>
-    Public Function Switch(Of T2, T1)(Input As T1) As FluentSwitch(Of T1, T2)
-        Return New FluentSwitch(Of T1, T2)(Input)
+    Public Function Switch(Of OutT, InT)(Input As InT) As FluentSwitch(Of InT, OutT)
+        Return New FluentSwitch(Of InT, OutT)(Input)
     End Function
 
     <Extension()>
-    Public Function Switch(Of T2, T1)(Input As T1, Test As Action(Of FluentSwitch(Of T1, T2))) As T2
-        Dim a = Input.Switch(Of T2)()
+    Public Function Switch(Of OutT, InT)(Input As InT, Test As Action(Of FluentSwitch(Of InT, OutT))) As OutT
+        Dim a = Input.Switch(Of OutT)()
         Test(a)
         Return a.GetValue()
     End Function
