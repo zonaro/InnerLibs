@@ -629,7 +629,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Configura este Filtro para utilizar uma querystring com operadores (&membro=operador:valor)
+        ''' Configura este Filtro para utilizar uma querystring com operadores (\&membro=operador:valor)
         ''' </summary>
         ''' <param name="QueryExpression"></param>
         ''' <returns></returns>
@@ -983,7 +983,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)" /> para cada propriedade em <paramref name="PropertyNames"/>
+        ''' Seta uma busca usando Contains(<paramref name="PropertyValues"/>)"  para cada propriedade em <paramref name="PropertyNames"/>
         ''' </summary>
         ''' <param name="PropertyValues"></param>
         ''' <param name="PropertyNames"></param>

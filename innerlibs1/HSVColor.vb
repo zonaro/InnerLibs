@@ -11,6 +11,12 @@ Public Class HSVColor
     Private _name As String
     Private _scolor As Color
 
+
+
+
+
+
+
     ''' <summary>
     ''' Retorna a cor vibrante de uma imagem
     ''' </summary>
@@ -485,12 +491,16 @@ Public Class HSVColor
         Return Me
     End Function
 
+    Public Function GetEuclideanDistance(Other As HSVColor) As Double
+        Return _scolor.EuclideanDistance(Other._scolor)
+    End Function
+
     Public Function CreateSolidImage(Width As Integer, Height As Integer) As Bitmap
         Return New Bitmap(_scolor.CreateSolidImage(Width, Height))
     End Function
 
     Public Function CreateSolidImage(Optional Size As String = "") As Bitmap
-        Dim s = Size.IfBlank("100").ParseSize()
+        Dim s = Size.IfBlank("200").ParseSize()
         Return CreateSolidImage(s.Width, s.Height)
     End Function
 
@@ -506,7 +516,7 @@ Public Class HSVColor
     ''' <returns></returns>
     Public Property Name As String
         Get
-            Return _name.IfBlank(ClosestColorName)
+            Return _name.IfBlank(GetColorName(_scolor))
         End Get
         Set(value As String)
             _name = value

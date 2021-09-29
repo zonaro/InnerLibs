@@ -795,7 +795,7 @@ Namespace LINQ
         End Function
 
         ''' <summary>
-        ''' Concatena uma expressão com outra usando o operador And (&&)
+        ''' Concatena uma expressão com outra usando o operador And  
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
         ''' <param name="FirstExpression"></param>

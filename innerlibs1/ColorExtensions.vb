@@ -192,24 +192,32 @@ Public Module ColorExtensions
         Return Text.IsNotBlank AndAlso myRegex.IsMatch(Text)
     End Function
 
+
+
+
     ''' <summary>
     ''' Gera uma cor a partir de uma palavra
     ''' </summary>
     ''' <param name="Text">Pode ser um texto em branco (Cor aleatória), uma <see cref="KnownColor"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
     ''' <returns></returns>
     <Extension> Public Function ToColor(Text As String) As Color
+
         If Text.IsBlank() Then
             Return Color.Transparent
         End If
 
-        If Text = "random" Then
+        If Text.IsIn("random", "rand") Then
             Return RandomColor()
         End If
 
-        If Text.IsIn([Enum].GetNames(GetType(KnownColor)), StringComparer.InvariantCultureIgnoreCase) Then Return Color.FromName(Text)
+
 
         If Text.IsNumber Then
             Return Color.FromArgb(Text.ToInteger())
+        End If
+
+        If Text.IsIn(KnowColors.Select(Function(x) x.Name), StringComparer.InvariantCultureIgnoreCase) Then
+            Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = Text.ToLower())
         End If
 
         If Text.IsHexaDecimalColor Then
@@ -238,12 +246,12 @@ Public Module ColorExtensions
     End Function
 
     ''' <summary>
-    ''' Lista com todas as <see cref="KnownColor"/> convertidas em <see cref="System.Drawing.Color"/>
+    ''' Lista com todas as <see cref="KnownColor"/> convertidas em <see cref="System.Drawing.Color"/> (Igonora as systemcolors)
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property KnowColors As IEnumerable(Of Color)
         Get
-            Return [Enum].GetValues(GetType(KnownColor)).Cast(Of KnownColor)().Where(Function(x) x.ToInteger() >= 27).Select(Function(x) Color.FromKnownColor(x))
+            Return [Enum].GetValues(GetType(KnownColor)).Cast(Of KnownColor).Select(Function(x) Color.FromKnownColor(x)).Where(Function(x) x.IsSystemColor = False)
         End Get
     End Property
 
@@ -256,17 +264,26 @@ Public Module ColorExtensions
         Dim closest_distance As Double = Double.MaxValue
         Dim closest As Color = Color.White
         For Each kc In KnowColors
-            'Calculate Euclidean Distance
-            Dim r_dist_sqrd As Double = Math.Pow(CDbl(Color.R) - CDbl(kc.R), 2)
-            Dim g_dist_sqrd As Double = Math.Pow(CDbl(Color.G) - CDbl(kc.G), 2)
-            Dim b_dist_sqrd As Double = Math.Pow(CDbl(Color.B) - CDbl(kc.B), 2)
-            Dim d As Double = Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd)
+            Dim d = EuclideanDistance(Color, kc)
             If d < closest_distance Then
                 closest_distance = d
                 closest = kc
             End If
         Next
         Return closest
+    End Function
+
+    ''' <summary>
+    ''' Retorna a distancia euclideana
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <param name="OtherColor"></param>
+    ''' <returns></returns>
+    <Extension> Public Function EuclideanDistance(Color As Color, OtherColor As Color) As Double
+        Dim r_dist_sqrd As Double = Math.Pow(CDbl(Color.R) - CDbl(OtherColor.R), 2)
+        Dim g_dist_sqrd As Double = Math.Pow(CDbl(Color.G) - CDbl(OtherColor.G), 2)
+        Dim b_dist_sqrd As Double = Math.Pow(CDbl(Color.B) - CDbl(OtherColor.B), 2)
+        Return Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd)
     End Function
 
     ''' <summary>
@@ -285,7 +302,7 @@ Public Module ColorExtensions
     ''' <returns></returns>
     <Extension()> Public Function GetColorName(Color As Color) As String
         For Each namedColor In KnowColors
-            Return namedColor.Name
+            If Color.CompareARGB(namedColor) Then Return namedColor.Name
         Next
         Return Color.Name
     End Function
@@ -305,3 +322,4 @@ Public Module ColorExtensions
     End Function
 
 End Module
+
