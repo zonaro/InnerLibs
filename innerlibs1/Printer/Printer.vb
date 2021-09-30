@@ -33,6 +33,7 @@ Imports System.Linq.Expressions
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Text
+Imports System.Xml
 Imports InnerLibs.Printer.Command
 
 Namespace Printer
@@ -422,6 +423,15 @@ Namespace Printer
         Public Function TestDiacritics() As Printer
             Dim ud = Diacritics
             Return UseDiacritics(True).WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ").UseDiacritics(ud)
+        End Function
+
+        Public Function ResetLayout() As Printer
+            Return NormalFontStyle.NormalFontSize().NormalFontStretch().AlignLeft()
+        End Function
+
+        Public Function NormalFontStretch() As Printer
+            FontMode = "Normal"
+            Return Me
         End Function
 
         Public Function NormalFontStyle() As Printer
@@ -920,6 +930,145 @@ Namespace Printer
             Return WriteClass(PartialCutOnEach, If(obj, {}).ToArray())
         End Function
 
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XmlDocument) As Printer
+            Return WriteXmlTemplate(obj, Xml.DocumentElement)
+        End Function
+
+        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XmlNode) As Printer
+            For Each item In If(obj, {})
+                WriteXmlTemplate(item, Xml)
+            Next
+            Return Me
+        End Function
+
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XmlNode) As Printer
+            If Xml.HasChildNodes Then
+
+                For Each attr As XmlAttribute In Xml.Attributes
+                    If attr.Name = "list" Then
+                        Dim prop = GetType(T).GetProperty(attr.Value)
+                        If prop IsNot Nothing AndAlso obj IsNot Nothing Then
+                            Dim itens As Object() = prop.GetValue(obj)
+                            Xml.Attributes.Remove(attr)
+                            WriteXmlTemplate(itens.AsEnumerable(), Xml)
+                        End If
+                        Return Me
+                    End If
+                Next
+
+                For Each node As XmlNode In Xml.ChildNodes
+                    WriteXmlTemplate(obj, node)
+                Next
+
+            Else
+                If Xml.Name = "#text" Then
+                    Dim lines = 0
+                    If Xml.ParentNode.Name.ToLower().IsIn("line", "writeline", "ln", "printl") Then
+                        lines = 1
+                    End If
+
+                    For Each attr As XmlAttribute In Xml.ParentNode.Attributes
+
+                        If attr.Name.ToLower = "bold" Then Bold()
+                        If attr.Name.ToLower() = "italic" Then Italic()
+                        If attr.Name.ToLower() = "underline" Then UnderLine()
+
+                        If attr.Name = "lines" Then
+                            Try
+                                lines = attr.Value?.ToInteger
+                            Catch ex As Exception
+                                lines = 0
+                            End Try
+                        End If
+
+
+                        If attr.Name = "align" Then
+                            Select Case attr.Value?.ToLower()
+                                Case "right"
+                                    AlignRight()
+                                Case "center"
+                                    AlignCenter()
+                                Case Else
+                                    AlignLeft()
+                            End Select
+                        End If
+
+                        If attr.Name = "font-size" Then
+                            Select Case attr.Value?.ToLower
+                                Case "2", "medium"
+                                    MediumFontSize()
+                                Case "3", "large"
+                                    LargeFontSize()
+                                Case Else
+                            End Select
+                        End If
+
+                        If attr.Name = "font-stretch" Then
+                            Select Case attr.Value?.ToLower
+                                Case "2", "condensed"
+                                    Condensed()
+                                Case "3", "expanded"
+                                    Expanded()
+                                Case Else
+                            End Select
+                        End If
+                    Next
+
+                    Dim txt = Xml.Value
+                    If obj IsNot Nothing Then
+                        txt = txt.Inject(obj)
+                    End If
+
+                    Write(txt)
+                    If lines > 0 Then
+                        NewLine(lines)
+                    End If
+                    ResetLayout()
+                End If
+
+                If Xml.Name.ToLower().IsIn("br") Then
+                    Dim lines = 1
+                    For Each attr As XmlAttribute In Xml.Attributes
+                        If attr.Name.ToLower() = "count" Then
+                            Try
+                                lines = attr.Value.ToInteger()
+                            Catch ex As Exception
+                                lines = 1
+                            End Try
+                        End If
+                    Next
+                    NewLine(lines)
+                End If
+
+
+                If Xml.Name.ToLower().IsIn("partialcut", "partialpapercut") Then
+                    PartialPaperCut()
+                End If
+
+                If Xml.Name.ToLower().IsIn("cut", "fullcut", "fullpapercut", "hr") Then
+                    FullPaperCut()
+                End If
+
+                If Xml.Name.ToLower().IsIn("sep", "separator") Then
+                    Dim sep = "-"
+                    For Each attr As XmlAttribute In Xml.Attributes
+                        If attr.Name.ToLower() = "char" Then
+                            Try
+                                sep = attr.Value
+                            Catch ex As Exception
+                                sep = "-"
+                            End Try
+                        End If
+                    Next
+                    Separator(sep)
+                End If
+            End If
+            Return Me
+        End Function
+
+
+
+
         ''' <summary>
         ''' Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
         ''' </summary>
@@ -936,13 +1085,13 @@ Namespace Printer
                         TemplateString = File.ReadAllText(TemplateString)
                     End If
                 End If
+
                 For Each item In obj
                     Dim ns = TemplateString.Inject(item)
-                    For Each linha In ns.SplitAny(BreakLineChars.ToArray())
-                        WriteLine(linha)
-                    Next
+                    WriteLine(ns.SplitAny(BreakLineChars.ToArray()))
+                    If PartialCutOnEach Then PartialPaperCut() Else Separator()
                 Next
-                If obj.Any() Then If PartialCutOnEach Then PartialPaperCut() Else Separator()
+
             End If
             Return Me
         End Function
@@ -1046,7 +1195,6 @@ Namespace Printer
         ''' <param name="Copies"></param>
         ''' <returns></returns>
         Public Function PrintDocument(FileOrDirectoryPath As String, Optional Copies As Integer = 1) As Printer
-
             If FileOrDirectoryPath.IsDirectoryPath Then
                 If Directory.Exists(FileOrDirectoryPath) Then
                     For Each item In Directory.GetFiles(FileOrDirectoryPath)
@@ -1059,13 +1207,12 @@ Namespace Printer
                 End If
             Else
                 Throw New ArgumentException($"FileOrDirectoryPath Is Not a valid Path: {FileOrDirectoryPath}")
-
             End If
             Return Me
         End Function
 
 
-        Property IgnoreIfNotFound As Boolean = True
+
 
 
         ''' <summary>
@@ -1081,9 +1228,7 @@ Namespace Printer
                             SaveFile(PrinterName, False)
                         Else
                             If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then
-                                If IgnoreIfNotFound = False Then
-                                    Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
-                                End If
+                                Debug.WriteLine("Não foi possível acessar a impressora: " & PrinterName)
                             End If
                         End If
                     Next

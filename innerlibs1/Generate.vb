@@ -148,7 +148,7 @@ Public Module Generate
     ''' </summary>
     ''' <returns>TRUE ou FALSE</returns>
     Function RandomBoolean() As Boolean
-        Return init_rnd.Next(0, 1).ToBoolean()
+        Return RandomBoolean(50)
     End Function
 
     ''' <summary>

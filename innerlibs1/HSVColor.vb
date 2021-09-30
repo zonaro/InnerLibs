@@ -110,7 +110,7 @@ Public Class HSVColor
     ''' <param name="Name"></param>
     ''' <returns></returns>
     Public Shared Function RandomTransparentColor(Optional Name As String = Nothing) As HSVColor
-        Return RandomColor().With(Sub(x) x.Opacity = Generate.RandomNumber(0, 100)).With(Sub(x) x.Name = Name)
+        Return RandomColor().With(Sub(x) x.Opacity = Generate.RandomNumber(0, 100)).With(Sub(x) If Name IsNot Nothing Then x.Name = Name)
     End Function
 
 
@@ -498,27 +498,23 @@ Public Class HSVColor
     ''' Retorna a cor intermediaria de um gradiente
     ''' </summary>
     ''' <param name="ToColor"></param>
-    ''' <param name="Level"></param>
-    ''' <param name="Degrees"></param>
+    ''' <param name="Position"></param>
+    ''' <param name="Size"></param>
     ''' <returns></returns>
-    Public Function GradientLevel(ToColor As HSVColor, Level As Double, Optional Degrees As Double = 0) As HSVColor
-
-        If Degrees = 0 Then Degrees = 1
-
-        If Level > Degrees Then Return Nothing
-
+    Public Function GradientLevel(ToColor As HSVColor, Position As Integer, Optional Size As Integer = 100) As HSVColor
+        If Size = 0 Then Size = 1
+        If Position > Size Then Size = Position
         Dim a = Me.Clone()
-
-        a.Red = a.Red + ((ToColor.Red - a.Red) / Degrees) * Level
-        a.Green = a.Green + ((ToColor.Green - a.Green) / Degrees) * Level
-        a.Blue = a.Blue + ((ToColor.Blue - a.Blue) / Degrees) * Level
+        a.Red = a.Red + ((ToColor.Red - a.Red) / Size) * Position
+        a.Green = a.Green + ((ToColor.Green - a.Green) / Size) * Position
+        a.Blue = a.Blue + ((ToColor.Blue - a.Blue) / Size) * Position
         Return a
     End Function
 
 
-    Public Iterator Function GradientArray(ToColor As HSVColor, Amount As Integer, Level As Double, Optional Degrees As Double = 0) As IEnumerable(Of HSVColor)
-        For index = 0 To Amount
-            Yield GradientLevel(ToColor, Level, Degrees)
+    Public Iterator Function GradientArray(ToColor As HSVColor, Size As Integer) As IEnumerable(Of HSVColor)
+        For index = 1 To Size
+            Yield GradientLevel(ToColor, index, Size)
         Next
     End Function
 
@@ -750,21 +746,26 @@ Public Class HSVColor
         Return Not IsSad()
     End Function
 
+    Public Function IsOpaque() As Boolean
+        Return Alpha > 125
+    End Function
+
 
     Public Function Breed(Color As HSVColor) As HSVColor
+        Dim RedGene = {Me.Red, Color.Red, Color.Combine(Me).Red}
+        Dim BlueGene = {Me.Blue, Color.Blue, Color.Combine(Me).Blue}
+        Dim GreenGene = {Me.Green, Color.Green, Color.Combine(Me).Green}
+        Dim r = If(Me.HasMood(ColorMood.MostRed) AndAlso Me.DominantValue > Color.DominantValue, Me.Red, RedGene.FirstRandom())
+        Dim g = If(Me.HasMood(ColorMood.MostGreen) AndAlso Me.DominantValue > Color.DominantValue, Me.Green, GreenGene.FirstRandom())
+        Dim b = If(Me.HasMood(ColorMood.MostBlue) AndAlso Me.DominantValue > Color.DominantValue, Me.Blue, BlueGene.FirstRandom())
+        Dim a = {Me.Alpha, Color.Alpha}.FirstRandom()
+        Return New HSVColor(a, r, g, b)
+    End Function
 
-        Dim a = Me.Clone()
-        Dim mask = 0, i = 6
-        While (i - 1 > 0)
-            If RandomBoolean() Then
-                mask = mask Or 15 << (i << 2)
-            End If
-        End While
-
-        a.Red = (a.Red And ((mask >> 16) And 255)) Or Color.Red And (((mask >> 16) And 255) ^ 255)
-        a.Green = (a.Green And ((mask >> 8) And 255)) Or Color.Green And (((mask >> 8) And 255) ^ 255)
-        a.Blue = (a.Blue And ((mask >> 0) And 255)) Or Color.Blue And (((mask >> 0) And 255) ^ 255)
-        Return a
+    Public Iterator Function Breed(Color As HSVColor, Amount As Integer) As IEnumerable(Of HSVColor)
+        For index = 1 To Amount
+            Yield Breed(Color)
+        Next
     End Function
 
 
@@ -881,6 +882,10 @@ Public Class HSVColor
         Return c
     End Function
 
+    ''' <summary>
+    ''' Retorna a cor contrastante desta HSVColor
+    ''' </summary>
+    ''' <returns></returns>
     Public Function ContrastColor() As HSVColor
         Return New HSVColor(_scolor.GetContrastColor)
     End Function
@@ -897,7 +902,7 @@ Public Class HSVColor
     ''' Extrai o cinza desta cor
     ''' </summary>
     ''' <returns></returns>
-    Public Function Grey() As HSVColor
+    Public Function GrayFilter() As HSVColor
         Dim v = 0.35 + 13 * (Red + Green + Blue) / 60
         Return New HSVColor(Drawing.Color.FromArgb(v, v, v))
     End Function
@@ -914,20 +919,7 @@ Public Class HSVColor
         Return New HSVColor(Color.FromArgb(0, 0, Blue))
     End Function
 
-    ''' <summary>
-    ''' Cria uma paleta de cores usando esta cor como base e um metodo especifico
-    ''' </summary>
-    ''' <param name="PalleteType"></param>
-    ''' <param name="Amount"></param>
-    ''' <returns></returns>
-    Public Function CreatePallete(PalleteType As String, Optional Amount As Integer = 4) As HSVColor()
-        Dim rl = New List(Of HSVColor)
-        For Each item In Me.Monochromatic(Amount)
-            Dim c = CType(item.GetType().GetMethod(PalleteType).Invoke(item, {False}), HSVColor())
-            rl.AddRange(c)
-        Next
-        Return rl.ToArray()
-    End Function
+
 
     ''' <summary>
     ''' Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
@@ -1209,3 +1201,13 @@ Public Enum ColorMood
     KnowColor = 33554432
 
 End Enum
+
+Public Module HSVColorPallete
+
+    'Public ReadOnly Property Pokemon As IEnumerable(Of HSVColor)
+    '    Get
+    '        Return {New HSVColor("#f85801", "FireRed"), New HSVColor("#f85801", "LeafGreen"), New HSVColor("#f85801", "FireRed")}
+    '    End Get
+    'End Property
+
+End Module

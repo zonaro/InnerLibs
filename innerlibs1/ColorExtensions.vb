@@ -35,7 +35,12 @@ Public Module ColorExtensions
     <Extension()> Public Function ToHSVColorList(ColorList As IEnumerable(Of Color)) As IEnumerable(Of HSVColor)
         Return ColorList?.Select(Function(x) New HSVColor(x))
     End Function
-    Public Function GrayscalePallete(Amount As Integer) As IEnumerable(Of HSVColor)
+
+    <Extension()> Public Function ToHSVColorList(ColorList As IEnumerable(Of String)) As IEnumerable(Of HSVColor)
+        Return ColorList?.Select(Function(x) New HSVColor(x))
+    End Function
+
+    <Extension()> Public Function GrayscalePallete(Amount As Integer) As IEnumerable(Of HSVColor)
         Return MonochromaticPallete(Color.White, Amount)
     End Function
 
@@ -46,7 +51,7 @@ Public Module ColorExtensions
     ''' <param name="Amount"></param>
     ''' <returns></returns>
     ''' <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
-    Public Function MonochromaticPallete(Color As Color, Amount As Integer) As IEnumerable(Of HSVColor)
+    <Extension()> Public Function MonochromaticPallete(Color As Color, Amount As Integer, Optional IncludeMe As Boolean = False) As IEnumerable(Of HSVColor)
 
         Dim t = New RuleOfThree(Amount, 100, 1, Nothing)
 
@@ -55,12 +60,40 @@ Public Module ColorExtensions
         Color = Color.White.MergeWith(Color)
 
         Dim l As New List(Of Color)
-        For index = 1 To Amount
-            Color = Color.MakeDarker(Percent)
-            l.Add(Color)
-        Next
-        Return l.ToHSVColorList
+        If IncludeMe Then l.Add(Color)
+
+        Dim cl = Color
+        Dim cd = Color
+
+
+        While l.Count < Amount
+            If (Color.IsLight) Then
+                If (cd <> Color.Black) Then
+                    cd = cd.MakeDarker(Percent)
+                    l.Add(cd)
+                End If
+                If (cl <> Color.White) Then
+                    cl = cl.MakeLighter(Percent)
+                    l.Add(cl)
+                End If
+            Else
+                If (cl <> Color.White) Then
+                    cl = cl.MakeLighter(Percent)
+                    l.Add(cl)
+                End If
+
+                If (cd <> Color.Black) Then
+                    cd = cd.MakeDarker(Percent)
+                    l.Add(cd)
+                End If
+            End If
+        End While
+
+
+        Return l.ToHSVColorList().OrderByDescending(Function(x) x)
+
     End Function
+
 
     ''' <summary>
     ''' Retorna  a cor negativa de uma cor
@@ -210,11 +243,11 @@ Public Module ColorExtensions
             Return RandomColor()
         End If
 
-
-
         If Text.IsNumber Then
             Return Color.FromArgb(Text.ToInteger())
         End If
+
+        Text = Text.Replace("grey", "gray")
 
         If Text.IsIn(KnowColors.Select(Function(x) x.Name), StringComparer.InvariantCultureIgnoreCase) Then
             Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = Text.ToLower())
@@ -321,5 +354,14 @@ Public Module ColorExtensions
         Return Not ((diff < (1.5 + 141.162 * Math.Pow(0.975, Size)))) AndAlso (diff > (-0.5 - 154.709 * Math.Pow(0.99, Size)))
     End Function
 
+
+
+
+
+
+
 End Module
+
+
+
 
