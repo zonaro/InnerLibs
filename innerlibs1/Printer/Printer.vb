@@ -1064,6 +1064,10 @@ Namespace Printer
             Return Me
         End Function
 
+
+        Property IgnoreIfNotFound As Boolean = True
+
+
         ''' <summary>
         ''' Envia os Bytes para a impressora ou arquivo
         ''' </summary>
@@ -1076,7 +1080,11 @@ Namespace Printer
                         If PrinterName.IsFilePath Then
                             SaveFile(PrinterName, False)
                         Else
-                            If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
+                            If Not RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()) Then
+                                If IgnoreIfNotFound = False Then
+                                    Throw New ArgumentException("Não foi possível acessar a impressora: " & PrinterName)
+                                End If
+                            End If
                         End If
                     Next
                 End If

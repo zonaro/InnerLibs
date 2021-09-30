@@ -6,6 +6,29 @@ Namespace LINQ
 
     Public Module LINQExtensions
 
+        ''' <summary>
+        ''' Realiza um Select trazendo o item anterior junto com o atual
+        ''' </summary>
+        ''' <typeparam name="TSource"></typeparam>
+        ''' <typeparam name="TResult"></typeparam>
+        ''' <param name="source"></param>
+        ''' <param name="projection"></param>
+        ''' <returns></returns>
+        <Extension()>
+        Public Iterator Function SelectWithPrevious(Of TSource, TResult)(ByVal source As IEnumerable(Of TSource), ByVal projection As Func(Of TSource, TSource, TResult)) As IEnumerable(Of TResult)
+            Using iterator = source.GetEnumerator()
+                If Not iterator.MoveNext() Then
+                    Return
+                End If
+                Dim previous As TSource = iterator.Current
+                Yield projection(Nothing, previous)
+                While iterator.MoveNext()
+                    Yield projection(previous, iterator.Current)
+                    previous = iterator.Current
+                End While
+            End Using
+        End Function
+
         <Extension()> Public Function TakeRandom(Of T)(l As IEnumerable(Of T), Count As Integer) As IEnumerable(Of T)
             Return l.OrderByRandom().Take(Count)
         End Function

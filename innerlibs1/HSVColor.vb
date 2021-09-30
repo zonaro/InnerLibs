@@ -12,11 +12,6 @@ Public Class HSVColor
     Private _scolor As Color
 
 
-
-
-
-
-
     ''' <summary>
     ''' Retorna a cor vibrante de uma imagem
     ''' </summary>
@@ -499,6 +494,44 @@ Public Class HSVColor
         Return New Bitmap(_scolor.CreateSolidImage(Width, Height))
     End Function
 
+    ''' <summary>
+    ''' Retorna a cor intermediaria de um gradiente
+    ''' </summary>
+    ''' <param name="ToColor"></param>
+    ''' <param name="Level"></param>
+    ''' <param name="Degrees"></param>
+    ''' <returns></returns>
+    Public Function GradientLevel(ToColor As HSVColor, Level As Double, Optional Degrees As Double = 0) As HSVColor
+
+        If Degrees = 0 Then Degrees = 1
+
+        If Level > Degrees Then Return Nothing
+
+        Dim a = Me.Clone()
+
+        a.Red = a.Red + ((ToColor.Red - a.Red) / Degrees) * Level
+        a.Green = a.Green + ((ToColor.Green - a.Green) / Degrees) * Level
+        a.Blue = a.Blue + ((ToColor.Blue - a.Blue) / Degrees) * Level
+        Return a
+    End Function
+
+
+    Public Iterator Function GradientArray(ToColor As HSVColor, Amount As Integer, Level As Double, Optional Degrees As Double = 0) As IEnumerable(Of HSVColor)
+        For index = 0 To Amount
+            Yield GradientLevel(ToColor, Level, Degrees)
+        Next
+    End Function
+
+
+
+    Public Function WebRound() As HSVColor
+        Dim c = Me.Clone
+        If (c.Red = c.Red + 51 - c.Red Mod 51) > 255 Then c.Red = 255
+        If (c.Green = c.Green + 51 - c.Green Mod 51) > 255 Then c.Green = 255
+        If (c.Blue = c.Blue + 51 - c.Blue Mod 51) > 255 Then c.Blue = 255
+        Return c
+    End Function
+
     Public Function CreateSolidImage(Optional Size As String = "") As Bitmap
         Dim s = Size.IfBlank("200").ParseSize()
         Return CreateSolidImage(s.Width, s.Height)
@@ -533,11 +566,7 @@ Public Class HSVColor
         End Get
     End Property
 
-    ''' <summary>
-    ''' Descricao desta cor
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property Description As String
+
 
     Private Sub SetColor()
 
@@ -721,12 +750,30 @@ Public Class HSVColor
         Return Not IsSad()
     End Function
 
+
+    Public Function Breed(Color As HSVColor) As HSVColor
+
+        Dim a = Me.Clone()
+        Dim mask = 0, i = 6
+        While (i - 1 > 0)
+            If RandomBoolean() Then
+                mask = mask Or 15 << (i << 2)
+            End If
+        End While
+
+        a.Red = (a.Red And ((mask >> 16) And 255)) Or Color.Red And (((mask >> 16) And 255) ^ 255)
+        a.Green = (a.Green And ((mask >> 8) And 255)) Or Color.Green And (((mask >> 8) And 255) ^ 255)
+        a.Blue = (a.Blue And ((mask >> 0) And 255)) Or Color.Blue And (((mask >> 0) And 255) ^ 255)
+        Return a
+    End Function
+
+
     ''' <summary>
     ''' Retorna uma cópia desta cor
     ''' </summary>
     ''' <returns></returns>
     Public Function Clone() As HSVColor
-        Return New HSVColor(_scolor, Me.Name) With {.Description = Me.Description}
+        Return New HSVColor(_scolor, Me.Name)
     End Function
 
     ''' <summary>
