@@ -11,6 +11,8 @@ Imports System.Runtime.CompilerServices
 '''
 Public Module Images
 
+
+
     ''' <summary>
     ''' Retorna uma <see cref="Bitmap"/> a partir de um Image
     ''' </summary>

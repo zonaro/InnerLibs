@@ -548,7 +548,25 @@ Public Module Verify
         End Try
     End Function
 
+    ''' <summary>
+    ''' Verifica se uma String está vazia
+    ''' </summary>
+    ''' <param name="Text">Uma string</param>
+    ''' <returns>TRUE se estivar vazia, caso contrario FALSE</returns>
+    <Extension>
+    Public Function IsEmpty(Text As String) As Boolean
+        Return String.IsNullOrEmpty(Text)
+    End Function
 
+    ''' <summary>
+    ''' Verifica se uma String está vazia
+    ''' </summary>
+    ''' <param name="Text">Uma string</param>
+    ''' <returns>TRUE se estivar vazia, caso contrario FALSE</returns>
+    <Extension>
+    Public Function IsEmpty(Text As FormattableString) As Boolean
+        Return IsNothing(Text) OrElse Text.ToString().IsEmpty()
+    End Function
 
     ''' <summary>
     ''' Verifica se uma String está em branco
@@ -578,6 +596,26 @@ Public Module Verify
     <Extension>
     Public Function IsNotBlank(Text As String) As Boolean
         Return Not Text.IsBlank()
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma String não está vazia
+    ''' </summary>
+    ''' <param name="Text">Uma string</param>
+    ''' <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
+    <Extension>
+    Public Function IsNotEmpty(Text As String) As Boolean
+        Return Not Text.IsEmpty()
+    End Function
+
+    ''' <summary>
+    ''' Verifica se uma String não está vazia
+    ''' </summary>
+    ''' <param name="Text">Uma string</param>
+    ''' <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
+    <Extension>
+    Public Function IsNotEmpty(Text As FormattableString) As Boolean
+        Return Not Text.IsEmpty()
     End Function
 
     <Extension>

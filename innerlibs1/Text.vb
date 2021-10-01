@@ -977,7 +977,7 @@ Public Module Text
 
     <Extension()>
     Public Function GetFirstChars(Text As String, Optional Number As Integer = 1) As String
-        If Text.IsNotBlank Then
+        If Text.IsNotEmpty Then
             If Text.Length < Number Or Number < 1 Then
                 Return Text
             Else
@@ -989,7 +989,7 @@ Public Module Text
 
     <Extension()>
     Public Function GetLastChars(Text As String, Optional Number As Integer = 1) As String
-        If Text.IsNotBlank Then
+        If Text.IsNotEmpty Then
             If Text.Length < Number Or Number < 1 Then
                 Return Text
             Else

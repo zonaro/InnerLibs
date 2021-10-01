@@ -46,11 +46,8 @@ Namespace Printer
 
     End Module
 
-
-
-
-
     Public Class Printer
+
         Private Class PrinterWriter
             Inherits TextWriter
 
@@ -78,6 +75,7 @@ Namespace Printer
                     Return p.Command?.Encoding
                 End Get
             End Property
+
         End Class
 
         Private txw = New PrinterWriter(Me)
@@ -105,7 +103,10 @@ Namespace Printer
         End Function
 
         Private _ommit As Boolean = False
+
         Private FontMode As String = "Normal"
+        Private FontSize As String = "Normal"
+
         Private Align As String = "Left"
 
         Public Property DocumentBuffer As Byte()
@@ -118,11 +119,11 @@ Namespace Printer
 
         Public Property PrinterName As String
 
-        Public Property ColsNomal As Integer
+        Public Property ColumnsNomal As Integer
 
-        Public Property ColsCondensed As Integer
+        Public Property ColumnsCondensed As Integer
 
-        Public Property ColsExpanded As Integer
+        Public Property ColumnsExpanded As Integer
 
         Public ReadOnly Property Command As IPrintCommand
 
@@ -164,26 +165,26 @@ Namespace Printer
 
         Public Property IsMedium As Boolean
             Get
-                Return FontMode = "Double2"
+                Return FontSize = "Medium"
             End Get
             Set(value As Boolean)
                 If value Then
-                    FontMode = "Double2"
+                    FontSize = "Medium"
                 Else
-                    FontMode = "Normal"
+                    FontSize = "Normal"
                 End If
             End Set
         End Property
 
         Public Property IsLarge As Boolean
             Get
-                Return FontMode = "Double3"
+                Return FontSize = "Large"
             End Get
             Set(value As Boolean)
                 If value Then
-                    FontMode = "Double3"
+                    FontSize = "Large"
                 Else
-                    FontMode = "Normal"
+                    FontSize = "Normal"
                 End If
             End Set
         End Property
@@ -211,8 +212,6 @@ Namespace Printer
                 Return Align = "Center"
             End Get
         End Property
-
-
 
         Public Sub New(ByVal Encoding As Encoding)
             Me.New(Nothing, Nothing, 0, 0, 0, Encoding)
@@ -260,9 +259,9 @@ Namespace Printer
                 Me.Command.Encoding = Encoding.Default
             End If
             Me.PrinterName = PrinterName
-            Me.ColsNomal = If(ColsNormal <= 0, Me.Command.ColsNomal, ColsNormal)
-            Me.ColsCondensed = If(ColsCondensed <= 0, Me.Command.ColsCondensed, ColsCondensed)
-            Me.ColsExpanded = If(ColsExpanded <= 0, Me.Command.ColsExpanded, ColsExpanded)
+            Me.ColumnsNomal = If(ColsNormal <= 0, Me.Command.ColsNomal, ColsNormal)
+            Me.ColumnsCondensed = If(ColsCondensed <= 0, Me.Command.ColsCondensed, ColsCondensed)
+            Me.ColumnsExpanded = If(ColsExpanded <= 0, Me.Command.ColsExpanded, ColsExpanded)
         End Sub
 
         ''' <summary>
@@ -399,7 +398,7 @@ Namespace Printer
         End Function
 
         ''' <summary>
-        ''' Escreve um separador 
+        ''' Escreve um separador
         ''' </summary>
         ''' <param name="Character"></param>
         ''' <returns></returns>
@@ -425,19 +424,21 @@ Namespace Printer
             Return UseDiacritics(True).WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ").UseDiacritics(ud)
         End Function
 
-        Public Function ResetLayout() As Printer
-            Return NormalFontStyle.NormalFontSize().NormalFontStretch().AlignLeft()
+        ''' <summary>
+        ''' Alinha a esquerda, remove formatação (italico, negrito, sublinhado) e retorna a fonte ao seu tamanho normal
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ResetFont() As Printer
+            Return NormalFontSize().NormalFontStretch().NormalFontStyle()
         End Function
 
         Public Function NormalFontStretch() As Printer
-            FontMode = "Normal"
-            Return Me
+            Return NotCondensed().NotExpanded()
         End Function
 
         Public Function NormalFontStyle() As Printer
             Return NotBold().NotItalic().NotUnderline()
         End Function
-
 
         Public Function Italic(Optional state As Boolean = True) As Printer
             _ommit = True
@@ -580,18 +581,34 @@ Namespace Printer
         ''' <returns></returns>
         Public Function GetCurrentColumns() As Integer
             If IsCondensed Then
-                Return Me.ColsCondensed
+                Return Me.ColumnsCondensed
             ElseIf IsExpanded Then
-                Return Me.ColsExpanded
+                Return Me.ColumnsExpanded
             Else
-                Return Me.ColsNomal
+                Return Me.ColumnsNomal
             End If
         End Function
 
-        Private Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = "."c) As String
+        Private Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As String
             Columns = If(Columns, GetCurrentColumns())
+            If CharLine.ToString.IsBlank Then
+                CharLine = " "c
+            End If
             If Columns > 0 Then Return New String(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange(0, Columns.Value))
             Return ""
+        End Function
+
+        Public Function GetPair(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As String
+            Columns = If(Columns, GetCurrentColumns())
+            Dim dots = ""
+            Dim s1 = $"{LeftText}"
+            Dim s2 = $"{RightText}"
+            If s2.IsNotBlank() AndAlso Columns.Value > 0 Then
+                dots = GetDotLine(s1, s2, Columns, CharLine)
+            Else
+                dots = CharLine
+            End If
+            Return $"{s1}{dots}{s2}"
         End Function
 
         ''' <summary>
@@ -663,7 +680,6 @@ Namespace Printer
             Return If(Test, Write(value, Test).NewLine(), Me)
         End Function
 
-
         ''' <summary>
         ''' Escreve o <paramref name="value"/>   e quebra uma linha
         ''' </summary>
@@ -672,7 +688,6 @@ Namespace Printer
         Public Shadows Function WriteLine(ByVal value As String) As Printer
             Return WriteLine(value, True)
         End Function
-
 
         ''' <summary>
         ''' Escreve varias linhas no <see cref="DocumentBuffer"/>
@@ -804,7 +819,6 @@ Namespace Printer
             Return Me
         End Function
 
-
         ''' <summary>
         ''' Escreve uma lista de itens no <see cref="DocumentBuffer"/>
         ''' </summary>
@@ -816,16 +830,7 @@ Namespace Printer
         ''' Escreve um par de infomações no <see cref="DocumentBuffer"/>.
         ''' </summary>
         Public Function WritePair(Key As Object, Value As Object, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As Printer
-            Columns = If(Columns, GetCurrentColumns())
-            Dim dots = ""
-            Dim s1 = $"{Key}"
-            Dim s2 = $"{Value}"
-            If s2.IsNotBlank() AndAlso Columns.Value > 0 Then
-                dots = GetDotLine(s1, s2, Columns, CharLine)
-            Else
-                dots = " "
-            End If
-            Dim s = $"{s1}{dots}{s2}"
+            Dim s = GetPair($"{Key}", $"{Value}", Columns, CharLine)
             Return WriteLine(s, s.IsNotBlank())
         End Function
 
@@ -930,144 +935,194 @@ Namespace Printer
             Return WriteClass(PartialCutOnEach, If(obj, {}).ToArray())
         End Function
 
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XmlDocument) As Printer
-            Return WriteXmlTemplate(obj, Xml.DocumentElement)
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XmlDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="obj"></param>
+        ''' <param name="Xml"></param>
+        ''' <returns></returns>
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XDocument) As Printer
+            Return WriteXmlTemplate(obj, Xml.Root)
         End Function
 
-        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XmlNode) As Printer
+        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XDocument) As Printer
+            Return WriteXmlTemplate(obj, Xml.Root)
+        End Function
+
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XmlNode"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XElement) As Printer
             For Each item In If(obj, {})
                 WriteXmlTemplate(item, Xml)
             Next
             Return Me
         End Function
 
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XmlNode) As Printer
-            If Xml.HasChildNodes Then
-
-                For Each attr As XmlAttribute In Xml.Attributes
-                    If attr.Name = "list" Then
-                        Dim prop = GetType(T).GetProperty(attr.Value)
-                        If prop IsNot Nothing AndAlso obj IsNot Nothing Then
-                            Dim itens As Object() = prop.GetValue(obj)
-                            Xml.Attributes.Remove(attr)
-                            WriteXmlTemplate(itens.AsEnumerable(), Xml)
-                        End If
-                        Return Me
-                    End If
-                Next
-
-                For Each node As XmlNode In Xml.ChildNodes
-                    WriteXmlTemplate(obj, node)
-                Next
-
-            Else
-                If Xml.Name = "#text" Then
-                    Dim lines = 0
-                    If Xml.ParentNode.Name.ToLower().IsIn("line", "writeline", "ln", "printl") Then
-                        lines = 1
-                    End If
-
-                    For Each attr As XmlAttribute In Xml.ParentNode.Attributes
-
-                        If attr.Name.ToLower = "bold" Then Bold()
-                        If attr.Name.ToLower() = "italic" Then Italic()
-                        If attr.Name.ToLower() = "underline" Then UnderLine()
-
-                        If attr.Name = "lines" Then
-                            Try
-                                lines = attr.Value?.ToInteger
-                            Catch ex As Exception
-                                lines = 0
-                            End Try
-                        End If
-
-
-                        If attr.Name = "align" Then
-                            Select Case attr.Value?.ToLower()
-                                Case "right"
-                                    AlignRight()
-                                Case "center"
-                                    AlignCenter()
-                                Case Else
-                                    AlignLeft()
-                            End Select
-                        End If
-
-                        If attr.Name = "font-size" Then
-                            Select Case attr.Value?.ToLower
-                                Case "2", "medium"
-                                    MediumFontSize()
-                                Case "3", "large"
-                                    LargeFontSize()
-                                Case Else
-                            End Select
-                        End If
-
-                        If attr.Name = "font-stretch" Then
-                            Select Case attr.Value?.ToLower
-                                Case "2", "condensed"
-                                    Condensed()
-                                Case "3", "expanded"
-                                    Expanded()
-                                Case Else
-                            End Select
-                        End If
-                    Next
-
-                    Dim txt = Xml.Value
-                    If obj IsNot Nothing Then
-                        txt = txt.Inject(obj)
-                    End If
-
-                    Write(txt)
-                    If lines > 0 Then
-                        NewLine(lines)
-                    End If
-                    ResetLayout()
-                End If
-
-                If Xml.Name.ToLower().IsIn("br") Then
-                    Dim lines = 1
-                    For Each attr As XmlAttribute In Xml.Attributes
-                        If attr.Name.ToLower() = "count" Then
-                            Try
-                                lines = attr.Value.ToInteger()
-                            Catch ex As Exception
-                                lines = 1
-                            End Try
-                        End If
-                    Next
-                    NewLine(lines)
-                End If
-
-
-                If Xml.Name.ToLower().IsIn("partialcut", "partialpapercut") Then
-                    PartialPaperCut()
-                End If
-
-                If Xml.Name.ToLower().IsIn("cut", "fullcut", "fullpapercut", "hr") Then
-                    FullPaperCut()
-                End If
-
-                If Xml.Name.ToLower().IsIn("sep", "separator") Then
-                    Dim sep = "-"
-                    For Each attr As XmlAttribute In Xml.Attributes
-                        If attr.Name.ToLower() = "char" Then
-                            Try
-                                sep = attr.Value
-                            Catch ex As Exception
-                                sep = "-"
-                            End Try
-                        End If
-                    Next
-                    Separator(sep)
-                End If
-            End If
+        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As String) As Printer
+            For Each item In If(obj, {})
+                WriteXmlTemplate(item, Xml)
+            Next
             Return Me
         End Function
 
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As String) As Printer
+            Dim n = XDocument.Parse(Xml)
+            Return WriteXmlTemplate(obj, n)
+        End Function
 
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XmlNode"/> para o objeto designado substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="obj"></param>
+        ''' <param name="Xml"></param>
+        ''' <returns></returns>
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XElement) As Printer
+            Dim lines = 0
+            If Xml.Name.LocalName.ToLower().IsIn("br") Then
+                Try
+                    lines = If(Xml.Attribute("count")?.Value.ToInteger(), 1)
+                Catch ex As Exception
+                    lines = 1
+                End Try
+                Return NewLine(lines)
+            End If
 
+            If Xml.Name.LocalName.ToLower().IsIn("partialcut", "partialpapercut") Then
+                Return PartialPaperCut()
+            End If
+
+            If Xml.Name.LocalName.ToLower().IsIn("cut", "fullcut", "fullpapercut", "hr") Then
+                Return FullPaperCut()
+            End If
+
+            If Xml.Name.LocalName.ToLower().IsIn("sep", "separator") Then
+                Dim sep = "-"
+                For Each attr In Xml.Attributes
+                    If attr.Name.LocalName.ToLower() = "char" Then
+                        Try
+                            sep = attr.Value
+                        Catch ex As Exception
+                            sep = "-"
+                        End Try
+                    End If
+                Next
+                Return Separator(sep)
+            End If
+
+            If Xml.Name.LocalName.ToLower.IsIn("list") Then
+                Dim v = Xml.Attribute("property")?.Value
+                If v.IsNotBlank Then
+                    Dim prop = GetType(T).GetProperty(v)
+                    If prop IsNot Nothing AndAlso obj IsNot Nothing Then
+                        Dim itens As Object() = If(prop.GetValue(obj), {})
+                        If itens.Any() Then
+                            If Xml.HasElements Then
+                                For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
+                                    WriteXmlTemplate(itens.AsEnumerable(), node)
+                                Next
+                            Else
+                                WriteXmlTemplate(itens.AsEnumerable(), Xml.Value)
+                            End If
+                        End If
+                    End If
+                End If
+                Return Me
+            End If
+
+            If Xml.Name.LocalName.ToLower.IsIn("pair") Then
+                Dim dotchar = Xml.Attribute("char")?.Value
+                dotchar = dotchar.GetFirstChars().IfBlank(" ")
+                Dim left = Xml.Descendants().FirstOrDefault(Function(x) x.Name = "left")
+                Dim right = Xml.Descendants().FirstOrDefault(Function(x) x.Name = "right")
+
+                Dim ltxt = left?.Value
+                Dim rtxt = right?.Value
+
+                If obj IsNot Nothing Then
+                    ltxt = ltxt.Inject(obj)
+                    rtxt = rtxt.Inject(obj)
+                End If
+                Return WritePair(ltxt, rtxt, Nothing, dotchar)
+            End If
+
+            If Xml.HasElements Then
+                For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
+                    WriteXmlTemplate(obj, node)
+                Next
+                Return Me
+            End If
+
+            'se chegou aqui, é so  tratar como texto mesmo
+
+            If Xml.Name.LocalName.ToLower().IsIn("line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6") Then
+                lines = 1
+            End If
+
+            For Each attr In Xml.Attributes
+
+                If attr.Name.LocalName.ToLower = "bold" Then Bold($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
+                If attr.Name.LocalName.ToLower = "italic" Then Italic($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
+                If attr.Name.LocalName.ToLower = "underline" Then UnderLine($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
+
+                If attr.Name.LocalName = "lines" Then
+                    Try
+                        lines = attr.Value?.ToInteger
+                    Catch ex As Exception
+                        lines = 0
+                    End Try
+                End If
+
+                If attr.Name.LocalName = "align" Then
+                    Select Case attr.Value?.ToLower()
+                        Case "right"
+                            AlignRight()
+                        Case "center"
+                            AlignCenter()
+                        Case Else
+                            AlignLeft()
+                    End Select
+                End If
+
+                If attr.Name.LocalName = "font-size" Then
+                    Select Case attr.Value?.ToLower
+                        Case "2", "medium"
+                            MediumFontSize()
+                        Case "3", "large"
+                            LargeFontSize()
+                        Case Else
+                            NormalFontSize()
+                    End Select
+                End If
+
+                If attr.Name.LocalName = "font-stretch" Then
+                    Select Case attr.Value?.ToLower
+                        Case "2", "condensed"
+                            Condensed()
+                        Case "3", "expanded"
+                            Expanded()
+                        Case Else
+                            NotCondensed().NotExpanded()
+                    End Select
+                End If
+            Next
+
+            Dim txt = Xml.Value
+            If obj IsNot Nothing Then
+                txt = txt.Inject(obj)
+            End If
+
+            Write(txt)
+
+            If lines > 0 Then
+                NewLine(lines)
+            End If
+            AlignLeft()
+            ResetFont()
+            Return Me
+        End Function
 
         ''' <summary>
         ''' Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
@@ -1211,19 +1266,15 @@ Namespace Printer
             Return Me
         End Function
 
-
-
-
-
         ''' <summary>
         ''' Envia os Bytes para a impressora ou arquivo
         ''' </summary>
         ''' <param name="Copies"></param>
         ''' <returns></returns>
         Public Function PrintDocument(Bytes As Byte(), Optional Copies As Integer = 1) As Printer
-            If OnOff Then
+            If OnOff AndAlso Copies > 0 Then
                 If Bytes IsNot Nothing AndAlso Bytes.Any Then
-                    For i = 0 To Copies.SetMinValue(1) - 1
+                    For i = 0 To Copies - 1
                         If PrinterName.IsFilePath Then
                             SaveFile(PrinterName, False)
                         Else
@@ -1255,7 +1306,7 @@ Namespace Printer
                         Dim s = $"{info.Directory.FullName}\{Path.GetFileNameWithoutExtension(info.FullName)}.html"
                         HTMLDocument.Save(s)
                         If Not info.Directory.GetFiles("Printer.css").Any Then
-                            [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.Printer.css").Replace("##Cols##", Me.ColsNomal).WriteToFile($"{info.Directory}\Printer.css", False, Encoding.Unicode)
+                            [Assembly].GetExecutingAssembly().GetResourceFileText("InnerLibs.Printer.css").Replace("##Cols##", Me.ColumnsNomal).WriteToFile($"{info.Directory}\Printer.css", False, Encoding.Unicode)
                         End If
                     End If
                 Else
@@ -1298,9 +1349,5 @@ Namespace Printer
         End Function
 
     End Class
-
-
-
-
 
 End Namespace
