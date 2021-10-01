@@ -1174,44 +1174,82 @@ Namespace Printer.XmlTemplates
         ''' <param name="obj"></param>
         ''' <param name="Xml"></param>
         ''' <returns></returns>
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XDocument) As Printer
-            Return WriteXmlTemplate(obj, Xml.Root)
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XmlDocument) As Printer
+            Return WriteXmlTemplate(obj, Xml.OuterXml)
         End Function
 
-        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XDocument) As Printer
-            Return WriteXmlTemplate(obj, Xml.Root)
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="obj"></param>
+        ''' <param name="Xml"></param>
+        ''' <returns></returns>
+
+        Public Function WriteXmlTemplate(Of T)(Item As IEnumerable(Of T), Xml As XmlDocument) As Printer
+            Return WriteXmlTemplate(Item, Xml.OuterXml)
+        End Function
+
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="obj"></param>
+        ''' <param name="Xml"></param>
+        ''' <returns></returns>
+        Public Function WriteXmlTemplate(Of T)(Item As T, Xml As XmlNode) As Printer
+            Return WriteXmlTemplate(Item, Xml.OuterXml)
+        End Function
+
+        Public Function WriteXmlTemplate(Of T)(Item As IEnumerable(Of T), Xml As XmlNode) As Printer
+            Return WriteXmlTemplate(Item, Xml.OuterXml)
+        End Function
+
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="Item"></param>
+        ''' <param name="Xml"></param>
+        ''' <returns></returns>
+        Public Function WriteXmlTemplate(Of T)(Item As T, Xml As XDocument) As Printer
+            Return WriteXmlTemplate(Item, Xml.Root)
+        End Function
+
+        Public Function WriteXmlTemplate(Of T)(Item As IEnumerable(Of T), Xml As XDocument) As Printer
+            Return WriteXmlTemplate(Item, Xml.Root)
         End Function
 
         ''' <summary>
         ''' Escreve um template de um <see cref="XmlNode"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         ''' </summary>
-        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XElement) As Printer
-            For Each item In If(obj, {})
+        Public Function WriteXmlTemplate(Of T)(Items As IEnumerable(Of T), Xml As XElement) As Printer
+            For Each item In If(Items, {})
                 WriteXmlTemplate(item, Xml)
             Next
             Return Me
         End Function
 
-        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As String) As Printer
-            For Each item In If(obj, {})
+        Public Function WriteXmlTemplate(Of T)(Items As IEnumerable(Of T), Xml As String) As Printer
+            For Each item In If(Items, {})
                 WriteXmlTemplate(item, Xml)
             Next
             Return Me
         End Function
 
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As String) As Printer
+        Public Function WriteXmlTemplate(Of T)(Item As T, Xml As String) As Printer
             Dim n = XDocument.Parse(Xml)
-            Return WriteXmlTemplate(obj, n)
+            Return WriteXmlTemplate(Item, n)
         End Function
 
         ''' <summary>
         ''' Escreve um template de um <see cref="XmlNode"/> para o objeto designado substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         ''' </summary>
         ''' <typeparam name="T"></typeparam>
-        ''' <param name="obj"></param>
+        ''' <param name="Item"></param>
         ''' <param name="Xml"></param>
         ''' <returns></returns>
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XElement) As Printer
+        Public Function WriteXmlTemplate(Of T)(Item As T, Xml As XElement) As Printer
             Dim lines = 0
             If Xml.Name.LocalName.ToLower().IsIn("br") Then
                 Try
@@ -1248,8 +1286,8 @@ Namespace Printer.XmlTemplates
                 Dim v = Xml.Attribute("property")?.Value
                 If v.IsNotBlank Then
                     Dim prop = GetType(T).GetProperty(v)
-                    If prop IsNot Nothing AndAlso obj IsNot Nothing Then
-                        Dim itens As Object() = If(prop.GetValue(obj), {})
+                    If prop IsNot Nothing AndAlso Item IsNot Nothing Then
+                        Dim itens As Object() = If(prop.GetValue(Item), {})
                         If itens.Any() Then
                             If Xml.HasElements Then
                                 For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
@@ -1273,16 +1311,16 @@ Namespace Printer.XmlTemplates
                 Dim ltxt = left?.Value
                 Dim rtxt = right?.Value
 
-                If obj IsNot Nothing Then
-                    ltxt = ltxt.Inject(obj)
-                    rtxt = rtxt.Inject(obj)
+                If Item IsNot Nothing Then
+                    ltxt = ltxt.Inject(Item)
+                    rtxt = rtxt.Inject(Item)
                 End If
                 Return WritePair(ltxt, rtxt, Nothing, dotchar)
             End If
 
             If Xml.HasElements Then
                 For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
-                    WriteXmlTemplate(obj, node)
+                    WriteXmlTemplate(Item, node)
                 Next
                 Return Me
             End If
@@ -1342,8 +1380,8 @@ Namespace Printer.XmlTemplates
             Next
 
             Dim txt = Xml.Value
-            If obj IsNot Nothing Then
-                txt = txt.Inject(obj)
+            If Item IsNot Nothing Then
+                txt = txt.Inject(Item)
             End If
 
             Write(txt)
