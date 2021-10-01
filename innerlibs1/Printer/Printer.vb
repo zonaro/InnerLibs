@@ -737,7 +737,6 @@ Namespace Printer
             TestDiacritics()
             WriteLine("EOF :)")
             Separator()
-            NewLine()
             PartialPaperCut()
             Return Me
         End Function
@@ -933,195 +932,6 @@ Namespace Printer
         ''' <returns></returns>
         Public Function WriteClass(Of T As Class)(ByVal obj As IEnumerable(Of T), Optional PartialCutOnEach As Boolean = False) As Printer
             Return WriteClass(PartialCutOnEach, If(obj, {}).ToArray())
-        End Function
-
-        ''' <summary>
-        ''' Escreve um template de um <see cref="XmlDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="obj"></param>
-        ''' <param name="Xml"></param>
-        ''' <returns></returns>
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XDocument) As Printer
-            Return WriteXmlTemplate(obj, Xml.Root)
-        End Function
-
-        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XDocument) As Printer
-            Return WriteXmlTemplate(obj, Xml.Root)
-        End Function
-
-        ''' <summary>
-        ''' Escreve um template de um <see cref="XmlNode"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
-        ''' </summary>
-        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XElement) As Printer
-            For Each item In If(obj, {})
-                WriteXmlTemplate(item, Xml)
-            Next
-            Return Me
-        End Function
-
-        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As String) As Printer
-            For Each item In If(obj, {})
-                WriteXmlTemplate(item, Xml)
-            Next
-            Return Me
-        End Function
-
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As String) As Printer
-            Dim n = XDocument.Parse(Xml)
-            Return WriteXmlTemplate(obj, n)
-        End Function
-
-        ''' <summary>
-        ''' Escreve um template de um <see cref="XmlNode"/> para o objeto designado substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
-        ''' </summary>
-        ''' <typeparam name="T"></typeparam>
-        ''' <param name="obj"></param>
-        ''' <param name="Xml"></param>
-        ''' <returns></returns>
-        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XElement) As Printer
-            Dim lines = 0
-            If Xml.Name.LocalName.ToLower().IsIn("br") Then
-                Try
-                    lines = If(Xml.Attribute("count")?.Value.ToInteger(), 1)
-                Catch ex As Exception
-                    lines = 1
-                End Try
-                Return NewLine(lines)
-            End If
-
-            If Xml.Name.LocalName.ToLower().IsIn("partialcut", "partialpapercut") Then
-                Return PartialPaperCut()
-            End If
-
-            If Xml.Name.LocalName.ToLower().IsIn("cut", "fullcut", "fullpapercut", "hr") Then
-                Return FullPaperCut()
-            End If
-
-            If Xml.Name.LocalName.ToLower().IsIn("sep", "separator") Then
-                Dim sep = "-"
-                For Each attr In Xml.Attributes
-                    If attr.Name.LocalName.ToLower() = "char" Then
-                        Try
-                            sep = attr.Value
-                        Catch ex As Exception
-                            sep = "-"
-                        End Try
-                    End If
-                Next
-                Return Separator(sep)
-            End If
-
-            If Xml.Name.LocalName.ToLower.IsIn("list") Then
-                Dim v = Xml.Attribute("property")?.Value
-                If v.IsNotBlank Then
-                    Dim prop = GetType(T).GetProperty(v)
-                    If prop IsNot Nothing AndAlso obj IsNot Nothing Then
-                        Dim itens As Object() = If(prop.GetValue(obj), {})
-                        If itens.Any() Then
-                            If Xml.HasElements Then
-                                For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
-                                    WriteXmlTemplate(itens.AsEnumerable(), node)
-                                Next
-                            Else
-                                WriteXmlTemplate(itens.AsEnumerable(), Xml.Value)
-                            End If
-                        End If
-                    End If
-                End If
-                Return Me
-            End If
-
-            If Xml.Name.LocalName.ToLower.IsIn("pair") Then
-                Dim dotchar = Xml.Attribute("char")?.Value
-                dotchar = dotchar.GetFirstChars().IfBlank(" ")
-                Dim left = Xml.Descendants().FirstOrDefault(Function(x) x.Name = "left")
-                Dim right = Xml.Descendants().FirstOrDefault(Function(x) x.Name = "right")
-
-                Dim ltxt = left?.Value
-                Dim rtxt = right?.Value
-
-                If obj IsNot Nothing Then
-                    ltxt = ltxt.Inject(obj)
-                    rtxt = rtxt.Inject(obj)
-                End If
-                Return WritePair(ltxt, rtxt, Nothing, dotchar)
-            End If
-
-            If Xml.HasElements Then
-                For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
-                    WriteXmlTemplate(obj, node)
-                Next
-                Return Me
-            End If
-
-            'se chegou aqui, é so  tratar como texto mesmo
-
-            If Xml.Name.LocalName.ToLower().IsIn("line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6") Then
-                lines = 1
-            End If
-
-            For Each attr In Xml.Attributes
-
-                If attr.Name.LocalName.ToLower = "bold" Then Bold($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
-                If attr.Name.LocalName.ToLower = "italic" Then Italic($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
-                If attr.Name.LocalName.ToLower = "underline" Then UnderLine($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
-
-                If attr.Name.LocalName = "lines" Then
-                    Try
-                        lines = attr.Value?.ToInteger
-                    Catch ex As Exception
-                        lines = 0
-                    End Try
-                End If
-
-                If attr.Name.LocalName = "align" Then
-                    Select Case attr.Value?.ToLower()
-                        Case "right"
-                            AlignRight()
-                        Case "center"
-                            AlignCenter()
-                        Case Else
-                            AlignLeft()
-                    End Select
-                End If
-
-                If attr.Name.LocalName = "font-size" Then
-                    Select Case attr.Value?.ToLower
-                        Case "2", "medium"
-                            MediumFontSize()
-                        Case "3", "large"
-                            LargeFontSize()
-                        Case Else
-                            NormalFontSize()
-                    End Select
-                End If
-
-                If attr.Name.LocalName = "font-stretch" Then
-                    Select Case attr.Value?.ToLower
-                        Case "2", "condensed"
-                            Condensed()
-                        Case "3", "expanded"
-                            Expanded()
-                        Case Else
-                            NotCondensed().NotExpanded()
-                    End Select
-                End If
-            Next
-
-            Dim txt = Xml.Value
-            If obj IsNot Nothing Then
-                txt = txt.Inject(obj)
-            End If
-
-            Write(txt)
-
-            If lines > 0 Then
-                NewLine(lines)
-            End If
-            AlignLeft()
-            ResetFont()
-            Return Me
         End Function
 
         ''' <summary>
@@ -1346,6 +1156,204 @@ Namespace Printer
             HTMLDocument.Root.Add(XElement.Parse($"<img class='image{HighDensity.AsIf(" HighDensity")}'  src='{Img.ToDataURL()}' />"))
             _ommit = True
             Return Write(Command.PrintImage(Img, HighDensity))
+        End Function
+
+    End Class
+
+End Namespace
+
+Namespace Printer.XmlTemplates
+
+    Public Class XmlTemplatePrinter
+        Inherits Printer
+
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="obj"></param>
+        ''' <param name="Xml"></param>
+        ''' <returns></returns>
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XDocument) As Printer
+            Return WriteXmlTemplate(obj, Xml.Root)
+        End Function
+
+        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XDocument) As Printer
+            Return WriteXmlTemplate(obj, Xml.Root)
+        End Function
+
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XmlNode"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As XElement) As Printer
+            For Each item In If(obj, {})
+                WriteXmlTemplate(item, Xml)
+            Next
+            Return Me
+        End Function
+
+        Public Function WriteXmlTemplate(Of T)(obj As IEnumerable(Of T), Xml As String) As Printer
+            For Each item In If(obj, {})
+                WriteXmlTemplate(item, Xml)
+            Next
+            Return Me
+        End Function
+
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As String) As Printer
+            Dim n = XDocument.Parse(Xml)
+            Return WriteXmlTemplate(obj, n)
+        End Function
+
+        ''' <summary>
+        ''' Escreve um template de um <see cref="XmlNode"/> para o objeto designado substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        ''' </summary>
+        ''' <typeparam name="T"></typeparam>
+        ''' <param name="obj"></param>
+        ''' <param name="Xml"></param>
+        ''' <returns></returns>
+        Public Function WriteXmlTemplate(Of T)(obj As T, Xml As XElement) As Printer
+            Dim lines = 0
+            If Xml.Name.LocalName.ToLower().IsIn("br") Then
+                Try
+                    lines = If(Xml.Attribute("count")?.Value.ToInteger(), 1)
+                Catch ex As Exception
+                    lines = 1
+                End Try
+                Return NewLine(lines)
+            End If
+
+            If Xml.Name.LocalName.ToLower().IsIn("partialcut", "partialpapercut") Then
+                Return PartialPaperCut()
+            End If
+
+            If Xml.Name.LocalName.ToLower().IsIn("cut", "fullcut", "fullpapercut", "hr") Then
+                Return FullPaperCut()
+            End If
+
+            If Xml.Name.LocalName.ToLower().IsIn("sep", "separator") Then
+                Dim sep = "-"
+                For Each attr In Xml.Attributes
+                    If attr.Name.LocalName.ToLower() = "char" Then
+                        Try
+                            sep = attr.Value
+                        Catch ex As Exception
+                            sep = "-"
+                        End Try
+                    End If
+                Next
+                Return Separator(sep)
+            End If
+
+            If Xml.Name.LocalName.ToLower.IsIn("list") Then
+                Dim v = Xml.Attribute("property")?.Value
+                If v.IsNotBlank Then
+                    Dim prop = GetType(T).GetProperty(v)
+                    If prop IsNot Nothing AndAlso obj IsNot Nothing Then
+                        Dim itens As Object() = If(prop.GetValue(obj), {})
+                        If itens.Any() Then
+                            If Xml.HasElements Then
+                                For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
+                                    WriteXmlTemplate(itens.AsEnumerable(), node)
+                                Next
+                            Else
+                                WriteXmlTemplate(itens.AsEnumerable(), Xml.Value)
+                            End If
+                        End If
+                    End If
+                End If
+                Return Me
+            End If
+
+            If Xml.Name.LocalName.ToLower.IsIn("pair") Then
+                Dim dotchar = Xml.Attribute("char")?.Value
+                dotchar = dotchar.GetFirstChars().IfBlank(" ")
+                Dim left = Xml.Descendants().FirstOrDefault(Function(x) x.Name = "left")
+                Dim right = Xml.Descendants().FirstOrDefault(Function(x) x.Name = "right")
+
+                Dim ltxt = left?.Value
+                Dim rtxt = right?.Value
+
+                If obj IsNot Nothing Then
+                    ltxt = ltxt.Inject(obj)
+                    rtxt = rtxt.Inject(obj)
+                End If
+                Return WritePair(ltxt, rtxt, Nothing, dotchar)
+            End If
+
+            If Xml.HasElements Then
+                For Each node As XElement In Xml.Nodes.Where(Function(x) x.GetType Is GetType(XElement))
+                    WriteXmlTemplate(obj, node)
+                Next
+                Return Me
+            End If
+
+            'se chegou aqui, é so  tratar como texto mesmo
+
+            If Xml.Name.LocalName.ToLower().IsIn("line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6") Then
+                lines = 1
+            End If
+
+            For Each attr In Xml.Attributes
+
+                If attr.Name.LocalName.ToLower = "bold" Then Bold($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
+                If attr.Name.LocalName.ToLower = "italic" Then Italic($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
+                If attr.Name.LocalName.ToLower = "underline" Then UnderLine($"{attr.Value}".ToLower.IfBlank("true").ToBoolean())
+
+                If attr.Name.LocalName = "lines" Then
+                    Try
+                        lines = attr.Value?.ToInteger
+                    Catch ex As Exception
+                        lines = 0
+                    End Try
+                End If
+
+                If attr.Name.LocalName = "align" Then
+                    Select Case attr.Value?.ToLower()
+                        Case "right"
+                            AlignRight()
+                        Case "center"
+                            AlignCenter()
+                        Case Else
+                            AlignLeft()
+                    End Select
+                End If
+
+                If attr.Name.LocalName = "font-size" Then
+                    Select Case attr.Value?.ToLower
+                        Case "2", "medium"
+                            MediumFontSize()
+                        Case "3", "large"
+                            LargeFontSize()
+                        Case Else
+                            NormalFontSize()
+                    End Select
+                End If
+
+                If attr.Name.LocalName = "font-stretch" Then
+                    Select Case attr.Value?.ToLower
+                        Case "2", "condensed"
+                            Condensed()
+                        Case "3", "expanded"
+                            Expanded()
+                        Case Else
+                            NotCondensed().NotExpanded()
+                    End Select
+                End If
+            Next
+
+            Dim txt = Xml.Value
+            If obj IsNot Nothing Then
+                txt = txt.Inject(obj)
+            End If
+
+            Write(txt)
+
+            If lines > 0 Then
+                NewLine(lines)
+            End If
+            AlignLeft()
+            ResetFont()
+            Return Me
         End Function
 
     End Class
