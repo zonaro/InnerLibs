@@ -122,6 +122,7 @@ Public Class HSVColor
     End Sub
 
 
+
     Sub New(R As Integer, G As Integer, B As Integer)
         Me.New(255, R, G, B)
     End Sub
@@ -348,9 +349,10 @@ Public Class HSVColor
     ''' <returns></returns>
     Public ReadOnly Property CSS As String
         Get
-            If Me.Alpha = 255 Then Return _scolor.ToCssRGB() Else Return _scolor.ToCssRGBA()
+            Return _scolor.ToCssRGB()
         End Get
     End Property
+
 
     ''' <summary>
     ''' Mood da cor

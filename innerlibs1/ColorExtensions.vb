@@ -8,7 +8,6 @@ Imports System.Text.RegularExpressions
 ''' <remarks></remarks>
 Public Module ColorExtensions
 
-
     ''' <summary>
     ''' Retorna a <see cref="ConsoleColor"/> mais proxima de uma <see cref="Color"/>
     ''' </summary>
@@ -27,9 +26,17 @@ Public Module ColorExtensions
     ''' </summary>
     ''' <param name="Color"></param>
     ''' <returns></returns>
-    <Extension> Public Function ToColor(ByVal Color As System.ConsoleColor) As HSVColor
-        Dim cColors As Integer() = {&H0, &H80, &H8000, &H8080, &H800000, &H800080, &H808000, &HC0C0C0, &H808080, &HFF, &HFF00, &HFFFF, &HFF0000, &HFF00FF, &HFFFF00, &HFFFFFF}
-        Return New HSVColor(cColors(CInt(Color))) With {.Alpha = 255}
+    <Extension> Public Function ToColor(ByVal Color As System.ConsoleColor) As Color
+        Return Drawing.Color.FromName(ClassTools.GetEnumValueAsString(Color))
+    End Function
+
+    ''' <summary>
+    ''' Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
+    ''' </summary>
+    ''' <param name="Color"></param>
+    ''' <returns></returns>
+    <Extension> Public Function ToHSVColor(ByVal Color As System.ConsoleColor) As HSVColor
+        Return New HSVColor(Color.ToColor())
     End Function
 
     <Extension()> Public Function ToHSVColorList(ColorList As IEnumerable(Of Color)) As IEnumerable(Of HSVColor)
@@ -65,7 +72,6 @@ Public Module ColorExtensions
         Dim cl = Color
         Dim cd = Color
 
-
         While l.Count < Amount
             If (Color.IsLight) Then
                 If (cd <> Color.Black) Then
@@ -89,11 +95,9 @@ Public Module ColorExtensions
             End If
         End While
 
-
         Return l.ToHSVColorList().OrderByDescending(Function(x) x)
 
     End Function
-
 
     ''' <summary>
     ''' Retorna  a cor negativa de uma cor
@@ -210,13 +214,12 @@ Public Module ColorExtensions
     ''' <returns>String contendo a cor em RGB</returns>
 
     <Extension()>
-    Public Function ToCssRGB(Color As System.Drawing.Color) As String
-        Return "rgb(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & ")"
-    End Function
-
-    <Extension()>
-    Public Function ToCssRGBA(Color As System.Drawing.Color) As String
-        Return "rgba(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & "," & Color.A.ToString() & ")"
+    Public Function ToCssRGB(Color As System.Drawing.Color, Optional Alpha As Boolean = True) As String
+        If Alpha AndAlso Color.A = 255 Then
+            Return "rgb(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & ")"
+        Else
+            Return "rgba(" & Color.R.ToString() & "," & Color.G.ToString() & "," & Color.B.ToString() & "," & Color.A.ToInteger().ToString() & ")"
+        End If
     End Function
 
     <Extension()> Public Function IsHexaDecimalColor(ByVal Text As String) As Boolean
@@ -224,9 +227,6 @@ Public Module ColorExtensions
         Dim myRegex As Regex = New Regex("^[a-fA-F0-9]+$")
         Return Text.IsNotBlank AndAlso myRegex.IsMatch(Text)
     End Function
-
-
-
 
     ''' <summary>
     ''' Gera uma cor a partir de uma palavra
@@ -354,14 +354,4 @@ Public Module ColorExtensions
         Return Not ((diff < (1.5 + 141.162 * Math.Pow(0.975, Size)))) AndAlso (diff > (-0.5 - 154.709 * Math.Pow(0.99, Size)))
     End Function
 
-
-
-
-
-
-
 End Module
-
-
-
-
