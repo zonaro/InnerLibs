@@ -27,7 +27,7 @@ Public Module ColorExtensions
     ''' <param name="Color"></param>
     ''' <returns></returns>
     <Extension> Public Function ToColor(ByVal Color As System.ConsoleColor) As Color
-        Return Drawing.Color.FromName(ClassTools.GetEnumValueAsString(Color))
+        Return ToHSVColor(Color).ToSystemColor()
     End Function
 
     ''' <summary>
@@ -36,7 +36,7 @@ Public Module ColorExtensions
     ''' <param name="Color"></param>
     ''' <returns></returns>
     <Extension> Public Function ToHSVColor(ByVal Color As System.ConsoleColor) As HSVColor
-        Return New HSVColor(Color.ToColor())
+        Return New HSVColor(ClassTools.GetEnumValueAsString(Color))
     End Function
 
     <Extension()> Public Function ToHSVColorList(ColorList As IEnumerable(Of Color)) As IEnumerable(Of HSVColor)
@@ -235,7 +235,7 @@ Public Module ColorExtensions
     ''' <returns></returns>
     <Extension> Public Function ToColor(Text As String) As Color
 
-        If Text.IsBlank() Then
+        If Text.IsBlank() OrElse Text.ToLower.IsIn("transparent", "invisible", "nocolor") Then
             Return Color.Transparent
         End If
 
@@ -249,13 +249,45 @@ Public Module ColorExtensions
 
         Text = Text.Replace("grey", "gray")
 
-        If Text.IsIn(KnowColors.Select(Function(x) x.Name), StringComparer.InvariantCultureIgnoreCase) Then
-            Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = Text.ToLower())
+        Dim cols = KnowColors.Select(Function(x) x.Name.ToLower())
+
+        Dim possiblecolor = cols.FirstOrDefault(Function(x) x = Text.ToLower())
+
+        If possiblecolor.IsNotBlank() Then
+            Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = possiblecolor.ToLower())
         End If
+
+        Dim possiblecolor_dark = cols.FirstOrDefault(Function(x) x = Text.ToLower().RemoveFirstEqual("dark"))
+
+
+        If possiblecolor_dark.IsNotBlank() Then
+            Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = possiblecolor_dark.ToLower()).MakeDarker()
+        End If
+
+        Dim possiblecolor_light = cols.FirstOrDefault(Function(x) x = Text.ToLower().RemoveFirstEqual("light"))
+
+
+        If possiblecolor_light.IsNotBlank() Then
+            Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = possiblecolor_dark.ToLower()).MakeLighter()
+        End If
+
+
 
         If Text.IsHexaDecimalColor Then
             Return ColorTranslator.FromHtml("#" & Text.RemoveFirstEqual("#").IfBlank("000000"))
         End If
+
+
+        Dim colorsFromPart = Text.SplitAny(" ", "+", "-").SelectMany(Function(x) x.CamelSplit().Select(Function(y) y.ToLower())).Where(Function(x) x.IsIn(cols))
+
+        If colorsFromPart.Any() Then
+            Dim maincolor As HSVColor = Nothing
+            For Each c In colorsFromPart
+                maincolor = If(maincolor Is Nothing, New HSVColor(c), maincolor.Combine(c))
+            Next
+            Return maincolor.ToSystemColor()
+        End If
+
 
         Dim coresInt = Text.GetWords.Select(Function(p) p.ToCharArray().Sum(Function(a) AscW(a) ^ 2 * p.Length)).Sum()
 

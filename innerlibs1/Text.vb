@@ -1181,7 +1181,7 @@ Public Module Text
     ''' <returns>String HTML corrigido</returns>
     <Extension()>
     Public Function HtmlEncode(ByVal Text As String) As String
-        Return System.Net.WebUtility.HtmlEncode("" & Text.ReplaceMany("<br>", BreakLineChars))
+        Return System.Net.WebUtility.HtmlEncode("" & Text.ReplaceMany("<br>", BreakLineChars.ToArray()))
     End Function
 
     ''' <summary>
