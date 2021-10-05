@@ -268,7 +268,7 @@ Public Module ColorExtensions
 
 
         If possiblecolor_light.IsNotBlank() Then
-            Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = possiblecolor_dark.ToLower()).MakeLighter()
+            Return KnowColors.FirstOrDefault(Function(x) x.Name.ToLower() = possiblecolor_light.ToLower()).MakeLighter()
         End If
 
 
