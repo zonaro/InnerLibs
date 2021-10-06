@@ -20,7 +20,7 @@
         Property Clusters As New List(Of Cluster)
 
         ''' <summary>
-        ''' Tipo do Grafico (graph, digraph)
+        ''' Tipo do Grafico (graph, digraph,subgraph)
         ''' </summary>
         ''' <returns></returns>
 

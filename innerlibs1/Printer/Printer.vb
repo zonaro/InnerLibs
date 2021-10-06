@@ -105,7 +105,6 @@ Namespace Printer
         Private _ommit As Boolean = False
 
         Private FontMode As String = "Normal"
-        Private FontSize As String = "Normal"
 
         Private Align As String = "Left"
 
@@ -165,26 +164,26 @@ Namespace Printer
 
         Public Property IsMedium As Boolean
             Get
-                Return FontSize = "Medium"
+                Return FontMode = "Medium"
             End Get
             Set(value As Boolean)
                 If value Then
-                    FontSize = "Medium"
+                    FontMode = "Medium"
                 Else
-                    FontSize = "Normal"
+                    FontMode = "Normal"
                 End If
             End Set
         End Property
 
         Public Property IsLarge As Boolean
             Get
-                Return FontSize = "Large"
+                Return FontMode = "Large"
             End Get
             Set(value As Boolean)
                 If value Then
-                    FontSize = "Large"
+                    FontMode = "Large"
                 Else
-                    FontSize = "Normal"
+                    FontMode = "Normal"
                 End If
             End Set
         End Property
@@ -429,80 +428,72 @@ Namespace Printer
         ''' </summary>
         ''' <returns></returns>
         Public Function ResetFont() As Printer
-            Return NormalFontSize().NormalFontStretch().NormalFontStyle()
+            Return Normal().NoStyle()
         End Function
 
-        Public Function NormalFontStretch() As Printer
-            Return NotCondensed().NotExpanded()
-        End Function
-
-        Public Function NormalFontStyle() As Printer
+        ''' <summary>
+        ''' Remove qualquer formatação presente (italico, sublinhado ou negrito)
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function NoStyle() As Printer
             Return NotBold().NotItalic().NotUnderline()
         End Function
 
-        Public Function Italic(Optional state As Boolean = True) As Printer
+        Public Function Italic(Optional OnOff As Boolean = True) As Printer
             _ommit = True
-            _IsItalic = state
-            Return Write(Command.Italic(state))
+            _IsItalic = OnOff
+            Return Write(Command.Italic(OnOff))
         End Function
 
         Public Function NotItalic() As Printer
             Return Italic(False)
         End Function
 
-        Public Function Bold(Optional state As Boolean = True) As Printer
+        Public Function Bold(Optional OnOff As Boolean = True) As Printer
             _ommit = True
-            _IsBold = state
-            Return Write(Command.Bold(state))
+            _IsBold = OnOff
+            Return Write(Command.Bold(OnOff))
         End Function
 
         Public Function NotBold() As Printer
             Return Bold(False)
         End Function
 
-        Public Function UnderLine(Optional state As Boolean = True) As Printer
+        Public Function UnderLine(Optional OnOff As Boolean = True) As Printer
             _ommit = True
-            _IsUnderline = state
-            Return Write(Command.Underline(state))
+            _IsUnderline = OnOff
+            Return Write(Command.Underline(OnOff))
         End Function
 
         Public Function NotUnderline() As Printer
             Return UnderLine(False)
         End Function
 
-        Public Function Expanded(Optional state As Boolean = True) As Printer
+        Public Function Expanded(Optional OnOff As Boolean = True) As Printer
             _ommit = True
-            IsExpanded = state
-            Return Write(Command.Expanded(state))
+            IsExpanded = OnOff
+            Return Write(Command.Expanded(OnOff))
         End Function
 
-        Public Function NotExpanded() As Printer
-            Return Expanded(False)
-        End Function
-
-        Public Function Condensed(Optional state As Boolean = True) As Printer
-            IsCondensed = state
+        Public Function Condensed(Optional OnOff As Boolean = True) As Printer
             _ommit = True
-            Return Write(Command.Condensed(state))
+            IsCondensed = OnOff
+            Return Write(Command.Condensed(OnOff))
         End Function
 
-        Public Function NotCondensed() As Printer
-            Return Condensed(False)
-        End Function
-
-        Public Function NormalFontSize() As Printer
+        Public Function Normal() As Printer
+            _ommit = True
             FontMode = "Normal"
-            _ommit = True
             Return Write(Command.NormalFontSize())
         End Function
 
-        Public Function MediumFontSize() As Printer
-            IsMedium = True
+        Public Function Medium() As Printer
             _ommit = True
+            IsMedium = True
             Return Write(Command.MediumFontSize())
         End Function
 
-        Public Function LargeFontSize() As Printer
+        Public Function Large() As Printer
             IsLarge = True
             _ommit = True
             Return Write(Command.LargeFontSize())
@@ -576,17 +567,17 @@ Namespace Printer
         End Function
 
         ''' <summary>
-        ''' Retorna o numero de colunas  do modo atual
+        ''' Retorna o numero de colunas  do modo atual d
         ''' </summary>
         ''' <returns></returns>
         Public Function GetCurrentColumns() As Integer
-            If IsCondensed Then
-                Return Me.ColumnsCondensed
-            ElseIf IsExpanded Then
-                Return Me.ColumnsExpanded
-            Else
-                Return Me.ColumnsNomal
-            End If
+
+            If IsCondensed Then Return Me.ColumnsCondensed
+            If IsExpanded Then Return Me.ColumnsExpanded
+            If IsMedium Then Return (Me.ColumnsNomal / 2).FloorInt()
+            If IsLarge Then Return (Me.ColumnsNomal / 3).FloorInt()
+            Return Me.ColumnsNomal
+
         End Function
 
         Private Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As String
@@ -616,15 +607,15 @@ Namespace Printer
         ''' </summary>
         ''' <param name="value"></param>
         ''' <returns></returns>
-        Public Overloads Function Write(ByVal value As Byte()) As Printer
-            If value IsNot Nothing AndAlso value.Any Then
+        Public Overloads Function Write(ByVal Value As Byte()) As Printer
+            If Value IsNot Nothing AndAlso Value.Any Then
                 Dim list = New List(Of Byte)
                 If DocumentBuffer IsNot Nothing Then list.AddRange(DocumentBuffer)
-                list.AddRange(value)
+                list.AddRange(Value)
                 DocumentBuffer = list.ToArray
                 If _ommit = False Then
                     Try
-                        Dim v = Command.Encoding.GetString(value).ReplaceMany("<br/>", BreakLineChars.ToArray())
+                        Dim v = Command.Encoding.GetString(Value).ReplaceMany("<br/>", BreakLineChars.ToArray())
                         If v = "<br/>" Then
                             HTMLDocument.Root.Add(<br/>)
                         Else
@@ -716,14 +707,14 @@ Namespace Printer
             Italic().WriteLine("Italic Text").NotItalic()
             Bold().WriteLine("Bold Text").NotBold()
             UnderLine.WriteLine("UnderLine Text").NotUnderline()
-            Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded()
-            Condensed().WriteLine("Condensed Text").NotCondensed()
+            Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....")
+            Condensed().WriteLine("Condensed Text")
             Separator()
-            MediumFontSize()
+            Medium()
             WriteLine("Font Size 2")
-            LargeFontSize()
+            Large()
             WriteLine("Font Size 3")
-            NormalFontSize()
+            Normal()
             WriteLine("Normal Font Size")
             Separator()
             AlignRight()
@@ -1356,25 +1347,18 @@ Namespace Printer.XmlTemplates
                     End Select
                 End If
 
-                If attr.Name.LocalName = "font-size" Then
-                    Select Case attr.Value?.ToLower
-                        Case "2", "medium"
-                            MediumFontSize()
-                        Case "3", "large"
-                            LargeFontSize()
-                        Case Else
-                            NormalFontSize()
-                    End Select
-                End If
-
-                If attr.Name.LocalName = "font-stretch" Then
+                If attr.Name.LocalName = "font" Then
                     Select Case attr.Value?.ToLower
                         Case "2", "condensed"
                             Condensed()
-                        Case "3", "expanded"
+                        Case "3", "medium"
+                            Medium()
+                        Case "4", "expanded"
                             Expanded()
+                        Case "5", "large"
+                            Large()
                         Case Else
-                            NotCondensed().NotExpanded()
+                            Normal()
                     End Select
                 End If
             Next
