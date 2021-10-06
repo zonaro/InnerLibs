@@ -573,7 +573,7 @@ Public Module MathExt
 
     <Extension()>
     Function CalculatePercent(ByVal Value As Decimal, Total As Decimal) As Decimal
-        Return Convert.ToDecimal(100D * Value / Total)
+        Return If(Total > 0, Convert.ToDecimal(100D * Value / Total), 0)
     End Function
 
     ''' <summary>
@@ -587,7 +587,11 @@ Public Module MathExt
 
     <Extension()>
     Function CalculateValueFromPercent(Percent As String, Total As Decimal) As Decimal
-        Return Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", "")) * Total / 100)
+        Percent = Percent.Replace("%", "").Trim()
+        If Percent.IsNumber Then
+            Return CalculateValueFromPercent(Percent.ToDecimal(), Total)
+        End If
+        Return 0
     End Function
 
     ''' <summary>
@@ -601,7 +605,7 @@ Public Module MathExt
 
     <Extension()>
     Function CalculateValueFromPercent(Percent As Integer, Total As Decimal) As Decimal
-        Return Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100))
+        Return CalculateValueFromPercent(Percent.ToDecimal, Total)
     End Function
 
     ''' <summary>
