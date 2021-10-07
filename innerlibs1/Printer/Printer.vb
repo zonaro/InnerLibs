@@ -281,18 +281,7 @@ Namespace Printer
             Return Me
         End Function
 
-        ''' <summary>
-        ''' Funcao que reescreve o valor antes de chamar o <see cref="Write(String, Boolean)"/>
-        ''' </summary>
-        ''' <param name="StringAction"></param>
-        ''' <returns></returns>
-        Public Function UseRewriteFunction(StringAction As Action(Of String)) As Printer
-            Me.RewriteFunction = Function(x)
-                                     StringAction(x)
-                                     Return x
-                                 End Function
-            Return Me
-        End Function
+
         ''' <summary>
         ''' Remove a função de reescrita de valor definida pela <see cref="UseRewriteFunction(Func(Of String, String))"/>
         ''' </summary>
@@ -323,9 +312,9 @@ Namespace Printer
         ''' </summary>
         ''' <param name="Lines"></param>
         ''' <returns></returns>
-        Public Shadows Function NewLine(Optional Lines As Integer = 1) As Printer
+        Public Function NewLine(Optional Lines As Integer = 1) As Printer
             While (Lines > 0)
-                Me.Write(Me.Command.Encoding.GetBytes(vbNewLine))
+                Me.Write(vbNewLine)
                 Lines = Lines - 1
             End While
             Return Me
@@ -337,10 +326,7 @@ Namespace Printer
         ''' <param name="Spaces"></param>
         ''' <returns></returns>
         Public Function Space(Optional Spaces As Integer = 1) As Printer
-            While (Spaces > 0)
-                Write(Me.Command.Encoding.GetBytes(" "))
-                Spaces = Spaces - 1
-            End While
+            If Spaces > 0 Then Write(New String(" "c, Spaces))
             Return Me
         End Function
 
@@ -616,35 +602,50 @@ Namespace Printer
             End If
             Return Me
         End Function
+
+
+        Public Overloads Function Write(ByVal value As String, Test As Expression(Of Func(Of String, Boolean))) As Printer
+            Return Write(value, If(Test IsNot Nothing, Test.Compile.Invoke(value), True))
+        End Function
+
         ''' <summary>
         ''' Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE e quebra uma linha
         ''' </summary>
         ''' <param name="value"></param>
         ''' <param name="Test"></param>
         ''' <returns></returns>
-        Public Shadows Function WriteLine(ByVal value As String, Test As Boolean) As Printer
+        Public Function WriteLine(ByVal value As String, Test As Expression(Of Func(Of String, Boolean))) As Printer
+            Return WriteLine(value, If(Test IsNot Nothing, Test.Compile.Invoke(value), True))
+        End Function
+
+        Public Function WriteLine(ByVal value As String, Test As Boolean) As Printer
             Return If(Test, Write(value, Test).NewLine(), Me)
         End Function
+
         ''' <summary>
         ''' Escreve o <paramref name="value"/>   e quebra uma linha
         ''' </summary>
         ''' <param name="value"></param>
         ''' <returns></returns>
-        Public Shadows Function WriteLine(ByVal value As String) As Printer
+        Public Function WriteLine(ByVal value As String) As Printer
             Return WriteLine(value, True)
         End Function
+
+
         ''' <summary>
         ''' Escreve varias linhas no <see cref="DocumentBuffer"/>
         ''' </summary>
         ''' <param name="values"></param>
         ''' <returns></returns>
-        Public Shadows Function WriteLine(ParamArray values As String()) As Printer
+        Public Function WriteLine(ParamArray values As String()) As Printer
             values = If(values, {}).Where(Function(x) x.IsNotBlank()).ToArray()
             If values.Any() Then
                 WriteLine(values.Join(vbNewLine))
             End If
             Return Me
         End Function
+
+
         ''' <summary>
         ''' Escreve um teste de 48 colunas no <see cref="DocumentBuffer"/>
         ''' </summary>
@@ -734,6 +735,19 @@ Namespace Printer
             If dics.Any() Then If PartialCutOnEach Then PartialPaperCut() Else Separator()
             Return Me
         End Function
+
+
+        Public Function WriteScriptLine(Optional Columns As Integer? = Nothing, Optional Name As String = "") As Printer
+            ResetFont()
+            NewLine(5)
+            Me.AlignCenter()
+            Separator("_"c, Columns)
+            WriteLine(Name, Name.IsNotBlank)
+            Me.ResetFont()
+            Return Me
+        End Function
+
+
         ''' <summary>
         ''' Escreve uma lista de itens no <see cref="DocumentBuffer"/>
         ''' </summary>
