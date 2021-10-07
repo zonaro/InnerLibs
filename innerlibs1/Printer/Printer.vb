@@ -526,15 +526,21 @@ Namespace Printer
         ''' <returns></returns>
         Public Function GetCurrentColumns() As Integer
             If IsCondensed Then
+                If IsLarge Then Return Me.ColumnsCondensed / 3
+                If IsMedium Then Return Me.ColumnsCondensed / 2
                 Return Me.ColumnsCondensed
             ElseIf IsExpanded Then
+                If IsLarge Then Return Me.ColumnsExpanded / 3
+                If IsMedium Then Return Me.ColumnsExpanded / 2
                 Return Me.ColumnsExpanded
             Else
+                If IsLarge Then Return Me.ColumnsNomal / 3
+                If IsMedium Then Return Me.ColumnsNomal / 2
                 Return Me.ColumnsNomal
             End If
         End Function
 
-        Private Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As String
+        Friend Function GetDotLine(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As String
             Columns = If(Columns, GetCurrentColumns())
             If CharLine.ToString.IsBlank Then
                 CharLine = " "c
@@ -542,7 +548,8 @@ Namespace Printer
             If Columns > 0 Then Return New String(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange(0, Columns.Value))
             Return ""
         End Function
-        Public Function GetPair(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As String
+
+        Friend Function GetPair(LeftText As String, RightText As String, Optional Columns As Integer? = Nothing, Optional CharLine As Char = " "c) As String
             Columns = If(Columns, GetCurrentColumns())
             Dim dots = ""
             Dim s1 = $"{LeftText}"
