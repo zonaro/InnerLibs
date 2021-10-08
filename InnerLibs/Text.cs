@@ -4633,12 +4633,12 @@ namespace InnerLibs
 
         public string ToString(long Number)
         {
-            return Number.IsIn(1L, -1) ? Singular : Plural;
+            return Number.IsIn(1L, -1L) ? Singular : Plural;
         }
 
         public string ToString(decimal Number)
         {
-            return Number.Floor().IsIn(1m, -1) ? Singular : Plural;
+            return Number.Floor().IsIn(1m, -1m) ? Singular : Plural;
         }
 
         public string ToString(short Number)
@@ -4653,12 +4653,12 @@ namespace InnerLibs
 
         public string ToString(double Number)
         {
-            return Number.Floor().IsIn(1d, -1) ? Singular : Plural;
+            return Number.Floor().IsIn(1d, -1d) ? Singular : Plural;
         }
 
         public string ToString(float Number)
         {
-            return Number.IsIn(1f, -1) ? Singular : Plural;
+            return Number.IsIn(1f, -1f) ? Singular : Plural;
         }
     }
 

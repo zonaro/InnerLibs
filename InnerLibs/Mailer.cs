@@ -177,14 +177,17 @@ namespace InnerLibs
             To.Add(new TemplateMailAddress(Email, DisplayName, TemplateData));
             return this;
         }
-        public FluentMailMessage AddRecipient<T>(T Data, Expression<Func<T, string>> EmailSelector)
-        {
-            return AddRecipient<T>(EmailSelector.Compile().Invoke(Data), Data);
-        }
+
 
         public FluentMailMessage AddRecipient<T>(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             To.Add(TemplateMailAddress.FromObject(Data, EmailSelector, NameSelector));
+            return this;
+        }
+
+        public FluentMailMessage AddRecipient<T>(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
+        {
+            foreach (var m in TemplateMailAddress.FromList(Data, EmailSelector, NameSelector)) To.Add(m);
             return this;
         }
 
