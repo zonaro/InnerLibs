@@ -27,7 +27,7 @@ namespace InnerLibs
             string word = "";
             if (Length == 1)
             {
-                return Text.RandomItem(Arrays.Consonants.Union(Arrays.Vowels).ToArray());
+                return Text.RandomItem(Arrays.LowerConsonants.Union(Arrays.LowerVowels).ToArray());
             }
 
             // Generate the word in consonant / vowel pairs
@@ -35,7 +35,7 @@ namespace InnerLibs
             {
 
                 // Add the consonant
-                string consonant = Arrays.Consonants.GetRandomItem();
+                string consonant = Arrays.LowerConsonants.GetRandomItem();
                 if (consonant == "q" && word.Length + 3 <= Length)
                 {
                     // check +3 because we'd add 3 characters in this case, the "qu" and the vowel.  Change 3 to 2 to allow words that end in "qu"
@@ -45,7 +45,7 @@ namespace InnerLibs
                 {
                     while (consonant == "q")
                         // ReplaceFrom an orphaned "q"
-                        consonant = Arrays.Consonants.GetRandomItem();
+                        consonant = Arrays.LowerConsonants.GetRandomItem();
                     if (word.Length + 1 <= Length)
                     {
                         // Only add a consonant if there's enough room remaining
@@ -56,7 +56,7 @@ namespace InnerLibs
                 if (word.Length + 1 <= Length)
                 {
                     // Only add a vowel if there's enough room remaining
-                    word += Arrays.Vowels.GetRandomItem();
+                    word += Arrays.LowerVowels.GetRandomItem();
                 }
             }
 

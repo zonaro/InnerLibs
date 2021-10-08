@@ -1636,12 +1636,12 @@ namespace InnerLibs
             {
                 decimal l = (decimal)(Text.Length / 2d);
                 l = l.Floor();
-                if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLower().IsIn(Arrays.Vowels))
+                if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLower().IsIn(Arrays.LowerVowels))
                 {
                     l = l.ChangeType<int, decimal>() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().Join().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).RemoveFirstAny(Arrays.Consonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().Join().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).RemoveFirstAny(Arrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
