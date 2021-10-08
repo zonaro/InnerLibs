@@ -248,9 +248,16 @@ namespace InnerLibs
             try
             {
                 var tipo = ClassTools.GetNullableTypeOf(ToType);
-                if (Value is null)
+                if (Value == null)
                 {
-                    return null;
+                    if (!tipo.IsPrimitiveType() || ToType.IsNullableType())
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return default;
+                    }
                 }
 
                 if (tipo == typeof(Guid))
@@ -272,7 +279,7 @@ namespace InnerLibs
                 }
                 else
                 {
-                    return Conversion.CTypeDynamic(Value, ToType);
+                    return Convert.ChangeType(Value, ToType);
                 }
             }
             catch (Exception ex)
