@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -11,6 +12,40 @@ namespace InnerLibs
 {
     public class TemplateMailAddress : MailAddress
     {
+
+        public static IEnumerable<TemplateMailAddress> FromList<T>(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
+        {
+            return (Data ?? new T[] { }.AsEnumerable()).Select(x => FromObject(x, EmailSelector, NameSelector)).Where(x => x != null);
+        }
+        public static TemplateMailAddress FromObject<T>(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
+        {
+            if (Data != null)
+            {
+                var name = "";
+                var email = "";
+
+                if (EmailSelector != null)
+                {
+                    email = EmailSelector.Compile().Invoke(Data);
+                }
+
+                if (NameSelector != null)
+                {
+                    name = NameSelector.Compile().Invoke(Data);
+                }
+
+                if (name.IsBlank())
+                {
+                    return new TemplateMailAddress(email, Data);
+                }
+                else
+                {
+                    return new TemplateMailAddress(email, name, Data);
+                }
+            }
+            return null;
+        }
+
         public virtual object TemplateData { get; set; }
 
         public TemplateMailAddress(string address, object TemplateData = null) : base(address)
@@ -27,6 +62,8 @@ namespace InnerLibs
         {
             this.TemplateData = TemplateData;
         }
+
+
     }
 
     public class FluentMailMessage : MailMessage
@@ -106,8 +143,7 @@ namespace InnerLibs
         {
             if (TemplateOrFilePath.IsFilePath())
             {
-                if (File.Exists(TemplateOrFilePath))
-                    TemplateOrFilePath = File.ReadAllText(TemplateOrFilePath);
+                if (File.Exists(TemplateOrFilePath)) TemplateOrFilePath = File.ReadAllText(TemplateOrFilePath);
             }
 
             return WithMessage(TemplateOrFilePath, true);
@@ -134,6 +170,21 @@ namespace InnerLibs
         public FluentMailMessage AddRecipient<T>(string Email, T TemplateData)
         {
             To.Add(new TemplateMailAddress(Email, TemplateData));
+            return this;
+        }
+        public FluentMailMessage AddRecipient<T>(string Email, string DisplayName, T TemplateData)
+        {
+            To.Add(new TemplateMailAddress(Email, DisplayName, TemplateData));
+            return this;
+        }
+        public FluentMailMessage AddRecipient<T>(T Data, Expression<Func<T, string>> EmailSelector)
+        {
+            return AddRecipient<T>(EmailSelector.Compile().Invoke(Data), Data);
+        }
+
+        public FluentMailMessage AddRecipient<T>(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
+        {
+            To.Add(TemplateMailAddress.FromObject(Data, EmailSelector, NameSelector));
             return this;
         }
 
