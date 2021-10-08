@@ -5,14 +5,14 @@ namespace InnerLibs
 {
     public static class FluentSwitchExt
     {
-        public static FluentSwitch<T1, T2> Switch<T2, T1>(this T1 Input)
+        public static FluentSwitch<T1, T2> Switch<T1, T2>(this T1 Input)
         {
             return new FluentSwitch<T1, T2>(Input);
         }
 
-        public static T2 Switch<T2, T1>(this T1 Input, Action<FluentSwitch<T1, T2>> Test)
+        public static T2 Switch<T1, T2>(this T1 Input, Action<FluentSwitch<T1, T2>> Test)
         {
-            var a = Input.Switch<T2, T1>();
+            var a = Input.Switch<T1, T2>();
             Test(a);
             return a.GetValue();
         }
