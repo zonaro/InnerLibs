@@ -75,7 +75,7 @@ namespace InnerLibs
 
         public void SetMissing(decimal value)
         {
-            if (GetMissing() is object)
+            if (GetMissing() != null)
             {
                 GetMissing().SetValue(this, value);
             }

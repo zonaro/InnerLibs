@@ -10,11 +10,10 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs
 {
-
     /// <summary>
-/// Modulo Web
-/// </summary>
-/// <remarks></remarks>
+    /// Modulo Web
+    /// </summary>
+    /// <remarks></remarks>
     public static class Web
     {
         public static IEnumerable<string> GetLocalIP()
@@ -35,30 +34,30 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna o Titulo do arquivo a partir do nome do arquivo
-    /// </summary>
-    /// <param name="Info"> Arquivo ou Diretório</param>
-    /// <returns></returns>
+        /// Retorna o Titulo do arquivo a partir do nome do arquivo
+        /// </summary>
+        /// <param name="Info"> Arquivo ou Diretório</param>
+        /// <returns></returns>
         public static string FileNameAsTitle(this FileSystemInfo Info)
         {
             return Path.GetFileNameWithoutExtension(Info.Name).ToNormalCase().ToTitle();
         }
 
         /// <summary>
-    /// Retorna o Titulo do arquivo a partir do nome do arquivo
-    /// </summary>
-    /// <param name="FileName"> Arquivo ou Diretório</param>
-    /// <returns></returns>
+        /// Retorna o Titulo do arquivo a partir do nome do arquivo
+        /// </summary>
+        /// <param name="FileName"> Arquivo ou Diretório</param>
+        /// <returns></returns>
         public static string FileNameAsTitle(this string FileName)
         {
             return Path.GetFileNameWithoutExtension(FileName).ToNormalCase().ToTitle();
         }
 
         /// <summary>
-    /// Minifica uma folha de estilo CSS
-    /// </summary>
-    /// <param name="CSS">String contendo o CSS</param>
-    /// <returns></returns>
+        /// Minifica uma folha de estilo CSS
+        /// </summary>
+        /// <param name="CSS">String contendo o CSS</param>
+        /// <returns></returns>
         public static string MinifyCSS(this string CSS, bool PreserveComments = false)
         {
             if (CSS.IsNotBlank())
@@ -78,19 +77,19 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Minifica um arquivo JavaScript
-    /// </summary>
-    /// <param name="Js">String contendo o Javascript</param>
-    /// <returns></returns>
+        /// Minifica um arquivo JavaScript
+        /// </summary>
+        /// <param name="Js">String contendo o Javascript</param>
+        /// <returns></returns>
         public static string MinifyJS(this string Js)
         {
             return new JSMin().Minify(Js);
         }
 
         /// <summary>
-    /// Verifica se o computador está conectado com a internet
-    /// </summary>
-    /// <returns></returns>
+        /// Verifica se o computador está conectado com a internet
+        /// </summary>
+        /// <returns></returns>
         public static bool IsConnected(string Test = "http://google.com")
         {
             try
@@ -110,12 +109,12 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Adciona um parametro a Query String de uma URL
-    /// </summary>
-    /// <param name="Url">  Uri</param>
-    /// <param name="Key">  Nome do parâmetro</param>
-    /// <param name="Values">Valor do Parâmetro</param>
-    /// <returns></returns>
+        /// Adciona um parametro a Query String de uma URL
+        /// </summary>
+        /// <param name="Url">  Uri</param>
+        /// <param name="Key">  Nome do parâmetro</param>
+        /// <param name="Values">Valor do Parâmetro</param>
+        /// <returns></returns>
         public static Uri AddParameter(this Uri Url, string Key, bool Append, params string[] Values)
         {
             var UriBuilder = new UriBuilder(Url);
@@ -136,36 +135,36 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Adciona um parametro a Query String de uma URL
-    /// </summary>
-    /// <param name="Url">  Uri</param>
-    /// <param name="Key">  Nome do parâmetro</param>
-    /// <param name="Values">Valor do Parâmetro</param>
-    /// <returns></returns>
+        /// Adciona um parametro a Query String de uma URL
+        /// </summary>
+        /// <param name="Url">  Uri</param>
+        /// <param name="Key">  Nome do parâmetro</param>
+        /// <param name="Values">Valor do Parâmetro</param>
+        /// <returns></returns>
         public static Uri AddParameter(this Uri Url, string Key, params string[] Values)
         {
             return Url.AddParameter(Key, true, Values);
         }
 
         /// <summary>
-    /// Adciona um parametro a Query String de uma URL
-    /// </summary>
-    /// <param name="Url">  Uri</param>
-    /// <param name="Key">  Nome do parâmetro</param>
-    /// <param name="Values">Valor do Parâmetro</param>
-    /// <returns></returns>
+        /// Adciona um parametro a Query String de uma URL
+        /// </summary>
+        /// <param name="Url">  Uri</param>
+        /// <param name="Key">  Nome do parâmetro</param>
+        /// <param name="Values">Valor do Parâmetro</param>
+        /// <returns></returns>
         public static Uri RemoveParameter(this Uri Url, params string[] Keys)
         {
             var UriBuilder = new UriBuilder(Url);
             var query = UriBuilder.Query.ParseQueryString();
-            Keys = Keys is object && Keys.Count() > 0 ? Keys : query.AllKeys;
+            Keys = Keys != null && Keys.Any() ? Keys : query.AllKeys;
             foreach (var k in Keys)
             {
                 try
                 {
                     query.Remove(k);
                 }
-                catch (Exception ex)
+                catch
                 {
                 }
             }
@@ -175,10 +174,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna os segmentos de uma url
-    /// </summary>
-    /// <param name="Url"></param>
-    /// <returns></returns>
+        /// Retorna os segmentos de uma url
+        /// </summary>
+        /// <param name="Url"></param>
+        /// <returns></returns>
         public static IEnumerable<string> GetUrlSegments(this string Url)
         {
             var l = new List<string>();
@@ -190,16 +189,16 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Substitui os parametros de rota de uma URL por valores de um objeto
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="obj"></param>
-    /// <param name="UrlPattern"></param>
-    /// <returns></returns>
+        /// Substitui os parametros de rota de uma URL por valores de um objeto
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="UrlPattern"></param>
+        /// <returns></returns>
         public static string ReplaceUrlParameters<T>(this string UrlPattern, T obj)
         {
             UrlPattern = Regex.Replace(UrlPattern, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}");
-            if (obj is object)
+            if (obj != null)
                 UrlPattern = UrlPattern.Inject(obj);
             return UrlPattern.RemoveLastEqual("/");
         }
@@ -211,10 +210,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Captura o Username ou UserID de uma URL do Facebook
-    /// </summary>
-    /// <param name="URL">URL do Facebook</param>
-    /// <returns></returns>
+        /// Captura o Username ou UserID de uma URL do Facebook
+        /// </summary>
+        /// <param name="URL">URL do Facebook</param>
+        /// <returns></returns>
         public static string GetFacebookUsername(this string URL)
         {
             if (URL.IsURL() && URL.GetDomain().ToLower().IsAny("facebook.com", "fb.com"))
@@ -228,20 +227,20 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Captura o Username ou UserID de uma URL do Facebook
-    /// </summary>
-    /// <param name="URL">URL do Facebook</param>
-    /// <returns></returns>
+        /// Captura o Username ou UserID de uma URL do Facebook
+        /// </summary>
+        /// <param name="URL">URL do Facebook</param>
+        /// <returns></returns>
         public static string GetFacebookUsername(this Uri URL)
         {
             return URL.AbsoluteUri.GetFacebookUsername();
         }
 
         /// <summary>
-    /// Captura a Thumbnail de um video do youtube
-    /// </summary>
-    /// <param name="URL">Url do Youtube</param>
-    /// <returns></returns>
+        /// Captura a Thumbnail de um video do youtube
+        /// </summary>
+        /// <param name="URL">Url do Youtube</param>
+        /// <returns></returns>
         public static byte[] GetYoutubeThumbnail(string URL)
         {
             return GetFile("http://img.youtube.com/vi/" + GetVideoId(URL) + "/hqdefault.jpg");
@@ -275,20 +274,20 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Captura a Thumbnail de um video do youtube
-    /// </summary>
-    /// <param name="URL">Url do Youtube</param>
-    /// <returns></returns>
+        /// Captura a Thumbnail de um video do youtube
+        /// </summary>
+        /// <param name="URL">Url do Youtube</param>
+        /// <returns></returns>
         public static byte[] GetYoutubeThumbnail(Uri URL)
         {
             return GetYoutubeThumbnail(URL.AbsoluteUri);
         }
 
         /// <summary>
-    /// Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
-    /// </summary>
-    /// <param name="URL">URL do video</param>
-    /// <returns>ID do video do youtube ou Vimeo</returns>
+        /// Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
+        /// </summary>
+        /// <param name="URL">URL do video</param>
+        /// <returns>ID do video do youtube ou Vimeo</returns>
 
         public static string GetVideoId(string URL)
         {
@@ -320,20 +319,20 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Captura o ID de um video do youtube em uma URL
-    /// </summary>
-    /// <param name="URL">URL do video</param>
-    /// <returns>ID do video do youtube</returns>
+        /// Captura o ID de um video do youtube em uma URL
+        /// </summary>
+        /// <param name="URL">URL do video</param>
+        /// <returns>ID do video do youtube</returns>
         public static string GetVideoId(this Uri URL)
         {
             return GetVideoId(URL.AbsoluteUri);
         }
 
         /// <summary>
-    /// Verifica se um site está indisponível usando o serviço IsUp.Me
-    /// </summary>
-    /// <param name="Url">Url</param>
-    /// <returns>True para site fora do Ar</returns>
+        /// Verifica se um site está indisponível usando o serviço IsUp.Me
+        /// </summary>
+        /// <param name="Url">Url</param>
+        /// <returns>True para site fora do Ar</returns>
 
         public static bool IsDown(this string Url)
         {
@@ -349,10 +348,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Verifica se um site está disponível usando o serviço IsUp.Me
-    /// </summary>
-    /// <param name="Url">Url</param>
-    /// <returns>False para site fora do Ar</returns>
+        /// Verifica se um site está disponível usando o serviço IsUp.Me
+        /// </summary>
+        /// <param name="Url">Url</param>
+        /// <returns>False para site fora do Ar</returns>
 
         public static bool IsUp(this string Url)
         {
@@ -360,10 +359,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Verifica se um site está indisponível usando o serviço IsUp.Me
-    /// </summary>
-    /// <param name="Url">Url</param>
-    /// <returns>True para site fora do Ar</returns>
+        /// Verifica se um site está indisponível usando o serviço IsUp.Me
+        /// </summary>
+        /// <param name="Url">Url</param>
+        /// <returns>True para site fora do Ar</returns>
 
         public static bool IsDown(Uri Url)
         {
@@ -371,10 +370,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Verifica se um site está disponível usando o serviço IsUp.Me
-    /// </summary>
-    /// <param name="Url">Url</param>
-    /// <returns>False para site fora do Ar</returns>
+        /// Verifica se um site está disponível usando o serviço IsUp.Me
+        /// </summary>
+        /// <param name="Url">Url</param>
+        /// <returns>False para site fora do Ar</returns>
 
         public static bool IsUp(Uri Url)
         {

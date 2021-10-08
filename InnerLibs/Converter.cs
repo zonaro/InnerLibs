@@ -13,7 +13,6 @@ namespace InnerLibs
 {
     public static class Converter
     {
-
         /// <summary>
         /// Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
         /// </summary>
@@ -43,7 +42,7 @@ namespace InnerLibs
         public static List<T> StartList<T>(this T ObjectForDefinition)
         {
             var d = DefineEmptyList<T>();
-            if (ObjectForDefinition is object)
+            if (ObjectForDefinition != null)
             {
                 d.Add(ObjectForDefinition);
             }
@@ -56,7 +55,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Obj">Objeto</param>
         /// <returns></returns>
-        public static object[] ForceArray(object Obj, Type Type = null)
+        public static object[] ForceArray(this object Obj, Type Type)
         {
             var a = new List<object>();
             Type = Type ?? typeof(object);
@@ -86,7 +85,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Obj">Objeto</param>
         /// <returns></returns>
-        public static OutputType[] ForceArray<OutputType>(object Obj)
+        public static OutputType[] ForceArray<OutputType>(this object Obj)
         {
             return ForceArray(Obj, typeof(OutputType)).Cast<OutputType>().ToArray();
         }
@@ -254,7 +253,7 @@ namespace InnerLibs
                     return null;
                 }
 
-                if (ReferenceEquals(tipo, typeof(Guid)))
+                if (tipo == typeof(Guid))
                 {
                     return Guid.Parse(Value.ToString());
                 }
@@ -335,7 +334,6 @@ namespace InnerLibs
 
         public static Dictionary<Tkey, object> Merge<Tkey>(this Dictionary<Tkey, object> FirstDictionary, params Dictionary<Tkey, object>[] Dictionaries)
         {
-
             // dicionario que está sendo gerado a partir dos outros
             var result = new Dictionary<Tkey, object>();
 
@@ -460,7 +458,7 @@ namespace InnerLibs
                 return (Dic?.Values.FirstOrDefault()).ChangeType(tipo);
             }
 
-            if (Obj is null)
+            if (Obj == null)
             {
                 if ((args ?? Array.Empty<object>()).Any())
                 {
@@ -472,18 +470,18 @@ namespace InnerLibs
                 }
             }
 
-            if (ReferenceEquals(tipo, typeof(Dictionary<string, object>)))
+            if (tipo == typeof(Dictionary<string, object>))
             {
-                if (Dic is object)
+                if (Dic != null)
                 {
                     return Dic.AsEnumerable().ToDictionary();
                 }
 
                 return null;
             }
-            else if (ReferenceEquals(tipo, typeof(Dictionary<string, string>)))
+            else if (tipo == typeof(Dictionary<string, string>))
             {
-                if (Dic is object)
+                if (Dic != null)
                 {
                     return Dic.AsEnumerable().ToDictionary(x => x.Key, x => x.Value?.ToString());
                 }
@@ -491,7 +489,7 @@ namespace InnerLibs
                 return null;
             }
 
-            if (Dic is object && Dic.Any())
+            if (Dic != null && Dic.Any())
             {
                 foreach (var k in Dic)
                 {
@@ -501,11 +499,11 @@ namespace InnerLibs
                     string propname2 = propname1.RemoveAccents();
                     string propname4 = propname3.RemoveAccents();
                     var prop = ClassTools.NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
-                    if (prop is object)
+                    if (prop != null)
                     {
                         if (prop.CanWrite)
                         {
-                            if (ReferenceEquals(k.Value.GetType(), typeof(DBNull)))
+                            if (k.Value.GetType() == typeof(DBNull))
                             {
                                 prop.SetValue(Obj, null);
                             }
@@ -518,9 +516,9 @@ namespace InnerLibs
                     else
                     {
                         var fiif = ClassTools.NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
-                        if (fiif is object)
+                        if (fiif != null)
                         {
-                            if (ReferenceEquals(k.Value.GetType(), typeof(DBNull)))
+                            if (k.Value.GetType() == typeof(DBNull))
                             {
                                 prop.SetValue(Obj, null);
                             }

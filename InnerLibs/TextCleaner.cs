@@ -59,8 +59,8 @@ namespace InnerLibs
     }
 
     /// <summary>
-/// Sentença de um texto (uma frase ou oração)
-/// </summary>
+    /// Sentença de um texto (uma frase ou oração)
+    /// </summary>
     public class Sentence : List<SentencePart>
     {
         public IEnumerable<string> Words
@@ -176,7 +176,7 @@ namespace InnerLibs
             foreach (var s in this)
             {
                 sent += s.ToString();
-                if (s.Next() is object)
+                if (s.Next() != null)
                 {
                     if (s.NeedSpaceOnNext())
                     {
@@ -192,78 +192,77 @@ namespace InnerLibs
     }
 
     /// <summary>
-/// Parte de uma sentença. Pode ser uma palavra, pontuaçao ou qualquer caractere de encapsulamento
-/// </summary>
+    /// Parte de uma sentença. Pode ser uma palavra, pontuaçao ou qualquer caractere de encapsulamento
+    /// </summary>
     public class SentencePart
     {
-
         /// <summary>
-    /// Retorna TRUE se esta parte de senteça for uma palavra
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de senteça for uma palavra
+        /// </summary>
+        /// <returns></returns>
         public bool IsWord()
         {
             return !IsNotWord();
         }
 
         /// <summary>
-    /// Retorna TRUE se esta parte de senteça não for uma palavra
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de senteça não for uma palavra
+        /// </summary>
+        /// <returns></returns>
         public bool IsNotWord()
         {
             return IsOpenWrapChar() || IsCloseWrapChar() || IsComma() || IsEndOfSentencePunctuation() || IsMidSentencePunctuation();
         }
 
         /// <summary>
-    /// Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento
+        /// </summary>
+        /// <returns></returns>
         public bool IsOpenWrapChar()
         {
             return Arrays.OpenWrappers.Contains(Text);
         }
 
         /// <summary>
-    /// Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
+        /// </summary>
+        /// <returns></returns>
         public bool IsCloseWrapChar()
         {
             return Arrays.CloseWrappers.Contains(Text);
         }
 
         /// <summary>
-    /// Retorna TRUE se esta parte de sentença é uma vírgula
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de sentença é uma vírgula
+        /// </summary>
+        /// <returns></returns>
         public bool IsComma()
         {
             return Text == ",";
         }
 
         /// <summary>
-    /// Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
+        /// </summary>
+        /// <returns></returns>
         public bool IsEndOfSentencePunctuation()
         {
             return Arrays.EndOfSentencePunctuation.Contains(Text);
         }
 
         /// <summary>
-    /// Retorna TRUE se esta parte de senteça for um caractere de de meio de sentença (dois pontos ou ponto e vírgula)
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de senteça for um caractere de de meio de sentença (dois pontos ou ponto e vírgula)
+        /// </summary>
+        /// <returns></returns>
         public bool IsMidSentencePunctuation()
         {
             return Arrays.MidSentencePunctuation.Contains(Text);
         }
 
         /// <summary>
-    /// Retorna TRUE se esta parte de senteça for qualquer tipo de pontuaçao
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna TRUE se esta parte de senteça for qualquer tipo de pontuaçao
+        /// </summary>
+        /// <returns></returns>
         public bool IsPunctuation()
         {
             return IsEndOfSentencePunctuation() | IsMidSentencePunctuation();
@@ -278,9 +277,9 @@ namespace InnerLibs
         public Sentence Sentence { get; private set; }
 
         /// <summary>
-    /// Texto desta parte de sentença
-    /// </summary>
-    /// <returns></returns>
+        /// Texto desta parte de sentença
+        /// </summary>
+        /// <returns></returns>
         public string Text { get; set; }
 
         public override string ToString()
@@ -300,36 +299,36 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Parte de sentença anterior
-    /// </summary>
-    /// <returns></returns>
+        /// Parte de sentença anterior
+        /// </summary>
+        /// <returns></returns>
         public SentencePart Previous()
         {
             return Sentence.IfNoIndex(Sentence.IndexOf(this) - 1);
         }
 
         /// <summary>
-    /// Parte da próxima sentença
-    /// </summary>
-    /// <returns></returns>
+        /// Parte da próxima sentença
+        /// </summary>
+        /// <returns></returns>
         public SentencePart Next()
         {
             return Sentence.IfNoIndex(Sentence.IndexOf(this) + 1);
         }
 
         /// <summary>
-    /// Retorna true se é nescessário espaço andes da proxima sentença
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna true se é nescessário espaço andes da proxima sentença
+        /// </summary>
+        /// <returns></returns>
         public bool NeedSpaceOnNext()
         {
-            return Next() is object && (Next().IsWord() || Next().IsOpenWrapChar());
+            return Next() != null && (Next().IsWord() || Next().IsOpenWrapChar());
         }
     }
 
     /// <summary>
-/// Texto estruturado (Dividido em parágrafos)
-/// </summary>
+    /// Texto estruturado (Dividido em parágrafos)
+    /// </summary>
     public class StructuredText : List<Paragraph>
     {
         public int Ident { get; set; } = 0;
@@ -369,20 +368,19 @@ namespace InnerLibs
 
         private string _originaltext = "";
 
-
         /// <summary>
-    /// Retorna o texto corretamente formatado
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna o texto corretamente formatado
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return this.SelectJoin(parag => parag.ToString(Ident), Enumerable.Range(1, 1 + BreakLinesBetweenParagraph.SetMinValue(0)).SelectJoin(x => Environment.NewLine));
         }
 
         /// <summary>
-    /// Cria um novo texto estruturado (dividido em paragrafos, sentenças e palavras)
-    /// </summary>
-    /// <param name="OriginalText"></param>
+        /// Cria um novo texto estruturado (dividido em paragrafos, sentenças e palavras)
+        /// </summary>
+        /// <param name="OriginalText"></param>
         public StructuredText(string OriginalText)
         {
             Text = OriginalText;
@@ -407,8 +405,6 @@ namespace InnerLibs
         {
             return new StructuredText(a.ToString() + b.ToString());
         }
-
-        
 
         public IEnumerable<string> Words
         {

@@ -11,14 +11,12 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs.Locations
 {
-
     /// <summary>
     /// Representa um deteminado local com suas Informações
     /// </summary>
     /// <remarks></remarks>
     public class AddressInfo
     {
-
         /// <summary>
         /// Cria um novo objeto de localização
         /// </summary>
@@ -314,7 +312,7 @@ namespace InnerLibs.Locations
             get
             {
                 string value = this["Latitude"];
-                if (value is object)
+                if (value != null)
                 {
                     return Convert.ToDecimal(value, new CultureInfo("en-US"));
                 }
@@ -341,7 +339,7 @@ namespace InnerLibs.Locations
             get
             {
                 string value = this["Longitude"];
-                if (value is object)
+                if (value != null)
                 {
                     return Convert.ToDecimal(value, new CultureInfo("en-US"));
                 }
@@ -514,7 +512,6 @@ namespace InnerLibs.Locations
         {
             return Parts.HasFlag(OtherPart);
             // Return ((Parts) And OtherPart) <> 0
-
         }
 
         /// <summary>
@@ -868,7 +865,7 @@ namespace InnerLibs.Locations
                         }
                     }
                 }
-                else if (x["error_message"] is object)
+                else if (x["error_message"] != null)
                 {
                     d["error_message"] = x["error_message"].InnerText;
                 }
@@ -916,7 +913,7 @@ namespace InnerLibs.Locations
             l.City = City;
             l.PostalCode = PostalCode;
             var st = Brasil.GetState(State);
-            if (st is object)
+            if (st != null)
             {
                 l.State = st.Name;
                 l.StateCode = st.StateCode;
@@ -1131,7 +1128,6 @@ namespace InnerLibs.Locations
     [Flags]
     public enum AddressPart
     {
-
         /// <summary>
         /// Formato default definido pela propriedade <see cref="AddressInfo.Format"/> ou <see cref="AddressInfo.GlobalFormat"/>
         /// </summary>

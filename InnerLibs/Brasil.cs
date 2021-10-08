@@ -7,13 +7,11 @@ using System.Xml;
 
 namespace InnerLibs.Locations
 {
-
     /// <summary>
     /// Objeto que representa um estado do Brasil e seus respectivos detalhes
     /// </summary>
     public class State
     {
-
         /// <summary>
         /// Sigla do estado
         /// </summary>
@@ -72,7 +70,6 @@ namespace InnerLibs.Locations
     /// </summary>
     public sealed class Brasil
     {
-
         /// <summary>
         /// Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes
         /// </summary>
@@ -243,7 +240,7 @@ namespace InnerLibs.Locations
             }
 
             var s = GetState(NameOrStateCode);
-            if (s is object)
+            if (s != null)
             {
                 City = GetClosestCity(s.StateCode, City);
                 var ends = Activator.CreateInstance<T>();

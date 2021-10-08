@@ -2,13 +2,13 @@
 // Assembly         : InnerLibs
 // Author           : Leandro Ferreira / Zonaro
 // Created          : 16-03-2019
-// 
+//
 // ***********************************************************************
 // <copyright file="Printer.vb" company="InnerCodeTech">
 
 // The MIT License (MIT)
 // Copyright (c) 2019 InnerCodeTech
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
@@ -284,7 +284,7 @@ namespace InnerLibs.Printer
         {
             txw = new PrinterWriter(this);
             this.Command = Command ?? new EscPosCommands.EscPos();
-            if (Encoding is object)
+            if (Encoding != null)
             {
                 this.Command.Encoding = Encoding;
             }
@@ -441,7 +441,7 @@ namespace InnerLibs.Printer
         }
 
         /// <summary>
-        /// Escreve um separador 
+        /// Escreve um separador
         /// </summary>
         /// <param name="Character"></param>
         /// <returns></returns>
@@ -662,10 +662,10 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer Write(byte[] value)
         {
-            if (value is object && value.Any())
+            if (value != null && value.Any())
             {
                 var list = new List<byte>();
-                if (DocumentBuffer is object)
+                if (DocumentBuffer != null)
                     list.AddRange(DocumentBuffer);
                 list.AddRange(value);
                 DocumentBuffer = list.ToArray();
@@ -720,7 +720,7 @@ namespace InnerLibs.Printer
                         value = value.RemoveDiacritics();
                     }
 
-                    if (RewriteFunction is object)
+                    if (RewriteFunction != null)
                     {
                         value = RewriteFunction.Invoke(value);
                     }
@@ -743,7 +743,6 @@ namespace InnerLibs.Printer
             return Test ? Write(value, Test).NewLine() : this;
         }
 
-
         /// <summary>
         /// Escreve o <paramref name="value"/>   e quebra uma linha
         /// </summary>
@@ -753,7 +752,6 @@ namespace InnerLibs.Printer
         {
             return WriteLine(value, true);
         }
-
 
         /// <summary>
         /// Escreve varias linhas no <see cref="DocumentBuffer"/>
@@ -860,7 +858,7 @@ namespace InnerLibs.Printer
             dics = dics ?? Array.Empty<IDictionary<T1, T2>>();
             foreach (var dic in dics)
             {
-                if (dic is object)
+                if (dic != null)
                 {
                     if (PartialCutOnEach)
                         PartialPaperCut();
@@ -1009,7 +1007,7 @@ namespace InnerLibs.Printer
             objs = objs ?? Array.Empty<T>();
             foreach (var obj in objs)
             {
-                if (obj is object)
+                if (obj != null)
                 {
                     if (PartialCutOnEach)
                         PartialPaperCut();
@@ -1125,7 +1123,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer WriteTemplate<T>(string TemplateString, T obj, bool PartialCutOnEach = false) where T : class
         {
-            return WriteTemplate(TemplateString, PartialCutOnEach, Converter.ForceArray(obj));
+            return WriteTemplate(TemplateString, PartialCutOnEach, Converter.ForceArray(obj, typeof(T)));
         }
 
         /// <summary>
@@ -1152,7 +1150,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public object WriteDate(DateTime DateAndTime, CultureInfo Format = null)
         {
-            if (Format is object)
+            if (Format != null)
             {
                 return Write(DateAndTime.ToString(Format));
             }
@@ -1230,7 +1228,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer PrintDocument(byte[] Bytes, int Copies = 1)
         {
-            if (Bytes is object && Bytes.Any())
+            if (Bytes != null && Bytes.Any())
             {
                 for (int i = 0, loopTo = Copies.SetMinValue(1) - 1; i <= loopTo; i++)
                 {
@@ -1253,7 +1251,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer SaveFile(string FileOrDirectoryPath, bool IncludeHtmlDoc = false)
         {
-            if (DocumentBuffer is object && DocumentBuffer.Count() > 0)
+            if (DocumentBuffer != null && DocumentBuffer.Any())
             {
                 if (FileOrDirectoryPath.IsDirectoryPath())
                 {

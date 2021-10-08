@@ -7,7 +7,6 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs.LINQ
 {
-
     /// <summary>
     /// Classe para criação de paginação e filtros dinâmicos para listas de classes
     /// </summary>
@@ -91,7 +90,7 @@ namespace InnerLibs.LINQ
                 Expression exp = null;
                 foreach (var valor in Filters.Where(x => x.Enabled))
                 {
-                    if (valor is object && valor.Filter is object)
+                    if (valor != null && valor.Filter != null)
                     {
                         if (exp is null)
                         {
@@ -300,7 +299,7 @@ namespace InnerLibs.LINQ
         {
             get
             {
-                if (ReferenceEquals(typeof(ClassType), typeof(RemapType)))
+                if (typeof(ClassType) == typeof(RemapType))
                 {
                     return null;
                 }
@@ -312,7 +311,7 @@ namespace InnerLibs.LINQ
 
             set
             {
-                if (ReferenceEquals(typeof(ClassType), typeof(RemapType)))
+                if (typeof(ClassType) == typeof(RemapType))
                 {
                     remapexp = null;
                 }
@@ -353,16 +352,16 @@ namespace InnerLibs.LINQ
             get
             {
                 Expression<Func<ClassType, bool>> exp = null;
-                if (Filter is object)
+                if (Filter != null)
                 {
                     exp = Expression.Lambda<Func<ClassType, bool>>(Filter, param);
                 }
 
                 foreach (var valor in WhereFilters ?? new List<Expression<Func<ClassType, bool>>>())
                 {
-                    if (valor is object)
+                    if (valor != null)
                     {
-                        if (exp is null)
+                        if (exp == null)
                         {
                             exp = valor;
                         }
@@ -373,7 +372,7 @@ namespace InnerLibs.LINQ
                     }
                 }
 
-                if (exp is object)
+                if (exp != null)
                 {
                     while (exp.CanReduce)
                         exp = (Expression<Func<ClassType, bool>>)exp.Reduce();
@@ -735,6 +734,7 @@ namespace InnerLibs.LINQ
 
             return "";
         }
+
         /// <summary>
         /// Aplica a paginação a um template
         /// </summary>
@@ -746,7 +746,6 @@ namespace InnerLibs.LINQ
                 return CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })).Join(SeparatorTemplate.IfBlank(""));
             return "";
         }
-
 
         /// <summary>
         /// Configura este Filtro
@@ -873,7 +872,7 @@ namespace InnerLibs.LINQ
         {
             foreach (var Selector in Selectors ?? Array.Empty<Expression<Func<ClassType, T>>>())
             {
-                if (Selector is object)
+                if (Selector != null)
                 {
                     OrderBy(Selector);
                 }
@@ -884,7 +883,7 @@ namespace InnerLibs.LINQ
 
         public PaginationFilter<ClassType, RemapType> OrderByDescending<T>(Expression<Func<ClassType, T>> Selector)
         {
-            if (Selector is object)
+            if (Selector != null)
             {
                 OrderBy(Selector, true);
             }
@@ -902,7 +901,7 @@ namespace InnerLibs.LINQ
         public PaginationFilter<ClassType, RemapType> OrderBy<T>(Expression<Func<ClassType, T>> Selector, bool Descending = false)
         {
             bool Ascending = !Descending;
-            if (Selector is object)
+            if (Selector != null)
             {
                 if (Data is IOrderedQueryable<ClassType>)
                 {
@@ -1032,10 +1031,10 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public RemapType[] GetPage(int PageNumber)
         {
-            if (Data is object)
+            if (Data != null)
             {
                 var filtereddata = GetQueryablePage(PageNumber);
-                if (RemapExpression is null || ReferenceEquals(typeof(ClassType), typeof(RemapType)))
+                if (RemapExpression is null || typeof(ClassType) == typeof(RemapType))
                 {
                     return filtereddata.Cast<RemapType>().ToArray();
                 }
@@ -1100,7 +1099,7 @@ namespace InnerLibs.LINQ
         public IQueryable<ClassType> GetQueryablePage(int PageNumber)
         {
             this.PageNumber = PageNumber;
-            if (Data is object)
+            if (Data != null)
             {
                 var filtereddata = ApplyFilter();
                 filtereddata = ApplyPage(filtereddata);
@@ -1205,7 +1204,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PaginationFilter<ClassType, RemapType> CreateSearch<T>(IEnumerable<IComparable> PropertyValues, params Expression<Func<ClassType, T>>[] PropertyNames)
         {
-            PropertyNames = (PropertyNames ?? Array.Empty<Expression<Func<ClassType, T>>>()).Where(x => x is object).ToArray();
+            PropertyNames = (PropertyNames ?? Array.Empty<Expression<Func<ClassType, T>>>()).Where(x => x != null).ToArray();
             PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
             foreach (var sel in PropertyNames)
                 SetMember(sel, FilterConditional.Or).Contains(PropertyValues);
@@ -1254,9 +1253,9 @@ namespace InnerLibs.LINQ
         {
             var FilteredData = Data;
             _total = default;
-            if (FilteredData is object)
+            if (FilteredData != null)
             {
-                if (LambdaExpression is object)
+                if (LambdaExpression != null)
                 {
                     if (FilteredData is IOrderedQueryable<ClassType>)
                     {
@@ -1290,7 +1289,7 @@ namespace InnerLibs.LINQ
 
         private IEnumerable<ClassType> ApplyPage(IEnumerable<ClassType> FilteredData)
         {
-            if (Data is object)
+            if (Data != null)
             {
                 if (PageNumber > 0 && PageSize > 0)
                 {
@@ -1390,10 +1389,10 @@ namespace InnerLibs.LINQ
             var v = (PropertyValues ?? Array.Empty<IComparable>()).AsEnumerable();
             if (!AcceptNullValues)
             {
-                v = v.Where(x => x is object);
+                v = v.Where(x => x != null);
             }
 
-            if (ValueValidation is object)
+            if (ValueValidation != null)
             {
                 v = v.Where(ValueValidation.Compile());
             }
@@ -1505,9 +1504,9 @@ namespace InnerLibs.LINQ
         public PropertyFilter<ClassType, RemapType> SetValue<T>(T? Value) where T : struct
         {
             if (Value.HasValue)
-                PropertyValues = (IEnumerable<IComparable>)new T [] { Value.Value }.AsEnumerable();
+                PropertyValues = (IEnumerable<IComparable>)new T[] { Value.Value }.AsEnumerable();
             else
-                PropertyValues = (IEnumerable<IComparable>)new T [] { }.AsEnumerable();
+                PropertyValues = (IEnumerable<IComparable>)new T[] { }.AsEnumerable();
             return this;
         }
 
@@ -1897,7 +1896,7 @@ namespace InnerLibs.LINQ
             if (Enabled || ForceEnabled)
             {
                 string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLower().IsNotAny("", "=", "==", "===")).UrlEncode();
-                return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x is object && x.ToString().IsNotBlank()).SelectJoin(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
+                return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsNotBlank()).SelectJoin(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
             }
 
             return "";

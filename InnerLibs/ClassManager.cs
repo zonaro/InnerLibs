@@ -520,7 +520,6 @@ namespace InnerLibs
             return (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), "");
         }
 
-
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
         /// </summary>
@@ -1248,7 +1247,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsTypeOf<O>(this O Obj, Type Type)
         {
-            return ReferenceEquals(Obj.GetTypeOf(), Type.GetTypeOf());
+            return Obj.GetTypeOf() == Type.GetTypeOf();
         }
 
         /// <summary>
@@ -1270,7 +1269,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsNullableTypeOf<O>(this O Obj, Type Type)
         {
-            return ReferenceEquals(Obj.GetNullableTypeOf(), Type.GetNullableTypeOf());
+            return Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
         }
 
         /// <summary>
@@ -1281,7 +1280,7 @@ namespace InnerLibs
         /// <returns>o tipo do objeto ou o prorio objeto se ele for um <see cref="Type"/></returns>
         public static Type GetTypeOf<O>(this O Obj)
         {
-            if (ReferenceEquals(typeof(O), typeof(Type)))
+            if (typeof(O) == typeof(Type))
             {
                 return (Type)(object)Obj;
             }
@@ -1464,8 +1463,6 @@ namespace InnerLibs
 
             return MyObject;
         }
-
-
 
         public static Type SetPropertyValue<Type, Prop>(this Type obj, Expression<Func<Type, Prop>> Selector, Prop Value) where Type : class
         {

@@ -102,7 +102,7 @@ namespace InnerLibs.Select2
     {
         public static Select2Data CreateSelect2Data<OptionType, T>(this IEnumerable<T> List, Func<T, string> TextSelector, Func<T, string> IdSelector, Action<T, OptionType> OtherSelectors = null, Func<T, string> GroupSelector = null) where OptionType : ISelect2Option
         {
-            if (GroupSelector is object)
+            if (GroupSelector != null)
             {
                 var itens = List.GroupBy(GroupSelector).Select(x => new Select2Group(x.Key, (IEnumerable<ISelect2Option>)x.Select(c => c.CreateSelect2Option(TextSelector, IdSelector, OtherSelectors))));
                 return new Select2Data(itens);
@@ -127,7 +127,7 @@ namespace InnerLibs.Select2
                 var Optionitem = Activator.CreateInstance<OptionType>();
                 Optionitem.ID = IdSelector(item);
                 Optionitem.Text = TextSelector(item);
-                if (OtherSelectors is object)
+                if (OtherSelectors != null)
                 {
                     OtherSelectors(item, Optionitem);
                 }

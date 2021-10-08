@@ -10,30 +10,28 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs
 {
-
     /// <summary>
-/// Modulo de Imagem
-/// </summary>
-/// <remarks></remarks>
+    /// Modulo de Imagem
+    /// </summary>
+    /// <remarks></remarks>
     public static class Images
     {
-
         /// <summary>
-    /// Retorna uma <see cref="Bitmap"/> a partir de um Image
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <returns></returns>
+        /// Retorna uma <see cref="Bitmap"/> a partir de um Image
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <returns></returns>
         public static Bitmap ToBitmap(this Image Image)
         {
             return new Bitmap(Image);
         }
 
         /// <summary>
-    /// Corta uma imagem para um quadrado perfeito a partir do centro
-    /// </summary>
-    /// <param name="img">Imagem</param>
-    /// <param name="WidthHeight">Tamanho do quadrado em pixels</param>
-    /// <returns></returns>
+        /// Corta uma imagem para um quadrado perfeito a partir do centro
+        /// </summary>
+        /// <param name="img">Imagem</param>
+        /// <param name="WidthHeight">Tamanho do quadrado em pixels</param>
+        /// <returns></returns>
         public static Image CropToSquare(this Image Img, int WidthHeight = 0)
         {
             if (WidthHeight < 1)
@@ -45,22 +43,22 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Corta a imagem em um circulo
-    /// </summary>
-    /// <param name="Img">Imagem</param>
-    /// <param name="Background">Cor do fundo</param>
-    /// <returns></returns>
+        /// Corta a imagem em um circulo
+        /// </summary>
+        /// <param name="Img">Imagem</param>
+        /// <param name="Background">Cor do fundo</param>
+        /// <returns></returns>
         public static Image CropToCircle(this Image Img, Color? Background = default)
         {
             return Img.CropToSquare()?.CropToEllipsis(Background);
         }
 
         /// <summary>
-    /// Corta a imagem em uma elipse
-    /// </summary>
-    /// <param name="Img">Imagem</param>
-    /// <param name="Background">Cor do fundo</param>
-    /// <returns></returns>
+        /// Corta a imagem em uma elipse
+        /// </summary>
+        /// <param name="Img">Imagem</param>
+        /// <param name="Background">Cor do fundo</param>
+        /// <returns></returns>
         public static Image CropToEllipsis(this Image Img, Color? Background = default)
         {
             var dstImage = new Bitmap(Img.Width, Img.Height);
@@ -79,10 +77,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF)
-    /// </summary>
-    /// <param name="Img">Imagem</param>
-    /// <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
+        /// Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF)
+        /// </summary>
+        /// <param name="Img">Imagem</param>
+        /// <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
         public static bool TestAndRotate(this Image Img)
         {
             var rft = Img.GetRotateFlip();
@@ -136,13 +134,13 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Insere uma imagem de marca Dágua na imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <param name="WaterMarkImage">Imagem de Marca Dagua</param>
-    /// <param name="X">Posição X</param>
-    /// <param name="Y">Posição Y</param>
-    /// <returns></returns>
+        /// Insere uma imagem de marca Dágua na imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <param name="WaterMarkImage">Imagem de Marca Dagua</param>
+        /// <param name="X">Posição X</param>
+        /// <param name="Y">Posição Y</param>
+        /// <returns></returns>
         public static Image Watermark(this Image Image, Image WaterMarkImage, int X = -1, int Y = -1)
         {
             // a imagem onde iremos aplicar a marca dágua
@@ -174,13 +172,13 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Insere uma imagem em outra imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <param name="InsertedImage">Imagem de Marca Dagua</param>
-    /// <param name="X">Posição X</param>
-    /// <param name="Y">Posição Y</param>
-    /// <returns></returns>
+        /// Insere uma imagem em outra imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <param name="InsertedImage">Imagem de Marca Dagua</param>
+        /// <param name="X">Posição X</param>
+        /// <param name="Y">Posição Y</param>
+        /// <returns></returns>
         public static Image Insert(this Image Image, Image InsertedImage, int X = -1, int Y = -1)
         {
             var bm_Resultado = new Bitmap(Image);
@@ -241,10 +239,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Inverte as cores de uma imagem
-    /// </summary>
-    /// <param name="Img"></param>
-    /// <returns></returns>
+        /// Inverte as cores de uma imagem
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <returns></returns>
         public static Image Negative(this Image img)
         {
             var copia = new Bitmap(img);
@@ -301,10 +299,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Converte uma Imagem para Escala de cinza
-    /// </summary>
-    /// <param name="img">imagem original</param>
-    /// <returns></returns>
+        /// Converte uma Imagem para Escala de cinza
+        /// </summary>
+        /// <param name="img">imagem original</param>
+        /// <returns></returns>
         public static Image Grayscale(this Image img)
         {
             var copia = new Bitmap(img);
@@ -379,11 +377,11 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
-    /// </summary>
-    /// <param name="Img"></param>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public static Image Trim(this Image Img, Color? Color = default)
         {
             var bitmap = new Bitmap(Img);
@@ -490,23 +488,23 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Cropa uma imagem a patir do centro
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <param name="Size">Tamanho</param>
-    /// <returns></returns>
+        /// Cropa uma imagem a patir do centro
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <param name="Size">Tamanho</param>
+        /// <returns></returns>
         public static Image Crop(this Image Image, Size Size)
         {
             return Image.Crop(Size.Width, Size.Height);
         }
 
         /// <summary>
-    /// Cropa uma imagem a patir do centro
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <param name="maxWidth">Largura maxima</param>
-    /// <param name="maxHeight">Altura maxima</param>
-    /// <returns></returns>
+        /// Cropa uma imagem a patir do centro
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <param name="maxWidth">Largura maxima</param>
+        /// <param name="maxHeight">Altura maxima</param>
+        /// <returns></returns>
         public static Image Crop(this Image Image, int MaxWidth, int MaxHeight)
         {
             var jpgInfo = ImageCodecInfo.GetImageEncoders().Where(codecInfo => codecInfo.MimeType == "image/png").First();
@@ -569,12 +567,12 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Redimensiona uma imagem para o tamanho definido por uma porcentagem
-    /// </summary>
-    /// <param name="Original"></param>
-    /// <param name="Percent">Porcentagem ( no formato '30% 'ou '20% x 10%')</param>
-    /// <param name="OnlyResizeIfWider"></param>
-    /// <returns></returns>
+        /// Redimensiona uma imagem para o tamanho definido por uma porcentagem
+        /// </summary>
+        /// <param name="Original"></param>
+        /// <param name="Percent">Porcentagem ( no formato '30% 'ou '20% x 10%')</param>
+        /// <param name="OnlyResizeIfWider"></param>
+        /// <returns></returns>
         public static Image ResizePercent(this Image Original, string Percent, bool OnlyResizeIfWider = true)
         {
             var size = new Size();
@@ -616,12 +614,12 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Redimensiona e converte uma Imagem
-    /// </summary>
-    /// <param name="Original">Imagem Original</param>
-    /// <param name="ResizeExpression">uma string contendo uma expressão de tamanho</param>
-    /// <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
-    /// <returns></returns>
+        /// Redimensiona e converte uma Imagem
+        /// </summary>
+        /// <param name="Original">Imagem Original</param>
+        /// <param name="ResizeExpression">uma string contendo uma expressão de tamanho</param>
+        /// <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
+        /// <returns></returns>
         public static Image Resize(this Image Original, string ResizeExpression, bool OnlyResizeIfWider = true)
         {
             if (ResizeExpression.Contains("%"))
@@ -636,25 +634,25 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Redimensiona e converte uma Imagem
-    /// </summary>
-    /// <param name="Original">Imagem Original</param>
-    /// <param name="Size">Tamanho</param>
-    /// <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
-    /// <returns></returns>
+        /// Redimensiona e converte uma Imagem
+        /// </summary>
+        /// <param name="Original">Imagem Original</param>
+        /// <param name="Size">Tamanho</param>
+        /// <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
+        /// <returns></returns>
         public static Image Resize(this Image Original, Size Size, bool OnlyResizeIfWider = true)
         {
             return Original.Resize(Size.Width, Size.Height, OnlyResizeIfWider);
         }
 
         /// <summary>
-    /// Redimensiona e converte uma Imagem
-    /// </summary>
-    /// <param name="Original">Imagem Original</param>
-    /// <param name="NewWidth">Nova Largura</param>
-    /// <param name="MaxHeight">Altura máxima</param>
-    /// <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
-    /// <returns></returns>
+        /// Redimensiona e converte uma Imagem
+        /// </summary>
+        /// <param name="Original">Imagem Original</param>
+        /// <param name="NewWidth">Nova Largura</param>
+        /// <param name="MaxHeight">Altura máxima</param>
+        /// <param name="OnlyResizeIfWider">Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada</param>
+        /// <returns></returns>
         public static Image Resize(this Image Original, int NewWidth, int MaxHeight, bool OnlyResizeIfWider = true)
         {
             Image fullsizeImage = new Bitmap(Original);
@@ -680,10 +678,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Interperta uma string de diversas formas e a transforma em um <see cref="Size"/>
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
+        /// Interperta uma string de diversas formas e a transforma em um <see cref="Size"/>
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
         public static Size ParseSize(this string Text)
         {
             var s = new Size();
@@ -817,50 +815,48 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Lista com todos os formatos de imagem
-    /// </summary>
-    /// <returns></returns>
+        /// Lista com todos os formatos de imagem
+        /// </summary>
+        /// <returns></returns>
         public static ImageFormat[] ImageTypes { get; private set; } = new[] { ImageFormat.Bmp, ImageFormat.Emf, ImageFormat.Exif, ImageFormat.Gif, ImageFormat.Icon, ImageFormat.Jpeg, ImageFormat.Png, ImageFormat.Tiff, ImageFormat.Wmf };
 
         /// <summary>
-    /// Retorna o formato da imagem correspondente a aquela imagem
-    /// </summary>
-    /// <param name="OriginalImage"></param>
-    /// <returns></returns>
+        /// Retorna o formato da imagem correspondente a aquela imagem
+        /// </summary>
+        /// <param name="OriginalImage"></param>
+        /// <returns></returns>
         public static ImageFormat GetImageFormat(this Image OriginalImage)
         {
             return ImageTypes.Where(p => p.Guid == OriginalImage.RawFormat.Guid).FirstOr(ImageFormat.Png);
         }
 
         /// <summary>
-    /// Pega o encoder a partir de um formato de imagem
-    /// </summary>
-    /// <param name="RawFormat">Image format</param>
-    /// <returns>image codec info.</returns>
+        /// Pega o encoder a partir de um formato de imagem
+        /// </summary>
+        /// <param name="RawFormat">Image format</param>
+        /// <returns>image codec info.</returns>
         public static ImageCodecInfo GetEncoderInfo(this ImageFormat RawFormat)
         {
             return ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == RawFormat.Guid).FirstOr(ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == ImageFormat.Png.Guid).First());
         }
 
         /// <summary>
-    /// Combina 2 ou mais imagens em uma única imagem
-    /// </summary>
-    /// <param name="Images">Lista de Imagens para combinar</param>
-    /// <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
-    /// <returns>Um Bitmap com a combinaçao de todas as imagens da Lista</returns>
+        /// Combina 2 ou mais imagens em uma única imagem
+        /// </summary>
+        /// <param name="Images">Lista de Imagens para combinar</param>
+        /// <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
+        /// <returns>Um Bitmap com a combinaçao de todas as imagens da Lista</returns>
         public static Bitmap CombineImages(bool VerticalFlow, params Image[] Images)
         {
             return Images.CombineImages(VerticalFlow);
         }
 
-
-
         /// <summary>
-    /// Combina 2 ou mais imagens em uma única imagem
-    /// </summary>
-    /// <param name="Images">Array de Imagens para combinar</param>
-    /// <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
-    /// <returns>Um Bitmap com a combinaçao de todas as imagens do Array</returns>
+        /// Combina 2 ou mais imagens em uma única imagem
+        /// </summary>
+        /// <param name="Images">Array de Imagens para combinar</param>
+        /// <param name="VerticalFlow">Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)</param>
+        /// <returns>Um Bitmap com a combinaçao de todas as imagens do Array</returns>
         public static Bitmap CombineImages(this IEnumerable<Image> Images, bool VerticalFlow = false)
         {
             Bitmap imagemFinal = null;
@@ -914,30 +910,30 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma lista com as N cores mais utilizadas na imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns>uma lista de Color</returns>
+        /// Retorna uma lista com as N cores mais utilizadas na imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns>uma lista de Color</returns>
         public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image, int Count)
         {
             return new Bitmap(Image).GetMostUsedColors().Take(Count);
         }
 
         /// <summary>
-    /// Retorna uma lista com as cores utilizadas na imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns>uma lista de Color</returns>
+        /// Retorna uma lista com as cores utilizadas na imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns>uma lista de Color</returns>
         public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image)
         {
             return Image.ColorPallette().Keys;
         }
 
         /// <summary>
-    /// Retorna uma lista com as cores utilizadas na imagem
-    /// </summary>
-    /// <param name="Img">Imagem</param>
-    /// <returns>uma lista de Color</returns>
+        /// Retorna uma lista com as cores utilizadas na imagem
+        /// </summary>
+        /// <param name="Img">Imagem</param>
+        /// <returns>uma lista de Color</returns>
         public static Dictionary<HSVColor, int> ColorPallette(this Image Img, int PixelateSize = 0)
         {
             Bitmap image;
@@ -952,7 +948,7 @@ namespace InnerLibs
 
             var dctColorIncidence = new Dictionary<int, int>();
             using (image)
-                if (image is object && image.Width > 0 && image.Height > 0)
+                if (image != null && image.Width > 0 && image.Height > 0)
                 {
                     int coluna = 0;
                     while (coluna < image.Size.Width)
@@ -981,11 +977,11 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Pixeliza uma imagem
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <param name="PixelateSize"></param>
-    /// <returns></returns>
+        /// Pixeliza uma imagem
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <param name="PixelateSize"></param>
+        /// <returns></returns>
         public static Image Pixelate(this Image Image, int PixelateSize = 1)
         {
             var rectangle = new Rectangle(0, 0, Image.Width, Image.Height);
@@ -1031,13 +1027,11 @@ namespace InnerLibs
             return pixelated;
         }
 
-
-
         /// <summary>
-    /// Transforma uma imagem em um stream
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns></returns>
+        /// Transforma uma imagem em um stream
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns></returns>
         public static Stream ToStream(this Image Image, ImageFormat Format = null)
         {
             Stream s = new MemoryStream();
@@ -1047,10 +1041,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Transforma uma imagem em array de bytes
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns></returns>
+        /// Transforma uma imagem em array de bytes
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns></returns>
         public static byte[] ToBytes(this Image Image, ImageFormat Format = null)
         {
             using (var ms = Image.ToStream(Format))
@@ -1060,24 +1054,24 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <param name="Width"></param>
-    /// <param name="Height"></param>
-    /// <returns></returns>
+        /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <returns></returns>
         public static Image ResizeCrop(this Image Image, int Width, int Height)
         {
             return Image.Resize(Width, Height, false).Crop(Width, Height);
         }
 
         /// <summary>
-    /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <param name="Width"></param>
-    /// <param name="Height"></param>
-    /// <returns></returns>
+        /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <returns></returns>
         public static Image ResizeCrop(this Image Image, int Width, int Height, bool OnlyResizeIfWider)
         {
             return Image.Resize(Width, Height, OnlyResizeIfWider).Crop(Width, Height);

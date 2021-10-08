@@ -13,7 +13,7 @@ namespace InnerLibs
         {
             get
             {
-                return Info is object ? Info.Name : "";
+                return Info != null ? Info.Name : "";
             }
         }
 
@@ -29,7 +29,7 @@ namespace InnerLibs
         {
             get
             {
-                return Info is object ? Info.FullName : "";
+                return Info != null ? Info.FullName : "";
             }
         }
 

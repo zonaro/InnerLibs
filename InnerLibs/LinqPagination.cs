@@ -991,7 +991,7 @@ namespace InnerLibs.LINQ
 
         public static string GenerateParameterName(this Type Type)
         {
-            if (Type is object)
+            if (Type != null)
             {
                 return Type.Name.CamelSplit().SelectJoin(x => x.FirstOrDefault().IfBlank(""), "").ToLower();
             }
@@ -1079,7 +1079,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IEnumerable<T> Traverse<T>(this T item, Func<T, T> ParentSelector)
         {
-            if (item is object)
+            if (item != null)
             {
                 var current = item;
                 do
@@ -1087,7 +1087,7 @@ namespace InnerLibs.LINQ
                     yield return current;
                     current = ParentSelector(current);
                 }
-                while (current is object);
+                while (current != null);
             }
         }
 
@@ -1167,7 +1167,7 @@ namespace InnerLibs.LINQ
             FirstExpression = FirstExpression ?? true.CreateWhereExpression<T>();
             foreach (var item in OtherExpressions ?? Array.Empty<Expression<Func<T, bool>>>())
             {
-                if (item is object)
+                if (item != null)
                 {
                     var invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast<Expression>());
                     FirstExpression = Expression.Lambda<Func<T, bool>>(Expression.AndAlso(FirstExpression.Body, invokedExpr), FirstExpression.Parameters);
@@ -1189,7 +1189,7 @@ namespace InnerLibs.LINQ
             FirstExpression = FirstExpression ?? false.CreateWhereExpression<T>();
             foreach (var item in OtherExpressions ?? Array.Empty<Expression<Func<T, bool>>>())
             {
-                if (item is object)
+                if (item != null)
                 {
                     var invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast<Expression>());
                     FirstExpression = Expression.Lambda<Func<T, bool>>(Expression.OrElse(FirstExpression.Body, invokedExpr), FirstExpression.Parameters);
@@ -1529,7 +1529,6 @@ namespace InnerLibs.LINQ
                 foreach (var item in items.Where(Priority)) yield return item;
                 foreach (var item in items.Where(i => !Priority(i)).OrderBy(i => i)) yield return item;
             }
-
         }
 
         /// <summary>
@@ -1583,7 +1582,7 @@ namespace InnerLibs.LINQ
             foreach (var prop in SortProperty)
             {
                 object exp(T x) => x.GetPropertyValue<object, object>(prop);
-                if (!ReferenceEquals(source.GetType(), typeof(IOrderedEnumerable<T>)))
+                if (source.GetType() != typeof(IOrderedEnumerable<T>))
                 {
                     source = Array.IndexOf(SortProperty, prop) > 0 ? Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp) : Ascending ? source.OrderBy(exp) : source.OrderByDescending(exp);
                 }

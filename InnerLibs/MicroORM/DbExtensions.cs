@@ -98,16 +98,16 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, string SQL, Dictionary<string, object> Parameters)
         {
-            if (Connection is object)
+            if (Connection != null)
             {
                 var command = Connection.CreateCommand();
                 command.CommandText = SQL;
-                if (Parameters is object && Parameters.Any())
+                if (Parameters != null && Parameters.Any())
                 {
                     foreach (var p in Parameters.Keys)
                     {
                         var v = Parameters.GetValueOr(p);
-                        var arr = Converter.ForceArray(v);
+                        var arr = Converter.ForceArray(v, typeof(object));
                         for (int index = 0, loopTo = arr.Length - 1; index <= loopTo; index++)
                         {
                             var param = command.CreateParameter();
@@ -140,7 +140,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, params string[] Args)
         {
-            if (FilePathOrSQL is object)
+            if (FilePathOrSQL != null)
             {
                 if (FilePathOrSQL.IsFilePath())
                 {
@@ -168,7 +168,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL)
         {
-            if (SQL is object && Connection is object)
+            if (SQL != null && Connection != null)
             {
                 var cmd = Connection.CreateCommand();
                 if (SQL.ArgumentCount > 0)
@@ -177,7 +177,7 @@ namespace InnerLibs.MicroORM
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
-                        var v = Converter.ForceArray(valores);
+                        var v = Converter.ForceArray(valores, typeof(object));
                         var param_names = new List<string>();
                         for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
                         {
@@ -225,7 +225,7 @@ namespace InnerLibs.MicroORM
         /// </summary>
         public static string ToSQLString(this FormattableString SQL)
         {
-            if (SQL is object)
+            if (SQL != null)
             {
                 if (SQL.ArgumentCount > 0)
                 {
@@ -233,7 +233,7 @@ namespace InnerLibs.MicroORM
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
-                        var v = Converter.ForceArray(valores);
+                        var v = Converter.ForceArray(valores, typeof(object));
                         var paramvalues = new List<object>();
                         for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
                             paramvalues.Add(v[v_index]);
@@ -379,7 +379,7 @@ namespace InnerLibs.MicroORM
         {
             var d = typeof(T);
             var dic = new Dictionary<string, object>();
-            if (obj is object && Connection is object)
+            if (obj != null && Connection != null)
             {
                 if (obj.IsDictionary())
                 {
@@ -417,7 +417,7 @@ namespace InnerLibs.MicroORM
         {
             var d = typeof(T);
             var dic = new Dictionary<string, object>();
-            if (obj is object && Connection is object)
+            if (obj == null && Connection == null)
             {
                 if (obj.IsDictionary())
                 {
@@ -473,7 +473,7 @@ namespace InnerLibs.MicroORM
         /// </summary>
         public static int RunSQLNone(this DbConnection Connection, DbCommand Command)
         {
-            if (Connection is object && Command is object)
+            if (Connection != null && Command != null)
             {
                 if (!(Connection.State == ConnectionState.Open))
                 {
@@ -494,7 +494,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static object RunSQLValue(this DbConnection Connection, DbCommand Command)
         {
-            if (Connection is object && Command is object)
+            if (Connection != null && Command != null)
             {
                 if (!(Connection.State == ConnectionState.Open))
                 {
@@ -521,7 +521,7 @@ namespace InnerLibs.MicroORM
         public static V? RunSQLValue<V>(this DbConnection Connection, DbCommand Command) where V : struct
         {
             var vv = Connection.RunSQLValue(Command);
-            if (vv is object && Conversions.ToBoolean(Operators.ConditionalCompareObjectNotEqual(vv, DBNull.Value, false)))
+            if (vv != null && Operators.ConditionalCompareObjectNotEqual(vv, DBNull.Value, false).ToBoolean())
             {
                 return (V)vv;
             }
@@ -545,12 +545,12 @@ namespace InnerLibs.MicroORM
 
         public static DbCommand LogCommand(this DbCommand Command)
         {
-            if (LogWriter is object)
+            if (LogWriter != null)
             {
                 var oldout = System.Console.Out;
                 System.Console.SetOut(LogWriter);
                 LogWriter.WriteLine(new string('=', 10));
-                if (Command is object)
+                if (Command != null)
                 {
                     foreach (DbParameter item in Command.Parameters)
                     {
@@ -700,9 +700,9 @@ namespace InnerLibs.MicroORM
         public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false)
         {
             var x = Connection.RunSQLSet<T>(SQL, false).FirstOrDefault();
-            if (x is object && WithSubQueries)
+            if (x != null && WithSubQueries)
             {
-                Connection.ProccessSubQuery( x, WithSubQueries);
+                Connection.ProccessSubQuery(x, WithSubQueries);
             }
 
             return default;
@@ -746,7 +746,7 @@ namespace InnerLibs.MicroORM
                 T v = (T)x.CreateOrSetObject(null, typeof(T));
                 if (WithSubQueries)
                 {
-                    Connection.ProccessSubQuery( v, WithSubQueries);
+                    Connection.ProccessSubQuery(v, WithSubQueries);
                 }
 
                 return v;
@@ -923,7 +923,7 @@ namespace InnerLibs.MicroORM
 
         public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL)
         {
-            if (Connection is object)
+            if (Connection != null)
             {
                 return Connection.RunSQLReader(Connection.CreateCommand(SQL));
             }
@@ -933,7 +933,7 @@ namespace InnerLibs.MicroORM
 
         public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command)
         {
-            if (Connection is object && Command is object)
+            if (Connection != null && Command != null)
             {
                 if (!(Connection.State == ConnectionState.Open))
                 {
@@ -963,7 +963,7 @@ namespace InnerLibs.MicroORM
         {
             var l = new List<T>();
             args = args ?? Array.Empty<object>();
-            while (Reader is object && Reader.Read())
+            while (Reader != null && Reader.Read())
             {
                 T d;
                 if (args.Any())
@@ -1046,10 +1046,10 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static T ProccessSubQuery<T>(this DbConnection Connection, T d, string PropertyName, bool Recursive = false)
         {
-            if (d is object)
+            if (d != null)
             {
                 var prop = d.GetProperty(PropertyName);
-                if (prop is object)
+                if (prop != null)
                 {
                     var attr = prop.GetCustomAttributes<FromSQL>(true).FirstOrDefault();
                     string Sql = attr.SQL.Inject(d);
@@ -1144,11 +1144,11 @@ namespace InnerLibs.MicroORM
         public static IEnumerable<IEnumerable<Dictionary<string, object>>> MapMany(this DbDataReader Reader)
         {
             var l = new List<IEnumerable<Dictionary<string, object>>>();
-            if (Reader is object)
+            if (Reader != null)
             {
                 do
                     l.Add(Reader.Map<Dictionary<string, object>>());
-                while (Reader is object && Reader.NextResult());
+                while (Reader != null && Reader.NextResult());
             }
 
             return l.AsEnumerable();
@@ -1171,7 +1171,7 @@ namespace InnerLibs.MicroORM
             IEnumerable<T3> o3 = null;
             IEnumerable<T4> o4 = null;
             IEnumerable<T5> o5 = null;
-            if (Reader is object)
+            if (Reader != null)
             {
                 o1 = Reader.Map<T1>();
                 if (Reader.NextResult())
@@ -1213,7 +1213,7 @@ namespace InnerLibs.MicroORM
             IEnumerable<T2> o2 = null;
             IEnumerable<T3> o3 = null;
             IEnumerable<T4> o4 = null;
-            if (Reader is object)
+            if (Reader != null)
             {
                 o1 = Reader.Map<T1>();
                 if (Reader.NextResult())
@@ -1248,7 +1248,7 @@ namespace InnerLibs.MicroORM
             IEnumerable<T1> o1 = null;
             IEnumerable<T2> o2 = null;
             IEnumerable<T3> o3 = null;
-            if (Reader is object)
+            if (Reader != null)
             {
                 o1 = Reader.Map<T1>();
                 if (Reader.NextResult())
@@ -1276,7 +1276,7 @@ namespace InnerLibs.MicroORM
         {
             IEnumerable<T1> o1 = null;
             IEnumerable<T2> o2 = null;
-            if (Reader is object)
+            if (Reader != null)
             {
                 o1 = Reader.Map<T1>();
                 if (Reader.NextResult())

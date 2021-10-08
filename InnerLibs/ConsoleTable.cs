@@ -18,7 +18,7 @@ namespace InnerLibs.ConsoleTables
 
             set
             {
-                if (value is object)
+                if (value != null)
                 {
                     Options.Columns = value;
                 }
@@ -208,12 +208,12 @@ namespace InnerLibs.ConsoleTables
 
         private string GetNumberAlignment(int i)
         {
-            return Options.NumberAlignment == Alignment.Right && ColumnTypes is object && Arrays.PrimitiveNumericTypes.Contains(ColumnTypes[i]) ? "" : "-";
+            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && Arrays.PrimitiveNumericTypes.Contains(ColumnTypes[i]) ? "" : "-";
         }
 
         private List<int> ColumnLengths()
         {
-            return Columns.Select((t, i) => Rows.Select(x => x[i]).Union(new[] { Columns[i] }).Where(x => x is object).Select(x => x.ToString().Length).Max()).ToList();
+            return Columns.Select((t, i) => Rows.Select(x => x[i]).Union(new[] { Columns[i] }).Where(x => x != null).Select(x => x.ToString().Length).Max()).ToList();
         }
 
         public void Write(Format format = ConsoleTables.Format.Default)

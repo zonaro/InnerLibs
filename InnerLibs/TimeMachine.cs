@@ -32,8 +32,7 @@ namespace InnerLibs.TimeMachine
         public new IEnumerable<DataType> this[string Key]
         {
             get
-            {               
-
+            {
                 var lista = new List<DataType>();
                 foreach (var ii in DataCollection)
                 {
@@ -76,8 +75,6 @@ namespace InnerLibs.TimeMachine
             return d;
         }
 
-
-
         /// <summary>
         /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
         /// </summary>
@@ -89,12 +86,12 @@ namespace InnerLibs.TimeMachine
         {
             FortnightGroup<DataType> fort;
             fort = CreateFromDateRange(Range.StartDate, Range.EndDate);
-            if (Data is object && Data.Count() > 0)
+            if (Data != null && Data.Any())
             {
                 fort.DataCollection = Data.ToList();
             }
 
-            if (DateSelector is object && DateSelector.Count() > 0)
+            if (DateSelector != null && DateSelector.Any())
             {
                 fort.DateSelector = DateSelector.ToList();
             }
@@ -160,7 +157,6 @@ namespace InnerLibs.TimeMachine
 
     public class Fortnight
     {
-
         /// <summary>
         /// Cria uma instancia de quinzena a partir de uma data que a mesma pode conter
         /// </summary>
@@ -287,7 +283,6 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class FortnightGroup : ReadOnlyCollection<Fortnight>
     {
-
         /// <summary>
         /// Retorna uma quinzena a partir da sua Key
         /// </summary>
@@ -425,7 +420,6 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class LongTimeSpan
     {
-
         /// <summary>
         /// Inicia uma instancia de TimeFlow
         /// </summary>
@@ -778,7 +772,6 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class TimeDemand
     {
-
         /// <summary>
         /// Domingo
         /// </summary>
@@ -1449,7 +1442,6 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class Day
     {
-
         /// <summary>
         /// Inicia uma instancia de dia letivo
         /// </summary>
@@ -1563,7 +1555,6 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class Item
     {
-
         /// <summary>
         /// Quantidade de itens
         /// </summary>

@@ -79,7 +79,7 @@ namespace InnerLibs.Online
         {
             get
             {
-                if (BackupDirectory is object)
+                if (BackupDirectory != null)
                 {
                     BackupDirectory = BackupDirectory.FullName.ToDirectoryInfo();
                 }
@@ -96,7 +96,7 @@ namespace InnerLibs.Online
         {
             get
             {
-                if (BackupDirectory is object)
+                if (BackupDirectory != null)
                 {
                     BackupDirectory = BackupDirectory.FullName.ToDirectoryInfo();
                 }
@@ -268,7 +268,7 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public new OnlineUser<UserType, IdType> Add(UserType Obj, bool? Online = default, string Activity = null, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
         {
-            if (Obj is object)
+            if (Obj != null)
             {
                 var ID = GetID(Obj);
                 if (!ContainsKey(ID))
@@ -286,7 +286,7 @@ namespace InnerLibs.Online
 
                     if (base[ID].IsOnline != Online == true)
                     {
-                        if (OnUserOnlineChanged is object)
+                        if (OnUserOnlineChanged != null)
                         {
                             OnUserOnlineChanged.Invoke(base[ID]);
                         }
@@ -470,7 +470,7 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public UserLogEntry<UserType, IdType> CreateLog(UserType User, string Message, string URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
         {
-            if (User is object && Message.IsNotBlank())
+            if (User != null && Message.IsNotBlank())
             {
                 DateAndTime = DateAndTime ?? Microsoft.VisualBasic.DateAndTime.Now;
                 if ((OnlineList[User].LastActivity ?? "") == (Message ?? ""))
@@ -488,7 +488,7 @@ namespace InnerLibs.Online
                 d.LogData = LogData;
                 d.URL = URL.NullIf(Conversions.ToString(URL.IsBlank()));
                 OnlineList.Log.Add(d);
-                if (OnlineList.OnCreateLog is object)
+                if (OnlineList.OnCreateLog != null)
                 {
                     OnlineList.OnCreateLog.Invoke(d);
                 }
@@ -746,7 +746,7 @@ namespace InnerLibs.Online
         public IEnumerable<UserConversation<UserType, IdType>> GetConversation(UserType User, UserType WithUser = null)
         {
             UserConversation<UserType, IdType>[] lista;
-            if (WithUser is object)
+            if (WithUser != null)
             {
                 lista = this.Where(x => (ChatList.GetID(User).Equals(x.FromUserID) && ChatList.GetID(WithUser).Equals(ChatList.GetID(x.ToUser().User))) | (ChatList.GetID(User).Equals(x.ToUserID) && ChatList.GetID(WithUser).Equals(x.FromUserID))).ToArray();
             }

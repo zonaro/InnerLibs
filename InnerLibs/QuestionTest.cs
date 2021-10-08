@@ -10,7 +10,6 @@ using System.Linq;
 
 namespace InnerLibs.QuestionTest
 {
-
     /// <summary>
     /// Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     /// </summary>
@@ -19,7 +18,6 @@ namespace InnerLibs.QuestionTest
     [Description("Representa uma avaliação de perguntas e respostas")]
     public class QuestionTest : ObservableCollection<Question>
     {
-
         /// <summary>
         /// Informações adicionais, normalmente nome do usuario e outras informações unicas
         /// </summary>
@@ -439,7 +437,7 @@ namespace InnerLibs.QuestionTest
         {
             get
             {
-                if (Test is object)
+                if (Test != null)
                 {
                     return (Test.IndexOf(this) + 1).ToString().Prepend("Q");
                 }
@@ -516,7 +514,7 @@ namespace InnerLibs.QuestionTest
         {
             get
             {
-                if (Test is object)
+                if (Test != null)
                 {
                     return Test.IndexOf(this) + 1;
                 }
@@ -526,7 +524,7 @@ namespace InnerLibs.QuestionTest
 
             set
             {
-                if (Test is object)
+                if (Test != null)
                 {
                     Test.Move(Test.IndexOf(this), (value - 1).LimitRange(0, Test.Count - 1));
                 }
@@ -578,11 +576,11 @@ namespace InnerLibs.QuestionTest
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class QuestionStatement
     {
-
         internal QuestionStatement()
         {
             this.Images = new StatementImages(this);
         }
+
         public Question Question
         {
             get
@@ -628,7 +626,6 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class StatementImage
     {
-
         /// <summary>
         /// Imagem do enunciado
         /// </summary>
@@ -652,7 +649,7 @@ namespace InnerLibs.QuestionTest
         {
             get
             {
-                if (StatementImages is object)
+                if (StatementImages != null)
                 {
                     return "<li class='Image'><img src=" + Image.ToDataURL().Quote() + " alt= " + Subtitle.Quote() + "/><small>Imagem " + (StatementImages.IndexOf(this) + 1).ToString() + ": " + Subtitle + "</small></li>";
                 }
@@ -667,7 +664,6 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class NumericQuestion : Question
     {
-
         /// <summary>
         /// Pontos que o usuario atribuiu a esta questão
         /// </summary>
@@ -729,7 +725,6 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class DissertativeQuestion : Question
     {
-
         /// <summary>
         /// Resposta dissertativa da pergunta
         /// </summary>
@@ -808,11 +803,11 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public abstract class AlternativeQuestion : Question
     {
-
         internal AlternativeQuestion() : base()
         {
             Alternatives = new AlternativeList(this);
         }
+
         /// <summary>
         /// Lista de alternativas da questão
         /// </summary>
@@ -855,7 +850,6 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class SingleAlternativeQuestion : AlternativeQuestion
     {
-
         /// <summary>
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
         /// </summary>
@@ -1045,7 +1039,7 @@ namespace InnerLibs.QuestionTest
         {
             get
             {
-                if (Question is object)
+                if (Question != null)
                 {
                     return Question.ID + "A" + Number;
                 }
@@ -1062,7 +1056,7 @@ namespace InnerLibs.QuestionTest
         {
             get
             {
-                if (Question is object)
+                if (Question != null)
                 {
                     return Question.Alternatives.IndexOf(this) + 1;
                 }
@@ -1072,7 +1066,7 @@ namespace InnerLibs.QuestionTest
 
             set
             {
-                if (Question is object)
+                if (Question != null)
                 {
                     Question.Alternatives.Move(Question.Alternatives.IndexOf(this), (value - 1).LimitRange(0, Question.Alternatives.Count - 1));
                 }

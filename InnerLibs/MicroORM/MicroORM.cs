@@ -15,6 +15,7 @@ namespace InnerLibs.MicroORM
     public interface ISelect
     {
         string ToString();
+
         string ToString(bool SubQuery);
     }
 
@@ -82,9 +83,9 @@ namespace InnerLibs.MicroORM
         public Select<T> AddColumns<O>(O Obj = null) where O : class
         {
             var eltipo = typeof(O).GetNullableTypeOf();
-            if (ReferenceEquals(eltipo, typeof(Dictionary<string, object>)))
+            if (eltipo == typeof(Dictionary<string, object>))
             {
-                if (Obj is object)
+                if (Obj != null)
                 {
                     AddColumns(((Dictionary<string, object>)(object)Obj).Keys.ToArray());
                 }
@@ -121,7 +122,7 @@ namespace InnerLibs.MicroORM
 
         public Select<T> RemoveColumns(params string[] Columns)
         {
-            if (_columns is object)
+            if (_columns != null)
             {
                 _columns = _columns.Where(x => x.IsNotIn(Columns ?? Array.Empty<string>())).ToList();
             }
@@ -152,7 +153,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public Select<T> From<O>(Select<O> SubQuery, string SubQueryAlias = null) where O : class
         {
-            if (SubQuery is object && SubQuery.ToString(true).IsNotBlank() && !ReferenceEquals(SubQuery, this))
+            if (SubQuery != null && SubQuery.ToString(true).IsNotBlank() && !ReferenceEquals(SubQuery, this))
             {
                 _from = null;
                 _fromsub = SubQuery;
@@ -169,7 +170,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public Select<T> From<O>(Action<Select<O>> SubQuery, string SubQueryAlias = null) where O : class
         {
-            if (SubQuery is object)
+            if (SubQuery != null)
             {
                 var sl = new Select<O>();
                 SubQuery(sl);
@@ -186,7 +187,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public Select<T> From(Action<Select> SubQuery)
         {
-            if (SubQuery is object)
+            if (SubQuery != null)
             {
                 From((Action<Select<Dictionary<string, object>>>)SubQuery);
             }
@@ -341,7 +342,7 @@ namespace InnerLibs.MicroORM
 
         public Select<T> WhereObject<O>(O Obj, string LogicOperator = "AND") where O : class
         {
-            if (Obj is object)
+            if (Obj != null)
             {
                 Where(new Condition(LogicOperator, Obj.GetNullableTypeOf().GetProperties().Where(x => x.CanRead).Select(x => (x.Name + " = {0}").ToFormattableString(x.GetValue(Obj))).ToArray()));
             }
@@ -358,7 +359,7 @@ namespace InnerLibs.MicroORM
         {
             if (condition.ToString().IsNotBlank())
             {
-                if (_where is object)
+                if (_where != null)
                 {
                     And(new Condition(condition));
                 }
@@ -380,7 +381,7 @@ namespace InnerLibs.MicroORM
         {
             foreach (var condition in conditions ?? Array.Empty<FormattableString>())
             {
-                if (condition is object && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsNotBlank())
                 {
                     if (LogicOperator.IsIn("OR", "or"))
                     {
@@ -405,7 +406,7 @@ namespace InnerLibs.MicroORM
         {
             foreach (var condition in conditions ?? Array.Empty<Condition>())
             {
-                if (condition is object)
+                if (condition != null)
                 {
                     if (LogicOperator.IsIn("OR", "or"))
                     {
@@ -428,7 +429,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Where(Expression<Func<T, bool>> predicate)
         {
-            if (predicate is object)
+            if (predicate != null)
             {
                 var p = new StringBuilder(predicate.Body.ToString());
                 var pName = predicate.Parameters.First();
@@ -455,11 +456,9 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Where(Condition condition)
         {
-            if (condition is object && condition.ToString().IsNotBlank())
+            if (condition != null && condition.ToString().IsNotBlank())
             {
-                if (_where is object)
-                    And(condition);
-                _where = new Condition(condition);
+                if (_where != null) And(condition); else _where = new Condition(condition);
             }
 
             return this;
@@ -494,7 +493,7 @@ namespace InnerLibs.MicroORM
                 FilterKeys = Dic.Keys.ToArray();
             }
 
-            FilterKeys = FilterKeys.Where(x => Dic[x] is object && Dic[x].ToString().IsNotBlank()).ToArray();
+            FilterKeys = FilterKeys.Where(x => Dic[x] != null && Dic[x].ToString().IsNotBlank()).ToArray();
             if (FilterKeys.Any())
             {
                 foreach (var f in FilterKeys)
@@ -578,7 +577,7 @@ namespace InnerLibs.MicroORM
         {
             foreach (var condition in conditions ?? Array.Empty<Condition>())
             {
-                if (condition is object && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsNotBlank())
                 {
                     if (_where is null)
                         Where(condition);
@@ -707,7 +706,7 @@ namespace InnerLibs.MicroORM
         {
             foreach (var condition in conditions ?? Array.Empty<Condition>())
             {
-                if (condition is object && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsNotBlank())
                 {
                     if (_where is null)
                         Where(condition);
@@ -852,7 +851,7 @@ namespace InnerLibs.MicroORM
         {
             var sql = new StringBuilder("SELECT ");
             sql.Append(string.Join(", ", _columns.Distinct().ToArray()).IfBlank(" * "));
-            if (_fromsub is object && _fromsub.ToString().IsNotBlank())
+            if (_fromsub != null && _fromsub.ToString().IsNotBlank())
             {
                 _from = _fromsub.ToString(true).Quote('(') + " as " + _fromsubname;
             }
@@ -863,18 +862,18 @@ namespace InnerLibs.MicroORM
                 sql.Append(_from);
             }
 
-            if (_joins is object && _joins.Any())
+            if (_joins != null && _joins.Any())
             {
                 sql.Append(_joins.SelectJoin(j => string.Format(CultureInfo.InvariantCulture, " {0}", j), " "));
             }
 
-            if (_where is object)
+            if (_where != null)
             {
                 sql.Append(" WHERE ");
                 sql.Append(_where);
             }
 
-            if (_groupBy is object)
+            if (_groupBy != null)
             {
                 sql.Append(" GROUP BY ");
                 sql.Append(string.Join(", ", _groupBy));
@@ -886,7 +885,7 @@ namespace InnerLibs.MicroORM
                 sql.Append(_having);
             }
 
-            if (_orderBy is object && AsSubquery == false)
+            if (_orderBy != null && AsSubquery == false)
             {
                 sql.Append(" ORDER BY ");
                 sql.Append(string.Join(", ", _orderBy));
@@ -928,7 +927,7 @@ namespace InnerLibs.MicroORM
         {
             foreach (var condition in Conditions ?? Array.Empty<FormattableString>())
             {
-                if (condition is object && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsNotBlank())
                 {
                     if (LogicOperator.IsIn("Or", "OR"))
                     {
@@ -946,7 +945,7 @@ namespace InnerLibs.MicroORM
         {
             foreach (var condition in Conditions ?? Array.Empty<Condition>())
             {
-                if (condition is object && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsNotBlank())
                 {
                     if (LogicOperator.IsIn("Or", "OR"))
                     {
@@ -986,7 +985,7 @@ namespace InnerLibs.MicroORM
         /// <param name="condition">Copies to the condition being constructed</param>
         public Condition(Condition condition)
         {
-            if (condition is object && condition.ToString().IsNotBlank())
+            if (condition != null && condition.ToString().IsNotBlank())
             {
                 _tokens.Add(condition.ParenthesisToString());
             }

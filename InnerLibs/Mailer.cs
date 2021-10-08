@@ -213,18 +213,18 @@ namespace InnerLibs
 
         public FluentMailMessage Send()
         {
-            if (Smtp is object)
+            if (Smtp != null)
             {
                 foreach (var item in To)
                 {
-                    if (item is object)
+                    if (item != null)
                     {
                         string msg = Body.IfBlank("");
                         string subj = Subject.IfBlank("");
                         if (ReferenceEquals(item.GetType(), typeof(TemplateMailAddress)))
                         {
                             var data = ((TemplateMailAddress)item)?.TemplateData;
-                            if (data is object)
+                            if (data != null)
                             {
                                 msg = msg.Inject(data);
                                 subj = subj.Inject(data);
@@ -246,14 +246,14 @@ namespace InnerLibs
                                 Smtp.Send(From.ToString(), Bcc.SelectJoin(x => x.ToString(), ","), subj, msg);
                             }
 
-                            if (SuccessAction is object)
+                            if (SuccessAction != null)
                             {
                                 SuccessAction.Invoke(item);
                             }
                         }
                         catch (SmtpException ex)
                         {
-                            if (ErrorAction is object)
+                            if (ErrorAction != null)
                             {
                                 ErrorAction.Invoke(item, ex);
                             }

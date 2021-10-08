@@ -1,5 +1,4 @@
-﻿
-/// <summary>
+﻿/// <summary>
 /// Uma estrutura <see cref="IDictionary"/> que utiliza como Key uma propriedade de Value
 /// </summary>
 /// <typeparam name="KeyType">Tipo da Key</typeparam>
@@ -19,7 +18,7 @@ namespace InnerLibs
 
         public SelfKeyDictionary(Func<ClassType, KeyType> KeySelector)
         {
-            if (KeySelector is object)
+            if (KeySelector != null)
             {
                 keyselector = KeySelector;
             }
@@ -34,9 +33,9 @@ namespace InnerLibs
             return Keys.Contains(key);
         }
 
-        void Add(KeyType key, ClassType value)
+        private void Add(KeyType key, ClassType value)
         {
-            if (value is object)
+            if (value != null)
             {
                 if (!ContainsKey(keyselector(value)))
                 {
@@ -63,7 +62,7 @@ namespace InnerLibs
 
         public IEnumerable<KeyType> AddRange(IEnumerable<ClassType> Values)
         {
-            Values = (Values ?? Array.Empty<ClassType>()).Where(x => x is object).AsEnumerable();
+            Values = (Values ?? Array.Empty<ClassType>()).Where(x => x != null).AsEnumerable();
             foreach (var value in Values)
                 Add(value);
             return Values.Select(x => keyselector(x));
@@ -195,10 +194,5 @@ namespace InnerLibs
                 return false;
             }
         }
-
-
-
     }
 }
-
-

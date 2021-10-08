@@ -7,7 +7,6 @@ namespace InnerLibs
 {
     public class RuleOfThree
     {
-
         /// <summary>
         /// Calcula uma regra de tres
         /// </summary>
@@ -203,7 +202,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            if (UnknowValue is object)
+            if (UnknowValue != null)
             {
                 return $"{UnknowName} = {UnknowValue}";
             }

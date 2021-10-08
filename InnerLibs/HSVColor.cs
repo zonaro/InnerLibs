@@ -14,70 +14,70 @@ namespace InnerLibs
         private Color _scolor;
 
         /// <summary>
-    /// Retorna a cor vibrante de uma imagem
-    /// </summary>
-    /// <param name="Img"></param>
-    /// <param name="Reduce"></param>
-    /// <returns></returns>
+        /// Retorna a cor vibrante de uma imagem
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <param name="Reduce"></param>
+        /// <returns></returns>
         public static HSVColor FromImage(Image Img, int Reduce = 16)
         {
             return Images.ColorPallette(Img, Reduce).Keys.FirstOr(new HSVColor());
         }
 
         /// <summary>
-    /// Retorna uma cor aleatoria a partir da paleta de cores de uma imagem
-    /// </summary>
-    /// <param name="Img"></param>
-    /// <param name="Reduce"></param>
-    /// <returns></returns>
+        /// Retorna uma cor aleatoria a partir da paleta de cores de uma imagem
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <param name="Reduce"></param>
+        /// <returns></returns>
         public static HSVColor RandomColor(Image Img, int Reduce = 16)
         {
             return Img.ColorPallette(Reduce).Keys.FirstRandom();
         }
 
         /// <summary>
-    /// Retorna uma cor aleatória a partir de uma lista de cores
-    /// </summary>
-    /// <param name="Colors"></param>
-    /// <returns></returns>
+        /// Retorna uma cor aleatória a partir de uma lista de cores
+        /// </summary>
+        /// <param name="Colors"></param>
+        /// <returns></returns>
         public static HSVColor RandomColor(IEnumerable<Color> Colors)
         {
             return new HSVColor((Color)Colors?.OrderByRandom().FirstOr(Color.Transparent));
         }
 
         /// <summary>
-    /// Gera uma <see cref="HSVColor"/> opaca aleatoria
-    /// </summary>
-    /// <param name="Name"></param>
-    /// <returns></returns>
+        /// Gera uma <see cref="HSVColor"/> opaca aleatoria
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
         public static HSVColor RandomColor(string Name = null)
         {
             return new HSVColor(ColorExtensions.RandomColor(), Name);
         }
 
         /// <summary>
-    /// Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de um Mood especifico
-    /// </summary>
-    /// <returns></returns>
+        /// Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de um Mood especifico
+        /// </summary>
+        /// <returns></returns>
         public static HSVColor RandomColor(ColorMood Mood)
         {
             return RandomColorList(1, Mood).FirstOrDefault();
         }
 
         /// <summary>
-    /// Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de uma especificacao
-    /// </summary>
-    /// <returns></returns>
+        /// Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de uma especificacao
+        /// </summary>
+        /// <returns></returns>
         public static HSVColor RandomColor(Expression<Func<HSVColor, bool>> predicate)
         {
             return RandomColorList(1, predicate).FirstOrDefault();
         }
 
         /// <summary>
-    /// Gera uma lista com <see cref="HSVColor"/>   aleatorias
-    /// </summary>
-    /// <param name="Quantity"></param>
-    /// <returns></returns>
+        /// Gera uma lista com <see cref="HSVColor"/>   aleatorias
+        /// </summary>
+        /// <param name="Quantity"></param>
+        /// <returns></returns>
         public static IEnumerable<HSVColor> RandomColorList(int Quantity, ColorMood Mood)
         {
             var l = new List<HSVColor>();
@@ -97,10 +97,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Gera uma lista com <see cref="HSVColor"/>   aleatorias
-    /// </summary>
-    /// <param name="Quantity"></param>
-    /// <returns></returns>
+        /// Gera uma lista com <see cref="HSVColor"/>   aleatorias
+        /// </summary>
+        /// <param name="Quantity"></param>
+        /// <returns></returns>
         public static IEnumerable<HSVColor> RandomColorList(int Quantity, Expression<Func<HSVColor, bool>> predicate)
         {
             var l = new List<HSVColor>();
@@ -120,19 +120,18 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Gera uma <see cref="HSVColor"/>  aleatoria com transparencia
-    /// </summary>
-    /// <param name="Name"></param>
-    /// <returns></returns>
+        /// Gera uma <see cref="HSVColor"/>  aleatoria com transparencia
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
         public static HSVColor RandomTransparentColor(string Name = null)
         {
             return RandomColor().With(x => x.Opacity = Generate.RandomNumber(0, 100)).With(x => x.Name = Name);
         }
 
-
         /// <summary>
-    /// Instancia uma nova <see cref="HSVColor"/> a aprtir de seu ARGB
-    /// </summary>
+        /// Instancia uma nova <see cref="HSVColor"/> a aprtir de seu ARGB
+        /// </summary>
         public HSVColor(int ARGB) : this(Color.FromArgb(ARGB))
         {
         }
@@ -146,54 +145,54 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Instancia uma nova <see cref="HSVColor"/> transparente
-    /// </summary>
+        /// Instancia uma nova <see cref="HSVColor"/> transparente
+        /// </summary>
         public HSVColor() : this(Color.Transparent)
         {
         }
 
         /// <summary>
-    /// Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="System.Drawing.Color"/>
-    /// </summary>
-    /// <param name="Color">Cor do sistema</param>
+        /// Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="System.Drawing.Color"/>
+        /// </summary>
+        /// <param name="Color">Cor do sistema</param>
         public HSVColor(Color Color)
         {
             _loadColor(Color);
         }
 
         /// <summary>
-    /// Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria)
-    /// </summary>
-    /// <param name="Color">Cor</param>
+        /// Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria)
+        /// </summary>
+        /// <param name="Color">Cor</param>
         public HSVColor(string Color) : this(Color.ToColor())
         {
             _name = Color;
         }
 
         /// <summary>
-    /// Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou  string aleatoria) e um Nome
-    /// </summary>
-    /// <param name="Color">Cor</param>
-    /// <param name="Name">Nome da cor</param>
+        /// Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou  string aleatoria) e um Nome
+        /// </summary>
+        /// <param name="Color">Cor</param>
+        /// <param name="Name">Nome da cor</param>
         public HSVColor(string Color, string Name) : this(Color.ToColor())
         {
             _name = Name.IfBlank(Color);
         }
 
         /// <summary>
-    /// Instancia uma nova HSVColor a partir de uma <see cref="System.Drawing.Color"/> e um Nome
-    /// </summary>
-    /// <param name="Color">Cor</param>
-    /// <param name="Name">Nome da cor</param>
+        /// Instancia uma nova HSVColor a partir de uma <see cref="System.Drawing.Color"/> e um Nome
+        /// </summary>
+        /// <param name="Color">Cor</param>
+        /// <param name="Name">Nome da cor</param>
         public HSVColor(Color Color, string Name) : this(Color)
         {
             _name = Name;
         }
 
         /// <summary>
-    /// Retorna ou seta o valor ARGB de 32 bits dessa cor
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna ou seta o valor ARGB de 32 bits dessa cor
+        /// </summary>
+        /// <returns></returns>
         public int ARGB
         {
             get
@@ -209,9 +208,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Hue (Matiz)
-    /// </summary>
-    /// <returns></returns>
+        /// Hue (Matiz)
+        /// </summary>
+        /// <returns></returns>
         public double Hue
         {
             get
@@ -234,9 +233,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Saturation (Saturação)
-    /// </summary>
-    /// <returns></returns>
+        /// Saturation (Saturação)
+        /// </summary>
+        /// <returns></returns>
         public double Saturation
         {
             get
@@ -256,9 +255,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Luminância
-    /// </summary>
-    /// <returns></returns>
+        /// Luminância
+        /// </summary>
+        /// <returns></returns>
         public double Luminance
         {
             get
@@ -268,9 +267,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Brilho
-    /// </summary>
-    /// <returns></returns>
+        /// Brilho
+        /// </summary>
+        /// <returns></returns>
         public double Brightness
         {
             get
@@ -290,9 +289,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Red (Vermelho)
-    /// </summary>
-    /// <returns></returns>
+        /// Red (Vermelho)
+        /// </summary>
+        /// <returns></returns>
         public int Red
         {
             get
@@ -308,9 +307,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Green (Verde)
-    /// </summary>
-    /// <returns></returns>
+        /// Green (Verde)
+        /// </summary>
+        /// <returns></returns>
         public int Green
         {
             get
@@ -326,9 +325,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Blue (Azul)
-    /// </summary>
-    /// <returns></returns>
+        /// Blue (Azul)
+        /// </summary>
+        /// <returns></returns>
         public int Blue
         {
             get
@@ -344,9 +343,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Alpha (Transparencia)
-    /// </summary>
-    /// <returns></returns>
+        /// Alpha (Transparencia)
+        /// </summary>
+        /// <returns></returns>
         public byte Alpha
         {
             get
@@ -362,9 +361,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Opacidade (de 1 a 100%)
-    /// </summary>
-    /// <returns></returns>
+        /// Opacidade (de 1 a 100%)
+        /// </summary>
+        /// <returns></returns>
         public decimal Opacity
         {
             get
@@ -379,9 +378,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Valor hexadecimal desta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Valor hexadecimal desta cor
+        /// </summary>
+        /// <returns></returns>
         public string Hexadecimal
         {
             get
@@ -400,9 +399,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Valor RGBA() desta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Valor RGBA() desta cor
+        /// </summary>
+        /// <returns></returns>
         public string CSS
         {
             get
@@ -415,9 +414,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Mood da cor
-    /// </summary>
-    /// <returns></returns>
+        /// Mood da cor
+        /// </summary>
+        /// <returns></returns>
         public ColorMood Mood
         {
             get
@@ -613,9 +612,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Nome atribuido a esta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Nome atribuido a esta cor
+        /// </summary>
+        /// <returns></returns>
         public string Name
         {
             get
@@ -630,9 +629,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Nome original mais proximo desta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Nome original mais proximo desta cor
+        /// </summary>
+        /// <returns></returns>
         public string ClosestColorName
         {
             get
@@ -642,9 +641,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Descricao desta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Descricao desta cor
+        /// </summary>
+        /// <returns></returns>
         public string Description { get; set; }
 
         private void SetColor()
@@ -765,85 +764,85 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
+        /// </summary>
+        /// <returns></returns>
         public Color ToSystemColor()
         {
             return Color.FromArgb(Alpha, Red, Green, Blue);
         }
 
         /// <summary>
-    /// Verifica se uma cor é legivel sobre outra cor
-    /// </summary>
-    /// <param name="BackgroundColor"></param>
-    /// <param name="Size"></param>
-    /// <returns></returns>
+        /// Verifica se uma cor é legivel sobre outra cor
+        /// </summary>
+        /// <param name="BackgroundColor"></param>
+        /// <param name="Size"></param>
+        /// <returns></returns>
         public bool IsReadable(HSVColor BackgroundColor, int Size = 10)
         {
             return _scolor.IsReadable(BackgroundColor._scolor, Size);
         }
 
         /// <summary>
-    /// Retorna uma cor mais clara a partir desta cor
-    /// </summary>
-    /// <param name="Percent"></param>
-    /// <returns></returns>
+        /// Retorna uma cor mais clara a partir desta cor
+        /// </summary>
+        /// <param name="Percent"></param>
+        /// <returns></returns>
         public HSVColor MakeLighter(float Percent = 50f)
         {
             return new HSVColor(_scolor.MakeLighter(Percent));
         }
 
         /// <summary>
-    /// Retorna uma cor mais escura a partir desta cor
-    /// </summary>
-    /// <param name="Percent"></param>
-    /// <returns></returns>
+        /// Retorna uma cor mais escura a partir desta cor
+        /// </summary>
+        /// <param name="Percent"></param>
+        /// <returns></returns>
         public HSVColor MakeDarker(float Percent = 50f)
         {
             return new HSVColor(_scolor.MakeDarker(Percent));
         }
 
         /// <summary>
-    /// Verifica se uma cor e considerada clara
-    /// </summary>
-    /// <returns></returns>
+        /// Verifica se uma cor e considerada clara
+        /// </summary>
+        /// <returns></returns>
         public bool IsLight()
         {
             return Luminance.IsGreaterThan(160.0d);
         }
 
         /// <summary>
-    /// Verifica se uma cor e considerada escura
-    /// </summary>
-    /// <returns></returns>
+        /// Verifica se uma cor e considerada escura
+        /// </summary>
+        /// <returns></returns>
         public bool IsDark()
         {
             return Luminance.IsLessThan(70.0d);
         }
 
         /// <summary>
-    /// Verifica se uma cor e considerada Medio Clara
-    /// </summary>
-    /// <returns></returns>
+        /// Verifica se uma cor e considerada Medio Clara
+        /// </summary>
+        /// <returns></returns>
         public bool IsMediumLight()
         {
             return Luminance > 255d / 2d;
         }
 
         /// <summary>
-    /// Verifica se uma cor e considerada Medio Escura
-    /// </summary>
-    /// <returns></returns>
+        /// Verifica se uma cor e considerada Medio Escura
+        /// </summary>
+        /// <returns></returns>
         public bool IsMediumDark()
         {
             return !IsMediumLight();
         }
 
         /// <summary>
-    /// Verifica se uma cor e considerada média
-    /// </summary>
-    /// <returns></returns>
+        /// Verifica se uma cor e considerada média
+        /// </summary>
+        /// <returns></returns>
         public bool IsMedium()
         {
             return Luminance.IsBetweenOrEqual(70.0d, 160.0d);
@@ -880,22 +879,22 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma cópia desta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna uma cópia desta cor
+        /// </summary>
+        /// <returns></returns>
         public HSVColor Clone()
         {
             return new HSVColor(_scolor, Name) { Description = Description };
         }
 
         /// <summary>
-    /// Retorna a combinação de 2 cores
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Retorna a combinação de 2 cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public HSVColor Combine(HSVColor Color)
         {
-            if (Color is object)
+            if (Color != null)
             {
                 return new HSVColor() { Red = Red ^ Color.Red, Green = Green ^ Color.Green, Blue = Blue ^ Color.Blue, Alpha = Alpha };
             }
@@ -904,24 +903,24 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna a distancia entre 2 cores
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Retorna a distancia entre 2 cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public double Distance(HSVColor Color)
         {
             return Math.Sqrt(3 * (Color.Red - Red) * (Color.Red - Red) + 4 * (Color.Green - Green) * (Color.Green - Green) + 2 * (Color.Blue - Blue) * (Color.Blue - Blue));
         }
 
         /// <summary>
-    /// Retorna uma nova cor a partir da mistura multiplicativa de 2 cores
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Retorna uma nova cor a partir da mistura multiplicativa de 2 cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public HSVColor Multiply(HSVColor Color)
         {
             var n = Clone();
-            if (Color is object)
+            if (Color != null)
             {
                 n.Red = (int)(Red / 255d * Color.Red).LimitRange(0, 255);
                 n.Green = (int)(Green / 255d * Color.Green).LimitRange(0, 255);
@@ -932,14 +931,14 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma nova cor a partir da mistura subtrativa de 2 cores
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Retorna uma nova cor a partir da mistura subtrativa de 2 cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public HSVColor Subtractive(HSVColor Color)
         {
             var n = Clone();
-            if (Color is object)
+            if (Color != null)
             {
                 n.Red = (n.Red + (Color.Red - 255)).LimitRange(0, 255);
                 n.Green = (n.Green + (Color.Green - 255)).LimitRange(0, 255);
@@ -950,14 +949,14 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma nova cor a partir da mistura aditiva de 2 cores
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Retorna uma nova cor a partir da mistura aditiva de 2 cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public HSVColor Addictive(HSVColor Color)
         {
             var n = Clone();
-            if (Color is object)
+            if (Color != null)
             {
                 n.Red = (n.Red + Color.Red).LimitRange(0, 255);
                 n.Green = (n.Green + Color.Green).LimitRange(0, 255);
@@ -968,14 +967,14 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma nova cor a partir da diferença de 2 cores
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Retorna uma nova cor a partir da diferença de 2 cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public HSVColor Difference(HSVColor Color)
         {
             var n = Clone();
-            if (Color is object)
+            if (Color != null)
             {
                 n.Red = (n.Red - Color.Red).LimitRange(0, 255);
                 n.Green = (n.Green - Color.Green).LimitRange(0, 255);
@@ -986,13 +985,13 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna a cor media entre 2 cores
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
+        /// Retorna a cor media entre 2 cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public HSVColor Average(HSVColor Color)
         {
-            if (Color is object)
+            if (Color != null)
             {
                 return new HSVColor() { Red = (int)Math.Round(new[] { Red, Color.Red }.Average()), Green = (int)Math.Round(new[] { Green, Color.Green }.Average()), Blue = (int)Math.Round(new[] { Blue, Color.Blue }.Average()), Alpha = Alpha };
             }
@@ -1001,9 +1000,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Extrai os tons marrons de uma cor (filtro sépia)
-    /// </summary>
-    /// <returns></returns>
+        /// Extrai os tons marrons de uma cor (filtro sépia)
+        /// </summary>
+        /// <returns></returns>
         public HSVColor Sepia()
         {
             var c = Clone();
@@ -1019,18 +1018,18 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Extrai a cor negativa desta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Extrai a cor negativa desta cor
+        /// </summary>
+        /// <returns></returns>
         public HSVColor Negative()
         {
             return new HSVColor(_scolor.GetNegativeColor());
         }
 
         /// <summary>
-    /// Extrai o cinza desta cor
-    /// </summary>
-    /// <returns></returns>
+        /// Extrai o cinza desta cor
+        /// </summary>
+        /// <returns></returns>
         public HSVColor Grey()
         {
             double v = 0.35d + 13 * (Red + Green + Blue) / 60d;
@@ -1053,11 +1052,11 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Cria uma paleta de cores usando esta cor como base e um metodo especifico
-    /// </summary>
-    /// <param name="PalleteType"></param>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
+        /// Cria uma paleta de cores usando esta cor como base e um metodo especifico
+        /// </summary>
+        /// <param name="PalleteType"></param>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
         public HSVColor[] CreatePallete(string PalleteType, int Amount = 4)
         {
             var rl = new List<HSVColor>();
@@ -1071,11 +1070,11 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
-    /// </summary>
-    /// <param name="excludeMe">Inclui esta cor no array</param>
-    /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
-    /// <returns></returns>
+        /// Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+        /// </summary>
+        /// <param name="excludeMe">Inclui esta cor no array</param>
+        /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
+        /// <returns></returns>
         public HSVColor[] ModColor(bool ExcludeMe, params int[] Degrees)
         {
             if (!ExcludeMe)
@@ -1087,10 +1086,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
-    /// </summary>
-    /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
-    /// <returns></returns>
+        /// Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+        /// </summary>
+        /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
+        /// <returns></returns>
         public HSVColor[] ModColor(params int[] Degrees)
         {
             return (Degrees ?? Array.Empty<int>()).Select(x => new HSVColor() { Hue = (Hue + x) % 360d, Saturation = Saturation, Brightness = Brightness }).OrderBy(x => x.Hue).ToArray();
@@ -1102,110 +1101,110 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna as cores Quadraadas (tetradicas) desta cor
-    /// </summary>
-    /// <param name="ExcludeMe"></param>
-    /// <returns></returns>
+        /// Retorna as cores Quadraadas (tetradicas) desta cor
+        /// </summary>
+        /// <param name="ExcludeMe"></param>
+        /// <returns></returns>
         public HSVColor[] Tetradic(bool ExcludeMe = false)
         {
             return Square(ExcludeMe);
         }
 
         /// <summary>
-    /// Retorna as cores análogas desta cor
-    /// </summary>
-    /// <param name="ExcludeMe"></param>
-    /// <returns></returns>
+        /// Retorna as cores análogas desta cor
+        /// </summary>
+        /// <param name="ExcludeMe"></param>
+        /// <returns></returns>
         public HSVColor[] Analogous(bool ExcludeMe = false)
         {
             return ModColor(ExcludeMe, 45, -45);
         }
 
         /// <summary>
-    /// Retorna as cores Quadraadas (tetradicas) desta cor
-    /// </summary>
-    /// <param name="ExcludeMe"></param>
-    /// <returns></returns>
+        /// Retorna as cores Quadraadas (tetradicas) desta cor
+        /// </summary>
+        /// <param name="ExcludeMe"></param>
+        /// <returns></returns>
         public HSVColor[] Square(bool ExcludeMe = false)
         {
             return ModColor(ExcludeMe, 90, 180, 260);
         }
 
         /// <summary>
-    /// Retorna as cores triadicas desta cor
-    /// </summary>
-    /// <param name="ExcludeMe"></param>
-    /// <returns></returns>
+        /// Retorna as cores triadicas desta cor
+        /// </summary>
+        /// <param name="ExcludeMe"></param>
+        /// <returns></returns>
         public HSVColor[] Triadic(bool ExcludeMe = false)
         {
             return ModColor(ExcludeMe, 120, -120);
         }
 
         /// <summary>
-    /// Retorna as cores complementares desta cor
-    /// </summary>
-    /// <param name="ExcludeMe"></param>
-    /// <returns></returns>
+        /// Retorna as cores complementares desta cor
+        /// </summary>
+        /// <param name="ExcludeMe"></param>
+        /// <returns></returns>
         public HSVColor[] Complementary(bool ExcludeMe = false)
         {
             return ModColor(ExcludeMe, 180);
         }
 
         /// <summary>
-    /// Retorna as cores split-complementares desta cor
-    /// </summary>
-    /// <param name="IncludeMe"></param>
-    /// <returns></returns>
+        /// Retorna as cores split-complementares desta cor
+        /// </summary>
+        /// <param name="IncludeMe"></param>
+        /// <returns></returns>
         public HSVColor[] SplitComplementary(bool IncludeMe = false)
         {
             return ModColor(IncludeMe, 150, 210);
         }
 
         /// <summary>
-    /// Retorna <paramref name="Amount"/> variacoes cores a partir da cor atual
-    /// </summary>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
+        /// Retorna <paramref name="Amount"/> variacoes cores a partir da cor atual
+        /// </summary>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
         public HSVColor[] Monochromatic(decimal Amount = 4m)
         {
             return ColorExtensions.MonochromaticPallete(_scolor, (int)Math.Round(Amount)).ToArray();
         }
 
         /// <summary>
-    /// Retorna uma paleta de cores tetradica (Monochromatica + Tetradica)
-    /// </summary>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
+        /// Retorna uma paleta de cores tetradica (Monochromatica + Tetradica)
+        /// </summary>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
         public HSVColor[] TetradicPallete(int Amount = 3)
         {
             return Monochromatic(Amount).SelectMany(item => item.Tetradic()).ToArray();
         }
 
         /// <summary>
-    /// Retorna uma paleta de cores triadica (Monochromatica + Triadica)
-    /// </summary>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
+        /// Retorna uma paleta de cores triadica (Monochromatica + Triadica)
+        /// </summary>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
         public HSVColor[] TriadicPallete(int Amount = 3)
         {
             return Monochromatic(Amount).SelectMany(item => item.Triadic()).ToArray();
         }
 
         /// <summary>
-    /// Retorna uma paleta de cores complementares (complementares + monocromatica)
-    /// </summary>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
+        /// Retorna uma paleta de cores complementares (complementares + monocromatica)
+        /// </summary>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
         public HSVColor[] ComplementaryPallete(int Amount = 3)
         {
             return Monochromatic(Amount).SelectMany(item => item.Complementary()).ToArray();
         }
 
         /// <summary>
-    /// Retorna uma paleta de cores split-complementares (split-complementares + monocromatica)
-    /// </summary>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
+        /// Retorna uma paleta de cores split-complementares (split-complementares + monocromatica)
+        /// </summary>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
         public HSVColor[] SplitComplementaryPallete(int Amount = 3)
         {
             return Monochromatic(Amount).SelectMany(item => item.SplitComplementary()).ToArray();
