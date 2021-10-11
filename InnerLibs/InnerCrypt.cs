@@ -8,13 +8,13 @@ namespace InnerLibs
 {
     public static class InnerCrypt
     {
-        private static char[] letrasc = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz".ToArray();
+        private static readonly char[] letrasc = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz".ToArray();
 
         /// <summary>
-    /// Criptografa uma suma string usando a logica InnerCrypt
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
+        /// Criptografa uma suma string usando a logica InnerCrypt
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
         public static string InnCrypt(this string Text, int Seed = 1)
         {
             var letras = Text.ToArray();
@@ -28,27 +28,26 @@ namespace InnerLibs
             }
 
             num.Reverse();
-            return num.Join("");
+            return num.JoinString("");
         }
 
 
         /// <summary>
-    /// Descriptografa uma string previamente criptografada com InnerCrypt
-    /// </summary>
-    /// <param name="EncryptedText">Texto Criptografado</param>
-    /// <returns></returns>
+        /// Descriptografa uma string previamente criptografada com InnerCrypt
+        /// </summary>
+        /// <param name="EncryptedText">Texto Criptografado</param>
+        /// <returns></returns>
         public static string UnnCrypt(this string EncryptedText, int Seed = 1)
         {
             try
             {
                 var num = EncryptedText.Split(letrasc, StringSplitOptions.RemoveEmptyEntries);
                 var letras = new List<char>();
-                foreach (var n in num)
-                    letras.Add((char)Math.Pow(n.ToDouble(), 1d / (double)(3 * Seed.SetMinValue(1))));
+                foreach (var n in num) letras.Add((char)Math.Pow(n.ToDouble(), 1d / (double)(3 * Seed.SetMinValue(1))));
                 letras.Reverse();
-                return letras.Join("");
+                return letras.JoinString("");
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
             }

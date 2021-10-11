@@ -827,7 +827,7 @@ namespace InnerLibs.Printer
             values = (values ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
             if (values.Any())
             {
-                this.WriteLine(values.Join(Constants.vbNewLine));
+                this.WriteLine(values.JoinString(Constants.vbNewLine));
             }
 
             return this;

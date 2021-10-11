@@ -59,7 +59,7 @@ namespace InnerLibs
             linha_longa = linha_longa.Trim();
             Lines.Insert(0, linha_longa);
             Lines.Add(linha_longa);
-            string box = Lines.Join(Environment.NewLine);
+            string box = Lines.JoinString(Environment.NewLine);
             return box;
         }
 
@@ -358,9 +358,9 @@ namespace InnerLibs
                 Text = Text.Replace("< ", "<");
                 Text = Text.Replace("\" ", "\"");
                 var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.Join(Environment.NewLine);
+                Text = arr.JoinString(Environment.NewLine);
                 arr = Text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.Join(" ");
+                Text = arr.JoinString(" ");
             }
 
             return Text.TrimAny(" ", Environment.NewLine);
@@ -375,7 +375,7 @@ namespace InnerLibs
         {
             var a = Text.ToCharArray();
             Array.Sort(a);
-            return a.Join("");
+            return a.JoinString("");
         }
 
         public static string AppendUrlParameter(this string Url, string Key, params string[] Value)
@@ -573,7 +573,7 @@ namespace InnerLibs
                     }
                 }
 
-                Text = words.Join(" ");
+                Text = words.JoinString(" ");
             }
 
             return Text;
@@ -903,7 +903,7 @@ namespace InnerLibs
                 sentences = Text.Split(dot, StringSplitOptions.None).ToList();
                 for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
                     sentences[index] = "" + sentences[index].Trim().GetFirstChars(1).ToUpper() + sentences[index].RemoveFirstChars(1);
-                Text = sentences.Join(dot);
+                Text = sentences.JoinString(dot);
             }
 
             sentences = Text.Split(" ").ToList();
@@ -1078,7 +1078,7 @@ namespace InnerLibs
             {
                 var parts = d.Split(".").ToList();
                 parts.Remove(parts[0]);
-                d = parts.Join(".");
+                d = parts.JoinString(".");
             }
 
             return d;
@@ -1466,7 +1466,7 @@ namespace InnerLibs
         /// <param name="Text">             Texto</param>
         /// <param name="IgnoreWhiteSpaces">Ignora os espaços na hora de comparar</param>
         /// <returns></returns>
-        public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = false)
+        public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
         {
             if (IgnoreWhiteSpaces)
                 Text = Text.RemoveAny(" ");
@@ -1479,12 +1479,13 @@ namespace InnerLibs
         /// <summary>
         /// Une todos os valores de um objeto em uma unica string
         /// </summary>
-        /// <param name="Array">    Objeto com os valores</param>
+        /// <param name="Items">    Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string Join<Type>(this IEnumerable<Type> Array, string Separator = "")
+        public static string JoinString<Type>(this IEnumerable<Type> Items, string Separator = "") 
         {
-            return string.Join(Separator, Array);
+            Items ??= Array.Empty<Type>().AsEnumerable();
+            return string.Join(Separator, Items.Select(x => $"{x}").ToArray());
         }
 
         /// <summary>
@@ -1493,9 +1494,9 @@ namespace InnerLibs
         /// <param name="Array">    Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string Join<Type>(this Type[] Array, string Separator = "")
+        public static string JoinString<Type>(this Type[] Array, string Separator = "") 
         {
-            return string.Join(Separator, Array);
+            return JoinString(Array.AsEnumerable(), Separator);
         }
 
         /// <summary>
@@ -1504,9 +1505,9 @@ namespace InnerLibs
         /// <param name="Array">    Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string Join<Type>(string Separator, params Type[] Array)
+        public static string JoinString<Type>(string Separator, params Type[] Array) 
         {
-            return string.Join(Separator, Array);
+            return JoinString(Array, Separator);
         }
 
         /// <summary>
@@ -1515,9 +1516,9 @@ namespace InnerLibs
         /// <param name="List">     Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string Join<Type>(this List<Type> List, string Separator = "")
+        public static string JoinString<Type>(this List<Type> List, string Separator = "") 
         {
-            return List.ToArray().Join(Separator);
+            return List.ToArray().JoinString(Separator);
         }
 
         /// <summary>
@@ -1594,7 +1595,7 @@ namespace InnerLibs
             var l = new List<string>();
             foreach (var item in Text.Split(" ", StringSplitOptions.RemoveEmptyEntries))
                 l.Add(Regex.Replace(item, "[^A-Za-z0-9]", ""));
-            return l.Join(" ");
+            return l.JoinString(" ");
         }
 
         /// <summary>
@@ -1641,7 +1642,7 @@ namespace InnerLibs
                     l = l.ChangeType<int, decimal>() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().Join().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).RemoveFirstAny(Arrays.LowerConsonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().JoinString().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).RemoveFirstAny(Arrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
@@ -1654,7 +1655,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Poopfy(this string Text)
         {
-            return Poopfy(Text.Split(" ")).Join(" ");
+            return Poopfy(Text.Split(" ")).JoinString(" ");
         }
 
         /// <summary>
@@ -2579,7 +2580,7 @@ namespace InnerLibs
                 }
             }
 
-            return phrase.Join(" ").AdjustWhiteSpaces();
+            return phrase.JoinString(" ").AdjustWhiteSpaces();
         }
 
         /// <summary>
@@ -2697,7 +2698,7 @@ namespace InnerLibs
         /// <returns>Uma String com o texto am CameCase</returns>
         public static string ToCamel(this string Text)
         {
-            return Text.ToProperCase().Split(" ", StringSplitOptions.RemoveEmptyEntries).Join("");
+            return Text.ToProperCase().Split(" ", StringSplitOptions.RemoveEmptyEntries).JoinString("");
         }
 
         /// <summary>
@@ -2796,7 +2797,7 @@ namespace InnerLibs
                 if (i == 0 && x.Length == 2 && x.EndsWith(":"))
                     return x;
                 return x.ToFriendlyPathName();
-            }).Join(InvertedBar.AsIf(@"\", "/"));
+            }).JoinString(InvertedBar.AsIf(@"\", "/"));
         }
 
         /// <summary>
@@ -4487,7 +4488,7 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank() && Action != null)
             {
-                Text = Text.SplitAny(Arrays.BreakLineChars.ToArray()).Select(x => Action.Compile().Invoke(x)).Join(Environment.NewLine);
+                Text = Text.SplitAny(Arrays.BreakLineChars.ToArray()).Select(x => Action.Compile().Invoke(x)).JoinString(Environment.NewLine);
             }
 
             return Text;
@@ -5599,7 +5600,7 @@ namespace InnerLibs
 
             set
             {
-                Class = (value ?? Array.Empty<string>()).Join(" ");
+                Class = (value ?? Array.Empty<string>()).JoinString(" ");
             }
         }
 

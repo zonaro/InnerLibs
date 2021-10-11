@@ -564,7 +564,7 @@ namespace InnerLibs.Online
         {
             get
             {
-                return new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.Join("");
+                return new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.JoinString("");
             }
         }
     }
@@ -815,7 +815,7 @@ namespace InnerLibs.Online
         {
             get
             {
-                return new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.Join("");
+                return new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.JoinString("");
             }
         }
 

@@ -726,7 +726,7 @@ namespace InnerLibs.Locations
                 var parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList();
                 Number = parts.FirstOrDefault(x => x == "s/n" || x == "sn" || x.IsNumber());
                 parts.Remove(Number);
-                Complement = parts.Join(" ");
+                Complement = parts.JoinString(" ");
                 Address = Address.GetBefore(",");
             }
             else
@@ -735,9 +735,9 @@ namespace InnerLibs.Locations
                 if (adparts.Any())
                 {
                     string maybe_number = adparts.FirstOrDefault(x => x == "s/n" || x == "sn" || x.IsNumber()).IfBlank("").TrimAny(" ", ",");
-                    Complement = adparts.Join(" ").GetAfter(maybe_number).TrimAny(" ", ",");
+                    Complement = adparts.JoinString(" ").GetAfter(maybe_number).TrimAny(" ", ",");
                     Number = maybe_number;
-                    Address = adparts.Join(" ").GetBefore(maybe_number).TrimAny(" ", ",");
+                    Address = adparts.JoinString(" ").GetBefore(maybe_number).TrimAny(" ", ",");
                 }
             }
 

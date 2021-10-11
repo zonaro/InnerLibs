@@ -75,7 +75,7 @@ namespace InnerLibs
     /// <returns></returns>
         public static string RandomWord(string BaseText)
         {
-            return BaseText.ToArray().Shuffle().Join("");
+            return BaseText.ToArray().Shuffle().JoinString("");
         }
 
         /// <summary>

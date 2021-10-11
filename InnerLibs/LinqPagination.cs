@@ -97,7 +97,7 @@ namespace InnerLibs.LINQ
         public static Expression<Func<Type, bool>> WhereExpression<Type, V>(Expression<Func<Type, V>> PropertySelector, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, FilterConditional Conditional = FilterConditional.Or)
         {
             var parameter = GenerateParameterExpression<Type>();
-            string member = PropertySelector.Body.ToString().Split(".").Skip(1).Join(".");
+            string member = PropertySelector.Body.ToString().Split(".").Skip(1).JoinString(".");
             var prop = parameter.PropertyExpression(member);
             Expression body = GetOperatorExpression(prop, Operator, PropertyValue, Conditional);
             body = Expression.Equal(body, Expression.Constant(Is));
@@ -276,7 +276,7 @@ namespace InnerLibs.LINQ
 
         public static ConstantExpression CreateConstant(Type Type, IComparable Value)
         {
-            if (Value is null)
+            if (Value == null)
             {
                 return Expression.Constant(null, Type);
             }
@@ -430,7 +430,7 @@ namespace InnerLibs.LINQ
                             object exp = null;
                             try
                             {
-                                exp = Member.GreaterThanOrEqual(CreateConstant(Member, item));
+                                exp = GreaterThanOrEqual(Member, CreateConstant(Member, item));
                             }
                             catch (Exception ex)
                             {
@@ -476,7 +476,7 @@ namespace InnerLibs.LINQ
                             object exp = null;
                             try
                             {
-                                exp = Member.LessThanOrEqual(CreateConstant(Member, item));
+                                exp = LessThanOrEqual(Member, CreateConstant(Member, item));
                             }
                             catch (Exception ex)
                             {
@@ -516,7 +516,7 @@ namespace InnerLibs.LINQ
                             object exp = null;
                             try
                             {
-                                exp = Member.GreaterThan(CreateConstant(Member, item));
+                                exp = GreaterThan(Member, CreateConstant(Member, item));
                             }
                             catch (Exception ex)
                             {
@@ -554,7 +554,7 @@ namespace InnerLibs.LINQ
                             object exp = null;
                             try
                             {
-                                exp = Member.LessThan(CreateConstant(Member, item));
+                                exp = LessThan(Member, CreateConstant(Member, item));
                             }
                             catch (Exception ex)
                             {
@@ -592,7 +592,7 @@ namespace InnerLibs.LINQ
                             object exp = null;
                             try
                             {
-                                exp = Member.NotEqual(CreateConstant(Member, item));
+                                exp = NotEqual(Member, CreateConstant(Member, item));
                             }
                             catch (Exception ex)
                             {
@@ -637,7 +637,9 @@ namespace InnerLibs.LINQ
 
                                 default:
                                     {
-                                        body = Expression.And(GetOperatorExpression(Member, "greaterequal".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional), GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional));
+                                        var ge = GetOperatorExpression(Member, "greaterequal".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional);
+                                        var le = GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional);
+                                        body = Expression.And(ge, le);
                                         break;
                                     }
                             }
@@ -1040,11 +1042,9 @@ namespace InnerLibs.LINQ
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this TSource source, Expression<Func<TSource, TProperty>> propertyLambda)
         {
             var type = typeof(TSource);
-            MemberExpression member = propertyLambda.Body as MemberExpression;
-            if (member is null)
+            if (!(propertyLambda.Body is MemberExpression member))
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
-            PropertyInfo propInfo = member.Member as PropertyInfo;
-            if (propInfo is null)
+            if (!(member.Member is PropertyInfo propInfo))
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
             if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a property that is not from type {1}.", propertyLambda.ToString(), type));
@@ -1465,7 +1465,7 @@ namespace InnerLibs.LINQ
         public static string SelectJoin<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "")
         {
             Selector = Selector ?? (x => x.ToString());
-            return Source.Select(Selector).Join(Separator);
+            return Source.Select(Selector).JoinString(Separator);
         }
 
         /// <summary>
@@ -1492,7 +1492,7 @@ namespace InnerLibs.LINQ
         public static string SelectManyJoin<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "")
         {
             Selector = Selector ?? (x => new[] { x.ToString() });
-            return Source.SelectMany(Selector).Join(Separator);
+            return Source.SelectMany(Selector).JoinString(Separator);
         }
 
         /// <summary>

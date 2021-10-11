@@ -305,7 +305,7 @@ namespace InnerLibs
             string param = "";
             if (Dic != null)
             {
-                return Dic.Where(x => x.Key.IsNotBlank()).SelectJoin(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.Join("="), "&");
+                return Dic.Where(x => x.Key.IsNotBlank()).SelectJoin(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.JoinString("="), "&");
             }
 
             return "";
@@ -1219,13 +1219,13 @@ namespace InnerLibs
 
         public static bool IsNullableType(this Type t)
         {
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(object);
+            return t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
         }
 
         public static bool IsNullableType<O>(this O Obj)
         {
             var t = Obj.GetTypeOf();
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(object);
+            return IsNullableType(t);
         }
 
         /// <summary>

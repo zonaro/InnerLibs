@@ -22,7 +22,7 @@ namespace InnerLibs
                 for (int index = 1, loopTo = Seed.Length; index <= loopTo; index++)
                 {
                     int ii = index - 1;
-                    Alphabet = Alphabet.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[ii].ToString()).FirstOrDefault()).Join("");
+                    Alphabet = Alphabet.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[ii].ToString()).FirstOrDefault()).JoinString("");
                 }
 
                 this.Seed = Seed;

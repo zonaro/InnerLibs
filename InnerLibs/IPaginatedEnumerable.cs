@@ -117,7 +117,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public string GetFilterQueryString(bool ForceEnabled = false)
         {
-            return Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()).Join("&");
+            return Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()).JoinString("&");
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace InnerLibs.LINQ
             var l = new List<string>();
             l.Add(GetFilterQueryString(ForceEnabled));
             l.Add(GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset));
-            return l.Where(x => x.IsNotBlank()).Join("&");
+            return l.Where(x => x.IsNotBlank()).JoinString("&");
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace InnerLibs.LINQ
                     l.Add($"{PageSizeQueryParameter}={PageSize}");
                 if (IncludePaginationOffset)
                     l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}");
-                return l.Join("&");
+                return l.JoinString("&");
             }
 
             return "";
@@ -246,7 +246,7 @@ namespace InnerLibs.LINQ
             {
                 var u = new Uri(Url);
                 Url = u.GetLeftPart(UriPartial.Path);
-                qs = new[] { u.Query, qs }.Join("&");
+                qs = new[] { u.Query, qs }.JoinString("&");
             }
 
             return Url + "?" + qs;
@@ -277,7 +277,7 @@ namespace InnerLibs.LINQ
 
                     if (v.Any())
                     {
-                        querystring = new[] { querystring, v.SelectJoin(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).Join("&");
+                        querystring = new[] { querystring, v.SelectJoin(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).JoinString("&");
                     }
                 }
             }
@@ -728,7 +728,7 @@ namespace InnerLibs.LINQ
                         }
 
                         return "";
-                    }).Join(SeparatorTemplate.IfBlank(""));
+                    }).JoinString(SeparatorTemplate.IfBlank(""));
                 }
             }
 
@@ -743,7 +743,7 @@ namespace InnerLibs.LINQ
         public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = "")
         {
             if (Template.IsNotBlank())
-                return CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })).Join(SeparatorTemplate.IfBlank(""));
+                return CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })).JoinString(SeparatorTemplate.IfBlank(""));
             return "";
         }
 
@@ -1517,7 +1517,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PropertyFilter<ClassType, RemapType> SetMember<T>(Expression<Func<ClassType, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or)
         {
-            return SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).Join("."), Conditional);
+            return SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).JoinString("."), Conditional);
         }
 
         /// <summary>

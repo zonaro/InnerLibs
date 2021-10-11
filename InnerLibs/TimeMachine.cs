@@ -740,7 +740,7 @@ namespace InnerLibs.TimeMachine
             horas = horas.AppendIf(",", horas.IsNotBlank() & (minutos.IsNotBlank() | segundos.IsNotBlank()));
             minutos = minutos.AppendIf(",", minutos.IsNotBlank() & segundos.IsNotBlank());
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos }.Join(" ");
+            string current = new[] { ano, mes, dia, horas, minutos, segundos }.JoinString(" ");
             if (current.Contains(","))
             {
                 current = current.ReplaceLast(",", " e ");

@@ -196,7 +196,7 @@ namespace InnerLibs.MicroORM
                             param_names.Add("@" + param.ParameterName);
                         }
 
-                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.Join(",").IfBlank("NULL").QuoteIf(param_names.Count > 1, "("));
+                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.JoinString(",").IfBlank("NULL").QuoteIf(param_names.Count > 1, "("));
                     }
                 }
                 else
@@ -261,7 +261,7 @@ namespace InnerLibs.MicroORM
 
                             return x.ToString().Quote('\'');
                         }).ToList();
-                        CommandText = CommandText.Replace("{" + index + "}", pv.Join(",").IfBlank("NULL").UnQuote("(", true).QuoteIf(pv.Count > 1, "("));
+                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote("(", true).QuoteIf(pv.Count > 1, "("));
                     }
 
                     return CommandText;
@@ -395,7 +395,7 @@ namespace InnerLibs.MicroORM
                 }
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"INSERT INTO " + TableName.BlankCoalesce(d.Name, "#TableName") + " ({0}) values ({1})", dic.Keys.Join(","), dic.Keys.SelectJoin(x => $"@__{x}", ","));
+                cmd.CommandText = string.Format($"INSERT INTO " + TableName.BlankCoalesce(d.Name, "#TableName") + " ({0}) values ({1})", dic.Keys.JoinString(","), dic.Keys.SelectJoin(x => $"@__{x}", ","));
                 foreach (var k in dic.Keys)
                 {
                     var param = cmd.CreateParameter();

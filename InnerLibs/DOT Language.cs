@@ -44,8 +44,8 @@ namespace InnerLibs.DOTLanguage
         /// <returns></returns>
         public override string ToString()
         {
-            string s = this.Select(n => n.ToString() + Environment.NewLine).ToArray().Join("");
-            s = s.Split(Environment.NewLine).Distinct().Join(Environment.NewLine) + Environment.NewLine;
+            string s = this.Select(n => n.ToString() + Environment.NewLine).ToArray().JoinString("");
+            s = s.Split(Environment.NewLine).Distinct().JoinString(Environment.NewLine) + Environment.NewLine;
             if (GraphType.ToLower().Equals("graph"))
             {
                 s = s.Replace("->", "--").Replace("<-", "--");
