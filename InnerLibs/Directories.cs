@@ -94,7 +94,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
         /// <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
-        /// <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste aruqivo.</remarks>
+        /// <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste arquivo.</remarks>
         public static DirectoryInfo ToDirectoryInfo(this string DirectoryName)
         {
             if (DirectoryName.IsFilePath())
