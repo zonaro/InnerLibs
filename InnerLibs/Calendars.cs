@@ -122,7 +122,7 @@ namespace InnerLibs
 
         public DateRange(IEnumerable<DateTime?> Dates)
         {
-            Dates = Dates ?? Array.Empty<DateTime?>();
+            Dates ??= Array.Empty<DateTime?>();
             Dates = Dates.Where(x => x.HasValue);
             if (Dates.Any())
             {
@@ -471,7 +471,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna uma strin representando a diferença das datas
+        /// Retorna uma string representando a diferença das datas
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -528,7 +528,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrugrupamento de datas
+        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento de datas
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
