@@ -8,7 +8,7 @@ namespace InnerLibs
 {
     public static class InnerCrypt
     {
-        private static readonly char[] letrasc = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz".ToArray();
+        private static string[] Letras_Arr => Arrays.AlphaChars.ToArray();
 
         /// <summary>
         /// Criptografa uma suma string usando a logica InnerCrypt
@@ -23,8 +23,8 @@ namespace InnerLibs
             {
                 string ll = Strings.AscW(c).ToString();
                 int i = ll.GetFirstChars(1).IfBlank(1) + ll.GetLastChars(1).IfBlank(1);
-                i = i.LimitRange(0, letrasc.Length - 1);
-                num.Add(Conversions.ToString(letrasc[i]) + Math.Pow(Strings.AscW(c), 3 * Seed.SetMinValue(1)));
+                i = i.LimitRange(0, Letras_Arr.Length - 1);
+                num.Add(Letras_Arr[i] + Math.Pow(Strings.AscW(c), 3 * Seed.SetMinValue(1)));
             }
 
             num.Reverse();
@@ -41,7 +41,7 @@ namespace InnerLibs
         {
             try
             {
-                var num = EncryptedText.Split(letrasc, StringSplitOptions.RemoveEmptyEntries);
+                var num = EncryptedText.Split(Letras_Arr, StringSplitOptions.RemoveEmptyEntries);
                 var letras = new List<char>();
                 foreach (var n in num) letras.Add((char)Math.Pow(n.ToDouble(), 1d / (double)(3 * Seed.SetMinValue(1))));
                 letras.Reverse();
