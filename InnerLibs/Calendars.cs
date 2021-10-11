@@ -47,7 +47,7 @@ namespace InnerLibs
 
             set
             {
-                _isdefault = false;
+                _IsDefault = false;
                 if (_startDate != value)
                 {
                     _Difference = null;
@@ -71,7 +71,7 @@ namespace InnerLibs
 
             set
             {
-                _isdefault = false;
+                _IsDefault = false;
                 if (_enddate != value)
                 {
                     _Difference = null;
@@ -85,7 +85,7 @@ namespace InnerLibs
         /// </summary>
         public bool ForceFirstAndLastMoments { get; set; } = true;
 
-        private object _isdefault = false;
+        private bool _IsDefault = false;
 
         /// <summary>
         /// Indica se este <see cref="DateRange"/> foi construido sem nenhuma data definida
@@ -93,7 +93,7 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsDefaultDateRange()
         {
-            return Conversions.ToBoolean(_isdefault);
+            return _IsDefault;
         }
 
         private DateTime _startDate;
@@ -104,7 +104,7 @@ namespace InnerLibs
         /// </summary>
         public DateRange() : this(DateTime.Now, DateTime.Now, true)
         {
-            _isdefault = true;
+            _IsDefault = true;
         }
 
         public DateRange(IEnumerable<DateTime> Dates)
@@ -117,7 +117,7 @@ namespace InnerLibs
             StartDate = Dates.Min();
             EndDate = Dates.Max();
             ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours;
-            _isdefault = false;
+            _IsDefault = false;
         }
 
         public DateRange(IEnumerable<DateTime?> Dates)
@@ -129,7 +129,7 @@ namespace InnerLibs
                 StartDate = Dates.Min().Value;
                 EndDate = Dates.Max().Value;
                 ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours;
-                _isdefault = false;
+                _IsDefault = false;
             }
             else
             {
@@ -167,7 +167,7 @@ namespace InnerLibs
             this.StartDate = StartDate;
             this.EndDate = EndDate;
             ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours;
-            _isdefault = false;
+            _IsDefault = false;
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace InnerLibs
             this.StartDate = StartDate;
             this.EndDate = EndDate;
             this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-            _isdefault = false;
+            _IsDefault = false;
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace InnerLibs
         /// <returns></returns>
         public DateRange Clone()
         {
-            return new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _isdefault = _isdefault, _Difference = _Difference };
+            return new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _IsDefault = _IsDefault, _Difference = _Difference };
         }
 
         /// <summary>
@@ -1043,7 +1043,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna o prmeiro dia de um semestre a partir da data
+        /// Retorna o primeiro dia de um semestre a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
