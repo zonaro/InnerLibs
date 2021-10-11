@@ -194,7 +194,7 @@ namespace InnerLibs
         /// <summary>
         /// Extrai um arquivo zip em um diretório
         /// </summary>
-        /// <param name="File">Arquivo ZIp</param>
+        /// <param name="File">Arquivo Zip</param>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
         public static DirectoryInfo ExtractZipFile(this FileInfo File, DirectoryInfo Directory)
