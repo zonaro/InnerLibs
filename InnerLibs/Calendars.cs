@@ -484,7 +484,11 @@ namespace InnerLibs
         {
             return (Culture ?? CultureInfo.InvariantCulture).Calendar.GetWeekOfYear(Date, CalendarWeekRule.FirstFourDayWeek, FirstDayOfWeek);
         }
-
+        /// <summary>
+        /// Retorna o ultimo momento do dia
+        /// </summary>
+        /// <param name="Date"></param>
+        /// <returns></returns>
         public static DateTime GetLastMoment(this DateTime Date)
         {
             return Date.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
@@ -539,20 +543,16 @@ namespace InnerLibs
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
-        public static string ToSQLDateString(this DateTime Date)
-        {
-            return Date.Year + "-" + Date.Month + "-" + Date.Day + " " + Date.Hour + ":" + Date.Minute + ":" + Date.Second + "." + Date.Millisecond;
-        }
+        public static string ToSQLDateString(this DateTime Date) => $"{Date.Year}-{Date.Month}-{Date.Day} {Date.Hour}:{Date.Minute}:{Date.Second}.{Date.Millisecond}";
+
 
         /// <summary>
         /// Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
-        public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR")
-        {
-            return Convert.ToDateTime(Date, new CultureInfo(FromCulture, false).DateTimeFormat).ToSQLDateString();
-        }
+        public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Convert.ToDateTime(Date, new CultureInfo(FromCulture, false).DateTimeFormat).ToSQLDateString();
+
 
         /// <summary>
         /// Retorna uma <see cref="LongTimeSpan"/> com a diferença entre 2 Datas
@@ -573,10 +573,8 @@ namespace InnerLibs
         /// </summary>
         /// <param name="StartDate">Data Inicial</param>
         /// <param name="EndDate">  Data Final</param>
-        public static void FixDateOrder(ref DateTime StartDate, ref DateTime EndDate)
-        {
-            ClassTools.FixOrder(ref StartDate, ref EndDate);
-        }
+        public static void FixDateOrder(ref DateTime StartDate, ref DateTime EndDate) => ClassTools.FixOrder(ref StartDate, ref EndDate);
+
 
         /// <summary>
         /// Verifica se uma data se encontra entre 2 datas
@@ -609,7 +607,7 @@ namespace InnerLibs
         public static IEnumerable<DateTime> GetDaysBetween(this DateTime StartDate, DateTime EndDate, params DayOfWeek[] DaysOfWeek)
         {
             var l = new List<DateTime>() { StartDate.Date };
-            DaysOfWeek = DaysOfWeek ?? Array.Empty<DayOfWeek>();
+            DaysOfWeek ??= Array.Empty<DayOfWeek>();
             if (DaysOfWeek.Length == 0)
             {
                 DaysOfWeek = new[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
@@ -630,22 +628,23 @@ namespace InnerLibs
         /// Remove o tempo de todas as datas de uma lista e retorna uma nova lista
         /// </summary>
         /// <param name="List">Lista que será alterada</param>
-        public static IEnumerable<DateTime> ClearTime(this IEnumerable<DateTime> List)
-        {
-            return List.Select(x => x.Date);
-        }
+        public static IEnumerable<DateTime> ClearTime(this IEnumerable<DateTime> List) => List.Select(x => x.Date);
+        
 
         /// <summary>
         /// Retorna uma String no formato "W dias, X horas, Y minutos e Z segundos"
         /// </summary>
         /// <param name="TimeElapsed">TimeSpan com o intervalo</param>
         /// <returns>string</returns>
-        public static string ToTimeElapsedString(this TimeSpan TimeElapsed, string DayWord = "dia", string HourWord = "hora", string MinuteWord = "minuto", string SecondWord = "segundo")
+        public static string ToTimeElapsedString(this TimeSpan TimeElapsed, string DayWord = "dias", string HourWord = "horas", string MinuteWord = "minutos", string SecondWord = "segundos")
         {
-            string dia = TimeElapsed.Days > 0 ? TimeElapsed.Days == 1 ? TimeElapsed.Days + " " + DayWord + " " : TimeElapsed.Days + " " + DayWord + "s " : "";
-            string horas = TimeElapsed.Hours > 0 ? TimeElapsed.Hours == 1 ? TimeElapsed.Hours + " " + HourWord + " " : TimeElapsed.Hours + " " + HourWord + "s " : "";
-            string minutos = TimeElapsed.Minutes > 0 ? TimeElapsed.Minutes == 1 ? TimeElapsed.Minutes + " " + MinuteWord + " " : TimeElapsed.Minutes + " " + MinuteWord + "s " : "";
-            string segundos = TimeElapsed.Seconds > 0 ? TimeElapsed.Seconds == 1 ? TimeElapsed.Seconds + " " + SecondWord + " " : TimeElapsed.Seconds + " " + SecondWord + "s " : "";
+
+            string dia = Text.QuantifyText($"{TimeElapsed.Days} {DayWord}");
+            string horas = Text.QuantifyText($"{TimeElapsed.Hours} {HourWord}");
+            string minutos = Text.QuantifyText($"{TimeElapsed.Minutes} {MinuteWord}");
+            string segundos = Text.QuantifyText($"{TimeElapsed.Seconds} {SecondWord}");
+
+
 
             dia = dia.AppendIf(",", dia.IsNotBlank() && (horas.IsNotBlank() | minutos.IsNotBlank() | segundos.IsNotBlank()));
             horas = horas.AppendIf(",", horas.IsNotBlank() && (minutos.IsNotBlank() | segundos.IsNotBlank()));

@@ -24,6 +24,33 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
+
+
+        /// <summary>
+        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> na ultima ocorrencia.
+        /// </summary>
+        /// <param name="Texts"></param>
+        /// <param name="And"></param>
+        /// <returns></returns>
+        public static string ToPhrase(this IEnumerable<string> Texts, string And = "and")
+        {
+            if (Texts != null && Texts.Any())
+                if (Texts.Count() > 1)
+                    return AdjustBlankSpaces($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
+                else
+                    return AdjustBlankSpaces(Texts.FirstOrDefault());
+            return "";
+
+        }
+
+        /// <summary>
+        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> na ultima ocorrencia.
+        /// </summary>
+        /// <param name="Texts"></param>
+        /// <param name="And"></param>
+        /// <returns></returns>
+        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(And);
+
         /// <summary>
         /// Encapsula um texto em uma caixa incorporado em comentários CSS
         /// </summary>
@@ -55,7 +82,7 @@ namespace InnerLibs
                 Lines[i] = $"* {Lines[i]} *";
             charcount = Lines.Max(x => x.Length);
             while (linha_longa.Length < charcount)
-                linha_longa = linha_longa + "* ";
+                linha_longa += "* ";
             linha_longa = linha_longa.Trim();
             Lines.Insert(0, linha_longa);
             Lines.Add(linha_longa);
@@ -1482,7 +1509,7 @@ namespace InnerLibs
         /// <param name="Items">    Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string JoinString<Type>(this IEnumerable<Type> Items, string Separator = "") 
+        public static string JoinString<Type>(this IEnumerable<Type> Items, string Separator = "")
         {
             Items ??= Array.Empty<Type>().AsEnumerable();
             return string.Join(Separator, Items.Select(x => $"{x}").ToArray());
@@ -1494,7 +1521,7 @@ namespace InnerLibs
         /// <param name="Array">    Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string JoinString<Type>(this Type[] Array, string Separator = "") 
+        public static string JoinString<Type>(this Type[] Array, string Separator = "")
         {
             return JoinString(Array.AsEnumerable(), Separator);
         }
@@ -1505,7 +1532,7 @@ namespace InnerLibs
         /// <param name="Array">    Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string JoinString<Type>(string Separator, params Type[] Array) 
+        public static string JoinString<Type>(string Separator, params Type[] Array)
         {
             return JoinString(Array, Separator);
         }
@@ -1516,7 +1543,7 @@ namespace InnerLibs
         /// <param name="List">     Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string JoinString<Type>(this List<Type> List, string Separator = "") 
+        public static string JoinString<Type>(this List<Type> List, string Separator = "")
         {
             return List.ToArray().JoinString(Separator);
         }

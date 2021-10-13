@@ -434,9 +434,10 @@ namespace InnerLibs.TimeMachine
             int months = 0;
             int days = 0;
             var _phase = Phase.Years;
-            if (RelevantDaysOfWeek.Count() == 0)
+
+            if (!RelevantDaysOfWeek.Any())
             {
-                RelevantDaysOfWeek = new[] { (DayOfWeek)0, (DayOfWeek)1, (DayOfWeek)2, (DayOfWeek)3, (DayOfWeek)4, (DayOfWeek)5, (DayOfWeek)6 };
+                RelevantDaysOfWeek = new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
             }
 
             while (CurDate <= EndDate)
@@ -454,7 +455,7 @@ namespace InnerLibs.TimeMachine
                 {
                     CurDate = CurDate.AddDays(1d);
                 }
-                catch (Exception ex)
+                catch
                 {
                 }
             }
@@ -473,7 +474,7 @@ namespace InnerLibs.TimeMachine
                             }
                             else
                             {
-                                years = years + 1;
+                                years++;
                             }
 
                             break;
@@ -488,7 +489,7 @@ namespace InnerLibs.TimeMachine
                             }
                             else
                             {
-                                months = months + 1;
+                                months++;
                             }
 
                             break;
@@ -514,7 +515,7 @@ namespace InnerLibs.TimeMachine
                             }
                             else
                             {
-                                days = days + 1;
+                                days++;
                             }
 
                             break;
@@ -566,61 +567,25 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        public decimal TotalSeconds
-        {
-            get
-            {
-                return (decimal)(EndDate - StartDate).TotalSeconds;
-            }
-        }
+        public decimal TotalSeconds => (decimal)(EndDate - StartDate).TotalSeconds;
 
-        public decimal TotalMinutes
-        {
-            get
-            {
-                return (decimal)(EndDate - StartDate).TotalMinutes;
-            }
-        }
 
-        public decimal TotalHours
-        {
-            get
-            {
-                return (decimal)(EndDate - StartDate).TotalHours;
-            }
-        }
+        public decimal TotalMinutes => (decimal)(EndDate - StartDate).TotalMinutes;
 
-        public decimal TotalDays
-        {
-            get
-            {
-                return (decimal)(EndDate - StartDate).TotalDays;
-            }
-        }
 
-        public decimal TotalMonths
-        {
-            get
-            {
-                return (decimal)Math.Round((EndDate - StartDate).TotalDays / (365.25d / 12d), 2);
-            }
-        }
+        public decimal TotalHours => (decimal)(EndDate - StartDate).TotalHours;
 
-        public decimal TotalYears
-        {
-            get
-            {
-                return Math.Round(TotalMonths / 12m, 2);
-            }
-        }
 
-        public decimal TotalWeeks
-        {
-            get
-            {
-                return Math.Round(TotalDays / 7m, 2);
-            }
-        }
+        public decimal TotalDays => (decimal)(EndDate - StartDate).TotalDays;
+
+
+        public decimal TotalMonths => (decimal)Math.Round((EndDate - StartDate).TotalDays / (365.25d / 12d), 2);
+
+
+        public decimal TotalYears => Math.Round(TotalMonths / 12m, 2);
+
+        public decimal TotalWeeks => Math.Round(TotalDays / 7m, 2);
+
 
         /// <summary>
         /// Todos os dias entre as datas Inicial e Final

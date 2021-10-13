@@ -165,7 +165,7 @@ namespace InnerLibs
                 digito = digito + resto.ToString();
                 return Text.EndsWith(digito);
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -191,12 +191,12 @@ namespace InnerLibs
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch
             {
             }
 
             // if has extension then its a file; directory otherwise
-            return !Text.EndsWith(Conversions.ToString(Path.DirectorySeparatorChar)) & Path.GetExtension(Text).IsNotBlank();
+            return !Text.EndsWith(Conversions.ToString(Path.DirectorySeparatorChar)) && Path.GetExtension(Text).IsNotBlank();
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Verifica se uma string é um caminho de diretóio válido
+        /// Verifica se uma string é um caminho de diretório válido
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns>TRUE se o caminho for válido</returns>
@@ -350,8 +350,7 @@ namespace InnerLibs
 
         public static bool IsURL(this string Text)
         {
-            Uri u;
-            return Uri.TryCreate(Text, UriKind.Absolute, out u) && !Text.Contains(" ");
+            return Uri.TryCreate(Text, UriKind.Absolute, out _) && !Text.Contains(" ");
         }
 
         /// <summary>
@@ -375,7 +374,7 @@ namespace InnerLibs
                 ObjHost = System.Net.Dns.GetHostEntry(HostName);
                 return (ObjHost.HostName ?? "") == (HostName ?? "");
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -393,7 +392,7 @@ namespace InnerLibs
             {
                 return Arr.ToList().IndexOf(item);
             }
-            catch (Exception ex)
+            catch
             {
                 return -1;
             }
@@ -413,7 +412,7 @@ namespace InnerLibs
             {
                 return Arr.ElementAtOrDefault(Index);
             }
-            catch (Exception ex)
+            catch
             {
                 return ValueIfNoIndex;
             }
@@ -433,7 +432,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+        /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
         /// </summary>
         /// <typeparam name="T">Tipo da Variavel</typeparam>
         /// <param name="Value">       Valor</param>
@@ -452,7 +451,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+        /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
         /// </summary>
         /// <typeparam name="T">Tipo da Variavel</typeparam>
         /// <param name="Value">       Valor</param>
@@ -460,18 +459,18 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, params T[] ValuesIfBlank)
         {
-            if (Value is null || Value.Count() == 0)
+            if (Value != null && Value.Any())
             {
-                return ValuesIfBlank;
+                return Value.ChangeIEnumerableType<T, object[]>();
             }
             else
             {
-                return Value.ChangeIEnumerableType<T, object[]>();
+                return ValuesIfBlank;
             }
         }
 
         /// <summary>
-        /// Verifica se um aray está vazio ou nula e retorna um outro valor caso TRUE
+        /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
         /// </summary>
         /// <typeparam name="T">Tipo da Variavel</typeparam>
         /// <param name="Value">       Valor</param>
@@ -479,13 +478,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank)
         {
-            if (Value is null || Value.Count() == 0)
+            if (Value != null && Value.Any())
             {
-                return ValueIfBlank;
+                return Value.ChangeIEnumerableType<T, object[]>();
             }
             else
             {
-                return Value.ChangeIEnumerableType<T, object[]>();
+                return ValueIfBlank;
             }
         }
 
@@ -505,87 +504,87 @@ namespace InnerLibs
             }
             else
             {
-                bool blankas = false;
+                bool blank_flag = false;
                 if (Value.GetType() == typeof(string))
                 {
-                    blankas = Value.ToString().IsBlank();
+                    blank_flag = Value.ToString().IsBlank();
                 }
                 else if (Value.GetType() == typeof(char))
                 {
-                    blankas = Value.ToString().IsBlank();
+                    blank_flag = Value.ToString().IsBlank();
                 }
                 else if (Value.GetType() == typeof(long))
                 {
-                    blankas = ((long)Value) == 0;
+                    blank_flag = ((long)Value) == 0;
 
                 }
                 else if (Value.GetType() == typeof(decimal))
                 {
-                    blankas = ((decimal)Value) == 0.00M;
+                    blank_flag = ((decimal)Value) == 0.00M;
 
                 }
                 else if (Value.GetType() == typeof(short))
                 {
-                    blankas = ((short)Value) == 0;
+                    blank_flag = ((short)Value) == 0;
 
                 }
                 else if (Value.GetType() == typeof(double))
                 {
-                    blankas = ((double)Value) == 0d;
+                    blank_flag = ((double)Value) == 0d;
                 }
                 else if (Value.GetType() == typeof(int))
                 {
-                    blankas = ((int)Value) == 0d;
+                    blank_flag = ((int)Value) == 0d;
                 }
                 else if (Value.GetType() == typeof(char?))
                 {
-                    blankas = ((char?)Value).HasValue && ((char?)Value).ToString().IsBlank();
+                    blank_flag = ((char?)Value).HasValue && ((char?)Value).ToString().IsBlank();
                 }
                 else if (Value.GetType() == typeof(bool?))
                 {
-                    blankas = ((bool?)Value).HasValue;
+                    blank_flag = ((bool?)Value).HasValue;
                 }
                 else if (Value.GetType() == typeof(long?))
                 {
-                    blankas = ((long?)Value).HasValue;
+                    blank_flag = ((long?)Value).HasValue;
                 }
                 else if (Value.GetType() == typeof(decimal?))
                 {
-                    blankas = ((decimal?)Value).HasValue;
+                    blank_flag = ((decimal?)Value).HasValue;
                 }
                 else if (Value.GetType() == typeof(short?))
                 {
-                    blankas = ((short?)Value).HasValue;
+                    blank_flag = ((short?)Value).HasValue;
                 }
                 else if (Value.GetType() == typeof(double?))
                 {
-                    blankas = ((double?)Value).HasValue;
+                    blank_flag = ((double?)Value).HasValue;
                 }
                 else if (Value.GetType() == typeof(int?))
                 {
-                    blankas = ((int?)Value).HasValue;
+                    blank_flag = ((int?)Value).HasValue;
 
                 }
                 else if (Value.GetType() == typeof(DateTime?))
                 {
-                    blankas = ((DateTime?)Value).HasValue;
+                    blank_flag = ((DateTime?)Value).HasValue;
                 }
 
                 else if (Value.GetType() == typeof(DateTime))
                 {
-                    blankas = ((DateTime)Value).Equals(DateTime.MinValue);
+                    blank_flag = ((DateTime)Value).Equals(DateTime.MinValue);
                 }
 
                 else if (Value.GetType() == typeof(TimeSpan))
                 {
-                    blankas = ((TimeSpan)Value).Equals(TimeSpan.MinValue);
+                    blank_flag = ((TimeSpan)Value).Equals(TimeSpan.MinValue);
                 }
                 else
                 {
-                    blankas = Value.Equals(null);
+                    blank_flag = Value == null;
                 }
 
-                return blankas ? ValueIfBlank : Value.ChangeType<T>();
+                return blank_flag ? ValueIfBlank : Value.ChangeType<T>();
             }
         }
 
@@ -613,8 +612,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static T NullIf<T>(this T Value, T TestValue) where T : class
         {
-            if (Value.Equals(TestValue))
-                return null;
+            if (Value.Equals(TestValue)) return null;
             return Value;
         }
 
@@ -645,8 +643,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string NullIf(this string Value, string TestValue, StringComparison ComparisonType = StringComparison.InvariantCultureIgnoreCase)
         {
-            if (Value is null || Value.Equals(TestValue, ComparisonType))
-                return null;
+            if (Value == null || Value.Equals(TestValue, ComparisonType)) return null;
             return Value;
         }
 
@@ -654,24 +651,19 @@ namespace InnerLibs
         {
             try
             {
-                DateTime d;
-                return DateTime.TryParse(Obj, out d);
+                return DateTime.TryParse(Obj, out DateTime d);
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
         }
 
-        public static bool IsDate<T>(this T Obj)
-        {
-            return ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(DateTime)) || Obj?.ToString().IsDate() == true;
-        }
+        public static bool IsDate<T>(this T Obj) => ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(DateTime)) || Obj?.ToString().IsDate() == true;
 
-        public static bool IsBoolean<T>(this T Obj)
-        {
-            return ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(bool)) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
-        }
+
+        public static bool IsBoolean<T>(this T Obj) => ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(bool)) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
+
 
         public static bool IsArray<T>(T Obj)
         {
@@ -680,7 +672,7 @@ namespace InnerLibs
                 var ValueType = Obj.GetType();
                 return !ReferenceEquals(ValueType, typeof(string)) && ValueType.IsArray; // AndAlso GetType(T).IsAssignableFrom(ValueType.GetElementType())
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -693,104 +685,82 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-        public static bool IsBlank(this string Text)
-        {
-            return string.IsNullOrEmpty(Text) || string.IsNullOrWhiteSpace(Text.RemoveAny(Environment.NewLine));
-        }
+        public static bool IsBlank(this string Text) => string.IsNullOrEmpty(Text) || string.IsNullOrWhiteSpace(Text.RemoveAny(Environment.NewLine));
+
 
         /// <summary>
         /// Verifica se uma String está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-        public static bool IsBlank(this FormattableString Text)
-        {
-            return Information.IsNothing(Text) || Text.ToString().IsBlank();
-        }
+        public static bool IsBlank(this FormattableString Text) => Text == null || Text.ToString().IsBlank();
+
 
         /// <summary>
         /// Verifica se uma String não está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
-        public static bool IsNotBlank(this string Text)
-        {
-            return !Text.IsBlank();
-        }
+        public static bool IsNotBlank(this string Text) => !IsBlank(Text);
 
-        public static bool IsNotBlank(this FormattableString Text)
-        {
-            return !Information.IsNothing(Text) && Text.ToString().IsNotBlank();
-        }
+
+        /// <summary>
+        /// Verifica se uma String não está em branco
+        /// </summary>
+        /// <param name="Text">Uma string</param>
+        /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
+        public static bool IsNotBlank(this FormattableString Text) => IsNotBlank(Text?.ToString());
+
 
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsEven(this decimal Value)
-        {
-            return Value % 2m == 0m;
-        }
+        public static bool IsEven(this decimal Value) => Value % 2m == 0m;
+
 
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsEven(this int Value)
-        {
-            return Value.ChangeType<decimal, int>().IsEven();
-        }
+        public static bool IsEven(this int Value) => Value.ChangeType<decimal, int>().IsEven();
+
 
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsEven(this long Value)
-        {
-            return Value.ChangeType<decimal, long>().IsEven();
-        }
+        public static bool IsEven(this long Value) => Value.ChangeType<decimal, long>().IsEven();
 
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsEven(this double Value)
-        {
-            return Value.ChangeType<decimal, double>().IsEven();
-        }
+        public static bool IsEven(this double Value) => Value.ChangeType<decimal, double>().IsEven();
 
         /// <summary>
         /// Verifica se um numero é impar
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsOdd(this decimal Value)
-        {
-            return !Value.IsEven();
-        }
+        public static bool IsOdd(this decimal Value) => !Value.IsEven();
 
         /// <summary>
         /// Verifica se um numero é impar
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsOdd(this int Value)
-        {
-            return !Value.IsEven();
-        }
+        public static bool IsOdd(this int Value) => !Value.IsEven();
 
         /// <summary>
         /// Verifica se um numero é impar
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsOdd(this long Value)
-        {
-            return !Value.IsEven();
-        }
+        public static bool IsOdd(this long Value) => !Value.IsEven();
     }
 }
