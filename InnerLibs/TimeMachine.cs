@@ -1009,7 +1009,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public decimal GetPercentCompletion(DateTime MidDate)
         {
-            return MidDate.CalculatePercent(StartDate, EndDate);
+            return MidDate.CalculateTimelinePercent(StartDate, EndDate);
         }
 
         /// <summary>

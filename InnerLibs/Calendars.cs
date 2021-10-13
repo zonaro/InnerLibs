@@ -3,719 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using InnerLibs.LINQ;
 using InnerLibs.TimeMachine;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs
 {
-    public enum DateRangeInterval
-    {
-        LessAccurate = -1,
-        Milliseconds = 0,
-        Seconds = 1,
-        Minutes = 2,
-        Hours = 3,
-        Days = 4,
-        Weeks = 5,
-        Months = 6,
-        Years = 7
-    }
 
-    /// <summary>
-    /// Classe que representa um periodo entre 2 datas
-    /// </summary>
-    public class DateRange
-    {
-        public static implicit operator DateRange((DateTime, DateTime) Dates)
-        {
-            return new DateRange(Dates.Item1, Dates.Item2);
-        }
 
-        public DateTime StartDate
-        {
-            get
-            {
-                Calendars.FixDateOrder(ref _startDate, ref _enddate);
-                if (ForceFirstAndLastMoments)
-                {
-                    _startDate = _startDate.Date;
-                }
 
-                return _startDate;
-            }
-
-            set
-            {
-                _IsDefault = false;
-                if (_startDate != value)
-                {
-                    _Difference = null;
-                    _startDate = value;
-                }
-            }
-        }
-
-        public DateTime EndDate
-        {
-            get
-            {
-                Calendars.FixDateOrder(ref _startDate, ref _enddate);
-                if (ForceFirstAndLastMoments)
-                {
-                    _enddate = _enddate.Date.AddHours(23d).AddMinutes(59d).AddSeconds(59d);
-                }
-
-                return _enddate;
-            }
-
-            set
-            {
-                _IsDefault = false;
-                if (_enddate != value)
-                {
-                    _Difference = null;
-                    _enddate = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Se true, ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia
-        /// </summary>
-        public bool ForceFirstAndLastMoments { get; set; } = true;
-
-        private bool _IsDefault = false;
-
-        /// <summary>
-        /// Indica se este <see cref="DateRange"/> foi construido sem nenhuma data definida
-        /// </summary>
-        /// <returns></returns>
-        public bool IsDefaultDateRange()
-        {
-            return _IsDefault;
-        }
-
-        private DateTime _startDate;
-        private DateTime _enddate;
-
-        /// <summary>
-        /// Instancia um novo periodo do dia de hoje
-        /// </summary>
-        public DateRange() : this(DateTime.Now, DateTime.Now, true)
-        {
-            _IsDefault = true;
-        }
-
-        public DateRange(IEnumerable<DateTime> Dates)
-        {
-            if (Dates is null || !Dates.Any())
-            {
-                throw new ArgumentException("Argument 'Dates' is null or empty");
-            }
-
-            StartDate = Dates.Min();
-            EndDate = Dates.Max();
-            ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours;
-            _IsDefault = false;
-        }
-
-        public DateRange(IEnumerable<DateTime?> Dates)
-        {
-            Dates ??= Array.Empty<DateTime?>();
-            Dates = Dates.Where(x => x.HasValue);
-            if (Dates.Any())
-            {
-                StartDate = Dates.Min().Value;
-                EndDate = Dates.Max().Value;
-                ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours;
-                _IsDefault = false;
-            }
-            else
-            {
-                throw new ArgumentException("Argument 'Dates' is null or empty");
-            }
-        }
-
-        public DateRange(IEnumerable<DateTime> Dates, bool ForceFirstAndLastMoments) : this(Dates)
-        {
-            this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-        }
-
-        public DateRange(IEnumerable<DateTime?> Dates, bool ForceFirstAndLastMoments) : this(Dates)
-        {
-            this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-        }
-
-        public DateRange(DateTime StartEndDate) : this(StartEndDate, StartEndDate)
-        {
-            ForceFirstAndLastMoments = true;
-        }
-
-        public DateRange(DateTime? StartEndDate) : this(StartEndDate.Value, StartEndDate.Value)
-        {
-            ForceFirstAndLastMoments = true;
-        }
-
-        /// <summary>
-        /// Instancia um novo periodo entre 2 datas
-        /// </summary>
-        /// <param name="StartDate"></param>
-        /// <param name="EndDate"></param>
-        public DateRange(DateTime StartDate, DateTime EndDate)
-        {
-            this.StartDate = StartDate;
-            this.EndDate = EndDate;
-            ForceFirstAndLastMoments = GetLessAccurateDateRangeInterval() > DateRangeInterval.Hours;
-            _IsDefault = false;
-        }
-
-        /// <summary>
-        /// Instancia um novo periodo entre 2 datas
-        /// </summary>
-        /// <param name="StartDate"></param>
-        /// <param name="EndDate"></param>
-        /// <param name="ForceFirstAndLastMoments"> Ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia</param>
-        public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments)
-        {
-            this.StartDate = StartDate;
-            this.EndDate = EndDate;
-            this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-            _IsDefault = false;
-        }
-
-        /// <summary>
-        /// Retorna uma lista de dias entre <see cref="StartDate"/> e <see cref="EndDate"/>
-        /// </summary>
-        /// <param name="DaysOfWeek"></param>
-        /// <returns></returns>
-        public IEnumerable<DateTime> GetDays(params DayOfWeek[] DaysOfWeek)
-        {
-            return StartDate.GetDaysBetween(EndDate, DaysOfWeek);
-        }
-
-        /// <summary>
-        /// Retorna o periodo em um total especificado por <see cref="DateRangeInterval"/>
-        /// </summary>
-        /// <param name="DateRangeInterval"></param>
-        /// <returns></returns>
-        public decimal GetPeriodAs(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            if (DateRangeInterval == DateRangeInterval.LessAccurate)
-            {
-                DateRangeInterval = GetLessAccurateDateRangeInterval();
-            }
-
-            var sd = StartDate;
-            var ed = EndDate;
-            if (ForceFirstAndLastMoments)
-            {
-                ed = ed.AddHours(1d).Date;
-            }
-
-            var range_diferenca = sd.GetDifference(ed);
-            switch (DateRangeInterval)
-            {
-                case DateRangeInterval.Milliseconds:
-                    {
-                        return range_diferenca.TotalMilliseconds;
-                    }
-
-                case DateRangeInterval.Seconds:
-                    {
-                        return range_diferenca.TotalSeconds;
-                    }
-
-                case DateRangeInterval.Minutes:
-                    {
-                        return range_diferenca.TotalMinutes;
-                    }
-
-                case DateRangeInterval.Hours:
-                    {
-                        return range_diferenca.TotalHours;
-                    }
-
-                case DateRangeInterval.Days:
-                    {
-                        return range_diferenca.TotalDays;
-                    }
-
-                case DateRangeInterval.Weeks:
-                    {
-                        return range_diferenca.TotalWeeks;
-                    }
-
-                case DateRangeInterval.Months:
-                    {
-                        return range_diferenca.TotalMonths;
-                    }
-
-                case DateRangeInterval.Years:
-                    {
-                        return range_diferenca.TotalYears;
-                    }
-            }
-
-            return -1;
-        }
-
-        public static object AddInterval(DateTime Datetime, DateRangeInterval DateRangeInterval, decimal Total)
-        {
-            if (DateRangeInterval == DateRangeInterval.LessAccurate)
-            {
-                throw new ArgumentException("You cant use LessAcurate on this scenario. LessAccurate only work inside DateRanges");
-            }
-
-            switch (DateRangeInterval)
-            {
-                case DateRangeInterval.Seconds:
-                    {
-                        return Datetime.AddSeconds((double)Total);
-                    }
-
-                case DateRangeInterval.Minutes:
-                    {
-                        return Datetime.AddMinutes((double)Total);
-                    }
-
-                case DateRangeInterval.Hours:
-                    {
-                        return Datetime.AddHours((double)Total);
-                    }
-
-                case DateRangeInterval.Days:
-                    {
-                        return Datetime.AddDays((double)Total);
-                    }
-
-                case DateRangeInterval.Weeks:
-                    {
-                        return Datetime.AddDays((double)(Total * 7m));
-                    }
-
-                case DateRangeInterval.Months:
-                    {
-                        return Datetime.AddMonths((int)Math.Round(Total));
-                    }
-
-                case DateRangeInterval.Years:
-                    {
-                        return Datetime.AddYears((int)Math.Round(Total));
-                    }
-
-                default:
-                    {
-                        return Datetime.AddMilliseconds((double)Total);
-                    }
-            }
-        }
-
-        /// <summary>
-        /// Move um periodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
-        /// </summary>
-        /// <param name="DateRangeInterval"></param>
-        /// <param name="Total"></param>
-        /// <returns></returns>
-        public DateRange MovePeriod(DateRangeInterval DateRangeInterval, decimal Total)
-        {
-            if (DateRangeInterval == DateRangeInterval.LessAccurate)
-            {
-                DateRangeInterval = GetLessAccurateDateRangeInterval();
-            }
-
-            return new DateRange(Conversions.ToDate(AddInterval(StartDate, DateRangeInterval, Total)), Conversions.ToDate(AddInterval(EndDate, DateRangeInterval, Total)), ForceFirstAndLastMoments);
-        }
-
-        /// <summary>
-        /// Clona este DateRange
-        /// </summary>
-        /// <returns></returns>
-        public DateRange Clone()
-        {
-            return new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _IsDefault = _IsDefault, _Difference = _Difference };
-        }
-
-        /// <summary>
-        /// Pula um determinado numero de periodos
-        /// </summary>
-        /// <returns></returns>
-        public DateRange JumpPeriod(int Amount, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            if (Amount == 0)
-            {
-                return Clone();
-            }
-
-            return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval) * Amount);
-        }
-
-        /// <summary>
-        /// Move para o periodo equivalente anterior
-        /// </summary>
-        /// <returns></returns>
-        public DateRange PreviousPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            return MovePeriod(DateRangeInterval, -GetPeriodAs(DateRangeInterval));
-        }
-
-        /// <summary>
-        /// Move para ao proximo periodo equivalente
-        /// </summary>
-        /// <returns></returns>
-        public DateRange NextPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval));
-        }
-
-        /// <summary>
-        /// Retorna o <see cref="DateRangeInterval"/> menos preciso para calcular periodos
-        /// </summary>
-        /// <returns></returns>
-        public DateRangeInterval GetLessAccurateDateRangeInterval()
-        {
-            var sd = StartDate;
-            var ed = EndDate;
-            if (ForceFirstAndLastMoments)
-            {
-                ed = ed.AddHours(1d).Date;
-            }
-
-            var t = sd.GetDifference(ed);
-            if (t.TotalYears >= 1m || t.TotalYears <= -1)
-            {
-                return DateRangeInterval.Years;
-            }
-
-            if (t.TotalMonths >= 1m || t.TotalMonths <= -1)
-            {
-                return DateRangeInterval.Months;
-            }
-
-            if (t.TotalWeeks >= 1m || t.TotalWeeks <= -1)
-            {
-                return DateRangeInterval.Weeks;
-            }
-
-            if (t.TotalDays >= 1m || t.TotalDays <= -1)
-            {
-                return DateRangeInterval.Days;
-            }
-
-            if (t.TotalHours >= 1m || t.TotalHours <= -1)
-            {
-                return DateRangeInterval.Hours;
-            }
-
-            if (t.TotalMinutes >= 1m || t.TotalMinutes <= -1)
-            {
-                return DateRangeInterval.Minutes;
-            }
-
-            if (t.TotalSeconds >= 1m || t.TotalSeconds <= -1)
-            {
-                return DateRangeInterval.Seconds;
-            }
-
-            return DateRangeInterval.Milliseconds;
-        }
-
-        /// <summary>
-        /// Retorna TRUE se a data de inicio e fim for a mesma
-        /// </summary>
-        /// <returns></returns>
-        public bool IsSingleDate()
-        {
-            return StartDate.Date == EndDate.Date;
-        }
-
-        /// <summary>
-        /// Retorna TRUE se a data e hora de inicio e fim for a mesma
-        /// </summary>
-        /// <returns></returns>
-        public bool IsSingleDateTime()
-        {
-            return StartDate == EndDate;
-        }
-
-        /// <summary>
-        /// Retorna um <see cref="LongTimeSpan"/> contendo a diferença entre as datas
-        /// </summary>
-        /// <returns></returns>
-        public LongTimeSpan Difference()
-        {
-            if (_Difference is null)
-            {
-                if (ForceFirstAndLastMoments)
-                {
-                    _Difference = StartDate.GetDifference(EndDate.AddSeconds(1d));
-                }
-                else
-                {
-                    _Difference = StartDate.GetDifference(EndDate);
-                }
-            }
-
-            return _Difference;
-        }
-
-        private LongTimeSpan _Difference = null;
-
-        /// <summary>
-        /// Cria um grupo de quinzenas que contenham este periodo
-        /// </summary>
-        /// <returns></returns>
-        public FortnightGroup CreateFortnightGroup()
-        {
-            return FortnightGroup.CreateFromDateRange(StartDate, EndDate);
-        }
-
-        /// <summary>
-        /// Retorna uma string representando a diferença das datas
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return Difference().ToString();
-        }
-
-        /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="List"></param>
-        /// <param name="PropertyExpression"></param>
-        /// <returns></returns>
-        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this).Compile());
-        }
-
-        /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="List"></param>
-        /// <param name="PropertyExpression"></param>
-        /// <returns></returns>
-        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this));
-        }
-
-        /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="List"></param>
-        /// <param name="PropertyExpression"></param>
-        /// <returns></returns>
-        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this).Compile());
-        }
-
-        /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="List"></param>
-        /// <param name="PropertyExpression"></param>
-        /// <returns></returns>
-        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this));
-        }
-
-        /// <summary>
-        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento de datas
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="List"></param>
-        /// <param name="PropertyExpression"></param>
-        /// <param name="GroupByExpression"></param>
-        /// <param name="DateRangeInterval"></param>
-        /// <returns></returns>
-        public Dictionary<string, IEnumerable<T>> GroupList<T>(IEnumerable<T> List, Func<T, DateTime> PropertyExpression, Func<DateTime, string> GroupByExpression, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            var keys = GetBetween(DateRangeInterval).Select(GroupByExpression).Distinct();
-            var gp = List.GroupBy(x => GroupByExpression(PropertyExpression(x)));
-            var dic = new Dictionary<string, IEnumerable<T>>();
-            foreach (var k in keys)
-            {
-                if (!dic.ContainsKey(k))
-                {
-                    dic[k] = new List<T>();
-                } ((List<T>)dic[k]).AddRange(gp.ElementAtOrDefault(Conversions.ToInteger(k)).AsEnumerable());
-            }
-
-            return dic;
-        }
-
-        public Dictionary<string, IEnumerable<T>> GroupList<T>(IEnumerable<T> List, Func<T, DateTime?> PropertyExpression, Func<DateTime?, string> GroupByExpression, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            var keys = GetBetween(DateRangeInterval).Cast<DateTime?>().Select(GroupByExpression).Distinct();
-            var gp = List.GroupBy(x => GroupByExpression(PropertyExpression(x))).ToDictionary();
-            var dic = new Dictionary<string, IEnumerable<T>>();
-            foreach (var k in keys)
-            {
-                if (!dic.ContainsKey(k))
-                {
-                    dic[k] = new List<T>();
-                }
-
-                List<T> l = (List<T>)dic[k];
-                if (gp.ContainsKey(k))
-                {
-                    foreach (var item in gp[k].AsEnumerable())
-                        l.Add(item);
-                }
-
-                dic[k] = l;
-            }
-
-            return dic;
-        }
-
-        /// <summary>
-        /// Verifica se 2 periodos possuem interseção de datas
-        /// </summary>
-        /// <param name="Period">Periodo</param>
-        /// <returns></returns>
-        public bool Overlaps(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            switch (true)
-            {
-                case object _ when Period.StartDate <= EndDate & Period.StartDate >= StartDate:
-                    {
-                        return true;
-                    }
-
-                case object _ when StartDate <= Period.EndDate & StartDate >= Period.StartDate:
-                    {
-                        return true;
-                    }
-
-                default:
-                    {
-                        return false;
-                    }
-            }
-        }
-
-        /// <summary>
-        /// Verifica se 2 periodos coincidem datas (interseção, esta dentro de um periodo de ou contém um periodo)
-        /// </summary>
-        /// <param name="Period"></param>
-        /// <returns></returns>
-        public bool MatchAny(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return Overlaps(Period) | Contains(Period) | IsIn(Period);
-        }
-
-        /// <summary>
-        /// Verifica se este periodo contém um outro periodo
-        /// </summary>
-        /// <param name="Period"></param>
-        /// <returns></returns>
-        public bool Contains(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return StartDate <= Period.StartDate & Period.EndDate <= EndDate;
-        }
-
-        /// <summary>
-        /// Verifica se este periodo contém uma data
-        /// </summary>
-        /// <param name="Day"></param>
-        /// <returns></returns>
-        public bool Contains(DateTime Day)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return StartDate <= Day & Day <= EndDate;
-        }
-
-        /// <summary>
-        /// Verifica se hoje está dentro deste periodo
-        /// </summary>
-        /// <returns></returns>
-        public bool IsNow()
-        {
-            return Contains(DateTime.Now);
-        }
-
-        /// <summary>
-        /// Verifica se este periodo está dentro de outro periodo
-        /// </summary>
-        /// <param name="Period"></param>
-        /// <returns></returns>
-        public bool IsIn(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return Period.Contains(this);
-        }
-
-        /// <summary>
-        /// Verifica quantos porcento uma data representa  em distancia dentro deste periodo
-        /// </summary>
-        /// <param name="[Date]">Data correspondente</param>
-        /// <returns></returns>
-        public decimal CalculatePercent(DateTime? Date = default)
-        {
-            return (Date ?? DateTime.Now).CalculatePercent(StartDate, EndDate);
-        }
-
-        public IEnumerable<DateTime> Pair()
-        {
-            return new[] { StartDate, EndDate };
-        }
-
-        /// <summary>
-        /// Retorna uma lista com as datas entre <see cref="StartDate"/> e <see cref="EndDate"/> utilizando um Intervalo
-        /// </summary>
-        /// <param name="DateRangeInterval"></param>
-        /// <returns></returns>
-        public IEnumerable<DateTime> GetBetween(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            if (DateRangeInterval == DateRangeInterval.LessAccurate)
-            {
-                DateRangeInterval = GetLessAccurateDateRangeInterval();
-            }
-
-            var l = new List<DateTime>() { StartDate };
-            var curdate = StartDate;
-            while (curdate < EndDate)
-            {
-                curdate = Conversions.ToDate(AddInterval(curdate, DateRangeInterval, 1m));
-                l.Add(curdate);
-            }
-
-            l.Add(EndDate);
-            return l.Where(x => x <= EndDate).Where(x => x >= StartDate).Distinct();
-        }
-    }
 
     /// <summary>
     /// Modulo para manipulação de calendário
@@ -723,17 +17,55 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Calendars
     {
-        public static DateTime ClearMiliseconds(this DateTime Date)
+        public static DateTime ClearMilliseconds(this DateTime Date)
         {
             return Date.AddTicks(-(Date.Ticks % TimeSpan.TicksPerSecond));
         }
 
+
+        public static DateRange CreateDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression, DateTime? StartDate = default, DateTime? EndDate = default) where T : class
+        {
+            var Period = new DateRange
+            {
+                ForceFirstAndLastMoments = true
+            };
+
+            StartDate ??= List.Min(PropertyExpression.Compile());
+            EndDate ??= List.Max(PropertyExpression.Compile());
+
+            if (StartDate.HasValue)
+            {
+                Period.StartDate = StartDate.Value;
+            }
+
+            if (EndDate.HasValue)
+            {
+                Period.StartDate = EndDate.Value;
+            }
+
+            return Period;
+        }
+
+
+        /// <summary>
+        /// Cria um <see cref="DateRange"/> a partir de 2 datas e/ou uma propriedade do tipo <see cref="DateTime" /> de <paramref name="T" /> como filtro de uma lista
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="PropertyExpression"></param>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
+        /// <returns>Um DateRange a partir das datas Iniciais e finais especificadas ou um daterange a partir da menor e maior datas de uma lista</returns>
         public static DateRange CreateDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression, DateTime? StartDate = default, DateTime? EndDate = default) where T : class
         {
-            var Period = new DateRange();
-            Period.ForceFirstAndLastMoments = true;
-            StartDate = StartDate ?? List.Min(PropertyExpression);
-            EndDate = EndDate ?? List.Max(PropertyExpression);
+            var Period = new DateRange
+            {
+                ForceFirstAndLastMoments = true
+            };
+
+            StartDate ??= List.Min(PropertyExpression);
+            EndDate ??= List.Max(PropertyExpression);
+
             if (StartDate.HasValue)
             {
                 Period.StartDate = StartDate.Value;
@@ -748,13 +80,13 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Pega o numero da semana a partir de uma data
+        /// Pega o numero da semana do mês a partir de uma data
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
         public static int GetWeekNumberOfMonth(this DateTime DateAndTime)
         {
-            return DateAndTime.GetWeekInfoOfMonth().FirstOrDefault();
+            return DateAndTime.GetWeekInfoOfMonth().Week;
         }
 
         /// <summary>
@@ -762,18 +94,9 @@ namespace InnerLibs
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
-        public static int[] GetWeekInfoOfMonth(this DateTime DateAndTime)
+        public static WeekInfo GetWeekInfoOfMonth(this DateTime DateAndTime)
         {
-            DateAndTime = DateAndTime.Date;
-            var firstMonthDay = DateAndTime.GetFirstDayOfMonth();
-            var firstMonthMonday = firstMonthDay.AddDays(((int)DayOfWeek.Monday + 7 - (int)firstMonthDay.DayOfWeek) % 7);
-            if (firstMonthMonday > DateAndTime)
-            {
-                firstMonthDay = firstMonthDay.AddMonths(-1);
-                firstMonthMonday = firstMonthDay.AddDays(((int)DayOfWeek.Monday + 7 - (int)firstMonthDay.DayOfWeek) % 7);
-            }
-
-            return new int[] { (int)Math.Round((DateAndTime - firstMonthMonday).Days / 7d + 1d), firstMonthDay.Month, firstMonthDay.Year };
+            return new WeekInfo(DateAndTime);
         }
 
         /// <summary>
@@ -1023,7 +346,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna o prmeiro dia de um ano especifico de outra data
+        /// Retorna o primeiro dia de um ano especifico de outra data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
@@ -1158,6 +481,11 @@ namespace InnerLibs
         public static int GetWeekOfYear(this DateTime Date, CultureInfo Culture = null, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday)
         {
             return (Culture ?? CultureInfo.InvariantCulture).Calendar.GetWeekOfYear(Date, CalendarWeekRule.FirstFourDayWeek, FirstDayOfWeek);
+        }
+
+        public static DateTime GetLastMoment(this DateTime Date)
+        {
+            return Date.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
         }
 
         /// <summary>
@@ -1340,7 +668,7 @@ namespace InnerLibs
 
         public static string ToLongMonthName(this int MonthNumber)
         {
-            return new DateTime(DateTime.Now.Year, MonthNumber, 1).TolongMonthName();
+            return new DateTime(DateTime.Now.Year, MonthNumber, 1).ToLongMonthName();
         }
 
         /// <summary>
@@ -1348,7 +676,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="DateTime">Data</param>
         /// <returns>String com nome do Mês</returns>
-        public static string TolongMonthName(this DateTime DateTime)
+        public static string ToLongMonthName(this DateTime DateTime)
         {
             return DateTime.ToString("MMMM");
         }
@@ -1454,17 +782,29 @@ namespace InnerLibs
             return NextDay(DayOfWeek.Sunday, FromDate);
         }
 
+/// <summary>
+/// Retorna o ultimo dia referente a um dia da semana
+/// </summary>
+/// <param name="DayOfWeek"></param>
+/// <param name="FromDate"></param>
+/// <returns></returns>
         public static DateTime LastDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
-            FromDate = FromDate ?? DateTime.Now;
+            FromDate ??= DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
                 FromDate = FromDate.Value.AddDays(-1);
             return (DateTime)FromDate;
         }
 
+/// <summary>
+/// Retorna o proximo dia referente a um dia da semana
+/// </summary>
+/// <param name="DayOfWeek"></param>
+/// <param name="FromDate"></param>
+/// <returns></returns>
         public static DateTime NextDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
-            FromDate = FromDate ?? DateTime.Now;
+            FromDate ??= DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
                 FromDate = FromDate.Value.AddDays(1d);
             return (DateTime)FromDate;
@@ -1559,25 +899,7 @@ namespace InnerLibs
             return Time.ToGreetingFarewell(Language, false);
         }
 
-        /// <summary>
-        /// Retorna uma saudação
-        /// </summary>
-        /// <param name="Language">Idioma da saudação (pt, en, es)</param>
-        /// <returns>Uma string com a saudação</returns>
-        public static string get_Greeting(string Language = "pt")
-        {
-            return DateTime.Now.ToGreetingFarewell(Language);
-        }
-
-        /// <summary>
-        /// Retorna uma despedida
-        /// </summary>
-        /// <param name="Language">Idioma da despedida (pt, en, es)</param>
-        /// <returns>Uma string com a despedida</returns>
-        public static string get_Farewell(string Language = "pt")
-        {
-            return DateTime.Now.ToGreetingFarewell(Language, true);
-        }
+        
 
         /// <summary>
         /// Returna uma lista dupla com os meses
@@ -1585,10 +907,9 @@ namespace InnerLibs
         /// <param name="ValueType">Apresentação dos meses no valor</param>
         /// <param name="TextType">Apresentação dos meses no texto</param>
 
-        public static List<KeyValuePair<string, string>> get_Months(TypeOfFill TextType = TypeOfFill.LongName, TypeOfFill ValueType = TypeOfFill.Number)
+        public static List<KeyValuePair<string, string>> GetMonthList(TypeOfFill TextType = TypeOfFill.LongName, TypeOfFill ValueType = TypeOfFill.Number)
         {
-            List<KeyValuePair<string, string>> MonthsRet = default;
-            MonthsRet = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, string>> MonthsRet = new List<KeyValuePair<string, string>>();
             for (int i = 1; i <= 12; i++)
             {
                 string key = "";
@@ -1743,7 +1064,7 @@ namespace InnerLibs
         /// <param name="StartDate">Data Inicial</param>
         /// <param name="EndDate">  Data Final</param>
         /// <returns></returns>
-        public static decimal CalculatePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
+        public static decimal CalculateTimelinePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
         {
             FixDateOrder(ref StartDate, ref EndDate);
             if (MidDate < StartDate)
