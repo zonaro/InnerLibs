@@ -448,7 +448,8 @@ namespace InnerLibs
                 return new DateTime(Date.Year, 8, 1).GetLastDayOfMonth();
             else if (Date.GetDoubleMonthOfYear() == 5)
                 return new DateTime(Date.Year, 10, 1).GetLastDayOfMonth();
-            return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
+            else
+                return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
         }
 
         /// <summary>
@@ -468,7 +469,8 @@ namespace InnerLibs
                 return new DateTime(Date.Year, 7, 1).Date;
             else if (Date.GetDoubleMonthOfYear() == 5)
                 return new DateTime(Date.Year, 9, 1).Date;
-            return new DateTime(Date.Year, 11, 1).Date;
+            else
+                return new DateTime(Date.Year, 11, 1).Date;
         }
 
         /// <summary>
