@@ -440,19 +440,19 @@ namespace InnerLibs
         {
             if (Date.GetDoubleMonthOfYear() == 1)
                 return new DateTime(Date.Year, 2, 1).GetLastDayOfMonth();
-            if (Date.GetDoubleMonthOfYear() == 2)
+            else if (Date.GetDoubleMonthOfYear() == 2)
                 return new DateTime(Date.Year, 4, 1).GetLastDayOfMonth();
-            if (Date.GetDoubleMonthOfYear() == 3)
+            else if (Date.GetDoubleMonthOfYear() == 3)
                 return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
-            if (Date.GetDoubleMonthOfYear() == 4)
+            else if (Date.GetDoubleMonthOfYear() == 4)
                 return new DateTime(Date.Year, 8, 1).GetLastDayOfMonth();
-            if (Date.GetDoubleMonthOfYear() == 5)
+            else if (Date.GetDoubleMonthOfYear() == 5)
                 return new DateTime(Date.Year, 10, 1).GetLastDayOfMonth();
             return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
         }
 
         /// <summary>
-        /// Retorna o ultimo dia de um bimestre a partir da data
+        /// Retorna o primeiro dia de um bimestre a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
@@ -460,13 +460,13 @@ namespace InnerLibs
         {
             if (Date.GetDoubleMonthOfYear() == 1)
                 return new DateTime(Date.Year, 1, 1).Date;
-            if (Date.GetDoubleMonthOfYear() == 2)
+            else if (Date.GetDoubleMonthOfYear() == 2)
                 return new DateTime(Date.Year, 3, 1).Date;
-            if (Date.GetDoubleMonthOfYear() == 3)
+            else if (Date.GetDoubleMonthOfYear() == 3)
                 return new DateTime(Date.Year, 5, 1).Date;
-            if (Date.GetDoubleMonthOfYear() == 4)
+            else if (Date.GetDoubleMonthOfYear() == 4)
                 return new DateTime(Date.Year, 7, 1).Date;
-            if (Date.GetDoubleMonthOfYear() == 5)
+            else if (Date.GetDoubleMonthOfYear() == 5)
                 return new DateTime(Date.Year, 9, 1).Date;
             return new DateTime(Date.Year, 11, 1).Date;
         }
@@ -506,9 +506,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsAnniversary(this DateTime BirthDate, DateTime? CompareWith = default)
         {
-            if (!CompareWith.HasValue)
-                CompareWith = DateTime.Today;
-            return (BirthDate.Day + "/" + BirthDate.Month ?? "") == (CompareWith.Value.Day + "/" + CompareWith.Value.Month ?? "");
+            CompareWith ??= DateTime.Today;
+            return (BirthDate.Day == CompareWith.Value.Day) && (BirthDate.Month == CompareWith.Value.Month);
         }
 
         /// <summary>
@@ -782,12 +781,12 @@ namespace InnerLibs
             return NextDay(DayOfWeek.Sunday, FromDate);
         }
 
-/// <summary>
-/// Retorna o ultimo dia referente a um dia da semana
-/// </summary>
-/// <param name="DayOfWeek"></param>
-/// <param name="FromDate"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Retorna o ultimo dia referente a um dia da semana
+        /// </summary>
+        /// <param name="DayOfWeek"></param>
+        /// <param name="FromDate"></param>
+        /// <returns></returns>
         public static DateTime LastDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
             FromDate ??= DateTime.Now;
@@ -796,12 +795,12 @@ namespace InnerLibs
             return (DateTime)FromDate;
         }
 
-/// <summary>
-/// Retorna o proximo dia referente a um dia da semana
-/// </summary>
-/// <param name="DayOfWeek"></param>
-/// <param name="FromDate"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Retorna o proximo dia referente a um dia da semana
+        /// </summary>
+        /// <param name="DayOfWeek"></param>
+        /// <param name="FromDate"></param>
+        /// <returns></returns>
         public static DateTime NextDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
             FromDate ??= DateTime.Now;
@@ -899,7 +898,7 @@ namespace InnerLibs
             return Time.ToGreetingFarewell(Language, false);
         }
 
-        
+
 
         /// <summary>
         /// Returna uma lista dupla com os meses
