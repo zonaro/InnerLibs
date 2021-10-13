@@ -725,11 +725,8 @@ namespace InnerLibs.TimeMachine
         /// Retorna uma string com a quantidade de itens e o tempo de produção
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return ToTimeElapsedString();
-        }
-
+        // public override string ToString() => this.ToTimeElapsedString();
+//TODO: Ajustar aqui
 
 
         private enum Phase
@@ -961,12 +958,12 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="FullString">Parametro que indica se as horas, minutos e segundos devem ser apresentados caso o tempo seja maior que 1 dia</param>
         /// <returns></returns>
-        public string ToTimeElapsedString(bool FullString = true)
+        public string ToTimeElapsedString()
         {
             var data_final = EndDate;
             var data_inicial = StartDate;
             return data_inicial.GetDifference(data_final)
-            .ToTimeElapsedString("And","Years","Months","Days","Hours","Minutes","Seconds");
+            .ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", LongTimeSpanString.FullStringSkipZero);
         }
 
         /// <summary>
