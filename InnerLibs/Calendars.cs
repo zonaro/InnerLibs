@@ -631,34 +631,7 @@ namespace InnerLibs
         public static IEnumerable<DateTime> ClearTime(this IEnumerable<DateTime> List) => List.Select(x => x.Date);
         
 
-        /// <summary>
-        /// Retorna uma String no formato "W dias, X horas, Y minutos e Z segundos"
-        /// </summary>
-        /// <param name="TimeElapsed">TimeSpan com o intervalo</param>
-        /// <returns>string</returns>
-        public static string ToTimeElapsedString(this TimeSpan TimeElapsed, string DayWord = "dias", string HourWord = "horas", string MinuteWord = "minutos", string SecondWord = "segundos")
-        {
-
-            string dia = Text.QuantifyText($"{TimeElapsed.Days} {DayWord}");
-            string horas = Text.QuantifyText($"{TimeElapsed.Hours} {HourWord}");
-            string minutos = Text.QuantifyText($"{TimeElapsed.Minutes} {MinuteWord}");
-            string segundos = Text.QuantifyText($"{TimeElapsed.Seconds} {SecondWord}");
-
-
-
-            dia = dia.AppendIf(",", dia.IsNotBlank() && (horas.IsNotBlank() | minutos.IsNotBlank() | segundos.IsNotBlank()));
-            horas = horas.AppendIf(",", horas.IsNotBlank() && (minutos.IsNotBlank() | segundos.IsNotBlank()));
-            minutos = minutos.AppendIf(",", minutos.IsNotBlank() && segundos.IsNotBlank());
-
-            string current = dia + " " + horas + " " + minutos + " " + segundos;
-            if (current.Contains(","))
-            {
-                current = current.Insert(current.LastIndexOf(","), " e ");
-                current = current.Remove(current.LastIndexOf(","), 1);
-            }
-
-            return current.AdjustWhiteSpaces();
-        }
+        
 
         /// <summary>
         /// Retorna uma String baseado no numero do Mês Ex.: 1 -&gt; Janeiro

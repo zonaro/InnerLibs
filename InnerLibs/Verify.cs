@@ -426,10 +426,7 @@ namespace InnerLibs
         /// <param name="Index">Posicao</param>
         /// <param name="ValueIfBlankOrNoIndex">Valor se o mesmo nao existir</param>
         /// <returns></returns>
-        public static T IfBlankOrNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfBlankOrNoIndex)
-        {
-            return (Arr ?? Array.Empty<T>()).IfNoIndex(Index).IfBlank(ValueIfBlankOrNoIndex);
-        }
+        public static T IfBlankOrNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfBlankOrNoIndex) => (Arr ?? Array.Empty<T>()).IfNoIndex(Index).IfBlank(ValueIfBlankOrNoIndex);
 
         /// <summary>
         /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
@@ -504,7 +501,7 @@ namespace InnerLibs
             }
             else
             {
-                bool blank_flag = false;
+                bool blank_flag;
                 if (Value.GetType() == typeof(string))
                 {
                     blank_flag = Value.ToString().IsBlank();

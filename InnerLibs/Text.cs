@@ -34,12 +34,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToPhrase(this IEnumerable<string> Texts, string And = "and")
         {
-            if (Texts != null && Texts.Any())
-                if (Texts.Count() > 1)
-                    return AdjustBlankSpaces($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
-                else
-                    return AdjustBlankSpaces(Texts.FirstOrDefault());
-            return "";
+            if (Texts != null && Texts.Count() > 1)
+                return AdjustBlankSpaces($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
+            else
+                return AdjustBlankSpaces(Texts?.FirstOrDefault());
+
 
         }
 
@@ -111,7 +110,7 @@ namespace InnerLibs
             {
                 return new ConnectionStringParser(ConnectionString);
             }
-            catch (Exception ex)
+            catch  
             {
                 return new ConnectionStringParser();
             }
