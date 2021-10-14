@@ -208,13 +208,7 @@ namespace InnerLibs.TimeMachine
         /// Numero da quinzena (1 ou 2)
         /// </summary>
         /// <returns></returns>
-        public int Number
-        {
-            get
-            {
-                return Key.GetFirstChars(1).ChangeType<int, string>();
-            }
-        }
+        public int Number => Key.GetFirstChars(1).ChangeType<int, string>();
 
         /// <summary>
         /// Retorna a Key de um <see cref="Fortnight"/> em um formato especifico.
@@ -243,11 +237,10 @@ namespace InnerLibs.TimeMachine
         /// <returns>Uma string no formato especificado</returns>
         public string FormatName(string Format = "{q}{o} - {mmmm}/{yyyy}")
         {
-            int quinzena = Conversions.ToInteger(Key.Split("@")[0]);
-            int mes = Conversions.ToInteger(Key.Split("@")[1].Split("-")[0]);
-            int ano = Conversions.ToInteger(Key.Split("@")[1].Split("-")[1]);
-            int dia_inicio = Period.StartDate.Day;
-            int dia_fim = Period.EndDate.Day;
+            int quinzena = Convert.ToInt32(Key.Split("@")[0]);
+            int mes = Convert.ToInt32(Key.Split("@")[1].Split("-")[0]);
+            int ano = Convert.ToInt32(Key.Split("@")[1].Split("-")[1]);
+            int dia_inicio = Period.StartDate.Day;       
             Format = Format.Replace("{s}", dia_inicio.ToString("#"));
             Format = Format.Replace("{ss}", dia_inicio.ToString("##"));
             Format = Format.Replace("{e}", dia_inicio.ToString("#"));
@@ -272,10 +265,7 @@ namespace InnerLibs.TimeMachine
             return Format;
         }
 
-        public override string ToString()
-        {
-            return FormatName();
-        }
+        public override string ToString() => FormatName();
     }
 
     /// <summary>
@@ -288,74 +278,38 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public Fortnight this[string Key]
-        {
-            get
-            {
-                return base[IndexOf(this.Where(x => (x.Key ?? "") == (Key ?? "")).SingleOrDefault())];
-            }
-        }
+        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? "") == (Key ?? "")).SingleOrDefault())];
 
         /// <summary>
         /// Retorna uma quinzena a partir da sua Index
         /// </summary>
         /// <param name="Index"></param>
         /// <returns></returns>
-        public new Fortnight this[int Index]
-        {
-            get
-            {
-                return base[Index];
-            }
-        }
+        public new Fortnight this[int Index] => base[Index];
 
         /// <summary>
         /// Retorna a data inicial do periodo
         /// </summary>
         /// <returns></returns>
-        public DateTime StartDate
-        {
-            get
-            {
-                return this.First().Period.StartDate;
-            }
-        }
+        public DateTime StartDate => this.First().Period.StartDate;
 
         /// <summary>
         /// Retorna a ultima data do periodo
         /// </summary>
         /// <returns></returns>
-        public DateTime EndDate
-        {
-            get
-            {
-                return this.Last().Period.EndDate;
-            }
-        }
+        public DateTime EndDate => this.Last().Period.EndDate;
 
         /// <summary>
         /// Retorna uma lista com todos os dias entre as quinzenas
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DateTime> AllDays
-        {
-            get
-            {
-                return this.SelectMany(x => x.Period.StartDate.GetDaysBetween(x.Period.EndDate));
-            }
-        }
+        public IEnumerable<DateTime> AllDays => this.SelectMany(x => x.Period.StartDate.GetDaysBetween(x.Period.EndDate));
 
         /// <summary>
         /// Retorna um periodo equivalente a este grupo de quinzena
         /// </summary>
         /// <returns></returns>
-        public DateRange Period
-        {
-            get
-            {
-                return new DateRange(StartDate, EndDate);
-            }
-        }
+        public DateRange Period => new DateRange(StartDate, EndDate);
 
         /// <summary>
         /// Instancia um novo <see cref="FortnightGroup"/> a partir de uma data e um numero de quinzenas
