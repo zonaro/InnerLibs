@@ -894,10 +894,8 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DaysOfWeek">Dias da semana</param>
         /// <returns></returns>
-        public IEnumerable<DateTime> get_WorkDays(params DayOfWeek[] DaysOfWeek)
-        {
-            return StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
-        }
+        public IEnumerable<DateTime> WorkDays(params DayOfWeek[] DaysOfWeek) =>  StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
+        
 
         /// <summary>
         /// Dias relevantes (letivos) entre as datas inicial e final
@@ -907,7 +905,7 @@ namespace InnerLibs.TimeMachine
         {
             get
             {
-                var dias = get_WorkDays(RelevantDaysOfWeek.ToArray()).ClearTime().ToList();
+                var dias = WorkDays(RelevantDaysOfWeek.ToArray()).ClearTime().ToList();
                 foreach (var feriado in HoliDays.ClearTime())
                 {
                     if (dias.Contains(feriado))
@@ -928,7 +926,7 @@ namespace InnerLibs.TimeMachine
         {
             get
             {
-                var dias = get_WorkDays().ClearTime().ToList();
+                var dias = WorkDays().ClearTime().ToList();
                 foreach (var d in RelevantDays)
                     dias.Remove(d);
                 return dias;
