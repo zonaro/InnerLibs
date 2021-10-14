@@ -240,7 +240,7 @@ namespace InnerLibs.TimeMachine
             int quinzena = Convert.ToInt32(Key.Split("@")[0]);
             int mes = Convert.ToInt32(Key.Split("@")[1].Split("-")[0]);
             int ano = Convert.ToInt32(Key.Split("@")[1].Split("-")[1]);
-            int dia_inicio = Period.StartDate.Day;       
+            int dia_inicio = Period.StartDate.Day;
             Format = Format.Replace("{s}", dia_inicio.ToString("#"));
             Format = Format.Replace("{ss}", dia_inicio.ToString("##"));
             Format = Format.Replace("{e}", dia_inicio.ToString("#"));
@@ -318,8 +318,10 @@ namespace InnerLibs.TimeMachine
         /// <param name="FortnightCount"></param>
         private static List<Fortnight> GerarLista(DateTime StartDate = default, int FortnightCount = 1)
         {
-            var l = new List<Fortnight>();
-            l.Add(new Fortnight(StartDate));
+            var l = new List<Fortnight>
+            {
+                new Fortnight(StartDate)
+            };
             for (int index = 2, loopTo = FortnightCount.SetMinValue(1); index <= loopTo; index++)
             {
                 StartDate = l.Last().Period.EndDate.AddDays(1d);
@@ -539,7 +541,7 @@ namespace InnerLibs.TimeMachine
         /// Todos os dias entre as datas Inicial e Final
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DateTime> AllDays => RelevantDays.Union(NonRelevantDays).OrderBy(x => x).AsEnumerable();
+        public IEnumerable<DateTime> GetAllDays() => RelevantDays.Union(NonRelevantDays).OrderBy(x => x).AsEnumerable();
 
         /// <summary>
         /// Dias não relevantes entre as datas Inicial e Final
@@ -626,12 +628,12 @@ namespace InnerLibs.TimeMachine
         public string ToTimeElapsedString(string AndWord, string YearsWord, string MonthsWord, string DaysWord, string HoursWord, string MinutesWord, string SecondsWord, LongTimeSpanString Format = LongTimeSpanString.FullStringSkipZero)
         {
 
-            string ano = Text.QuantifyText($"{Years} {YearsWord}").NullIf(x => YearsWord.IsBlank());
-            string mes = Text.QuantifyText($"{Months} {MonthsWord}").NullIf(x => MonthsWord.IsBlank());
-            string dia = Text.QuantifyText($"{Days} {DaysWord}").NullIf(x => DaysWord.IsBlank());
-            string horas = Text.QuantifyText($"{Hours} {HoursWord}").NullIf(x => HoursWord.IsBlank());
-            string minutos = Text.QuantifyText($"{Minutes} {MinutesWord}").NullIf(x => MinutesWord.IsBlank());
-            string segundos = Text.QuantifyText($"{Seconds} {SecondsWord}").NullIf(x => SecondsWord.IsBlank());
+            string ano = Text.QuantifyText(YearsWord, Years).Prepend($"{Years} ").NullIf(x => YearsWord.IsBlank());
+            string mes = Text.QuantifyText(MonthsWord, Months).Prepend($"{Months} ").NullIf(x => MonthsWord.IsBlank());
+            string dia = Text.QuantifyText(DaysWord, Days).Prepend($"{Days} ").NullIf(x => DaysWord.IsBlank());
+            string horas = Text.QuantifyText(HoursWord, Hours).Prepend($"{Hours} ").NullIf(x => HoursWord.IsBlank());
+            string minutos = Text.QuantifyText(MinutesWord, Minutes).Prepend($"{Minutes} ").NullIf(x => MinutesWord.IsBlank());
+            string segundos = Text.QuantifyText(SecondsWord, Seconds).Prepend($"{Seconds} ").NullIf(x => SecondsWord.IsBlank());
 
 
             var flagInt = (int)Format;
@@ -671,7 +673,7 @@ namespace InnerLibs.TimeMachine
             }
 
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos }.ToPhrase(AndWord);
+            string current = new[] { ano, mes, dia, horas, minutos, segundos }.Where(x => x.IsNotBlank()).ToPhrase(AndWord);
 
             return current.AdjustWhiteSpaces();
         }
