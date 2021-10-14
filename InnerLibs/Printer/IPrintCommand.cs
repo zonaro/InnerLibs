@@ -6,7 +6,7 @@ namespace InnerLibs.Printer.Command
     public interface IPrintCommand
     {
         Encoding Encoding { get; set; }
-        int ColsNomal { get; }
+        int ColsNormal { get; }
         int ColsCondensed { get; }
         int ColsExpanded { get; }
 

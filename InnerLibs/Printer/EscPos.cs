@@ -12,7 +12,7 @@ namespace InnerLibs.EscPosCommands
 
         #region Properties
 
-        public int ColsNomal
+        public int ColsNormal
         {
             get
             {

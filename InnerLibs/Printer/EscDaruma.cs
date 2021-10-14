@@ -13,7 +13,7 @@ namespace InnerLibs.EscDarumaCommands
 
         #region Properties
 
-        public int ColsNomal
+        public int ColsNormal
         {
             get
             {
