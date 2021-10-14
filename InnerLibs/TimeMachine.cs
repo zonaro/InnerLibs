@@ -709,7 +709,11 @@ namespace InnerLibs.TimeMachine
 
             if (flagInt >= 4) // reduce most
             {
-
+                mes = mes.NullIf(x => Years >= 1);
+                dia = dia.NullIf(x => Years >= 1);
+                horas = horas.NullIf(x => Years >= 1);
+                minutos = minutos.NullIf(x => Years >= 1);
+                segundos = segundos.NullIf(x => Years >= 1);
             }
 
 
