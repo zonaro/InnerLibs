@@ -416,7 +416,7 @@ namespace InnerLibs.TimeMachine
     }
 
     /// <summary>
-    /// Classe para comapração entre 2 Datas com possibilidade de validação de dias Relevantes
+    /// Classe para comparação entre 2 Datas com possibilidade de validação de dias Relevantes
     /// </summary>
     public class LongTimeSpan
     {
@@ -723,14 +723,14 @@ namespace InnerLibs.TimeMachine
         }
 
 
-
+        public string ToTimeElapsedString() => this.ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", LongTimeSpanString.FullStringSkipZero);
 
         /// <summary>
         /// Retorna uma string com a quantidade de itens e o tempo de produção
         /// </summary>
         /// <returns></returns>
-        // public override string ToString() => this.ToTimeElapsedString();
-//TODO: Ajustar aqui
+        public override string ToString() => ToTimeElapsedString();
+
 
 
         private enum Phase
@@ -868,13 +868,14 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data Inicial da produção</param>
         /// <param name="Time">Tempo do item</param>
         /// <param name="Quantity">Quantidade de itens</param>
-        public TimeDemand(DateTime StartDate, TimeSpan Time, int Quantity = 1, string SingularItem = "Item", string MultipleItem = "Items")
+        public TimeDemand(DateTime StartDate, TimeSpan Time, int Quantity = 1, string MultipleItem = "Items", string SingularItem = null)
         {
             this.StartDate = StartDate;
             Item.Quantity = Quantity;
             Item.Time = Time;
-            Item.SingularItem = SingularItem;
             Item.MultipleItem = MultipleItem;
+            Item.SingularItem = SingularItem.IfBlank(MultipleItem.Singularize());
+
         }
 
         /// <summary>
@@ -898,62 +899,32 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DaysOfWeek">Dias da semana</param>
         /// <returns></returns>
-        public IEnumerable<DateTime> WorkDays(params DayOfWeek[] DaysOfWeek) =>  StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
-        
+        public IEnumerable<DateTime> GetWorkDays(params DayOfWeek[] DaysOfWeek) => StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
+
 
         /// <summary>
         /// Dias relevantes (letivos) entre as datas inicial e final
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DateTime> RelevantDays
-        {
-            get
-            {
-                var dias = WorkDays(RelevantDaysOfWeek.ToArray()).ClearTime().ToList();
-                foreach (var feriado in HoliDays.ClearTime())
-                {
-                    if (dias.Contains(feriado))
-                    {
-                        dias.Remove(feriado);
-                    }
-                }
-
-                return dias;
-            }
-        }
+        public IEnumerable<DateTime> RelevantDays => GetWorkDays(RelevantDaysOfWeek.ToArray()).ClearTime().Where(x => x.IsNotIn(HoliDays.ClearTime()));
 
         /// <summary>
         /// Dias não relevantes (nao letivos e feriados) entre as datas inicial e final
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DateTime> NonRelevantDays
-        {
-            get
-            {
-                var dias = WorkDays().ClearTime().ToList();
-                foreach (var d in RelevantDays)
-                    dias.Remove(d);
-                return dias;
-            }
-        }
+        public IEnumerable<DateTime> NonRelevantDays => GetWorkDays().ClearTime().Where(x => x.IsNotIn(RelevantDays));
 
         /// <summary>
         /// Retorna um TimeFlow desta demanda
         /// </summary>
         /// <returns></returns>
-        public LongTimeSpan BuildTimeFlow()
-        {
-            return new LongTimeSpan(StartDate, EndDate, RelevantDaysOfWeek.ToArray());
-        }
+        public LongTimeSpan ToLongTimeSpan() => new LongTimeSpan(StartDate, EndDate, RelevantDaysOfWeek.ToArray());
 
         /// <summary>
         /// Retorna uma string representado a quantidade de itens e o tempo gasto com a produção
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return Item.ToString() + " - " + ToTimeElapsedString();
-        }
+        public override string ToString() => Item.ToString() + " - " + ToTimeElapsedString();
 
         /// <summary>
         /// Retorna uma String no formato "X anos, Y meses e Z dias"
