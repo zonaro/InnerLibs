@@ -1017,6 +1017,8 @@ namespace InnerLibs
 
         public int CompareTo(object obj) => CompareTo(new HSVColor(obj?.ToString()));
 
+        
+
         public static HSVColor operator +(HSVColor Color1, HSVColor Color2) => Color1.Combine(Color2);
 
         public static HSVColor operator +(Color Color1, HSVColor Color2) => new HSVColor(Color1).Combine(Color2);
