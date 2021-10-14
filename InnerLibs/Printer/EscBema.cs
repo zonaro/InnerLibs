@@ -11,7 +11,7 @@ namespace InnerLibs.EscBemaCommands
 
         #region Properties
 
-        public int ColsNomal
+        public int ColsNormal
         {
             get
             {

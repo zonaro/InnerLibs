@@ -19,10 +19,7 @@ namespace InnerLibs
         /// <param name="Img"></param>
         /// <param name="Reduce"></param>
         /// <returns></returns>
-        public static HSVColor FromImage(Image Img, int Reduce = 16)
-        {
-            return Images.ColorPallette(Img, Reduce).Keys.FirstOr(new HSVColor());
-        }
+        public static HSVColor FromImage(Image Img, int Reduce = 16) => Images.ColorPallette(Img, Reduce).Keys.FirstOr(new HSVColor());
 
         /// <summary>
         /// Retorna uma cor aleatoria a partir da paleta de cores de uma imagem
@@ -30,48 +27,33 @@ namespace InnerLibs
         /// <param name="Img"></param>
         /// <param name="Reduce"></param>
         /// <returns></returns>
-        public static HSVColor RandomColor(Image Img, int Reduce = 16)
-        {
-            return Img.ColorPallette(Reduce).Keys.FirstRandom();
-        }
+        public static HSVColor RandomColor(Image Img, int Reduce = 16) => Img.ColorPallette(Reduce).Keys.FirstRandom();
 
         /// <summary>
         /// Retorna uma cor aleatória a partir de uma lista de cores
         /// </summary>
         /// <param name="Colors"></param>
         /// <returns></returns>
-        public static HSVColor RandomColor(IEnumerable<Color> Colors)
-        {
-            return new HSVColor((Color)Colors?.OrderByRandom().FirstOr(Color.Transparent));
-        }
+        public static HSVColor RandomColor(IEnumerable<Color> Colors) => new HSVColor((Color)Colors?.OrderByRandom().FirstOr(Color.Transparent));
 
         /// <summary>
         /// Gera uma <see cref="HSVColor"/> opaca aleatoria
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public static HSVColor RandomColor(string Name = null)
-        {
-            return new HSVColor(ColorExtensions.RandomColor(), Name);
-        }
+        public static HSVColor RandomColor(string Name = null) => new HSVColor(ColorExtensions.RandomColor(), Name);
 
         /// <summary>
         /// Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de um Mood especifico
         /// </summary>
         /// <returns></returns>
-        public static HSVColor RandomColor(ColorMood Mood)
-        {
-            return RandomColorList(1, Mood).FirstOrDefault();
-        }
+        public static HSVColor RandomColor(ColorMood Mood) => RandomColorList(1, Mood).FirstOrDefault();
 
         /// <summary>
         /// Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de uma especificacao
         /// </summary>
         /// <returns></returns>
-        public static HSVColor RandomColor(Expression<Func<HSVColor, bool>> predicate)
-        {
-            return RandomColorList(1, predicate).FirstOrDefault();
-        }
+        public static HSVColor RandomColor(Expression<Func<HSVColor, bool>> predicate) => RandomColorList(1, predicate).FirstOrDefault();
 
         /// <summary>
         /// Gera uma lista com <see cref="HSVColor"/>   aleatorias
@@ -124,13 +106,10 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public static HSVColor RandomTransparentColor(string Name = null)
-        {
-            return RandomColor().With(x => x.Opacity = Generate.RandomNumber(0, 100)).With(x => x.Name = Name);
-        }
+        public static HSVColor RandomTransparentColor(string Name = null) => RandomColor().With(x => x.Opacity = Generate.RandomNumber(0, 100)).With(x => x.Name = Name);
 
         /// <summary>
-        /// Instancia uma nova <see cref="HSVColor"/> a aprtir de seu ARGB
+        /// Instancia uma nova <see cref="HSVColor"/> a partir de seu ARGB
         /// </summary>
         public HSVColor(int ARGB) : this(Color.FromArgb(ARGB))
         {
@@ -152,42 +131,30 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="System.Drawing.Color"/>
+        /// Instancia uma nova <see cref="HSVColor"/> a partir de uma <see cref="Color"/>
         /// </summary>
         /// <param name="Color">Cor do sistema</param>
-        public HSVColor(Color Color)
-        {
-            _loadColor(Color);
-        }
+        public HSVColor(Color Color) => _loadColor(Color);
 
         /// <summary>
         /// Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria)
         /// </summary>
         /// <param name="Color">Cor</param>
-        public HSVColor(string Color) : this(Color.ToColor())
-        {
-            _name = Color;
-        }
+        public HSVColor(string Color) : this(Color.ToColor()) => _name = Color;
 
         /// <summary>
         /// Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou  string aleatoria) e um Nome
         /// </summary>
         /// <param name="Color">Cor</param>
         /// <param name="Name">Nome da cor</param>
-        public HSVColor(string Color, string Name) : this(Color.ToColor())
-        {
-            _name = Name.IfBlank(Color);
-        }
+        public HSVColor(string Color, string Name) : this(Color.ToColor()) => _name = Name.IfBlank(Color);
 
         /// <summary>
         /// Instancia uma nova HSVColor a partir de uma <see cref="System.Drawing.Color"/> e um Nome
         /// </summary>
         /// <param name="Color">Cor</param>
         /// <param name="Name">Nome da cor</param>
-        public HSVColor(Color Color, string Name) : this(Color)
-        {
-            _name = Name;
-        }
+        public HSVColor(Color Color, string Name) : this(Color) => _name = Name;
 
         /// <summary>
         /// Retorna ou seta o valor ARGB de 32 bits dessa cor
@@ -195,10 +162,7 @@ namespace InnerLibs
         /// <returns></returns>
         public int ARGB
         {
-            get
-            {
-                return _scolor.ToArgb();
-            }
+            get => _scolor.ToArgb();
 
             set
             {
@@ -213,10 +177,7 @@ namespace InnerLibs
         /// <returns></returns>
         public double Hue
         {
-            get
-            {
-                return _h;
-            }
+            get => _h;
 
             set
             {
@@ -238,10 +199,7 @@ namespace InnerLibs
         /// <returns></returns>
         public double Saturation
         {
-            get
-            {
-                return _s;
-            }
+            get => _s;
 
             set
             {
@@ -258,13 +216,7 @@ namespace InnerLibs
         /// Luminância
         /// </summary>
         /// <returns></returns>
-        public double Luminance
-        {
-            get
-            {
-                return 0.2126d * Red + 0.7152d * Green + 0.0722d * Blue;
-            }
-        }
+        public double Luminance => 0.2126d * Red + 0.7152d * Green + 0.0722d * Blue;
 
         /// <summary>
         /// Brilho
@@ -272,10 +224,7 @@ namespace InnerLibs
         /// <returns></returns>
         public double Brightness
         {
-            get
-            {
-                return _v;
-            }
+            get => _v;
 
             set
             {
@@ -294,10 +243,7 @@ namespace InnerLibs
         /// <returns></returns>
         public int Red
         {
-            get
-            {
-                return _scolor.R;
-            }
+            get => _scolor.R;
 
             set
             {
@@ -312,10 +258,7 @@ namespace InnerLibs
         /// <returns></returns>
         public int Green
         {
-            get
-            {
-                return _scolor.G;
-            }
+            get => _scolor.G;
 
             set
             {
@@ -330,10 +273,7 @@ namespace InnerLibs
         /// <returns></returns>
         public int Blue
         {
-            get
-            {
-                return _scolor.B;
-            }
+            get => _scolor.B;
 
             set
             {
@@ -348,10 +288,7 @@ namespace InnerLibs
         /// <returns></returns>
         public byte Alpha
         {
-            get
-            {
-                return _scolor.A;
-            }
+            get => _scolor.A;
 
             set
             {
@@ -366,15 +303,9 @@ namespace InnerLibs
         /// <returns></returns>
         public decimal Opacity
         {
-            get
-            {
-                return Alpha.ToDecimal().CalculatePercent(255m);
-            }
+            get => Alpha.ToDecimal().CalculatePercent(255m);
 
-            set
-            {
-                Alpha = decimal.ToByte(value.LimitRange(0, 100).CalculateValueFromPercent(255).LimitRange(0, 255));
-            }
+            set => Alpha = decimal.ToByte(value.LimitRange(0, 100).CalculateValueFromPercent(255).LimitRange(0, 255));
         }
 
         /// <summary>
@@ -383,10 +314,7 @@ namespace InnerLibs
         /// <returns></returns>
         public string Hexadecimal
         {
-            get
-            {
-                return _scolor.ToHexadecimal();
-            }
+            get => _scolor.ToHexadecimal();
 
             set
             {
@@ -437,140 +365,125 @@ namespace InnerLibs
 
                 if (IsMediumDark())
                 {
-                    m = m | ColorMood.MediumDark;
+                    m |= ColorMood.MediumDark;
                 }
                 else
                 {
-                    m = m | ColorMood.MediumLight;
+                    m |= ColorMood.MediumLight;
                 }
 
                 if (IsWarmer())
                 {
-                    m = m | ColorMood.Warmer;
+                    m |= ColorMood.Warmer;
                 }
 
                 if (IsWarm())
                 {
-                    m = m | ColorMood.Warm;
+                    m |= ColorMood.Warm;
                 }
 
                 if (IsCool())
                 {
-                    m = m | ColorMood.Cool;
+                    m |= ColorMood.Cool;
                 }
 
                 if (IsCooler())
                 {
-                    m = m | ColorMood.Cooler;
+                    m |= ColorMood.Cooler;
                 }
 
                 if (IsSad())
                 {
-                    m = m | ColorMood.Sad;
+                    m |= ColorMood.Sad;
                 }
                 else
                 {
-                    m = m | ColorMood.Happy;
+                    m |= ColorMood.Happy;
                 }
 
                 if (Opacity < 15m)
                 {
-                    m = m | ColorMood.Unvisible;
+                    m |= ColorMood.Invisible;
                 }
                 else if (Opacity < 60m)
                 {
-                    m = m | ColorMood.SemiVisible;
+                    m |= ColorMood.SemiVisible;
                 }
                 else
                 {
-                    m = m | ColorMood.Visible;
+                    m |= ColorMood.Visible;
                 }
 
                 if (Luminance >= 250d)
                 {
-                    m = m | ColorMood.LowLuminance;
+                    m |= ColorMood.LowLuminance;
                 }
                 else if (Luminance <= 15d)
                 {
-                    m = m | ColorMood.HighLuminance;
+                    m |= ColorMood.HighLuminance;
                 }
 
                 if (Red == 255)
                 {
-                    m = m | ColorMood.Red;
+                    m |= ColorMood.Red;
                 }
 
                 if (Green == 255)
                 {
-                    m = m | ColorMood.Green;
+                    m |= ColorMood.Green;
                 }
 
                 if (Blue == 255)
                 {
-                    m = m | ColorMood.Blue;
+                    m |= ColorMood.Blue;
                 }
 
                 if (Red == 0)
                 {
-                    m = m | ColorMood.NoRed;
+                    m |= ColorMood.NoRed;
                 }
 
                 if (Green == 0)
                 {
-                    m = m | ColorMood.NoGreen;
+                    m |= ColorMood.NoGreen;
                 }
 
                 if (Blue == 0)
                 {
-                    m = m | ColorMood.NoBlue;
+                    m |= ColorMood.NoBlue;
                 }
 
                 if (Red > Blue && Red > Green)
                 {
-                    m = m | ColorMood.MostRed;
+                    m |= ColorMood.MostRed;
                 }
 
                 if (Green > Red && Green > Blue)
                 {
-                    m = m | ColorMood.MostGreen;
+                    m |= ColorMood.MostGreen;
                 }
 
                 if (Blue > Red && Blue > Green)
                 {
-                    m = m | ColorMood.MostBlue;
+                    m |= ColorMood.MostBlue;
                 }
 
                 if (_scolor.IsKnownColor)
                 {
-                    m = m | ColorMood.KnowColor;
+                    m |= ColorMood.KnowColor;
                 }
 
                 return m;
             }
         }
 
-        public bool HasMood(params ColorMood[] Mood)
-        {
-            return Mood?.All(x => this.Mood.HasFlag(x)) == true;
-        }
+        public bool HasMood(params ColorMood[] Mood) => Mood?.All(x => this.Mood.HasFlag(x)) == true;
 
-        public bool HasAnyMood(params ColorMood[] Mood)
-        {
-            return Mood?.Any(x => this.Mood.HasFlag(x)) == true;
-        }
+        public bool HasAnyMood(params ColorMood[] Mood) => Mood?.Any(x => this.Mood.HasFlag(x)) == true;
 
-        public bool NotHasMood(params ColorMood[] Mood)
-        {
-            return Mood?.All(x => this.Mood.HasFlag(x) == false) == true;
-        }
+        public bool NotHasMood(params ColorMood[] Mood) => Mood?.All(x => this.Mood.HasFlag(x) == false) == true;
 
-        public object DominantValue
-        {
-            get
-            {
-                return new[] { Red, Green, Blue }.Max();
-            }
-        }
+        public int DominantValue => new[] { Red, Green, Blue }.Max();
 
         public HSVColor GetDominantColor()
         {
@@ -592,10 +505,7 @@ namespace InnerLibs
             return this;
         }
 
-        public Bitmap CreateSolidImage(int Width, int Height)
-        {
-            return new Bitmap(_scolor.CreateSolidImage(Width, Height));
-        }
+        public Bitmap CreateSolidImage(int Width, int Height) => new Bitmap(_scolor.CreateSolidImage(Width, Height));
 
         public Bitmap CreateSolidImage(string Size = "")
         {
@@ -603,13 +513,7 @@ namespace InnerLibs
             return CreateSolidImage(s.Width, s.Height);
         }
 
-        public Bitmap ImageSample
-        {
-            get
-            {
-                return (Bitmap)CreateSolidImage().DrawString(Name);
-            }
-        }
+        public Bitmap ImageSample => (Bitmap)CreateSolidImage().DrawString(Name);
 
         /// <summary>
         /// Nome atribuido a esta cor
@@ -617,28 +521,16 @@ namespace InnerLibs
         /// <returns></returns>
         public string Name
         {
-            get
-            {
-                return _name.IfBlank(ClosestColorName);
-            }
+            get => _name.IfBlank(ClosestColorName);
 
-            set
-            {
-                _name = value;
-            }
+            set => _name = value;
         }
 
         /// <summary>
         /// Nome original mais proximo desta cor
         /// </summary>
         /// <returns></returns>
-        public string ClosestColorName
-        {
-            get
-            {
-                return _scolor.GetClosestColorName();
-            }
-        }
+        public string ClosestColorName => _scolor.GetClosestColorName();
 
         /// <summary>
         /// Descricao desta cor
@@ -767,10 +659,7 @@ namespace InnerLibs
         /// Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
         /// </summary>
         /// <returns></returns>
-        public Color ToSystemColor()
-        {
-            return Color.FromArgb(Alpha, Red, Green, Blue);
-        }
+        public Color ToSystemColor() => Color.FromArgb(Alpha, Red, Green, Blue);
 
         /// <summary>
         /// Verifica se uma cor é legivel sobre outra cor
@@ -778,114 +667,69 @@ namespace InnerLibs
         /// <param name="BackgroundColor"></param>
         /// <param name="Size"></param>
         /// <returns></returns>
-        public bool IsReadable(HSVColor BackgroundColor, int Size = 10)
-        {
-            return _scolor.IsReadable(BackgroundColor._scolor, Size);
-        }
+        public bool IsReadable(HSVColor BackgroundColor, int Size = 10) => _scolor.IsReadable(BackgroundColor._scolor, Size);
 
         /// <summary>
         /// Retorna uma cor mais clara a partir desta cor
         /// </summary>
         /// <param name="Percent"></param>
         /// <returns></returns>
-        public HSVColor MakeLighter(float Percent = 50f)
-        {
-            return new HSVColor(_scolor.MakeLighter(Percent));
-        }
+        public HSVColor MakeLighter(float Percent = 50f) => new HSVColor(_scolor.MakeLighter(Percent));
 
         /// <summary>
         /// Retorna uma cor mais escura a partir desta cor
         /// </summary>
         /// <param name="Percent"></param>
         /// <returns></returns>
-        public HSVColor MakeDarker(float Percent = 50f)
-        {
-            return new HSVColor(_scolor.MakeDarker(Percent));
-        }
+        public HSVColor MakeDarker(float Percent = 50f) => new HSVColor(_scolor.MakeDarker(Percent));
 
         /// <summary>
         /// Verifica se uma cor e considerada clara
         /// </summary>
         /// <returns></returns>
-        public bool IsLight()
-        {
-            return Luminance.IsGreaterThan(160.0d);
-        }
+        public bool IsLight() => Luminance.IsGreaterThan(160.0d);
 
         /// <summary>
         /// Verifica se uma cor e considerada escura
         /// </summary>
         /// <returns></returns>
-        public bool IsDark()
-        {
-            return Luminance.IsLessThan(70.0d);
-        }
+        public bool IsDark() => Luminance.IsLessThan(70.0d);
 
         /// <summary>
         /// Verifica se uma cor e considerada Medio Clara
         /// </summary>
         /// <returns></returns>
-        public bool IsMediumLight()
-        {
-            return Luminance > 255d / 2d;
-        }
+        public bool IsMediumLight() => Luminance > 255d / 2d;
 
         /// <summary>
         /// Verifica se uma cor e considerada Medio Escura
         /// </summary>
         /// <returns></returns>
-        public bool IsMediumDark()
-        {
-            return !IsMediumLight();
-        }
+        public bool IsMediumDark() => !IsMediumLight();
 
         /// <summary>
         /// Verifica se uma cor e considerada média
         /// </summary>
         /// <returns></returns>
-        public bool IsMedium()
-        {
-            return Luminance.IsBetweenOrEqual(70.0d, 160.0d);
-        }
+        public bool IsMedium() => Luminance.IsBetweenOrEqual(70.0d, 160.0d);
 
-        public bool IsWarm()
-        {
-            return Hue.IsLessThan(90.0d) || Hue.IsGreaterThan(270.0d);
-        }
+        public bool IsWarm() => Hue.IsLessThan(90.0d) || Hue.IsGreaterThan(270.0d);
 
-        public bool IsWarmer()
-        {
-            return Hue.IsLessThan(45.0d) || Hue.IsGreaterThan(315.0d);
-        }
+        public bool IsWarmer() => Hue.IsLessThan(45.0d) || Hue.IsGreaterThan(315.0d);
 
-        public bool IsCool()
-        {
-            return !IsWarm();
-        }
+        public bool IsCool() => !IsWarm();
 
-        public bool IsCooler()
-        {
-            return Hue.IsLessThan(225.0d) || Hue.IsGreaterThan(135.0d);
-        }
+        public bool IsCooler() => Hue.IsLessThan(225.0d) || Hue.IsGreaterThan(135.0d);
 
-        public bool IsSad()
-        {
-            return Saturation.IsLessThan(0.5d) || Brightness.IsLessThan(0.75d);
-        }
+        public bool IsSad() => Saturation.IsLessThan(0.5d) || Brightness.IsLessThan(0.75d);
 
-        public bool IssHappy()
-        {
-            return !IsSad();
-        }
+        public bool IssHappy() => !IsSad();
 
         /// <summary>
         /// Retorna uma cópia desta cor
         /// </summary>
         /// <returns></returns>
-        public HSVColor Clone()
-        {
-            return new HSVColor(_scolor, Name) { Description = Description };
-        }
+        public HSVColor Clone() => new HSVColor(_scolor, Name) { Description = Description };
 
         /// <summary>
         /// Retorna a combinação de 2 cores
@@ -907,10 +751,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Color"></param>
         /// <returns></returns>
-        public double Distance(HSVColor Color)
-        {
-            return Math.Sqrt(3 * (Color.Red - Red) * (Color.Red - Red) + 4 * (Color.Green - Green) * (Color.Green - Green) + 2 * (Color.Blue - Blue) * (Color.Blue - Blue));
-        }
+        public double Distance(HSVColor Color) => Math.Sqrt(3 * (Color.Red - Red) * (Color.Red - Red) + 4 * (Color.Green - Green) * (Color.Green - Green) + 2 * (Color.Blue - Blue) * (Color.Blue - Blue));
 
         /// <summary>
         /// Retorna uma nova cor a partir da mistura multiplicativa de 2 cores
@@ -1012,10 +853,7 @@ namespace InnerLibs
             return c;
         }
 
-        public HSVColor ContrastColor()
-        {
-            return new HSVColor(_scolor.GetContrastColor());
-        }
+        public HSVColor ContrastColor() => new HSVColor(_scolor.GetContrastColor());
 
         /// <summary>
         /// Extrai a cor negativa desta cor
@@ -1090,255 +928,154 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
         /// <returns></returns>
-        public HSVColor[] ModColor(params int[] Degrees)
-        {
-            return (Degrees ?? Array.Empty<int>()).Select(x => new HSVColor() { Hue = (Hue + x) % 360d, Saturation = Saturation, Brightness = Brightness }).OrderBy(x => x.Hue).ToArray();
-        }
+        public HSVColor[] ModColor(params int[] Degrees) => (Degrees ?? Array.Empty<int>()).Select(x => new HSVColor() { Hue = (Hue + x) % 360d, Saturation = Saturation, Brightness = Brightness }).OrderBy(x => x.Hue).ToArray();
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         /// <summary>
         /// Retorna as cores Quadraadas (tetradicas) desta cor
         /// </summary>
         /// <param name="ExcludeMe"></param>
         /// <returns></returns>
-        public HSVColor[] Tetradic(bool ExcludeMe = false)
-        {
-            return Square(ExcludeMe);
-        }
+        public HSVColor[] Tetradic(bool ExcludeMe = false) => Square(ExcludeMe);
 
         /// <summary>
         /// Retorna as cores análogas desta cor
         /// </summary>
         /// <param name="ExcludeMe"></param>
         /// <returns></returns>
-        public HSVColor[] Analogous(bool ExcludeMe = false)
-        {
-            return ModColor(ExcludeMe, 45, -45);
-        }
+        public HSVColor[] Analogous(bool ExcludeMe = false) => ModColor(ExcludeMe, 45, -45);
 
         /// <summary>
         /// Retorna as cores Quadraadas (tetradicas) desta cor
         /// </summary>
         /// <param name="ExcludeMe"></param>
         /// <returns></returns>
-        public HSVColor[] Square(bool ExcludeMe = false)
-        {
-            return ModColor(ExcludeMe, 90, 180, 260);
-        }
+        public HSVColor[] Square(bool ExcludeMe = false) => ModColor(ExcludeMe, 90, 180, 260);
 
         /// <summary>
         /// Retorna as cores triadicas desta cor
         /// </summary>
         /// <param name="ExcludeMe"></param>
         /// <returns></returns>
-        public HSVColor[] Triadic(bool ExcludeMe = false)
-        {
-            return ModColor(ExcludeMe, 120, -120);
-        }
+        public HSVColor[] Triadic(bool ExcludeMe = false) => ModColor(ExcludeMe, 120, -120);
 
         /// <summary>
         /// Retorna as cores complementares desta cor
         /// </summary>
         /// <param name="ExcludeMe"></param>
         /// <returns></returns>
-        public HSVColor[] Complementary(bool ExcludeMe = false)
-        {
-            return ModColor(ExcludeMe, 180);
-        }
+        public HSVColor[] Complementary(bool ExcludeMe = false) => ModColor(ExcludeMe, 180);
 
         /// <summary>
         /// Retorna as cores split-complementares desta cor
         /// </summary>
         /// <param name="IncludeMe"></param>
         /// <returns></returns>
-        public HSVColor[] SplitComplementary(bool IncludeMe = false)
-        {
-            return ModColor(IncludeMe, 150, 210);
-        }
+        public HSVColor[] SplitComplementary(bool IncludeMe = false) => ModColor(IncludeMe, 150, 210);
 
         /// <summary>
         /// Retorna <paramref name="Amount"/> variacoes cores a partir da cor atual
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] Monochromatic(decimal Amount = 4m)
-        {
-            return ColorExtensions.MonochromaticPallete(_scolor, (int)Math.Round(Amount)).ToArray();
-        }
+        public HSVColor[] Monochromatic(decimal Amount = 4m) => ColorExtensions.MonochromaticPallete(_scolor, (int)Math.Round(Amount)).ToArray();
 
         /// <summary>
-        /// Retorna uma paleta de cores tetradica (Monochromatica + Tetradica)
+        /// Retorna uma paleta de cores tetradica (Monocromatica + Tetradica)
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] TetradicPallete(int Amount = 3)
-        {
-            return Monochromatic(Amount).SelectMany(item => item.Tetradic()).ToArray();
-        }
+        public HSVColor[] TetradicPallete(int Amount = 3) => Monochromatic(Amount).SelectMany(item => item.Tetradic()).ToArray();
 
         /// <summary>
-        /// Retorna uma paleta de cores triadica (Monochromatica + Triadica)
+        /// Retorna uma paleta de cores triadica (Monocromatica + Triadica)
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] TriadicPallete(int Amount = 3)
-        {
-            return Monochromatic(Amount).SelectMany(item => item.Triadic()).ToArray();
-        }
+        public HSVColor[] TriadicPallete(int Amount = 3) => Monochromatic(Amount).SelectMany(item => item.Triadic()).ToArray();
 
         /// <summary>
         /// Retorna uma paleta de cores complementares (complementares + monocromatica)
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] ComplementaryPallete(int Amount = 3)
-        {
-            return Monochromatic(Amount).SelectMany(item => item.Complementary()).ToArray();
-        }
+        public HSVColor[] ComplementaryPallete(int Amount = 3) => Monochromatic(Amount).SelectMany(item => item.Complementary()).ToArray();
 
         /// <summary>
         /// Retorna uma paleta de cores split-complementares (split-complementares + monocromatica)
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] SplitComplementaryPallete(int Amount = 3)
-        {
-            return Monochromatic(Amount).SelectMany(item => item.SplitComplementary()).ToArray();
-        }
+        public HSVColor[] SplitComplementaryPallete(int Amount = 3) => Monochromatic(Amount).SelectMany(item => item.SplitComplementary()).ToArray();
 
-        public int CompareTo(int other)
-        {
-            return ARGB.CompareTo(other);
-        }
+        public int CompareTo(int other) => ARGB.CompareTo(other);
 
-        public int CompareTo(HSVColor other)
-        {
-            return ARGB.CompareTo(other?.ARGB);
-        }
+        public int CompareTo(HSVColor other) => ARGB.CompareTo(other?.ARGB);
 
-        public int CompareTo(Color other)
-        {
-            return CompareTo(new HSVColor(other));
-        }
+        public int CompareTo(Color other) => CompareTo(new HSVColor(other));
 
-        public int CompareTo(object obj)
-        {
-            return CompareTo(new HSVColor(obj?.ToString()));
-        }
+        public int CompareTo(object obj) => CompareTo(new HSVColor(obj?.ToString()));
 
-        public static HSVColor operator +(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.Combine(Color2);
-        }
+        public static HSVColor operator +(HSVColor Color1, HSVColor Color2) => Color1.Combine(Color2);
 
-        public static HSVColor operator +(Color Color1, HSVColor Color2)
-        {
-            return new HSVColor(Color1).Combine(Color2);
-        }
+        public static HSVColor operator +(Color Color1, HSVColor Color2) => new HSVColor(Color1).Combine(Color2);
 
-        public static HSVColor operator +(HSVColor Color1, Color Color2)
-        {
-            return new HSVColor(Color2).Combine(Color1);
-        }
+        public static HSVColor operator +(HSVColor Color1, Color Color2) => new HSVColor(Color2).Combine(Color1);
 
-        public static HSVColor operator %(HSVColor Color, int Degrees)
-        {
-            return Color.ModColor(true, Degrees).FirstOrDefault();
-        }
+        public static HSVColor operator %(HSVColor Color, int Degrees) => Color.ModColor(true, Degrees).FirstOrDefault();
 
-        public static bool operator >(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.CompareTo(Color2) > 0;
-        }
+        public static bool operator >(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) > 0;
 
-        public static bool operator <(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.CompareTo(Color2) < 0;
-        }
+        public static bool operator <(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) < 0;
 
-        public static bool operator >=(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.CompareTo(Color2) >= 0;
-        }
+        public static bool operator >=(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) >= 0;
 
-        public static bool operator <=(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.CompareTo(Color2) <= 0;
-        }
+        public static bool operator <=(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) <= 0;
 
-        public static bool operator ==(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.CompareTo(Color2) == 0;
-        }
+        public static bool operator ==(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) == 0;
 
-        public static bool operator !=(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.CompareTo(Color2) != 0;
-        }
+        public static bool operator !=(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) != 0;
 
-        public static HSVColor operator -(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.Difference(Color2);
-        }
+        public static HSVColor operator -(HSVColor Color1, HSVColor Color2) => Color1.Difference(Color2);
 
-        public static HSVColor operator -(Color Color1, HSVColor Color2)
-        {
-            return new HSVColor(Color1).Difference(Color2);
-        }
+        public static HSVColor operator -(Color Color1, HSVColor Color2) => new HSVColor(Color1).Difference(Color2);
 
-        public static HSVColor operator -(HSVColor Color1, Color Color2)
-        {
-            return new HSVColor(Color2).Difference(Color1);
-        }
+        public static HSVColor operator -(HSVColor Color1, Color Color2) => new HSVColor(Color2).Difference(Color1);
 
-        public static HSVColor operator *(HSVColor Color1, HSVColor Color2)
-        {
-            return Color1.Multiply(Color2);
-        }
+        public static HSVColor operator *(HSVColor Color1, HSVColor Color2) => Color1.Multiply(Color2);
 
-        public static HSVColor operator *(Color Color1, HSVColor Color2)
-        {
-            return new HSVColor(Color1).Multiply(Color2);
-        }
+        public static HSVColor operator *(Color Color1, HSVColor Color2) => new HSVColor(Color1).Multiply(Color2);
 
-        public static HSVColor operator *(HSVColor Color1, Color Color2)
-        {
-            return new HSVColor(Color2).Multiply(Color1);
-        }
+        public static HSVColor operator *(HSVColor Color1, Color Color2) => new HSVColor(Color2).Multiply(Color1);
 
-        public static implicit operator int(HSVColor Color)
-        {
-            return Color.ARGB;
-        }
+        public static implicit operator int(HSVColor Color) => Color.ARGB;
 
-        public static implicit operator HSVColor(int Value)
-        {
-            return new HSVColor(Color.FromArgb(Value));
-        }
+        public static implicit operator HSVColor(int Value) => new HSVColor(Color.FromArgb(Value));
 
-        public static implicit operator HSVColor(Color Value)
-        {
-            return new HSVColor(Value);
-        }
+        public static implicit operator HSVColor(Color Value) => new HSVColor(Value);
 
-        public static implicit operator Color(HSVColor Value)
-        {
-            return Value.ToSystemColor();
-        }
+        public static implicit operator Color(HSVColor Value) => Value.ToSystemColor();
 
-        public static implicit operator HSVColor(string Value)
-        {
-            return new HSVColor(Value);
-        }
+        public static implicit operator HSVColor(string Value) => new HSVColor(Value);
 
-        public static implicit operator string(HSVColor Value)
-        {
-            return Value.Hexadecimal;
-        }
+        public static implicit operator string(HSVColor Value) => Value.Hexadecimal;
+
+        public static bool operator <(HSVColor left, int right) => left.CompareTo(right) < 0;
+
+        public static bool operator <=(HSVColor left, int right) => left.CompareTo(right) <= 0;
+
+        public static bool operator >(HSVColor left, int right) => left.CompareTo(right) > 0;
+
+        public static bool operator >=(HSVColor left, int right) => left.CompareTo(right) >= 0;
+
+        public static bool operator <(HSVColor left, Color right) => left.CompareTo(right) < 0;
+
+        public static bool operator <=(HSVColor left, Color right) => left.CompareTo(right) <= 0;
+
+        public static bool operator >(HSVColor left, Color right) => left.CompareTo(right) > 0;
+
+        public static bool operator >=(HSVColor left, Color right) => left.CompareTo(right) >= 0;
     }
 
     [Flags]
@@ -1360,7 +1097,7 @@ namespace InnerLibs
         Warmer = 1024,
         Ice = Blue | NoRed | Cooler,
         Fire = Red | NoBlue | Warmer,
-        Unvisible = 2048,
+        Invisible = 2048,
         SemiVisible = 4096,
         Visible = 8192,
         LowLuminance = 16384,
