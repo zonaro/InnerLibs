@@ -5570,7 +5570,7 @@ namespace InnerLibs
         /// <returns></returns>
         public override string ToString()
         {
-            return this.SelectJoin(x => $"{x.Key.ToTitle()}={x.Value}", ";");
+            return this.SelectJoinString(x => $"{x.Key.ToTitle()}={x.Value}", ";");
         }
 
         public static implicit operator string(ConnectionStringParser cs)
@@ -5634,7 +5634,7 @@ namespace InnerLibs
         {
             TagName = TagName.RemoveAny("/", @"\");
             Attributes = Attributes ?? new Dictionary<string, string>();
-            return $"<{TagName.IfBlank("div")} {Attributes.SelectJoin(x => x.Key.ToLower() + "=" + x.Value.Wrap())}>{InnerHtml}</{TagName.IfBlank("div")}>";
+            return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => x.Key.ToLower() + "=" + x.Value.Wrap())}>{InnerHtml}</{TagName.IfBlank("div")}>";
         }
 
         public static implicit operator string(HtmlTag Tag)

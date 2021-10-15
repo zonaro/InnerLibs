@@ -292,7 +292,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToFullExceptionString(this Exception ex, string Separator = " >> ")
         {
-            return ex.Traverse(x => x.InnerException).SelectJoin(x => x.Message, Separator);
+            return ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace InnerLibs
             string param = "";
             if (Dic != null)
             {
-                return Dic.Where(x => x.Key.IsNotBlank()).SelectJoin(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.JoinString("="), "&");
+                return Dic.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.JoinString("="), "&");
             }
 
             return "";
@@ -318,7 +318,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToQueryString(this NameValueCollection NVC)
         {
-            return NVC.AllKeys.SelectManyJoin(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
+            return NVC.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
         }
 
         /// <summary>

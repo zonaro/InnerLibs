@@ -293,11 +293,11 @@ namespace InnerLibs
                                 lista.AddRange((IEnumerable<string>)CC);
                             }
 
-                            string emails = lista.SelectJoin(x => x.ToString(), ",");
+                            string emails = lista.SelectJoinString(x => x.ToString(), ",");
                             Smtp.Send(From.ToString(), emails, subj, msg);
                             if (Bcc.Any())
                             {
-                                Smtp.Send(From.ToString(), Bcc.SelectJoin(x => x.ToString(), ","), subj, msg);
+                                Smtp.Send(From.ToString(), Bcc.SelectJoinString(x => x.ToString(), ","), subj, msg);
                             }
 
                             if (SuccessAction != null)

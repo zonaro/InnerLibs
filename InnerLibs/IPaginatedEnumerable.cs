@@ -277,7 +277,7 @@ namespace InnerLibs.LINQ
 
                     if (v.Any())
                     {
-                        querystring = new[] { querystring, v.SelectJoin(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).JoinString("&");
+                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).JoinString("&");
                     }
                 }
             }
@@ -1896,7 +1896,7 @@ namespace InnerLibs.LINQ
             if (Enabled || ForceEnabled)
             {
                 string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLower().IsNotAny("", "=", "==", "===")).UrlEncode();
-                return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsNotBlank()).SelectJoin(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
+                return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsNotBlank()).SelectJoinString(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
             }
 
             return "";

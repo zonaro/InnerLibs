@@ -233,7 +233,7 @@ namespace InnerLibs
     /// <returns></returns>
         public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0)
         {
-            return new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoin(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoin(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoin(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), Arrays.EndOfSentencePunctuation.FirstRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
+            return new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), Arrays.EndOfSentencePunctuation.FirstRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
         }
 
         /// <summary>

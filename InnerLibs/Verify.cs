@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs
@@ -24,7 +23,7 @@ namespace InnerLibs
         public static bool IsValidCNH(this string cnh)
         {
             bool isValid = false;
-            char firstChar = cnh[0];
+            // char firstChar = cnh[0];
             if (cnh.Length == 11 && (cnh ?? "") != (new string('1', 11) ?? ""))
             {
                 int dsc = 0;
@@ -68,10 +67,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">CPF ou CNPJ</param>
         /// <returns></returns>
-        public static bool IsValidCPFOrCNPJ(this string Text)
-        {
-            return Text.IsValidCPF() || Text.IsValidCNPJ();
-        }
+        public static bool IsValidCPFOrCNPJ(this string Text) => Text.IsValidCPF() || Text.IsValidCNPJ();
 
         /// <summary>
         /// Verifica se a string é um CPF válido
@@ -98,7 +94,7 @@ namespace InnerLibs
 
                 return digito[0] == Text[9] & digito[1] == Text[10];
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -109,10 +105,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CEP"></param>
         /// <returns></returns>
-        public static bool IsValidCEP(this string CEP)
-        {
-            return new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8;
-        }
+        public static bool IsValidCEP(this string CEP) => new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
 
         /// <summary>
         /// Verifica se a string é um CNPJ válido
@@ -219,9 +212,7 @@ namespace InnerLibs
                     return false;
                 }
             }
-            catch (Exception ex)
-            {
-            }
+            catch { }
 
             // if has trailing slash then it's a directory
             if (new string[] { Conversions.ToString(Path.DirectorySeparatorChar), Conversions.ToString(Path.AltDirectorySeparatorChar) }.Any(x => Text.EndsWith(x)))
@@ -237,30 +228,21 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns>TRUE se o caminho for válido</returns>
-        public static bool IsPath(this string Text)
-        {
-            return Text.IsDirectoryPath() | Text.IsFilePath();
-        }
+        public static bool IsPath(this string Text) => Text.IsDirectoryPath() | Text.IsFilePath();
 
         /// <summary>
         /// Verifica se a string é um endereço IP válido
         /// </summary>
         /// <param name="IP">Endereco IP</param>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool IsIP(this string IP)
-        {
-            return Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
-        }
+        public static bool IsIP(this string IP) => Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
 
         /// <summary>
         /// Valida se a string é um telefone
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static bool IsTelephone(this string Text)
-        {
-            return new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
-        }
+        public static bool IsTelephone(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
 
         /// <summary>
         /// Verifica se o arquivo está em uso por outro procedimento
@@ -275,7 +257,7 @@ namespace InnerLibs
                 File.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
                 return false;
             }
-            catch (IOException ex)
+            catch
             {
                 return true;
             }
@@ -325,10 +307,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
         /// <returns>FALSE se for um numero, TRUE se não for um numero</returns>
-        public static bool IsNotNumber(this object Value)
-        {
-            return !Value.IsNumber();
-        }
+        public static bool IsNotNumber(this object Value) => !Value.IsNumber();
 
         /// <summary>
         /// Verifica se um determinado texto é um email
@@ -348,10 +327,7 @@ namespace InnerLibs
         /// <param name="Text">Texto a ser verificado</param>
         /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
 
-        public static bool IsURL(this string Text)
-        {
-            return Uri.TryCreate(Text, UriKind.Absolute, out _) && !Text.Contains(" ");
-        }
+        public static bool IsURL(this string Text) => Uri.TryCreate(Text, UriKind.Absolute, out _) && !Text.Contains(" ");
 
         /// <summary>
         /// Verifica se o dominio é válido (existe) em uma URL ou email
@@ -406,17 +382,7 @@ namespace InnerLibs
         /// <param name="Index">Posicao</param>
         /// <param name="ValueIfNoIndex">Valor se o mesmo nao existir</param>
         /// <returns></returns>
-        public static T IfNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfNoIndex = default)
-        {
-            try
-            {
-                return Arr.ElementAtOrDefault(Index);
-            }
-            catch
-            {
-                return ValueIfNoIndex;
-            }
-        }
+        public static T IfNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfNoIndex = default) => (Arr ?? Array.Empty<T>()).ElementAtOrDefault(Index) ?? ValueIfNoIndex;
 
         /// <summary>
         /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir ou seu valor for branco ou nothing
@@ -426,7 +392,7 @@ namespace InnerLibs
         /// <param name="Index">Posicao</param>
         /// <param name="ValueIfBlankOrNoIndex">Valor se o mesmo nao existir</param>
         /// <returns></returns>
-        public static T IfBlankOrNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfBlankOrNoIndex) => (Arr ?? Array.Empty<T>()).IfNoIndex(Index).IfBlank(ValueIfBlankOrNoIndex);
+        public static T IfBlankOrNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfBlankOrNoIndex) => (Arr ?? Array.Empty<T>()).IfNoIndex(Index, ValueIfBlankOrNoIndex).IfBlank(ValueIfBlankOrNoIndex);
 
         /// <summary>
         /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE

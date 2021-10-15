@@ -63,7 +63,7 @@ namespace InnerLibs.MicroORM
         {
             var _nova = new List<string>();
             foreach (var item in _columns ?? new List<string>())
-                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoin(x => x.UnQuote().Quote(QuoteChar), "."));
+                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.UnQuote().Quote(QuoteChar), "."));
             SetColumns(_nova.ToArray());
             return this;
         }
@@ -864,7 +864,7 @@ namespace InnerLibs.MicroORM
 
             if (_joins != null && _joins.Any())
             {
-                sql.Append(_joins.SelectJoin(j => string.Format(CultureInfo.InvariantCulture, " {0}", j), " "));
+                sql.Append(_joins.SelectJoinString(j => string.Format(CultureInfo.InvariantCulture, " {0}", j), " "));
             }
 
             if (_where != null)

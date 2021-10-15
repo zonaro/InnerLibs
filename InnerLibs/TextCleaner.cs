@@ -374,7 +374,7 @@ namespace InnerLibs
         /// <returns></returns>
         public override string ToString()
         {
-            return this.SelectJoin(parag => parag.ToString(Ident), Enumerable.Range(1, 1 + BreakLinesBetweenParagraph.SetMinValue(0)).SelectJoin(x => Environment.NewLine));
+            return this.SelectJoinString(parag => parag.ToString(Ident), Enumerable.Range(1, 1 + BreakLinesBetweenParagraph.SetMinValue(0)).SelectJoinString(x => Environment.NewLine));
         }
 
         /// <summary>

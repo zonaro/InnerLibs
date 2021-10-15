@@ -322,7 +322,7 @@ namespace InnerLibs.MicroORM
                 Keys = Dic.Keys.ToArray().Where(x => x.IsLikeAny(Keys)).ToArray();
             }
 
-            string sql = "EXEC " + ProcedureName + " " + Keys.SelectJoin(key => " @" + key + " = " + "@__" + key, ", ");
+            string sql = "EXEC " + ProcedureName + " " + Keys.SelectJoinString(key => " @" + key + " = " + "@__" + key, ", ");
             return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value));
         }
 
@@ -395,7 +395,7 @@ namespace InnerLibs.MicroORM
                 }
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"INSERT INTO " + TableName.BlankCoalesce(d.Name, "#TableName") + " ({0}) values ({1})", dic.Keys.JoinString(","), dic.Keys.SelectJoin(x => $"@__{x}", ","));
+                cmd.CommandText = string.Format($"INSERT INTO " + TableName.BlankCoalesce(d.Name, "#TableName") + " ({0}) values ({1})", dic.Keys.JoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
                 foreach (var k in dic.Keys)
                 {
                     var param = cmd.CreateParameter();

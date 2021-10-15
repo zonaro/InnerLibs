@@ -995,7 +995,7 @@ namespace InnerLibs.LINQ
         {
             if (Type != null)
             {
-                return Type.Name.CamelSplit().SelectJoin(x => x.FirstOrDefault().IfBlank(""), "").ToLower();
+                return Type.Name.CamelSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(""), "").ToLower();
             }
 
             return "p";
@@ -1451,7 +1451,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static string SelectJoin<TSource>(this IEnumerable<TSource> Source, string Separator = "")
         {
-            return Source.SelectJoin(null, Separator);
+            return Source.SelectJoinString(null, Separator);
         }
 
         /// <summary>
@@ -1462,9 +1462,9 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"> </param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoin<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "")
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "")
         {
-            Selector = Selector ?? (x => x.ToString());
+            Selector ??= (x => x.ToString());
             return Source.Select(Selector).JoinString(Separator);
         }
 
@@ -1476,10 +1476,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"> </param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoin<TSource>(this IQueryable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "")
-        {
-            return Source.AsEnumerable().SelectJoin(Selector, Separator);
-        }
+        public static string SelectJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "") => Source.AsEnumerable().SelectJoinString(Selector, Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -1489,9 +1486,9 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"> </param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoin<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "")
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "")
         {
-            Selector = Selector ?? (x => new[] { x.ToString() });
+            Selector ??= (x => new[] { x.ToString() });
             return Source.SelectMany(Selector).JoinString(Separator);
         }
 
@@ -1505,7 +1502,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static string SelectManyJoin<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = ";")
         {
-            return Source.AsEnumerable().SelectManyJoin(Selector, Separator);
+            return Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
         }
 
         /// <summary>
@@ -1530,6 +1527,8 @@ namespace InnerLibs.LINQ
                 foreach (var item in items.Where(i => !Priority(i)).OrderBy(i => i)) yield return item;
             }
         }
+
+        
 
         /// <summary>
         /// Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades

@@ -243,17 +243,17 @@ namespace InnerLibs
 
             if (Emails.IsNotNullOrEmpty())
             {
-                result = result.AppendLine(Emails.SelectJoin(x => x.ToString(), Environment.NewLine));
+                result = result.AppendLine(Emails.SelectJoinString(x => x.ToString(), Environment.NewLine));
             }
 
             if (Telephones.IsNotNullOrEmpty())
             {
-                result = result.AppendLine(Telephones.SelectJoin(x => x.ToString(), Environment.NewLine));
+                result = result.AppendLine(Telephones.SelectJoinString(x => x.ToString(), Environment.NewLine));
             }
 
             if (Addresses.IsNotNullOrEmpty())
             {
-                result = result.AppendLine(Addresses.SelectJoin(x => x.ToString(), Environment.NewLine));
+                result = result.AppendLine(Addresses.SelectJoinString(x => x.ToString(), Environment.NewLine));
             }
 
             if (JobTitle.IsNotBlank())
@@ -273,7 +273,7 @@ namespace InnerLibs
 
             if (URLs.IsNotNullOrEmpty())
             {
-                result = result.AppendLine(URLs.SelectJoin(x => x.ToString(), Environment.NewLine));
+                result = result.AppendLine(URLs.SelectJoinString(x => x.ToString(), Environment.NewLine));
             }
 
             if (Note.IsNotBlank())
@@ -283,7 +283,7 @@ namespace InnerLibs
 
             if (Social.IsNotNullOrEmpty())
             {
-                result = result.AppendLine(Social.SelectJoin(x => x.ToString(), ","));
+                result = result.AppendLine(Social.SelectJoinString(x => x.ToString(), ","));
             }
 
             result = result.AppendLine($"REV:{LastModified.ToUniversalTime().ToString(@"yyyyMMdd\THHmmss\Z")}");
