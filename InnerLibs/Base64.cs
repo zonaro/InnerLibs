@@ -132,7 +132,7 @@ namespace InnerLibs
             {
                 return new DataURI(Text).ToString().IsNotBlank();
             }
-            catch (Exception ex)
+            catch  
             {
                 return false;
             }

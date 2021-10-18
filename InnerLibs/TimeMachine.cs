@@ -16,13 +16,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Fort">Quinzena</param>
         /// <returns></returns>
-        public new IEnumerable<DataType> this[Fortnight Fort]
-        {
-            get
-            {
-                return this[Fort.Key];
-            }
-        }
+        public IEnumerable<DataType> this[Fortnight Fort] => this[Fort.Key];
 
         /// <summary>
         /// Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada em <paramref name="Key"/>

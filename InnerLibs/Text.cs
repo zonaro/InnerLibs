@@ -110,7 +110,7 @@ namespace InnerLibs
             {
                 return new ConnectionStringParser(ConnectionString);
             }
-            catch  
+            catch
             {
                 return new ConnectionStringParser();
             }
@@ -913,9 +913,9 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto correspondente</param>
         /// <returns>String fixada</returns>
-        public static string FixBreakLines(this string Text)
+        public static string FixHTMLBreakLines(this string Text)
         {
-            return Text.ReplaceMany(Constants.vbCr + Constants.vbLf, "<br/>", "<br />", "<br>");
+            Text = Text.ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
             return Text.Replace("&nbsp;", " ");
         }
 
@@ -1171,7 +1171,7 @@ namespace InnerLibs
                     {
                         return Text.Substring((int)Math.Round(Text.Length / 2d - 1d), Length);
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         return Text.GetMiddleChars(Length - 1);
                     }
@@ -1373,9 +1373,8 @@ namespace InnerLibs
         public static IOrderedEnumerable<string> GetWords(this string Text)
         {
             var txt = new List<string>();
-            var palavras = Text.AdjustWhiteSpaces().FixBreakLines().ToLower().RemoveHTML().Split(Arrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            foreach (var w in palavras)
-                txt.Add(w);
+            var palavras = Text.AdjustWhiteSpaces().FixHTMLBreakLines().ToLower().RemoveHTML().Split(Arrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            foreach (var w in palavras) txt.Add(w);
             return txt.Distinct().OrderBy(x => x);
         }
 
@@ -1712,7 +1711,7 @@ namespace InnerLibs
                 // Extract the text from the StreamReader.
                 Result = sReader.ReadToEnd();
             }
-            catch (XmlException generatedExceptionName)
+            catch (XmlException)
             {
             }
             finally
@@ -1818,7 +1817,6 @@ namespace InnerLibs
                     {
                         OutQuantity = Converter.ToDecimal(QuantityOrListOrBoolean);
                         return PluralText.Singularize(); // de acordo com as normas do portugues, quando a quantidade esperada maxima for 1, zero também é singular.
-                        break;
                     }
 
                 case object _ when QuantityOrListOrBoolean.IsNumber():
@@ -4996,7 +4994,6 @@ namespace InnerLibs
                     case "And":
                         {
                             continue;
-                            break;
                         }
 
                     default:
@@ -5088,7 +5085,6 @@ namespace InnerLibs
                             return strArray[(int)((long)Math.Round(Number) / 10L - 2L)] + And.Wrap(" ") + InExtensive(Number % 10m);
                         }
 
-                        break;
                     }
 
                 case 100m:
@@ -5108,7 +5104,6 @@ namespace InnerLibs
                             return strArray[(int)((long)Math.Round(Number) / 100L - 1L)] + And.Wrap(" ") + InExtensive(Number % 100m);
                         }
 
-                        break;
                     }
 
                 case var case4 when 1000m <= case4 && case4 <= 1999m:
@@ -5139,7 +5134,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 case var case6 when 2000m <= case6 && case6 <= 999999m:
@@ -5162,7 +5156,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 #region Milhao
@@ -5195,7 +5188,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 case var case10 when 2000000m <= case10 && case10 <= 999999999m:
@@ -5226,7 +5218,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 #endregion Milhao
@@ -5261,7 +5252,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 case var case14 when 2000000000m <= case14 && case14 <= 999999999999m:
@@ -5292,7 +5282,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 #endregion Bilhao
@@ -5327,7 +5316,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
                 // 9.223.372.036.854.775.807
                 case var case18 when 2000000000000m <= case18 && case18 <= 999999999999999m:
@@ -5358,7 +5346,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 #endregion Trilhao
@@ -5393,7 +5380,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 case var case22 when 2000000000000000m <= case22 && case22 <= 999999999999999999m:
@@ -5424,7 +5410,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 #endregion Quadilhao
@@ -5459,7 +5444,6 @@ namespace InnerLibs
                                 }
                         }
 
-                        break;
                     }
 
                 case var case26 when 2000000000000000000m <= case26 && case26 <= 999999999999999999999m:
@@ -5492,7 +5476,6 @@ namespace InnerLibs
                                 #endregion Quintilhao
                         }
 
-                        break;
                     }
 
                 default:
@@ -5557,7 +5540,7 @@ namespace InnerLibs
                 foreach (var ii in ConnectionString.IfBlank("").SplitAny(";").Select(t => t.Split(new char[] { '=' }, 2)).ToDictionary(t => t[0].Trim(), t => t[1].Trim(), StringComparer.InvariantCultureIgnoreCase))
                     this.Set(ii.Key.ToTitle(true), ii.Value);
             }
-            catch (Exception ex)
+            catch
             {
             }
 

@@ -167,7 +167,7 @@ namespace InnerLibs.QuestionTest
             {
                 return (T)this.Where(q => (q.ID.ToLower() ?? "") == (ID.ToLower() ?? "")).First();
             }
-            catch (Exception ex)
+            catch 
             {
                 return null;
             }
@@ -184,7 +184,7 @@ namespace InnerLibs.QuestionTest
             {
                 return (Alternative)GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.Where(a => (a.ID.ToLower() ?? "") == (ID.ToLower() ?? ""));
             }
-            catch (Exception ex)
+            catch  
             {
                 return null;
             }
@@ -283,7 +283,7 @@ namespace InnerLibs.QuestionTest
             {
                 try
                 {
-                    int correct = 0;
+                    
                     int somapesos = 0;
                     int somaquestoes = 0;
                     foreach (var q in this)
@@ -294,7 +294,7 @@ namespace InnerLibs.QuestionTest
 
                     return Weight * somaquestoes / Count;
                 }
-                catch (Exception ex)
+                catch  
                 {
                     return 0m;
                 }
@@ -397,22 +397,13 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public abstract class Question
     {
-        public Question()
-        {
-            _statement = new QuestionStatement() { _question = this };
-        }
+        public Question() => _statement = new QuestionStatement() { _question = this };
 
         /// <summary>
-        /// Tipo da QUestão
+        /// Tipo da Questão
         /// </summary>
         /// <returns></returns>
-        public string QuestionType
-        {
-            get
-            {
-                return GetType().Name;
-            }
-        }
+        public string QuestionType => GetType().Name;
 
         /// <summary>
         /// Teste a qual esta questão pertence
@@ -550,24 +541,21 @@ namespace InnerLibs.QuestionTest
             this.Statement = Statement;
         }
 
-        public new void Add(Image Image, string Subtitle = "")
+        public   void Add(Image Image, string Subtitle = "")
         {
             var i = new StatementImage(this);
             i.Image = Image;
             i.Subtitle = Subtitle;
         }
 
-        public new void Add(string ImagePath, string Subtitle = "")
+        public   void Add(string ImagePath, string Subtitle = "")
         {
             var i = new StatementImage(this);
-            i.Image = File.ReadAllBytes(ImagePath).ToImage();
+            i.Image = Image.FromFile(ImagePath);
             i.Subtitle = Subtitle;
         }
 
-        public override string ToString()
-        {
-            return Count.ToString();
-        }
+        public override string ToString() => Count.ToString();
     }
 
     /// <summary>
@@ -576,18 +564,9 @@ namespace InnerLibs.QuestionTest
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class QuestionStatement
     {
-        internal QuestionStatement()
-        {
-            this.Images = new StatementImages(this);
-        }
+        internal QuestionStatement() => this.Images = new StatementImages(this);
 
-        public Question Question
-        {
-            get
-            {
-                return _question;
-            }
-        }
+        public Question Question => _question;
 
         internal Question _question;
         internal string _text = "";

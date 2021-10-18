@@ -66,7 +66,7 @@ namespace InnerLibs
                     i = i * Alphabet.Length + Alphabet.IndexOf(c);
                 return i;
             }
-            catch (Exception ex)
+            catch  
             {
                 return -1;
             }

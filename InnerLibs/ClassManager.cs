@@ -302,7 +302,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToQueryString(this Dictionary<string, string> Dic)
         {
-            string param = "";
+
             if (Dic != null)
             {
                 return Dic.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.JoinString("="), "&");

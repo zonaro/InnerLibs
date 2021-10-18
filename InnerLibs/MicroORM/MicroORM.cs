@@ -78,7 +78,7 @@ namespace InnerLibs.MicroORM
         internal string _having;
         internal List<string> _orderBy;
         internal string _offset;
-        internal bool _desc;
+       
 
         public Select<T> AddColumns<O>(O Obj = null) where O : class
         {
@@ -101,7 +101,7 @@ namespace InnerLibs.MicroORM
         public Select<T> AddColumns(params string[] Columns)
         {
             Columns = (Columns ?? Array.Empty<string>()).SelectMany(x => x.Split(",")).Distinct().Where(x => x.IsNotBlank()).ToArray();
-            _columns = _columns ?? new List<string>();
+            _columns ??= new List<string>();
             _columns.AddRange(Columns);
             return this;
         }

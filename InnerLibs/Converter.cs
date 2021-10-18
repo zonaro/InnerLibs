@@ -553,7 +553,7 @@ namespace InnerLibs
 
                                 case object _ when Verify.IsDate(result[key]):
                                     {
-                                        break;
+                                        
                                         l.Add(Convert.ToDateTime(result[key]));
                                         break;
                                     }

@@ -234,20 +234,14 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public new OnlineUser<UserType, IdType> Add(UserType User)
-        {
-            return Add(User, default, null, null);
-        }
+        public OnlineUser<UserType, IdType> Add(UserType User) => Add(User, default, null, null);
 
         /// <summary>
         /// Adciona varios usuarios a esta lista
         /// </summary>
         /// <param name="Users"></param>
         /// <returns></returns>
-        public new IEnumerable<OnlineUser<UserType, IdType>> Add(IEnumerable<UserType> Users)
-        {
-            return AddMany(Users.ToArray());
-        }
+        public   IEnumerable<OnlineUser<UserType, IdType>> Add(IEnumerable<UserType> Users) => AddMany(Users.ToArray());
 
         /// <summary>
         /// Adciona varios usuarios a esta lista
@@ -266,7 +260,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public new OnlineUser<UserType, IdType> Add(UserType Obj, bool? Online = default, string Activity = null, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
+        public   OnlineUser<UserType, IdType> Add(UserType Obj, bool? Online = default, string Activity = null, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
         {
             if (Obj != null)
             {
@@ -349,9 +343,9 @@ namespace InnerLibs.Online
         /// Remove um usuário desta lista
         /// </summary>
         /// <param name="Obj"></param>
-        public new void Remove(params UserType[] Obj)
+        public   void Remove(params UserType[] Obj)
         {
-            Obj = Obj ?? Array.Empty<UserType>();
+            Obj ??= Array.Empty<UserType>();
             this.RemoveIfExist(Obj.Select(x => GetID(x)).ToArray());
         }
 

@@ -807,7 +807,7 @@ namespace InnerLibs
                         }
                 }
             }
-            catch (Exception ex)
+            catch  
             {
             }
 

@@ -308,7 +308,7 @@ namespace InnerLibs
                     default:
                         {
                             throw new Exception("Invalid Youtube or Vimeo URL");
-                            break;
+                         
                         }
                 }
             }

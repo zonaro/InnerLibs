@@ -46,7 +46,7 @@ namespace InnerLibs
                         {
                             d.Delete(true);
                         }
-                        catch (Exception ex)
+                        catch
                         {
                         }
                     }
@@ -63,7 +63,7 @@ namespace InnerLibs
                         {
                             d.Delete();
                         }
-                        catch (Exception ex)
+                        catch
                         {
                         }
                     }
@@ -260,19 +260,19 @@ namespace InnerLibs
                 case var @case when @case == typeof(FileInfo):
                     {
                         return (IEnumerable<FindType>)Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate);
-                        break;
+
                     }
 
                 case var case1 when case1 == typeof(DirectoryInfo):
                     {
                         return (IEnumerable<FindType>)Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate);
-                        break;
+
                     }
 
                 default:
                     {
                         return (IEnumerable<FindType>)Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate);
-                        break;
+
                     }
             }
         }

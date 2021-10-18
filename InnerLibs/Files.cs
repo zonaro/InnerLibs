@@ -119,7 +119,7 @@ namespace InnerLibs
                     return f.ReadToEnd();
                 }
             }
-            catch (Exception ex)
+            catch  
             {
                 return null;
             }

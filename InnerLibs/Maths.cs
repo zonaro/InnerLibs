@@ -469,7 +469,7 @@ namespace InnerLibs
             {
                 return Math.Ceiling(Number);
             }
-            catch (Exception ex)
+            catch  
             {
                 return 0m;
             }
@@ -487,7 +487,7 @@ namespace InnerLibs
             {
                 return Math.Ceiling(Number);
             }
-            catch (Exception ex)
+            catch 
             {
                 return 0d;
             }
@@ -504,7 +504,7 @@ namespace InnerLibs
             {
                 return Math.Floor(Number);
             }
-            catch (Exception ex)
+            catch  
             {
                 return 0m;
             }
@@ -521,7 +521,7 @@ namespace InnerLibs
             {
                 return Math.Floor(Number);
             }
-            catch (Exception ex)
+            catch  
             {
                 return 0d;
             }

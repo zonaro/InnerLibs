@@ -83,13 +83,12 @@ namespace InnerLibs
 
         private void exp(params decimal?[] numbers)
         {
-            numbers = numbers ?? Array.Empty<decimal?>();
+            numbers ??= Array.Empty<decimal?>();
             switch (true)
             {
                 case object _ when numbers.Count() < 3:
                     {
                         throw new NoNullAllowedException("Three numbers need to be known to make a rule of three");
-                        break;
                     }
 
                 case object _ when numbers.Count() == 3:
@@ -106,13 +105,11 @@ namespace InnerLibs
                         if (numbers.All(x => x.HasValue))
                         {
                             throw new NoNullAllowedException("One of numbers must be NULL");
-                            break;
                         }
 
                         if (numbers.Count(x => x.HasValue) < 3)
                         {
                             throw new NoNullAllowedException("Three numbers need to be known to make a rule of three");
-                            break;
                         }
 
                         FirstEquation.X = numbers.IfNoIndex(0);

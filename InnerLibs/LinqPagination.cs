@@ -200,7 +200,7 @@ namespace InnerLibs.LINQ
             {
                 e1type = ((LambdaExpression)e1).ReturnType;
             }
-            catch (Exception ex)
+            catch
             {
             }
 
@@ -208,7 +208,7 @@ namespace InnerLibs.LINQ
             {
                 e2type = ((LambdaExpression)e2).ReturnType;
             }
-            catch (Exception ex)
+            catch
             {
             }
 
@@ -385,7 +385,7 @@ namespace InnerLibs.LINQ
                             {
                                 exp = Member.Equal(CreateConstant(Member, item));
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 exp = Expression.Constant(false);
                                 continue;
@@ -432,7 +432,7 @@ namespace InnerLibs.LINQ
                             {
                                 exp = GreaterThanOrEqual(Member, CreateConstant(Member, item));
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 exp = Expression.Constant(false);
                                 continue;
@@ -478,7 +478,7 @@ namespace InnerLibs.LINQ
                             {
                                 exp = LessThanOrEqual(Member, CreateConstant(Member, item));
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 exp = Expression.Constant(false);
                                 continue;
@@ -518,7 +518,7 @@ namespace InnerLibs.LINQ
                             {
                                 exp = GreaterThan(Member, CreateConstant(Member, item));
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 continue;
                             }
@@ -556,7 +556,7 @@ namespace InnerLibs.LINQ
                             {
                                 exp = LessThan(Member, CreateConstant(Member, item));
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 continue;
                             }
@@ -594,7 +594,7 @@ namespace InnerLibs.LINQ
                             {
                                 exp = NotEqual(Member, CreateConstant(Member, item));
                             }
-                            catch (Exception ex)
+                            catch
                             {
                                 continue;
                             }
@@ -695,7 +695,7 @@ namespace InnerLibs.LINQ
                                         {
                                             exp = Expression.Equal(Expression.Call(Member, startsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
                                         }
-                                        catch (Exception ex)
+                                        catch
                                         {
                                             continue;
                                         }
@@ -748,7 +748,7 @@ namespace InnerLibs.LINQ
                                         {
                                             exp = Expression.Equal(Expression.Call(Member, endsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
                                         }
-                                        catch (Exception ex)
+                                        catch
                                         {
                                             continue;
                                         }
@@ -799,7 +799,7 @@ namespace InnerLibs.LINQ
                                         {
                                             exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
                                         }
-                                        catch (Exception ex)
+                                        catch 
                                         {
                                             continue;
                                         }
@@ -850,7 +850,7 @@ namespace InnerLibs.LINQ
                                         {
                                             exp = Expression.Equal(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Constant(comparewith));
                                         }
-                                        catch (Exception ex)
+                                        catch
                                         {
                                             continue;
                                         }
@@ -903,7 +903,7 @@ namespace InnerLibs.LINQ
                                         {
                                             exp = Expression.Equal(Expression.OrElse(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Call(Member, containsMethod, Expression.Constant(item.ToString()))), Expression.Constant(comparewith));
                                         }
-                                        catch (Exception ex)
+                                        catch
                                         {
                                             continue;
                                         }
@@ -961,7 +961,7 @@ namespace InnerLibs.LINQ
                                 body = Expression.OrElse(body, exp);
                             }
                         }
-                        catch (Exception ex)
+                        catch  
                         {
                         }
 
@@ -1528,7 +1528,7 @@ namespace InnerLibs.LINQ
             }
         }
 
-        
+
 
         /// <summary>
         /// Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades

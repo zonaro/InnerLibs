@@ -213,7 +213,7 @@ namespace InnerLibs
             {
                 this.Word = Word.Split(" ")[0];
             }
-            catch (Exception ex)
+            catch  
             {
                 this.Word = Word;
             }
@@ -314,7 +314,7 @@ namespace InnerLibs
                     {
                         frasesaida += Conversions.ToString(sb[0]);
                     }
-                    catch (Exception ex)
+                    catch  
                     {
                     }
 

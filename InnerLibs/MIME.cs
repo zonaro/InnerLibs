@@ -53,7 +53,7 @@ namespace InnerLibs
                     }
                 }
             }
-            catch (Exception ex)
+            catch  
             {
             }
 
@@ -91,7 +91,7 @@ namespace InnerLibs
             {
                 return Icon.ExtractAssociatedIcon(File.FullName);
             }
-            catch (Exception ex)
+            catch  
             {
                 return SystemIcons.WinLogo;
             }
@@ -272,7 +272,7 @@ namespace InnerLibs
             {
                 return new DataURI(MimeTypeOrExtensionOrPathOrDataURI).ToFileType();
             }
-            catch (Exception ex)
+            catch  
             {
             }
 
@@ -285,7 +285,7 @@ namespace InnerLibs
                     ismime = false;
                 }
             }
-            catch (Exception ex)
+            catch  
             {
             }
 

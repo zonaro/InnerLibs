@@ -1017,7 +1017,7 @@ namespace InnerLibs
 
         public int CompareTo(object obj) => CompareTo(new HSVColor(obj?.ToString()));
 
-        
+
 
         public static HSVColor operator +(HSVColor Color1, HSVColor Color2) => Color1.Combine(Color2);
 
@@ -1078,6 +1078,20 @@ namespace InnerLibs
         public static bool operator >(HSVColor left, Color right) => left.CompareTo(right) > 0;
 
         public static bool operator >=(HSVColor left, Color right) => left.CompareTo(right) >= 0;
+
+        public override bool Equals(object obj)
+        {
+            try
+            {
+                return (HSVColor)obj == this;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode() => HashCode.Combine(this.ARGB);
     }
 
     [Flags]

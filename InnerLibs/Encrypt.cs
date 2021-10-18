@@ -201,7 +201,7 @@ namespace InnerLibs
                         var dest = ddecrypt.TransformFinalBlock(src, 0, src.Length);
                         return new UTF8Encoding(false).GetString(dest);
                     }
-                    catch (Exception ex)
+                    catch  
                     {
                     }
                 }

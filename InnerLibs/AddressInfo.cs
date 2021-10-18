@@ -577,7 +577,7 @@ namespace InnerLibs.Locations
                     {
                         d["DDD"] = cep["ddd"]?.InnerText;
                     }
-                    catch (Exception ex)
+                    catch  
                     {
                     }
 
@@ -585,7 +585,7 @@ namespace InnerLibs.Locations
                     {
                         d["IBGE"] = cep["ibge"]?.InnerText;
                     }
-                    catch (Exception ex)
+                    catch  
                     {
                     }
 
@@ -593,7 +593,7 @@ namespace InnerLibs.Locations
                     {
                         d["GIA"] = cep["gia"]?.InnerText;
                     }
-                    catch (Exception ex)
+                    catch  
                     {
                     }
 
@@ -601,7 +601,7 @@ namespace InnerLibs.Locations
                     {
                         d["SIAFI"] = cep["SIAFI"]?.InnerText;
                     }
-                    catch (Exception ex)
+                    catch  
                     {
                     }
 
@@ -609,7 +609,7 @@ namespace InnerLibs.Locations
                     d.CountryCode = "BR";
                 }
             }
-            catch (Exception ex)
+            catch  
             {
             }
 

@@ -7,8 +7,7 @@ namespace InnerLibs
 {
     public class JSMin
     {
-        private const int EOF = -1;
-        private StringReader sr;
+        private const int EOF = -1;   
         private string sw = "";
         private int theA;
         private int theB;
@@ -231,7 +230,7 @@ namespace InnerLibs
                                 }
                             }
 
-                            break;
+                          
                         }
 
                     case var case1 when case1 == Strings.AscW("*"):
@@ -255,12 +254,12 @@ namespace InnerLibs
                                     case EOF:
                                         {
                                             throw new Exception("Error: JSMIN Unterminated comment." + Constants.vbLf);
-                                            break;
+                                            
                                         }
                                 }
                             }
 
-                            break;
+                         
                         }
 
                     default:
