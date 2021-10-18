@@ -224,7 +224,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Verifica se uma string é um caminho de diretório válido
+        /// Verifica se uma string é um caminho de arquivo ou diretório válido
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns>TRUE se o caminho for válido</returns>
