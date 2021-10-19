@@ -7,59 +7,59 @@ namespace InnerLibs
 {
 
     /// <summary>
-/// Modulo para manipulação de numeros romanos
-/// </summary>
-/// <remarks></remarks>
+    /// Modulo para manipulação de numeros romanos
+    /// </summary>
+    /// <remarks></remarks>
     public static class Romanize
     {
         /// <summary>
-    /// Lista de algarismos romanos
-    /// </summary>
+        /// Lista de algarismos romanos
+        /// </summary>
 
         public enum RomanDigit
         {
             /// <summary>
-        /// Valor correspondente
-        /// </summary>
+            /// Valor correspondente
+            /// </summary>
 
             I = 1,
             /// <summary>
-        /// Valor correspondente
-        /// </summary>
+            /// Valor correspondente
+            /// </summary>
 
             V = 5,
             /// <summary>
-        /// Valor correspondente
-        /// </summary>
+            /// Valor correspondente
+            /// </summary>
 
             X = 10,
             /// <summary>
-        /// Valor correspondente
-        /// </summary>
+            /// Valor correspondente
+            /// </summary>
 
             L = 50,
             /// <summary>
-        /// Valor correspondente
-        /// </summary>
+            /// Valor correspondente
+            /// </summary>
 
             C = 100,
             /// <summary>
-        /// Valor correspondente
-        /// </summary>
+            /// Valor correspondente
+            /// </summary>
 
             D = 500,
             /// <summary>
-        /// Valor correspondente
-        /// </summary>
+            /// Valor correspondente
+            /// </summary>
 
             M = 1000
         }
 
         /// <summary>
-    /// Converte uma String contendo um numero romano para seu valor arabico
-    /// </summary>
-    /// <param name="RomanNumber">Stringo contendo o numero romano</param>
-    /// <returns>Valor em arabico</returns>
+        /// Converte uma String contendo um numero romano para seu valor arabico
+        /// </summary>
+        /// <param name="RomanNumber">String contendo o numero romano</param>
+        /// <returns>Valor em arabico</returns>
 
         public static int ToArabic(this string RomanNumber)
         {
@@ -73,7 +73,7 @@ namespace InnerLibs
             // aparecer apenas uma vez em cada numeral romano. Esta regra permite XVI, mas não VIV.
             if (RomanNumber.Split('V').Length > 2 || RomanNumber.Split('L').Length > 2 || RomanNumber.Split('D').Length > 2)
             {
-                throw new ArgumentException("Número romano com algarismos inválidos. O número possui um algarismo V,L ou D repetido.");
+                throw new ArgumentException("Roman number with invalid numerals. The number has a V, L or D number repeated.");
             }
 
             // Uma única letra pode ser repetida até três vezes consecutivamente sendo
@@ -86,7 +86,7 @@ namespace InnerLibs
                 // caractere inválido ?
                 if ("IVXLCDM".IndexOf(numeral) == -1)
                 {
-                    throw new ArgumentException("O algarismo com posicionamento inválido.");
+                    throw new ArgumentException("Roman number with invalid positioning.");
                 }
 
                 // Duplicado?
@@ -95,7 +95,7 @@ namespace InnerLibs
                     contador += 1;
                     if (contador == 4)
                     {
-                        throw new ArgumentException("Um algarismo romano não pode ser repetido mais de 3 vezes no mesmo número.");
+                        throw new ArgumentException("A Roman number can not be repeated more than 3 times in the same number.");
                     }
                 }
                 else
@@ -121,15 +121,14 @@ namespace InnerLibs
                 // Valores como MCMD ou CMC não são permitidos
                 if (digito > digitoMaximo)
                 {
-                    throw new ArgumentException("Algarísmo com posicionamento inválido.");
+                    throw new ArgumentException("Roman number with invalid positioning.");
                 }
 
-                // proximo digito
-                int proximoDigito = 0;
                 if (ptr < RomanNumber.Length - 1)
                 {
                     char proximoNumeral = RomanNumber[ptr + 1];
-                    proximoDigito = Conversions.ToInteger(Enum.Parse(typeof(RomanDigit), proximoNumeral.ToString()));
+                    // proximo digito
+                    int proximoDigito = Conversions.ToInteger(Enum.Parse(typeof(RomanDigit), proximoNumeral.ToString()));
                     if (proximoDigito > digito)
                     {
                         if ("IXC".IndexOf(numeral) == -1 || proximoDigito > digito * 10 || RomanNumber.Split(numeral).Length > 3)
@@ -151,14 +150,14 @@ namespace InnerLibs
 
             // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da esquerda para a direita.
             // O valor nunca deve aumentar a partir de uma letra para a próxima.
-            // Onde houver um numeral subtractivo, esta regra se aplica ao valor
+            // Onde houver um numeral subtrativo, esta regra se aplica ao valor
             // combinado dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
             // Isto significa que XIX é aceitável, mas XIM e IIV não são.
             for (int i = 0, loopTo = valores.Count - 2; i <= loopTo; i++)
             {
                 if (Conversions.ToInteger(valores[i]) < Conversions.ToInteger(valores[i + 1]))
                 {
-                    throw new ArgumentException("Algarismo romano inválido. Neste caso o algarismo não pode ser maior que o anterior.");
+                    throw new ArgumentException("Invalid Roman number.In this case the digit can not be greater than the previous one.");
                 }
             }
 
@@ -171,10 +170,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Converte um valor numérico arabico para numero romano
-    /// </summary>
-    /// <param name="ArabicNumber">Valor numerico arabico</param>
-    /// <returns>uma string com o numero romano</returns>
+        /// Converte um valor numérico arabico para numero romano
+        /// </summary>
+        /// <param name="ArabicNumber">Valor numerico arabico</param>
+        /// <returns>uma string com o numero romano</returns>
 
         public static string ToRoman(this int ArabicNumber)
         {
@@ -182,7 +181,8 @@ namespace InnerLibs
             if (ArabicNumber < 1 || ArabicNumber > 3999)
             {
                 ArabicNumber = ArabicNumber.LimitRange(1, 3999);
-                Debug.Write("O valor numérico deve estar entre 1 e 3999.", "ArabicNumber");
+                Debug.Write("The numeric value must be between 1 and 3999.", "ArabicNumber");
+                return "+" + ToRoman(ArabicNumber);
             }
 
             var algarismosArabicos = new int[] { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
