@@ -102,6 +102,26 @@ namespace InnerLibs
             return Dic;
         }
 
+        public static IDictionary<KeyType, ValueType> SetOrRemove<KeyType, ValueType, KT, VT>(this IDictionary<KeyType, ValueType> Dic, KT Key, VT Value)
+        {
+
+            if (Key != null)
+            {
+                if (Value != null)
+                {
+                    Dic[Key.ChangeType<KeyType, KT>()] = Value.ChangeType<ValueType, VT>();
+
+                }
+                else
+                {
+                    Dic.RemoveIfExist(Key.ChangeType<KeyType, KT>());
+                }
+            }
+
+            return Dic;
+
+        }
+
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List)
         {
             return List.NullAsEmpty().Any();
