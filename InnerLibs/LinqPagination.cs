@@ -233,46 +233,91 @@ namespace InnerLibs.LINQ
             }
         }
 
+        /// <summary>
+        /// Constroi uma expressão Maior ou Igual
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
         public static BinaryExpression GreaterThanOrEqual(this Expression MemberExpression, Expression ValueExpression)
         {
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.GreaterThanOrEqual(MemberExpression, ValueExpression);
         }
 
+        /// <summary>
+        /// Constroi uma expressão Menor ou igual
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
         public static BinaryExpression LessThanOrEqual(this Expression MemberExpression, Expression ValueExpression)
         {
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.LessThanOrEqual(MemberExpression, ValueExpression);
         }
-
+        /// <summary>
+        /// Constroi uma expressão Maior que
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
         public static BinaryExpression GreaterThan(this Expression MemberExpression, Expression ValueExpression)
         {
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.GreaterThan(MemberExpression, ValueExpression);
         }
 
+        /// <summary>
+        /// Constroi uma expressão Menor que
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
         public static BinaryExpression LessThan(this Expression MemberExpression, Expression ValueExpression)
         {
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.LessThan(MemberExpression, ValueExpression);
         }
-
+        /// <summary>
+        /// Constroi uma expressão igual a
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
         public static BinaryExpression Equal(this Expression MemberExpression, Expression ValueExpression)
         {
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.Equal(MemberExpression, ValueExpression);
         }
 
+        /// <summary>
+        /// Constroi uma expressão diferente de
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
         public static BinaryExpression NotEqual(this Expression MemberExpression, Expression ValueExpression)
         {
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.NotEqual(MemberExpression, ValueExpression);
         }
 
-        public static ConstantExpression CreateConstant(Expression Member, IComparable Value)
-        {
-            return CreateConstant(Member.Type, Value);
-        }
+        /// <summary>
+        /// Cria uma constante a partir de um valor para ser usada em expressões lambda
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
+        public static ConstantExpression CreateConstant(Expression Member, IComparable Value) => CreateConstant(Member.Type, Value);
+
+
+        /// <summary>
+        /// Cria uma constante a partir de um tipo para ser usada em expressões lambda
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
 
         public static ConstantExpression CreateConstant(Type Type, IComparable Value)
         {
@@ -283,14 +328,16 @@ namespace InnerLibs.LINQ
 
             return Expression.Constant(Value.ChangeType(Type));
         }
-
-        public static ConstantExpression CreateConstant<Type>(IComparable Value)
-        {
-            return CreateConstant(typeof(Type), Value);
-        }
+        /// <summary>
+        /// Cria uma constante a partir de um tipo genérico para ser usada em expressões lambda
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
+        public static ConstantExpression CreateConstant<Type>(IComparable Value) => CreateConstant(typeof(Type), Value);
 
         /// <summary>
-        /// Retorna uma expressão de comparação para um ou mais valores
+        /// Retorna uma expressão de comparação para um ou mais valores e uma ou mais propriedades
         /// </summary>
         /// <param name="Member"></param>
         /// <param name="[Operator]"></param>
@@ -621,8 +668,9 @@ namespace InnerLibs.LINQ
                         break;
                     }
 
-                case "between":
-                case "btw":
+                case "betweenequal":
+                case "betweenorequal":
+                case "btweq":
                 case "=><=":
                     {
                         if (PropertyValues.Count() > 1)
@@ -653,6 +701,10 @@ namespace InnerLibs.LINQ
                     }
 
                 case "><":
+                case "startend":
+                case "startends":
+                case "btw":
+                case "between":
                     {
                         if (PropertyValues.Count() > 1)
                         {
@@ -799,7 +851,7 @@ namespace InnerLibs.LINQ
                                         {
                                             exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
                                         }
-                                        catch 
+                                        catch
                                         {
                                             continue;
                                         }
@@ -932,7 +984,7 @@ namespace InnerLibs.LINQ
 
                             default:
                                 {
-                                    // 'TODO: implementar busca de array de inteiro,data etc
+                                    //TODO: implementar busca de array de inteiro,data etc
                                     body = GetOperatorExpression(Member, "equal".PrependIf("!", !comparewith), PropertyValues, Conditional);
                                     break;
                                 }
@@ -941,12 +993,12 @@ namespace InnerLibs.LINQ
                         break;
                     }
 
-                default:
+                default: // Executa um metodo com o nome definido pelo usuario que retorna uma expression compativel
                     {
                         try
                         {
-                            var mettodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLower() ?? "") == (Operator.ToLower() ?? ""));
-                            Expression exp = (Expression)mettodo.Invoke(null, new[] { PropertyValues });
+                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLower() ?? "") == (Operator.ToLower() ?? ""));
+                            Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
                             exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
                             if (body is null)
                             {
@@ -961,7 +1013,7 @@ namespace InnerLibs.LINQ
                                 body = Expression.OrElse(body, exp);
                             }
                         }
-                        catch  
+                        catch
                         {
                         }
 
@@ -976,20 +1028,14 @@ namespace InnerLibs.LINQ
         /// Cria uma ParameterExpression utilizando o tipo para gerar um nome amigável
         /// </summary>
         /// <returns></returns>
-        public static ParameterExpression GenerateParameterExpression<ClassType>()
-        {
-            return typeof(ClassType).GenerateParameterExpression();
-        }
+        public static ParameterExpression GenerateParameterExpression<ClassType>() => typeof(ClassType).GenerateParameterExpression();
 
         /// <summary>
         /// Cria uma ParameterExpression utilizando o tipo para gerar um nome amigável
         /// </summary>
         /// <param name="Type"></param>
         /// <returns></returns>
-        public static ParameterExpression GenerateParameterExpression(this Type Type)
-        {
-            return Expression.Parameter(Type, Type.GenerateParameterName());
-        }
+        public static ParameterExpression GenerateParameterExpression(this Type Type) => Expression.Parameter(Type, Type.GenerateParameterName());
 
         public static string GenerateParameterName(this Type Type)
         {
@@ -1011,10 +1057,7 @@ namespace InnerLibs.LINQ
         /// <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
         /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
         /// <returns></returns>
-        public static T FirstOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true)
-        {
-            return List.FirstOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
-        }
+        public static T FirstOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.FirstOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
 
         /// <summary>
         /// Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
