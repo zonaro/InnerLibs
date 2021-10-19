@@ -576,50 +576,32 @@ namespace InnerLibs.MicroORM
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo <typeparamref name="T"/>
         /// </summary>
-        public static IEnumerable<T?> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) where T : struct
-        {
-            return Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault()?.ChangeType<T>());
-        }
+        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo <typeparamref name="T"/>
         /// </summary>
-        public static IEnumerable<T?> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL) where T : struct
-        {
-            return Connection.RunSQLArray<T>(Connection.CreateCommand(SQL));
-        }
+        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL));
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
         /// </summary>
-        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, DbCommand Command)
-        {
-            return Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
-        }
+        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, DbCommand Command) => Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
         /// </summary>
-        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL)
-        {
-            return Connection.RunSQLArray(Connection.CreateCommand(SQL));
-        }
+        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLArray(Connection.CreateCommand(SQL));
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of Object, Object)"/>
         /// </summary>
-        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL)
-        {
-            return Connection.RunSQLSet(SQL).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
-        }
+        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of Object, Object)"/>
         /// </summary>
-        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL)
-        {
-            return Connection.RunSQLPairs(Connection.CreateCommand(SQL));
-        }
+        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLPairs(Connection.CreateCommand(SQL));
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of K, V)"/>
