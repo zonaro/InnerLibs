@@ -164,11 +164,7 @@ namespace InnerLibs
         {
             get => _scolor.ToArgb();
 
-            set
-            {
-                _scolor = Color.FromArgb(value);
-                _loadColor(_scolor);
-            }
+            set => _loadColor(Color.FromArgb(value));
         }
 
         /// <summary>
@@ -245,11 +241,7 @@ namespace InnerLibs
         {
             get => _scolor.R;
 
-            set
-            {
-                _scolor = Color.FromArgb(Alpha, value.LimitRange<int>(0, 255), Green, Blue);
-                _loadColor(_scolor);
-            }
+            set => _loadColor(Color.FromArgb(Alpha, value.LimitRange<int>(0, 255), Green, Blue));
         }
 
         /// <summary>
@@ -260,11 +252,7 @@ namespace InnerLibs
         {
             get => _scolor.G;
 
-            set
-            {
-                _scolor = Color.FromArgb(Alpha, Red, value.LimitRange<int>(0, 255), Blue);
-                _loadColor(_scolor);
-            }
+            set => _loadColor(Color.FromArgb(Alpha, Red, value.LimitRange<int>(0, 255), Blue));
         }
 
         /// <summary>
@@ -275,11 +263,7 @@ namespace InnerLibs
         {
             get => _scolor.B;
 
-            set
-            {
-                _scolor = Color.FromArgb(Alpha, Red, Green, value.LimitRange<int>(0, 255));
-                _loadColor(_scolor);
-            }
+            set => _loadColor(Color.FromArgb(Alpha, Red, Green, value.LimitRange<int>(0, 255)));
         }
 
         /// <summary>
@@ -290,11 +274,7 @@ namespace InnerLibs
         {
             get => _scolor.A;
 
-            set
-            {
-                _scolor = Color.FromArgb(value.LimitRange<byte>(0, 255), Red, Green, Blue);
-                _loadColor(_scolor);
-            }
+            set => _loadColor(Color.FromArgb(value.LimitRange<byte>(0, 255), Red, Green, Blue));
         }
 
         /// <summary>
@@ -320,8 +300,7 @@ namespace InnerLibs
             {
                 if (value.IsHexaDecimalColor())
                 {
-                    _scolor = value.ToColor();
-                    _loadColor(_scolor);
+                    _loadColor(value.ToColor());
                 }
             }
         }
