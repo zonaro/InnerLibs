@@ -18,13 +18,13 @@ namespace InnerLibs
     {
 
       /// <summary>
-       /// Aplica um borrão aimagem
+       /// Aplica um borrão a imagem
        /// </summary>
        /// <param name="Img"></param>
        /// <param name="BlurSize"></param>
        /// <param name="rectangle"></param>
        /// <returns></returns>
-        public static Image Blur(Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new Rectangle(0, 0, Img.Width, Img.Height));
+        public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new Rectangle(0, 0, Img.Width, Img.Height));
 
        
        /// <summary>
@@ -34,7 +34,7 @@ namespace InnerLibs
        /// <param name="BlurSize"></param>
        /// <param name="rectangle"></param>
        /// <returns></returns>
-        private unsafe static Image Blur(Image Img, int BlurSize, Rectangle rectangle)
+        private unsafe static Image Blur(this Image Img, int BlurSize, Rectangle rectangle)
         {
             Bitmap blurred = new Bitmap(Img.Width, Img.Height);
 
