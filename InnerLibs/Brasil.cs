@@ -16,14 +16,14 @@ namespace InnerLibs.Locations
         /// Sigla do estado
         /// </summary>
         /// <returns></returns>
-        public State(string stateCode, string name, string region) 
+        public State(string stateCode, string name, string region)
         {
             this.StateCode = stateCode;
-    this.Name = name;
-    this.Region = region;
-   
+            this.Name = name;
+            this.Region = region;
+
         }
-                public string StateCode { get; set; }
+        public string StateCode { get; set; }
 
         /// <summary>
         /// Nome do estado
@@ -87,28 +87,23 @@ namespace InnerLibs.Locations
             {
                 if (!l.Any())
                 {
-                    using (var x = Assembly.GetExecutingAssembly().GetManifestResourceStream("InnerLibs.brasil.xml"))
+                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.brasil.xml");
+                    var doc = new XmlDocument();
+                    doc.LoadXml(s);
+                    foreach (XmlNode node in doc["brasil"].ChildNodes)
                     {
-                        using (var r = new StreamReader(x))
+                        var estado = new State
                         {
+                            StateCode = node["StateCode"].InnerText,
+                            Name = node["Name"].InnerText,
+                            Region = node["Region"].InnerText
+                        };
+                        var lc = new List<string>();
+                        foreach (XmlNode subnode in node["Cities"].ChildNodes)
+                            lc.Add(subnode.InnerText);
+                        estado.Cities = lc.AsEnumerable();
+                        l.Add(estado);
 
-                            string s = r.ReadToEnd().ToString();
-                            var doc = new XmlDocument();
-                            doc.LoadXml(s);
-                            foreach (XmlNode node in doc["brasil"].ChildNodes)
-                            {
-                                var estado = new State();
-                                estado.StateCode = node["StateCode"].InnerText;
-                                estado.Name = node["Name"].InnerText;
-                                estado.Region = node["Region"].InnerText;
-                                var lc = new List<string>();
-                                foreach (XmlNode subnode in node["Cities"].ChildNodes)
-                                    lc.Add(subnode.InnerText);
-                                estado.Cities = lc.AsEnumerable();
-                                l.Add(estado);
-                                
-                            }
-                        }
                     }
                 }
 
@@ -118,6 +113,7 @@ namespace InnerLibs.Locations
 
 
         private static List<State> l = new List<State>();
+
 
 
 

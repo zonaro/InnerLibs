@@ -972,13 +972,21 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetResourceFileText(this Assembly Assembly, string FileName)
         {
-            using (var d = new StreamReader(Assembly.GetManifestResourceStream(FileName)))
-            {
-                return d.ReadToEnd();
-            }
+            string txt = null;
+            if (Assembly != null && FileName.IsNotBlank())
+                using (var x = Assembly.GetManifestResourceStream(FileName))
+                {
+                    if (x != null)
+                        using (var r = new StreamReader(x))
+                        {
+                            txt = r.ReadToEnd();
+                        };
+
+                }
+            return txt;
         }
 
-        public static Tvalue GetValueOr<tkey, Tvalue>(this IDictionary<tkey, Tvalue> Dic, tkey Key, Tvalue ReplaceValue = default)
+        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default)
         {
             if (Dic != null && Dic.ContainsKey(Key))
             {

@@ -11,36 +11,36 @@ namespace InnerLibs
 {
 
     /// <summary>
-/// Módulo de manipulaçao de MIME Types
-/// </summary>
+    /// Módulo de manipulaçao de MIME Types
+    /// </summary>
     public static class FileTypeExtensions
     {
 
         /// <summary>
-    /// Retorna o Mime Type a partir da extensão de um arquivo
-    /// </summary>
-    /// <param name="Extension">extensão do arquivo</param>
-    /// <returns>string mime type</returns>
+        /// Retorna o Mime Type a partir da extensão de um arquivo
+        /// </summary>
+        /// <param name="Extension">extensão do arquivo</param>
+        /// <returns>string mime type</returns>
         public static List<string> GetFileType(this string Extension)
         {
             return (List<string>)FileType.GetFileType(Extension).GetMimeTypesOrDefault();
         }
 
         /// <summary>
-    /// Retorna o Mime Type a partir de um arquivo
-    /// </summary>
-    /// <param name="File">Arquivo</param>
-    /// <returns>string mime type</returns>
+        /// Retorna o Mime Type a partir de um arquivo
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns>string mime type</returns>
         public static List<string> GetFileType(this FileInfo File)
         {
             return File.Extension.GetFileType();
         }
 
         /// <summary>
-    /// Retorna o Mime Type a partir de de um formato de Imagem
-    /// </summary>
-    /// <param name="RawFormat">Formato de Imagem</param>
-    /// <returns>string mime type</returns>
+        /// Retorna o Mime Type a partir de de um formato de Imagem
+        /// </summary>
+        /// <param name="RawFormat">Formato de Imagem</param>
+        /// <returns>string mime type</returns>
         public static List<string> GetFileType(this ImageFormat RawFormat)
         {
             try
@@ -53,7 +53,7 @@ namespace InnerLibs
                     }
                 }
             }
-            catch  
+            catch
             {
             }
 
@@ -61,37 +61,31 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna o Mime Type a partir de de uma Imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns>string mime type</returns>
-        public static List<string> GetFileType(this Image Image)
-        {
-            return Image.RawFormat.GetFileType();
-        }
+        /// Retorna o Mime Type a partir de de uma Imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns>string mime type</returns>
+        public static List<string> GetFileType(this Image Image) => Image.RawFormat.GetFileType();
 
         /// <summary>
-    /// Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
-    /// </summary>
-    /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
-    /// <returns></returns>
-        public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI)
-        {
-            return new FileType(MimeTypeOrExtensionOrPathOrDataURI);
-        }
+        /// Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <returns></returns>
+        public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
 
         /// <summary>
-    /// Retorna um icone de acordo com o arquivo
-    /// </summary>
-    /// <param name="File">Arquivo</param>
-    /// <returns></returns>
+        /// Retorna um icone de acordo com o arquivo
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
         public static Icon GetIcon(this FileSystemInfo File)
         {
             try
             {
                 return Icon.ExtractAssociatedIcon(File.FullName);
             }
-            catch  
+            catch
             {
                 return SystemIcons.WinLogo;
             }
@@ -99,114 +93,84 @@ namespace InnerLibs
     }
 
     /// <summary>
-/// Classe que representa um MIME Type
-/// </summary>
+    /// Classe que representa um MIME Type
+    /// </summary>
     public class FileType
     {
 
         /// <summary>
-    /// Extensão do arquivo
-    /// </summary>
-    /// <returns></returns>
+        /// Extensão do arquivo
+        /// </summary>
+        /// <returns></returns>
         public List<string> Extensions { get; set; } = new List<string>();
 
         /// <summary>
-    /// Tipo do arquivo (MIME Type String)
-    /// </summary>
-    /// <returns></returns>
+        /// Tipo do arquivo (MIME Type String)
+        /// </summary>
+        /// <returns></returns>
         public List<string> MimeTypes { get; set; } = new List<string>();
 
-        public IEnumerable<string> GetMimeTypesOrDefault()
-        {
-            return (MimeTypes ?? new List<string>()).DefaultIfEmpty("application/octet-stream");
-        }
+        public IEnumerable<string> GetMimeTypesOrDefault() => (MimeTypes ?? new List<string>()).DefaultIfEmpty("application/octet-stream");
 
         /// <summary>
-    /// Descrição do tipo de arquivo
-    /// </summary>
-    /// <returns></returns>
+        /// Descrição do tipo de arquivo
+        /// </summary>
+        /// <returns></returns>
         public string Description { get; set; } = "Unknown File";
 
         /// <summary>
-    /// Verifica se Tipo de arquivo é de imagem
-    /// </summary>
-    /// <returns></returns>
-        public bool IsImage()
-        {
-            return FirstTypes.Contains("image");
-        }
+        /// Verifica se Tipo de arquivo é de imagem
+        /// </summary>
+        /// <returns></returns>
+        public bool IsImage() => FirstTypes.Contains("image");
 
         /// <summary>
-    /// Verifica se Tipo de arquivo é de audio
-    /// </summary>
-    /// <returns></returns>
-        public bool IsAudio()
-        {
-            return FirstTypes.Contains("audio");
-        }
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsAudio() => FirstTypes.Contains("audio");
 
         /// <summary>
-    /// Verifica se Tipo de arquivo é de audio
-    /// </summary>
-    /// <returns></returns>
-        public bool IsVideo()
-        {
-            return FirstTypes.Contains("video");
-        }
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsVideo() => FirstTypes.Contains("video");
 
         /// <summary>
-    /// Verifica se Tipo de arquivo é de audio
-    /// </summary>
-    /// <returns></returns>
-        public bool IsText()
-        {
-            return FirstTypes.Contains("text");
-        }
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsText() => FirstTypes.Contains("text");
 
         /// <summary>
-    /// Verifica se Tipo de arquivo é de audio
-    /// </summary>
-    /// <returns></returns>
-        public bool IsApplication()
-        {
-            return FirstTypes.Contains("application");
-        }
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsApplication() => FirstTypes.Contains("application");
 
         /// <summary>
-    /// Retorna o tipo do MIME Type (antes da barra)
-    /// </summary>
-    /// <returns></returns>
-        public IEnumerable<string> FirstTypes
-        {
-            get
-            {
-                return GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
-            }
-        }
+        /// Retorna o tipo do MIME Type (antes da barra)
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> FirstTypes => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
 
         /// <summary>
-    /// Retorna o subtipo do MIME Type (depois da barra)
-    /// </summary>
-    /// <returns></returns>
-        public IEnumerable<string> SubTypes
-        {
-            get
-            {
-                return GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetAfter("/")).Distinct();
-            }
-        }
+        /// Retorna o subtipo do MIME Type (depois da barra)
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> SubTypes => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetAfter("/")).Distinct();
 
         private static FileTypeList l = new FileTypeList();
 
         /// <summary>
-    /// Retorna uma Lista com todos os MIME Types suportados
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna uma Lista com todos os MIME Types suportados
+        /// </summary>
+        /// <returns></returns>
         public static FileTypeList GetFileTypeList(bool Reset = false)
         {
             if (Reset || l is null || l.Any() == false)
             {
-                string r = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.mimes.xml");
+                string r = ClassTools.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
                 var doc = new XmlDocument();
                 doc.LoadXml(r);
                 l = new FileTypeList();
@@ -229,19 +193,19 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma lista de strings contendo todos os MIME Types
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna uma lista de strings contendo todos os MIME Types
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null)
         {
             return (FileTypeList ?? GetFileTypeList()).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
         }
 
         /// <summary>
-    /// Traz uma lista de extensões de acordo com o MIME type especificado
-    /// </summary>
-    /// <param name="MIME">MIME Type String</param>
-    /// <returns></returns>
+        /// Traz uma lista de extensões de acordo com o MIME type especificado
+        /// </summary>
+        /// <param name="MIME">MIME Type String</param>
+        /// <returns></returns>
         public static List<string> GetExtensions(string MIME, FileTypeList FileTypeList = null)
         {
             foreach (FileType item in FileTypeList ?? GetFileTypeList())
@@ -261,10 +225,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string
-    /// </summary>
-    /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
-    /// <returns></returns>
+        /// Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <returns></returns>
         public static FileType GetFileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
         {
             bool ismime = true;
@@ -272,7 +236,7 @@ namespace InnerLibs
             {
                 return new DataURI(MimeTypeOrExtensionOrPathOrDataURI).ToFileType();
             }
-            catch  
+            catch
             {
             }
 
@@ -285,7 +249,7 @@ namespace InnerLibs
                     ismime = false;
                 }
             }
-            catch  
+            catch
             {
             }
 
@@ -303,25 +267,25 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Constroi um MIME Type Default
-    /// </summary>
+        /// Constroi um MIME Type Default
+        /// </summary>
         public FileType()
         {
         }
 
         /// <summary>
-    /// Constroi um File Type a partir de um Arquivo (FileInfo)
-    /// </summary>
-    /// <param name="File">Fileinfo com o Arquivo</param>
+        /// Constroi um File Type a partir de um Arquivo (FileInfo)
+        /// </summary>
+        /// <param name="File">Fileinfo com o Arquivo</param>
         public FileType(FileInfo File, FileTypeList FileTypeList = null)
         {
             Build(File.Extension, FileTypeList);
         }
 
         /// <summary>
-    /// Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
-    /// </summary>
-    /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
+        /// Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
         public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
         {
             Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
@@ -336,18 +300,18 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna uma string com o primeiro MIME TYPE do arquivo
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna uma string com o primeiro MIME TYPE do arquivo
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return GetMimeTypesOrDefault().First();
         }
 
         /// <summary>
-    /// Retorna uma string representando um filtro de caixa de dialogo WinForms
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna uma string representando um filtro de caixa de dialogo WinForms
+        /// </summary>
+        /// <returns></returns>
         public string ToFilterString()
         {
             string r = "";
@@ -359,64 +323,64 @@ namespace InnerLibs
     }
 
     /// <summary>
-/// Lista com Tipos de arquivo ultilizada para filtro e validação
-/// </summary>
+    /// Lista com Tipos de arquivo utilizada para filtro e validação
+    /// </summary>
     public class FileTypeList : List<FileType>
     {
 
         /// <summary>
-    /// Cria uma nova lista vazia
-    /// </summary>
+        /// Cria uma nova lista vazia
+        /// </summary>
         public FileTypeList()
         {
         }
 
 
         /// <summary>
-    /// Cria uma nova lista a partir de mime types, caminhos ou extensoes
-    /// </summary>
-    /// <param name="FileTypes">Tipos de Arquivos</param>
+        /// Cria uma nova lista a partir de mime types, caminhos ou extensoes
+        /// </summary>
+        /// <param name="FileTypes">Tipos de Arquivos</param>
         public FileTypeList(params string[] FileTypes) : this((FileTypes ?? Array.Empty<string>()).Select(x => new FileType(x)).ToArray())
         {
         }
 
         /// <summary>
-    /// Cria uma nova lista a partir de tipos de arquivos
-    /// </summary>
-    /// <param name="FileTypes">Tipos de Arquivos</param>
+        /// Cria uma nova lista a partir de tipos de arquivos
+        /// </summary>
+        /// <param name="FileTypes">Tipos de Arquivos</param>
         public FileTypeList(params FileType[] FileTypes)
         {
             AddRange(FileTypes ?? Array.Empty<FileType>());
         }
 
         /// <summary>
-    /// Cria uma nova lista a partir de uma lista de tipos de arquivos
-    /// </summary>
-    /// <param name="FileTypeList">Tipos de Arquivos</param>
+        /// Cria uma nova lista a partir de uma lista de tipos de arquivos
+        /// </summary>
+        /// <param name="FileTypeList">Tipos de Arquivos</param>
         public FileTypeList(List<FileType> FileTypeList) : this((FileTypeList ?? new List<FileType>()).ToArray())
         {
         }
 
         /// <summary>
-    /// Cria uma nova lista a partir de um critério de filtro
-    /// </summary>
-    /// <param name="predicate">Criterio de busca</param>
+        /// Cria uma nova lista a partir de um critério de filtro
+        /// </summary>
+        /// <param name="predicate">Criterio de busca</param>
         public FileTypeList(Func<FileType, bool> predicate) : this(null, predicate)
         {
         }
 
         /// <summary>
-    /// Cria uma nova lista a partir de um critério de filtro
-    /// </summary>
-    /// <param name="predicate">Criterio de busca</param>
+        /// Cria uma nova lista a partir de um critério de filtro
+        /// </summary>
+        /// <param name="predicate">Criterio de busca</param>
         public FileTypeList(FileTypeList FileTypeList, Func<FileType, bool> predicate) : this((FileTypeList ?? FileType.GetFileTypeList()).Where(predicate).ToArray())
         {
         }
 
         /// <summary>
-    /// Retorna uma string representando um filtro de caixa de dialogo WinForms
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna uma string representando um filtro de caixa de dialogo WinForms
+        /// </summary>
+        /// <returns></returns>
         public string ToFilterString()
         {
             string r = "";
@@ -426,20 +390,20 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Busca arquivos que correspondam com as extensões desta lista
-    /// </summary>
-    /// <param name="Directory">   Diretório</param>
-    /// <param name="SearchOption">Tipo de busca</param>
-    /// <returns></returns>
+        /// Busca arquivos que correspondam com as extensões desta lista
+        /// </summary>
+        /// <param name="Directory">   Diretório</param>
+        /// <param name="SearchOption">Tipo de busca</param>
+        /// <returns></returns>
         public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories)
         {
             return Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
         }
 
         /// <summary>
-    /// Retorna todas as extensões da lista
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna todas as extensões da lista
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> Extensions
         {
             get
@@ -449,9 +413,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna todas os MIME Types da lista
-    /// </summary>
-    /// <returns></returns>
+        /// Retorna todas os MIME Types da lista
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> MimeTypes
         {
             get
