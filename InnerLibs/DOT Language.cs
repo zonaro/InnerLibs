@@ -18,7 +18,7 @@ namespace InnerLibs.DOTLanguage
     }
 
     /// <summary>
-    /// Wrapper para criaçao de gráficos em DOT Language
+    /// Wrapper para criação de gráficos em DOT Language
     /// </summary>
     public class Graph : List<DotObject>
     {
@@ -59,15 +59,8 @@ namespace InnerLibs.DOTLanguage
     {
         public override string ID
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
     }
 
@@ -117,15 +110,9 @@ namespace InnerLibs.DOTLanguage
         /// <returns></returns>
         public override string ID
         {
-            get
-            {
-                return _id;
-            }
+            get => _id;
 
-            set
-            {
-                _id = value.ToSlugCase(true);
-            }
+            set => _id = value.ToSlugCase(true);
         }
 
         private string _id;
@@ -134,10 +121,7 @@ namespace InnerLibs.DOTLanguage
         /// Escreve a DOT string deste nó e seus respectivos nós filhos
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return ID + Attributes.ToString() + Environment.NewLine;
-        }
+        public override string ToString() => ID + Attributes.ToString() + Environment.NewLine;
     }
 
     /// <summary>
@@ -147,7 +131,7 @@ namespace InnerLibs.DOTLanguage
     {
 
         /// <summary>
-        /// Cria uma nova ligaçao
+        /// Cria uma nova ligação
         /// </summary>
         /// <param name="Oriented">Relação orientada</param>
         public DotEdge(DotNode ParentNode, DotNode ChildNode, bool Oriented = true)
@@ -167,19 +151,13 @@ namespace InnerLibs.DOTLanguage
 
         public override string ID
         {
-            get
-            {
-                return ParentNode.ID.ToSlugCase(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToSlugCase(true);
-            }
+            get => ParentNode.ID.ToSlugCase(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToSlugCase(true);
 
-            set
-            {
-                Debug.Write("Cannot change ID of a relation");
-            }
+            set => Debug.Write("Cannot change ID of a relation");
         }
 
         /// <summary>
-        /// Escreve a DOT String desta ligaçao
+        /// Escreve a DOT String desta ligação
         /// </summary>
         /// <returns></returns>
         public override string ToString()
