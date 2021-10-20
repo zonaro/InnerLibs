@@ -45,7 +45,7 @@ namespace InnerLibs
             {
                 // Convert the word to all uppercase
                 Text = Text.ToUpper();
-                // Conver to the word to a character array for faster processing
+                // Convert to the word to a character array for faster processing
                 var Chars = Text.ToCharArray();
                 // Buffer to build up with character codes
                 string Buffer = "";
@@ -159,24 +159,14 @@ namespace InnerLibs
     /// </summary>
     public sealed class Phonetic
     {
-        public override string ToString()
-        {
-            return SoundExCode;
-        }
+        public override string ToString() => SoundExCode;
 
         /// <summary>
         /// Compara o fonema de uma palavra em portugues com outra palavra
         /// </summary>
         /// <param name="Word">Palavra para comparar</param>
         /// <returns></returns>
-        public bool this[string Word]
-        {
-            get
-            {
-                return (new Phonetic(Word).SoundExCode ?? "") == (SoundExCode ?? "") | (Word ?? "") == (this.Word ?? "");
-            }
-
-        }
+        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? "") == (SoundExCode ?? "") | (Word ?? "") == (this.Word ?? "");
 
 
         /// <summary>

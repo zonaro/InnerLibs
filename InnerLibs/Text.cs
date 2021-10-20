@@ -55,10 +55,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string BoxTextCSS(this string Text)
-        {
-            return $"/*{Text.BoxText().Wrap(Environment.NewLine)}*/";
-        }
+        public static string BoxTextCSS(this string Text) => $"/*{Text.BoxText().Wrap(Environment.NewLine)}*/";
 
         /// <summary>
         /// Encapsula um texto em uma caixa
@@ -89,15 +86,9 @@ namespace InnerLibs
             return box;
         }
 
-        public static FormattableString ToFormattableString(this string Text, params object[] args)
-        {
-            return FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
-        }
+        public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
 
-        public static FormattableString ToFormattableString(this string Text, IEnumerable<object[]> args)
-        {
-            return FormattableStringFactory.Create(Text, args ?? Array.Empty<object[]>());
-        }
+        public static FormattableString ToFormattableString(this string Text, IEnumerable<object[]> args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object[]>());
 
         /// <summary>
         /// Parseia uma ConnectionString em um Dicionário
@@ -116,10 +107,7 @@ namespace InnerLibs
             }
         }
 
-        public static HtmlTag WrapInTag(this string Text, string TagName)
-        {
-            return new HtmlTag() { InnerHtml = Text, TagName = TagName };
-        }
+        public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
 
         /// <summary>
         ///
@@ -175,10 +163,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="Patterns"></param>
         /// <returns></returns>
-        public static bool IsLikeAny(this string Text, params string[] Patterns)
-        {
-            return Text.IsLikeAny((Patterns ?? Array.Empty<string>()).AsEnumerable());
-        }
+        public static bool IsLikeAny(this string Text, params string[] Patterns) => Text.IsLikeAny((Patterns ?? Array.Empty<string>()).AsEnumerable());
 
         /// <summary>
         /// operador LIKE do VB para C# em forma de extension method
@@ -186,10 +171,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="OtherText"></param>
         /// <returns></returns>
-        public static bool Like(this string Text, string OtherText)
-        {
-            return LikeOperator.LikeString(Text, OtherText, CompareMethod.Binary);
-        }
+        public static bool Like(this string Text, string OtherText) => LikeOperator.LikeString(Text, OtherText, CompareMethod.Binary);
 
         /// <summary>
         /// Formata um numero para CNPJ ou CNPJ se forem validos
@@ -216,10 +198,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CNPJ"></param>
         /// <returns></returns>
-        public static string FormatCNPJ(this long CNPJ)
-        {
-            return string.Format(@"{0:00\.000\.000\/0000\-00}", CNPJ);
-        }
+        public static string FormatCNPJ(this long CNPJ) => string.Format(@"{0:00\.000\.000\/0000\-00}", CNPJ);
 
         /// <summary>
         /// Formata um numero para CNPJ
@@ -246,10 +225,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CPF"></param>
         /// <returns></returns>
-        public static string FormatCPF(this long CPF)
-        {
-            return string.Format(@"{0:000\.000\.000\-00}", CPF);
-        }
+        public static string FormatCPF(this long CPF) => string.Format(@"{0:000\.000\.000\-00}", CPF);
 
         /// <summary>
         /// Formata um numero para CPF
@@ -272,15 +248,12 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna a string especificada se o valor booleano for verdadeiro
+        /// Retorna a string especificada se o valor boolean for verdadeiro
         /// </summary>
         /// <param name="Text"></param>
         /// <param name="BooleanValue"></param>
         /// <returns></returns>
-        public static string PrintIf(this string Text, bool BooleanValue)
-        {
-            return BooleanValue ? Text : "";
-        }
+        public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : "";
 
         /// <summary>
         /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
@@ -300,10 +273,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="SplitText"></param>
         /// <returns></returns>
-        public static string[] SplitAny(this string Text, IEnumerable<string> SplitText)
-        {
-            return Text.SplitAny(SplitText.ToArray());
-        }
+        public static string[] SplitAny(this string Text, IEnumerable<string> SplitText) => Text.SplitAny(SplitText.ToArray());
 
         /// <summary>
         /// Substitui a ultima ocorrencia de um texto por outro
@@ -341,10 +311,7 @@ namespace InnerLibs
             return Text;
         }
 
-        public static string AdjustBlankSpaces(this string Text)
-        {
-            return Text.AdjustWhiteSpaces();
-        }
+        public static string AdjustBlankSpaces(this string Text) => Text.AdjustWhiteSpaces();
 
         public static string AdjustWhiteSpaces(this string Text)
         {
@@ -455,7 +422,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string AppendIf(this string Text, string AppendText, Func<string, bool> Test)
         {
-            Test = Test ?? (x => false);
+            Test ??= (x => false);
             return Text.AppendIf(AppendText, Test(Text));
         }
 
@@ -467,7 +434,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test)
         {
-            Test = Test ?? (x => false);
+            Test ??= (x => false);
             return Text.PrependIf(PrependText, Test(Text));
         }
 
@@ -479,7 +446,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string PrependWhile(this string Text, string PrependText, Func<string, bool> Test)
         {
-            Test = Test ?? (x => false);
+            Test ??= (x => false);
 
             while (Test(Text))
                 Text = Text.Prepend(PrependText);
@@ -494,7 +461,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string AppendWhile(this string Text, string AppendText, Func<string, bool> Test)
         {
-            Test = Test ?? (x => false);
+            Test ??= (x => false);
             while (Test(Text))
                 Text = Text.Append(AppendText);
             return Text;
@@ -517,10 +484,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IEnumerable<string> CamelSplit(this string Text)
-        {
-            return Text.CamelAdjust().Split(" ");
-        }
+        public static IEnumerable<string> CamelSplit(this string Text) => Text.CamelAdjust().Split(" ");
 
         /// <summary>
         /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
@@ -542,7 +506,7 @@ namespace InnerLibs
                         Text += " ";
                     }
 
-                    uppercount = uppercount + 1;
+                    uppercount++;
                 }
                 else
                 {
@@ -565,10 +529,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToNormalCase(this string Text)
-        {
-            return Text.CamelAdjust().Replace("_", " ");
-        }
+        public static string ToNormalCase(this string Text) => Text.CamelAdjust().Replace("_", " ");
 
         /// <summary>
         /// Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro
@@ -578,10 +539,10 @@ namespace InnerLibs
         /// <param name="BadWords">           Lista de palavras indesejadas</param>
         /// <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
         /// <returns>TRUE se a frase precisou ser censurada, FALSE se a frase não precisou de censura</returns>
-        public static string Censor(this string Text, IEnumerable<string> BadWords, string CensorshipCharacter, ref bool IsCensored)
+        public static string Censor(this string Text, IEnumerable<string> BadWords, char CensorshipCharacter, ref bool IsCensored)
         {
             var words = Text.Split(" ", StringSplitOptions.None);
-            BadWords = BadWords ?? Array.Empty<string>();
+            BadWords ??= Array.Empty<string>();
             if (words.ContainsAny(BadWords))
             {
                 foreach (var bad in BadWords)
@@ -612,7 +573,7 @@ namespace InnerLibs
         /// <param name="Text">               Texto</param>
         /// <param name="BadWords">           Array de palavras indesejadas</param>
         /// <param name="CensorshipCharacter">Caractere que será aplicado nas palavras censuradas</param>
-        public static string Censor(this string Text, string CensorshipCharacter, params string[] BadWords)
+        public static string Censor(this string Text, char CensorshipCharacter, params string[] BadWords)
         {
             bool argIsCensored = false;
             return Text.Censor((BadWords ?? Array.Empty<string>()).ToList(), CensorshipCharacter, IsCensored: ref argIsCensored);
@@ -624,10 +585,7 @@ namespace InnerLibs
         /// <param name="Text">  Texto correspondente</param>
         /// <param name="Values">Lista de valores</param>
         /// <returns>True se conter a maioria dos valores, false se não</returns>
-        public static bool ContainsMost(this string Text, StringComparison ComparisonType, params string[] Values)
-        {
-            return (Values ?? Array.Empty<string>()).Most(value => Text != null && Text.Contains(value, ComparisonType));
-        }
+        public static bool ContainsMost(this string Text, StringComparison ComparisonType, params string[] Values) => (Values ?? Array.Empty<string>()).Most(value => Text != null && Text.Contains(value, ComparisonType));
 
         /// <summary>
         /// Verifica se uma string contém a maioria dos valores especificados
@@ -635,10 +593,7 @@ namespace InnerLibs
         /// <param name="Text">  Texto correspondente</param>
         /// <param name="Values">Lista de valores</param>
         /// <returns>True se conter todos os valores, false se não</returns>
-        public static bool ContainsMost(this string Text, params string[] Values)
-        {
-            return Text.ContainsMost(StringComparison.InvariantCultureIgnoreCase, Values);
-        }
+        public static bool ContainsMost(this string Text, params string[] Values) => Text.ContainsMost(StringComparison.InvariantCultureIgnoreCase, Values);
 
         /// <summary>
         /// Verifica se uma String contém todos os valores especificados
@@ -646,10 +601,7 @@ namespace InnerLibs
         /// <param name="Text">  Texto correspondente</param>
         /// <param name="Values">Lista de valores</param>
         /// <returns>True se conter todos os valores, false se não</returns>
-        public static bool ContainsAll(this string Text, params string[] Values)
-        {
-            return Text.ContainsAll(StringComparison.InvariantCultureIgnoreCase, Values);
-        }
+        public static bool ContainsAll(this string Text, params string[] Values) => Text.ContainsAll(StringComparison.InvariantCultureIgnoreCase, Values);
 
         /// <summary>
         /// Verifica se uma String contém todos os valores especificados
@@ -683,10 +635,7 @@ namespace InnerLibs
         /// <param name="Text">  Texto correspondente</param>
         /// <param name="Values">Lista de valores</param>
         /// <returns>True se conter algum valor, false se não</returns>
-        public static bool ContainsAny(this string Text, params string[] Values)
-        {
-            return Text.ContainsAny(StringComparison.InvariantCultureIgnoreCase, Values);
-        }
+        public static bool ContainsAny(this string Text, params string[] Values) => Text.ContainsAny(StringComparison.InvariantCultureIgnoreCase, Values);
 
         /// <summary>
         /// Verifica se uma String contém qualquer um dos valores especificados
@@ -716,25 +665,13 @@ namespace InnerLibs
             }
         }
 
-        public static bool ContainsAnyWords(this string Text, params string[] Words)
-        {
-            return Text.ContainsAnyWords(null, Words);
-        }
+        public static bool ContainsAnyWords(this string Text, params string[] Words) => Text.ContainsAnyWords(null, Words);
 
-        public static bool ContainsAnyWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words)
-        {
-            return Text.GetWords().ContainsAny(Words, Comparer);
-        }
+        public static bool ContainsAnyWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words) => Text.GetWords().ContainsAny(Words, Comparer);
 
-        public static bool ContainsAllWords(this string Text, params string[] Words)
-        {
-            return Text.ContainsAllWords(null, Words);
-        }
+        public static bool ContainsAllWords(this string Text, params string[] Words) => Text.ContainsAllWords(null, Words);
 
-        public static bool ContainsAllWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words)
-        {
-            return Text.GetWords().ContainsAll(Words, Comparer);
-        }
+        public static bool ContainsAllWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words) => Text.GetWords().ContainsAll(Words, Comparer);
 
         /// <summary>
         /// Conta os caracters especificos de uma string
@@ -742,10 +679,7 @@ namespace InnerLibs
         /// <param name="Text">     Texto</param>
         /// <param name="Character">Caractere</param>
         /// <returns></returns>
-        public static int CountCharacter(this string Text, char Character)
-        {
-            return Text.Count((c) => c == Character);
-        }
+        public static int CountCharacter(this string Text, char Character) => Text.Count((c) => c == Character);
 
         /// <summary>
         /// Retorna as plavaras contidas em uma frase em ordem alfabética e sua respectiva quantidade
@@ -753,7 +687,7 @@ namespace InnerLibs
         /// <param name="Text">            TExto</param>
         /// <param name="RemoveDiacritics">indica se os acentos devem ser removidos das palavras</param>
         /// <param name="Words">
-        /// Desconsidera outras palavras e busca a quantidadade de cada palavra especificada em um array
+        /// Desconsidera outras palavras e busca a quantidade de cada palavra especificada em um array
         /// </param>
         /// <returns></returns>
         public static Dictionary<string, long> CountWords(this string Text, bool RemoveDiacritics = true, string[] Words = null)
@@ -786,32 +720,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static string DeleteLine(this string Text, int LineIndex)
         {
-            var parts = new List<string>();
-            var strReader = new StringReader(Text);
-            string NewText = "";
             LineIndex = LineIndex.SetMinValue(0);
-            while (true)
-            {
-                NewText = strReader.ReadLine();
-                if (NewText is null)
-                {
-                    break;
-                }
-                else
-                {
-                    parts.Add(NewText);
-                }
-            }
+            var parts = Text.Split(Environment.NewLine).ToList();
 
-            NewText = "";
             if (parts.Count > LineIndex)
             {
                 parts.RemoveAt(LineIndex);
             }
 
-            foreach (var part in parts)
-                NewText = NewText + part + Environment.NewLine;
-            return NewText;
+            return parts.JoinString(Environment.NewLine);
         }
 
         /// <summary>
@@ -819,20 +736,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="List">Lista de palavras</param>
         /// <returns></returns>
-        public static Dictionary<string, long> DistinctCount(params string[] List)
-        {
-            return List.ToList().DistinctCount();
-        }
+        public static Dictionary<string, long> DistinctCount(params string[] List) => List.ToList().DistinctCount();
 
         /// <summary>
         /// Cria um dicionário com as palavras de uma frase e sua respectiva quantidade.
         /// </summary>
-        /// <param name="Phrase">Lista de palavras</param>
+        /// <param name="Text">Lista de palavras</param>
         /// <returns></returns>
-        public static Dictionary<string, long> DistinctCount(this string Phrase)
-        {
-            return Phrase.Split(" ").ToList().DistinctCount();
-        }
+        public static Dictionary<string, long> DistinctCount(this string Text) => Text.Split(" ").ToList().DistinctCount();
 
         /// <summary>
         /// Verifica se uma string termina com alguma outra string de um array
@@ -840,20 +751,14 @@ namespace InnerLibs
         /// <param name="Text"> </param>
         /// <param name="Words"></param>
         /// <returns></returns>
-        public static bool EndsWithAny(this string Text, params string[] Words)
-        {
-            return Words.Any(p => Text.EndsWith(p));
-        }
+        public static bool EndsWithAny(this string Text, params string[] Words) => Words.Any(p => Text.EndsWith(p));
 
         /// <summary>
         /// Prepara uma string com aspas simples para uma Query TransactSQL
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
-        /// <returns>String pornta para a query</returns>
-        public static string EscapeQuotesToQuery(this string Text)
-        {
-            return Text.Replace("'", "''");
-        }
+        /// <returns>String pronta para a query</returns>
+        public static string EscapeQuotesToQuery(this string Text) => Text.Replace("'", "''");
 
         /// <summary>
         /// Procura numeros em uma string e retorna um array deles
@@ -880,10 +785,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="TExt"></param>
         /// <returns></returns>
-        public static string[] FindCEP(this string Text)
-        {
-            return Text.FindByRegex(@"\d{5}-\d{3}").Union(Text.FindNumbers().Where(x => x.Length == 8)).ToArray();
-        }
+        public static string[] FindCEP(this string Text) => Text.FindByRegex(@"\d{5}-\d{3}").Union(Text.FindNumbers().Where(x => x.Length == 8)).ToArray();
 
         /// <summary>
         /// Procura CEPs em uma string
@@ -903,10 +805,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string[] FindTelephoneNumbers(this string Text)
-        {
-            return Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.MaskTelephoneNumber()).ToArray();
-        }
+        public static string[] FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.MaskTelephoneNumber()).ToArray();
 
         /// <summary>
         /// Transforma quebras de linha HTML em quebras de linha comuns ao .net
@@ -919,7 +818,7 @@ namespace InnerLibs
             return Text.Replace("&nbsp;", " ");
         }
 
-        public static string FixCaptalization(this string Text)
+        public static string FixCapitalization(this string Text)
         {
             Text = Text.Trim().GetFirstChars(1).ToUpper() + Text.RemoveFirstChars(1);
             var dots = new[] { "...", ". ", "? ", "! " };
@@ -957,7 +856,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Adciona pontuaçao ao final de uma string se a mesma não terminar com alguma pontuacao.
+        /// Adciona pontuação ao final de uma string se a mesma não terminar com alguma pontuacao.
         /// </summary>
         /// <param name="Text">       Frase, Texto a ser pontuado</param>
         /// <param name="Punctuation">Ponto a ser adicionado na frase se a mesma não estiver com pontuacao</param>
@@ -979,15 +878,12 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Arruma a ortografia do texto captalizando corretamente, adcionando pontução ao final de frase
+        /// Arruma a ortografia do texto captalizando corretamente, adcionando pontuação ao final de frase
         /// caso nescessário e removendo espaços excessivos ou incorretos
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0)
-        {
-            return new StructuredText(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
-        }
+        public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
 
         /// <summary>
         /// Extension Method para <see cref="String.Format(String,Object())"/>
@@ -995,10 +891,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Args">Objetos de substituição</param>
         /// <returns></returns>
-        public static string Format(this string Text, params string[] Args)
-        {
-            return string.Format(Text, Args);
-        }
+        public static string Format(this string Text, params string[] Args) => string.Format(Text, Args);
 
         /// <summary>
         /// Retorna um texto posterior a outro
@@ -1115,10 +1008,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">URL</param>
         /// <returns>nome do dominio</returns>
-        public static string GetDomain(this string URL, bool RemoveFirstSubdomain = false)
-        {
-            return new Uri(URL).GetDomain(RemoveFirstSubdomain);
-        }
+        public static string GetDomain(this string URL, bool RemoveFirstSubdomain = false) => new Uri(URL).GetDomain(RemoveFirstSubdomain);
 
         public static string GetFirstChars(this string Text, int Number = 1)
         {
@@ -1311,15 +1201,9 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Caractere</param>
         /// <returns></returns>
-        public static string IsOpenWrapChar(this string Text)
-        {
-            return Conversions.ToString(Text.GetFirstChars().IsIn(Arrays.OpenWrappers));
-        }
+        public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(Arrays.OpenWrappers);
 
-        public static string IsCloseWrapChar(this string Text)
-        {
-            return Conversions.ToString(Text.GetFirstChars().IsIn(Arrays.CloseWrappers));
-        }
+        public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(Arrays.CloseWrappers);
 
         /// <summary>
         /// Sorteia um item da Lista
@@ -1327,10 +1211,7 @@ namespace InnerLibs
         /// <typeparam name="Type">Tipo de lista</typeparam>
         /// <param name="List">Lista</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static Type GetRandomItem<Type>(this IEnumerable<Type> List)
-        {
-            return List.ToArray()[Generate.RandomNumber(0, List.Count() - 1)];
-        }
+        public static Type GetRandomItem<Type>(this IEnumerable<Type> List) => List.ToArray()[Generate.RandomNumber(0, List.Count() - 1)];
 
         /// <summary>
         /// Sorteia um item da Lista
@@ -1954,7 +1835,7 @@ namespace InnerLibs
             }
             else
             {
-                if (Conversions.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
+                if (OpenQuoteChar.ToString().IsCloseWrapChar())
                 {
                     OpenQuoteChar = OpenQuoteChar.ToString().GetOppositeWrapChar();
                 }
@@ -1971,32 +1852,20 @@ namespace InnerLibs
         /// <param name="Text">     Texto</param>
         /// <param name="BracketChar">Caractere de encapsulamento</param>
         /// <returns></returns>
-        public static string Brackfy(this string Text, char BracketChar = '{')
-        {
-            return Text.Quote(BracketChar);
-        }
+        public static string Brackfy(this string Text, char BracketChar = '{') => Text.Quote(BracketChar);
 
-        public static string UnBrackfy(this string Text)
-        {
-            return Text.UnBrackfy("", true);
-        }
+        public static string UnBrackfy(this string Text) => Text.UnBrackfy("", true);
 
-        public static string UnBrackfy(this string Text, string BracketChar, bool ContinuouslyRemove = false)
-        {
-            return Text.UnQuote(BracketChar, ContinuouslyRemove);
-        }
+        public static string UnBrackfy(this string Text, string BracketChar, bool ContinuouslyRemove = false) => Text.UnQuote(BracketChar, ContinuouslyRemove);
 
         /// <summary>
         /// Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes) se uma
-        /// condiçao for cumprida
+        /// condição for cumprida
         /// </summary>
         /// <param name="Text">     Texto</param>
         /// <param name="QuoteChar">Caractere de encapsulamento</param>
         /// <returns></returns>
-        public static string QuoteIf(this string Text, bool Condition, string QuoteChar = "\"")
-        {
-            return Condition ? Text.Quote(Conversions.ToChar(QuoteChar)) : Text;
-        }
+        public static string QuoteIf(this string Text, bool Condition, string QuoteChar = "\"") => Condition ? Text.Quote(Conversions.ToChar(QuoteChar)) : Text;
 
         /// <summary>
         /// Sorteia um item da Matriz
@@ -2004,10 +1873,7 @@ namespace InnerLibs
         /// <typeparam name="Type">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static Type RandomItem<Type>(params Type[] Array)
-        {
-            return Array.GetRandomItem();
-        }
+        public static Type RandomItem<Type>(params Type[] Array) => Array.GetRandomItem();
 
         /// <summary>
         /// Escapa caracteres exclusivos de uma regex
@@ -2051,7 +1917,7 @@ namespace InnerLibs
                     sb.Append(s[k]);
                 }
 
-                k = k + 1;
+                k++;
             }
 
             return sb.ToString();
@@ -2074,11 +1940,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns>String sem os acentos</returns>
-        public static string RemoveDiacritics(this string Text)
-        {
-            Text = Text.RemoveAccents();
-            return Text;
-        }
+        public static string RemoveDiacritics(this string Text) => Text.RemoveAccents();
 
         /// <summary>
         /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -2115,10 +1977,7 @@ namespace InnerLibs
         /// <param name="Text">              Texto</param>
         /// <param name="StartStringTest">     Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string RemoveFirstAny(this string Text, params string[] StartStringTest)
-        {
-            return Text.RemoveFirstAny(true, StartStringTest);
-        }
+        public static string RemoveFirstAny(this string Text, params string[] StartStringTest) => Text.RemoveFirstAny(true, StartStringTest);
 
         /// <summary>
         /// Remove os X primeiros caracteres
@@ -2198,10 +2057,7 @@ namespace InnerLibs
         /// <param name="Text">              Texto</param>
         /// <param name="EndStringTest">     Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string RemoveLastAny(this string Text, params string[] EndStringTest)
-        {
-            return Text.RemoveLastAny(true, EndStringTest);
-        }
+        public static string RemoveLastAny(this string Text, params string[] EndStringTest) => Text.RemoveLastAny(true, EndStringTest);
 
         /// <summary>
         /// Remove os X ultimos caracteres
@@ -2209,10 +2065,7 @@ namespace InnerLibs
         /// <param name="Text">    Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveLastChars(this string Text, int Quantity = 1)
-        {
-            return Text.Substring(0, Text.Length - Quantity);
-        }
+        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.Substring(0, Text.Length - Quantity);
 
         /// <summary>
         /// Remove um texto do final de uma string se ele for um outro texto
@@ -2230,7 +2083,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Remove caracteres não printaveis de uma string
+        /// Remove caracteres não prantáveis de uma string
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns>String corrigida</returns>
@@ -2290,10 +2143,7 @@ namespace InnerLibs
         /// um ReplaceFrom em quaisquer valores antigos encontrados dentro do valor do array
         /// </param>
         /// <returns></returns>
-        public static List<string> Replace(this List<string> Strings, string OldValue, string NewValue, bool ReplaceIfEquals = true)
-        {
-            return Strings.ToArray().Replace(OldValue, NewValue, ReplaceIfEquals).ToList();
-        }
+        public static List<string> Replace(this List<string> Strings, string OldValue, string NewValue, bool ReplaceIfEquals = true) => Strings.ToArray().Replace(OldValue, NewValue, ReplaceIfEquals).ToList();
 
         /// <summary>
         /// Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
@@ -2417,10 +2267,7 @@ namespace InnerLibs
         /// <param name="Text">    Texto</param>
         /// <param name="OldValue">Valor a ser substituido por vazio</param>
         /// <returns>String corrigida</returns>
-        public static string ReplaceNone(this string Text, string OldValue)
-        {
-            return Text.Replace(OldValue, "");
-        }
+        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, "");
 
         /// <summary>
         /// Realiza um replace em uma string usando um tipo especifico de comparacao

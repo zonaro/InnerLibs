@@ -55,7 +55,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Atualiza o campo nulo da <see cref="EquationPair"/> corrspondente pelo <see cref="UnknowValue"/>
+        /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>
         /// </summary>
         /// <returns></returns>
         public RuleOfThree Resolve()
@@ -63,11 +63,11 @@ namespace InnerLibs
             GetExpression();
             if (Conversions.ToBoolean(FirstEquation.IsComplete && SecondEquation.IsNotComplete))
             {
-                SecondEquation.SetMissing((decimal)UnknowValue);
+                SecondEquation.SetMissing((decimal)UnknownValue);
             }
             else if (Conversions.ToBoolean(SecondEquation.IsComplete && FirstEquation.IsNotComplete))
             {
-                FirstEquation.SetMissing((decimal)UnknowValue);
+                FirstEquation.SetMissing((decimal)UnknownValue);
             }
 
             return this;
@@ -76,72 +76,51 @@ namespace InnerLibs
         /// <summary>
         /// Calcula uma regra de três
         /// </summary>
-        public RuleOfThree(params decimal?[] Numbers)
-        {
-            exp(Numbers);
-        }
+        public RuleOfThree(params decimal?[] Numbers) => RuleExpression(Numbers);
 
-        private void exp(params decimal?[] numbers)
+        private void RuleExpression(params decimal?[] numbers)
         {
             numbers ??= Array.Empty<decimal?>();
-            switch (true)
+
+            if (numbers.Count() < 3)
             {
-                case object _ when numbers.Count() < 3:
-                    {
-                        throw new NoNullAllowedException("Three numbers need to be known to make a rule of three");
-                    }
-
-                case object _ when numbers.Count() == 3:
-                    {
-                        FirstEquation.X = numbers[0];
-                        FirstEquation.Y = numbers[1];
-                        SecondEquation.X = numbers[2];
-                        SecondEquation.Y = default;
-                        break;
-                    }
-
-                default:
-                    {
-                        if (numbers.All(x => x.HasValue))
-                        {
-                            throw new NoNullAllowedException("One of numbers must be NULL");
-                        }
-
-                        if (numbers.Count(x => x.HasValue) < 3)
-                        {
-                            throw new NoNullAllowedException("Three numbers need to be known to make a rule of three");
-                        }
-
-                        FirstEquation.X = numbers.IfNoIndex(0);
-                        FirstEquation.Y = numbers.IfNoIndex(1);
-                        SecondEquation.X = numbers.IfNoIndex(2);
-                        SecondEquation.Y = numbers.IfNoIndex(3);
-                        GetExpression();
-                        Resolve();
-                        break;
-                    }
+                throw new NoNullAllowedException("Three numbers need to be known to make a rule of three");
             }
+            else if (numbers.Count() == 3)
+            {
+                FirstEquation.X = numbers[0];
+                FirstEquation.Y = numbers[1];
+                SecondEquation.X = numbers[2];
+                SecondEquation.Y = default;
+
+            }
+            else if (numbers.All(x => x.HasValue))
+            {
+                throw new NoNullAllowedException("One of numbers must be NULL");
+            }
+            else if (numbers.Count(x => x.HasValue) < 3)
+            {
+                throw new NoNullAllowedException("Three numbers need to be known to make a rule of three");
+            }
+            else
+            {
+                FirstEquation.X = numbers.IfNoIndex(0);
+                FirstEquation.Y = numbers.IfNoIndex(1);
+                SecondEquation.X = numbers.IfNoIndex(2);
+                SecondEquation.Y = numbers.IfNoIndex(3);
+                GetExpression();
+                Resolve();
+            }
+
         }
 
-        public decimal? UnknowValue
-        {
-            get
-            {
-                return equationexp();
-            }
-        }
+        public decimal? UnknownValue => equationexp();
 
-        public string UnknowName
-        {
-            get
-            {
-                return custom_paramname.IfBlank(paramname);
-            }
-        }
+        public string UnknownName => custom_param_name.IfBlank(paramname);
 
         private Func<decimal?> equationexp;
         private string paramname;
-        private string custom_paramname;
+        private string custom_param_name;
 
         public RuleOfThree(string Equation)
         {
@@ -156,52 +135,46 @@ namespace InnerLibs
             if (e1xs.IsNumber())
                 e1x = Convert.ToDecimal(e1xs);
             else
-                custom_paramname = e1xs;
+                custom_param_name = e1xs;
             decimal? e1y = default;
             if (e1ys.IsNumber())
                 e1y = Convert.ToDecimal(e1ys);
             else
-                custom_paramname = e1ys;
+                custom_param_name = e1ys;
             decimal? e2x = default;
             if (e2xs.IsNumber())
                 e2x = Convert.ToDecimal(e2xs);
             else
-                custom_paramname = e2xs;
+                custom_param_name = e2xs;
             decimal? e2y = default;
             if (e2ys.IsNumber())
                 e2y = Convert.ToDecimal(e2ys);
             else
-                custom_paramname = e2ys;
-            exp(e1x, e1y, e2x, e2y);
+                custom_param_name = e2ys;
+            RuleExpression(e1x, e1y, e2x, e2y);
         }
 
         /// <summary>
-        /// Primeira Equaçao
+        /// Primeira Equação
         /// </summary>
         /// <returns></returns>
         public EquationPair FirstEquation { get; private set; } = new EquationPair();
 
         /// <summary>
-        /// Segunda Equaçao
+        /// Segunda Equação
         /// </summary>
         /// <returns></returns>
         public EquationPair SecondEquation { get; private set; } = new EquationPair();
 
-        public decimal?[][] ToArray()
-        {
-            return new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
-        }
+        public decimal?[][] ToArray() => new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
 
-        public decimal?[] ToFlatArray()
-        {
-            return FirstEquation.ToArray().Union(SecondEquation.ToArray()).ToArray();
-        }
+        public decimal?[] ToFlatArray() => FirstEquation.ToArray().Union(SecondEquation.ToArray()).ToArray();
 
         public override string ToString()
         {
-            if (UnknowValue != null)
+            if (UnknownValue != null)
             {
-                return $"{UnknowName} = {UnknowValue}";
+                return $"{UnknownName} = {UnknownValue}";
             }
 
             return null;

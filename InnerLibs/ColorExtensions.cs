@@ -62,7 +62,7 @@ namespace InnerLibs
         public static IEnumerable<HSVColor> MonochromaticPallete(Color Color, int Amount)
         {
             var t = new RuleOfThree(Amount, 100, 1, default);
-            var Percent = t.UnknowValue?.ToSingle();
+            var Percent = t.UnknownValue?.ToSingle();
             Color = Color.White.MergeWith(Color);
             var l = new List<Color>();
             for (int index = 1, loopTo = Amount; index <= loopTo; index++)
