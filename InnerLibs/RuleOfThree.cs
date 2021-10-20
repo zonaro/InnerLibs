@@ -1,18 +1,27 @@
 using System;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs
 {
-    public class RuleOfThree
+
+    public class RuleOfThree : RuleOfThree<decimal>
+    {
+
+    }
+
+
+    public class RuleOfThree<T> where T : struct
     {
         /// <summary>
         /// Calcula uma regra de tres
         /// </summary>
         /// <param name="FirstEquation"></param>
         /// <param name="SecondEquation"></param>
-        public RuleOfThree(EquationPair FirstEquation, EquationPair SecondEquation)
+        public RuleOfThree(EquationPair<T> FirstEquation, EquationPair<T> SecondEquation)
         {
             this.FirstEquation = FirstEquation;
             this.SecondEquation = SecondEquation;
@@ -21,35 +30,35 @@ namespace InnerLibs
 
         private void GetExpression()
         {
-            if (Conversions.ToBoolean(FirstEquation.IsNotComplete && SecondEquation.IsComplete))
+            if (FirstEquation.IsNotComplete && SecondEquation.IsComplete)
             {
-                if (Conversions.ToBoolean(FirstEquation.MissX))
+                if (FirstEquation.MissX)
                 {
-                    equationexp = new Func<decimal?>(() => FirstEquation.Y * SecondEquation.X / SecondEquation.Y);
+                    equationexp = new Func<T?>(() => (FirstEquation.Y.ToDecimal() * SecondEquation.X.ToDecimal() / SecondEquation.Y.ToDecimal()).ChangeType<T>());
                     paramname = "FX";
                 }
                 else
                 {
-                    equationexp = new Func<decimal?>(() => FirstEquation.X * SecondEquation.Y / SecondEquation.X);
+                    equationexp = new Func<T?>(() => (FirstEquation.X.ToDecimal() * SecondEquation.Y.ToDecimal() / SecondEquation.X.ToDecimal()).ChangeType<T>());
                     paramname = "FY";
                 }
             }
-            else if (Conversions.ToBoolean(FirstEquation.IsComplete && SecondEquation.IsNotComplete))
+            else if (FirstEquation.IsComplete && SecondEquation.IsNotComplete)
             {
-                if (Conversions.ToBoolean(SecondEquation.MissX))
+                if (SecondEquation.MissX)
                 {
-                    equationexp = new Func<decimal?>(() => SecondEquation.Y * FirstEquation.X / FirstEquation.Y);
+                    equationexp = new Func<T?>(() => (SecondEquation.Y.ToDecimal() * FirstEquation.X.ToDecimal() / FirstEquation.Y.ToDecimal()).ChangeType<T>());
                     paramname = "SX";
                 }
                 else
                 {
-                    equationexp = new Func<decimal?>(() => SecondEquation.X * FirstEquation.Y / FirstEquation.X);
+                    equationexp = new Func<T?>(() => (SecondEquation.X.ToDecimal() * FirstEquation.Y.ToDecimal() / FirstEquation.X.ToDecimal()).ChangeType<T>());
                     paramname = "SY";
                 }
             }
             else
             {
-                equationexp = new Func<decimal?>(() => default);
+                equationexp = new Func<T?>(() => UnknownValue);
                 paramname = null;
             }
         }
@@ -58,16 +67,16 @@ namespace InnerLibs
         /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>
         /// </summary>
         /// <returns></returns>
-        public RuleOfThree Resolve()
+        public RuleOfThree<T> Resolve()
         {
             GetExpression();
-            if (Conversions.ToBoolean(FirstEquation.IsComplete && SecondEquation.IsNotComplete))
+            if (FirstEquation.IsComplete && SecondEquation.IsNotComplete)
             {
-                SecondEquation.SetMissing((decimal)UnknownValue);
+                SecondEquation.SetMissing(UnknownValue ?? default);
             }
-            else if (Conversions.ToBoolean(SecondEquation.IsComplete && FirstEquation.IsNotComplete))
+            else if (SecondEquation.IsComplete && FirstEquation.IsNotComplete)
             {
-                FirstEquation.SetMissing((decimal)UnknownValue);
+                FirstEquation.SetMissing(UnknownValue ?? default);
             }
 
             return this;
@@ -76,11 +85,11 @@ namespace InnerLibs
         /// <summary>
         /// Calcula uma regra de três
         /// </summary>
-        public RuleOfThree(params decimal?[] Numbers) => RuleExpression(Numbers);
+        public RuleOfThree(params T?[] Numbers) => RuleExpression(Numbers);
 
-        private void RuleExpression(params decimal?[] numbers)
+        private void RuleExpression(params T?[] numbers)
         {
-            numbers ??= Array.Empty<decimal?>();
+            numbers ??= Array.Empty<T?>();
 
             if (numbers.Count() < 3)
             {
@@ -114,11 +123,11 @@ namespace InnerLibs
 
         }
 
-        public decimal? UnknownValue => equationexp();
+        public T? UnknownValue => equationexp();
 
         public string UnknownName => custom_param_name.IfBlank(paramname);
 
-        private Func<decimal?> equationexp;
+        private Func<T?> equationexp;
         private string paramname;
         private string custom_param_name;
 
@@ -131,24 +140,24 @@ namespace InnerLibs
             string e1ys = e1.LastOrDefault()?.AdjustBlankSpaces();
             string e2xs = e2.FirstOrDefault()?.AdjustBlankSpaces();
             string e2ys = e2.LastOrDefault()?.AdjustBlankSpaces();
-            decimal? e1x = default;
+            T? e1x = default;
             if (e1xs.IsNumber())
-                e1x = Convert.ToDecimal(e1xs);
+                e1x = Converter.ChangeType<T>(e1xs);
             else
                 custom_param_name = e1xs;
-            decimal? e1y = default;
+            T? e1y = default;
             if (e1ys.IsNumber())
-                e1y = Convert.ToDecimal(e1ys);
+                e1y = Converter.ChangeType<T>(e1ys);
             else
                 custom_param_name = e1ys;
-            decimal? e2x = default;
+            T? e2x = default;
             if (e2xs.IsNumber())
-                e2x = Convert.ToDecimal(e2xs);
+                e2x = Converter.ChangeType<T>(e2xs);
             else
                 custom_param_name = e2xs;
-            decimal? e2y = default;
+            T? e2y = default;
             if (e2ys.IsNumber())
-                e2y = Convert.ToDecimal(e2ys);
+                e2y = Converter.ChangeType<T>(e2ys);
             else
                 custom_param_name = e2ys;
             RuleExpression(e1x, e1y, e2x, e2y);
@@ -158,17 +167,17 @@ namespace InnerLibs
         /// Primeira Equação
         /// </summary>
         /// <returns></returns>
-        public EquationPair FirstEquation { get; private set; } = new EquationPair();
+        public EquationPair<T> FirstEquation { get; private set; }
 
         /// <summary>
         /// Segunda Equação
         /// </summary>
         /// <returns></returns>
-        public EquationPair SecondEquation { get; private set; } = new EquationPair();
+        public EquationPair<T> SecondEquation { get; private set; }
 
-        public decimal?[][] ToArray() => new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
+        public T?[][] ToArray() => new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
 
-        public decimal?[] ToFlatArray() => FirstEquation.ToArray().Union(SecondEquation.ToArray()).ToArray();
+        public T?[] ToFlatArray() => FirstEquation.ToArray().Union(SecondEquation.ToArray()).ToArray();
 
         public override string ToString()
         {

@@ -958,7 +958,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] Monochromatic(decimal Amount = 4m) => ColorExtensions.MonochromaticPallete(_scolor, (int)Math.Round(Amount)).ToArray();
+        public HSVColor[] Monochromatic(decimal Amount = 4m) => ColorExtensions.MonochromaticPallette(_scolor, (int)Math.Round(Amount)).ToArray();
 
         /// <summary>
         /// Retorna uma paleta de cores tetradica (Monocromatica + Tetradica)

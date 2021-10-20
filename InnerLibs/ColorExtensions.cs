@@ -47,9 +47,9 @@ namespace InnerLibs
             return ColorList?.Select(x => new HSVColor(x));
         }
 
-        public static IEnumerable<HSVColor> GrayscalePallete(int Amount)
+        public static IEnumerable<HSVColor> GrayscalePallette(int Amount)
         {
-            return MonochromaticPallete(Color.White, Amount);
+            return MonochromaticPallette(Color.White, Amount);
         }
 
         /// <summary>
@@ -59,9 +59,9 @@ namespace InnerLibs
         /// <param name="Amount"></param>
         /// <returns></returns>
         /// <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
-        public static IEnumerable<HSVColor> MonochromaticPallete(Color Color, int Amount)
+        public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
         {
-            var t = new RuleOfThree(Amount, 100, 1, default);
+            var t = new RuleOfThree<int>(Amount, 100, 1, default);
             var Percent = t.UnknownValue?.ToSingle();
             Color = Color.White.MergeWith(Color);
             var l = new List<Color>();

@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using Microsoft.VisualBasic.CompilerServices;
 
@@ -6,66 +7,39 @@ namespace InnerLibs
     /// <summary>
     /// Representa um Par X,Y para operaçoes matemáticas
     /// </summary>
-    public class EquationPair
+    public class EquationPair<T> where T : struct
     {
-        public EquationPair()
-        {
-        }
 
-        public EquationPair(decimal? X, decimal? Y)
+
+        public EquationPair(T? X, T? Y)
         {
             this.X = X;
             this.Y = Y;
         }
 
-        public decimal? X { get; set; }
-        public decimal? Y { get; set; }
 
-        public decimal?[] ToArray()
-        {
-            return new[] { X, Y };
-        }
 
-        public bool IsNotComplete
-        {
-            get
-            {
-                return !IsComplete;
-            }
-        }
+        public T? X { get; set; }
+        public T? Y { get; set; }
 
-        public bool IsComplete
-        {
-            get
-            {
-                return X.HasValue && Y.HasValue;
-            }
-        }
+        public T?[] ToArray() => new[] { X, Y };
 
-        public object MissX
-        {
-            get
-            {
-                return !X.HasValue;
-            }
-        }
+        public bool IsNotComplete => !IsComplete;
 
-        public object MissY
-        {
-            get
-            {
-                return !Y.HasValue;
-            }
-        }
+        public bool IsComplete => X.HasValue && Y.HasValue;
+
+        public bool MissX => !X.HasValue;
+
+        public bool MissY => !Y.HasValue;
 
         public PropertyInfo GetMissing()
         {
-            if (Conversions.ToBoolean(MissX))
+            if (MissX)
             {
                 return this.GetProperty("X");
             }
 
-            if (Conversions.ToBoolean(MissY))
+            if (MissY)
             {
                 return this.GetProperty("Y");
             }
@@ -73,12 +47,17 @@ namespace InnerLibs
             return null;
         }
 
-        public void SetMissing(decimal value)
+        public void SetMissing(T value)
         {
             if (GetMissing() != null)
             {
                 GetMissing().SetValue(this, value);
             }
         }
+
+        public static explicit operator EquationPair<T>(Tuple<T?, T?> Equation) => new EquationPair<T>(Equation.Item1, Equation.Item2);
+
+        public static explicit operator Tuple<T?, T?>(EquationPair<T> Equation) => new Tuple<T?, T?>(Equation.X, Equation.Y);
+
     }
 }
