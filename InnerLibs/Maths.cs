@@ -716,70 +716,49 @@ namespace InnerLibs
             return Int.LimitRange<int>(0, Collection.Count() - 1);
         }
 
-        public static long LimitIndex<AnyType>(this long Lng, IEnumerable<AnyType> Collection)
-        {
-            return Lng.LimitRange<int>(0, Collection.LongCount() - 1L);
-        }
+        public static long LimitIndex<AnyType>(this long Lng, IEnumerable<AnyType> Collection) => Lng.LimitRange<int>(0, Collection.LongCount() - 1L);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static decimal RoundDecimal(this decimal Number, int? Decimals = default)
-        {
-            return Conversions.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
-        }
+        public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Conversions.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static double RoundDouble(this double Number, int? Decimals = default)
-        {
-            return Conversions.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
-        }
+        public static double RoundDouble(this double Number, int? Decimals = default) => Conversions.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static int RoundInt(this decimal Number)
-        {
-            return Math.Round(Number).ToInteger();
-        }
+        public static int RoundInt(this decimal Number) => Math.Round(Number).ToInteger();
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static int RoundInt(this double Number)
-        {
-            return Math.Round(Number).ToInteger();
-        }
+        public static int RoundInt(this double Number) => Math.Round(Number).ToInteger();
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static long RoundLong(this decimal Number)
-        {
-            return Math.Round(Number).ToLong();
-        }
+        public static long RoundLong(this decimal Number) => Math.Round(Number).ToLong();
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static long RoundLong(this double Number)
-        {
-            return Math.Round(Number).ToLong();
-        }
+        public static long RoundLong(this double Number) => Math.Round(Number).ToLong();
 
         /// <summary>
         /// Realiza um calculo de interpolação Linear

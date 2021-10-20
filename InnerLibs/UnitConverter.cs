@@ -116,7 +116,7 @@ namespace InnerLibs
     /// </summary>
     /// <param name="Number">Numero</param>
     /// <returns></returns>
-        public string Abreviate(decimal Number, int DecimalPlaces)
+        public string Abbreviate(decimal Number, int DecimalPlaces)
         {
             switch (Units.Count)
             {
@@ -161,7 +161,7 @@ namespace InnerLibs
 
         public string Abreviate(decimal Number)
         {
-            return Abreviate(Number, Culture.NumberFormat.NumberDecimalDigits);
+            return Abbreviate(Number, Culture.NumberFormat.NumberDecimalDigits);
         }
 
         /// <summary>
