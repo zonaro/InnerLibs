@@ -181,27 +181,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static Color ToColor(this string Text)
         {
-            if (Text.IsBlank())
-            {
-                return Color.Transparent;
-            }
+            if (Text.IsBlank()) return Color.Transparent;
 
-            if (Text == "random")
-            {
-                return RandomColor();
-            }
+            if (Text == "random") return RandomColor();
 
-            if (Text.IsIn(Enum.GetNames(typeof(KnownColor)), StringComparer.InvariantCultureIgnoreCase))
-                return Color.FromName(Text);
-            if (Text.IsNumber())
-            {
-                return Color.FromArgb(Text.ToInteger());
-            }
+            if (Text.IsIn(Enum.GetNames(typeof(KnownColor)), StringComparer.InvariantCultureIgnoreCase)) return Color.FromName(Text);
 
-            if (Text.IsHexaDecimalColor())
-            {
-                return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#").IfBlank("000000"));
-            }
+            if (Text.IsNumber()) return Color.FromArgb(Text.ToInteger());
+
+            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#").IfBlank("000000"));
 
             var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(Strings.AscW(a), 2d) * p.Length)).Sum().RoundInt();
             return Color.FromArgb(255, Color.FromArgb(coresInt));
