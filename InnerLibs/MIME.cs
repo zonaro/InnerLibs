@@ -21,27 +21,21 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Extension">extensão do arquivo</param>
         /// <returns>string mime type</returns>
-        public static List<string> GetFileType(this string Extension)
-        {
-            return (List<string>)FileType.GetFileType(Extension).GetMimeTypesOrDefault();
-        }
+        public static IEnumerable<string> GetFileType(this string Extension) => FileType.GetFileType(Extension).GetMimeTypesOrDefault();
 
         /// <summary>
         /// Retorna o Mime Type a partir de um arquivo
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns>string mime type</returns>
-        public static List<string> GetFileType(this FileInfo File)
-        {
-            return File.Extension.GetFileType();
-        }
+        public static IEnumerable<string> GetFileType(this FileInfo File) => File.Extension.GetFileType();
 
         /// <summary>
         /// Retorna o Mime Type a partir de de um formato de Imagem
         /// </summary>
         /// <param name="RawFormat">Formato de Imagem</param>
         /// <returns>string mime type</returns>
-        public static List<string> GetFileType(this ImageFormat RawFormat)
+        public static IEnumerable<string> GetFileType(this ImageFormat RawFormat)
         {
             try
             {
@@ -57,7 +51,7 @@ namespace InnerLibs
             {
             }
 
-            return ".png".GetFileType();
+            return GetFileType(".png");
         }
 
         /// <summary>
@@ -65,7 +59,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>string mime type</returns>
-        public static List<string> GetFileType(this Image Image) => Image.RawFormat.GetFileType();
+        public static IEnumerable<string> GetFileType(this Image Image) => Image.RawFormat.GetFileType();
 
         /// <summary>
         /// Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
@@ -171,21 +165,24 @@ namespace InnerLibs
             if (Reset || l is null || l.Any() == false)
             {
                 string r = ClassTools.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
-                var doc = new XmlDocument();
-                doc.LoadXml(r);
-                l = new FileTypeList();
-                foreach (XmlNode node in doc["mimes"].ChildNodes)
+                if (r.IsNotBlank())
                 {
-                    var ft = l.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.AdjustBlankSpaces() ?? ""), new FileType());
-                    ft.Description = node["Description"].InnerText.AdjustBlankSpaces();
-                    foreach (XmlNode item in node["MimeTypes"].ChildNodes)
-                        ft.MimeTypes.Add(item.InnerText.AdjustBlankSpaces());
-                    foreach (XmlNode item in node["Extensions"].ChildNodes)
-                        ft.Extensions.Add(item.InnerText.AdjustBlankSpaces());
-                    ft.MimeTypes = ft.MimeTypes.Distinct().ToList();
-                    ft.Extensions = ft.Extensions.Distinct().ToList();
-                    if (!l.Contains(ft))
-                        l.Add(ft);
+                    var doc = new XmlDocument();
+                    doc.LoadXml(r);
+                    l = new FileTypeList();
+                    foreach (XmlNode node in doc["mimes"].ChildNodes)
+                    {
+                        var ft = l.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.AdjustBlankSpaces() ?? ""), new FileType());
+                        ft.Description = node["Description"].InnerText.AdjustBlankSpaces();
+                        foreach (XmlNode item in node["MimeTypes"].ChildNodes)
+                            ft.MimeTypes.Add(item.InnerText.AdjustBlankSpaces());
+                        foreach (XmlNode item in node["Extensions"].ChildNodes)
+                            ft.Extensions.Add(item.InnerText.AdjustBlankSpaces());
+                        ft.MimeTypes = ft.MimeTypes.Distinct().ToList();
+                        ft.Extensions = ft.Extensions.Distinct().ToList();
+                        if (!l.Contains(ft))
+                            l.Add(ft);
+                    }
                 }
             }
 
@@ -196,10 +193,7 @@ namespace InnerLibs
         /// Retorna uma lista de strings contendo todos os MIME Types
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null)
-        {
-            return (FileTypeList ?? GetFileTypeList()).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
-        }
+        public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null) => (FileTypeList ?? GetFileTypeList()).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
 
         /// <summary>
         /// Traz uma lista de extensões de acordo com o MIME type especificado
@@ -219,10 +213,7 @@ namespace InnerLibs
             return new List<string>();
         }
 
-        public static FileTypeList GetFileType(IEnumerable<string> MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
-        {
-            return new FileTypeList(MimeTypeOrExtensionOrPathOrDataURI.Select(x => GetFileType(x)).ToArray());
-        }
+        public static FileTypeList GetFileType(IEnumerable<string> MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => new FileTypeList(MimeTypeOrExtensionOrPathOrDataURI.Select(x => GetFileType(x)).ToArray());
 
         /// <summary>
         /// Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string
@@ -261,10 +252,7 @@ namespace InnerLibs
             return (FileTypeList ?? GetFileTypeList()).FirstOr(x => x.Extensions.ToArray().Union(x.GetMimeTypesOrDefault().ToArray()).Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase), new FileType());
         }
 
-        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories)
-        {
-            return Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
-        }
+        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
 
         /// <summary>
         /// Constroi um MIME Type Default
@@ -277,19 +265,13 @@ namespace InnerLibs
         /// Constroi um File Type a partir de um Arquivo (FileInfo)
         /// </summary>
         /// <param name="File">Fileinfo com o Arquivo</param>
-        public FileType(FileInfo File, FileTypeList FileTypeList = null)
-        {
-            Build(File.Extension, FileTypeList);
-        }
+        public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File.Extension, FileTypeList);
 
         /// <summary>
         /// Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
-        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
-        {
-            Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
-        }
+        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
 
         internal void Build(string Extension, FileTypeList FileTypeList = null)
         {
@@ -303,10 +285,7 @@ namespace InnerLibs
         /// Retorna uma string com o primeiro MIME TYPE do arquivo
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return GetMimeTypesOrDefault().First();
-        }
+        public override string ToString() => GetMimeTypesOrDefault().First();
 
         /// <summary>
         /// Retorna uma string representando um filtro de caixa de dialogo WinForms
@@ -348,10 +327,7 @@ namespace InnerLibs
         /// Cria uma nova lista a partir de tipos de arquivos
         /// </summary>
         /// <param name="FileTypes">Tipos de Arquivos</param>
-        public FileTypeList(params FileType[] FileTypes)
-        {
-            AddRange(FileTypes ?? Array.Empty<FileType>());
-        }
+        public FileTypeList(params FileType[] FileTypes) => AddRange(FileTypes ?? Array.Empty<FileType>());
 
         /// <summary>
         /// Cria uma nova lista a partir de uma lista de tipos de arquivos
@@ -395,57 +371,24 @@ namespace InnerLibs
         /// <param name="Directory">   Diretório</param>
         /// <param name="SearchOption">Tipo de busca</param>
         /// <returns></returns>
-        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories)
-        {
-            return Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
-        }
+        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
 
         /// <summary>
         /// Retorna todas as extensões da lista
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> Extensions
-        {
-            get
-            {
-                return this.SelectMany(x => x.Extensions).Distinct();
-            }
-        }
+        public IEnumerable<string> Extensions => this.SelectMany(x => x.Extensions).Distinct();
 
         /// <summary>
         /// Retorna todas os MIME Types da lista
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> MimeTypes
-        {
-            get
-            {
-                return this.SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
-            }
-        }
+        public IEnumerable<string> MimeTypes => this.SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
 
-        public IEnumerable<string> SubTypes
-        {
-            get
-            {
-                return this.SelectMany(x => x.SubTypes).Distinct();
-            }
-        }
+        public IEnumerable<string> SubTypes => this.SelectMany(x => x.SubTypes).Distinct();
 
-        public IEnumerable<string> FirstTypes
-        {
-            get
-            {
-                return this.SelectMany(x => x.FirstTypes).Distinct();
-            }
-        }
+        public IEnumerable<string> FirstTypes => this.SelectMany(x => x.FirstTypes).Distinct();
 
-        public IEnumerable<string> Descriptions
-        {
-            get
-            {
-                return (IEnumerable<string>)this.SelectMany(x => x.Description).Distinct();
-            }
-        }
+        public IEnumerable<string> Descriptions => (IEnumerable<string>)this.SelectMany(x => x.Description).Distinct();
     }
 }
