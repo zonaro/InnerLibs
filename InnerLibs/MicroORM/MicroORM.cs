@@ -211,10 +211,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Join(string table, FormattableString on)
-        {
-            return _Join(JoinType.Join, table, new Condition(on));
-        }
+        public Select<T> Join(string table, FormattableString on) => Join(JoinType.Join, table, new Condition(on));
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -222,10 +219,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> InnerJoin(string table, FormattableString on)
-        {
-            return _Join(JoinType.Inner, table, new Condition(on));
-        }
+        public Select<T> InnerJoin(string table, FormattableString on) => Join(JoinType.Inner, table, new Condition(on));
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -233,10 +227,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> InnerJoin(string table, Condition on)
-        {
-            return _Join(JoinType.Inner, table, on);
-        }
+        public Select<T> InnerJoin(string table, Condition on) => Join(JoinType.Inner, table, on);
 
         /// <summary>
         /// Sets a JOIN clause in the SELECT being built.
@@ -244,10 +235,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Join(string table, Condition on)
-        {
-            return _Join(JoinType.Join, table, on);
-        }
+        public Select<T> Join(string table, Condition on) => Join(JoinType.Join, table, on);
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -255,10 +243,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> LeftOuterJoin(string table, FormattableString on)
-        {
-            return _Join(JoinType.LeftOuterJoin, table, new Condition(on));
-        }
+        public Select<T> LeftOuterJoin(string table, FormattableString on) => Join(JoinType.LeftOuterJoin, table, new Condition(on));
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -266,10 +251,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> LeftOuterJoin(string table, Condition on)
-        {
-            return _Join(JoinType.LeftOuterJoin, table, on);
-        }
+        public Select<T> LeftOuterJoin(string table, Condition on) => Join(JoinType.LeftOuterJoin, table, on);
 
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
@@ -277,10 +259,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> RightOuterJoin(string table, FormattableString on)
-        {
-            return _Join(JoinType.RightOuterJoin, table, new Condition(on));
-        }
+        public Select<T> RightOuterJoin(string table, FormattableString on) => Join(JoinType.RightOuterJoin, table, new Condition(on));
 
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
@@ -288,10 +267,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> RightOuterJoin(string table, Condition on)
-        {
-            return _Join(JoinType.RightOuterJoin, table, on);
-        }
+        public Select<T> RightOuterJoin(string table, Condition on) => Join(JoinType.RightOuterJoin, table, on);
 
         /// <summary>
         /// Sets a FULL OUTER JOIN clause in the SELECT being built.
@@ -299,10 +275,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> FullOuterJoin(string table, FormattableString on)
-        {
-            return _Join(JoinType.FullOuterJoin, table, new Condition(on));
-        }
+        public Select<T> FullOuterJoin(string table, FormattableString on) => Join(JoinType.FullOuterJoin, table, new Condition(on));
 
         /// <summary>
         /// Sets a FULL OUTER JOIN clause in the SELECT being built.
@@ -310,35 +283,23 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> FullOuterJoin(string table, Condition on)
-        {
-            return _Join(JoinType.FullOuterJoin, table, on);
-        }
+        public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
 
         /// <summary>
         /// Sets a CROSS JOIN clause in the SELECT being built.
         /// </summary>
         /// <param name="table">Table to be join</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> CrossJoin(string table)
-        {
-            return _Join(JoinType.CrossJoin, table, null);
-        }
+        public Select<T> CrossJoin(string table) => Join(JoinType.CrossJoin, table, null);
 
         /// <summary>
         /// Sets a CROSS JOIN clause in the SELECT being built.
         /// </summary>
         /// <param name="table">Table to be join</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> CrossApply(string table)
-        {
-            return _Join(JoinType.CrossApply, table, null);
-        }
+        public Select<T> CrossApply(string table) => Join(JoinType.CrossApply, table, null);
 
-        public Select<T> WhereObject<O>(O Obj) where O : class
-        {
-            return WhereObject(Obj, "AND");
-        }
+        public Select<T> WhereObject<O>(O Obj) where O : class => WhereObject(Obj, "AND");
 
         public Select<T> WhereObject<O>(O Obj, string LogicOperator = "AND") where O : class
         {
@@ -437,6 +398,10 @@ namespace InnerLibs.MicroORM
                 p.Replace("==", "=");
                 p.Replace("!=", "<>");
                 p.Replace("AndAlso", "AND");
+                p.Replace(" && ", "AND");
+                p.Replace(" & ", "AND");
+                p.Replace(" || ", "OR");
+                p.Replace(" | ", "OR");
                 p.Replace("OrElse", "OR");
                 p.Replace(" like ", " LIKE ");
                 p.Replace(".Contains", " LIKE ");
@@ -470,10 +435,7 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="conditions">Conditions to set</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Where(params Condition[] conditions)
-        {
-            return And(conditions);
-        }
+        public Select<T> Where(params Condition[] conditions) => And(conditions);
 
         /// <summary>
         /// Sets the WHERE clause in the SELECT being built using a <see cref="Dictionary(Of String, Object)"/> as column/value
@@ -562,10 +524,7 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="conditions">Condition to set</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> And(params FormattableString[] conditions)
-        {
-            return And((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
-        }
+        public Select<T> And(params FormattableString[] conditions) => And((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
 
         /// <summary>
         /// Sets the WHERE clause in the SELECT being built.
@@ -691,10 +650,7 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="conditions">Condition to set</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Or(params FormattableString[] conditions)
-        {
-            return Or((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
-        }
+        public Select<T> Or(params FormattableString[] conditions) => Or((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
 
         /// <summary>
         /// Sets the WHERE clause in the SELECT being built.
@@ -775,7 +731,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> OrderBy(params string[] columns)
         {
-            columns = columns ?? Array.Empty<string>();
+            columns ??= Array.Empty<string>();
             if (_orderBy is null)
             {
                 _orderBy = new List<string>(columns);
@@ -791,38 +747,20 @@ namespace InnerLibs.MicroORM
         /// <summary>
         /// Operator overload that allows using the class wherever a string is expected.
         /// </summary>
-        public static implicit operator string(Select<T> select)
-        {
-            return select is null ? null : select.ToString();
-        }
+        public static implicit operator string(Select<T> select) => select?.ToString();
 
         /// <summary>
         /// Operator overload that allows using the class wherever a string is expected.
         /// </summary>
-        public static implicit operator FormattableString(Select<T> select)
-        {
-            return (select is null ? null : select.ToString()).ToFormattableString();
-        }
+        public static implicit operator FormattableString(Select<T> select) => (select?.ToString()).ToFormattableString();
 
-        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic)
-        {
-            return Connection.CreateCommand(ToString(), dic);
-        }
+        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic) => Connection.CreateCommand(ToString(), dic);
 
-        public DbCommand CreateDbCommand(DbConnection Connection)
-        {
-            return CreateDbCommand(Connection, null);
-        }
+        public DbCommand CreateDbCommand(DbConnection Connection) => CreateDbCommand(Connection, null);
 
-        public Select<T> AndSearch(string Value, params string[] Columns)
-        {
-            return AndAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
-        }
+        public Select<T> AndSearch(string Value, params string[] Columns) => AndAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
 
-        public Select<T> OrSearch(string Value, params string[] Columns)
-        {
-            return OrAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
-        }
+        public Select<T> OrSearch(string Value, params string[] Columns) => OrAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
 
         public Select<T> OrSearch(IEnumerable<string> Value, params string[] Columns)
         {
@@ -838,10 +776,7 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public override string ToString()
-        {
-            return ToString(false);
-        }
+        public override string ToString() => ToString(false);
 
         /// <summary>
         /// Returns the SELECT statement as a SQL query.
@@ -899,15 +834,15 @@ namespace InnerLibs.MicroORM
             return sql.ToString();
         }
 
-        private Select<T> _Join(JoinType type, string table, Condition on)
+        public Select<T> Join(JoinType JoinType, string Table, Condition on)
         {
-            if (table.IsNotBlank() && !Information.IsNothing(on) && on.ToString().IsNotBlank())
+            if (Table.IsNotBlank() && !Information.IsNothing(on) && on.ToString().IsNotBlank())
             {
-                _joins = _joins ?? new List<Join>();
+                _joins ??= new List<Join>();
                 _joins.Add(new Join()
                 {
-                    Type = type,
-                    Table = table,
+                    Type = JoinType,
+                    Table = Table,
                     On = on
                 });
             }
@@ -958,14 +893,7 @@ namespace InnerLibs.MicroORM
                 }
             }
         }
-
-        public Condition(DbExtensions.LogicConcatenationOperator LogicOperator, params Condition[] Conditions) : this(LogicOperator.AsIf(x => x == DbExtensions.LogicConcatenationOperator.OR, "OR", "AND"), Conditions)
-        {
-        }
-
-        public Condition(DbExtensions.LogicConcatenationOperator LogicOperator, params FormattableString[] Conditions) : this(LogicOperator.AsIf(x => x == DbExtensions.LogicConcatenationOperator.OR, "OR", "AND"), Conditions)
-        {
-        }
+ 
 
         /// <summary>
         /// Select class constructor
@@ -1002,35 +930,17 @@ namespace InnerLibs.MicroORM
             }
         }
 
-        public static Condition OrMany(params FormattableString[] conditions)
-        {
-            return new Condition("Or", conditions);
-        }
+        public static Condition OrMany(params FormattableString[] conditions) => new Condition("Or", conditions);
 
-        public static Condition AndMany(params FormattableString[] conditions)
-        {
-            return new Condition("And", conditions);
-        }
+        public static Condition AndMany(params FormattableString[] conditions) => new Condition("And", conditions);
 
-        public Condition OrAll(params FormattableString[] Conditions)
-        {
-            return Or(AndMany(Conditions));
-        }
+        public Condition OrAll(params FormattableString[] Conditions) => Or(AndMany(Conditions));
 
-        public Condition OrAny(params FormattableString[] Conditions)
-        {
-            return Or(OrMany(Conditions));
-        }
+        public Condition OrAny(params FormattableString[] Conditions) => Or(OrMany(Conditions));
 
-        public Condition AndAll(params FormattableString[] Conditions)
-        {
-            return And(AndMany(Conditions));
-        }
+        public Condition AndAll(params FormattableString[] Conditions) => And(AndMany(Conditions));
 
-        public Condition AndAny(params FormattableString[] Conditions)
-        {
-            return And(OrMany(Conditions));
-        }
+        public Condition AndAny(params FormattableString[] Conditions) => And(OrMany(Conditions));
 
         /// <summary>
         /// Appends the given condition with AND in this condition.
@@ -1057,10 +967,7 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="condition">Condition to be appended</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Condition And(Condition condition)
-        {
-            return And(condition.ParenthesisToString().ToFormattableString());
-        }
+        public Condition And(Condition condition) => And(condition.ParenthesisToString().ToFormattableString());
 
         /// <summary>
         /// Appends the given condition with OR in this condition.
@@ -1087,28 +994,19 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="condition">Condition to be appended</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Condition Or(Condition condition)
-        {
-            return Or(condition.ParenthesisToString().ToFormattableString());
-        }
+        public Condition Or(Condition condition) => Or(condition.ParenthesisToString().ToFormattableString());
 
         /// <summary>
         /// Returns the condition statement as a SQL query in parenthesis.
         /// </summary>
         /// <returns>The condition statement as a SQL query in parenthesis</returns>
-        public string ParenthesisToString()
-        {
-            return ToString().Quote('(');
-        }
+        public string ParenthesisToString() => ToString().Quote('(');
 
         /// <summary>
         /// Returns the condition statement as a SQL query.
         /// </summary>
         /// <returns>The condition statement as a SQL query</returns>
-        public override string ToString()
-        {
-            return string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, "(");
-        }
+        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, "(");
     }
 
     internal class Join
@@ -1161,13 +1059,10 @@ namespace InnerLibs.MicroORM
             }
         }
 
-        public override string ToString()
-        {
-            return On is null ? string.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table) : string.Format(CultureInfo.InvariantCulture, "{0} {1} On {2}", JoinString, Table, On);
-        }
+        public override string ToString() => On == null ? string.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table) : string.Format(CultureInfo.InvariantCulture, "{0} {1} On {2}", JoinString, Table, On);
     }
 
-    internal enum JoinType
+    public enum JoinType
     {
         Join,
         Inner,
