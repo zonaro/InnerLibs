@@ -25,10 +25,10 @@ namespace InnerLibs
         public static ConsoleColor ToConsoleColor(this Color Color)
         {
             int index = Color.R > 128 | Color.G > 128 | Color.B > 128 ? 8 : 0;
-            index = index | (Color.R > 64 ? 4 : 0);
-            index = index | (Color.G > 64 ? 2 : 0);
-            index = index | (Color.B > 64 ? 1 : 0);
-            return (ConsoleColor)Conversions.ToInteger(index);
+            index |= Color.R > 64 ? 4 : 0;
+            index |= Color.G > 64 ? 2 : 0;
+            index |= Color.B > 64 ? 1 : 0;
+            return (ConsoleColor)index;
         }
 
         /// <summary>
@@ -36,11 +36,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Color"></param>
         /// <returns></returns>
-        public static HSVColor ToColor(this ConsoleColor Color)
-        {
-            var cColors = new[] { 0x0, 0x80, 0x8000, 0x8080, 0x800000, 0x800080, 0x808000, 0xC0C0C0, 0x808080, 0xFF, 0xFF00, 0xFFFF, 0xFF0000, 0xFF00FF, 0xFFFF00, 0xFFFFFF };
-            return new HSVColor(cColors[(int)Color]) { Alpha = 255 };
-        }
+        public static HSVColor ToColor(this ConsoleColor Color) => new HSVColor(new[] { 0x0, 0x80, 0x8000, 0x8080, 0x800000, 0x800080, 0x808000, 0xC0C0C0, 0x808080, 0xFF, 0xFF00, 0xFFFF, 0xFF0000, 0xFF00FF, 0xFFFF00, 0xFFFFFF }[(int)Color]) { Alpha = 255 };
 
         public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
 
@@ -96,7 +92,7 @@ namespace InnerLibs
         public static bool IsDark(this Color TheColor) => new HSVColor(TheColor).IsDark();
 
         /// <summary>
-        /// Verifica se uma clor é clara
+        /// Verifica se uma cor é clara
         /// </summary>
         /// <param name="TheColor">Cor</param>
         /// <returns></returns>
@@ -212,7 +208,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Gera uma cor aleatória misturandoo ou não os canais RGB
+        /// Gera uma cor aleatória misturando ou não os canais RGB
         /// </summary>
         /// <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
         /// <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
