@@ -42,15 +42,9 @@ namespace InnerLibs
             return new HSVColor(cColors[(int)Color]) { Alpha = 255 };
         }
 
-        public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList)
-        {
-            return ColorList?.Select(x => new HSVColor(x));
-        }
+        public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
 
-        public static IEnumerable<HSVColor> GrayscalePallette(int Amount)
-        {
-            return MonochromaticPallette(Color.White, Amount);
-        }
+        public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
 
         /// <summary>
         /// Gera uma paleta de cores monocromatica com <paramref name="Amount"/> amostras a partir de uma <paramref name="Color"/> base.
@@ -79,10 +73,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="TheColor">Cor</param>
         /// <returns></returns>
-        public static Color GetNegativeColor(this Color TheColor)
-        {
-            return Color.FromArgb(255 - TheColor.R, 255 - TheColor.G, 255 - TheColor.B);
-        }
+        public static Color GetNegativeColor(this Color TheColor) => Color.FromArgb(255 - TheColor.R, 255 - TheColor.G, 255 - TheColor.B);
 
         /// <summary>
         /// Retorna uma cor de contraste baseado na iluminacao da primeira cor: Uma cor clara se a primeira for escura. Uma cor escura se a primeira for clara
@@ -102,20 +93,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="TheColor">Cor</param>
         /// <returns></returns>
-        public static bool IsDark(this Color TheColor)
-        {
-            return new HSVColor(TheColor).IsDark();
-        }
+        public static bool IsDark(this Color TheColor) => new HSVColor(TheColor).IsDark();
 
         /// <summary>
         /// Verifica se uma clor é clara
         /// </summary>
         /// <param name="TheColor">Cor</param>
         /// <returns></returns>
-        public static bool IsLight(this Color TheColor)
-        {
-            return !TheColor.IsDark();
-        }
+        public static bool IsLight(this Color TheColor) => !TheColor.IsDark();
 
         /// <summary>
         /// Mescla duas cores a partir de uma porcentagem
@@ -124,10 +109,7 @@ namespace InnerLibs
         /// <param name="AnotherColor">Cor de mesclagem</param>
         /// <param name="percent">Porcentagem de mescla</param>
         /// <returns></returns>
-        public static Color MergeWith(this Color TheColor, Color AnotherColor, float Percent = 50f)
-        {
-            return TheColor.Lerp(AnotherColor, Percent / 100f);
-        }
+        public static Color MergeWith(this Color TheColor, Color AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
 
         /// <summary>
         /// Escurece a cor mesclando ela com preto
@@ -135,24 +117,18 @@ namespace InnerLibs
         /// <param name="TheColor">Cor</param>
         /// <param name="percent">porcentagem de mesclagem</param>
         /// <returns></returns>
-        public static Color MakeDarker(this Color TheColor, float Percent = 50f)
-        {
-            return TheColor.MergeWith(Color.Black, Percent);
-        }
+        public static Color MakeDarker(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.Black, Percent);
 
         /// <summary>
-        /// Clareia a cor mistuando ela com branco
+        /// Clareia a cor misturando ela com branco
         /// </summary>
         /// <param name="TheColor">Cor</param>
         /// <param name="percent">Porcentagem de mesclagem</param>
         /// <returns></returns>
-        public static Color MakeLighter(this Color TheColor, float Percent = 50f)
-        {
-            return TheColor.MergeWith(Color.White, Percent);
-        }
+        public static Color MakeLighter(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.White, Percent);
 
         /// <summary>
-        /// Mescla duas cores usando Lerp
+        /// Mescla duas cores usando <see cref="Lerp"/>
         /// </summary>
         /// <param name="FromColor">Cor</param>
         /// <param name="ToColor">Outra cor</param>
@@ -183,10 +159,7 @@ namespace InnerLibs
         /// <param name="Hash">parametro indicando se a cor deve ser retornada com ou sem hashsign (#)</param>
         /// <returns>string contendo o hexadecimal da cor</returns>
 
-        public static string ToHexadecimal(this Color Color, bool Hash = true)
-        {
-            return (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
-        }
+        public static string ToHexadecimal(this Color Color, bool Hash = true) => (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
 
         /// <summary>
         /// Converte uma cor de sistema para CSS RGB
@@ -194,15 +167,9 @@ namespace InnerLibs
         /// <param name="Color">Cor do sistema</param>
         /// <returns>String contendo a cor em RGB</returns>
 
-        public static string ToCssRGB(this Color Color)
-        {
-            return "rgb(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + ")";
-        }
+        public static string ToCssRGB(this Color Color) => "rgb(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + ")";
 
-        public static string ToCssRGBA(this Color Color)
-        {
-            return "rgba(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + "," + Color.A.ToString() + ")";
-        }
+        public static string ToCssRGBA(this Color Color) => "rgba(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + "," + Color.A.ToString() + ")";
 
         public static bool IsHexaDecimalColor(this string Text)
         {
@@ -264,13 +231,7 @@ namespace InnerLibs
         /// Lista com todas as <see cref="KnownColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<Color> KnowColors
-        {
-            get
-            {
-                return Enum.GetValues(typeof(KnownColor)).Cast<KnownColor>().Where(x => x.ToInteger() >= 27).Select(x => Color.FromKnownColor(x));
-            }
-        }
+        public static IEnumerable<Color> KnowColors => Enum.GetValues(typeof(KnownColor)).Cast<KnownColor>().Where(x => x.ToInteger() >= 27).Select(x => Color.FromKnownColor(x));
 
         /// <summary>
         /// Retorna uma <see cref="KnownColor"/> mais proxima de outra cor
@@ -303,10 +264,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Color"></param>
         /// <returns></returns>
-        public static string GetClosestColorName(this Color Color)
-        {
-            return Color.GetClosestKnowColor().Name;
-        }
+        public static string GetClosestColorName(this Color Color) => Color.GetClosestKnowColor().Name;
 
         /// <summary>
         /// Retorna o nome da cor
@@ -316,7 +274,8 @@ namespace InnerLibs
         public static string GetColorName(this Color Color)
         {
             foreach (var namedColor in KnowColors)
-                return namedColor.Name;
+                if (namedColor.ToArgb() == Color.ToArgb())
+                    return namedColor.Name;
             return Color.Name;
         }
 
