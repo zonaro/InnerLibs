@@ -67,16 +67,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Type"></param>
         /// <param name="Def"></param>
         /// <returns></returns>
-        public static Type GetTypeFromDb<T>(this DbType Type, Type Def = null)
-        {
-            var tt = DbTypes.FirstOrDefault(x => x.Value == Type);
-            if (yy != null)
-            {
-                return tt.Key;
-            }
-
-            return Def ?? typeof(object);
-        }
+        public static Type GetTypeFromDb<T>(this DbType Type, Type Def = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? Def ?? typeof(object);
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
@@ -624,7 +615,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false)
+        public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
         {
             var x = Connection.RunSQLSet<T>(SQL, false).FirstOrDefault();
             if (x != null && WithSubQueries)
@@ -642,7 +633,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false) => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL), WithSubQueries);
+        public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL), WithSubQueries);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
@@ -651,7 +642,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false) => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL), WithSubQueries);
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false) where T : class => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL), WithSubQueries);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
@@ -660,7 +651,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false)
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
         {
             return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(x =>
             {
