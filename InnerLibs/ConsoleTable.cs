@@ -208,7 +208,7 @@ namespace InnerLibs.ConsoleTables
 
         private string GetNumberAlignment(int i)
         {
-            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && Arrays.PrimitiveNumericTypes.Contains(ColumnTypes[i]) ? "" : "-";
+            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && Arrays.NumericTypes.Contains(ColumnTypes[i]) ? "" : "-";
         }
 
         private List<int> ColumnLengths()

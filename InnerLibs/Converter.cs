@@ -206,7 +206,7 @@ namespace InnerLibs
                 var tipo = ClassTools.GetNullableTypeOf(ToType);
                 if (Value == null)
                 {
-                    if (!tipo.IsPrimitiveType() || ToType.IsNullableType())
+                    if (!tipo.IsValueType() || ToType.IsNullableType())
                     {
                         return null;
                     }
@@ -221,12 +221,20 @@ namespace InnerLibs
                     return Guid.Parse(Value.ToString());
                 }
 
-                if (tipo.IsPrimitiveType())
+                if (tipo.IsValueType())
                 {
                     var Converter = TypeDescriptor.GetConverter(tipo);
                     if (Converter.CanConvertFrom(typeof(FromType)))
                     {
-                        return Converter.ConvertTo(Value, tipo);
+                        try
+                        {
+                            return Converter.ConvertTo(Value, tipo);
+
+                        }
+                        catch
+                        {
+                            return Convert.ChangeType(Value, tipo);
+                        }
                     }
                     else
                     {
@@ -404,7 +412,7 @@ namespace InnerLibs
         public static object CreateOrSetObject(this Dictionary<string, object> Dic, object Obj, Type Type, params object[] args)
         {
             var tipo = Type.GetNullableTypeOf();
-            if (tipo.IsPrimitiveType())
+            if (tipo.IsValueType())
             {
                 return (Dic?.Values.FirstOrDefault()).ChangeType(tipo);
             }
@@ -553,7 +561,7 @@ namespace InnerLibs
 
                                 case object _ when Verify.IsDate(result[key]):
                                     {
-                                        
+
                                         l.Add(Convert.ToDateTime(result[key]));
                                         break;
                                     }

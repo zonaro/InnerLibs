@@ -67,8 +67,8 @@ namespace InnerLibs
 
                             default:
                                 {
-                                    bool isvirtual = item.GetAccessors().All(x => x.IsVirtual) && IncludeVirtual;
-                                    if (item.IsPrimitiveType() || isvirtual)
+                                    bool IsVirtual = item.GetAccessors().All(x => x.IsVirtual) && IncludeVirtual;
+                                    if (item.IsValueType() || IsVirtual)
                                     {
                                         var o = Activator.CreateInstance(item.PropertyType.GetNullableTypeOf());
                                         item.SetValue(Obj, o);
@@ -1214,7 +1214,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsNotIn<Type>(this Type Obj, string Text, IEqualityComparer<char> Comparer = null)
         {
-            if (Comparer is null)
+            if (Comparer == null)
             {
                 return Text.Contains(Obj.ToString());
             }
@@ -1224,15 +1224,9 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsPrimitiveType(this Type T)
-        {
-            return T.IsIn(Arrays.PrimitiveTypes);
-        }
+        public static bool IsValueType(this Type T) => T.IsIn(Arrays.ValueTypes);
 
-        public static bool IsPrimitiveType<T>(this T Obj)
-        {
-            return Obj.GetNullableTypeOf().IsPrimitiveType();
-        }
+        public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
 
         /// <summary>
         /// Verifica se o objeto é do tipo numérico.
@@ -1242,7 +1236,7 @@ namespace InnerLibs
         /// </remarks>
         public static bool IsNumericType<T>(this T Obj)
         {
-            return Obj.GetNullableTypeOf().IsIn(Arrays.PrimitiveNumericTypes);
+            return Obj.GetNullableTypeOf().IsIn(Arrays.NumericTypes);
         }
 
         public static bool IsNullableType(this Type t)

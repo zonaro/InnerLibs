@@ -377,10 +377,7 @@ namespace InnerLibs
         /// <param name="Total">Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo a porcentagem</returns>
 
-        public static decimal CalculatePercent(this decimal Value, decimal Total)
-        {
-            return Convert.ToDecimal(100m * Value / Total);
-        }
+        public static decimal CalculatePercent(this decimal Value, decimal Total) => Total > 0 ? Convert.ToDecimal(100m * Value / Total) : 0;
 
         /// <summary>
         /// Retorna o valor de um determinado percentual de um valor total
@@ -391,10 +388,7 @@ namespace InnerLibs
         /// <param name="Total">  Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
-        public static decimal CalculateValueFromPercent(this string Percent, decimal Total)
-        {
-            return Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", "")) * Total / 100m);
-        }
+        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", "")) * Total / 100m);
 
         /// <summary>
         /// Retorna o valor de um determinado percentual de um valor total
@@ -405,10 +399,7 @@ namespace InnerLibs
         /// <param name="Total">  Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
-        public static decimal CalculateValueFromPercent(this int Percent, decimal Total)
-        {
-            return Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
-        }
+        public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
 
         /// <summary>
         /// Retorna o valor de um determinado percentual de um valor total
@@ -419,10 +410,7 @@ namespace InnerLibs
         /// <param name="Total">  Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
-        public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total)
-        {
-            return Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
-        }
+        public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
 
 
         /// <summary>
@@ -445,15 +433,9 @@ namespace InnerLibs
             return Value.ToLong();
         }
 
-        public static bool IsWholeNumber(this decimal Number)
-        {
-            return !Number.HasDecimalPart();
-        }
+        public static bool IsWholeNumber(this decimal Number) => !Number.HasDecimalPart();
 
-        public static bool IsWholeNumber(this double Number)
-        {
-            return !Number.HasDecimalPart();
-        }
+        public static bool IsWholeNumber(this double Number) => !Number.HasDecimalPart();
 
 
 
@@ -469,7 +451,7 @@ namespace InnerLibs
             {
                 return Math.Ceiling(Number);
             }
-            catch  
+            catch
             {
                 return 0m;
             }
@@ -487,7 +469,7 @@ namespace InnerLibs
             {
                 return Math.Ceiling(Number);
             }
-            catch 
+            catch
             {
                 return 0d;
             }
@@ -504,7 +486,7 @@ namespace InnerLibs
             {
                 return Math.Floor(Number);
             }
-            catch  
+            catch
             {
                 return 0m;
             }
@@ -521,7 +503,7 @@ namespace InnerLibs
             {
                 return Math.Floor(Number);
             }
-            catch  
+            catch
             {
                 return 0d;
             }
@@ -532,80 +514,56 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static long FloorLong(this double Number)
-        {
-            return Number.Floor().ToLong();
-        }
+        public static long FloorLong(this double Number) => Number.Floor().ToLong();
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static long CeilLong(this double Number)
-        {
-            return Number.Ceil().ToLong();
-        }
+        public static long CeilLong(this double Number) => Number.Ceil().ToLong();
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static long FloorLong(this decimal Number)
-        {
-            return Number.Floor().ToLong();
-        }
+        public static long FloorLong(this decimal Number) => Number.Floor().ToLong();
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static long CeilLong(this decimal Number)
-        {
-            return Number.Ceil().ToLong();
-        }
+        public static long CeilLong(this decimal Number) => Number.Ceil().ToLong();
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int FloorInt(this double Number)
-        {
-            return Number.Floor().ToInteger();
-        }
+        public static int FloorInt(this double Number) => Number.Floor().ToInteger();
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int CeilInt(this double Number)
-        {
-            return Number.Ceil().ToInteger();
-        }
+        public static int CeilInt(this double Number) => Number.Ceil().ToInteger();
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int FloorInt(this decimal Number)
-        {
-            return Number.Floor().ToInteger();
-        }
+        public static int FloorInt(this decimal Number) => Number.Floor().ToInteger();
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int CeilInt(this decimal Number)
-        {
-            return Number.Ceil().ToInteger();
-        }
+        public static int CeilInt(this decimal Number) => Number.Ceil().ToInteger();
 
         /// <summary>
         /// Limita o valor Maximo de um numero
@@ -613,10 +571,7 @@ namespace InnerLibs
         /// <param name="Number">  Numero</param>
         /// <param name="MaxValue">Valor Maximo</param>
         /// <returns></returns>
-        public static T SetMaxValue<T>(this T Number, T MaxValue) where T : IComparable
-        {
-            return Number.LimitRange<T>(MaxValue: MaxValue);
-        }
+        public static T SetMaxValue<T>(this T Number, T MaxValue) where T : IComparable => Number.LimitRange<T>(MaxValue: MaxValue);
 
         /// <summary>
         /// Limita o valor minimo de um numero
@@ -624,10 +579,7 @@ namespace InnerLibs
         /// <param name="Number">  Numero</param>
         /// <param name="MinValue">Valor Maximo</param>
         /// <returns></returns>
-        public static T SetMinValue<T>(this T Number, T MinValue) where T : IComparable
-        {
-            return Number.LimitRange<T>(MinValue: MinValue);
-        }
+        public static T SetMinValue<T>(this T Number, T MinValue) where T : IComparable => Number.LimitRange<T>(MinValue: MinValue);
 
         /// <summary>
         /// Limita um range para um numero
@@ -658,10 +610,7 @@ namespace InnerLibs
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
-        public static int LimitRange(this int Number, IComparable MinValue = null, IComparable MaxValue = null)
-        {
-            return Number.LimitRange<int>(MinValue, MaxValue);
-        }
+        public static int LimitRange(this int Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<int>(MinValue, MaxValue);
 
         /// <summary>
         /// Limita um range para um numero
@@ -670,10 +619,7 @@ namespace InnerLibs
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
-        public static decimal LimitRange(this decimal Number, IComparable MinValue = null, IComparable MaxValue = null)
-        {
-            return Number.LimitRange<decimal>(MinValue, MaxValue);
-        }
+        public static decimal LimitRange(this decimal Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<decimal>(MinValue, MaxValue);
 
         /// <summary>
         /// Limita um range para um numero
@@ -682,10 +628,7 @@ namespace InnerLibs
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
-        public static long LimitRange(this double Number, IComparable MinValue = null, IComparable MaxValue = null)
-        {
-            return (long)Math.Round(Number.LimitRange<double>(MinValue, MaxValue));
-        }
+        public static long LimitRange(this double Number, IComparable MinValue = null, IComparable MaxValue = null) => (long)Math.Round(Number.LimitRange<double>(MinValue, MaxValue));
 
         /// <summary>
         /// Limita um range para um numero
@@ -694,10 +637,7 @@ namespace InnerLibs
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
-        public static long LimitRange(this long Number, IComparable MinValue = null, IComparable MaxValue = null)
-        {
-            return Number.LimitRange<long>(MinValue, MaxValue);
-        }
+        public static long LimitRange(this long Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<long>(MinValue, MaxValue);
 
         /// <summary>
         /// Limita um range para um numero
@@ -706,15 +646,9 @@ namespace InnerLibs
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
-        public static DateTime LimitRange(this DateTime Number, IComparable MinValue = null, IComparable MaxValue = null)
-        {
-            return Number.LimitRange<DateTime>(MinValue, MaxValue);
-        }
+        public static DateTime LimitRange(this DateTime Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<DateTime>(MinValue, MaxValue);
 
-        public static int LimitIndex<AnyType>(this int Int, IEnumerable<AnyType> Collection)
-        {
-            return Int.LimitRange<int>(0, Collection.Count() - 1);
-        }
+        public static int LimitIndex<AnyType>(this int Int, IEnumerable<AnyType> Collection) => Int.LimitRange<int>(0, Collection.Count() - 1);
 
         public static long LimitIndex<AnyType>(this long Lng, IEnumerable<AnyType> Collection) => Lng.LimitRange<int>(0, Collection.LongCount() - 1L);
 
@@ -764,7 +698,7 @@ namespace InnerLibs
         /// Realiza um calculo de interpolação Linear
         /// </summary>
         /// <param name="Start"> </param>
-        /// <param name="[End]"> </param>
+        /// <param name="End"> </param>
         /// <param name="Amount"></param>
         /// <returns></returns>
         public static float Lerp(this float Start, float End, float Amount)
@@ -779,90 +713,63 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo a soma de todos os valores</returns>
-        public static double Sum(params double[] Values)
-        {
-            return Values.Sum();
-        }
+        public static double Sum(params double[] Values) => Values.Sum();
 
         /// <summary>
         /// Soma todos os números de um array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo a soma de todos os valores</returns>
-        public static long Sum(params long[] Values)
-        {
-            return Values.Sum();
-        }
+        public static long Sum(params long[] Values) => Values.Sum();
 
         /// <summary>
         /// Soma todos os números de um array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo a soma de todos os valores</returns>
-        public static int Sum(params int[] Values)
-        {
-            return Values.Sum();
-        }
+        public static int Sum(params int[] Values) => Values.Sum();
 
         /// <summary>
         /// Soma todos os números de um array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo a soma de todos os valores</returns>
-        public static decimal Sum(params decimal[] Values)
-        {
-            return Values.Sum();
-        }
+        public static decimal Sum(params decimal[] Values) => Values.Sum();
 
         /// <summary>
         /// Tira a média de todos os números de um Array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo</returns>
-        public static decimal Average(params decimal[] Values)
-        {
-            return Values.Average();
-        }
+        public static decimal Average(params decimal[] Values) => Values.Average();
 
         /// <summary>
         /// Tira a média de todos os números de um Array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo</returns>
-        public static double Average(params double[] Values)
-        {
-            return Values.Average();
-        }
+        public static double Average(params double[] Values) => Values.Average();
 
         /// <summary>
         /// Tira a média de todos os números de um Array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo</returns>
-        public static int Average(params int[] Values)
-        {
-            return (int)Math.Round(Values.Average());
-        }
+        public static int Average(params int[] Values) => (int)Math.Round(Values.Average());
 
         /// <summary>
         /// Tira a média de todos os números de um Array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo</returns>
-        public static long Average(params long[] Values)
-        {
-            return (long)Math.Round(Values.Average());
-        }
+        public static long Average(params long[] Values) => (long)Math.Round(Values.Average());
 
         /// <summary>
         /// COnverte graus para radianos
         /// </summary>
         /// <param name="Degrees"></param>
         /// <returns></returns>
-        public static double ToRadians(this double Degrees)
-        {
-            return Degrees * Math.PI / 180.0d;
-        }
+        public static double ToRadians(this double Degrees) => Degrees * Math.PI / 180.0d;
 
         /// <summary>
         /// Calcula a distancia entre 2 locais
@@ -884,15 +791,15 @@ namespace InnerLibs
             // Calculate radians
             double latitude1Rad = ((double)FirstLocation.Latitude).ToRadians();
             double longitude1Rad = ((double)FirstLocation.Longitude).ToRadians();
-            double latititude2Rad = ((double)SecondLocation.Latitude).ToRadians();
+            double latitude2Rad = ((double)SecondLocation.Latitude).ToRadians();
             double longitude2Rad = ((double)SecondLocation.Longitude).ToRadians();
-            double logitudeDiff = Math.Abs(longitude1Rad - longitude2Rad);
-            if (logitudeDiff > Math.PI)
+            double longitudeDiff = Math.Abs(longitude1Rad - longitude2Rad);
+            if (longitudeDiff > Math.PI)
             {
-                logitudeDiff = 2.0d * Math.PI - logitudeDiff;
+                longitudeDiff = 2.0d * Math.PI - longitudeDiff;
             }
 
-            double angleCalculation = Math.Acos(Math.Sin(latititude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latititude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(logitudeDiff));
+            double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
             distance = circumference * angleCalculation / (2.0d * Math.PI);
             return distance;
         }
@@ -902,9 +809,6 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Locations">Localizacoes</param>
         /// <returns></returns>
-        public static Tuple<AddressInfo, AddressInfo, decimal> CalculateDistanceMatrix(params AddressInfo[] Locations)
-        {
-            return (Tuple<AddressInfo, AddressInfo, decimal>)CartesianProduct(Locations, Locations).Select(x => new Tuple<AddressInfo, AddressInfo, decimal>(x.First(), x.Last(), (decimal)x.First().CalculateDistance(x.Last())));
-        }
+        public static Tuple<AddressInfo, AddressInfo, decimal> CalculateDistanceMatrix(params AddressInfo[] Locations) => (Tuple<AddressInfo, AddressInfo, decimal>)CartesianProduct(Locations, Locations).Select(x => new Tuple<AddressInfo, AddressInfo, decimal>(x.First(), x.Last(), (decimal)x.First().CalculateDistance(x.Last())));
     }
 }
