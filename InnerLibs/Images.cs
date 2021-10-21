@@ -17,23 +17,23 @@ namespace InnerLibs
     public static class Images
     {
 
-      /// <summary>
-       /// Aplica um borrão a imagem
-       /// </summary>
-       /// <param name="Img"></param>
-       /// <param name="BlurSize"></param>
-       /// <param name="rectangle"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// Aplica um borrão a imagem
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <param name="BlurSize"></param>
+        /// <param name="rectangle"></param>
+        /// <returns></returns>
         public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new Rectangle(0, 0, Img.Width, Img.Height));
 
-       
-       /// <summary>
-       /// Aplica um borrão a uma determinada parte da imagem
-       /// </summary>
-       /// <param name="Img"></param>
-       /// <param name="BlurSize"></param>
-       /// <param name="rectangle"></param>
-       /// <returns></returns>
+
+        /// <summary>
+        /// Aplica um borrão a uma determinada parte da imagem
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <param name="BlurSize"></param>
+        /// <param name="rectangle"></param>
+        /// <returns></returns>
         private unsafe static Image Blur(this Image Img, int BlurSize, Rectangle rectangle)
         {
             Bitmap blurred = new Bitmap(Img.Width, Img.Height);
@@ -109,10 +109,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Image"></param>
         /// <returns></returns>
-        public static Bitmap ToBitmap(this Image Image)
-        {
-            return new Bitmap(Image);
-        }
+        public static Bitmap ToBitmap(this Image Image) => new Bitmap(Image);
 
         /// <summary>
         /// Corta uma imagem para um quadrado perfeito a partir do centro
@@ -136,10 +133,7 @@ namespace InnerLibs
         /// <param name="Img">Imagem</param>
         /// <param name="Background">Cor do fundo</param>
         /// <returns></returns>
-        public static Image CropToCircle(this Image Img, Color? Background = default)
-        {
-            return Img.CropToSquare()?.CropToEllipsis(Background);
-        }
+        public static Image CropToCircle(this Image Img, Color? Background = default) => Img.CropToSquare()?.CropToEllipsis(Background);
 
         /// <summary>
         /// Corta a imagem em uma elipse
@@ -165,7 +159,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Rotaciona uma imagem para sua pocisão original caso ela já tenha sido rotacionada (EXIF)
+        /// Rotaciona uma imagem para sua posição original caso ela já tenha sido rotacionada (EXIF)
         /// </summary>
         /// <param name="Img">Imagem</param>
         /// <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
@@ -222,16 +216,16 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Insere uma imagem de marca Dágua na imagem
+        /// Insere uma imagem de marca d'água na imagem
         /// </summary>
         /// <param name="Image">Imagem</param>
-        /// <param name="WaterMarkImage">Imagem de Marca Dagua</param>
+        /// <param name="WaterMarkImage">Imagem de Marca d'água</param>
         /// <param name="X">Posição X</param>
         /// <param name="Y">Posição Y</param>
         /// <returns></returns>
         public static Image Watermark(this Image Image, Image WaterMarkImage, int X = -1, int Y = -1)
         {
-            // a imagem onde iremos aplicar a marca dágua
+            // a imagem onde iremos aplicar a marca d'água
             var bm_Resultado = new Bitmap(Image);
 
             // a imagem que será usada como marca d'agua
@@ -251,7 +245,7 @@ namespace InnerLibs
                     bm_marcaDagua.SetPixel(px, py, Color.FromArgb(ALPHA, clr.R, clr.G, clr.B));
                 }
             }
-            // Define a marca dagua como transparente
+            // Define a marca d'agua como transparente
             bm_marcaDagua.MakeTransparent(bm_marcaDagua.GetPixel(0, 0));
             // Copia o resultado na imagem
             var gr = Graphics.FromImage(bm_Resultado);
@@ -321,10 +315,7 @@ namespace InnerLibs
             return bitmap;
         }
 
-        public static Image Monochrome(this Image Image, Color Color, float Alpha = 0f)
-        {
-            return Image.Grayscale().Translate(Color.R, Color.G, Color.B, Alpha);
-        }
+        public static Image Monochrome(this Image Image, Color Color, float Alpha = 0f) => Image.Grayscale().Translate(Color.R, Color.G, Color.B, Alpha);
 
         /// <summary>
         /// Inverte as cores de uma imagem
@@ -339,16 +330,13 @@ namespace InnerLibs
             return copia;
         }
 
-        public static Image Translate(this Image img, Color Color, float Alpha = 0f)
-        {
-            return img.Translate(Color.R, Color.G, Color.B, Alpha);
-        }
+        public static Image Translate(this Image img, Color Color, float Alpha = 0f) => img.Translate(Color.R, Color.G, Color.B, Alpha);
 
         public static Image Translate(this Image img, float Red, float Green, float Blue, float Alpha = 0f)
         {
             float sr, sg, sb, sa;
             var copia = new Bitmap(img);
-            // noramlize the color components to 1
+            // normalize the color components to 1
             sr = Red / 255f;
             sg = Green / 255f;
             sb = Blue / 255f;
@@ -399,16 +387,9 @@ namespace InnerLibs
             return copia;
         }
 
-        public static bool CompareARGB(this Color Color1, Color Color2, bool IgnoreAlpha = true)
-        {
-            return Color1.CompareARGB(IgnoreAlpha, Color2);
-        }
+        public static bool CompareARGB(this Color Color1, Color Color2, bool IgnoreAlpha = true) => Color1.CompareARGB(IgnoreAlpha, Color2);
 
-        public static bool CompareARGB(this Color Color1, bool IgnoreAlpha, params Color[] Colors)
-        {
-            Colors = Colors.NullAsEmpty();
-            return Colors.Any(Color2 => Color1.R == Color2.R && Color1.G == Color2.G && Color1.B == Color2.B && (IgnoreAlpha ? true : Color1.A == Color2.A));
-        }
+        public static bool CompareARGB(this Color Color1, bool IgnoreAlpha, params Color[] Colors) => (Colors ??= Array.Empty<Color>()).Any(Color2 => Color1.R == Color2.R && Color1.G == Color2.G && Color1.B == Color2.B && (IgnoreAlpha || Color1.A == Color2.A));
 
         public static Image MakeDarker(this Image img, float percent = 50f)
         {

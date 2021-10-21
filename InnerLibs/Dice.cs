@@ -340,7 +340,7 @@ namespace InnerLibs.RolePlayingGame
 
         private void ApplyPercent()
         {
-            foreach (var f in Faces.NullAsEmpty())
+            foreach (var f in Faces ?? Array.Empty<DiceFace>().AsEnumerable())
                 f._weightpercent = GetChancePercent(f.Number);
         }
 

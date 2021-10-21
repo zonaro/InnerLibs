@@ -1229,7 +1229,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> FirstExpression, params Expression<Func<T, bool>>[] OtherExpressions)
         {
-            FirstExpression = FirstExpression ?? false.CreateWhereExpression<T>();
+            FirstExpression ??= false.CreateWhereExpression<T>();
             foreach (var item in OtherExpressions ?? Array.Empty<Expression<Func<T, bool>>>())
             {
                 if (item != null)
@@ -1264,7 +1264,7 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
         {
-            Properties = Properties.NullAsEmpty();
+            Properties ??= Array.Empty<Expression<Func<T, string>>>();
             var predi = false.CreateWhereExpression<T>();
             foreach (var prop in Properties)
             {
@@ -1366,21 +1366,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Verifica se uma instancia de uma classe possui propriedades especificas com valores igual
-        /// as de outra instancia da mesma classe
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Obj1">      Instancia 1</param>
-        /// <param name="Obj2">      Instancia 2</param>
-        /// <param name="Properties">Propriedades</param>
-        /// <returns></returns>
-        public static object HasSamePropertyValues<T>(this T Obj1, T Obj2, params Func<T, object>[] Properties) where T : class
-        {
-            return Properties.NullAsEmpty().All(x => x(Obj1).Equals(x(Obj2)));
-        }
-
-        /// <summary>
-        /// Orderna uma lista a partir da aproximaçao de um deerminado campo com uma string
+        /// Orderna uma lista a partir da aproximação de um deerminado campo com uma string
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="items">           </param>
@@ -1388,10 +1374,7 @@ namespace InnerLibs.LINQ
         /// <param name="Ascending">       </param>
         /// <param name="Searches">        </param>
         /// <returns></returns>
-        public static IOrderedEnumerable<T> OrderByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class
-        {
-            return items.ThenByLike(PropertySelector, Ascending, Searches);
-        }
+        public static IOrderedEnumerable<T> OrderByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class => items.ThenByLike(PropertySelector, Ascending, Searches);
 
         /// <summary>
         /// Randomiza a ordem de um <see cref="IEnumerable"/>
@@ -1399,10 +1382,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T"></typeparam>
         /// <param name="items"></param>
         /// <returns></returns>
-        public static IOrderedEnumerable<T> OrderByRandom<T>(this IEnumerable<T> items)
-        {
-            return items.OrderBy(x => Guid.NewGuid());
-        }
+        public static IOrderedEnumerable<T> OrderByRandom<T>(this IEnumerable<T> items) => items.OrderBy(x => Guid.NewGuid());
 
         /// <summary>
         /// Randomiza a ordem de um <see cref="IQueryable"/>
@@ -1410,10 +1390,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T"></typeparam>
         /// <param name="items"></param>
         /// <returns></returns>
-        public static IOrderedQueryable<T> OrderByRandom<T>(this IQueryable<T> items)
-        {
-            return items.OrderBy(x => Guid.NewGuid());
-        }
+        public static IOrderedQueryable<T> OrderByRandom<T>(this IQueryable<T> items) => items.OrderBy(x => Guid.NewGuid());
 
         /// <summary>
         /// Reduz um <see cref="IQueryable"/> em uma página especifica
@@ -1423,10 +1400,7 @@ namespace InnerLibs.LINQ
         /// <param name="PageNumber"></param>
         /// <param name="PageSize">  </param>
         /// <returns></returns>
-        public static IQueryable<TSource> Page<TSource>(this IQueryable<TSource> Source, int PageNumber, int PageSize)
-        {
-            return PageNumber <= 0 ? Source : Source.Skip((PageNumber - 1) * PageSize).Take(PageSize);
-        }
+        public static IQueryable<TSource> Page<TSource>(this IQueryable<TSource> Source, int PageNumber, int PageSize) => PageNumber <= 0 ? Source : Source.Skip((PageNumber - 1) * PageSize).Take(PageSize);
 
         /// <summary>
         /// Reduz um <see cref="IEnumerable"/> em uma página especifica
@@ -1457,8 +1431,8 @@ namespace InnerLibs.LINQ
         public static IOrderedEnumerable<ClassType> Search<ClassType>(this IEnumerable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
             IOrderedEnumerable<ClassType> SearchRet = default;
-            Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
-            SearchTerms = SearchTerms.NullAsEmpty();
+            Properties ??= Array.Empty<Expression<Func<ClassType, string>>>();
+            SearchTerms ??= Array.Empty<string>().AsEnumerable();
             SearchRet = null;
             Table = Table.Where(SearchTerms.SearchExpression(Properties).Compile());
             foreach (var prop in Properties)
@@ -1477,8 +1451,8 @@ namespace InnerLibs.LINQ
         public static IOrderedQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
             IOrderedQueryable<ClassType> SearchRet = default;
-            Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
-            SearchTerms = SearchTerms.NullAsEmpty();
+            Properties ??= Array.Empty<Expression<Func<ClassType, string>>>();
+            SearchTerms ??= Array.Empty<string>().AsEnumerable();
             SearchRet = Table.Where(SearchTerms.SearchExpression(Properties)).OrderBy(x => true);
             foreach (var prop in Properties)
                 SearchRet = SearchRet.ThenByLike((string[])SearchTerms, prop);
@@ -1492,10 +1466,7 @@ namespace InnerLibs.LINQ
         /// <param name="Source">   </param>
         /// ''' <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoin<TSource>(this IEnumerable<TSource> Source, string Separator = "")
-        {
-            return Source.SelectJoinString(null, Separator);
-        }
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = "") => Source.SelectJoinString(null, Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
@@ -1543,10 +1514,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"> </param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoin<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = ";")
-        {
-            return Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
-        }
+        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "") => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
 
         /// <summary>
         /// Ordena um <see cref="IEnumerable"/> priorizando valores especificos a uma condição no
@@ -1610,7 +1578,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Ordena um <see cref="ienumerable(Of T)"/> a partir do nome de uma ou mais propriedades
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir do nome de uma ou mais propriedades
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source">      </param>
@@ -1638,7 +1606,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Ordena um <see cref="ienumerable(Of T)"/> a partir de outra lista do mesmo tipo
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir de outra lista do mesmo tipo
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Source"></param>
@@ -1650,7 +1618,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais
         /// <see cref="String"/> com o valor de um determinado campo
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1706,7 +1674,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais
         /// <see cref="String"/> com o valor de um determinado campo
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1763,7 +1731,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximaçao de uma ou mais
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais
         /// <see cref="String"/> com o valor de um determinado campo
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1790,10 +1758,10 @@ namespace InnerLibs.LINQ
                 foreach (var t in Searches)
                 {
                     var arr = new[] {
-                    new Func<T, bool>(x => (PropertySelector(x) ?? "") == (t ?? "")),
-                    new Func<T, bool>(x => PropertySelector(x).StartsWith(t)),
-                    new Func<T, bool>(x => PropertySelector(x).Contains(t)),
-                    new Func<T, bool>(x => PropertySelector(x).EndsWith(t))
+                         new Func<T, bool>(x => (PropertySelector(x) ?? "") == (t ?? "")),
+                         new Func<T, bool>(x => PropertySelector(x).StartsWith(t)),
+                         new Func<T, bool>(x => PropertySelector(x).Contains(t)),
+                         new Func<T, bool>(x => PropertySelector(x).EndsWith(t))
                     };
 
                     foreach (var exp in arr)
@@ -1818,30 +1786,21 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static bool Most<T>(this IEnumerable<T> List, Func<T, bool> predicate, bool Result = true)
-        {
-            return List.Select(predicate).Most(Result);
-        }
+        public static bool Most<T>(this IEnumerable<T> List, Func<T, bool> predicate, bool Result = true) => List.Select(predicate).Most(Result);
 
         /// <summary>
         /// Retorna TRUE se a maioria dos testes em uma lista retornarem true
         /// </summary>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static bool MostTrue<T>(this IEnumerable<T> List, Func<T, bool> predicate)
-        {
-            return MostTrue(List.Select(predicate).ToArray());
-        }
+        public static bool MostTrue<T>(this IEnumerable<T> List, Func<T, bool> predicate) => MostTrue(List.Select(predicate).ToArray());
 
         /// <summary>
         /// Retorna TRUE se a maioria dos testes em uma lista retornarem false
         /// </summary>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static bool MostFalse<T>(this IEnumerable<T> List, Func<T, bool> predicate)
-        {
-            return MostFalse(List.Select(predicate).ToArray());
-        }
+        public static bool MostFalse<T>(this IEnumerable<T> List, Func<T, bool> predicate) => MostFalse(List.Select(predicate).ToArray());
 
         /// <summary>
         /// Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
@@ -1871,46 +1830,30 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Tests"></param>
         /// <returns></returns>
-        public static bool MostTrue(params bool[] Tests)
-        {
-            return (Tests ?? Array.Empty<bool>()).Most(true);
-        }
+        public static bool MostTrue(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(true);
 
         /// <summary>
         /// Retorna TRUE se a maioria dos testes em uma lista retornarem FALSE
         /// </summary>
         /// <param name="Tests"></param>
         /// <returns></returns>
-        public static bool MostFalse(params bool[] Tests)
-        {
-            return (Tests ?? Array.Empty<bool>()).Most(false);
-        }
+        public static bool MostFalse(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(false);
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem TRUE
         /// </summary>
         /// <param name="Tests"></param>
         /// <returns></returns>
-        public static bool AllTrue(params bool[] Tests)
-        {
-            return (Tests ?? Array.Empty<bool>()).All(x => x == true);
-        }
+        public static bool AllTrue(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).All(x => x == true);
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
         /// </summary>
         /// <param name="Tests"></param>
         /// <returns></returns>
-        public static bool AllFalse(params bool[] Tests)
-        {
-            return (Tests ?? Array.Empty<bool>()).All(x => x == false);
-        }
+        public static bool AllFalse(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).All(x => x == false);
 
-        private static Expression ReplaceExpression(Expression body, Expression source, Expression dest)
-        {
-            var replacer = new ExpressionReplacer(source, dest);
-            return replacer.Visit(body);
-        }
+
     }
 
     internal class ExpressionReplacer : ExpressionVisitor

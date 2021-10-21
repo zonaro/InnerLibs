@@ -4004,7 +4004,7 @@ namespace InnerLibs
                 }
             }
 
-            return l.SelectJoin(" ");
+            return l.SelectJoinString(" ");
         }
 
         /// <summary>

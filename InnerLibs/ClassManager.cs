@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using InnerLibs.LINQ;
@@ -124,18 +125,12 @@ namespace InnerLibs
 
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List)
         {
-            return List.NullAsEmpty().Any();
+            return (List ?? Array.Empty<T>()).Any();
         }
 
-        public static T NullAsEmpty<T>(this T List) where T : IEnumerable
-        {
-            if (List != null)
-            {
-                return List;
-            }
 
-            return Activator.CreateInstance<T>();
-        }
+
+
 
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> List)
         {
@@ -211,21 +206,31 @@ namespace InnerLibs
         /// sempre seja menor que a Value2. Util para tratar ranges
         /// </summary>
 
-        public static void FixOrder<T>(ref T Value1, ref T Value2) where T : IComparable
+        public static void FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
-            if (Value1 != null && Value2 != null)
+            if (FirstValue != null && SecondValue != null)
             {
-                if (Value1.IsGreaterThan(Value2))
+                if (FirstValue.IsGreaterThan(SecondValue))
                 {
-                    var temp = Value1;
-                    Value1 = Value2;
-                    Value2 = temp;
-                    temp = default;
+                    Swap(ref FirstValue, ref SecondValue);
                 }
             }
         }
 
-        public static XmlDocument CreateXML<Type>(this Type obj) where Type : class
+        /// <summary>Troca o valor de <paramref name="FirstValue"/> pelo valor de <paramref name="SecondValue"/> e o  valor de <paramref name="SecondValue"/> pelo valor de <paramref name="FirstValue"/>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="FirstValue"></param>
+        /// <param name="SecondValue"></param>
+        public static void Swap<T>(ref T FirstValue, ref T SecondValue)
+        {
+            var temp = FirstValue;
+            FirstValue = SecondValue;
+            SecondValue = temp;
+        }
+
+        public static XmlDocument CreateXML<T>(this T obj) where T : class
         {
             var xs = new XmlSerializer(obj.GetType());
             var doc = new XmlDocument();
@@ -238,53 +243,28 @@ namespace InnerLibs
             return doc;
         }
 
-        public static Type CreateObjectFromXML<Type>(this string XML) where Type : class
+        public static T CreateObjectFromXML<T>(this string XML) where T : class
         {
-            var serializer = new XmlSerializer(typeof(Type));
-            Type obj;
+            var serializer = new XmlSerializer(typeof(T));
+            T obj;
             using (var reader = new StringReader(XML))
             {
-                obj = (Type)serializer.Deserialize(reader);
+                obj = (T)serializer.Deserialize(reader);
             }
 
             return obj;
         }
 
-        public static Type CreateObjectFromXMLFile<Type>(this FileInfo XML) where Type : class
-        {
-            return File.ReadAllText(XML.FullName).CreateObjectFromXML<Type>();
-        }
+        public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => File.ReadAllText(XML.FullName).CreateObjectFromXML<T>();
 
         /// <summary>
         /// Cria um arquivo a partir de qualquer objeto usando o <see cref="ClassTools.CreateXML()"/>
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static FileInfo CreateXmlFile(this object obj, string FilePath)
-        {
-            return obj.CreateXML().ToXMLString().WriteToFile(FilePath);
-        }
+        public static FileInfo CreateXmlFile(this object obj, string FilePath) => obj.CreateXML().ToXMLString().WriteToFile(FilePath);
 
-        /// <summary>
-        /// Retorna as classes de um Namespace
-        /// </summary>
-        /// <param name="assembly"></param>
-        /// <param name="desiredNamespace"></param>
-        /// <returns></returns>
-        public static Type[] GetTypesFromNamespace(this Assembly assembly, string desiredNamespace)
-        {
-            return (Type[])assembly.GetTypes().Where(x => (x.Namespace ?? "") == (desiredNamespace ?? ""));
-        }
 
-        /// <summary>
-        /// Retorna as classes de um Namespace
-        /// </summary>
-        /// <param name="desiredNamespace"></param>
-        /// <returns></returns>
-        public static Type[] GetTypesFromNamespace(string desiredNamespace)
-        {
-            return Assembly.GetExecutingAssembly().GetTypesFromNamespace(desiredNamespace);
-        }
 
         /// <summary>
         /// Cria um <see cref="Guid"/> a partir de uma string ou um novo <see cref="Guid"/> se a conversão falhar
@@ -310,10 +290,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
-        public static string ToFullExceptionString(this Exception ex, string Separator = " >> ")
-        {
-            return ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
-        }
+        public static string ToFullExceptionString(this Exception ex, string Separator = " >> ") => ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
 
         /// <summary>
         /// Retorna um dicionário em QueryString
@@ -336,10 +313,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="NVC"></param>
         /// <returns></returns>
-        public static string ToQueryString(this NameValueCollection NVC)
-        {
-            return NVC.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
-        }
+        public static string ToQueryString(this NameValueCollection NVC) => NVC.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
 
         /// <summary>
         /// Remove um item de uma lista e retorna este item
@@ -370,16 +344,20 @@ namespace InnerLibs
         public static IEnumerable<object> ToTableArray<GroupKey, SubGroupKey, SubGroupValue, HeaderProperty>(this Dictionary<GroupKey, Dictionary<SubGroupKey, SubGroupValue>> Groups, Func<SubGroupKey, HeaderProperty> HeaderProp)
         {
             var lista = new List<object>();
-            var header = new List<object>();
-            header.Add(HeaderProp.Method.GetParameters().First().Name);
+            var header = new List<object>
+            {
+                HeaderProp.Method.GetParameters().First().Name
+            };
             Groups.Values.MergeKeys();
             foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x))
                 header.Add(HeaderProp(h));
             lista.Add(header);
             lista.AddRange(Groups.Select(x =>
             {
-                var l = new List<object>();
-                l.Add(x.Key); // GroupKey
+                var l = new List<object>
+                {
+                    x.Key // GroupKey
+                };
                 foreach (var item in x.Value.OrderBy(k => k.Key).Select(v => v.Value))
                     l.Add(item); // SubGroupValue
                 return l;
@@ -394,9 +372,11 @@ namespace InnerLibs
         {
             return Groups.Select(x =>
             {
-                var l = new List<object>();
-                l.Add(x.Key);
-                l.Add(x.Value);
+                var l = new List<object>
+                {
+                    x.Key,
+                    x.Value
+                };
                 return l.ToArray();
             });
         }
@@ -524,10 +504,7 @@ namespace InnerLibs
         /// <param name="First">Primeiro Item</param>
         /// <param name="N">    Outros itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(this string First, params string[] N)
-        {
-            return BlankCoalesce(new[] { First }.Union(N ?? Array.Empty<string>()).ToArray());
-        }
+        public static string BlankCoalesce(this string First, params string[] N) => BlankCoalesce(new[] { First }.Union(N ?? Array.Empty<string>()).ToArray());
 
         /// <summary>
         /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que
@@ -535,30 +512,27 @@ namespace InnerLibs
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N)
-        {
-            return (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), "");
-        }
+        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), "");
 
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="List1">Lista 1</param>
         /// <param name="List2">Lista2</param>
         /// <returns></returns>
-        public static bool ContainsAll<Type>(this IEnumerable<Type> List1, IEnumerable<Type> List2, IEqualityComparer<Type> Comparer = null)
+        public static bool ContainsAll<T>(this IEnumerable<T> List1, IEnumerable<T> List2, IEqualityComparer<T> Comparer = null)
         {
-            foreach (Type value in List2.NullAsEmpty())
+            foreach (T value in List2 ?? Array.Empty<T>())
             {
                 if (Comparer is null)
                 {
-                    if (!List1.NullAsEmpty().Contains(value))
+                    if (!(List1 ?? Array.Empty<T>()).Contains(value))
                     {
                         return false;
                     }
                 }
-                else if (!List1.NullAsEmpty().Contains(value, Comparer))
+                else if (!(List1 ?? Array.Empty<T>()).Contains(value, Comparer))
                 {
                     return false;
                 }
@@ -567,42 +541,36 @@ namespace InnerLibs
             return true;
         }
 
-        public static bool ContainsAll<Type>(this IEnumerable<Type> List1, IEqualityComparer<Type> Comparer, params Type[] List2)
-        {
-            return List1.ContainsAll(List2.DefaultIfEmpty().AsEnumerable(), Comparer);
-        }
+        public static bool ContainsAll<T>(this IEnumerable<T> List1, IEqualityComparer<T> Comparer, params T[] List2) => List1.ContainsAll((List2 ?? Array.Empty<T>()).AsEnumerable(), Comparer);
 
         /// <summary>
         /// Verifica se somente um unico elemento corresponde a condição
         /// </summary>
-        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static bool OnlyOneOf<Type>(this IEnumerable<Type> List, Func<Type, bool> predicate)
-        {
-            return List.Count(predicate) == 1;
-        }
+        public static bool OnlyOneOf<T>(this IEnumerable<T> List, Func<T, bool> predicate) => List?.Count(predicate) == 1;
 
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem um dos itens de outra lista, coleção ou array.
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="List1">Lista 1</param>
         /// <param name="List2">Lista2</param>
         /// <returns></returns>
-        public static bool ContainsAny<Type>(this IEnumerable<Type> List1, IEnumerable<Type> List2, IEqualityComparer<Type> Comparer = null)
+        public static bool ContainsAny<T>(this IEnumerable<T> List1, IEnumerable<T> List2, IEqualityComparer<T> Comparer = null)
         {
-            foreach (Type value in List2.NullAsEmpty())
+            foreach (T value in List2 ?? Array.Empty<T>())
             {
                 if (Comparer is null)
                 {
-                    if (List1.NullAsEmpty().Contains(value))
+                    if ((List1 ?? Array.Empty<T>()).Contains(value))
                     {
                         return true;
                     }
                 }
-                else if (List1.NullAsEmpty().Contains(value, Comparer))
+                else if ((List1 ?? Array.Empty<T>()).Contains(value, Comparer))
                 {
                     return true;
                 }
