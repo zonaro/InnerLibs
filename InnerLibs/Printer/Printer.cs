@@ -788,10 +788,8 @@ namespace InnerLibs.Printer
         /// <typeparam name="T2"></typeparam>
         /// <param name="Dictionaries"></param>
         /// <returns></returns>
-        public Printer WriteDictionary<T1, T2>(params IDictionary<T1, T2>[] Dictionaries)
-        {
-            return WriteDictionary(false, Dictionaries);
-        }
+        public Printer WriteDictionary<T1, T2>(params IDictionary<T1, T2>[] Dictionaries) => WriteDictionary(false, Dictionaries);
+        
         /// <summary>
         /// Escreve os valores de um Dictionary como pares
         /// </summary>
@@ -863,18 +861,13 @@ namespace InnerLibs.Printer
         /// <summary>
         /// Escreve uma lista de itens no <see cref="DocumentBuffer"/>
         /// </summary>
-        public Printer WriteList(params object[] Items)
-        {
-            return WriteList((Items ?? Array.Empty<object>()).AsEnumerable());
-        }
+        public Printer WriteList(params object[] Items) => WriteList((Items ?? Array.Empty<object>()).AsEnumerable());
+
         /// <summary>
         /// Escreve um par de informações no <see cref="DocumentBuffer"/>.
         /// </summary>
-        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ')
-        {
-            string s = GetPair($"{Key}", $"{Value}", Columns, CharLine);
-            return this.WriteLine(s, s.IsNotBlank());
-        }
+        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => this.WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsNotBlank());
+        
         /// <summary>
         /// Escreve uma linha de preço no <see cref="DocumentBuffer"/>
         /// </summary>
@@ -884,11 +877,8 @@ namespace InnerLibs.Printer
         /// <param name="Columns"></param>
         /// <param name="CharLine"></param>
         /// <returns></returns>
-        public Printer WritePriceLine(string Description, decimal Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.')
-        {
-            string sPrice = Price.ToString("C", Culture ?? CultureInfo.CurrentCulture);
-            return WritePair(Description, sPrice, Columns, CharLine);
-        }
+        public Printer WritePriceLine(string Description, decimal Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.') => WritePair(Description, Price.ToString("C", Culture ?? CultureInfo.CurrentCulture), Columns, CharLine);
+
         /// <summary>
         /// Escreve uma lista de preços no <see cref="DocumentBuffer"/>
         /// </summary>
@@ -898,7 +888,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer WritePriceList(IEnumerable<Tuple<string, decimal>> List, CultureInfo Culture = null, int? Columns = default, char CharLine = '.')
         {
-            foreach (var item in List.NullAsEmpty())
+            foreach (var item in List ?? new List<Tuple<string, decimal>>())
                 this.WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine);
             return this;
         }

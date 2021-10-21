@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace InnerLibs.RolePlayingGame
 {
@@ -98,10 +99,7 @@ namespace InnerLibs.RolePlayingGame
         /// <param name="Combo1">Combo de Dados 1</param>
         /// <param name="Combo2">Combo de Dados 2</param>
         /// <returns></returns>
-        public static DiceRoller operator +(DiceRoller Combo1, DiceRoller Combo2)
-        {
-            return new DiceRoller(Combo1, Combo2);
-        }
+        public static DiceRoller operator +(DiceRoller Combo1, DiceRoller Combo2) => new DiceRoller(Combo1, Combo2);
     }
 
     /// <summary>
@@ -116,10 +114,7 @@ namespace InnerLibs.RolePlayingGame
         /// <param name="Dice1">Dado 1</param>
         /// <param name="Dice2">Dado 2</param>
         /// <returns></returns>
-        public static DiceRoller operator +(Dice Dice1, Dice Dice2)
-        {
-            return new DiceRoller(Dice1, Dice2);
-        }
+        public static DiceRoller operator +(Dice Dice1, Dice Dice2) => new DiceRoller(Dice1, Dice2);
 
         /// <summary>
         /// Tipo do dado
@@ -131,10 +126,7 @@ namespace InnerLibs.RolePlayingGame
             {
 
                 foreach (var i in InnerLibs.ClassTools.GetEnumValues<DiceType>())
-                {
                     if ((int)i == Faces.Count) return i;
-                }
-
                 return DiceType.Custom;
             }
         }
@@ -143,25 +135,13 @@ namespace InnerLibs.RolePlayingGame
         /// Indica se o dado é um dado com faces customizadas
         /// </summary>
         /// <returns></returns>
-        public bool IsCustom
-        {
-            get
-            {
-                return Type == DiceType.Custom;
-            }
-        }
+        public bool IsCustom => Type == DiceType.Custom;
 
         /// <summary>
         /// Verifica se o dado possui algum lado viciado
         /// </summary>
         /// <returns></returns>
-        public bool IsVicious
-        {
-            get
-            {
-                return Faces.AsEnumerable().Any(x => x.IsVicious);
-            }
-        }
+        public bool IsVicious => Faces.AsEnumerable().Any(x => x.IsVicious);
 
         /// <summary>
         /// Se TRUE, Impede este dado de ser rolado
@@ -179,7 +159,7 @@ namespace InnerLibs.RolePlayingGame
             {
                 if (History.Any())
                 {
-                    return History.FirstOrDefault().Item1;
+                    return History.FirstOrDefault().Value;
                 }
 
                 return default;
@@ -192,7 +172,7 @@ namespace InnerLibs.RolePlayingGame
             {
                 if (History.Any())
                 {
-                    return History.FirstOrDefault().Item2;
+                    return History.FirstOrDefault().TimeStamp;
                 }
 
                 return default;
@@ -203,13 +183,7 @@ namespace InnerLibs.RolePlayingGame
         /// Numero de vezes que este dado já foi rolado
         /// </summary>
         /// <returns>Integer</returns>
-        public int RolledTimes
-        {
-            get
-            {
-                return _rolledtimes;
-            }
-        }
+        public int RolledTimes => _rolledtimes;
 
         private int _rolledtimes = 0;
 
@@ -251,13 +225,7 @@ namespace InnerLibs.RolePlayingGame
         /// Historico de valores rolados para este dado
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<(int Value, DateTime TimeStamp)> History
-        {
-            get
-            {
-                return Faces.SelectMany(x => x.History.Select(y => (x.Number, y))).OrderByDescending(x => x.Item2).AsEnumerable();
-            }
-        }
+        public IEnumerable<(int Value, DateTime TimeStamp)> History => Faces.SelectMany(x => x.History.Select(y => (x.Number, y))).OrderByDescending(x => x.Item2).AsEnumerable();
 
 
         /// <summary>
@@ -294,10 +262,7 @@ namespace InnerLibs.RolePlayingGame
         /// </summary>
         /// <param name="FaceNumber">Numero da face</param>
         /// <returns></returns>
-        public DiceFace GetFace(int FaceNumber = 0)
-        {
-            return this[FaceNumber.LimitRange(1, Faces.Count)];
-        }
+        public DiceFace GetFace(int FaceNumber = 0) => this[FaceNumber.LimitRange(1, Faces.Count)];
 
         /// <summary>
         /// Normaliza o peso das faces do dado
@@ -309,17 +274,9 @@ namespace InnerLibs.RolePlayingGame
                 f.Weight = Weight;
         }
 
-        public int GetChancePercent(int Face)
-        {
-            decimal pesototal = Weight;
-            return (int)Math.Round(GetFace(Face).Weight.CalculatePercent(pesototal));
-        }
+        public decimal GetChancePercent(int Face, int Precision = 2) => Math.Round(GetFace(Face).Weight.CalculatePercent(Weight), Precision);
 
-        public int GetValueOfPercent(int Face)
-        {
-            decimal pesototal = Weight;
-            return (int)Math.Round(GetFace(Face).WeightPercent.CalculateValueFromPercent(pesototal));
-        }
+        public decimal GetValueOfPercent(int Face, int Precision = 2) => Math.Round(GetFace(Face).WeightPercent.CalculateValueFromPercent(Weight), Precision);
 
         /// <summary>
         /// Peso do dado
@@ -327,15 +284,9 @@ namespace InnerLibs.RolePlayingGame
         /// <returns></returns>
         public decimal Weight
         {
-            get
-            {
-                return Faces.Sum(x => x.Weight);
-            }
+            get => Faces.Sum(x => x.Weight);
 
-            set
-            {
-                NormalizeWeight(value / Faces.Count);
-            }
+            set => NormalizeWeight(value / Faces.Count);
         }
 
         private void ApplyPercent()
@@ -369,11 +320,7 @@ namespace InnerLibs.RolePlayingGame
         /// <param name="CustomFaces">Numero de faces do dado (Minimo de 2 faces)</param>
         public Dice(int CustomFaces)
         {
-            CustomFaces = CustomFaces.SetMinValue(2);
-            var f = new List<DiceFace>();
-            for (int index = 1, loopTo = CustomFaces; index <= loopTo; index++)
-                f.Add(new DiceFace(this, index));
-            Faces = new ReadOnlyCollection<DiceFace>(f);
+            Faces = new ReadOnlyCollection<DiceFace>(Enumerable.Range(1, CustomFaces.SetMinValue(2)).Select(x => new DiceFace(this)).ToList());
             ApplyPercent();
         }
 
@@ -382,14 +329,10 @@ namespace InnerLibs.RolePlayingGame
         /// </summary>
         public class DiceFace
         {
-            public static implicit operator int(DiceFace v)
-            {
-                return v.Number;
-            }
+            public static implicit operator int(DiceFace v) => v.Number;
 
-            internal DiceFace(Dice d, int FaceNumber)
+            internal DiceFace(Dice d)
             {
-                // Me.Number = FaceNumber.SetMinValue(1)
                 dice = d;
             }
 
@@ -399,21 +342,9 @@ namespace InnerLibs.RolePlayingGame
             /// Valor Da Face (numero)
             /// </summary>
             /// <returns></returns>
-            public int Number
-            {
-                get
-                {
-                    return dice.Faces.IndexOf(this) + 1;
-                }
-            }
+            public int Number => dice.Faces.IndexOf(this) + 1;
 
-            public IEnumerable<DateTime> History
-            {
-                get
-                {
-                    return _h.OrderByDescending(x => x).AsEnumerable();
-                }
-            }
+            public IEnumerable<DateTime> History => _h.OrderByDescending(x => x).AsEnumerable();
 
             internal List<DateTime> _h = new List<DateTime>();
 
@@ -423,15 +354,11 @@ namespace InnerLibs.RolePlayingGame
             /// <returns></returns>
             public decimal Weight
             {
-                get
-                {
-                    return _weight;
-                }
+                get => _weight;
 
                 set
                 {
-                    _weight = value; // .LimitRange(1, dice.Faces.Count - 1)
-                    decimal total = dice.Weight;
+                    _weight = value; // .LimitRange(1, dice.Faces.Count - 1)                 
                     dice.ApplyPercent();
                 }
             }
@@ -439,15 +366,12 @@ namespace InnerLibs.RolePlayingGame
             internal decimal _weight = 1m;
 
             /// <summary>
-            /// Porcetagem do peso da face (vicia o dado)
+            /// Porcentagem do peso da face (vicia o dado)
             /// </summary>
             /// <returns></returns>
             public decimal WeightPercent
             {
-                get
-                {
-                    return _weightpercent;
-                }
+                get => _weightpercent;
 
                 set
                 {
@@ -472,18 +396,9 @@ namespace InnerLibs.RolePlayingGame
             /// Valor que indica se a face está viciada
             /// </summary>
             /// <returns></returns>
-            public bool IsVicious
-            {
-                get
-                {
-                    return OtherFaces().Select(x => x.WeightPercent).Distinct().All(x => x != WeightPercent);
-                }
-            }
+            public bool IsVicious => OtherFaces().Select(x => x.WeightPercent).Distinct().All(x => x != WeightPercent);
 
-            public IEnumerable<DiceFace> OtherFaces()
-            {
-                return dice.Faces.Where(x => x.Number != Number);
-            }
+            public IEnumerable<DiceFace> OtherFaces() => dice.Faces.Where(x => x.Number != Number);
 
             public string FaceName
             {
@@ -510,10 +425,7 @@ namespace InnerLibs.RolePlayingGame
 
             private string _name = null;
 
-            public override string ToString()
-            {
-                return FaceName;
-            }
+            public override string ToString() => FaceName;
         }
     }
 
