@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using InnerLibs.LINQ;
 using InnerLibs.TimeMachine;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -27,25 +27,13 @@ namespace InnerLibs
     /// </summary>
     public class DateRange
     {
-        public static implicit operator DateRange((DateTime, DateTime) Dates)
-        {
-            return new DateRange(Dates.Item1, Dates.Item2);
-        }
+        public static implicit operator DateRange((DateTime, DateTime) Dates) => new DateRange(Dates.Item1, Dates.Item2);
 
-        public static implicit operator List<DateTime>(DateRange dateRange)
-        {
-            return dateRange?.Pair().ToList();
-        }
+        public static implicit operator List<DateTime>(DateRange dateRange) => dateRange?.Pair().ToList();
 
-        public static implicit operator DateTime[](DateRange dateRange)
-        {
-            return dateRange?.Pair().ToArray();
-        }
+        public static implicit operator DateTime[](DateRange dateRange) => dateRange?.Pair().ToArray();
 
-        public static implicit operator Dictionary<string, DateTime>(DateRange dateRange)
-        {
-            return dateRange?.Dictionary();
-        }
+        public static implicit operator Dictionary<string, DateTime>(DateRange dateRange) => dateRange?.Dictionary();
 
         public DateTime StartDate
         {
@@ -106,10 +94,7 @@ namespace InnerLibs
         /// Indica se este <see cref="DateRange"/> foi construido sem nenhuma data definida
         /// </summary>
         /// <returns></returns>
-        public bool IsDefaultDateRange()
-        {
-            return _IsDefault;
-        }
+        public bool IsDefaultDateRange() => _IsDefault;
 
         private DateTime _startDate;
         private DateTime _enddate;
@@ -117,10 +102,7 @@ namespace InnerLibs
         /// <summary>
         /// Instancia um novo periodo do dia de hoje
         /// </summary>
-        public DateRange() : this(DateTime.Now, DateTime.Now, true)
-        {
-            _IsDefault = true;
-        }
+        public DateRange() : this(DateTime.Now, DateTime.Now, true) { _IsDefault = true; EndDate = StartDate; }
 
         public DateRange(IEnumerable<DateTime> Dates)
         {
@@ -137,25 +119,13 @@ namespace InnerLibs
 
         public DateRange(IEnumerable<DateTime?> Dates) : this(Dates?.Where(x => x.HasValue).Select(x => x.Value)) { }
 
-        public DateRange(IEnumerable<DateTime> Dates, bool ForceFirstAndLastMoments) : this(Dates)
-        {
-            this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-        }
+        public DateRange(IEnumerable<DateTime> Dates, bool ForceFirstAndLastMoments) : this(Dates) => this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
 
-        public DateRange(IEnumerable<DateTime?> Dates, bool ForceFirstAndLastMoments) : this(Dates)
-        {
-            this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-        }
+        public DateRange(IEnumerable<DateTime?> Dates, bool ForceFirstAndLastMoments) : this(Dates) => this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
 
-        public DateRange(DateTime StartEndDate) : this(StartEndDate, StartEndDate)
-        {
-            ForceFirstAndLastMoments = true;
-        }
+        public DateRange(DateTime StartEndDate) : this(StartEndDate, StartEndDate) => ForceFirstAndLastMoments = true;
 
-        public DateRange(DateTime? StartEndDate) : this(StartEndDate.Value, StartEndDate.Value)
-        {
-            ForceFirstAndLastMoments = true;
-        }
+        public DateRange(DateTime? StartEndDate) : this(StartEndDate.Value, StartEndDate.Value) => ForceFirstAndLastMoments = true;
 
         /// <summary>
         /// Instancia um novo periodo entre 2 datas
@@ -189,10 +159,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="DaysOfWeek"></param>
         /// <returns></returns>
-        public IEnumerable<DateTime> GetDays(params DayOfWeek[] DaysOfWeek)
-        {
-            return StartDate.GetDaysBetween(EndDate, DaysOfWeek);
-        }
+        public IEnumerable<DateTime> GetDays(params DayOfWeek[] DaysOfWeek) => StartDate.GetDaysBetween(EndDate, DaysOfWeek);
 
         /// <summary>
         /// Retorna o periodo em um total especificado por <see cref="DateRangeInterval"/>
@@ -244,7 +211,7 @@ namespace InnerLibs
             DateRangeInterval.Weeks => Datetime.AddDays((double)(Total * 7m)),
             DateRangeInterval.Months => Datetime.AddMonths((int)Total),
             DateRangeInterval.Years => Datetime.AddYears((int)Total),
-            _ => throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work inside DateRanges")
+            _ => throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work for get a DateRange string")
         };
 
 
@@ -264,17 +231,14 @@ namespace InnerLibs
                 DateRangeInterval = GetLessAccurateDateRangeInterval();
             }
 
-            return new DateRange(Conversions.ToDate(AddInterval(StartDate, DateRangeInterval, Total)), Conversions.ToDate(AddInterval(EndDate, DateRangeInterval, Total)), ForceFirstAndLastMoments);
+            return new DateRange(Convert.ToDateTime(AddInterval(StartDate, DateRangeInterval, Total)), Convert.ToDateTime(AddInterval(EndDate, DateRangeInterval, Total)), ForceFirstAndLastMoments);
         }
 
         /// <summary>
         /// Clona este DateRange
         /// </summary>
         /// <returns></returns>
-        public DateRange Clone()
-        {
-            return new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _IsDefault = _IsDefault, _Difference = _Difference };
-        }
+        public DateRange Clone() => new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _IsDefault = _IsDefault, _Difference = _Difference };
 
         /// <summary>
         /// Pula um determinado numero de periodos
@@ -294,19 +258,13 @@ namespace InnerLibs
         /// Move para o periodo equivalente anterior
         /// </summary>
         /// <returns></returns>
-        public DateRange PreviousPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            return MovePeriod(DateRangeInterval, -GetPeriodAs(DateRangeInterval));
-        }
+        public DateRange PreviousPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => MovePeriod(DateRangeInterval, -GetPeriodAs(DateRangeInterval));
 
         /// <summary>
         /// Move para ao proximo periodo equivalente
         /// </summary>
         /// <returns></returns>
-        public DateRange NextPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval));
-        }
+        public DateRange NextPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval));
 
         /// <summary>
         /// Retorna o <see cref="DateRangeInterval"/> menos preciso para calcular periodos
@@ -364,10 +322,7 @@ namespace InnerLibs
         /// Retorna TRUE se a data de inicio e fim for a mesma
         /// </summary>
         /// <returns></returns>
-        public bool IsSingleDate()
-        {
-            return StartDate.Date == EndDate.Date;
-        }
+        public bool IsSingleDate() => StartDate.Date == EndDate.Date;
 
         /// <summary>
         /// Retorna TRUE se a data e hora de inicio e fim for a mesma
@@ -405,19 +360,13 @@ namespace InnerLibs
         /// Cria um grupo de quinzenas que contenham este periodo
         /// </summary>
         /// <returns></returns>
-        public FortnightGroup CreateFortnightGroup()
-        {
-            return FortnightGroup.CreateFromDateRange(StartDate, EndDate);
-        }
+        public FortnightGroup CreateFortnightGroup() => FortnightGroup.CreateFromDateRange(StartDate, EndDate);
 
         /// <summary>
         /// Retorna uma string representando a diferença das datas
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return Difference().ToString();
-        }
+        public override string ToString() => Difference().ToString();
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -426,10 +375,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this).Compile());
-        }
+        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this).Compile());
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -438,10 +384,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this));
-        }
+        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this));
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -450,10 +393,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this).Compile());
-        }
+        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this).Compile());
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -462,10 +402,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression)
-        {
-            return List.Where(PropertyExpression.IsBetween(this));
-        }
+        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this));
 
         /// <summary>
         /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento de datas
@@ -486,7 +423,7 @@ namespace InnerLibs
                 if (!dic.ContainsKey(k))
                 {
                     dic[k] = new List<T>();
-                } ((List<T>)dic[k]).AddRange(gp.ElementAtOrDefault(Conversions.ToInteger(k)).AsEnumerable());
+                } ((List<T>)dic[k]).AddRange(gp.ElementAtOrDefault(Convert.ToInt16(k)).AsEnumerable());
             }
 
             return dic;
@@ -657,7 +594,7 @@ namespace InnerLibs
             var curdate = StartDate;
             while (curdate < EndDate)
             {
-                curdate = Conversions.ToDate(AddInterval(curdate, DateRangeInterval, 1m));
+                curdate = Convert.ToDateTime(AddInterval(curdate, DateRangeInterval, 1m));
                 l.Add(curdate);
             }
 
