@@ -172,7 +172,7 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange)
         {
-            return WhereExpression(Property, "between", new[] { DateRange.StartDate, (IComparable)DateRange.EndDate });
+            return WhereExpression(Property, "between", new[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
         }
 
         public static MemberExpression CreatePropertyExpression<T, V>(this Expression<Func<T, V>> Property)
@@ -560,7 +560,7 @@ namespace InnerLibs.LINQ
                     {
                         foreach (var item in PropertyValues)
                         {
-                            object exp = null;
+                            Expression exp = null;
                             try
                             {
                                 exp = GreaterThan(Member, CreateConstant(Member, item));
@@ -570,7 +570,7 @@ namespace InnerLibs.LINQ
                                 continue;
                             }
 
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = (BinaryExpression)exp;
                             }

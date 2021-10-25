@@ -489,10 +489,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Date"></param>
         /// <returns></returns>
-        public static DateTime GetLastMoment(this DateTime Date)
-        {
-            return Date.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
-        }
+        public static DateTime GetLastMoment(this DateTime Date) => Date.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
 
         /// <summary>
         /// Verifica se uma data é do mesmo mês e ano que outra data
@@ -500,10 +497,7 @@ namespace InnerLibs
         /// <param name="[Date]">Primeira data</param>
         /// <param name="AnotherDate">Segunda data</param>
         /// <returns></returns>
-        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate)
-        {
-            return Date.IsBetween(AnotherDate.GetFirstDayOfMonth(), AnotherDate.GetLastDayOfMonth());
-        }
+        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate) => Date.IsBetween(AnotherDate.GetFirstDayOfMonth(), AnotherDate.GetLastDayOfMonth());
 
         /// <summary>
         /// Verifica se a Data de hoje é um aniversário
@@ -522,10 +516,7 @@ namespace InnerLibs
         /// <param name="[Date]"></param>
         /// <param name="Culture"></param>
         /// <returns></returns>
-        public static string GetLongMonthName(this DateTime Date, CultureInfo Culture = null)
-        {
-            return Date.ToString("MMMM", Culture ?? CultureInfo.CurrentCulture);
-        }
+        public static string GetLongMonthName(this DateTime Date, CultureInfo Culture = null) => Date.ToString("MMMM", Culture ?? CultureInfo.CurrentCulture);
 
         /// <summary>
         /// Retorna o nome do mês a partir da data
@@ -533,10 +524,7 @@ namespace InnerLibs
         /// <param name="[Date]"></param>
         /// <param name="Culture"></param>
         /// <returns></returns>
-        public static string GetShortMonthName(this DateTime Date, CultureInfo Culture = null)
-        {
-            return Date.ToString("MM", Culture ?? CultureInfo.CurrentCulture);
-        }
+        public static string GetShortMonthName(this DateTime Date, CultureInfo Culture = null) => Date.ToString("MM", Culture ?? CultureInfo.CurrentCulture);
 
         /// <summary>
         /// COnverte um datetime para o formato de string do SQL server ou Mysql
@@ -560,11 +548,7 @@ namespace InnerLibs
         /// <param name="InitialDate"></param>
         /// <param name="SecondDate"> </param>
         /// <returns></returns>
-        public static LongTimeSpan GetDifference(this DateTime InitialDate, DateTime SecondDate)
-        {
-            FixDateOrder(ref InitialDate, ref SecondDate);
-            return new LongTimeSpan(InitialDate, SecondDate);
-        }
+        public static LongTimeSpan GetDifference(this DateTime InitialDate, DateTime SecondDate) => new LongTimeSpan(InitialDate, SecondDate);
 
         /// <summary>
         /// Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate
@@ -589,11 +573,11 @@ namespace InnerLibs
             FixDateOrder(ref StartDate, ref EndDate);
             if (IgnoreTime)
             {
-                return StartDate.Date <= MidDate.Date & MidDate.Date <= EndDate.Date;
+                return StartDate.Date <= MidDate.Date && MidDate.Date <= EndDate.Date;
             }
             else
             {
-                return StartDate <= MidDate & MidDate <= EndDate;
+                return StartDate <= MidDate && MidDate <= EndDate;
             }
         }
 
@@ -629,9 +613,9 @@ namespace InnerLibs
         /// </summary>
         /// <param name="List">Lista que será alterada</param>
         public static IEnumerable<DateTime> ClearTime(this IEnumerable<DateTime> List) => List.Select(x => x.Date);
-        
 
-        
+
+
 
         /// <summary>
         /// Retorna uma String baseado no numero do Mês Ex.: 1 -&gt; Janeiro
@@ -639,20 +623,10 @@ namespace InnerLibs
         /// <param name="MonthNumber">Numero do Mês</param>
         /// <returns>String com nome do Mês</returns>
 
-        public static string ToLongMonthName(this int MonthNumber)
-        {
-            return new DateTime(DateTime.Now.Year, MonthNumber, 1).ToLongMonthName();
-        }
+        public static string ToLongMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber, 1).GetLongMonthName(Culture);
 
-        /// <summary>
-        /// Retorna uma String com o nome do mes baseado na data
-        /// </summary>
-        /// <param name="DateTime">Data</param>
-        /// <returns>String com nome do Mês</returns>
-        public static string ToLongMonthName(this DateTime DateTime)
-        {
-            return DateTime.ToString("MMMM");
-        }
+
+
 
         /// <summary>
         /// Retorna uma String curta baseado no numero do Mês Ex.: 1 -&gt; Jan
@@ -660,10 +634,7 @@ namespace InnerLibs
         /// <param name="MonthNumber">Numero do Mês</param>
         /// <returns>String com nome curto do Mês</returns>
 
-        public static string ToShortMonthName(this int MonthNumber)
-        {
-            return MonthNumber.ToLongMonthName().GetFirstChars(3);
-        }
+        public static string ToShortMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber, 1).GetShortMonthName(Culture);
 
         /// <summary>
         /// Retorna uma String baseado no numero do Dia da Semana Ex.: 2 -&gt; Segunda-Feira
@@ -671,10 +642,7 @@ namespace InnerLibs
         /// <param name="DayNumber">Numero do Dia</param>
         /// <returns>String com nome do Dia</returns>
 
-        public static string ToLongDayOfWeekName(this int DayNumber)
-        {
-            return DateTimeFormatInfo.CurrentInfo.GetDayName((DayOfWeek)DayNumber);
-        }
+        public static string ToLongDayOfWeekName(this int DayNumber) => DateTimeFormatInfo.CurrentInfo.GetDayName((DayOfWeek)DayNumber);
 
         /// <summary>
         /// Retorna uma String baseado no numero do Dia da Semana Ex.: 2 -&gt; Seg
@@ -682,78 +650,39 @@ namespace InnerLibs
         /// <param name="DayNumber">Numero do Dia</param>
         /// <returns>String com nome curto do Dia</returns>
 
-        public static string ToShortDayOfWeekName(this int DayNumber)
-        {
-            return DayNumber.ToLongDayOfWeekName().GetFirstChars(3);
-        }
+        public static string ToShortDayOfWeekName(this int DayNumber) => DayNumber.ToLongDayOfWeekName().GetFirstChars(3);
 
         /// <summary>
         /// Retorna a data de amanhã
         /// </summary>
         /// <returns>Data de amanhã</returns>
 
-        public static DateTime Tomorrow
-        {
-            get
-            {
-                return DateTime.Now.AddDays(1d);
-            }
-        }
+        public static DateTime Tomorrow => DateTime.Now.AddDays(1d);
 
         /// <summary>
         /// Retorna a data de ontem
         /// </summary>
         /// <returns>Data de ontem</returns>
 
-        public static DateTime Yesterday
-        {
-            get
-            {
-                return DateTime.Now.AddDays(-1);
-            }
-        }
+        public static DateTime Yesterday => DateTime.Now.AddDays(-1);
 
-        public static DateTime BrazilianNow
-        {
-            get
-            {
-                return TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"));
-            }
-        }
+        public static DateTime BrazilianNow => TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"));
 
-        public static DateTime BrazilianTomorrow
-        {
-            get
-            {
-                return BrazilianNow.AddDays(1d);
-            }
-        }
+        public static DateTime BrazilianTomorrow => BrazilianNow.AddDays(1d);
 
-        public static DateTime BrazilianYesterday
-        {
-            get
-            {
-                return BrazilianNow.AddDays(-1);
-            }
-        }
+        public static DateTime BrazilianYesterday => BrazilianNow.AddDays(-1);
 
         /// <summary>
         /// Retorna o ultimo domingo
         /// </summary>
         /// <returns></returns>
-        public static DateTime LastSunday(DateTime? FromDate = null)
-        {
-            return LastDay(DayOfWeek.Sunday, FromDate);
-        }
+        public static DateTime LastSunday(DateTime? FromDate = null) => LastDay(DayOfWeek.Sunday, FromDate);
 
         /// <summary>
         /// Retorna o proximo domingo
         /// </summary>
         /// <returns></returns>
-        public static DateTime NextSunday(DateTime? FromDate = default)
-        {
-            return NextDay(DayOfWeek.Sunday, FromDate);
-        }
+        public static DateTime NextSunday(DateTime? FromDate = default) => NextDay(DayOfWeek.Sunday, FromDate);
 
         /// <summary>
         /// Retorna o ultimo dia referente a um dia da semana
@@ -789,10 +718,7 @@ namespace InnerLibs
         /// <param name="YourDate">Uma data qualquer</param>
         /// <returns>TRUE se for sabado ou domingo, caso contrario FALSE</returns>
 
-        public static bool IsWeekend(this DateTime YourDate)
-        {
-            return YourDate.DayOfWeek == DayOfWeek.Sunday | YourDate.DayOfWeek == DayOfWeek.Saturday;
-        }
+        public static bool IsWeekend(this DateTime YourDate) => YourDate.DayOfWeek == DayOfWeek.Sunday | YourDate.DayOfWeek == DayOfWeek.Saturday;
 
         private static string ToGreetingFarewell(this DateTime Time, string Language = "pt", bool Farewell = false)
         {
@@ -856,10 +782,7 @@ namespace InnerLibs
         /// <param name="Time">    Horario</param>
         /// <param name="Language">Idioma da saudação (pt, en, es)</param>
         /// <returns>Uma string com a despedida</returns>
-        public static string ToFarewell(this DateTime Time, string Language = "pt")
-        {
-            return Time.ToGreetingFarewell(Language, true);
-        }
+        public static string ToFarewell(this DateTime Time, string Language = "pt") => Time.ToGreetingFarewell(Language, true);
 
         /// <summary>
         /// Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
@@ -867,10 +790,7 @@ namespace InnerLibs
         /// <param name="Time">    Horario</param>
         /// <param name="Language">Idioma da saudação (pt, en, es)</param>
         /// <returns>Uma string com a despedida</returns>
-        public static string ToGreeting(this DateTime Time, string Language = "pt")
-        {
-            return Time.ToGreetingFarewell(Language, false);
-        }
+        public static string ToGreeting(this DateTime Time, string Language = "pt") => Time.ToGreetingFarewell(Language, false);
 
 
 
