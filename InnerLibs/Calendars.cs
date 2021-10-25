@@ -861,7 +861,7 @@ namespace InnerLibs
         /// <param name="ValueType">Apresentação dos meses no valor</param>
         /// <param name="TextType">Apresentação dos meses no texto</param>
 
-        public static List<KeyValuePair<string, string>> get_WeekDays(TypeOfFill TextType = TypeOfFill.LongName, TypeOfFill ValueType = TypeOfFill.Number)
+        public static List<KeyValuePair<string, string>> GetWeekDays(TypeOfFill TextType = TypeOfFill.LongName, TypeOfFill ValueType = TypeOfFill.Number)
         {
             List<KeyValuePair<string, string>> WeekDaysRet = default;
             WeekDaysRet = new List<KeyValuePair<string, string>>();
