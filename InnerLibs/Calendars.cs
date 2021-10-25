@@ -800,7 +800,7 @@ namespace InnerLibs
         /// <param name="ValueType">Apresentação dos meses no valor</param>
         /// <param name="TextType">Apresentação dos meses no texto</param>
 
-        public static List<KeyValuePair<string, string>> GetMonthList(TypeOfFill TextType = TypeOfFill.LongName, TypeOfFill ValueType = TypeOfFill.Number)
+        public static List<KeyValuePair<string, string>> GetMonthList(CalendarFormat TextType = CalendarFormat.LongName, CalendarFormat ValueType = CalendarFormat.Number)
         {
             List<KeyValuePair<string, string>> MonthsRet = new List<KeyValuePair<string, string>>();
             for (int i = 1; i <= 12; i++)
@@ -809,13 +809,13 @@ namespace InnerLibs
                 string value = "";
                 switch (TextType)
                 {
-                    case TypeOfFill.LongName:
+                    case CalendarFormat.LongName:
                         {
                             key = i.ToLongMonthName();
                             break;
                         }
 
-                    case TypeOfFill.ShortName:
+                    case CalendarFormat.ShortName:
                         {
                             key = i.ToShortMonthName();
                             break;
@@ -830,13 +830,13 @@ namespace InnerLibs
 
                 switch (ValueType)
                 {
-                    case TypeOfFill.LongName:
+                    case CalendarFormat.LongName:
                         {
                             value = i.ToLongMonthName();
                             break;
                         }
 
-                    case TypeOfFill.ShortName:
+                    case CalendarFormat.ShortName:
                         {
                             value = i.ToShortMonthName();
                             break;
@@ -861,7 +861,7 @@ namespace InnerLibs
         /// <param name="ValueType">Apresentação dos meses no valor</param>
         /// <param name="TextType">Apresentação dos meses no texto</param>
 
-        public static List<KeyValuePair<string, string>> GetWeekDays(TypeOfFill TextType = TypeOfFill.LongName, TypeOfFill ValueType = TypeOfFill.Number)
+        public static List<KeyValuePair<string, string>> GetWeekDays(CalendarFormat TextType = CalendarFormat.LongName, CalendarFormat ValueType = CalendarFormat.Number)
         {
             List<KeyValuePair<string, string>> WeekDaysRet = default;
             WeekDaysRet = new List<KeyValuePair<string, string>>();
@@ -871,13 +871,13 @@ namespace InnerLibs
                 string value = "";
                 switch (TextType)
                 {
-                    case TypeOfFill.LongName:
+                    case CalendarFormat.LongName:
                         {
                             key = i.ToLongDayOfWeekName();
                             break;
                         }
 
-                    case TypeOfFill.ShortName:
+                    case CalendarFormat.ShortName:
                         {
                             key = i.ToShortDayOfWeekName();
                             break;
@@ -892,13 +892,13 @@ namespace InnerLibs
 
                 switch (ValueType)
                 {
-                    case TypeOfFill.LongName:
+                    case CalendarFormat.LongName:
                         {
                             value = i.ToLongDayOfWeekName();
                             break;
                         }
 
-                    case TypeOfFill.ShortName:
+                    case CalendarFormat.ShortName:
                         {
                             value = i.ToShortDayOfWeekName();
                             break;
@@ -921,7 +921,7 @@ namespace InnerLibs
         /// Tipo de Apresentação dos Meses/Dias da Semana/Estado
         /// </summary>
 
-        public enum TypeOfFill
+        public enum CalendarFormat
         {
 
             /// <summary>
