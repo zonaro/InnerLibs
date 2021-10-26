@@ -497,7 +497,7 @@ namespace InnerLibs
         /// <param name="[Date]">Primeira data</param>
         /// <param name="AnotherDate">Segunda data</param>
         /// <returns></returns>
-        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate) => Date.IsBetween(AnotherDate.GetFirstDayOfMonth(), AnotherDate.GetLastDayOfMonth());
+        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate) => Date.IsBetween(AnotherDate.GetFirstDayOfMonth().Date, AnotherDate.GetLastDayOfMonth().GetLastMoment());
 
         /// <summary>
         /// Verifica se a Data de hoje é um aniversário
