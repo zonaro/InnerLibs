@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using Microsoft.VisualBasic.CompilerServices;
 
@@ -51,7 +52,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informaçoes agrupadas por quinzena
+        /// Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informações agrupadas por quinzena
         /// </summary>
         /// <returns></returns>
         public Dictionary<Fortnight, IEnumerable<DataType>> ToDataDictionary(bool IncludeFortnightsWithoutData = true)
@@ -102,9 +103,9 @@ namespace InnerLibs.TimeMachine
         public static FortnightGroup<DataType> CreateFromDataGroup(IEnumerable<DataType> Data, params Func<DataType, DateTime>[] DateSelector)
         {
             var datas = new List<DateTime?>();
-            if (DateSelector is null || DateSelector.Count() == 0)
+            if (DateSelector == null || !DateSelector.Any())
             {
-                throw new ArgumentNullException("DateSelector is Nothing or Empty");
+                throw new ArgumentNullException("DateSelector is null or empty");
             }
             else
             {
@@ -132,12 +133,21 @@ namespace InnerLibs.TimeMachine
             var fort = new FortnightGroup<DataType>(StartDate, fortcount);
             while (fort.EndDate < EndDate)
             {
-                fortcount = fortcount + 1;
+                fortcount++;
                 fort = new FortnightGroup<DataType>(StartDate, fortcount);
             }
 
             return fort;
         }
+
+        /// <summary>
+        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e uma data final
+        /// </summary>
+        /// <param name="StartDate">Data inicial</param>
+        /// <param name="EndDate">Data Final</param>
+        /// <returns></returns>
+        public static new FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange(DateRange.StartDate, DateRange.EndDate);
+
 
         /// <summary>
         /// Instancia um novo <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e um numero fixo de quinzenas
@@ -151,13 +161,21 @@ namespace InnerLibs.TimeMachine
 
     public class Fortnight
     {
+
+        /// <summary>
+        /// Define o formato global de uma string de uma <see cref="Fortnight"/>
+        /// </summary>
+        public static string Format { get => _format.IfBlank("{q}{o} - {mmmm}/{yyyy}"); set => _format = value; }
+
+        private static string _format;
+
         /// <summary>
         /// Cria uma instancia de quinzena a partir de uma data que a mesma pode conter
         /// </summary>
         /// <param name="AnyDate">Qualquer data. Se NULL, a data atual é utilizada</param>
         public Fortnight(DateTime? AnyDate = default)
         {
-            AnyDate = AnyDate ?? DateTime.Now;
+            AnyDate ??= DateTime.Now;
             AnyDate = new DateTime(AnyDate.Value.Year, AnyDate.Value.Month, AnyDate.Value.Day > 15 ? 16 : 1, AnyDate.Value.Hour, AnyDate.Value.Minute, AnyDate.Value.Second, AnyDate.Value.Millisecond, AnyDate.Value.Kind);
             var EndDate = AnyDate;
             EndDate = EndDate.Value.AddDays(1d);
@@ -177,32 +195,21 @@ namespace InnerLibs.TimeMachine
         /// String que identifica a quinzena em uma coleção
         /// </summary>
         /// <returns></returns>
-        public string Key
-        {
-            get
-            {
-                if (Period.EndDate.Day <= 15)
-                {
-                    return Period.EndDate.ToString(@"\1@MM-yyyy");
-                }
-                else
-                {
-                    return Period.EndDate.ToString(@"\2@MM-yyyy");
-                }
-            }
-        }
+        public string Key => Number.ToString() + "@" + Period.EndDate.ToString("MM-yyyy");
+
+        private DateRange _period;
 
         /// <summary>
         /// Periodo que esta quinzena possui
         /// </summary>
         /// <returns></returns>
-        public DateRange Period { get; private set; }
+        public DateRange Period { get => _period.Clone(); private set => _period = value; }
 
         /// <summary>
         /// Numero da quinzena (1 ou 2)
         /// </summary>
         /// <returns></returns>
-        public int Number => Key.GetFirstChars(1).ChangeType<int, string>();
+        public int Number => Period.EndDate.Day <= 15 ? 1 : 2;
 
         /// <summary>
         /// Retorna a Key de um <see cref="Fortnight"/> em um formato especifico.
@@ -229,35 +236,36 @@ namespace InnerLibs.TimeMachine
         /// </list>
         /// </remarks>
         /// <returns>Uma string no formato especificado</returns>
-        public string FormatName(string Format = "{q}{o} - {mmmm}/{yyyy}")
+        public string FormatName(string Format = null, CultureInfo Culture = null)
         {
-            int quinzena = Convert.ToInt32(Key.Split("@")[0]);
-            int mes = Convert.ToInt32(Key.Split("@")[1].Split("-")[0]);
-            int ano = Convert.ToInt32(Key.Split("@")[1].Split("-")[1]);
+            Culture ??= CultureInfo.CurrentCulture;
+            Format = Format.IfBlank(Fortnight.Format);
+
             int dia_inicio = Period.StartDate.Day;
-            Format = Format.Replace("{s}", dia_inicio.ToString("#"));
-            Format = Format.Replace("{ss}", dia_inicio.ToString("##"));
-            Format = Format.Replace("{e}", dia_inicio.ToString("#"));
-            Format = Format.Replace("{ee}", dia_inicio.ToString("##"));
-            Format = Format.Replace("{f}", quinzena.ToString("#"));
-            Format = Format.Replace("{ff}", quinzena.ToString("##"));
-            Format = Format.Replace("{q}", quinzena.ToString("#"));
-            Format = Format.Replace("{qq}", quinzena.ToString("##"));
-            Format = Format.Replace("{m}", mes.ToString("#"));
-            Format = Format.Replace("{mm}", mes.ToString("##"));
-            Format = Format.Replace("{mmm}", mes.ToShortMonthName());
-            Format = Format.Replace("{mmmm}", mes.ToLongMonthName());
-            Format = Format.Replace("{y}", ano.ToString().GetLastChars(2));
-            Format = Format.Replace("{yy}", ano.ToString().GetLastChars(2));
-            Format = Format.Replace("{yyy}", ano.ToString());
-            Format = Format.Replace("{yyyy}", ano.ToString());
-            Format = Format.Replace("{a}", ano.ToString().GetLastChars(2));
-            Format = Format.Replace("{aa}", ano.ToString().GetLastChars(2));
-            Format = Format.Replace("{aaa}", ano.ToString());
-            Format = Format.Replace("{aaaa}", ano.ToString());
-            Format = Format.Replace("{o}", quinzena.ToOrdinalNumber(true));
+            Format = Format.Replace("{s}", dia_inicio.ToString("#", Culture));
+            Format = Format.Replace("{ss}", dia_inicio.ToString("##", Culture));
+            Format = Format.Replace("{e}", _period.EndDate.Day.ToString("#", Culture));
+            Format = Format.Replace("{ee}", _period.EndDate.Day.ToString("##", Culture));
+            Format = Format.Replace("{f}", Number.ToString("#", Culture));
+            Format = Format.Replace("{ff}", Number.ToString("##", Culture));
+            Format = Format.Replace("{q}", Number.ToString("#", Culture));
+            Format = Format.Replace("{qq}", Number.ToString("##", Culture));
+            Format = Format.Replace("{m}", _period.EndDate.Month.ToString("#", Culture));
+            Format = Format.Replace("{mm}", _period.EndDate.Month.ToString("##", Culture));
+            Format = Format.Replace("{mmm}", _period.EndDate.Month.ToShortMonthName(Culture));
+            Format = Format.Replace("{mmmm}", _period.EndDate.Month.ToLongMonthName(Culture));
+            Format = Format.Replace("{y}", _period.EndDate.Year.ToString(Culture).GetLastChars(2));
+            Format = Format.Replace("{yy}", _period.EndDate.Year.ToString(Culture).GetLastChars(2));
+            Format = Format.Replace("{yyy}", _period.EndDate.Year.ToString(Culture));
+            Format = Format.Replace("{yyyy}", _period.EndDate.Year.ToString(Culture));
+            Format = Format.Replace("{a}", _period.EndDate.Year.ToString(Culture).GetLastChars(2));
+            Format = Format.Replace("{aa}", _period.EndDate.Year.ToString(Culture).GetLastChars(2));
+            Format = Format.Replace("{aaa}", _period.EndDate.Year.ToString(Culture));
+            Format = Format.Replace("{aaaa}", _period.EndDate.Year.ToString(Culture));
+            Format = Format.Replace("{o}", Number.ToOrdinalNumber(true));
             return Format;
         }
+        public string FormatName(CultureInfo Culture) => FormatName(null, Culture);
 
         public override string ToString() => FormatName();
     }

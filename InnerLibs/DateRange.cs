@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using InnerLibs.LINQ;
 using InnerLibs.TimeMachine;
- 
+
 
 namespace InnerLibs
 {
@@ -174,7 +174,7 @@ namespace InnerLibs
             }
 
             var sd = StartDate;
-            var ed = EndDate;             
+            var ed = EndDate;
 
             var range_diferenca = sd.GetDifference(ed);
 
@@ -231,7 +231,7 @@ namespace InnerLibs
                 DateRangeInterval = GetLessAccurateDateRangeInterval();
             }
 
-            return new DateRange(Convert.ToDateTime(AddInterval(StartDate, DateRangeInterval, Total)), Convert.ToDateTime(AddInterval(EndDate, DateRangeInterval, Total)), ForceFirstAndLastMoments);
+            return new DateRange(AddInterval(StartDate, DateRangeInterval, Total), AddInterval(EndDate, DateRangeInterval, Total), ForceFirstAndLastMoments);
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace InnerLibs
         /// <returns></returns>
         public LongTimeSpan Difference()
         {
-            if (_Difference is null)
+            if (_Difference == null)
             {
                 if (ForceFirstAndLastMoments)
                 {
@@ -459,124 +459,56 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Period">Periodo</param>
         /// <returns></returns>
-        public bool Overlaps(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            switch (true)
-            {
-                case object _ when Period.StartDate <= EndDate & Period.StartDate >= StartDate:
-                    {
-                        return true;
-                    }
-
-                case object _ when StartDate <= Period.EndDate & StartDate >= Period.StartDate:
-                    {
-                        return true;
-                    }
-
-                default:
-                    {
-                        return false;
-                    }
-            }
-        }
+        public bool Overlaps(DateRange Period) => (Period.StartDate <= EndDate && Period.StartDate >= StartDate) || (StartDate <= Period.EndDate && StartDate >= Period.StartDate);
 
         /// <summary>
         /// Verifica se 2 periodos coincidem datas (interseção, esta dentro de um periodo de ou contém um periodo)
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>
-        public bool MatchAny(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return Overlaps(Period) | Contains(Period) | IsIn(Period);
-        }
+        public bool MatchAny(DateRange Period) => Overlaps(Period) || Contains(Period) || IsIn(Period);
 
         /// <summary>
         /// Verifica se este periodo contém um outro periodo
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>
-        public bool Contains(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return StartDate <= Period.StartDate & Period.EndDate <= EndDate;
-        }
+        public bool Contains(DateRange Period) => StartDate <= Period.StartDate && Period.EndDate <= EndDate;
 
         /// <summary>
         /// Verifica se este periodo contém uma data
         /// </summary>
         /// <param name="Day"></param>
         /// <returns></returns>
-        public bool Contains(DateTime Day)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return StartDate <= Day & Day <= EndDate;
-        }
+        public bool Contains(DateTime Day) => StartDate <= Day && Day <= EndDate;
 
         /// <summary>
         /// Verifica se hoje está dentro deste periodo
         /// </summary>
         /// <returns></returns>
-        public bool IsNow()
-        {
-            return Contains(DateTime.Now);
-        }
+        public bool IsNow() => Contains(DateTime.Now);
 
         /// <summary>
         /// Verifica se este periodo está dentro de outro periodo
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>
-        public bool IsIn(DateRange Period)
-        {
-            var argStartDate = StartDate;
-            var argEndDate = EndDate;
-            Calendars.FixDateOrder(ref argStartDate, ref argEndDate);
-            StartDate = argStartDate;
-            EndDate = argEndDate;
-            return Period.Contains(this);
-        }
+        public bool IsIn(DateRange Period) => Period.Contains(this);
 
         /// <summary>
         /// Verifica quantos porcento uma data representa  em distancia dentro deste periodo
         /// </summary>
         /// <param name="[Date]">Data correspondente</param>
         /// <returns></returns>
-        public decimal CalculatePercent(DateTime? Date = default)
-        {
-            return (Date ?? DateTime.Now).CalculateTimelinePercent(StartDate, EndDate);
-        }
+        public decimal CalculatePercent(DateTime? Date = default) => (Date ?? DateTime.Now).CalculateTimelinePercent(StartDate, EndDate);
 
-        public IEnumerable<DateTime> Pair()
-        {
-            return new[] { StartDate, EndDate };
-        }
+        public IEnumerable<DateTime> Pair() => new[] { StartDate, EndDate };
 
-        public Dictionary<string, DateTime> Dictionary(string StartDateLabel = null, string EndDateLabel = null)
+        public Dictionary<string, DateTime> Dictionary(string StartDateLabel = null, string EndDateLabel = null) => new Dictionary<string, DateTime>()
         {
-            return new Dictionary<string, DateTime>()
-            {
-                [StartDateLabel.IfBlank("StartDate")] = StartDate,
-                [EndDateLabel.IfBlank("EndDate")] = EndDate
-            };
-        }
+            [StartDateLabel.IfBlank("StartDate")] = StartDate,
+            [EndDateLabel.IfBlank("EndDate")] = EndDate
+        };
 
         /// <summary>
         /// Retorna uma lista com as datas entre <see cref="StartDate"/> e <see cref="EndDate"/> utilizando um Intervalo
