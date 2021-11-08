@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -151,7 +151,7 @@ namespace InnerLibs
                         if (abr.Contains(Culture.NumberFormat.NumberDecimalSeparator))
                         {
                             abr = abr.Trim('0');
-                            abr = abr.Trim(Conversions.ToChar(Culture.NumberFormat.NumberDecimalSeparator));
+                            abr = abr.Trim(System.Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator));
                         }
 
                         return (abr + " " + u).Trim();

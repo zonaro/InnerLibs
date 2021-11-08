@@ -3,7 +3,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -89,7 +89,7 @@ namespace InnerLibs
 
         private void RuleExpression(params T?[] numbers)
         {
-            numbers ??= Array.Empty<T?>();
+            numbers = numbers ??  Array.Empty<T?>();
 
             if (numbers.Count() < 3)
             {

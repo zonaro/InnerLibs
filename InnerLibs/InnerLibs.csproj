@@ -1,21 +1,160 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="MicroORM\**" />
+    <Compile Remove="Printer\**" />
+    <EmbeddedResource Remove="MicroORM\**" />
+    <EmbeddedResource Remove="Printer\**" />
+    <None Remove="MicroORM\**" />
+    <None Remove="Printer\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="AddressInfo.cs" />
+    <Compile Remove="Alphabet.cs" />
+    <Compile Remove="Arrays.cs" />
+    <Compile Remove="ASCIIArt.cs" />
+    <Compile Remove="Base64.cs" />
+    <Compile Remove="Brasil.cs" />
+    <Compile Remove="Calendars.cs" />
+    <Compile Remove="ClassManager.cs" />
+    <Compile Remove="ColorExtensions.cs" />
+    <Compile Remove="ConnectionStringParser.cs" />
+    <Compile Remove="ConsoleExtensions.cs" />
+    <Compile Remove="ConsoleTable.cs" />
+    <Compile Remove="Converter.cs" />
+    <Compile Remove="DateRange.cs" />
+    <Compile Remove="DebugTextWriter.cs" />
+    <Compile Remove="Dice.cs" />
+    <Compile Remove="DictionarySelector.cs" />
+    <Compile Remove="Directories.cs" />
+    <Compile Remove="DOT Language.cs" />
+    <Compile Remove="Encrypt.cs" />
+    <Compile Remove="EquationPair.cs" />
+    <Compile Remove="Files.cs" />
+    <Compile Remove="FileTree.cs" />
+    <Compile Remove="FontAwesome.cs" />
+    <Compile Remove="FullMoneyWriter.cs" />
+    <Compile Remove="FullNumberWriter.cs" />
+    <Compile Remove="Generate.cs" />
+    <Compile Remove="HSVColor.cs" />
+    <Compile Remove="HtmlTag.cs" />
+    <Compile Remove="Images.cs" />
+    <Compile Remove="InnerCrypt.cs" />
+    <Compile Remove="InnerMenu.cs" />
+    <Compile Remove="IPaginatedEnumerable.cs" />
+    <Compile Remove="JSminifier.cs" />
+    <Compile Remove="LinqPagination.cs" />
+    <Compile Remove="Mailer.cs" />
+    <Compile Remove="Maths.cs" />
+    <Compile Remove="MIME.cs" />
+    <Compile Remove="OnlineList.cs" />
+    <Compile Remove="QuantityTextPair.cs" />
+    <Compile Remove="QuestionTest.cs" />
+    <Compile Remove="Resources.Designer.cs" />
+    <Compile Remove="Romanize.cs" />
+    <Compile Remove="RuleOfThree.cs" />
+    <Compile Remove="Select2Data.cs" />
+    <Compile Remove="Soundex.cs" />
+    <Compile Remove="Text.cs" />
+    <Compile Remove="TextCleaner.cs" />
+    <Compile Remove="TimeMachine.cs" />
+    <Compile Remove="UnitConverter.cs" />
+    <Compile Remove="vCard.cs" />
+    <Compile Remove="Verify.cs" />
+    <Compile Remove="Web.cs" />
+    <Compile Remove="WeekInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".gitignore" />
     <None Remove="brasil.xml" />
+    <None Remove="InnerLibsBase.projitems" />
     <None Remove="mimes.xml" />
-    <None Remove="Printer\Printer.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="brasil.xml" />
-    <EmbeddedResource Include="mimes.xml" />
-    <EmbeddedResource Include="Printer\Printer.css" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\AddressInfo.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Alphabet.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Arrays.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ASCIIArt.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Base64.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Brasil.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Calendars.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ClassManager.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ColorExtensions.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ConnectionStringParser.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ConsoleExtensions.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ConsoleTable.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Converter.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DateRange.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DebugTextWriter.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Dice.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DictionarySelector.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Directories.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DOT Language.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Encrypt.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\EquationPair.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Files.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FileTree.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FontAwesome.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FullMoneyWriter.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FullNumberWriter.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Generate.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\HSVColor.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\HtmlTag.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Images.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\InnerCrypt.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\InnerMenu.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\IPaginatedEnumerable.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\JSminifier.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\LinqPagination.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Mailer.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Maths.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\MicroORM\DbExtensions.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\MicroORM\MicroORM.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\MIME.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\OnlineList.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\EscBema.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\EscDaruma.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\EscPos.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\IPrintCommand.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\Printer.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\PrinterByteExtensions.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\QuantityTextPair.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\QuestionTest.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Resources.Designer.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Romanize.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\RuleOfThree.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Select2Data.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Soundex.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Text.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\TextCleaner.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\TimeMachine.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\UnitConverter.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\vCard.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Verify.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Web.cs" />
+    <Compile Remove="C:\svn\InnerLibs\InnerLibs\WeekInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />  
+    <Content Remove="C:\svn\InnerLibs\InnerLibs\Printer\Printer.css" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\brasil.xml" />
+    <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\mimes.xml" />
+    <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="C:\svn\InnerLibs\InnerLibs\.gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+  </ItemGroup>
+  <Import Project="InnerLibsBase.projitems" Label="Shared" />
   
 </Project>

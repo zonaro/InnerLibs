@@ -148,15 +148,15 @@ namespace InnerLibs.Printer
             string send = "" + '\u001b' + '3' + '\0';
             var data = new byte[send.Length];
             for (int i = 0, loopTo = send.Length - 1; i <= loopTo; i++)
-                data[i] = (byte)Strings.AscW(send[i]);
+                data[i] = (byte)Text.ToAsc(send[i]);
             list.AddRange(data);
-            data[0] = (byte)Strings.AscW('\0');
-            data[1] = (byte)Strings.AscW('\0');
-            data[2] = (byte)Strings.AscW('\0'); // Clear
+            data[0] =  Text.ToAscByte('\0');
+            data[1] =  Text.ToAscByte('\0');
+            data[2] =  Text.ToAscByte('\0'); // Clear
 
             // ESC * m nL nH d1…dk   Select bitmap mode
             var escBmp = new[] { (byte)0x1B, (byte)0x2A, (byte)0x0, (byte)0x0, (byte)0x0 };
-            escBmp[2] = (byte)Strings.AscW('!');
+            escBmp[2] = Text.ToAscByte('!');
             // nL, nH
             escBmp[3] = (byte)(bmp.Width % 256);
             escBmp[4] = (byte)Math.Round(bmp.Width / 256d);
@@ -187,9 +187,9 @@ namespace InnerLibs.Printer
 
                     // Write data，24dots
                     list.AddRange(data);
-                    data[0] = (byte)Strings.AscW('\0');
-                    data[1] = (byte)Strings.AscW('\0');
-                    data[2] = (byte)Strings.AscW('\0'); // Clear
+                    data[0] = Text.ToAscByte('\0');
+                    data[1] = Text.ToAscByte('\0');
+                    data[2] = Text.ToAscByte('\0'); // Clear
                 }
 
                 var data2 = new[] { (byte)0xA };
@@ -202,7 +202,7 @@ namespace InnerLibs.Printer
 
         public static byte ToByte(this char c)
         {
-            return (byte)Strings.AscW(c);
+            return (byte)c.ToAsc();
         }
 
         public static byte ToByte(this Enum c)
@@ -247,12 +247,12 @@ namespace InnerLibs.Printer
 
         public static byte[] AddLF(this byte[] bytes, Encoding Encoding = null)
         {
-            return bytes.AddTextBytes(Constants.vbLf, Encoding);
+            return bytes.AddTextBytes(Environment.NewLine, Encoding);
         }
 
         public static byte[] AddCrLF(this byte[] bytes, Encoding Encoding = null)
         {
-            return bytes.AddTextBytes(Constants.vbCrLf, Encoding);
+            return bytes.AddTextBytes(Environment.NewLine, Encoding);
         }
 
         public static bool IsNullOrEmpty(this string value)

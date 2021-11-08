@@ -78,7 +78,7 @@ namespace InnerLibs.MicroORM
         internal string _having;
         internal List<string> _orderBy;
         internal string _offset;
-       
+
 
         public Select<T> AddColumns<O>(O Obj = null) where O : class
         {
@@ -101,7 +101,7 @@ namespace InnerLibs.MicroORM
         public Select<T> AddColumns(params string[] Columns)
         {
             Columns = (Columns ?? Array.Empty<string>()).SelectMany(x => x.Split(",")).Distinct().Where(x => x.IsNotBlank()).ToArray();
-            _columns ??= new List<string>();
+            _columns = _columns ?? new List<string>();
             _columns.AddRange(Columns);
             return this;
         }
@@ -157,7 +157,7 @@ namespace InnerLibs.MicroORM
             {
                 _from = null;
                 _fromsub = SubQuery;
-                _fromsubname = SubQueryAlias.IfBlank(typeof(O).Name + "_" + DateAndTime.Now.Ticks);
+                _fromsubname = SubQueryAlias.IfBlank(typeof(O).Name + "_" + DateTime.Now.Ticks.ToString());
             }
 
             return this;
@@ -731,7 +731,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> OrderBy(params string[] columns)
         {
-            columns ??= Array.Empty<string>();
+            columns = columns ?? Array.Empty<string>();
             if (_orderBy is null)
             {
                 _orderBy = new List<string>(columns);
@@ -836,9 +836,9 @@ namespace InnerLibs.MicroORM
 
         public Select<T> Join(JoinType JoinType, string Table, Condition on)
         {
-            if (Table.IsNotBlank() && !Information.IsNothing(on) && on.ToString().IsNotBlank())
+            if (Table.IsNotBlank() && !(on == null) && on.ToString().IsNotBlank())
             {
-                _joins ??= new List<Join>();
+                _joins = _joins ?? new List<Join>();
                 _joins.Add(new Join()
                 {
                     Type = JoinType,
@@ -893,7 +893,7 @@ namespace InnerLibs.MicroORM
                 }
             }
         }
- 
+
 
         /// <summary>
         /// Select class constructor
@@ -920,7 +920,7 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Select class constructor
+        /// condition class constructor
         /// </summary>
         public Condition(string Column, object Value, string Operator = "=")
         {
@@ -949,7 +949,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Condition And(FormattableString condition)
         {
-            if (!Information.IsNothing(condition) && condition.ToString().IsNotBlank())
+            if (!(condition == null) && condition.ToString().IsNotBlank())
             {
                 if (_tokens.Any())
                 {
@@ -976,7 +976,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Condition Or(FormattableString condition)
         {
-            if (!Information.IsNothing(condition) && condition.ToString().IsNotBlank())
+            if (!(condition == null) && condition.ToString().IsNotBlank())
             {
                 if (_tokens.Any())
                 {

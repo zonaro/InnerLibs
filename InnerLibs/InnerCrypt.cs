@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -22,10 +22,11 @@ namespace InnerLibs
             var num = new List<string>();
             foreach (var c in letras)
             {
-                string ll = Strings.AscW(c).ToString();
+                var casc = c.ToAsc();
+                string ll = casc.ToString();
                 int i = ll.GetFirstChars(1).IfBlank(1) + ll.GetLastChars(1).IfBlank(1);
                 i = i.LimitRange(0, Array_letras.Length - 1);
-                num.Add(Array_letras[i] + Math.Pow(Strings.AscW(c), 3 * Seed.SetMinValue(1)));
+                num.Add(Array_letras[i] + Math.Pow(casc, 3 * Seed.SetMinValue(1)));
             }
 
             num.Reverse();

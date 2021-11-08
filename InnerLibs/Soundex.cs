@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs
 {
@@ -54,7 +53,7 @@ namespace InnerLibs
                 int PrevCode = 0;
                 int CurrCode = 0;
                 // Append the first character to the buffer
-                Buffer += Conversions.ToString(Chars[0]);
+                Buffer += Convert.ToString(Chars[0]);
                 // Prepare variables for loop
                 int i;
                 int LoopLimit = Size - 1;
@@ -169,23 +168,7 @@ namespace InnerLibs
         public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? "") == (SoundExCode ?? "") | (Word ?? "") == (this.Word ?? "");
 
 
-        /// <summary>
-        /// Verifica se o fonema atual está presente em alguma frase
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <returns></returns>
-        public bool IsListenedIn(string Text)
-        {
-            foreach (var w in Text.Split(" "))
-            {
-                if (LikeOperator.LikeString(this.ToString(), w, CompareMethod.Binary))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        
 
         /// <summary>
         /// Palavra Original
@@ -225,7 +208,7 @@ namespace InnerLibs
                 }
                 else if (text.StartsWith("Z"))
                 {
-                    text = "Z" + text.Replace("Z", "S");
+                    text = "Z" + text.RemoveFirstAny("Z").Replace("Z", "S");
                 }
                 else
                 {
@@ -284,7 +267,7 @@ namespace InnerLibs
                     int tam = sb.Length - 1;
                     if (tam > -1)
                     {
-                        if (Conversions.ToString(sb[tam]) == "S" || Conversions.ToString(sb[tam]) == "Z" || Conversions.ToString(sb[tam]) == "R" || Conversions.ToString(sb[tam]) == "M" || Conversions.ToString(sb[tam]) == "N" || Conversions.ToString(sb[tam]) == "L")
+                        if (Convert.ToString(sb[tam]) == "S" || Convert.ToString(sb[tam]) == "Z" || Convert.ToString(sb[tam]) == "R" || Convert.ToString(sb[tam]) == "M" || Convert.ToString(sb[tam]) == "N" || Convert.ToString(sb[tam]) == "L")
                         {
                             sb.Remove(tam, 1);
                         }
@@ -293,7 +276,7 @@ namespace InnerLibs
                     tam = sb.Length - 2;
                     if (tam > -1)
                     {
-                        if (Conversions.ToString(sb[tam]) == "A" && Conversions.ToString(sb[tam + 1]) == "O")
+                        if (Convert.ToString(sb[tam]) == "A" && Convert.ToString(sb[tam + 1]) == "O")
                         {
                             sb.Remove(tam, 2);
                         }
@@ -302,7 +285,7 @@ namespace InnerLibs
                     string frasesaida = "";
                     try
                     {
-                        frasesaida += Conversions.ToString(sb[0]);
+                        frasesaida += Convert.ToString(sb[0]);
                     }
                     catch  
                     {
@@ -312,7 +295,7 @@ namespace InnerLibs
                     {
                         if (frasesaida[frasesaida.Length - 1] != sb[i] || char.IsDigit(sb[i]))
                         {
-                            frasesaida += Conversions.ToString(sb[i]);
+                            frasesaida += Convert.ToString(sb[i]);
                         }
                     }
 

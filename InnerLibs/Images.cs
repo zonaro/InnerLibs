@@ -6,7 +6,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
+
+
 
 namespace InnerLibs
 {
@@ -389,7 +390,7 @@ namespace InnerLibs
 
         public static bool CompareARGB(this Color Color1, Color Color2, bool IgnoreAlpha = true) => Color1.CompareARGB(IgnoreAlpha, Color2);
 
-        public static bool CompareARGB(this Color Color1, bool IgnoreAlpha, params Color[] Colors) => (Colors ??= Array.Empty<Color>()).Any(Color2 => Color1.R == Color2.R && Color1.G == Color2.G && Color1.B == Color2.B && (IgnoreAlpha || Color1.A == Color2.A));
+        public static bool CompareARGB(this Color Color1, bool IgnoreAlpha, params Color[] Colors) => (Colors = Colors ?? Array.Empty<Color>()).Any(Color2 => Color1.R == Color2.R && Color1.G == Color2.G && Color1.B == Color2.B && (IgnoreAlpha || Color1.A == Color2.A));
 
         public static Image MakeDarker(this Image img, float percent = 50f)
         {
@@ -669,8 +670,8 @@ namespace InnerLibs
 
                 if (Percent.IsNumber())
                 {
-                    size.Width = Conversions.ToInteger(Percent.ToInteger().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString());
-                    size.Height = Conversions.ToInteger(Percent.ToInteger().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString());
+                    size.Width = Convert.ToInt32(Percent.ToInteger().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString());
+                    size.Height = Convert.ToInt32(Percent.ToInteger().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString());
                 }
             }
 
@@ -765,113 +766,113 @@ namespace InnerLibs
                 {
                     case object _ when Text.IsNumber():
                         {
-                            s.Width = Conversions.ToInteger(Text);
-                            s.Height = Conversions.ToInteger(Text);
+                            s.Width = Convert.ToInt32(Text);
+                            s.Height = s.Width;
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "width*", CompareMethod.Binary) & !LikeOperator.LikeString(Text, "*height*", CompareMethod.Binary):
+                    case object _ when Text.Like("width*") && !Text.Like("*height*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.GetAfter("width"));
-                            s.Height = Conversions.ToInteger(Text.GetAfter("width"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("width"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("width"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "height*", CompareMethod.Binary) & !LikeOperator.LikeString(Text, "*width*", CompareMethod.Binary):
+                    case object _ when Text.Like("height*") && !Text.Like("*width*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.GetAfter("height"));
-                            s.Height = Conversions.ToInteger(Text.GetAfter("height"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("height"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("height"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "w*", CompareMethod.Binary) & !LikeOperator.LikeString(Text, "*h*", CompareMethod.Binary):
+                    case object _ when Text.Like("w*") && !Text.Like("*h*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.GetAfter("w"));
-                            s.Height = Conversions.ToInteger(Text.GetAfter("w"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("w"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("w"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "h*", CompareMethod.Binary) & !LikeOperator.LikeString(Text, "*w*", CompareMethod.Binary):
+                    case object _ when Text.Like("h*") && !Text.Like("*w*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.GetAfter("h"));
-                            s.Height = Conversions.ToInteger(Text.GetAfter("h"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("h"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("h"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "width*height*", CompareMethod.Binary):
+                    case object _ when Text.Like("width*height*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.GetBetween("width", "height"));
-                            s.Height = Conversions.ToInteger(Text.GetAfter("height"));
+                            s.Width = Convert.ToInt32(Text.GetBetween("width", "height"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("height"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "height*width*", CompareMethod.Binary):
+                    case object _ when Text.Like("height*width*"):
                         {
-                            s.Height = Conversions.ToInteger(Text.GetBetween("height", "width"));
-                            s.Width = Conversions.ToInteger(Text.GetAfter("width"));
+                            s.Height = Convert.ToInt32(Text.GetBetween("height", "width"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("width"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "w*h*", CompareMethod.Binary):
+                    case object _ when Text.Like("w*h*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.GetBetween("w", "h"));
-                            s.Height = Conversions.ToInteger(Text.GetAfter("h"));
+                            s.Width = Convert.ToInt32(Text.GetBetween("w", "h"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("h"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "h*w*", CompareMethod.Binary):
+                    case object _ when Text.Like("h*w*"):
                         {
-                            s.Height = Conversions.ToInteger(Text.GetBetween("h", "w"));
-                            s.Width = Conversions.ToInteger(Text.GetAfter("w"));
+                            s.Height = Convert.ToInt32(Text.GetBetween("h", "w"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("w"));
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "*x*", CompareMethod.Binary):
+                    case object _ when Text.Like("*x*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Conversions.ToInteger(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "*by*", CompareMethod.Binary):
+                    case object _ when Text.Like("*by*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Conversions.ToInteger(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "*por*", CompareMethod.Binary):
+                    case object _ when Text.Like("*por*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Conversions.ToInteger(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "*,*", CompareMethod.Binary):
+                    case object _ when Text.Like("*,*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Conversions.ToInteger(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "*-*", CompareMethod.Binary):
+                    case object _ when Text.Like("*-*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Conversions.ToInteger(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
 
-                    case object _ when LikeOperator.LikeString(Text, "*_*", CompareMethod.Binary):
+                    case object _ when Text.Like("*_*"):
                         {
-                            s.Width = Conversions.ToInteger(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Conversions.ToInteger(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
 
                     default:
                         {
-                            s.Width = Conversions.ToInteger(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Conversions.ToInteger(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            s.Width = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
                 }

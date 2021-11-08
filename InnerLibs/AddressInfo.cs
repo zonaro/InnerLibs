@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Xml;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace InnerLibs.Locations
 {
@@ -464,7 +463,7 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public string ToString(int FormatCode)
         {
-            return ToString((AddressPart)Conversions.ToInteger(FormatCode));
+            return ToString((AddressPart)Convert.ToInt32(FormatCode));
         }
 
         /// <summary>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs.LINQ
 {
@@ -601,7 +601,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public int ButtonCount(string Trailling = "...")
         {
-            return CreatePaginationButtons(Conversions.ToString(Trailling)).Count();
+            return CreatePaginationButtons(Convert.ToString(Trailling)).Count();
         }
 
         /// <summary>
@@ -667,6 +667,8 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public IEnumerable<string> CreatePaginationButtons(string Trailling = "...")
         {
+            if (Trailling.IsNumber()) throw new ArgumentException($"Trailling cannot be a number! => {Trailling}");
+            
             var l = new List<string>();
             if (IsPaginationNecessary)
             {
@@ -713,8 +715,6 @@ namespace InnerLibs.LINQ
                 }
                 else
                 {
-                    if (Trailling.IsNumber())
-                        throw new ArgumentException($"Trailling cannot be a number! => {Trailling}");
                     return CreatePaginationButtons(Trailling).Select(x =>
                     {
                         if (x.IsNumber())

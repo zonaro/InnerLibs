@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -48,7 +48,7 @@ namespace InnerLibs
             string s = string.Empty;
             while (i > 0)
             {
-                s += Conversions.ToString(Alphabet[i % Alphabet.Length]);
+                s += Convert.ToString(Alphabet[i % Alphabet.Length]);
                 i = i / Alphabet.Length;
             }
 

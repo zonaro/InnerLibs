@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using InnerLibs.LINQ;
 using InnerLibs.Locations;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -115,7 +115,7 @@ namespace InnerLibs
         public static string Password(int Lenght = 8)
         {
             double @base = Lenght / 3d;
-            return Password(@base.CeilInt(), @base.FloorInt(), @base.FloorInt()).PadRight(Lenght, Conversions.ToChar(Arrays.AlphaChars.TakeRandom(1).FirstOrDefault())).GetFirstChars(Lenght);
+            return Password(@base.CeilInt(), @base.FloorInt(), @base.FloorInt()).PadRight(Lenght, Convert.ToChar(Arrays.AlphaChars.TakeRandom(1).FirstOrDefault())).GetFirstChars(Lenght);
         }
 
 

@@ -1,6 +1,6 @@
 ﻿using InnerLibs.LINQ;
 using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -235,12 +235,12 @@ namespace InnerLibs.MicroORM
 
                             if (Verify.IsDate(x))
                             {
-                                return Conversions.ToDate(x).ToSQLDateString().Quote('\'');
+                                return Convert.ToDateTime(x).ToSQLDateString().Quote('\'');
                             }
 
                             if (Verify.IsBoolean(x))
                             {
-                                return Conversions.ToBoolean(x).AsIf(1, 0).ToString();
+                                return Convert.ToBoolean(x).AsIf(1, 0).ToString();
                             }
 
                             return x.ToString().Quote('\'');
@@ -484,7 +484,7 @@ namespace InnerLibs.MicroORM
         public static V? RunSQLValue<V>(this DbConnection Connection, DbCommand Command) where V : struct
         {
             var vv = Connection.RunSQLValue(Command);
-            if (vv != null && Operators.ConditionalCompareObjectNotEqual(vv, DBNull.Value, false).ToBoolean())
+            if (vv != null && vv != DBNull.Value)
             {
                 return (V)vv;
             }
@@ -885,7 +885,7 @@ namespace InnerLibs.MicroORM
                     }
                     else if (typeof(T) == typeof(NameValueCollection))
                     {
-                        ((NameValueCollection)(object)d).Add(name, Conversions.ToString(value));
+                        ((NameValueCollection)(object)d).Add(name, Convert.ToString(value));
                     }
                     else
                     {
@@ -994,7 +994,7 @@ namespace InnerLibs.MicroORM
                         if (prop.GetValue(d) is null)
                         {
                             var oo = Connection.RunSQLValue(Sql.ToFormattableString());
-                            prop.SetValue(d, Conversion.CTypeDynamic(oo, prop.PropertyType));
+                            prop.SetValue(d, Converter.ChangeType(oo, prop.PropertyType));
                             if (Recursive)
                             {
                                 Connection.ProccessSubQuery(oo, Recursive);

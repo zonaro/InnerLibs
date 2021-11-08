@@ -5,7 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using InnerLibs.LINQ;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -25,7 +25,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FixPathSeparator(this string Path, bool Alternative = false)
         {
-            return Path.Split(new[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.Trim(), Conversions.ToString(Alternative ? System.IO.Path.AltDirectorySeparatorChar : System.IO.Path.DirectorySeparatorChar));
+            return Path.Split(new[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.Trim(), Convert.ToString(Alternative ? System.IO.Path.AltDirectorySeparatorChar : System.IO.Path.DirectorySeparatorChar));
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace InnerLibs
             {
                 using (var archive = ZipFile.Open(OutputFile, File.Exists(OutputFile) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
                 {
-                    var arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).ReplaceMany("/", Conversions.ToString(Path.DirectorySeparatorChar), Conversions.ToString(Path.AltDirectorySeparatorChar)), CompressionLevel);
+                    var arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).ReplaceMany("/", Convert.ToString(Path.DirectorySeparatorChar), Convert.ToString(Path.AltDirectorySeparatorChar)), CompressionLevel);
                     Debug.WriteLine("Adding: " + arqz.FullName);
                 }
             }

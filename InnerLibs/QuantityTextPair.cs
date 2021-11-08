@@ -1,5 +1,5 @@
 using System;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -19,12 +19,12 @@ namespace InnerLibs
         {
             get
             {
-                return ToString(Conversions.ToDecimal(Number));
+                return ToString(Convert.ToDecimal(Number));
             }
 
             set
             {
-                if (Number.IsNumber() && Conversions.ToDecimal(Number).Floor().IsIn(1m, -1))
+                if (Number.IsNumber() && Convert.ToDecimal(Number).Floor().IsIn(1m, -1))
                 {
                     Singular = value;
                 }

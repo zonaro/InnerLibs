@@ -178,17 +178,17 @@ namespace InnerLibs
 
             var range_diferenca = sd.GetDifference(ed);
 
-            return Interval switch
+            switch (Interval)
             {
-                DateRangeInterval.Milliseconds => range_diferenca.TotalMilliseconds,
-                DateRangeInterval.Seconds => range_diferenca.TotalSeconds,
-                DateRangeInterval.Minutes => range_diferenca.TotalMinutes,
-                DateRangeInterval.Hours => range_diferenca.TotalHours,
-                DateRangeInterval.Days => range_diferenca.TotalDays,
-                DateRangeInterval.Weeks => range_diferenca.TotalWeeks,
-                DateRangeInterval.Months => range_diferenca.TotalMonths,
-                DateRangeInterval.Years => range_diferenca.TotalYears,
-                _ => -1
+                case DateRangeInterval.Milliseconds: return range_diferenca.TotalMilliseconds;
+                case DateRangeInterval.Seconds: return range_diferenca.TotalSeconds;
+                case DateRangeInterval.Minutes: return range_diferenca.TotalMinutes;
+                case DateRangeInterval.Hours: return range_diferenca.TotalHours;
+                case DateRangeInterval.Days: return range_diferenca.TotalDays;
+                case DateRangeInterval.Weeks: return range_diferenca.TotalWeeks;
+                case DateRangeInterval.Months: return range_diferenca.TotalMonths;
+                case DateRangeInterval.Years: return range_diferenca.TotalYears;
+                default: return -1;
             };
 
         }
@@ -201,18 +201,22 @@ namespace InnerLibs
         /// <param name="Total"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static DateTime AddInterval(DateTime Datetime, DateRangeInterval Interval, decimal Total) => Interval switch
+        public static DateTime AddInterval(DateTime Datetime, DateRangeInterval Interval, decimal Total)
         {
-            DateRangeInterval.Milliseconds => Datetime.AddMilliseconds((double)Total),
-            DateRangeInterval.Seconds => Datetime.AddSeconds((double)Total),
-            DateRangeInterval.Minutes => Datetime.AddMinutes((double)Total),
-            DateRangeInterval.Hours => Datetime.AddHours((double)Total),
-            DateRangeInterval.Days => Datetime.AddDays((double)Total),
-            DateRangeInterval.Weeks => Datetime.AddDays((double)(Total * 7m)),
-            DateRangeInterval.Months => Datetime.AddMonths((int)Total),
-            DateRangeInterval.Years => Datetime.AddYears((int)Total),
-            _ => throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work for get a DateRange string")
-        };
+            switch (Interval)
+            {
+
+                case DateRangeInterval.Milliseconds: return Datetime.AddMilliseconds((double)Total);
+                case DateRangeInterval.Seconds: return Datetime.AddSeconds((double)Total);
+                case DateRangeInterval.Minutes: return Datetime.AddMinutes((double)Total);
+                case DateRangeInterval.Hours: return Datetime.AddHours((double)Total);
+                case DateRangeInterval.Days: return Datetime.AddDays((double)Total);
+                case DateRangeInterval.Weeks: return Datetime.AddDays((double)(Total * 7m));
+                case DateRangeInterval.Months: return Datetime.AddMonths((int)Total);
+                case DateRangeInterval.Years: return Datetime.AddYears((int)Total);
+                default: throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work for get a DateRange string");
+            }
+        }
 
 
 

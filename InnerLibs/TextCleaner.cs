@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using InnerLibs.LINQ;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -98,10 +98,10 @@ namespace InnerLibs
                     switch (true)
                     {
                         // caso for algum tipo de pontuacao, wrapper ou virgula
-                        case object _ when Arrays.OpenWrappers.Contains(Conversions.ToString(p)):
-                        case object _ when Arrays.CloseWrappers.Contains(Conversions.ToString(p)):
-                        case object _ when Arrays.EndOfSentencePunctuation.Contains(Conversions.ToString(p)):
-                        case object _ when Arrays.MidSentencePunctuation.Contains(Conversions.ToString(p)):
+                        case object _ when Arrays.OpenWrappers.Contains(Convert.ToString(p)):
+                        case object _ when Arrays.CloseWrappers.Contains(Convert.ToString(p)):
+                        case object _ when Arrays.EndOfSentencePunctuation.Contains(Convert.ToString(p)):
+                        case object _ when Arrays.MidSentencePunctuation.Contains(Convert.ToString(p)):
                             {
                                 if (palavra.IsNotBlank())
                                 {
@@ -109,11 +109,11 @@ namespace InnerLibs
                                     palavra = "";
                                 }
 
-                                listabase.Add(Conversions.ToString(p)); // adiciona a virgula, wrapper ou pontuacao
+                                listabase.Add(Convert.ToString(p)); // adiciona a virgula, wrapper ou pontuacao
                                 break;
                             }
                         // caso for espaco
-                        case object _ when Conversions.ToString(p) == " ":
+                        case object _ when Convert.ToString(p) == " ":
                             {
                                 if (palavra.IsNotBlank())
                                 {
@@ -127,7 +127,7 @@ namespace InnerLibs
 
                         default:
                             {
-                                palavra += Conversions.ToString(p);
+                                palavra += Convert.ToString(p);
                                 break;
                             }
                     }

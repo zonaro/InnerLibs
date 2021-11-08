@@ -3,12 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.VisualBasic.CompilerServices;
+
 
 namespace InnerLibs.LINQ
 {
     public static class LINQExtensions
     {
+
+
+
+        public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
+        {
+            return l.Take(l.Count() - Count.LimitRange(0, l.Count()));
+        }
+
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1)
+        {
+            return l.Reverse().Take(Count).Reverse();
+        }
+
+
+
+
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count)
         {
             return l.OrderByRandom().Take(Count);
@@ -1229,7 +1245,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> FirstExpression, params Expression<Func<T, bool>>[] OtherExpressions)
         {
-            FirstExpression ??= false.CreateWhereExpression<T>();
+            FirstExpression = FirstExpression ?? false.CreateWhereExpression<T>();
             foreach (var item in OtherExpressions ?? Array.Empty<Expression<Func<T, bool>>>())
             {
                 if (item != null)
@@ -1264,7 +1280,7 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
         {
-            Properties ??= Array.Empty<Expression<Func<T, string>>>();
+            Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
             var predi = false.CreateWhereExpression<T>();
             foreach (var prop in Properties)
             {
@@ -1431,8 +1447,8 @@ namespace InnerLibs.LINQ
         public static IOrderedEnumerable<ClassType> Search<ClassType>(this IEnumerable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
             IOrderedEnumerable<ClassType> SearchRet = default;
-            Properties ??= Array.Empty<Expression<Func<ClassType, string>>>();
-            SearchTerms ??= Array.Empty<string>().AsEnumerable();
+            Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
+            SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
             SearchRet = null;
             Table = Table.Where(SearchTerms.SearchExpression(Properties).Compile());
             foreach (var prop in Properties)
@@ -1451,8 +1467,8 @@ namespace InnerLibs.LINQ
         public static IOrderedQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
             IOrderedQueryable<ClassType> SearchRet = default;
-            Properties ??= Array.Empty<Expression<Func<ClassType, string>>>();
-            SearchTerms ??= Array.Empty<string>().AsEnumerable();
+            Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
+            SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
             SearchRet = Table.Where(SearchTerms.SearchExpression(Properties)).OrderBy(x => true);
             foreach (var prop in Properties)
                 SearchRet = SearchRet.ThenByLike((string[])SearchTerms, prop);
@@ -1478,7 +1494,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "")
         {
-            Selector ??= (x => x.ToString());
+            Selector = Selector ?? (x => x.ToString());
             return Source.Select(Selector).JoinString(Separator);
         }
 
@@ -1502,7 +1518,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "")
         {
-            Selector ??= (x => new[] { x.ToString() });
+            Selector = Selector ?? (x => new[] { x.ToString() });
             return Source.SelectMany(Selector).JoinString(Separator);
         }
 

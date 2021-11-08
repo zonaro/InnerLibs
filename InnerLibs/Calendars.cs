@@ -30,8 +30,8 @@ namespace InnerLibs
                 ForceFirstAndLastMoments = true
             };
 
-            StartDate ??= List.Min(PropertyExpression.Compile());
-            EndDate ??= List.Max(PropertyExpression.Compile());
+            StartDate = StartDate ?? List.Min(PropertyExpression.Compile());
+            EndDate = EndDate ?? List.Max(PropertyExpression.Compile());
 
             if (StartDate.HasValue)
             {
@@ -63,8 +63,8 @@ namespace InnerLibs
                 ForceFirstAndLastMoments = true
             };
 
-            StartDate ??= List.Min(PropertyExpression);
-            EndDate ??= List.Max(PropertyExpression);
+            StartDate = StartDate ?? List.Min(PropertyExpression);
+            EndDate = EndDate ?? List.Max(PropertyExpression);
 
             if (StartDate.HasValue)
             {
@@ -506,7 +506,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsAnniversary(this DateTime BirthDate, DateTime? CompareWith = default)
         {
-            CompareWith ??= DateTime.Today;
+            CompareWith = CompareWith ?? DateTime.Today;
             return (BirthDate.Day == CompareWith.Value.Day) && (BirthDate.Month == CompareWith.Value.Month);
         }
 
@@ -591,7 +591,7 @@ namespace InnerLibs
         public static IEnumerable<DateTime> GetDaysBetween(this DateTime StartDate, DateTime EndDate, params DayOfWeek[] DaysOfWeek)
         {
             var l = new List<DateTime>() { StartDate.Date };
-            DaysOfWeek ??= Array.Empty<DayOfWeek>();
+            DaysOfWeek = DaysOfWeek ?? Array.Empty<DayOfWeek>();
             if (DaysOfWeek.Length == 0)
             {
                 DaysOfWeek = new[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
@@ -692,7 +692,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime LastDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
-            FromDate ??= DateTime.Now;
+            FromDate = FromDate ?? DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
                 FromDate = FromDate.Value.AddDays(-1);
             return (DateTime)FromDate;
@@ -706,7 +706,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime NextDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
-            FromDate ??= DateTime.Now;
+            FromDate  = FromDate ??  DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
                 FromDate = FromDate.Value.AddDays(1d);
             return (DateTime)FromDate;

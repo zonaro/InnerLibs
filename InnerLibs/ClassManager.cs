@@ -10,12 +10,14 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using InnerLibs.LINQ;
-using Microsoft.VisualBasic.CompilerServices;
+
 
 namespace InnerLibs
 {
     public static class ClassTools
     {
+
+       
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
             string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
@@ -452,7 +454,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static R AsIf<T, R>(this T obj, Expression<Func<T, bool>> BoolExp, R TrueValue, R FalseValue = default)
         {
-            if (obj is null || BoolExp is null)
+            if (obj == null || BoolExp == null)
             {
                 return FalseValue;
             }
@@ -702,7 +704,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static T FirstOr<T>(this IEnumerable<T> source, T Alternate)
         {
-            return (source ?? Array.Empty<T>()).FirstOrDefault() ?? Alternate;
+            var item = (source ?? Array.Empty<T>()).FirstOrDefault();
+            if (item == null)
+            {
+                return Alternate;
+            }
+            return item;
         }
 
         /// <summary>
@@ -714,7 +721,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicate, T Alternate)
         {
-            return (source ?? Array.Empty<T>()).FirstOrDefault(predicate) ?? Alternate;
+            var item = (source ?? Array.Empty<T>()).FirstOrDefault(predicate);
+            return item == null ? Alternate : item;
         }
 
         /// <summary>
@@ -747,7 +755,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static T FirstAnyOr<T>(this IEnumerable<T> source, T Alternate, params Expression<Func<T, bool>>[] predicate)
         {
-            return source.FirstAny(predicate) ?? Alternate;
+            var item = (source ?? Array.Empty<T>()).FirstAny(predicate);
+            return (item == null) ? Alternate : item;
+
         }
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Func<TAttribute, TValue> ValueSelector) where TAttribute : Attribute
@@ -982,7 +992,7 @@ namespace InnerLibs
                 for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
                 {
                     if (PropertyName[i] != '.')
-                        current += Conversions.ToString(PropertyName[i]);
+                        current += Convert.ToString(PropertyName[i]);
                     if (PropertyName[i] == '(')
                         stop = true;
                     if (PropertyName[i] == ')')
@@ -1107,7 +1117,7 @@ namespace InnerLibs
             }
             else
             {
-                return Text.Contains(Conversions.ToChar(Obj.ToString()), Comparer);
+                return Text.Contains(Convert.ToChar(Obj.ToString()), Comparer);
             }
         }
 
@@ -1188,7 +1198,7 @@ namespace InnerLibs
             }
             else
             {
-                return Text.Contains(Conversions.ToChar(Obj.ToString()), Comparer);
+                return Text.Contains(Convert.ToChar(Obj.ToString()), Comparer);
             }
         }
 

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
+
 
 namespace InnerLibs
 {
@@ -185,13 +188,16 @@ namespace InnerLibs
 
             if (Text == "random") return RandomColor();
 
-            if (Text.IsIn(Enum.GetNames(typeof(KnownColor)), StringComparer.InvariantCultureIgnoreCase)) return Color.FromName(Text);
+
+            var maybecolor = KnowColors.FirstOrDefault(x => x.Name.ToLower() == Text.ToLower());
+
+            if (maybecolor != null) return maybecolor.ToDrawingColor();
 
             if (Text.IsNumber()) return Color.FromArgb(Text.ToInteger());
 
             if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#").IfBlank("000000"));
 
-            var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(Strings.AscW(a), 2d) * p.Length)).Sum().RoundInt();
+            var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
             return Color.FromArgb(255, Color.FromArgb(coresInt));
         }
 
@@ -215,7 +221,27 @@ namespace InnerLibs
         /// Lista com todas as <see cref="KnownColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<Color> KnowColors => Enum.GetValues(typeof(KnownColor)).Cast<KnownColor>().Where(x => x.ToInteger() >= 27).Select(x => Color.FromKnownColor(x));
+        public static IEnumerable<HSVColor> KnowColors
+        {
+            get
+            {
+                if (!l.Any())
+                {
+                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.colors.xml");
+                    var doc = new XmlDocument();
+                    doc.LoadXml(s);
+                    foreach (XmlNode node in doc["colors"].ChildNodes)
+                    {
+                        l.Add(new HSVColor(ColorTranslator.FromHtml(node["hexadecimal"].InnerText), node["name"].InnerText));
+                    }
+                }
+                return l.AsEnumerable();
+            }
+
+
+        }
+
+        private static List<HSVColor> l = new List<HSVColor>();
 
         /// <summary>
         /// Retorna uma <see cref="KnownColor"/> mais proxima de outra cor
@@ -229,9 +255,9 @@ namespace InnerLibs
             foreach (var kc in KnowColors)
             {
                 // Calculate Euclidean Distance
-                double r_dist_sqrd = Math.Pow(Color.R - (double)kc.R, 2d);
-                double g_dist_sqrd = Math.Pow(Color.G - (double)kc.G, 2d);
-                double b_dist_sqrd = Math.Pow(Color.B - (double)kc.B, 2d);
+                double r_dist_sqrd = Math.Pow(Color.R - (double)kc.Red, 2d);
+                double g_dist_sqrd = Math.Pow(Color.G - (double)kc.Green, 2d);
+                double b_dist_sqrd = Math.Pow(Color.B - (double)kc.Blue, 2d);
                 double d = Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd);
                 if (d < closest_distance)
                 {
@@ -258,7 +284,7 @@ namespace InnerLibs
         public static string GetColorName(this Color Color)
         {
             foreach (var namedColor in KnowColors)
-                if (namedColor.ToArgb() == Color.ToArgb())
+                if (namedColor.ARGB == Color.ToArgb())
                     return namedColor.Name;
             return Color.Name;
         }

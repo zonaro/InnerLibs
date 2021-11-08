@@ -1,6 +1,6 @@
 ﻿using InnerLibs.LINQ;
 using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -343,9 +343,9 @@ namespace InnerLibs.Online
         /// Remove um usuário desta lista
         /// </summary>
         /// <param name="Obj"></param>
-        public   void Remove(params UserType[] Obj)
+        public void Remove(params UserType[] Obj)
         {
-            Obj ??= Array.Empty<UserType>();
+            Obj  = Obj ?? Array.Empty<UserType>();
             this.RemoveIfExist(Obj.Select(x => GetID(x)).ToArray());
         }
 
@@ -365,7 +365,7 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public OnlineUser<UserType, IdType> SetOffline(UserType Obj)
         {
-            return Add(Obj, false, "Offline", null, null, DateAndTime.Now);
+            return Add(Obj, false, "Offline", null, null, DateTime.Now);
         }
 
         /// <summary>
@@ -385,7 +385,7 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public OnlineUser<UserType, IdType> SetOnline(UserType Obj)
         {
-            return Add(Obj, true, "Online", null, null, DateAndTime.Now);
+            return Add(Obj, true, "Online", null, null, DateTime.Now);
         }
 
         /// <summary>
@@ -428,9 +428,9 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Logdata"></param>
         /// <returns></returns>
-        public UserLogEntry<UserType, IdType> CreateLog(UserType User, string Message, string URL = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
+        public UserLogEntry<UserType, IdType> CreateLog(UserType User, string Message, string URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
         {
-            return Log.CreateLog(User, Message, URL, LogData, DateAndTime.Now);
+            return Log.CreateLog(User, Message, URL, LogData, DateTime.Now);
         }
     }
 
@@ -466,7 +466,7 @@ namespace InnerLibs.Online
         {
             if (User != null && Message.IsNotBlank())
             {
-                DateAndTime = DateAndTime ?? Microsoft.VisualBasic.DateAndTime.Now;
+                DateAndTime = DateAndTime ?? DateTime.Now;
                 if ((OnlineList[User].LastActivity ?? "") == (Message ?? ""))
                 {
                     var lo = OnlineList[User].LastOnline; // nao cria log para locais repedidos dentro do tempo de N minutos
@@ -480,7 +480,7 @@ namespace InnerLibs.Online
                 d.DateTime = (DateTime)DateAndTime;
                 d.Message = Message;
                 d.LogData = LogData;
-                d.URL = URL.NullIf(Conversions.ToString(URL.IsBlank()));
+                d.URL = URL.NullIf(Convert.ToString(URL.IsBlank()));
                 OnlineList.Log.Add(d);
                 if (OnlineList.OnCreateLog != null)
                 {

@@ -13,8 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using InnerLibs.LINQ;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
+
 
 namespace InnerLibs
 {
@@ -24,7 +23,11 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
+        public static bool Like(this String source, String Pattern) => new Like(Pattern).Matches(source);
 
+
+
+        public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => from sTest in source where sTest.Like(Pattern) select sTest;
 
         /// <summary>
         /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> na ultima ocorrencia.
@@ -40,6 +43,29 @@ namespace InnerLibs
                 return AdjustBlankSpaces(Texts?.FirstOrDefault());
 
 
+        }
+
+        public static IEnumerable<int> ToAsc(this string c) => c.ToArray().Select(x => x.ToAsc());
+
+        public static byte ToAscByte(this char c) => (byte)c.ToAsc();
+        public static int ToAsc(this char c)
+        {
+            int converted = c;
+            if (converted >= 0x80)
+            {
+                byte[] buffer = new byte[2];
+                // if the resulting conversion is 1 byte in length, just use the value
+                if (System.Text.Encoding.Default.GetBytes(new char[] { c }, 0, 1, buffer, 0) == 1)
+                {
+                    converted = buffer[0];
+                }
+                else
+                {
+                    // byte swap bytes 1 and 2;
+                    converted = buffer[0] << 16 | buffer[1];
+                }
+            }
+            return converted;
         }
 
         /// <summary>
@@ -143,19 +169,8 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="Patterns"></param>
         /// <returns></returns>
-        public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns)
-        {
-            Text = Text.IfBlank("");
-            foreach (var item in Patterns ?? Array.Empty<string>())
-            {
-                if (LikeOperator.LikeString(item, Text, CompareMethod.Binary) | LikeOperator.LikeString(Text, item, CompareMethod.Binary))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x));
+        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x));
 
         /// <summary>
         /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
@@ -165,13 +180,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsLikeAny(this string Text, params string[] Patterns) => Text.IsLikeAny((Patterns ?? Array.Empty<string>()).AsEnumerable());
 
-        /// <summary>
-        /// operador LIKE do VB para C# em forma de extension method
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <param name="OtherText"></param>
-        /// <returns></returns>
-        public static bool Like(this string Text, string OtherText) => LikeOperator.LikeString(Text, OtherText, CompareMethod.Binary);
+
+
 
         /// <summary>
         /// Formata um numero para CNPJ ou CNPJ se forem validos
@@ -422,7 +432,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string AppendIf(this string Text, string AppendText, Func<string, bool> Test)
         {
-            Test ??= (x => false);
+            Test = Test ?? (x => false);
             return Text.AppendIf(AppendText, Test(Text));
         }
 
@@ -434,7 +444,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test)
         {
-            Test ??= (x => false);
+            Test = Test ?? (x => false);
             return Text.PrependIf(PrependText, Test(Text));
         }
 
@@ -446,7 +456,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string PrependWhile(this string Text, string PrependText, Func<string, bool> Test)
         {
-            Test ??= (x => false);
+            Test = Test ?? (x => false);
 
             while (Test(Text))
                 Text = Text.Prepend(PrependText);
@@ -461,7 +471,7 @@ namespace InnerLibs
         /// <param name="Test">      Teste</param>
         public static string AppendWhile(this string Text, string AppendText, Func<string, bool> Test)
         {
-            Test ??= (x => false);
+            Test = Test ?? (x => false);
             while (Test(Text))
                 Text = Text.Append(AppendText);
             return Text;
@@ -518,7 +528,7 @@ namespace InnerLibs
                     uppercount = 0;
                 }
 
-                Text += Conversions.ToString(c);
+                Text += Convert.ToString(c);
             }
 
             return Text.Trim();
@@ -542,7 +552,7 @@ namespace InnerLibs
         public static string Censor(this string Text, IEnumerable<string> BadWords, char CensorshipCharacter, ref bool IsCensored)
         {
             var words = Text.Split(" ", StringSplitOptions.None);
-            BadWords ??= Array.Empty<string>();
+            BadWords = BadWords ?? Array.Empty<string>();
             if (words.ContainsAny(BadWords))
             {
                 foreach (var bad in BadWords)
@@ -1291,7 +1301,7 @@ namespace InnerLibs
         /// <returns>String HTML corrigido</returns>
         public static string HtmlDecode(this string Text)
         {
-            return System.Net.WebUtility.HtmlDecode("" + Text).ReplaceMany(Constants.vbCr + Constants.vbLf, "<br/>", "<br />", "<br>");
+            return System.Net.WebUtility.HtmlDecode("" + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
         }
 
         /// <summary>
@@ -1301,7 +1311,7 @@ namespace InnerLibs
         /// <returns>String HTML corrigido</returns>
         public static string HtmlEncode(this string Text)
         {
-            return System.Net.WebUtility.HtmlEncode("" + Text.ReplaceMany("<br>", Conversions.ToString(Arrays.BreakLineChars)));
+            return System.Net.WebUtility.HtmlEncode("" + Text.ReplaceMany("<br>", Arrays.BreakLineChars.ToArray()));
         }
 
         /// <summary>
@@ -1390,7 +1400,7 @@ namespace InnerLibs
         /// <returns>string</returns>
         public static string JoinString<Type>(this IEnumerable<Type> Items, string Separator = "")
         {
-            Items ??= Array.Empty<Type>().AsEnumerable();
+            Items = Items ?? Array.Empty<Type>().AsEnumerable();
             return string.Join(Separator, Items.Select(x => $"{x}").ToArray());
         }
 
@@ -1519,7 +1529,7 @@ namespace InnerLibs
             {
                 if (char.IsDigit(c) || c == Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator))
                 {
-                    strDigits += Conversions.ToString(c);
+                    strDigits += Convert.ToString(c);
                 }
             }
 
@@ -1658,7 +1668,7 @@ namespace InnerLibs
                 string str = PluralText.Format.QuantifyText(PluralText.GetArguments().FirstOrDefault(), ref numero);
                 str = str.Replace("{0}", numero.ToString());
                 for (int index = 1, loopTo = PluralText.GetArguments().Count() - 1; index <= loopTo; index++)
-                    str = str.Replace($"{{{index}}}", Conversions.ToString(PluralText.GetArgument(index)));
+                    str = str.Replace($"{{{index}}}", Convert.ToString(PluralText.GetArgument(index)));
                 return str;
             }
 
@@ -1702,7 +1712,7 @@ namespace InnerLibs
 
                 case object _ when QuantityOrListOrBoolean.IsNumber():
                     {
-                        OutQuantity = Conversions.ToDecimal(QuantityOrListOrBoolean);
+                        OutQuantity = Convert.ToDecimal(QuantityOrListOrBoolean);
                         break;
                     }
 
@@ -1726,7 +1736,7 @@ namespace InnerLibs
 
                 default:
                     {
-                        OutQuantity = Conversions.ToDecimal(QuantityOrListOrBoolean);
+                        OutQuantity = Convert.ToDecimal(QuantityOrListOrBoolean);
                         break;
                     }
             }
@@ -1813,9 +1823,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Quote(this string Text, char OpenQuoteChar = '"')
         {
-            if (Conversions.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
+            if (Convert.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
             {
-                OpenQuoteChar = Conversions.ToChar(OpenQuoteChar.ToString().GetOppositeWrapChar());
+                OpenQuoteChar = Convert.ToChar(OpenQuoteChar.ToString().GetOppositeWrapChar());
             }
 
             return OpenQuoteChar + Text + OpenQuoteChar.ToString().GetOppositeWrapChar();
@@ -1865,7 +1875,7 @@ namespace InnerLibs
         /// <param name="Text">     Texto</param>
         /// <param name="QuoteChar">Caractere de encapsulamento</param>
         /// <returns></returns>
-        public static string QuoteIf(this string Text, bool Condition, string QuoteChar = "\"") => Condition ? Text.Quote(Conversions.ToChar(QuoteChar)) : Text;
+        public static string QuoteIf(this string Text, bool Condition, string QuoteChar = "\"") => Condition ? Text.Quote(Convert.ToChar(QuoteChar)) : Text;
 
         /// <summary>
         /// Sorteia um item da Matriz
@@ -1892,7 +1902,7 @@ namespace InnerLibs
                 }
                 else
                 {
-                    newstring += Conversions.ToString(c);
+                    newstring += Convert.ToString(c);
                 }
             }
 
@@ -1934,6 +1944,9 @@ namespace InnerLibs
             Text = Text.ReplaceMany("", Values ?? Array.Empty<string>());
             return Text;
         }
+
+        public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
+
 
         /// <summary>
         /// Remove os acentos de uma string
@@ -2093,7 +2106,7 @@ namespace InnerLibs
             {
                 if (char.IsControl(c))
                 {
-                    Text = Text.ReplaceNone(Conversions.ToString(c));
+                    Text = Text.ReplaceNone(Convert.ToString(c));
                 }
             }
 
@@ -2254,7 +2267,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ReplaceMany(this string Text, string NewValue, params string[] OldValues)
         {
-            Text ??= "";
+            Text = Text.IfBlank("");
             foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0))
                 Text = Text.Replace(word, NewValue);
             return Text;
@@ -2518,8 +2531,8 @@ namespace InnerLibs
             var ch = Text.ToArray();
             for (int index = 0, loopTo = ch.Length - 1; index <= loopTo; index++)
             {
-                char antec = ch.IfNoIndex(index - 1, Conversions.ToChar(""));
-                if (antec.ToString().IsBlank() || char.IsLower(antec) || Conversions.ToString(antec) == Constants.vbNullChar)
+                char antec = ch.IfNoIndex(index - 1, Convert.ToChar(""));
+                if (antec.ToString().IsBlank() || char.IsLower(antec) || antec.ToString() == null)
                 {
                     ch[index] = char.ToUpper(ch[index]);
                 }
@@ -2602,7 +2615,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns>string amigavel para URL</returns>
-        public static string ToFriendlyPathName(this string Text) => Text.Replace("&", "e").Replace("@", "a").RemoveAny(":", "*", "?", "/", @"\", "<", ">", "{", "}", "[", "]", "|", "\"", "'", Constants.vbTab, Environment.NewLine).AdjustBlankSpaces();
+        public static string ToFriendlyPathName(this string Text) => Text.Replace("&", "e").Replace("@", "a").RemoveAny(Path.GetInvalidPathChars()).AdjustBlankSpaces();
 
         /// <summary>
         /// Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
@@ -4177,7 +4190,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToXMLString(this XmlDocument XML)
         {
-            using var stringWriter = new StringWriter();
+            using (var stringWriter = new StringWriter())
             using (var xmlTextWriter = XmlWriter.Create(stringWriter))
             {
                 XML.WriteTo(xmlTextWriter);

@@ -447,10 +447,7 @@ namespace InnerLibs
                     m |= ColorMood.MostBlue;
                 }
 
-                if (_scolor.IsKnownColor)
-                {
-                    m |= ColorMood.KnowColor;
-                }
+
 
                 return m;
             }
@@ -638,7 +635,7 @@ namespace InnerLibs
         /// Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
         /// </summary>
         /// <returns></returns>
-        public Color ToSystemColor() => Color.FromArgb(Alpha, Red, Green, Blue);
+        public Color ToDrawingColor() => Color.FromArgb(Alpha, Red, Green, Blue);
 
         /// <summary>
         /// Verifica se uma cor é legivel sobre outra cor
@@ -1036,7 +1033,7 @@ namespace InnerLibs
 
         public static implicit operator HSVColor(Color Value) => new HSVColor(Value);
 
-        public static implicit operator Color(HSVColor Value) => Value.ToSystemColor();
+        public static implicit operator Color(HSVColor Value) => Value.ToDrawingColor();
 
         public static implicit operator HSVColor(string Value) => new HSVColor(Value);
 
@@ -1070,7 +1067,7 @@ namespace InnerLibs
             }
         }
 
-        public override int GetHashCode() => HashCode.Combine(this.ARGB);
+        public override int GetHashCode() => this.ARGB;
     }
 
     [Flags]
@@ -1109,6 +1106,6 @@ namespace InnerLibs
         FullRed = NoGreen | NoBlue,
         FullGreen = NoRed | NoBlue,
         FullBlue = NoRed | NoGreen,
-        KnowColor = 33554432
+        
     }
 }

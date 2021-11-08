@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using Microsoft.VisualBasic.CompilerServices;
+
 
 namespace InnerLibs.TimeMachine
 {
@@ -175,7 +175,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="AnyDate">Qualquer data. Se NULL, a data atual é utilizada</param>
         public Fortnight(DateTime? AnyDate = default)
         {
-            AnyDate ??= DateTime.Now;
+            AnyDate = AnyDate ?? DateTime.Now;
             AnyDate = new DateTime(AnyDate.Value.Year, AnyDate.Value.Month, AnyDate.Value.Day > 15 ? 16 : 1, AnyDate.Value.Hour, AnyDate.Value.Minute, AnyDate.Value.Second, AnyDate.Value.Millisecond, AnyDate.Value.Kind);
             var EndDate = AnyDate;
             EndDate = EndDate.Value.AddDays(1d);
@@ -238,7 +238,7 @@ namespace InnerLibs.TimeMachine
         /// <returns>Uma string no formato especificado</returns>
         public string FormatName(string Format = null, CultureInfo Culture = null)
         {
-            Culture ??= CultureInfo.CurrentCulture;
+            Culture = Culture ?? CultureInfo.CurrentCulture;
             Format = Format.IfBlank(Fortnight.Format);
 
             int dia_inicio = Period.StartDate.Day;
@@ -954,17 +954,20 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DayOfWeek> NonRelevantDaysOfWeek => new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday }.Where(x => x.IsNotIn(RelevantDaysOfWeek));
 
 
-        public JourneyDay GetJourneyDay(DayOfWeek dayOfWeek) => dayOfWeek switch
+        public JourneyDay GetJourneyDay(DayOfWeek DoW)
         {
-            DayOfWeek.Sunday => Sunday,
-            DayOfWeek.Monday => Monday,
-            DayOfWeek.Tuesday => Tuesday,
-            DayOfWeek.Wednesday => Wednesday,
-            DayOfWeek.Thursday => Thursday,
-            DayOfWeek.Friday => Friday,
-            DayOfWeek.Saturday => Saturday,
-            _ => null
-        };
+            switch (DoW)
+            {
+                case DayOfWeek.Sunday: return Sunday;
+                case DayOfWeek.Monday: return Monday;
+                case DayOfWeek.Tuesday: return Tuesday;
+                case DayOfWeek.Wednesday: return Wednesday;
+                case DayOfWeek.Thursday: return Thursday;
+                case DayOfWeek.Friday: return Friday;
+                case DayOfWeek.Saturday: return Saturday;
+                default: return null;
+            }
+        }
 
         public JourneyDay GetJourneyDay(DateTime Date) => GetJourneyDay(Date.DayOfWeek);
 

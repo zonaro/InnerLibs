@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.VisualBasic.CompilerServices;
+
 
 namespace InnerLibs
 {
@@ -189,7 +189,7 @@ namespace InnerLibs
             }
 
             // if has extension then its a file; directory otherwise
-            return !Text.EndsWith(Conversions.ToString(Path.DirectorySeparatorChar)) && Path.GetExtension(Text).IsNotBlank();
+            return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar)) && Path.GetExtension(Text).IsNotBlank();
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace InnerLibs
             catch { }
 
             // if has trailing slash then it's a directory
-            if (new string[] { Conversions.ToString(Path.DirectorySeparatorChar), Conversions.ToString(Path.AltDirectorySeparatorChar) }.Any(x => Text.EndsWith(x)))
+            if (new string[] { Convert.ToString(Path.DirectorySeparatorChar), Convert.ToString(Path.AltDirectorySeparatorChar) }.Any(x => Text.EndsWith(x)))
             {
                 return true;
             }
@@ -382,7 +382,11 @@ namespace InnerLibs
         /// <param name="Index">Posicao</param>
         /// <param name="ValueIfNoIndex">Valor se o mesmo nao existir</param>
         /// <returns></returns>
-        public static T IfNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfNoIndex = default) => (Arr ?? Array.Empty<T>()).ElementAtOrDefault(Index) ?? ValueIfNoIndex;
+        public static T IfNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfNoIndex = default)
+        {
+            var item = (Arr ?? Array.Empty<T>()).ElementAtOrDefault(Index);
+            return item == null ? ValueIfNoIndex : item;
+        }
 
         /// <summary>
         /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um valor default se o index nao existir ou seu valor for branco ou nothing

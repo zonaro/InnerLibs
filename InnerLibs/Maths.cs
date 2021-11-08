@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using InnerLibs.Locations;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -126,7 +126,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToOrdinalNumber(this int Number, bool ExcludeNumber = false)
         {
-            return Conversions.ToLong(Number).ToOrdinalNumber(ExcludeNumber);
+            return Convert.ToInt64(Number).ToOrdinalNumber(ExcludeNumber);
         }
 
         /// <summary>
@@ -136,31 +136,31 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToOrdinalNumber(this long Number, bool ExcludeNumber = false)
         {
-            if (Number > 0L)
+            if (Number != 0L)
             {
                 switch (Number)
                 {
                     case 1L:
-                    case -1:
+                    case -1L:
                         {
-                            return Conversions.ToString(Operators.ConcatenateObject(ExcludeNumber ? "" : (object)Number, "st"));
+                            return String.Join(ExcludeNumber ? "" :  Number.ToString(), "st");
                         }
 
                     case 2L:
-                    case -2:
+                    case -2L:
                         {
-                            return Conversions.ToString(Operators.ConcatenateObject(ExcludeNumber ? "" : (object)Number, "nd"));
+                            return string.Join(ExcludeNumber ? "" :  Number.ToString(), "nd");
                         }
 
                     case 3L:
-                    case -3:
+                    case -3L:
                         {
-                            return Conversions.ToString(Operators.ConcatenateObject(ExcludeNumber ? "" : (object)Number, "rd"));
+                            return String.Join(ExcludeNumber ? "" : Number.ToString(), "rd");
                         }
 
                     default:
                         {
-                            return Conversions.ToString(Operators.ConcatenateObject(ExcludeNumber ? "" : (object)Number, "th"));
+                            return String.Join(ExcludeNumber ? "" : Number.ToString(), "th");
                         }
                 }
             }
@@ -175,7 +175,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToOrdinalNumber(this short Number)
         {
-            return Conversions.ToLong(Number).ToOrdinalNumber();
+            return Convert.ToInt64(Number).ToOrdinalNumber();
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToOrdinalNumber(this double Number)
         {
-            return Conversions.ToLong(Number).ToOrdinalNumber();
+            return Convert.ToInt64(Number).ToOrdinalNumber();
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToOrdinalNumber(this decimal Number)
         {
-            return Conversions.ToLong(Number).ToOrdinalNumber();
+            return Convert.ToInt64(Number).ToOrdinalNumber();
         }
 
         /// <summary>
@@ -657,14 +657,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Conversions.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
+        public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Convert.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static double RoundDouble(this double Number, int? Decimals = default) => Conversions.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
+        public static double RoundDouble(this double Number, int? Decimals = default) => Convert.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo

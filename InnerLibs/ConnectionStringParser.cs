@@ -55,11 +55,11 @@ namespace InnerLibs
         public SqlServerConnectionsStringParser(string ConnectionString) : base(ConnectionString)
         { }
 
-        public string InitialCatalog { get => this.GetValueOrDefault("Initial Catalog"); set => this.Set("Initial Catalog", value); }
-        public string Server { get => this.GetValueOrDefault("Server"); set => this.SetOrRemove("Server", value); }
-        public string UserID { get => this.GetValueOrDefault("User ID"); set => this.SetOrRemove("User ID", value); }
-        public string Password { get => this.GetValueOrDefault("Password"); set => this.SetOrRemove("Password", value); }
-        public bool IntegratedSecurity { get => this.GetValueOrDefault("Integrated Security")?.ToLower().ToBoolean() ?? false; set => this.SetOrRemove("Integrated Security", value.ToString().ToTitle()); }
+        public string InitialCatalog { get => this.GetValueOr("Initial Catalog"); set => this.Set("Initial Catalog", value); }
+        public string Server { get => this.GetValueOr("Server"); set => this.SetOrRemove("Server", value); }
+        public string UserID { get => this.GetValueOr("User ID"); set => this.SetOrRemove("User ID", value); }
+        public string Password { get => this.GetValueOr("Password"); set => this.SetOrRemove("Password", value); }
+        public bool IntegratedSecurity { get => this.GetValueOr("Integrated Security")?.ToLower().ToBoolean() ?? false; set => this.SetOrRemove("Integrated Security", value.ToString().ToTitle()); }
     }
 
 }

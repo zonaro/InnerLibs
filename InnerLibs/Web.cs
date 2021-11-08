@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -76,15 +76,7 @@ namespace InnerLibs
             return CSS;
         }
 
-        /// <summary>
-        /// Minifica um arquivo JavaScript
-        /// </summary>
-        /// <param name="Js">String contendo o Javascript</param>
-        /// <returns></returns>
-        public static string MinifyJS(this string Js)
-        {
-            return new JSMin().Minify(Js);
-        }
+    
 
         /// <summary>
         /// Verifica se o computador está conectado com a internet

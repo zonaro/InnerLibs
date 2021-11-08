@@ -26,13 +26,20 @@ namespace InnerLibs
 
         public int Year { get; private set; }
 
-        public int this[int Index] => Index switch
+        public int this[int Index]
         {
-            0 => this.Week,
-            1 => this.Month,
-            2 => this.Year,
-            _ => -1,
-        };
+            get
+            {
+                switch (Index)
+                {
+                    case 0: return this.Week;
+                    case 1: return this.Month;
+                    case 2: return this.Year;
+                    default: return -1;
+                }
+            }
+
+        }
 
         public static implicit operator int[](WeekInfo Info) => new int[] { Info?.Week ?? -1, Info?.Month ?? -1, Info?.Year ?? -1 };
 

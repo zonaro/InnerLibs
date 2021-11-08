@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
-using Microsoft.VisualBasic.CompilerServices;
+ 
 
 namespace InnerLibs
 {
@@ -113,7 +113,7 @@ namespace InnerLibs
             {
                 // valor base do digito
                 char numeral = RomanNumber[ptr];
-                int digito = Conversions.ToInteger(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
+                int digito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
 
                 // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior
                 // Quando isto ocorre, por exemplo IX, o menor número é subtraído do maior
@@ -128,7 +128,7 @@ namespace InnerLibs
                 {
                     char proximoNumeral = RomanNumber[ptr + 1];
                     // proximo digito
-                    int proximoDigito = Conversions.ToInteger(Enum.Parse(typeof(RomanDigit), proximoNumeral.ToString()));
+                    int proximoDigito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), proximoNumeral.ToString()));
                     if (proximoDigito > digito)
                     {
                         if ("IXC".IndexOf(numeral) == -1 || proximoDigito > digito * 10 || RomanNumber.Split(numeral).Length > 3)
@@ -155,7 +155,7 @@ namespace InnerLibs
             // Isto significa que XIX é aceitável, mas XIM e IIV não são.
             for (int i = 0, loopTo = valores.Count - 2; i <= loopTo; i++)
             {
-                if (Conversions.ToInteger(valores[i]) < Conversions.ToInteger(valores[i + 1]))
+                if (Convert.ToInt32(valores[i]) < Convert.ToInt32(valores[i + 1]))
                 {
                     throw new ArgumentException("Invalid Roman number.In this case the digit can not be greater than the previous one.");
                 }

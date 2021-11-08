@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>852d9dee-4fbb-47a4-8f9e-4a1fc54f924f</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>InnerLibs</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AddressInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Alphabet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Arrays.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ASCIIArt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base64.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Brasil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Calendars.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ClassManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ColorExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConnectionStringParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConsoleExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConsoleTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateRange.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DebugTextWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DictionarySelector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Directories.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DOT Language.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Encrypt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EquationPair.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Files.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileTree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FontAwesome.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FullMoneyWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FullNumberWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Generate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HSVColor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HtmlTag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Images.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InnerCrypt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InnerMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPaginatedEnumerable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqPagination.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mailer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Maths.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MicroORM\DbExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MicroORM\MicroORM.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MIME.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OnlineList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\EscBema.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\EscDaruma.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\EscPos.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\IPrintCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\Printer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\PrinterByteExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuantityTextPair.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuestionTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Romanize.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RuleOfThree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Select2Data.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Soundex.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Text.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TextCleaner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TimeMachine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnitConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)vCard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Verify.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Web.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WeekInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)brasil.xml" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)mimes.xml" />
+    <Content Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory).gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx" />
+  </ItemGroup>
+</Project>

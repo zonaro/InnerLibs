@@ -580,7 +580,7 @@ namespace InnerLibs.Printer
 
         internal string GetDotLine(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
-            Columns ??= GetCurrentColumns();
+            Columns = Columns ?? GetCurrentColumns();
             if (CharLine.ToString().IsBlank())
             {
                 CharLine = ' ';
@@ -593,7 +593,7 @@ namespace InnerLibs.Printer
 
         internal string GetPair(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
-            Columns ??= GetCurrentColumns();
+            Columns = Columns ?? GetCurrentColumns();
             string dots = "";
             string s1 = $"{LeftText}";
             string s2 = $"{RightText}";
@@ -789,7 +789,7 @@ namespace InnerLibs.Printer
         /// <param name="Dictionaries"></param>
         /// <returns></returns>
         public Printer WriteDictionary<T1, T2>(params IDictionary<T1, T2>[] Dictionaries) => WriteDictionary(false, Dictionaries);
-        
+
         /// <summary>
         /// Escreve os valores de um Dictionary como pares
         /// </summary>
@@ -799,7 +799,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer WriteDictionary<T1, T2>(bool PartialCutOnEach, params IDictionary<T1, T2>[] Dictionaries)
         {
-            Dictionaries ??= Array.Empty<IDictionary<T1, T2>>();
+            Dictionaries = Dictionaries ?? Array.Empty<IDictionary<T1, T2>>();
             foreach (var dic in Dictionaries)
             {
                 if (dic != null)
@@ -867,7 +867,7 @@ namespace InnerLibs.Printer
         /// Escreve um par de informações no <see cref="DocumentBuffer"/>.
         /// </summary>
         public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => this.WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsNotBlank());
-        
+
         /// <summary>
         /// Escreve uma linha de preço no <see cref="DocumentBuffer"/>
         /// </summary>
@@ -931,7 +931,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer WriteClass<T>(bool PartialCutOnEach, params T[] Objects) where T : class
         {
-            Objects ??= Array.Empty<T>();
+            Objects = Objects ??  Array.Empty<T>();
             foreach (var obj in Objects)
             {
                 if (obj != null)
