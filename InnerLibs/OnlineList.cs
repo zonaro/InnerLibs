@@ -81,7 +81,7 @@ namespace InnerLibs.Online
             {
                 if (BackupDirectory != null)
                 {
-                    BackupDirectory = BackupDirectory.FullName.ToDirectoryInfo();
+                    BackupDirectory = BackupDirectory.FullName.CreateDirectoryIfNotExists();
                 }
 
                 return new FileInfo(Path.Combine(BackupDirectory.FullName, "LOG.XML"));
@@ -98,7 +98,7 @@ namespace InnerLibs.Online
             {
                 if (BackupDirectory != null)
                 {
-                    BackupDirectory = BackupDirectory.FullName.ToDirectoryInfo();
+                    BackupDirectory = BackupDirectory.FullName.CreateDirectoryIfNotExists();
                 }
 
                 return new FileInfo(Path.Combine(BackupDirectory.FullName, "CHAT.XML"));

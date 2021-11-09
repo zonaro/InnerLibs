@@ -5,7 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using InnerLibs.LINQ;
- 
+
 
 namespace InnerLibs
 {
@@ -95,7 +95,7 @@ namespace InnerLibs
         /// <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3" </param>
         /// <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
         /// <remarks>Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o diretório deste arquivo.</remarks>
-        public static DirectoryInfo ToDirectoryInfo(this string DirectoryName)
+        public static DirectoryInfo CreateDirectoryIfNotExists(this string DirectoryName)
         {
             if (DirectoryName.IsFilePath())
             {
@@ -110,21 +110,40 @@ namespace InnerLibs
             return new DirectoryInfo(DirectoryName + Path.DirectorySeparatorChar);
         }
 
+        public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName)
+        {
+            if (DirectoryName != null)
+                DirectoryName.FullName.CreateDirectoryIfNotExists();
+            return DirectoryName;
+        }
+
+
+
         /// <summary>
         /// Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
         /// </summary>
         /// <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
         /// <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
-        public static FileInfo ToFileInfo(this string FileName, FileType Type)
+        public static FileInfo CreateFileIfNotExists(this string FileName, FileType Type)
         {
             Type = Type ?? new FileType(".txt");
             FileName = Path.GetFullPath(FileName.RemoveAny(Path.GetExtension(FileName))) + Type.Extensions[0];
+
+            FileName.CreateDirectoryIfNotExists();
+
             if (File.Exists(FileName) == false)
             {
                 File.Create(FileName).Dispose();
             }
 
             return new FileInfo(FileName);
+        }
+
+        public static FileInfo CreateFileIfNotExists(this FileInfo FileName)
+        {
+            if (FileName != null)
+                FileName.FullName.CreateFileIfNotExists(new FileType(FileName));
+            return FileName;
         }
 
         /// <summary>
@@ -141,7 +160,7 @@ namespace InnerLibs
 
             return new FileInfo(FileName);
         }
-         
+
 
         /// <summary>
         /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas

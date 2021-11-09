@@ -21,7 +21,7 @@ namespace InnerLibs
     /// <returns></returns>
         public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, DirectoryInfo Directory)
         {
-            Directory = Directory.FullName.ToDirectoryInfo();
+            Directory = Directory.FullName.CreateDirectoryIfNotExists();
             return attachment.SaveMailAttachment(Directory.FullName + @"\" + attachment.Name.IfBlank(attachment.ContentId));
         }
 
@@ -33,7 +33,7 @@ namespace InnerLibs
     /// <returns></returns>
         public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, string Path)
         {
-            Path.ToDirectoryInfo();
+            Path.CreateDirectoryIfNotExists();
             if (Path.IsDirectoryPath())
             {
                 Path = Path + @"\" + attachment.Name.IfBlank(attachment.ContentId);
@@ -81,7 +81,7 @@ namespace InnerLibs
             if (FilePath.IsFilePath())
             {
                 var p = new FileInfo(FilePath);
-                p.Directory.FullName.ToDirectoryInfo();
+                p.Directory.FullName.CreateDirectoryIfNotExists();
                 File.WriteAllBytes(p.FullName, Bytes);
                 Debug.WriteLine(FilePath, "File Written");
                 return p;
@@ -151,7 +151,7 @@ namespace InnerLibs
     /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null)
         {
-            Path.GetDirectoryName(FilePath).ToDirectoryInfo();
+            Path.GetDirectoryName(FilePath).CreateDirectoryIfNotExists();
             using (var s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false)))
             {
                 s.Write(Text);
