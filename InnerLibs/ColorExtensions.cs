@@ -176,21 +176,21 @@ namespace InnerLibs
         /// <summary>
         /// Gera uma cor a partir de uma palavra
         /// </summary>
-        /// <param name="Text">Pode ser um texto em branco (Cor aleatória), uma <see cref="KnownColor"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
+        /// <param name="Text">Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
         /// <returns></returns>
         public static Color ToColor(this string Text)
         {
             if (Text.IsBlank()) return Color.Transparent;
 
-            if (Text == "random") return RandomColor();
+            if (Text == "random") return RandomColor();           
+
+            if (Text.IsNumber()) return Color.FromArgb(Text.ToInteger());
+
+            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
 
             var maybecolor = NamedColors.FirstOrDefault(x => x.Name.ToLower() == Text.ToLower());
 
             if (maybecolor != null) return maybecolor.ToDrawingColor();
-
-            if (Text.IsNumber()) return Color.FromArgb(Text.ToInteger());
-
-            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#").IfBlank("000000"));
 
             var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
             return Color.FromArgb(255, Color.FromArgb(coresInt));
@@ -213,7 +213,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Lista com todas as <see cref="KnownColor"/> convertidas em <see cref="System.Drawing.Color"/>
+        /// Lista com todas as <see cref="HSVColor"/> com nomes oficiais
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<HSVColor> NamedColors
@@ -222,7 +222,7 @@ namespace InnerLibs
             {
                 if (!l.Any())
                 {
-                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.colors.xml");
+                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.Colors.xml");
                     var doc = new XmlDocument();
                     doc.LoadXml(s);
                     foreach (XmlNode node in doc["colors"].ChildNodes)
@@ -233,6 +233,9 @@ namespace InnerLibs
                 return l.AsEnumerable();
             }
         }
+
+  
+
 
         private static List<HSVColor> l = new List<HSVColor>();
 

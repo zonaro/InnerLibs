@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <!--<TargetFramework>netstandard2.0</TargetFramework>-->
+    <TargetFramework>net472</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
@@ -13,68 +14,7 @@
     <None Remove="Colors.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\AddressInfo.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Alphabet.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Arrays.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ASCIIArt.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Base64.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Brasil.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Calendars.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ClassManager.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ColorExtensions.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ConnectionStringParser.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ConsoleExtensions.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\ConsoleTable.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Converter.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DateRange.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DebugTextWriter.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Dice.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DictionarySelector.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Directories.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\DOT Language.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Encrypt.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\EquationPair.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Files.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FileTree.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FontAwesome.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FullMoneyWriter.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\FullNumberWriter.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Generate.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\HSVColor.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\HtmlTag.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Images.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\InnerCrypt.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\InnerMenu.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\IPaginatedEnumerable.cs" />
     <Compile Remove="C:\svn\InnerLibs\InnerLibs\JSminifier.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\LinqPagination.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Mailer.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Maths.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\MicroORM\DbExtensions.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\MicroORM\MicroORM.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\MIME.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\OnlineList.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\EscBema.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\EscDaruma.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\EscPos.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\IPrintCommand.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\Printer.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Printer\PrinterByteExtensions.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\QuantityTextPair.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\QuestionTest.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Resources.Designer.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Romanize.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\RuleOfThree.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Select2Data.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Soundex.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Text.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\TextCleaner.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\TimeMachine.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\UnitConverter.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\vCard.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Verify.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\Web.cs" />
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\WeekInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="C:\svn\InnerLibs\InnerLibs\Printer\Printer.css" />
@@ -82,10 +22,8 @@
   <ItemGroup>
     <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\brasil.xml" />
     <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\mimes.xml" />
-    <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\Resources.resx" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="C:\svn\InnerLibs\InnerLibs\.gitignore" />
     <None Remove="mimes.xml" />
     <None Remove="Printer\Printer.css" />
   </ItemGroup>
@@ -94,9 +32,6 @@
     <EmbeddedResource Include="Colors.xml" />
     <EmbeddedResource Include="mimes.xml" />
     <EmbeddedResource Include="Printer\Printer.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
   
 </Project>

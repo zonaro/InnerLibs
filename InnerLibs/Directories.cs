@@ -141,68 +141,7 @@ namespace InnerLibs
 
             return new FileInfo(FileName);
         }
-
-        /// <summary>
-        /// Cria um arquivo .ZIP de um diretório
-        /// </summary>
-        /// <param name="FilesDirectory">Um diretório contendo arquivos</param>
-        /// <param name="OutputFile">O caminho onde será exportado o arquivo ZIP, Mesmo caminho do diretório se não especificado</param>
-        /// <param name="CompressionLevel">Nivel de compressão do arquivo Zip</param>
-        /// <returns>Um FileInfo contendo as informações do arquivo gerado</returns>
-
-        public static FileInfo ToZipFile(this DirectoryInfo FilesDirectory, string OutputFile, CompressionLevel CompressionLevel = CompressionLevel.Optimal)
-        {
-            if (OutputFile.IsBlank())
-            {
-                OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") + FilesDirectory.Name;
-            }
-
-            OutputFile = !OutputFile.EndsWith(".zip") ? OutputFile + ".zip" : OutputFile;
-            ZipFile.CreateFromDirectory(FilesDirectory.FullName, OutputFile, CompressionLevel, true);
-            return new FileInfo(OutputFile);
-        }
-
-        /// <summary>
-        /// Cria um arquivo .ZIP a partir de arquivos selecionados de uma pesquisa em um diretório
-        /// </summary>
-        /// <param name="FilesDirectory">Um diretório contendo arquivos</param>
-        /// <param name="OutputFile">O caminho onde será exportado o arquivo ZIP, Mesmo caminho do diretório se não especificado</param>
-        /// <param name="SearchOption">Especifica se a busca ocorrerá apenas no diretório pai ou em subdiretórios também</param>
-        /// <param name="Searches">Padrões de pesquisa (*.extensao, nome.*, *nome*.*, *.*)</param>
-        /// <param name="CompressionLevel">Nivel de compressão do arquivo Zip</param>
-        /// <returns></returns>
-        public static FileInfo ToZipFile(this DirectoryInfo FilesDirectory, string OutputFile, CompressionLevel CompressionLevel, SearchOption SearchOption, params string[] Searches)
-        {
-            if (OutputFile.IsBlank())
-            {
-                OutputFile = FilesDirectory.FullName.Replace(FilesDirectory.Name, "") + FilesDirectory.Name;
-            }
-
-            OutputFile = !OutputFile.EndsWith(".zip") ? OutputFile + ".zip" : OutputFile;
-            foreach (var arq in FilesDirectory.SearchFiles(SearchOption, Searches))
-            {
-                using (var archive = ZipFile.Open(OutputFile, File.Exists(OutputFile) ? ZipArchiveMode.Update : ZipArchiveMode.Create))
-                {
-                    var arqz = archive.CreateEntryFromFile(arq.FullName, arq.FullName.RemoveAny(FilesDirectory.FullName).ReplaceMany("/", Convert.ToString(Path.DirectorySeparatorChar), Convert.ToString(Path.AltDirectorySeparatorChar)), CompressionLevel);
-                    Debug.WriteLine("Adding: " + arqz.FullName);
-                }
-            }
-
-            return new FileInfo(OutputFile);
-        }
-
-        /// <summary>
-        /// Extrai um arquivo zip em um diretório
-        /// </summary>
-        /// <param name="File">Arquivo Zip</param>
-        /// <param name="Directory">Diretório</param>
-        /// <returns></returns>
-        public static DirectoryInfo ExtractZipFile(this FileInfo File, DirectoryInfo Directory)
-        {
-            Directory = (Directory.FullName + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(File.Name) + Path.DirectorySeparatorChar).ToDirectoryInfo();
-            ZipFile.ExtractToDirectory(File.FullName, Directory.FullName);
-            return Directory.FullName.ToDirectoryInfo();
-        }
+         
 
         /// <summary>
         /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas

@@ -1003,19 +1003,19 @@ namespace InnerLibs
 
         public static HSVColor operator %(HSVColor Color, int Degrees) => Color.ModColor(true, Degrees).FirstOrDefault();
 
-        public static bool operator >(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) > 0;
+        public static bool operator >(HSVColor Color1, HSVColor Color2) => Color1 != null && Color2 != null && Color1.CompareTo(Color2) > 0;
 
-        public static bool operator <(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) < 0;
+        public static bool operator <(HSVColor Color1, HSVColor Color2) => Color1 != null && Color2 != null && Color1.CompareTo(Color2) < 0;
 
-        public static bool operator >=(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) >= 0;
+        public static bool operator >=(HSVColor Color1, HSVColor Color2) => Color1 != null && Color2 != null && Color1.CompareTo(Color2) >= 0;
 
-        public static bool operator <=(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) <= 0;
+        public static bool operator <=(HSVColor Color1, HSVColor Color2) => Color1 != null && Color2 != null && Color1.CompareTo(Color2) <= 0;
 
-        public static bool operator ==(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) == 0;
+        public static bool operator ==(HSVColor Color1, HSVColor Color2) => Color1?.ARGB == Color2?.ARGB;
 
-        public static bool operator !=(HSVColor Color1, HSVColor Color2) => Color1.CompareTo(Color2) != 0;
+        public static bool operator !=(HSVColor Color1, HSVColor Color2) => !(Color1 == Color2);
 
-        public static HSVColor operator -(HSVColor Color1, HSVColor Color2) => Color1.Difference(Color2);
+        public static HSVColor operator -(HSVColor Color1, HSVColor Color2) =>  Color1.Difference(Color2);
 
         public static HSVColor operator -(Color Color1, HSVColor Color2) => new HSVColor(Color1).Difference(Color2);
 
@@ -1106,6 +1106,6 @@ namespace InnerLibs
         FullRed = NoGreen | NoBlue,
         FullGreen = NoRed | NoBlue,
         FullBlue = NoRed | NoGreen,
-        
+
     }
 }
