@@ -8,18 +8,14 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.VisualBasic;
 
-
 namespace InnerLibs
 {
-
     /// <summary>
     /// Modulo de Conversão de Cores
     /// </summary>
     /// <remarks></remarks>
     public static class ColorExtensions
     {
-
-
         /// <summary>
         /// Retorna a <see cref="ConsoleColor"/> mais proxima de uma <see cref="Color"/>
         /// </summary>
@@ -188,8 +184,7 @@ namespace InnerLibs
 
             if (Text == "random") return RandomColor();
 
-
-            var maybecolor = KnowColors.FirstOrDefault(x => x.Name.ToLower() == Text.ToLower());
+            var maybecolor = NamedColors.FirstOrDefault(x => x.Name.ToLower() == Text.ToLower());
 
             if (maybecolor != null) return maybecolor.ToDrawingColor();
 
@@ -221,7 +216,7 @@ namespace InnerLibs
         /// Lista com todas as <see cref="KnownColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<HSVColor> KnowColors
+        public static IEnumerable<HSVColor> NamedColors
         {
             get
             {
@@ -237,8 +232,6 @@ namespace InnerLibs
                 }
                 return l.AsEnumerable();
             }
-
-
         }
 
         private static List<HSVColor> l = new List<HSVColor>();
@@ -248,11 +241,11 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Color"></param>
         /// <returns></returns>
-        public static Color GetClosestKnowColor(this Color Color)
+        public static Color GetClosestNamedColor(this Color Color)
         {
             double closest_distance = double.MaxValue;
             var closest = Color.White;
-            foreach (var kc in KnowColors)
+            foreach (var kc in NamedColors)
             {
                 // Calculate Euclidean Distance
                 double r_dist_sqrd = Math.Pow(Color.R - (double)kc.Red, 2d);
@@ -274,7 +267,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Color"></param>
         /// <returns></returns>
-        public static string GetClosestColorName(this Color Color) => Color.GetClosestKnowColor().Name;
+        public static string GetClosestColorName(this Color Color) => Color.GetClosestNamedColor().Name;
 
         /// <summary>
         /// Retorna o nome da cor
@@ -283,7 +276,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetColorName(this Color Color)
         {
-            foreach (var namedColor in KnowColors)
+            foreach (var namedColor in NamedColors)
                 if (namedColor.ARGB == Color.ToArgb())
                     return namedColor.Name;
             return Color.Name;

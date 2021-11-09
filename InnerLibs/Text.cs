@@ -14,7 +14,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using InnerLibs.LINQ;
 
-
 namespace InnerLibs
 {
     /// <summary>
@@ -24,8 +23,6 @@ namespace InnerLibs
     public static class Text
     {
         public static bool Like(this String source, String Pattern) => new Like(Pattern).Matches(source);
-
-
 
         public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => from sTest in source where sTest.Like(Pattern) select sTest;
 
@@ -41,13 +38,12 @@ namespace InnerLibs
                 return AdjustBlankSpaces($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
             else
                 return AdjustBlankSpaces(Texts?.FirstOrDefault());
-
-
         }
 
         public static IEnumerable<int> ToAsc(this string c) => c.ToArray().Select(x => x.ToAsc());
 
         public static byte ToAscByte(this char c) => (byte)c.ToAsc();
+
         public static int ToAsc(this char c)
         {
             int converted = c;
@@ -170,6 +166,7 @@ namespace InnerLibs
         /// <param name="Patterns"></param>
         /// <returns></returns>
         public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x));
+
         public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x));
 
         /// <summary>
@@ -179,9 +176,6 @@ namespace InnerLibs
         /// <param name="Patterns"></param>
         /// <returns></returns>
         public static bool IsLikeAny(this string Text, params string[] Patterns) => Text.IsLikeAny((Patterns ?? Array.Empty<string>()).AsEnumerable());
-
-
-
 
         /// <summary>
         /// Formata um numero para CNPJ ou CNPJ se forem validos
@@ -1939,14 +1933,9 @@ namespace InnerLibs
         /// <param name="Text">  Texto</param>
         /// <param name="Values">Strings a serem removidas</param>
         /// <returns>Uma string com os valores removidos</returns>
-        public static string RemoveAny(this string Text, params string[] Values)
-        {
-            Text = Text.ReplaceMany("", Values ?? Array.Empty<string>());
-            return Text;
-        }
+        public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany("", Values ?? Array.Empty<string>());
 
         public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
-
 
         /// <summary>
         /// Remove os acentos de uma string
@@ -2267,9 +2256,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ReplaceMany(this string Text, string NewValue, params string[] OldValues)
         {
-            Text = Text.IfBlank("");
-            foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0))
-                Text = Text.Replace(word, NewValue);
+            Text = Text ?? "";
+            foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0)) Text = Text.Replace(word, NewValue);
             return Text;
         }
 
@@ -2280,7 +2268,7 @@ namespace InnerLibs
         /// <param name="Text">    Texto</param>
         /// <param name="OldValue">Valor a ser substituido por vazio</param>
         /// <returns>String corrigida</returns>
-        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, "");
+        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, string.Empty);
 
         /// <summary>
         /// Realiza um replace em uma string usando um tipo especifico de comparacao
@@ -2304,7 +2292,7 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                foreach (var oldvalue in OldValues ?? new[] { "" })
+                foreach (var oldvalue in OldValues ?? new[] { string.Empty })
                 {
                     NewValue = NewValue ?? string.Empty;
                     if (!oldvalue.Equals(NewValue, ComparisonType))
@@ -2674,7 +2662,6 @@ namespace InnerLibs
                             }
                     }
                 }
-
                 else if (Degree < 33 && Degree > 16)
                 {
                     switch (c)
@@ -2734,7 +2721,6 @@ namespace InnerLibs
                             }
                     }
                 }
-
                 else if (Degree < 49 && Degree > 32)
                 {
                     switch (c)
@@ -2866,7 +2852,6 @@ namespace InnerLibs
                             }
                     }
                 }
-
                 else if (Degree < 65 && Degree > 48)
                 {
                     switch (c)
@@ -3058,7 +3043,6 @@ namespace InnerLibs
                             }
                     }
                 }
-
                 else if (Degree < 81 && Degree > 64)
                 {
                     switch (c)
@@ -3310,7 +3294,6 @@ namespace InnerLibs
                             }
                     }
                 }
-
                 else if (Degree > 80 && Degree < 100)
                 {
                     switch (c)
@@ -3610,7 +3593,6 @@ namespace InnerLibs
                             }
                     }
                 }
-
                 else if (Degree > 99)
                 {
                     switch (c)
@@ -3927,12 +3909,10 @@ namespace InnerLibs
                                 break;
                             }
                     }
-
                 }
             }
 
             return sb.ToString();
-
         }
 
         /// <summary>

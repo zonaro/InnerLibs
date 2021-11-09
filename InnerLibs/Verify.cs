@@ -4,17 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-
 namespace InnerLibs
 {
-
     /// <summary>
     /// Verifica determinados valores como Arquivos, Numeros e URLs
     /// </summary>
     /// <remarks></remarks>
     public static class Verify
     {
-
         /// <summary>
         /// Verifica se a string é um CNH válido
         /// </summary>
@@ -281,9 +278,6 @@ namespace InnerLibs
             }
         }
 
-
-
-
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
         /// </summary>
@@ -455,7 +449,6 @@ namespace InnerLibs
             }
         }
 
-
         /// <summary>
         /// Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
         /// </summary>
@@ -483,17 +476,14 @@ namespace InnerLibs
                 else if (Value.GetType() == typeof(long))
                 {
                     blank_flag = ((long)Value) == 0;
-
                 }
                 else if (Value.GetType() == typeof(decimal))
                 {
                     blank_flag = ((decimal)Value) == 0.00M;
-
                 }
                 else if (Value.GetType() == typeof(short))
                 {
                     blank_flag = ((short)Value) == 0;
-
                 }
                 else if (Value.GetType() == typeof(double))
                 {
@@ -530,18 +520,15 @@ namespace InnerLibs
                 else if (Value.GetType() == typeof(int?))
                 {
                     blank_flag = ((int?)Value).HasValue;
-
                 }
                 else if (Value.GetType() == typeof(DateTime?))
                 {
                     blank_flag = ((DateTime?)Value).HasValue;
                 }
-
                 else if (Value.GetType() == typeof(DateTime))
                 {
                     blank_flag = ((DateTime)Value).Equals(DateTime.MinValue);
                 }
-
                 else if (Value.GetType() == typeof(TimeSpan))
                 {
                     blank_flag = ((TimeSpan)Value).Equals(TimeSpan.MinValue);
@@ -628,9 +615,7 @@ namespace InnerLibs
 
         public static bool IsDate<T>(this T Obj) => ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(DateTime)) || Obj?.ToString().IsDate() == true;
 
-
         public static bool IsBoolean<T>(this T Obj) => ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(bool)) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
-
 
         public static bool IsArray<T>(T Obj)
         {
@@ -645,15 +630,12 @@ namespace InnerLibs
             }
         }
 
-
-
         /// <summary>
         /// Verifica se uma String está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-        public static bool IsBlank(this string Text) => string.IsNullOrEmpty(Text) || string.IsNullOrWhiteSpace(Text.RemoveAny(Environment.NewLine));
-
+        public static bool IsBlank(this string Text) => string.IsNullOrWhiteSpace(Text.RemoveAny(Arrays.BreakLineChars.ToArray()));
 
         /// <summary>
         /// Verifica se uma String está em branco
@@ -662,14 +644,12 @@ namespace InnerLibs
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
         public static bool IsBlank(this FormattableString Text) => Text == null || Text.ToString().IsBlank();
 
-
         /// <summary>
         /// Verifica se uma String não está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
         public static bool IsNotBlank(this string Text) => !IsBlank(Text);
-
 
         /// <summary>
         /// Verifica se uma String não está em branco
@@ -678,7 +658,6 @@ namespace InnerLibs
         /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
         public static bool IsNotBlank(this FormattableString Text) => IsNotBlank(Text?.ToString());
 
-
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
@@ -686,14 +665,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsEven(this decimal Value) => Value % 2m == 0m;
 
-
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
         public static bool IsEven(this int Value) => Value.ChangeType<decimal, int>().IsEven();
-
 
         /// <summary>
         /// Verifica se um numero é par

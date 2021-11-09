@@ -3,79 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="MicroORM\**" />
-    <Compile Remove="Printer\**" />
-    <EmbeddedResource Remove="MicroORM\**" />
-    <EmbeddedResource Remove="Printer\**" />
-    <None Remove="MicroORM\**" />
-    <None Remove="Printer\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="AddressInfo.cs" />
-    <Compile Remove="Alphabet.cs" />
-    <Compile Remove="Arrays.cs" />
-    <Compile Remove="ASCIIArt.cs" />
-    <Compile Remove="Base64.cs" />
-    <Compile Remove="Brasil.cs" />
-    <Compile Remove="Calendars.cs" />
-    <Compile Remove="ClassManager.cs" />
-    <Compile Remove="ColorExtensions.cs" />
-    <Compile Remove="ConnectionStringParser.cs" />
-    <Compile Remove="ConsoleExtensions.cs" />
-    <Compile Remove="ConsoleTable.cs" />
-    <Compile Remove="Converter.cs" />
-    <Compile Remove="DateRange.cs" />
-    <Compile Remove="DebugTextWriter.cs" />
-    <Compile Remove="Dice.cs" />
-    <Compile Remove="DictionarySelector.cs" />
-    <Compile Remove="Directories.cs" />
-    <Compile Remove="DOT Language.cs" />
-    <Compile Remove="Encrypt.cs" />
-    <Compile Remove="EquationPair.cs" />
-    <Compile Remove="Files.cs" />
-    <Compile Remove="FileTree.cs" />
-    <Compile Remove="FontAwesome.cs" />
-    <Compile Remove="FullMoneyWriter.cs" />
-    <Compile Remove="FullNumberWriter.cs" />
-    <Compile Remove="Generate.cs" />
-    <Compile Remove="HSVColor.cs" />
-    <Compile Remove="HtmlTag.cs" />
-    <Compile Remove="Images.cs" />
-    <Compile Remove="InnerCrypt.cs" />
-    <Compile Remove="InnerMenu.cs" />
-    <Compile Remove="IPaginatedEnumerable.cs" />
     <Compile Remove="JSminifier.cs" />
-    <Compile Remove="LinqPagination.cs" />
-    <Compile Remove="Mailer.cs" />
-    <Compile Remove="Maths.cs" />
-    <Compile Remove="MIME.cs" />
-    <Compile Remove="OnlineList.cs" />
-    <Compile Remove="QuantityTextPair.cs" />
-    <Compile Remove="QuestionTest.cs" />
-    <Compile Remove="Resources.Designer.cs" />
-    <Compile Remove="Romanize.cs" />
-    <Compile Remove="RuleOfThree.cs" />
-    <Compile Remove="Select2Data.cs" />
-    <Compile Remove="Soundex.cs" />
-    <Compile Remove="Text.cs" />
-    <Compile Remove="TextCleaner.cs" />
-    <Compile Remove="TimeMachine.cs" />
-    <Compile Remove="UnitConverter.cs" />
-    <Compile Remove="vCard.cs" />
-    <Compile Remove="Verify.cs" />
-    <Compile Remove="Web.cs" />
-    <Compile Remove="WeekInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Remove="Resources.resx" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove=".gitignore" />
     <None Remove="brasil.xml" />
-    <None Remove="InnerLibsBase.projitems" />
-    <None Remove="mimes.xml" />
+    <None Remove="Colors.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="C:\svn\InnerLibs\InnerLibs\AddressInfo.cs" />
@@ -151,10 +86,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="C:\svn\InnerLibs\InnerLibs\.gitignore" />
+    <None Remove="mimes.xml" />
+    <None Remove="Printer\Printer.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="brasil.xml" />
+    <EmbeddedResource Include="Colors.xml" />
+    <EmbeddedResource Include="mimes.xml" />
+    <EmbeddedResource Include="Printer\Printer.css" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
-  <Import Project="InnerLibsBase.projitems" Label="Shared" />
   
 </Project>
