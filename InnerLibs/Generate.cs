@@ -4,23 +4,30 @@ using System.Drawing;
 using System.Linq;
 using InnerLibs.LINQ;
 using InnerLibs.Locations;
- 
+
 
 namespace InnerLibs
 {
 
     /// <summary>
-/// Geradores de conteudo
-/// </summary>
-/// <remarks></remarks>
+    /// Geradores de conteudo
+    /// </summary>
+    /// <remarks></remarks>
     public static class Generate
     {
 
         /// <summary>
-    /// Gera uma palavra aleatória com o numero de caracteres
-    /// </summary>
-    /// <param name="Length">Tamanho da palavra</param>
-    /// <returns>Uma string contendo uma palavra aleatória</returns>
+        /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/> e<paramref name="MaxLenght"/>
+        /// </summary> 
+        /// <returns>Uma string contendo uma palavra aleatória</returns>
+        public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
+
+
+        /// <summary>
+        /// Gera uma palavra aleatória com o numero de caracteres
+        /// </summary>
+        /// <param name="Length">Tamanho da palavra</param>
+        /// <returns>Uma string contendo uma palavra aleatória</returns>
         public static string RandomWord(int Length = 0)
         {
             Length = Length < 1 ? RandomNumber(2, 15) : Length;
@@ -62,26 +69,19 @@ namespace InnerLibs
 
             return word;
         }
-
-        public static object RandomString(int Len)
-        {
-            return RandomWord(Len);
-        }
+         
 
         /// <summary>
-    /// Gera uma palavra aleatória a partir de uma outra palavra
-    /// </summary>
-    /// <param name="BaseText">Texto base</param>
-    /// <returns></returns>
-        public static string RandomWord(string BaseText)
-        {
-            return BaseText.ToArray().Shuffle().JoinString("");
-        }
+        /// Gera uma palavra aleatória a partir de uma outra palavra
+        /// </summary>
+        /// <param name="BaseText">Texto base</param>
+        /// <returns></returns>
+        public static string RandomWord(string BaseText) => BaseText.ToArray().Shuffle().JoinString("");
 
         /// <summary>
-    /// Gera uma senha
-    /// </summary>
-    /// <returns></returns>
+        /// Gera uma senha
+        /// </summary>
+        /// <returns></returns>
         public static string Password(int AlphaLenght, int NumberLenght, int SpecialLenght)
         {
             string pass = "";
@@ -120,11 +120,11 @@ namespace InnerLibs
 
 
         /// <summary>
-    /// Gera uma URL do google MAPs baseado na localização
-    /// </summary>
-    /// <param name="local">Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as coordenadas geográficas</param>
-    /// <param name="LatLong">Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro</param>
-    /// <returns>Uma URI do Google Maps</returns>
+        /// Gera uma URL do google MAPs baseado na localização
+        /// </summary>
+        /// <param name="local">Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as coordenadas geográficas</param>
+        /// <param name="LatLong">Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro</param>
+        /// <returns>Uma URI do Google Maps</returns>
 
         public static Uri ToGoogleMapsURL(this AddressInfo local, bool LatLong = false)
         {
@@ -142,54 +142,43 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Gera um valor boolean aleatorio considerando uma porcentagem de chance
-    /// </summary>
-    /// <returns>TRUE ou FALSE.</returns>
-        public static bool RandomBoolean(int Percent)
-        {
-            return RandomBoolean(x => x <= Percent, 0L, 100L);
-        }
+        /// Gera um valor boolean aleatorio considerando uma porcentagem de chance
+        /// </summary>
+        /// <returns>TRUE ou FALSE.</returns>
+        public static bool RandomBoolean(int Percent) => RandomBoolean(x => x <= Percent, 0, 100);
 
         /// <summary>
-    /// Gera um valor boolean aleatorio considerando uma condiçao
-    /// </summary>
-    /// <param name="Min">Numero minimo, Padrão 0 </param>
-    /// <param name="Max">Numero Maximo, Padrão 999999</param>
-    /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean(Func<long, bool> Condition, long Min = 0L, long Max = 999999L)
-        {
-            return Condition(init_rnd.Next((int)Min, (int)(Max + 1L)));
-        }
+        /// Gera um valor boolean aleatorio considerando uma condição de comparação com um numero gerado aleatóriamente
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0 </param>
+        /// <param name="Max">Numero Maximo, Padrão 999999</param>
+        /// <returns>TRUE ou FALSE</returns>
+        public static bool RandomBoolean(Func<int, bool> Condition, int Min = 0, int Max = 999999) => Condition(RandomNumber(Min,  Max));
 
         /// <summary>
-    /// Gera um valor boolean aleatorio
-    /// </summary>
-    /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean()
-        {
-            return init_rnd.Next(0, 1).ToBoolean();
-        }
+        /// Gera um valor boolean aleatorio
+        /// </summary>
+        /// <returns>TRUE ou FALSE</returns>
+        public static bool RandomBoolean() => init_rnd.Next(0, 1).ToBoolean();
 
         /// <summary>
-    /// Gera um numero Aleatório entre 2 números
-    /// </summary>
-    /// <param name="Min">Numero minimo, Padrão 0 </param>
-    /// <param name="Max">Numero Maximo, Padrão 999999</param>
-    /// <returns>Um numero Inteiro (Integer ou Int)</returns>
-        public static int RandomNumber(int Min = 0, int Max = 999999)
-        {
-            return init_rnd.Next(Min, Max + 1);
-        }
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0 </param>
+        /// <param name="Max">Numero Maximo, Padrão 999999</param>
+        /// <returns>Um numero Inteiro (Integer ou Int)</returns>
+        public static int RandomNumber(int Min = 0, int Max = 999999) => init_rnd.Next(Min, Max);
+ 
 
         /// <summary>
-    /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
-    /// </summary>
-    /// <param name="Quantity">Quantidade máxima de cores</param>
-    /// <param name="Red"></param>
-    /// <param name="Green"></param>
-    /// <param name="Blue"></param>
-    /// <remarks></remarks>
-    /// <returns></returns>
+        /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
+        /// </summary>
+        /// <param name="Quantity">Quantidade máxima de cores</param>
+        /// <param name="Red"></param>
+        /// <param name="Green"></param>
+        /// <param name="Blue"></param>
+        /// <remarks></remarks>
+        /// <returns></returns>
         public static List<Color> RandomColorList(int Quantity, int Red = -1, int Green = -1, int Blue = -1)
         {
             var l = new List<Color>();
@@ -224,30 +213,15 @@ namespace InnerLibs
         private static Random init_rnd = new Random();
 
         /// <summary>
-    /// Gera um texto aleatorio
-    /// </summary>
-    /// <param name="ParagraphCount">Quantidade de paragrafos</param>
-    /// <param name="SentenceCount">QUantidade de sentecas por paragrafo</param>
-    /// <param name="MinWordCount"></param>
-    /// <param name="MaxWordCount"></param>
-    /// <returns></returns>
-        public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0)
-        {
-            return new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), Arrays.EndOfSentencePunctuation.FirstRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
-        }
+        /// Gera um texto aleatorio
+        /// </summary>
+        /// <param name="ParagraphCount">Quantidade de paragrafos</param>
+        /// <param name="SentenceCount">QUantidade de sentecas por paragrafo</param>
+        /// <param name="MinWordCount"></param>
+        /// <param name="MaxWordCount"></param>
+        /// <returns></returns>
+        public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), Arrays.EndOfSentencePunctuation.FirstRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
 
-        /// <summary>
-    /// Converte uma String para um QR Code usando uma API (Nescessita de Internet)
-    /// </summary>
-    /// <param name="Data">Informações do QR Code</param>
-    /// <param name="Size">Tamanho do QR code</param>
-    /// <returns>Um componente Image() com o QR code</returns>
-
-        public static byte[] ToQRCode(this string Data, int Size = 100)
-        {
-            Data = Data.IsURL() ? Data.UrlEncode() : Data;
-            string URL = "https://chart.googleapis.com/chart?cht=qr&chl=" + Data.UrlEncode() + "&chs=" + Size + "x" + Size;
-            return Web.GetFile(URL);
-        }
+  
     }
 }
