@@ -1464,23 +1464,28 @@ namespace InnerLibs.LINQ
         /// <param name="SearchTerms">Termos da pesquisa</param>
         /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         /// <returns></returns>
-        public static IOrderedQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
+        public static IQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
-            IOrderedQueryable<ClassType> SearchRet = default;
+
+            IQueryable<ClassType> SearchRet = default;
             Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
             SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
-            SearchRet = Table.Where(SearchTerms.SearchExpression(Properties)).OrderBy(x => true);
-            foreach (var prop in Properties)
-                SearchRet = SearchRet.ThenByLike((string[])SearchTerms, prop);
+            SearchRet = Table.Where(SearchTerms.SearchExpression(Properties));
             return SearchRet;
         }
-
+        public static IOrderedQueryable<ClassType> SearchInOrder<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
+        {
+            var SearchRet = Table.Search(SearchTerms, Properties).OrderBy(x => true);
+            foreach (var prop in Properties)
+                SearchRet = SearchRet.ThenByLike(SearchTerms, prop);
+            return SearchRet;
+        }
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <param name="Source">   </param>
-        /// ''' <param name="Separator"></param>
+        /// <param name="Separator"></param>
         /// <returns></returns>
         public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = "") => Source.SelectJoinString(null, Separator);
 
@@ -1699,7 +1704,7 @@ namespace InnerLibs.LINQ
         /// <param name="SortProperty"></param>
         /// <param name="Ascending">   </param>
         /// <returns></returns>
-        public static IOrderedQueryable<T> ThenByLike<T>(this IQueryable<T> items, string[] Searches, Expression<Func<T, string>> SortProperty, bool Ascending = true)
+        public static IOrderedQueryable<T> ThenByLike<T>(this IQueryable<T> items, IEnumerable<string> Searches, Expression<Func<T, string>> SortProperty, bool Ascending = true)
         {
             var type = typeof(T);
             Searches = Searches ?? Array.Empty<string>();
