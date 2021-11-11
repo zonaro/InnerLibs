@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Xml;
 using InnerLibs.LINQ;
 
 namespace InnerLibs
@@ -1068,6 +1070,32 @@ namespace InnerLibs
         }
 
         public override int GetHashCode() => this.ARGB;
+
+
+        /// <summary>
+        /// Lista com todas as <see cref="HSVColor"/> com nomes oficiais
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<HSVColor> NamedColors
+        {
+            get
+            {
+                if (!l.Any())
+                {
+                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.Colors.xml");
+                    var doc = new XmlDocument();
+                    doc.LoadXml(s);
+                    foreach (XmlNode node in doc["colors"].ChildNodes)
+                    {
+                        l.Add(new HSVColor(ColorTranslator.FromHtml(node["hexadecimal"].InnerText), node["name"].InnerText));
+                    }
+                }
+                return l.AsEnumerable();
+            }
+        }
+
+        private static List<HSVColor> l = new List<HSVColor>();
+
     }
 
     [Flags]

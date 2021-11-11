@@ -8,7 +8,7 @@ using System.Net.Mail;
 using System.Text;
 using InnerLibs.LINQ;
 
-namespace InnerLibs
+namespace InnerLibs.Mail
 {
     public class TemplateMailAddress : MailAddress
     {
@@ -72,20 +72,13 @@ namespace InnerLibs
         public Action<MailAddress> SuccessAction { get; set; }
         public Action<MailAddress, Exception> ErrorAction { get; set; }
 
-        public static SmtpClient GmailSmtp()
-        {
-            return new SmtpClient("smtp.gmail.com", 587) { EnableSsl = true };
-        }
+        public static SmtpClient GmailSmtp() => new SmtpClient("smtp.gmail.com", 587) { EnableSsl = true };
 
-        public static SmtpClient OutlookSmtp()
-        {
-            return new SmtpClient("smtp-mail.outlook.com", 587) { EnableSsl = true };
-        }
+        public static SmtpClient OutlookSmtp() => new SmtpClient("smtp-mail.outlook.com", 587) { EnableSsl = true };
 
-        public static SmtpClient Office365Smtp()
-        {
-            return new SmtpClient("smtp.office365.com", 587) { EnableSsl = true };
-        }
+        public static SmtpClient Office365Smtp() => new SmtpClient("smtp.office365.com", 587) { EnableSsl = true };
+
+        public static SmtpClient LocawebSmtp() => new SmtpClient("email-ssl.com.br", 465) { EnableSsl = true };
 
         public FluentMailMessage WithSmtp(SmtpClient Client)
         {
@@ -93,24 +86,21 @@ namespace InnerLibs
             return this;
         }
 
-        public FluentMailMessage WithSmtp(string Host)
-        {
-            return WithSmtp(new SmtpClient(Host));
-        }
+        public FluentMailMessage WithSmtp(string Host) => WithSmtp(new SmtpClient(Host));
 
-        public FluentMailMessage WithSmtp(string Host, int Port)
-        {
-            return WithSmtp(new SmtpClient(Host, Port));
-        }
+        public FluentMailMessage WithSmtp(string Host, int Port) => WithSmtp(new SmtpClient(Host, Port));
 
-        public FluentMailMessage WithSmtp(string Host, int Port, bool UseSSL)
-        {
-            return WithSmtp(new SmtpClient(Host, Port) { EnableSsl = UseSSL });
-        }
+        public FluentMailMessage WithSmtp(string Host, int Port, bool UseSSL) => WithSmtp(new SmtpClient(Host, Port) { EnableSsl = UseSSL });
 
         public FluentMailMessage UseGmailSmtp()
         {
             Smtp = GmailSmtp();
+            return this;
+        }
+
+        public FluentMailMessage UseLocawebSmtp()
+        {
+            Smtp = LocawebSmtp();
             return this;
         }
 
@@ -139,15 +129,34 @@ namespace InnerLibs
             return this;
         }
 
-        public FluentMailMessage UseTemplate(string TemplateOrFilePath)
+
+
+        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, null);
+
+
+        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl, string MessageTemplate)
         {
-            if (TemplateOrFilePath.IsFilePath())
+            if (TemplateOrFilePathOrUrl.IsFilePath())
             {
-                if (File.Exists(TemplateOrFilePath)) TemplateOrFilePath = File.ReadAllText(TemplateOrFilePath);
+                if (File.Exists(TemplateOrFilePathOrUrl)) TemplateOrFilePathOrUrl = File.ReadAllText(TemplateOrFilePathOrUrl);
             }
 
-            return WithMessage(TemplateOrFilePath, true);
+            if (TemplateOrFilePathOrUrl.IsURL())
+            {
+                using (var client = new WebClient())
+                {
+                    TemplateOrFilePathOrUrl = client.DownloadString(TemplateOrFilePathOrUrl);
+                }
+            }
+
+            if (MessageTemplate.IsNotBlank())
+            {
+                TemplateOrFilePathOrUrl.Inject(new { BodyText = MessageTemplate });
+            }
+
+            return WithMessage(TemplateOrFilePathOrUrl, true);
         }
+
 
         public FluentMailMessage FromEmail(string Email)
         {
@@ -300,21 +309,20 @@ namespace InnerLibs
                                 Smtp.Send(From.ToString(), Bcc.SelectJoinString(x => x.ToString(), ","), subj, msg);
                             }
 
+
                             if (SuccessAction != null)
                             {
                                 SuccessAction.Invoke(item);
                             }
                         }
-                        catch (SmtpException ex)
+                        
+                        catch (Exception ex)
                         {
                             if (ErrorAction != null)
                             {
                                 ErrorAction.Invoke(item, ex);
                             }
-                        }
-                        catch (Exception ex2)
-                        {
-                            throw ex2;
+                            
                         }
                     }
                 }

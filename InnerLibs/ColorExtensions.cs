@@ -182,13 +182,13 @@ namespace InnerLibs
         {
             if (Text.IsBlank()) return Color.Transparent;
 
-            if (Text == "random") return RandomColor();           
+            if (Text == "random") return RandomColor();
 
             if (Text.IsNumber()) return Color.FromArgb(Text.ToInteger());
 
             if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
 
-            var maybecolor = NamedColors.FirstOrDefault(x => x.Name.ToLower() == Text.ToLower());
+            var maybecolor = HSVColor.NamedColors.FirstOrDefault(x => x.Name.ToLower() == Text.ToLower());
 
             if (maybecolor != null) return maybecolor.ToDrawingColor();
 
@@ -213,31 +213,11 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Lista com todas as <see cref="HSVColor"/> com nomes oficiais
+        /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<HSVColor> NamedColors
-        {
-            get
-            {
-                if (!l.Any())
-                {
-                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.Colors.xml");
-                    var doc = new XmlDocument();
-                    doc.LoadXml(s);
-                    foreach (XmlNode node in doc["colors"].ChildNodes)
-                    {
-                        l.Add(new HSVColor(ColorTranslator.FromHtml(node["hexadecimal"].InnerText), node["name"].InnerText));
-                    }
-                }
-                return l.AsEnumerable();
-            }
-        }
+        public static IEnumerable<Color> KnowColors => ClassTools.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
-  
-
-
-        private static List<HSVColor> l = new List<HSVColor>();
+       
 
         /// <summary>
         /// Retorna uma <see cref="KnownColor"/> mais proxima de outra cor
@@ -248,7 +228,7 @@ namespace InnerLibs
         {
             double closest_distance = double.MaxValue;
             var closest = Color.White;
-            foreach (var kc in NamedColors)
+            foreach (var kc in HSVColor.NamedColors)
             {
                 // Calculate Euclidean Distance
                 double r_dist_sqrd = Math.Pow(Color.R - (double)kc.Red, 2d);
@@ -279,7 +259,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetColorName(this Color Color)
         {
-            foreach (var namedColor in NamedColors)
+            foreach (var namedColor in HSVColor.NamedColors)
                 if (namedColor.ARGB == Color.ToArgb())
                     return namedColor.Name;
             return Color.Name;
