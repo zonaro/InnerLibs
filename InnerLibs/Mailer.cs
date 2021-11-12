@@ -13,6 +13,7 @@ namespace InnerLibs.Mail
     public class TemplateMailAddress : MailAddress
     {
 
+
         public static IEnumerable<TemplateMailAddress> FromList<T>(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             return (Data ?? new T[] { }.AsEnumerable()).Select(x => FromObject(x, EmailSelector, NameSelector)).Where(x => x != null);
@@ -69,8 +70,34 @@ namespace InnerLibs.Mail
     public class FluentMailMessage : MailMessage
     {
         public SmtpClient Smtp { get; set; } = new SmtpClient();
-        public Action<MailAddress> SuccessAction { get; set; }
-        public Action<MailAddress, Exception> ErrorAction { get; set; }
+        public Action<MailAddress, FluentMailMessage> SuccessAction { get; set; }
+        public Action<MailAddress, FluentMailMessage, Exception> ErrorAction { get; set; }
+
+        private List<MailAddress> _SuccessList = new List<MailAddress>();
+        private List<MailAddress> _ErrorList = new List<MailAddress>();
+
+        public string SentStatus
+        {
+            get
+            {
+                if (SuccessList.Any() && ErrorList.Any() == false) return "SUCCESS";
+                if (SuccessList.Any() == false && ErrorList.Any() == false) return "NOT_SENT";
+                return "PARTIAL_SUCCESS";
+            }
+        }
+
+        public FluentMailMessage ResetStatus()
+        {
+            _SuccessList = _SuccessList ?? new List<MailAddress>();
+            _ErrorList = _ErrorList ?? new List<MailAddress>();
+            _SuccessList.Clear();
+            _ErrorList.Clear();
+            return this;
+        }
+
+        public IEnumerable<MailAddress> SuccessList => _SuccessList;
+
+        public IEnumerable<MailAddress> ErrorList => _ErrorList;
 
         public static SmtpClient GmailSmtp() => new SmtpClient("smtp.gmail.com", 587) { EnableSsl = true };
 
@@ -187,7 +214,6 @@ namespace InnerLibs.Mail
             return this;
         }
 
-
         public FluentMailMessage AddRecipient<T>(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             To.Add(TemplateMailAddress.FromObject(Data, EmailSelector, NameSelector));
@@ -257,18 +283,59 @@ namespace InnerLibs.Mail
             return this;
         }
 
-        public FluentMailMessage WithCredentials(string Login, string Password)
+        public FluentMailMessage WithCredentials(string Login, string Password) => WithCredentials(new NetworkCredential(Login, Password));
+
+
+        public FluentMailMessage AddAttachment(params Attachment[] Attachment) => AddAttachment((Attachment ?? Array.Empty<Attachment>()).AsEnumerable());
+
+
+        public FluentMailMessage AddAttachment(IEnumerable<Attachment> Attachment)
         {
-            return WithCredentials(new NetworkCredential(Login, Password));
+            if (Attachment != null && Attachment.Any())
+                foreach (var item in Attachment)
+                {
+                    this.AddAttachment(item);
+                }
+            return this;
         }
 
-        public FluentMailMessage OnSuccess(Action<MailAddress> Action)
+
+        public FluentMailMessage AddAttachment(Attachment Attachment)
+        {
+            if (Attachment != null && Attachment.ContentStream.Length > 0)
+                this.Attachments.Add(Attachment);
+            return this;
+        }
+
+        public FluentMailMessage AddAttachment(Stream Attachment, string Name)
+        {
+            if (Attachment != null && Attachment.Length > 0 && Name.IsNotBlank())
+                this.Attachments.Add(new Attachment(Attachment, Name));
+            return this;
+        }
+
+        public FluentMailMessage AddAttachment(byte[] Attachment, string Name)
+        {
+            if (Attachment != null && Attachment.Length > 0 && Name.IsNotBlank())
+                using (var s = new MemoryStream(Attachment))
+                    this.Attachments.Add(new Attachment(s, Name));
+            return this;
+        }
+
+        public FluentMailMessage AddAttachment(FileInfo Attachment)
+        {
+            if (Attachment != null && Attachment.Length > 0)
+                this.Attachments.Add(new Attachment(Attachment.FullName));
+            return this;
+        }
+
+        public FluentMailMessage OnSuccess(Action<MailAddress, FluentMailMessage> Action)
         {
             SuccessAction = Action;
             return this;
         }
 
-        public FluentMailMessage OnError(Action<MailAddress, Exception> Action)
+        public FluentMailMessage OnError(Action<MailAddress, FluentMailMessage, Exception> Action)
         {
             ErrorAction = Action;
             return this;
@@ -276,6 +343,11 @@ namespace InnerLibs.Mail
 
         public FluentMailMessage Send()
         {
+            _SuccessList = _SuccessList ?? new List<MailAddress>();
+            _ErrorList = _ErrorList ?? new List<MailAddress>();
+            _SuccessList.Clear();
+            _ErrorList.Clear();
+
             if (Smtp != null)
             {
                 foreach (var item in To)
@@ -309,35 +381,37 @@ namespace InnerLibs.Mail
                                 Smtp.Send(From.ToString(), Bcc.SelectJoinString(x => x.ToString(), ","), subj, msg);
                             }
 
-
                             if (SuccessAction != null)
                             {
-                                SuccessAction.Invoke(item);
+                                SuccessAction.Invoke(item, this);
                             }
+
+
+                            _SuccessList.Add(item);
                         }
-                        
+
                         catch (Exception ex)
                         {
+
+                            _ErrorList.Add(item);
+
                             if (ErrorAction != null)
                             {
-                                ErrorAction.Invoke(item, ex);
+                                ErrorAction.Invoke(item, this, ex);
                             }
-                            
+
                         }
                     }
                 }
             }
             else
             {
-                throw new Exception("Smtp is null");
+                throw new ArgumentException("Smtp is null");
             }
 
             return this;
         }
 
-        public override string ToString()
-        {
-            return Body;
-        }
+        public override string ToString() => Body;
     }
 }

@@ -1466,7 +1466,6 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
-
             IQueryable<ClassType> SearchRet = default;
             Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
             SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
