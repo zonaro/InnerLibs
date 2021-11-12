@@ -11,7 +11,15 @@ namespace InnerLibs
     {
         public string TagName { get; set; } = "div";
         public string InnerHtml { get; set; }
-        public Dictionary<string, string> Attributes { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Attributes
+        {
+            get
+            {
+                attrs = attrs ?? new Dictionary<string, string>();
+                return attrs;
+            }
+        }
+        private Dictionary<string, string> attrs = new Dictionary<string, string>();
 
         public HtmlTag()
         {
@@ -32,37 +40,23 @@ namespace InnerLibs
 
         public string Class
         {
-            get
-            {
-                return Attributes.GetValueOr("class", "");
-            }
+            get => Attributes.GetValueOr("class", "");
 
-            set
-            {
-                Attributes = Attributes ?? new Dictionary<string, string>();
-                Attributes["class"] = value;
-            }
+            set => Attributes["class"] = value;
         }
 
         public string[] ClassArray
         {
-            get
-            {
-                return Class.Split(" ");
-            }
+            get => Class.Split(" ");
 
-            set
-            {
-                Class = (value ?? Array.Empty<string>()).JoinString(" ");
-            }
+            set => Class = (value ?? Array.Empty<string>()).JoinString(" ");
         }
 
         public bool SelfCloseTag { get; set; } = false;
 
         public override string ToString()
         {
-            TagName = TagName.RemoveAny("/", @"\");
-            Attributes = Attributes ?? new Dictionary<string, string>();
+            TagName = TagName.RemoveAny("/", @"\");     
             if (SelfCloseTag)
             {
                 return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => x.Key.ToLower() + "=" + x.Value.Wrap())} />";
