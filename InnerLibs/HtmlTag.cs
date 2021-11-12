@@ -17,10 +17,17 @@ namespace InnerLibs
         {
         }
 
+
         public HtmlTag(string TagName, string InnerHtml = "")
         {
             this.TagName = TagName.IfBlank("div");
             this.InnerHtml = InnerHtml;
+        }
+
+        public string this[string key]
+        {
+            get => Attributes.GetValueOr(key, "");
+            set => Attributes.Set(key, value);
         }
 
         public string Class
@@ -50,16 +57,49 @@ namespace InnerLibs
             }
         }
 
+        public bool SelfCloseTag { get; set; } = false;
+
         public override string ToString()
         {
             TagName = TagName.RemoveAny("/", @"\");
             Attributes = Attributes ?? new Dictionary<string, string>();
-            return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => x.Key.ToLower() + "=" + x.Value.Wrap())}>{InnerHtml}</{TagName.IfBlank("div")}>";
+            if (SelfCloseTag)
+            {
+                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => x.Key.ToLower() + "=" + x.Value.Wrap())} />";
+            }
+            else
+            {
+                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => x.Key.ToLower() + "=" + x.Value.Wrap())}>{InnerHtml}</{TagName.IfBlank("div")}>";
+            }
         }
 
         public static implicit operator string(HtmlTag Tag)
         {
             return Tag?.ToString();
         }
+
+        public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self")
+        {
+            return new HtmlTag("a", Name).With(x =>
+            {
+                x["href"] = URL;
+                x["target"] = Target;
+            });
+        }
+
+        public static HtmlTag CreateImage(string URL)
+        {
+            return new HtmlTag("img").With(x =>
+            {
+                x.SelfCloseTag = true;
+                x["src"] = URL;
+            });
+        }
+
+
     }
+
+
+
+
 }
