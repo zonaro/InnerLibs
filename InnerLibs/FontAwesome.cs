@@ -1,16 +1,16 @@
 ﻿using System.IO;
 
-namespace InnerLibs
+namespace InnerLibs.FontAwesome
 {
     public static class FontAwesome
     {
 
 
         /// <summary>
-    /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
-    /// </summary>
-    /// <param name="File">Arquivo</param>
-    /// <returns></returns>
+        /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
         public static string GetIconByFileType(this FileSystemInfo File, bool DirectoryOpen = false, bool InvertIcon = false)
         {
             if (File.Attributes == FileAttributes.Device)
@@ -50,20 +50,20 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
-    /// </summary>
-    /// <param name="MIME">MIME Type do Arquivo</param>
-    /// <returns></returns>
+        /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
+        /// </summary>
+        /// <param name="MIME">MIME Type do Arquivo</param>
+        /// <returns></returns>
         public static string GetIconByFileType(this FileType MIME)
         {
             return MIME.Extensions.FirstOr("").GetIconByFileExtension();
         }
 
         /// <summary>
-    /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
-    /// </summary>
-    /// <param name="Extension">Arquivo</param>
-    /// <returns></returns>
+        /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
+        /// </summary>
+        /// <param name="Extension">Arquivo</param>
+        /// <returns></returns>
         public static string GetIconByFileExtension(this string Extension)
         {
             switch (Extension.RemoveAny(".").ToLower() ?? "")
@@ -75,36 +75,35 @@ namespace InnerLibs
                 case "psd":
                 case "ai":
                 case "drw":
-                case "ttf":
                 case "svg":
                 case "eps":
                 case "tiff":
                 case "cdr":
                     {
-                        return "fa-file-picture-o";
+                        return "fa-file-image";
                     }
 
                 case "doc":
                 case "docx":
                     {
-                        return "fa-file-word-o";
+                        return "fa-file-word";
                     }
 
                 case "pdf":
                     {
-                        return "fa-file-pdf-o";
+                        return "fa-file-pdf";
                     }
 
                 case "ppt":
                 case "pptx":
                     {
-                        return "fa-file-powerpoint-o";
+                        return "fa-file-powerpoint";
                     }
 
                 case "xls":
                 case "xlsx":
                     {
-                        return "fa-file-excel-o";
+                        return "fa-file-excel";
                     }
 
                 case "html":
@@ -121,9 +120,10 @@ namespace InnerLibs
                 case "ascx":
                 case "ashx":
                 case "config":
+                case "json":
                 case "ps1":
                     {
-                        return "fa-file-code-o";
+                        return "fa-file-code";
                     }
 
                 case "apk":
@@ -156,7 +156,7 @@ namespace InnerLibs
                 case "pk3":
                 case "pkg":
                     {
-                        return "fa-file-archive-o";
+                        return "fa-file-archive";
                     }
 
                 case "avi":
@@ -170,19 +170,23 @@ namespace InnerLibs
                 case "webm":
                 case "ogv":
                     {
-                        return "fa-file-video-o";
+                        return "fa-file-video";
                     }
 
                 case "txt":
                 case "otf":
                 case "otd":
-                case var @case when @case == "ttf":
+                case "ttf":
                 case "rtf":
-                case "csv":
                 case "xps":
                 case "cfg":
                     {
-                        return "fa-file-text-o";
+                        return "fa-file-text";
+                    }
+
+                case "csv":
+                    {
+                        return "fa-file-csv";
                     }
 
                 case "mp3":
@@ -193,7 +197,7 @@ namespace InnerLibs
                 case "flac":
                 case "aac":
                     {
-                        return "fa-file-audio-o";
+                        return "fa-file-audio";
                     }
 
                 case "gb":
@@ -231,9 +235,9 @@ namespace InnerLibs
                     }
             }
 
-            return "fa-file-o";
+            return "fa-file";
         }
 
-        public const string CDNFontAwesomeCSS = "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
+
     }
 }
