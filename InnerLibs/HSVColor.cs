@@ -9,7 +9,11 @@ using InnerLibs.LINQ;
 
 namespace InnerLibs
 {
-    public class HSVColor : IComparable<int>, IComparable<HSVColor>, IComparable<Color>, IComparable
+
+    /// <summary>
+    /// Representa uma cor no formato HSV e RGBA com metodos para manipulação de valores
+    /// </summary>
+    public class HSVColor : IComparable<int>, IComparable<HSVColor>, IComparable<Color>, IComparable, ICloneable
     {
         private double _h, _s, _v;
         private string _name;
@@ -81,7 +85,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Gera uma lista com <see cref="HSVColor"/>   aleatorias
+        /// Gera uma lista com <paramref name="Quantity"/> <see cref="HSVColor"/> aleatorias que cumprem um requisito especificado em <paramref name="predicate"/>
         /// </summary>
         /// <param name="Quantity"></param>
         /// <returns></returns>
@@ -93,7 +97,7 @@ namespace InnerLibs
                 HSVColor c = null;
                 do
                     c = new[] { RandomColor() }.FirstOrDefault(predicate.Compile());
-                while (c is null);
+                while (c == null);
                 if (!l.Any(x => x.ARGB == c.ARGB))
                 {
                     l.Add(c);
@@ -633,6 +637,16 @@ namespace InnerLibs
             }
         }
 
+
+        public double GetEuclideanDistance(HSVColor Color)
+        {
+            double r_dist_sqrd = Math.Pow((double)Color.Red - (double)this.Red, 2d);
+            double g_dist_sqrd = Math.Pow((double)Color.Green - (double)this.Green, 2d);
+            double b_dist_sqrd = Math.Pow((double)Color.Blue - (double)this.Blue, 2d);
+            return Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd);
+        }
+
+
         /// <summary>
         /// Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
         /// </summary>
@@ -707,7 +721,13 @@ namespace InnerLibs
         /// Retorna uma cópia desta cor
         /// </summary>
         /// <returns></returns>
-        public HSVColor Clone() => new HSVColor(_scolor, Name) { Description = Description };
+        public object Clone() => CreateCopy();
+
+        /// <summary>
+        /// Retorna uma cópia desta cor
+        /// </summary>
+        /// <returns></returns>
+        public HSVColor CreateCopy() => new HSVColor(_scolor, Name) { Description = Description };
 
         /// <summary>
         /// Retorna a combinação de 2 cores
@@ -721,7 +741,7 @@ namespace InnerLibs
                 return new HSVColor() { Red = Red ^ Color.Red, Green = Green ^ Color.Green, Blue = Blue ^ Color.Blue, Alpha = Alpha };
             }
 
-            return Clone();
+            return CreateCopy();
         }
 
         /// <summary>
@@ -738,7 +758,7 @@ namespace InnerLibs
         /// <returns></returns>
         public HSVColor Multiply(HSVColor Color)
         {
-            var n = Clone();
+            var n = CreateCopy();
             if (Color != null)
             {
                 n.Red = (int)(Red / 255d * Color.Red).LimitRange(0, 255);
@@ -756,7 +776,7 @@ namespace InnerLibs
         /// <returns></returns>
         public HSVColor Subtractive(HSVColor Color)
         {
-            var n = Clone();
+            var n = CreateCopy();
             if (Color != null)
             {
                 n.Red = (n.Red + (Color.Red - 255)).LimitRange(0, 255);
@@ -774,7 +794,7 @@ namespace InnerLibs
         /// <returns></returns>
         public HSVColor Addictive(HSVColor Color)
         {
-            var n = Clone();
+            var n = CreateCopy();
             if (Color != null)
             {
                 n.Red = (n.Red + Color.Red).LimitRange(0, 255);
@@ -792,7 +812,7 @@ namespace InnerLibs
         /// <returns></returns>
         public HSVColor Difference(HSVColor Color)
         {
-            var n = Clone();
+            var n = CreateCopy();
             if (Color != null)
             {
                 n.Red = (n.Red - Color.Red).LimitRange(0, 255);
@@ -815,7 +835,7 @@ namespace InnerLibs
                 return new HSVColor() { Red = (int)Math.Round(new[] { Red, Color.Red }.Average()), Green = (int)Math.Round(new[] { Green, Color.Green }.Average()), Blue = (int)Math.Round(new[] { Blue, Color.Blue }.Average()), Alpha = Alpha };
             }
 
-            return Clone();
+            return CreateCopy();
         }
 
         /// <summary>
@@ -824,7 +844,7 @@ namespace InnerLibs
         /// <returns></returns>
         public HSVColor Sepia()
         {
-            var c = Clone();
+            var c = CreateCopy();
             c.Red = (int)Math.Round(Math.Round(Red * 0.393d + Green * 0.769d + Blue * 0.189d));
             c.Green = (int)Math.Round(Math.Round(Red * 0.349d + Green * 0.686d + Blue * 0.168d));
             c.Blue = (int)Math.Round(Math.Round(Red * 0.272d + Green * 0.534d + Blue * 0.131d));
@@ -1017,7 +1037,7 @@ namespace InnerLibs
 
         public static bool operator !=(HSVColor Color1, HSVColor Color2) => !(Color1 == Color2);
 
-        public static HSVColor operator -(HSVColor Color1, HSVColor Color2) =>  Color1.Difference(Color2);
+        public static HSVColor operator -(HSVColor Color1, HSVColor Color2) => Color1.Difference(Color2);
 
         public static HSVColor operator -(Color Color1, HSVColor Color2) => new HSVColor(Color1).Difference(Color2);
 

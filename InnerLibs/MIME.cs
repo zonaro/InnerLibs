@@ -112,6 +112,8 @@ namespace InnerLibs
         /// <returns></returns>
         public string Description { get; set; } = "Unknown File";
 
+     
+
         /// <summary>
         /// Verifica se Tipo de arquivo é de imagem
         /// </summary>

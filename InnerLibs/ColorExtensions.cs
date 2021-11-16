@@ -217,24 +217,21 @@ namespace InnerLibs
         /// </summary>
         public static IEnumerable<Color> KnowColors => ClassTools.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
-       
+
 
         /// <summary>
-        /// Retorna uma <see cref="KnownColor"/> mais proxima de outra cor
+        /// Retorna uma cor conhecida mais proxima de outra cor
         /// </summary>
         /// <param name="Color"></param>
         /// <returns></returns>
-        public static Color GetClosestNamedColor(this Color Color)
+        public static Color GetClosestKnowColor(this Color Color)
         {
             double closest_distance = double.MaxValue;
             var closest = Color.White;
-            foreach (var kc in HSVColor.NamedColors)
+            foreach (var kc in KnowColors)
             {
-                // Calculate Euclidean Distance
-                double r_dist_sqrd = Math.Pow(Color.R - (double)kc.Red, 2d);
-                double g_dist_sqrd = Math.Pow(Color.G - (double)kc.Green, 2d);
-                double b_dist_sqrd = Math.Pow(Color.B - (double)kc.Blue, 2d);
-                double d = Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd);
+                // Calculate Euclidean Distance             
+                double d = new HSVColor(kc).GetEuclideanDistance(Color);
                 if (d < closest_distance)
                 {
                     closest_distance = d;
@@ -250,7 +247,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Color"></param>
         /// <returns></returns>
-        public static string GetClosestColorName(this Color Color) => Color.GetClosestNamedColor().Name;
+        public static string GetClosestColorName(this Color Color) => Color.GetClosestKnowColor().Name;
 
         /// <summary>
         /// Retorna o nome da cor

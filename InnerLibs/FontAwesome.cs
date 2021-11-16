@@ -49,6 +49,9 @@ namespace InnerLibs.FontAwesome
                         return "fa-address-card";
                     }
                 case "ics":
+                case "ical":
+                case "ifb":
+                case "icalendar":
                     {
                         return "fa-calendar";
 
@@ -63,6 +66,7 @@ namespace InnerLibs.FontAwesome
                 case "svg":
                 case "eps":
                 case "tiff":
+                case "webp":
                 case "cdr":
                     {
                         return "fa-file-image";
@@ -105,7 +109,10 @@ namespace InnerLibs.FontAwesome
                 case "ashx":
                 case "config":
                 case "json":
+                case "jsx":
                 case "js":
+                case "ts":
+                case "vbs":
                 case "ps1":
                     {
                         return "fa-file-code";
@@ -231,6 +238,8 @@ namespace InnerLibs.FontAwesome
                 case "db":
                 case "sqlite":
                 case "litedb":
+                case "mdb":
+                case "mdf":
                     {
                         return "fa-database";
                     }
