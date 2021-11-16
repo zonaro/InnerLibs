@@ -95,16 +95,11 @@ namespace InnerLibs.FontAwesome
                 case "ashx":
                 case "config":
                 case "json":
+                case "js":
                 case "ps1":
                     {
                         return "fa-file-code";
-                    }
-
-                case "js":
-                    {
-                        return "fa-js";
-                    }
-
+                    } 
                 case "apk":
                 case "appbundle":
                     {
@@ -207,7 +202,7 @@ namespace InnerLibs.FontAwesome
                 case "b5t":
                 case "b6t":
                     {
-                        return "compact-disc";
+                        return "fa-compact-disc";
                     }
 
                 case "dll":
@@ -223,11 +218,20 @@ namespace InnerLibs.FontAwesome
                     }
 
                 case "sql":
+                case "db":
+                case "sqlite":
+                case "litedb":
                     {
                         return "fa-database";
                     }
+                case "bak":
+                    {
+                        return "fa-copy";
+                    }
                 case "jar":
-                    { return "fa-java"; }
+                    {
+                        return "fa-java";
+                    }
 
                 default:
                     {
