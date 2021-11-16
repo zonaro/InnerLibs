@@ -1361,7 +1361,7 @@ namespace InnerLibs.LINQ
         public PaginationFilter<ClassType, RemapType> PaginationFilter { get; private set; }
 
         /// <summary>
-        /// Expressão binaria deste filtro
+        /// Expressão binaria deste filtro, se ativo
         /// </summary>
         /// <returns></returns>
         public BinaryExpression Filter

@@ -17,7 +17,7 @@ namespace InnerLibs
     public static class ClassTools
     {
 
-       
+
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
             string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
@@ -584,10 +584,7 @@ namespace InnerLibs
         /// <typeparam name="Type">Tipo da classe</typeparam>
         /// <param name="Obj">Object</param>
         /// <returns></returns>
-        public static Dictionary<string, object> CreateDictionary<Type>(this Type Obj)
-        {
-            return Obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Obj, null));
-        }
+        public static Dictionary<string, object> CreateDictionary<Type>(this Type Obj) => Obj != null ? typeof(Type).GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Obj, null)) : new Dictionary<string, object>();
 
         /// <summary>
         /// Converte uma classe para um <see cref="Dictionary"/>
@@ -595,10 +592,7 @@ namespace InnerLibs
         /// <typeparam name="Type">Tipo da classe</typeparam>
         /// <param name="Obj">Object</param>
         /// <returns></returns>
-        public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<Type>(this IEnumerable<Type> Obj)
-        {
-            return (Obj ?? Array.Empty<Type>()).Select(x => x.CreateDictionary());
-        }
+        public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<Type>(this IEnumerable<Type> Obj) => (Obj ?? Array.Empty<Type>()).Select(x => x.CreateDictionary());
 
         /// <summary>
         /// Conta de maneira distinta items de uma coleçao
@@ -606,10 +600,7 @@ namespace InnerLibs
         /// <typeparam name="Type">TIpo de Objeto</typeparam>
         /// <param name="Arr">colecao</param>
         /// <returns></returns>
-        public static Dictionary<Type, long> DistinctCount<Type>(this IEnumerable<Type> Arr)
-        {
-            return Arr.Distinct().Select(p => new KeyValuePair<Type, long>(p, Arr.Where(x => x.Equals(p)).LongCount())).OrderByDescending(p => p.Value).ToDictionary();
-        }
+        public static Dictionary<Type, long> DistinctCount<Type>(this IEnumerable<Type> Arr) => Arr.Distinct().Select(p => new KeyValuePair<Type, long>(p, Arr.Where(x => x.Equals(p)).LongCount())).OrderByDescending(p => p.Value).ToDictionary();
 
         /// <summary>
         /// Conta de maneira distinta N items de uma coleçao e agrupa o resto
