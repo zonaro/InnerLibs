@@ -78,9 +78,9 @@ namespace InnerLibs
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
-        public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self")
+        public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self", object htmlAttributes = null)
         {
-            return new HtmlTag("a", Name).With(x =>
+            return new HtmlTag("a", htmlAttributes, Name).With(x =>
             {
                 x.Attributes
                 .SetOrRemove("href", URL, true)
@@ -89,28 +89,28 @@ namespace InnerLibs
             });
         }
 
-        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text")
+        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text", object htmlAttributes = null)
         {
-            return new HtmlTag("input").With(x =>
-            {
-                x.SelfCloseTag = true;
-                x.Attributes
-                 .SetOrRemove("name", Name, true)
-                 .SetOrRemove("value", Value, true)
-                 .SetOrRemove("type", Type.IfBlank("text"), true);
+            return new HtmlTag("input", htmlAttributes, null).With(x =>
+             {
+                 x.SelfCloseTag = true;
+                 x.Attributes
+                  .SetOrRemove("name", Name, true)
+                  .SetOrRemove("value", Value, true)
+                  .SetOrRemove("type", Type.IfBlank("text"), true);
 
-            });
+             });
         }
 
-        public static HtmlTag CreateImage(string URL)
+        public static HtmlTag CreateImage(string URL, object htmlAttributes = null)
         {
-            return new HtmlTag("img").With(x =>
-            {
-                x.SelfCloseTag = true;
-                x.Attributes
-                 .SetOrRemove("src", URL, true);
+            return new HtmlTag("img", htmlAttributes, null).With(x =>
+          {
+              x.SelfCloseTag = true;
+              x.Attributes
+               .SetOrRemove("src", URL, true);
 
-            });
+          });
         }
 
 
