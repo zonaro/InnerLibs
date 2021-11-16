@@ -43,6 +43,16 @@ namespace InnerLibs.FontAwesome
         {
             switch (Extension.RemoveAny(".").ToLower() ?? "")
             {
+                case "vcf":
+                case "vcard":
+                    {
+                        return "fa-address-card";
+                    }
+                case "ics":
+                    {
+                        return "fa-calendar";
+
+                    }
                 case "png":
                 case "jpg":
                 case "gif":
@@ -99,7 +109,7 @@ namespace InnerLibs.FontAwesome
                 case "ps1":
                     {
                         return "fa-file-code";
-                    } 
+                    }
                 case "apk":
                 case "appbundle":
                     {
