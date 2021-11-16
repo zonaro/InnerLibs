@@ -32,6 +32,15 @@ namespace InnerLibs
             this.InnerHtml = InnerHtml;
         }
 
+        public HtmlTag(string TagName, object Attributes, string InnerHtml = "")
+        {
+            this.TagName = TagName.IfBlank("div");
+            this.InnerHtml = InnerHtml;
+
+            foreach (var Attr in Attributes.CreateDictionary())
+                this.Attributes.SetOrRemove(Attr.Key, Attr.Value);
+        }
+
         public string this[string key]
         {
             get => Attributes.GetValueOr(key, "");
@@ -56,28 +65,40 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            TagName = TagName.RemoveAny("/", @"\");     
+            TagName = TagName.RemoveAny("/", @"\");
             if (SelfCloseTag)
             {
-                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => x.Key.ToLower() + "=" + x.Value.Wrap())} />";
+                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => $"{x.Key.ToLower()}={x.Value.Wrap()}")} />";
             }
             else
             {
-                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => x.Key.ToLower() + "=" + x.Value.Wrap())}>{InnerHtml}</{TagName.IfBlank("div")}>";
+                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => $"{x.Key.ToLower()}={x.Value.Wrap()}")}>{InnerHtml}</{TagName.IfBlank("div")}>";
             }
         }
 
-        public static implicit operator string(HtmlTag Tag)
-        {
-            return Tag?.ToString();
-        }
+        public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
         public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self")
         {
             return new HtmlTag("a", Name).With(x =>
             {
-                x["href"] = URL;
-                x["target"] = Target;
+                x.Attributes
+                .SetOrRemove("href", URL, true)
+                .SetOrRemove("target", Target, true);
+
+            });
+        }
+
+        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text")
+        {
+            return new HtmlTag("input").With(x =>
+            {
+                x.SelfCloseTag = true;
+                x.Attributes
+                 .SetOrRemove("name", Name, true)
+                 .SetOrRemove("value", Value, true)
+                 .SetOrRemove("type", Type.IfBlank("text"), true);
+
             });
         }
 
@@ -86,7 +107,9 @@ namespace InnerLibs
             return new HtmlTag("img").With(x =>
             {
                 x.SelfCloseTag = true;
-                x["src"] = URL;
+                x.Attributes
+                 .SetOrRemove("src", URL, true);
+
             });
         }
 

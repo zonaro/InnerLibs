@@ -105,6 +105,9 @@ namespace InnerLibs
             return Dic;
         }
 
+
+        public static IDictionary<KeyType, string> SetOrRemove<KeyType, KT>(this IDictionary<KeyType, string> Dic, KT Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank ? Value.NullIf(x => x.IsBlank()) : Value);
+
         public static IDictionary<KeyType, ValueType> SetOrRemove<KeyType, ValueType, KT, VT>(this IDictionary<KeyType, ValueType> Dic, KT Key, VT Value)
         {
 
@@ -125,19 +128,13 @@ namespace InnerLibs
 
         }
 
-        public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List)
-        {
-            return (List ?? Array.Empty<T>()).Any();
-        }
+        public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List) => (List ?? Array.Empty<T>()).Any();
 
 
 
 
 
-        public static bool IsNullOrEmpty<T>(this IEnumerable<T> List)
-        {
-            return !List.IsNotNullOrEmpty();
-        }
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> List) => !List.IsNotNullOrEmpty();
 
         public static List<T> RemoveLast<T>(this List<T> List, int Count = 1)
         {
@@ -219,8 +216,8 @@ namespace InnerLibs
             }
         }
 
-        /// <summary>Troca o valor de <paramref name="FirstValue"/> pelo valor de <paramref name="SecondValue"/> e o  valor de <paramref name="SecondValue"/> pelo valor de <paramref name="FirstValue"/>
-        /// 
+        /// <summary>
+        /// Troca o valor de <paramref name="FirstValue"/> pelo valor de <paramref name="SecondValue"/> e o  valor de <paramref name="SecondValue"/> pelo valor de <paramref name="FirstValue"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="FirstValue"></param>
