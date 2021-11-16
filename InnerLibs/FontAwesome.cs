@@ -32,10 +32,7 @@ namespace InnerLibs.FontAwesome
         /// </summary>
         /// <param name="MIME">MIME Type do Arquivo</param>
         /// <returns></returns>
-        public static string GetIconByFileType(this FileType MIME)
-        {
-            return MIME.Extensions.FirstOr("").GetIconByFileExtension();
-        }
+        public static string GetIconByFileType(this FileType MIME) => MIME.Extensions.FirstOr("").GetIconByFileExtension();
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
@@ -92,7 +89,6 @@ namespace InnerLibs.FontAwesome
                 case "cs":
                 case "jsp":
                 case "xml":
-                case "js":
                 case "css":
                 case "aspx":
                 case "ascx":
@@ -104,7 +100,13 @@ namespace InnerLibs.FontAwesome
                         return "fa-file-code";
                     }
 
+                case "js":
+                    {
+                        return "fa-js";
+                    }
+
                 case "apk":
+                case "appbundle":
                     {
                         return "fa-android";
                     }
@@ -124,10 +126,9 @@ namespace InnerLibs.FontAwesome
                 case "zip":
                 case "rar":
                 case "tar":
-                case "jar":
                 case "gz":
-                case "iso":
                 case "7zip":
+                case "7z":
                 case "b1":
                 case "bar":
                 case "rar5":
@@ -184,12 +185,31 @@ namespace InnerLibs.FontAwesome
                 case "rom":
                 case "z64":
                 case "gbc":
+                case "smc":
+                case "sfc":
                 case "wad":
+                case "ndc":
+                case "gci":
+                case "3ds":
+                case "nes":
+                case "snes":
+                case "cia":
+                case "gcz":
                     {
                         return "fa-gamepad";
                     }
+                case "iso":
+                case "ape":
+                case "bwt":
+                case "ccd":
+                case "cdi":
+                case "cue":
+                case "b5t":
+                case "b6t":
+                    {
+                        return "compact-disc";
+                    }
 
-                case "bin":
                 case "dll":
                     {
                         return "fa-cog";
@@ -206,6 +226,8 @@ namespace InnerLibs.FontAwesome
                     {
                         return "fa-database";
                     }
+                case "jar":
+                    { return "fa-java"; }
 
                 default:
                     {
