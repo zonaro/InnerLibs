@@ -11,37 +11,15 @@ namespace InnerLibs.FontAwesome
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
-        public static string GetIconByFileType(this FileSystemInfo File, bool DirectoryOpen = false, bool InvertIcon = false)
+        public static string GetIconByFileType(this FileSystemInfo File, bool DirectoryOpen = false)
         {
             if (File.Attributes == FileAttributes.Device)
             {
                 return "fa-plug";
             }
-
-            if (File.Attributes == FileAttributes.Directory)
+            else if (File.Attributes == FileAttributes.Directory)
             {
-                switch (true)
-                {
-                    case object _ when DirectoryOpen & InvertIcon:
-                        {
-                            return "fa-folder-open-o";
-                        }
-
-                    case object _ when DirectoryOpen & !InvertIcon:
-                        {
-                            return "fa-folder-open";
-                        }
-
-                    case object _ when !DirectoryOpen & InvertIcon:
-                        {
-                            return "fa-folder-o";
-                        }
-
-                    default:
-                        {
-                            return "fa-folder";
-                        }
-                }
+                return DirectoryOpen ? "fa-folder-open" : "fa-folder";
             }
             else
             {
