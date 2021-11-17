@@ -4213,7 +4213,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string TrimCarriage(this string Text) => Text.TrimAny(Arrays.WhiteSpaceChars.ToArray());
+        public static string TrimCarriage(this string Text) => Text.TrimAny(Arrays.InvisibleChars.ToArray());
 
         /// <summary>
         /// Decoda uma string de uma transmissão por URL
