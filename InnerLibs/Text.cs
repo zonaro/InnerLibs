@@ -1014,6 +1014,13 @@ namespace InnerLibs
         /// <returns>nome do dominio</returns>
         public static string GetDomain(this string URL, bool RemoveFirstSubdomain = false) => new Uri(URL).GetDomain(RemoveFirstSubdomain);
 
+        /// <summary>
+        /// Pega o protocolo e o dominio principal de uma URL
+        /// </summary>
+        /// <param name="URL">URL</param>
+        /// <returns>nome do dominio</returns>
+        public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL).GetLeftPart(UriPartial.Authority)}";
+
         public static string GetFirstChars(this string Text, int Number = 1)
         {
             if (Text.IsNotBlank())
