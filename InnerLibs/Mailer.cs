@@ -162,10 +162,11 @@ namespace InnerLibs.Mail
 
 
 
-        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, null);
+        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, "");
+        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl, string MessageTemplate) => UseTemplate(TemplateOrFilePathOrUrl, new { BodyText = MessageTemplate });
 
 
-        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl, string MessageTemplate)
+        public FluentMailMessage UseTemplate<T>(string TemplateOrFilePathOrUrl, T MessageTemplate) where T : class
         {
 
             if (TemplateOrFilePathOrUrl.IsFilePath())
@@ -181,9 +182,9 @@ namespace InnerLibs.Mail
                 }
             }
 
-            if (MessageTemplate.IsNotBlank())
+            if (MessageTemplate != null)
             {
-                TemplateOrFilePathOrUrl = TemplateOrFilePathOrUrl.Inject(new { BodyText = MessageTemplate });
+                TemplateOrFilePathOrUrl = TemplateOrFilePathOrUrl.Inject(MessageTemplate);
             }
 
             return WithMessage(TemplateOrFilePathOrUrl);
