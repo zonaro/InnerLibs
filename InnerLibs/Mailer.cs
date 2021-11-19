@@ -69,6 +69,11 @@ namespace InnerLibs.Mail
 
     public class FluentMailMessage : MailMessage
     {
+        public FluentMailMessage()
+        {
+            this.IsBodyHtml = true;
+        }
+
         public SmtpClient Smtp { get; set; } = new SmtpClient();
         public Action<MailAddress, FluentMailMessage> SuccessAction { get; set; }
         public Action<MailAddress, FluentMailMessage, Exception> ErrorAction { get; set; }
@@ -143,10 +148,9 @@ namespace InnerLibs.Mail
             return this;
         }
 
-        public FluentMailMessage WithMessage(string Text, bool IsHtml = true)
+        public FluentMailMessage WithMessage(string Text)
         {
             Body = Text;
-            IsBodyHtml = IsHtml;
             return this;
         }
 
@@ -163,6 +167,7 @@ namespace InnerLibs.Mail
 
         public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl, string MessageTemplate)
         {
+
             if (TemplateOrFilePathOrUrl.IsFilePath())
             {
                 if (File.Exists(TemplateOrFilePathOrUrl)) TemplateOrFilePathOrUrl = File.ReadAllText(TemplateOrFilePathOrUrl);
@@ -178,10 +183,10 @@ namespace InnerLibs.Mail
 
             if (MessageTemplate.IsNotBlank())
             {
-                TemplateOrFilePathOrUrl.Inject(new { BodyText = MessageTemplate });
+                TemplateOrFilePathOrUrl = TemplateOrFilePathOrUrl.Inject(new { BodyText = MessageTemplate });
             }
 
-            return WithMessage(TemplateOrFilePathOrUrl, true);
+            return WithMessage(TemplateOrFilePathOrUrl);
         }
 
 
@@ -368,26 +373,67 @@ namespace InnerLibs.Mail
 
                         try
                         {
-                            var lista = new[] { item.Address }.ToList();
-                            if (CC.Any())
+
+                            using (var msgIndiv = new MailMessage())
                             {
-                                lista.AddRange((IEnumerable<string>)CC);
+                                msgIndiv.IsBodyHtml = this.IsBodyHtml;
+                                msgIndiv.BodyEncoding = this.BodyEncoding;
+                                msgIndiv.BodyTransferEncoding = this.BodyTransferEncoding;
+                                msgIndiv.DeliveryNotificationOptions = this.DeliveryNotificationOptions;
+                                msgIndiv.From = this.From;
+                                msgIndiv.Body = msg;
+                                msgIndiv.Subject = subj;
+                                msgIndiv.To.Add(item);
+
+                                msgIndiv.SubjectEncoding = this.SubjectEncoding;
+                                msgIndiv.HeadersEncoding = this.HeadersEncoding;
+                                msgIndiv.Priority = this.Priority;
+                                msgIndiv.Sender = this.Sender;
+                                msgIndiv.Headers.Add(this.Headers);
+
+                                foreach (var email in this.CC)
+                                {
+                                    msgIndiv.CC.Add(item);
+                                }
+
+                                foreach (var email in this.ReplyToList)
+                                {
+                                    msgIndiv.ReplyToList.Add(item);
+                                }
+
+                                foreach (var email in this.CC)
+                                {
+                                    msgIndiv.CC.Add(item);
+                                }
+
+                                foreach (var email in this.Bcc)
+                                {
+                                    msgIndiv.Bcc.Add(item);
+                                }
+
+                                foreach (var att in this.Attachments)
+                                {
+                                    msgIndiv.Attachments.Add(att);
+                                }
+
+                                foreach (var att in this.AlternateViews)
+                                {
+                                    msgIndiv.AlternateViews.Add(att);
+                                }
+
+
+
+                                Smtp.Send(msgIndiv);
+
+                                _SuccessList.Add(item);
+
+                                if (SuccessAction != null)
+                                {
+                                    SuccessAction.Invoke(item, this);
+                                }
+
                             }
 
-                            string emails = lista.SelectJoinString(x => x.ToString(), ",");
-                            Smtp.Send(From.ToString(), emails, subj, msg);
-                            if (Bcc.Any())
-                            {
-                                Smtp.Send(From.ToString(), Bcc.SelectJoinString(x => x.ToString(), ","), subj, msg);
-                            }
-
-                            if (SuccessAction != null)
-                            {
-                                SuccessAction.Invoke(item, this);
-                            }
-
-
-                            _SuccessList.Add(item);
                         }
 
                         catch (Exception ex)
