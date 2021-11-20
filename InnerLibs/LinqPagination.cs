@@ -10,6 +10,8 @@ namespace InnerLibs.LINQ
     public static class LINQExtensions
     {
 
+        public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> List) => List.Where(x => x != null);
 
 
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
@@ -21,8 +23,6 @@ namespace InnerLibs.LINQ
         {
             return l.Reverse().Take(Count).Reverse();
         }
-
-
 
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count)

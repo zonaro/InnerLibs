@@ -2484,7 +2484,7 @@ namespace InnerLibs
         /// <param name="Text"> </param>
         /// <param name="Words"></param>
         /// <returns></returns>
-        public static bool StartsWithAny(this string Text, params string[] Words) => Words.Any(p => Text.StartsWith(p));
+        public static bool StartsWithAny(this string Text, params string[] Words) => Words.Any(p => Text.IfBlank("").StartsWith(p));
 
         /// <summary>
         /// Conta as silabas de uma palavra

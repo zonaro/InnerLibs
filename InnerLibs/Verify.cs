@@ -184,9 +184,13 @@ namespace InnerLibs
             catch
             {
             }
+            try
+            {
+                // if has extension then its a file; directory otherwise
+                return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar)) && Path.GetExtension(Text).IsNotBlank();
 
-            // if has extension then its a file; directory otherwise
-            return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar)) && Path.GetExtension(Text).IsNotBlank();
+            }
+            catch { return false; }
         }
 
         /// <summary>
@@ -211,13 +215,22 @@ namespace InnerLibs
             }
             catch { }
 
-            // if has trailing slash then it's a directory
-            if (new string[] { Convert.ToString(Path.DirectorySeparatorChar), Convert.ToString(Path.AltDirectorySeparatorChar) }.Any(x => Text.EndsWith(x)))
+            try
             {
-                return true;
+                // if has trailing slash then it's a directory
+
+                if (new string[] { Convert.ToString(Path.DirectorySeparatorChar), Convert.ToString(Path.AltDirectorySeparatorChar) }.Any(x => Text.EndsWith(x)))
+                {
+                    return true;
+                }
+                // ends with slash if has extension then its a file; directory otherwise
+                return string.IsNullOrWhiteSpace(Path.GetExtension(Text));
             }
-            // ends with slash if has extension then its a file; directory otherwise
-            return string.IsNullOrWhiteSpace(Path.GetExtension(Text));
+            catch
+            {
+                return false;
+            }
+
         }
 
         /// <summary>

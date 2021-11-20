@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Threading.Tasks;
 using InnerLibs.LINQ;
 
 namespace InnerLibs.Mail
@@ -67,8 +68,20 @@ namespace InnerLibs.Mail
 
     }
 
+    public enum SentStatus
+    {
+        Error = -1,
+        PartialSuccess = Error + Success,
+        Success = 1,
+        NotSent = 2,
+    }
+
+    /// <summary>
+    /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template e métodos auxiliares.  
+    /// </summary>
     public class FluentMailMessage : MailMessage
     {
+
         public FluentMailMessage()
         {
             this.IsBodyHtml = true;
@@ -77,32 +90,23 @@ namespace InnerLibs.Mail
         public SmtpClient Smtp { get; set; } = new SmtpClient();
         public Action<MailAddress, FluentMailMessage> SuccessAction { get; set; }
         public Action<MailAddress, FluentMailMessage, Exception> ErrorAction { get; set; }
+        public IEnumerable<(MailAddress Destination, SentStatus Status, Exception Error)> SentStatusList => _status.AsEnumerable();
+        private List<(MailAddress, SentStatus, Exception)> _status = new List<(MailAddress, SentStatus, Exception)>();
 
-        private List<MailAddress> _SuccessList = new List<MailAddress>();
-        private List<MailAddress> _ErrorList = new List<MailAddress>();
 
-        public string SentStatus
-        {
-            get
-            {
-                if (SuccessList.Any() && ErrorList.Any() == false) return "SUCCESS";
-                if (SuccessList.Any() == false && ErrorList.Any() == false) return "NOT_SENT";
-                return "PARTIAL_SUCCESS";
-            }
-        }
+
+        public SentStatus SentStatus => SentStatusList.Any() ? (SentStatus)SentStatusList.Select(x => x.Status.ToInteger()).Distinct().Sum() : SentStatus.NotSent;
 
         public FluentMailMessage ResetStatus()
         {
-            _SuccessList = _SuccessList ?? new List<MailAddress>();
-            _ErrorList = _ErrorList ?? new List<MailAddress>();
-            _SuccessList.Clear();
-            _ErrorList.Clear();
+            _status = _status ?? new List<(MailAddress, SentStatus, Exception)>();
+            _status.Clear();
             return this;
         }
 
-        public IEnumerable<MailAddress> SuccessList => _SuccessList;
+        public IEnumerable<MailAddress> SuccessList => SentStatusList.Where(x => x.Status == SentStatus.Success).Select(x => x.Destination);
 
-        public IEnumerable<MailAddress> ErrorList => _ErrorList;
+        public IEnumerable<MailAddress> ErrorList => SentStatusList.Where(x => x.Status == SentStatus.Error).Select(x => x.Destination);
 
         public static SmtpClient GmailSmtp() => new SmtpClient("smtp.gmail.com", 587) { EnableSsl = true };
 
@@ -151,6 +155,13 @@ namespace InnerLibs.Mail
         public FluentMailMessage WithMessage(string Text)
         {
             Body = Text;
+            return this;
+        }
+
+        public FluentMailMessage WithMessage(HtmlTag Text)
+        {
+            IsBodyHtml = true;
+            Body = Text.ToString();
             return this;
         }
 
@@ -276,12 +287,12 @@ namespace InnerLibs.Mail
 
         public FluentMailMessage WithCredentials(NetworkCredential Credentials)
         {
-            if (Credentials is null)
+            if (Credentials == null)
                 throw new ArgumentNullException("Credentials");
-            if (Smtp is null)
+            if (Smtp == null)
                 throw new Exception("SMTP is null");
             Smtp.Credentials = Credentials;
-            if (From is null || From.Address.IsBlank())
+            if (From == null || From.Address.IsBlank())
             {
                 From = new MailAddress(Credentials.UserName);
             }
@@ -347,12 +358,12 @@ namespace InnerLibs.Mail
             return this;
         }
 
+
+     
+
         public FluentMailMessage Send()
         {
-            _SuccessList = _SuccessList ?? new List<MailAddress>();
-            _ErrorList = _ErrorList ?? new List<MailAddress>();
-            _SuccessList.Clear();
-            _ErrorList.Clear();
+            ResetStatus();
 
             if (Smtp != null)
             {
@@ -426,7 +437,7 @@ namespace InnerLibs.Mail
 
                                 Smtp.Send(msgIndiv);
 
-                                _SuccessList.Add(item);
+                                _status.Add((item, SentStatus.Success, null));
 
                                 if (SuccessAction != null)
                                 {
@@ -440,7 +451,7 @@ namespace InnerLibs.Mail
                         catch (Exception ex)
                         {
 
-                            _ErrorList.Add(item);
+                            _status.Add((item, SentStatus.Error, ex));
 
                             if (ErrorAction != null)
                             {
