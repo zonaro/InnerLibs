@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
- 
+
 
 namespace InnerLibs.LINQ
 {
@@ -386,25 +386,13 @@ namespace InnerLibs.LINQ
         /// Numero da ultima pagina
         /// </summary>
         /// <returns></returns>
-        public int LastPage
-        {
-            get
-            {
-                return PageCount;
-            }
-        }
+        public int LastPage => PageCount;
 
         /// <summary>
         /// Numero da primeira pagina
         /// </summary>
         /// <returns></returns>
-        public int FirstPage
-        {
-            get
-            {
-                return 1;
-            }
-        }
+        public int FirstPage => 1;
 
         /// <summary>
         /// Numero da proxima pagina
@@ -446,97 +434,49 @@ namespace InnerLibs.LINQ
         /// Retorna true se esta pagina é a primeira
         /// </summary>
         /// <returns></returns>
-        public bool IsFirstPage
-        {
-            get
-            {
-                return PageNumber == FirstPage;
-            }
-        }
+        public bool IsFirstPage => PageNumber == FirstPage;
 
         /// <summary>
         /// Retorna true se esta pagina é a ultima
         /// </summary>
         /// <returns></returns>
-        public bool IsLastPage
-        {
-            get
-            {
-                return PageNumber == LastPage;
-            }
-        }
+        public bool IsLastPage => PageNumber == LastPage;
 
         /// <summary>
         /// Retorna true se existir mais de uma pagina
         /// </summary>
         /// <returns></returns>
-        public bool IsPaginationNecessary
-        {
-            get
-            {
-                return PageCount > 1;
-            }
-        }
+        public bool IsPaginationNecessary => PageCount > 1;
 
         /// <summary>
-        /// Retorna true se existir o botão de primeira página for necessário
+        /// Retorna true se o botão de primeira página for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsFirstPageNecessary
-        {
-            get
-            {
-                return PageNumber > FirstPage;
-            }
-        }
+        public bool IsFirstPageNecessary => !ContainsPage(FirstPage, FirstPage + 1);
 
         /// <summary>
-        /// Retorna true se existir o botão de primeira página for necessário
+        /// Retorna true se o botão de ultima página for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsLastPageNecessary
-        {
-            get
-            {
-                return PageNumber < LastPage;
-            }
-        }
+        public bool IsLastPageNecessary => !ContainsPage(LastPage, LastPage - 1);
 
         /// <summary>
-        /// Retorna true se existir o botão de pagina anterior for necessário
+        /// Retorna true se o botão de pagina anterior for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsPreviousPageNecessary
-        {
-            get
-            {
-                return IsFirstPageNecessary;
-            }
-        }
+        public bool IsPreviousPageNecessary => IsFirstPageNecessary;
 
         /// <summary>
-        /// Retorna true se existir o botão de proxima pagina for necessário
+        /// Retorna true se o botão de proxima pagina for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsNextPageNecessary
-        {
-            get
-            {
-                return IsLastPageNecessary;
-            }
-        }
+        public bool IsNextPageNecessary => IsLastPageNecessary;
 
         /// <summary>
         /// Total de itens da Lista
         /// </summary>
         /// <returns></returns>
-        public int Total
-        {
-            get
-            {
-                return _total ?? -1;
-            }
-        }
+        public int Total => _total ?? -1;
 
         private int? _total = default;
 
@@ -609,44 +549,26 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PageNumbers"></param>
         /// <returns></returns>
-        public bool ContainsPage(IEnumerable<int> PageNumbers)
-        {
-            return PageRange.ContainsAny(PageNumbers);
-        }
+        public bool ContainsPage(IEnumerable<int> PageNumbers) => PageRange.ContainsAny(PageNumbers.Where(x => x.IsBetweenOrEqual(FirstPage, LastPage)).ToArray());
 
         /// <summary>
         /// Verifica se o <see cref="PageRange"/> contém algumas páginas especificas
         /// </summary>
         /// <param name="PageNumbers"></param>
         /// <returns></returns>
-        public bool ContainsPage(params int[] PageNumbers)
-        {
-            return ContainsPage((PageNumbers ?? Array.Empty<int>()).AsEnumerable());
-        }
+        public bool ContainsPage(params int[] PageNumbers) => ContainsPage((PageNumbers ?? Array.Empty<int>()).AsEnumerable());
 
         /// <summary>
         /// Indica se o primeiro botão de reticencias é necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsFirstTraillingNecessary
-        {
-            get
-            {
-                return IsFirstPageNecessary && !ContainsPage(FirstPage, FirstPage + 1);
-            }
-        }
+        public bool IsFirstTraillingNecessary => !ContainsPage(FirstPage, FirstPage + 2);
 
         /// <summary>
         /// Indica se o ultimo botão de reticencias é necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsLastTraillingNecessary
-        {
-            get
-            {
-                return IsLastPageNecessary && !ContainsPage(LastPage, LastPage - 1);
-            }
-        }
+        public bool IsLastTraillingNecessary => !ContainsPage(LastPage, LastPage - 2);
 
         /// <summary>
         /// Botões de paginação
@@ -668,7 +590,7 @@ namespace InnerLibs.LINQ
         public IEnumerable<string> CreatePaginationButtons(string Trailling = "...")
         {
             if (Trailling.IsNumber()) throw new ArgumentException($"Trailling cannot be a number! => {Trailling}");
-            
+
             var l = new List<string>();
             if (IsPaginationNecessary)
             {

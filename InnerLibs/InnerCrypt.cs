@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualBasic;
- 
+
 
 namespace InnerLibs
 {
     [Obsolete("Experimental Cryptography. Insecure")]
-        public static class InnerCrypt
+    public static class InnerCrypt
     {
         private static string[] Array_letras => Arrays.AlphaChars.ToArray();
 

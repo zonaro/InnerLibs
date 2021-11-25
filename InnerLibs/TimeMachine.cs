@@ -371,6 +371,11 @@ namespace InnerLibs.TimeMachine
         {
             return CreateFromDateRange(Range.StartDate, Range.EndDate);
         }
+
+        /// <summary>
+        /// Retorna um Array com os dias de segunda a sexta
+        /// </summary>
+
     }
 
     /// <summary>
@@ -378,6 +383,10 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class LongTimeSpan
     {
+
+        public static DayOfWeek[] MondayToFriday => new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday };
+        public static DayOfWeek[] SundayToSaturday => new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
+
         /// <summary>
         /// Inicia uma instancia de TimeFlow
         /// </summary>
@@ -395,7 +404,7 @@ namespace InnerLibs.TimeMachine
 
             if (!RelevantDaysOfWeek.Any())
             {
-                RelevantDaysOfWeek = new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
+                RelevantDaysOfWeek = SundayToSaturday;
             }
 
             while (CurDate <= EndDate)
@@ -529,6 +538,9 @@ namespace InnerLibs.TimeMachine
 
 
         public decimal TotalDays => (decimal)(EndDate - StartDate).TotalDays;
+
+        public long Ticks => (EndDate - StartDate).Ticks;
+
 
 
         public decimal TotalMonths => (decimal)Math.Round((EndDate - StartDate).TotalDays / (365.25d / 12d), 2);
@@ -709,49 +721,212 @@ namespace InnerLibs.TimeMachine
         /// Domingo
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Sunday { get; set; } = new JourneyDay();
+        public JourneyDay Sunday
+        {
+            get
+            {
+                _sunday = _sunday ?? new JourneyDay();
+                return _sunday;
+            }
+            set
+            {
+                _sunday = value ?? new JourneyDay();
+            }
+        }
+
 
         /// <summary>
         /// Segunda-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Monday { get; set; } = new JourneyDay();
-
+        public JourneyDay Monday
+        {
+            get
+            {
+                _monday = _monday ?? new JourneyDay();
+                return _monday;
+            }
+            set
+            {
+                _monday = value ?? new JourneyDay();
+            }
+        }
         /// <summary>
         /// Terça-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Tuesday { get; set; } = new JourneyDay();
+        public JourneyDay Tuesday
+        {
+            get
+            {
+                _tuesday = _tuesday ?? new JourneyDay();
+                return _tuesday;
+            }
+            set
+            {
+                _tuesday = value ?? new JourneyDay();
+            }
+        }
 
         /// <summary>
         /// Quarta-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Wednesday { get; set; } = new JourneyDay();
+        public JourneyDay Wednesday
+        {
+            get
+            {
+                _wednesday = _wednesday ?? new JourneyDay();
+                return _wednesday;
+            }
+            set
+            {
+                _wednesday = value ?? new JourneyDay();
+            }
+        }
 
         /// <summary>
         /// Quinta-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Thursday { get; set; } = new JourneyDay();
-
+        public JourneyDay Thursday
+        {
+            get
+            {
+                _thursday = _thursday ?? new JourneyDay();
+                return _thursday;
+            }
+            set
+            {
+                _thursday = value ?? new JourneyDay();
+            }
+        }
         /// <summary>
         /// Sexta-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Friday { get; set; } = new JourneyDay();
+        public JourneyDay Friday
+        {
+            get
+            {
+                _friday = _friday ?? new JourneyDay();
+                return _friday;
+            }
+            set
+            {
+                _friday = value ?? new JourneyDay();
+            }
+        }
 
         /// <summary>
         /// Sábado
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Saturday { get; set; } = new JourneyDay();
+        public JourneyDay Saturday
+        {
+            get
+            {
+                _saturday = _saturday ?? new JourneyDay();
+                return _saturday;
+            }
+            set
+            {
+                _saturday = value ?? new JourneyDay();
+            }
+        }
+
 
         /// <summary>
-        /// item da Produção
+        /// Ajusta a jornada de trabalho de um dia da semana
+        /// </summary>
+        /// <param name="DayOfWeek"></param>
+        /// <param name="StartHour"></param>
+        /// <param name="Journey"></param>
+        /// <param name="LunchHour"></param>
+        /// <param name="LunchTime"></param>
+        /// <returns></returns>
+        public JourneyDay SetJourney(DayOfWeek DayOfWeek, DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default)
+        {
+            switch (DayOfWeek)
+            {
+                case DayOfWeek.Sunday:
+                    Sunday = Sunday ?? new JourneyDay();
+                    return Sunday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
+
+                case DayOfWeek.Tuesday:
+                    Tuesday = Tuesday ?? new JourneyDay();
+                    return Tuesday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
+
+                case DayOfWeek.Wednesday:
+                    Wednesday = Wednesday ?? new JourneyDay();
+                    return Wednesday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
+
+                case DayOfWeek.Thursday:
+                    Thursday = Thursday ?? new JourneyDay();
+                    return Thursday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
+
+                case DayOfWeek.Friday:
+                    Friday = Friday ?? new JourneyDay();
+                    return Friday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
+
+                case DayOfWeek.Saturday:
+                    Saturday = Saturday ?? new JourneyDay();
+                    return Saturday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
+
+                case DayOfWeek.Monday:
+                default:
+                    Monday = Monday ?? new JourneyDay();
+                    return Monday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
+
+            }
+        }
+
+        public JourneyDay SetJourney(DayOfWeek DayOfWeek, DateTime StartHour, int JourneyHours, DateTime LunchHour = default, int LunchHours = default) => SetJourney(DayOfWeek, StartHour, new TimeSpan(JourneyHours, 0, 0), LunchHour, new TimeSpan(LunchHours, 0, 0));
+
+
+        public TimeDemand SetJourney(IEnumerable<DayOfWeek> DaysOfWeek, DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default)
+        {
+            foreach (var item in DaysOfWeek ?? Array.Empty<DayOfWeek>())
+            {
+                SetJourney(item, StartHour, Journey, LunchHour, LunchTime);
+            }
+
+            return this;
+        }
+
+        public TimeDemand SetJourney(IEnumerable<DayOfWeek> DaysOfWeek, DateTime StartHour, int JourneyHours, DateTime LunchHour = default, int LunchHours = default) => SetJourney(DaysOfWeek, StartHour, new TimeSpan(JourneyHours, 0, 0), LunchHour, new TimeSpan(LunchHours, 0, 0));
+         
+        public TimeDemand SetOffJourney(params DayOfWeek[] DaysOfWeek) => SetJourney(DaysOfWeek.AsEnumerable(), DateTime.MinValue, new TimeSpan(0), DateTime.MinValue, new TimeSpan(0));
+
+
+
+
+        /// <summary>
+        /// Quantidade de itens
         /// </summary>
         /// <returns></returns>
-        public Item Item { get; set; } = new Item();
+        public int ItemQuantity
+        {
+            get => q;
+
+            set => q = value.SetMinValue(1);
+        }
+
+        private int q = 1;
+
+        /// <summary>
+        /// Tempo de produção de 1 item
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan ItemProductionTime { get; set; } = new TimeSpan(0, 1, 0);
+
+        /// <summary>
+        /// Tempo totald e produção de todos os itens
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan ProductionTime => new TimeSpan(ItemQuantity * ItemProductionTime.Ticks);
+
+
 
         /// <summary>
         /// Data Inicial da produção
@@ -759,14 +934,19 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateTime StartDate { get; set; }
 
+
         /// <summary>
         /// Empurra a data para dentro da proxima hora disponivel dentro jornada de trabalho
         /// </summary>
         /// <param name="[Date]">Data a ser Verificada</param>
-        public void PushDateIntoJourney(ref DateTime Date)
+        public DateTime PushDateIntoJourney(DateTime Date)
         {
-            while (Date.TimeOfDay > this.JourneyEndHour(Date).TimeOfDay | Date.TimeOfDay < this.JourneyStartHour(Date).TimeOfDay | !RelevantDaysOfWeek.Contains(Date.DayOfWeek) | Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
-                Date = Date.AddSeconds(1d);
+
+
+            while (Date.TimeOfDay > this.JourneyEndHour(Date).TimeOfDay || Date.TimeOfDay < this.JourneyStartHour(Date).TimeOfDay || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
+                Date = Date.AddMilliseconds(1d);
+
+            return Date;
         }
 
         /// <summary>
@@ -777,48 +957,75 @@ namespace InnerLibs.TimeMachine
         {
             get
             {
-                var argDate = StartDate;
-                PushDateIntoJourney(ref argDate);
-                StartDate = argDate;
-                var FinalDate = StartDate.Add(Item.ProductionTime);
-                var t = new LongTimeSpan(StartDate, FinalDate, RelevantDaysOfWeek.ToArray());
-                foreach (var dia in t.RelevantDays)
+                if (_EndDate == null)
                 {
-                    if (!(dia.Date == FinalDate.Date))
-                    {
-                        FinalDate = FinalDate.AddHours(24d - this.TotalTime(dia).TotalHours);
-                    }
-                    else if (FinalDate.TimeOfDay > this.LunchStartHour(dia).TimeOfDay)
-                    {
-                        FinalDate = FinalDate.Add(LunchTime(dia));
-                    }
-
-                    if (FinalDate.IsBetween(LunchStartHour(dia), LunchEndHour(dia)))
-                    {
-                        FinalDate = FinalDate.Add(this.LunchEndHour(dia).TimeOfDay - dia.TimeOfDay);
-                    }
+                    _EndDate = Proccess();
                 }
 
-                foreach (var feriado in HoliDays.ClearTime())
-                {
-                    if (!t.NonRelevantDays.ClearTime().Contains(feriado))
-                    {
-                        t.NonRelevantDays.Add(feriado);
-                    }
-                }
-
-                FinalDate = FinalDate.AddDays(t.NonRelevantDays.Count);
-                var lasthours = new TimeSpan();
-                if (FinalDate.TimeOfDay > this.JourneyEndHour(FinalDate).TimeOfDay)
-                {
-                    lasthours = FinalDate.TimeOfDay - this.JourneyEndHour(FinalDate).TimeOfDay;
-                }
-
-                PushDateIntoJourney(ref FinalDate);
-                FinalDate = FinalDate.Add(lasthours);
-                return FinalDate;
+                return _EndDate.Value;
             }
         }
+
+        public DateTime Proccess()
+        {
+            var argDate = StartDate;
+            argDate = PushDateIntoJourney(argDate);
+            StartDate = argDate;
+            var FinalDate = StartDate.Add(ProductionTime);
+            var t = new LongTimeSpan(StartDate, FinalDate, RelevantDaysOfWeek.ToArray());
+            foreach (var dia in t.RelevantDays)
+            {
+                if (!(dia.Date == FinalDate.Date))
+                {
+                    FinalDate = FinalDate.AddHours(24d - this.TotalTime(dia).TotalHours);
+                }
+                else if (FinalDate.TimeOfDay > this.LunchStartHour(dia).TimeOfDay)
+                {
+                    FinalDate = FinalDate.Add(LunchTime(dia));
+                }
+
+                if (FinalDate.IsBetween(LunchStartHour(dia), LunchEndHour(dia)))
+                {
+                    FinalDate = FinalDate.Add(this.LunchEndHour(dia).TimeOfDay - dia.TimeOfDay);
+                }
+            }
+
+            foreach (var feriado in HoliDays.ClearTime())
+            {
+                if (!t.NonRelevantDays.ClearTime().Contains(feriado))
+                {
+                    t.NonRelevantDays.Add(feriado);
+                }
+            }
+
+            FinalDate = FinalDate.AddDays(t.NonRelevantDays.Count);
+            var lasthours = new TimeSpan();
+            if (FinalDate.TimeOfDay > this.JourneyEndHour(FinalDate).TimeOfDay)
+            {
+                lasthours = FinalDate.TimeOfDay - this.JourneyEndHour(FinalDate).TimeOfDay;
+            }
+
+            FinalDate = PushDateIntoJourney(FinalDate);
+            FinalDate = FinalDate.Add(lasthours);
+            return FinalDate;
+        }
+
+        private DateTime? _EndDate = null;
+        private JourneyDay _sunday = new JourneyDay();
+        private JourneyDay _monday = new JourneyDay();
+        private JourneyDay _tuesday = new JourneyDay();
+        private JourneyDay _wednesday = new JourneyDay();
+        private JourneyDay _thursday = new JourneyDay();
+        private JourneyDay _friday = new JourneyDay();
+        private JourneyDay _saturday = new JourneyDay();
+
+        public TimeSpan GetWorkingTimeUntil(DateTime EndDate) => this.GetWorkTimeBetween(StartDate, EndDate);
+
+        public bool IsJourney(DateTime DateAndTime)
+        {
+            return GetJourneyDay(DateAndTime).JourneyTime.TotalMilliseconds > 0;
+        }
+
 
         /// <summary>
         /// Inicia uma nova Demanda com as propriedades do item
@@ -826,14 +1033,43 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data Inicial da produção</param>
         /// <param name="Time">Tempo do item</param>
         /// <param name="Quantity">Quantidade de itens</param>
-        public TimeDemand(DateTime StartDate, TimeSpan Time, int Quantity = 1, string MultipleItem = "Items", string SingularItem = null)
+        public TimeDemand(DateTime StartDate, TimeSpan Time) : this(StartDate, Time, 1)
+        { }
+
+
+
+        /// <summary>
+        /// Inicia uma nova Demanda com as propriedades do item
+        /// </summary>
+        /// <param name="StartDate">Data Inicial da produção</param>
+        /// <param name="Time">Tempo do item</param>
+        /// <param name="Quantity">Quantidade de itens</param>
+        public TimeDemand(DateTime StartDate, DateTime EndDate) : this(StartDate, EndDate, 1)
+        { }
+
+        /// <summary>
+        /// Inicia uma nova Demanda com as propriedades do item
+        /// </summary>
+        /// <param name="StartDate">Data Inicial da produção</param>
+        /// <param name="Time">Tempo do item</param>
+        /// <param name="Quantity">Quantidade de itens</param>
+        public TimeDemand(DateTime StartDate, TimeSpan Time, int Quantity)
         {
             this.StartDate = StartDate;
-            Item.Quantity = Quantity;
-            Item.Time = Time;
-            Item.MultipleItem = MultipleItem;
-            Item.SingularItem = SingularItem.IfBlank(MultipleItem.Singularize());
+            this.ItemQuantity = Quantity;
+            this.ItemProductionTime = Time;
 
+        }
+
+        /// <summary>
+        /// Inicia uma nova Demanda com as propriedades do item
+        /// </summary>
+        /// <param name="StartDate">Data Inicial da produção</param>
+        /// <param name="EndDate">Tempo do item</param>
+        /// <param name="Quantity">Quantidade de itens</param>
+        public TimeDemand(DateTime StartDate, DateTime EndDate, int Quantity = 1) : this(StartDate, new TimeSpan(0), Quantity)
+        {
+            this.ItemProductionTime = GetWorkingTimeUntil(EndDate);
         }
 
         /// <summary>
@@ -849,7 +1085,7 @@ namespace InnerLibs.TimeMachine
             }
 
             var enda = EndDate;
-            return new TimeDemand(enda.Add(DelayTime), Item.Time, Item.Quantity, Item.SingularItem, Item.MultipleItem);
+            return new TimeDemand(enda.Add(DelayTime), this.ItemProductionTime, ItemQuantity);
         }
 
         /// <summary>
@@ -882,19 +1118,24 @@ namespace InnerLibs.TimeMachine
         /// Retorna uma string representado a quantidade de itens e o tempo gasto com a produção
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => Item.ToString() + " - " + ToTimeElapsedString();
+        public override string ToString() => ItemQuantity + " - " + ToTimeElapsedString();
 
         /// <summary>
         /// Retorna uma String no formato "X anos, Y meses e Z dias"
         /// </summary>
-        /// <param name="FullString">Parametro que indica se as horas, minutos e segundos devem ser apresentados caso o tempo seja maior que 1 dia</param>
         /// <returns></returns>
-        public string ToTimeElapsedString()
+        public string ToTimeElapsedString() => this.ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", LongTimeSpanString.FullStringSkipZero);
+
+        /// <summary>
+        /// Retorna uma String no formato "X anos, Y meses e Z dias"
+        /// </summary>
+        /// <returns></returns>
+        public string ToTimeElapsedString(string AndWord, string YearsWord, string MonthsWord, string DaysWord, string HoursWord, string MinutesWord, string SecondsWord, LongTimeSpanString Format = LongTimeSpanString.FullStringSkipZero)
         {
             var data_final = EndDate;
             var data_inicial = StartDate;
             return data_inicial.GetDifference(data_final)
-            .ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", LongTimeSpanString.FullStringSkipZero);
+            .ToTimeElapsedString(AndWord, YearsWord, MonthsWord, DaysWord, HoursWord, MinutesWord, SecondsWord, Format);
         }
 
         /// <summary>
@@ -1064,6 +1305,10 @@ namespace InnerLibs.TimeMachine
         /// <param name="Journey">Jornada de trabalho</param>
         public JourneyDay(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default) => SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
+
+        public bool IsJourney => this.JourneyTime.Milliseconds > 0;
+
+
         /// <summary>
         /// Jornada de Trabalho/Produção
         /// </summary>
@@ -1088,12 +1333,12 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateTime StartHour
         {
-            get => s;
+            get => start_hour;
 
-            set => s = DateTime.MinValue.Add(new TimeSpan(value.TimeOfDay.Ticks));
+            set => start_hour = DateTime.MinValue.Add(new TimeSpan(value.TimeOfDay.Ticks));
         }
 
-        private DateTime s;
+        private DateTime start_hour;
 
         /// <summary>
         /// Hora de almoco
@@ -1101,12 +1346,12 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateTime LunchHour
         {
-            get => a;
+            get => lunch_hour;
 
-            set => a = DateTime.MinValue.Add(new TimeSpan(value.TimeOfDay.Ticks));
+            set => lunch_hour = DateTime.MinValue.Add(new TimeSpan(value.TimeOfDay.Ticks));
         }
 
-        private DateTime a;
+        private DateTime lunch_hour;
 
         /// <summary>
         /// Hora que se encerra a jornada (inclui hora de almoço)
@@ -1120,72 +1365,16 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartHour"></param>
         /// <param name="Journey"></param>
         /// <param name="LunchTime">Horas de Almoço</param>
-        public void SetJourney(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default)
+        public JourneyDay SetJourney(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default)
         {
             this.StartHour = StartHour;
             this.JourneyTime = Journey;
             this.LunchHour = LunchHour == default ? DateTime.MinValue.Date.AddHours(12d) : LunchHour;
             this.LunchTime = LunchTime == default ? new TimeSpan(0, 0, 0) : LunchTime;
+            return this;
         }
     }
 
-    /// <summary>
-    /// Item de Uma demanda
-    /// </summary>
-    public class Item
-    {
-        /// <summary>
-        /// Quantidade de itens
-        /// </summary>
-        /// <returns></returns>
-        public int Quantity
-        {
-            get => q;
-
-            set => q = value.SetMinValue(1);
-        }
-
-        private int q = 1;
-
-        /// <summary>
-        /// Tempo de produção de 1 item
-        /// </summary>
-        /// <returns></returns>
-        public TimeSpan Time { get; set; } = new TimeSpan(0, 1, 0);
-
-        /// <summary>
-        /// Tempo totald e produção de todos os itens
-        /// </summary>
-        /// <returns></returns>
-        public TimeSpan ProductionTime
-        {
-            get
-            {
-                return new TimeSpan(Quantity * Time.Ticks);
-            }
-        }
-
-        /// <summary>
-        /// String que representa o item quando sua quantidade é 1
-        /// </summary>
-        /// <returns></returns>
-        public string SingularItem { get; set; } = "Item";
-
-        /// <summary>
-        /// string que representa o item quando sua quantidade é maior que 1
-        /// </summary>
-        /// <returns></returns>
-        public string MultipleItem { get; set; } = "Items";
-
-        /// <summary>
-        /// Retorna uma string que representa a quantidade do item
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return Quantity + " " + (Quantity == 1 ? SingularItem : MultipleItem);
-        }
-    }
 
 
 

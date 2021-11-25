@@ -560,9 +560,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool ContainsAny<T>(this IEnumerable<T> List1, IEnumerable<T> List2, IEqualityComparer<T> Comparer = null)
         {
-            foreach (T value in List2 ?? Array.Empty<T>())
+            foreach (T value in List2.AsEnumerable() ?? Array.Empty<T>())
             {
-                if (Comparer is null)
+                if (Comparer == null)
                 {
                     if ((List1 ?? Array.Empty<T>()).Contains(value))
                     {

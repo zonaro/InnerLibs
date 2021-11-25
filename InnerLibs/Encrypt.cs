@@ -7,17 +7,17 @@ namespace InnerLibs
 {
 
     /// <summary>
-/// Modulo de Criptografia
-/// </summary>
-/// <remarks></remarks>
+    /// Modulo de Criptografia
+    /// </summary>
+    /// <remarks></remarks>
     public static class Encryption
     {
 
         /// <summary>
-    /// Criptografa um Texto em MD5
-    /// </summary>
-    /// <param name="Text">Texto a ser Criptografado</param>
-    /// <returns>Uma String MD5</returns>
+        /// Criptografa um Texto em MD5
+        /// </summary>
+        /// <param name="Text">Texto a ser Criptografado</param>
+        /// <returns>Uma String MD5</returns>
 
         public static string ToMD5String(this string Text)
         {
@@ -39,11 +39,11 @@ namespace InnerLibs
 
 
         /// <summary>
-    /// Criptografa um string em RSA
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Key"></param>
-    /// <returns></returns>
+        /// Criptografa um string em RSA
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Key"></param>
+        /// <returns></returns>
         public static string EncryptRSA(this string Text, string Key)
         {
             var cspp = new CspParameters() { KeyContainerName = Key };
@@ -54,11 +54,11 @@ namespace InnerLibs
 
 
         /// <summary>
-    /// Descriptografa uma string encriptada em RSA
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Key"></param>
-    /// <returns></returns>
+        /// Descriptografa uma string encriptada em RSA
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Key"></param>
+        /// <returns></returns>
         public static string DecryptRSA(this string Text, string Key)
         {
             var cspp = new CspParameters() { KeyContainerName = Key };
@@ -72,10 +72,10 @@ namespace InnerLibs
 
 
         /// <summary>
-    /// Criptografa uma string
-    /// </summary>
-    /// <param name="Text">Texto descriptografado</param>
-    /// <returns></returns>
+        /// Criptografa uma string
+        /// </summary>
+        /// <param name="Text">Texto descriptografado</param>
+        /// <returns></returns>
         public static string Encrypt(this string Text, string Key = null)
         {
             if (Text.IsNotBlank())
@@ -107,10 +107,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Descriptografa uma string
-    /// </summary>
-    /// <param name="Text">Texto Criptografado</param>
-    /// <returns></returns>
+        /// Descriptografa uma string
+        /// </summary>
+        /// <param name="Text">Texto Criptografado</param>
+        /// <returns></returns>
         public static string Decrypt(this string Text, string Key = null)
         {
             if (Text.IsNotBlank())
@@ -142,10 +142,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Criptografa uma string
-    /// </summary>
-    /// <param name="Text">Texto descriptografado</param>
-    /// <returns></returns>
+        /// Criptografa uma string
+        /// </summary>
+        /// <param name="Text">Texto descriptografado</param>
+        /// <returns></returns>
         public static string Encrypt(this string text, string Key, string IV)
         {
             if (text.IsNotBlank())
@@ -169,10 +169,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-    /// Descriptografa uma string
-    /// </summary>
-    /// <param name="Text">Texto Criptografado</param>
-    /// <returns></returns>
+        /// Descriptografa uma string
+        /// </summary>
+        /// <param name="Text">Texto Criptografado</param>
+        /// <returns></returns>
         public static string Decrypt(this string text, string Key, string IV)
         {
             if (text.IsNotBlank())
@@ -201,7 +201,7 @@ namespace InnerLibs
                         var dest = ddecrypt.TransformFinalBlock(src, 0, src.Length);
                         return new UTF8Encoding(false).GetString(dest);
                     }
-                    catch  
+                    catch
                     {
                     }
                 }
