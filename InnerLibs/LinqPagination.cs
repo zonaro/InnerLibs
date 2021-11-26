@@ -12,6 +12,7 @@ namespace InnerLibs.LINQ
 
         public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> List) => List.Where(x => x != null);
+        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x != null && x.ToString().IsNotBlank());
 
 
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
@@ -1280,8 +1281,12 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
         {
+
             Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
-            var predi = false.CreateWhereExpression<T>();
+            Text = Text?.WhereNotBlank() ?? Array.Empty<string>();
+
+            var predi = (!Text.Any()).CreateWhereExpression<T>();
+
             foreach (var prop in Properties)
             {
                 foreach (var s in Text)
@@ -1295,6 +1300,7 @@ namespace InnerLibs.LINQ
                         predi = predi.Or(lbd);
                     }
                 }
+
             }
 
             return predi;
@@ -1444,7 +1450,7 @@ namespace InnerLibs.LINQ
         /// <param name="SearchTerms">Termos da pesquisa</param>
         /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         /// <returns></returns>
-        public static IOrderedEnumerable<ClassType> Search<ClassType>(this IEnumerable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
+        public static IOrderedEnumerable<ClassType> SearchInOrder<ClassType>(this IEnumerable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
             IOrderedEnumerable<ClassType> SearchRet = default;
             Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
@@ -1472,6 +1478,9 @@ namespace InnerLibs.LINQ
             SearchRet = Table.Where(SearchTerms.SearchExpression(Properties));
             return SearchRet;
         }
+
+        public static IQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, string SearchTerm, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class => Search(Table, new[] { SearchTerm }, Properties);
+
         public static IOrderedQueryable<ClassType> SearchInOrder<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
         {
             var SearchRet = Table.Search(SearchTerms, Properties).OrderBy(x => true);
