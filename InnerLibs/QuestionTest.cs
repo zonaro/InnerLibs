@@ -94,31 +94,16 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Verifica se o peso da prova equivale a soma dos pesos das questões")]
-        public bool IsValid
-        {
-            get
-            {
-                return this.Sum(q => q.Weight) == Weight;
-            }
-        }
+        public bool IsValid => this.Sum(q => q.Weight) == Weight;
 
         /// <summary>
         /// Retorna as questões desta avaliação
         /// </summary>
         /// <returns></returns>
 
-        public QuestionTest Questions
-        {
-            get
-            {
-                return this;
-            }
-        }
+        public QuestionTest Questions => this;
 
-        public override string ToString()
-        {
-            return Title;
-        }
+        public override string ToString() => Title;
 
         /// <summary>
         /// Titulo da Avaliação
@@ -128,15 +113,9 @@ namespace InnerLibs.QuestionTest
         [Description("Título da Avaliação")]
         public string Title
         {
-            get
-            {
-                return _title.ToProperCase();
-            }
+            get => _title.ToProperCase();
 
-            set
-            {
-                _title = value.ToProperCase();
-            }
+            set => _title = value.ToProperCase();
         }
 
         private string _title = "";
@@ -167,7 +146,7 @@ namespace InnerLibs.QuestionTest
             {
                 return (T)this.Where(q => (q.ID.ToLower() ?? "") == (ID.ToLower() ?? "")).First();
             }
-            catch 
+            catch
             {
                 return null;
             }
@@ -184,7 +163,7 @@ namespace InnerLibs.QuestionTest
             {
                 return (Alternative)GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.Where(a => (a.ID.ToLower() ?? "") == (ID.ToLower() ?? ""));
             }
-            catch  
+            catch
             {
                 return null;
             }
@@ -228,13 +207,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo permitido, caso contrário, FALSE")]
-        public bool IsApproved
-        {
-            get
-            {
-                return FinalNote >= MinimumWeightAllowed;
-            }
-        }
+        public bool IsApproved => FinalNote >= MinimumWeightAllowed;
 
         /// <summary>
         /// Numero de questões que o usuário acertou
@@ -242,20 +215,8 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Numero de questões que o usuário acertou")]
-        public int Hits
-        {
-            get
-            {
-                int c = 0;
-                foreach (var q in this)
-                {
-                    if (q.IsCorrect)
-                        c = c + 1;
-                }
+        public int Hits => this.Count(x => x.IsCorrect);
 
-                return c;
-            }
-        }
 
         /// <summary>
         /// Numero de questões que o usuário errou
@@ -263,13 +224,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Numero de questões que o usuário errou")]
-        public int Fails
-        {
-            get
-            {
-                return Count - Hits;
-            }
-        }
+        public int Fails => Count - Hits;
 
         /// <summary>
         /// Média da Avaliação
@@ -283,7 +238,7 @@ namespace InnerLibs.QuestionTest
             {
                 try
                 {
-                    
+
                     int somapesos = 0;
                     int somaquestoes = 0;
                     foreach (var q in this)
@@ -294,7 +249,7 @@ namespace InnerLibs.QuestionTest
 
                     return Weight * somaquestoes / Count;
                 }
-                catch  
+                catch
                 {
                     return 0m;
                 }
@@ -315,13 +270,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Nota final da avaliação (Bonus + Média)")]
-        public decimal FinalNote
-        {
-            get
-            {
-                return Average + Bonus;
-            }
-        }
+        public decimal FinalNote => Average + Bonus;
 
         /// <summary>
         /// Porcentagem de Acertos do Usuário
@@ -329,13 +278,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Porcentagem de acertos da avaliação")]
-        public int HitPercent
-        {
-            get
-            {
-                return (int)Math.Round(Average.CalculatePercent(Weight));
-            }
-        }
+        public decimal HitPercent => Math.Round(Average.CalculatePercent(Weight));
 
         /// <summary>
         /// Porcentagem de Erros do Usuário
@@ -343,22 +286,13 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Porcentagem de erros da avaliação")]
-        public int FailPercent
-        {
-            get
-            {
-                return (int)Math.Round((Weight - Average).CalculatePercent(Weight));
-            }
-        }
+        public decimal FailPercent => Math.Round((Weight - Average).CalculatePercent(Weight));
 
         /// <summary>
         /// Instancia uma nova avaliação com titulo
         /// </summary>
         /// <param name="Title">Titulo da avaliação</param>
-        public QuestionTest(string Title = "New Test")
-        {
-            this.Title = Title;
-        }
+        public QuestionTest(string Title = "New Test") => this.Title = Title;
 
         /// <summary>
         /// Configura o valor minimo permitido para aprovação como metade do peso da avaliação
@@ -366,7 +300,7 @@ namespace InnerLibs.QuestionTest
         /// <param name="Weight">Parametro opcional que altera o valor do peso da avaliação</param>
         public void SetMinimumAllowedAsHalf(decimal Weight = 0m)
         {
-            if (Weight < 1m | Weight == default)
+            if (Weight < 1m || Weight == default)
             {
                 Weight = this.Weight;
             }
@@ -410,13 +344,7 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <returns></returns>
 
-        public QuestionTest Test
-        {
-            get
-            {
-                return _test;
-            }
-        }
+        public QuestionTest Test => _test;
 
         internal QuestionTest _test = new QuestionTest();
 
@@ -463,15 +391,9 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public decimal Weight
         {
-            get
-            {
-                return _weight;
-            }
+            get => _weight;
 
-            set
-            {
-                _weight = value.SetMaxValue(Test.Weight - Test.Where(q => !ReferenceEquals(q, this)).Sum(q => q.Weight));
-            }
+            set => _weight = value.SetMaxValue(Test.Weight - Test.Where(q => !ReferenceEquals(q, this)).Sum(q => q.Weight));
         }
 
         internal decimal _weight = 1m;
@@ -492,10 +414,7 @@ namespace InnerLibs.QuestionTest
         /// Return the statment text for this question
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return Number.ToString() + ") " + Statement.Text;
-        }
+        public override string ToString() => Number.ToString() + ") " + Statement.Text;
 
         /// <summary>
         /// Numero da questão
@@ -541,18 +460,24 @@ namespace InnerLibs.QuestionTest
             this.Statement = Statement;
         }
 
-        public   void Add(Image Image, string Subtitle = "")
+        public void Add(Image Image, string Subtitle = "")
         {
-            var i = new StatementImage(this);
-            i.Image = Image;
-            i.Subtitle = Subtitle;
+            var i = new StatementImage(this)
+            {
+                Image = Image,
+                Subtitle = Subtitle
+            };
+            base.Add(i);
         }
 
-        public   void Add(string ImagePath, string Subtitle = "")
+        public void Add(string ImagePath, string Subtitle = "")
         {
-            var i = new StatementImage(this);
-            i.Image = Image.FromFile(ImagePath);
-            i.Subtitle = Subtitle;
+            var i = new StatementImage(this)
+            {
+                Image = Image.FromFile(ImagePath),
+                Subtitle = Subtitle
+            };
+            base.Add(i);
         }
 
         public override string ToString() => Count.ToString();
@@ -577,15 +502,9 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public string Text
         {
-            get
-            {
-                return _text.FixText();
-            }
+            get => _text.FixText();
 
-            set
-            {
-                _text = value.FixText();
-            }
+            set => _text = value.FixText();
         }
 
         /// <summary>
@@ -594,10 +513,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public StatementImages Images { get; set; }
 
-        public override string ToString()
-        {
-            return Text;
-        }
+        public override string ToString() => Text;
     }
 
     /// <summary>
@@ -678,25 +594,13 @@ namespace InnerLibs.QuestionTest
         /// Pontos multiplicados pelo peso da questão
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits
-        {
-            get
-            {
-                return Answer * Weight;
-            }
-        }
+        public override decimal Hits => Answer * Weight;
 
         /// <summary>
         /// Perguntas numericas sempre estão corretas. Neste caso, o que vale é a resposta multiplicada pelo peso que implica diretamente no peso da avaliação
         /// </summary>
         /// <returns></returns>
-        public override bool IsCorrect
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool IsCorrect => true;
     }
 
     /// <summary>
@@ -716,15 +620,9 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public bool Correct
         {
-            get
-            {
-                return Assertiveness > 0m;
-            }
+            get => Assertiveness > 0m;
 
-            set
-            {
-                Assertiveness = value ? Weight : 0m;
-            }
+            set => Assertiveness = value ? Weight : 0m;
         }
 
         /// <summary>
@@ -737,25 +635,13 @@ namespace InnerLibs.QuestionTest
         /// Verifica se a pergunta está preenchida
         /// </summary>
         /// <returns></returns>
-        public override bool IsCorrect
-        {
-            get
-            {
-                return Correct;
-            }
-        }
+        public override bool IsCorrect => Correct;
 
         /// <summary>
         /// Representa quantos pontos essa questão vale de acordo com a assertividade
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits
-        {
-            get
-            {
-                return Assertiveness;
-            }
-        }
+        public override decimal Hits => Assertiveness;
 
         /// <summary>
         /// Assertividade da questão, uma valor entre 0 e o peso da questão que representa o quanto esta questão está correta
@@ -763,15 +649,9 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public decimal Assertiveness
         {
-            set
-            {
-                ass = value.LimitRange(0, Weight);
-            }
+            set => ass = value.LimitRange(0, Weight);
 
-            get
-            {
-                return ass.LimitRange(0, Weight);
-            }
+            get => ass.LimitRange(0, Weight);
         }
 
         private decimal ass;
@@ -803,25 +683,13 @@ namespace InnerLibs.QuestionTest
         /// Verifica se esta pergunta permite multiplas alternativas
         /// </summary>
         /// <returns></returns>
-        public bool AllowMultiple
-        {
-            get
-            {
-                return ReferenceEquals(GetType(), typeof(MultipleAlternativeQuestion));
-            }
-        }
+        public bool AllowMultiple => this.GetType() == typeof(MultipleAlternativeQuestion);
 
         /// <summary>
         /// Retorna as alternativas marcadas pelo usuário
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Alternative> Answer
-        {
-            get
-            {
-                return Alternatives.Where(p => p.Checked);
-            }
-        }
+        public IEnumerable<Alternative> Answer => Alternatives.Where(p => p.Checked);
     }
 
     /// <summary>
@@ -833,13 +701,7 @@ namespace InnerLibs.QuestionTest
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits
-        {
-            get
-            {
-                return IsCorrect ? Weight : 0m;
-            }
-        }
+        public override decimal Hits => IsCorrect ? Weight : 0m;
 
         /// <summary>
         /// Verifica se a pergunta está corretamente assinalada. Anula a questão automaticamente se estiver mal formada (com mais de uma alternativa correta ou nenhuma alternativa correta)
@@ -851,7 +713,6 @@ namespace InnerLibs.QuestionTest
             {
                 if (IsValidQuestion)
                 {
-                    int total = Alternatives.Count;
                     foreach (var q in Alternatives)
                     {
                         if (!q.IsCorrect)
@@ -869,22 +730,8 @@ namespace InnerLibs.QuestionTest
         /// Verifica se as existe apenas uma unica alternativa correta na questão
         /// </summary>
         /// <returns></returns>
-        public bool IsValidQuestion
-        {
-            get
-            {
-                int c = 0;
-                foreach (var q in Alternatives)
-                {
-                    if (q.Correct)
-                    {
-                        c = c + 1;
-                    }
-                }
+        public bool IsValidQuestion => Alternatives.Count(q => q.Correct) == 1;
 
-                return c == 1;
-            }
-        }
     }
 
     /// <summary>
@@ -927,13 +774,7 @@ namespace InnerLibs.QuestionTest
         /// Verifica se a pergunta está corretamente assinalada
         /// </summary>
         /// <returns></returns>
-        public override bool IsCorrect
-        {
-            get
-            {
-                return Hits > 0m;
-            }
-        }
+        public override bool IsCorrect => Hits > 0m;
     }
 
     /// <summary>
@@ -989,10 +830,7 @@ namespace InnerLibs.QuestionTest
                 Add(alt);
         }
 
-        public override string ToString()
-        {
-            return Count.ToString();
-        }
+        public override string ToString() => Count.ToString();
     }
 
     /// <summary>
@@ -1005,10 +843,7 @@ namespace InnerLibs.QuestionTest
             _question = new SingleAlternativeQuestion();
         }
 
-        public override string ToString()
-        {
-            return Number.ToRoman().Quote('(') + Text;
-        }
+        public override string ToString() => Number.ToRoman().Quote('(') + Text;
 
         /// <summary>
         /// ID da alternativa
@@ -1074,13 +909,7 @@ namespace InnerLibs.QuestionTest
         /// Verifica se a resposta do usuário é correta para esta alternativa
         /// </summary>
         /// <returns></returns>
-        public bool IsCorrect
-        {
-            get
-            {
-                return Checked == Correct;
-            }
-        }
+        public bool IsCorrect => Checked == Correct;
 
         public AlternativeQuestion Question
         {

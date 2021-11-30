@@ -1,6 +1,6 @@
 ﻿using InnerLibs.LINQ;
 using Microsoft.VisualBasic;
- 
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,10 +28,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public IdType GetID(UserType User)
-        {
-            return idgetter(User);
-        }
+        public IdType GetID(UserType User) => idgetter(User);
 
         /// <summary>
         /// Função que será executada quando ocorrer uma entrada no log
@@ -178,7 +175,7 @@ namespace InnerLibs.Online
         {
             get
             {
-                if (_tolerancetime.Ticks > 0L)
+                if (_tolerancetime.Ticks < 0L)
                 {
                     return _tolerancetime.Negate();
                 }
@@ -241,7 +238,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Users"></param>
         /// <returns></returns>
-        public   IEnumerable<OnlineUser<UserType, IdType>> Add(IEnumerable<UserType> Users) => AddMany(Users.ToArray());
+        public IEnumerable<OnlineUser<UserType, IdType>> Add(IEnumerable<UserType> Users) => AddMany(Users.ToArray());
 
         /// <summary>
         /// Adciona varios usuarios a esta lista
@@ -260,7 +257,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public   OnlineUser<UserType, IdType> Add(UserType Obj, bool? Online = default, string Activity = null, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
+        public OnlineUser<UserType, IdType> Add(UserType Obj, bool? Online = default, string Activity = null, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
         {
             if (Obj != null)
             {
@@ -297,47 +294,32 @@ namespace InnerLibs.Online
         /// Verifica se um usuario está nesta lista
         /// </summary>
         /// <returns></returns>
-        public bool ContainsUser(UserType User)
-        {
-            return ContainsKey(GetID(User));
-        }
+        public bool ContainsUser(UserType User) => ContainsKey(GetID(User));
 
         /// <summary>
         /// Retorna todos os <see cref="OnlineUser(Of UserType, IdType)"/> que estão Online no momento
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> OnlineUsers()
-        {
-            return Users().Where(x => x.IsOnline == true);
-        }
+        public IEnumerable<OnlineUser<UserType, IdType>> OnlineUsers() => Users().Where(x => x.IsOnline == true);
 
         /// <summary>
         /// Retorna todos os <see cref="OnlineUser(Of UserType, IdType)"/> que estão Offline
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> OfflineUsers()
-        {
-            return Users().Where(x => x.IsOnline == false);
-        }
+        public IEnumerable<OnlineUser<UserType, IdType>> OfflineUsers() => Users().Where(x => x.IsOnline == false);
 
         /// <summary>
         /// Retorna todos os <see cref="OnlineUser(Of UserType, IdType)"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> Users()
-        {
-            return this.Select(x => x.Value);
-        }
+        public IEnumerable<OnlineUser<UserType, IdType>> Users() => this.Select(x => x.Value);
 
         /// <summary>
         /// Retorna todo os usuarios
         /// </summary>
         /// <param name="IsOnline">True para online, false para offline, null para todos</param>
         /// <returns></returns>
-        public IEnumerable<UserType> GetUsersData(bool? IsOnline = default)
-        {
-            return Users().Where(x => x.IsOnline == (IsOnline ?? x.IsOnline)).Select(x => x.User);
-        }
+        public IEnumerable<UserType> GetUsersData(bool? IsOnline = default) => Users().Where(x => x.IsOnline == (IsOnline ?? x.IsOnline)).Select(x => x.User);
 
         /// <summary>
         /// Remove um usuário desta lista
@@ -345,7 +327,7 @@ namespace InnerLibs.Online
         /// <param name="Obj"></param>
         public void Remove(params UserType[] Obj)
         {
-            Obj  = Obj ?? Array.Empty<UserType>();
+            Obj = Obj ?? Array.Empty<UserType>();
             this.RemoveIfExist(Obj.Select(x => GetID(x)).ToArray());
         }
 
@@ -353,30 +335,21 @@ namespace InnerLibs.Online
         /// Remove um usuário desta lista a partir do ID
         /// </summary>
         /// <param name="ID"></param>
-        public new void Remove(IdType ID)
-        {
-            this.RemoveIfExist(ID);
-        }
+        public new void Remove(IdType ID) => this.RemoveIfExist(ID);
 
         /// <summary>
         /// Seta um usuario como offline e cria uma entrada no log
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> SetOffline(UserType Obj)
-        {
-            return Add(Obj, false, "Offline", null, null, DateTime.Now);
-        }
+        public OnlineUser<UserType, IdType> SetOffline(UserType Obj) => Add(Obj, false, "Offline", null, null, DateTime.Now);
 
         /// <summary>
         /// Seta um usuario como online e atribui uma atividade a ele. Cria entrada no log automaticamente
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> SetOnlineActivity(UserType Obj, string Activity, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
-        {
-            return Add(Obj, true, Activity, Url, LogData, DateTime);
-        }
+        public OnlineUser<UserType, IdType> SetOnlineActivity(UserType Obj, string Activity, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default) => Add(Obj, true, Activity, Url, LogData, DateTime);
 
         /// <summary>
         /// Seta um usuario como online e cria uma entrada no Log
@@ -384,19 +357,14 @@ namespace InnerLibs.Online
         /// <param name="Obj"></param>
         /// <returns></returns>
         public OnlineUser<UserType, IdType> SetOnline(UserType Obj)
-        {
-            return Add(Obj, true, "Online", null, null, DateTime.Now);
-        }
+        => Add(Obj, true, "Online", null, null, DateTime.Now);
 
         /// <summary>
         /// Mantém um usuario online mas não atribui nenhuma nova atividade nem cria entradas no LOG
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> KeepOnline(UserType Obj)
-        {
-            return Add(Obj, true);
-        }
+        public OnlineUser<UserType, IdType> KeepOnline(UserType Obj) => Add(Obj, true);
 
         /// <summary>
         /// Retorna um usuário desta lista a partir do ID
@@ -418,10 +386,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public UserType UserDataById(IdType Key)
-        {
-            return UserById(Key)?.User;
-        }
+        public UserType UserDataById(IdType Key) => UserById(Key)?.User;
 
         /// <summary>
         /// Cria uma entrada no log deste usuário
@@ -429,9 +394,7 @@ namespace InnerLibs.Online
         /// <param name="Logdata"></param>
         /// <returns></returns>
         public UserLogEntry<UserType, IdType> CreateLog(UserType User, string Message, string URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
-        {
-            return Log.CreateLog(User, Message, URL, LogData, DateTime.Now);
-        }
+        => Log.CreateLog(User, Message, URL, LogData, DateTime.Now);
     }
 
     public class UserLog<UserType, IdType> : List<UserLogEntry<UserType, IdType>>
@@ -449,13 +412,7 @@ namespace InnerLibs.Online
             OnlineList = List;
         }
 
-        public IEnumerable<string> IDs
-        {
-            get
-            {
-                return this.Select(x => x.ID);
-            }
-        }
+        public IEnumerable<string> IDs => this.Select(x => x.ID);
 
         /// <summary>
         /// Cria uma entrada no log deste usuário com uma data especifica
@@ -470,7 +427,7 @@ namespace InnerLibs.Online
                 if ((OnlineList[User].LastActivity ?? "") == (Message ?? ""))
                 {
                     var lo = OnlineList[User].LastOnline; // nao cria log para locais repedidos dentro do tempo de N minutos
-                    if (lo.HasValue && lo.Value.Add(OnlineList.ToleranceTime.Negate()) >= DateAndTime == true)
+                    if (lo.HasValue && lo.Value.Add(OnlineList.ToleranceTime) >= DateAndTime == true)
                     {
                         return null;
                     }
@@ -533,10 +490,7 @@ namespace InnerLibs.Online
         /// Usuário
         /// </summary>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> GetUser()
-        {
-            return list.UserById(UserID);
-        }
+        public OnlineUser<UserType, IdType> GetUser() => list.UserById(UserID);
 
         /// <summary>
         /// ID do Usuário
@@ -554,13 +508,7 @@ namespace InnerLibs.Online
         /// ID desta entrada
         /// </summary>
         /// <returns></returns>
-        public string ID
-        {
-            get
-            {
-                return new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.JoinString("");
-            }
-        }
+        public string ID => new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.JoinString("");
     }
 
     /// <summary>
@@ -572,10 +520,7 @@ namespace InnerLibs.Online
         where UserType : class
         where IdType : struct
     {
-        public override string ToString()
-        {
-            return User.ToString();
-        }
+        public override string ToString() => User.ToString();
 
         internal OnlineList<UserType, IdType> OnlineList;
 
@@ -591,34 +536,19 @@ namespace InnerLibs.Online
         /// <param name="ToUser"></param>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public UserConversation<UserType, IdType> SendMessage(UserType ToUser, string Message)
-        {
-            return OnlineList.Chat.Send(User, ToUser, Message);
-        }
+        public UserConversation<UserType, IdType> SendMessage(UserType ToUser, string Message) => OnlineList.Chat.Send(User, ToUser, Message);
 
         /// <summary>
         /// ID deste usuário
         /// </summary>
         /// <returns></returns>
-        public IdType ID
-        {
-            get
-            {
-                return OnlineList.GetID(User);
-            }
-        }
+        public IdType ID => OnlineList.GetID(User);
 
         /// <summary>
         /// Indica se o usuario está online ou não
         /// </summary>
         /// <returns></returns>
-        public bool IsOnline
-        {
-            get
-            {
-                return OnlineList.ContainsUser(User) && LastOnline.HasValue && LastOnline >= DateTime.Now.Add(OnlineList.ToleranceTime) == true;
-            }
-        }
+        public bool IsOnline => OnlineList.ContainsUser(User) && LastOnline.HasValue && LastOnline >= DateTime.Now.Add(OnlineList.ToleranceTime.Negate()) == true;
 
         /// <summary>
         /// Informações relacionadas do usuário do tipo <typeparamref name="UserType"/>
@@ -631,11 +561,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <returns></returns>
         public IEnumerable<UserLogEntry<UserType, IdType>> LogEntries()
-        {
-            return OnlineList?.Log?
-                .Where(x => x.UserID.Equals(ID))
-                .OrderByDescending(x => x.DateTime).AsEnumerable() ?? new List<UserLogEntry<UserType, IdType>>().AsEnumerable();
-        }
+        => OnlineList?.Log?.Where(x => x.UserID.Equals(ID)).OrderByDescending(x => x.DateTime).AsEnumerable() ?? new List<UserLogEntry<UserType, IdType>>().AsEnumerable();
 
         /// <summary>
         /// Ultima atividade do usuário
@@ -643,62 +569,35 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public string LastActivity
         {
-            get
-            {
-                return LogEntries().FirstOrDefault()?.Message.IfBlank("Offline");
-            }
+            get => LogEntries().FirstOrDefault()?.Message.IfBlank("Offline");
 
-            set
-            {
-                OnlineList.CreateLog(User, value);
-            }
+            set => OnlineList.CreateLog(User, value);
         }
 
         /// <summary>
         /// Ultima vez que o usuário esteve Online
         /// </summary>
         /// <returns></returns>
-        public DateTime? LastOnline
-        {
-            get
-            {
-                return LogEntries().FirstOrDefault()?.DateTime;
-            }
-        }
+        public DateTime? LastOnline => LogEntries().FirstOrDefault()?.DateTime;
 
         /// <summary>
         /// Ultima URL/caminho que o usuário acessou
         /// </summary>
         /// <returns></returns>
-        public string LastUrl
-        {
-            get
-            {
-                return LogEntries().Where(x => x.URL.IsNotBlank()).FirstOrDefault()?.URL;
-            }
-        }
+        public string LastUrl => LogEntries().Where(x => x.URL.IsNotBlank()).FirstOrDefault()?.URL;
 
         /// <summary>
         /// Conversas deste usuário
         /// </summary>
         /// <returns></returns>
-        public UserConversation<UserType, IdType>[] Conversations
-        {
-            get
-            {
-                return GetConversations();
-            }
-        }
+        public UserConversation<UserType, IdType>[] Conversations => GetConversations();
 
         /// <summary>
         /// Retorna uma lista de conversas com um usuario específico ou todas
         /// </summary>
         /// <param name="WithUser"></param>
         /// <returns></returns>
-        public UserConversation<UserType, IdType>[] GetConversations(UserType WithUser = null)
-        {
-            return (UserConversation<UserType, IdType>[])OnlineList.Chat.GetConversation(User, WithUser);
-        }
+        public UserConversation<UserType, IdType>[] GetConversations(UserType WithUser = null) => (UserConversation<UserType, IdType>[])OnlineList.Chat.GetConversation(User, WithUser);
     }
 
     /// <summary>
@@ -723,13 +622,7 @@ namespace InnerLibs.Online
 
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
 
-        public IEnumerable<string> IDs
-        {
-            get
-            {
-                return this.Select(x => x.ID);
-            }
-        }
+        public IEnumerable<string> IDs => this.Select(x => x.ID);
 
         /// <summary>
         /// Retorna uma conversa entre 2 usuários
@@ -782,7 +675,7 @@ namespace InnerLibs.Online
     }
 
     /// <summary>
-    /// Mensagen do chat do usuário
+    /// Mensagem do chat do usuário
     /// </summary>
     /// <typeparam name="UserType"></typeparam>
     /// <typeparam name="IdType"></typeparam>
@@ -805,13 +698,7 @@ namespace InnerLibs.Online
         /// Id desta mensagem
         /// </summary>
         /// <returns></returns>
-        public string ID
-        {
-            get
-            {
-                return new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.JoinString("");
-            }
-        }
+        public string ID => new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.JoinString("");
 
         /// <summary>
         /// Inndica se esta conversa foi visualizada
@@ -819,10 +706,7 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public bool Viewed
         {
-            get
-            {
-                return ViewedDate.HasValue && ViewedDate <= DateTime.Now == true;
-            }
+            get => ViewedDate.HasValue && ViewedDate <= DateTime.Now == true;
 
             set
             {
@@ -841,10 +725,7 @@ namespace InnerLibs.Online
         /// Usuario Emissor
         /// </summary>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> FromUser()
-        {
-            return chatlist.ChatList.UserById(FromUserID);
-        }
+        public OnlineUser<UserType, IdType> FromUser() => chatlist.ChatList.UserById(FromUserID);
 
         /// <summary>
         /// Id do usuário emissor
@@ -874,10 +755,7 @@ namespace InnerLibs.Online
         /// Usuario destinatário
         /// </summary>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> ToUser()
-        {
-            return chatlist.ChatList.UserById(ToUserID);
-        }
+        public OnlineUser<UserType, IdType> ToUser() => chatlist.ChatList.UserById(ToUserID);
 
         /// <summary>
         /// Data de visualização da mensagem
@@ -930,20 +808,14 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public bool IsFrom(UserType User)
-        {
-            return chatlist.ChatList.GetID(User).Equals(FromUserID);
-        }
+        public bool IsFrom(UserType User) => chatlist.ChatList.GetID(User).Equals(FromUserID);
 
         /// <summary>
         /// Retorna true se a mensagem for para <paramref name="User"/>
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public bool IsTo(UserType User)
-        {
-            return chatlist.ChatList.GetID(User).Equals(ToUserID);
-        }
+        public bool IsTo(UserType User) => chatlist.ChatList.GetID(User).Equals(ToUserID);
     }
 
     public class UserConversationBackup
