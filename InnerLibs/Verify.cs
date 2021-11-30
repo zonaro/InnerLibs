@@ -578,8 +578,8 @@ namespace InnerLibs
         /// <param name="TestValue">Outro Objeto</param>
         /// <returns></returns>
         public static T NullIf<T>(this T Value, T TestValue) where T : class
-        {
-            if (Value.Equals(TestValue)) return null;
+        {           
+            if (Value != null && Value.Equals(TestValue)) return null;
             return Value;
         }
 

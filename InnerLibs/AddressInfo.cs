@@ -445,26 +445,7 @@ namespace InnerLibs.Locations
 
             return ToString();
         }
-
-        /// <summary>
-        /// Retorna uma string com as partes dos endereço especificas
-        /// </summary>
-        /// <param name="Parts"></param>
-        /// <returns></returns>
-        public string ToString(params AddressPart[] Parts)
-        {
-            return ToString(Parts.AsEnumerable());
-        }
-
-        /// <summary>
-        /// Retorna uma string com as partes dos endereço especificas pelo codigo da formataçao
-        /// </summary>
-        /// <param name="FormatCode"></param>
-        /// <returns></returns>
-        public string ToString(int FormatCode)
-        {
-            return ToString((AddressPart)Convert.ToInt32(FormatCode));
-        }
+         
 
         /// <summary>
         /// Retorna uma string com as partes dos endereço especificas

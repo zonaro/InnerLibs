@@ -9,8 +9,8 @@ namespace InnerLibs
 {
 
     /// <summary>
-/// Um objeto vCard
-/// </summary>
+    /// Um objeto vCard
+    /// </summary>
     public class vCard
     {
         private List<vSocial> _Social;
@@ -409,7 +409,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString().ToUpper()}:;;{ToString(AddressPart.FullLocationInfo, AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
+            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString().ToUpper()}:;;{ToString(AddressPart.FullLocationInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
             if (AddressLabel.IsNotBlank())
             {
                 result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpper()};{AddressType.ToString().ToUpper()}:{AddressLabel.Replace(Environment.NewLine, "=0D=0A")}");

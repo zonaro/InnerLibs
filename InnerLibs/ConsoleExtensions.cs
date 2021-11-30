@@ -67,7 +67,7 @@ namespace InnerLibs.Console
         {
             var lastcolor = System.Console.ForegroundColor;
             System.Console.ForegroundColor = Color;
-            System.Console.Write(Text);
+            System.Console.Write(Text ?? "");
             System.Console.ForegroundColor = lastcolor;
             ConsoleBreakLine(BreakLines);
             return Text;
