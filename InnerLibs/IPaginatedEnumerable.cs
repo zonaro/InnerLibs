@@ -53,7 +53,29 @@ namespace InnerLibs.LINQ
         /// Numero da pagina
         /// </summary>
         /// <returns></returns>
-        public int PageNumber { get; set; } = 1;
+        public int PageNumber
+        {
+            get { return pgnumber; }
+            set
+            {
+
+                if (value < 1)
+                {
+                    pgnumber = LastPage + value;
+                }
+                else if (value > LastPage)
+                {
+                    pgnumber = (value - LastPage);
+                }
+                else
+                {
+                    pgnumber = value;
+                }
+
+            }
+        }
+
+        private int pgnumber = 1;
 
         /// <summary>
         /// Filtros
@@ -383,6 +405,11 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
+        /// Quantidade de botões de paginacao exibidos após a pagina atual e anterior a página atual
+        /// </summary>
+        public int VisibleButtonRange { get; set; } = 2;
+
+        /// <summary>
         /// Numero da ultima pagina
         /// </summary>
         /// <returns></returns>
@@ -431,6 +458,35 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
+        /// Pula um determinado numero de páginas a partir da pagina atual
+        /// </summary>
+        /// <param name="Quantity"></param>
+        /// <returns></returns>
+        public int JumpPages(int Quantity)
+        {
+            while (true)
+            {
+                if (Quantity < 0)
+                {
+                    PageNumber = PageNumber - 1; 
+                    Quantity = Quantity + 1;
+
+                }
+                else
+
+                if (Quantity > 0)
+                {
+                    PageNumber = PageNumber + 1;                   
+                    Quantity = Quantity - 1;
+                }
+                else
+                {
+                    return PageNumber;
+                }
+            }
+        }
+
+        /// <summary>
         /// Retorna true se esta pagina é a primeira
         /// </summary>
         /// <returns></returns>
@@ -452,13 +508,13 @@ namespace InnerLibs.LINQ
         /// Retorna true se o botão de primeira página for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsFirstPageNecessary => !ContainsPage(FirstPage, FirstPage + 1);
+        public bool IsFirstPageNecessary => !ContainsPage(FirstPage, FirstPage + 1) || (PageNumber - VisibleButtonRange) == 2;
 
         /// <summary>
         /// Retorna true se o botão de ultima página for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsLastPageNecessary => !ContainsPage(LastPage, LastPage - 1);
+        public bool IsLastPageNecessary => !ContainsPage(LastPage, LastPage - 1) || (PageNumber + VisibleButtonRange) == (PageCount - 1);
 
         /// <summary>
         /// Retorna true se o botão de pagina anterior for necessário
@@ -562,25 +618,19 @@ namespace InnerLibs.LINQ
         /// Indica se o primeiro botão de reticencias é necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsFirstTraillingNecessary => !ContainsPage(FirstPage, FirstPage + 2);
+        public bool IsFirstTraillingNecessary => (PageNumber - VisibleButtonRange) > 2;
 
         /// <summary>
         /// Indica se o ultimo botão de reticencias é necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsLastTraillingNecessary => !ContainsPage(LastPage, LastPage - 2);
+        public bool IsLastTraillingNecessary => (PageNumber + VisibleButtonRange) < LastPage - 1;
 
         /// <summary>
         /// Botões de paginação
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> PageButtons
-        {
-            get
-            {
-                return CreatePaginationButtons();
-            }
-        }
+        public IEnumerable<string> PageButtons => CreatePaginationButtons();
 
         /// <summary>
         /// Cria uma lista de strings utilizadas nos botões de paginação

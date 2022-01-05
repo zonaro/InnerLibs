@@ -2029,7 +2029,7 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                return Regex.Replace(Text, "<.*?>", string.Empty).HtmlDecode();
+                return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>"), "<.*?>", string.Empty).HtmlDecode();
             }
 
             return "";
@@ -2455,7 +2455,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Corta un texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
+        /// Corta um texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
         /// </summary>
         /// <param name="Text"></param>
         /// <param name="TextLength"></param>
@@ -2469,7 +2469,7 @@ namespace InnerLibs
             }
             else
             {
-                Text = Text.GetBefore(Environment.NewLine);
+                Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
                 return Text.GetFirstChars(TextLength) + Ellipsis;
             }
         }
