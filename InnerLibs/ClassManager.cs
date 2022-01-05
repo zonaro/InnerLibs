@@ -457,10 +457,8 @@ namespace InnerLibs
             }
             else
             {
-                BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
-            }
-
-            return default;
+               return BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
+            }          
         }
 
         /// <summary>
@@ -471,10 +469,7 @@ namespace InnerLibs
         /// <param name="TrueValue"> Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
-        public static T AsIf<T>(this bool Bool, T TrueValue, T FalseValue = default)
-        {
-            return Bool ? TrueValue : FalseValue;
-        }
+        public static T AsIf<T>(this bool Bool, T TrueValue, T FalseValue = default) => Bool ? TrueValue : FalseValue;
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -484,17 +479,8 @@ namespace InnerLibs
         /// <param name="TrueValue"> Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
-        public static T AsIf<T>(this bool? Bool, T TrueValue, T FalseValue = default)
-        {
-            if (Bool.HasValue)
-            {
-                return Bool.Value.AsIf(TrueValue, FalseValue);
-            }
-            else
-            {
-                return FalseValue;
-            }
-        }
+        public static T AsIf<T>(this bool? Bool, T TrueValue, T FalseValue = default) => (Bool.HasValue && Bool.Value).AsIf(TrueValue, FalseValue);
+
 
         /// <summary>
         /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que
