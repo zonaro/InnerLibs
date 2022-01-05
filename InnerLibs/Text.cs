@@ -315,6 +315,7 @@ namespace InnerLibs
             return Text;
         }
 
+        public static IEnumerable<string> AdjustBlankSpaces(this IEnumerable<string> Texts) => Texts.AdjustWhiteSpaces();
         public static string AdjustBlankSpaces(this string Text) => Text.AdjustWhiteSpaces();
 
         public static string AdjustWhiteSpaces(this string Text)
@@ -362,6 +363,9 @@ namespace InnerLibs
 
             return Text.TrimAny(" ", Environment.NewLine);
         }
+
+
+        public static IEnumerable<string> AdjustWhiteSpaces(this IEnumerable<string> Texts) => Texts?.Select(s => s.AdjustWhiteSpaces());
 
         /// <summary>
         /// Retorna uma string em ordem afabética baseada em uma outra string
