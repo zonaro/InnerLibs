@@ -2461,7 +2461,7 @@ namespace InnerLibs
         /// <param name="TextLength"></param>
         /// <param name="Ellipsis"></param>
         /// <returns></returns>
-        public static string Slice(this string Text, int TextLength = 0, string Ellipsis = "...")
+        public static string Slice(this string Text, int TextLength = 0, string Ellipsis = "...", bool TrimCarriage = false)
         {
             if (Text.IsBlank() || Text.Length <= TextLength || TextLength < 1)
             {
@@ -2469,8 +2469,9 @@ namespace InnerLibs
             }
             else
             {
-                Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
-                return Text.GetFirstChars(TextLength) + Ellipsis;
+                if (TrimCarriage)
+                    Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
+                return $"{Text.GetFirstChars(TextLength)}{Ellipsis}";
             }
         }
 
