@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 
-
 namespace InnerLibs.LINQ
 {
     /// <summary>
@@ -39,15 +38,7 @@ namespace InnerLibs.LINQ
         internal List<PropertyFilter<ClassType, RemapType>> _filters = new List<PropertyFilter<ClassType, RemapType>>();
         internal ParameterExpression param = LINQExtensions.GenerateParameterExpression<ClassType>();
 
-        /// <summary>
-        /// Força o <see cref="IQueryable"/> a executar (sem paginação)
-        /// </summary>
-        /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Compute()
-        {
-            Data = Data.ToList().AsEnumerable();
-            return this;
-        }
+
 
         /// <summary>
         /// Numero da pagina
@@ -58,7 +49,6 @@ namespace InnerLibs.LINQ
             get { return pgnumber; }
             set
             {
-
                 if (value < 1)
                 {
                     pgnumber = LastPage + value;
@@ -71,7 +61,6 @@ namespace InnerLibs.LINQ
                 {
                     pgnumber = value;
                 }
-
             }
         }
 
@@ -81,25 +70,13 @@ namespace InnerLibs.LINQ
         /// Filtros
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<PropertyFilter<ClassType, RemapType>> Filters
-        {
-            get
-            {
-                return _filters;
-            }
-        }
+        public IEnumerable<PropertyFilter<ClassType, RemapType>> Filters => _filters;
 
         /// <summary>
         /// Parametro utilizado na contrução da expressão lambda
         /// </summary>
         /// <returns></returns>
-        public ParameterExpression Parameter
-        {
-            get
-            {
-                return param;
-            }
-        }
+        public ParameterExpression Parameter => param;
 
         /// <summary>
         /// Expressão binária contendo todos os filtros
@@ -133,41 +110,6 @@ namespace InnerLibs.LINQ
             }
         }
 
-        /// <summary>
-        /// Cria uma querystring com os filtros ativos
-        /// </summary>
-        /// <returns></returns>
-        public string GetFilterQueryString(bool ForceEnabled = false)
-        {
-            return Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()).JoinString("&");
-        }
-
-        /// <summary>
-        /// Cria uma querystring com  paginacao e os filtros ativos
-        /// </summary>
-        /// <returns></returns>
-        public string CreateQueryString(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            var l = new List<string>();
-            l.Add(GetFilterQueryString(ForceEnabled));
-            l.Add(GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset));
-            return l.Where(x => x.IsNotBlank()).JoinString("&");
-        }
-
-        /// <summary>
-        /// Seta os parametros utilizados na querystring para a paginação
-        /// </summary>
-        /// <param name="PageNumber"></param>
-        /// <param name="PageSize"></param>
-        /// <param name="PaginationOffset"></param>
-        /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> SetPaginationQueryParameters(string PageNumber, string PageSize, string PaginationOffset)
-        {
-            PageNumberQueryParameter = PageNumber.IfBlank(nameof(this.PageNumber));
-            PageSizeQueryParameter = PageSize.IfBlank(nameof(this.PageSize));
-            PaginationOffsetQueryParameter = PaginationOffset.IfBlank(nameof(this.PaginationOffset));
-            return this;
-        }
 
         private string pnp, psp, pop;
 
@@ -201,116 +143,13 @@ namespace InnerLibs.LINQ
         {
             get
             {
-                return pop.IfBlank(nameof(PageSize));
+                return pop.IfBlank(nameof(PaginationOffset));
             }
 
             set
             {
                 pop = value;
             }
-        }
-
-        /// <summary>
-        /// Retorna a parte da querystring usada para paginacao
-        /// </summary>
-        /// <param name="PageNumber"></param>
-        /// <returns></returns>
-        public string GetPaginationQueryString(int? PageNumber = default, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            PageNumber = PageNumber ?? this.PageNumber;
-            if (PageNumber > 0 == true)
-            {
-                var l = new List<string>();
-                if (PageNumber > 1 == true)
-                    l.Add($"{PageNumberQueryParameter}={PageNumber}");
-                if (IncludePageSize)
-                    l.Add($"{PageSizeQueryParameter}={PageSize}");
-                if (IncludePaginationOffset)
-                    l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}");
-                return l.JoinString("&");
-            }
-
-            return "";
-        }
-
-        public NameValueCollection ToNameValueCollection(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            return CreateQueryString(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ParseQueryString();
-        }
-
-        public Dictionary<string, object> ToDictionary(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            return ToNameValueCollection(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ToDictionary();
-        }
-
-        /// <summary>
-        /// Retorna uma QueryString que representa este filtro
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return CreateQueryString().ToString();
-        }
-
-        /// <summary>
-        /// Cria uma Url com a query string deste filtro
-        /// </summary>
-        /// <param name="Url"></param>
-        /// <param name="PageNumber"></param>
-        /// <param name="ForceEnabled"></param>
-        /// <param name="IncludePageSize"></param>
-        /// <param name="IncludePaginationOffset"></param>
-        /// <returns></returns>
-        public string CreateUrl(string Url, int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            string qs = CreateQueryString(PageNumber ?? this.PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset);
-            if (Url.IsURL())
-            {
-                var u = new Uri(Url);
-                Url = u.GetLeftPart(UriPartial.Path);
-                qs = new[] { u.Query, qs }.JoinString("&");
-            }
-
-            return Url + "?" + qs;
-        }
-
-        /// <summary>
-        /// Cria uma url a partir de um pattern de Url e concatena a query string
-        /// </summary>
-        /// <param name="UrlPattern"></param>
-        /// <param name="ForceEnabled"></param>
-        /// <returns></returns>
-        public string CreateUrlFromPattern(string UrlPattern, int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            var parametros = UrlPattern.GetAllBetween("{", "}").Select(x => x.GetBefore(":"));
-            var dic = ToDictionary(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset);
-            UrlPattern = UrlPattern.ReplaceUrlParameters(dic);
-            string querystring = "";
-            foreach (var q in dic)
-            {
-                var v = Converter.ForceArray<string>(q.Value).ToList();
-                if (v.Any())
-                {
-                    if (parametros.Contains(q.Key, StringComparer.InvariantCultureIgnoreCase))
-                    {
-                        UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(""));
-                        v.RemoveAt(0);
-                    }
-
-                    if (v.Any())
-                    {
-                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).JoinString("&");
-                    }
-                }
-            }
-
-            if (querystring.IsNotBlank())
-            {
-                UrlPattern = UrlPattern + "?" + querystring;
-            }
-
-            UrlPattern = UrlPattern.RemoveUrlParameters();
-            return UrlPattern;
         }
 
         /// <summary>
@@ -407,7 +246,7 @@ namespace InnerLibs.LINQ
         /// <summary>
         /// Quantidade de botões de paginacao exibidos após a pagina atual e anterior a página atual
         /// </summary>
-        public int VisibleButtonRange { get; set; } = 2;
+        public int PaginationOffset { get; set; } = 2;
 
         /// <summary>
         /// Numero da ultima pagina
@@ -429,13 +268,14 @@ namespace InnerLibs.LINQ
         {
             get
             {
-                int pp = PageNumber + 1;
-                if (pp > LastPage)
-                {
-                    pp = FirstPage;
-                }
 
-                return pp;
+                var pg = PageNumber + 1;
+
+                if (pg > LastPage)
+                {
+                    pg = FirstPage;
+                }
+                return pg;
             }
         }
 
@@ -447,42 +287,14 @@ namespace InnerLibs.LINQ
         {
             get
             {
-                int pp = PageNumber - 1;
-                if (pp < 1)
-                {
-                    pp = LastPage;
-                }
 
-                return pp;
-            }
-        }
+                var pg = PageNumber - 1;
 
-        /// <summary>
-        /// Pula um determinado numero de páginas a partir da pagina atual
-        /// </summary>
-        /// <param name="Quantity"></param>
-        /// <returns></returns>
-        public int JumpPages(int Quantity)
-        {
-            while (true)
-            {
-                if (Quantity < 0)
+                if (pg < 1)
                 {
-                    PageNumber = PageNumber - 1; 
-                    Quantity = Quantity + 1;
-
+                    pg = LastPage;
                 }
-                else
-
-                if (Quantity > 0)
-                {
-                    PageNumber = PageNumber + 1;                   
-                    Quantity = Quantity - 1;
-                }
-                else
-                {
-                    return PageNumber;
-                }
+                return pg;
             }
         }
 
@@ -508,13 +320,13 @@ namespace InnerLibs.LINQ
         /// Retorna true se o botão de primeira página for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsFirstPageNecessary => !ContainsPage(FirstPage, FirstPage + 1) || (PageNumber - VisibleButtonRange) == 2;
+        public bool IsFirstPageNecessary => !ContainsPage(FirstPage, FirstPage + 1) || (PageNumber - PaginationOffset) == 2;
 
         /// <summary>
         /// Retorna true se o botão de ultima página for necessário
         /// </summary>
         /// <returns></returns>
-        public bool IsLastPageNecessary => !ContainsPage(LastPage, LastPage - 1) || (PageNumber + VisibleButtonRange) == (PageCount - 1);
+        public bool IsLastPageNecessary => !ContainsPage(LastPage, LastPage - 1) || (PageNumber + PaginationOffset) == (PageCount - 1);
 
         /// <summary>
         /// Retorna true se o botão de pagina anterior for necessário
@@ -562,12 +374,6 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Quantidade média de "botões de paginação" contidas no <see cref="PageRange"/>
-        /// </summary>
-        /// <returns></returns>
-        public int PaginationOffset { get; set; } = 3;
-
-        /// <summary>
         /// Retorna um range de páginas a partir da pagina atual
         /// </summary>
         /// <returns></returns>
@@ -579,9 +385,8 @@ namespace InnerLibs.LINQ
                 int lrange = 1;
                 if (PageCount > 1)
                 {
-                    double midrange = Math.Ceiling(PaginationOffset / 2d);
-                    frange = (int)Math.Round(new[] { PageNumber - midrange, 1d }.Max());
-                    lrange = (int)Math.Round(new[] { PageNumber + midrange, PageCount }.Min());
+                    frange = new[] { PageNumber - PaginationOffset, FirstPage }.Max();
+                    lrange = new[] { PageNumber + PaginationOffset, LastPage }.Min();
                 }
 
                 var arr = new List<int>();
@@ -592,13 +397,211 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
+        /// Indica se o primeiro botão de reticencias é necessário
+        /// </summary>
+        /// <returns></returns>
+        public bool IsFirstTraillingNecessary => IsFirstPageNecessary && (PageNumber - PaginationOffset) > 2;
+
+        /// <summary>
+        /// Indica se o ultimo botão de reticencias é necessário
+        /// </summary>
+        /// <returns></returns>
+        public bool IsLastTraillingNecessary => IsLastPageNecessary && (PageNumber + PaginationOffset) < LastPage - 1;
+
+        /// <summary>
+        /// Botões de paginação
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> PageButtons => CreatePaginationButtons();
+
+        /// <summary>
+        /// Expressões adicionadas a clausula where junto com os filtros
+        /// </summary>
+        /// <returns></returns>
+        public List<Expression<Func<ClassType, bool>>> WhereFilters { get; set; } = new List<Expression<Func<ClassType, bool>>>();
+
+        /// <summary>
+        /// Força o <see cref="IQueryable"/> a executar (sem paginação)
+        /// </summary>
+        /// <returns></returns>
+        public PaginationFilter<ClassType, RemapType> Compute()
+        {
+            Data = Data.ToList().AsEnumerable();
+            return this;
+        }
+
+        /// <summary>
+        /// Cria uma querystring com os filtros ativos
+        /// </summary>
+        /// <returns></returns>
+        public string GetFilterQueryString(bool ForceEnabled = false)
+        {
+            return Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()).JoinString("&");
+        }
+
+        /// <summary>
+        /// Cria uma querystring com  paginacao e os filtros ativos
+        /// </summary>
+        /// <returns></returns>
+        public string CreateQueryString(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
+        {
+            var l = new List<string>();
+            l.Add(GetFilterQueryString(ForceEnabled));
+            l.Add(GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset));
+            return l.Where(x => x.IsNotBlank()).JoinString("&");
+        }
+
+        /// <summary>
+        /// Seta os parametros utilizados na querystring para a paginação
+        /// </summary>
+        /// <param name="PageNumber"></param>
+        /// <param name="PageSize"></param>
+        /// <param name="PaginationOffset"></param>
+        /// <returns></returns>
+        public PaginationFilter<ClassType, RemapType> SetPaginationQueryParameters(string PageNumber, string PageSize, string PaginationOffset)
+        {
+            PageNumberQueryParameter = PageNumber.IfBlank(nameof(this.PageNumber));
+            PageSizeQueryParameter = PageSize.IfBlank(nameof(this.PageSize));
+            PaginationOffsetQueryParameter = PaginationOffset.IfBlank(nameof(this.PaginationOffset));
+            return this;
+        }
+
+        /// <summary>
+        /// Retorna a parte da querystring usada para paginacao
+        /// </summary>
+        /// <param name="PageNumber"></param>
+        /// <returns></returns>
+        public string GetPaginationQueryString(int? PageNumber = default, bool IncludePageSize = false, bool IncludePaginationOffset = false)
+        {
+            PageNumber = (PageNumber ?? this.PageNumber).LimitRange(FirstPage, LastPage);
+            if (PageNumber > 0)
+            {
+                var l = new List<string>();
+                if (PageNumber > 1)
+                    l.Add($"{PageNumberQueryParameter}={PageNumber}");
+                if (IncludePageSize)
+                    l.Add($"{PageSizeQueryParameter}={PageSize}");
+                if (IncludePaginationOffset)
+                    l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}");
+                return l.JoinString("&");
+            }
+
+            return "";
+        }
+
+        public NameValueCollection ToNameValueCollection(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
+        {
+            return CreateQueryString(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ParseQueryString();
+        }
+
+        public Dictionary<string, object> ToDictionary(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
+        {
+            return ToNameValueCollection(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ToDictionary();
+        }
+
+        /// <summary>
+        /// Retorna uma QueryString que representa este filtro
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return CreateQueryString().ToString();
+        }
+
+        /// <summary>
+        /// Cria uma Url com a query string deste filtro
+        /// </summary>
+        /// <param name="Url"></param>
+        /// <param name="PageNumber"></param>
+        /// <param name="ForceEnabled"></param>
+        /// <param name="IncludePageSize"></param>
+        /// <param name="IncludePaginationOffset"></param>
+        /// <returns></returns>
+        public string CreateUrl(string Url, int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
+        {
+            string qs = CreateQueryString(PageNumber ?? this.PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset);
+            if (Url.IsURL())
+            {
+                var u = new Uri(Url);
+                Url = u.GetLeftPart(UriPartial.Path);
+                qs = new[] { u.Query, qs }.JoinString("&");
+            }
+
+            return Url + "?" + qs;
+        }
+
+        /// <summary>
+        /// Cria uma url a partir de um pattern de Url e concatena a query string
+        /// </summary>
+        /// <param name="UrlPattern"></param>
+        /// <param name="ForceEnabled"></param>
+        /// <returns></returns>
+        public string CreateUrlFromPattern(string UrlPattern, int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
+        {
+            var parametros = UrlPattern.GetAllBetween("{", "}").Select(x => x.GetBefore(":"));
+            var dic = ToDictionary(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset);
+            UrlPattern = UrlPattern.ReplaceUrlParameters(dic);
+            string querystring = "";
+            foreach (var q in dic)
+            {
+                var v = Converter.ForceArray<string>(q.Value).ToList();
+                if (v.Any())
+                {
+                    if (parametros.Contains(q.Key, StringComparer.InvariantCultureIgnoreCase))
+                    {
+                        UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(""));
+                        v.RemoveAt(0);
+                    }
+
+                    if (v.Any())
+                    {
+                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).JoinString("&");
+                    }
+                }
+            }
+
+            if (querystring.IsNotBlank())
+            {
+                UrlPattern = UrlPattern + "?" + querystring;
+            }
+
+            UrlPattern = UrlPattern.RemoveUrlParameters();
+            return UrlPattern;
+        }
+
+        /// <summary>
+        /// Pula um determinado numero de páginas a partir da pagina atual
+        /// </summary>
+        /// <param name="Quantity"></param>
+        /// <returns></returns>
+        public int JumpPages(int Quantity)
+        {
+            while (true)
+            {
+                if (Quantity < 0)
+                {
+                    PageNumber = PageNumber - 1;
+                    Quantity = Quantity + 1;
+                }
+                else
+
+                if (Quantity > 0)
+                {
+                    PageNumber = PageNumber + 1;
+                    Quantity = Quantity - 1;
+                }
+                else
+                {
+                    return PageNumber;
+                }
+            }
+        }
+
+        /// <summary>
         /// Quantidade de botões de paginação
         /// </summary>
         /// <returns></returns>
-        public int ButtonCount(string Trailling = "...")
-        {
-            return CreatePaginationButtons(Convert.ToString(Trailling)).Count();
-        }
+        public int ButtonCount(string Trailling = "...") => CreatePaginationButtons(Trailling).Count();
 
         /// <summary>
         /// Verifica se o <see cref="PageRange"/> contém algumas páginas especificas
@@ -613,24 +616,6 @@ namespace InnerLibs.LINQ
         /// <param name="PageNumbers"></param>
         /// <returns></returns>
         public bool ContainsPage(params int[] PageNumbers) => ContainsPage((PageNumbers ?? Array.Empty<int>()).AsEnumerable());
-
-        /// <summary>
-        /// Indica se o primeiro botão de reticencias é necessário
-        /// </summary>
-        /// <returns></returns>
-        public bool IsFirstTraillingNecessary => (PageNumber - VisibleButtonRange) > 2;
-
-        /// <summary>
-        /// Indica se o ultimo botão de reticencias é necessário
-        /// </summary>
-        /// <returns></returns>
-        public bool IsLastTraillingNecessary => (PageNumber + VisibleButtonRange) < LastPage - 1;
-
-        /// <summary>
-        /// Botões de paginação
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<string> PageButtons => CreatePaginationButtons();
 
         /// <summary>
         /// Cria uma lista de strings utilizadas nos botões de paginação
@@ -1016,12 +1001,6 @@ namespace InnerLibs.LINQ
 
             return Array.Empty<RemapType>();
         }
-
-        /// <summary>
-        /// Expressões adicionadas a clausula where junto com os filtros
-        /// </summary>
-        /// <returns></returns>
-        public List<Expression<Func<ClassType, bool>>> WhereFilters { get; set; } = new List<Expression<Func<ClassType, bool>>>();
 
         /// <summary>
         /// Adciona Expressões a clausula where junto com os filtros
