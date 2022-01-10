@@ -6,19 +6,19 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
-using System.Threading.Tasks;
-using InnerLibs.LINQ;
 
 namespace InnerLibs.Mail
 {
+    /// <summary>
+    /// Um destinatário de email contendo informações que serão aplicads em um template
+    /// </summary>
     public class TemplateMailAddress : MailAddress
     {
-
-
         public static IEnumerable<TemplateMailAddress> FromList<T>(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             return (Data ?? new T[] { }.AsEnumerable()).Select(x => FromObject(x, EmailSelector, NameSelector)).Where(x => x != null);
         }
+
         public static TemplateMailAddress FromObject<T>(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             if (Data != null)
@@ -64,8 +64,6 @@ namespace InnerLibs.Mail
         {
             this.TemplateData = TemplateData;
         }
-
-
     }
 
     public enum SentStatus
@@ -77,26 +75,46 @@ namespace InnerLibs.Mail
     }
 
     /// <summary>
-    /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template e métodos auxiliares.  
+    /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template e métodos auxiliares.
     /// </summary>
     public class FluentMailMessage : MailMessage
     {
-
         public FluentMailMessage()
         {
             this.IsBodyHtml = true;
         }
 
+        /// <summary>
+        /// Informações de SMTP
+        /// </summary>
         public SmtpClient Smtp { get; set; } = new SmtpClient();
+
+        /// <summary>
+        /// Ação executada quando o disparo for concluido com êxito
+        /// </summary>
         public Action<MailAddress, FluentMailMessage> SuccessAction { get; set; }
+
+        /// <summary>
+        /// Ação executada quando ocorrer erro no disparo
+        /// </summary>
         public Action<MailAddress, FluentMailMessage, Exception> ErrorAction { get; set; }
+
+        /// <summary>
+        /// Lista contendo os destinatários e o status do disparo
+        /// </summary>
         public IEnumerable<(MailAddress Destination, SentStatus Status, Exception Error)> SentStatusList => _status.AsEnumerable();
+
         private List<(MailAddress, SentStatus, Exception)> _status = new List<(MailAddress, SentStatus, Exception)>();
 
-
-
+        /// <summary>
+        /// Status geral do disparo
+        /// </summary>
         public SentStatus SentStatus => SentStatusList.Any() ? (SentStatus)SentStatusList.Select(x => x.Status.ToInteger()).Distinct().Sum() : SentStatus.NotSent;
 
+        /// <summary>
+        /// Reinicia o status de disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage ResetStatus()
         {
             _status = _status ?? new List<(MailAddress, SentStatus, Exception)>();
@@ -104,60 +122,122 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Lista contendo os endereços de email que foram enviados com sucesso
+        /// </summary>
         public IEnumerable<MailAddress> SuccessList => SentStatusList.Where(x => x.Status == SentStatus.Success).Select(x => x.Destination);
 
+        /// <summary>
+        /// Lista contendo os endereços de email que encontraram algum erro ao serem enviados
+        /// </summary>
         public IEnumerable<MailAddress> ErrorList => SentStatusList.Where(x => x.Status == SentStatus.Error).Select(x => x.Destination);
 
+        /// <summary>
+        /// SMTP do Gmail
+        /// </summary>
+        /// <returns></returns>
         public static SmtpClient GmailSmtp() => new SmtpClient("smtp.gmail.com", 587) { EnableSsl = true };
 
+        /// <summary>
+        /// SMTP do Outlook
+        /// </summary>
+        /// <returns></returns>
         public static SmtpClient OutlookSmtp() => new SmtpClient("smtp-mail.outlook.com", 587) { EnableSsl = true };
 
+        /// <summary>
+        /// SMTP do Office365
+        /// </summary>
+        /// <returns></returns>
         public static SmtpClient Office365Smtp() => new SmtpClient("smtp.office365.com", 587) { EnableSsl = true };
 
+        /// <summary>
+        /// SMTP da Locaweb
+        /// </summary>
+        /// <returns></returns>
         public static SmtpClient LocawebSmtp() => new SmtpClient("email-ssl.com.br", 465) { EnableSsl = true };
 
+        /// <summary>
+        /// Configura o SMTP para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage WithSmtp(SmtpClient Client)
         {
             Smtp = Client;
             return this;
         }
 
+        /// <summary>
+        /// Configura o SMTP para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage WithSmtp(string Host) => WithSmtp(new SmtpClient(Host));
 
+        /// <summary>
+        /// Configura o SMTP para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage WithSmtp(string Host, int Port) => WithSmtp(new SmtpClient(Host, Port));
 
+        /// <summary>
+        /// Configura o SMTP para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage WithSmtp(string Host, int Port, bool UseSSL) => WithSmtp(new SmtpClient(Host, Port) { EnableSsl = UseSSL });
 
+        /// <summary>
+        /// Configura o SMTP do Gmail para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage UseGmailSmtp()
         {
             Smtp = GmailSmtp();
             return this;
         }
 
+        /// <summary>
+        /// Configura o SMTP da Locaweb para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage UseLocawebSmtp()
         {
             Smtp = LocawebSmtp();
             return this;
         }
 
+        /// <summary>
+        /// Configura o SMTP do Outlook para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage UseOutlookSmtp()
         {
             Smtp = OutlookSmtp();
             return this;
         }
 
+        /// <summary>
+        /// Configura o SMTP do Office365 para este disparo
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage UseOffice365Smtp()
         {
             Smtp = Office365Smtp();
             return this;
         }
 
+        /// <summary>
+        /// Configura a mensagem a ser enviada
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage WithMessage(string Text)
         {
             Body = Text;
             return this;
         }
 
+        /// <summary>
+        /// Configura a mensagem a ser enviada
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage WithMessage(HtmlTag Text)
         {
             IsBodyHtml = true;
@@ -165,21 +245,37 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Configura o assunto do email
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage WithSubject(string Text)
         {
             Subject = Text;
             return this;
         }
 
-
-
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
+        /// <param name="TemplateOrFilePathOrUrl"></param>
+        /// <returns></returns>
         public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, "");
+
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
+        /// <param name="TemplateOrFilePathOrUrl"></param>
+        /// <returns></returns>
         public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl, string MessageTemplate) => UseTemplate(TemplateOrFilePathOrUrl, new { BodyText = MessageTemplate });
 
-
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
+        /// <param name="TemplateOrFilePathOrUrl"></param>
+        /// <returns></returns>
         public FluentMailMessage UseTemplate<T>(string TemplateOrFilePathOrUrl, T MessageTemplate) where T : class
         {
-
             if (TemplateOrFilePathOrUrl.IsFilePath())
             {
                 if (File.Exists(TemplateOrFilePathOrUrl)) TemplateOrFilePathOrUrl = File.ReadAllText(TemplateOrFilePathOrUrl);
@@ -201,48 +297,81 @@ namespace InnerLibs.Mail
             return WithMessage(TemplateOrFilePathOrUrl);
         }
 
-
+        /// <summary>
+        /// Configura o remetente da mensagem
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage FromEmail(string Email)
         {
             From = new MailAddress(Email);
             return this;
         }
 
+        /// <summary>
+        /// Configura o remetente da mensagem
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage FromEmail(string Email, string DisplayName)
         {
             From = new MailAddress(Email, DisplayName);
             return this;
         }
 
+        /// <summary>
+        /// Configura o remetente da mensagem
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage FromEmail(MailAddress Email)
         {
             From = Email;
             return this;
         }
 
+        /// <summary>
+        /// Adiciona um destinatário a lista de destinatários deta mensagem
+        /// </summary>
+        /// <returns></returns>
         public FluentMailMessage AddRecipient<T>(string Email, T TemplateData)
         {
             To.Add(new TemplateMailAddress(Email, TemplateData));
             return this;
         }
+
+        /// <summary>
+        /// Adiciona um destinatário a lista de destinatários deta mensagem
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Email"></param>
+        /// <param name="DisplayName"></param>
+        /// <param name="TemplateData"></param>
+        /// <returns></returns>
         public FluentMailMessage AddRecipient<T>(string Email, string DisplayName, T TemplateData)
         {
             To.Add(new TemplateMailAddress(Email, DisplayName, TemplateData));
             return this;
         }
 
+        /// <summary>
+        /// Adiciona um destinatário a lista de destinatários deta mensagem
+        /// </summary>
         public FluentMailMessage AddRecipient<T>(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             To.Add(TemplateMailAddress.FromObject(Data, EmailSelector, NameSelector));
             return this;
         }
 
+        /// <summary>
+        /// Adiciona um destinatário a lista de destinatários deta mensagem
+        /// </summary>
         public FluentMailMessage AddRecipient<T>(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             foreach (var m in TemplateMailAddress.FromList(Data, EmailSelector, NameSelector)) To.Add(m);
             return this;
         }
 
+        /// <summary>
+        /// Adiciona um destinatário a lista de destinatários deta mensagem
+        /// </summary>
         public FluentMailMessage AddRecipient(params string[] Emails)
         {
             foreach (var email in Emails ?? Array.Empty<string>())
@@ -257,6 +386,11 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adiciona endereços ao CC do email
+        /// </summary>
+        /// <param name="Emails"></param>
+        /// <returns></returns>
         public FluentMailMessage AddCarbonCopy(params string[] Emails)
         {
             foreach (var email in Emails ?? Array.Empty<string>())
@@ -264,6 +398,11 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adiciona endereços ao CC do email
+        /// </summary>
+        /// <param name="Emails"></param>
+        /// <returns></returns>
         public FluentMailMessage AddCarbonCopy(params MailAddress[] Emails)
         {
             foreach (var email in Emails ?? Array.Empty<MailAddress>())
@@ -271,6 +410,11 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adiciona endereços ao BCC do email
+        /// </summary>
+        /// <param name="Emails"></param>
+        /// <returns></returns>
         public FluentMailMessage AddBlindCarbonCopy(params string[] Emails)
         {
             foreach (var email in Emails ?? Array.Empty<string>())
@@ -278,6 +422,11 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adiciona endereços ao BCC do email
+        /// </summary>
+        /// <param name="Emails"></param>
+        /// <returns></returns>
         public FluentMailMessage AddBlindCarbonCopy(params MailAddress[] Emails)
         {
             foreach (var email in Emails ?? Array.Empty<MailAddress>())
@@ -285,6 +434,13 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Configura as credenciais do SMTP
+        /// </summary>
+        /// <param name="Credentials"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Ocorre quando <paramref name="Credentials"/> é nulo</exception>
+        /// <exception cref="Exception"></exception>
         public FluentMailMessage WithCredentials(NetworkCredential Credentials)
         {
             if (Credentials == null)
@@ -300,12 +456,21 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Configura as credenciais do SMTP
+        /// </summary>
         public FluentMailMessage WithCredentials(string Login, string Password) => WithCredentials(new NetworkCredential(Login, Password));
 
-
+        /// <summary>
+        /// Adciona um anexo ao email
+        /// </summary>
+        /// <param name="Attachment"></param>
+        /// <returns></returns>
         public FluentMailMessage AddAttachment(params Attachment[] Attachment) => AddAttachment((Attachment ?? Array.Empty<Attachment>()).AsEnumerable());
 
-
+        /// <summary>
+        /// Adciona um anexo ao email
+        /// </summary>
         public FluentMailMessage AddAttachment(IEnumerable<Attachment> Attachment)
         {
             if (Attachment != null && Attachment.Any())
@@ -316,7 +481,9 @@ namespace InnerLibs.Mail
             return this;
         }
 
-
+        /// <summary>
+        /// Adciona um anexo ao email
+        /// </summary>
         public FluentMailMessage AddAttachment(Attachment Attachment)
         {
             if (Attachment != null && Attachment.ContentStream.Length > 0)
@@ -324,6 +491,9 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adciona um anexo ao email
+        /// </summary>
         public FluentMailMessage AddAttachment(Stream Attachment, string Name)
         {
             if (Attachment != null && Attachment.Length > 0 && Name.IsNotBlank())
@@ -331,6 +501,9 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adciona um anexo ao email
+        /// </summary>
         public FluentMailMessage AddAttachment(byte[] Attachment, string Name)
         {
             if (Attachment != null && Attachment.Length > 0 && Name.IsNotBlank())
@@ -339,6 +512,9 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adciona um anexo ao email
+        /// </summary>
         public FluentMailMessage AddAttachment(FileInfo Attachment)
         {
             if (Attachment != null && Attachment.Length > 0)
@@ -346,21 +522,33 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Função executada quando houver um disparo com sucesso
+        /// </summary>
+        /// <param name="Action"></param>
+        /// <returns></returns>
         public FluentMailMessage OnSuccess(Action<MailAddress, FluentMailMessage> Action)
         {
             SuccessAction = Action;
             return this;
         }
 
+        /// <summary>
+        /// Função executada quando houver um disparo com erro
+        /// </summary>
+        /// <param name="Action"></param>
+        /// <returns></returns>
         public FluentMailMessage OnError(Action<MailAddress, FluentMailMessage, Exception> Action)
         {
             ErrorAction = Action;
             return this;
         }
 
-
-     
-
+        /// <summary>
+        /// Envia os emails
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public FluentMailMessage Send()
         {
             ResetStatus();
@@ -385,7 +573,6 @@ namespace InnerLibs.Mail
 
                         try
                         {
-
                             using (var msgIndiv = new MailMessage())
                             {
                                 msgIndiv.IsBodyHtml = this.IsBodyHtml;
@@ -433,8 +620,6 @@ namespace InnerLibs.Mail
                                     msgIndiv.AlternateViews.Add(att);
                                 }
 
-
-
                                 Smtp.Send(msgIndiv);
 
                                 _status.Add((item, SentStatus.Success, null));
@@ -443,21 +628,16 @@ namespace InnerLibs.Mail
                                 {
                                     SuccessAction.Invoke(item, this);
                                 }
-
                             }
-
                         }
-
                         catch (Exception ex)
                         {
-
                             _status.Add((item, SentStatus.Error, ex));
 
                             if (ErrorAction != null)
                             {
                                 ErrorAction.Invoke(item, this, ex);
                             }
-
                         }
                     }
                 }
@@ -470,6 +650,10 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Retorna o corpo da mensagem
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() => Body;
     }
 }

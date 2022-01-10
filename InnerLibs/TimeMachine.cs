@@ -61,7 +61,7 @@ namespace InnerLibs.TimeMachine
             foreach (var k in this)
             {
                 var dt = this[k.Key];
-                if (dt.Count() > 0 || IncludeFortnightsWithoutData)
+                if (dt.Any() || IncludeFortnightsWithoutData)
                 {
                     d.Add(k, dt);
                 }
@@ -895,7 +895,7 @@ namespace InnerLibs.TimeMachine
         }
 
         public TimeDemand SetJourney(IEnumerable<DayOfWeek> DaysOfWeek, DateTime StartHour, int JourneyHours, DateTime LunchHour = default, int LunchHours = default) => SetJourney(DaysOfWeek, StartHour, new TimeSpan(JourneyHours, 0, 0), LunchHour, new TimeSpan(LunchHours, 0, 0));
-         
+
         public TimeDemand SetOffJourney(params DayOfWeek[] DaysOfWeek) => SetJourney(DaysOfWeek.AsEnumerable(), DateTime.MinValue, new TimeSpan(0), DateTime.MinValue, new TimeSpan(0));
 
 
