@@ -1058,7 +1058,7 @@ namespace InnerLibs.LINQ
         {
             if (Type != null)
             {
-                return Type.Name.CamelSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(""), "").ToLower();
+                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(""), "").ToLower();
             }
 
             return "p";

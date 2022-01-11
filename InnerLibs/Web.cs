@@ -139,7 +139,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Adciona um parametro a Query String de uma URL
+        /// Remove um parametro da Query String de uma URL
         /// </summary>
         /// <param name="Url">  Uri</param>
         /// <param name="Key">  Nome do parâmetro</param>
@@ -161,7 +161,7 @@ namespace InnerLibs
                 }
             }
 
-            UriBuilder.Query = query.ToString();
+            UriBuilder.Query = query.ToQueryString();
             return UriBuilder.Uri;
         }
 
