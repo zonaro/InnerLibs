@@ -1,27 +1,23 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using InnerLibs.Locations;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using InnerLibs.LINQ;
-using InnerLibs.Locations;
-
 
 namespace InnerLibs
 {
-
     /// <summary>
     /// Geradores de conteudo
     /// </summary>
     /// <remarks></remarks>
     public static class Generate
     {
-
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/> e<paramref name="MaxLenght"/>
-        /// </summary> 
+        /// </summary>
         /// <returns>Uma string contendo uma palavra aleatória</returns>
         public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
-
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres
@@ -40,7 +36,6 @@ namespace InnerLibs
             // Generate the word in consonant / vowel pairs
             while (word.Length < Length)
             {
-
                 // Add the consonant
                 string consonant = Arrays.LowerConsonants.GetRandomItem();
                 if (consonant == "q" && word.Length + 3 <= Length)
@@ -69,7 +64,6 @@ namespace InnerLibs
 
             return word;
         }
-         
 
         /// <summary>
         /// Gera uma palavra aleatória a partir de uma outra palavra
@@ -78,18 +72,28 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RandomWord(string BaseText) => BaseText.ToArray().Shuffle().JoinString("");
 
+        public static string Password(int AlphaLenght, int NumberLenght, int SpecialLenght) => Password((AlphaLenght / 2d).CeilInt(), (AlphaLenght / 2d).FloorInt(), NumberLenght, SpecialLenght);
+
         /// <summary>
         /// Gera uma senha
         /// </summary>
         /// <returns></returns>
-        public static string Password(int AlphaLenght, int NumberLenght, int SpecialLenght)
+        public static string Password(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
         {
             string pass = "";
-            if (AlphaLenght > 0)
+            if (AlphaLowerLenght > 0)
             {
                 string ss = "";
-                while (ss.Length < AlphaLenght)
-                    ss = ss.Append(Arrays.AlphaChars.TakeRandom(1).FirstOrDefault());
+                while (ss.Length < AlphaLowerLenght)
+                    ss = ss.Append(Arrays.AlphaLowerChars.TakeRandom(1).FirstOrDefault());
+                pass = pass.Append(ss);
+            }
+
+            if (AlphaUpperLenght > 0)
+            {
+                string ss = "";
+                while (ss.Length < AlphaUpperLenght)
+                    ss = ss.Append(Arrays.AlphaUpperChars.TakeRandom(1).FirstOrDefault());
                 pass = pass.Append(ss);
             }
 
@@ -114,10 +118,9 @@ namespace InnerLibs
 
         public static string Password(int Lenght = 8)
         {
-            double @base = Lenght / 3d;
+            var @base = Lenght / 3d;
             return Password(@base.CeilInt(), @base.FloorInt(), @base.FloorInt()).PadRight(Lenght, Convert.ToChar(Arrays.AlphaChars.TakeRandom(1).FirstOrDefault())).GetFirstChars(Lenght);
         }
-
 
         /// <summary>
         /// Gera uma URL do google MAPs baseado na localização
@@ -153,7 +156,7 @@ namespace InnerLibs
         /// <param name="Min">Numero minimo, Padrão 0 </param>
         /// <param name="Max">Numero Maximo, Padrão 999999</param>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean(Func<int, bool> Condition, int Min = 0, int Max = 999999) => Condition(RandomNumber(Min,  Max));
+        public static bool RandomBoolean(Func<int, bool> Condition, int Min = 0, int Max = 999999) => Condition(RandomNumber(Min, Max));
 
         /// <summary>
         /// Gera um valor boolean aleatorio
@@ -168,7 +171,6 @@ namespace InnerLibs
         /// <param name="Max">Numero Maximo, Padrão 999999</param>
         /// <returns>Um numero Inteiro (Integer ou Int)</returns>
         public static int RandomNumber(int Min = 0, int Max = 999999) => init_rnd.Next(Min, Max);
- 
 
         /// <summary>
         /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
@@ -221,7 +223,5 @@ namespace InnerLibs
         /// <param name="MaxWordCount"></param>
         /// <returns></returns>
         public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), Arrays.EndOfSentencePunctuation.FirstRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
-
-  
     }
 }

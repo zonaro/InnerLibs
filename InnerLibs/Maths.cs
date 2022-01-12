@@ -369,10 +369,7 @@ namespace InnerLibs
         /// <param name="StartValue"></param>
         /// <param name="EndValue"></param>
         /// <returns></returns>
-        public static decimal CalculatePercentVariation(this int StartValue, int EndValue)
-        {
-            return StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
-        }
+        public static decimal CalculatePercentVariation(this int StartValue, int EndValue) => StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
 
         /// <summary>
         /// Calcula a variação percentual entre 2 valores
