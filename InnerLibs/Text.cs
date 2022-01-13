@@ -50,7 +50,7 @@ namespace InnerLibs
             {
                 byte[] buffer = new byte[2];
                 // if the resulting conversion is 1 byte in length, just use the value
-                if (System.Text.Encoding.Default.GetBytes(new char[] { c }, 0, 1, buffer, 0) == 1)
+                if (Encoding.Default.GetBytes(new char[] { c }, 0, 1, buffer, 0) == 1)
                 {
                     converted = buffer[0];
                 }
@@ -166,7 +166,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x));
 
-        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x));
+        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x) || x.Like(Text));
 
         /// <summary>
         /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
@@ -2431,35 +2431,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool StartsWithAny(this string Text, params string[] Words) => Words.Any(p => Text.IfBlank("").StartsWith(p));
 
-        /// <summary>
-        /// Conta as silabas de uma palavra
-        /// </summary>
-        /// <param name="Word"></param>
-        /// <returns></returns>
-        public static int SyllableCount(this string Word)
-        {
-            Word = Word.ToLower().Trim();
-            var lastWasVowel = default(bool);
-            var vowels = new[] { 'a', 'e', 'i', 'o', 'u', 'y' }.ToList();
-            var count = default(int);
-            foreach (var c in Word)
-            {
-                if (vowels.Contains(c))
-                {
-                    if (!lastWasVowel)
-                        count += 1;
-                    lastWasVowel = true;
-                }
-                else
-                {
-                    lastWasVowel = false;
-                }
-            }
 
-            if ((Word.EndsWith("e") || Word.EndsWith("es") || Word.EndsWith("ed")) && !Word.EndsWith("le"))
-                count -= 1;
-            return count;
-        }
 
         /// <summary>
         /// Alterna maiusculas e minusculas para cada letra de uma string

@@ -27,26 +27,14 @@ namespace InnerLibs.Locations
         /// Tipo do Endereço
         /// </summary>
         /// <returns></returns>
-        public string Type
-        {
-            get
-            {
-                return AddressTypes.GetAddressType(Street);
-            }
-        }
+        public string Type => AddressTypes.GetAddressType(Street);
 
         /// <summary>
         /// O nome do endereço
         /// </summary>
         /// <value></value>
         /// <returns></returns>
-        public string Name
-        {
-            get
-            {
-                return Street.TrimAny(AddressTypes.GetAddressTypeList(Street)).TrimAny(" ");
-            }
-        }
+        public string Name => Street.TrimAny(AddressTypes.GetAddressTypeList(Street)).TrimAny(" ");
 
         /// <summary>
         /// Logradouro
@@ -445,7 +433,7 @@ namespace InnerLibs.Locations
 
             return ToString();
         }
-         
+
 
         /// <summary>
         /// Retorna uma string com as partes dos endereço especificas
@@ -557,7 +545,7 @@ namespace InnerLibs.Locations
                     {
                         d["DDD"] = cep["ddd"]?.InnerText;
                     }
-                    catch  
+                    catch
                     {
                     }
 
@@ -565,7 +553,7 @@ namespace InnerLibs.Locations
                     {
                         d["IBGE"] = cep["ibge"]?.InnerText;
                     }
-                    catch  
+                    catch
                     {
                     }
 
@@ -573,7 +561,7 @@ namespace InnerLibs.Locations
                     {
                         d["GIA"] = cep["gia"]?.InnerText;
                     }
-                    catch  
+                    catch
                     {
                     }
 
@@ -581,7 +569,7 @@ namespace InnerLibs.Locations
                     {
                         d["SIAFI"] = cep["SIAFI"]?.InnerText;
                     }
-                    catch  
+                    catch
                     {
                     }
 
@@ -589,22 +577,20 @@ namespace InnerLibs.Locations
                     d.CountryCode = "BR";
                 }
             }
-            catch  
+            catch
             {
             }
 
             return d;
         }
 
+
         /// <summary>
         /// Tenta extrair as partes de um endereço de uma string
         /// </summary>
         /// <param name="Address"></param>
         /// <returns></returns>
-        public static AddressInfo TryParse(string Address)
-        {
-            return TryParse<AddressInfo>(Address);
-        }
+        public static AddressInfo TryParse(string Address) => TryParse<AddressInfo>(Address);
 
         /// <summary>
         /// Tenta extrair as partes de um endereço de uma string
@@ -704,7 +690,7 @@ namespace InnerLibs.Locations
             if (Address.Contains(","))
             {
                 var parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList();
-                Number = parts.FirstOrDefault(x => x == "s/n" || x == "sn" || x.IsNumber());
+                Number = parts.FirstOrDefault(x => x == "s/n" || x == "sn" || x == "s" || x == "sem" || x.IsNumber());
                 parts.Remove(Number);
                 Complement = parts.JoinString(" ");
                 Address = Address.GetBefore(",");
