@@ -28,10 +28,7 @@ namespace InnerLibs
             }
         }
 
-        public static NameValueCollection ParseQueryString(this Uri URL)
-        {
-            return URL.Query.ParseQueryString();
-        }
+        public static NameValueCollection ParseQueryString(this Uri URL) => URL.Query.ParseQueryString();
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
