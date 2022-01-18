@@ -62,7 +62,7 @@ namespace InnerLibs
         public static IEnumerable<string> UpperConsonants => LowerConsonants.Select(x => x.ToUpper()).AsEnumerable();
         public static IEnumerable<string> SpecialChars => new[] { "@", "#", "$", "%", "&" }.AsEnumerable();
 
-        public static IEnumerable<string> PasswordSpecialChars => SpecialChars.Union(WordWrappers).Union(EndOfSentencePunctuation).Union(MidSentencePunctuation).AsEnumerable();
+        public static IEnumerable<string> PasswordSpecialChars => SpecialChars.Union(WordWrappers).Union(EndOfSentencePunctuation).Union(MidSentencePunctuation).Where(x => x.IsNotAny("\"", "\'")).AsEnumerable();
 
         public static IEnumerable<Type> ValueTypes => new[] { typeof(string), typeof(char), typeof(byte), typeof(sbyte), typeof(DateTime) }.Union(NumericTypes);
 

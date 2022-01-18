@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
- 
+
 
 namespace InnerLibs
 {
@@ -28,10 +28,7 @@ namespace InnerLibs
             }
         }
 
-        public static NameValueCollection ParseQueryString(this Uri URL)
-        {
-            return URL.Query.ParseQueryString();
-        }
+        public static NameValueCollection ParseQueryString(this Uri URL) => URL.Query.ParseQueryString();
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
@@ -76,7 +73,7 @@ namespace InnerLibs
             return CSS;
         }
 
-    
+
 
         /// <summary>
         /// Verifica se o computador está conectado com a internet
@@ -139,7 +136,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Adciona um parametro a Query String de uma URL
+        /// Remove um parametro da Query String de uma URL
         /// </summary>
         /// <param name="Url">  Uri</param>
         /// <param name="Key">  Nome do parâmetro</param>
@@ -161,7 +158,7 @@ namespace InnerLibs
                 }
             }
 
-            UriBuilder.Query = query.ToString();
+            UriBuilder.Query = query.ToQueryString();
             return UriBuilder.Uri;
         }
 
@@ -285,29 +282,18 @@ namespace InnerLibs
         {
             if (URL.IsURL())
             {
-                switch (true)
+                if (URL.GetDomain().ContainsAny("youtube", "youtu"))
                 {
-                    case object _ when URL.GetDomain().ContainsAny("youtube", "youtu"):
-                        {
-                            return Regex.Match(URL.ReplaceNone("&feature=youtu.be"), @"(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups[1].Value;
-                        }
-
-                    case object _ when URL.GetDomain().ContainsAny("vimeo"):
-                        {
-                            return Regex.Match(URL, @"vimeo\.com/(?:.*#|.*/videos/)?([0-9]+)").Groups[1].Value;
-                        }
-
-                    default:
-                        {
-                            throw new Exception("Invalid Youtube or Vimeo URL");
-                         
-                        }
+                    return Regex.Match(URL.ReplaceNone("&feature=youtu.be"), @"(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups[1].Value;
+                }
+                else if (URL.GetDomain().ContainsAny("vimeo"))
+                {
+                    return Regex.Match(URL, @"vimeo\.com/(?:.*#|.*/videos/)?([0-9]+)").Groups[1].Value;
                 }
             }
-            else
-            {
-                throw new Exception("Invalid Youtube or Vimeo URL");
-            }
+
+            throw new Exception("Invalid Youtube or Vimeo URL");
+
         }
 
         /// <summary>
@@ -318,58 +304,7 @@ namespace InnerLibs
         public static string GetVideoId(this Uri URL)
         {
             return GetVideoId(URL.AbsoluteUri);
-        }
-
-        /// <summary>
-        /// Verifica se um site está indisponível usando o serviço IsUp.Me
-        /// </summary>
-        /// <param name="Url">Url</param>
-        /// <returns>True para site fora do Ar</returns>
-
-        public static bool IsDown(this string Url)
-        {
-            string content = GetString("http://downforeveryoneorjustme.com/" + Url);
-            if (content.Contains("It's just you"))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Verifica se um site está disponível usando o serviço IsUp.Me
-        /// </summary>
-        /// <param name="Url">Url</param>
-        /// <returns>False para site fora do Ar</returns>
-
-        public static bool IsUp(this string Url)
-        {
-            return !Url.IsDown();
-        }
-
-        /// <summary>
-        /// Verifica se um site está indisponível usando o serviço IsUp.Me
-        /// </summary>
-        /// <param name="Url">Url</param>
-        /// <returns>True para site fora do Ar</returns>
-
-        public static bool IsDown(Uri Url)
-        {
-            return Url.AbsoluteUri.IsDown();
-        }
-
-        /// <summary>
-        /// Verifica se um site está disponível usando o serviço IsUp.Me
-        /// </summary>
-        /// <param name="Url">Url</param>
-        /// <returns>False para site fora do Ar</returns>
-
-        public static bool IsUp(Uri Url)
-        {
-            return Url.AbsoluteUri.IsUp();
-        }
+        } 
+       
     }
 }

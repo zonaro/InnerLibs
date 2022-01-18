@@ -11,15 +11,14 @@ namespace InnerLibs.Console
     public static class ConsoleExtensions
     {
 
+        public static string ConsoleWrite(this DateTime dateTime, string Text) => ConsoleWrite($"{dateTime} - {Text}");
+
         /// <summary>
         /// Escreve no console colorindo palavras especificas
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
-        public static string ConsoleWrite(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 0)
-        {
-            return Text.ConsoleWrite(CustomColoredWords, StringComparison.InvariantCultureIgnoreCase, Lines);
-        }
+        public static string ConsoleWrite(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 0) => Text.ConsoleWrite(CustomColoredWords, StringComparison.InvariantCultureIgnoreCase, Lines);
 
         /// <summary>
         /// Escreve no console colorindo palavras especificas
@@ -53,10 +52,7 @@ namespace InnerLibs.Console
         /// Escreve no console usando uma cor especifica
         /// </summary>
         /// <param name="Text">Texto</param>
-        public static string ConsoleWrite(this string Text, int BreakLines = 0)
-        {
-            return Text.ConsoleWrite(System.Console.ForegroundColor, BreakLines);
-        }
+        public static string ConsoleWrite(this string Text, int BreakLines = 0) => Text.ConsoleWrite(System.Console.ForegroundColor, BreakLines);
 
         /// <summary>
         /// Escreve no console usando uma cor especifica
@@ -67,7 +63,7 @@ namespace InnerLibs.Console
         {
             var lastcolor = System.Console.ForegroundColor;
             System.Console.ForegroundColor = Color;
-            System.Console.Write(Text);
+            System.Console.Write(Text ?? "");
             System.Console.ForegroundColor = lastcolor;
             ConsoleBreakLine(BreakLines);
             return Text;
@@ -103,10 +99,7 @@ namespace InnerLibs.Console
         /// Escreve uma linha no console usando uma cor especifica
         /// </summary>
         /// <param name="Text">Texto</param>
-        public static string ConsoleWriteLine(this string Text, int Lines = 1)
-        {
-            return Text.ConsoleWriteLine(System.Console.ForegroundColor, Lines);
-        }
+        public static string ConsoleWriteLine(this string Text, int Lines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, Lines);
 
         /// <summary>
         /// Escreve o texto de uma exception no console

@@ -31,9 +31,6 @@ namespace InnerLibs
             return (InExtensive(num) + CurrencyCentsName[num].Wrap(" ") + (dec == 0L | DecimalPlaces == 0 ? "" : And.Wrap(" ") + InExtensive(dec) + CurrencyCentsName[dec].Wrap(" "))).ToLower().AdjustWhiteSpaces();
         }
 
-        public override string ToString()
-        {
-            return ToString(0m);
-        }
+        public override string ToString() => ToString(0m);
     }
 }

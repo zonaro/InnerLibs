@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using InnerLibs.Locations;
- 
+
 
 namespace InnerLibs
 {
@@ -143,13 +144,13 @@ namespace InnerLibs
                     case 1L:
                     case -1L:
                         {
-                            return String.Join(ExcludeNumber ? "" :  Number.ToString(), "st");
+                            return String.Join(ExcludeNumber ? "" : Number.ToString(), "st");
                         }
 
                     case 2L:
                     case -2L:
                         {
-                            return string.Join(ExcludeNumber ? "" :  Number.ToString(), "nd");
+                            return string.Join(ExcludeNumber ? "" : Number.ToString(), "nd");
                         }
 
                     case 3L:
@@ -304,15 +305,15 @@ namespace InnerLibs
         /// <typeparam name="TValue"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static Dictionary<TKey, decimal> CalculatePercent<TObject, TKey, TValue>(this IEnumerable<TObject> Obj, Func<TObject, TKey> KeySelector, Func<TObject, TValue> ValueSelector) where TValue : struct
+        public static Dictionary<TKey, decimal> CalculatePercent<TObject, TKey, TValue>(this IEnumerable<TObject> Obj, Expression<Func<TObject, TKey>> KeySelector, Expression<Func<TObject, TValue>> ValueSelector) where TValue : struct
         {
-            return Obj.ToDictionary(KeySelector, ValueSelector).CalculatePercent();
+            return Obj.ToDictionary(KeySelector.Compile(), ValueSelector.Compile()).CalculatePercent();
         }
 
         /// <summary>
         /// Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
         /// </summary>
-        public static Dictionary<Tobject, decimal> CalculatePercent<Tobject, Tvalue>(this IEnumerable<Tobject> Obj, Func<Tobject, Tvalue> ValueSelector) where Tvalue : struct
+        public static Dictionary<Tobject, decimal> CalculatePercent<Tobject, Tvalue>(this IEnumerable<Tobject> Obj, Expression<Func<Tobject, Tvalue>> ValueSelector) where Tvalue : struct
         {
             return Obj.CalculatePercent(x => x, ValueSelector);
         }
@@ -323,6 +324,20 @@ namespace InnerLibs
         public static Dictionary<TValue, decimal> CalculatePercent<TValue>(this IEnumerable<TValue> Obj) where TValue : struct
         {
             return Obj.DistinctCount().CalculatePercent();
+        }
+
+        /// <summary>
+        /// Calcula a porcentagem a partir da quantidade de valores verdadeiros em uma lista
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="Obj"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        public static decimal CalculatePercentCompletion<TValue>(this IEnumerable<TValue> Obj, Expression<Func<TValue, bool>> selector) 
+        {
+            var total = Obj.Count();
+            var part = Obj.Count(selector.Compile());
+            return CalculatePercent(part.ToDecimal(), total.ToDecimal());
         }
 
         /// <summary>
@@ -354,10 +369,7 @@ namespace InnerLibs
         /// <param name="StartValue"></param>
         /// <param name="EndValue"></param>
         /// <returns></returns>
-        public static decimal CalculatePercentVariation(this int StartValue, int EndValue)
-        {
-            return StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
-        }
+        public static decimal CalculatePercentVariation(this int StartValue, int EndValue) => StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
 
         /// <summary>
         /// Calcula a variação percentual entre 2 valores

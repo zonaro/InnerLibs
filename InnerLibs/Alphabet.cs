@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
- 
+
 
 namespace InnerLibs
 {
 
     /// <summary>
-/// Classe para encodar IDs numéricos em hashs curtas
-/// </summary>
+    /// Classe para encodar IDs numéricos em hashs curtas
+    /// </summary>
     public class AlphabetType
     {
         public AlphabetType()
@@ -22,14 +22,14 @@ namespace InnerLibs
                 for (int index = 1, loopTo = Seed.Length; index <= loopTo; index++)
                 {
                     int ii = index - 1;
-                    Alphabet = Alphabet.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[ii].ToString()).FirstOrDefault()).JoinString("");
+                    Alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789".OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[ii].ToString()).FirstOrDefault()).JoinString("");
                 }
 
                 this.Seed = Seed;
             }
         }
 
-        public string Alphabet { get; private set; } = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+        public readonly string Alphabet;
 
         public readonly string Seed = null;
 
@@ -66,25 +66,19 @@ namespace InnerLibs
                     i = i * Alphabet.Length + Alphabet.IndexOf(c);
                 return i;
             }
-            catch  
+            catch
             {
                 return -1;
             }
         }
 
-        public override string ToString()
-        {
-            return Alphabet;
-        }
+        public override string ToString() => Alphabet;
 
         /// <summary>
-    /// Gera um link com a hash
-    /// </summary>
-    /// <param name="ID">Valor da Hash</param>
-    /// <returns></returns>
-        public Uri CreateLink(string UrlPattern, int ID)
-        {
-            return new Uri(UrlPattern.Inject(new { id = ID, hash = Encode(ID) }));
-        }
+        /// Gera um link com a hash
+        /// </summary>
+        /// <param name="ID">Valor da Hash</param>
+        /// <returns></returns>
+        public Uri CreateLink(string UrlPattern, int ID) => new Uri(UrlPattern.Inject(new { id = ID, hash = Encode(ID) }));
     }
 }

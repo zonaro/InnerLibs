@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using InnerLibs.LINQ;
- 
+
 
 namespace InnerLibs
 {
@@ -24,6 +24,10 @@ namespace InnerLibs
                     Add(new Sentence(match.ToString(), this));
             }
         }
+
+
+        public static implicit operator string(Paragraph paragraph) => paragraph.ToString();
+
 
         public override string ToString()
         {
@@ -188,6 +192,8 @@ namespace InnerLibs
             return sent;
         }
 
+        public static implicit operator string(Sentence sentence) => sentence.ToString();
+
         public Paragraph Paragraph { get; private set; }
     }
 
@@ -281,6 +287,8 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public string Text { get; set; }
+
+        public static implicit operator string(SentencePart sentencePart) => sentencePart.ToString();
 
         public override string ToString()
         {
@@ -376,6 +384,13 @@ namespace InnerLibs
         {
             return this.SelectJoinString(parag => parag.ToString(Ident), Enumerable.Range(1, 1 + BreakLinesBetweenParagraph.SetMinValue(0)).SelectJoinString(x => Environment.NewLine));
         }
+
+
+        public Paragraph GetParagraph(int Index) => this.IfNoIndex(Index, null);
+        public IEnumerable<Sentence> GetSentences() => this.SelectMany(x => x.AsEnumerable());
+
+        public Sentence GetSentence(int Index) => GetSentences().IfNoIndex(Index, null);
+
 
         /// <summary>
         /// Cria um novo texto estruturado (dividido em paragrafos, sentenças e palavras)
