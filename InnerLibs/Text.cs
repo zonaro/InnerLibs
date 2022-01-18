@@ -22,6 +22,11 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
+
+        public static bool ContainsUpper(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsUpper);
+        public static bool ContainsLower(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsLower);
+        public static bool ContainsDigit(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsDigit);
+
         public static bool Like(this String source, String Pattern) => new Like(Pattern).Matches(source);
 
         public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => from sTest in source where sTest.Like(Pattern) select sTest;
