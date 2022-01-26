@@ -11,7 +11,23 @@ namespace InnerLibs.Console
     public static class ConsoleExtensions
     {
 
-        public static string ConsoleWrite(this DateTime dateTime, string Text) => ConsoleWrite($"{dateTime} - {Text}");
+        /// <summary>
+        /// Escreve uma data com descrição no console
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="Text"></param>
+        /// <param name="BreakLines"></param>
+        /// <returns></returns>
+        public static string ConsoleWrite(this DateTime dateTime, string Text,int BreakLines = 0) => ConsoleWrite($"{dateTime} - {Text}",BreakLines);
+
+        /// <summary>
+        /// Escreve uma data com descrição no console e quebra 1 ou mais linhas
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="Text"></param>
+        /// <param name="BreakLines"></param>
+        /// <returns></returns>
+        public static string ConsoleWriteLine(this DateTime dateTime, string Text,int BreakLines = 1) => dateTime.ConsoleWrite(Text,BreakLines.SetMinValue(1));
 
         /// <summary>
         /// Escreve no console colorindo palavras especificas

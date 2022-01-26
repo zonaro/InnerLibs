@@ -21,9 +21,10 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
-
         public static bool ContainsUpper(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsUpper);
+
         public static bool ContainsLower(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsLower);
+
         public static bool ContainsDigit(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsDigit);
 
         public static bool Like(this String source, String Pattern) => new Like(Pattern).Matches(source);
@@ -1244,17 +1245,17 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">Url</param>
         /// <returns></returns>
-        public static string GetRelativeURL(this Uri URL) => URL.PathAndQuery;
+        public static string GetRelativeURL(this Uri URL, bool WithQueryString = true) => WithQueryString ? URL.PathAndQuery : URL.AbsolutePath;
 
         /// <summary>
         /// Retorna o caminho relativo da url
         /// </summary>
         /// <param name="URL">Url</param>
         /// <returns></returns>
-        public static string GetRelativeURL(this string URL)
+        public static string GetRelativeURL(this string URL, bool WithQueryString = true)
         {
             if (URL.IsURL())
-                return new Uri(URL).GetRelativeURL();
+                return new Uri(URL).GetRelativeURL(WithQueryString);
             return null;
         }
 
@@ -1427,7 +1428,7 @@ namespace InnerLibs
 
         /// <summary>
         /// Computa a distancia de Levenshtein entre 2 strings.
-        /// Distancia Levenshtein representa um numero de operações de acréscimo, 
+        /// Distancia Levenshtein representa um numero de operações de acréscimo,
         /// remoção ou substituição de caracteres para que uma string se torne outra
         /// </summary>
         public static int LevenshteinDistance(this string Text1, string Text2)
@@ -2435,8 +2436,6 @@ namespace InnerLibs
         /// <param name="Words"></param>
         /// <returns></returns>
         public static bool StartsWithAny(this string Text, params string[] Words) => Words.Any(p => Text.IfBlank("").StartsWith(p));
-
-
 
         /// <summary>
         /// Alterna maiusculas e minusculas para cada letra de uma string
