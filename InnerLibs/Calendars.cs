@@ -436,7 +436,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime GetLastDayOfDoubleMonth(this DateTime Date)
+        public static DateTime GetLastDayOfBimester(this DateTime Date)
         {
             if (Date.GetDoubleMonthOfYear() == 1)
                 return new DateTime(Date.Year, 2, 1).GetLastDayOfMonth();
@@ -457,7 +457,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime GetFirstDayOfDoubleMonth(this DateTime Date)
+        public static DateTime GetFirstDayOfBimester(this DateTime Date)
         {
             if (Date.GetDoubleMonthOfYear() == 1)
                 return new DateTime(Date.Year, 1, 1).Date;
@@ -480,9 +480,9 @@ namespace InnerLibs
         /// <param name="Culture"></param>
         /// <param name="FirstDayOfWeek"></param>
         /// <returns></returns>
-        public static int GetWeekOfYear(this DateTime Date, CultureInfo Culture = null, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday)
+        public static int GetWeekOfYear(this DateTime Date, CultureInfo Culture = null, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday, CalendarWeekRule Rule = CalendarWeekRule.FirstFourDayWeek)
         {
-            return (Culture ?? CultureInfo.InvariantCulture).Calendar.GetWeekOfYear(Date, CalendarWeekRule.FirstFourDayWeek, FirstDayOfWeek);
+            return (Culture ?? CultureInfo.InvariantCulture).Calendar.GetWeekOfYear(Date, Rule, FirstDayOfWeek);
         }
         /// <summary>
         /// Retorna o ultimo momento do dia
