@@ -170,7 +170,7 @@ namespace InnerLibs
         /// <param name="Min">Numero minimo, Padrão 0 </param>
         /// <param name="Max">Numero Maximo, Padrão 999999</param>
         /// <returns>Um numero Inteiro (Integer ou Int)</returns>
-        public static int RandomNumber(int Min = 0, int Max = 999999) => init_rnd.Next(Min, Max);
+        public static int RandomNumber(int Min = 0, int Max = 999999) => init_rnd.Next(Min, Max + 1);
 
         /// <summary>
         /// Gera uma lista com <paramref name="Quantity"/> cores diferentes

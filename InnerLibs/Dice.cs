@@ -64,9 +64,9 @@ namespace InnerLibs.RolePlayingGame
         /// Rola todos os dados (não travados) e retorna a soma de seus valores
         /// </summary>
         /// <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
-        public IEnumerable<Dice.DiceFace> Roll()
+        public IEnumerable<Dice.DiceFace> Roll(int Times = 1)
         {
-            return this.Select(x => x.Roll());
+            return this.Select(x => x.Roll(Times.SetMinValue(1)));
         }
 
         /// <summary>
@@ -107,6 +107,20 @@ namespace InnerLibs.RolePlayingGame
     /// </summary>
     public class Dice
     {
+
+        public override string ToString()
+        {
+            return $"{this.Type} - {Value}";
+        }
+
+        private static Dice _coin = new Dice(DiceType.Coin);
+        public static Dice Coin => _coin;
+
+        private static Dice _d6 = new Dice(DiceType.D6);
+        public static Dice D6 => _d6;
+
+
+
 
         /// <summary>
         /// Combina 2 dados em um DiceRoller
@@ -149,6 +163,19 @@ namespace InnerLibs.RolePlayingGame
         /// <returns></returns>
         public bool Locked { get; set; } = false;
 
+
+        /// <summary>
+        /// Seta o nome da face deste dado
+        /// </summary>
+        /// <param name="FaceNumber"></param>
+        /// <param name="Name"></param>
+        /// <returns></returns>
+        public Dice SetFaceName(int FaceNumber, string Name)
+        {
+            GetFace(FaceNumber).FaceName = Name;
+            return this;
+        }
+
         /// <summary>
         /// Valor atual deste dado
         /// </summary>
@@ -165,6 +192,10 @@ namespace InnerLibs.RolePlayingGame
                 return default;
             }
         }
+        /// <summary>
+        /// Retona o nome da face do ultimo valor
+        /// </summary>
+        public string TextValue => Value.HasValue ? GetFace(Value.Value)?.FaceName : null;
 
         public DateTime? LastRoll
         {
@@ -191,24 +222,33 @@ namespace InnerLibs.RolePlayingGame
         /// Rola o dado e retorna seu valor
         /// </summary>
         /// <returns>Integer</returns>
-        public DiceFace Roll()
+        public DiceFace Roll(int Times = 1)
         {
-            if (!Locked)
+            Times = Times.SetMinValue(1);
+            while (Times > 0)
             {
-                _rolledtimes = _rolledtimes + 1;
-                var numfaces = new List<DiceFace>();
-                foreach (var f in Faces)
+                Times--;
+                if (!Locked)
                 {
-                    for (decimal index = 1m, loopTo = f.Weight; index <= loopTo; index++)
-                        numfaces.Add(f);
-                }
+                    _rolledtimes = _rolledtimes + 1;
+                    var numfaces = new List<DiceFace>();
+                    foreach (var f in Faces)
+                    {
+                        for (decimal index = 1m, loopTo = f.Weight; index <= loopTo; index++)
+                            numfaces.Add(f);
+                    }
 
-                numfaces[Generate.RandomNumber(0, numfaces.Count - 1)]._h.Add(DateTime.Now);
+                    numfaces[Generate.RandomNumber(1, numfaces.Count) - 1]._h.Add(DateTime.Now);
+                }
             }
 
-            return this[(int)Value];
+            return this[Value.Value];
         }
 
+        /// <summary>
+        /// Carrega o historio que roladas deste dado
+        /// </summary>
+        /// <param name="history"></param>
         public void LoadHistory(IEnumerable<(int, DateTime)> history)
         {
             foreach (var item in history ?? Array.Empty<(int, DateTime)>())
@@ -232,11 +272,11 @@ namespace InnerLibs.RolePlayingGame
         /// Se este Dice for uma moeda (2 lados apenas) retorna true ou false baseado no lado da moeda qua saiu, caso seja um dado com mais de 2 lados retorna sempre true
         /// </summary>
         /// <returns></returns>
-        public bool Flip()
+        public bool Flip(int Times = 1)
         {
             if (Faces.Count == 2)
             {
-                return (Roll().Number - 1).ToBoolean();
+                return (Roll(Times).Number - 1).ToBoolean();
             }
 
             return true;
@@ -274,8 +314,20 @@ namespace InnerLibs.RolePlayingGame
                 f.Weight = Weight;
         }
 
+        /// <summary>
+        /// Retorna a porcentagem de chance de uma Face ser sorteada
+        /// </summary>
+        /// <param name="Face"></param>
+        /// <param name="Precision"></param>
+        /// <returns></returns>
         public decimal GetChancePercent(int Face, int Precision = 2) => Math.Round(GetFace(Face).Weight.CalculatePercent(Weight), Precision);
 
+        /// <summary>
+        /// Retorna o valor de chance de uma Face ser sorteada
+        /// </summary>
+        /// <param name="Face"></param>
+        /// <param name="Precision"></param>
+        /// <returns></returns>
         public decimal GetValueOfPercent(int Face, int Precision = 2) => Math.Round(GetFace(Face).WeightPercent.CalculateValueFromPercent(Weight), Precision);
 
         /// <summary>
@@ -337,6 +389,11 @@ namespace InnerLibs.RolePlayingGame
             }
 
             internal Dice dice = null;
+
+            /// <summary>
+            /// Objeto do dado desta face
+            /// </summary>
+            public Dice Dice => dice;
 
             /// <summary>
             /// Valor Da Face (numero)
@@ -408,7 +465,7 @@ namespace InnerLibs.RolePlayingGame
                     {
                         if (dice.Type == DiceType.Coin)
                         {
-                            return (Number == 1 ? "head" : "tail").ToTitle();
+                            return (Number == 1 ? "head" : "tails").ToTitle();
                         }
 
                         return new FullNumberWriter().ToString(Number, 0).ToTitle();
@@ -428,6 +485,8 @@ namespace InnerLibs.RolePlayingGame
             public override string ToString() => FaceName;
         }
     }
+
+
 
     /// <summary>
     /// Tipos de Dados
