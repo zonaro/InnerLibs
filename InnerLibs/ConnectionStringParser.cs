@@ -46,20 +46,20 @@ namespace InnerLibs
         public static implicit operator ConnectionStringParser(string s) => new ConnectionStringParser(s);
     }
 
-    public class SqlServerConnectionsStringParser : ConnectionStringParser
+    public class SqlServerConnectionStringParser : ConnectionStringParser
     {
 
-        public SqlServerConnectionsStringParser() : base()
+        public SqlServerConnectionStringParser() : base()
         { }
 
-        public SqlServerConnectionsStringParser(string ConnectionString) : base(ConnectionString)
+        public SqlServerConnectionStringParser(string ConnectionString) : base(ConnectionString)
         { }
 
-        public string InitialCatalog { get => this.GetValueOr("Initial Catalog"); set => this.Set("Initial Catalog", value); }
-        public string Server { get => this.GetValueOr("Server"); set => this.SetOrRemove("Server", value); }
-        public string UserID { get => this.GetValueOr("User ID"); set => this.SetOrRemove("User ID", value); }
-        public string Password { get => this.GetValueOr("Password"); set => this.SetOrRemove("Password", value); }
-        public bool IntegratedSecurity { get => this.GetValueOr("Integrated Security")?.ToLower().ToBoolean() ?? false; set => this.SetOrRemove("Integrated Security", value.ToString().ToTitle()); }
+        public string InitialCatalog { get => this.GetValueOr("Initial Catalog"); set => this.Set("Initial Catalog", value.NullIf(x => x.IsBlank())); }
+        public string Server { get => this.GetValueOr("Server"); set => this.SetOrRemove("Server", value.NullIf(x => x.IsBlank())); }
+        public string UserID { get => this.GetValueOr("User ID"); set => this.SetOrRemove("User ID", value.NullIf(x => x.IsBlank())); }
+        public string Password { get => this.GetValueOr("Password"); set => this.SetOrRemove("Password", value.NullIf(x => x.IsBlank())); }
+        public bool IntegratedSecurity { get => this.GetValueOr("Integrated Security", "false").ToLower().ToBoolean(); set => this.SetOrRemove("Integrated Security", value.ToString().ToTitle().NullIf("False")); }
     }
 
 }
