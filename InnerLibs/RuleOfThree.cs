@@ -3,7 +3,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
- 
+
 
 namespace InnerLibs
 {
@@ -89,7 +89,10 @@ namespace InnerLibs
 
         private void RuleExpression(params T?[] numbers)
         {
-            numbers = numbers ??  Array.Empty<T?>();
+            FirstEquation = FirstEquation ?? new EquationPair<T>(default, default);
+            SecondEquation = SecondEquation ?? new EquationPair<T>(default, default);
+
+            numbers = numbers ?? Array.Empty<T?>();
 
             if (numbers.Count() < 3)
             {

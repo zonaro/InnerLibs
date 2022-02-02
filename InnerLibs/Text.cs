@@ -1013,11 +1013,27 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Pega o dominio principal de uma URL
+        /// Extrai emails de uma string
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank("").SplitAny(Arrays.InvisibleChars.Union(Arrays.BreakLineChars).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLower()).Distinct().ToArray();
+
+
+        /// <summary>
+        /// Pega o dominio principal de uma URL ou email
         /// </summary>
         /// <param name="URL">URL</param>
         /// <returns>nome do dominio</returns>
-        public static string GetDomain(this string URL, bool RemoveFirstSubdomain = false) => new Uri(URL).GetDomain(RemoveFirstSubdomain);
+        public static string GetDomain(this string URL, bool RemoveFirstSubdomain = false)
+        {
+            if (URL.IsEmail())
+            {
+                URL = $"http://{URL.GetAfter("@")}";
+            }
+
+            return new Uri(URL).GetDomain(RemoveFirstSubdomain);
+        }
 
         /// <summary>
         /// Pega o protocolo e o dominio principal de uma URL

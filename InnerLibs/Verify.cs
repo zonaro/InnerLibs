@@ -618,7 +618,7 @@ namespace InnerLibs
         {
             try
             {
-                return DateTime.TryParse(Obj, out DateTime d);
+                return DateTime.TryParse(Obj, out _);
             }
             catch
             {
@@ -635,7 +635,7 @@ namespace InnerLibs
             try
             {
                 var ValueType = Obj.GetType();
-                return !ReferenceEquals(ValueType, typeof(string)) && ValueType.IsArray; // AndAlso GetType(T).IsAssignableFrom(ValueType.GetElementType())
+                return !ReferenceEquals(ValueType, typeof(string)) && ValueType.IsArray; //  GetType(T).IsAssignableFrom(ValueType.GetElementType())
             }
             catch
             {

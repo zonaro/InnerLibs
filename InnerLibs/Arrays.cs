@@ -52,7 +52,7 @@ namespace InnerLibs
         /// Strings utilizadas para descobrir as palavras em uma string
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<string> WordSplitters => InvisibleChars.Union(BreakLineChars).Union(PasswordSpecialChars).AsEnumerable();
+        public static IEnumerable<string> WordSplitters => InvisibleChars.Union(PasswordSpecialChars).AsEnumerable();
 
         public static IEnumerable<string> LowerConsonants => new[] { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z" }.AsEnumerable();
 

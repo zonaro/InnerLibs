@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -66,12 +67,13 @@ namespace InnerLibs.Mail
         }
     }
 
+    [Flags]
     public enum SentStatus
     {
-        Error = -1,
-        PartialSuccess = Error + Success,
+        NotSent = 0,
         Success = 1,
-        NotSent = 2,
+        Error = 2,
+        PartialSuccess = Error + Success,
     }
 
     /// <summary>
@@ -109,7 +111,7 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Status geral do disparo
         /// </summary>
-        public SentStatus SentStatus => SentStatusList.Any() ? (SentStatus)SentStatusList.Select(x => x.Status.ToInteger()).Distinct().Sum() : SentStatus.NotSent;
+        public SentStatus SentStatus => SentStatusList.Select(x => x.Status).Aggregate((x, y) => x | y);
 
         /// <summary>
         /// Reinicia o status de disparo
@@ -125,12 +127,12 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Lista contendo os endereços de email que foram enviados com sucesso
         /// </summary>
-        public IEnumerable<MailAddress> SuccessList => SentStatusList.Where(x => x.Status == SentStatus.Success).Select(x => x.Destination);
+        public IEnumerable<MailAddress> SuccessList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Success)).Select(x => x.Destination);
 
         /// <summary>
         /// Lista contendo os endereços de email que encontraram algum erro ao serem enviados
         /// </summary>
-        public IEnumerable<MailAddress> ErrorList => SentStatusList.Where(x => x.Status == SentStatus.Error).Select(x => x.Destination);
+        public IEnumerable<(MailAddress, Exception)> ErrorList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Error)).Select(x => (x.Destination, x.Error));
 
         /// <summary>
         /// SMTP do Gmail
@@ -155,6 +157,53 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <returns></returns>
         public static SmtpClient LocawebSmtp() => new SmtpClient("email-ssl.com.br", 465) { EnableSsl = true };
+
+        /// <summary>
+        /// Cria e dispara rapidamente uma <see cref="FluentMailMessage"/>
+        /// </summary>
+        /// <param name="Email">Email do remetende e utilizado nas credenciais de SMTP</param>
+        /// <param name="Password">Senha utilizada nas credenciais de SMTP</param>
+        /// <param name="Recipient">Destinatários</param>
+        /// <param name="Subject">Assunto do Email</param>
+        /// <param name="Message">Corpo da Mensagem</param>
+        /// <returns></returns>
+        public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message) => new FluentMailMessage().WithQuickConfig(Email, Password).AddRecipient(Recipient).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Debug.WriteLine(ex.ToFullExceptionString())).SendAndDispose();
+
+        /// <summary>
+        /// Configura o SMTP para este disparo a partir de um email e senha
+        /// </summary>
+        /// <returns></returns>
+        public FluentMailMessage WithQuickConfig(string Email, string Password)
+        {
+            var domain = Email.GetDomain();
+
+            switch (domain)
+            {
+                case "outlook.com":
+                case "outlook.com.br":
+                case "hotmail.com":
+                    UseOutlookSmtp();
+                    break;
+
+                case "office365.com":
+                    UseOffice365Smtp();
+                    break;
+
+                case "gmail.com":
+                    UseGmailSmtp();
+                    break;
+
+                default:
+                    WithSmtp($"smtp.{domain}", 587, false);
+                    break;
+            }
+
+            Debug.WriteLine($"Using {Smtp.Host}");
+
+            WithCredentials(Email, Password);
+
+            return this;
+        }
 
         /// <summary>
         /// Configura o SMTP para este disparo
@@ -374,7 +423,7 @@ namespace InnerLibs.Mail
         /// </summary>
         public FluentMailMessage AddRecipient(params string[] Emails)
         {
-            foreach (var email in Emails ?? Array.Empty<string>())
+            foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray())
                 To.Add(new TemplateMailAddress(email));
             return this;
         }
@@ -393,7 +442,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage AddCarbonCopy(params string[] Emails)
         {
-            foreach (var email in Emails ?? Array.Empty<string>())
+            foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray())
                 CC.Add(new TemplateMailAddress(email));
             return this;
         }
@@ -417,7 +466,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage AddBlindCarbonCopy(params string[] Emails)
         {
-            foreach (var email in Emails ?? Array.Empty<string>())
+            foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray())
                 Bcc.Add(new TemplateMailAddress(email));
             return this;
         }
@@ -443,10 +492,8 @@ namespace InnerLibs.Mail
         /// <exception cref="Exception"></exception>
         public FluentMailMessage WithCredentials(NetworkCredential Credentials)
         {
-            if (Credentials == null)
-                throw new ArgumentNullException("Credentials");
-            if (Smtp == null)
-                throw new Exception("SMTP is null");
+            if (Credentials == null) throw new ArgumentNullException("Credentials");
+            if (Smtp == null) throw new Exception("SMTP is null");
             Smtp.Credentials = Credentials;
             if (From == null || From.Address.IsBlank())
             {
@@ -459,7 +506,17 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Configura as credenciais do SMTP
         /// </summary>
-        public FluentMailMessage WithCredentials(string Login, string Password) => WithCredentials(new NetworkCredential(Login, Password));
+        public FluentMailMessage WithCredentials(string Login, string Password)
+        {
+            if (Smtp == null || Smtp.Host.IsBlank())
+            {
+                return WithQuickConfig(Login, Password);
+            }
+            else
+            {
+                return WithCredentials(new NetworkCredential(Login, Password));
+            }
+        }
 
         /// <summary>
         /// Adciona um anexo ao email
@@ -542,6 +599,19 @@ namespace InnerLibs.Mail
         {
             ErrorAction = Action;
             return this;
+        }
+
+        /// <summary>
+        /// Envia os emails
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public SentStatus SendAndDispose()
+        {
+            Send();
+            var _ss = SentStatus;
+            this.Dispose();
+            return _ss;
         }
 
         /// <summary>
