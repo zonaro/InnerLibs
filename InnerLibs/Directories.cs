@@ -102,9 +102,16 @@ namespace InnerLibs
                 DirectoryName = Path.GetDirectoryName(DirectoryName);
             }
 
-            if (Directory.Exists(DirectoryName) == false)
+            if (DirectoryName.IsDirectoryPath())
             {
-                Directory.CreateDirectory(DirectoryName);
+                if (Directory.Exists(DirectoryName) == false)
+                {
+                    Directory.CreateDirectory(DirectoryName);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("DirectoryName is not a valid path");
             }
 
             return new DirectoryInfo(DirectoryName + Path.DirectorySeparatorChar);

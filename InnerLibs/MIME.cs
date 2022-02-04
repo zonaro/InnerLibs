@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -112,7 +113,7 @@ namespace InnerLibs
         /// <returns></returns>
         public string Description { get; set; } = "Unknown File";
 
-     
+
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de imagem
@@ -293,14 +294,7 @@ namespace InnerLibs
         /// Retorna uma string representando um filtro de caixa de dialogo WinForms
         /// </summary>
         /// <returns></returns>
-        public string ToFilterString()
-        {
-            string r = "";
-            foreach (var ext in Extensions)
-                r += "*" + ext + ";";
-            r = Description + "|" + r.RemoveLastEqual(";");
-            return r;
-        }
+        public string ToFilterString() => $"{Description}|{Extensions.SelectJoinString(ext => $"*{ext}", ";")}";
     }
 
     /// <summary>
