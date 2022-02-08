@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace InnerLibs
 {
@@ -168,6 +170,11 @@ namespace InnerLibs
         /// <returns>TRUE se o caminho for válido</returns>
         public static bool IsFilePath(this string Text)
         {
+            if (Text.IsBlank())
+            {
+                return false;
+            }
+
             Text = Text.Trim();
             try
             {
@@ -188,7 +195,6 @@ namespace InnerLibs
             {
                 // if has extension then its a file; directory otherwise
                 return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar)) && Path.GetExtension(Text).IsNotBlank();
-
             }
             catch { return false; }
         }
@@ -200,6 +206,11 @@ namespace InnerLibs
         /// <returns>TRUE se o caminho for válido</returns>
         public static bool IsDirectoryPath(this string Text)
         {
+            if (Text.IsBlank())
+            {
+                return false;
+            }
+
             Text = Text.Trim();
             try
             {
@@ -230,7 +241,6 @@ namespace InnerLibs
             {
                 return false;
             }
-
         }
 
         /// <summary>
@@ -238,7 +248,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns>TRUE se o caminho for válido</returns>
-        public static bool IsPath(this string Text) => Text.IsDirectoryPath() | Text.IsFilePath();
+        public static bool IsPath(this string Text) => Text.IsDirectoryPath() || Text.IsFilePath();
 
         /// <summary>
         /// Verifica se a string é um endereço IP válido
@@ -255,6 +265,43 @@ namespace InnerLibs
         public static bool IsTelephone(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
 
         /// <summary>
+        /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <param name="Seconds">intervalo, em segundo entre as tentativas de acesso</param>
+        /// <param name="MaxFailCount">Numero maximo de tentativas falhas,quando negativo, verifica infinitamente</param>
+        /// <param name="FailAction">ação a ser executado em caso de falha</param>
+        /// <returns>TRUE se o arquivo puder ser utilizado</returns>
+        public static bool WaifForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> FailAction = null)
+        {
+            while (IsInUse(File))
+            {
+                Thread.Sleep(Seconds * 1000);
+
+                if (!File.Exists)
+                {
+                    return false;
+                }
+
+                if (MaxFailCount.HasValue)
+                {
+                    MaxFailCount = MaxFailCount.Value - 1;
+                }
+
+                if (MaxFailCount.HasValue && MaxFailCount.Value < 0)
+                {
+                    return false;
+                }
+
+                if (FailAction != null)
+                {
+                    FailAction(MaxFailCount ?? -1);
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Verifica se o arquivo está em uso por outro procedimento
         /// </summary>
         /// <param name="File">o Arquivo a ser verificado</param>
@@ -262,16 +309,35 @@ namespace InnerLibs
 
         public static bool IsInUse(this FileInfo File)
         {
+            //Try-Catch so we dont crash the program and can check the exception
             try
             {
-                File.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-                return false;
+                //The "using" is important because FileStream implements IDisposable and
+                //"using" will avoid a heap exhaustion situation when too many handles
+                //are left undisposed.
+                using (FileStream fileStream = System.IO.File.Open(File.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                {
+                    if (fileStream != null) fileStream.Close();
+                }
             }
-            catch
+            catch (IOException ex)
             {
-                return true;
+                //THE FUNKY MAGIC - TO SEE IF THIS FILE REALLY IS LOCKED!!!
+
+                int errorCode = Marshal.GetHRForException(ex) & ((1 << 16) - 1);
+
+                if (errorCode == ERROR_SHARING_VIOLATION || errorCode == ERROR_LOCK_VIOLATION)
+                {                    // do something, eg File.Copy or present the user with a MsgBox - I do not recommend Killing the process that is locking the file
+                    return true;
+                }
             }
+            finally
+            { }
+            return false;
         }
+
+        private const int ERROR_SHARING_VIOLATION = 32;
+        private const int ERROR_LOCK_VIOLATION = 33;
 
         /// <summary>
         /// Verifica se o valor é um numero
@@ -578,7 +644,7 @@ namespace InnerLibs
         /// <param name="TestValue">Outro Objeto</param>
         /// <returns></returns>
         public static T NullIf<T>(this T Value, T TestValue) where T : class
-        {           
+        {
             if (Value != null && Value.Equals(TestValue)) return null;
             return Value;
         }

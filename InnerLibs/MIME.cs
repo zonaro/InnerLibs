@@ -165,7 +165,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static FileTypeList GetFileTypeList(bool Reset = false)
         {
-            if (Reset || l is null || l.Any() == false)
+            if (Reset || l == null || l.Any() == false)
             {
                 string r = ClassTools.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
                 if (r.IsNotBlank())
@@ -353,13 +353,7 @@ namespace InnerLibs
         /// Retorna uma string representando um filtro de caixa de dialogo WinForms
         /// </summary>
         /// <returns></returns>
-        public string ToFilterString()
-        {
-            string r = "";
-            foreach (var ext in this)
-                r += ext.ToFilterString() + "|";
-            return r.RemoveLastEqual("|");
-        }
+        public string ToFilterString() => this.SelectJoinString(x => x.ToFilterString(), "|");
 
         /// <summary>
         /// Busca arquivos que correspondam com as extensões desta lista

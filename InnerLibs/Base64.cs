@@ -143,7 +143,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Btoa(this string Text, Encoding Encoding = null)
         {
-            return Convert.ToBase64String((Encoding ?? new UTF8Encoding(false)).GetBytes(Text));
+            if (Text.IsNotBlank())
+                return Convert.ToBase64String((Encoding ?? new UTF8Encoding(false)).GetBytes(Text));
+            return null;
+
+
         }
 
         /// <summary>
@@ -154,7 +158,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Atob(this string Base, Encoding Encoding = null)
         {
-            return (Encoding ?? new UTF8Encoding(false)).GetString(Convert.FromBase64String(Base));
+            if (Base.IsNotBlank())
+                return (Encoding ?? new UTF8Encoding(false)).GetString(Convert.FromBase64String(Base));
+            return null;
         }
 
         /// <summary>

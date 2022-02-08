@@ -25,7 +25,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FixPathSeparator(this string Path, bool Alternative = false)
         {
-            return Path.Split(new[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.Trim(), Convert.ToString(Alternative ? System.IO.Path.AltDirectorySeparatorChar : System.IO.Path.DirectorySeparatorChar));
+            return Path.Split(new[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.Trim(), Convert.ToString(Alternative ? System.IO.Path.AltDirectorySeparatorChar : System.IO.Path.DirectorySeparatorChar)).TrimAny(System.IO.Path.AltDirectorySeparatorChar.ToString(), System.IO.Path.DirectorySeparatorChar.ToString());
         }
 
         /// <summary>
