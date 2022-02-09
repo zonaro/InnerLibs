@@ -113,43 +113,62 @@ namespace InnerLibs
         /// <returns></returns>
         public string Description { get; set; } = "Unknown File";
 
+        /// <summary>
+        /// Verifica se Tipo de arquivo é do tipo <paramref name="Type"/>
+        /// </summary>
+        /// <returns></returns>
+        public bool IsType(string Type) => Types.Contains(Type);
 
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de imagem
         /// </summary>
         /// <returns></returns>
-        public bool IsImage() => FirstTypes.Contains("image");
+        public bool IsImage() => IsType("image");
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de audio
         /// </summary>
         /// <returns></returns>
-        public bool IsAudio() => FirstTypes.Contains("audio");
+        public bool IsAudio() => IsType("audio");
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de audio
         /// </summary>
         /// <returns></returns>
-        public bool IsVideo() => FirstTypes.Contains("video");
+        public bool IsVideo() => IsType("video");
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de audio
         /// </summary>
         /// <returns></returns>
-        public bool IsText() => FirstTypes.Contains("text");
+        public bool IsText() => IsType("text");
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de audio
         /// </summary>
         /// <returns></returns>
-        public bool IsApplication() => FirstTypes.Contains("application");
+        public bool IsApplication() => IsType("application");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é fonte
+        /// </summary>
+        /// <returns></returns>
+        public bool IsFont() => IsType("font");
+
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é fonte
+        /// </summary>
+        /// <returns></returns>
+        public bool IsMessage() => IsType("message");
+
 
         /// <summary>
         /// Retorna o tipo do MIME Type (antes da barra)
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> FirstTypes => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
+        public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
 
         /// <summary>
         /// Retorna o subtipo do MIME Type (depois da barra)
@@ -377,7 +396,7 @@ namespace InnerLibs
 
         public IEnumerable<string> SubTypes => this.SelectMany(x => x.SubTypes).Distinct();
 
-        public IEnumerable<string> FirstTypes => this.SelectMany(x => x.FirstTypes).Distinct();
+        public IEnumerable<string> FirstTypes => this.SelectMany(x => x.Types).Distinct();
 
         public IEnumerable<string> Descriptions => (IEnumerable<string>)this.SelectMany(x => x.Description).Distinct();
     }

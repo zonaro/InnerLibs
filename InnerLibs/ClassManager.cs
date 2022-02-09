@@ -16,7 +16,13 @@ namespace InnerLibs
 {
     public static class ClassTools
     {
+        public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
 
+        public static IEnumerable<Type> GetInheritedClasses(this Type MyType)
+        {
+            //if you want the abstract classes drop the !TheType.IsAbstract but it is probably to instance so its a good idea to keep it.
+            return Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
+        }
 
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
@@ -34,13 +40,13 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
-        /// <param name="a"></param>
+        /// <param name="Callback"></param>
         /// <returns></returns>
-        public static T With<T>(this T Obj, Action<T> a)
+        public static T With<T>(this T Obj, Action<T> Callback)
         {
-            if (Obj != null && a != null)
+            if (Obj != null && Callback != null)
             {
-                a(Obj);
+                Callback(Obj);
             }
 
             return Obj;
@@ -457,8 +463,8 @@ namespace InnerLibs
             }
             else
             {
-               return BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
-            }          
+                return BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
+            }
         }
 
         /// <summary>
