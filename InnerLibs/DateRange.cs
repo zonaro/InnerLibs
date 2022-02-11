@@ -1,14 +1,12 @@
+using InnerLibs.LINQ;
+using InnerLibs.TimeMachine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using InnerLibs.LINQ;
-using InnerLibs.TimeMachine;
-
 
 namespace InnerLibs
 {
-
     public enum DateRangeInterval
     {
         LessAccurate = -1,
@@ -117,7 +115,9 @@ namespace InnerLibs
             _IsDefault = false;
         }
 
-        public DateRange(IEnumerable<DateTime?> Dates) : this(Dates?.Where(x => x.HasValue).Select(x => x.Value)) { }
+        public DateRange(IEnumerable<DateTime?> Dates) : this(Dates?.Where(x => x.HasValue).Select(x => x.Value))
+        {
+        }
 
         public DateRange(IEnumerable<DateTime> Dates, bool ForceFirstAndLastMoments) : this(Dates) => this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
 
@@ -176,6 +176,11 @@ namespace InnerLibs
             var sd = StartDate;
             var ed = EndDate;
 
+            if (sd == ed)
+            {
+                ed = ed.AddDays(1);
+            }
+
             var range_diferenca = sd.GetDifference(ed);
 
             switch (Interval)
@@ -190,7 +195,6 @@ namespace InnerLibs
                 case DateRangeInterval.Years: return range_diferenca.TotalYears;
                 default: return -1;
             };
-
         }
 
         /// <summary>
@@ -205,7 +209,6 @@ namespace InnerLibs
         {
             switch (Interval)
             {
-
                 case DateRangeInterval.Milliseconds: return Datetime.AddMilliseconds((double)Total);
                 case DateRangeInterval.Seconds: return Datetime.AddSeconds((double)Total);
                 case DateRangeInterval.Minutes: return Datetime.AddMinutes((double)Total);
@@ -217,10 +220,6 @@ namespace InnerLibs
                 default: throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work for get a DateRange string");
             }
         }
-
-
-
-
 
         /// <summary>
         /// Move um periodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
@@ -332,10 +331,7 @@ namespace InnerLibs
         /// Retorna TRUE se a data e hora de inicio e fim for a mesma
         /// </summary>
         /// <returns></returns>
-        public bool IsSingleDateTime()
-        {
-            return StartDate == EndDate;
-        }
+        public bool IsSingleDateTime() => StartDate == EndDate;
 
         /// <summary>
         /// Retorna um <see cref="LongTimeSpan"/> contendo a diferença entre as datas
@@ -379,7 +375,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this).Compile());
+        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -388,7 +384,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this));
+        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -397,7 +393,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this).Compile());
+        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -406,7 +402,7 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
-        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.Where(PropertyExpression.IsBetween(this));
+        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
         /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento de datas

@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
-using InnerLibs.LINQ;
-
 
 namespace InnerLibs
 {
@@ -111,18 +108,15 @@ namespace InnerLibs
             return Dic;
         }
 
-
         public static IDictionary<KeyType, string> SetOrRemove<KeyType, KT>(this IDictionary<KeyType, string> Dic, KT Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank ? Value.NullIf(x => x.IsBlank()) : Value);
 
         public static IDictionary<KeyType, ValueType> SetOrRemove<KeyType, ValueType, KT, VT>(this IDictionary<KeyType, ValueType> Dic, KT Key, VT Value)
         {
-
             if (Key != null)
             {
                 if (Value != null)
                 {
                     Dic[Key.ChangeType<KeyType, KT>()] = Value.ChangeType<ValueType, VT>();
-
                 }
                 else
                 {
@@ -131,14 +125,9 @@ namespace InnerLibs
             }
 
             return Dic;
-
         }
 
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List) => (List ?? Array.Empty<T>()).Any();
-
-
-
-
 
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> List) => !List.IsNotNullOrEmpty();
 
@@ -190,7 +179,8 @@ namespace InnerLibs
         public static bool IsBetween(this IComparable Value, IComparable Value1, IComparable Value2)
         {
             FixOrder(ref Value1, ref Value2);
-            return Value.IsLessThan(Value2) && Value.IsGreaterThan(Value1);
+            if (Value1 == Value2) return Value == Value1;
+            else return Value.IsLessThan(Value2) && Value.IsGreaterThan(Value1);
         }
 
         /// <summary>
@@ -203,7 +193,8 @@ namespace InnerLibs
         public static bool IsBetweenOrEqual(this IComparable Value, IComparable Value1, IComparable Value2)
         {
             FixOrder(ref Value1, ref Value2);
-            return Value.IsLessThanOrEqual(Value2) && Value.IsGreaterThanOrEqual(Value1);
+            if (Value1 == Value2) return Value == Value1;
+            else return Value.IsLessThanOrEqual(Value2) && Value.IsGreaterThanOrEqual(Value1);
         }
 
         /// <summary>
@@ -269,8 +260,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static FileInfo CreateXmlFile(this object obj, string FilePath) => obj.CreateXML().ToXMLString().WriteToFile(FilePath);
 
-
-
         /// <summary>
         /// Cria um <see cref="Guid"/> a partir de uma string ou um novo <see cref="Guid"/> se a conversão falhar
         /// </summary>
@@ -304,7 +293,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToQueryString(this Dictionary<string, string> Dic)
         {
-
             if (Dic != null)
             {
                 return Dic.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.JoinString("="), "&");
@@ -486,7 +474,6 @@ namespace InnerLibs
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
         public static T AsIf<T>(this bool? Bool, T TrueValue, T FalseValue = default) => (Bool.HasValue && Bool.Value).AsIf(TrueValue, FalseValue);
-
 
         /// <summary>
         /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que
@@ -737,7 +724,6 @@ namespace InnerLibs
         {
             var item = (source ?? Array.Empty<T>()).FirstAny(predicate);
             return (item == null) ? Alternate : item;
-
         }
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Func<TAttribute, TValue> ValueSelector) where TAttribute : Attribute
@@ -939,7 +925,6 @@ namespace InnerLibs
                         {
                             txt = r.ReadToEnd();
                         };
-
                 }
             return txt;
         }

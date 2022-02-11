@@ -1,16 +1,12 @@
-﻿using System;
+﻿using InnerLibs.TimeMachine;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using InnerLibs.TimeMachine;
 
 namespace InnerLibs
 {
-
-
-
-
     /// <summary>
     /// Modulo para manipulação de calendário
     /// </summary>
@@ -21,7 +17,6 @@ namespace InnerLibs
         {
             return Date.AddTicks(-(Date.Ticks % TimeSpan.TicksPerSecond));
         }
-
 
         public static DateRange CreateDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression, DateTime? StartDate = default, DateTime? EndDate = default) where T : class
         {
@@ -45,7 +40,6 @@ namespace InnerLibs
 
             return Period;
         }
-
 
         /// <summary>
         /// Cria um <see cref="DateRange"/> a partir de 2 datas e/ou uma propriedade do tipo <see cref="DateTime" /> de <paramref name="T" /> como filtro de uma lista
@@ -484,6 +478,7 @@ namespace InnerLibs
         {
             return (Culture ?? CultureInfo.InvariantCulture).Calendar.GetWeekOfYear(Date, Rule, FirstDayOfWeek);
         }
+
         /// <summary>
         /// Retorna o ultimo momento do dia
         /// </summary>
@@ -533,14 +528,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToSQLDateString(this DateTime Date) => $"{Date.Year}-{Date.Month}-{Date.Day} {Date.Hour}:{Date.Minute}:{Date.Second}.{Date.Millisecond}";
 
-
         /// <summary>
         /// Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
         public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Convert.ToDateTime(Date, new CultureInfo(FromCulture, false).DateTimeFormat).ToSQLDateString();
-
 
         /// <summary>
         /// Retorna uma <see cref="LongTimeSpan"/> com a diferença entre 2 Datas
@@ -559,7 +552,6 @@ namespace InnerLibs
         /// <param name="EndDate">  Data Final</param>
         public static void FixDateOrder(ref DateTime StartDate, ref DateTime EndDate) => ClassTools.FixOrder(ref StartDate, ref EndDate);
 
-
         /// <summary>
         /// Verifica se uma data se encontra entre 2 datas
         /// </summary>
@@ -571,13 +563,16 @@ namespace InnerLibs
         public static bool IsBetween(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime = false)
         {
             FixDateOrder(ref StartDate, ref EndDate);
+
             if (IgnoreTime)
             {
-                return StartDate.Date <= MidDate.Date && MidDate.Date <= EndDate.Date;
+                if (StartDate.Date == EndDate.Date) return MidDate.Date == StartDate.Date;
+                else return StartDate.Date <= MidDate.Date && MidDate.Date <= EndDate.Date;
             }
             else
             {
-                return StartDate <= MidDate && MidDate <= EndDate;
+                if (StartDate == EndDate) return MidDate == StartDate;
+                else return StartDate <= MidDate && MidDate <= EndDate;
             }
         }
 
@@ -614,9 +609,6 @@ namespace InnerLibs
         /// <param name="List">Lista que será alterada</param>
         public static IEnumerable<DateTime> ClearTime(this IEnumerable<DateTime> List) => List.Select(x => x.Date);
 
-
-
-
         /// <summary>
         /// Retorna uma String baseado no numero do Mês Ex.: 1 -&gt; Janeiro
         /// </summary>
@@ -624,9 +616,6 @@ namespace InnerLibs
         /// <returns>String com nome do Mês</returns>
 
         public static string ToLongMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber, 1).GetLongMonthName(Culture);
-
-
-
 
         /// <summary>
         /// Retorna uma String curta baseado no numero do Mês Ex.: 1 -&gt; Jan
@@ -706,7 +695,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime NextDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
-            FromDate  = FromDate ??  DateTime.Now;
+            FromDate = FromDate ?? DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
                 FromDate = FromDate.Value.AddDays(1d);
             return (DateTime)FromDate;
@@ -791,8 +780,6 @@ namespace InnerLibs
         /// <param name="Language">Idioma da saudação (pt, en, es)</param>
         /// <returns>Uma string com a despedida</returns>
         public static string ToGreeting(this DateTime Time, string Language = "pt") => Time.ToGreetingFarewell(Language, false);
-
-
 
         /// <summary>
         /// Returna uma lista dupla com os meses
@@ -923,7 +910,6 @@ namespace InnerLibs
 
         public enum CalendarFormat
         {
-
             /// <summary>
             /// Numerico
             /// </summary>

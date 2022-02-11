@@ -4,16 +4,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-
 namespace InnerLibs.LINQ
 {
     public static class LINQExtensions
     {
-
         public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
-        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> List) => List.Where(x => x != null);
-        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x != null && x.ToString().IsNotBlank());
 
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> List) => List.Where(x => x != null);
+
+        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x != null && x.ToString().IsNotBlank());
 
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
         {
@@ -24,7 +23,6 @@ namespace InnerLibs.LINQ
         {
             return l.Reverse().Take(Count).Reverse();
         }
-
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count)
         {
@@ -144,14 +142,38 @@ namespace InnerLibs.LINQ
             return type;
         }
 
+        public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range)
+        {
+            return List.Where(Property.IsBetween(Range.StartDate, Range.EndDate).Compile());
+        }
+
+        public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range)
+        {
+            return List.Where(Property.IsBetween(Range.StartDate, Range.EndDate).Compile());
+        }
+
         public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range)
         {
-            return List.Where(Property.IsBetween(Range.StartDate, Range.EndDate));
+            if (Range.IsSingleDateTime())
+            {
+                return List.Where(Property.IsEqual(Range.StartDate));
+            }
+            else
+            {
+                return List.Where(Property.IsBetween(Range.StartDate, Range.EndDate));
+            }
         }
 
         public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range)
         {
-            return List.Where(Property.IsBetween(Range.StartDate, Range.EndDate));
+            if (Range.IsSingleDateTime())
+            {
+                return List.Where(Property.IsEqual(Range.StartDate));
+            }
+            else
+            {
+                return List.Where(Property.IsBetween(Range.StartDate, Range.EndDate));
+            }
         }
 
         public static IQueryable<T> FilterDateRange<T, V>(this IQueryable<T> List, Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
@@ -162,6 +184,11 @@ namespace InnerLibs.LINQ
         public static IQueryable<T> FilterDateRange<T, V>(this IQueryable<T> List, Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
         {
             return List.Where(MinProperty.IsBetween(MaxProperty, Values));
+        }
+
+        public static Expression<Func<T, bool>> IsEqual<T, V>(this Expression<Func<T, V>> Property, V Value)
+        {
+            return WhereExpression(Property, "equal", new[] { (IComparable)Value });
         }
 
         public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
@@ -179,17 +206,20 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
         {
-            return WhereExpression(Property, "between", new[] { (IComparable)MinValue, (IComparable)MaxValue });
+            if (MinValue.Equals(MaxValue)) return IsEqual(Property, MinValue);
+            else return WhereExpression(Property, "between", new[] { (IComparable)MinValue, (IComparable)MaxValue });
         }
 
         public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange)
         {
-            return WhereExpression(Property, "between", new[] { DateRange.StartDate, (IComparable)DateRange.EndDate });
+            if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
+            else return WhereExpression(Property, "between", new[] { DateRange.StartDate, (IComparable)DateRange.EndDate });
         }
 
         public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange)
         {
-            return WhereExpression(Property, "between", new[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
+            if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
+            else return WhereExpression(Property, "between", new[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
         }
 
         public static MemberExpression CreatePropertyExpression<T, V>(this Expression<Func<T, V>> Property)
@@ -273,6 +303,7 @@ namespace InnerLibs.LINQ
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.LessThanOrEqual(MemberExpression, ValueExpression);
         }
+
         /// <summary>
         /// Constroi uma expressão Maior que
         /// </summary>
@@ -296,6 +327,7 @@ namespace InnerLibs.LINQ
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.LessThan(MemberExpression, ValueExpression);
         }
+
         /// <summary>
         /// Constroi uma expressão igual a
         /// </summary>
@@ -328,7 +360,6 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static ConstantExpression CreateConstant(Expression Member, IComparable Value) => CreateConstant(Member.Type, Value);
 
-
         /// <summary>
         /// Cria uma constante a partir de um tipo para ser usada em expressões lambda
         /// </summary>
@@ -345,6 +376,7 @@ namespace InnerLibs.LINQ
 
             return Expression.Constant(Value.ChangeType(Type));
         }
+
         /// <summary>
         /// Cria uma constante a partir de um tipo genérico para ser usada em expressões lambda
         /// </summary>
@@ -1281,7 +1313,6 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
         {
-
             Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
             Text = Text?.WhereNotBlank() ?? Array.Empty<string>();
 
@@ -1300,7 +1331,6 @@ namespace InnerLibs.LINQ
                         predi = predi.Or(lbd);
                     }
                 }
-
             }
 
             return predi;
@@ -1488,6 +1518,7 @@ namespace InnerLibs.LINQ
                 SearchRet = SearchRet.ThenByLike(SearchTerms, prop);
             return SearchRet;
         }
+
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
         /// </summary>
@@ -1567,8 +1598,6 @@ namespace InnerLibs.LINQ
                 foreach (var item in items.Where(i => !Priority(i)).OrderBy(i => i)) yield return item;
             }
         }
-
-
 
         /// <summary>
         /// Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
@@ -1881,8 +1910,6 @@ namespace InnerLibs.LINQ
         /// <param name="Tests"></param>
         /// <returns></returns>
         public static bool AllFalse(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).All(x => x == false);
-
-
     }
 
     internal class ExpressionReplacer : ExpressionVisitor

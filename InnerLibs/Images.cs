@@ -557,6 +557,16 @@ namespace InnerLibs
             }
         }
 
+
+        /// <summary>
+        /// Cropa uma imagem a patir do centro
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <param name="SizeExpression">Tamanho</param>
+        /// <returns></returns>
+        public static Image Crop(this Image Image, string SizeExpression) => Image.Crop(SizeExpression.ParseSize());
+
+
         /// <summary>
         /// Cropa uma imagem a patir do centro
         /// </summary>

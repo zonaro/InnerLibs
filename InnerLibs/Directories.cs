@@ -1,22 +1,17 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using InnerLibs.LINQ;
-
 
 namespace InnerLibs
 {
-
     /// <summary>
     /// Funções para trabalhar com diretorios
     /// </summary>
     /// <remarks></remarks>
     public static class Directories
     {
-
         /// <summary>
         /// Ajusta um caminho de arquivo ou diretório colocando o mesmo <see cref="IO.Path.DirectorySeparatorChar"/> evitando barras duplas ou alternativas
         /// </summary>
@@ -84,10 +79,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Path">Camingo</param>
         /// <returns></returns>
-        public static bool DeleteIfExist(this FileSystemInfo Path)
-        {
-            return Path.FullName.DeleteIfExist();
-        }
+        public static bool DeleteIfExist(this FileSystemInfo Path) => Path.FullName.DeleteIfExist();
 
         /// <summary>
         /// Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório
@@ -124,17 +116,15 @@ namespace InnerLibs
             return DirectoryName;
         }
 
-
-
         /// <summary>
         /// Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
         /// </summary>
         /// <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
         /// <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
-        public static FileInfo CreateFileIfNotExists(this string FileName, FileType Type)
+        public static FileInfo CreateFileIfNotExists(this string FileName, FileType Type = null)
         {
-            Type = Type ?? new FileType(".txt");
-            FileName = Path.GetFullPath(FileName.RemoveAny(Path.GetExtension(FileName))) + Type.Extensions[0];
+            Type = Type ?? new FileType(Path.GetExtension(FileName));
+            FileName = $"{Path.GetFullPath(FileName.TrimAny(Path.GetExtension(FileName)))}{Type.Extensions.FirstOrDefault()}";
 
             FileName.CreateDirectoryIfNotExists();
 
@@ -146,28 +136,7 @@ namespace InnerLibs
             return new FileInfo(FileName);
         }
 
-        public static FileInfo CreateFileIfNotExists(this FileInfo FileName)
-        {
-            if (FileName != null)
-                FileName.FullName.CreateFileIfNotExists(new FileType(FileName));
-            return FileName;
-        }
-
-        /// <summary>
-        /// Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
-        /// </summary>
-        /// <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt" </param>
-        /// <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
-        public static FileInfo ToFileInfo(this string FileName)
-        {
-            if (File.Exists(FileName) == false)
-            {
-                File.Create(FileName).Dispose();
-            }
-
-            return new FileInfo(FileName);
-        }
-
+        public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName) => FileName.FullName.CreateDirectoryIfNotExists();
 
         /// <summary>
         /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas
@@ -225,19 +194,16 @@ namespace InnerLibs
                 case var @case when @case == typeof(FileInfo):
                     {
                         return (IEnumerable<FindType>)Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate);
-
                     }
 
                 case var case1 when case1 == typeof(DirectoryInfo):
                     {
                         return (IEnumerable<FindType>)Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate);
-
                     }
 
                 default:
                     {
                         return (IEnumerable<FindType>)Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate);
-
                     }
             }
         }
