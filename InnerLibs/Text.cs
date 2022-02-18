@@ -445,7 +445,7 @@ namespace InnerLibs
         /// <param name="Text">      Texto</param>
         /// <param name="PrependText">Texto adicional</param>
         /// <param name="Test">      Teste</param>
-        public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test)
+        public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test = null)
         {
             Test = Test ?? (x => false);
             return Text.PrependIf(PrependText, Test(Text));

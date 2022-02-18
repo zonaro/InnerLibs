@@ -5,6 +5,9 @@ using InnerLibs.LINQ;
 
 namespace InnerLibs.Select2
 {
+    /// <summary>
+    /// Classe utilizada para auxiliar nas respostas de requisições feitas por aAJAX através do select2.js
+    /// </summary>
     public class Select2Data
     {
         public Select2Data()

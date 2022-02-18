@@ -54,7 +54,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<string> WordSplitters => InvisibleChars.Union(PasswordSpecialChars).AsEnumerable();
 
+        public static IEnumerable<string> Vowels => UpperVowels.Union(LowerVowels).AsEnumerable();
+        public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
         public static IEnumerable<string> LowerConsonants => new[] { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z" }.AsEnumerable();
+
 
         public static IEnumerable<string> LowerVowels => new[] { "a", "e", "i", "o", "u", "y" }.AsEnumerable();
 

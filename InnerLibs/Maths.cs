@@ -391,6 +391,17 @@ namespace InnerLibs
 
         public static decimal CalculatePercent(this decimal Value, decimal Total) => Total > 0 ? Convert.ToDecimal(100m * Value / Total) : 0;
 
+
+        /// <summary>
+        /// Retorna o percentual de um valor
+        /// </summary>
+        /// <param name="Value">Valor a ser calculado</param>
+        /// <param name="Total">Valor Total (Representa 100%)</param>
+        /// <returns>Um numero decimal contendo a porcentagem</returns>
+
+        public static decimal CalculatePercent(this decimal Value, decimal Total, int DecimalPlaces) => CalculatePercent(Value,Total).RoundDecimal(DecimalPlaces);
+
+
         /// <summary>
         /// Retorna o valor de um determinado percentual de um valor total
         /// </summary>
@@ -412,6 +423,8 @@ namespace InnerLibs
         /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
         public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
+
+
 
         /// <summary>
         /// Retorna o valor de um determinado percentual de um valor total
