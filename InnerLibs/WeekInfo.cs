@@ -1,6 +1,7 @@
+using InnerLibs.TimeMachine;
 using System;
 
-namespace InnerLibs
+namespace InnerLibs.TimeMachine
 {
     public class WeekInfo
     {
@@ -18,9 +19,8 @@ namespace InnerLibs
             Week = (int)Math.Round((DateAndTime - firstMonthMonday).Days / 7d + 1d);
             Month = firstMonthDay.Month;
             Year = firstMonthDay.Year;
-
-
         }
+
         public int Week { get; private set; }
         public int Month { get; private set; }
 
@@ -38,7 +38,6 @@ namespace InnerLibs
                     default: return -1;
                 }
             }
-
         }
 
         public static implicit operator int[](WeekInfo Info) => new int[] { Info?.Week ?? -1, Info?.Month ?? -1, Info?.Year ?? -1 };

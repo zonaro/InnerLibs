@@ -1,18 +1,14 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
-
 namespace InnerLibs
 {
-
     /// <summary>
     /// Arrays de uso comum da biblioteca
     /// </summary>
     public static class Arrays
     {
-
         /// <summary>
         /// Caracteres usado para encapsular palavras em textos
         /// </summary>
@@ -34,7 +30,6 @@ namespace InnerLibs
 
         public static IEnumerable<string> EndOfSentencePunctuation => new[] { ".", "?", "!" }.AsEnumerable();
 
-
         public static IEnumerable<string> MidSentencePunctuation => new[] { ":", ";", "," }.AsEnumerable();
 
         public static IEnumerable<string> OpenWrappers => new[] { "\"", "'", "(", "{", "[", "<" }.AsEnumerable();
@@ -47,7 +42,6 @@ namespace InnerLibs
 
         public static IEnumerable<string> InvisibleChars => WhiteSpaceChars.Union(BreakLineChars).AsEnumerable();
 
-
         /// <summary>
         /// Strings utilizadas para descobrir as palavras em uma string
         /// </summary>
@@ -57,7 +51,6 @@ namespace InnerLibs
         public static IEnumerable<string> Vowels => UpperVowels.Union(LowerVowels).AsEnumerable();
         public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
         public static IEnumerable<string> LowerConsonants => new[] { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z" }.AsEnumerable();
-
 
         public static IEnumerable<string> LowerVowels => new[] { "a", "e", "i", "o", "u", "y" }.AsEnumerable();
 
@@ -70,6 +63,5 @@ namespace InnerLibs
         public static IEnumerable<Type> ValueTypes => new[] { typeof(string), typeof(char), typeof(byte), typeof(sbyte), typeof(DateTime) }.Union(NumericTypes);
 
         public static IEnumerable<Type> NumericTypes => new[] { typeof(float), typeof(ushort), typeof(short), typeof(int), typeof(uint), typeof(ulong), typeof(long), typeof(double), typeof(decimal) }.AsEnumerable();
-
     }
 }

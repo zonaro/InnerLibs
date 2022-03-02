@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.TimeMachine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -192,8 +193,8 @@ namespace InnerLibs.LINQ
         {
             return List.Where(MinProperty.IsBetweenOrEqual(MaxProperty, Values));
         }
-        #endregion
 
+        #endregion FilterDateRange
 
         #region IsBetween
 
@@ -228,8 +229,7 @@ namespace InnerLibs.LINQ
             else return WhereExpression(Property, "between", new[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
         }
 
-        #endregion
-
+        #endregion IsBetween
 
         #region IsBetweenOrEqual
 
@@ -264,8 +264,7 @@ namespace InnerLibs.LINQ
             else return WhereExpression(Property, "betweenorequal", new[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
         }
 
-        #endregion
-
+        #endregion IsBetweenOrEqual
 
         public static MemberExpression CreatePropertyExpression<T, V>(this Expression<Func<T, V>> Property)
         {

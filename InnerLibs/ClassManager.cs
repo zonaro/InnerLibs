@@ -1048,6 +1048,8 @@ namespace InnerLibs
             return Obj.IsIn((List ?? Array.Empty<Type>()).ToList());
         }
 
+        public static bool IsAny<Type>(this Type Obj, params Type[] List) => IsIn(Obj, List);
+
         /// <summary>
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
         /// </summary>

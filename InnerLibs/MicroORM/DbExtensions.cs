@@ -1,4 +1,5 @@
 ﻿using InnerLibs.LINQ;
+using InnerLibs.TimeMachine;
 using Microsoft.VisualBasic;
 
 using System;
@@ -223,7 +224,7 @@ namespace InnerLibs.MicroORM
                             paramvalues.Add(v[v_index]);
                         var pv = paramvalues.Select(x =>
                         {
-                            if (x is null)
+                            if (x == null)
                             {
                                 return "NULL";
                             }

@@ -176,7 +176,7 @@ namespace InnerLibs
         /// <summary>
         /// Gera uma cor a partir de uma palavra
         /// </summary>
-        /// <param name="Text">Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela cor exata) ou uma palavra qualquer (gera proceduralmente uma cor)</param>
+        /// <param name="Text">Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor (Red+Blue, Red-Blue,Green*Red etc).</param>
         /// <returns></returns>
         public static Color ToColor(this string Text)
         {
@@ -188,13 +188,51 @@ namespace InnerLibs
 
             if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
 
-            var maybecolor = HSVColor.NamedColors.FirstOrDefault(x => x.Name.ToLower() == Text.ToLower());
+            var maybecolor = FindColor(Text);
+            if (maybecolor != null)
+            {
+                return maybecolor.ToDrawingColor();
+            }
 
-            if (maybecolor != null) return maybecolor.ToDrawingColor();
+            if (Text.Contains("+"))
+            {
+                var various = Text.Split("+");
+
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a + b);
+                }
+            }
+
+            if (Text.Contains("-"))
+            {
+                var various = Text.Split("-");
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a - b);
+                }
+            }
+            if (Text.Contains("*"))
+            {
+                var various = Text.Split("*");
+
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a * b);
+                }
+            }
 
             var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
             return Color.FromArgb(255, Color.FromArgb(coresInt));
         }
+
+        /// <summary>
+        /// Procura uma cor na tabela de cores <see cref="HSVColor.NamedColors"/>
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static HSVColor FindColor(this string Text) => HSVColor.NamedColors
+                .FirstOrDefault(x => x.Name.ToLower().Replace("grey", "gray").RemoveAny(Arrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLower().Replace("grey", "gray").RemoveAny(Arrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
 
         /// <summary>
         /// Gera uma cor aleatória misturando ou não os canais RGB
@@ -217,8 +255,6 @@ namespace InnerLibs
         /// </summary>
         public static IEnumerable<Color> KnowColors => ClassTools.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
-
-
         /// <summary>
         /// Retorna uma cor conhecida mais proxima de outra cor
         /// </summary>
@@ -230,7 +266,7 @@ namespace InnerLibs
             var closest = Color.White;
             foreach (var kc in KnowColors)
             {
-                // Calculate Euclidean Distance             
+                // Calculate Euclidean Distance
                 double d = new HSVColor(kc).GetEuclideanDistance(Color);
                 if (d < closest_distance)
                 {

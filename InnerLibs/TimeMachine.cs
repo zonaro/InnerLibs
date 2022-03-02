@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
-
 namespace InnerLibs.TimeMachine
 {
     public class FortnightGroup<DataType> : FortnightGroup
@@ -35,7 +34,7 @@ namespace InnerLibs.TimeMachine
                     foreach (var sel in DateSelector)
                         datas.Add(sel(ii));
                     var periodo1 = new DateRange(datas.Min(), datas.Max());
-                    var periodo2 = new DateRange(base[Key].Period.StartDate, base[Key].Period.EndDate);
+                    var periodo2 = new DateRange((DateTime)base[(string)Key].Period.StartDate, (DateTime)base[(string)Key].Period.EndDate);
                     if (periodo1.MatchAny(periodo2))
                     {
                         lista.Add(ii);
@@ -126,7 +125,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public static new FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
+        public new static FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
             Calendars.FixDateOrder(ref StartDate, ref EndDate);
             int fortcount = 1;
@@ -146,8 +145,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public static new FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange(DateRange.StartDate, DateRange.EndDate);
-
+        public new static FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange((DateTime)DateRange.StartDate, (DateTime)DateRange.EndDate);
 
         /// <summary>
         /// Instancia um novo <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e um numero fixo de quinzenas
@@ -161,7 +159,6 @@ namespace InnerLibs.TimeMachine
 
     public class Fortnight
     {
-
         /// <summary>
         /// Define o formato global de uma string de uma <see cref="Fortnight"/>
         /// </summary>
@@ -265,6 +262,7 @@ namespace InnerLibs.TimeMachine
             Format = Format.Replace("{o}", Number.ToOrdinalNumber(true));
             return Format;
         }
+
         public string FormatName(CultureInfo Culture) => FormatName(null, Culture);
 
         public override string ToString() => FormatName();
@@ -371,345 +369,6 @@ namespace InnerLibs.TimeMachine
         {
             return CreateFromDateRange(Range.StartDate, Range.EndDate);
         }
-
-        /// <summary>
-        /// Retorna um Array com os dias de segunda a sexta
-        /// </summary>
-
-    }
-
-    /// <summary>
-    /// Classe para comparação entre 2 Datas com possibilidade de validação de dias Relevantes
-    /// </summary>
-    public class LongTimeSpan
-    {
-
-        public static DayOfWeek[] MondayToFriday => new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday };
-        public static DayOfWeek[] SundayToSaturday => new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday };
-
-        /// <summary>
-        /// Inicia uma instancia de TimeFlow
-        /// </summary>
-        /// <param name="StartDate">Data inicial</param>
-        /// <param name="EndDate">Data Final (data mais recente)</param>
-        /// <param name="RelevantDaysOfWeek">Lista de dias da semana que são relevantes (dias letivos)</param>
-        public LongTimeSpan(DateTime StartDate, DateTime EndDate, params DayOfWeek[] RelevantDaysOfWeek)
-        {
-            Calendars.FixDateOrder(ref StartDate, ref EndDate);
-            var CurDate = StartDate;
-            int years = 0;
-            int months = 0;
-            int days = 0;
-            var _phase = Phase.Years;
-
-            if (!RelevantDaysOfWeek.Any())
-            {
-                RelevantDaysOfWeek = SundayToSaturday;
-            }
-
-            while (CurDate <= EndDate)
-            {
-                if (RelevantDaysOfWeek.Contains(CurDate.DayOfWeek))
-                {
-                    RelevantDays.Add(CurDate);
-                }
-                else
-                {
-                    NonRelevantDays.Add(CurDate);
-                }
-
-                try
-                {
-                    CurDate = CurDate.AddDays(1d);
-                }
-                catch
-                {
-                }
-            }
-
-            CurDate = StartDate;
-            while (_phase != Phase.Done)
-            {
-                switch (_phase)
-                {
-                    case Phase.Years:
-                        {
-                            if (CurDate.AddYears(years + 1) > EndDate)
-                            {
-                                _phase = Phase.Months;
-                                CurDate = CurDate.AddYears(years);
-                            }
-                            else
-                            {
-                                years++;
-                            }
-
-                            break;
-                        }
-
-                    case Phase.Months:
-                        {
-                            if (CurDate.AddMonths(months + 1) > EndDate)
-                            {
-                                _phase = Phase.Days;
-                                CurDate = CurDate.AddMonths(months);
-                            }
-                            else
-                            {
-                                months++;
-                            }
-
-                            break;
-                        }
-
-                    case Phase.Days:
-                        {
-                            if (CurDate.AddDays(days + 1) > EndDate)
-                            {
-                                CurDate = CurDate.AddDays(days);
-                                var timespan = EndDate - CurDate;
-                                Years = years;
-                                Months = months;
-                                Days = days;
-                                Hours = timespan.Hours;
-                                Minutes = timespan.Minutes;
-                                Seconds = timespan.Seconds;
-                                Milliseconds = timespan.Milliseconds;
-                                this.StartDate = StartDate;
-                                this.EndDate = EndDate;
-                                this.RelevantDaysOfWeek = RelevantDaysOfWeek.ToList();
-                                _phase = Phase.Done;
-                            }
-                            else
-                            {
-                                days++;
-                            }
-
-                            break;
-                        }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Inicia uma instancia de TimeFlow a partir de um TimeSpan
-        /// </summary>
-        /// <param name="Span">Intervalo de tempo</param>
-        public LongTimeSpan(TimeSpan Span) : this(DateTime.MinValue, Span)
-        {
-        }
-
-        /// <summary>
-        /// Inicia uma instancia de TimeFlow a partir de uma data inicial e um TimeSpan
-        /// </summary>
-        /// <param name="StartDate">Data Inicial</param>
-        /// <param name="Span">Intervalo de tempo</param>
-        public LongTimeSpan(DateTime StartDate, TimeSpan Span) : this(StartDate, StartDate.Add(Span))
-        {
-        }
-
-        /// <summary>
-        /// Data Inicial
-        /// </summary>
-        /// <returns></returns>
-        public DateTime StartDate { get; private set; }
-
-        /// <summary>
-        /// Data Final
-        /// </summary>
-        /// <returns></returns>
-        public DateTime EndDate { get; private set; }
-
-        /// <summary>
-        /// Dias Relevantes entre as datas Inicial e Final
-        /// </summary>
-        /// <returns></returns>
-        public List<DateTime> RelevantDays { get; private set; } = new List<DateTime>();
-
-        public decimal TotalMilliseconds => (decimal)(EndDate - StartDate).TotalMilliseconds;
-
-        public decimal TotalSeconds => (decimal)(EndDate - StartDate).TotalSeconds;
-
-
-        public decimal TotalMinutes => (decimal)(EndDate - StartDate).TotalMinutes;
-
-
-        public decimal TotalHours => (decimal)(EndDate - StartDate).TotalHours;
-
-
-        public decimal TotalDays => (decimal)(EndDate - StartDate).TotalDays;
-
-        public long Ticks => (EndDate - StartDate).Ticks;
-
-
-
-        public decimal TotalMonths => (decimal)Math.Round((EndDate - StartDate).TotalDays / (365.25d / 12d), 2);
-
-
-        public decimal TotalYears => Math.Round(TotalMonths / 12m, 2);
-
-        public decimal TotalWeeks => Math.Round(TotalDays / 7m, 2);
-
-
-        /// <summary>
-        /// Todos os dias entre as datas Inicial e Final
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<DateTime> GetAllDays() => RelevantDays.Union(NonRelevantDays).OrderBy(x => x).AsEnumerable();
-
-        /// <summary>
-        /// Dias não relevantes entre as datas Inicial e Final
-        /// </summary>
-        /// <returns></returns>
-        public List<DateTime> NonRelevantDays { get; private set; } = new List<DateTime>();
-
-        /// <summary>
-        /// Dias da semana relevantes
-        /// </summary>
-        /// <returns></returns>
-        public List<DayOfWeek> RelevantDaysOfWeek { get; private set; } = new List<DayOfWeek>();
-
-        /// <summary>
-        /// Dias da semana não relevantes
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<DayOfWeek> NonRelevantDaysOfWeek
-        {
-            get
-            {
-                var lista = new[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday }.ToList();
-                var lista2 = new List<DayOfWeek>();
-                lista2.AddRange(lista);
-                foreach (DayOfWeek item in lista)
-                {
-                    if (RelevantDaysOfWeek.Contains(item))
-                    {
-                        lista2.Remove(item);
-                    }
-                }
-
-                return lista2.AsEnumerable();
-            }
-        }
-
-        /// <summary>
-        /// Numero de Anos
-        /// </summary>
-        /// <returns></returns>
-        public int Years { get; private set; }
-
-        /// <summary>
-        /// Numero de Meses
-        /// </summary>
-        /// <returns></returns>
-        public int Months { get; private set; }
-
-        /// <summary>
-        /// Numero de Dias
-        /// </summary>
-        /// <returns></returns>
-        public int Days { get; private set; }
-
-        /// <summary>
-        /// Numero de Horas
-        /// </summary>
-        /// <returns></returns>
-        public int Hours { get; private set; }
-
-        /// <summary>
-        /// Numero de Minutos
-        /// </summary>
-        /// <returns></returns>
-        public int Minutes { get; private set; }
-
-        /// <summary>
-        /// Numero de Segundos
-        /// </summary>
-        /// <returns></returns>
-        public int Seconds { get; private set; }
-
-        /// <summary>
-        /// Numero de milisegundos
-        /// </summary>
-        /// <returns></returns>
-        public int Milliseconds { get; private set; }
-
-        /// <summary>
-        /// Retorna uma String no formato "X anos, Y meses e Z dias"
-        /// </summary>
-        /// <param name="FullString">Parametro que indica se as horas, minutos e segundos devem ser apresentados caso o tempo seja maior que 1 dia</param>
-        /// <returns>string</returns>
-        public string ToTimeElapsedString(string AndWord, string YearsWord, string MonthsWord, string DaysWord, string HoursWord, string MinutesWord, string SecondsWord, LongTimeSpanString Format = LongTimeSpanString.FullStringSkipZero)
-        {
-
-            string ano = Text.QuantifyText(YearsWord, Years).Prepend($"{Years} ").NullIf(x => YearsWord.IsBlank());
-            string mes = Text.QuantifyText(MonthsWord, Months).Prepend($"{Months} ").NullIf(x => MonthsWord.IsBlank());
-            string dia = Text.QuantifyText(DaysWord, Days).Prepend($"{Days} ").NullIf(x => DaysWord.IsBlank());
-            string horas = Text.QuantifyText(HoursWord, Hours).Prepend($"{Hours} ").NullIf(x => HoursWord.IsBlank());
-            string minutos = Text.QuantifyText(MinutesWord, Minutes).Prepend($"{Minutes} ").NullIf(x => MinutesWord.IsBlank());
-            string segundos = Text.QuantifyText(SecondsWord, Seconds).Prepend($"{Seconds} ").NullIf(x => SecondsWord.IsBlank());
-
-
-            var flagInt = (int)Format;
-            if (flagInt >= 1) //skip zero
-            {
-                ano = ano.NullIf(x => Years == 0);
-                mes = mes.NullIf(x => Months == 0);
-                dia = dia.NullIf(x => Days == 0);
-                horas = horas.NullIf(x => Hours == 0);
-                minutos = minutos.NullIf(x => Minutes == 0);
-                segundos = segundos.NullIf(x => Seconds == 0);
-            }
-
-            if (flagInt >= 2) // reduce days
-            {
-                horas = horas.NullIf(x => Days >= 1);
-                minutos = minutos.NullIf(x => Days >= 1);
-                segundos = segundos.NullIf(x => Days >= 1);
-            }
-
-            if (flagInt >= 3) //reduce months
-            {
-
-                dia = dia.NullIf(x => Months >= 1);
-                horas = horas.NullIf(x => Months >= 1);
-                minutos = minutos.NullIf(x => Months >= 1);
-                segundos = segundos.NullIf(x => Months >= 1);
-            }
-
-            if (flagInt >= 4) // reduce most
-            {
-                mes = mes.NullIf(x => Years >= 1);
-                dia = dia.NullIf(x => Years >= 1);
-                horas = horas.NullIf(x => Years >= 1);
-                minutos = minutos.NullIf(x => Years >= 1);
-                segundos = segundos.NullIf(x => Years >= 1);
-            }
-
-
-            string current = new[] { ano, mes, dia, horas, minutos, segundos }.Where(x => x.IsNotBlank()).ToPhrase(AndWord);
-
-            return current.AdjustWhiteSpaces();
-        }
-
-
-        public string ToTimeElapsedString() => this.ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", LongTimeSpanString.FullStringSkipZero);
-
-        /// <summary>
-        /// Retorna uma string com a quantidade de itens e o tempo de produção
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString() => ToTimeElapsedString();
-
-
-
-        private enum Phase
-        {
-            Years,
-            Months,
-            Days,
-            Done
-        }
     }
 
     /// <summary>
@@ -734,7 +393,6 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-
         /// <summary>
         /// Segunda-Feira
         /// </summary>
@@ -751,6 +409,7 @@ namespace InnerLibs.TimeMachine
                 _monday = value ?? new JourneyDay();
             }
         }
+
         /// <summary>
         /// Terça-Feira
         /// </summary>
@@ -801,6 +460,7 @@ namespace InnerLibs.TimeMachine
                 _thursday = value ?? new JourneyDay();
             }
         }
+
         /// <summary>
         /// Sexta-Feira
         /// </summary>
@@ -834,7 +494,6 @@ namespace InnerLibs.TimeMachine
                 _saturday = value ?? new JourneyDay();
             }
         }
-
 
         /// <summary>
         /// Ajusta a jornada de trabalho de um dia da semana
@@ -877,12 +536,10 @@ namespace InnerLibs.TimeMachine
                 default:
                     Monday = Monday ?? new JourneyDay();
                     return Monday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
-
             }
         }
 
         public JourneyDay SetJourney(DayOfWeek DayOfWeek, DateTime StartHour, int JourneyHours, DateTime LunchHour = default, int LunchHours = default) => SetJourney(DayOfWeek, StartHour, new TimeSpan(JourneyHours, 0, 0), LunchHour, new TimeSpan(LunchHours, 0, 0));
-
 
         public TimeDemand SetJourney(IEnumerable<DayOfWeek> DaysOfWeek, DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default)
         {
@@ -897,9 +554,6 @@ namespace InnerLibs.TimeMachine
         public TimeDemand SetJourney(IEnumerable<DayOfWeek> DaysOfWeek, DateTime StartHour, int JourneyHours, DateTime LunchHour = default, int LunchHours = default) => SetJourney(DaysOfWeek, StartHour, new TimeSpan(JourneyHours, 0, 0), LunchHour, new TimeSpan(LunchHours, 0, 0));
 
         public TimeDemand SetOffJourney(params DayOfWeek[] DaysOfWeek) => SetJourney(DaysOfWeek.AsEnumerable(), DateTime.MinValue, new TimeSpan(0), DateTime.MinValue, new TimeSpan(0));
-
-
-
 
         /// <summary>
         /// Quantidade de itens
@@ -926,28 +580,11 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public TimeSpan ProductionTime => new TimeSpan(ItemQuantity * ItemProductionTime.Ticks);
 
-
-
         /// <summary>
         /// Data Inicial da produção
         /// </summary>
         /// <returns></returns>
         public DateTime StartDate { get; set; }
-
-
-        /// <summary>
-        /// Empurra a data para dentro da proxima hora disponivel dentro jornada de trabalho
-        /// </summary>
-        /// <param name="[Date]">Data a ser Verificada</param>
-        public DateTime PushDateIntoJourney(DateTime Date)
-        {
-
-
-            while (Date.TimeOfDay > this.JourneyEndHour(Date).TimeOfDay || Date.TimeOfDay < this.JourneyStartHour(Date).TimeOfDay || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
-                Date = Date.AddMilliseconds(1d);
-
-            return Date;
-        }
 
         /// <summary>
         /// Data de encerramento da produção
@@ -966,14 +603,23 @@ namespace InnerLibs.TimeMachine
             }
         }
 
+        private DateTime? _EndDate = null;
+        private JourneyDay _sunday = new JourneyDay();
+        private JourneyDay _monday = new JourneyDay();
+        private JourneyDay _tuesday = new JourneyDay();
+        private JourneyDay _wednesday = new JourneyDay();
+        private JourneyDay _thursday = new JourneyDay();
+        private JourneyDay _friday = new JourneyDay();
+        private JourneyDay _saturday = new JourneyDay();
+
         public DateTime Proccess()
         {
             var argDate = StartDate;
             argDate = PushDateIntoJourney(argDate);
             StartDate = argDate;
             var FinalDate = StartDate.Add(ProductionTime);
-            var t = new LongTimeSpan(StartDate, FinalDate, RelevantDaysOfWeek.ToArray());
-            foreach (var dia in t.RelevantDays)
+            var t = new DateRange(StartDate, FinalDate, RelevantDaysOfWeek.ToArray());
+            foreach (var dia in t.GetRelevantDays())
             {
                 if (!(dia.Date == FinalDate.Date))
                 {
@@ -990,15 +636,9 @@ namespace InnerLibs.TimeMachine
                 }
             }
 
-            foreach (var feriado in HoliDays.ClearTime())
-            {
-                if (!t.NonRelevantDays.ClearTime().Contains(feriado))
-                {
-                    t.NonRelevantDays.Add(feriado);
-                }
-            }
+            var nrd = HoliDays.Union(t.GetNonRelevantDays()).ClearTime().Distinct();
 
-            FinalDate = FinalDate.AddDays(t.NonRelevantDays.Count);
+            FinalDate = FinalDate.AddDays(nrd.Count());
             var lasthours = new TimeSpan();
             if (FinalDate.TimeOfDay > this.JourneyEndHour(FinalDate).TimeOfDay)
             {
@@ -1010,14 +650,17 @@ namespace InnerLibs.TimeMachine
             return FinalDate;
         }
 
-        private DateTime? _EndDate = null;
-        private JourneyDay _sunday = new JourneyDay();
-        private JourneyDay _monday = new JourneyDay();
-        private JourneyDay _tuesday = new JourneyDay();
-        private JourneyDay _wednesday = new JourneyDay();
-        private JourneyDay _thursday = new JourneyDay();
-        private JourneyDay _friday = new JourneyDay();
-        private JourneyDay _saturday = new JourneyDay();
+        /// <summary>
+        /// Empurra a data para dentro da proxima hora disponivel dentro jornada de trabalho
+        /// </summary>
+        /// <param name="[Date]">Data a ser Verificada</param>
+        public DateTime PushDateIntoJourney(DateTime Date)
+        {
+            while (Date.TimeOfDay > this.JourneyEndHour(Date).TimeOfDay || Date.TimeOfDay < this.JourneyStartHour(Date).TimeOfDay || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
+                Date = Date.AddMilliseconds(1d);
+
+            return Date;
+        }
 
         public TimeSpan GetWorkingTimeUntil(DateTime EndDate) => this.GetWorkTimeBetween(StartDate, EndDate);
 
@@ -1025,7 +668,6 @@ namespace InnerLibs.TimeMachine
         {
             return GetJourneyDay(DateAndTime).JourneyTime.TotalMilliseconds > 0;
         }
-
 
         /// <summary>
         /// Inicia uma nova Demanda com as propriedades do item
@@ -1035,8 +677,6 @@ namespace InnerLibs.TimeMachine
         /// <param name="Quantity">Quantidade de itens</param>
         public TimeDemand(DateTime StartDate, TimeSpan Time) : this(StartDate, Time, 1)
         { }
-
-
 
         /// <summary>
         /// Inicia uma nova Demanda com as propriedades do item
@@ -1058,7 +698,6 @@ namespace InnerLibs.TimeMachine
             this.StartDate = StartDate;
             this.ItemQuantity = Quantity;
             this.ItemProductionTime = Time;
-
         }
 
         /// <summary>
@@ -1095,7 +734,6 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public IEnumerable<DateTime> GetWorkDays(params DayOfWeek[] DaysOfWeek) => StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
 
-
         /// <summary>
         /// Dias relevantes (letivos) entre as datas inicial e final
         /// </summary>
@@ -1109,12 +747,6 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DateTime> NonRelevantDays => GetWorkDays().ClearTime().Where(x => x.IsNotIn(RelevantDays));
 
         /// <summary>
-        /// Retorna um TimeFlow desta demanda
-        /// </summary>
-        /// <returns></returns>
-        public LongTimeSpan ToLongTimeSpan() => new LongTimeSpan(StartDate, EndDate, RelevantDaysOfWeek.ToArray());
-
-        /// <summary>
         /// Retorna uma string representado a quantidade de itens e o tempo gasto com a produção
         /// </summary>
         /// <returns></returns>
@@ -1124,13 +756,13 @@ namespace InnerLibs.TimeMachine
         /// Retorna uma String no formato "X anos, Y meses e Z dias"
         /// </summary>
         /// <returns></returns>
-        public string ToTimeElapsedString() => this.ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", LongTimeSpanString.FullStringSkipZero);
+        public string ToTimeElapsedString() => this.ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", DateRangeString.FullStringSkipZero);
 
         /// <summary>
         /// Retorna uma String no formato "X anos, Y meses e Z dias"
         /// </summary>
         /// <returns></returns>
-        public string ToTimeElapsedString(string AndWord, string YearsWord, string MonthsWord, string DaysWord, string HoursWord, string MinutesWord, string SecondsWord, LongTimeSpanString Format = LongTimeSpanString.FullStringSkipZero)
+        public string ToTimeElapsedString(string AndWord, string YearsWord, string MonthsWord, string DaysWord, string HoursWord, string MinutesWord, string SecondsWord, DateRangeString Format = DateRangeString.FullStringSkipZero)
         {
             var data_final = EndDate;
             var data_inicial = StartDate;
@@ -1175,7 +807,7 @@ namespace InnerLibs.TimeMachine
                     dias.Add(DayOfWeek.Saturday);
                 if (dias.Count == 0)
                 {
-                    dias.AddRange(new[] { (DayOfWeek)0, (DayOfWeek)1, (DayOfWeek)2, (DayOfWeek)3, (DayOfWeek)4, (DayOfWeek)5, (DayOfWeek)6 });
+                    dias.AddRange(new[] { 0, 1, 2, 3, 4, 5, 6 }.Select(x => (DayOfWeek)x));
                 }
 
                 return dias.ToArray();
@@ -1194,7 +826,6 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public IEnumerable<DayOfWeek> NonRelevantDaysOfWeek => new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday }.Where(x => x.IsNotIn(RelevantDaysOfWeek));
 
-
         public JourneyDay GetJourneyDay(DayOfWeek DoW)
         {
             switch (DoW)
@@ -1212,14 +843,12 @@ namespace InnerLibs.TimeMachine
 
         public JourneyDay GetJourneyDay(DateTime Date) => GetJourneyDay(Date.DayOfWeek);
 
-
         /// <summary>
         /// Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as configuracoes desta demanda
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
         public TimeSpan TotalTime(DateTime Date) => GetJourneyDay(Date).TotalTime;
-
 
         /// <summary>
         /// Retorna o tempo da jornada de trabalho de uma data de acordo com as configuracoes desta demanda
@@ -1280,7 +909,7 @@ namespace InnerLibs.TimeMachine
             foreach (var dia in this.RelevantDays.Where(x => x.DayOfWeek.IsIn(RelevantDaysOfWeek)))
                 total += GetJourneyDay(dia).JourneyTime.TotalMilliseconds;
 
-            return new TimeSpan(0, 0, 0, 0, total.RoundInt());
+            return new DateRange(new TimeSpan(0, 0, 0, 0, total.RoundInt()));
         }
     }
 
@@ -1305,9 +934,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="Journey">Jornada de trabalho</param>
         public JourneyDay(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default) => SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
-
         public bool IsJourney => this.JourneyTime.Milliseconds > 0;
-
 
         /// <summary>
         /// Jornada de Trabalho/Produção
@@ -1375,11 +1002,7 @@ namespace InnerLibs.TimeMachine
         }
     }
 
-
-
-
-
-    public enum LongTimeSpanString
+    public enum DateRangeString
     {
         /// <summary>
         /// Retorna a string completa, incluindo os Zeros
@@ -1405,7 +1028,5 @@ namespace InnerLibs.TimeMachine
         /// Retorna somente o valor mais alto deste span
         /// </summary>
         ReduceMost = 4
-
-
     }
 }

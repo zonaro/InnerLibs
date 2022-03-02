@@ -45,6 +45,8 @@ namespace InnerLibs
                 return AdjustBlankSpaces(Texts?.FirstOrDefault());
         }
 
+        public static string ToSentence(this IEnumerable<string> Texts, string And = "and") => ToPhrase(Texts, And);
+
         public static IEnumerable<int> ToAsc(this string c) => c.ToArray().Select(x => x.ToAsc());
 
         public static byte ToAscByte(this char c) => (byte)c.ToAsc();
@@ -1018,7 +1020,6 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <returns></returns>
         public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank("").SplitAny(Arrays.InvisibleChars.Union(Arrays.BreakLineChars).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLower()).Distinct().ToArray();
-
 
         /// <summary>
         /// Pega o dominio principal de uma URL ou email
