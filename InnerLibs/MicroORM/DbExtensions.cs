@@ -248,7 +248,7 @@ namespace InnerLibs.MicroORM
 
                             return x.ToString().Quote('\'');
                         }).ToList();
-                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote("(", true).QuoteIf(pv.Count > 1, "("));
+                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote("(", true).Quote('('));
                     }
 
                     return CommandText;
@@ -626,7 +626,7 @@ namespace InnerLibs.MicroORM
                 Connection.ProccessSubQuery(x, WithSubQueries);
             }
 
-            return default;
+            return x ?? default;
         }
 
         /// <summary>

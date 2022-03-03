@@ -776,11 +776,16 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
+        /// <summary>
+        /// Returns the SELECT statement as a SQL query.
+        /// </summary>
+        /// <returns>The SELECT statement as a SQL query</returns>
         public override string ToString() => ToString(false);
 
         /// <summary>
         /// Returns the SELECT statement as a SQL query.
         /// </summary>
+        /// <param name="AsSubquery">when TRUE, prevent uncompatibble statements for subqueries</param>
         /// <returns>The SELECT statement as a SQL query</returns>
         public string ToString(bool AsSubquery)
         {

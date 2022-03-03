@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -6,8 +7,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using InnerLibs.LINQ;
-using Microsoft.VisualBasic;
 
 namespace InnerLibs
 {
@@ -20,8 +19,6 @@ namespace InnerLibs
         /// <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
         /// <returns></returns>
         public static List<T> DefineEmptyList<T>(this T ObjectForDefinition) => new List<T>();
-
-
 
         /// <summary>
         /// Cria uma e adciona um objeto a ela. Util para tipos anonimos
@@ -52,12 +49,12 @@ namespace InnerLibs
             {
                 if (Verify.IsArray(Obj))
                 {
-                    var aobj = (object[])Obj;
-                    return Converter.ChangeArrayType<object>(aobj, Type);
+                    var aobj = ((Array)Obj).Cast<object>().ToArray();
+                    return Converter.ChangeArrayType(aobj, Type).ToArray();
                 }
-                else if (Obj.IsList())
+                else if (!Obj.IsTypeOf<string>() || Obj.IsEnumerable())
                 {
-                    var aobj = (List<object>)Obj;
+                    var aobj = (IEnumerable<object>)Obj;
                     return Converter.ChangeIEnumerableType(aobj, Type).ToArray();
                 }
                 else
@@ -229,7 +226,6 @@ namespace InnerLibs
                         try
                         {
                             return Converter.ConvertTo(Value, tipo);
-
                         }
                         catch
                         {
@@ -561,7 +557,6 @@ namespace InnerLibs
 
                                 case object _ when Verify.IsDate(result[key]):
                                     {
-
                                         l.Add(Convert.ToDateTime(result[key]));
                                         break;
                                     }

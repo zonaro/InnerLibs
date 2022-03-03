@@ -1201,10 +1201,7 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsTypeOf<O, T>(this O Obj)
-        {
-            return Obj.IsTypeOf(typeof(T));
-        }
+        public static bool IsTypeOf<T>(this object Obj) => Obj.IsTypeOf(typeof(T));
 
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
@@ -1212,10 +1209,7 @@ namespace InnerLibs
         /// <typeparam name="O"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsTypeOf<O>(this O Obj, Type Type)
-        {
-            return Obj.GetTypeOf() == Type.GetTypeOf();
-        }
+        public static bool IsTypeOf<O>(this O Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
 
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
@@ -1223,10 +1217,7 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsNullableTypeOf<O, T>(this O Obj)
-        {
-            return Obj.IsNullableTypeOf(typeof(T));
-        }
+        public static bool IsNullableTypeOf<O, T>(this O Obj) => Obj.IsNullableTypeOf(typeof(T));
 
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
@@ -1234,10 +1225,7 @@ namespace InnerLibs
         /// <typeparam name="O"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsNullableTypeOf<O>(this O Obj, Type Type)
-        {
-            return Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
-        }
+        public static bool IsNullableTypeOf<O>(this O Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
 
         /// <summary>
         /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
