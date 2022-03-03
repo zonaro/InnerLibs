@@ -80,7 +80,7 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                byte[] Results;
+                byte[] Results = default;
                 var UTF8 = new UTF8Encoding();
                 var HashProvider = new MD5CryptoServiceProvider();
                 var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("12345")));
@@ -115,7 +115,7 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                byte[] Results;
+                byte[] Results = default;
                 var UTF8 = new UTF8Encoding();
                 var HashProvider = new MD5CryptoServiceProvider();
                 var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("12345")));
