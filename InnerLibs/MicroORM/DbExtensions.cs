@@ -220,8 +220,10 @@ namespace InnerLibs.MicroORM
                         var valores = SQL.GetArgument(index);
                         var v = Converter.ForceArray(valores, typeof(object));
                         var paramvalues = new List<object>();
+
                         for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
                             paramvalues.Add(v[v_index]);
+
                         var pv = paramvalues.Select(x =>
                         {
                             if (x == null)

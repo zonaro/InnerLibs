@@ -34,7 +34,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of weeks * 7).
+        /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of days * 7).
         /// </summary>
         public static DateRange Weeks(this int weeks)
         {
@@ -42,7 +42,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of weeks * 7).
+        /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of days * 7).
         /// </summary>
         public static DateRange Weeks(this double weeks)
         {

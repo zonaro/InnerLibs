@@ -20,7 +20,7 @@ namespace InnerLibs.TimeMachine
     }
 
     /// <summary>
-    /// Classe para comparação entre 2 Datas com possibilidade de validação de dias Relevantes
+    /// Extendend <see cref="TimeSpan"/> with validation of Business Days and many other <see cref="DateTime"/> functions
     /// </summary>
     public class DateRange : IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>
     {
@@ -117,7 +117,7 @@ namespace InnerLibs.TimeMachine
             if (ForceFirstAndLastMoments)
             {
                 _startDate = _startDate.Date;
-                _enddate = _enddate.GetLastMoment();
+                _enddate = _enddate.EndOfDay();
             }
 
             var CurDate = _startDate;
