@@ -281,7 +281,7 @@ namespace InnerLibs.MicroORM
         /// <param name="ProcedureName">  Nome da Procedure</param>
         /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
         /// <returns>Um DbCommand parametrizado</returns>
-        public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj.CreateDictionary(), Keys);
+        public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Keys);
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e utiliza os pares de um dicionario como parametros da procedure
@@ -293,6 +293,7 @@ namespace InnerLibs.MicroORM
 
         public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, params string[] Keys)
         {
+            Dic = Dic ?? new Dictionary<string, object>();
             Keys = Keys ?? Array.Empty<string>();
             if (!Keys.Any())
             {
