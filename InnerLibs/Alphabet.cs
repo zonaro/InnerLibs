@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Text;
 
-
 namespace InnerLibs
 {
-
     /// <summary>
     /// Classe para encodar IDs numéricos em hashs curtas
     /// </summary>
@@ -21,8 +19,7 @@ namespace InnerLibs
             {
                 for (int index = 1, loopTo = Seed.Length; index <= loopTo; index++)
                 {
-                    int ii = index - 1;
-                    Alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789".OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[ii].ToString()).FirstOrDefault()).JoinString("");
+                    Alphabet = PredefinedArrays.AlphaNumericChars.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[index - 1].ToString()).FirstOrDefault()).JoinString("");
                 }
 
                 this.Seed = Seed;
@@ -33,10 +30,7 @@ namespace InnerLibs
 
         public readonly string Seed = null;
 
-        public string RandomHash()
-        {
-            return Encode(Generate.RandomNumber());
-        }
+        public string RandomHash() => Encode(Generate.RandomNumber());
 
         public string Encode(int i)
         {

@@ -30,14 +30,14 @@ namespace InnerLibs
             string word = "";
             if (Length == 1)
             {
-                return Text.RandomItem(Arrays.LowerConsonants.Union(Arrays.LowerVowels).ToArray());
+                return Text.RandomItem(PredefinedArrays.LowerConsonants.Union(PredefinedArrays.LowerVowels).ToArray());
             }
 
             // Generate the word in consonant / vowel pairs
             while (word.Length < Length)
             {
                 // Add the consonant
-                string consonant = Arrays.LowerConsonants.GetRandomItem();
+                string consonant = PredefinedArrays.LowerConsonants.GetRandomItem();
                 if (consonant == "q" && word.Length + 3 <= Length)
                 {
                     // check +3 because we'd add 3 characters in this case, the "qu" and the vowel.  Change 3 to 2 to allow words that end in "qu"
@@ -47,7 +47,7 @@ namespace InnerLibs
                 {
                     while (consonant == "q")
                         // ReplaceFrom an orphaned "q"
-                        consonant = Arrays.LowerConsonants.GetRandomItem();
+                        consonant = PredefinedArrays.LowerConsonants.GetRandomItem();
                     if (word.Length + 1 <= Length)
                     {
                         // Only add a consonant if there's enough room remaining
@@ -58,7 +58,7 @@ namespace InnerLibs
                 if (word.Length + 1 <= Length)
                 {
                     // Only add a vowel if there's enough room remaining
-                    word += Arrays.LowerVowels.GetRandomItem();
+                    word += PredefinedArrays.LowerVowels.GetRandomItem();
                 }
             }
 
@@ -85,7 +85,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < AlphaLowerLenght)
-                    ss = ss.Append(Arrays.AlphaLowerChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.AlphaLowerChars.TakeRandom(1).FirstOrDefault());
                 pass = pass.Append(ss);
             }
 
@@ -93,7 +93,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < AlphaUpperLenght)
-                    ss = ss.Append(Arrays.AlphaUpperChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.AlphaUpperChars.TakeRandom(1).FirstOrDefault());
                 pass = pass.Append(ss);
             }
 
@@ -101,7 +101,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < NumberLenght)
-                    ss = ss.Append(Arrays.NumberChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.NumberChars.TakeRandom(1).FirstOrDefault());
                 pass = pass.Append(ss);
             }
 
@@ -109,7 +109,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < SpecialLenght)
-                    ss = ss.Append(Arrays.PasswordSpecialChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.PasswordSpecialChars.TakeRandom(1).FirstOrDefault());
                 pass = pass.Append(ss);
             }
 
@@ -119,7 +119,7 @@ namespace InnerLibs
         public static string Password(int Lenght = 8)
         {
             var @base = Lenght / 3d;
-            return Password(@base.CeilInt(), @base.FloorInt(), @base.FloorInt()).PadRight(Lenght, Convert.ToChar(Arrays.AlphaChars.TakeRandom(1).FirstOrDefault())).GetFirstChars(Lenght);
+            return Password(@base.CeilInt(), @base.FloorInt(), @base.FloorInt()).PadRight(Lenght, Convert.ToChar(PredefinedArrays.AlphaChars.TakeRandom(1).FirstOrDefault())).GetFirstChars(Lenght);
         }
 
         /// <summary>
@@ -156,21 +156,21 @@ namespace InnerLibs
         /// <param name="Min">Numero minimo, Padrão 0 </param>
         /// <param name="Max">Numero Maximo, Padrão 999999</param>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean(Func<int, bool> Condition, int Min = 0, int Max = 999999) => Condition(RandomNumber(Min, Max));
+        public static bool RandomBoolean(Func<int, bool> Condition, int Min = 0, int Max = int.MaxValue) => Condition(RandomNumber(Min, Max));
 
         /// <summary>
         /// Gera um valor boolean aleatorio
         /// </summary>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean() => init_rnd.Next(0, 1).ToBoolean();
+        public static bool RandomBoolean() => RandomNumber(0, 1).ToBoolean();
 
         /// <summary>
         /// Gera um numero Aleatório entre 2 números
         /// </summary>
         /// <param name="Min">Numero minimo, Padrão 0 </param>
-        /// <param name="Max">Numero Maximo, Padrão 999999</param>
-        /// <returns>Um numero Inteiro (Integer ou Int)</returns>
-        public static int RandomNumber(int Min = 0, int Max = 999999) => init_rnd.Next(Min, Max + 1);
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static int RandomNumber(int Min = 0, int Max = int.MaxValue) => init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
 
         /// <summary>
         /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
@@ -197,7 +197,7 @@ namespace InnerLibs
                 if (l.Any(x => (x.ToHexadecimal() ?? "") == (r.ToHexadecimal() ?? "")))
                 {
                     errorcount = errorcount + 1;
-                    if (errorcount == 5)
+                    if (errorcount == Quantity)
                     {
                         return l;
                     }
@@ -218,10 +218,10 @@ namespace InnerLibs
         /// Gera um texto aleatorio
         /// </summary>
         /// <param name="ParagraphCount">Quantidade de paragrafos</param>
-        /// <param name="SentenceCount">QUantidade de sentecas por paragrafo</param>
+        /// <param name="SentenceCount">QUantidade de sentenças por paragrafo</param>
         /// <param name="MinWordCount"></param>
         /// <param name="MaxWordCount"></param>
         /// <returns></returns>
-        public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), Arrays.EndOfSentencePunctuation.FirstRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
+        public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.FirstRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
     }
 }

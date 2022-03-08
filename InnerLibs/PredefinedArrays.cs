@@ -7,7 +7,7 @@ namespace InnerLibs
     /// <summary>
     /// Arrays de uso comum da biblioteca
     /// </summary>
-    public static class Arrays
+    public static class PredefinedArrays
     {
         /// <summary>
         /// Caracteres usado para encapsular palavras em textos
@@ -26,7 +26,8 @@ namespace InnerLibs
         public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n", "<br>", "<br/>", "<br />" }.AsEnumerable();
 
         public static IEnumerable<string> CloseWrappers => new[] { "\"", "'", ")", "}", "]", ">" }.AsEnumerable();
-        public static IEnumerable<string> Bars => new[] { "|", "\\", "/" }.AsEnumerable();
+
+        public static IEnumerable<string> Slashes => new[] { "|", @"\", "/" }.AsEnumerable();
 
         public static IEnumerable<string> EndOfSentencePunctuation => new[] { ".", "?", "!" }.AsEnumerable();
 

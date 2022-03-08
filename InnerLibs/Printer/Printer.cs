@@ -626,7 +626,7 @@ namespace InnerLibs.Printer
                 {
                     try
                     {
-                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", InnerLibs.Arrays.BreakLineChars.ToArray());
+                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", InnerLibs.PredefinedArrays.BreakLineChars.ToArray());
                         if (v == "<br/>")
                         {
                             HTMLDocument.Root.Add("<br/>");
@@ -660,9 +660,9 @@ namespace InnerLibs.Printer
         {
             if (Test)
             {
-                if (value.ContainsAny(Arrays.BreakLineChars.ToArray()))
+                if (value.ContainsAny(PredefinedArrays.BreakLineChars.ToArray()))
                 {
-                    foreach (var line in value.SplitAny(Arrays.BreakLineChars.ToArray()))
+                    foreach (var line in value.SplitAny(PredefinedArrays.BreakLineChars.ToArray()))
                         this.WriteLine(line, Test && line.IsNotBlank());
                 }
                 else if (value.IsNotBlank())
@@ -997,7 +997,7 @@ namespace InnerLibs.Printer
                 foreach (var item in Objects)
                 {
                     string ns = TemplateString.Inject(item);
-                    this.WriteLine(ns.SplitAny(InnerLibs.Arrays.BreakLineChars.ToArray()));
+                    this.WriteLine(ns.SplitAny(InnerLibs.PredefinedArrays.BreakLineChars.ToArray()));
                     if (PartialCutOnEach)
                         PartialPaperCut();
                     else

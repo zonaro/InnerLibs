@@ -232,7 +232,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <returns></returns>
         public static HSVColor FindColor(this string Text) => HSVColor.NamedColors
-                .FirstOrDefault(x => x.Name.ToLower().Replace("grey", "gray").RemoveAny(Arrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLower().Replace("grey", "gray").RemoveAny(Arrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
+                .FirstOrDefault(x => x.Name.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
 
         /// <summary>
         /// Gera uma cor aleatória misturando ou não os canais RGB

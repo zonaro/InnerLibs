@@ -9,7 +9,7 @@ namespace InnerLibs
     [Obsolete("Experimental Cryptography. Insecure")]
     public static class InnerCrypt
     {
-        private static string[] Array_letras => Arrays.AlphaChars.ToArray();
+        private static string[] Array_letras => PredefinedArrays.AlphaChars.ToArray();
 
         /// <summary>
         /// Criptografa uma suma string usando a logica InnerCrypt

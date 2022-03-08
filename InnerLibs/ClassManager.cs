@@ -1169,7 +1169,7 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsValueType(this Type T) => T.IsIn(Arrays.ValueTypes);
+        public static bool IsValueType(this Type T) => T.IsIn(PredefinedArrays.ValueTypes);
 
         public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
 
@@ -1181,7 +1181,7 @@ namespace InnerLibs
         /// </remarks>
         public static bool IsNumericType<T>(this T Obj)
         {
-            return Obj.GetNullableTypeOf().IsIn(Arrays.NumericTypes);
+            return Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
         }
 
         public static bool IsNullableType(this Type t)

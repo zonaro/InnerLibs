@@ -93,7 +93,7 @@ namespace InnerLibs
                 var listabase = new List<string>();
 
                 // remove quaisquer caracteres nao desejados do inicio da frase
-                while (charlist.Count > 0 && charlist.First().ToString().IsIn(Arrays.EndOfSentencePunctuation))
+                while (charlist.Count > 0 && charlist.First().ToString().IsIn(PredefinedArrays.EndOfSentencePunctuation))
                     charlist.Remove(charlist.First());
 
                 // processa caractere a caractere
@@ -102,10 +102,10 @@ namespace InnerLibs
                     switch (true)
                     {
                         // caso for algum tipo de pontuacao, wrapper ou virgula
-                        case object _ when Arrays.OpenWrappers.Contains(Convert.ToString(p)):
-                        case object _ when Arrays.CloseWrappers.Contains(Convert.ToString(p)):
-                        case object _ when Arrays.EndOfSentencePunctuation.Contains(Convert.ToString(p)):
-                        case object _ when Arrays.MidSentencePunctuation.Contains(Convert.ToString(p)):
+                        case object _ when PredefinedArrays.OpenWrappers.Contains(Convert.ToString(p)):
+                        case object _ when PredefinedArrays.CloseWrappers.Contains(Convert.ToString(p)):
+                        case object _ when PredefinedArrays.EndOfSentencePunctuation.Contains(Convert.ToString(p)):
+                        case object _ when PredefinedArrays.MidSentencePunctuation.Contains(Convert.ToString(p)):
                             {
                                 if (palavra.IsNotBlank())
                                 {
@@ -153,7 +153,7 @@ namespace InnerLibs
                     }
 
                     // se a ultima sentecao nao for nenhum tipo de pontuacao, adicionamos um ponto a ela
-                    if (!listabase.Last().IsInAny(new[] { Arrays.EndOfSentencePunctuation, Arrays.MidSentencePunctuation }))
+                    if (!listabase.Last().IsInAny(new[] { PredefinedArrays.EndOfSentencePunctuation, PredefinedArrays.MidSentencePunctuation }))
                     {
                         listabase.Add(".");
                     }
@@ -226,7 +226,7 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsOpenWrapChar()
         {
-            return Arrays.OpenWrappers.Contains(Text);
+            return PredefinedArrays.OpenWrappers.Contains(Text);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsCloseWrapChar()
         {
-            return Arrays.CloseWrappers.Contains(Text);
+            return PredefinedArrays.CloseWrappers.Contains(Text);
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsEndOfSentencePunctuation()
         {
-            return Arrays.EndOfSentencePunctuation.Contains(Text);
+            return PredefinedArrays.EndOfSentencePunctuation.Contains(Text);
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsMidSentencePunctuation()
         {
-            return Arrays.MidSentencePunctuation.Contains(Text);
+            return PredefinedArrays.MidSentencePunctuation.Contains(Text);
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace InnerLibs
                 return "";
             }
 
-            if (indexo == 0 || indexo == 1 && Arrays.OpenWrappers.Contains(Sentence[0].Text))
+            if (indexo == 0 || indexo == 1 && PredefinedArrays.OpenWrappers.Contains(Sentence[0].Text))
             {
                 return Text.ToProperCase();
             }
@@ -363,7 +363,7 @@ namespace InnerLibs
                 Clear();
                 if (OriginalText.IsNotBlank())
                 {
-                    foreach (var p in OriginalText.Split(Arrays.BreakLineChars.ToArray(), StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var p in OriginalText.Split(PredefinedArrays.BreakLineChars.ToArray(), StringSplitOptions.RemoveEmptyEntries))
                     {
                         if (p.IsNotBlank())
                         {

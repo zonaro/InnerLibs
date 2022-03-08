@@ -714,7 +714,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-        public static bool IsBlank(this string Text) => string.IsNullOrWhiteSpace(Text.RemoveAny(Arrays.BreakLineChars.ToArray()));
+        public static bool IsBlank(this string Text) => string.IsNullOrWhiteSpace(Text.RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
 
         /// <summary>
         /// Verifica se uma String está em branco

@@ -128,7 +128,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, params string[] Args)
         {
-            if (FilePathOrSQL != null)
+            if (FilePathOrSQL.IsNotBlank())
             {
                 if (FilePathOrSQL.IsFilePath())
                 {
@@ -184,7 +184,7 @@ namespace InnerLibs.MicroORM
                             param_names.Add("@" + param.ParameterName);
                         }
 
-                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.JoinString(",").IfBlank("NULL").QuoteIf(param_names.Count > 1, "("));
+                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.JoinString(",").IfBlank("NULL").UnQuote("(", true).Quote('('));
                     }
                 }
                 else

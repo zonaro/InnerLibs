@@ -1194,7 +1194,7 @@ namespace InnerLibs.Locations
 
         public static PropertyInfo GetAddressTypeProperty(string Endereco)
         {
-            string tp = Endereco.IfBlank("").Split(Arrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).FirstOr("");
+            string tp = Endereco.IfBlank("").Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).FirstOr("");
             if (tp.IsNotBlank())
             {
                 var df = new AddressTypes();

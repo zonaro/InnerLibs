@@ -93,7 +93,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string BoxText(this string Text)
         {
-            var Lines = Text.SplitAny(Arrays.BreakLineChars.ToArray()).ToList();
+            var Lines = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).ToList();
             string linha_longa = "";
             int charcount = Lines.Max(x => x.Length);
             if (charcount.IsEven())
@@ -342,7 +342,7 @@ namespace InnerLibs
                 Text = Text.Replace("{", " {");
                 Text = Text.Replace(":", ": ");
                 Text = Text.Replace(";", "; ");
-                foreach (var item in Arrays.AlphaChars)
+                foreach (var item in PredefinedArrays.AlphaChars)
                     Text = Text.SensitiveReplace($" -{item}", $" - {item}");
                 Text = Text.Replace("- ", " - ");
                 Text = Text.Replace("\"", " \"");
@@ -489,7 +489,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ApplySpaceOnWrapChars(this string Text)
         {
-            foreach (var c in Arrays.WordWrappers)
+            foreach (var c in PredefinedArrays.WordWrappers)
                 Text = Text.Replace(c, " " + c + " ");
             return Text;
         }
@@ -568,7 +568,7 @@ namespace InnerLibs
                         censored += CensorshipCharacter;
                     for (int index = 0, loopTo1 = words.Length - 1; index <= loopTo1; index++)
                     {
-                        if ((words[index].RemoveDiacritics().RemoveAny(Arrays.WordSplitters.ToArray()).ToLower() ?? "") == (bad.RemoveDiacritics().RemoveAny(Arrays.WordSplitters.ToArray()).ToLower() ?? ""))
+                        if ((words[index].RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLower() ?? "") == (bad.RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLower() ?? ""))
                         {
                             words[index] = words[index].ToLower().Replace(bad, censored);
                             IsCensored = true;
@@ -705,7 +705,7 @@ namespace InnerLibs
         {
             if (Words == null)
                 Words = Array.Empty<string>();
-            var palavras = Text.Split(Arrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToArray();
+            var palavras = Text.Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToArray();
             if (Words.Any())
             {
                 palavras = palavras.Where(x => Words.Select(y => y.ToLower()).Contains(x.ToLower())).ToArray();
@@ -1019,7 +1019,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank("").SplitAny(Arrays.InvisibleChars.Union(Arrays.BreakLineChars).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLower()).Distinct().ToArray();
+        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank("").SplitAny(PredefinedArrays.InvisibleChars.Union(PredefinedArrays.BreakLineChars).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLower()).Distinct().ToArray();
 
         /// <summary>
         /// Pega o dominio principal de uma URL ou email
@@ -1234,9 +1234,9 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Caractere</param>
         /// <returns></returns>
-        public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(Arrays.OpenWrappers);
+        public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.OpenWrappers);
 
-        public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(Arrays.CloseWrappers);
+        public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.CloseWrappers);
 
         /// <summary>
         /// Sorteia um item da Lista
@@ -1284,7 +1284,7 @@ namespace InnerLibs
         public static IOrderedEnumerable<string> GetWords(this string Text)
         {
             var txt = new List<string>();
-            var palavras = Text.AdjustWhiteSpaces().FixHTMLBreakLines().ToLower().RemoveHTML().Split(Arrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            var palavras = Text.AdjustWhiteSpaces().FixHTMLBreakLines().ToLower().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             foreach (var w in palavras) txt.Add(w);
             return txt.Distinct().OrderBy(x => x);
         }
@@ -1326,7 +1326,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlEncode(this string Text) => System.Net.WebUtility.HtmlEncode("" + Text.ReplaceMany("<br>", Arrays.BreakLineChars.ToArray()));
+        public static string HtmlEncode(this string Text) => System.Net.WebUtility.HtmlEncode("" + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
 
         /// <summary>
         /// Verifica se uma palavra é um Anagrama de outra palavra
@@ -1541,12 +1541,12 @@ namespace InnerLibs
             {
                 decimal l = (decimal)(Text.Length / 2d);
                 l = l.Floor();
-                if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLower().IsIn(Arrays.LowerVowels))
+                if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLower().IsIn(PredefinedArrays.LowerVowels))
                 {
                     l = l.ChangeType<int, decimal>() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().JoinString().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).RemoveFirstAny(Arrays.LowerConsonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().JoinString().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).RemoveFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
@@ -1807,8 +1807,8 @@ namespace InnerLibs
         {
             if (OpenQuoteChar.IsBlank())
             {
-                while (Text.EndsWithAny(Arrays.CloseWrappers.ToArray()) || Text.StartsWithAny(Arrays.OpenWrappers.ToArray()))
-                    Text = Text.TrimAny(ContinuouslyRemove, Arrays.WordWrappers.ToArray());
+                while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToArray()))
+                    Text = Text.TrimAny(ContinuouslyRemove, PredefinedArrays.WordWrappers.ToArray());
             }
             else
             {
@@ -2319,14 +2319,14 @@ namespace InnerLibs
             for (int index = 0, loopTo = phrase.Count() - 1; index <= loopTo; index++)
             {
                 string endchar = phrase[index].GetLastChars();
-                if (endchar.IsAny(Arrays.WordSplitters.ToArray()))
+                if (endchar.IsAny(PredefinedArrays.WordSplitters.ToArray()))
                 {
                     phrase[index] = phrase[index].RemoveLastEqual(endchar);
                 }
 
                 switch (true)
                 {
-                    case object _ when phrase[index].IsNumber() || phrase[index].IsEmail() || phrase[index].IsURL() || phrase[index].IsIP() || phrase[index].IsIn(Arrays.WordSplitters):
+                    case object _ when phrase[index].IsNumber() || phrase[index].IsEmail() || phrase[index].IsURL() || phrase[index].IsIP() || phrase[index].IsIn(PredefinedArrays.WordSplitters):
                         {
                             // nao alterar estes tipos
                             break;
@@ -2408,7 +2408,7 @@ namespace InnerLibs
                         // ja esta no singular
                 }
 
-                if (endchar.IsAny(Arrays.WordSplitters.ToArray()))
+                if (endchar.IsAny(PredefinedArrays.WordSplitters.ToArray()))
                 {
                     phrase[index] = phrase[index] + endchar;
                 }
@@ -4153,7 +4153,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string TrimCarriage(this string Text) => Text.TrimAny(Arrays.InvisibleChars.ToArray());
+        public static string TrimCarriage(this string Text) => Text.TrimAny(PredefinedArrays.InvisibleChars.ToArray());
 
         /// <summary>
         /// Decoda uma string de uma transmissão por URL
@@ -4195,7 +4195,7 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank() && Action != null)
             {
-                Text = Text.SplitAny(Arrays.BreakLineChars.ToArray()).Select(x => Action.Compile().Invoke(x)).JoinString(Environment.NewLine);
+                Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Compile().Invoke(x)).JoinString(Environment.NewLine);
             }
 
             return Text;

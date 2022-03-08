@@ -37,7 +37,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Verifica se um objeto é um array, e se negativo, cria um array de um unico item com o valor do objeto
+        /// Verifica se <paramref name="Obj"/> é um array e retorna este array. Se negativo, retorna um array contendo o valor de <paramref name="Obj"/> ou um array vazio se <paramref name="Obj"/> for nulo
         /// </summary>
         /// <param name="Obj">Objeto</param>
         /// <returns></returns>
@@ -52,7 +52,7 @@ namespace InnerLibs
                     var aobj = ((Array)Obj).Cast<object>().ToArray();
                     return Converter.ChangeArrayType(aobj, Type).ToArray();
                 }
-                else if (!Obj.IsTypeOf<string>() || Obj.IsEnumerable())
+                else if (!Obj.IsTypeOf<string>() && Obj.IsEnumerable())
                 {
                     var aobj = (IEnumerable<object>)Obj;
                     return Converter.ChangeIEnumerableType(aobj, Type).ToArray();
@@ -71,10 +71,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Obj">Objeto</param>
         /// <returns></returns>
-        public static OutputType[] ForceArray<OutputType>(this object Obj)
-        {
-            return ForceArray(Obj, typeof(OutputType)).Cast<OutputType>().ToArray();
-        }
+        public static OutputType[] ForceArray<OutputType>(this object Obj) => ForceArray(Obj, typeof(OutputType)).Cast<OutputType>().ToArray();
 
         /// <summary>
         /// Aplica as mesmas keys a todos os dicionarios de uma lista
