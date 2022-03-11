@@ -1,7 +1,9 @@
 ﻿using InnerLibs.LINQ;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,6 +15,20 @@ namespace InnerLibs
 {
     public static class ClassTools
     {
+        public static Hashtable GetPropertyHash<T>(T properties)
+        {
+            Hashtable values = null;
+            if (properties != null)
+            {
+                values = new Hashtable();
+                var props = TypeDescriptor.GetProperties(properties);
+                foreach (PropertyDescriptor prop in props)
+                    values.Add(prop.Name, prop.GetValue(properties));
+            }
+
+            return values;
+        }
+
         public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
 
         public static IEnumerable<Type> GetInheritedClasses(this Type MyType)
