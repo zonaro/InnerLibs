@@ -4265,6 +4265,8 @@ namespace InnerLibs
 
         public static string UnWrap(this string Text, string WrapText = "\"", bool ContinuouslyRemove = false) => Text.TrimAny(ContinuouslyRemove, WrapText);
 
+        public static string ToInjectedString(this object Obj, string TemplatedString) => TemplatedString.IfBlank("").Inject(Obj);
+
         public static string Inject<T>(this string formatString, T injectionObject)
         {
             if (injectionObject != null)
