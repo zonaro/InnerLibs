@@ -184,7 +184,7 @@ namespace InnerLibs.MicroORM
                             param_names.Add("@" + param.ParameterName);
                         }
 
-                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.JoinString(",").IfBlank("NULL").UnQuote("(", true).Quote('('));
+                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.JoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
                     }
                 }
                 else
@@ -248,7 +248,7 @@ namespace InnerLibs.MicroORM
 
                             return x.ToString().Quote('\'');
                         }).ToList();
-                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote("(", true).Quote('('));
+                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
                     }
 
                     return CommandText;
@@ -304,7 +304,7 @@ namespace InnerLibs.MicroORM
                 Keys = Dic.Keys.ToArray().Where(x => x.IsLikeAny(Keys)).ToArray();
             }
 
-            string sql = "EXEC " + ProcedureName + " " + Keys.SelectJoinString(key => " @" + key + " = " + "@__" + key, ", ");
+            string sql = $"{ProcedureName}  {Keys.SelectJoinString(key => " @" + key + " = " + "@__" + key, ", ")}";
             return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value));
         }
 

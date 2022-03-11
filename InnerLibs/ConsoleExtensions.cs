@@ -4,13 +4,11 @@ using System.Linq;
 
 namespace InnerLibs.Console
 {
-
     /// <summary>
     /// Métodos para manipulação de aplicações baseadas em Console (System.Console)
     /// </summary>
     public static class ConsoleExtensions
     {
-
         /// <summary>
         /// Escreve uma data com descrição no console
         /// </summary>
@@ -18,7 +16,7 @@ namespace InnerLibs.Console
         /// <param name="Text"></param>
         /// <param name="BreakLines"></param>
         /// <returns></returns>
-        public static string ConsoleWrite(this DateTime dateTime, string Text,int BreakLines = 0) => ConsoleWrite($"{dateTime} - {Text}",BreakLines);
+        public static string ConsoleWrite(this DateTime dateTime, string Text, int BreakLines = 0) => ConsoleWrite($"{dateTime} - {Text}", BreakLines);
 
         /// <summary>
         /// Escreve uma data com descrição no console e quebra 1 ou mais linhas
@@ -27,7 +25,7 @@ namespace InnerLibs.Console
         /// <param name="Text"></param>
         /// <param name="BreakLines"></param>
         /// <returns></returns>
-        public static string ConsoleWriteLine(this DateTime dateTime, string Text,int BreakLines = 1) => dateTime.ConsoleWrite(Text,BreakLines.SetMinValue(1));
+        public static string ConsoleWriteLine(this DateTime dateTime, string Text, int BreakLines = 1) => dateTime.ConsoleWrite(Text, BreakLines.SetMinValue(1));
 
         /// <summary>
         /// Escreve no console colorindo palavras especificas
@@ -152,20 +150,11 @@ namespace InnerLibs.Console
         /// <summary>
         /// Escreve o texto de uma exception no console
         /// </summary>
-        public static T ConsoleWriteError<T>(this T Exception) where T : Exception
-        {
-            return Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, 1);
-        }
+        public static T ConsoleWriteError<T>(this T Exception) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, 1);
 
-        public static T ConsoleWriteError<T>(this T Exception, ConsoleColor Color, int Lines = 1) where T : Exception
-        {
-            return Exception.ConsoleWriteError(" >> ", Color, Lines);
-        }
+        public static T ConsoleWriteError<T>(this T Exception, ConsoleColor Color, int Lines = 1) where T : Exception => Exception.ConsoleWriteError(" >> ", Color, Lines);
 
-        public static T ConsoleWriteError<T>(this T Exception, int Lines) where T : Exception
-        {
-            return Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, Lines);
-        }
+        public static T ConsoleWriteError<T>(this T Exception, int Lines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, Lines);
 
         /// <summary>
         /// Pula uma ou mais linhas no console

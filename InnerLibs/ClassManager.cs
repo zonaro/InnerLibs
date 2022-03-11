@@ -1265,16 +1265,9 @@ namespace InnerLibs
         /// <param name="source">   </param>
         /// <param name="alternate"></param>
         /// <returns></returns>
-        public static T LastOr<T>(this IEnumerable<T> source, T Alternate)
+        public static T LastOr<T>(this IEnumerable<T> source, params T[] Alternate)
         {
-            if (source != null && source.Any())
-            {
-                return source.Last();
-            }
-            else
-            {
-                return Alternate;
-            }
+            return source?.Any() ?? false ? source.Last() : Alternate.AsEnumerable().NullCoalesce();
         }
 
         /// <summary>
@@ -1297,7 +1290,7 @@ namespace InnerLibs
         /// <param name="First">Primeiro Item</param>
         /// <param name="N">    Outros itens</param>
         /// <returns></returns>
-        public static T NullCoalesce<T>(this T? First, params T?[] N) where T : struct
+        public static T? NullCoalesce<T>(this T? First, params T?[] N) where T : struct
         {
             var l = new List<T?>();
             l.Add(First);
@@ -1313,18 +1306,7 @@ namespace InnerLibs
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="List">Outros itens</param>
         /// <returns></returns>
-        public static T NullCoalesce<T>(this IEnumerable<T?> List) where T : struct
-        {
-            foreach (var item in List)
-            {
-                if (item.HasValue)
-                {
-                    return item.Value;
-                }
-            }
-
-            return (T)new T?();
-        }
+        public static T? NullCoalesce<T>(this IEnumerable<T?> List) where T : struct => List?.FirstOrDefault(x => x.HasValue) ?? default;
 
         /// <summary>
         /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
@@ -1335,12 +1317,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static T NullCoalesce<T>(this T First, params T[] N) where T : class
         {
-            var l = new List<T>();
-            l.Add(First);
-            l.AddRange(N);
-            if (First != null)
-                return First;
-            return N.NullCoalesce<T>();
+            if (First != null) return First;
+            return NullCoalesce((N ?? Array.Empty<T>()).AsEnumerable());
         }
 
         /// <summary>
@@ -1349,17 +1327,10 @@ namespace InnerLibs
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="List">Outros itens</param>
         /// <returns></returns>
-        public static T NullCoalesce<T>(this IEnumerable<T> List) where T : class
+        public static T NullCoalesce<T>(this IEnumerable<T> List)
         {
-            foreach (var item in List)
-            {
-                if (item != null)
-                {
-                    return item;
-                }
-            }
-
-            return null;
+            if (List == null) return default;
+            return List.FirstOrDefault(x => x != null);
         }
 
         /// <summary>
@@ -1387,10 +1358,7 @@ namespace InnerLibs
         /// <typeparam name="Tvalue"></typeparam>
         /// <param name="dic">      </param>
         /// <param name="predicate"></param>
-        public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate)
-        {
-            dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
-        }
+        public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate) => dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
 
         /// <summary>
         /// Seta o valor de uma propriedade de um objeto
@@ -1431,9 +1399,6 @@ namespace InnerLibs
         /// <param name="Current">Objeto contendo o primeiro ou segundo valor</param>
         /// <param name="TrueValue">Primeiro valor</param>
         /// <param name="FalseValue">Segundo Valor</param>
-        public static T Toggle<T>(this T Current, T TrueValue, T FalseValue = default)
-        {
-            return Current.Equals(TrueValue) ? FalseValue : TrueValue;
-        }
+        public static T Toggle<T>(this T Current, T TrueValue, T FalseValue = default) => Current.Equals(TrueValue) ? FalseValue : TrueValue;
     }
 }

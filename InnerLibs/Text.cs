@@ -762,7 +762,9 @@ namespace InnerLibs
         /// <param name="Text"> </param>
         /// <param name="Words"></param>
         /// <returns></returns>
-        public static bool EndsWithAny(this string Text, params string[] Words) => Words.Any(p => Text.EndsWith(p));
+        public static bool EndsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.EndsWith(p, comparison));
+
+        public static bool EndsWithAny(this string Text, params string[] Words) => EndsWithAny(Text, default, Words);
 
         /// <summary>
         /// Prepara uma string com aspas simples para uma Query TransactSQL
@@ -1795,17 +1797,17 @@ namespace InnerLibs
         {
             if (Convert.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
             {
-                OpenQuoteChar = Convert.ToChar(OpenQuoteChar.ToString().GetOppositeWrapChar());
+                OpenQuoteChar = OpenQuoteChar.ToString().GetOppositeWrapChar().FirstOrDefault();
             }
 
-            return OpenQuoteChar + Text + OpenQuoteChar.ToString().GetOppositeWrapChar();
+            return $"{OpenQuoteChar}{Text}{OpenQuoteChar.ToString().GetOppositeWrapChar()}";
         }
 
-        public static string UnQuote(this string Text) => Text.UnQuote("", true);
+        public static string UnQuote(this string Text) => Text.UnQuote(char.MinValue, true);
 
-        public static string UnQuote(this string Text, string OpenQuoteChar, bool ContinuouslyRemove = false)
+        public static string UnQuote(this string Text, char OpenQuoteChar, bool ContinuouslyRemove = false)
         {
-            if (OpenQuoteChar.IsBlank())
+            if ($"{OpenQuoteChar}".RemoveNonPrintable().IsBlank())
             {
                 while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToArray()))
                     Text = Text.TrimAny(ContinuouslyRemove, PredefinedArrays.WordWrappers.ToArray());
@@ -1814,10 +1816,10 @@ namespace InnerLibs
             {
                 if (OpenQuoteChar.ToString().IsCloseWrapChar())
                 {
-                    OpenQuoteChar = OpenQuoteChar.ToString().GetOppositeWrapChar();
+                    OpenQuoteChar = OpenQuoteChar.ToString().GetOppositeWrapChar().FirstOrDefault();
                 }
 
-                Text = Text.TrimAny(ContinuouslyRemove, OpenQuoteChar, OpenQuoteChar.ToString().GetOppositeWrapChar());
+                Text = Text.TrimAny(ContinuouslyRemove, $"{OpenQuoteChar}", OpenQuoteChar.ToString().GetOppositeWrapChar());
             }
 
             return Text;
@@ -1831,9 +1833,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Brackfy(this string Text, char BracketChar = '{') => Text.Quote(BracketChar);
 
-        public static string UnBrackfy(this string Text) => Text.UnBrackfy("", true);
+        public static string UnBrackfy(this string Text) => Text.UnBrackfy(char.MinValue, true);
 
-        public static string UnBrackfy(this string Text, string BracketChar, bool ContinuouslyRemove = false) => Text.UnQuote(BracketChar, ContinuouslyRemove);
+        public static string UnBrackfy(this string Text, char BracketChar, bool ContinuouslyRemove = false) => Text.UnQuote(BracketChar, ContinuouslyRemove);
 
         /// <summary>
         /// Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes) se uma
@@ -1842,7 +1844,7 @@ namespace InnerLibs
         /// <param name="Text">     Texto</param>
         /// <param name="QuoteChar">Caractere de encapsulamento</param>
         /// <returns></returns>
-        public static string QuoteIf(this string Text, bool Condition, string QuoteChar = "\"") => Condition ? Text.Quote(Convert.ToChar(QuoteChar)) : Text;
+        public static string QuoteIf(this string Text, bool Condition, char QuoteChar = '"') => Condition ? Text.Quote(QuoteChar) : Text;
 
         /// <summary>
         /// Sorteia um item da Matriz
@@ -1859,11 +1861,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RegexEscape(this string Text)
         {
-            var chars = new[] { '.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '|' };
             string newstring = "";
             foreach (var c in Text.ToArray())
             {
-                if (c.IsIn(chars))
+                if (c.IsIn(PredefinedArrays.RegexChars))
                 {
                     newstring += @"\" + c;
                 }
@@ -1927,14 +1928,14 @@ namespace InnerLibs
         /// </param>
         /// <param name="StartStringTest">   Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string RemoveFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest)
+        public static string RemoveFirstAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
         {
             string re = Text;
-            while (re.StartsWithAny(StartStringTest))
+            while (re.StartsWithAny(comparison, StartStringTest))
             {
                 foreach (var item in StartStringTest)
                 {
-                    if (re.StartsWith(item))
+                    if (re.StartsWith(item, comparison))
                     {
                         re = re.RemoveFirstEqual(item);
                         if (!ContinuouslyRemove)
@@ -1951,8 +1952,25 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">              Texto</param>
         /// <param name="StartStringTest">     Conjunto de textos que serão comparados</param>
+        /// <param name="comparison"></param>
         /// <returns></returns>
-        public static string RemoveFirstAny(this string Text, params string[] StartStringTest) => Text.RemoveFirstAny(true, StartStringTest);
+        public static string RemoveFirstAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.RemoveFirstAny(true, comparison, StartStringTest);
+
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">              Texto</param>
+        /// <param name="StartStringTest">     Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string RemoveFirstAny(this string Text, params string[] StartStringTest) => Text.RemoveFirstAny(true, default, StartStringTest);
+
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">              Texto</param>
+        /// <param name="StartStringTest">     Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string RemoveFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.RemoveFirstAny(ContinuouslyRemove, default, StartStringTest);
 
         /// <summary>
         /// Remove os X primeiros caracteres
@@ -1962,7 +1980,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RemoveFirstChars(this string Text, int Quantity = 1)
         {
-            if (Text.Length > Quantity)
+            if (Text.Length > Quantity && Quantity > 0)
             {
                 return Text.Remove(0, Quantity);
             }
@@ -1977,9 +1995,9 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">           Texto</param>
         /// <param name="StartStringTest">Texto inicial que será comparado</param>
-        public static string RemoveFirstEqual(this string Text, string StartStringTest)
+        public static string RemoveFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
         {
-            if (Text.StartsWith(StartStringTest))
+            if (Text.StartsWith(StartStringTest, comparison))
             {
                 Text = Text.RemoveFirstChars(StartStringTest.Length);
             }
@@ -2007,14 +2025,14 @@ namespace InnerLibs
         /// </param>
         /// <param name="EndStringTest">     Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string RemoveLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest)
+        public static string RemoveLastAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
         {
             string re = Text;
-            while (re.EndsWithAny(EndStringTest))
+            while (re.EndsWithAny(comparison, EndStringTest))
             {
                 foreach (var item in EndStringTest)
                 {
-                    if (re.EndsWith(item))
+                    if (re.EndsWith(item, comparison))
                     {
                         re = re.RemoveLastEqual(item);
                         if (!ContinuouslyRemove)
@@ -2032,7 +2050,24 @@ namespace InnerLibs
         /// <param name="Text">              Texto</param>
         /// <param name="EndStringTest">     Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string RemoveLastAny(this string Text, params string[] EndStringTest) => Text.RemoveLastAny(true, EndStringTest);
+        public static string RemoveLastAny(this string Text, params string[] EndStringTest) => Text.RemoveLastAny(true, default, EndStringTest);
+
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">              Texto</param>
+        /// <param name="EndStringTest">     Conjunto de textos que serão comparados</param>
+        /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
+        /// <returns></returns>
+        public static string RemoveLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.RemoveLastAny(ContinuouslyRemove, default, EndStringTest);
+
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">              Texto</param>
+        /// <param name="EndStringTest">     Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string RemoveLastAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.RemoveLastAny(true, comparison, EndStringTest);
 
         /// <summary>
         /// Remove os X ultimos caracteres
@@ -2040,16 +2075,26 @@ namespace InnerLibs
         /// <param name="Text">    Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.Substring(0, Text.Length - Quantity);
+        public static string RemoveLastChars(this string Text, int Quantity = 1)
+        {
+            if (Text.Length > Quantity && Quantity > 0)
+            {
+                return Text.Substring(0, Text.Length - Quantity);
+            }
+            else
+            {
+                return "";
+            }
+        }//
 
         /// <summary>
         /// Remove um texto do final de uma string se ele for um outro texto
         /// </summary>
         /// <param name="Text">         Texto</param>
         /// <param name="EndStringTest">Texto final que será comparado</param>
-        public static string RemoveLastEqual(this string Text, string EndStringTest)
+        public static string RemoveLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
         {
-            if (Text.EndsWith(EndStringTest))
+            if (Text.EndsWith(EndStringTest, comparison))
             {
                 Text = Text.RemoveLastChars(EndStringTest.Length);
             }
@@ -2452,7 +2497,9 @@ namespace InnerLibs
         /// <param name="Text"> </param>
         /// <param name="Words"></param>
         /// <returns></returns>
-        public static bool StartsWithAny(this string Text, params string[] Words) => Words.Any(p => Text.IfBlank("").StartsWith(p));
+        public static bool StartsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.IfBlank("").StartsWith(p, comparison));
+
+        public static bool StartsWithAny(this string Text, params string[] Words) => StartsWithAny(Text, StringComparison.InvariantCultureIgnoreCase, Words);
 
         /// <summary>
         /// Alterna maiusculas e minusculas para cada letra de uma string
