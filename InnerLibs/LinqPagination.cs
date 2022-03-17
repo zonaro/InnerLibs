@@ -407,15 +407,7 @@ namespace InnerLibs.LINQ
         /// <param name="ValueExpression"></param>
         /// <returns></returns>
 
-        public static ConstantExpression CreateConstant(Type Type, IComparable Value)
-        {
-            if (Value == null)
-            {
-                return Expression.Constant(null, Type);
-            }
-
-            return Expression.Constant(Value.ChangeType(Type));
-        }
+        public static ConstantExpression CreateConstant(Type Type, IComparable Value) => Value == null ? Expression.Constant(null, Type) : Expression.Constant(Value.ChangeType(Type));
 
         /// <summary>
         /// Cria uma constante a partir de um tipo genérico para ser usada em expressões lambda
@@ -444,7 +436,7 @@ namespace InnerLibs.LINQ
 
             BinaryExpression body = null;
             // Dim body As Expression = Nothing
-            switch (Operator.ToLower().IfBlank("equal") ?? "")
+            switch (Operator.ToLower().IfBlank("equal"))
             {
                 case "blank":
                 case "compareblank":
@@ -455,7 +447,7 @@ namespace InnerLibs.LINQ
                         foreach (var item in PropertyValues)
                         {
                             var exp = Expression.Equal(Member, Expression.Constant(string.Empty, Member.Type));
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = exp;
                             }
@@ -486,7 +478,7 @@ namespace InnerLibs.LINQ
                         foreach (var item in PropertyValues)
                         {
                             var exp = Expression.Equal(Member, Expression.Constant(null, Member.Type));
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = exp;
                             }
@@ -527,7 +519,7 @@ namespace InnerLibs.LINQ
                                 continue;
                             }
 
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = (BinaryExpression)exp;
                             }
@@ -574,7 +566,7 @@ namespace InnerLibs.LINQ
                                 continue;
                             }
 
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = (BinaryExpression)exp;
                             }
@@ -620,7 +612,7 @@ namespace InnerLibs.LINQ
                                 continue;
                             }
 
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = (BinaryExpression)exp;
                             }
@@ -697,7 +689,7 @@ namespace InnerLibs.LINQ
                                 continue;
                             }
 
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = (BinaryExpression)exp;
                             }
@@ -735,7 +727,7 @@ namespace InnerLibs.LINQ
                                 continue;
                             }
 
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = (BinaryExpression)exp;
                             }
@@ -764,21 +756,15 @@ namespace InnerLibs.LINQ
                     {
                         if (PropertyValues.Count() > 1)
                         {
-                            switch (Member.Type)
+                            if (Member.Type == typeof(string))
                             {
-                                case var @case when @case == typeof(string):
-                                    {
-                                        body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", !comparewith), new[] { PropertyValues.First() }, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", !comparewith), new[] { PropertyValues.Last() }, Conditional));
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        var ge = GetOperatorExpression(Member, "greaterequal".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional);
-                                        var le = GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional);
-                                        body = Expression.And(ge, le);
-                                        break;
-                                    }
+                                body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", !comparewith), new[] { PropertyValues.First() }, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", !comparewith), new[] { PropertyValues.Last() }, Conditional));
+                            }
+                            else
+                            {
+                                var ge = GetOperatorExpression(Member, "greaterequal".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional);
+                                var le = GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional);
+                                body = Expression.And(ge, le);
                             }
                         }
                         else
@@ -841,7 +827,7 @@ namespace InnerLibs.LINQ
                                             continue;
                                         }
 
-                                        if (body is null)
+                                        if (body == null)
                                         {
                                             body = (BinaryExpression)exp;
                                         }
@@ -894,7 +880,7 @@ namespace InnerLibs.LINQ
                                             continue;
                                         }
 
-                                        if (body is null)
+                                        if (body == null)
                                         {
                                             body = (BinaryExpression)exp;
                                         }
@@ -945,7 +931,7 @@ namespace InnerLibs.LINQ
                                             continue;
                                         }
 
-                                        if (body is null)
+                                        if (body == null)
                                         {
                                             body = (BinaryExpression)exp;
                                         }
@@ -996,7 +982,7 @@ namespace InnerLibs.LINQ
                                             continue;
                                         }
 
-                                        if (body is null)
+                                        if (body == null)
                                         {
                                             body = (BinaryExpression)exp;
                                         }
@@ -1049,7 +1035,7 @@ namespace InnerLibs.LINQ
                                             continue;
                                         }
 
-                                        if (body is null)
+                                        if (body == null)
                                         {
                                             body = (BinaryExpression)exp;
                                         }
@@ -1089,7 +1075,7 @@ namespace InnerLibs.LINQ
                             var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLower() ?? "") == (Operator.ToLower() ?? ""));
                             Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
                             exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
-                            if (body is null)
+                            if (body == null)
                             {
                                 body = (BinaryExpression)exp;
                             }
@@ -1137,7 +1123,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
         /// </summary>
         /// <typeparam name="T">Tipo do objeto acessado</typeparam>
         /// <param name="List">Lista</param>
@@ -1149,7 +1135,7 @@ namespace InnerLibs.LINQ
         public static T FirstOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.FirstOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
 
         /// <summary>
-        /// Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
         /// </summary>
         /// <typeparam name="T">Tipo do objeto acessado</typeparam>
         /// <param name="List">Lista</param>
@@ -1158,10 +1144,7 @@ namespace InnerLibs.LINQ
         /// <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
         /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
         /// <returns></returns>
-        public static T SingleOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true)
-        {
-            return List.SingleOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
-        }
+        public static T SingleOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.SingleOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
 
         /// <summary>
         /// Retorna as informacoes de uma propriedade a partir de um seletor
