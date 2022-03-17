@@ -376,8 +376,7 @@ namespace InnerLibs
                 HeaderProp.Method.GetParameters().First().Name
             };
             Groups.Values.MergeKeys();
-            foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x))
-                header.Add(HeaderProp(h));
+            foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x)) header.Add(HeaderProp(h));
             lista.Add(header);
             lista.AddRange(Groups.Select(x =>
             {
@@ -393,20 +392,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
+        /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays formando uma tabela
         /// </summary>
-        public static object ToTableArray<GroupKeyType, GroupValueType>(this Dictionary<GroupKeyType, GroupValueType> Groups)
-        {
-            return Groups.Select(x =>
-            {
-                var l = new List<object>
-                {
-                    x.Key,
-                    x.Value
-                };
-                return l.ToArray();
-            });
-        }
+        public static IEnumerable<object[]> ToTableArray<GroupKeyType, GroupValueType>(this Dictionary<GroupKeyType, GroupValueType> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
 
         /// <summary>
         /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade do mesmo objeto
@@ -433,10 +421,7 @@ namespace InnerLibs
         /// <param name="obj"></param>
         /// <param name="GroupSelector"></param>
         /// <returns></returns>
-        public static Dictionary<Group, long> GroupAndCountBy<Type, Group>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector)
-        {
-            return obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
-        }
+        public static Dictionary<Group, long> GroupAndCountBy<Type, Group>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
 
         /// <summary>
         /// Agrupa e conta os itens de uma lista a partir de uma propriedade
@@ -477,17 +462,7 @@ namespace InnerLibs
         /// <param name="TrueValue"> Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
-        public static R AsIf<T, R>(this T obj, Expression<Func<T, bool>> BoolExp, R TrueValue, R FalseValue = default)
-        {
-            if (obj == null || BoolExp == null)
-            {
-                return FalseValue;
-            }
-            else
-            {
-                return BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
-            }
-        }
+        public static R AsIf<T, R>(this T obj, Expression<Func<T, bool>> BoolExp, R TrueValue, R FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -537,16 +512,19 @@ namespace InnerLibs
         {
             foreach (T value in List2 ?? Array.Empty<T>())
             {
-                if (Comparer is null)
+                if (Comparer != null)
+                {
+                    if (!(List1 ?? Array.Empty<T>()).Contains(value, Comparer))
+                    {
+                        return false;
+                    }
+                }
+                else
                 {
                     if (!(List1 ?? Array.Empty<T>()).Contains(value))
                     {
                         return false;
                     }
-                }
-                else if (!(List1 ?? Array.Empty<T>()).Contains(value, Comparer))
-                {
-                    return false;
                 }
             }
 
@@ -697,36 +675,6 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">   </param>
-        /// <param name="alternate"></param>
-        /// <returns></returns>
-        public static T FirstOr<T>(this IEnumerable<T> source, T Alternate)
-        {
-            var item = (source ?? Array.Empty<T>()).FirstOrDefault();
-            if (item == null)
-            {
-                return Alternate;
-            }
-            return item;
-        }
-
-        /// <summary>
-        /// Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">   </param>
-        /// <param name="alternate"></param>
-        /// <returns></returns>
-        public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicate, T Alternate)
-        {
-            var item = (source ?? Array.Empty<T>()).FirstOrDefault(predicate);
-            return item == null ? Alternate : item;
-        }
-
-        /// <summary>
         /// O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -777,20 +725,14 @@ namespace InnerLibs
         /// <param name="target"></param>
         /// <param name="attribType"></param>
         /// <returns></returns>
-        public static bool HasAttribute(this PropertyInfo target, Type attribType)
-        {
-            return target?.GetCustomAttributes(attribType, false).Any() == true;
-        }
+        public static bool HasAttribute(this PropertyInfo target, Type attribType) => target?.GetCustomAttributes(attribType, false).Any() ?? false;
 
         /// <summary>
         /// Verifica se um atributo foi definido em uma propriedade de uma classe
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
-        public static bool HasAttribute<T>(this PropertyInfo target)
-        {
-            return target?.HasAttribute(typeof(T)) == true;
-        }
+        public static bool HasAttribute<T>(this PropertyInfo target) => target?.HasAttribute(typeof(T)) ?? false;
 
         /// <summary>
         /// Traz o valor de uma enumeração a partir de uma string
@@ -855,55 +797,37 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static IEnumerable<PropertyInfo> GetProperties<O>(this O MyObject, BindingFlags BindAttr)
-        {
-            return MyObject.GetTypeOf().GetProperties(BindAttr).ToList();
-        }
+        public static IEnumerable<PropertyInfo> GetProperties<O>(this O MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetProperties(BindAttr).ToList();
 
-        public static IEnumerable<FieldInfo> GetFields<O>(this O MyObject, BindingFlags BindAttr)
-        {
-            return MyObject.GetTypeOf().GetFields(BindAttr).ToList();
-        }
+        public static IEnumerable<FieldInfo> GetFields<O>(this O MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
 
         /// <summary>
         /// Traz uma Lista com todas as propriedades de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static IEnumerable<PropertyInfo> GetProperties<O>(this O MyObject)
-        {
-            return MyObject.GetTypeOf().GetProperties().ToList();
-        }
+        public static IEnumerable<PropertyInfo> GetProperties<O>(this O MyObject) => MyObject.GetTypeOf().GetProperties().ToList();
 
         /// <summary>
         /// Traz uma Lista com todas as propriedades de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static IEnumerable<FieldInfo> GetFields<O>(this O MyObject)
-        {
-            return MyObject.GetTypeOf().GetFields().ToList();
-        }
+        public static IEnumerable<FieldInfo> GetFields<O>(this O MyObject) => MyObject.GetTypeOf().GetFields().ToList();
 
         /// <summary>
         /// Traz uma propriedade de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static PropertyInfo GetProperty<O>(this O MyObject, string Name)
-        {
-            return MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
-        }
+        public static PropertyInfo GetProperty<O>(this O MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
 
         /// <summary>
         /// Traz uma propriedade de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static FieldInfo GetField<O>(this O MyObject, string Name)
-        {
-            return MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
-        }
+        public static FieldInfo GetField<O>(this O MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
 
         /// <summary>
         /// Traz uma propriedade de um objeto
@@ -929,19 +853,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="FileName"></param>
         /// <returns></returns>
-        public static byte[] GetResourceBytes(this Assembly Assembly, string FileName)
-        {
-            var resourceStream = Assembly.GetManifestResourceStream(FileName);
-            if (resourceStream is null)
-            {
-                return null;
-            }
-
-            var fontBytes = new byte[(int)(resourceStream.Length - 1L + 1)];
-            resourceStream.Read(fontBytes, 0, (int)resourceStream.Length);
-            resourceStream.Close();
-            return fontBytes;
-        }
+        public static byte[] GetResourceBytes(this Assembly Assembly, string FileName) => Assembly.GetManifestResourceStream(FileName)?.ToBytes() ?? Array.Empty<byte>();
 
         /// <summary>
         /// Pega o texto de um arquivo embutido no assembly
@@ -1033,10 +945,7 @@ namespace InnerLibs
         /// <param name="Obj"> </param>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public static bool HasProperty(this object Obj, string Name)
-        {
-            return Obj.GetType().HasProperty(Name, true);
-        }
+        public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
 
         /// <summary>
         /// Verifica se o tipo é um array de um objeto especifico
@@ -1044,10 +953,7 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="Type"></param>
         /// <returns></returns>
-        public static bool IsArrayOf<T>(this Type Type)
-        {
-            return Type == typeof(T[]);
-        }
+        public static bool IsArrayOf<T>(this Type Type) => Type == typeof(T[]);
 
         /// <summary>
         /// Verifica se o tipo é um array de um objeto especifico
@@ -1055,20 +961,14 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsArrayOf<T>(this object Obj)
-        {
-            return Obj.GetType().IsArrayOf<T>();
-        }
+        public static bool IsArrayOf<T>(this object Obj) => Obj.GetTypeOf().IsArrayOf<T>();
 
         /// <summary>
         /// Verifica se o objeto é um iDictionary
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool IsDictionary(this object obj)
-        {
-            return obj.GetTypeOf().IsGenericOf(typeof(Dictionary<,>));
-        }
+        public static bool IsDictionary(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(Dictionary<,>));
 
         /// <summary>
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
@@ -1128,15 +1028,7 @@ namespace InnerLibs
         /// <param name="Obj"> objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsNotIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null)
-        {
-            if (Comparer is null)
-
-                return !List.Contains(Obj);
-            else
-
-                return !List.Contains(Obj, Comparer);
-        }
+        public static bool IsNotIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => Comparer == null ? !List.Contains(Obj) : !List.Contains(Obj, Comparer);
 
         /// <summary>
         /// Verifica se o objeto não existe dentro de um texto
@@ -1145,17 +1037,7 @@ namespace InnerLibs
         /// <param name="Obj"> objeto</param>
         /// <param name="TExt">Texto</param>
         /// <returns></returns>
-        public static bool IsNotIn<Type>(this Type Obj, string Text, IEqualityComparer<char> Comparer = null)
-        {
-            if (Comparer == null)
-            {
-                return Text.Contains(Obj.ToString());
-            }
-            else
-            {
-                return Text.Contains(Convert.ToChar(Obj.ToString()), Comparer);
-            }
-        }
+        public static bool IsNotIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text.Contains(Obj.ToString()) : Text.Contains(Obj.ToString(), Comparer.Value);
 
         public static bool IsValueType(this Type T) => T.IsIn(PredefinedArrays.ValueTypes);
 
@@ -1167,21 +1049,11 @@ namespace InnerLibs
         /// <remarks>
         /// Boolean is not considered numeric.
         /// </remarks>
-        public static bool IsNumericType<T>(this T Obj)
-        {
-            return Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
-        }
+        public static bool IsNumericType<T>(this T Obj) => Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
 
-        public static bool IsNullableType(this Type t)
-        {
-            return t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
-        }
+        public static bool IsNullableType(this Type t) => t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
 
-        public static bool IsNullableType<O>(this O Obj)
-        {
-            var t = Obj.GetTypeOf();
-            return IsNullableType(t);
-        }
+        public static bool IsNullableType<O>(this O Obj) => IsNullableType(Obj.GetTypeOf());
 
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
@@ -1247,16 +1119,27 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Retorna o ultimo objeto de uma lista ou um objeto especifico se a lista estiver vazia
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">   </param>
+        /// <param name="Alternate"></param>
+        /// <returns></returns>
+        public static T LastOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.Last() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+
+        public static T LastOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.Last(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+
+        /// <summary>
         /// Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source">   </param>
-        /// <param name="alternate"></param>
+        /// <param name="Alternate"></param>
         /// <returns></returns>
-        public static T LastOr<T>(this IEnumerable<T> source, params T[] Alternate)
-        {
-            return source?.Any() ?? false ? source.Last() : Alternate.AsEnumerable().NullCoalesce();
-        }
+
+        public static T FirstOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.First() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+
+        public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.First(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
 
         /// <summary>
         /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
@@ -1303,11 +1186,7 @@ namespace InnerLibs
         /// <param name="First">Primeiro Item</param>
         /// <param name="N">    Outros itens</param>
         /// <returns></returns>
-        public static T NullCoalesce<T>(this T First, params T[] N) where T : class
-        {
-            if (First != null) return First;
-            return NullCoalesce((N ?? Array.Empty<T>()).AsEnumerable());
-        }
+        public static T NullCoalesce<T>(this T First, params T[] N) where T : class => First ?? NullCoalesce((N ?? Array.Empty<T>()).AsEnumerable());
 
         /// <summary>
         /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
@@ -1315,11 +1194,7 @@ namespace InnerLibs
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="List">Outros itens</param>
         /// <returns></returns>
-        public static T NullCoalesce<T>(this IEnumerable<T> List)
-        {
-            if (List == null) return default;
-            return List.FirstOrDefault(x => x != null);
-        }
+        public static T NullCoalesce<T>(this IEnumerable<T> List) => List == null ? default : List.FirstOrDefault(x => x != null);
 
         /// <summary>
         /// Remove de um dicionario as respectivas Keys se as mesmas existirem

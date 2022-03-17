@@ -60,11 +60,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static byte[] ToBytes(this Stream stream)
         {
-            using (var ms = new MemoryStream())
-            {
-                stream.CopyTo(ms);
-                return ms.ToArray();
-            }
+            if (stream != null)
+                using (var ms = new MemoryStream())
+                {
+                    stream.CopyTo(ms);
+                    return ms.ToArray();
+                }
+            return Array.Empty<byte>();
         }
 
         /// <summary>
