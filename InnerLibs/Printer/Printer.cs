@@ -1183,7 +1183,7 @@ namespace InnerLibs.Printer
                         HTMLDocument.Save(s);
                         if (!info.Directory.GetFiles("Printer.css").Any())
                         {
-                            ClassTools.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.Printer.css").Replace("##Cols##", ColumnsNormal.ToString()).WriteToFile($@"{info.Directory}\Printer.css", false, Encoding.Unicode);
+                            Misc.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.Printer.css").Replace("##Cols##", ColumnsNormal.ToString()).WriteToFile($@"{info.Directory}\Printer.css", false, Encoding.Unicode);
                         }
                     }
                 }

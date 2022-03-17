@@ -139,7 +139,7 @@ namespace InnerLibs.RolePlayingGame
             get
             {
 
-                foreach (var i in InnerLibs.ClassTools.GetEnumValues<DiceType>())
+                foreach (var i in InnerLibs.Misc.GetEnumValues<DiceType>())
                     if ((int)i == Faces.Count) return i;
                 return DiceType.Custom;
             }

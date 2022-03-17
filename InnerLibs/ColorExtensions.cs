@@ -253,7 +253,7 @@ namespace InnerLibs
         /// <summary>
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
-        public static IEnumerable<Color> KnowColors => ClassTools.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
+        public static IEnumerable<Color> KnowColors => Misc.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
         /// <summary>
         /// Retorna uma cor conhecida mais proxima de outra cor

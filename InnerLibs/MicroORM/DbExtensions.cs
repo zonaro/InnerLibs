@@ -59,7 +59,7 @@ namespace InnerLibs.MicroORM
         /// <summary>
         /// Retorna um <see cref="DbType"/> de um <see cref="Type"/>
         /// </summary>
-        public static DbType GetDbType<T>(this T obj, DbType Def = DbType.Object) => DbTypes.GetValueOr(ClassTools.GetNullableTypeOf(obj), Def);
+        public static DbType GetDbType<T>(this T obj, DbType Def = DbType.Object) => DbTypes.GetValueOr(Misc.GetNullableTypeOf(obj), Def);
 
         /// <summary>
         /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
@@ -243,7 +243,7 @@ namespace InnerLibs.MicroORM
                                 return "NULL";
                             }
 
-                            if (ClassTools.GetNullableTypeOf(x).IsNumericType() || x.ToString().IsNumber())
+                            if (Misc.GetNullableTypeOf(x).IsNumericType() || x.ToString().IsNumber())
                             {
                                 return x.ToString();
                             }
@@ -906,8 +906,8 @@ namespace InnerLibs.MicroORM
                     else
                     {
                         var propnames = name.PropertyNamesFor();
-                        var PropInfos = ClassTools.GetTypeOf(d).GetProperties();
-                        var FieldInfos = ClassTools.GetTypeOf(d).GetFields();
+                        var PropInfos = Misc.GetTypeOf(d).GetProperties();
+                        var FieldInfos = Misc.GetTypeOf(d).GetFields();
                         foreach (var info in PropInfos)
                         {
                             var attrs = info.GetCustomAttributes<ColumnName>().SelectMany(x => x.Names).Union(propnames);
@@ -1035,7 +1035,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
         {
-            foreach (var prop in ClassTools.GetProperties(d).Where(x => x.HasAttribute<FromSQL>()))
+            foreach (var prop in Misc.GetProperties(d).Where(x => x.HasAttribute<FromSQL>()))
                 Connection.ProccessSubQuery(d, prop.Name, Recursive);
             return d;
         }

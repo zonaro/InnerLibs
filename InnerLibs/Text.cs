@@ -4310,7 +4310,7 @@ namespace InnerLibs
                 }
                 else
                 {
-                    return formatString.Inject(ClassTools.GetPropertyHash(injectionObject));
+                    return formatString.Inject(Misc.GetPropertyHash(injectionObject));
                 }
             }
 

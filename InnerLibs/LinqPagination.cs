@@ -20,20 +20,32 @@ namespace InnerLibs.LINQ
             return l.Take(l.Count() - Count.LimitRange(0, l.Count()));
         }
 
-        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1)
-        {
-            return l.Reverse().Take(Count).Reverse();
-        }
+        /// <summary>
+        /// Retorna o ultimo objeto de uma lista ou um objeto especifico se a lista estiver vazia
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">   </param>
+        /// <param name="Alternate"></param>
+        /// <returns></returns>
+        public static T LastOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.Last() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
 
-        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count)
-        {
-            return l.OrderByRandom().Take(Count);
-        }
+        public static T LastOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.Last(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
 
-        public static T FirstRandom<T>(this IEnumerable<T> l)
-        {
-            return l.OrderByRandom().FirstOrDefault();
-        }
+        /// <summary>
+        /// Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">   </param>
+        /// <param name="Alternate"></param>
+        /// <returns></returns>
+
+        public static T FirstOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.First() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+
+        public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.First(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
+
+        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
 
         /// <summary>
         /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -41,10 +53,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static PaginationFilter<T, T> CreateFilter<T>(this IEnumerable<T> List) where T : class
-        {
-            return new PaginationFilter<T, T>().SetData(List);
-        }
+        public static PaginationFilter<T, T> CreateFilter<T>(this IEnumerable<T> List) where T : class => new PaginationFilter<T, T>().SetData(List);
 
         /// <summary>
         /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -52,10 +61,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static PaginationFilter<T, T> CreateFilter<T>(this IEnumerable<T> List, Action<PaginationFilter<T, T>> Configuration) where T : class
-        {
-            return new PaginationFilter<T, T>(Configuration).SetData(List);
-        }
+        public static PaginationFilter<T, T> CreateFilter<T>(this IEnumerable<T> List, Action<PaginationFilter<T, T>> Configuration) where T : class => new PaginationFilter<T, T>(Configuration).SetData(List);
 
         /// <summary>
         /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -63,10 +69,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static PaginationFilter<T, R> CreateFilter<T, R>(this IEnumerable<T> List, Func<T, R> RemapExpression, Action<PaginationFilter<T, R>> Configuration) where T : class
-        {
-            return new PaginationFilter<T, R>(RemapExpression, Configuration).SetData(List);
-        }
+        public static PaginationFilter<T, R> CreateFilter<T, R>(this IEnumerable<T> List, Func<T, R> RemapExpression, Action<PaginationFilter<T, R>> Configuration) where T : class => new PaginationFilter<T, R>(RemapExpression, Configuration).SetData(List);
 
         /// <summary>
         /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -74,10 +77,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static PaginationFilter<T, R> CreateFilter<T, R>(this IEnumerable<T> List, Func<T, R> RemapExpression) where T : class
-        {
-            return new PaginationFilter<T, R>(RemapExpression).SetData(List);
-        }
+        public static PaginationFilter<T, R> CreateFilter<T, R>(this IEnumerable<T> List, Func<T, R> RemapExpression) where T : class => new PaginationFilter<T, R>(RemapExpression).SetData(List);
 
         public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
         {
@@ -131,10 +131,7 @@ namespace InnerLibs.LINQ
         /// <param name="PropertyValue">Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro argumento do método de mesmo nome definido em <typeparamref name="T"/></param>
         /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
         /// <returns></returns>
-        public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, bool Exclusive = true)
-        {
-            return List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
-        }
+        public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, bool Exclusive = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
 
         public static Type CreateNullableType(this Type type)
         {
@@ -143,10 +140,7 @@ namespace InnerLibs.LINQ
             return type;
         }
 
-        public static Expression<Func<T, bool>> IsEqual<T, V>(this Expression<Func<T, V>> Property, V Value)
-        {
-            return WhereExpression(Property, "equal", new[] { (IComparable)Value });
-        }
+        public static Expression<Func<T, bool>> IsEqual<T, V>(this Expression<Func<T, V>> Property, V Value) => WhereExpression(Property, "equal", new[] { (IComparable)Value });
 
         #region FilterDateRange
 
@@ -266,10 +260,7 @@ namespace InnerLibs.LINQ
 
         #endregion IsBetweenOrEqual
 
-        public static MemberExpression CreatePropertyExpression<T, V>(this Expression<Func<T, V>> Property)
-        {
-            return Expression.Property(Property.Parameters.FirstOrDefault() ?? typeof(T).GenerateParameterExpression(), Property.GetPropertyInfo());
-        }
+        public static MemberExpression CreatePropertyExpression<T, V>(this Expression<Func<T, V>> Property) => Expression.Property(Property.Parameters.FirstOrDefault() ?? typeof(T).GenerateParameterExpression(), Property.GetPropertyInfo());
 
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
@@ -283,6 +274,11 @@ namespace InnerLibs.LINQ
             return propInfo;
         }
 
+        /// <summary>
+        /// Ajusta o tipo da expressão da direita para o tipo da esquerda, quando anulavel
+        /// </summary>
+        /// <param name="e1"></param>
+        /// <param name="e2"></param>
         public static void FixNullable(ref Expression e1, ref Expression e2)
         {
             var e1type = e1.Type;
@@ -373,7 +369,7 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Constroi uma expressão igual a
+        /// Constroi uma expressão "igual a"
         /// </summary>
         /// <param name="MemberExpression"></param>
         /// <param name="ValueExpression"></param>

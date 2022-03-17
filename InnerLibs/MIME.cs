@@ -186,7 +186,7 @@ namespace InnerLibs
         {
             if (Reset || l == null || l.Any() == false)
             {
-                string r = ClassTools.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
+                string r = Misc.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
                 if (r.IsNotBlank())
                 {
                     var doc = new XmlDocument();

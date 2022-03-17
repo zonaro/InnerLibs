@@ -197,7 +197,7 @@ namespace InnerLibs
         {
             try
             {
-                var tipo = ClassTools.GetNullableTypeOf(ToType);
+                var tipo = Misc.GetNullableTypeOf(ToType);
                 if (Value == null)
                 {
                     if (!tipo.IsValueType() || ToType.IsNullableType())
@@ -450,7 +450,7 @@ namespace InnerLibs
                     string propname3 = k.Key.Trim().Replace(" ", "").Replace("-", "").Replace("~", "");
                     string propname2 = propname1.RemoveAccents();
                     string propname4 = propname3.RemoveAccents();
-                    var prop = ClassTools.NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
+                    var prop = Misc.NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
                     if (prop != null)
                     {
                         if (prop.CanWrite)
@@ -467,7 +467,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        var fiif = ClassTools.NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
+                        var fiif = Misc.NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
                         if (fiif != null)
                         {
                             if (k.Value.GetType() == typeof(DBNull))

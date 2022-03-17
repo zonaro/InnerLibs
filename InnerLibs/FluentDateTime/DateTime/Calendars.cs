@@ -1082,7 +1082,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="StartDate">Data Inicial</param>
         /// <param name="EndDate">  Data Final</param>
-        public static void FixDateOrder(ref DateTime StartDate, ref DateTime EndDate) => ClassTools.FixOrder(ref StartDate, ref EndDate);
+        public static void FixDateOrder(ref DateTime StartDate, ref DateTime EndDate) => Misc.FixOrder(ref StartDate, ref EndDate);
 
         /// <summary>
         /// Verifica se uma data se encontra entre 2 datas

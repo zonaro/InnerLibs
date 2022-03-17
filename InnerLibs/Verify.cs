@@ -692,9 +692,9 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsDate<T>(this T Obj) => ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(DateTime)) || Obj?.ToString().IsDate() == true;
+        public static bool IsDate<T>(this T Obj) => ReferenceEquals(Misc.GetNullableTypeOf(Obj), typeof(DateTime)) || Obj?.ToString().IsDate() == true;
 
-        public static bool IsBoolean<T>(this T Obj) => ReferenceEquals(ClassTools.GetNullableTypeOf(Obj), typeof(bool)) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
+        public static bool IsBoolean<T>(this T Obj) => ReferenceEquals(Misc.GetNullableTypeOf(Obj), typeof(bool)) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
 
         public static bool IsArray<T>(T Obj)
         {

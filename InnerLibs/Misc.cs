@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 
 namespace InnerLibs
 {
-    public static class ClassTools
+    public static class Misc
     {
         public static Hashtable GetPropertyHash<T>(T properties)
         {
@@ -160,30 +160,15 @@ namespace InnerLibs
             return List;
         }
 
-        public static bool IsEqual<T>(this T Value1, T Value2) where T : IComparable
-        {
-            return Value1.Equals(Value2);
-        }
+        public static bool IsEqual<T>(this T Value1, T Value2) where T : IComparable => Value1.Equals(Value2);
 
-        public static bool IsGreaterThan<T>(this T Value1, T Value2) where T : IComparable
-        {
-            return Value1.CompareTo(Value2) > 0;
-        }
+        public static bool IsGreaterThan<T>(this T Value1, T Value2) where T : IComparable => Value1.CompareTo(Value2) > 0;
 
-        public static bool IsGreaterThanOrEqual<T>(this T Value1, T Value2) where T : IComparable
-        {
-            return Value1.IsGreaterThan(Value2) || Value1.IsEqual(Value2);
-        }
+        public static bool IsGreaterThanOrEqual<T>(this T Value1, T Value2) where T : IComparable => Value1.IsGreaterThan(Value2) || Value1.IsEqual(Value2);
 
-        public static bool IsLessThan<T>(this T Value1, T Value2) where T : IComparable
-        {
-            return Value1.CompareTo(Value2) < 0;
-        }
+        public static bool IsLessThan<T>(this T Value1, T Value2) where T : IComparable => Value1.CompareTo(Value2) < 0;
 
-        public static bool IsLessThanOrEqual<T>(this T Value1, T Value2) where T : IComparable
-        {
-            return Value1.IsLessThan(Value2) || Value1.IsEqual(Value2);
-        }
+        public static bool IsLessThanOrEqual<T>(this T Value1, T Value2) where T : IComparable => Value1.IsLessThan(Value2) || Value1.IsEqual(Value2);
 
         /// <summary>
         /// Verifica se um valor numerico ou data está entre outros 2 valores
@@ -195,8 +180,7 @@ namespace InnerLibs
         public static bool IsBetween(this IComparable Value, IComparable Value1, IComparable Value2)
         {
             FixOrder(ref Value1, ref Value2);
-            if (Value1 == Value2) return Value == Value1;
-            else return Value.IsLessThan(Value2) && Value.IsGreaterThan(Value1);
+            return Value1 == Value2 ? Value == Value1 : Value.IsLessThan(Value2) && Value.IsGreaterThan(Value1);
         }
 
         /// <summary>
@@ -275,7 +259,7 @@ namespace InnerLibs
         public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => File.ReadAllText(XML.FullName).CreateObjectFromXML<T>();
 
         /// <summary>
-        /// Cria um arquivo a partir de qualquer objeto usando o <see cref="ClassTools.CreateXML()"/>
+        /// Cria um arquivo a partir de qualquer objeto usando o <see cref="Misc.CreateXML()"/>
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
@@ -1119,29 +1103,6 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna o ultimo objeto de uma lista ou um objeto especifico se a lista estiver vazia
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">   </param>
-        /// <param name="Alternate"></param>
-        /// <returns></returns>
-        public static T LastOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.Last() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
-
-        public static T LastOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.Last(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
-
-        /// <summary>
-        /// Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">   </param>
-        /// <param name="Alternate"></param>
-        /// <returns></returns>
-
-        public static T FirstOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.First() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
-
-        public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.First(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
-
-        /// <summary>
         /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
         /// </summary>
         /// <param name="NVC"></param>
@@ -1205,13 +1166,7 @@ namespace InnerLibs
         /// <param name="Keys"></param>
         public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, params TKey[] Keys)
         {
-            foreach (var k in Keys)
-            {
-                if (dic.ContainsKey(k))
-                {
-                    dic.Remove(k);
-                }
-            }
+            foreach (var k in (Keys ?? Array.Empty<TKey>()).Where(x => dic.ContainsKey(x))) dic.Remove(k);
         }
 
         /// <summary>
