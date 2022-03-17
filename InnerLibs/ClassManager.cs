@@ -1059,10 +1059,7 @@ namespace InnerLibs
         /// <param name="Obj"> objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsIn<Type>(this Type Obj, params Type[] List)
-        {
-            return Obj.IsIn((List ?? Array.Empty<Type>()).ToList());
-        }
+        public static bool IsIn<Type>(this Type Obj, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList());
 
         public static bool IsAny<Type>(this Type Obj, params Type[] List) => IsIn(Obj, List);
 
@@ -1073,36 +1070,7 @@ namespace InnerLibs
         /// <param name="Obj"> objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null)
-        {
-            if (Comparer is null)
-            {
-                return List.Contains(Obj);
-            }
-            else
-            {
-                return List.Contains(Obj, Comparer);
-            }
-        }
-
-        /// <summary>
-        /// Verifica se o objeto existe dentro de um texto
-        /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
-        /// <param name="Obj"> objeto</param>
-        /// <param name="TExt">Texto</param>
-        /// <returns></returns>
-        public static bool IsIn<Type>(this Type Obj, string Text, IEqualityComparer<char> Comparer = null)
-        {
-            if (Comparer is null)
-            {
-                return Text.Contains(Obj.ToString());
-            }
-            else
-            {
-                return Text.Contains(Convert.ToChar(Obj.ToString()), Comparer);
-            }
-        }
+        public static bool IsIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => Comparer is null ? List.Contains(Obj) : List.Contains(Obj, Comparer);
 
         /// <summary>
         /// Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays.
@@ -1111,10 +1079,7 @@ namespace InnerLibs
         /// <param name="Obj"> objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsInAny<Type>(this Type Obj, IEnumerable<Type>[] List, IEqualityComparer<Type> Comparer = null)
-        {
-            return (List ?? Array.Empty<IEnumerable<Type>>()).Any(x => Obj.IsIn(x, Comparer));
-        }
+        public static bool IsInAny<Type>(this Type Obj, IEnumerable<Type>[] List, IEqualityComparer<Type> Comparer = null) => (List ?? Array.Empty<IEnumerable<Type>>()).Any(x => Obj.IsIn(x, Comparer));
 
         /// <summary>
         /// Verifica se um tipo e generico de outro
@@ -1122,30 +1087,21 @@ namespace InnerLibs
         /// <param name="MainType"></param>
         /// <param name="Type"></param>
         /// <returns></returns>
-        public static bool IsGenericOf(this Type MainType, Type Type)
-        {
-            return MainType.IsGenericType && MainType.GetGenericTypeDefinition().IsAssignableFrom(Type);
-        }
+        public static bool IsGenericOf(this Type MainType, Type Type) => MainType.IsGenericType && MainType.GetGenericTypeDefinition().IsAssignableFrom(Type);
 
         /// <summary>
         /// Verifica se o objeto é uma lista
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool IsList(this object obj)
-        {
-            return obj.GetTypeOf().IsGenericOf(typeof(List<>));
-        }
+        public static bool IsList(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(List<>));
 
         /// <summary>
         /// Verifica se o objeto é uma lista
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool IsEnumerable(this object obj)
-        {
-            return obj.GetTypeOf().IsGenericOf(typeof(IEnumerable<>));
-        }
+        public static bool IsEnumerable(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(IEnumerable<>));
 
         /// <summary>
         /// Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
@@ -1157,13 +1113,11 @@ namespace InnerLibs
         public static bool IsNotIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null)
         {
             if (Comparer is null)
-            {
+
                 return !List.Contains(Obj);
-            }
             else
-            {
+
                 return !List.Contains(Obj, Comparer);
-            }
         }
 
         /// <summary>

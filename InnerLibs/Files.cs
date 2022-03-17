@@ -101,18 +101,15 @@ namespace InnerLibs
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
-        public static string ReadText(this FileInfo File)
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null)
         {
             try
             {
-                using (var f = File.OpenText())
-                {
-                    return f.ReadToEnd();
-                }
+                return System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8);
             }
             catch
             {
-                return null;
+                return default;
             }
         }
 

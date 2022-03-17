@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -21,15 +20,36 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
-        public static bool ContainsUpper(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsUpper);
+        /// <summary>
+        /// Verifica se uma string contém caracteres em maiúsculo
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool ContainsUpper(this string Text) => (Text ?? "").ToArray().Any(char.IsUpper);
 
-        public static bool ContainsLower(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsLower);
+        /// <summary>
+        /// Verifica se uma string contém caracteres em minusculo
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool ContainsLower(this string Text) => (Text ?? "").ToArray().Any(char.IsLower);
 
-        public static bool ContainsDigit(this string Text) => (Text = Text ?? "").ToArray().Any(char.IsDigit);
+        /// <summary>
+        /// Verifica se uma string contém caracteres de digito
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool ContainsDigit(this string Text) => (Text ?? "").ToArray().Any(char.IsDigit);
 
+        /// <summary>
+        /// compara 2 strings usando wildcards
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="Pattern"></param>
+        /// <returns></returns>
         public static bool Like(this String source, String Pattern) => new Like(Pattern).Matches(source);
 
-        public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => from sTest in source where sTest.Like(Pattern) select sTest;
+        public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => source.Where(x => x.Like(Pattern));
 
         /// <summary>
         /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> na ultima ocorrencia.
@@ -4225,9 +4245,8 @@ namespace InnerLibs
         public static string UrlEncode(this string Text)
         {
             if (Text.IsNotBlank())
-            {
+
                 return System.Net.WebUtility.UrlEncode(Text);
-            }
 
             return "";
         }
@@ -4265,8 +4284,22 @@ namespace InnerLibs
 
         public static string UnWrap(this string Text, string WrapText = "\"", bool ContinuouslyRemove = false) => Text.TrimAny(ContinuouslyRemove, WrapText);
 
-        public static string ToInjectedString(this object Obj, string TemplatedString) => TemplatedString.IfBlank("").Inject(Obj);
+        /// <summary>
+        /// Inject the property values of <typeparamref name="T"/>  into <paramref name="TemplatedString"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formatString"></param>
+        /// <param name="injectionObject"></param>
+        /// <returns></returns>
+        public static string Inject<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank("").Inject(Obj);
 
+        /// <summary>
+        /// Inject the property values of <typeparamref name="T"/>  into <see cref="String"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formatString"></param>
+        /// <param name="injectionObject"></param>
+        /// <returns></returns>
         public static string Inject<T>(this string formatString, T injectionObject)
         {
             if (injectionObject != null)
@@ -4284,8 +4317,20 @@ namespace InnerLibs
             return formatString;
         }
 
+        /// <summary>
+        /// Inject a <see cref="IDictionary"/> into <see cref="String"/>
+        /// </summary>
+        /// <param name="formatString"></param>
+        /// <param name="dictionary"></param>
+        /// <returns></returns>
         public static string Inject(this string formatString, IDictionary dictionary) => formatString.Inject(new Hashtable(dictionary));
 
+        /// <summary>
+        /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
+        /// </summary>
+        /// <param name="formatString"></param>
+        /// <param name="attributes"></param>
+        /// <returns></returns>
         public static string Inject(this string formatString, Hashtable attributes)
         {
             string result = formatString;
@@ -4298,6 +4343,13 @@ namespace InnerLibs
             return result;
         }
 
+        /// <summary>
+        /// Replace te found <paramref name="key"/> with <paramref name="replacementValue"/>
+        /// </summary>
+        /// <param name="formatString"></param>
+        /// <param name="key"></param>
+        /// <param name="replacementValue"></param>
+        /// <returns></returns>
         public static string InjectSingleValue(this string formatString, string key, object replacementValue)
         {
             string result = formatString;

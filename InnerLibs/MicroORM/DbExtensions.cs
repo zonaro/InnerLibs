@@ -74,22 +74,34 @@ namespace InnerLibs.MicroORM
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
+        /// <param name="FilePathOrSQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, NameValueCollection Parameters) => Connection.CreateCommand(SQL, Parameters.ToDictionary());
+        public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, NameValueCollection Parameters) => Connection.CreateCommand(FilePathOrSQL, Parameters.ToDictionary());
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of String, Object)"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
+        /// <param name="FilePathOrSQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, Dictionary<string, object> Parameters)
+        public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, Dictionary<string, object> Parameters)
         {
             if (Connection != null)
             {
+                if (FilePathOrSQL.IsFilePath())
+                {
+                    if (File.Exists(FilePathOrSQL))
+                    {
+                        FilePathOrSQL = File.ReadAllText(FilePathOrSQL);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
                 var command = Connection.CreateCommand();
-                command.CommandText = SQL;
+                command.CommandText = FilePathOrSQL;
                 if (Parameters != null && Parameters.Any())
                 {
                     foreach (var p in Parameters.Keys)
@@ -134,7 +146,7 @@ namespace InnerLibs.MicroORM
                 {
                     if (File.Exists(FilePathOrSQL))
                     {
-                        return Connection.CreateCommand(File.ReadAllText(FilePathOrSQL).ToFormattableString(Args));
+                        FilePathOrSQL = File.ReadAllText(FilePathOrSQL);
                     }
                     else
                     {

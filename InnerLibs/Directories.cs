@@ -82,6 +82,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool DeleteIfExist(this FileSystemInfo Path) => Path.FullName.DeleteIfExist();
 
+        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, SearchOption Option, params string[] Patterns) => directory.SearchFiles(Option, Patterns).Select(x => x.ReadAllText());
+
+        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, params string[] Patterns) => directory.SearchFiles(SearchOption.TopDirectoryOnly, Patterns).Select(x => x.ReadAllText());
+
         /// <summary>
         /// Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório
         /// </summary>

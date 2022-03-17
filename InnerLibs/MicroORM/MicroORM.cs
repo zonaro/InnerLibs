@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
@@ -7,8 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using InnerLibs.LINQ;
-using Microsoft.VisualBasic;
 
 namespace InnerLibs.MicroORM
 {
@@ -64,8 +63,7 @@ namespace InnerLibs.MicroORM
             var _nova = new List<string>();
             foreach (var item in _columns ?? new List<string>())
                 _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.UnQuote().Quote(QuoteChar), "."));
-            SetColumns(_nova.ToArray());
-            return this;
+            return SetColumns(_nova.ToArray());
         }
 
         internal List<string> _columns;
@@ -79,7 +77,6 @@ namespace InnerLibs.MicroORM
         internal List<string> _orderBy;
         internal string _offset;
 
-
         public Select<T> AddColumns<O>(O Obj = null) where O : class
         {
             var eltipo = typeof(O).GetNullableTypeOf();
@@ -92,7 +89,7 @@ namespace InnerLibs.MicroORM
             }
             else
             {
-                AddColumns(eltipo.GetProperties().Select(x => x.Name).ToArray());
+                return AddColumns(eltipo.GetProperties().Select(x => x.Name).ToArray());
             }
 
             return this;
@@ -139,7 +136,7 @@ namespace InnerLibs.MicroORM
         {
             if (TableOrSubQuery.IsNotBlank())
             {
-                _from = TableOrSubQuery.QuoteIf(TableOrSubQuery.StartsWith("SELECT "), "(");
+                _from = TableOrSubQuery.QuoteIf(TableOrSubQuery.StartsWith("SELECT "), '(');
                 _fromsub = null;
             }
 
@@ -185,25 +182,13 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="SubQuery">Subquery to be selected from</param>
         /// <returns></returns>
-        public Select<T> From(Action<Select> SubQuery)
-        {
-            if (SubQuery != null)
-            {
-                From((Action<Select<Dictionary<string, object>>>)SubQuery);
-            }
-
-            return this;
-        }
+        public Select<T> From(Action<Select> SubQuery) => SubQuery != null ? From((Action<Select<Dictionary<string, object>>>)SubQuery) : this;
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
         /// </summary>
         /// <returns></returns>
-        public Select<T> From<O>()
-        {
-            From(typeof(O).GetNullableTypeOf().Name);
-            return this;
-        }
+        public Select<T> From<O>() => From(typeof(O).GetNullableTypeOf().Name);
 
         /// <summary>
         /// Sets a JOIN clause in the SELECT being built.
@@ -443,7 +428,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Dic"></param>
         /// <param name="FilterKeys"></param>
         /// <returns></returns>
-        public object Where(Dictionary<string, object> Dic, DbExtensions.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
+        public Select<T> Where(Dictionary<string, object> Dic, DbExtensions.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
         {
             FilterKeys = FilterKeys ?? Array.Empty<string>();
             if (FilterKeys.Any())
@@ -474,9 +459,12 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
+        public char ColumnChar = '[';
+
         /// <summary>
         /// Sets the WHERE clause in the SELECT being built using a <see cref="NameValueCollection"/> as column/operator/value
         /// </summary>
+        /// <remarks>use <paramref name="FilterKeys"/> as &operator:column=value</remarks>
         /// <param name="NVC"></param>
         /// <param name="FilterKeys"></param>
         /// <returns></returns>
@@ -490,15 +478,14 @@ namespace InnerLibs.MicroORM
                     string col = k.UrlDecode();
                     if (!FilterKeys.Any() || col.IsLikeAny(FilterKeys))
                     {
-                        var values = NVC.GetValues(k) ?? new string[] { };
-                        foreach (var v in values)
+                        foreach (var v in NVC.GetValues(k) ?? new string[] { })
                         {
                             string logic = col.GetBefore(":", true).IfBlank("AND");
                             string op = v.GetBefore(":", true).IfBlank("=");
                             col = col.GetAfter(":");
-                            col = col.Contains(" ").AsIf(col.UnQuote("[", true).Quote('['), col);
+                            col = col.Contains(" ").AsIf(col.UnQuote().Quote(ColumnChar), col);
                             string valor = v.GetAfter(":").NullIf("null", StringComparison.InvariantCultureIgnoreCase);
-                            if (valor is null)
+                            if (valor == null)
                             {
                                 op = "is";
                             }
@@ -899,7 +886,6 @@ namespace InnerLibs.MicroORM
             }
         }
 
-
         /// <summary>
         /// Select class constructor
         /// </summary>
@@ -981,7 +967,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Condition Or(FormattableString condition)
         {
-            if (!(condition == null) && condition.ToString().IsNotBlank())
+            if (condition != null && condition.ToString().IsNotBlank())
             {
                 if (_tokens.Any())
                 {
@@ -1011,7 +997,7 @@ namespace InnerLibs.MicroORM
         /// Returns the condition statement as a SQL query.
         /// </summary>
         /// <returns>The condition statement as a SQL query</returns>
-        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, "(");
+        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, '(');
     }
 
     internal class Join
