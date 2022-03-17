@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
@@ -434,7 +435,6 @@ namespace InnerLibs.Locations
             return ToString();
         }
 
-
         /// <summary>
         /// Retorna uma string com as partes dos endereço especificas
         /// </summary>
@@ -583,7 +583,6 @@ namespace InnerLibs.Locations
 
             return d;
         }
-
 
         /// <summary>
         /// Tenta extrair as partes de um endereço de uma string

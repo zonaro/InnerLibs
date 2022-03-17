@@ -5,9 +5,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using InnerLibs.LINQ;
 using Microsoft.VisualBasic;
-
-
 
 namespace InnerLibs
 {
@@ -17,7 +16,6 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Images
     {
-
         /// <summary>
         /// Aplica um borrão a imagem
         /// </summary>
@@ -27,7 +25,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new Rectangle(0, 0, Img.Width, Img.Height));
 
-
         /// <summary>
         /// Aplica um borrão a uma determinada parte da imagem
         /// </summary>
@@ -35,7 +32,7 @@ namespace InnerLibs
         /// <param name="BlurSize"></param>
         /// <param name="rectangle"></param>
         /// <returns></returns>
-        private unsafe static Image Blur(this Image Img, int BlurSize, Rectangle rectangle)
+        private static unsafe Image Blur(this Image Img, int BlurSize, Rectangle rectangle)
         {
             Bitmap blurred = new Bitmap(Img.Width, Img.Height);
 
@@ -557,7 +554,6 @@ namespace InnerLibs
             }
         }
 
-
         /// <summary>
         /// Cropa uma imagem a patir do centro
         /// </summary>
@@ -565,7 +561,6 @@ namespace InnerLibs
         /// <param name="SizeExpression">Tamanho</param>
         /// <returns></returns>
         public static Image Crop(this Image Image, string SizeExpression) => Image.Crop(SizeExpression.ParseSize());
-
 
         /// <summary>
         /// Cropa uma imagem a patir do centro

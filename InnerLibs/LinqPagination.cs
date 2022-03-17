@@ -16,9 +16,7 @@ namespace InnerLibs.LINQ
         public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x != null && x.ToString().IsNotBlank());
 
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
-        {
-            return l.Take(l.Count() - Count.LimitRange(0, l.Count()));
-        }
+        => l.Take(l.Count() - Count.LimitRange(0, l.Count()));
 
         /// <summary>
         /// Retorna o ultimo objeto de uma lista ou um objeto especifico se a lista estiver vazia
@@ -46,6 +44,8 @@ namespace InnerLibs.LINQ
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
+
+        public static T SingleRandom<T>(this IEnumerable<T> l) => l.TakeRandom().FirstOrDefault();
 
         /// <summary>
         /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -145,14 +145,10 @@ namespace InnerLibs.LINQ
         #region FilterDateRange
 
         public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range)
-        {
-            return List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate).Compile());
-        }
+        => List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate).Compile());
 
         public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range)
-        {
-            return List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate).Compile());
-        }
+        => List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate).Compile());
 
         public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range)
         {
@@ -179,14 +175,10 @@ namespace InnerLibs.LINQ
         }
 
         public static IQueryable<T> FilterDateRange<T, V>(this IQueryable<T> List, Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
-        {
-            return List.Where(MinProperty.IsBetweenOrEqual(MaxProperty, Values));
-        }
+        => List.Where(MinProperty.IsBetweenOrEqual(MaxProperty, Values));
 
         public static IQueryable<T> FilterDateRange<T, V>(this IQueryable<T> List, Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
-        {
-            return List.Where(MinProperty.IsBetweenOrEqual(MaxProperty, Values));
-        }
+        => List.Where(MinProperty.IsBetweenOrEqual(MaxProperty, Values));
 
         #endregion FilterDateRange
 
@@ -201,9 +193,7 @@ namespace InnerLibs.LINQ
         }
 
         public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
-        {
-            return MinProperty.IsBetween(MaxProperty, Values.AsEnumerable());
-        }
+        => MinProperty.IsBetween(MaxProperty, Values.AsEnumerable());
 
         public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
         {
@@ -236,9 +226,7 @@ namespace InnerLibs.LINQ
         }
 
         public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
-        {
-            return MinProperty.IsBetweenOrEqual(MaxProperty, Values.AsEnumerable());
-        }
+        => MinProperty.IsBetweenOrEqual(MaxProperty, Values.AsEnumerable());
 
         public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
         {
@@ -1214,9 +1202,7 @@ namespace InnerLibs.LINQ
         /// <param name="ChildSelector">Seletor das propriedades filhas</param>
         /// <returns></returns>
         public static IEnumerable<T> Traverse<T>(this T Item, Func<T, IEnumerable<T>> ChildSelector, bool IncludeMe = false)
-        {
-            return ChildSelector(Item).Union(IncludeMe ? (new[] { Item }) : Array.Empty<T>()).Traverse(ChildSelector);
-        }
+        => ChildSelector(Item).Union(IncludeMe ? (new[] { Item }) : Array.Empty<T>()).Traverse(ChildSelector);
 
         /// <summary>
         /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
@@ -1225,10 +1211,7 @@ namespace InnerLibs.LINQ
         /// <param name="Item">Itens</param>
         /// <param name="ChildSelector">Seletor das propriedades filhas</param>
         /// <returns></returns>
-        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, P> PropertySelector, bool IncludeMe = false)
-        {
-            return Item.Traverse(ChildSelector, IncludeMe).Select(PropertySelector);
-        }
+        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, P> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).Select(PropertySelector);
 
         /// <summary>
         /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
@@ -1237,10 +1220,7 @@ namespace InnerLibs.LINQ
         /// <param name="Item">Itens</param>
         /// <param name="ChildSelector">Seletor das propriedades filhas</param>
         /// <returns></returns>
-        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IEnumerable<P>> PropertySelector, bool IncludeMe = false)
-        {
-            return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
-        }
+        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IEnumerable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
 
         /// <summary>
         /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as unifica recursivamente expondo uma outra propriedade
@@ -1249,10 +1229,7 @@ namespace InnerLibs.LINQ
         /// <param name="Item">Itens</param>
         /// <param name="ChildSelector">Seletor das propriedades filhas</param>
         /// <returns></returns>
-        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IQueryable<P>> PropertySelector, bool IncludeMe = false)
-        {
-            return Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
-        }
+        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IQueryable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
 
         private static MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
         private static MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
@@ -1265,10 +1242,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="DefaultReturnValue">Valor padrão</param>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> CreateWhereExpression<T>(this bool DefaultReturnValue)
-        {
-            return f => DefaultReturnValue;
-        }
+        public static Expression<Func<T, bool>> CreateWhereExpression<T>(this bool DefaultReturnValue) => (f => DefaultReturnValue);
 
         /// <summary>
         /// Concatena uma expressão com outra usando o operador And (&&)
@@ -1315,24 +1289,16 @@ namespace InnerLibs.LINQ
         }
 
         public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
-        {
-            return (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
-        }
+        => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
 
         public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, string Text, params Expression<Func<T, string>>[] Properties)
-        {
-            return (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
-        }
+        => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
 
         public static Expression<Func<T, bool>> AndSearch<T>(this Expression<Func<T, bool>> FirstExpression, IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
-        {
-            return (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
-        }
+        => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
 
         public static Expression<Func<T, bool>> AndSearch<T>(this Expression<Func<T, bool>> FirstExpression, string Text, params Expression<Func<T, string>>[] Properties)
-        {
-            return (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
-        }
+        => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
         {
@@ -1360,9 +1326,7 @@ namespace InnerLibs.LINQ
         }
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this string Text, params Expression<Func<T, string>>[] Properties)
-        {
-            return (new[] { Text }).SearchExpression(Properties);
-        }
+        => (new[] { Text }).SearchExpression(Properties);
 
         /// <summary>
         /// Cria uma <see cref="Expression"/> condicional a partir de uma outra expressão
@@ -1370,10 +1334,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="predicate">Valor padrão</param>
         /// <returns></returns>
-        public static Expression<Func<T, bool>> CreateWhereExpression<T>(Expression<Func<T, bool>> predicate)
-        {
-            return predicate ?? false.CreateWhereExpression<T>();
-        }
+        public static Expression<Func<T, bool>> CreateWhereExpression<T>(Expression<Func<T, bool>> predicate) => predicate ?? false.CreateWhereExpression<T>();
 
         /// <summary>
         /// Distingui os items de uma lista a partir de uma propriedade da classe
@@ -1385,9 +1346,7 @@ namespace InnerLibs.LINQ
         /// <param name="OrderBy">Criterio que indica qual o objeto que deverá ser preservado na lista se encontrado mais de um</param>
         /// <returns></returns>
         public static IEnumerable<T> DistinctBy<T, TKey, TOrder>(this IEnumerable<T> Items, Func<T, TKey> Property, Func<T, TOrder> OrderBy, bool Descending = false)
-        {
-            return Items.GroupBy(Property).Select(x => (Descending ? x.OrderByDescending(OrderBy) : x.OrderBy(OrderBy)).FirstOrDefault());
-        }
+        => Items.GroupBy(Property).Select(x => (Descending ? x.OrderByDescending(OrderBy) : x.OrderBy(OrderBy)).FirstOrDefault());
 
         /// <summary>
         /// Distingui os items de uma lista a partir de uma propriedade da classe
@@ -1398,9 +1357,7 @@ namespace InnerLibs.LINQ
         /// <param name="[property]">Propriedade</param>
         /// <returns></returns>
         public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> Items, Func<T, TKey> Property)
-        {
-            return Items.GroupBy(Property).Select(x => x.FirstOrDefault());
-        }
+        => Items.GroupBy(Property).Select(x => x.FirstOrDefault());
 
         /// <summary>
         /// Distingui os items de uma lista a partir de uma propriedade da classe
@@ -1411,9 +1368,7 @@ namespace InnerLibs.LINQ
         /// <param name="[property]">Propriedade</param>
         /// <returns></returns>
         public static IQueryable<T> DistinctBy<T, TKey>(this IQueryable<T> Items, Expression<Func<T, TKey>> Property)
-        {
-            return Items.GroupBy(Property).Select(x => x.First());
-        }
+        => Items.GroupBy(Property).Select(x => x.First());
 
         /// <summary>
         /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
@@ -1422,10 +1377,7 @@ namespace InnerLibs.LINQ
         /// <param name="source">  </param>
         /// <param name="PageSize"></param>
         /// <returns></returns>
-        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IQueryable<Tsource> source, int PageSize)
-        {
-            return source.AsEnumerable().GroupByPage(PageSize);
-        }
+        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IQueryable<Tsource> source, int PageSize) => source.AsEnumerable().GroupByPage(PageSize);
 
         /// <summary>
         /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
@@ -1434,11 +1386,7 @@ namespace InnerLibs.LINQ
         /// <param name="source">  </param>
         /// <param name="PageSize"></param>
         /// <returns></returns>
-        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IEnumerable<Tsource> source, int PageSize)
-        {
-            PageSize = PageSize.SetMinValue(1);
-            return source.Select((item, index) => new { item, Page = index / (double)PageSize }).GroupBy(g => g.Page.FloorLong() + 1L, x => x.item).ToDictionary();
-        }
+        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IEnumerable<Tsource> source, int PageSize) => source.Select((item, index) => new { item, Page = index / (double)PageSize.SetMinValue(1) }).GroupBy(g => g.Page.FloorLong() + 1L, x => x.item).ToDictionary();
 
         /// <summary>
         /// Orderna uma lista a partir da aproximação de um deerminado campo com uma string
@@ -1583,11 +1531,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"> </param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "")
-        {
-            Selector = Selector ?? (x => new[] { x.ToString() });
-            return Source.SelectMany(Selector).JoinString(Separator);
-        }
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "") => Source.SelectMany(Selector ?? (x => new[] { x.ToString() })).JoinString(Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -1604,21 +1548,22 @@ namespace InnerLibs.LINQ
         /// inicio da coleção e então segue uma ordem padrão para os outros.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="DefaultOrderType"></typeparam>
+        /// <typeparam name="DefaultOrderItem"></typeparam>
         /// <param name="items">       colecao</param>
         /// <param name="Priority">    Seletor que define a prioridade</param>
         /// <param name="DefaultOrder">ordenacao padrao para os outros itens</param>
         /// <returns></returns>
-        public static IEnumerable<T> OrderByWithPriority<T, DefaultOrderType>(this IEnumerable<T> items, Func<T, bool> Priority, Func<T, DefaultOrderType> DefaultOrder = null)
+        public static IEnumerable<T> OrderByWithPriority<T, DefaultOrderItem>(this IEnumerable<T> items, Func<T, bool> Priority, Func<T, DefaultOrderItem> DefaultOrder = null)
         {
-            if (DefaultOrder == null)
+            DefaultOrder = DefaultOrder ?? (x => default);
+            if (Priority != null)
             {
-                foreach (var item in items) yield return item;
+                foreach (var item in items.Where(Priority).OrderBy(DefaultOrder)) yield return item;
+                foreach (var item in items.Where(i => !Priority(i)).OrderBy(DefaultOrder)) yield return item;
             }
             else
             {
-                foreach (var item in items.Where(Priority)) yield return item;
-                foreach (var item in items.Where(i => !Priority(i)).OrderBy(i => i)) yield return item;
+                foreach (var item in items.OrderBy(DefaultOrder)) yield return item;
             }
         }
 
@@ -1694,9 +1639,7 @@ namespace InnerLibs.LINQ
         /// <param name="OrderSource"></param>
         /// <returns></returns>
         public static IOrderedEnumerable<T> ThenByList<T>(this IOrderedEnumerable<T> Source, params T[] OrderSource)
-        {
-            return Source.ThenBy(d => Array.IndexOf(OrderSource, d));
-        }
+        => Source.ThenBy(d => Array.IndexOf(OrderSource, d));
 
         /// <summary>
         /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais

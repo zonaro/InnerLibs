@@ -9,7 +9,6 @@ using InnerLibs.LINQ;
 
 namespace InnerLibs
 {
-
     /// <summary>
     /// Representa uma cor no formato HSV e RGBA com metodos para manipulação de valores
     /// </summary>
@@ -33,7 +32,7 @@ namespace InnerLibs
         /// <param name="Img"></param>
         /// <param name="Reduce"></param>
         /// <returns></returns>
-        public static HSVColor RandomColor(Image Img, int Reduce = 16) => Img.ColorPallette(Reduce).Keys.FirstRandom();
+        public static HSVColor RandomColor(Image Img, int Reduce = 16) => Img.ColorPallette(Reduce).Keys.SingleRandom();
 
         /// <summary>
         /// Retorna uma cor aleatória a partir de uma lista de cores
@@ -453,8 +452,6 @@ namespace InnerLibs
                     m |= ColorMood.MostBlue;
                 }
 
-
-
                 return m;
             }
         }
@@ -637,7 +634,6 @@ namespace InnerLibs
             }
         }
 
-
         public double GetEuclideanDistance(HSVColor Color)
         {
             double r_dist_sqrd = Math.Pow((double)Color.Red - (double)this.Red, 2d);
@@ -645,7 +641,6 @@ namespace InnerLibs
             double b_dist_sqrd = Math.Pow((double)Color.Blue - (double)this.Blue, 2d);
             return Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd);
         }
-
 
         /// <summary>
         /// Retorna uma <see cref="System.Drawing.Color"/> desta <see cref="HSVColor"/>
@@ -1015,8 +1010,6 @@ namespace InnerLibs
 
         public int CompareTo(object obj) => CompareTo(new HSVColor(obj?.ToString()));
 
-
-
         public static HSVColor operator +(HSVColor Color1, HSVColor Color2) => Color1.Combine(Color2);
 
         public static HSVColor operator +(Color Color1, HSVColor Color2) => new HSVColor(Color1).Combine(Color2);
@@ -1091,7 +1084,6 @@ namespace InnerLibs
 
         public override int GetHashCode() => this.ARGB;
 
-
         /// <summary>
         /// Lista com todas as <see cref="HSVColor"/> com nomes oficiais
         /// </summary>
@@ -1115,7 +1107,6 @@ namespace InnerLibs
         }
 
         private static List<HSVColor> l = new List<HSVColor>();
-
     }
 
     [Flags]
@@ -1154,6 +1145,5 @@ namespace InnerLibs
         FullRed = NoGreen | NoBlue,
         FullGreen = NoRed | NoBlue,
         FullBlue = NoRed | NoGreen,
-
     }
 }

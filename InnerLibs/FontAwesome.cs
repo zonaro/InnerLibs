@@ -1,11 +1,10 @@
-﻿using System.IO;
+﻿using InnerLibs.LINQ;
+using System.IO;
 
 namespace InnerLibs.FontAwesome
 {
     public static class FontAwesome
     {
-
-
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
         /// </summary>
@@ -54,7 +53,6 @@ namespace InnerLibs.FontAwesome
                 case "icalendar":
                     {
                         return "fa-calendar";
-
                     }
                 case "png":
                 case "jpg":
@@ -260,7 +258,5 @@ namespace InnerLibs.FontAwesome
 
             return "fa-file";
         }
-
-
     }
 }
