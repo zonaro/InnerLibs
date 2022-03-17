@@ -217,7 +217,6 @@ namespace InnerLibs
         /// Troca ou não a ordem das variaveis de inicio e fim  fazendo com que a Value1
         /// sempre seja menor que a Value2. Util para tratar ranges
         /// </summary>
-
         public static void FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
             if (FirstValue != null && SecondValue != null)
@@ -242,6 +241,12 @@ namespace InnerLibs
             SecondValue = temp;
         }
 
+        /// <summary>
+        /// Converte um objeto para XML
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
+        /// <param name="obj">Valor do objeto</param>
+        /// <returns>um <see cref="XmlDocument"/></returns>
         public static XmlDocument CreateXML<T>(this T obj) where T : class
         {
             var xs = new XmlSerializer(obj.GetType());
@@ -300,7 +305,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
-        public static string ToFullExceptionString(this Exception ex, string Separator = " >> ") => ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
+        public static string ToFullExceptionString(this Exception ex, string Separator = " => ") => ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
 
         /// <summary>
         /// Retorna um dicionário em QueryString
@@ -333,13 +338,26 @@ namespace InnerLibs
         /// <returns></returns>
         public static T Detach<T>(this List<T> List, int Index)
         {
-            var p = List.IfNoIndex(Index, default);
-            if (p != null)
+            if (Index.IsBetween(0, List.Count - 1))
             {
+                var p = List.ElementAt(Index);
                 List.RemoveAt(Index);
+                return p;
             }
+            return default;
+        }
 
-            return p;
+        public static IEnumerable<T> DetachMany<T>(this List<T> List, params int[] Indexes) => List.MoveItems(null, Indexes);
+
+        public static List<T> MoveItems<T>(this List<T> FromList, List<T> ToList, params int[] Indexes)
+        {
+            ToList = ToList ?? new List<T>();
+            if (FromList != null)
+                foreach (var index in Indexes ?? Array.Empty<int>())
+                {
+                    ToList.Add(FromList.Detach(index));
+                }
+            return ToList;
         }
 
         /// <summary>
