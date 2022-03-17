@@ -1558,8 +1558,7 @@ namespace InnerLibs.LINQ
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="DefaultOrderItem"></typeparam>
         /// <param name="items">       colecao</param>
-        /// <param name="Priority">    Seletor que define a prioridade</param>
-        /// <param name="DefaultOrder">ordenacao padrao para os outros itens</param>
+        /// <param name="Priority">    Seletores que define a prioridade da ordem dos itens</param>
         /// <returns></returns>
         public static IEnumerable<T> OrderByWithPriority<T>(this IEnumerable<T> items, params Func<T, bool>[] Priority)
         {
@@ -1568,8 +1567,7 @@ namespace InnerLibs.LINQ
                 var l = new List<T>();
                 foreach (var p in Priority ?? Array.Empty<Func<T, bool>>())
                 {
-                    if (p != null)
-                        l.AddRange(items.Where(p).Union(items.Where(i => !p(i))));
+                    if (p != null) l.AddRange(items.Where(p).Union(items.Where(i => !p(i))));
                 }
 
                 items = l.OrderBy(x => 0);
