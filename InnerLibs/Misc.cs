@@ -296,15 +296,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Dic"></param>
         /// <returns></returns>
-        public static string ToQueryString(this Dictionary<string, string> Dic)
-        {
-            if (Dic != null)
-            {
-                return Dic.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.JoinString("="), "&");
-            }
-
-            return "";
-        }
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? "").UrlEncode() }.JoinString("="), "&") ?? "";
 
         /// <summary>
         /// Retorna um <see cref="NameValueCollection"/> em QueryString
@@ -331,16 +323,34 @@ namespace InnerLibs
             return default;
         }
 
+        /// <summary>
+        /// Remove itens de uma lista e retorna uma outra lista com estes itens
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="Indexes"></param>
+        /// <returns></returns>
         public static IEnumerable<T> DetachMany<T>(this List<T> List, params int[] Indexes) => List.MoveItems(null, Indexes);
 
+        /// <summary>
+        /// Move os itens de uma lista para outra
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="FromList"></param>
+        /// <param name="ToList"></param>
+        /// <param name="Indexes"></param>
+        /// <returns></returns>
         public static List<T> MoveItems<T>(this List<T> FromList, List<T> ToList, params int[] Indexes)
         {
             ToList = ToList ?? new List<T>();
             if (FromList != null)
+            {
+                Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count - 1)).ToArray() ?? Array.Empty<int>();
                 foreach (var index in Indexes ?? Array.Empty<int>())
                 {
                     ToList.Add(FromList.Detach(index));
                 }
+            }
             return ToList;
         }
 
