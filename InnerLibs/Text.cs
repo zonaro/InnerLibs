@@ -1263,14 +1263,6 @@ namespace InnerLibs
         /// <summary>
         /// Sorteia um item da Lista
         /// </summary>
-        /// <typeparam name="Type">Tipo de lista</typeparam>
-        /// <param name="List">Lista</param>
-        /// <returns>Um valor do tipo especificado</returns>
-        public static Type GetRandomItem<Type>(this IEnumerable<Type> List) => List.ToArray()[Generate.RandomNumber(0, List.Count() - 1)];
-
-        /// <summary>
-        /// Sorteia um item da Lista
-        /// </summary>
         /// <typeparam name="Type">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
@@ -2371,7 +2363,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string Shuffle(this string Text) => Generate.RandomWord(Text);
+        public static string Shuffle(this string Text) => Text.OrderByRandom().JoinString();
 
         /// <summary>
         /// Retorna a frase ou termo especificado em sua forma singular
@@ -2423,8 +2415,14 @@ namespace InnerLibs
 
                     case object _ when phrase[index].EndsWith("eis"):
                         {
-                            //phrase[index] = phrase[index].RemoveLastEqual("eis") + "el";
                             phrase[index] = phrase[index].RemoveLastEqual("eis") + "il";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("éis"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("éis") + "el";
+
                             break;
                         }
 

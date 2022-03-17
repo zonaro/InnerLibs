@@ -32,14 +32,14 @@ namespace InnerLibs
         /// <param name="Img"></param>
         /// <param name="Reduce"></param>
         /// <returns></returns>
-        public static HSVColor RandomColor(Image Img, int Reduce = 16) => Img.ColorPallette(Reduce).Keys.SingleRandom();
+        public static HSVColor RandomColor(Image Img, int Reduce = 16) => Img.ColorPallette(Reduce).Keys.RandomItem();
 
         /// <summary>
         /// Retorna uma cor aleatória a partir de uma lista de cores
         /// </summary>
         /// <param name="Colors"></param>
         /// <returns></returns>
-        public static HSVColor RandomColor(IEnumerable<Color> Colors) => new HSVColor((Color)Colors?.OrderByRandom().FirstOr(Color.Transparent));
+        public static HSVColor RandomColor(IEnumerable<Color> Colors) => new HSVColor(Colors?.RandomItem() ?? Color.Transparent);
 
         /// <summary>
         /// Gera uma <see cref="HSVColor"/> opaca aleatoria

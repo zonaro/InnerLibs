@@ -45,7 +45,15 @@ namespace InnerLibs.LINQ
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
 
-        public static T SingleRandom<T>(this IEnumerable<T> l) => l.TakeRandom().FirstOrDefault();
+        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, Func<T, bool> predicade, int Count = 1) => l.Where(predicade).OrderByRandom().Take(Count);
+
+        public static T RandomItemOr<T>(this IEnumerable<T> l, params T[] Alternate) => l.TakeRandom().FirstOr(Alternate);
+
+        public static T RandomItemOr<T>(this IEnumerable<T> l, Func<T, bool> predicade, params T[] Alternate) => l.TakeRandom(predicade).FirstOr(Alternate);
+
+        public static T RandomItem<T>(this IEnumerable<T> l) => l.RandomItemOr();
+
+        public static T RandomItem<T>(this IEnumerable<T> l, Func<T, bool> predicade) => l.RandomItemOr(predicade);
 
         /// <summary>
         /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -1545,7 +1553,7 @@ namespace InnerLibs.LINQ
 
         /// <summary>
         /// Ordena um <see cref="IEnumerable"/> priorizando valores especificos a uma condição no
-        /// inicio da coleção e então segue uma ordem padrão para os outros.
+        /// inicio da coleção e então segue a ordem padrão para os outros.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="DefaultOrderItem"></typeparam>
@@ -1553,18 +1561,21 @@ namespace InnerLibs.LINQ
         /// <param name="Priority">    Seletor que define a prioridade</param>
         /// <param name="DefaultOrder">ordenacao padrao para os outros itens</param>
         /// <returns></returns>
-        public static IEnumerable<T> OrderByWithPriority<T, DefaultOrderItem>(this IEnumerable<T> items, Func<T, bool> Priority, Func<T, DefaultOrderItem> DefaultOrder = null)
+        public static IEnumerable<T> OrderByWithPriority<T>(this IEnumerable<T> items, params Func<T, bool>[] Priority)
         {
-            DefaultOrder = DefaultOrder ?? (x => default);
-            if (Priority != null)
+            if (items != null)
             {
-                foreach (var item in items.Where(Priority).OrderBy(DefaultOrder)) yield return item;
-                foreach (var item in items.Where(i => !Priority(i)).OrderBy(DefaultOrder)) yield return item;
+                var l = new List<T>();
+                foreach (var p in Priority ?? Array.Empty<Func<T, bool>>())
+                {
+                    if (p != null)
+                        l.AddRange(items.Where(p).Union(items.Where(i => !p(i))));
+                }
+
+                items = l.OrderBy(x => 0);
             }
-            else
-            {
-                foreach (var item in items.OrderBy(DefaultOrder)) yield return item;
-            }
+
+            return items;
         }
 
         /// <summary>

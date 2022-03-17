@@ -37,7 +37,7 @@ namespace InnerLibs
             while (word.Length < Length)
             {
                 // Add the consonant
-                string consonant = PredefinedArrays.LowerConsonants.GetRandomItem();
+                string consonant = PredefinedArrays.LowerConsonants.RandomItem();
                 if (consonant == "q" && word.Length + 3 <= Length)
                 {
                     // check +3 because we'd add 3 characters in this case, the "qu" and the vowel.  Change 3 to 2 to allow words that end in "qu"
@@ -47,7 +47,7 @@ namespace InnerLibs
                 {
                     while (consonant == "q")
                         // ReplaceFrom an orphaned "q"
-                        consonant = PredefinedArrays.LowerConsonants.GetRandomItem();
+                        consonant = PredefinedArrays.LowerConsonants.RandomItem();
                     if (word.Length + 1 <= Length)
                     {
                         // Only add a consonant if there's enough room remaining
@@ -58,19 +58,12 @@ namespace InnerLibs
                 if (word.Length + 1 <= Length)
                 {
                     // Only add a vowel if there's enough room remaining
-                    word += PredefinedArrays.LowerVowels.GetRandomItem();
+                    word += PredefinedArrays.LowerVowels.RandomItem();
                 }
             }
 
             return word;
         }
-
-        /// <summary>
-        /// Gera uma palavra aleatória a partir de uma outra palavra
-        /// </summary>
-        /// <param name="BaseText">Texto base</param>
-        /// <returns></returns>
-        public static string RandomWord(string BaseText) => BaseText.ToArray().Shuffle().JoinString("");
 
         public static string Password(int AlphaLenght, int NumberLenght, int SpecialLenght) => Password((AlphaLenght / 2d).CeilInt(), (AlphaLenght / 2d).FloorInt(), NumberLenght, SpecialLenght);
 
@@ -85,7 +78,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < AlphaLowerLenght)
-                    ss = ss.Append(PredefinedArrays.AlphaLowerChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItemOr());
                 pass = pass.Append(ss);
             }
 
@@ -93,7 +86,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < AlphaUpperLenght)
-                    ss = ss.Append(PredefinedArrays.AlphaUpperChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem());
                 pass = pass.Append(ss);
             }
 
@@ -101,7 +94,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < NumberLenght)
-                    ss = ss.Append(PredefinedArrays.NumberChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.NumberChars.RandomItem());
                 pass = pass.Append(ss);
             }
 
@@ -109,7 +102,7 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < SpecialLenght)
-                    ss = ss.Append(PredefinedArrays.PasswordSpecialChars.TakeRandom(1).FirstOrDefault());
+                    ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem());
                 pass = pass.Append(ss);
             }
 
@@ -118,8 +111,8 @@ namespace InnerLibs
 
         public static string Password(int Lenght = 8)
         {
-            var @base = Lenght / 3d;
-            return Password(@base.CeilInt(), @base.FloorInt(), @base.FloorInt()).PadRight(Lenght, Convert.ToChar(PredefinedArrays.AlphaChars.TakeRandom(1).FirstOrDefault())).GetFirstChars(Lenght);
+            var basenumber = Lenght / 3d;
+            return Password(basenumber.CeilInt(), basenumber.FloorInt(), basenumber.FloorInt()).PadRight(Lenght, Convert.ToChar(PredefinedArrays.AlphaChars.RandomItem())).GetFirstChars(Lenght);
         }
 
         /// <summary>
