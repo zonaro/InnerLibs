@@ -1,6 +1,4 @@
 ﻿using InnerLibs.LINQ;
-using InnerLibs.TimeMachine;
-using Microsoft.VisualBasic;
 
 using System;
 using System.Collections;
@@ -15,8 +13,60 @@ using System.Reflection;
 
 namespace InnerLibs.MicroORM
 {
+    /// <summary>
+    /// Constantes utilizadas na funçao <see cref="DbExtensions.CreateSQLQuickResponse(DbCommand, string)"/> e <see cref="DbExtensions.CreateSQLQuickResponse(DbConnection, FormattableString, string)"/>
+    /// </summary>
+    public static class DataSetType
+    {
+        /// <summary>
+        /// Coloca o primeiro valor da primeira linha do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
+        /// </summary>
+        /// /// <remarks>
+        /// pode tambem ser representado pelas strings "SINGLE", "ID", "KEY"
+        /// </remarks>
+        public const string Value = "VALUE";
+
+        /// <summary>
+        /// Coloca todos os valores encontrados na primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
+        /// </summary>
+        /// <remarks>
+        /// pode tambem ser representado pelas strings "ARRAY", "LIST"
+        /// </remarks>
+        public const string Values = "VALUES";
+
+        /// <summary>
+        /// Coloca a primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
+        /// </summary>
+        ///   <remarks>
+        /// pode tambem ser representado pelas strings "ONE", "FIRST"
+        /// </remarks>
+        public const string Row = "ROW";
+
+        /// <summary>
+        /// Coloca todos os datasets no <see cref="SQLResponse{T}.Data"/>.
+        /// </summary>
+        /// <remarks>
+        /// pode tambem ser representado pelas strings "DEFAULT", "SETS"
+        /// </remarks>
+        public const string Many = "MANY";
+
+        /// <summary>
+        /// Coloca primeira e ultima coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/> como um <see cref="Dictionary{string, object}"/>
+        /// </summary>
+        ///<remarks>
+        /// pode tambem ser representada pelas strings "PAIRS", "DICTIONARY", "ASSOCIATIVE",
+        ///</remarks>
+        public const string Pair = "PAIR";
+    }
+
     public static class DbExtensions
     {
+        public enum LogicConcatenationOperator
+        {
+            AND,
+            OR
+        }
+
         private static Dictionary<Type, DbType> typeMap = null;
 
         /// <summary>
@@ -54,6 +104,76 @@ namespace InnerLibs.MicroORM
 
                 return typeMap;
             }
+        }
+
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType);
+
+        /// <summary>
+        /// Executa um <paramref name="Command" /> e retorna uma <see cref="SQLResponse{object}"/> de acordo com o formato especificado em <paramref name="DataSetType"/>
+        /// </summary>
+        /// <remarks>
+        /// Utilize as constantes de <see cref="DataSetType"/> no parametro <paramref name="DataSetType"/>
+        /// </remarks>
+        /// <param name="Command">Comando SQL com a <see cref="DbCommand.Connection"/> ja setada</param>
+        /// <param name="DataSetType">Tipo da resposta. Ver <see cref="DataSetType"/></param>
+        /// <returns></returns>
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType, bool IncludeCommandText = false)
+        {
+            var resp = new SQLResponse<object>();
+            try
+            {
+                DataSetType = DataSetType.IfBlank("default").ToLower();
+                var Connection = Command.Connection;
+                resp.SQL = IncludeCommandText.AsIf(Command.CommandText);
+                if (DataSetType.IsAny("value", "single", "id", "key"))
+                {
+                    //primeiro valor da primeira linha do primeiro set
+                    var part = Connection.RunSQLValue(Command);
+                    resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("ZERO_RESULTS", "OK"));
+                    resp.Data = part;
+                }
+                else if (DataSetType.IsAny("one", "first", "row"))
+                {
+                    //primeiro do primeiro set (1 linha como objeto)
+                    var part = Connection.RunSQLRow(Command);
+                    resp.Status = (part == null).AsIf("ZERO_RESULTS", "OK");
+                    resp.Data = part;
+                }
+                else if (DataSetType.IsAny("array", "values", "list"))
+                {
+                    //primeira coluna do primeiro set como array
+                    var part = Connection.RunSQLArray(Command);
+                    resp.Status = (!part?.Any()).AsIf("ZERO_RESULTS", "OK");
+                    resp.Data = part;
+                }
+                else if (DataSetType.IsAny("pair", "pairs", "dictionary", "associative"))
+                {
+                    //primeira e ultima coluna do primeiro set como dictionary
+                    var part = Connection.RunSQLPairs(Command);
+                    resp.Status = (!part?.Any()).AsIf("ZERO_RESULTS", "OK");
+                    resp.Data = part;
+                }
+                else if (DataSetType.IsAny("many", "sets"))
+                {
+                    //varios sets
+                    var part = Connection.RunSQLMany(Command);
+                    resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "ZERO_RESULTS");
+                    resp.Data = part;
+                }
+                else
+                {
+                    //tudo do primeiro set (lista de objetos)
+                    var part = Connection.RunSQLSet(Command);
+                    resp.Status = (!part.Any()).AsIf("ZERO_RESULTS", "OK");
+                    resp.Data = part;
+                }
+            }
+            catch (Exception ex)
+            {
+                resp.Status = "ERROR";
+                resp.Message = ex.ToFullExceptionString();
+            }
+            return resp;
         }
 
         /// <summary>
@@ -341,12 +461,6 @@ namespace InnerLibs.MicroORM
 
         public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
 
-        public enum LogicConcatenationOperator
-        {
-            AND,
-            OR
-        }
-
         /// <summary>
         /// Cria comandos de INSERT para cada objeto do tipo <typeparamref name="T"/> em uma lista
         /// </summary>
@@ -590,34 +704,15 @@ namespace InnerLibs.MicroORM
         public static Dictionary<K, V> RunSQLPairs<K, V>(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLPairs<K, V>(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <typeparamref name="T"/>
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection), WithSubQueries);
-
-        /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um <typeparamref name="T"/>
         /// </summary>
         /// <returns></returns>
         public static T RunSQLRow<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false) where T : class => Connection.RunSQLRow<T>(Select.CreateDbCommand(Connection), WithSubQueries);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
-
-        /// <summary>
         /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para um  <see cref="Dictionary(Of String, Object)"/>
         /// </summary>
         public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
-        /// </summary>
-        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para um  <see cref="Dictionary(Of String, Object)"/>
@@ -650,6 +745,25 @@ namespace InnerLibs.MicroORM
         /// <param name="SQL"></param>
         /// <returns></returns>
         public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL), WithSubQueries);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <typeparamref name="T"/>
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection), WithSubQueries);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
+        /// </summary>
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>

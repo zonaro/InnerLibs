@@ -7,16 +7,7 @@ namespace InnerLibs
 {
     public class ConnectionStringParser : Dictionary<string, string>
     {
-        public ConnectionStringParser() : base()
-        {
-        }
-
-        public ConnectionStringParser(string ConnectionString) : base()
-        {
-            Parse(ConnectionString);
-        }
-
-
+        public ConnectionStringParser(string ConnectionString = null) : base() => Parse(ConnectionString);
 
         public string ConnectionString { get => ToString(); set => Parse(value); }
 
@@ -25,8 +16,11 @@ namespace InnerLibs
             try
             {
                 Clear();
-                foreach (var ii in ConnectionString.IfBlank("").SplitAny(";").Select(t => t.Split(new char[] { '=' }, 2)).ToDictionary(t => t[0].Trim(), t => t[1].Trim(), StringComparer.InvariantCultureIgnoreCase))
-                    this.Set(ii.Key.ToTitle(true), ii.Value);
+                if (ConnectionString.IsNotBlank())
+                {
+                    foreach (var ii in ConnectionString.SplitAny(";").Select(t => t.Split(new char[] { '=' }, 2)).ToDictionary(t => t[0].Trim(), t => t[1].Trim(), StringComparer.InvariantCultureIgnoreCase))
+                        this.Set(ii.Key.ToTitle(true), ii.Value);
+                }
             }
             catch
             {
@@ -39,7 +33,7 @@ namespace InnerLibs
         /// Retorna a connectionstring deste parser
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => this.SelectJoinString(x => $"{x.Key.ToTitle()}={x.Value}", ";");
+        public override string ToString() => this.SelectJoinString(x => $"{x.Key.ToTitle(true)}={x.Value}", ";");
 
         public static implicit operator string(ConnectionStringParser cs) => cs.ToString();
 
@@ -48,11 +42,7 @@ namespace InnerLibs
 
     public class SqlServerConnectionStringParser : ConnectionStringParser
     {
-
-        public SqlServerConnectionStringParser() : base()
-        { }
-
-        public SqlServerConnectionStringParser(string ConnectionString) : base(ConnectionString)
+        public SqlServerConnectionStringParser(string ConnectionString = null) : base(ConnectionString)
         { }
 
         public string InitialCatalog { get => this.GetValueOr("Initial Catalog"); set => this.Set("Initial Catalog", value.NullIf(x => x.IsBlank())); }
@@ -61,5 +51,4 @@ namespace InnerLibs
         public string Password { get => this.GetValueOr("Password"); set => this.SetOrRemove("Password", value.NullIf(x => x.IsBlank())); }
         public bool IntegratedSecurity { get => this.GetValueOr("Integrated Security", "false").ToLower().ToBoolean(); set => this.SetOrRemove("Integrated Security", value.ToString().ToTitle().NullIf("False")); }
     }
-
 }

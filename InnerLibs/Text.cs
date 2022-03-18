@@ -137,24 +137,16 @@ namespace InnerLibs
 
         public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
 
-        public static FormattableString ToFormattableString(this string Text, IEnumerable<object[]> args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object[]>());
+        public static FormattableString ToFormattableString<T>(IEnumerable<T> args, string Text) => ToFormattableString(Text, args);
+
+        public static FormattableString ToFormattableString(this string Text, IEnumerable<object[]> args) => ToFormattableString(Text, args);
 
         /// <summary>
-        /// Parseia uma ConnectionString em um Dicionário
+        /// Parseia uma ConnectionString em um <see cref="ConnectionStringParser"/>
         /// </summary>
         /// <param name="ConnectionString"></param>
         /// <returns></returns>
-        public static ConnectionStringParser ParseConnectionString(this string ConnectionString)
-        {
-            try
-            {
-                return new ConnectionStringParser(ConnectionString);
-            }
-            catch
-            {
-                return new ConnectionStringParser();
-            }
-        }
+        public static ConnectionStringParser ParseConnectionString(this string ConnectionString) => new ConnectionStringParser(ConnectionString);
 
         public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
 

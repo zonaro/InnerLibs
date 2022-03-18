@@ -1092,4 +1092,19 @@ namespace InnerLibs.MicroORM
 
         public string[] Names { get; private set; }
     }
+
+    public class SQLResponse<T>
+    {
+        public string SQL { get; set; }
+
+        public string Status { get; set; }
+
+        public string Message { get; set; }
+
+        public T Data { get; set; } = default;
+    }
+
+    public class SQLResponse : SQLResponse<object>
+    {
+    }
 }
