@@ -21,6 +21,23 @@ namespace InnerLibs
     public static class Text
     {
         /// <summary>
+        /// Repete uma string um numero determinado de vezes
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Times"></param>
+        /// <returns></returns>
+        public static string Repeat(this string Text, int Times = 2)
+        {
+            var ns = "";
+            while (Times > 0)
+            {
+                ns += Text;
+                Times--;
+            }
+            return ns;
+        }
+
+        /// <summary>
         /// Verifica se uma string contém caracteres em maiúsculo
         /// </summary>
         /// <param name="Text"></param>

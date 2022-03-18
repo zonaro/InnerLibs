@@ -441,6 +441,21 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e utiliza os pares de um dicionario como parametros da procedure
+        /// </summary>
+        /// <param name="Dic">Dicionario com os parametros</param>
+        /// <param name="ProcedureName">  Nome da Procedure</param>
+        /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static IEnumerable<DbCommand> ToBatchProcedure<T>(this DbConnection Connection, string ProcedureName, IEnumerable<T> Items, params string[] Keys)
+        {
+            foreach (var item in Items ?? new List<T>())
+            {
+                yield return Connection.ToProcedure(ProcedureName, item, Keys);
+            }
+        }
+
+        /// <summary>
         /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="NameValueCollection" />
         /// </summary>
         /// <remarks>
