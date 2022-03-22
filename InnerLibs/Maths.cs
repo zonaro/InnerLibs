@@ -688,14 +688,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Convert.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
+        public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static double RoundDouble(this double Number, int? Decimals = default) => Convert.ToBoolean(Decimals) ? Math.Round(Number, Decimals.Value) : Math.Round(Number);
+        public static double RoundDouble(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -786,14 +786,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo</returns>
-        public static int Average(params int[] Values) => (int)Math.Round(Values.Average());
+        public static double Average(params int[] Values) => Values.Average();
 
         /// <summary>
         /// Tira a média de todos os números de um Array
         /// </summary>
         /// <param name="Values">Array de números</param>
         /// <returns>Decimal contendo</returns>
-        public static long Average(params long[] Values) => (long)Math.Round(Values.Average());
+        public static double Average(params long[] Values) => Values.Average();
 
         /// <summary>
         /// COnverte graus para radianos
@@ -811,7 +811,7 @@ namespace InnerLibs
         public static double CalculateDistance(this AddressInfo FirstLocation, AddressInfo SecondLocation)
         {
             double circumference = 40000.0d;
-            // Earth's circumference at the equator in km
+            // Earth's circumference at the equator in km, considering the earth is a globe, not flat
 
             double distance = 0.0d;
             if (FirstLocation.Latitude == SecondLocation.Latitude == true && FirstLocation.Longitude == SecondLocation.Longitude)
