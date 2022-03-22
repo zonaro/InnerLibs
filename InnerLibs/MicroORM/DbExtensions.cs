@@ -14,14 +14,14 @@ using System.Reflection;
 namespace InnerLibs.MicroORM
 {
     /// <summary>
-    /// Constantes utilizadas na funçao <see cref="DbExtensions.CreateSQLQuickResponse(DbCommand, string)"/> e <see cref="DbExtensions.CreateSQLQuickResponse(DbConnection, FormattableString, string)"/>
+    /// Constantes utilizadas na funçao <see cref="DbExtensions.CreateSQLQuickResponse(DbCommand, string, bool)"/> e <see cref="DbExtensions.CreateSQLQuickResponse(DbConnection, FormattableString, string,bool)"/>
     /// </summary>
     public static class DataSetType
     {
         /// <summary>
         /// Coloca o primeiro valor da primeira linha do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
         /// </summary>
-        /// /// <remarks>
+        /// <remarks>
         /// pode tambem ser representado pelas strings "SINGLE", "ID", "KEY"
         /// </remarks>
         public const string Value = "VALUE";
@@ -37,7 +37,7 @@ namespace InnerLibs.MicroORM
         /// <summary>
         /// Coloca a primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
         /// </summary>
-        ///   <remarks>
+        /// <remarks>
         /// pode tambem ser representado pelas strings "ONE", "FIRST"
         /// </remarks>
         public const string Row = "ROW";
@@ -106,7 +106,7 @@ namespace InnerLibs.MicroORM
             }
         }
 
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType);
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, bool IncludeCommandText = false) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, IncludeCommandText);
 
         /// <summary>
         /// Executa um <paramref name="Command" /> e retorna uma <see cref="SQLResponse{object}"/> de acordo com o formato especificado em <paramref name="DataSetType"/>
@@ -143,14 +143,14 @@ namespace InnerLibs.MicroORM
                 {
                     //primeira coluna do primeiro set como array
                     var part = Connection.RunSQLArray(Command);
-                    resp.Status = (!part?.Any()).AsIf("ZERO_RESULTS", "OK");
+                    resp.Status = (part?.Any()).AsIf("OK", "ZERO_RESULTS");
                     resp.Data = part;
                 }
                 else if (DataSetType.IsAny("pair", "pairs", "dictionary", "associative"))
                 {
                     //primeira e ultima coluna do primeiro set como dictionary
                     var part = Connection.RunSQLPairs(Command);
-                    resp.Status = (!part?.Any()).AsIf("ZERO_RESULTS", "OK");
+                    resp.Status = (part?.Any()).AsIf("OK", "ZERO_RESULTS");
                     resp.Data = part;
                 }
                 else if (DataSetType.IsAny("many", "sets"))
@@ -164,7 +164,7 @@ namespace InnerLibs.MicroORM
                 {
                     //tudo do primeiro set (lista de objetos)
                     var part = Connection.RunSQLSet(Command);
-                    resp.Status = (!part.Any()).AsIf("ZERO_RESULTS", "OK");
+                    resp.Status = (part?.Any()).AsIf("OK", "ZERO_RESULTS");
                     resp.Data = part;
                 }
             }
@@ -436,14 +436,14 @@ namespace InnerLibs.MicroORM
                 Keys = Dic.Keys.ToArray().Where(x => x.IsLikeAny(Keys)).ToArray();
             }
 
-            string sql = $"{ProcedureName}  {Keys.SelectJoinString(key => " @" + key + " = " + "@__" + key, ", ")}";
+            string sql = $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
             return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value));
         }
 
         /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica e utiliza os pares de um dicionario como parametros da procedure
+        /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma coleçao. As propriedades do item serao utilizadas como parametros da procedure
         /// </summary>
-        /// <param name="Dic">Dicionario com os parametros</param>
+        /// <param name="Items">Lista de itens que darao origem aos parametros da procedure</param>
         /// <param name="ProcedureName">  Nome da Procedure</param>
         /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
         /// <returns>Um DbCommand parametrizado</returns>
@@ -586,7 +586,7 @@ namespace InnerLibs.MicroORM
         {
             if (Connection != null && Command != null)
             {
-                if (!(Connection.State == ConnectionState.Open))
+                if (!Connection.IsOpen())
                 {
                     Connection.Open();
                 }
@@ -607,7 +607,7 @@ namespace InnerLibs.MicroORM
         {
             if (Connection != null && Command != null)
             {
-                if (!(Connection.State == ConnectionState.Open))
+                if (!Connection.IsOpen())
                 {
                     Connection.Open();
                 }
@@ -654,24 +654,24 @@ namespace InnerLibs.MicroORM
             {
                 var oldout = System.Console.Out;
                 System.Console.SetOut(LogWriter);
-                LogWriter.WriteLine(new string('=', 10));
+                LogWriter.WriteLine("=".Repeat(10));
                 if (Command != null)
                 {
                     foreach (DbParameter item in Command.Parameters)
                     {
                         string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
-                        System.Console.WriteLine(bx);
-                        System.Console.WriteLine(new string('-', 10));
+                        LogWriter.WriteLine(bx);
+                        LogWriter.WriteLine(new string('-', 10));
                     }
 
-                    System.Console.WriteLine(Command.CommandText, "SQL Command");
+                    LogWriter.WriteLine(Command.CommandText, "SQL Command");
                 }
                 else
                 {
-                    System.Console.WriteLine("Command is NULL");
+                    LogWriter.WriteLine("Command is NULL");
                 }
 
-                System.Console.WriteLine(new string('=', 10));
+                LogWriter.WriteLine("=".Repeat(10));
                 System.Console.SetOut(oldout);
             }
 
@@ -980,13 +980,13 @@ namespace InnerLibs.MicroORM
         {
             if (Connection != null && Command != null)
             {
-                if (!(Connection.State == ConnectionState.Open))
-                {
-                    Connection.Open();
-                }
-
                 try
                 {
+                    if (!Connection.IsOpen())
+                    {
+                        Connection.Open();
+                    }
+
                     return Command.LogCommand().ExecuteReader();
                 }
                 catch (Exception ex)
@@ -997,6 +997,8 @@ namespace InnerLibs.MicroORM
 
             return null;
         }
+
+        public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
 
         /// <summary>
         /// Mapeia os objetos de um datareader para uma classe, Dictionary ou NameValueCollection
