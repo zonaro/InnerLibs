@@ -22,7 +22,7 @@ namespace InnerLibs
                 {
                     var pixelColor = image.GetPixel(w, h);
                     int red, green, blue;
-                    red = (int)Math.Round((pixelColor.R.ToInteger() + pixelColor.G.ToInteger() + pixelColor.B.ToInteger()) / 3d);
+                    red = (int)Math.Round((pixelColor.R.ToInt() + pixelColor.G.ToInt() + pixelColor.B.ToInt()) / 3d);
                     green = red;
                     blue = green;
                     var grayColor = Color.FromArgb(red, green, blue);

@@ -112,7 +112,7 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static int ToInteger<FromType>(this FromType Value) => Value.ChangeType<int, FromType>();
+        public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int, FromType>();
 
         /// <summary>
         /// Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar

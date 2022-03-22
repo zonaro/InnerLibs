@@ -664,7 +664,7 @@ namespace InnerLibs
                     parts[1] = parts[1].AdjustBlankSpaces().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString();
                 }
 
-                size = new Size(parts[0].ToInteger(), parts[1].ToInteger());
+                size = new Size(parts[0].ToInt(), parts[1].ToInt());
             }
             else
             {
@@ -675,8 +675,8 @@ namespace InnerLibs
 
                 if (Percent.IsNumber())
                 {
-                    size.Width = Convert.ToInt32(Percent.ToInteger().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString());
-                    size.Height = Convert.ToInt32(Percent.ToInteger().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString());
+                    size.Width = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString());
+                    size.Height = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString());
                 }
             }
 
