@@ -1321,7 +1321,7 @@ namespace InnerLibs.Printer.XmlTemplates
             {
                 try
                 {
-                    lines = Xml.Attribute("count")?.Value.ToInteger() ?? 1;
+                    lines = Xml.Attribute("count")?.Value.ToInt() ?? 1;
                 }
                 catch
                 {
@@ -1430,7 +1430,7 @@ namespace InnerLibs.Printer.XmlTemplates
                 {
                     try
                     {
-                        lines = (int)attr.Value?.ToInteger();
+                        lines = (int)attr.Value?.ToInt();
                     }
                     catch
                     {

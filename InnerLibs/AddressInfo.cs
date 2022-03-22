@@ -348,7 +348,7 @@ namespace InnerLibs.Locations
         {
             if (Latitude.HasValue && Longitude.HasValue)
             {
-                return new Point((Longitude * 1000000).ToInteger(), (Latitude * 1000000).ToInteger());
+                return new Point((Longitude * 1000000).ToInt(), (Latitude * 1000000).ToInt());
             }
 
             return new Point();

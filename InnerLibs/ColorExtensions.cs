@@ -184,7 +184,7 @@ namespace InnerLibs
 
             if (Text == "random") return RandomColor();
 
-            if (Text.IsNumber()) return Color.FromArgb(Text.ToInteger());
+            if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
 
             if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
 

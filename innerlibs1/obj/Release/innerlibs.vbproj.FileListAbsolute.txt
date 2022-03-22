@@ -1,0 +1,11 @@
+C:\svn\Innerlibs\innerlibs1\bin\Release\InnerLibs.dll.config
+C:\svn\Innerlibs\innerlibs1\bin\Release\InnerLibs.dll
+C:\svn\Innerlibs\innerlibs1\bin\Release\InnerLibs.pdb
+C:\svn\Innerlibs\innerlibs1\bin\Release\InnerLibs.xml
+C:\svn\Innerlibs\innerlibs1\obj\Release\innerlibs.vbprojAssemblyReference.cache
+C:\svn\Innerlibs\innerlibs1\obj\Release\InnerLibs.Resources.resources
+C:\svn\Innerlibs\innerlibs1\obj\Release\innerlibs.vbproj.GenerateResource.cache
+C:\svn\Innerlibs\innerlibs1\obj\Release\innerlibs.vbproj.CoreCompileInputs.cache
+C:\svn\Innerlibs\innerlibs1\obj\Release\InnerLibs.dll
+C:\svn\Innerlibs\innerlibs1\obj\Release\InnerLibs.xml
+C:\svn\Innerlibs\innerlibs1\obj\Release\InnerLibs.pdb

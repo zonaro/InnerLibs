@@ -1,21 +1,17 @@
-﻿using System;
+﻿using InnerLibs.Locations;
+using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using InnerLibs.Locations;
-
 
 namespace InnerLibs
 {
-
     /// <summary>
     /// Módulo para calculos
     /// </summary>
     /// <remarks></remarks>
     public static class MathExt
     {
-
         /// <summary>
         /// Calcula os Juros simples
         /// </summary>
@@ -23,10 +19,7 @@ namespace InnerLibs
         /// <param name="Rate">Taxa</param>
         /// <param name="Time">Tempo</param>
         /// <returns></returns>
-        public static object CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time)
-        {
-            return Capital * Rate * Time;
-        }
+        public static object CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
 
         /// <summary>
         /// Calcula Juros compostos
@@ -35,68 +28,105 @@ namespace InnerLibs
         /// <param name="Rate">Taxa</param>
         /// <param name="Time">Tempo</param>
         /// <returns></returns>
-        public static object CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time)
+        public static object CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => (double)Capital * Math.Pow((double)(1m + Rate), (double)Time);
+
+        public static decimal ForceNegative(this decimal Value)
         {
-            return (double)Capital * Math.Pow((double)(1m + Rate), (double)Time);
+            if (Value > 0m)
+                Value = Value * -1;
+            return Value;
         }
 
-        public static decimal ForcePositive(decimal Value)
+        public static int ForceNegative(this int Value)
+        {
+            if (Value > 0)
+                Value = Value * -1;
+            return Value;
+        }
+
+        public static long ForceNegative(this long Value)
+        {
+            if (Value > 0)
+                Value = Value * -1;
+            return Value;
+        }
+
+        public static double ForceNegative(this double Value)
+        {
+            if (Value > 0d)
+                Value = Value * -1;
+            return Value;
+        }
+
+        public static float ForceNegative(this float Value)
+        {
+            if (Value > 0f)
+                Value = Value * -1;
+            return Value;
+        }
+
+        public static short ForceNegative(this short Value)
+        {
+            if (Value > 0)
+                Value = ((short)(Value * -1));
+            return Value;
+        }
+
+        public static decimal ForcePositive(this decimal Value)
         {
             if (Value < 0m)
                 Value = Value * -1;
             return Value;
         }
 
-        public static int ForcePositive(int Value)
+        public static int ForcePositive(this int Value)
         {
             if (Value < 0)
                 Value = Value * -1;
             return Value;
         }
 
-        public static double ForcePositive(double Value)
+        public static long ForcePositive(this long Value)
+        {
+            if (Value < 0)
+                Value = Value * -1;
+            return Value;
+        }
+
+        public static double ForcePositive(this double Value)
         {
             if (Value < 0d)
                 Value = Value * -1;
             return Value;
         }
 
-        public static float ForcePositive(float Value)
+        public static float ForcePositive(this float Value)
         {
             if (Value < 0f)
                 Value = Value * -1;
             return Value;
         }
 
-        public static short ForcePositive(short Value)
+        public static short ForcePositive(this short Value)
         {
             if (Value < 0)
-                Value = (short)(Value * -1);
+                Value = ((short)(Value * -1));
             return Value;
         }
 
+        /// <summary>
+        /// Verifica se um numero possui parte decimal
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool HasDecimalPart(this decimal Value) => !(Value.ForcePositive() % 1m == 0m) && Value.ForcePositive() > 0m;
 
         /// <summary>
         /// Verifica se um numero possui parte decimal
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
-        public static bool HasDecimalPart(this decimal Value)
-        {
-            if (Value < 0m)
-                Value = -Value;
-            return !(Value % 1m == 0m) && Value > 0m;
-        }
-
-        /// <summary>
-        /// Verifica se um numero possui parte decimal
-        /// </summary>
-        /// <param name="Value"></param>
-        /// <returns></returns>
-        public static bool HasDecimalPart(this double Value)
-        {
-            return Value.ChangeType<decimal, double>().HasDecimalPart();
-        }
+        public static bool HasDecimalPart(this double Value) => Value.ChangeType<decimal, double>().HasDecimalPart();
 
         /// <summary>
         /// Retorna a diferença entre 2 numeros se o valor minimo for maior que o total
@@ -104,10 +134,7 @@ namespace InnerLibs
         /// <param name="Total"></param>
         /// <param name="MinValue"></param>
         /// <returns></returns>
-        public static int DifferenceIfMin(this int Total, int MinValue)
-        {
-            return Total < MinValue ? MinValue - Total : 0;
-        }
+        public static int DifferenceIfMin(this int Total, int MinValue) => Total < MinValue ? MinValue - Total : 0;
 
         /// <summary>
         /// Retorna a diferença entre 2 numeros se o valor maximo for menor que o total
@@ -115,20 +142,14 @@ namespace InnerLibs
         /// <param name="Total"></param>
         /// <param name="MaxValue"></param>
         /// <returns></returns>
-        public static int DifferenceIfMax(this int Total, int MaxValue)
-        {
-            return Total > MaxValue ? MaxValue - Total : 0;
-        }
+        public static int DifferenceIfMax(this int Total, int MaxValue) => Total > MaxValue ? MaxValue - Total : 0;
 
         /// <summary>
         /// retorna o numeor em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static string ToOrdinalNumber(this int Number, bool ExcludeNumber = false)
-        {
-            return Convert.ToInt64(Number).ToOrdinalNumber(ExcludeNumber);
-        }
+        public static string ToOrdinalNumber(this int Number, bool ExcludeNumber = false) => Number.ToLong().ToOrdinalNumber(ExcludeNumber);
 
         /// <summary>
         /// retorna o numeor em sua forma ordinal (inglês)
@@ -137,36 +158,38 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToOrdinalNumber(this long Number, bool ExcludeNumber = false)
         {
-            if (Number != 0L)
+            var suffix = "";
+
+            var negative = Number < 0;
+            switch (Number.ForcePositive())
             {
-                switch (Number)
-                {
-                    case 1L:
-                    case -1L:
-                        {
-                            return String.Join(ExcludeNumber ? "" : Number.ToString(), "st");
-                        }
+                case 1L:
+                    {
+                        suffix = "st";
+                        break;
+                    }
 
-                    case 2L:
-                    case -2L:
-                        {
-                            return string.Join(ExcludeNumber ? "" : Number.ToString(), "nd");
-                        }
+                case 2L:
+                    {
+                        suffix = "nd";
+                        break;
+                    }
 
-                    case 3L:
-                    case -3L:
-                        {
-                            return String.Join(ExcludeNumber ? "" : Number.ToString(), "rd");
-                        }
+                case 3L:
+                    {
+                        suffix = "rd";
+                        break;
+                    }
 
-                    default:
-                        {
-                            return String.Join(ExcludeNumber ? "" : Number.ToString(), "th");
-                        }
-                }
+                default:
+                    {
+                        suffix = "th";
+                        break;
+                    }
             }
+            Number = negative.AsIf(-Number, Number);
 
-            return "";
+            return $"{Number}{suffix}";
         }
 
         /// <summary>
@@ -174,37 +197,28 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static string ToOrdinalNumber(this short Number)
-        {
-            return Convert.ToInt64(Number).ToOrdinalNumber();
-        }
+        public static string ToOrdinalNumber(this short Number) => Number.ToInt().ToOrdinalNumber();
 
         /// <summary>
         /// retorna o numeor em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static string ToOrdinalNumber(this double Number)
-        {
-            return Convert.ToInt64(Number).ToOrdinalNumber();
-        }
+        public static string ToOrdinalNumber(this double Number) => Number.FloorInt().ToOrdinalNumber();
 
         /// <summary>
-        /// retorna o numeor em sua forma ordinal (inglês)
+        /// Retorna o numero em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static string ToOrdinalNumber(this decimal Number)
-        {
-            return Convert.ToInt64(Number).ToOrdinalNumber();
-        }
+        public static string ToOrdinalNumber(this decimal Number) => Number.FloorInt().ToOrdinalNumber();
 
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
         /// </summary>
         /// <param name="FirstNumber"></param>
-        /// <param name="[Constant]"> </param>
-        /// <param name="Length">     </param>
+        /// <param name="[Constant]"></param>
+        /// <param name="Length"></param>
         /// <returns></returns>
         public static IEnumerable<int> ArithmeticProgression(this int FirstNumber, int Constant, int Length)
         {
@@ -219,8 +233,8 @@ namespace InnerLibs
         /// Retorna uma Progressão Gemoétrica com N numeros
         /// </summary>
         /// <param name="FirstNumber"></param>
-        /// <param name="[Constant]"> </param>
-        /// <param name="Length">     </param>
+        /// <param name="[Constant]"></param>
+        /// <param name="Length"></param>
         /// <returns></returns>
         public static IEnumerable<int> GeometricProgression(this int FirstNumber, int Constant, int Length)
         {
@@ -261,19 +275,30 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Retorna uma sequencia Fibonacci de N numeros
+        /// </summary>
+        /// <param name="Length">Quantidade de numeros da sequencia</param>
+        /// <returns>Lista com a sequencia Fibonacci</returns>
+        public static IEnumerable<int> ByteSequence(this int Length)
+        {
+            var lista = Enumerable.Range(1, Length.SetMinValue(2)).ToList();
+
+            for (int i = 1; i < lista.Count; i++)
+            {
+                lista[i] = lista[i - 1] * 2;
+            }
+            return lista;
+        }
+
+        /// <summary>
         /// Calcula o fatorial de um numero
         /// </summary>
         /// <param name="Number">Numero inteiro positivo maior que zero</param>
         /// <returns>fatorial do numero inteiro</returns>
         public static int Factorial(this int Number)
         {
-            if (Number == 0)
-                return 0;
-            if (Number < 0)
-            {
-                Number = Number * -1;
-            }
-
+            Number = Number.ForcePositive();
+            if (Number == 0) return 0;
             int fact = Number;
             int counter = Number - 1;
             while (counter > 0)
@@ -305,26 +330,17 @@ namespace InnerLibs
         /// <typeparam name="TValue"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static Dictionary<TKey, decimal> CalculatePercent<TObject, TKey, TValue>(this IEnumerable<TObject> Obj, Expression<Func<TObject, TKey>> KeySelector, Expression<Func<TObject, TValue>> ValueSelector) where TValue : struct
-        {
-            return Obj.ToDictionary(KeySelector.Compile(), ValueSelector.Compile()).CalculatePercent();
-        }
+        public static Dictionary<TKey, decimal> CalculatePercent<TObject, TKey, TValue>(this IEnumerable<TObject> Obj, Expression<Func<TObject, TKey>> KeySelector, Expression<Func<TObject, TValue>> ValueSelector) where TValue : struct => Obj.ToDictionary(KeySelector.Compile(), ValueSelector.Compile()).CalculatePercent();
 
         /// <summary>
         /// Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
         /// </summary>
-        public static Dictionary<Tobject, decimal> CalculatePercent<Tobject, Tvalue>(this IEnumerable<Tobject> Obj, Expression<Func<Tobject, Tvalue>> ValueSelector) where Tvalue : struct
-        {
-            return Obj.CalculatePercent(x => x, ValueSelector);
-        }
+        public static Dictionary<Tobject, decimal> CalculatePercent<Tobject, Tvalue>(this IEnumerable<Tobject> Obj, Expression<Func<Tobject, Tvalue>> ValueSelector) where Tvalue : struct => Obj.CalculatePercent(x => x, ValueSelector);
 
         /// <summary>
         /// Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
         /// </summary>
-        public static Dictionary<TValue, decimal> CalculatePercent<TValue>(this IEnumerable<TValue> Obj) where TValue : struct
-        {
-            return Obj.DistinctCount().CalculatePercent();
-        }
+        public static Dictionary<TValue, decimal> CalculatePercent<TValue>(this IEnumerable<TValue> Obj) where TValue : struct => Obj.DistinctCount().CalculatePercent();
 
         /// <summary>
         /// Calcula a porcentagem a partir da quantidade de valores verdadeiros em uma lista
@@ -333,7 +349,7 @@ namespace InnerLibs
         /// <param name="Obj"></param>
         /// <param name="selector"></param>
         /// <returns></returns>
-        public static decimal CalculatePercentCompletion<TValue>(this IEnumerable<TValue> Obj, Expression<Func<TValue, bool>> selector) 
+        public static decimal CalculatePercentCompletion<TValue>(this IEnumerable<TValue> Obj, Expression<Func<TValue, bool>> selector)
         {
             var total = Obj.Count();
             var part = Obj.Count(selector.Compile());
@@ -377,10 +393,7 @@ namespace InnerLibs
         /// <param name="StartValue"></param>
         /// <param name="EndValue"></param>
         /// <returns></returns>
-        public static decimal CalculatePercentVariation(this long StartValue, long EndValue)
-        {
-            return StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
-        }
+        public static decimal CalculatePercentVariation(this long StartValue, long EndValue) => StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
 
         /// <summary>
         /// Retorna o percentual de um valor
@@ -391,7 +404,6 @@ namespace InnerLibs
 
         public static decimal CalculatePercent(this decimal Value, decimal Total) => Total > 0 ? Convert.ToDecimal(100m * Value / Total) : 0;
 
-
         /// <summary>
         /// Retorna o percentual de um valor
         /// </summary>
@@ -399,8 +411,7 @@ namespace InnerLibs
         /// <param name="Total">Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo a porcentagem</returns>
 
-        public static decimal CalculatePercent(this decimal Value, decimal Total, int DecimalPlaces) => CalculatePercent(Value,Total).RoundDecimal(DecimalPlaces);
-
+        public static decimal CalculatePercent(this decimal Value, decimal Total, int DecimalPlaces) => CalculatePercent(Value, Total).RoundDecimal(DecimalPlaces);
 
         /// <summary>
         /// Retorna o valor de um determinado percentual de um valor total
@@ -408,7 +419,7 @@ namespace InnerLibs
         /// <param name="Percent">
         /// Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
         /// </param>
-        /// <param name="Total">  Valor Total (Representa 100%)</param>
+        /// <param name="Total">Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
         public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", "")) * Total / 100m);
@@ -419,12 +430,10 @@ namespace InnerLibs
         /// <param name="Percent">
         /// Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
         /// </param>
-        /// <param name="Total">  Valor Total (Representa 100%)</param>
+        /// <param name="Total">Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
         public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
-
-
 
         /// <summary>
         /// Retorna o valor de um determinado percentual de um valor total
@@ -432,11 +441,10 @@ namespace InnerLibs
         /// <param name="Percent">
         /// Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
         /// </param>
-        /// <param name="Total">  Valor Total (Representa 100%)</param>
+        /// <param name="Total">Valor Total (Representa 100%)</param>
         /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
 
         public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
-
 
         /// <summary>
         /// Retorna um numero inteiro representando a parte decimal de um numero decimal
@@ -447,7 +455,7 @@ namespace InnerLibs
         {
             if (Value < 0m)
                 Value = -Value;
-            Value = Value - Math.Floor(Value);
+            Value = Value - Value.Floor();
             while (Value.HasDecimalPart())
                 Value = Value * 10m;
             if (DecimalPlaces > 0)
@@ -461,8 +469,6 @@ namespace InnerLibs
         public static bool IsWholeNumber(this decimal Number) => !Number.HasDecimalPart();
 
         public static bool IsWholeNumber(this double Number) => !Number.HasDecimalPart();
-
-
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
@@ -567,33 +573,33 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int FloorInt(this double Number) => Number.Floor().ToInteger();
+        public static int FloorInt(this double Number) => Number.Floor().ToInt();
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int CeilInt(this double Number) => Number.Ceil().ToInteger();
+        public static int CeilInt(this double Number) => Number.Ceil().ToInt();
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int FloorInt(this decimal Number) => Number.Floor().ToInteger();
+        public static int FloorInt(this decimal Number) => Number.Floor().ToInt();
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static int CeilInt(this decimal Number) => Number.Ceil().ToInteger();
+        public static int CeilInt(this decimal Number) => Number.Ceil().ToInt();
 
         /// <summary>
         /// Limita o valor Maximo de um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MaxValue">Valor Maximo</param>
         /// <returns></returns>
         public static T SetMaxValue<T>(this T Number, T MaxValue) where T : IComparable => Number.LimitRange<T>(MaxValue: MaxValue);
@@ -601,7 +607,7 @@ namespace InnerLibs
         /// <summary>
         /// Limita o valor minimo de um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MinValue">Valor Maximo</param>
         /// <returns></returns>
         public static T SetMinValue<T>(this T Number, T MinValue) where T : IComparable => Number.LimitRange<T>(MinValue: MinValue);
@@ -609,7 +615,7 @@ namespace InnerLibs
         /// <summary>
         /// Limita um range para um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
@@ -631,7 +637,7 @@ namespace InnerLibs
         /// <summary>
         /// Limita um range para um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
@@ -640,7 +646,7 @@ namespace InnerLibs
         /// <summary>
         /// Limita um range para um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
@@ -649,7 +655,7 @@ namespace InnerLibs
         /// <summary>
         /// Limita um range para um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
@@ -658,7 +664,7 @@ namespace InnerLibs
         /// <summary>
         /// Limita um range para um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
@@ -667,7 +673,7 @@ namespace InnerLibs
         /// <summary>
         /// Limita um range para um numero
         /// </summary>
-        /// <param name="Number">  Numero</param>
+        /// <param name="Number">Numero</param>
         /// <param name="MinValue">Valor Minimo para o numero</param>
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
@@ -696,14 +702,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static int RoundInt(this decimal Number) => Math.Round(Number).ToInteger();
+        public static int RoundInt(this decimal Number) => Math.Round(Number).ToInt();
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static int RoundInt(this double Number) => Math.Round(Number).ToInteger();
+        public static int RoundInt(this double Number) => Math.Round(Number).ToInt();
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -722,8 +728,8 @@ namespace InnerLibs
         /// <summary>
         /// Realiza um calculo de interpolação Linear
         /// </summary>
-        /// <param name="Start"> </param>
-        /// <param name="End"> </param>
+        /// <param name="Start"></param>
+        /// <param name="End"></param>
         /// <param name="Amount"></param>
         /// <returns></returns>
         public static float Lerp(this float Start, float End, float Amount)
@@ -799,7 +805,7 @@ namespace InnerLibs
         /// <summary>
         /// Calcula a distancia entre 2 locais
         /// </summary>
-        /// <param name="FirstLocation"> Primeiro Local</param>
+        /// <param name="FirstLocation">Primeiro Local</param>
         /// <param name="SecondLocation">Segundo Local</param>
         /// <returns>A distancia em kilometros</returns>
         public static double CalculateDistance(this AddressInfo FirstLocation, AddressInfo SecondLocation)
