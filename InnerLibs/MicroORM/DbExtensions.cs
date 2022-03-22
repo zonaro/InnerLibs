@@ -966,36 +966,15 @@ namespace InnerLibs.MicroORM
             return resposta;
         }
 
-        public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL)
-        {
-            if (Connection != null)
-            {
-                return Connection.RunSQLReader(Connection.CreateCommand(SQL));
-            }
-
-            return null;
-        }
+        public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLReader(Connection.CreateCommand(SQL));
 
         public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command)
         {
-            if (Connection != null && Command != null)
-            {
-                try
-                {
-                    if (!Connection.IsOpen())
-                    {
-                        Connection.Open();
-                    }
+            if (Connection == null) throw new ArgumentException("Connection is null");
+            if (Command == null || Command.CommandText.IsBlank()) throw new ArgumentException("Command is null or empty");
+            if (!Connection.IsOpen()) Connection.Open();
+            return Command.LogCommand().ExecuteReader();
 
-                    return Command.LogCommand().ExecuteReader();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
-            }
-
-            return null;
         }
 
         public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
