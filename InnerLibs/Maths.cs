@@ -275,7 +275,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna uma sequencia Fibonacci de N numeros
+        /// Retorna uma sequencia de bytes de N entradas
         /// </summary>
         /// <param name="Length">Quantidade de numeros da sequencia</param>
         /// <returns>Lista com a sequencia Fibonacci</returns>
@@ -343,7 +343,7 @@ namespace InnerLibs
         public static Dictionary<TValue, decimal> CalculatePercent<TValue>(this IEnumerable<TValue> Obj) where TValue : struct => Obj.DistinctCount().CalculatePercent();
 
         /// <summary>
-        /// Calcula a porcentagem a partir da quantidade de valores verdadeiros em uma lista
+        /// Calcula a porcentagem de objetos que cumprem um determinado critério em uma lista
         /// </summary>
         /// <typeparam name="TValue"></typeparam>
         /// <param name="Obj"></param>
@@ -453,8 +453,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static long GetDecimalPlaces(this decimal Value, int DecimalPlaces = 0)
         {
-            if (Value < 0m)
-                Value = -Value;
+            Value = Value.ForcePositive();
             Value = Value - Value.Floor();
             while (Value.HasDecimalPart())
                 Value = Value * 10m;
@@ -466,8 +465,18 @@ namespace InnerLibs
             return Value.ToLong();
         }
 
+        /// <summary>
+        /// Verifica se um numero é inteiro (não possui casas decimais)
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
         public static bool IsWholeNumber(this decimal Number) => !Number.HasDecimalPart();
 
+        /// <summary>
+        /// Verifica se um numero é inteiro (não possui casas decimais)
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
         public static bool IsWholeNumber(this double Number) => !Number.HasDecimalPart();
 
         /// <summary>
