@@ -8,63 +8,23 @@ namespace InnerLibs.TimeMachine
     public static partial class TimeSpanExtensions
     {
         /// <summary>
-        /// Adds the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns resulting <see cref="DateRange"/>.
+        /// Adds the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns
+        /// resulting <see cref="DateRange"/>.
         /// </summary>
-        public static DateRange AddDateRange(this TimeSpan timeSpan, DateRange DateRange)
-        {
-            return DateRange.Add(timeSpan);
-        }
+        public static DateRange AddDateRange(this TimeSpan timeSpan, DateRange DateRange) => DateRange.Add(timeSpan);
 
         /// <summary>
-        /// Subtracts the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns resulting <see cref="DateRange"/>.
+        /// Subtracts the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns
+        /// resulting <see cref="DateRange"/>.
         /// </summary>
-        public static DateRange SubtractDateRange(this TimeSpan timeSpan, DateRange DateRange)
-        {
-            return timeSpan - DateRange;
-        }
+        public static DateRange SubtractDateRange(this TimeSpan timeSpan, DateRange DateRange) => timeSpan - DateRange;
 
         /// <summary>
         /// Convert a <see cref="TimeSpan"/> to a human readable string.
         /// </summary>
         /// <param name="timeSpan">The <see cref="TimeSpan"/> to convert</param>
         /// <returns>A human readable string for <paramref name="timeSpan"/></returns>
-        public static string ToDisplayString(this DateRange timeSpan)
-        {
-            return ((TimeSpan)timeSpan).ToDisplayString();
-        }
-
-        /// <summary>
-        /// Convert a <see cref="TimeSpan"/> to a human readable string.
-        /// </summary>
-        /// <param name="timeSpan">The <see cref="TimeSpan"/> to convert</param>
-        /// <returns>A human readable string for <paramref name="timeSpan"/></returns>
-        public static string ToDisplayString(this TimeSpan timeSpan)
-        {
-            if (timeSpan.TotalDays > 1)
-            {
-                var round = timeSpan.Round(RoundTo.Hour);
-                return $"{round.Days} days and {round.Hours} hours";
-            }
-
-            if (timeSpan.TotalHours > 1)
-            {
-                var round = timeSpan.Round(RoundTo.Minute);
-                return $"{round.Hours} hours and {round.Minutes} minutes";
-            }
-
-            if (timeSpan.TotalMinutes > 1)
-            {
-                var round = timeSpan.Round(RoundTo.Second);
-                return $"{round.Minutes} minutes and {round.Seconds} seconds";
-            }
-
-            if (timeSpan.TotalSeconds > 1)
-            {
-                return $"{timeSpan.TotalSeconds} seconds";
-            }
-
-            return $"{timeSpan.Milliseconds} milliseconds";
-        }
+        public static string ToDisplayString(this TimeSpan timeSpan) => new DateRange(timeSpan).ToString();
 
         /// <summary>
         /// Rounds <paramref name="timeSpan"/> to the nearest <see cref="RoundTo"/>.
@@ -118,7 +78,8 @@ namespace InnerLibs.TimeMachine
                     }
                 default:
                     {
-                        throw new NotImplementedException();
+                        rounded = new TimeSpan(timeSpan.Ticks);
+                        break;
                     }
             }
 

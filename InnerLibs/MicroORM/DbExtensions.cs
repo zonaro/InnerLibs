@@ -14,40 +14,34 @@ using System.Reflection;
 namespace InnerLibs.MicroORM
 {
     /// <summary>
-    /// Constantes utilizadas na funçao <see cref="DbExtensions.CreateSQLQuickResponse(DbCommand, string, bool)"/> e <see cref="DbExtensions.CreateSQLQuickResponse(DbConnection, FormattableString, string,bool)"/>
+    /// Constantes utilizadas na funçao <see cref="DbExtensions.CreateSQLQuickResponse(DbCommand,
+    /// string, bool)"/> e <see cref="DbExtensions.CreateSQLQuickResponse(DbConnection,
+    /// FormattableString, string,bool)"/>
     /// </summary>
     public static class DataSetType
     {
         /// <summary>
         /// Coloca o primeiro valor da primeira linha do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
         /// </summary>
-        /// <remarks>
-        /// pode tambem ser representado pelas strings "SINGLE", "ID", "KEY"
-        /// </remarks>
+        /// <remarks>pode tambem ser representado pelas strings "SINGLE", "ID", "KEY"</remarks>
         public const string Value = "VALUE";
 
         /// <summary>
         /// Coloca todos os valores encontrados na primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
         /// </summary>
-        /// <remarks>
-        /// pode tambem ser representado pelas strings "ARRAY", "LIST"
-        /// </remarks>
+        /// <remarks>pode tambem ser representado pelas strings "ARRAY", "LIST"</remarks>
         public const string Values = "VALUES";
 
         /// <summary>
         /// Coloca a primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
         /// </summary>
-        /// <remarks>
-        /// pode tambem ser representado pelas strings "ONE", "FIRST"
-        /// </remarks>
+        /// <remarks>pode tambem ser representado pelas strings "ONE", "FIRST"</remarks>
         public const string Row = "ROW";
 
         /// <summary>
         /// Coloca todos os datasets no <see cref="SQLResponse{T}.Data"/>.
         /// </summary>
-        /// <remarks>
-        /// pode tambem ser representado pelas strings "DEFAULT", "SETS"
-        /// </remarks>
+        /// <remarks>pode tambem ser representado pelas strings "DEFAULT", "SETS"</remarks>
         public const string Many = "MANY";
 
         /// <summary>
@@ -109,7 +103,8 @@ namespace InnerLibs.MicroORM
         public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, bool IncludeCommandText = false) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, IncludeCommandText);
 
         /// <summary>
-        /// Executa um <paramref name="Command" /> e retorna uma <see cref="SQLResponse{object}"/> de acordo com o formato especificado em <paramref name="DataSetType"/>
+        /// Executa um <paramref name="Command"/> e retorna uma <see cref="SQLResponse{object}"/> de
+        /// acordo com o formato especificado em <paramref name="DataSetType"/>
         /// </summary>
         /// <remarks>
         /// Utilize as constantes de <see cref="DataSetType"/> no parametro <paramref name="DataSetType"/>
@@ -191,7 +186,8 @@ namespace InnerLibs.MicroORM
         public static Type GetTypeFromDb<T>(this DbType Type, Type Def = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? Def ?? typeof(object);
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
+        /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="FilePathOrSQL"></param>
@@ -199,7 +195,8 @@ namespace InnerLibs.MicroORM
         public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, NameValueCollection Parameters) => Connection.CreateCommand(FilePathOrSQL, Parameters.ToDictionary());
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of String, Object)"/>, tratando os parametros desta string como parametros SQL
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
+        /// String, Object)"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="FilePathOrSQL"></param>
@@ -253,7 +250,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string ou arquivo SQL, tratando os parametros {p} desta string como parametros SQL
+        /// Cria um <see cref="DbCommand"/> a partir de uma string ou arquivo SQL, tratando os
+        /// parametros {p} desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="FilePathOrSQL"></param>
@@ -281,7 +279,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os parametros desta string como parametros SQL
+        /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
+        /// parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -338,7 +337,8 @@ namespace InnerLibs.MicroORM
         public static string ToSQLString(object Obj) => ToSQLString($"{Obj}");
 
         /// <summary>
-        /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus parametros como parametros da query
+        /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
+        /// parametros como parametros da query
         /// </summary>
         public static string ToSQLString(this FormattableString SQL)
         {
@@ -395,31 +395,32 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos de
-        /// um NameValueCollection como parametros da procedure
+        /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos
+        /// de um NameValueCollection como parametros da procedure
         /// </summary>
         /// <param name="NVC">Objeto</param>
-        /// <param name="ProcedureName">  Nome da Procedure</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
         /// <returns>Um DbCommand parametrizado</returns>
 
         public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Keys);
 
         /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades específicas de
-        /// um objeto como parametros da procedure
+        /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades
+        /// específicas de um objeto como parametros da procedure
         /// </summary>
         /// <param name="Obj">Objeto</param>
-        /// <param name="ProcedureName">  Nome da Procedure</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
         /// <returns>Um DbCommand parametrizado</returns>
         public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Keys);
 
         /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica e utiliza os pares de um dicionario como parametros da procedure
+        /// Monta um Comando SQL para executar uma procedure especifica e utiliza os pares de um
+        /// dicionario como parametros da procedure
         /// </summary>
         /// <param name="Dic">Dicionario com os parametros</param>
-        /// <param name="ProcedureName">  Nome da Procedure</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
         /// <returns>Um DbCommand parametrizado</returns>
 
@@ -441,10 +442,11 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma coleçao. As propriedades do item serao utilizadas como parametros da procedure
+        /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
+        /// coleçao. As propriedades do item serao utilizadas como parametros da procedure
         /// </summary>
         /// <param name="Items">Lista de itens que darao origem aos parametros da procedure</param>
-        /// <param name="ProcedureName">  Nome da Procedure</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
         /// <returns>Um DbCommand parametrizado</returns>
         public static IEnumerable<DbCommand> ToBatchProcedure<T>(this DbConnection Connection, string ProcedureName, IEnumerable<T> Items, params string[] Keys)
@@ -455,22 +457,19 @@ namespace InnerLibs.MicroORM
             }
         }
 
-        /// <summary>
-        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="NameValueCollection" />
-        /// </summary>
-        /// <remarks>
-        /// NameValueCollection pode usar a seguinte estrutura: &name=value1&or:surname=like:%value2% => WHERE [name] = 'value1' OR [surname] like '%value2%'
-        /// </remarks>
-        /// <param name="NVC">        Dicionario</param>
-        /// <param name="TableName">  Nome da Tabela</param>
-        /// <returns>Uma string com o comando montado</returns>
+        /// <summary> Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
+        /// cref="NameValueCollection" /> </summary> <remarks> NameValueCollection pode usar a
+        /// seguinte estrutura: &name=value1&or:surname=like:%value2% => WHERE [name] = 'value1' OR
+        /// [surname] like '%value2%' </remarks> <param name="NVC"> Dicionario</param> <param
+        /// name="TableName"> Nome da Tabela</param> <returns>Uma string com o comando montado</returns>
         public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
 
         /// <summary>
-        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see cref="Dictionary(Of String, Object)"/>
+        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
+        /// cref="Dictionary(Of String, Object)"/>
         /// </summary>
-        /// <param name="Dic">        Dicionario</param>
-        /// <param name="TableName">  Nome da Tabela</param>
+        /// <param name="Dic">Dicionario</param>
+        /// <param name="TableName">Nome da Tabela</param>
         /// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
         /// <returns>Uma string com o comando montado</returns>
 
@@ -624,7 +623,8 @@ namespace InnerLibs.MicroORM
         public static object RunSQLValue(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLValue(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo <typeparamref name="V"/>
+        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo
+        /// <typeparamref name="V"/>
         /// </summary>
         public static V? RunSQLValue<V>(this DbConnection Connection, DbCommand Command) where V : struct
         {
@@ -638,7 +638,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo <typeparamref name="V"/>
+        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo
+        /// <typeparamref name="V"/>
         /// </summary>
         public static V? RunSQLValue<V>(this DbConnection Connection, FormattableString SQL) where V : struct => Connection.RunSQLValue<V>(Connection.CreateCommand(SQL));
 
@@ -648,6 +649,12 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
 
+        /// <summary>
+        /// Ustiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para
+        /// escrever o comando
+        /// </summary>
+        /// <param name="Command"></param>
+        /// <returns></returns>
         public static DbCommand LogCommand(this DbCommand Command)
         {
             if (LogWriter != null)
@@ -661,7 +668,7 @@ namespace InnerLibs.MicroORM
                     {
                         string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
                         LogWriter.WriteLine(bx);
-                        LogWriter.WriteLine(new string('-', 10));
+                        LogWriter.WriteLine("-".Repeat(10));
                     }
 
                     LogWriter.WriteLine(Command.CommandText, "SQL Command");
@@ -679,12 +686,14 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo <typeparamref name="T"/>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
+        /// <typeparamref name="T"/>
         /// </summary>
         public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
 
         /// <summary>
-        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo <typeparamref name="T"/>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
+        /// <typeparamref name="T"/>
         /// </summary>
         public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL));
 
@@ -699,43 +708,51 @@ namespace InnerLibs.MicroORM
         public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLArray(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of Object, Object)"/>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{Object, Object}"/>
         /// </summary>
         public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
 
         /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of Object, Object)"/>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary(Of Object, Object)"/>
         /// </summary>
         public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLPairs(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of K, V)"/>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{K, V}"/>
         /// </summary>
         public static Dictionary<K, V> RunSQLPairs<K, V>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<K>(), x => x.Value.ChangeType<V>());
 
         /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em um <see cref="Dictionary(Of K, V)"/>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{K, V}"/>
         /// </summary>
         public static Dictionary<K, V> RunSQLPairs<K, V>(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLPairs<K, V>(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um <typeparamref name="T"/>
+        /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um
+        /// <typeparamref name="T"/>
         /// </summary>
         /// <returns></returns>
         public static T RunSQLRow<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false) where T : class => Connection.RunSQLRow<T>(Select.CreateDbCommand(Connection), WithSubQueries);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para um  <see cref="Dictionary(Of String, Object)"/>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// um <see cref="Dictionary{String, Object}"/>
         /// </summary>
         public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para um  <see cref="Dictionary(Of String, Object)"/>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// um <see cref="Dictionary(Of String, Object)"/>
         /// </summary>
         public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <typeparamref name="T"/>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// uma classe POCO do tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Connection"></param>
@@ -753,7 +770,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <typeparamref name="T"/>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// uma classe POCO do tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Connection"></param>
@@ -762,13 +780,15 @@ namespace InnerLibs.MicroORM
         public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL), WithSubQueries);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <typeparamref name="T"/>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <typeparamref name="T"/>
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection), WithSubQueries);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <see cref="Dictionary(Of String, Object)"/>
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -776,12 +796,14 @@ namespace InnerLibs.MicroORM
         public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de  <see cref="Dictionary(Of String, Object)"/>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <see cref="Dictionary(Of String, Object)"/>
         /// </summary>
         public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Connection"></param>
@@ -790,7 +812,8 @@ namespace InnerLibs.MicroORM
         public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false) where T : class => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL), WithSubQueries);
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Connection"></param>
@@ -811,7 +834,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see cref="Dictionary(Of String, Object)"/>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see
+        /// cref="Dictionary(Of String, Object)"/>
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -819,7 +843,8 @@ namespace InnerLibs.MicroORM
         public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLMany(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see cref="IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))"/>
+        /// Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see
+        /// cref="IEnumerable{IEnumerable{Dictionary{String, Object}}}"/>
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
@@ -836,7 +861,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -849,7 +875,8 @@ namespace InnerLibs.MicroORM
             where T5 : class => Connection.RunSQLMany<T1, T2, T3, T4, T5>(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
@@ -871,7 +898,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -883,7 +911,8 @@ namespace InnerLibs.MicroORM
             where T4 : class => Connection.RunSQLMany<T1, T2, T3, T4>(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
@@ -904,7 +933,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -915,7 +945,8 @@ namespace InnerLibs.MicroORM
             where T3 : class => Connection.RunSQLMany<T1, T2, T3>(Connection.CreateCommand(SQL));
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
@@ -935,7 +966,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -948,7 +980,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de tipos especificos
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
@@ -974,10 +1007,17 @@ namespace InnerLibs.MicroORM
             if (Command == null || Command.CommandText.IsBlank()) throw new ArgumentException("Command is null or empty");
             if (!Connection.IsOpen()) Connection.Open();
             return Command.LogCommand().ExecuteReader();
-
         }
 
         public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
+
+        public static bool IsClosed(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
+
+        public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
+
+        public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
+
+        public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
 
         /// <summary>
         /// Mapeia os objetos de um datareader para uma classe, Dictionary ou NameValueCollection
@@ -1103,7 +1143,7 @@ namespace InnerLibs.MicroORM
                     }
                     else if (prop.PropertyType.IsClass)
                     {
-                        if (prop.GetValue(d) is null)
+                        if (prop.GetValue(d) == null)
                         {
                             var oo = Connection.RunSQLRow(Sql.ToFormattableString()).CreateOrSetObject(null, prop.PropertyType);
                             prop.SetValue(d, oo);
@@ -1117,7 +1157,7 @@ namespace InnerLibs.MicroORM
                     }
                     else if (prop.PropertyType.IsValueType)
                     {
-                        if (prop.GetValue(d) is null)
+                        if (prop.GetValue(d) == null)
                         {
                             var oo = Connection.RunSQLValue(Sql.ToFormattableString());
                             prop.SetValue(d, Converter.ChangeType(oo, prop.PropertyType));
@@ -1160,7 +1200,8 @@ namespace InnerLibs.MicroORM
         public static T MapFirst<T>(this DbDataReader Reader, params object[] args) where T : class => Reader.Map<T>(args).FirstOrDefault();
 
         /// <summary>
-        /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable(Of IEnumerable(Of Dictionary(Of String, Object)))"/>
+        /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable(Of IEnumerable(Of
+        /// Dictionary(Of String, Object)))"/>
         /// </summary>
         /// <param name="Reader"></param>
         /// <returns></returns>

@@ -14,64 +14,76 @@ namespace InnerLibs
     public static class Calendars
     {
         /// <summary>
-        /// Returns a new <see cref="DateTime"/> that adds the value of the specified <see cref="DateRange"/> to the value of this instance.
+        /// Returns a new <see cref="DateTime"/> that adds the value of the specified <see
+        /// cref="DateRange"/> to the value of this instance.
         /// </summary>
         public static DateTime AddDateRange(this DateTime dateTime, DateRange timeSpan) => dateTime.AddTicks(timeSpan.Ticks);
 
         /// <summary>
-        /// Returns a new <see cref="DateTime"/> that subtracts the value of the specified <see cref="DateRange"/> to the value of this instance.
+        /// Returns a new <see cref="DateTime"/> that subtracts the value of the specified <see
+        /// cref="DateRange"/> to the value of this instance.
         /// </summary>
         public static DateTime SubtractDateRange(this DateTime dateTime, DateRange timeSpan) => dateTime.AddTicks(-timeSpan.Ticks);
 
         /// <summary>
-        /// Returns the very end of the given day (the last millisecond of the last hour for the given <see cref="DateTime"/>).
+        /// Returns the very end of the given day (the last millisecond of the last hour for the
+        /// given <see cref="DateTime"/>).
         /// </summary>
         public static DateTime EndOfDay(this DateTime date) => date.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
 
         /// <summary>
-        /// Returns the timezone-adjusted very end of the given day (the last millisecond of the last hour for the given <see cref="DateTime"/>).
+        /// Returns the timezone-adjusted very end of the given day (the last millisecond of the
+        /// last hour for the given <see cref="DateTime"/>).
         /// </summary>
         public static DateTime EndOfDay(this DateTime date, int timeZoneOffset) => new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, date.Kind).AddHours(timeZoneOffset);
 
         /// <summary>
-        /// Returns the last day of the week changing the time to the very end of the day. Eg, 2011-12-24T06:40:20.005 => 2011-12-25T23:59:59.999
+        /// Returns the last day of the week changing the time to the very end of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-25T23:59:59.999
         /// </summary>
         public static DateTime EndOfWeek(this DateTime date) => date.LastDayOfWeek().EndOfDay();
 
         /// <summary>
-        /// Returns the last day of the week changing the time to the very end of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-12-25T23:59:59.999
+        /// Returns the last day of the week changing the time to the very end of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-25T23:59:59.999
         /// </summary>
         public static DateTime EndOfWeek(this DateTime date, int timeZoneOffset)
         => date.LastDayOfWeek().EndOfDay(timeZoneOffset);
 
         /// <summary>
-        /// Returns the last day of the month changing the time to the very end of the day. Eg, 2011-12-24T06:40:20.005 => 2011-12-31T23:59:59.999
+        /// Returns the last day of the month changing the time to the very end of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
         public static DateTime EndOfMonth(this DateTime date)
         => date.LastDayOfMonth().EndOfDay();
 
         /// <summary>
-        /// Returns the last day of the month changing the time to the very end of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-12-31T23:59:59.999
+        /// Returns the last day of the month changing the time to the very end of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
         public static DateTime EndOfMonth(this DateTime date, int timeZoneOffset) => date.LastDayOfMonth().EndOfDay(timeZoneOffset);
 
         /// <summary>
-        /// Returns the last day of the quarter changing the time to the very end of the day. Eg, 2011-12-24T06:40:20.005 => 2011-12-31T23:59:59.999
+        /// Returns the last day of the quarter changing the time to the very end of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
         public static DateTime EndOfQuarter(this DateTime date) => date.LastDayOfQuarter().EndOfDay();
 
         /// <summary>
-        /// Returns the last day of the quarter changing the time to the very end of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-12-31T23:59:59.999
+        /// Returns the last day of the quarter changing the time to the very end of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
         public static DateTime EndOfQuarter(this DateTime date, int timeZoneOffset) => date.LastDayOfQuarter().EndOfDay(timeZoneOffset);
 
         /// <summary>
-        /// Returns the last day of the year changing the time to the very end of the day. Eg, 2011-12-24T06:40:20.005 => 2011-12-31T23:59:59.999
+        /// Returns the last day of the year changing the time to the very end of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
         public static DateTime EndOfYear(this DateTime date) => date.LastDayOfYear().EndOfDay();
 
         /// <summary>
-        /// Returns the last day of the year changing the time to the very end of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-12-31T23:59:59.999
+        /// Returns the last day of the year changing the time to the very end of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
         public static DateTime EndOfYear(this DateTime date, int timeZoneOffset) => date.LastDayOfYear().EndOfDay(timeZoneOffset);
 
@@ -81,53 +93,63 @@ namespace InnerLibs
         public static DateTime BeginningOfDay(this DateTime date) => new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, 0, date.Kind);
 
         /// <summary>
-        /// Returns the timezone-adjusted Start of the given day (the first millisecond of the given <see cref="DateTime"/>).
+        /// Returns the timezone-adjusted Start of the given day (the first millisecond of the given
+        /// <see cref="DateTime"/>).
         /// </summary>
         public static DateTime BeginningOfDay(this DateTime date, int timezoneOffset) => new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, 0, date.Kind).AddHours(timezoneOffset);
 
         /// <summary>
-        /// Returns the Start day of the week changing the time to the very start of the day. Eg, 2011-12-24T06:40:20.005 => 2011-12-19T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the week changing the time to the very start of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-19T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfWeek(this DateTime date) => date.FirstDayOfWeek().BeginningOfDay();
 
         /// <summary>
-        /// Returns the Start day of the week changing the time to the very start of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-12-19T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the week changing the time to the very start of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-19T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfWeek(this DateTime date, int timezoneOffset) => date.FirstDayOfWeek().BeginningOfDay(timezoneOffset);
 
         /// <summary>
-        /// Returns the Start day of the month changing the time to the very start of the day. Eg, 2011-12-24T06:40:20.005 => 2011-12-01T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the month changing the time to the very start of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-01T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfMonth(this DateTime date) => date.FirstDayOfMonth().BeginningOfDay();
 
         /// <summary>
-        /// Returns the Start day of the month changing the time to the very start of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-12-01T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the month changing the time to the very start of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-01T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfMonth(this DateTime date, int timezoneOffset) => date.FirstDayOfMonth().BeginningOfDay(timezoneOffset);
 
         /// <summary>
-        /// Returns the Start day of the quarter changing the time to the very start of the day. Eg, 2011-12-24T06:40:20.005 => 2011-10-01T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the quarter changing the time to the very start of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-10-01T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfQuarter(this DateTime date) => date.FirstDayOfQuarter().BeginningOfDay();
 
         /// <summary>
-        /// Returns the Start day of the quarter changing the time to the very start of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-10-01T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the quarter changing the time to the very start of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-10-01T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfQuarter(this DateTime date, int timezoneOffset) => date.FirstDayOfQuarter().BeginningOfDay(timezoneOffset);
 
         /// <summary>
-        /// Returns the Start day of the year changing the time to the very start of the day. Eg, 2011-12-24T06:40:20.005 => 2011-01-01T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the year changing the time to the very start of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-01-01T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfYear(this DateTime date) => date.FirstDayOfYear().BeginningOfDay();
 
         /// <summary>
-        /// Returns the Start day of the year changing the time to the very start of the day with timezone-adjusted. Eg, 2011-12-24T06:40:20.005 => 2011-01-01T00:00:00.000. <see cref="DateTime"/>
+        /// Returns the Start day of the year changing the time to the very start of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-01-01T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfYear(this DateTime date, int timezoneOffset) => date.FirstDayOfYear().BeginningOfDay(timezoneOffset);
 
         /// <summary>
-        /// Returns the same date (same Day, Month, Hour, Minute, Second etc) in the next calendar year.
-        /// If that day does not exist in next year in same month, number of missing days is added to the last day in same month next year.
+        /// Returns the same date (same Day, Month, Hour, Minute, Second etc) in the next calendar
+        /// year. If that day does not exist in next year in same month, number of missing days is
+        /// added to the last day in same month next year.
         /// </summary>
         public static DateTime NextYear(this DateTime start)
         {
@@ -144,8 +166,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Returns the same date (same Day, Month, Hour, Minute, Second etc) in the previous calendar year.
-        /// If that day does not exist in previous year in same month, number of missing days is added to the last day in same month previous year.
+        /// Returns the same date (same Day, Month, Hour, Minute, Second etc) in the previous
+        /// calendar year. If that day does not exist in previous year in same month, number of
+        /// missing days is added to the last day in same month previous year.
         /// </summary>
         public static DateTime PreviousYear(this DateTime start)
         {
@@ -223,17 +246,20 @@ namespace InnerLibs
         public static DateTime SetTime(this DateTime originalDate, int hour) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, hour, originalDate.Minute, originalDate.Second, originalDate.Millisecond, originalDate.Kind);
 
         /// <summary>
-        /// Returns the original <see cref="DateTime"/> with Hour and Minute parts changed to supplied hour and minute parameters.
+        /// Returns the original <see cref="DateTime"/> with Hour and Minute parts changed to
+        /// supplied hour and minute parameters.
         /// </summary>
         public static DateTime SetTime(this DateTime originalDate, int hour, int minute) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, hour, minute, originalDate.Second, originalDate.Millisecond, originalDate.Kind);
 
         /// <summary>
-        /// Returns the original <see cref="DateTime"/> with Hour, Minute and Second parts changed to supplied hour, minute and second parameters.
+        /// Returns the original <see cref="DateTime"/> with Hour, Minute and Second parts changed
+        /// to supplied hour, minute and second parameters.
         /// </summary>
         public static DateTime SetTime(this DateTime originalDate, int hour, int minute, int second) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, hour, minute, second, originalDate.Millisecond, originalDate.Kind);
 
         /// <summary>
-        /// Returns the original <see cref="DateTime"/> with Hour, Minute, Second and Millisecond parts changed to supplied hour, minute, second and millisecond parameters.
+        /// Returns the original <see cref="DateTime"/> with Hour, Minute, Second and Millisecond
+        /// parts changed to supplied hour, minute, second and millisecond parameters.
         /// </summary>
         public static DateTime SetTime(this DateTime originalDate, int hour, int minute, int second, int millisecond) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, hour, minute, second, millisecond, originalDate.Kind);
 
@@ -258,7 +284,8 @@ namespace InnerLibs
         public static DateTime SetMillisecond(this DateTime originalDate, int millisecond) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, originalDate.Minute, originalDate.Second, millisecond, originalDate.Kind);
 
         /// <summary>
-        /// Returns original <see cref="DateTime"/> value with time part set to midnight (alias for <see cref="BeginningOfDay(DateTime)"/> method).
+        /// Returns original <see cref="DateTime"/> value with time part set to midnight (alias for
+        /// <see cref="BeginningOfDay(DateTime)"/> method).
         /// </summary>
         public static DateTime Midnight(this DateTime value) => value.BeginningOfDay();
 
@@ -304,9 +331,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="current">The current value.</param>
         /// <param name="toCompareWith">Value to compare with.</param>
-        /// <returns>
-        /// 	<c>true</c> if the specified current is before; otherwise, <c>false</c>.
-        /// </returns>
+        /// <returns><c>true</c> if the specified current is before; otherwise, <c>false</c>.</returns>
         public static bool IsBefore(this DateTime current, DateTime toCompareWith) => current < toCompareWith;
 
         /// <summary>
@@ -314,9 +339,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="current">The current value.</param>
         /// <param name="toCompareWith">Value to compare with.</param>
-        /// <returns>
-        /// 	<c>true</c> if the specified current is after; otherwise, <c>false</c>.
-        /// </returns>
+        /// <returns><c>true</c> if the specified current is after; otherwise, <c>false</c>.</returns>
         public static bool IsAfter(this DateTime current, DateTime toCompareWith) => current > toCompareWith;
 
         /// <summary>
@@ -339,7 +362,8 @@ namespace InnerLibs
         public static DateTime At(this DateTime current, int hour, int minute, int second) => current.SetTime(hour, minute, second);
 
         /// <summary>
-        /// Returns the given <see cref="DateTime"/> with hour and minutes and seconds and milliseconds set At given values.
+        /// Returns the given <see cref="DateTime"/> with hour and minutes and seconds and
+        /// milliseconds set At given values.
         /// </summary>
         /// <param name="current">The current <see cref="DateTime"/> to be changed.</param>
         /// <param name="hour">The hour to set time to.</param>
@@ -354,7 +378,9 @@ namespace InnerLibs
         /// credit to http://www.devcurry.com/2009/05/find-first-and-last-day-of-current.html
         /// </summary>
         /// <param name="current"></param>
-        /// <returns>given <see cref="DateTime"/> with the day part set to the first day in the quarter.</returns>
+        /// <returns>
+        /// given <see cref="DateTime"/> with the day part set to the first day in the quarter.
+        /// </returns>
         public static DateTime FirstDayOfQuarter(this DateTime current)
         {
             var currentQuarter = (current.Month - 1) / 3 + 1;
@@ -367,7 +393,9 @@ namespace InnerLibs
         /// Sets the day of the <see cref="DateTime"/> to the first day in that month.
         /// </summary>
         /// <param name="current">The current <see cref="DateTime"/> to be changed.</param>
-        /// <returns>given <see cref="DateTime"/> with the day part set to the first day in that month.</returns>
+        /// <returns>
+        /// given <see cref="DateTime"/> with the day part set to the first day in that month.
+        /// </returns>
         public static DateTime FirstDayOfMonth(this DateTime current) => current.SetDay(1);
 
         /// <summary>
@@ -375,7 +403,9 @@ namespace InnerLibs
         /// credit to http://www.devcurry.com/2009/05/find-first-and-last-day-of-current.html
         /// </summary>
         /// <param name="current"></param>
-        /// <returns>given <see cref="DateTime"/> with the day part set to the last day in the quarter.</returns>
+        /// <returns>
+        /// given <see cref="DateTime"/> with the day part set to the last day in the quarter.
+        /// </returns>
         public static DateTime LastDayOfQuarter(this DateTime current)
         {
             var currentQuarter = (current.Month - 1) / 3 + 1;
@@ -387,7 +417,9 @@ namespace InnerLibs
         /// Sets the day of the <see cref="DateTime"/> to the last day in that month.
         /// </summary>
         /// <param name="current">The current DateTime to be changed.</param>
-        /// <returns>given <see cref="DateTime"/> with the day part set to the last day in that month.</returns>
+        /// <returns>
+        /// given <see cref="DateTime"/> with the day part set to the last day in that month.
+        /// </returns>
         public static DateTime LastDayOfMonth(this DateTime current) => current.SetDay(DateTime.DaysInMonth(current.Year, current.Month));
 
         /// <summary>
@@ -509,29 +541,34 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Returns the first day of the year keeping the time component intact. Eg, 2011-02-04T06:40:20.005 => 2011-01-01T06:40:20.005
+        /// Returns the first day of the year keeping the time component intact. Eg,
+        /// 2011-02-04T06:40:20.005 =&gt; 2011-01-01T06:40:20.005
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
         public static DateTime FirstDayOfYear(this DateTime current) => current.SetDate(current.Year, 1, 1);
 
         /// <summary>
-        /// Returns the last day of the week keeping the time component intact. Eg, 2011-12-24T06:40:20.005 => 2011-12-25T06:40:20.005
+        /// Returns the last day of the week keeping the time component intact. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-25T06:40:20.005
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
         public static DateTime LastDayOfWeek(this DateTime current) => current.FirstDayOfWeek().AddDays(6);
 
         /// <summary>
-        /// Returns the last day of the year keeping the time component intact. Eg, 2011-12-24T06:40:20.005 => 2011-12-31T06:40:20.005
+        /// Returns the last day of the year keeping the time component intact. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T06:40:20.005
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
         public static DateTime LastDayOfYear(this DateTime current) => current.SetDate(current.Year, 12, 31);
 
         /// <summary>
-        /// Returns the previous month keeping the time component intact. Eg, 2010-01-20T06:40:20.005 => 2009-12-20T06:40:20.005
-        /// If the previous month doesn't have that many days the last day of the previous month is used. Eg, 2009-03-31T06:40:20.005 => 2009-02-28T06:40:20.005
+        /// Returns the previous month keeping the time component intact. Eg,
+        /// 2010-01-20T06:40:20.005 =&gt; 2009-12-20T06:40:20.005 If the previous month doesn't have
+        /// that many days the last day of the previous month is used. Eg, 2009-03-31T06:40:20.005
+        /// =&gt; 2009-02-28T06:40:20.005
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
@@ -551,8 +588,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Returns the next month keeping the time component intact. Eg, 2012-12-05T06:40:20.005 => 2013-01-05T06:40:20.005
-        /// If the next month doesn't have that many days the last day of the next month is used. Eg, 2013-01-31T06:40:20.005 => 2013-02-28T06:40:20.005
+        /// Returns the next month keeping the time component intact. Eg, 2012-12-05T06:40:20.005
+        /// =&gt; 2013-01-05T06:40:20.005 If the next month doesn't have that many days the last day
+        /// of the next month is used. Eg, 2013-01-31T06:40:20.005 =&gt; 2013-02-28T06:40:20.005
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
@@ -572,32 +610,36 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="DateTime"/> value is exactly the same day (day + month + year) then current
+        /// Determines whether the specified <see cref="DateTime"/> value is exactly the same day
+        /// (day + month + year) then current
         /// </summary>
         /// <param name="current">The current value</param>
         /// <param name="date">Value to compare with</param>
         /// <returns>
-        /// 	<c>true</c> if the specified date is exactly the same year then current; otherwise, <c>false</c>.
+        /// <c>true</c> if the specified date is exactly the same year then current; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsSameDay(this DateTime current, DateTime date) => current.Date == date.Date;
 
         /// <summary>
-        /// Determines whether the specified <see cref="DateTime"/> value is exactly the same month (month + year) then current. Eg, 2015-12-01 and 2014-12-01 => False
+        /// Determines whether the specified <see cref="DateTime"/> value is exactly the same month
+        /// (month + year) then current. Eg, 2015-12-01 and 2014-12-01 =&gt; False
         /// </summary>
         /// <param name="current">The current value</param>
         /// <param name="date">Value to compare with</param>
         /// <returns>
-        /// 	<c>true</c> if the specified date is exactly the same month and year then current; otherwise, <c>false</c>.
+        /// <c>true</c> if the specified date is exactly the same month and year then current;
+        /// otherwise, <c>false</c>.
         /// </returns>
         public static bool IsSameMonth(this DateTime current, DateTime date) => current.Month == date.Month && current.Year == date.Year;
 
         /// <summary>
-        /// Determines whether the specified <see cref="DateTime"/> value is exactly the same year then current. Eg, 2015-12-01 and 2015-01-01 => True
+        /// Determines whether the specified <see cref="DateTime"/> value is exactly the same year
+        /// then current. Eg, 2015-12-01 and 2015-01-01 =&gt; True
         /// </summary>
         /// <param name="current">The current value</param>
         /// <param name="date">Value to compare with</param>
         /// <returns>
-        /// 	<c>true</c> if the specified date is exactly the same date then current; otherwise, <c>false</c>.
+        /// <c>true</c> if the specified date is exactly the same date then current; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsSameYear(this DateTime current, DateTime date) => current.Year == date.Year;
 
@@ -627,14 +669,18 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Cria um <see cref="DateRange"/> a partir de 2 datas e/ou uma propriedade do tipo <see cref="DateTime" /> de <paramref name="T" /> como filtro de uma lista
+        /// Cria um <see cref="DateRange"/> a partir de 2 datas e/ou uma propriedade do tipo <see
+        /// cref="DateTime"/> de <paramref name="T"/> como filtro de uma lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <param name="StartDate"></param>
         /// <param name="EndDate"></param>
-        /// <returns>Um DateRange a partir das datas Iniciais e finais especificadas ou um daterange a partir da menor e maior datas de uma lista</returns>
+        /// <returns>
+        /// Um DateRange a partir das datas Iniciais e finais especificadas ou um daterange a partir
+        /// da menor e maior datas de uma lista
+        /// </returns>
         public static DateRange CreateDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression, DateTime? StartDate = default, DateTime? EndDate = default) where T : class
         {
             var Period = new DateRange
@@ -735,7 +781,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
-        public static int GetHalfOfYear(this DateTime DateAndTime)
+        public static int GetSemester(this DateTime DateAndTime)
         {
             if (DateAndTime.Month <= 6)
             {
@@ -835,7 +881,7 @@ namespace InnerLibs
         /// <param name="[Date]">Data</param>
         /// <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é domingo)</param>
         /// <returns></returns>
-        public static DateRange GetWeek(this DateTime Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.GetFirstDayOfWeek(FirstDayOfWeek), Date.GetLastDayOfWeek(FirstDayOfWeek));
+        public static DateRange GetWeekRange(this DateTime Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.GetFirstDayOfWeek(FirstDayOfWeek), Date.GetLastDayOfWeek(FirstDayOfWeek));
 
         /// <summary>
         /// Retorna a ultima data do mes a partir de uma outra data
@@ -908,7 +954,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime GetFirstDayOfHalf(this DateTime Date)
         {
-            if (Date.GetHalfOfYear() == 1)
+            if (Date.GetSemester() == 1)
             {
                 return Date.GetFirstDayOfYear();
             }
@@ -925,7 +971,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime GetLastDayOfHalf(this DateTime Date)
         {
-            if (Date.GetHalfOfYear() == 1)
+            if (Date.GetSemester() == 1)
             {
                 return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
             }
@@ -1029,7 +1075,7 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se a Data de hoje é um aniversário
         /// </summary>
-        /// <param name="BirthDate">  Data de nascimento</param>
+        /// <param name="BirthDate">Data de nascimento</param>
         /// <returns></returns>
         public static bool IsAnniversary(this DateTime BirthDate, DateTime? CompareWith = default)
         {
@@ -1071,25 +1117,25 @@ namespace InnerLibs
         /// Retorna uma <see cref="DateRange"/> com a diferença entre 2 Datas
         /// </summary>
         /// <param name="InitialDate"></param>
-        /// <param name="SecondDate"> </param>
+        /// <param name="SecondDate"></param>
         /// <returns></returns>
         public static DateRange GetDifference(this DateTime InitialDate, DateTime SecondDate) => new DateRange(InitialDate, SecondDate);
 
         /// <summary>
-        /// Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a StartDate
-        /// sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2 datas resulte em um
-        /// <see cref="TimeSpan"/> negativo
+        /// Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a
+        /// StartDate sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2
+        /// datas resulte em um <see cref="TimeSpan"/> negativo
         /// </summary>
         /// <param name="StartDate">Data Inicial</param>
-        /// <param name="EndDate">  Data Final</param>
+        /// <param name="EndDate">Data Final</param>
         public static void FixDateOrder(ref DateTime StartDate, ref DateTime EndDate) => Misc.FixOrder(ref StartDate, ref EndDate);
 
         /// <summary>
         /// Verifica se uma data se encontra entre 2 datas
         /// </summary>
-        /// <param name="MidDate">   Data</param>
-        /// <param name="StartDate"> Data Inicial</param>
-        /// <param name="EndDate">   Data final</param>
+        /// <param name="MidDate">Data</param>
+        /// <param name="StartDate">Data Inicial</param>
+        /// <param name="EndDate">Data final</param>
         /// <param name="IgnoreTime">Indica se o tempo deve ser ignorado na comparação</param>
         /// <returns></returns>
         public static bool IsBetween(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime = false)
@@ -1300,7 +1346,7 @@ namespace InnerLibs
         /// <summary>
         /// Transforma um DateTime em uma despedida (Bom dia, Boa tarde, Boa noite)
         /// </summary>
-        /// <param name="Time">    Horario</param>
+        /// <param name="Time">Horario</param>
         /// <param name="Language">Idioma da saudação (pt, en, es)</param>
         /// <returns>Uma string com a despedida</returns>
         public static string ToFarewell(this DateTime Time, string Language = "pt") => Time.ToGreetingFarewell(Language, true);
@@ -1308,7 +1354,7 @@ namespace InnerLibs
         /// <summary>
         /// Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
         /// </summary>
-        /// <param name="Time">    Horario</param>
+        /// <param name="Time">Horario</param>
         /// <param name="Language">Idioma da saudação (pt, en, es)</param>
         /// <returns>Uma string com a despedida</returns>
         public static string ToGreeting(this DateTime Time, string Language = "pt") => Time.ToGreetingFarewell(Language, false);
@@ -1437,15 +1483,11 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Tipo de Apresentação dos Meses/Dias da Semana/Estado
-        /// </summary>
-
-        /// <summary>
         /// Calcula a porcentagem de diferenca entre duas datas de acordo com a data inicial especificada
         /// </summary>
-        /// <param name="MidDate">  Data do meio a ser verificada (normalmente Now)</param>
+        /// <param name="MidDate">Data do meio a ser verificada (normalmente Now)</param>
         /// <param name="StartDate">Data Inicial</param>
-        /// <param name="EndDate">  Data Final</param>
+        /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
         public static decimal CalculateTimelinePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
         {

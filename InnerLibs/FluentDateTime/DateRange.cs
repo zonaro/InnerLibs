@@ -6,44 +6,56 @@ using System.Linq.Expressions;
 
 namespace InnerLibs.TimeMachine
 {
-    public enum DateRangeInterval
-    {
-        LessAccurate = -1,
-        Milliseconds = 0,
-        Seconds = 1,
-        Minutes = 2,
-        Hours = 3,
-        Days = 4,
-        Weeks = 5,
-        Months = 6,
-        Years = 7
-    }
-
     /// <summary>
-    /// Extendend <see cref="TimeSpan"/> with validation of Business Days and many other <see cref="DateTime"/> functions
+    /// Works like a positive <see cref="System.TimeSpan"/> with validation of Relevant (Business)
+    /// Days and many other <see cref="DateTime"/> functions
     /// </summary>
     public class DateRange : IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>
     {
-        public static IEnumerable<DayOfWeek> SundayToSaturday => new[] { 0, 1, 2, 3, 4, 5, 6 }.Cast<DayOfWeek>();
-        public static IEnumerable<DayOfWeek> MondayToSaturday => new[] { 1, 2, 3, 4, 5, 6 }.Cast<DayOfWeek>();
-        public static IEnumerable<DayOfWeek> MondayToFriday => new[] { 1, 2, 3, 4, 5 }.Cast<DayOfWeek>();
-
         /// <summary>
-        /// Instancia um novo periodo do dia de hoje
+        /// Create a new <see cref="DateRange"/> for today (from 00:00:00.000 to 23:59:59.999)
         /// </summary>
         public DateRange() : this(DateTime.Now, DateTime.Now, true) { _IsDefault = true; }
 
         /// <summary>
-        /// Inicia uma instancia de DateRange
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
         /// </summary>
-        /// <param name="StartDate">Data inicial</param>
-        /// <param name="EndDate">Data Final (data mais recente)</param>
-        /// <param name="RelevantDaysOfWeek">Lista de dias da semana que são relevantes (dias letivos)</param>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
+        /// <param name="ForceFirstAndLastMoments">
+        /// Force <paramref name="StartDate"/> to the first moment of day (Midnight) and <paramref
+        /// name="EndDate"/> to last moment of day (23:59:59.999)
+        /// </param>
+        public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments) : this(StartDate, EndDate) => this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
+
+        /// <summary>
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
+        /// </summary>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
+        /// <param name="ForceFirstAndLastMoments">
+        /// Force <see cref="StartDate"/> to the first moment of day (Midnight) and <see
+        /// cref="EndDate"/> to last moment of day (23:59:59.999)
+        /// </param>
+        public DateRange(DateTime StartDate, DateTime EndDate, params DayOfWeek[] RelevantDaysOfWeek) : this(StartDate, EndDate, false, RelevantDaysOfWeek)
+        {
+        }
+
+        /// <summary>
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
+        /// </summary>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
+        /// <param name="ForceFirstAndLastMoments">
+        /// Force <see cref="StartDate"/> to the first moment of day (Midnight) and <see
+        /// cref="EndDate"/> to last moment of day (23:59:59.999)
+        /// </param>
+        /// <param name="RelevantDaysOfWeek">Business Days of Week</param>
         public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments, params DayOfWeek[] RelevantDaysOfWeek)
         {
-            if (!RelevantDaysOfWeek.Any())
+            if (RelevantDaysOfWeek == null || !RelevantDaysOfWeek.Any())
             {
-                RelevantDaysOfWeek = SundayToSaturday.ToArray();
+                RelevantDaysOfWeek = PredefinedArrays.SundayToSaturday.ToArray();
             }
 
             this.RelevantDaysOfWeek = RelevantDaysOfWeek.ToList();
@@ -54,46 +66,38 @@ namespace InnerLibs.TimeMachine
             CalcRange();
         }
 
-        public DateRange(DateTime StartDate, DateTime EndDate, params DayOfWeek[] RelevantDaysOfWeek) : this(StartDate, EndDate, false, RelevantDaysOfWeek)
-        {
-        }
-
         /// <summary>
-        /// Instancia um novo periodo entre 2 datas
+        /// Create a new <see cref="DateRange"/> from <see cref="DateTime.MinValue"/> plus <paramref name="Span"/>
         /// </summary>
-        /// <param name="StartDate"></param>
-        /// <param name="EndDate"></param>
-        /// <param name="ForceFirstAndLastMoments"> Ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia</param>
-        public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments) : this(StartDate, EndDate)
-        {
-            this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-        }
-
-        /// <summary>
-        /// Inicia uma instancia de DateRange a partir de um TimeSpan
-        /// </summary>
-        /// <param name="Span">Intervalo de tempo</param>
+        /// <param name="Span"></param>
         public DateRange(TimeSpan Span) : this(DateTime.MinValue, Span)
         {
         }
 
         /// <summary>
-        /// Inicia uma instancia de DateRange a partir de uma data inicial e um TimeSpan
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> plus <paramref name="Span"/>
         /// </summary>
-        /// <param name="StartDate">Data Inicial</param>
-        /// <param name="Span">Intervalo de tempo</param>
+        /// <param name="StartDate">Start date</param>
+        /// <param name="Span">Interval</param>
         public DateRange(DateTime StartDate, TimeSpan Span) : this(StartDate, StartDate.Add(Span))
         {
         }
 
+        /// <summary>
+        /// Create a new instance of <see cref="DateRange"/> using the smallest and largest date
+        /// from a list
+        /// </summary>
+        /// <param name="Dates"></param>
         public DateRange(IEnumerable<DateTime?> Dates) : this(Dates?.Where(x => x.HasValue).Select(x => x.Value))
         {
         }
 
-        public DateRange(IEnumerable<DateTime?> Dates, bool ForceFirstAndLastMoments) : this(Dates)
-        {
-            this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-        }
+        /// <summary>
+        /// create a new instance of <see cref="DateRange"/> using the smallest and largest date
+        /// from a list
+        /// </summary>
+        /// <param name="Dates"></param>
+        public DateRange(IEnumerable<DateTime?> Dates, bool ForceFirstAndLastMoments) : this(Dates) => this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
 
         public DateRange(DateTime StartEndDate) : this(StartEndDate, StartEndDate, true)
         {
@@ -103,10 +107,20 @@ namespace InnerLibs.TimeMachine
         {
         }
 
+        /// <summary>
+        /// create a new instance of <see cref="DateRange"/> using the smallest and largest date
+        /// from a list
+        /// </summary>
+        /// <param name="Dates"></param>
         public DateRange(IEnumerable<DateTime> Dates) : this(Dates, false)
         {
         }
 
+        /// <summary>
+        /// create a new instance of <see cref="DateRange"/> using the smallest and largest date
+        /// from a list
+        /// </summary>
+        /// <param name="Dates"></param>
         public DateRange(IEnumerable<DateTime> Dates, bool ForceFirstAndLastMoments) : this(Dates.Min(), Dates.Max(), ForceFirstAndLastMoments)
         { }
 
@@ -120,6 +134,7 @@ namespace InnerLibs.TimeMachine
                 _enddate = _enddate.EndOfDay();
             }
 
+            this._timeSpanBase = _enddate - _startDate;
             var CurDate = _startDate;
             int years = 0;
             int months = 0;
@@ -165,14 +180,14 @@ namespace InnerLibs.TimeMachine
                             if (CurDate.AddDays(days + 1) > EndDate)
                             {
                                 CurDate = CurDate.AddDays(days);
-                                var timespan = EndDate - CurDate;
+
                                 Years = years;
                                 Months = months;
                                 Days = days;
-                                Hours = timespan.Hours;
-                                Minutes = timespan.Minutes;
-                                Seconds = timespan.Seconds;
-                                Milliseconds = timespan.Milliseconds;
+                                //Hours = timespan.Hours;
+                                //Minutes = timespan.Minutes;
+                                //Seconds = timespan.Seconds;
+                                //Milliseconds = timespan.Milliseconds;
                                 _phase = Phase.Done;
                             }
                             else
@@ -219,7 +234,8 @@ namespace InnerLibs.TimeMachine
         private bool _forceFirstAndLastMoments = false;
 
         /// <summary>
-        /// Se true, ajusta as horas de <see cref="StartDate"/> para o primeiro momento do dia e as horas de <see cref="EndDate"/> para o último momento do dia
+        /// When <b>TRUE</b>, force <see cref="StartDate"/> to the first moment of day (Midnight)
+        /// and <see cref="EndDate"/> to last moment of day (23:59:59.999)
         /// </summary>
         public bool ForceFirstAndLastMoments
         {
@@ -227,44 +243,86 @@ namespace InnerLibs.TimeMachine
             set { _forceFirstAndLastMoments = value; CalcRange(); }
         }
 
-        public double TotalMilliseconds => (EndDate - StartDate).TotalMilliseconds;
-
-        public double TotalSeconds => (EndDate - StartDate).TotalSeconds;
-
-        public double TotalMinutes => (EndDate - StartDate).TotalMinutes;
-
-        public double TotalHours => (EndDate - StartDate).TotalHours;
-
-        public double TotalDays => (EndDate - StartDate).TotalDays;
-
-        public double TotalWeeks => (TotalDays / 7d);
-
-        public double TotalMonths => TotalDays / (365.25 / 12d);
-
-        public double TotalYears => (TotalMonths / 12d);
-
-        public long Ticks => (EndDate - StartDate).Ticks;
+        /// <summary>
+        /// Total Milliseconds between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalMilliseconds => TimeSpan.TotalMilliseconds;
 
         /// <summary>
-        /// Dias da semana relevantes
+        /// Total Seconds between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalSeconds => TimeSpan.TotalSeconds;
+
+        /// <summary>
+        /// Total Minutes between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalMinutes => TimeSpan.TotalMinutes;
+
+        /// <summary>
+        /// Total Hours between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalHours => TimeSpan.TotalHours;
+
+        /// <summary>
+        /// Total Days between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalDays => TimeSpan.TotalDays;
+
+        /// <summary>
+        /// Total Weeks between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalWeeks => (TotalDays / 7d);
+
+        /// <summary>
+        /// Total Months between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalMonths => TotalDays / (365.25 / 12d);
+
+        /// <summary>
+        /// Total Bimesters between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalBimesters => TotalMonths / 2d;
+
+        /// <summary>
+        /// Total Quarters between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalQuarters => TotalMonths / 3d;
+
+        /// <summary>
+        /// Total Semesters between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalSemesters => TotalMonths / 6d;
+
+        /// <summary>
+        /// Total Years between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public double TotalYears => (TotalMonths / 12d);
+
+        /// <summary>
+        /// Total Ticks between <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public long Ticks => TimeSpan.Ticks;
+
+        /// <summary>
+        /// Relevant days of week (Business Days)
         /// </summary>
         /// <returns></returns>
         public List<DayOfWeek> RelevantDaysOfWeek { get; private set; } = new List<DayOfWeek>();
 
         /// <summary>
-        /// Dias da semana não relevantes
+        /// Non relevant days of week (not Business Days)
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DayOfWeek> NonRelevantDaysOfWeek => SundayToSaturday.Where(x => x.IsNotIn(RelevantDaysOfWeek));
+        public IEnumerable<DayOfWeek> NonRelevantDaysOfWeek => PredefinedArrays.SundayToSaturday.Where(x => x.IsNotIn(RelevantDaysOfWeek));
 
         /// <summary>
-        /// Numero de Anos
+        /// Years
         /// </summary>
         /// <returns></returns>
         public int Years { get; private set; }
 
         /// <summary>
-        /// Numero de Meses
+        /// Months
         /// </summary>
         /// <returns></returns>
         public int Months { get; private set; }
@@ -279,28 +337,28 @@ namespace InnerLibs.TimeMachine
         /// Numero de Horas
         /// </summary>
         /// <returns></returns>
-        public int Hours { get; private set; }
+        public int Hours => TimeSpan.Hours;
 
         /// <summary>
         /// Numero de Minutos
         /// </summary>
         /// <returns></returns>
-        public int Minutes { get; private set; }
+        public int Minutes => TimeSpan.Minutes;
 
         /// <summary>
         /// Numero de Segundos
         /// </summary>
         /// <returns></returns>
-        public int Seconds { get; private set; }
+        public int Seconds => TimeSpan.Seconds;
 
         /// <summary>
         /// Numero de milisegundos
         /// </summary>
         /// <returns></returns>
-        public int Milliseconds { get; private set; }
+        public int Milliseconds => TimeSpan.Milliseconds;
 
         /// <summary>
-        /// Dias  relevantes entre as datas Inicial e Final
+        /// Dias relevantes entre as datas Inicial e Final
         /// </summary>
         /// <returns></returns>
         public IEnumerable<DateTime> GetRelevantDays() => GetDays(RelevantDaysOfWeek);
@@ -312,20 +370,31 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DateTime> GetNonRelevantDays() => GetDays(NonRelevantDaysOfWeek);
 
         /// <summary>
-        /// Retorna uma String no formato "X anos, Y meses e Z dias"
+        /// Convert a <see cref="DateRange"/> to a human readable string.
         /// </summary>
-        /// <param name="DateRangeString">Formato da string</param>
-        /// <returns>string</returns>
-        public string ToTimeElapsedString(string AndWord, string YearsWord, string MonthsWord, string DaysWord, string HoursWord, string MinutesWord, string SecondsWord, DateRangeString Format = DateRangeString.FullStringSkipZero)
+        /// <param name="AndWord">the "And" word, use to concatenate the last item in the string</param>
+        /// <param name="YearsWord">'Years'</param>
+        /// <param name="MonthsWord">'Months'</param>
+        /// <param name="DaysWord">'Days'</param>
+        /// <param name="HoursWord">'Hours'</param>
+        /// <param name="MinutesWord">'Minutes'</param>
+        /// <param name="SecondsWord">'Seconds'</param>
+        /// <param name="MillisecondsWord">'Milliseconds'</param>
+        /// <param name="Format">Rules for returning the string</param>
+        /// <returns></returns>
+        public string ToDisplayString(DateRangeDisplay display)
         {
-            string ano = Text.QuantifyText(YearsWord, Years).Prepend($"{Years} ").NullIf(x => YearsWord.IsBlank());
-            string mes = Text.QuantifyText(MonthsWord, Months).Prepend($"{Months} ").NullIf(x => MonthsWord.IsBlank());
-            string dia = Text.QuantifyText(DaysWord, Days).Prepend($"{Days} ").NullIf(x => DaysWord.IsBlank());
-            string horas = Text.QuantifyText(HoursWord, Hours).Prepend($"{Hours} ").NullIf(x => HoursWord.IsBlank());
-            string minutos = Text.QuantifyText(MinutesWord, Minutes).Prepend($"{Minutes} ").NullIf(x => MinutesWord.IsBlank());
-            string segundos = Text.QuantifyText(SecondsWord, Seconds).Prepend($"{Seconds} ").NullIf(x => SecondsWord.IsBlank());
+            display = display ?? DateRangeDisplay.Default();
 
-            var flagInt = (int)Format;
+            string ano = Text.QuantifyText(display.YearsWord, Years).Prepend($"{Years} ").NullIf(x => display.YearsWord.IsBlank());
+            string mes = Text.QuantifyText(display.MonthsWord, Months).Prepend($"{Months} ").NullIf(x => display.MonthsWord.IsBlank());
+            string dia = Text.QuantifyText(display.DaysWord, Days).Prepend($"{Days} ").NullIf(x => display.DaysWord.IsBlank());
+            string horas = Text.QuantifyText(display.HoursWord, Hours).Prepend($"{Hours} ").NullIf(x => display.HoursWord.IsBlank());
+            string minutos = Text.QuantifyText(display.MinutesWord, Minutes).Prepend($"{Minutes} ").NullIf(x => display.MinutesWord.IsBlank());
+            string segundos = Text.QuantifyText(display.SecondsWord, Seconds).Prepend($"{Seconds} ").NullIf(x => display.SecondsWord.IsBlank());
+            string milisegundos = Text.QuantifyText(display.MinutesWord, Milliseconds).Prepend($"{Milliseconds} ").NullIf(x => display.MillisecondsWord.IsBlank());
+
+            var flagInt = (int)display.FormatRule;
             if (flagInt >= 1) //skip zero
             {
                 ano = ano.NullIf(x => Years == 0);
@@ -334,6 +403,7 @@ namespace InnerLibs.TimeMachine
                 horas = horas.NullIf(x => Hours == 0);
                 minutos = minutos.NullIf(x => Minutes == 0);
                 segundos = segundos.NullIf(x => Seconds == 0);
+                milisegundos = milisegundos.NullIf(x => Milliseconds == 0);
             }
 
             if (flagInt >= 2) // reduce days
@@ -341,6 +411,7 @@ namespace InnerLibs.TimeMachine
                 horas = horas.NullIf(x => Days >= 1);
                 minutos = minutos.NullIf(x => Days >= 1);
                 segundos = segundos.NullIf(x => Days >= 1);
+                milisegundos = milisegundos.NullIf(x => Days >= 1);
             }
 
             if (flagInt >= 3) //reduce months
@@ -349,29 +420,49 @@ namespace InnerLibs.TimeMachine
                 horas = horas.NullIf(x => Months >= 1);
                 minutos = minutos.NullIf(x => Months >= 1);
                 segundos = segundos.NullIf(x => Months >= 1);
+                milisegundos = milisegundos.NullIf(x => Months >= 1);
             }
 
-            if (flagInt >= 4) // reduce most
+            if (flagInt >= 4) // reduce years
             {
                 mes = mes.NullIf(x => Years >= 1);
                 dia = dia.NullIf(x => Years >= 1);
                 horas = horas.NullIf(x => Years >= 1);
                 minutos = minutos.NullIf(x => Years >= 1);
                 segundos = segundos.NullIf(x => Years >= 1);
+                milisegundos = milisegundos.NullIf(x => Years >= 1);
             }
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos }.Where(x => x.IsNotBlank()).ToPhrase(AndWord);
+            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.Where(x => x.IsNotBlank()).ToPhrase(display.AndWord);
 
             return current.AdjustWhiteSpaces();
         }
 
-        public string ToTimeElapsedString() => this.ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", DateRangeString.FullStringSkipZero);
+        /// <summary>
+        /// Convert a <see cref="System.TimeSpan"/> to a human readable string.
+        /// </summary>
+        /// <param name="timeSpan">The <see cref="System.TimeSpan"/> to convert</param>
+        /// <returns>A human readable string for <paramref name="timeSpan"/></returns>
+
+        private DateRangeDisplay _display = DateRangeDisplay.Default();
+
+        public DateRangeDisplay Display
+        {
+            get
+            {
+                if (_display == null)
+                {
+                    _display = DateRangeDisplay.Default();
+                }
+                return _display;
+            }
+        }
 
         /// <summary>
-        /// Retorna uma string com a quantidade de itens e o tempo de produção
+        /// Convert a <see cref="DateRange"/> to a human readable string.
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => ToTimeElapsedString();
+        public override string ToString() => ToDisplayString(null);
 
         private enum Phase
         {
@@ -382,56 +473,36 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        /// <c>true</c> if the current object is equal to the other parameter; otherwise, <c>false</c>.
-        /// </returns>
-        public bool Equals(DateRange other)
-        {
-            return this == other;
-        }
-
-        /// <summary>
         /// Adds two <see cref="DateRange"/> according operator +.
         /// </summary>
         /// <param name="number">The number to add to this <see cref="DateRange"/>.</param>
         /// <returns>The result of the addition.</returns>
-        public DateRange Add(DateRange number)
-        {
-            return AddInternal(this, number);
-        }
+        public DateRange Add(DateRange number) => AddInternal(this, number);
 
         /// <summary>
-        /// Returns a new <see cref="DateRange"/> that adds the value of the specified <see cref="TimeSpan"/> to the value of this instance.
+        /// Returns a new <see cref="DateRange"/> that adds the value of the specified <see
+        /// cref="System.TimeSpan"/> to the value of this instance.
         /// </summary>
-        /// <param name="timeSpan">The <see cref="TimeSpan"/> to add to this <see cref="DateRange"/>.</param>
+        /// <param name="timeSpan">The <see cref="System.TimeSpan"/> to add to this <see cref="DateRange"/>.</param>
         /// <returns>The result of the addition.</returns>
-        public DateRange Add(TimeSpan timeSpan)
-        {
-            return AddInternal(this, timeSpan);
-        }
+        public DateRange Add(TimeSpan timeSpan) => AddInternal(this, timeSpan);
 
         /// <summary>
         /// Subtracts the number according operator -.
         /// </summary>
         /// <param name="DateRange">The matrix to subtract from this <see cref="DateRange"/>.</param>
         /// <returns>The result of the subtraction.</returns>
-        public DateRange Subtract(DateRange DateRange)
-        {
-            return SubtractInternal(this, DateRange);
-        }
+        public DateRange Subtract(DateRange DateRange) => SubtractInternal(this, DateRange);
 
         /// <summary>
-        /// Returns a new <see cref="DateRange"/> that subtracts the value of the specified <see cref="TimeSpan"/> to the value of this instance.
+        /// Returns a new <see cref="DateRange"/> that subtracts the value of the specified <see
+        /// cref="System.TimeSpan"/> to the value of this instance.
         /// </summary>
-        /// <param name="timeSpan">The <see cref="TimeSpan"/> to subtract from this <see cref="DateRange"/>.</param>
+        /// <param name="timeSpan">
+        /// The <see cref="System.TimeSpan"/> to subtract from this <see cref="DateRange"/>.
+        /// </param>
         /// <returns>The result of the subtraction.</returns>
-        public DateRange Subtract(TimeSpan timeSpan)
-        {
-            return SubtractInternal(this, timeSpan);
-        }
+        public DateRange Subtract(TimeSpan timeSpan) => SubtractInternal(this, timeSpan);
 
         /// <summary>
         /// Overload of the operator +
@@ -439,20 +510,11 @@ namespace InnerLibs.TimeMachine
         /// <param name="left">The left hand <see cref="DateRange"/>.</param>
         /// <param name="right">The right hand <see cref="DateRange"/>.</param>
         /// <returns>The result of the addition.</returns>
-        public static DateRange operator +(DateRange left, DateRange right)
-        {
-            return AddInternal(left, right);
-        }
+        public static DateRange operator +(DateRange left, DateRange right) => AddInternal(left, right);
 
-        public static DateRange operator +(DateRange left, TimeSpan right)
-        {
-            return AddInternal(left, right);
-        }
+        public static DateRange operator +(DateRange left, TimeSpan right) => AddInternal(left, right);
 
-        public static DateRange operator +(TimeSpan left, DateRange right)
-        {
-            return AddInternal(left, right);
-        }
+        public static DateRange operator +(TimeSpan left, DateRange right) => AddInternal(left, right);
 
         /// <summary>
         /// Overload of the operator -
@@ -460,27 +522,20 @@ namespace InnerLibs.TimeMachine
         /// <param name="left">The left hand <see cref="DateRange"/>.</param>
         /// <param name="right">The right hand <see cref="DateRange"/>.</param>
         /// <returns>The result of the subtraction.</returns>
-        public static DateRange operator -(DateRange left, DateRange right)
-        {
-            return SubtractInternal(left, right);
-        }
+        public static DateRange operator -(DateRange left, DateRange right) => SubtractInternal(left, right);
 
-        public static DateRange operator -(TimeSpan left, DateRange right)
-        {
-            return SubtractInternal(left, right);
-        }
+        public static DateRange operator -(TimeSpan left, DateRange right) => SubtractInternal(left, right);
 
-        public static DateRange operator -(DateRange left, TimeSpan right)
-        {
-            return SubtractInternal(left, right);
-        }
+        public static DateRange operator -(DateRange left, TimeSpan right) => SubtractInternal(left, right);
 
         /// <summary>
         /// Equals operator.
         /// </summary>
         /// <param name="left">The left hand side.</param>
         /// <param name="right">The right hand side.</param>
-        /// <returns><c>true</c> is <paramref name="left"/> is equal to <paramref name="right"/>; otherwise <c>false</c>.</returns>
+        /// <returns>
+        /// <c>true</c> is <paramref name="left"/> is equal to <paramref name="right"/>; otherwise <c>false</c>.
+        /// </returns>
         public static bool operator ==(DateRange left, DateRange right)
         {
             return left.Years == right.Years &&
@@ -492,125 +547,93 @@ namespace InnerLibs.TimeMachine
                    left.Milliseconds == right.Milliseconds;
         }
 
-        public static bool operator ==(TimeSpan left, DateRange right)
-        {
-            return (DateRange)left == right;
-        }
+        public static bool operator ==(TimeSpan left, DateRange right) => (DateRange)left == right;
 
-        public static bool operator ==(DateRange left, TimeSpan right)
-        {
-            return left == (DateRange)right;
-        }
+        public static bool operator ==(DateRange left, TimeSpan right) => left == (DateRange)right;
 
         /// <summary>
         /// Not Equals operator.
         /// </summary>
         /// <param name="left">The left hand side.</param>
         /// <param name="right">The right hand side.</param>
-        /// <returns><c>true</c> is <paramref name="left"/> is not equal to <paramref name="right"/>; otherwise <c>false</c>.</returns>
-        public static bool operator !=(DateRange left, DateRange right)
-        {
-            return !(left == right);
-        }
+        /// <returns>
+        /// <c>true</c> is <paramref name="left"/> is not equal to <paramref name="right"/>;
+        /// otherwise <c>false</c>.
+        /// </returns>
+        public static bool operator !=(DateRange left, DateRange right) => !(left == right);
 
-        public static bool operator !=(TimeSpan left, DateRange right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(TimeSpan left, DateRange right) => !(left == right);
 
-        public static bool operator !=(DateRange left, TimeSpan right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(DateRange left, TimeSpan right) => !(left == right);
 
-        public static TimeSpan operator -(DateRange value)
-        {
-            return value.Negate();
-        }
+        public static TimeSpan operator -(DateRange value) => value.Negate();
 
-        public TimeSpan Negate()
-        {
-            return ((TimeSpan)this).Negate();
-        }
+        /// <summary>
+        /// Return a negative <see cref="TimeSpan"/> with the interval of this <see cref="DateRange"/>
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan Negate() => TimeSpan.Negate();
 
-        public static bool operator <(DateRange left, DateRange right)
-        {
-            return (TimeSpan)left < (TimeSpan)right;
-        }
+        public static bool operator <(DateRange left, DateRange right) => (TimeSpan)left < (TimeSpan)right;
 
-        public static bool operator <(DateRange left, TimeSpan right)
-        {
-            return (TimeSpan)left < right;
-        }
+        public static bool operator <(DateRange left, TimeSpan right) => (TimeSpan)left < right;
 
-        public static bool operator <(TimeSpan left, DateRange right)
-        {
-            return left < (TimeSpan)right;
-        }
+        public static bool operator <(TimeSpan left, DateRange right) => left < (TimeSpan)right;
 
-        public static bool operator <=(DateRange left, DateRange right)
-        {
-            return (TimeSpan)left <= (TimeSpan)right;
-        }
+        public static bool operator <=(DateRange left, DateRange right) => (TimeSpan)left <= (TimeSpan)right;
 
-        public static bool operator <=(DateRange left, TimeSpan right)
-        {
-            return (TimeSpan)left <= right;
-        }
+        public static bool operator <=(DateRange left, TimeSpan right) => (TimeSpan)left <= right;
 
-        public static bool operator <=(TimeSpan left, DateRange right)
-        {
-            return left <= (TimeSpan)right;
-        }
+        public static bool operator <=(TimeSpan left, DateRange right) => left <= (TimeSpan)right;
 
-        public static bool operator >(DateRange left, DateRange right)
-        {
-            return (TimeSpan)left > (TimeSpan)right;
-        }
+        public static bool operator >(DateRange left, DateRange right) => (TimeSpan)left > (TimeSpan)right;
 
-        public static bool operator >(DateRange left, TimeSpan right)
-        {
-            return (TimeSpan)left > right;
-        }
+        public static bool operator >(DateRange left, TimeSpan right) => (TimeSpan)left > right;
 
-        public static bool operator >(TimeSpan left, DateRange right)
-        {
-            return left > (TimeSpan)right;
-        }
+        public static bool operator >(TimeSpan left, DateRange right) => left > (TimeSpan)right;
 
-        public static bool operator >=(DateRange left, DateRange right)
-        {
-            return (TimeSpan)left >= (TimeSpan)right;
-        }
+        public static bool operator >=(DateRange left, DateRange right) => (TimeSpan)left >= (TimeSpan)right;
 
-        public static bool operator >=(DateRange left, TimeSpan right)
-        {
-            return (TimeSpan)left >= right;
-        }
+        public static bool operator >=(DateRange left, TimeSpan right) => (TimeSpan)left >= right;
 
-        public static bool operator >=(TimeSpan left, DateRange right)
+        public static bool operator >=(TimeSpan left, DateRange right) => left >= (TimeSpan)right;
+
+        private TimeSpan? _timeSpanBase = null;
+
+        /// <summary>
+        /// The base <see cref="System.TimeSpan"/> used in this <see cref="DateRange"/>
+        /// </summary>
+        public TimeSpan TimeSpan
         {
-            return left >= (TimeSpan)right;
+            get
+            {
+                if (_timeSpanBase == null)
+                {
+                    _timeSpanBase = (EndDate - StartDate);
+                }
+                if (ForceFirstAndLastMoments)
+                {
+                    _timeSpanBase = _timeSpanBase.Value.Add(TimeSpan.FromMilliseconds(1));
+                }
+                return _timeSpanBase.Value;
+            }
         }
 
         /// <summary>
-        /// Performs an explicit conversion from <see cref="DateRange"/> to <see cref="TimeSpan"/>.
+        /// Performs an explicit conversion from <see cref="DateRange"/> to <see cref="System.TimeSpan"/>.
         /// </summary>
         /// <param name="DateRange">The DateRange.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator TimeSpan(DateRange DateRange) => new TimeSpan(DateRange.Ticks);
+        public static implicit operator TimeSpan(DateRange DateRange) => DateRange.TimeSpan;
 
         /// <summary>
-        /// Performs an implicit conversion from a <see cref="TimeSpan"/> to <see cref="DateRange"/>.
+        /// Performs an implicit conversion from a <see cref="System.TimeSpan"/> to <see cref="DateRange"/>.
         /// </summary>
-        /// <param name="timeSpan">The <see cref="TimeSpan"/> that will be converted.</param>
+        /// <param name="timeSpan">The <see cref="System.TimeSpan"/> that will be converted.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator DateRange(TimeSpan timeSpan)
-        {
-            return new DateRange(timeSpan);
-        }
+        public static implicit operator DateRange(TimeSpan timeSpan) => new DateRange(timeSpan);
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -626,39 +649,31 @@ namespace InnerLibs.TimeMachine
             {
                 return this == (TimeSpan)obj;
             }
+            if (type == typeof(int))
+            {
+                return this.GetHashCode() == type.ToInt();
+            }
+
+            if (type == typeof(long))
+            {
+                return this.Ticks == type.ToLong();
+            }
+
             return false;
         }
 
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return Months.GetHashCode() ^ Years.GetHashCode() ^ Days.GetHashCode() ^ Hours.GetHashCode() ^ Minutes.GetHashCode() ^ Seconds.GetHashCode() ^ Milliseconds.GetHashCode();
-        }
+        /// <inheritdoc/>
+        public override int GetHashCode() => Months.GetHashCode() ^ Years.GetHashCode() ^ Days.GetHashCode() ^ Hours.GetHashCode() ^ Minutes.GetHashCode() ^ Seconds.GetHashCode() ^ Milliseconds.GetHashCode();
 
-        private static DateRange AddInternal(DateRange left, TimeSpan right)
-        {
-            return new DateRange(left.StartDate, left.StartDate.Add(right));
-        }
+        private static DateRange AddInternal(DateRange left, TimeSpan right) => new DateRange(left.StartDate, right);
 
-        private static DateRange SubtractInternal(DateRange left, TimeSpan right)
-        {
-            return new DateRange(left.StartDate, left.EndDate.Subtract(right));
-        }
+        private static DateRange SubtractInternal(DateRange left, TimeSpan right) => new DateRange(left.StartDate, left.EndDate.Subtract(right));
 
-        private static DateRange AddInternal(DateRange left, DateRange right)
-        {
-            return new DateRange(left.StartDate, (TimeSpan)right);
-        }
+        private static DateRange AddInternal(DateRange left, DateRange right) => AddInternal(left, right.TimeSpan);
 
-        private static DateRange SubtractInternal(DateRange left, DateRange right)
-        {
-            return SubtractInternal(left, (TimeSpan)right);
-        }
+        private static DateRange SubtractInternal(DateRange left, DateRange right) => SubtractInternal(left, right.TimeSpan);
 
-        public int CompareTo(TimeSpan other)
-        {
-            return ((TimeSpan)this).CompareTo(other);
-        }
+        public int CompareTo(TimeSpan other) => ((TimeSpan)this).CompareTo(other);
 
         public int CompareTo(object value)
         {
@@ -666,13 +681,11 @@ namespace InnerLibs.TimeMachine
             {
                 return ((TimeSpan)this).CompareTo(timeSpan);
             }
-            throw new ArgumentException("Value must be a TimeSpan", "value");
+
+            throw new ArgumentException("Value must be a TimeSpan or DateRange", "value");
         }
 
-        public int CompareTo(DateRange value)
-        {
-            return ((TimeSpan)this).CompareTo(value);
-        }
+        public int CompareTo(DateRange value) => ((TimeSpan)this).CompareTo(value);
 
         public static implicit operator DateRange((DateTime, DateTime) Dates) => new DateRange(Dates.Item1, Dates.Item2);
 
@@ -778,15 +791,7 @@ namespace InnerLibs.TimeMachine
         /// Pula um determinado numero de periodos
         /// </summary>
         /// <returns></returns>
-        public DateRange JumpPeriod(int Amount, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
-        {
-            if (Amount == 0)
-            {
-                return Clone();
-            }
-
-            return MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval) * Amount);
-        }
+        public DateRange JumpPeriod(int Amount, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => Amount == 0 ? Clone() : MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval) * Amount);
 
         /// <summary>
         /// Move para o periodo equivalente anterior
@@ -899,7 +904,8 @@ namespace InnerLibs.TimeMachine
         public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
-        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento de datas
+        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento
+        /// de datas
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
@@ -956,7 +962,8 @@ namespace InnerLibs.TimeMachine
         public bool Overlaps(DateRange Period) => (Period.StartDate <= EndDate && Period.StartDate >= StartDate) || (StartDate <= Period.EndDate && StartDate >= Period.StartDate);
 
         /// <summary>
-        /// Verifica se 2 periodos coincidem datas (interseção, esta dentro de um periodo de ou contém um periodo)
+        /// Verifica se 2 periodos coincidem datas (interseção, esta dentro de um periodo de ou
+        /// contém um periodo)
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>
@@ -990,13 +997,15 @@ namespace InnerLibs.TimeMachine
         public bool IsIn(DateRange Period) => Period.Contains(this);
 
         /// <summary>
-        /// Verifica quantos porcento uma data representa  em distancia dentro deste periodo
+        /// Verifica quantos porcento uma data representa em distancia dentro deste periodo
         /// </summary>
         /// <param name="[Date]">Data correspondente</param>
         /// <returns></returns>
         public decimal CalculatePercent(DateTime? Date = default) => (Date ?? DateTime.Now).CalculateTimelinePercent(StartDate, EndDate);
 
         public IEnumerable<DateTime> Pair() => new[] { StartDate, EndDate };
+
+        public Tuple<DateTime, DateTime> Tuple() => new Tuple<DateTime, DateTime>(StartDate, EndDate);
 
         public Dictionary<string, DateTime> Dictionary(string StartDateLabel = null, string EndDateLabel = null) => new Dictionary<string, DateTime>()
         {
@@ -1005,7 +1014,8 @@ namespace InnerLibs.TimeMachine
         };
 
         /// <summary>
-        /// Retorna uma lista com as datas entre <see cref="StartDate"/> e <see cref="EndDate"/> utilizando um Intervalo
+        /// Retorna uma lista com as datas entre <see cref="StartDate"/> e <see cref="EndDate"/>
+        /// utilizando um Intervalo
         /// </summary>
         /// <param name="DateRangeInterval"></param>
         /// <returns></returns>
@@ -1026,6 +1036,33 @@ namespace InnerLibs.TimeMachine
 
             l.Add(EndDate);
             return l.Where(x => x.IsBetweenOrEqual(StartDate, EndDate)).Distinct();
+        }
+
+        public bool Equals(DateRange other) => this.Equals(other.TimeSpan);
+    }
+
+    public class DateRangeDisplay
+    {
+        public string AndWord { get; set; }
+        public string MillisecondsWord { get; set; }
+        public string SecondsWord { get; set; }
+        public string MinutesWord { get; set; }
+        public string HoursWord { get; set; }
+        public string DaysWord { get; set; }
+        public string WeeksWord { get; set; }
+        public string MonthsWord { get; set; }
+        public string YearsWord { get; set; }
+
+        public DateRangeString FormatRule { get; set; } = DateRangeString.FullStringSkipZero;
+
+        public static DateRangeDisplay Default()
+        {
+            var d = new DateRangeDisplay();
+            foreach (var item in d.GetProperties().Where(x => x.Name.EndsWith("Word")))
+            {
+                item.SetValue(d, item.Name.RemoveLastEqual("Word"));
+            }
+            return d;
         }
     }
 }

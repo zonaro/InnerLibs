@@ -9,6 +9,10 @@ namespace InnerLibs
     /// </summary>
     public static class PredefinedArrays
     {
+        public static IEnumerable<DayOfWeek> SundayToSaturday => new[] { 0, 1, 2, 3, 4, 5, 6 }.Cast<DayOfWeek>();
+        public static IEnumerable<DayOfWeek> MondayToSaturday => new[] { 1, 2, 3, 4, 5, 6 }.Cast<DayOfWeek>();
+        public static IEnumerable<DayOfWeek> MondayToFriday => new[] { 1, 2, 3, 4, 5 }.Cast<DayOfWeek>();
+
         /// <summary>
         /// Caracteres usado para encapsular palavras em textos
         /// </summary>

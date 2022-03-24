@@ -5,6 +5,8 @@
     /// </summary>
     public enum RoundTo
     {
+        None = -1,
+
         /// <summary>
         /// Second precision.
         /// </summary>

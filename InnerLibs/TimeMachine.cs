@@ -19,7 +19,8 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DataType> this[Fortnight Fort] => this[Fort.Key];
 
         /// <summary>
-        /// Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada em <paramref name="Key"/>
+        /// Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena
+        /// especificada em <paramref name="Key"/>
         /// </summary>
         /// <param name="Key">Key da quinzena q@MM-YYYY</param>
         /// <returns></returns>
@@ -51,7 +52,8 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informações agrupadas por quinzena
+        /// Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informações agrupadas
+        /// por quinzena
         /// </summary>
         /// <returns></returns>
         public Dictionary<Fortnight, IEnumerable<DataType>> ToDataDictionary(bool IncludeFortnightsWithoutData = true)
@@ -72,9 +74,13 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
         /// </summary>
-        /// <param name="Range">Periodo especifico que este grupo irá abranger idependentemente das datas em <paramref name="DateSelector"/></param>
+        /// <param name="Range">
+        /// Periodo especifico que este grupo irá abranger idependentemente das datas em <paramref name="DateSelector"/>
+        /// </param>
         /// <param name="Data">Coleção de objetos</param>
-        /// <param name="DateSelector">Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada</param>
+        /// <param name="DateSelector">
+        /// Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada
+        /// </param>
         /// <returns></returns>
         public static FortnightGroup<DataType> CreateFromDataGroup(IEnumerable<DataType> Data, DateRange Range, params Func<DataType, DateTime>[] DateSelector)
         {
@@ -97,7 +103,9 @@ namespace InnerLibs.TimeMachine
         /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
         /// </summary>
         /// <param name="Data">Coleção de objetos</param>
-        /// <param name="DateSelector">Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada</param>
+        /// <param name="DateSelector">
+        /// Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada
+        /// </param>
         /// <returns></returns>
         public static FortnightGroup<DataType> CreateFromDataGroup(IEnumerable<DataType> Data, params Func<DataType, DateTime>[] DateSelector)
         {
@@ -120,7 +128,8 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e uma data final
+        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e uma
+        /// data final
         /// </summary>
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
@@ -140,7 +149,8 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e uma data final
+        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e uma
+        /// data final
         /// </summary>
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
@@ -148,7 +158,8 @@ namespace InnerLibs.TimeMachine
         public new static FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange((DateTime)DateRange.StartDate, (DateTime)DateRange.EndDate);
 
         /// <summary>
-        /// Instancia um novo <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e um numero fixo de quinzenas
+        /// Instancia um novo <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial
+        /// e um numero fixo de quinzenas
         /// </summary>
         /// <param name="StartDate"></param>
         /// <param name="FortnightCount"></param>
@@ -215,21 +226,65 @@ namespace InnerLibs.TimeMachine
         /// <remarks>
         /// <list type="number">
         /// <listheader>
-        /// <term> Marcação </term>
-        /// <description> Descrição </description>
+        /// <term>Marcação</term>
+        /// <description>Descrição</description>
         /// </listheader>
-        /// <item><term>{f} ou {q}</term><description> Retorna o numero da quinzena com 1 digito. EX.: "1", "2"</description></item>
-        /// <item><term>{ff} ou {qq}</term><description> Retorna o numero da quinzena com 2 digitos. EX.: "01", "02"</description></item>
-        /// <item><term>{o}</term><description> Retorna sufixo ordinal da quinzena atual. EX.: "st", "nd", "rd", "th"</description></item>
-        /// <item><term>{s}</term><description> Retorna o numero do primeiro dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
-        /// <item><term>{ss}</term><description> Retorna o numero do primeiro dia da quinzena com 2 digitos. EX.: "01", "02","30","31"</description></item>
-        /// <item><term>{e} ou {ee}</term><description> Retorna o numero do ultimo dia da quinzena com 1 digito. EX.: "1", "2", "30","31"</description></item>
-        /// <item><term>{m}</term><description> Retorna o numero do mês da quinzena com 1 digito. EX.: "1", "2","11","12"</description></item>
-        /// <item><term>{mm}</term><description> Retorna o numero do mês da quinzena com 2 digitos. EX.: "01", "02","11","12"</description></item>
-        /// <item><term>{mmm}</term><description> Retorna o nome do mês da quinzena abreviado. EX.: "Jan", "Fev","Nov","Dez"</description></item>
-        /// <item><term>{mmmm}</term><description> Retorna o nome do mês da quinzena. EX.: "Janeiro", "Fevereiro","Novembro","Dezembro"</description></item>
-        /// <item><term>{y} ou {yy} ou {a} ou {aa}</term><description> Retorna os 2 ultimos números do ano da quinzena. EX.: "18", "19","20"</description></item>
-        /// <item><term>{yyy} ou {yyyy} ou {aaa} ou {aaaa}</term><description> Retorna o número do ano da quinzena. EX.: "2018", "2019","2020"</description></item>
+        /// <item>
+        /// <term>{f} ou {q}</term>
+        /// <description>Retorna o numero da quinzena com 1 digito. EX.: "1", "2"</description>
+        /// </item>
+        /// <item>
+        /// <term>{ff} ou {qq}</term>
+        /// <description>Retorna o numero da quinzena com 2 digitos. EX.: "01", "02"</description>
+        /// </item>
+        /// <item>
+        /// <term>{o}</term>
+        /// <description>
+        /// Retorna sufixo ordinal da quinzena atual. EX.: "st", "nd", "rd", "th"
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <term>{s}</term>
+        /// <description>
+        /// Retorna o numero do primeiro dia da quinzena com 1 digito. EX.: "1", "2", "30","31"
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <term>{ss}</term>
+        /// <description>
+        /// Retorna o numero do primeiro dia da quinzena com 2 digitos. EX.: "01", "02","30","31"
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <term>{e} ou {ee}</term>
+        /// <description>
+        /// Retorna o numero do ultimo dia da quinzena com 1 digito. EX.: "1", "2", "30","31"
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <term>{m}</term>
+        /// <description>Retorna o numero do mês da quinzena com 1 digito. EX.: "1", "2","11","12"</description>
+        /// </item>
+        /// <item>
+        /// <term>{mm}</term>
+        /// <description>Retorna o numero do mês da quinzena com 2 digitos. EX.: "01", "02","11","12"</description>
+        /// </item>
+        /// <item>
+        /// <term>{mmm}</term>
+        /// <description>Retorna o nome do mês da quinzena abreviado. EX.: "Jan", "Fev","Nov","Dez"</description>
+        /// </item>
+        /// <item>
+        /// <term>{mmmm}</term>
+        /// <description>Retorna o nome do mês da quinzena. EX.: "Janeiro", "Fevereiro","Novembro","Dezembro"</description>
+        /// </item>
+        /// <item>
+        /// <term>{y} ou {yy} ou {a} ou {aa}</term>
+        /// <description>Retorna os 2 ultimos números do ano da quinzena. EX.: "18", "19","20"</description>
+        /// </item>
+        /// <item>
+        /// <term>{yyy} ou {yyyy} ou {aaa} ou {aaaa}</term>
+        /// <description>Retorna o número do ano da quinzena. EX.: "2018", "2019","2020"</description>
+        /// </item>
         /// </list>
         /// </remarks>
         /// <returns>Uma string no formato especificado</returns>
@@ -561,18 +616,20 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public int ItemQuantity
         {
-            get => q;
+            get => _quantity;
 
-            set => q = value.SetMinValue(1);
+            set => _quantity = value.SetMinValue(1);
         }
 
-        private int q = 1;
+        private int _quantity = 1;
 
         /// <summary>
         /// Tempo de produção de 1 item
         /// </summary>
         /// <returns></returns>
         public TimeSpan ItemProductionTime { get; set; } = new TimeSpan(0, 1, 0);
+
+        public string ItemName { get; set; } = "Items";
 
         /// <summary>
         /// Tempo totald e produção de todos os itens
@@ -584,7 +641,11 @@ namespace InnerLibs.TimeMachine
         /// Data Inicial da produção
         /// </summary>
         /// <returns></returns>
-        public DateTime StartDate { get; set; }
+        public DateTime StartDate
+        {
+            get => DateRange.StartDate;
+            set => Proccess(value);
+        }
 
         /// <summary>
         /// Data de encerramento da produção
@@ -596,7 +657,7 @@ namespace InnerLibs.TimeMachine
             {
                 if (_EndDate == null)
                 {
-                    _EndDate = Proccess();
+                    _EndDate = Proccess(this.StartDate);
                 }
 
                 return _EndDate.Value;
@@ -611,15 +672,17 @@ namespace InnerLibs.TimeMachine
         private JourneyDay _thursday = new JourneyDay();
         private JourneyDay _friday = new JourneyDay();
         private JourneyDay _saturday = new JourneyDay();
+        private DateRange _dateRange;
 
-        public DateTime Proccess()
+        public DateTime Proccess(DateTime StartDate)
         {
-            var argDate = StartDate;
-            argDate = PushDateIntoJourney(argDate);
-            StartDate = argDate;
+            StartDate = PushDateIntoJourney(StartDate);
             var FinalDate = StartDate.Add(ProductionTime);
-            var t = new DateRange(StartDate, FinalDate, RelevantDaysOfWeek.ToArray());
-            foreach (var dia in t.GetRelevantDays())
+            _dateRange = _dateRange ?? new DateRange(StartDate, FinalDate, RelevantDaysOfWeek.ToArray());
+            _dateRange.StartDate = StartDate;
+            _dateRange.EndDate = FinalDate;
+
+            foreach (var dia in _dateRange.GetRelevantDays())
             {
                 if (!(dia.Date == FinalDate.Date))
                 {
@@ -636,7 +699,7 @@ namespace InnerLibs.TimeMachine
                 }
             }
 
-            var nrd = HoliDays.Union(t.GetNonRelevantDays()).ClearTime().Distinct();
+            var nrd = HoliDays.Union(_dateRange.GetNonRelevantDays()).ClearTime().Distinct();
 
             FinalDate = FinalDate.AddDays(nrd.Count());
             var lasthours = new TimeSpan();
@@ -647,7 +710,18 @@ namespace InnerLibs.TimeMachine
 
             FinalDate = PushDateIntoJourney(FinalDate);
             FinalDate = FinalDate.Add(lasthours);
+            _dateRange.EndDate = FinalDate;
+
             return FinalDate;
+        }
+
+        public DateRange DateRange
+        {
+            get
+            {
+                _dateRange = _dateRange ?? new DateRange() { ForceFirstAndLastMoments = false };
+                return _dateRange;
+            }
         }
 
         /// <summary>
@@ -664,10 +738,12 @@ namespace InnerLibs.TimeMachine
 
         public TimeSpan GetWorkingTimeUntil(DateTime EndDate) => this.GetWorkTimeBetween(StartDate, EndDate);
 
-        public bool IsJourney(DateTime DateAndTime)
-        {
-            return GetJourneyDay(DateAndTime).JourneyTime.TotalMilliseconds > 0;
-        }
+        public bool IsJourney(DateTime DateAndTime) => GetJourneyDay(DateAndTime).JourneyTime.TotalMilliseconds > 0;
+
+        /// <summary>
+        /// inicia uma nova demanda
+        /// </summary>
+        public TimeDemand() : this(DateTime.Now, TimeSpan.FromHours(1)) { }
 
         /// <summary>
         /// Inicia uma nova Demanda com as propriedades do item
@@ -675,8 +751,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data Inicial da produção</param>
         /// <param name="Time">Tempo do item</param>
         /// <param name="Quantity">Quantidade de itens</param>
-        public TimeDemand(DateTime StartDate, TimeSpan Time) : this(StartDate, Time, 1)
-        { }
+        public TimeDemand(DateTime StartDate, TimeSpan Time) : this(StartDate, Time, 1) { }
 
         /// <summary>
         /// Inicia uma nova Demanda com as propriedades do item
@@ -684,8 +759,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data Inicial da produção</param>
         /// <param name="Time">Tempo do item</param>
         /// <param name="Quantity">Quantidade de itens</param>
-        public TimeDemand(DateTime StartDate, DateTime EndDate) : this(StartDate, EndDate, 1)
-        { }
+        public TimeDemand(DateTime StartDate, DateTime EndDate) : this(StartDate, EndDate, 1) { }
 
         /// <summary>
         /// Inicia uma nova Demanda com as propriedades do item
@@ -695,9 +769,9 @@ namespace InnerLibs.TimeMachine
         /// <param name="Quantity">Quantidade de itens</param>
         public TimeDemand(DateTime StartDate, TimeSpan Time, int Quantity)
         {
-            this.StartDate = StartDate;
             this.ItemQuantity = Quantity;
             this.ItemProductionTime = Time;
+            this.Proccess(StartDate);
         }
 
         /// <summary>
@@ -716,16 +790,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DelayTime">Tempo adicionado entre uma demanda e outra</param>
         /// <returns></returns>
-        public TimeDemand CloneAndQueue(TimeSpan DelayTime = default)
-        {
-            if (DelayTime == default)
-            {
-                DelayTime = new TimeSpan(0L);
-            }
-
-            var enda = EndDate;
-            return new TimeDemand(enda.Add(DelayTime), this.ItemProductionTime, ItemQuantity);
-        }
+        public TimeDemand CloneAndQueue(TimeSpan? DelayTime = null) => new TimeDemand(EndDate.Add(DelayTime ?? new TimeSpan(0L)), this.ItemProductionTime, ItemQuantity);
 
         /// <summary>
         /// Dias especificos da semana entre as datas inicial e final da demanda
@@ -750,30 +815,7 @@ namespace InnerLibs.TimeMachine
         /// Retorna uma string representado a quantidade de itens e o tempo gasto com a produção
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => ItemQuantity + " - " + ToTimeElapsedString();
-
-        /// <summary>
-        /// Retorna uma String no formato "X anos, Y meses e Z dias"
-        /// </summary>
-        /// <returns></returns>
-        public string ToTimeElapsedString() => this.ToTimeElapsedString("And", "Years", "Months", "Days", "Hours", "Minutes", "Seconds", DateRangeString.FullStringSkipZero);
-
-        /// <summary>
-        /// Retorna uma String no formato "X anos, Y meses e Z dias"
-        /// </summary>
-        /// <returns></returns>
-        public string ToTimeElapsedString(string AndWord, string YearsWord, string MonthsWord, string DaysWord, string HoursWord, string MinutesWord, string SecondsWord, DateRangeString Format = DateRangeString.FullStringSkipZero)
-        {
-            var data_final = EndDate;
-            var data_inicial = StartDate;
-            return data_inicial.GetDifference(data_final)
-            .ToTimeElapsedString(AndWord, YearsWord, MonthsWord, DaysWord, HoursWord, MinutesWord, SecondsWord, Format);
-        }
-
-        /// <summary>
-        /// inicia uma nova demanda
-        /// </summary>
-        public TimeDemand() => StartDate = DateTime.Now;
+        public override string ToString() => ItemQuantity.ToString() + " " + ItemQuantity.QuantifyText(ItemName) + " - " + this.DateRange.ToString();
 
         /// <summary>
         /// Retorna a porcentagem em relacao a posição de uma data entre a data inicial (0%) e final (100%)
@@ -791,24 +833,23 @@ namespace InnerLibs.TimeMachine
             get
             {
                 var dias = new List<DayOfWeek>();
-                if (Sunday.JourneyTime.TotalHours > 0d)
+                if (Sunday.JourneyTime.TotalMilliseconds > 0d)
                     dias.Add(DayOfWeek.Sunday);
-                if (Monday.JourneyTime.TotalHours > 0d)
+                if (Monday.JourneyTime.TotalMilliseconds > 0d)
                     dias.Add(DayOfWeek.Monday);
-                if (Tuesday.JourneyTime.TotalHours > 0d)
+                if (Tuesday.JourneyTime.TotalMilliseconds > 0d)
                     dias.Add(DayOfWeek.Tuesday);
-                if (Wednesday.JourneyTime.TotalHours > 0d)
+                if (Wednesday.JourneyTime.TotalMilliseconds > 0d)
                     dias.Add(DayOfWeek.Wednesday);
-                if (Thursday.JourneyTime.TotalHours > 0d)
+                if (Thursday.JourneyTime.TotalMilliseconds > 0d)
                     dias.Add(DayOfWeek.Thursday);
-                if (Friday.JourneyTime.TotalHours > 0d)
+                if (Friday.JourneyTime.TotalMilliseconds > 0d)
                     dias.Add(DayOfWeek.Friday);
-                if (Saturday.JourneyTime.TotalHours > 0d)
+                if (Saturday.JourneyTime.TotalMilliseconds > 0d)
                     dias.Add(DayOfWeek.Saturday);
+
                 if (dias.Count == 0)
-                {
                     dias.AddRange(new[] { 0, 1, 2, 3, 4, 5, 6 }.Select(x => (DayOfWeek)x));
-                }
 
                 return dias.ToArray();
             }
@@ -844,7 +885,8 @@ namespace InnerLibs.TimeMachine
         public JourneyDay GetJourneyDay(DateTime Date) => GetJourneyDay(Date.DayOfWeek);
 
         /// <summary>
-        /// Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as configuracoes desta demanda
+        /// Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as
+        /// configuracoes desta demanda
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
@@ -893,24 +935,23 @@ namespace InnerLibs.TimeMachine
         public DateTime LunchEndHour(DateTime Date) => LunchStartHour(Date).Add(LunchTime(Date));
 
         /// <summary>
-        /// Intervalo de horas trabalhadas entre as datas de inicio e fim desta demanda
+        /// Intervalo de tempo trabalhado entre as datas de inicio e fim desta demanda
         /// </summary>
         /// <returns></returns>
         public TimeSpan WorkTime => GetWorkTimeBetween(StartDate, EndDate);
 
         /// <summary>
-        /// Retorna o intervalo de horas trabalhadas entre duas datas baseado nas configuracoes desta demanda
+        /// Intervalo de horas trabalhadas entre as datas de inicio e fim desta demanda
         /// </summary>
         /// <returns></returns>
-        public TimeSpan GetWorkTimeBetween(DateTime StartDate, DateTime EndDate)
-        {
-            Calendars.FixDateOrder(ref StartDate, ref EndDate);
-            double total = 0;
-            foreach (var dia in this.RelevantDays.Where(x => x.DayOfWeek.IsIn(RelevantDaysOfWeek)))
-                total += GetJourneyDay(dia).JourneyTime.TotalMilliseconds;
+        public double WorkHours => WorkTime.TotalHours;
 
-            return new DateRange(new TimeSpan(0, 0, 0, 0, total.RoundInt()));
-        }
+        /// <summary>
+        /// Retorna o intervalo de horas trabalhadas entre duas datas baseado nas configuracoes
+        /// desta demanda
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan GetWorkTimeBetween(DateTime StartDate, DateTime EndDate) => new TimeSpan(this.RelevantDays.Where(x => x.DayOfWeek.IsIn(RelevantDaysOfWeek) && x.IsBetweenOrEqual(StartDate, EndDate)).Sum(x => GetJourneyDay(x).JourneyTime.Ticks));
     }
 
     /// <summary>
@@ -1015,12 +1056,14 @@ namespace InnerLibs.TimeMachine
         FullStringSkipZero = 1,
 
         /// <summary>
-        /// Se o valor deste span for maior que 1 dia, descarta a parte de horas, minutos e segundos
+        /// Se o valor do <see cref="DateRange"/> for maior que 1 dia, descarta a parte de horas,
+        /// minutos e segundos
         /// </summary>
         ReduceToDays = 2,
 
         /// <summary>
-        /// Se o valor deste span for maior que 1 mes, descarta a parte de dias, horas, minutos e segundos
+        /// Se o valor o <see cref="DateRange"/> for maior que 1 mes, descarta a parte de dias,
+        /// horas, minutos e segundos
         /// </summary>
         ReduceToMonths = 3,
 
