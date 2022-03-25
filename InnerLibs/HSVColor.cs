@@ -61,7 +61,7 @@ namespace InnerLibs
         public static HSVColor RandomColor(Expression<Func<HSVColor, bool>> predicate) => RandomColorList(1, predicate).FirstOrDefault();
 
         /// <summary>
-        /// Gera uma lista com <see cref="HSVColor"/>   aleatorias
+        /// Gera uma lista com <see cref="HSVColor"/> aleatorias
         /// </summary>
         /// <param name="Quantity"></param>
         /// <returns></returns>
@@ -84,7 +84,8 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Gera uma lista com <paramref name="Quantity"/> <see cref="HSVColor"/> aleatorias que cumprem um requisito especificado em <paramref name="predicate"/>
+        /// Gera uma lista com <paramref name="Quantity"/><see cref="HSVColor"/> aleatorias que
+        /// cumprem um requisito especificado em <paramref name="predicate"/>
         /// </summary>
         /// <param name="Quantity"></param>
         /// <returns></returns>
@@ -107,7 +108,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Gera uma <see cref="HSVColor"/>  aleatoria com transparencia
+        /// Gera uma <see cref="HSVColor"/> aleatoria com transparencia
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
@@ -116,9 +117,7 @@ namespace InnerLibs
         /// <summary>
         /// Instancia uma nova <see cref="HSVColor"/> a partir de seu ARGB
         /// </summary>
-        public HSVColor(int ARGB) : this(Color.FromArgb(ARGB))
-        {
-        }
+        public HSVColor(int ARGB) : this(Color.FromArgb(ARGB)) { }
 
         public HSVColor(int R, int G, int B) : this(255, R, G, B)
         {
@@ -142,13 +141,15 @@ namespace InnerLibs
         public HSVColor(Color Color) => _loadColor(Color);
 
         /// <summary>
-        /// Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname, hexadecimal ou string aleatoria)
+        /// Instancia uma nova <see cref="HSVColor"/> a partir de uma string de cor (colorname,
+        /// hexadecimal ou string aleatoria)
         /// </summary>
         /// <param name="Color">Cor</param>
         public HSVColor(string Color) : this(Color.ToColor()) => _name = Color;
 
         /// <summary>
-        /// Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou  string aleatoria) e um Nome
+        /// Instancia uma nova HSVColor a partir de uma string de cor (colorname, hexadecimal ou
+        /// string aleatoria) e um Nome
         /// </summary>
         /// <param name="Color">Cor</param>
         /// <param name="Name">Nome da cor</param>
@@ -901,7 +902,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+        /// Retorna novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
         /// </summary>
         /// <param name="excludeMe">Inclui esta cor no array</param>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
@@ -917,7 +918,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna  novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+        /// Retorna novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
         /// </summary>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
         /// <returns></returns>

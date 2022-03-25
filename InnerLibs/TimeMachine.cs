@@ -196,7 +196,7 @@ namespace InnerLibs.TimeMachine
                 EndDate = EndDate.Value.GetLastDayOfMonth();
             }
 
-            Period = new DateRange((DateTime)AnyDate, (DateTime)EndDate);
+            Period = new DateRange(AnyDate.Value, EndDate.Value);
         }
 
         /// <summary>
@@ -420,10 +420,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Range">Periodo</param>
         /// <returns></returns>
-        public static FortnightGroup CreateFromDateRange(DateRange Range)
-        {
-            return CreateFromDateRange(Range.StartDate, Range.EndDate);
-        }
+        public static FortnightGroup CreateFromDateRange(DateRange Range) => CreateFromDateRange(Range.StartDate, Range.EndDate);
     }
 
     /// <summary>

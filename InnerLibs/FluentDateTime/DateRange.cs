@@ -10,7 +10,7 @@ namespace InnerLibs.TimeMachine
     /// Works like a positive <see cref="System.TimeSpan"/> with validation of Relevant (Business)
     /// Days and many other <see cref="DateTime"/> functions
     /// </summary>
-    public class DateRange : IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>
+    public class DateRange : IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>, ICloneable
     {
         /// <summary>
         /// Create a new <see cref="DateRange"/> for today (from 00:00:00.000 to 23:59:59.999)
@@ -673,19 +673,19 @@ namespace InnerLibs.TimeMachine
 
         private static DateRange SubtractInternal(DateRange left, DateRange right) => SubtractInternal(left, right.TimeSpan);
 
-        public int CompareTo(TimeSpan other) => ((TimeSpan)this).CompareTo(other);
+        public int CompareTo(TimeSpan other) => TimeSpan.CompareTo(other);
 
         public int CompareTo(object value)
         {
             if (value is TimeSpan timeSpan)
             {
-                return ((TimeSpan)this).CompareTo(timeSpan);
+                return this.TimeSpan.CompareTo(timeSpan);
             }
 
             throw new ArgumentException("Value must be a TimeSpan or DateRange", "value");
         }
 
-        public int CompareTo(DateRange value) => ((TimeSpan)this).CompareTo(value);
+        public int CompareTo(DateRange value) => this.TimeSpan.CompareTo(value?.TimeSpan ?? TimeSpan.Zero);
 
         public static implicit operator DateRange((DateTime, DateTime) Dates) => new DateRange(Dates.Item1, Dates.Item2);
 
@@ -761,6 +761,7 @@ namespace InnerLibs.TimeMachine
                 case DateRangeInterval.Weeks: return Datetime.AddDays(Total * 7d);
                 case DateRangeInterval.Months: return Datetime.AddMonths(Total.RoundInt());
                 case DateRangeInterval.Years: return Datetime.AddYears(Total.RoundInt());
+                case DateRangeInterval.LessAccurate:
                 default: throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work for get a DateRange string");
             }
         }
@@ -780,6 +781,8 @@ namespace InnerLibs.TimeMachine
 
             return new DateRange(AddInterval(StartDate, DateRangeInterval, Total), AddInterval(EndDate, DateRangeInterval, Total), ForceFirstAndLastMoments);
         }
+
+        object ICloneable.Clone() => this.Clone();
 
         /// <summary>
         /// Clona este DateRange
@@ -811,37 +814,37 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateRangeInterval GetLessAccurateDateRangeInterval()
         {
-            if (TotalYears >= 1d || TotalYears <= -1)
+            if (TotalYears.ForcePositive() >= 1d)
             {
                 return DateRangeInterval.Years;
             }
 
-            if (TotalMonths >= 1d || TotalMonths <= -1)
+            if (TotalMonths.ForcePositive() >= 1d)
             {
                 return DateRangeInterval.Months;
             }
 
-            if (TotalWeeks >= 1d || TotalWeeks <= -1)
+            if (TotalWeeks.ForcePositive() >= 1d)
             {
                 return DateRangeInterval.Weeks;
             }
 
-            if (TotalDays >= 1d || TotalDays <= -1)
+            if (TotalDays.ForcePositive() >= 1d)
             {
                 return DateRangeInterval.Days;
             }
 
-            if (TotalHours >= 1d || TotalHours <= -1)
+            if (TotalHours.ForcePositive() >= 1d)
             {
                 return DateRangeInterval.Hours;
             }
 
-            if (TotalMinutes >= 1d || TotalMinutes <= -1)
+            if (TotalMinutes.ForcePositive() >= 1d)
             {
                 return DateRangeInterval.Minutes;
             }
 
-            if (TotalSeconds >= 1d || TotalSeconds <= -1)
+            if (TotalSeconds.ForcePositive() >= 1d)
             {
                 return DateRangeInterval.Seconds;
             }
@@ -865,7 +868,7 @@ namespace InnerLibs.TimeMachine
         /// Cria um grupo de quinzenas que contenham este periodo
         /// </summary>
         /// <returns></returns>
-        public FortnightGroup CreateFortnightGroup() => FortnightGroup.CreateFromDateRange(StartDate, EndDate);
+        public FortnightGroup CreateFortnightGroup() => FortnightGroup.CreateFromDateRange(this);
 
         /// <summary>
         /// Filtra uma lista considerando o periodo deste DateRange
@@ -915,7 +918,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public Dictionary<string, IEnumerable<T>> GroupList<T>(IEnumerable<T> List, Func<T, DateTime> PropertyExpression, Func<DateTime, string> GroupByExpression, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
         {
-            var keys = GetBetween(DateRangeInterval).Select(GroupByExpression).Distinct();
+            var keys = GetDates(DateRangeInterval).Select(GroupByExpression).Distinct();
             var gp = List.GroupBy(x => GroupByExpression(PropertyExpression(x)));
             var dic = new Dictionary<string, IEnumerable<T>>();
             foreach (var k in keys)
@@ -923,7 +926,7 @@ namespace InnerLibs.TimeMachine
                 if (!dic.ContainsKey(k))
                 {
                     dic[k] = new List<T>();
-                } ((List<T>)dic[k]).AddRange(gp.ElementAtOrDefault(Convert.ToInt16(k)).AsEnumerable());
+                } ((List<T>)dic[k]).AddRange(gp.ElementAtOrDefault(k.ToInt()).AsEnumerable());
             }
 
             return dic;
@@ -931,7 +934,7 @@ namespace InnerLibs.TimeMachine
 
         public Dictionary<string, IEnumerable<T>> GroupList<T>(IEnumerable<T> List, Func<T, DateTime?> PropertyExpression, Func<DateTime?, string> GroupByExpression, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
         {
-            var keys = GetBetween(DateRangeInterval).Cast<DateTime?>().Select(GroupByExpression).Distinct();
+            var keys = GetDates(DateRangeInterval).Cast<DateTime?>().Select(GroupByExpression).Distinct();
             var gp = List.GroupBy(x => GroupByExpression(PropertyExpression(x))).ToDictionary();
             var dic = new Dictionary<string, IEnumerable<T>>();
             foreach (var k in keys)
@@ -944,8 +947,7 @@ namespace InnerLibs.TimeMachine
                 List<T> l = (List<T>)dic[k];
                 if (gp.ContainsKey(k))
                 {
-                    foreach (var item in gp[k].AsEnumerable())
-                        l.Add(item);
+                    l.AddRange(gp[k].AsEnumerable());
                 }
 
                 dic[k] = l;
@@ -981,7 +983,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Day"></param>
         /// <returns></returns>
-        public bool Contains(DateTime Day) => StartDate <= Day && Day <= EndDate;
+        public bool Contains(DateTime Day) => Day.IsBetweenOrEqual(StartDate, EndDate);
 
         /// <summary>
         /// Verifica se hoje está dentro deste periodo
@@ -1019,18 +1021,15 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DateRangeInterval"></param>
         /// <returns></returns>
-        public IEnumerable<DateTime> GetBetween(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
+        public IEnumerable<DateTime> GetDates(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
         {
-            if (DateRangeInterval == DateRangeInterval.LessAccurate)
-            {
-                DateRangeInterval = GetLessAccurateDateRangeInterval();
-            }
+            DateRangeInterval = DateRangeInterval == DateRangeInterval.LessAccurate ? GetLessAccurateDateRangeInterval() : DateRangeInterval;
 
             var l = new List<DateTime>() { StartDate };
             var curdate = StartDate;
             while (curdate < EndDate)
             {
-                curdate = Convert.ToDateTime(AddInterval(curdate, DateRangeInterval, 1d));
+                curdate = AddInterval(curdate, DateRangeInterval, 1d);
                 l.Add(curdate);
             }
 
@@ -1043,24 +1042,42 @@ namespace InnerLibs.TimeMachine
 
     public class DateRangeDisplay
     {
+        public DateRangeDisplay()
+        {
+        }
+
+        public DateRangeDisplay(string andWord, string millisecondsWord, string secondsWord, string minutesWord, string hoursWord, string daysWord, string monthsWord, string yearsWord, DateRangeString formatRule = DateRangeString.FullStringSkipZero)
+        {
+            AndWord = andWord;
+            MillisecondsWord = millisecondsWord;
+            SecondsWord = secondsWord;
+            MinutesWord = minutesWord;
+            HoursWord = hoursWord;
+            DaysWord = daysWord;
+            MonthsWord = monthsWord;
+            YearsWord = yearsWord;
+            FormatRule = formatRule;
+        }
+
         public string AndWord { get; set; }
         public string MillisecondsWord { get; set; }
         public string SecondsWord { get; set; }
         public string MinutesWord { get; set; }
         public string HoursWord { get; set; }
         public string DaysWord { get; set; }
-        public string WeeksWord { get; set; }
         public string MonthsWord { get; set; }
         public string YearsWord { get; set; }
 
         public DateRangeString FormatRule { get; set; } = DateRangeString.FullStringSkipZero;
+
+        public static DateRangeDisplay DefaultPTBR() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses", "anos");
 
         public static DateRangeDisplay Default()
         {
             var d = new DateRangeDisplay();
             foreach (var item in d.GetProperties().Where(x => x.Name.EndsWith("Word")))
             {
-                item.SetValue(d, item.Name.RemoveLastEqual("Word"));
+                item.SetValue(d, item.Name.RemoveLastEqual("Word").ToLower());
             }
             return d;
         }

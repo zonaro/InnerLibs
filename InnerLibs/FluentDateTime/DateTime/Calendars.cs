@@ -464,16 +464,13 @@ namespace InnerLibs
         /// </summary>
         /// <param name="dateTime">The date to be checked.</param>
         /// <returns><c>true</c> if <paramref name="dateTime"/> is in the past; otherwise <c>false</c>.</returns>
-        public static bool IsInPast(this DateTime dateTime)
-        {
-            return dateTime < DateTime.Now;
-        }
+        public static bool IsInPast(this DateTime dateTime) => dateTime < DateTime.Now;
 
         /// <summary>
         /// Rounds <paramref name="dateTime"/> to the nearest <see cref="RoundTo"/>.
         /// </summary>
         /// <returns>The rounded <see cref="DateTime"/>.</returns>
-        public static DateTime Round(this DateTime dateTime, RoundTo rt)
+        public static DateTime Round(this DateTime dateTime, RoundTo rt = RoundTo.Second)
         {
             DateTime rounded;
 
@@ -725,30 +722,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static int GetBimesterOfYear(this DateTime DateAndtime)
         {
-            if (DateAndtime.Month <= 2)
-            {
-                return 1;
-            }
-            else if (DateAndtime.Month <= 4)
-            {
-                return 2;
-            }
-            else if (DateAndtime.Month <= 6)
-            {
-                return 3;
-            }
-            else if (DateAndtime.Month <= 8)
-            {
-                return 4;
-            }
-            else if (DateAndtime.Month <= 10)
-            {
-                return 5;
-            }
-            else
-            {
-                return 6;
-            }
+            if (DateAndtime.Month <= 2) return 1;
+            else if (DateAndtime.Month <= 4) return 2;
+            else if (DateAndtime.Month <= 6) return 3;
+            else if (DateAndtime.Month <= 8) return 4;
+            else if (DateAndtime.Month <= 10) return 5;
+            else return 6;
         }
 
         /// <summary>
@@ -758,22 +737,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static int GetQuarterOfYear(this DateTime DateAndTime)
         {
-            if (DateAndTime.Month <= 3)
-            {
-                return 1;
-            }
-            else if (DateAndTime.Month <= 6)
-            {
-                return 2;
-            }
-            else if (DateAndTime.Month <= 9)
-            {
-                return 3;
-            }
-            else
-            {
-                return 4;
-            }
+            if (DateAndTime.Month <= 3) return 1;
+            else if (DateAndTime.Month <= 6) return 2;
+            else if (DateAndTime.Month <= 9) return 3;
+            else return 4;
         }
 
         /// <summary>
@@ -781,17 +748,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
-        public static int GetSemester(this DateTime DateAndTime)
-        {
-            if (DateAndTime.Month <= 6)
-            {
-                return 1;
-            }
-            else
-            {
-                return 2;
-            }
-        }
+        public static int GetSemester(this DateTime DateAndTime) => DateAndTime.Month <= 6 ? 1 : 2;
 
         /// <summary>
         /// Retorna a idade
@@ -898,7 +855,7 @@ namespace InnerLibs
         public static DateTime GetLastDayOfMonth(this int MonthNumber, int? Year = default)
         {
             Year = (Year ?? DateTime.Now.Year).SetMinValue(DateTime.MinValue.Year);
-            return new DateTime((int)Year, MonthNumber, 1).GetLastDayOfMonth();
+            return new DateTime(Year.Value, MonthNumber, 1).GetLastDayOfMonth();
         }
 
         /// <summary>
@@ -909,7 +866,7 @@ namespace InnerLibs
         public static DateTime GetFirstDayOfMonth(this int MonthNumber, int? Year = default)
         {
             Year = (Year ?? DateTime.Now.Year).SetMinValue(DateTime.MinValue.Year);
-            return new DateTime((int)Year, MonthNumber, 1);
+            return new DateTime(Year.Value, MonthNumber, 1);
         }
 
         /// <summary>
@@ -952,34 +909,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime GetFirstDayOfHalf(this DateTime Date)
-        {
-            if (Date.GetSemester() == 1)
-            {
-                return Date.GetFirstDayOfYear();
-            }
-            else
-            {
-                return new DateTime(Date.Year, 7, 1).Date;
-            }
-        }
+        public static DateTime GetFirstDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? Date.GetFirstDayOfYear() : new DateTime(Date.Year, 7, 1).Date;
 
         /// <summary>
         /// Retorna o ultimo dia de um semestre a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime GetLastDayOfHalf(this DateTime Date)
-        {
-            if (Date.GetSemester() == 1)
-            {
-                return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
-            }
-            else
-            {
-                return Date.GetLastDayOfYear();
-            }
-        }
+        public static DateTime GetLastDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? new DateTime(Date.Year, 6, 1).GetLastDayOfMonth() : Date.GetLastDayOfYear();
 
         /// <summary>
         /// Retorna o ultimo dia de um trimestre a partir da data
@@ -988,13 +925,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime GetLastDayOfQuarter(this DateTime Date)
         {
-            if (Date.GetQuarterOfYear() == 1)
-                return new DateTime(Date.Year, 3, 1).GetLastDayOfMonth();
-            if (Date.GetQuarterOfYear() == 2)
-                return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
-            if (Date.GetQuarterOfYear() == 3)
-                return new DateTime(Date.Year, 9, 1).GetLastDayOfMonth();
-            return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
+            switch (Date.GetQuarterOfYear())
+            {
+                case 1: return new DateTime(Date.Year, 3, 1).GetLastDayOfMonth();
+                case 2: return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
+                case 3: return new DateTime(Date.Year, 9, 1).GetLastDayOfMonth();
+                default: return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
+            }
         }
 
         /// <summary>
@@ -1004,13 +941,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime GetFirstDayOfQuarter(this DateTime Date)
         {
-            if (Date.GetQuarterOfYear() == 1)
-                return new DateTime(Date.Year, 1, 1).Date;
-            if (Date.GetQuarterOfYear() == 2)
-                return new DateTime(Date.Year, 4, 1).Date;
-            if (Date.GetQuarterOfYear() == 3)
-                return new DateTime(Date.Year, 7, 1).Date;
-            return new DateTime(Date.Year, 10, 1).Date;
+            switch (Date.GetQuarterOfYear())
+            {
+                case 1: return new DateTime(Date.Year, 1, 1).Date;
+                case 2: return new DateTime(Date.Year, 4, 1).Date;
+                case 3: return new DateTime(Date.Year, 7, 1).Date;
+                default: return new DateTime(Date.Year, 10, 1).Date;
+            }
         }
 
         /// <summary>
@@ -1020,18 +957,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime GetLastDayOfBimester(this DateTime Date)
         {
-            if (Date.GetBimesterOfYear() == 1)
-                return new DateTime(Date.Year, 2, 1).GetLastDayOfMonth();
-            else if (Date.GetBimesterOfYear() == 2)
-                return new DateTime(Date.Year, 4, 1).GetLastDayOfMonth();
-            else if (Date.GetBimesterOfYear() == 3)
-                return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
-            else if (Date.GetBimesterOfYear() == 4)
-                return new DateTime(Date.Year, 8, 1).GetLastDayOfMonth();
-            else if (Date.GetBimesterOfYear() == 5)
-                return new DateTime(Date.Year, 10, 1).GetLastDayOfMonth();
-            else
-                return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
+            switch (Date.GetBimesterOfYear())
+            {
+                case 1: return new DateTime(Date.Year, 2, 1).GetLastDayOfMonth();
+                case 2: return new DateTime(Date.Year, 4, 1).GetLastDayOfMonth();
+                case 3: return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
+                case 4: return new DateTime(Date.Year, 8, 1).GetLastDayOfMonth();
+                case 5: return new DateTime(Date.Year, 10, 1).GetLastDayOfMonth();
+                default: return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
+            }
         }
 
         /// <summary>
@@ -1041,18 +975,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static DateTime GetFirstDayOfBimester(this DateTime Date)
         {
-            if (Date.GetBimesterOfYear() == 1)
-                return new DateTime(Date.Year, 1, 1).Date;
-            else if (Date.GetBimesterOfYear() == 2)
-                return new DateTime(Date.Year, 3, 1).Date;
-            else if (Date.GetBimesterOfYear() == 3)
-                return new DateTime(Date.Year, 5, 1).Date;
-            else if (Date.GetBimesterOfYear() == 4)
-                return new DateTime(Date.Year, 7, 1).Date;
-            else if (Date.GetBimesterOfYear() == 5)
-                return new DateTime(Date.Year, 9, 1).Date;
-            else
-                return new DateTime(Date.Year, 11, 1).Date;
+            switch (Date.GetBimesterOfYear())
+            {
+                case 1: return new DateTime(Date.Year, 1, 1).Date;
+                case 2: return new DateTime(Date.Year, 3, 1).Date;
+                case 3: return new DateTime(Date.Year, 5, 1).Date;
+                case 4: return new DateTime(Date.Year, 7, 1).Date;
+                case 5: return new DateTime(Date.Year, 9, 1).Date;
+                default: return new DateTime(Date.Year, 11, 1).Date;
+            }
         }
 
         /// <summary>

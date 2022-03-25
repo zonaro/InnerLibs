@@ -9,15 +9,15 @@ namespace InnerLibs.TimeMachine
     {
         /// <summary>
         /// Adds the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns
-        /// resulting <see cref="DateRange"/>.
+        /// resulting <see cref="TimeSpan"/>.
         /// </summary>
-        public static DateRange AddDateRange(this TimeSpan timeSpan, DateRange DateRange) => DateRange.Add(timeSpan);
+        public static TimeSpan AddDateRange(this TimeSpan timeSpan, DateRange DateRange) => timeSpan + DateRange.TimeSpan;
 
         /// <summary>
         /// Subtracts the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns
-        /// resulting <see cref="DateRange"/>.
+        /// resulting <see cref="TimeSpan"/>.
         /// </summary>
-        public static DateRange SubtractDateRange(this TimeSpan timeSpan, DateRange DateRange) => timeSpan - DateRange;
+        public static TimeSpan SubtractDateRange(this TimeSpan timeSpan, DateRange DateRange) => timeSpan - DateRange.TimeSpan;
 
         /// <summary>
         /// Convert a <see cref="TimeSpan"/> to a human readable string.
