@@ -37,7 +37,9 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Verifica se <paramref name="Obj"/> é um array e retorna este array. Se negativo, retorna um array contendo o valor de <paramref name="Obj"/> ou um array vazio se <paramref name="Obj"/> for nulo
+        /// Verifica se <paramref name="Obj"/> é um array e retorna este array. Se negativo, retorna
+        /// um array contendo o valor de <paramref name="Obj"/> ou um array vazio se <paramref
+        /// name="Obj"/> for nulo
         /// </summary>
         /// <param name="Obj">Objeto</param>
         /// <returns></returns>
@@ -79,7 +81,9 @@ namespace InnerLibs
         /// <typeparam name="TKey">Tipo da key</typeparam>
         /// <typeparam name="TValue">Tipo do Valor</typeparam>
         /// <param name="Dics">Dicionarios</param>
-        /// <param name="AditionalKeys">Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles</param>
+        /// <param name="AditionalKeys">
+        /// Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles
+        /// </param>
         public static IEnumerable<Dictionary<TKey, TValue>> MergeKeys<TKey, TValue>(this IEnumerable<Dictionary<TKey, TValue>> Dics, params TKey[] AditionalKeys)
         {
             AditionalKeys = AditionalKeys ?? Array.Empty<TKey>();
@@ -277,7 +281,8 @@ namespace InnerLibs
         public static IEnumerable<object> ChangeIEnumerableType<FromType>(this IEnumerable<FromType> Value, Type ToType) => (Value ?? Array.Empty<FromType>()).Select(el => el.ChangeType(ToType));
 
         /// <summary>
-        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um dicionario os valores sao agrupados em arrays
+        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
+        /// dicionario os valores sao agrupados em arrays
         /// </summary>
         /// <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
         /// <param name="FirstDictionary">Dicionario Principal</param>

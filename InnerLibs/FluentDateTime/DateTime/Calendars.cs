@@ -14,6 +14,14 @@ namespace InnerLibs
     public static class Calendars
     {
         /// <summary>
+        /// Return the current value of <paramref name="Date"/> or <see cref="DateTime.Now"/> if
+        /// <paramref name="Date"/> is null
+        /// </summary>
+        /// <param name="Date"></param>
+        /// <returns></returns>
+        public static DateTime OrNow(this DateTime? Date) => Date ?? DateTime.Now;
+
+        /// <summary>
         /// Returns a new <see cref="DateTime"/> that adds the value of the specified <see
         /// cref="DateRange"/> to the value of this instance.
         /// </summary>

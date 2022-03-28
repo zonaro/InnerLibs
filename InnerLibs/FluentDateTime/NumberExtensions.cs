@@ -10,19 +10,19 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Generates <see cref="TimeSpan"/> value for given number of Years.
         /// </summary>
-        public static TimeSpan Years(this int years) => DateTime.Today.AddYears(years) - DateTime.Today;
+        public static TimeSpan Years(this int years, DateTime? fromDateTime = null) => fromDateTime.OrNow().Date.AddYears(years) - fromDateTime.OrNow().Date;
 
         /// <summary>
         /// Generates <see cref="TimeSpan"/> value for given number of Quarters.
         /// </summary>
         /// <param name="quarters"></param>
         /// <returns></returns>
-        public static TimeSpan Quarters(this int quarters) => DateTime.Today.AddMonths(quarters * 3) - DateTime.Today;
+        public static TimeSpan Quarters(this int quarters, DateTime? fromDateTime = null) => fromDateTime.OrNow().Date.AddMonths(quarters * 3) - fromDateTime.OrNow().Date;
 
         /// <summary>
         /// Returns <see cref="TimeSpan"/> value for given number of Months.
         /// </summary>
-        public static TimeSpan Months(this int months) => DateTime.Today.AddMonths(months) - DateTime.Today;
+        public static TimeSpan Months(this int months, DateTime? fromDateTime = null) => fromDateTime.OrNow().AddMonths(months) - fromDateTime.OrNow();
 
         /// <summary>
         /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of days * 7).

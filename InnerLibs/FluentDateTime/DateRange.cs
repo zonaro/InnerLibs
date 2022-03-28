@@ -10,7 +10,7 @@ namespace InnerLibs.TimeMachine
     /// Works like a positive <see cref="System.TimeSpan"/> with validation of Relevant (Business)
     /// Days and many other <see cref="DateTime"/> functions
     /// </summary>
-    public class DateRange : IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>, ICloneable
+    public partial class DateRange : IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>, ICloneable
     {
         /// <summary>
         /// Create a new <see cref="DateRange"/> for today (from 00:00:00.000 to 23:59:59.999)
@@ -84,6 +84,15 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> plus <paramref name="Span"/>
+        /// </summary>
+        /// <param name="StartDate">Start date</param>
+        /// <param name="Span">Interval</param>
+        public DateRange(DateTime StartDate, TimeSpan Span, bool ForceFirstAndLastMoments) : this(StartDate, StartDate.Add(Span), ForceFirstAndLastMoments)
+        {
+        }
+
+        /// <summary>
         /// Create a new instance of <see cref="DateRange"/> using the smallest and largest date
         /// from a list
         /// </summary>
@@ -128,6 +137,11 @@ namespace InnerLibs.TimeMachine
         {
             Calendars.FixDateOrder(ref _startDate, ref _enddate);
 
+            int days = 0;
+            int years = 0;
+            int months = 0;
+            var _phase = Phase.Years;
+
             if (ForceFirstAndLastMoments)
             {
                 _startDate = _startDate.Date;
@@ -135,11 +149,8 @@ namespace InnerLibs.TimeMachine
             }
 
             this._timeSpanBase = _enddate - _startDate;
+
             var CurDate = _startDate;
-            int years = 0;
-            int months = 0;
-            int days = 0;
-            var _phase = Phase.Years;
 
             while (_phase != Phase.Done)
             {
@@ -188,6 +199,7 @@ namespace InnerLibs.TimeMachine
                                 //Minutes = timespan.Minutes;
                                 //Seconds = timespan.Seconds;
                                 //Milliseconds = timespan.Milliseconds;
+
                                 _phase = Phase.Done;
                             }
                             else
@@ -372,17 +384,9 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Convert a <see cref="DateRange"/> to a human readable string.
         /// </summary>
-        /// <param name="AndWord">the "And" word, use to concatenate the last item in the string</param>
-        /// <param name="YearsWord">'Years'</param>
-        /// <param name="MonthsWord">'Months'</param>
-        /// <param name="DaysWord">'Days'</param>
-        /// <param name="HoursWord">'Hours'</param>
-        /// <param name="MinutesWord">'Minutes'</param>
-        /// <param name="SecondsWord">'Seconds'</param>
-        /// <param name="MillisecondsWord">'Milliseconds'</param>
-        /// <param name="Format">Rules for returning the string</param>
+
         /// <returns></returns>
-        public string ToDisplayString(DateRangeDisplay display)
+        public string ToDisplayString(DateRangeDisplay display = null)
         {
             display = display ?? DateRangeDisplay.Default();
 
@@ -392,7 +396,7 @@ namespace InnerLibs.TimeMachine
             string horas = Text.QuantifyText(display.HoursWord, Hours).Prepend($"{Hours} ").NullIf(x => display.HoursWord.IsBlank());
             string minutos = Text.QuantifyText(display.MinutesWord, Minutes).Prepend($"{Minutes} ").NullIf(x => display.MinutesWord.IsBlank());
             string segundos = Text.QuantifyText(display.SecondsWord, Seconds).Prepend($"{Seconds} ").NullIf(x => display.SecondsWord.IsBlank());
-            string milisegundos = Text.QuantifyText(display.MinutesWord, Milliseconds).Prepend($"{Milliseconds} ").NullIf(x => display.MillisecondsWord.IsBlank());
+            string milisegundos = Text.QuantifyText(display.MillisecondsWord, Milliseconds).Prepend($"{Milliseconds} ").NullIf(x => display.MillisecondsWord.IsBlank());
 
             var flagInt = (int)display.FormatRule;
             if (flagInt >= 1) //skip zero
@@ -610,10 +614,10 @@ namespace InnerLibs.TimeMachine
                 if (_timeSpanBase == null)
                 {
                     _timeSpanBase = (EndDate - StartDate);
-                }
-                if (ForceFirstAndLastMoments)
-                {
-                    _timeSpanBase = _timeSpanBase.Value.Add(TimeSpan.FromMilliseconds(1));
+                    if (ForceFirstAndLastMoments)
+                    {
+                        _timeSpanBase = _timeSpanBase.Value.Add(TimeSpan.FromMilliseconds(1));
+                    }
                 }
                 return _timeSpanBase.Value;
             }
@@ -1046,17 +1050,26 @@ namespace InnerLibs.TimeMachine
         {
         }
 
-        public DateRangeDisplay(string andWord, string millisecondsWord, string secondsWord, string minutesWord, string hoursWord, string daysWord, string monthsWord, string yearsWord, DateRangeString formatRule = DateRangeString.FullStringSkipZero)
+        /// <param name="AndWord">the "And" word, use to concatenate the last item in the string</param>
+        /// <param name="YearsWord">'Years'</param>
+        /// <param name="MonthsWord">'Months'</param>
+        /// <param name="DaysWord">'Days'</param>
+        /// <param name="HoursWord">'Hours'</param>
+        /// <param name="MinutesWord">'Minutes'</param>
+        /// <param name="SecondsWord">'Seconds'</param>
+        /// <param name="MillisecondsWord">'Milliseconds'</param>
+        /// <param name="FormatRule">Rules for returning the string</param>
+        public DateRangeDisplay(string AndWord, string MillisecondsWord, string SecondsWord, string MinutesWord, string HoursWord, string DaysWord, string MonthsWord, string YearsWord, DateRangeString FormatRule = DateRangeString.FullStringSkipZero)
         {
-            AndWord = andWord;
-            MillisecondsWord = millisecondsWord;
-            SecondsWord = secondsWord;
-            MinutesWord = minutesWord;
-            HoursWord = hoursWord;
-            DaysWord = daysWord;
-            MonthsWord = monthsWord;
-            YearsWord = yearsWord;
-            FormatRule = formatRule;
+            this.AndWord = AndWord;
+            this.MillisecondsWord = MillisecondsWord;
+            this.SecondsWord = SecondsWord;
+            this.MinutesWord = MinutesWord;
+            this.HoursWord = HoursWord;
+            this.DaysWord = DaysWord;
+            this.MonthsWord = MonthsWord;
+            this.YearsWord = YearsWord;
+            this.FormatRule = FormatRule;
         }
 
         public string AndWord { get; set; }
