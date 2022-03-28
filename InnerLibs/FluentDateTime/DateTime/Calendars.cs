@@ -15,11 +15,19 @@ namespace InnerLibs
     {
         /// <summary>
         /// Return the current value of <paramref name="Date"/> or <see cref="DateTime.Now"/> if
-        /// <paramref name="Date"/> is null
+        /// <paramref name="Date"/> is <b><see cref="null"/></b>
         /// </summary>
         /// <param name="Date"></param>
         /// <returns></returns>
         public static DateTime OrNow(this DateTime? Date) => Date ?? DateTime.Now;
+
+        /// <summary>
+        /// Return the current value of <paramref name="Date"/> or <see cref="DateTime.Today"/> if
+        /// <paramref name="Date"/> is <b><see cref="null"/></b>
+        /// </summary>
+        /// <param name="Date"></param>
+        /// <returns></returns>
+        public static DateTime OrToday(this DateTime? Date) => Date ?? DateTime.Today;
 
         /// <summary>
         /// Returns a new <see cref="DateTime"/> that adds the value of the specified <see
@@ -37,7 +45,7 @@ namespace InnerLibs
         /// Returns the very end of the given day (the last millisecond of the last hour for the
         /// given <see cref="DateTime"/>).
         /// </summary>
-        public static DateTime EndOfDay(this DateTime date) => date.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999);
+        public static DateTime EndOfDay(this DateTime date) => new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, date.Kind);
 
         /// <summary>
         /// Returns the timezone-adjusted very end of the given day (the last millisecond of the
@@ -55,15 +63,13 @@ namespace InnerLibs
         /// Returns the last day of the week changing the time to the very end of the day with
         /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-25T23:59:59.999
         /// </summary>
-        public static DateTime EndOfWeek(this DateTime date, int timeZoneOffset)
-        => date.LastDayOfWeek().EndOfDay(timeZoneOffset);
+        public static DateTime EndOfWeek(this DateTime date, int timeZoneOffset) => date.LastDayOfWeek().EndOfDay(timeZoneOffset);
 
         /// <summary>
         /// Returns the last day of the month changing the time to the very end of the day. Eg,
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
-        public static DateTime EndOfMonth(this DateTime date)
-        => date.LastDayOfMonth().EndOfDay();
+        public static DateTime EndOfMonth(this DateTime date) => date.LastDayOfMonth().EndOfDay();
 
         /// <summary>
         /// Returns the last day of the month changing the time to the very end of the day with
@@ -87,13 +93,13 @@ namespace InnerLibs
         /// Returns the last day of the year changing the time to the very end of the day. Eg,
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
-        public static DateTime EndOfYear(this DateTime date) => date.LastDayOfYear().EndOfDay();
+        public static DateTime EndOfYear(this DateTime date) => date.GetLastDayOfYear().EndOfDay();
 
         /// <summary>
         /// Returns the last day of the year changing the time to the very end of the day with
         /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
-        public static DateTime EndOfYear(this DateTime date, int timeZoneOffset) => date.LastDayOfYear().EndOfDay(timeZoneOffset);
+        public static DateTime EndOfYear(this DateTime date, int timeZoneOffset) => date.GetLastDayOfYear().EndOfDay(timeZoneOffset);
 
         /// <summary>
         /// Returns the Start of the given day (the first millisecond of the given <see cref="DateTime"/>).
@@ -478,11 +484,11 @@ namespace InnerLibs
         /// Rounds <paramref name="dateTime"/> to the nearest <see cref="RoundTo"/>.
         /// </summary>
         /// <returns>The rounded <see cref="DateTime"/>.</returns>
-        public static DateTime Round(this DateTime dateTime, RoundTo rt = RoundTo.Second)
+        public static DateTime Round(this DateTime dateTime, RoundTo round = RoundTo.Second)
         {
             DateTime rounded;
 
-            switch (rt)
+            switch (round)
             {
                 case RoundTo.Second:
                     {
@@ -522,7 +528,8 @@ namespace InnerLibs
                     }
                 default:
                     {
-                        throw new ArgumentOutOfRangeException("rt");
+                        rounded = dateTime;
+                        break;
                     }
             }
 
@@ -539,10 +546,7 @@ namespace InnerLibs
         {
             currentCulture = currentCulture ?? CultureInfo.CurrentCulture;
             var firstDayOfWeek = currentCulture.DateTimeFormat.FirstDayOfWeek;
-            var offset = dateTime.DayOfWeek - firstDayOfWeek < 0 ? 7 : 0;
-            var numberOfDaysSinceBeginningOfTheWeek = dateTime.DayOfWeek + offset - firstDayOfWeek;
-
-            return dateTime.AddDays(-numberOfDaysSinceBeginningOfTheWeek);
+            return dateTime.FirstDayOfWeek(firstDayOfWeek);
         }
 
         /// <summary>
@@ -567,7 +571,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
-        public static DateTime LastDayOfYear(this DateTime current) => current.SetDate(current.Year, 12, 31);
+        public static DateTime GetLastDayOfYear(this DateTime current) => current.SetDate(current.Year, 12, 31);
 
         /// <summary>
         /// Returns the previous month keeping the time component intact. Eg,
@@ -759,19 +763,37 @@ namespace InnerLibs
         public static int GetSemester(this DateTime DateAndTime) => DateAndTime.Month <= 6 ? 1 : 2;
 
         /// <summary>
-        /// Retorna a idade
+        /// Return the age at giving date
         /// </summary>
-        /// <param name="BirthDate"></param>
-        /// <param name="FromDate"></param>
+        /// <param name="BirthDate">Birth Date</param>
+        /// <param name="AtDate"></param>
         /// <returns></returns>
-        public static int GetAge(this DateTime BirthDate, DateTime? FromDate = default)
+        public static int GetAge(this DateTime BirthDate, DateTime? AtDate = null)
         {
-            FromDate = FromDate ?? DateTime.Now;
-            int age = FromDate.Value.Year - BirthDate.Year;
-            if (BirthDate > DateTime.Today.AddYears(-age))
+            AtDate = AtDate.OrNow();
+            int age = AtDate.Value.Year - BirthDate.Year;
+            if (BirthDate > AtDate?.AddYears(-age))
                 age -= 1;
             return age;
         }
+
+        /// <summary>
+        /// Return the age at giving day, month and year
+        /// </summary>
+        /// <param name="BirthDate">Birth Date</param>
+        /// <param name="AtDate"></param>
+        /// <returns></returns>
+        public static int GetAge(this DateTime BirthDate, int Day, int Month, int Year) => GetAge(BirthDate, new DateTime(Year, Month, Day));
+
+        public static int GetAge(this DateTime BirthDate, int Month, int Year) => GetAge(BirthDate, DateTime.Today.SetMonth(Month).SetYear(Year));
+
+        /// <summary>
+        /// Return the age at giving year
+        /// </summary>
+        /// <param name="BirthDate">Birth Date</param>
+        /// <param name="AtDate"></param>
+        /// <returns></returns>
+        public static int GetAge(this DateTime BirthDate, int Year) => GetAge(BirthDate, DateTime.Today.SetYear(Year));
 
         /// <summary>
         /// Converte um <see cref="Date"/> para um timezone Especifico
@@ -825,7 +847,7 @@ namespace InnerLibs
         /// <param name="[Date]">Data</param>
         /// <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
         /// <returns></returns>
-        public static DateTime GetFirstDayOfWeek(this DateTime Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday)
+        public static DateTime FirstDayOfWeek(this DateTime Date, DayOfWeek FirstDayOfWeek)
         {
             while (Date.DayOfWeek > FirstDayOfWeek)
                 Date = Date.AddDays(-1);
@@ -838,7 +860,7 @@ namespace InnerLibs
         /// <param name="[Date]">Data</param>
         /// <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é Domingo)</param>
         /// <returns></returns>
-        public static DateTime GetLastDayOfWeek(this DateTime Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => Date.GetFirstDayOfWeek(FirstDayOfWeek).AddDays(6d);
+        public static DateTime LastDayOfWeek(this DateTime Date, DayOfWeek FirstDayOfWeek) => Date.FirstDayOfWeek(FirstDayOfWeek).AddDays(6d);
 
         /// <summary>
         /// Retorna um DateRange equivalente a semana de uma data especifica
@@ -846,24 +868,17 @@ namespace InnerLibs
         /// <param name="[Date]">Data</param>
         /// <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é domingo)</param>
         /// <returns></returns>
-        public static DateRange GetWeekRange(this DateTime Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.GetFirstDayOfWeek(FirstDayOfWeek), Date.GetLastDayOfWeek(FirstDayOfWeek));
-
-        /// <summary>
-        /// Retorna a ultima data do mes a partir de uma outra data
-        /// </summary>
-        /// <param name="[Date]">Data</param>
-        /// <returns></returns>
-        public static DateTime GetLastDayOfMonth(this DateTime Date) => new DateTime(Date.Year, Date.Month, DateTime.DaysInMonth(Date.Year, Date.Month), Date.Hour, Date.Minute, Date.Second, Date.Millisecond, Date.Kind);
+        public static DateRange GetWeekRange(this DateTime Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.FirstDayOfWeek(FirstDayOfWeek), Date.LastDayOfWeek(FirstDayOfWeek));
 
         /// <summary>
         /// Retorna a ultima data do mes a partir de uma outra data
         /// </summary>
         /// <param name="MonthNumber">Data</param>
         /// <returns></returns>
-        public static DateTime GetLastDayOfMonth(this int MonthNumber, int? Year = default)
+        public static DateTime LastDayOfMonth(this int MonthNumber, int? Year = default)
         {
             Year = (Year ?? DateTime.Now.Year).SetMinValue(DateTime.MinValue.Year);
-            return new DateTime(Year.Value, MonthNumber, 1).GetLastDayOfMonth();
+            return new DateTime(Year.Value, MonthNumber, 1).LastDayOfMonth();
         }
 
         /// <summary>
@@ -871,60 +886,39 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MonthNumber">Data</param>
         /// <returns></returns>
-        public static DateTime GetFirstDayOfMonth(this int MonthNumber, int? Year = default)
+        public static DateTime FirstDayOfMonth(this int MonthNumber, int? Year = default)
         {
             Year = (Year ?? DateTime.Now.Year).SetMinValue(DateTime.MinValue.Year);
             return new DateTime(Year.Value, MonthNumber, 1);
         }
 
         /// <summary>
-        /// Retorna a primeira data do mes a partir de uma outra data
-        /// </summary>
-        /// <param name="[Date]">Data</param>
-        /// <returns></returns>
-        public static DateTime GetFirstDayOfMonth(this DateTime Date) => new DateTime(Date.Year, Date.Month, 1, Date.Hour, Date.Minute, Date.Second, Date.Millisecond, Date.Kind);
-
-        /// <summary>
         /// Retorna a primeira data da quinzena a partir de uma outra data
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
-        public static DateTime GetFirstDayOfFortnight(this DateTime Date) => new DateTime(Date.Year, Date.Month, Date.Day <= 15 ? 1 : 16, Date.Hour, Date.Minute, Date.Second, Date.Millisecond, Date.Kind);
+        public static DateTime FirstDayOfFortnight(this DateTime Date) => new DateTime(Date.Year, Date.Month, Date.Day <= 15 ? 1 : 16, Date.Hour, Date.Minute, Date.Second, Date.Millisecond, Date.Kind);
 
         /// <summary>
         /// Retorna a ultima data da quinzena a partir de uma outra data
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
-        public static DateTime GetLastDayOfFortnight(this DateTime Date) => new DateTime(Date.Year, Date.Month, Date.Day <= 15 ? 15 : Date.GetLastDayOfMonth().Day, Date.Hour, Date.Minute, Date.Second, Date.Millisecond, Date.Kind);
-
-        /// <summary>
-        /// Retorna o primeiro dia de um ano especifico de outra data
-        /// </summary>
-        /// <param name="[Date]"></param>
-        /// <returns></returns>
-        public static DateTime GetFirstDayOfYear(this DateTime Date) => new DateTime(Date.Year, 1, 1).Date;
-
-        /// <summary>
-        /// Retorna o ultimo dia de um ano especifico de outra data
-        /// </summary>
-        /// <param name="[Date]"></param>
-        /// <returns></returns>
-        public static DateTime GetLastDayOfYear(this DateTime Date) => new DateTime(Date.Year, 12, 31).Date;
+        public static DateTime GetLastDayOfFortnight(this DateTime Date) => new DateTime(Date.Year, Date.Month, Date.Day <= 15 ? 15 : Date.LastDayOfMonth().Day, Date.Hour, Date.Minute, Date.Second, Date.Millisecond, Date.Kind);
 
         /// <summary>
         /// Retorna o primeiro dia de um semestre a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime GetFirstDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? Date.GetFirstDayOfYear() : new DateTime(Date.Year, 7, 1).Date;
+        public static DateTime GetFirstDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? Date.FirstDayOfYear() : new DateTime(Date.Year, 7, 1).Date;
 
         /// <summary>
         /// Retorna o ultimo dia de um semestre a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime GetLastDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? new DateTime(Date.Year, 6, 1).GetLastDayOfMonth() : Date.GetLastDayOfYear();
+        public static DateTime GetLastDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? new DateTime(Date.Year, 6, 1).LastDayOfMonth() : Date.GetLastDayOfYear();
 
         /// <summary>
         /// Retorna o ultimo dia de um trimestre a partir da data
@@ -935,10 +929,10 @@ namespace InnerLibs
         {
             switch (Date.GetQuarterOfYear())
             {
-                case 1: return new DateTime(Date.Year, 3, 1).GetLastDayOfMonth();
-                case 2: return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
-                case 3: return new DateTime(Date.Year, 9, 1).GetLastDayOfMonth();
-                default: return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
+                case 1: return new DateTime(Date.Year, 3, 1).LastDayOfMonth();
+                case 2: return new DateTime(Date.Year, 6, 1).LastDayOfMonth();
+                case 3: return new DateTime(Date.Year, 9, 1).LastDayOfMonth();
+                default: return new DateTime(Date.Year, 12, 1).LastDayOfMonth();
             }
         }
 
@@ -967,12 +961,12 @@ namespace InnerLibs
         {
             switch (Date.GetBimesterOfYear())
             {
-                case 1: return new DateTime(Date.Year, 2, 1).GetLastDayOfMonth();
-                case 2: return new DateTime(Date.Year, 4, 1).GetLastDayOfMonth();
-                case 3: return new DateTime(Date.Year, 6, 1).GetLastDayOfMonth();
-                case 4: return new DateTime(Date.Year, 8, 1).GetLastDayOfMonth();
-                case 5: return new DateTime(Date.Year, 10, 1).GetLastDayOfMonth();
-                default: return new DateTime(Date.Year, 12, 1).GetLastDayOfMonth();
+                case 1: return new DateTime(Date.Year, 2, 1).LastDayOfMonth();
+                case 2: return new DateTime(Date.Year, 4, 1).LastDayOfMonth();
+                case 3: return new DateTime(Date.Year, 6, 1).LastDayOfMonth();
+                case 4: return new DateTime(Date.Year, 8, 1).LastDayOfMonth();
+                case 5: return new DateTime(Date.Year, 10, 1).LastDayOfMonth();
+                default: return new DateTime(Date.Year, 12, 1).LastDayOfMonth();
             }
         }
 
@@ -1009,7 +1003,7 @@ namespace InnerLibs
         /// <param name="[Date]">Primeira data</param>
         /// <param name="AnotherDate">Segunda data</param>
         /// <returns></returns>
-        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate) => Date.IsBetween(AnotherDate.GetFirstDayOfMonth().Date, AnotherDate.EndOfMonth());
+        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate) => Date.IsBetween(AnotherDate.FirstDayOfMonth().Date, AnotherDate.EndOfMonth());
 
         /// <summary>
         /// Verifica se a Data de hoje é um aniversário
@@ -1090,6 +1084,31 @@ namespace InnerLibs
             {
                 if (StartDate == EndDate) return MidDate == StartDate;
                 else return StartDate <= MidDate && MidDate <= EndDate;
+            }
+        }
+
+        /// <summary>
+        /// Adciona um intervalo a um <see cref="DateTime"/>
+        /// </summary>
+        /// <param name="Datetime"></param>
+        /// <param name="Interval"></param>
+        /// <param name="Total"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static DateTime AddInterval(this DateTime Datetime, DateRangeInterval Interval, double Total)
+        {
+            switch (Interval)
+            {
+                case DateRangeInterval.Milliseconds: return Datetime.AddMilliseconds(Total);
+                case DateRangeInterval.Seconds: return Datetime.AddSeconds(Total);
+                case DateRangeInterval.Minutes: return Datetime.AddMinutes(Total);
+                case DateRangeInterval.Hours: return Datetime.AddHours(Total);
+                case DateRangeInterval.Days: return Datetime.AddDays(Total);
+                case DateRangeInterval.Weeks: return Datetime.AddDays(Total * 7d);
+                case DateRangeInterval.Months: return Datetime.AddMonths(Total.RoundInt());
+                case DateRangeInterval.Years: return Datetime.AddYears(Total.RoundInt());
+                case DateRangeInterval.LessAccurate:
+                default: throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work for get a DateRange string");
             }
         }
 

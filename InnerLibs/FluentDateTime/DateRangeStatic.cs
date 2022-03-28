@@ -14,8 +14,8 @@ namespace InnerLibs.TimeMachine
 
         public static DateRange Quarter(DateTime? Date) => new DateRange(Date.OrNow().GetFirstDayOfQuarter(), Date.OrNow().GetLastDayOfQuarter());
 
-        public static DateRange Year(DateTime? Date) => new DateRange(Date.OrNow().GetFirstDayOfYear(), Date.OrNow().GetLastDayOfYear());
+        public static DateRange Year(DateTime? Date) => new DateRange(Date.OrNow().FirstDayOfYear(), Date.OrNow().GetLastDayOfYear());
 
-        public static DateRange Week(DateTime? Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.OrNow().GetFirstDayOfWeek(FirstDayOfWeek), Date.OrNow().GetLastDayOfWeek(FirstDayOfWeek));
+        public static DateRange Week(DateTime? Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.OrNow().FirstDayOfWeek(FirstDayOfWeek), Date.OrNow().LastDayOfWeek(FirstDayOfWeek));
     }
 }

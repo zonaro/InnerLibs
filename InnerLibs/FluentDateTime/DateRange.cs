@@ -1,6 +1,7 @@
 using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -15,7 +16,9 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Create a new <see cref="DateRange"/> for today (from 00:00:00.000 to 23:59:59.999)
         /// </summary>
-        public DateRange() : this(DateTime.Now, DateTime.Now, true) { _IsDefault = true; }
+        public DateRange() : this(DateTime.Now, DateTime.Now, true) => _isDefault = true;
+
+        public DateRange(RoundTo RoundTo) : this(DateTime.Now, DateTime.Now, true, RoundTo) => _isDefault = true;
 
         /// <summary>
         /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
@@ -37,7 +40,20 @@ namespace InnerLibs.TimeMachine
         /// Force <see cref="StartDate"/> to the first moment of day (Midnight) and <see
         /// cref="EndDate"/> to last moment of day (23:59:59.999)
         /// </param>
-        public DateRange(DateTime StartDate, DateTime EndDate, params DayOfWeek[] RelevantDaysOfWeek) : this(StartDate, EndDate, false, RelevantDaysOfWeek)
+        public DateRange(DateTime StartDate, DateTime EndDate, params DayOfWeek[] RelevantDaysOfWeek) : this(StartDate, EndDate, false, RoundTo.None, RelevantDaysOfWeek)
+        {
+        }
+
+        /// <summary>
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
+        /// </summary>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
+        /// <param name="ForceFirstAndLastMoments">
+        /// Force <see cref="StartDate"/> to the first moment of day (Midnight) and <see
+        /// cref="EndDate"/> to last moment of day (23:59:59.999)
+        /// </param>
+        public DateRange(DateTime StartDate, DateTime EndDate, RoundTo RoundTo, params DayOfWeek[] RelevantDaysOfWeek) : this(StartDate, EndDate, false, RoundTo, RelevantDaysOfWeek)
         {
         }
 
@@ -51,7 +67,7 @@ namespace InnerLibs.TimeMachine
         /// cref="EndDate"/> to last moment of day (23:59:59.999)
         /// </param>
         /// <param name="RelevantDaysOfWeek">Business Days of Week</param>
-        public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments, params DayOfWeek[] RelevantDaysOfWeek)
+        public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments, RoundTo RoundTo, params DayOfWeek[] RelevantDaysOfWeek)
         {
             if (RelevantDaysOfWeek == null || !RelevantDaysOfWeek.Any())
             {
@@ -59,10 +75,11 @@ namespace InnerLibs.TimeMachine
             }
 
             this.RelevantDaysOfWeek = RelevantDaysOfWeek.ToList();
+            _roundTo = RoundTo;
             _forceFirstAndLastMoments = ForceFirstAndLastMoments;
-            _IsDefault = false;
+            _isDefault = false;
             _startDate = StartDate;
-            _enddate = EndDate;
+            _endDate = EndDate;
             CalcRange();
         }
 
@@ -88,7 +105,25 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="StartDate">Start date</param>
         /// <param name="Span">Interval</param>
+        public DateRange(DateTime StartDate, TimeSpan Span, RoundTo RoundTo) : this(StartDate, StartDate.Add(Span), RoundTo)
+        {
+        }
+
+        /// <summary>
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> plus <paramref name="Span"/>
+        /// </summary>
+        /// <param name="StartDate">Start date</param>
+        /// <param name="Span">Interval</param>
         public DateRange(DateTime StartDate, TimeSpan Span, bool ForceFirstAndLastMoments) : this(StartDate, StartDate.Add(Span), ForceFirstAndLastMoments)
+        {
+        }
+
+        /// <summary>
+        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> plus <paramref name="Span"/>
+        /// </summary>
+        /// <param name="StartDate">Start date</param>
+        /// <param name="Span">Interval</param>
+        public DateRange(DateTime StartDate, TimeSpan Span, bool ForceFirstAndLastMoments, RoundTo RoundTo) : this(StartDate, StartDate.Add(Span), ForceFirstAndLastMoments, RoundTo)
         {
         }
 
@@ -112,7 +147,7 @@ namespace InnerLibs.TimeMachine
         {
         }
 
-        public DateRange(DateTime? StartEndDate) : this(StartEndDate.Value, StartEndDate.Value, true)
+        public DateRange(DateTime? StartEndDate) : this(StartEndDate.OrNow())
         {
         }
 
@@ -135,7 +170,7 @@ namespace InnerLibs.TimeMachine
 
         private void CalcRange()
         {
-            Calendars.FixDateOrder(ref _startDate, ref _enddate);
+            Calendars.FixDateOrder(ref _startDate, ref _endDate);
 
             int days = 0;
             int years = 0;
@@ -145,12 +180,12 @@ namespace InnerLibs.TimeMachine
             if (ForceFirstAndLastMoments)
             {
                 _startDate = _startDate.Date;
-                _enddate = _enddate.EndOfDay();
+                _endDate = _endDate.EndOfDay();
             }
 
-            this._timeSpanBase = _enddate - _startDate;
+            this._timeSpanBase = _endDate.Round(this.RoundTo) - _startDate.Round(this.RoundTo);
 
-            var CurDate = _startDate;
+            var CurDate = _startDate.Round(this.RoundTo);
 
             while (_phase != Phase.Done)
             {
@@ -158,7 +193,7 @@ namespace InnerLibs.TimeMachine
                 {
                     case Phase.Years:
                         {
-                            if (CurDate.AddYears(years + 1) > EndDate)
+                            if (CurDate.AddYears(years + 1) > _endDate.Round(this.RoundTo))
                             {
                                 _phase = Phase.Months;
                                 CurDate = CurDate.AddYears(years);
@@ -173,7 +208,7 @@ namespace InnerLibs.TimeMachine
 
                     case Phase.Months:
                         {
-                            if (CurDate.AddMonths(months + 1) > EndDate)
+                            if (CurDate.AddMonths(months + 1) > _endDate.Round(this.RoundTo))
                             {
                                 _phase = Phase.Days;
                                 CurDate = CurDate.AddMonths(months);
@@ -188,7 +223,7 @@ namespace InnerLibs.TimeMachine
 
                     case Phase.Days:
                         {
-                            if (CurDate.AddDays(days + 1) > EndDate)
+                            if (CurDate.AddDays(days + 1) > _endDate.Round(this.RoundTo))
                             {
                                 CurDate = CurDate.AddDays(days);
 
@@ -221,7 +256,7 @@ namespace InnerLibs.TimeMachine
             {
                 if (_startDate != value)
                 {
-                    _IsDefault = false;
+                    _isDefault = false;
                     _startDate = value;
                     CalcRange();
                 }
@@ -230,20 +265,21 @@ namespace InnerLibs.TimeMachine
 
         public DateTime EndDate
         {
-            get => _enddate;
+            get => _endDate;
 
             set
             {
-                if (_enddate != value)
+                if (_endDate != value)
                 {
-                    _IsDefault = false;
-                    _enddate = value;
+                    _isDefault = false;
+                    _endDate = value;
                     CalcRange();
                 }
             }
         }
 
         private bool _forceFirstAndLastMoments = false;
+        private RoundTo _roundTo = RoundTo.None;
 
         /// <summary>
         /// When <b>TRUE</b>, force <see cref="StartDate"/> to the first moment of day (Midnight)
@@ -253,6 +289,12 @@ namespace InnerLibs.TimeMachine
         {
             get => _forceFirstAndLastMoments;
             set { _forceFirstAndLastMoments = value; CalcRange(); }
+        }
+
+        public RoundTo RoundTo
+        {
+            get => _roundTo;
+            set { _roundTo = value; CalcRange(); }
         }
 
         /// <summary>
@@ -384,11 +426,16 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Convert a <see cref="DateRange"/> to a human readable string.
         /// </summary>
+        public string ToDisplayString() => ToDisplayString(null);
 
+        /// <summary>
+        /// Convert a <see cref="DateRange"/> to a human readable string.
+        /// </summary>
+        ///<param name="display">The display configuration. If <b>null</b>, uses <see cref="Display"/></param>
         /// <returns></returns>
-        public string ToDisplayString(DateRangeDisplay display = null)
+        public string ToDisplayString(DateRangeDisplay display)
         {
-            display = display ?? DateRangeDisplay.Default();
+            display = display ?? _display;
 
             string ano = Text.QuantifyText(display.YearsWord, Years).Prepend($"{Years} ").NullIf(x => display.YearsWord.IsBlank());
             string mes = Text.QuantifyText(display.MonthsWord, Months).Prepend($"{Months} ").NullIf(x => display.MonthsWord.IsBlank());
@@ -442,21 +489,18 @@ namespace InnerLibs.TimeMachine
             return current.AdjustWhiteSpaces();
         }
 
+        private DateRangeDisplay _display = null;
+
         /// <summary>
-        /// Convert a <see cref="System.TimeSpan"/> to a human readable string.
+        /// String configurations for <see cref="DateRange.ToDisplayString(DateRangeDisplay)"/>
         /// </summary>
-        /// <param name="timeSpan">The <see cref="System.TimeSpan"/> to convert</param>
-        /// <returns>A human readable string for <paramref name="timeSpan"/></returns>
-
-        private DateRangeDisplay _display = DateRangeDisplay.Default();
-
         public DateRangeDisplay Display
         {
             get
             {
                 if (_display == null)
                 {
-                    _display = DateRangeDisplay.Default();
+                    _display = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.AsIf(x => x.ToLower() == "pt", DateRangeDisplay.DefaultPtBr(), DateRangeDisplay.Default());
                 }
                 return _display;
             }
@@ -466,7 +510,7 @@ namespace InnerLibs.TimeMachine
         /// Convert a <see cref="DateRange"/> to a human readable string.
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => ToDisplayString(null);
+        public override string ToString() => ToDisplayString();
 
         private enum Phase
         {
@@ -699,16 +743,16 @@ namespace InnerLibs.TimeMachine
 
         public static implicit operator Dictionary<string, DateTime>(DateRange dateRange) => dateRange?.Dictionary();
 
-        private bool _IsDefault = false;
+        private bool _isDefault = false;
 
         /// <summary>
         /// Indica se este <see cref="DateRange"/> foi construido sem nenhuma data definida
         /// </summary>
         /// <returns></returns>
-        public bool IsDefaultDateRange => _IsDefault;
+        public bool IsDefaultDateRange => _isDefault;
 
         private DateTime _startDate;
-        private DateTime _enddate;
+        private DateTime _endDate;
 
         /// <summary>
         /// Retorna uma lista de dias entre <see cref="StartDate"/> e <see cref="EndDate"/>
@@ -746,31 +790,6 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Adciona um intervalo a um <see cref="DateTime"/>
-        /// </summary>
-        /// <param name="Datetime"></param>
-        /// <param name="Interval"></param>
-        /// <param name="Total"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static DateTime AddInterval(DateTime Datetime, DateRangeInterval Interval, double Total)
-        {
-            switch (Interval)
-            {
-                case DateRangeInterval.Milliseconds: return Datetime.AddMilliseconds(Total);
-                case DateRangeInterval.Seconds: return Datetime.AddSeconds(Total);
-                case DateRangeInterval.Minutes: return Datetime.AddMinutes(Total);
-                case DateRangeInterval.Hours: return Datetime.AddHours(Total);
-                case DateRangeInterval.Days: return Datetime.AddDays(Total);
-                case DateRangeInterval.Weeks: return Datetime.AddDays(Total * 7d);
-                case DateRangeInterval.Months: return Datetime.AddMonths(Total.RoundInt());
-                case DateRangeInterval.Years: return Datetime.AddYears(Total.RoundInt());
-                case DateRangeInterval.LessAccurate:
-                default: throw new ArgumentException("You can't use LessAcurate on this scenario. LessAccurate only work for get a DateRange string");
-            }
-        }
-
-        /// <summary>
         /// Move um periodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
         /// </summary>
         /// <param name="DateRangeInterval"></param>
@@ -783,7 +802,7 @@ namespace InnerLibs.TimeMachine
                 DateRangeInterval = GetLessAccurateDateRangeInterval();
             }
 
-            return new DateRange(AddInterval(StartDate, DateRangeInterval, Total), AddInterval(EndDate, DateRangeInterval, Total), ForceFirstAndLastMoments);
+            return new DateRange(StartDate.AddInterval(DateRangeInterval, Total), EndDate.AddInterval(DateRangeInterval, Total), ForceFirstAndLastMoments);
         }
 
         object ICloneable.Clone() => this.Clone();
@@ -792,7 +811,7 @@ namespace InnerLibs.TimeMachine
         /// Clona este DateRange
         /// </summary>
         /// <returns></returns>
-        public DateRange Clone() => new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _IsDefault = _IsDefault };
+        public DateRange Clone() => new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _isDefault = _isDefault };
 
         /// <summary>
         /// Pula um determinado numero de periodos
@@ -818,42 +837,14 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateRangeInterval GetLessAccurateDateRangeInterval()
         {
-            if (TotalYears.ForcePositive() >= 1d)
-            {
-                return DateRangeInterval.Years;
-            }
-
-            if (TotalMonths.ForcePositive() >= 1d)
-            {
-                return DateRangeInterval.Months;
-            }
-
-            if (TotalWeeks.ForcePositive() >= 1d)
-            {
-                return DateRangeInterval.Weeks;
-            }
-
-            if (TotalDays.ForcePositive() >= 1d)
-            {
-                return DateRangeInterval.Days;
-            }
-
-            if (TotalHours.ForcePositive() >= 1d)
-            {
-                return DateRangeInterval.Hours;
-            }
-
-            if (TotalMinutes.ForcePositive() >= 1d)
-            {
-                return DateRangeInterval.Minutes;
-            }
-
-            if (TotalSeconds.ForcePositive() >= 1d)
-            {
-                return DateRangeInterval.Seconds;
-            }
-
-            return DateRangeInterval.Milliseconds;
+            if (TotalYears.ForcePositive() >= 1d) return DateRangeInterval.Years;
+            else if (TotalMonths.ForcePositive() >= 1d) return DateRangeInterval.Months;
+            else if (TotalWeeks.ForcePositive() >= 1d) return DateRangeInterval.Weeks;
+            else if (TotalDays.ForcePositive() >= 1d) return DateRangeInterval.Days;
+            else if (TotalHours.ForcePositive() >= 1d) return DateRangeInterval.Hours;
+            else if (TotalMinutes.ForcePositive() >= 1d) return DateRangeInterval.Minutes;
+            else if (TotalSeconds.ForcePositive() >= 1d) return DateRangeInterval.Seconds;
+            else return DateRangeInterval.Milliseconds;
         }
 
         /// <summary>
@@ -1033,7 +1024,7 @@ namespace InnerLibs.TimeMachine
             var curdate = StartDate;
             while (curdate < EndDate)
             {
-                curdate = AddInterval(curdate, DateRangeInterval, 1d);
+                curdate = curdate.AddInterval(DateRangeInterval, 1d);
                 l.Add(curdate);
             }
 
@@ -1048,7 +1039,13 @@ namespace InnerLibs.TimeMachine
     {
         public DateRangeDisplay()
         {
+            foreach (var item in this.GetProperties().Where(x => x.Name.EndsWith("Word")))
+            {
+                item.SetValue(this, item.Name.RemoveLastEqual("Word").ToLower());
+            }
         }
+
+        public DateRangeDisplay(DateRangeString FormatRule) : base() => this.FormatRule = FormatRule;
 
         /// <param name="AndWord">the "And" word, use to concatenate the last item in the string</param>
         /// <param name="YearsWord">'Years'</param>
@@ -1072,27 +1069,53 @@ namespace InnerLibs.TimeMachine
             this.FormatRule = FormatRule;
         }
 
+        /// <summary>
+        /// the "And" word, use to concatenate the last item in the string
+        /// </summary>
         public string AndWord { get; set; }
+
+        /// <summary>
+        /// The 'Milliseconds' word (on plural).
+        /// </summary>
         public string MillisecondsWord { get; set; }
+
+        /// <summary>
+        /// The 'Seconds' word (on plural).
+        /// </summary>
         public string SecondsWord { get; set; }
+
+        /// <summary>
+        /// The 'Minutes' word (on plural).
+        /// </summary>
         public string MinutesWord { get; set; }
+
+        /// <summary>
+        /// The 'Hours' word (on plural).
+        /// </summary>
         public string HoursWord { get; set; }
+
+        /// <summary>
+        /// The 'Days' word (on plural).
+        /// </summary>
         public string DaysWord { get; set; }
+
+        /// <summary>
+        /// The 'Months' word (on plural).
+        /// </summary>
         public string MonthsWord { get; set; }
+
+        /// <summary>
+        /// The 'Years' word (on plural).
+        /// </summary>
         public string YearsWord { get; set; }
 
+        /// <summary>
+        /// Rules for returning the string
+        /// </summary>
         public DateRangeString FormatRule { get; set; } = DateRangeString.FullStringSkipZero;
 
-        public static DateRangeDisplay DefaultPTBR() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses", "anos");
+        public static DateRangeDisplay DefaultPtBr() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses", "anos");
 
-        public static DateRangeDisplay Default()
-        {
-            var d = new DateRangeDisplay();
-            foreach (var item in d.GetProperties().Where(x => x.Name.EndsWith("Word")))
-            {
-                item.SetValue(d, item.Name.RemoveLastEqual("Word").ToLower());
-            }
-            return d;
-        }
+        public static DateRangeDisplay Default() => new DateRangeDisplay();
     }
 }

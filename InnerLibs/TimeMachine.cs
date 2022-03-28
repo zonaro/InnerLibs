@@ -193,7 +193,7 @@ namespace InnerLibs.TimeMachine
             }
             else
             {
-                EndDate = EndDate.Value.GetLastDayOfMonth();
+                EndDate = EndDate.Value.LastDayOfMonth();
             }
 
             Period = new DateRange(AnyDate.Value, EndDate.Value);
@@ -777,10 +777,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data Inicial da produção</param>
         /// <param name="EndDate">Tempo do item</param>
         /// <param name="Quantity">Quantidade de itens</param>
-        public TimeDemand(DateTime StartDate, DateTime EndDate, int Quantity = 1) : this(StartDate, new TimeSpan(0), Quantity)
-        {
-            this.ItemProductionTime = GetWorkingTimeUntil(EndDate);
-        }
+        public TimeDemand(DateTime StartDate, DateTime EndDate, int Quantity = 1) : this(StartDate, new TimeSpan(0), Quantity) => this.ItemProductionTime = GetWorkingTimeUntil(EndDate);
 
         /// <summary>
         /// Cria uma demanda após a demanda atual com as mesmas caracteristicas
@@ -830,24 +827,14 @@ namespace InnerLibs.TimeMachine
             get
             {
                 var dias = new List<DayOfWeek>();
-                if (Sunday.JourneyTime.TotalMilliseconds > 0d)
-                    dias.Add(DayOfWeek.Sunday);
-                if (Monday.JourneyTime.TotalMilliseconds > 0d)
-                    dias.Add(DayOfWeek.Monday);
-                if (Tuesday.JourneyTime.TotalMilliseconds > 0d)
-                    dias.Add(DayOfWeek.Tuesday);
-                if (Wednesday.JourneyTime.TotalMilliseconds > 0d)
-                    dias.Add(DayOfWeek.Wednesday);
-                if (Thursday.JourneyTime.TotalMilliseconds > 0d)
-                    dias.Add(DayOfWeek.Thursday);
-                if (Friday.JourneyTime.TotalMilliseconds > 0d)
-                    dias.Add(DayOfWeek.Friday);
-                if (Saturday.JourneyTime.TotalMilliseconds > 0d)
-                    dias.Add(DayOfWeek.Saturday);
-
-                if (dias.Count == 0)
-                    dias.AddRange(new[] { 0, 1, 2, 3, 4, 5, 6 }.Select(x => (DayOfWeek)x));
-
+                if (Sunday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Sunday);
+                if (Monday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Monday);
+                if (Tuesday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Tuesday);
+                if (Wednesday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Wednesday);
+                if (Thursday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Thursday);
+                if (Friday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Friday);
+                if (Saturday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Saturday);
+                if (dias.Count == 0) dias.AddRange(new[] { 0, 1, 2, 3, 4, 5, 6 }.Select(x => (DayOfWeek)x));
                 return dias.ToArray();
             }
         }
@@ -1040,33 +1027,37 @@ namespace InnerLibs.TimeMachine
         }
     }
 
+    /// <summary>
+    /// Format rules for <see cref="DateRangeDisplay"/>
+    /// </summary>
     public enum DateRangeString
     {
         /// <summary>
-        /// Retorna a string completa, incluindo os Zeros
+        /// Return the full string, including Zeros
         /// </summary>
         FullStringWithZero = 0,
 
         /// <summary>
-        /// Retorna a string completa mas remove os zeros
+        /// Return the full string, but skip zeros
         /// </summary>
         FullStringSkipZero = 1,
 
         /// <summary>
-        /// Se o valor do <see cref="DateRange"/> for maior que 1 dia, descarta a parte de horas,
-        /// minutos e segundos
+        /// If <see cref="DateRange"/> value is greater than 1 day, the hours, minutes and seconds
+        /// are ignored
         /// </summary>
         ReduceToDays = 2,
 
         /// <summary>
-        /// Se o valor o <see cref="DateRange"/> for maior que 1 mes, descarta a parte de dias,
-        /// horas, minutos e segundos
+        /// If <see cref="DateRange"/> value is greater than 1 month, the days, hours, minutes and
+        /// seconds are ignored
         /// </summary>
         ReduceToMonths = 3,
 
         /// <summary>
-        /// Retorna somente o valor mais alto deste span
+        /// If <see cref="DateRange"/> value is greater than 1 year, the months, days, hours,
+        /// minutes and seconds are ignored
         /// </summary>
-        ReduceMost = 4
+        ReduceToYears = 4
     }
 }

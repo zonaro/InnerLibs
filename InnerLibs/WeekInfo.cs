@@ -8,7 +8,7 @@ namespace InnerLibs.TimeMachine
         public WeekInfo(DateTime DateAndTime)
         {
             DateAndTime = DateAndTime.Date;
-            var firstMonthDay = DateAndTime.GetFirstDayOfMonth();
+            var firstMonthDay = DateAndTime.FirstDayOfMonth();
             var firstMonthMonday = firstMonthDay.AddDays(((int)DayOfWeek.Monday + 7 - (int)firstMonthDay.DayOfWeek) % 7);
             if (firstMonthMonday > DateAndTime)
             {
