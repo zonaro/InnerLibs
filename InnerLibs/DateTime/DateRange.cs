@@ -1,9 +1,9 @@
-using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using InnerLibs.LINQ;
 
 namespace InnerLibs.TimeMachine
 {
@@ -43,7 +43,7 @@ namespace InnerLibs.TimeMachine
 
         private void CalcRange()
         {
-            InnerLibs.Calendars.FixDateOrder(ref _startDate, ref _endDate);
+            DateTimeExtensions.FixDateOrder(ref _startDate, ref _endDate);
 
             int days = 0;
             int years = 0;
