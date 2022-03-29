@@ -281,7 +281,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public new static FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Calendars.FixDateOrder(ref StartDate, ref EndDate);
+            InnerLibs.Calendars.FixDateOrder(ref StartDate, ref EndDate);
             int fortcount = 1;
             var fort = new FortnightGroup<DataType>(StartDate, fortcount);
             while (fort.EndDate < EndDate)
@@ -403,7 +403,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static FortnightGroup CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Calendars.FixDateOrder(ref StartDate, ref EndDate);
+            InnerLibs.Calendars.FixDateOrder(ref StartDate, ref EndDate);
             int fortcount = 1;
             var fort = new FortnightGroup(StartDate, fortcount);
             while (fort.EndDate < EndDate)
