@@ -5,32 +5,53 @@ namespace InnerLibs.Printer.Command
 {
     public interface IPrintCommand
     {
-        Encoding Encoding { get; set; }
-        int ColsNormal { get; }
         int ColsCondensed { get; }
         int ColsExpanded { get; }
+        int ColsNormal { get; }
+        Encoding Encoding { get; set; }
 
         byte[] AutoTest();
-        byte[] Left();
-        byte[] Right();
-        byte[] Center();
-        byte[] Code128(string code);
-        byte[] Code39(string code);
-        byte[] Ean13(string code);
-        byte[] OpenDrawer();
-        byte[] Italic(bool state);
+
         byte[] Bold(bool state);
-        byte[] Underline(bool state);
-        byte[] Expanded(bool state);
+
+        byte[] Center();
+
+        byte[] Code128(string code);
+
+        byte[] Code39(string code);
+
         byte[] Condensed(bool state);
-        byte[] NormalFont();
-        byte[] LargeFont();
-        byte[] LargerFont();
-        byte[] PrintImage(Image image, bool highDensity);
-        byte[] Initialize();
+
+        byte[] Ean13(string code);
+
+        byte[] Expanded(bool state);
+
         byte[] FullCut();
+
+        byte[] Initialize();
+
+        byte[] Italic(bool state);
+
+        byte[] LargeFont();
+
+        byte[] LargerFont();
+
+        byte[] Left();
+
+        byte[] NormalFont();
+
+        byte[] OpenDrawer();
+
         byte[] PartialCut();
+
+        byte[] PrintImage(Image image, bool highDensity);
+
         byte[] PrintQrData(string qrData);
+
         byte[] PrintQrData(string qrData, QrCodeSize qrCodeSize);
+
+        byte[] Right();
+
+        byte[] Underline(bool state);
     }
 }

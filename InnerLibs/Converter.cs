@@ -13,166 +13,34 @@ namespace InnerLibs
     public static class Converter
     {
         /// <summary>
-        /// Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
+        /// Converte um array de um tipo para outro
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
-        /// <returns></returns>
-        public static List<T> DefineEmptyList<T>(this T ObjectForDefinition) => new List<T>();
+        /// <typeparam name="ToType">Tipo do array</typeparam>
+        /// <param name="Value">Array com elementos</param>
+        /// <returns>Array convertido em novo tipo</returns>
+        public static ToType[] ChangeArrayType<ToType, FromType>(this FromType[] Value) => Value.AsEnumerable().ChangeIEnumerableType<ToType, FromType>().ToArray();
 
         /// <summary>
-        /// Cria uma e adciona um objeto a ela. Util para tipos anonimos
+        /// Converte um array de um tipo para outro
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static List<T> StartList<T>(this T ObjectForDefinition)
-        {
-            var d = DefineEmptyList<T>(ObjectForDefinition);
-            if (ObjectForDefinition != null)
-            {
-                d.Add(ObjectForDefinition);
-            }
-
-            return d;
-        }
+        /// <param name="Value">Array com elementos</param>
+        /// <returns>Array convertido em novo tipo</returns>
+        public static object[] ChangeArrayType<FromType>(this FromType[] Value, Type Type) => Value.ChangeIEnumerableType(Type).ToArray();
 
         /// <summary>
-        /// Verifica se <paramref name="Obj"/> é um array e retorna este array. Se negativo, retorna
-        /// um array contendo o valor de <paramref name="Obj"/> ou um array vazio se <paramref
-        /// name="Obj"/> for nulo
+        /// Converte um IEnumerable de um tipo para outro
         /// </summary>
-        /// <param name="Obj">Objeto</param>
-        /// <returns></returns>
-        public static object[] ForceArray(this object Obj, Type Type)
-        {
-            var a = new List<object>();
-            Type = Type ?? typeof(object);
-            if (Obj != null)
-            {
-                if (Verify.IsArray(Obj))
-                {
-                    var aobj = ((Array)Obj).Cast<object>().ToArray();
-                    return Converter.ChangeArrayType(aobj, Type).ToArray();
-                }
-                else if (!Obj.IsTypeOf<string>() && Obj.IsEnumerable())
-                {
-                    var aobj = (IEnumerable<object>)Obj;
-                    return Converter.ChangeIEnumerableType(aobj, Type).ToArray();
-                }
-                else
-                {
-                    return (new[] { Obj }).ChangeArrayType(Type);
-                }
-            }
-
-            return Array.Empty<object>().ChangeArrayType(Type);
-        }
+        /// <typeparam name="ToType">Tipo do array</typeparam>
+        /// <param name="Value">Array com elementos</param>
+        /// <returns>Array convertido em novo tipo</returns>
+        public static IEnumerable<ToType> ChangeIEnumerableType<ToType, FromType>(this IEnumerable<FromType> Value) => (IEnumerable<ToType>)Value.ChangeIEnumerableType(typeof(ToType));
 
         /// <summary>
-        /// Verifica se um objeto é um array, e se não, cria um array com este obejeto
+        /// Converte um IEnumerable de um tipo para outro
         /// </summary>
-        /// <param name="Obj">Objeto</param>
-        /// <returns></returns>
-        public static OutputType[] ForceArray<OutputType>(this object Obj) => ForceArray(Obj, typeof(OutputType)).Cast<OutputType>().ToArray();
-
-        /// <summary>
-        /// Aplica as mesmas keys a todos os dicionarios de uma lista
-        /// </summary>
-        /// <typeparam name="TKey">Tipo da key</typeparam>
-        /// <typeparam name="TValue">Tipo do Valor</typeparam>
-        /// <param name="Dics">Dicionarios</param>
-        /// <param name="AditionalKeys">
-        /// Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles
-        /// </param>
-        public static IEnumerable<Dictionary<TKey, TValue>> MergeKeys<TKey, TValue>(this IEnumerable<Dictionary<TKey, TValue>> Dics, params TKey[] AditionalKeys)
-        {
-            AditionalKeys = AditionalKeys ?? Array.Empty<TKey>();
-            var chave = Dics.SelectMany(x => x.Keys).Distinct().Union(AditionalKeys);
-            foreach (var dic in Dics)
-            {
-                foreach (var key in chave)
-                {
-                    if (!dic.ContainsKey(key))
-                    {
-                        dic[key] = default;
-                    }
-                }
-            }
-
-            return Dics;
-        }
-
-        /// <summary>
-        /// Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static bool ToBoolean<FromType>(this FromType Value) => Value.ChangeType<bool, FromType>();
-
-        /// <summary>
-        /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int, FromType>();
-
-        /// <summary>
-        /// Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static decimal ToDecimal<FromType>(this FromType Value) => Value.ChangeType<decimal, FromType>();
-
-        /// <summary>
-        /// Converte um tipo para Single. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float, FromType>();
-
-        /// <summary>
-        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static DateTime ToDateTime<FromType>(this FromType Value) => Value.ChangeType<DateTime, FromType>();
-
-        /// <summary>
-        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static DateTime ToDateTime<FromType>(this FromType Value, string CultureInfoName) => Value.ToDateTime(new CultureInfo(CultureInfoName));
-
-        /// <summary>
-        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static DateTime ToDateTime<FromType>(this FromType Value, CultureInfo CultureInfo) => Convert.ToDateTime(Value, CultureInfo);
-
-        /// <summary>
-        /// Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static double ToDouble<FromType>(this FromType Value) => Value.ChangeType<double, FromType>();
-
-        /// <summary>
-        /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static long ToLong<FromType>(this FromType Value) => Value.ChangeType<long, FromType>();
+        /// <param name="Value">Array com elementos</param>
+        /// <returns>Array convertido em novo tipo</returns>
+        public static IEnumerable<object> ChangeIEnumerableType<FromType>(this IEnumerable<FromType> Value, Type ToType) => (Value ?? Array.Empty<FromType>()).Select(el => el.ChangeType(ToType));
 
         /// <summary>
         /// Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
@@ -248,163 +116,6 @@ namespace InnerLibs
                 Debug.WriteLine(ex, "Error on change type");
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Converte um array de um tipo para outro
-        /// </summary>
-        /// <typeparam name="ToType">Tipo do array</typeparam>
-        /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
-        public static ToType[] ChangeArrayType<ToType, FromType>(this FromType[] Value) => Value.AsEnumerable().ChangeIEnumerableType<ToType, FromType>().ToArray();
-
-        /// <summary>
-        /// Converte um array de um tipo para outro
-        /// </summary>
-        /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
-        public static object[] ChangeArrayType<FromType>(this FromType[] Value, Type Type) => Value.ChangeIEnumerableType(Type).ToArray();
-
-        /// <summary>
-        /// Converte um IEnumerable de um tipo para outro
-        /// </summary>
-        /// <typeparam name="ToType">Tipo do array</typeparam>
-        /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
-        public static IEnumerable<ToType> ChangeIEnumerableType<ToType, FromType>(this IEnumerable<FromType> Value) => (IEnumerable<ToType>)Value.ChangeIEnumerableType(typeof(ToType));
-
-        /// <summary>
-        /// Converte um IEnumerable de um tipo para outro
-        /// </summary>
-        /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
-        public static IEnumerable<object> ChangeIEnumerableType<FromType>(this IEnumerable<FromType> Value, Type ToType) => (Value ?? Array.Empty<FromType>()).Select(el => el.ChangeType(ToType));
-
-        /// <summary>
-        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
-        /// dicionario os valores sao agrupados em arrays
-        /// </summary>
-        /// <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
-        /// <param name="FirstDictionary">Dicionario Principal</param>
-        /// <param name="Dictionaries">Outros dicionarios</param>
-        /// <returns></returns>
-
-        public static Dictionary<Tkey, object> Merge<Tkey>(this Dictionary<Tkey, object> FirstDictionary, params Dictionary<Tkey, object>[] Dictionaries)
-        {
-            // dicionario que está sendo gerado a partir dos outros
-            var result = new Dictionary<Tkey, object>();
-
-            // adiciona o primeiro dicionario ao array principal e exclui dicionarios vazios
-            Dictionaries = Dictionaries.Union(new[] { FirstDictionary }).Where(x => x.Count > 0).ToArray();
-
-            // cria um array de keys unicas a partir de todos os dicionarios
-            var keys = Dictionaries.SelectMany(x => x.Keys.ToArray()).Distinct();
-
-            // para cada chave encontrada
-            foreach (var key in keys)
-            {
-                // para cada dicionario a ser mesclado
-                foreach (var dic in Dictionaries)
-                {
-                    // dicionario tem a chave?
-                    if (dic.ContainsKey(key))
-                    {
-                        // resultado ja tem a chave atual adicionada?
-                        if (result.ContainsKey(key))
-                        {
-                            // lista que vai mesclar tudo
-                            var lista = new List<object>();
-
-                            // chave do resultado é um array?
-                            if (Verify.IsArray(result[key]))
-                            {
-                                lista.AddRange((IEnumerable<object>)result[key]);
-                            }
-                            else
-                            {
-                                lista.Add(result[key]);
-                            }
-                            // chave do dicionario é um array?
-                            if (Verify.IsArray(dic[key]))
-                            {
-                                lista.AddRange((IEnumerable<object>)dic[key]);
-                            }
-                            else
-                            {
-                                lista.Add(dic[key]);
-                            }
-
-                            // transforma a lista em um resultado
-                            if (lista.Count > 0)
-                            {
-                                if (lista.Count > 1)
-                                {
-                                    result[key] = lista.ToArray();
-                                }
-                                else
-                                {
-                                    result[key] = lista.First();
-                                }
-                            }
-                        }
-                        else if (dic[key].GetType() != typeof(string) && (Verify.IsArray(dic[key]) || dic[key].IsList()))
-                        {
-                            result.Add(key, dic[key].ChangeType<object[]>());
-                        }
-                        else
-                        {
-                            result.Add(key, dic[key]);
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returna um <see cref=" Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="groupings"></param>
-        /// <returns></returns>
-        public static Dictionary<TKey, IEnumerable<TValue>> ToDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> groupings)
-        {
-            return groupings.ToDictionary(group => group.Key, group => group.AsEnumerable());
-        }
-
-        /// <summary>
-        /// Seta as propriedades de uma classe a partir de um dictionary
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Dic"></param>
-
-        public static T SetValuesIn<T>(this Dictionary<string, object> Dic)
-        {
-            return (T)Dic.CreateOrSetObject(null, typeof(T));
-        }
-
-        /// <summary>
-        /// Seta as propriedades e campos de uma classe a partir de um dictionary
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Dic"></param>
-        /// <param name="Obj"></param>
-        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj, params object[] args)
-        {
-            return (T)Dic.CreateOrSetObject(obj, typeof(T), args);
-        }
-
-        /// <summary>
-        /// Seta as propriedades e campos de uma classe a partir de um dictionary
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Dic"></param>
-        /// <param name="Obj"></param>
-        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj)
-        {
-            return (T)Dic.CreateOrSetObject(obj, typeof(T), null);
         }
 
         public static object CreateOrSetObject(this Dictionary<string, object> Dic, object Obj, Type Type, params object[] args)
@@ -489,6 +200,261 @@ namespace InnerLibs
             }
 
             return Obj;
+        }
+
+        /// <summary>
+        /// Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
+        /// <returns></returns>
+        public static List<T> DefineEmptyList<T>(this T ObjectForDefinition) => new List<T>();
+
+        /// <summary>
+        /// Verifica se <paramref name="Obj"/> é um array e retorna este array. Se negativo, retorna
+        /// um array contendo o valor de <paramref name="Obj"/> ou um array vazio se <paramref
+        /// name="Obj"/> for nulo
+        /// </summary>
+        /// <param name="Obj">Objeto</param>
+        /// <returns></returns>
+        public static object[] ForceArray(this object Obj, Type Type)
+        {
+            var a = new List<object>();
+            Type = Type ?? typeof(object);
+            if (Obj != null)
+            {
+                if (Verify.IsArray(Obj))
+                {
+                    var aobj = ((Array)Obj).Cast<object>().ToArray();
+                    return Converter.ChangeArrayType(aobj, Type).ToArray();
+                }
+                else if (!Obj.IsTypeOf<string>() && Obj.IsEnumerable())
+                {
+                    var aobj = (IEnumerable<object>)Obj;
+                    return Converter.ChangeIEnumerableType(aobj, Type).ToArray();
+                }
+                else
+                {
+                    return (new[] { Obj }).ChangeArrayType(Type);
+                }
+            }
+
+            return Array.Empty<object>().ChangeArrayType(Type);
+        }
+
+        /// <summary>
+        /// Verifica se um objeto é um array, e se não, cria um array com este obejeto
+        /// </summary>
+        /// <param name="Obj">Objeto</param>
+        /// <returns></returns>
+        public static OutputType[] ForceArray<OutputType>(this object Obj) => ForceArray(Obj, typeof(OutputType)).Cast<OutputType>().ToArray();
+
+        public static Dictionary<Tkey, object> Merge<Tkey>(this Dictionary<Tkey, object> FirstDictionary, params Dictionary<Tkey, object>[] Dictionaries)
+        {
+            // dicionario que está sendo gerado a partir dos outros
+            var result = new Dictionary<Tkey, object>();
+
+            // adiciona o primeiro dicionario ao array principal e exclui dicionarios vazios
+            Dictionaries = Dictionaries.Union(new[] { FirstDictionary }).Where(x => x.Count > 0).ToArray();
+
+            // cria um array de keys unicas a partir de todos os dicionarios
+            var keys = Dictionaries.SelectMany(x => x.Keys.ToArray()).Distinct();
+
+            // para cada chave encontrada
+            foreach (var key in keys)
+            {
+                // para cada dicionario a ser mesclado
+                foreach (var dic in Dictionaries)
+                {
+                    // dicionario tem a chave?
+                    if (dic.ContainsKey(key))
+                    {
+                        // resultado ja tem a chave atual adicionada?
+                        if (result.ContainsKey(key))
+                        {
+                            // lista que vai mesclar tudo
+                            var lista = new List<object>();
+
+                            // chave do resultado é um array?
+                            if (Verify.IsArray(result[key]))
+                            {
+                                lista.AddRange((IEnumerable<object>)result[key]);
+                            }
+                            else
+                            {
+                                lista.Add(result[key]);
+                            }
+                            // chave do dicionario é um array?
+                            if (Verify.IsArray(dic[key]))
+                            {
+                                lista.AddRange((IEnumerable<object>)dic[key]);
+                            }
+                            else
+                            {
+                                lista.Add(dic[key]);
+                            }
+
+                            // transforma a lista em um resultado
+                            if (lista.Count > 0)
+                            {
+                                if (lista.Count > 1)
+                                {
+                                    result[key] = lista.ToArray();
+                                }
+                                else
+                                {
+                                    result[key] = lista.First();
+                                }
+                            }
+                        }
+                        else if (dic[key].GetType() != typeof(string) && (Verify.IsArray(dic[key]) || dic[key].IsList()))
+                        {
+                            result.Add(key, dic[key].ChangeType<object[]>());
+                        }
+                        else
+                        {
+                            result.Add(key, dic[key]);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Aplica as mesmas keys a todos os dicionarios de uma lista
+        /// </summary>
+        /// <typeparam name="TKey">Tipo da key</typeparam>
+        /// <typeparam name="TValue">Tipo do Valor</typeparam>
+        /// <param name="Dics">Dicionarios</param>
+        /// <param name="AditionalKeys">
+        /// Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles
+        /// </param>
+        public static IEnumerable<Dictionary<TKey, TValue>> MergeKeys<TKey, TValue>(this IEnumerable<Dictionary<TKey, TValue>> Dics, params TKey[] AditionalKeys)
+        {
+            AditionalKeys = AditionalKeys ?? Array.Empty<TKey>();
+            var chave = Dics.SelectMany(x => x.Keys).Distinct().Union(AditionalKeys);
+            foreach (var dic in Dics)
+            {
+                foreach (var key in chave)
+                {
+                    if (!dic.ContainsKey(key))
+                    {
+                        dic[key] = default;
+                    }
+                }
+            }
+
+            return Dics;
+        }
+
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic)
+        {
+            return (T)Dic.CreateOrSetObject(null, typeof(T));
+        }
+
+        /// <summary>
+        /// Seta as propriedades de uma classe a partir de um dictionary
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Dic"></param>
+        /// <summary>
+        /// Seta as propriedades e campos de uma classe a partir de um dictionary
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Obj"></param>
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj, params object[] args)
+        {
+            return (T)Dic.CreateOrSetObject(obj, typeof(T), args);
+        }
+
+        /// <summary>
+        /// Seta as propriedades e campos de uma classe a partir de um dictionary
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Obj"></param>
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj)
+        {
+            return (T)Dic.CreateOrSetObject(obj, typeof(T), null);
+        }
+
+        /// <summary>
+        /// Cria uma e adciona um objeto a ela. Util para tipos anonimos
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<T> StartList<T>(this T ObjectForDefinition)
+        {
+            var d = DefineEmptyList<T>(ObjectForDefinition);
+            if (ObjectForDefinition != null)
+            {
+                d.Add(ObjectForDefinition);
+            }
+
+            return d;
+        }
+
+        /// <summary>
+        /// Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static bool ToBoolean<FromType>(this FromType Value) => Value.ChangeType<bool, FromType>();
+
+        /// <summary>
+        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static DateTime ToDateTime<FromType>(this FromType Value) => Value.ChangeType<DateTime, FromType>();
+
+        /// <summary>
+        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static DateTime ToDateTime<FromType>(this FromType Value, string CultureInfoName) => Value.ToDateTime(new CultureInfo(CultureInfoName));
+
+        /// <summary>
+        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static DateTime ToDateTime<FromType>(this FromType Value, CultureInfo CultureInfo) => Convert.ToDateTime(Value, CultureInfo);
+
+        /// <summary>
+        /// Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static decimal ToDecimal<FromType>(this FromType Value) => Value.ChangeType<decimal, FromType>();
+
+        /// <summary>
+        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
+        /// dicionario os valores sao agrupados em arrays
+        /// </summary>
+        /// <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
+        /// <param name="FirstDictionary">Dicionario Principal</param>
+        /// <param name="Dictionaries">Outros dicionarios</param>
+        /// <returns></returns>
+        /// <summary>
+        /// Returna um <see cref=" Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="groupings"></param>
+        /// <returns></returns>
+        public static Dictionary<TKey, IEnumerable<TValue>> ToDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> groupings)
+        {
+            return groupings.ToDictionary(group => group.Key, group => group.AsEnumerable());
         }
 
         /// <summary>
@@ -637,5 +603,37 @@ namespace InnerLibs
 
             return result;
         }
+
+        /// <summary>
+        /// Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static double ToDouble<FromType>(this FromType Value) => Value.ChangeType<double, FromType>();
+
+        /// <summary>
+        /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int, FromType>();
+
+        /// <summary>
+        /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static long ToLong<FromType>(this FromType Value) => Value.ChangeType<long, FromType>();
+
+        /// <summary>
+        /// Converte um tipo para Single. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float, FromType>();
     }
 }

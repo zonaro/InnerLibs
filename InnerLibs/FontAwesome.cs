@@ -6,34 +6,6 @@ namespace InnerLibs.FontAwesome
     public static class FontAwesome
     {
         /// <summary>
-        /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
-        /// </summary>
-        /// <param name="File">Arquivo</param>
-        /// <returns></returns>
-        public static string GetIconByFileType(this FileSystemInfo File, bool DirectoryOpen = false)
-        {
-            if (File.Attributes == FileAttributes.Device)
-            {
-                return "fa-plug";
-            }
-            else if (File.Attributes == FileAttributes.Directory)
-            {
-                return DirectoryOpen ? "fa-folder-open" : "fa-folder";
-            }
-            else
-            {
-                return File.Extension.GetIconByFileExtension();
-            }
-        }
-
-        /// <summary>
-        /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
-        /// </summary>
-        /// <param name="MIME">MIME Type do Arquivo</param>
-        /// <returns></returns>
-        public static string GetIconByFileType(this FileType MIME) => MIME.Extensions.FirstOr("").GetIconByFileExtension();
-
-        /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
         /// <param name="Extension">Arquivo</param>
@@ -258,5 +230,33 @@ namespace InnerLibs.FontAwesome
 
             return "fa-file";
         }
+
+        /// <summary>
+        /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
+        public static string GetIconByFileType(this FileSystemInfo File, bool DirectoryOpen = false)
+        {
+            if (File.Attributes == FileAttributes.Device)
+            {
+                return "fa-plug";
+            }
+            else if (File.Attributes == FileAttributes.Directory)
+            {
+                return DirectoryOpen ? "fa-folder-open" : "fa-folder";
+            }
+            else
+            {
+                return File.Extension.GetIconByFileExtension();
+            }
+        }
+
+        /// <summary>
+        /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
+        /// </summary>
+        /// <param name="MIME">MIME Type do Arquivo</param>
+        /// <returns></returns>
+        public static string GetIconByFileType(this FileType MIME) => MIME.Extensions.FirstOr("").GetIconByFileExtension();
     }
 }

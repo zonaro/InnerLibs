@@ -21,9 +21,8 @@ namespace InnerLibs.TimeMachine
             Year = firstMonthDay.Year;
         }
 
-        public int Week { get; private set; }
         public int Month { get; private set; }
-
+        public int Week { get; private set; }
         public int Year { get; private set; }
 
         public int this[int Index]

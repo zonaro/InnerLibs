@@ -14,7 +14,21 @@ namespace InnerLibs
         where KeyType : IComparable
         where ClassType : class
     {
+        private List<ClassType> collection = new List<ClassType>();
         private Func<ClassType, KeyType> keyselector;
+
+        private void Add(KeyType key, ClassType value)
+        {
+            if (value != null)
+            {
+                if (!ContainsKey(keyselector(value)))
+                {
+                    collection.Add(value);
+                }
+            }
+        }
+
+        private IEnumerator IEnumerable_GetEnumerator() => ((IEnumerable)this).GetEnumerator();
 
         public SelfKeyDictionary(Func<ClassType, KeyType> KeySelector)
         {
@@ -28,18 +42,56 @@ namespace InnerLibs
             }
         }
 
-        public bool ContainsKey(KeyType key)
+        public int Count
         {
-            return Keys.Contains(key);
+            get
+            {
+                return collection.Count;
+            }
         }
 
-        private void Add(KeyType key, ClassType value)
+        public bool IsReadOnly
         {
-            if (value != null)
+            get
             {
-                if (!ContainsKey(keyselector(value)))
+                return false;
+            }
+        }
+
+        public ICollection<KeyType> Keys
+        {
+            get
+            {
+                return collection?.Select(x => keyselector(x)).ToArray();
+            }
+        }
+
+        public ICollection<ClassType> Values
+        {
+            get
+            {
+                return collection;
+            }
+        }
+
+        public ClassType this[KeyType key]
+        {
+            get
+            {
+                return collection.Where(x => keyselector(x).Equals(key)).SingleOrDefault();
+            }
+
+            set
+            {
+                int indexo = collection.IndexOf(this[key]);
+                if (indexo > -1)
                 {
-                    collection.Add(value);
+                    collection.RemoveAt(indexo);
+                    collection.Insert(indexo, value);
+                }
+                else
+                {
+                    Add(value);
                 }
             }
         }
@@ -68,6 +120,31 @@ namespace InnerLibs
             return Values.Select(x => keyselector(x));
         }
 
+        public void Clear()
+        {
+            collection.Clear();
+        }
+
+        public bool Contains(KeyValuePair<KeyType, ClassType> item)
+        {
+            return collection.Any(x => keyselector(x).Equals(item.Key));
+        }
+
+        public bool ContainsKey(KeyType key)
+        {
+            return Keys.Contains(key);
+        }
+
+        public void CopyTo(KeyValuePair<KeyType, ClassType>[] array, int arrayIndex)
+        {
+            collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
+        }
+
+        public IEnumerator<KeyValuePair<KeyType, ClassType>> GetEnumerator()
+        {
+            return collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).GetEnumerator();
+        }
+
         public bool Remove(KeyType key)
         {
             var toremove = new List<ClassType>();
@@ -81,6 +158,11 @@ namespace InnerLibs
         public bool Remove(ClassType Value)
         {
             return Remove(keyselector(Value));
+        }
+
+        public bool Remove(KeyValuePair<KeyType, ClassType> item)
+        {
+            return collection.Remove(item.Value);
         }
 
         public bool TryGetValue(KeyType key, out ClassType value)
@@ -102,97 +184,14 @@ namespace InnerLibs
             collection.Add(item.Value);
         }
 
-        public void Clear()
-        {
-            collection.Clear();
-        }
-
-        public bool Contains(KeyValuePair<KeyType, ClassType> item)
-        {
-            return collection.Any(x => keyselector(x).Equals(item.Key));
-        }
-
-        public void CopyTo(KeyValuePair<KeyType, ClassType>[] array, int arrayIndex)
-        {
-            collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(KeyValuePair<KeyType, ClassType> item)
-        {
-            return collection.Remove(item.Value);
-        }
-
-        public IEnumerator<KeyValuePair<KeyType, ClassType>> GetEnumerator()
-        {
-            return collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        private IEnumerator IEnumerable_GetEnumerator() => ((IEnumerable)this).GetEnumerator();
-
         void IDictionary<KeyType, ClassType>.Add(KeyType key, ClassType value)
         {
             this.Add(key, value);
         }
 
-        private List<ClassType> collection = new List<ClassType>();
-
-        public ClassType this[KeyType key]
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            get
-            {
-                return collection.Where(x => keyselector(x).Equals(key)).SingleOrDefault();
-            }
-
-            set
-            {
-                int indexo = collection.IndexOf(this[key]);
-                if (indexo > -1)
-                {
-                    collection.RemoveAt(indexo);
-                    collection.Insert(indexo, value);
-                }
-                else
-                {
-                    Add(value);
-                }
-            }
-        }
-
-        public ICollection<KeyType> Keys
-        {
-            get
-            {
-                return collection?.Select(x => keyselector(x)).ToArray();
-            }
-        }
-
-        public ICollection<ClassType> Values
-        {
-            get
-            {
-                return collection;
-            }
-        }
-
-        public int Count
-        {
-            get
-            {
-                return collection.Count;
-            }
-        }
-
-        public bool IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
+            return GetEnumerator();
         }
     }
 }

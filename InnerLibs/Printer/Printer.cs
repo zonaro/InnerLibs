@@ -1,30 +1,25 @@
-﻿// ***********************************************************************
-// Assembly         : InnerLibs
-// Author           : Leandro Ferreira / Zonaro
-// Created          : 16-03-2019
-// 
+﻿// *********************************************************************** Assembly : InnerLibs
+// Author : Leandro Ferreira / Zonaro Created : 16-03-2019
+//
 // ***********************************************************************
 // <copyright file="Printer.vb" company="InnerCodeTech">
-// The MIT License (MIT)
-// Copyright (c) 2019 InnerCodeTech
-// 
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
+//     The MIT License (MIT) Copyright (c) 2019 InnerCodeTech
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+//     and associated documentation files (the "Software"), to deal in the Software without
+//     restriction, including without limitation the rights to use, copy, modify, merge, publish,
+//     distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+//     Software is furnished to do so, subject to the following conditions: The above copyright
+//     notice and this permission notice shall be included in all copies or substantial portions of
+//     the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+//     PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+//     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+//     OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+//     DEALINGS IN THE SOFTWARE.
 // </copyright>
 // ***********************************************************************
+using InnerLibs.Printer.Command;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,8 +31,6 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using InnerLibs.Printer.Command;
-
 
 namespace InnerLibs.Printer
 {
@@ -51,6 +44,16 @@ namespace InnerLibs.Printer
 
     public class Printer
     {
+        private bool _ommit = false;
+
+        private string Align = "Left";
+
+        private string FontMode = "Normal";
+
+        private string FontSize = "Normal";
+
+        private TextWriter txw;
+
         private class PrinterWriter : TextWriter
         {
             private Printer p;
@@ -65,138 +68,49 @@ namespace InnerLibs.Printer
                 this.p = p;
             }
 
-            public override void Write(char value)
-            {
-                Write($"{value}");
-            }
+            public override Encoding Encoding => p.Command?.Encoding;
 
             public override void Flush()
             {
                 p.PrintDocument();
             }
 
-            public override Encoding Encoding => p.Command?.Encoding;
-        }
-
-        private TextWriter txw;
-        /// <summary>
-        /// TextWriter interno desta Printer
-        /// </summary>
-        /// <returns></returns>
-        public TextWriter TextWriter => (TextWriter)txw;
-
-        public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : InnerLibs.Printer.Command.IPrintCommand
-        {
-            return CreatePrinter(typeof(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
-        }
-
-        public static Printer CreatePrinter(Type CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
-        {
-            IPrintCommand tp = (IPrintCommand)Activator.CreateInstance(CommandType);
-            return CreatePrinter(tp, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
-        }
-
-        public static Printer CreatePrinter(IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
-        {
-            return new Printer(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
-        }
-
-        private bool _ommit = false;
-        private string FontMode = "Normal";
-        private string FontSize = "Normal";
-        private string Align = "Left";
-
-        public byte[] DocumentBuffer { get; set; }
-
-        public bool AutoPrint { get; set; } = false;
-        public XDocument HTMLDocument { get; private set; } = XDocument.Parse("<body><link rel='stylesheet' href='Printer.css' /></body>");
-        public bool OnOff { get; set; } = true;
-        public string PrinterName { get; set; }
-        public int ColumnsNormal { get; set; }
-        public int ColumnsCondensed { get; set; }
-        public int ColumnsExpanded { get; set; }
-        public IPrintCommand Command { get; private set; }
-        public bool Diacritics { get; set; } = true;
-        public Func<string, string> RewriteFunction { get; set; } = null;
-        public bool IsItalic { get; private set; }
-        public bool IsBold { get; private set; }
-        public bool IsUnderline { get; private set; }
-
-        public bool IsCondensed
-        {
-            get => FontMode == "Condensed";
-
-            set
+            public override void Write(char value)
             {
-                if (value)
-                {
-                    FontMode = "Condensed";
-                }
-                else
-                {
-                    FontMode = "Normal";
-                }
+                Write($"{value}");
             }
         }
 
-        public bool IsExpanded
+        internal string GetDotLine(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
-            get => FontMode == "Expanded";
-
-            set
+            Columns = Columns ?? GetCurrentColumns();
+            if (CharLine.ToString().IsBlank())
             {
-                if (value)
-                {
-                    FontMode = "Expanded";
-                }
-                else
-                {
-                    FontMode = "Normal";
-                }
+                CharLine = ' ';
             }
+
+            if (Columns > 0 == true)
+                return new string(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange((IComparable)0, (IComparable)Columns.Value));
+            return "";
         }
 
-        public bool IsMedium
+        internal string GetPair(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
-            get => FontSize == "Medium";
-
-            set
+            Columns = Columns ?? GetCurrentColumns();
+            string dots = "";
+            string s1 = $"{LeftText}";
+            string s2 = $"{RightText}";
+            if (s2.IsNotBlank() && Columns.Value > 0)
             {
-                if (value)
-                {
-                    FontSize = "Medium";
-                }
-                else
-                {
-                    FontSize = "Normal";
-                }
+                dots = GetDotLine(s1, s2, Columns, CharLine);
             }
-        }
-
-        public bool IsLarge
-        {
-            get => FontSize == "Large";
-
-            set
+            else
             {
-                if (value)
-                {
-                    FontSize = "Large";
-                }
-                else
-                {
-                    FontSize = "Normal";
-                }
+                dots = $"{CharLine}";
             }
+
+            return $"{s1}{dots}{s2}";
         }
-
-        public bool IsNormal => !IsCondensed && !IsExpanded;
-
-        public bool IsLeftAligned => Align == "Left";
-
-        public bool IsRightAligned => Align == "Right";
-
-        public bool IsCenterAligned => Align == "Center";
 
         public Printer(Encoding Encoding) : this(null, null, 0, 0, 0, Encoding)
         {
@@ -213,7 +127,6 @@ namespace InnerLibs.Printer
         public Printer() : this(null, null, 0, 0, 0, null)
         {
         }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Printer"/> class.
@@ -256,6 +169,7 @@ namespace InnerLibs.Printer
             ColumnsCondensed = ColsCondensed <= 0 ? this.Command.ColsCondensed : ColsCondensed;
             ColumnsExpanded = ColsExpanded <= 0 ? this.Command.ColsExpanded : ColsExpanded;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Printer"/> class.
         /// </summary>
@@ -266,6 +180,7 @@ namespace InnerLibs.Printer
         public Printer(string PrinterName, int ColsNormal, int ColsCondensed, int ColsExpanded) : this(PrinterName, ColsNormal, ColsCondensed, ColsExpanded, null)
         {
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Printer"/> class.
         /// </summary>
@@ -274,6 +189,7 @@ namespace InnerLibs.Printer
         public Printer(string PrinterName, Encoding Encoding) : this(PrinterName, 0, 0, 0, Encoding)
         {
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Printer"/> class.
         /// </summary>
@@ -282,187 +198,137 @@ namespace InnerLibs.Printer
         {
         }
 
+        public bool AutoPrint { get; set; } = false;
 
-        /// <summary>
-        /// Funcao que reescreve o valor antes de chamar o <see cref="Write(String, Boolean)"/>
-        /// </summary>
-        /// <param name="StringAction"></param>
-        /// <returns></returns>
-        public Printer UseRewriteFunction(Func<string, string> StringAction)
-        {
-            RewriteFunction = StringAction;
-            return this;
-        }
+        public int ColumnsCondensed { get; set; }
 
+        public int ColumnsExpanded { get; set; }
 
-        /// <summary>
-        /// Remove a função de reescrita de valor definida pela <see cref="UseRewriteFunction(Func(Of String, String))"/>
-        /// </summary>
-        /// <returns></returns>
-        public Printer RemoveRewriteFunction()
-        {
-            RewriteFunction = null;
-            return this;
-        }
-        /// <summary>
-        /// Permite a utilização de acentos nas chamadas <see cref="Write(String, Boolean)"/> posteriores
-        /// </summary>
-        /// <param name="OnOff"></param>
-        /// <returns></returns>
-        public Printer UseDiacritics(bool OnOff = true)
-        {
-            Diacritics = OnOff;
-            return this;
-        }
-        /// <summary>
-        /// Remove todos os acentos das chamadas <see cref="Write(String, Boolean)"/> posteriores
-        /// </summary>
-        /// <returns></returns>
-        public Printer DontUseDiacritics() => UseDiacritics(false);
+        public int ColumnsNormal { get; set; }
 
-        /// <summary>
-        /// Adciona um numero <paramref name="Lines"/> de quebras de linha ao <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="Lines"></param>
-        /// <returns></returns>
-        public Printer NewLine(int Lines = 1)
+        public IPrintCommand Command { get; private set; }
+
+        public bool Diacritics { get; set; } = true;
+
+        public byte[] DocumentBuffer { get; set; }
+
+        public XDocument HTMLDocument { get; private set; } = XDocument.Parse("<body><link rel='stylesheet' href='Printer.css' /></body>");
+
+        public bool IsBold { get; private set; }
+
+        public bool IsCenterAligned => Align == "Center";
+
+        public bool IsCondensed
         {
-            while (Lines > 0)
+            get => FontMode == "Condensed";
+
+            set
             {
-                Write(Environment.NewLine);
-                Lines--;
+                if (value)
+                {
+                    FontMode = "Condensed";
+                }
+                else
+                {
+                    FontMode = "Normal";
+                }
             }
-
-            return this;
         }
+
+        public bool IsExpanded
+        {
+            get => FontMode == "Expanded";
+
+            set
+            {
+                if (value)
+                {
+                    FontMode = "Expanded";
+                }
+                else
+                {
+                    FontMode = "Normal";
+                }
+            }
+        }
+
+        public bool IsItalic { get; private set; }
+
+        public bool IsLarge
+        {
+            get => FontSize == "Large";
+
+            set
+            {
+                if (value)
+                {
+                    FontSize = "Large";
+                }
+                else
+                {
+                    FontSize = "Normal";
+                }
+            }
+        }
+
+        public bool IsLeftAligned => Align == "Left";
+
+        public bool IsMedium
+        {
+            get => FontSize == "Medium";
+
+            set
+            {
+                if (value)
+                {
+                    FontSize = "Medium";
+                }
+                else
+                {
+                    FontSize = "Normal";
+                }
+            }
+        }
+
+        public bool IsNormal => !IsCondensed && !IsExpanded;
+
+        public bool IsRightAligned => Align == "Right";
+
+        public bool IsUnderline { get; private set; }
+
+        public bool OnOff { get; set; } = true;
+
+        public string PrinterName { get; set; }
+
+        public Func<string, string> RewriteFunction { get; set; } = null;
 
         /// <summary>
-        /// Adciona um numero <paramref name="Spaces"/> de espaços em branco ao <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="Spaces"></param>
-        /// <returns></returns>
-        public Printer Space(int Spaces = 1)
-        {
-            if (Spaces > 0)
-                Write(new string(' ', Spaces));
-            return this;
-        }
-
-        /// <summary>
-        /// Limpa o <see cref="DocumentBuffer"/>
+        /// TextWriter interno desta Printer
         /// </summary>
         /// <returns></returns>
-        public Printer Clear()
+        public TextWriter TextWriter => (TextWriter)txw;
+
+        public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : InnerLibs.Printer.Command.IPrintCommand
         {
-            DocumentBuffer = null;
-            HTMLDocument.Root.RemoveAll();
-            HTMLDocument.Root.Add("<link rel='stylesheet' href='Printer.css'/>");
-            return this;
+            return CreatePrinter(typeof(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
         }
 
-        /// <summary>
-        /// Escreve um separador
-        /// </summary>
-        /// <param name="Character"></param>
-        /// <returns></returns>
-        public Printer Separator(char Character = '-', int? Columns = default)
+        public static Printer CreatePrinter(Type CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
         {
-            return WriteLine(new string(Character, Columns ?? GetCurrentColumns()));
+            IPrintCommand tp = (IPrintCommand)Activator.CreateInstance(CommandType);
+            return CreatePrinter(tp, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
         }
-        /// <summary>
-        /// Imprime o auto-teste da impressora
-        /// </summary>
-        /// <returns></returns>
-        public Printer AutoTest()
+
+        public static Printer CreatePrinter(IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
         {
+            return new Printer(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
+        }
+
+        public Printer AlignCenter()
+        {
+            Align = "Center";
             _ommit = true;
-            return this.Write(Command.AutoTest());
-        }
-
-        /// <summary>
-        /// Testa os acentos para esta impressora
-        /// </summary>
-        /// <returns></returns>
-        public Printer TestDiacritics()
-        {
-            bool ud = Diacritics;
-            return UseDiacritics(true).WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ").UseDiacritics(ud);
-        }
-
-        /// <summary>
-        /// Alinha a esquerda, remove formatação (italico, negrito, sublinhado) e retorna a fonte ao seu tamanho normal
-        /// </summary>
-        /// <returns></returns>
-        public Printer ResetFont() => NormalFontSize().NormalFontStretch().NormalFontStyle();
-
-        public Printer NormalFontStretch() => NotCondensed().NotExpanded();
-
-        public Printer NormalFontStyle() => NotBold().NotItalic().NotUnderline();
-
-        public Printer Italic(bool state = true)
-        {
-            _ommit = true;
-            IsItalic = state;
-            return this.Write(Command.Italic(state));
-        }
-
-        public Printer NotItalic() => Italic(false);
-
-        public Printer Bold(bool state = true)
-        {
-            _ommit = true;
-            IsBold = state;
-            return this.Write(Command.Bold(state));
-        }
-
-        public Printer NotBold() => Bold(false);
-
-        public Printer UnderLine(bool state = true)
-        {
-            _ommit = true;
-            IsUnderline = state;
-            return this.Write(Command.Underline(state));
-        }
-
-        public Printer NotUnderline() => UnderLine(false);
-
-        public Printer Expanded(bool state = true)
-        {
-            _ommit = true;
-            IsExpanded = state;
-            return this.Write(Command.Expanded(state));
-        }
-
-        public Printer NotExpanded() => Expanded(false);
-
-        public Printer Condensed(bool state = true)
-        {
-            IsCondensed = state;
-            _ommit = true;
-            return this.Write(Command.Condensed(state));
-        }
-
-        public Printer NotCondensed() => Condensed(false);
-
-        public Printer NormalFontSize()
-        {
-            FontMode = "Normal";
-            _ommit = true;
-            return this.Write(Command.NormalFont());
-        }
-
-        public Printer MediumFontSize()
-        {
-            IsMedium = true;
-            _ommit = true;
-            return this.Write(Command.LargeFont());
-        }
-
-        public Printer LargeFontSize()
-        {
-            IsLarge = true;
-            _ommit = true;
-            return this.Write(Command.LargerFont());
+            return this.Write(Command.Center());
         }
 
         public Printer AlignLeft()
@@ -479,43 +345,33 @@ namespace InnerLibs.Printer
             return this.Write(Command.Right());
         }
 
-        public Printer AlignCenter()
+        /// <summary>
+        /// Imprime o auto-teste da impressora
+        /// </summary>
+        /// <returns></returns>
+        public Printer AutoTest()
         {
-            Align = "Center";
             _ommit = true;
-            return this.Write(Command.Center());
+            return this.Write(Command.AutoTest());
         }
 
-        public Printer FullPaperCut()
+        public Printer Bold(bool state = true)
         {
-            HTMLDocument.Root.Add("<hr class='FullPaperCut'/>");
             _ommit = true;
-            return this.Write(Command.FullCut());
+            IsBold = state;
+            return this.Write(Command.Bold(state));
         }
 
-        public Printer PartialPaperCut()
+        /// <summary>
+        /// Limpa o <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <returns></returns>
+        public Printer Clear()
         {
-            HTMLDocument.Root.Add("<hr class='PartialPaperCut'/>");
-            _ommit = true;
-            return this.Write(Command.PartialCut());
-        }
-
-        public Printer OpenDrawer()
-        {
-            _ommit = true;
-            return this.Write(Command.OpenDrawer());
-        }
-
-        public Printer QrCode(string qrData)
-        {
-            _ommit = true;
-            return this.Write(Command.PrintQrData(qrData));
-        }
-
-        public Printer QrCode(string qrData, InnerLibs.Printer.QrCodeSize qrCodeSize)
-        {
-            _ommit = true;
-            return this.Write(Command.PrintQrData(qrData, qrCodeSize));
+            DocumentBuffer = null;
+            HTMLDocument.Root.RemoveAll();
+            HTMLDocument.Root.Add("<link rel='stylesheet' href='Printer.css'/>");
+            return this;
         }
 
         public Printer Code128(string code)
@@ -530,24 +386,41 @@ namespace InnerLibs.Printer
             return this.Write(Command.Code39(code));
         }
 
+        public Printer Condensed(bool state = true)
+        {
+            IsCondensed = state;
+            _ommit = true;
+            return this.Write(Command.Condensed(state));
+        }
+
+        /// <summary>
+        /// Remove todos os acentos das chamadas <see cref="Write(String, Boolean)"/> posteriores
+        /// </summary>
+        /// <returns></returns>
+        public Printer DontUseDiacritics() => UseDiacritics(false);
+
         public Printer Ean13(string code)
         {
             _ommit = true;
             return this.Write(Command.Ean13(code));
         }
 
-        public Printer Initialize()
+        public Printer Expanded(bool state = true)
         {
-            if (OnOff)
-            {
-                RawPrinterHelper.SendBytesToPrinter(PrinterName, Command.Initialize());
-            }
+            _ommit = true;
+            IsExpanded = state;
+            return this.Write(Command.Expanded(state));
+        }
 
-            return this;
+        public Printer FullPaperCut()
+        {
+            HTMLDocument.Root.Add("<hr class='FullPaperCut'/>");
+            _ommit = true;
+            return this.Write(Command.FullCut());
         }
 
         /// <summary>
-        /// Retorna o numero de colunas  do modo atual
+        /// Retorna o numero de colunas do modo atual
         /// </summary>
         /// <returns></returns>
         public int GetCurrentColumns()
@@ -578,511 +451,126 @@ namespace InnerLibs.Printer
             }
         }
 
-        internal string GetDotLine(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
+        public Printer Image(string Path, bool HighDensity = true)
         {
-            Columns = Columns ?? GetCurrentColumns();
-            if (CharLine.ToString().IsBlank())
-            {
-                CharLine = ' ';
-            }
-
-            if (Columns > 0 == true)
-                return new string(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange((IComparable)0, (IComparable)Columns.Value));
-            return "";
-        }
-
-        internal string GetPair(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
-        {
-            Columns = Columns ?? GetCurrentColumns();
-            string dots = "";
-            string s1 = $"{LeftText}";
-            string s2 = $"{RightText}";
-            if (s2.IsNotBlank() && Columns.Value > 0)
-            {
-                dots = GetDotLine(s1, s2, Columns, CharLine);
-            }
-            else
-            {
-                dots = $"{CharLine}";
-            }
-
-            return $"{s1}{dots}{s2}";
-        }
-        /// <summary>
-        /// Escreve os bytes contidos em <paramref name="value"/> no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public Printer Write(byte[] value)
-        {
-            if (value != null && value.Any())
-            {
-                var list = new List<byte>();
-                if (DocumentBuffer != null)
-                    list.AddRange(DocumentBuffer);
-                list.AddRange(value);
-                DocumentBuffer = list.ToArray();
-                if (_ommit == false)
-                {
-                    try
-                    {
-                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", InnerLibs.PredefinedArrays.BreakLineChars.ToArray());
-                        if (v == "<br/>")
-                        {
-                            HTMLDocument.Root.Add("<br/>");
-                        }
-                        else
-                        {
-                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&#160;")}</span>"));
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-
-                _ommit = false;
-                if (AutoPrint)
-                {
-                    PrintDocument();
-                }
-            }
-
+            if (!Path.IsFilePath())
+                throw new FileNotFoundException("Invalid Path");
+            if (!File.Exists(Path))
+                throw new FileNotFoundException("Image file not found");
+            var img = System.Drawing.Image.FromFile(Path);
+            Image(img, HighDensity);
+            img.Dispose();
             return this;
         }
-        /// <summary>
-        /// Escreve o <paramref name="value"/> no <see cref="DocumentBuffer"/> se <paramref name="Test"/> for TRUE
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="Test"></param>
-        /// <returns></returns>
-        public Printer Write(string value, bool Test = true)
+
+        public Printer Image(Stream Stream, bool HighDensity = true)
         {
-            if (Test)
+            var img = System.Drawing.Image.FromStream(Stream);
+            Image(img, HighDensity);
+            img.Dispose();
+            return this;
+        }
+
+        public Printer Image(byte[] Bytes, bool HighDensity = true)
+        {
+            System.Drawing.Image img;
+            using (var ms = new MemoryStream(Bytes))
             {
-                if (value.ContainsAny(PredefinedArrays.BreakLineChars.ToArray()))
-                {
-                    foreach (var line in value.SplitAny(PredefinedArrays.BreakLineChars.ToArray()))
-                        this.WriteLine(line, Test && line.IsNotBlank());
-                }
-                else if (value.IsNotBlank())
-                {
-                    if (!Diacritics)
-                    {
-                        value = value.RemoveDiacritics();
-                    }
+                img = System.Drawing.Image.FromStream(ms);
+            }
 
-                    if (RewriteFunction != null)
-                    {
-                        value = RewriteFunction.Invoke(value);
-                    }
+            Image(img, HighDensity);
+            img.Dispose();
+            return this;
+        }
 
-                    this.Write(Command.Encoding.GetBytes(value));
-                }
+        public Printer Image(System.Drawing.Image Img, bool HighDensity = true)
+        {
+            HTMLDocument.Root.Add(XElement.Parse($"<img class='image{HighDensity.AsIf(" HighDensity")}'  src='{Img.ToDataURL()}' />"));
+            _ommit = true;
+            return this.Write(Command.PrintImage(Img, HighDensity));
+        }
+
+        public Printer Initialize()
+        {
+            if (OnOff)
+            {
+                RawPrinterHelper.SendBytesToPrinter(PrinterName, Command.Initialize());
             }
 
             return this;
         }
 
-        public Printer Write(string value, Expression<Func<string, bool>> Test) => Write(value, Test == null || Test.Compile().Invoke(value));
-
-        /// <summary>
-        /// Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE e quebra uma linha
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="Test"></param>
-        /// <returns></returns>
-        public Printer WriteLine(string value, Expression<Func<string, bool>> Test) => WriteLine(value, Test == null || Test.Compile().Invoke(value));
-
-        public Printer WriteLine(string value, bool Test) => Test ? Write(value, Test).NewLine() : this;
-
-        /// <summary>
-        /// Escreve o <paramref name="value"/>   e quebra uma linha
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public Printer WriteLine(string value) => WriteLine(value, true);
-
-
-        /// <summary>
-        /// Escreve varias linhas no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        public Printer WriteLine(params string[] values)
+        public Printer Italic(bool state = true)
         {
-            values = (values ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
-            if (values.Any())
+            _ommit = true;
+            IsItalic = state;
+            return this.Write(Command.Italic(state));
+        }
+
+        public Printer LargeFontSize()
+        {
+            IsLarge = true;
+            _ommit = true;
+            return this.Write(Command.LargerFont());
+        }
+
+        public Printer MediumFontSize()
+        {
+            IsMedium = true;
+            _ommit = true;
+            return this.Write(Command.LargeFont());
+        }
+
+        /// <summary>
+        /// Adciona um numero <paramref name="Lines"/> de quebras de linha ao <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="Lines"></param>
+        /// <returns></returns>
+        public Printer NewLine(int Lines = 1)
+        {
+            while (Lines > 0)
             {
-                this.WriteLine(values.JoinString(Environment.NewLine));
+                Write(Environment.NewLine);
+                Lines--;
             }
 
             return this;
         }
 
-
-        /// <summary>
-        /// Escreve um teste de 48 colunas no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <returns></returns>
-        public Printer WriteTest()
+        public Printer NormalFontSize()
         {
-            NewLine();
-            AlignLeft();
-            WriteLine("INNERLIBS TEST PRINTER - 48 COLUMNS");
-            WriteLine("....+....1....+....2....+....3....+....4....+...");
-            Separator();
-            WriteLine("Default Text");
-            Italic().WriteLine("Italic Text").NotItalic();
-            Bold().WriteLine("Bold Text").NotBold();
-            UnderLine().WriteLine("UnderLine Text").NotUnderline();
-            Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded();
-            Condensed().WriteLine("Condensed Text").NotCondensed();
-            Separator();
-            MediumFontSize();
-            WriteLine("Font Size 2");
-            LargeFontSize();
-            WriteLine("Font Size 3");
-            NormalFontSize();
-            WriteLine("Normal Font Size");
-            Separator();
-            AlignRight();
-            WriteLine("AlignRight");
-            AlignCenter();
-            WriteLine("AlignCenter");
-            AlignLeft();
-            WriteLine("AlignLeft");
-            NewLine(3);
-            WriteLine("Accents");
-            TestDiacritics();
-            WriteLine("EOF :)");
-            Separator();
-            PartialPaperCut();
-            return this;
-        }
-        /// <summary>
-        /// Escreve os valores de um Dictionary como pares
-        /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <param name="Dictionaries"></param>
-        /// <returns></returns>
-        public Printer WriteDictionary<T1, T2>(IEnumerable<IDictionary<T1, T2>> Dictionaries, bool PartialCutOnEach = false) => WriteDictionary(PartialCutOnEach, (Dictionaries ?? Array.Empty<IDictionary<T1, T2>>()).ToArray());
-
-
-
-        /// <summary>
-        /// Escreve os valores de um Dictionary como pares
-        /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <param name="dic"></param>
-        /// <returns></returns>
-        public Printer WriteDictionary<T1, T2>(IDictionary<T1, T2> dic, bool PartialCutOnEach = false) => WriteDictionary(PartialCutOnEach, new[] { dic });
-
-
-        /// <summary>
-        /// Escreve os valores de um Dictionary como pares
-        /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <param name="Dictionaries"></param>
-        /// <returns></returns>
-        public Printer WriteDictionary<T1, T2>(params IDictionary<T1, T2>[] Dictionaries) => WriteDictionary(false, Dictionaries);
-
-        /// <summary>
-        /// Escreve os valores de um Dictionary como pares
-        /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <param name="Dictionaries"></param>
-        /// <returns></returns>
-        public Printer WriteDictionary<T1, T2>(bool PartialCutOnEach, params IDictionary<T1, T2>[] Dictionaries)
-        {
-            Dictionaries = Dictionaries ?? Array.Empty<IDictionary<T1, T2>>();
-            foreach (var dic in Dictionaries)
-            {
-                if (dic != null)
-                {
-                    if (PartialCutOnEach)
-                        PartialPaperCut();
-                    else
-                        Separator();
-                    foreach (var item in dic)
-                        this.WritePair($"{item.Key}".ToNormalCase(), (object)item.Value);
-                    AlignLeft();
-                }
-            }
-
-            if (Dictionaries.Any())
-            {
-                if (PartialCutOnEach)
-                    PartialPaperCut();
-                else
-                    Separator();
-            }
-
-            return this;
+            FontMode = "Normal";
+            _ommit = true;
+            return this.Write(Command.NormalFont());
         }
 
-        public Printer WriteScriptLine(int? Columns = default, string Name = "")
+        public Printer NormalFontStretch() => NotCondensed().NotExpanded();
+
+        public Printer NormalFontStyle() => NotBold().NotItalic().NotUnderline();
+
+        public Printer NotBold() => Bold(false);
+
+        public Printer NotCondensed() => Condensed(false);
+
+        public Printer NotExpanded() => Expanded(false);
+
+        public Printer NotItalic() => Italic(false);
+
+        public Printer NotUnderline() => UnderLine(false);
+
+        public Printer OpenDrawer()
         {
-            ResetFont();
-            NewLine(5);
-            AlignCenter();
-            Separator('_', Columns);
-            this.WriteLine(Name, Name.IsNotBlank());
-            ResetFont();
-            return this;
+            _ommit = true;
+            return this.Write(Command.OpenDrawer());
         }
 
-
-        /// <summary>
-        /// Escreve uma lista de itens no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="Items"></param>
-        /// <param name="ListOrdenator"></param>
-        /// <returns></returns>
-        public Printer WriteList(IEnumerable<object> Items, int ListOrdenator = 1)
+        public Printer PartialPaperCut()
         {
-            Items = (Items ?? Array.Empty<object>()).AsEnumerable();
-            for (int index = 0, loopTo = Items.Count() - 1; index <= loopTo; index++)
-                WriteLine($"{index + ListOrdenator} {Items.ElementAtOrDefault(index)}");
-            return this;
+            HTMLDocument.Root.Add("<hr class='PartialPaperCut'/>");
+            _ommit = true;
+            return this.Write(Command.PartialCut());
         }
-
-        public Printer WriteList(IEnumerable<object> Items, string ListOrdenator)
-        {
-            Items = (Items ?? Array.Empty<object>()).AsEnumerable();
-            for (int index = 0, loopTo = Items.Count() - 1; index <= loopTo; index++)
-                WriteLine($"{ListOrdenator} {Items.ElementAtOrDefault(index)}");
-            return this;
-        }
-        /// <summary>
-        /// Escreve uma lista de itens no <see cref="DocumentBuffer"/>
-        /// </summary>
-        public Printer WriteList(params object[] Items) => WriteList((Items ?? Array.Empty<object>()).AsEnumerable());
-
-        /// <summary>
-        /// Escreve um par de informações no <see cref="DocumentBuffer"/>.
-        /// </summary>
-        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => this.WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsNotBlank());
-
-        /// <summary>
-        /// Escreve uma linha de preço no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="Description"></param>
-        /// <param name="Price"></param>
-        /// <param name="Culture"></param>
-        /// <param name="Columns"></param>
-        /// <param name="CharLine"></param>
-        /// <returns></returns>
-        public Printer WritePriceLine(string Description, decimal Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.') => WritePair(Description, Price.ToString("C", Culture ?? CultureInfo.CurrentCulture), Columns, CharLine);
-
-        /// <summary>
-        /// Escreve uma lista de preços no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="Culture"></param>
-        /// <param name="Columns"></param>
-        /// <param name="CharLine"></param>
-        /// <returns></returns>
-        public Printer WritePriceList(IEnumerable<Tuple<string, decimal>> List, CultureInfo Culture = null, int? Columns = default, char CharLine = '.')
-        {
-            foreach (var item in List ?? new List<Tuple<string, decimal>>())
-                this.WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine);
-            return this;
-        }
-        /// <summary>
-        /// Escreve uma lista de preços no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <param name="Culture"></param>
-        /// <param name="Columns"></param>
-        /// <param name="CharLine"></param>
-        /// <returns></returns>
-        public Printer WritePriceList<T>(IEnumerable<T> List, Expression<Func<T, string>> Description, Expression<Func<T, decimal>> Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.') => WritePriceList(List.Select(x => new Tuple<string, decimal>(Description.Compile()(x), Price.Compile()(x))), Culture, Columns);
-
-
-        /// <summary>
-        /// Escreve uma tabela no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <returns></returns>
-        public Printer WriteTable<T>(IEnumerable<T> Items) where T : class => this.Write(ConsoleTables.ConsoleTable.From(Items).ToString());
-
-        /// <summary>
-        /// Escreve uma tabela no <see cref="DocumentBuffer"/>
-        /// </summary>
-        /// <returns></returns>
-        public Printer WriteTable<T>(params T[] Items) where T : class => WriteTable(Items.AsEnumerable());
-
-        /// <summary>
-        /// Escreve as Propriedades e valores de uma classe como pares
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Objects"></param>
-        /// <returns></returns>
-        public Printer WriteClass<T>(params T[] Objects) where T : class => WriteClass(false, Objects);
-
-        /// <summary>
-        /// Escreve as Propriedades e valores de uma classe como pares
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Objects"></param>
-        /// <param name="PartialCutOnEach"></param>
-        /// <returns></returns>
-        public Printer WriteClass<T>(bool PartialCutOnEach, params T[] Objects) where T : class
-        {
-            Objects = Objects ??  Array.Empty<T>();
-            foreach (var obj in Objects)
-            {
-                if (obj != null)
-                {
-                    if (PartialCutOnEach)
-                        PartialPaperCut();
-                    else
-                        Separator();
-                    foreach (var item in obj.GetNullableTypeOf().GetProperties())
-                    {
-                        if (item.CanRead)
-                        {
-                            this.WritePair(item.Name.ToNormalCase(), item.GetValue(obj));
-                        }
-                    }
-
-                    AlignLeft();
-                }
-            }
-
-            if (Objects.Any())
-            {
-                if (PartialCutOnEach)
-                    PartialPaperCut();
-                else
-                    Separator();
-            }
-
-            return this;
-        }
-
-
-        /// <summary>
-        /// Escreve as Propriedades e valores de uma classe como pares
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <param name="PartialCutOnEach"></param>
-        /// <returns></returns>
-        public Printer WriteClass<T>(IEnumerable<T> obj, bool PartialCutOnEach = false) where T : class => WriteClass(PartialCutOnEach, (obj ?? Array.Empty<T>()).ToArray());
-
-        /// <summary>
-        /// Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="TemplateString"></param>
-        /// <param name="Objects"></param>
-        /// <param name="PartialCutOnEach"></param>
-        /// <returns></returns>
-        public Printer WriteTemplate<T>(string TemplateString, bool PartialCutOnEach, params T[] Objects)
-        {
-            if (TemplateString.IsNotBlank())
-            {
-                Objects = Objects ?? Array.Empty<T>();
-                if (TemplateString.IsFilePath())
-                {
-                    if (File.Exists(TemplateString))
-                    {
-                        TemplateString = File.ReadAllText(TemplateString);
-                    }
-                }
-
-                foreach (var item in Objects)
-                {
-                    string ns = TemplateString.Inject(item);
-                    this.WriteLine(ns.SplitAny(InnerLibs.PredefinedArrays.BreakLineChars.ToArray()));
-                    if (PartialCutOnEach)
-                        PartialPaperCut();
-                    else
-                        Separator();
-                }
-            }
-
-            return this;
-        }
-        /// <summary>
-        /// Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="TemplateString"></param>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public Printer WriteTemplate<T>(string TemplateString, params T[] obj) where T : class => WriteTemplate(TemplateString, false, obj);
-
-        /// <summary>
-        /// Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="TemplateString"></param>
-        /// <param name="obj"></param>
-        /// <param name="PartialCutOnEach"></param>
-        /// <returns></returns>
-        public Printer WriteTemplate<T>(string TemplateString, IEnumerable<T> obj, bool PartialCutOnEach = false) where T : class => WriteTemplate(TemplateString, PartialCutOnEach, (obj ?? Array.Empty<T>()).ToArray());
-
-        /// <summary>
-        /// Escreve um template substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente em <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="TemplateString"></param>
-        /// <param name="obj"></param>
-        /// <param name="PartialCutOnEach"></param>
-        /// <returns></returns>
-        public Printer WriteTemplate<T>(string TemplateString, T obj, bool PartialCutOnEach = false) where T : class => this.WriteTemplate(TemplateString, PartialCutOnEach, InnerLibs.Converter.ForceArray(obj, typeof(T)));
-
-        /// <summary>
-        /// Escreve uma data usando formato especifico
-        /// </summary>
-        /// <param name="Format"></param>
-        /// <returns></returns>
-        public Printer WriteDate(DateTime DateAndTime, string Format = null)
-        {
-            if (Format.IsNotBlank())
-            {
-                return Write(DateAndTime.ToString(Format));
-            }
-            else
-            {
-                return Write(DateAndTime.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Escreve uma data usando uma Cultura especifica
-        /// </summary>
-        /// <param name="Format"></param>
-        /// <returns></returns>
-        public Printer WriteDate(DateTime DateAndTime, CultureInfo Format = null)
-        {
-            if (Format != null)
-            {
-                return Write(DateAndTime.ToString(Format));
-            }
-            else
-            {
-                return Write(DateAndTime.ToString());
-            }
-        }
-        /// <summary>
-        /// Escreve a data atual usando formato especifico
-        /// </summary>
-        /// <param name="Format"></param>
-        /// <returns></returns>
-        public Printer WriteDate(string Format = null) => WriteDate(DateTime.Now, Format);
-
-        /// <summary>
-        /// Escreve a data atual usando uma cultura especifica
-        /// </summary>
-        /// <param name="Format"></param>
-        /// <returns></returns>
-        public Printer WriteDate(CultureInfo Format = null) => WriteDate(DateTime.Now, Format);
-
 
         /// <summary>
         /// Imprime o conteudo do <see cref="DocumentBuffer"/> atual e limpa o buffer
@@ -1099,6 +587,7 @@ namespace InnerLibs.Printer
 
             return this;
         }
+
         /// <summary>
         /// Imprime o conteudo de um arquivo ou o conteudo de todos os arquivos de um diretorio
         /// </summary>
@@ -1158,6 +647,36 @@ namespace InnerLibs.Printer
             return this;
         }
 
+        public Printer QrCode(string qrData)
+        {
+            _ommit = true;
+            return this.Write(Command.PrintQrData(qrData));
+        }
+
+        public Printer QrCode(string qrData, InnerLibs.Printer.QrCodeSize qrCodeSize)
+        {
+            _ommit = true;
+            return this.Write(Command.PrintQrData(qrData, qrCodeSize));
+        }
+
+        /// <summary>
+        /// Remove a função de reescrita de valor definida pela <see
+        /// cref="UseRewriteFunction(Func(Of String, String))"/>
+        /// </summary>
+        /// <returns></returns>
+        public Printer RemoveRewriteFunction()
+        {
+            RewriteFunction = null;
+            return this;
+        }
+
+        /// <summary>
+        /// Alinha a esquerda, remove formatação (italico, negrito, sublinhado) e retorna a fonte ao
+        /// seu tamanho normal
+        /// </summary>
+        /// <returns></returns>
+        public Printer ResetFont() => NormalFontSize().NormalFontStretch().NormalFontStyle();
+
         /// <summary>
         /// Escreve um Arquivo com os dados binarios e HTML desta impressao
         /// </summary>
@@ -1196,44 +715,543 @@ namespace InnerLibs.Printer
             return this;
         }
 
-        public Printer Image(string Path, bool HighDensity = true)
+        /// <summary>
+        /// Escreve um separador
+        /// </summary>
+        /// <param name="Character"></param>
+        /// <returns></returns>
+        public Printer Separator(char Character = '-', int? Columns = default)
         {
-            if (!Path.IsFilePath())
-                throw new FileNotFoundException("Invalid Path");
-            if (!File.Exists(Path))
-                throw new FileNotFoundException("Image file not found");
-            var img = System.Drawing.Image.FromFile(Path);
-            Image(img, HighDensity);
-            img.Dispose();
+            return WriteLine(new string(Character, Columns ?? GetCurrentColumns()));
+        }
+
+        /// <summary>
+        /// Adciona um numero <paramref name="Spaces"/> de espaços em branco ao <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="Spaces"></param>
+        /// <returns></returns>
+        public Printer Space(int Spaces = 1)
+        {
+            if (Spaces > 0)
+                Write(new string(' ', Spaces));
             return this;
         }
 
-        public Printer Image(Stream Stream, bool HighDensity = true)
+        /// <summary>
+        /// Testa os acentos para esta impressora
+        /// </summary>
+        /// <returns></returns>
+        public Printer TestDiacritics()
         {
-            var img = System.Drawing.Image.FromStream(Stream);
-            Image(img, HighDensity);
-            img.Dispose();
+            bool ud = Diacritics;
+            return UseDiacritics(true).WriteLine("áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕàèìòùÈÌÒçÇ").UseDiacritics(ud);
+        }
+
+        public Printer UnderLine(bool state = true)
+        {
+            _ommit = true;
+            IsUnderline = state;
+            return this.Write(Command.Underline(state));
+        }
+
+        /// <summary>
+        /// Permite a utilização de acentos nas chamadas <see cref="Write(String, Boolean)"/> posteriores
+        /// </summary>
+        /// <param name="OnOff"></param>
+        /// <returns></returns>
+        public Printer UseDiacritics(bool OnOff = true)
+        {
+            Diacritics = OnOff;
             return this;
         }
 
-        public Printer Image(byte[] Bytes, bool HighDensity = true)
+        /// <summary>
+        /// Funcao que reescreve o valor antes de chamar o <see cref="Write(String, Boolean)"/>
+        /// </summary>
+        /// <param name="StringAction"></param>
+        /// <returns></returns>
+        public Printer UseRewriteFunction(Func<string, string> StringAction)
         {
-            System.Drawing.Image img;
-            using (var ms = new MemoryStream(Bytes))
+            RewriteFunction = StringAction;
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve os bytes contidos em <paramref name="value"/> no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public Printer Write(byte[] value)
+        {
+            if (value != null && value.Any())
             {
-                img = System.Drawing.Image.FromStream(ms);
+                var list = new List<byte>();
+                if (DocumentBuffer != null)
+                    list.AddRange(DocumentBuffer);
+                list.AddRange(value);
+                DocumentBuffer = list.ToArray();
+                if (_ommit == false)
+                {
+                    try
+                    {
+                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", InnerLibs.PredefinedArrays.BreakLineChars.ToArray());
+                        if (v == "<br/>")
+                        {
+                            HTMLDocument.Root.Add("<br/>");
+                        }
+                        else
+                        {
+                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&#160;")}</span>"));
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                _ommit = false;
+                if (AutoPrint)
+                {
+                    PrintDocument();
+                }
             }
 
-            Image(img, HighDensity);
-            img.Dispose();
             return this;
         }
 
-        public Printer Image(System.Drawing.Image Img, bool HighDensity = true)
+        /// <summary>
+        /// Escreve o <paramref name="value"/> no <see cref="DocumentBuffer"/> se <paramref
+        /// name="Test"/> for TRUE
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="Test"></param>
+        /// <returns></returns>
+        public Printer Write(string value, bool Test = true)
         {
-            HTMLDocument.Root.Add(XElement.Parse($"<img class='image{HighDensity.AsIf(" HighDensity")}'  src='{Img.ToDataURL()}' />"));
-            _ommit = true;
-            return this.Write(Command.PrintImage(Img, HighDensity));
+            if (Test)
+            {
+                if (value.ContainsAny(PredefinedArrays.BreakLineChars.ToArray()))
+                {
+                    foreach (var line in value.SplitAny(PredefinedArrays.BreakLineChars.ToArray()))
+                        this.WriteLine(line, Test && line.IsNotBlank());
+                }
+                else if (value.IsNotBlank())
+                {
+                    if (!Diacritics)
+                    {
+                        value = value.RemoveDiacritics();
+                    }
+
+                    if (RewriteFunction != null)
+                    {
+                        value = RewriteFunction.Invoke(value);
+                    }
+
+                    this.Write(Command.Encoding.GetBytes(value));
+                }
+            }
+
+            return this;
+        }
+
+        public Printer Write(string value, Expression<Func<string, bool>> Test) => Write(value, Test == null || Test.Compile().Invoke(value));
+
+        /// <summary>
+        /// Escreve as Propriedades e valores de uma classe como pares
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Objects"></param>
+        /// <returns></returns>
+        public Printer WriteClass<T>(params T[] Objects) where T : class => WriteClass(false, Objects);
+
+        /// <summary>
+        /// Escreve as Propriedades e valores de uma classe como pares
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Objects"></param>
+        /// <param name="PartialCutOnEach"></param>
+        /// <returns></returns>
+        public Printer WriteClass<T>(bool PartialCutOnEach, params T[] Objects) where T : class
+        {
+            Objects = Objects ?? Array.Empty<T>();
+            foreach (var obj in Objects)
+            {
+                if (obj != null)
+                {
+                    if (PartialCutOnEach)
+                        PartialPaperCut();
+                    else
+                        Separator();
+                    foreach (var item in obj.GetNullableTypeOf().GetProperties())
+                    {
+                        if (item.CanRead)
+                        {
+                            this.WritePair(item.Name.ToNormalCase(), item.GetValue(obj));
+                        }
+                    }
+
+                    AlignLeft();
+                }
+            }
+
+            if (Objects.Any())
+            {
+                if (PartialCutOnEach)
+                    PartialPaperCut();
+                else
+                    Separator();
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve as Propriedades e valores de uma classe como pares
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="PartialCutOnEach"></param>
+        /// <returns></returns>
+        public Printer WriteClass<T>(IEnumerable<T> obj, bool PartialCutOnEach = false) where T : class => WriteClass(PartialCutOnEach, (obj ?? Array.Empty<T>()).ToArray());
+
+        /// <summary>
+        /// Escreve uma data usando formato especifico
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <returns></returns>
+        public Printer WriteDate(DateTime DateAndTime, string Format = null)
+        {
+            if (Format.IsNotBlank())
+            {
+                return Write(DateAndTime.ToString(Format));
+            }
+            else
+            {
+                return Write(DateAndTime.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Escreve uma data usando uma Cultura especifica
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <returns></returns>
+        public Printer WriteDate(DateTime DateAndTime, CultureInfo Format = null)
+        {
+            if (Format != null)
+            {
+                return Write(DateAndTime.ToString(Format));
+            }
+            else
+            {
+                return Write(DateAndTime.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Escreve a data atual usando formato especifico
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <returns></returns>
+        public Printer WriteDate(string Format = null) => WriteDate(DateTime.Now, Format);
+
+        /// <summary>
+        /// Escreve a data atual usando uma cultura especifica
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <returns></returns>
+        public Printer WriteDate(CultureInfo Format = null) => WriteDate(DateTime.Now, Format);
+
+        /// <summary>
+        /// Escreve os valores de um Dictionary como pares
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="Dictionaries"></param>
+        /// <returns></returns>
+        public Printer WriteDictionary<T1, T2>(IEnumerable<IDictionary<T1, T2>> Dictionaries, bool PartialCutOnEach = false) => WriteDictionary(PartialCutOnEach, (Dictionaries ?? Array.Empty<IDictionary<T1, T2>>()).ToArray());
+
+        /// <summary>
+        /// Escreve os valores de um Dictionary como pares
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public Printer WriteDictionary<T1, T2>(IDictionary<T1, T2> dic, bool PartialCutOnEach = false) => WriteDictionary(PartialCutOnEach, new[] { dic });
+
+        /// <summary>
+        /// Escreve os valores de um Dictionary como pares
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="Dictionaries"></param>
+        /// <returns></returns>
+        public Printer WriteDictionary<T1, T2>(params IDictionary<T1, T2>[] Dictionaries) => WriteDictionary(false, Dictionaries);
+
+        /// <summary>
+        /// Escreve os valores de um Dictionary como pares
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="Dictionaries"></param>
+        /// <returns></returns>
+        public Printer WriteDictionary<T1, T2>(bool PartialCutOnEach, params IDictionary<T1, T2>[] Dictionaries)
+        {
+            Dictionaries = Dictionaries ?? Array.Empty<IDictionary<T1, T2>>();
+            foreach (var dic in Dictionaries)
+            {
+                if (dic != null)
+                {
+                    if (PartialCutOnEach)
+                        PartialPaperCut();
+                    else
+                        Separator();
+                    foreach (var item in dic)
+                        this.WritePair($"{item.Key}".ToNormalCase(), (object)item.Value);
+                    AlignLeft();
+                }
+            }
+
+            if (Dictionaries.Any())
+            {
+                if (PartialCutOnEach)
+                    PartialPaperCut();
+                else
+                    Separator();
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve o <paramref name="value"/> se <paramref name="Test"/> for TRUE e quebra uma linha
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="Test"></param>
+        /// <returns></returns>
+        public Printer WriteLine(string value, Expression<Func<string, bool>> Test) => WriteLine(value, Test == null || Test.Compile().Invoke(value));
+
+        public Printer WriteLine(string value, bool Test) => Test ? Write(value, Test).NewLine() : this;
+
+        /// <summary>
+        /// Escreve o <paramref name="value"/> e quebra uma linha
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public Printer WriteLine(string value) => WriteLine(value, true);
+
+        /// <summary>
+        /// Escreve varias linhas no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public Printer WriteLine(params string[] values)
+        {
+            values = (values ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
+            if (values.Any())
+            {
+                this.WriteLine(values.JoinString(Environment.NewLine));
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve uma lista de itens no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="Items"></param>
+        /// <param name="ListOrdenator"></param>
+        /// <returns></returns>
+        public Printer WriteList(IEnumerable<object> Items, int ListOrdenator = 1)
+        {
+            Items = (Items ?? Array.Empty<object>()).AsEnumerable();
+            for (int index = 0, loopTo = Items.Count() - 1; index <= loopTo; index++)
+                WriteLine($"{index + ListOrdenator} {Items.ElementAtOrDefault(index)}");
+            return this;
+        }
+
+        public Printer WriteList(IEnumerable<object> Items, string ListOrdenator)
+        {
+            Items = (Items ?? Array.Empty<object>()).AsEnumerable();
+            for (int index = 0, loopTo = Items.Count() - 1; index <= loopTo; index++)
+                WriteLine($"{ListOrdenator} {Items.ElementAtOrDefault(index)}");
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve uma lista de itens no <see cref="DocumentBuffer"/>
+        /// </summary>
+        public Printer WriteList(params object[] Items) => WriteList((Items ?? Array.Empty<object>()).AsEnumerable());
+
+        /// <summary>
+        /// Escreve um par de informações no <see cref="DocumentBuffer"/>.
+        /// </summary>
+        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => this.WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsNotBlank());
+
+        /// <summary>
+        /// Escreve uma linha de preço no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="Description"></param>
+        /// <param name="Price"></param>
+        /// <param name="Culture"></param>
+        /// <param name="Columns"></param>
+        /// <param name="CharLine"></param>
+        /// <returns></returns>
+        public Printer WritePriceLine(string Description, decimal Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.') => WritePair(Description, Price.ToString("C", Culture ?? CultureInfo.CurrentCulture), Columns, CharLine);
+
+        /// <summary>
+        /// Escreve uma lista de preços no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="Culture"></param>
+        /// <param name="Columns"></param>
+        /// <param name="CharLine"></param>
+        /// <returns></returns>
+        public Printer WritePriceList(IEnumerable<Tuple<string, decimal>> List, CultureInfo Culture = null, int? Columns = default, char CharLine = '.')
+        {
+            foreach (var item in List ?? new List<Tuple<string, decimal>>())
+                this.WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine);
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve uma lista de preços no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <param name="Culture"></param>
+        /// <param name="Columns"></param>
+        /// <param name="CharLine"></param>
+        /// <returns></returns>
+        public Printer WritePriceList<T>(IEnumerable<T> List, Expression<Func<T, string>> Description, Expression<Func<T, decimal>> Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.') => WritePriceList(List.Select(x => new Tuple<string, decimal>(Description.Compile()(x), Price.Compile()(x))), Culture, Columns);
+
+        public Printer WriteScriptLine(int? Columns = default, string Name = "")
+        {
+            ResetFont();
+            NewLine(5);
+            AlignCenter();
+            Separator('_', Columns);
+            this.WriteLine(Name, Name.IsNotBlank());
+            ResetFont();
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve uma tabela no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <returns></returns>
+        public Printer WriteTable<T>(IEnumerable<T> Items) where T : class => this.Write(ConsoleTables.ConsoleTable.From(Items).ToString());
+
+        /// <summary>
+        /// Escreve uma tabela no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <returns></returns>
+        public Printer WriteTable<T>(params T[] Items) where T : class => WriteTable(Items.AsEnumerable());
+
+        /// <summary>
+        /// Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas
+        /// pelo valor da propriedade equivalente em <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="TemplateString"></param>
+        /// <param name="Objects"></param>
+        /// <param name="PartialCutOnEach"></param>
+        /// <returns></returns>
+        public Printer WriteTemplate<T>(string TemplateString, bool PartialCutOnEach, params T[] Objects)
+        {
+            if (TemplateString.IsNotBlank())
+            {
+                Objects = Objects ?? Array.Empty<T>();
+                if (TemplateString.IsFilePath())
+                {
+                    if (File.Exists(TemplateString))
+                    {
+                        TemplateString = File.ReadAllText(TemplateString);
+                    }
+                }
+
+                foreach (var item in Objects)
+                {
+                    string ns = TemplateString.Inject(item);
+                    this.WriteLine(ns.SplitAny(InnerLibs.PredefinedArrays.BreakLineChars.ToArray()));
+                    if (PartialCutOnEach)
+                        PartialPaperCut();
+                    else
+                        Separator();
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas
+        /// pelo valor da propriedade equivalente em <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="TemplateString"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public Printer WriteTemplate<T>(string TemplateString, params T[] obj) where T : class => WriteTemplate(TemplateString, false, obj);
+
+        /// <summary>
+        /// Escreve um template para uma lista substituindo as marcações {Propriedade} encontradas
+        /// pelo valor da propriedade equivalente em <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="TemplateString"></param>
+        /// <param name="obj"></param>
+        /// <param name="PartialCutOnEach"></param>
+        /// <returns></returns>
+        public Printer WriteTemplate<T>(string TemplateString, IEnumerable<T> obj, bool PartialCutOnEach = false) where T : class => WriteTemplate(TemplateString, PartialCutOnEach, (obj ?? Array.Empty<T>()).ToArray());
+
+        /// <summary>
+        /// Escreve um template substituindo as marcações {Propriedade} encontradas pelo valor da
+        /// propriedade equivalente em <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="TemplateString"></param>
+        /// <param name="obj"></param>
+        /// <param name="PartialCutOnEach"></param>
+        /// <returns></returns>
+        public Printer WriteTemplate<T>(string TemplateString, T obj, bool PartialCutOnEach = false) where T : class => this.WriteTemplate(TemplateString, PartialCutOnEach, InnerLibs.Converter.ForceArray(obj, typeof(T)));
+
+        /// <summary>
+        /// Escreve um teste de 48 colunas no <see cref="DocumentBuffer"/>
+        /// </summary>
+        /// <returns></returns>
+        public Printer WriteTest()
+        {
+            NewLine();
+            AlignLeft();
+            WriteLine("INNERLIBS TEST PRINTER - 48 COLUMNS");
+            WriteLine("....+....1....+....2....+....3....+....4....+...");
+            Separator();
+            WriteLine("Default Text");
+            Italic().WriteLine("Italic Text").NotItalic();
+            Bold().WriteLine("Bold Text").NotBold();
+            UnderLine().WriteLine("UnderLine Text").NotUnderline();
+            Expanded().WriteLine("Expanded Text").WriteLine("....+....1....+....2....").NotExpanded();
+            Condensed().WriteLine("Condensed Text").NotCondensed();
+            Separator();
+            MediumFontSize();
+            WriteLine("Font Size 2");
+            LargeFontSize();
+            WriteLine("Font Size 3");
+            NormalFontSize();
+            WriteLine("Normal Font Size");
+            Separator();
+            AlignRight();
+            WriteLine("AlignRight");
+            AlignCenter();
+            WriteLine("AlignCenter");
+            AlignLeft();
+            WriteLine("AlignLeft");
+            NewLine(3);
+            WriteLine("Accents");
+            TestDiacritics();
+            WriteLine("EOF :)");
+            Separator();
+            PartialPaperCut();
+            return this;
         }
     }
 }
@@ -1243,7 +1261,8 @@ namespace InnerLibs.Printer.XmlTemplates
     public class XmlTemplatePrinter : Printer
     {
         /// <summary>
-        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista
+        /// substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
@@ -1253,8 +1272,10 @@ namespace InnerLibs.Printer.XmlTemplates
         {
             return WriteXmlTemplate(obj, Xml.OuterXml);
         }
+
         /// <summary>
-        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista
+        /// substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
@@ -1263,7 +1284,8 @@ namespace InnerLibs.Printer.XmlTemplates
         public Printer WriteXmlTemplate<T>(IEnumerable<T> Item, XmlDocument Xml) => WriteXmlTemplate(Item, Xml.OuterXml);
 
         /// <summary>
-        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista
+        /// substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
@@ -1273,9 +1295,9 @@ namespace InnerLibs.Printer.XmlTemplates
 
         public Printer WriteXmlTemplate<T>(IEnumerable<T> Item, XmlNode Xml) => WriteXmlTemplate(Item, Xml.OuterXml);
 
-
         /// <summary>
-        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista
+        /// substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Item"></param>
@@ -1286,7 +1308,8 @@ namespace InnerLibs.Printer.XmlTemplates
         public Printer WriteXmlTemplate<T>(IEnumerable<T> Item, XDocument Xml) => WriteXmlTemplate(Item, Xml.Root);
 
         /// <summary>
-        /// Escreve um template de um <see cref="XmlNode"/> para cada entrada em uma lista substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        /// Escreve um template de um <see cref="XmlNode"/> para cada entrada em uma lista
+        /// substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         /// </summary>
         public Printer WriteXmlTemplate<T>(IEnumerable<T> Items, XElement Xml)
         {
@@ -1307,8 +1330,10 @@ namespace InnerLibs.Printer.XmlTemplates
             var n = XDocument.Parse(Xml);
             return WriteXmlTemplate(Item, n);
         }
+
         /// <summary>
-        /// Escreve um template de um <see cref="XmlNode"/> para o objeto designado substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
+        /// Escreve um template de um <see cref="XmlNode"/> para o objeto designado substituindo as
+        /// marcações {Propriedade} encontradas pelo valor da propriedade equivalente
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Item"></param>
@@ -1412,7 +1437,7 @@ namespace InnerLibs.Printer.XmlTemplates
                     WriteXmlTemplate(Item, node);
                 return this;
             }
-            // se chegou aqui, é so  tratar como texto mesmo
+            // se chegou aqui, é so tratar como texto mesmo
             if (Xml.Name.LocalName.ToLower().IsIn("line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6"))
             {
                 lines = 1;

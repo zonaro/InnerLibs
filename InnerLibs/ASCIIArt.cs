@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.VisualBasic;
 
 namespace InnerLibs
 {
     public static class AsciiArt
     {
+        private static string[] asciiChars = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
+
         public static string ToAsciiArt(this Bitmap image, int ratio)
         {
             image = (Bitmap)image.Negative();
@@ -50,9 +49,5 @@ namespace InnerLibs
 
             return sb.ToString();
         }
-
-        private static string[] asciiChars = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
-
-      
     }
 }

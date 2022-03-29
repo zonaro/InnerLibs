@@ -1,25 +1,15 @@
-﻿using System;
+﻿using InnerLibs.Printer;
+using InnerLibs.Printer.Command;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-using InnerLibs.Printer;
-using InnerLibs.Printer.Command;
-using Microsoft.VisualBasic;
 
 namespace InnerLibs.EscDarumaCommands
 {
     public class EscDaruma : IPrintCommand
     {
-
         #region Properties
-
-        public int ColsNormal
-        {
-            get
-            {
-                return 48;
-            }
-        }
 
         public int ColsCondensed
         {
@@ -37,21 +27,20 @@ namespace InnerLibs.EscDarumaCommands
             }
         }
 
+        public int ColsNormal
+        {
+            get
+            {
+                return 48;
+            }
+        }
+
         // Encoding.GetEncoding("IBM860")
         public Encoding Encoding { get; set; }
 
-        #endregion
-
-
+        #endregion Properties
 
         #region Methods
-
-
-
-        public byte[] AutoTest()
-        {
-            return new byte[] { 28, 'M'.ToByte(), 254, 0 };
-        }
 
         private static IEnumerable<byte> StoreQr(string qrData, QrCodeSize size)
         {
@@ -61,19 +50,49 @@ namespace InnerLibs.EscDarumaCommands
             return (new byte[] { 27, 106, 49 }).AddBytes(new byte[] { 27, 129 }).AddBytes(new[] { b }).AddBytes(new[] { b2 }).AddBytes(new[] { ((int)size + 3).ToByte() }).AddBytes(new[] { 'M'.ToByte() });
         }
 
-        byte[] IPrintCommand.PrintQrData(string qrData)
+        public byte[] AutoTest()
         {
-            return PrintQrData(qrData, QrCodeSize.Size0);
+            return new byte[] { 28, 'M'.ToByte(), 254, 0 };
         }
 
-        public byte[] Printqrdata(string qrData) => ((IPrintCommand)this).PrintQrData(qrData);
-
-        public byte[] PrintQrData(string qrData, QrCodeSize qrCodeSize)
+        public byte[] Bold(bool state)
         {
-            var list = new List<byte>();
-            list.AddRange(StoreQr(qrData, qrCodeSize));
-            list.AddRange(Encoding.GetBytes(qrData));
-            return list.ToArray();
+            return state == true ? (new byte[] { 27, 'E'.ToByte() }) : (new byte[] { 27, 'F'.ToByte() });
+        }
+
+        public byte[] Center()
+        {
+            return new byte[] { 27, 'j'.ToByte(), 1 };
+        }
+
+        public byte[] Code128(string code)
+        {
+            return (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code Type
+            // Witdh Height If print code informed (1 print, 0 dont print)
+        }
+
+        public byte[] Code39(string code)
+        {
+            return (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code Type
+            // Witdh Height If print code informed (1 print, 0 dont print)
+        }
+
+        public byte[] Condensed(bool state)
+        {
+            return state == true ? (new byte[] { 27, 15 }) : (new byte[] { 27, 18, 20 });
+        }
+
+        public byte[] Ean13(string code)
+        {
+            if (code.Trim().Length != 13)
+                return new byte[0];
+            return (new byte[] { 27, 'b'.ToByte(), 1 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code.Substring(0, 12), Encoding).AddBytes(new byte[] { 0 }); // Code Type
+            // Witdh Height If print code informed (1 print, 0 dont print)
+        }
+
+        public byte[] Expanded(bool state)
+        {
+            return state == true ? (new byte[] { 27, 'w'.ToByte(), 1 }) : (new byte[] { 27, 'w'.ToByte(), 0 });
         }
 
         public byte[] FullCut()
@@ -81,14 +100,44 @@ namespace InnerLibs.EscDarumaCommands
             return new byte[] { 27, 'm'.ToByte() };
         }
 
-        public byte[] PartialCut()
-        {
-            return new byte[] { 27, 'm'.ToByte() };
-        }
-
         public byte[] Initialize()
         {
             return new byte[] { 27, '@'.ToByte() };
+        }
+
+        public byte[] Italic(bool state)
+        {
+            return state == true ? (new byte[] { 27, '4'.ToByte(), 1 }) : (new byte[] { 27, '4'.ToByte(), 0 });
+        }
+
+        public byte[] LargeFont()
+        {
+            return new byte[] { 27, 14, 0 };
+        }
+
+        public byte[] LargerFont()
+        {
+            return new byte[] { 27, 14, 0 };
+        }
+
+        public byte[] Left()
+        {
+            return new byte[] { 27, 'j'.ToByte(), 0 };
+        }
+
+        public byte[] NormalFont()
+        {
+            return new byte[] { 20 };
+        }
+
+        public byte[] OpenDrawer()
+        {
+            return new byte[] { 27, 'p'.ToByte() };
+        }
+
+        public byte[] PartialCut()
+        {
+            return new byte[] { 27, 'm'.ToByte() };
         }
 
         public byte[] PrintImage(Image image, bool highDensity)
@@ -137,85 +186,14 @@ namespace InnerLibs.EscDarumaCommands
             return list.ToArray();
         }
 
-        public byte[] LargeFont()
-        {
-            return new byte[] { 27, 14, 0 };
-        }
+        public byte[] Printqrdata(string qrData) => ((IPrintCommand)this).PrintQrData(qrData);
 
-        public byte[] LargerFont()
+        public byte[] PrintQrData(string qrData, QrCodeSize qrCodeSize)
         {
-            return new byte[] { 27, 14, 0 };
-        }
-
-        public byte[] NormalFont()
-        {
-            return new byte[] { 20 };
-        }
-
-        public byte[] Bold(bool state)
-        {
-            return state == true ? (new byte[] { 27, 'E'.ToByte() }) : (new byte[] { 27, 'F'.ToByte() });
-        }
-
-        public byte[] Condensed(bool state)
-        {
-            return state == true ? (new byte[] { 27, 15 }) : (new byte[] { 27, 18, 20 });
-        }
-
-        public byte[] Expanded(bool state)
-        {
-            return state == true ? (new byte[] { 27, 'w'.ToByte(), 1 }) : (new byte[] { 27, 'w'.ToByte(), 0 });
-        }
-
-        public byte[] Italic(bool state)
-        {
-            return state == true ? (new byte[] { 27, '4'.ToByte(), 1 }) : (new byte[] { 27, '4'.ToByte(), 0 });
-        }
-
-        public byte[] Underline(bool state)
-        {
-            return state == true ? (new byte[] { 27, '-'.ToByte(), 1 }) : (new byte[] { 27, '-'.ToByte(), 0 });
-        }
-
-        public byte[] OpenDrawer()
-        {
-            return new byte[] { 27, 'p'.ToByte() };
-        }
-
-        public byte[] Code128(string code)
-        {
-            return (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code Type
-            // Witdh
-            // Height
-            // If print code informed (1 print, 0 dont print)
-        }
-
-        public byte[] Code39(string code)
-        {
-            return (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code Type
-            // Witdh
-            // Height
-            // If print code informed (1 print, 0 dont print)
-        }
-
-        public byte[] Ean13(string code)
-        {
-            if (code.Trim().Length != 13)
-                return new byte[0];
-            return (new byte[] { 27, 'b'.ToByte(), 1 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code.Substring(0, 12), Encoding).AddBytes(new byte[] { 0 }); // Code Type
-            // Witdh
-            // Height
-            // If print code informed (1 print, 0 dont print)
-        }
-
-        public byte[] Center()
-        {
-            return new byte[] { 27, 'j'.ToByte(), 1 };
-        }
-
-        public byte[] Left()
-        {
-            return new byte[] { 27, 'j'.ToByte(), 0 };
+            var list = new List<byte>();
+            list.AddRange(StoreQr(qrData, qrCodeSize));
+            list.AddRange(Encoding.GetBytes(qrData));
+            return list.ToArray();
         }
 
         public byte[] Right()
@@ -223,7 +201,16 @@ namespace InnerLibs.EscDarumaCommands
             return new byte[] { 27, 'j'.ToByte(), 2 };
         }
 
-        #endregion
+        public byte[] Underline(bool state)
+        {
+            return state == true ? (new byte[] { 27, '-'.ToByte(), 1 }) : (new byte[] { 27, '-'.ToByte(), 0 });
+        }
 
+        byte[] IPrintCommand.PrintQrData(string qrData)
+        {
+            return PrintQrData(qrData, QrCodeSize.Size0);
+        }
+
+        #endregion Methods
     }
 }

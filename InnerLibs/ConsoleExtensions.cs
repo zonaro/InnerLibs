@@ -11,6 +11,50 @@ namespace InnerLibs.Console
     public static class ConsoleExtensions
     {
         /// <summary>
+        /// Toca um Beep
+        /// </summary>
+        /// <param name="Times">Numero de beeps</param>
+        public static void Beep(int Times = 1)
+        {
+            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++)
+                System.Console.Beep();
+        }
+
+        /// <summary>
+        /// Toca um beep especifico
+        /// </summary>
+        /// <param name="Frequency">Frequencia</param>
+        /// <param name="Duration">Duracao em milisegundos</param>
+        public static void Beep(int Frequency, int Duration, int Times = 1)
+        {
+            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++)
+                System.Console.Beep(Frequency.LimitRange(37, 32767), Duration);
+        }
+
+        /// <summary>
+        /// Pula uma ou mais linhas no console
+        /// </summary>
+        /// <param name="Lines">Numero de linhas</param>
+        public static void ConsoleBreakLine(int Lines = 1)
+        {
+            while (Lines > 0)
+            {
+                System.Console.WriteLine(string.Empty);
+                Lines = Lines - 1;
+            }
+        }
+
+        /// <summary>
+        /// Pula uma ou mais linhas no console e retorna a mesma string (usada como chaining)
+        /// </summary>
+        /// <param name="Lines">Numero de linhas</param>
+        public static string ConsoleBreakLine(this string Text, int Lines = 1)
+        {
+            ConsoleBreakLine(Lines);
+            return Text;
+        }
+
+        /// <summary>
         /// Escreve uma data com descrição no console
         /// </summary>
         /// <param name="dateTime"></param>
@@ -18,15 +62,6 @@ namespace InnerLibs.Console
         /// <param name="BreakLines"></param>
         /// <returns></returns>
         public static string ConsoleWrite(this DateTime dateTime, string Text, int BreakLines = 0) => ConsoleWrite($"{dateTime} - {Text}", BreakLines);
-
-        /// <summary>
-        /// Escreve uma data com descrição no console e quebra 1 ou mais linhas
-        /// </summary>
-        /// <param name="dateTime"></param>
-        /// <param name="Text"></param>
-        /// <param name="BreakLines"></param>
-        /// <returns></returns>
-        public static string ConsoleWriteLine(this DateTime dateTime, string Text, int BreakLines = 1) => dateTime.ConsoleWrite(Text, BreakLines.SetMinValue(1));
 
         /// <summary>
         /// Escreve no console colorindo palavras especificas
@@ -85,38 +120,6 @@ namespace InnerLibs.Console
         }
 
         /// <summary>
-        /// Escreve uma linha no console colorindo palavras especificas
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
-
-        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 1)
-        {
-            Lines = Lines.SetMinValue(1);
-            Text.ConsoleWrite(CustomColoredWords, Lines);
-            return Text;
-        }
-
-        /// <summary>
-        /// Escreve uma linha no console usando uma cor especifica
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="Color">Cor</param>
-
-        public static string ConsoleWriteLine(this string Text, ConsoleColor Color, int Lines = 1)
-        {
-            Lines = Lines.SetMinValue(1);
-            Text.ConsoleWrite(Color, Lines);
-            return Text;
-        }
-
-        /// <summary>
-        /// Escreve uma linha no console usando uma cor especifica
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        public static string ConsoleWriteLine(this string Text, int Lines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, Lines);
-
-        /// <summary>
         /// Escreve o texto de uma exception no console
         /// </summary>
         /// <param name="Exception">Texto</param>
@@ -158,36 +161,45 @@ namespace InnerLibs.Console
         public static T ConsoleWriteError<T>(this T Exception, int Lines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, Lines);
 
         /// <summary>
-        /// Pula uma ou mais linhas no console
+        /// Escreve uma data com descrição no console e quebra 1 ou mais linhas
         /// </summary>
-        /// <param name="Lines">Numero de linhas</param>
-        public static void ConsoleBreakLine(int Lines = 1)
-        {
-            while (Lines > 0)
-            {
-                System.Console.WriteLine(string.Empty);
-                Lines = Lines - 1;
-            }
-        }
+        /// <param name="dateTime"></param>
+        /// <param name="Text"></param>
+        /// <param name="BreakLines"></param>
+        /// <returns></returns>
+        public static string ConsoleWriteLine(this DateTime dateTime, string Text, int BreakLines = 1) => dateTime.ConsoleWrite(Text, BreakLines.SetMinValue(1));
 
         /// <summary>
-        /// Pula uma ou mais linhas no console e retorna a mesma string (usada como chaining)
+        /// Escreve uma linha no console colorindo palavras especificas
         /// </summary>
-        /// <param name="Lines">Numero de linhas</param>
-        public static string ConsoleBreakLine(this string Text, int Lines = 1)
+        /// <param name="Text">Texto</param>
+        /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
+
+        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 1)
         {
-            ConsoleBreakLine(Lines);
+            Lines = Lines.SetMinValue(1);
+            Text.ConsoleWrite(CustomColoredWords, Lines);
             return Text;
         }
 
         /// <summary>
-        /// Le a proxima linha inserida no console pelo usuário
+        /// Escreve uma linha no console usando uma cor especifica
         /// </summary>
-        /// <returns></returns>
-        public static string ReadLine()
+        /// <param name="Text">Texto</param>
+        /// <param name="Color">Cor</param>
+
+        public static string ConsoleWriteLine(this string Text, ConsoleColor Color, int Lines = 1)
         {
-            return System.Console.ReadLine();
+            Lines = Lines.SetMinValue(1);
+            Text.ConsoleWrite(Color, Lines);
+            return Text;
         }
+
+        /// <summary>
+        /// Escreve uma linha no console usando uma cor especifica
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        public static string ConsoleWriteLine(this string Text, int Lines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, Lines);
 
         /// <summary>
         /// Le o proximo caractere inserido no console pelo usuário
@@ -208,24 +220,12 @@ namespace InnerLibs.Console
         }
 
         /// <summary>
-        /// Toca um Beep
+        /// Le a proxima linha inserida no console pelo usuário
         /// </summary>
-        /// <param name="Times">Numero de beeps</param>
-        public static void Beep(int Times = 1)
+        /// <returns></returns>
+        public static string ReadLine()
         {
-            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++)
-                System.Console.Beep();
-        }
-
-        /// <summary>
-        /// Toca um beep especifico
-        /// </summary>
-        /// <param name="Frequency">Frequencia</param>
-        /// <param name="Duration">Duracao em milisegundos</param>
-        public static void Beep(int Frequency, int Duration, int Times = 1)
-        {
-            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++)
-                System.Console.Beep(Frequency.LimitRange(37, 32767), Duration);
+            return System.Console.ReadLine();
         }
     }
 }

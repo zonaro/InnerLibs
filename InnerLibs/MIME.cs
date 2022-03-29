@@ -10,13 +10,11 @@ using System.Xml;
 
 namespace InnerLibs
 {
-
     /// <summary>
     /// Módulo de manipulaçao de MIME Types
     /// </summary>
     public static class FileTypeExtensions
     {
-
         /// <summary>
         /// Retorna o Mime Type a partir da extensão de um arquivo
         /// </summary>
@@ -63,13 +61,6 @@ namespace InnerLibs
         public static IEnumerable<string> GetFileType(this Image Image) => Image.RawFormat.GetFileType();
 
         /// <summary>
-        /// Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
-        /// </summary>
-        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
-        /// <returns></returns>
-        public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
-
-        /// <summary>
         /// Retorna um icone de acordo com o arquivo
         /// </summary>
         /// <param name="File">Arquivo</param>
@@ -85,6 +76,13 @@ namespace InnerLibs
                 return SystemIcons.WinLogo;
             }
         }
+
+        /// <summary>
+        /// Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <returns></returns>
+        public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
     }
 
     /// <summary>
@@ -92,6 +90,40 @@ namespace InnerLibs
     /// </summary>
     public class FileType
     {
+        private static FileTypeList l = new FileTypeList();
+
+        internal void Build(string Extension, FileTypeList FileTypeList = null)
+        {
+            var item = GetFileType(Extension, FileTypeList);
+            Extensions = item.Extensions;
+            MimeTypes = item.MimeTypes;
+            Description = item.Description.ToProperCase();
+        }
+
+        /// <summary>
+        /// Constroi um MIME Type Default
+        /// </summary>
+        public FileType()
+        {
+        }
+
+        /// <summary>
+        /// Constroi um File Type a partir de um Arquivo (FileInfo)
+        /// </summary>
+        /// <param name="File">Fileinfo com o Arquivo</param>
+        public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File.Extension, FileTypeList);
+
+        /// <summary>
+        /// Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
+        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
+
+        /// <summary>
+        /// Descrição do tipo de arquivo
+        /// </summary>
+        /// <returns></returns>
+        public string Description { get; set; } = "Unknown File";
 
         /// <summary>
         /// Extensão do arquivo
@@ -105,117 +137,17 @@ namespace InnerLibs
         /// <returns></returns>
         public List<string> MimeTypes { get; set; } = new List<string>();
 
-        public IEnumerable<string> GetMimeTypesOrDefault() => (MimeTypes ?? new List<string>()).DefaultIfEmpty("application/octet-stream");
-
-        /// <summary>
-        /// Descrição do tipo de arquivo
-        /// </summary>
-        /// <returns></returns>
-        public string Description { get; set; } = "Unknown File";
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é do tipo <paramref name="Type"/>
-        /// </summary>
-        /// <returns></returns>
-        public bool IsType(string Type) => Types.Contains(Type);
-
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é de imagem
-        /// </summary>
-        /// <returns></returns>
-        public bool IsImage() => IsType("image");
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é de audio
-        /// </summary>
-        /// <returns></returns>
-        public bool IsAudio() => IsType("audio");
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é de audio
-        /// </summary>
-        /// <returns></returns>
-        public bool IsVideo() => IsType("video");
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é de audio
-        /// </summary>
-        /// <returns></returns>
-        public bool IsText() => IsType("text");
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é de audio
-        /// </summary>
-        /// <returns></returns>
-        public bool IsApplication() => IsType("application");
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é fonte
-        /// </summary>
-        /// <returns></returns>
-        public bool IsFont() => IsType("font");
-
-
-        /// <summary>
-        /// Verifica se Tipo de arquivo é fonte
-        /// </summary>
-        /// <returns></returns>
-        public bool IsMessage() => IsType("message");
-
-
-        /// <summary>
-        /// Retorna o tipo do MIME Type (antes da barra)
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
-
         /// <summary>
         /// Retorna o subtipo do MIME Type (depois da barra)
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> SubTypes => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetAfter("/")).Distinct();
 
-        private static FileTypeList l = new FileTypeList();
-
         /// <summary>
-        /// Retorna uma Lista com todos os MIME Types suportados
+        /// Retorna o tipo do MIME Type (antes da barra)
         /// </summary>
         /// <returns></returns>
-        public static FileTypeList GetFileTypeList(bool Reset = false)
-        {
-            if (Reset || l == null || l.Any() == false)
-            {
-                string r = Misc.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
-                if (r.IsNotBlank())
-                {
-                    var doc = new XmlDocument();
-                    doc.LoadXml(r);
-                    l = new FileTypeList();
-                    foreach (XmlNode node in doc["mimes"].ChildNodes)
-                    {
-                        var ft = l.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.AdjustBlankSpaces() ?? ""), new FileType());
-                        ft.Description = node["Description"].InnerText.AdjustBlankSpaces();
-                        foreach (XmlNode item in node["MimeTypes"].ChildNodes)
-                            ft.MimeTypes.Add(item.InnerText.AdjustBlankSpaces());
-                        foreach (XmlNode item in node["Extensions"].ChildNodes)
-                            ft.Extensions.Add(item.InnerText.AdjustBlankSpaces());
-                        ft.MimeTypes = ft.MimeTypes.Distinct().ToList();
-                        ft.Extensions = ft.Extensions.Distinct().ToList();
-                        if (!l.Contains(ft))
-                            l.Add(ft);
-                    }
-                }
-            }
-
-            return l;
-        }
-
-        /// <summary>
-        /// Retorna uma lista de strings contendo todos os MIME Types
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null) => (FileTypeList ?? GetFileTypeList()).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
+        public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
 
         /// <summary>
         /// Traz uma lista de extensões de acordo com o MIME type especificado
@@ -274,46 +206,108 @@ namespace InnerLibs
             return (FileTypeList ?? GetFileTypeList()).FirstOr(x => x.Extensions.ToArray().Union(x.GetMimeTypesOrDefault().ToArray()).Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase), new FileType());
         }
 
-        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
-
         /// <summary>
-        /// Constroi um MIME Type Default
-        /// </summary>
-        public FileType()
-        {
-        }
-
-        /// <summary>
-        /// Constroi um File Type a partir de um Arquivo (FileInfo)
-        /// </summary>
-        /// <param name="File">Fileinfo com o Arquivo</param>
-        public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File.Extension, FileTypeList);
-
-        /// <summary>
-        /// Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
-        /// </summary>
-        /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
-        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
-
-        internal void Build(string Extension, FileTypeList FileTypeList = null)
-        {
-            var item = GetFileType(Extension, FileTypeList);
-            Extensions = item.Extensions;
-            MimeTypes = item.MimeTypes;
-            Description = item.Description.ToProperCase();
-        }
-
-        /// <summary>
-        /// Retorna uma string com o primeiro MIME TYPE do arquivo
+        /// Retorna uma Lista com todos os MIME Types suportados
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => GetMimeTypesOrDefault().First();
+        public static FileTypeList GetFileTypeList(bool Reset = false)
+        {
+            if (Reset || l == null || l.Any() == false)
+            {
+                string r = Misc.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
+                if (r.IsNotBlank())
+                {
+                    var doc = new XmlDocument();
+                    doc.LoadXml(r);
+                    l = new FileTypeList();
+                    foreach (XmlNode node in doc["mimes"].ChildNodes)
+                    {
+                        var ft = l.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.AdjustBlankSpaces() ?? ""), new FileType());
+                        ft.Description = node["Description"].InnerText.AdjustBlankSpaces();
+                        foreach (XmlNode item in node["MimeTypes"].ChildNodes)
+                            ft.MimeTypes.Add(item.InnerText.AdjustBlankSpaces());
+                        foreach (XmlNode item in node["Extensions"].ChildNodes)
+                            ft.Extensions.Add(item.InnerText.AdjustBlankSpaces());
+                        ft.MimeTypes = ft.MimeTypes.Distinct().ToList();
+                        ft.Extensions = ft.Extensions.Distinct().ToList();
+                        if (!l.Contains(ft))
+                            l.Add(ft);
+                    }
+                }
+            }
+
+            return l;
+        }
+
+        /// <summary>
+        /// Retorna uma lista de strings contendo todos os MIME Types
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null) => (FileTypeList ?? GetFileTypeList()).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
+
+        public IEnumerable<string> GetMimeTypesOrDefault() => (MimeTypes ?? new List<string>()).DefaultIfEmpty("application/octet-stream");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsApplication() => IsType("application");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsAudio() => IsType("audio");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é fonte
+        /// </summary>
+        /// <returns></returns>
+        public bool IsFont() => IsType("font");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é de imagem
+        /// </summary>
+        /// <returns></returns>
+        public bool IsImage() => IsType("image");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é fonte
+        /// </summary>
+        /// <returns></returns>
+        public bool IsMessage() => IsType("message");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsText() => IsType("text");
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é do tipo <paramref name="Type"/>
+        /// </summary>
+        /// <returns></returns>
+        public bool IsType(string Type) => Types.Contains(Type);
+
+        /// <summary>
+        /// Verifica se Tipo de arquivo é de audio
+        /// </summary>
+        /// <returns></returns>
+        public bool IsVideo() => IsType("video");
+
+        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
 
         /// <summary>
         /// Retorna uma string representando um filtro de caixa de dialogo WinForms
         /// </summary>
         /// <returns></returns>
         public string ToFilterString() => $"{Description}|{Extensions.SelectJoinString(ext => $"*{ext}", ";")}";
+
+        /// <summary>
+        /// Retorna uma string com o primeiro MIME TYPE do arquivo
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => GetMimeTypesOrDefault().First();
     }
 
     /// <summary>
@@ -321,14 +315,12 @@ namespace InnerLibs
     /// </summary>
     public class FileTypeList : List<FileType>
     {
-
         /// <summary>
         /// Cria uma nova lista vazia
         /// </summary>
         public FileTypeList()
         {
         }
-
 
         /// <summary>
         /// Cria uma nova lista a partir de mime types, caminhos ou extensoes
@@ -368,25 +360,15 @@ namespace InnerLibs
         {
         }
 
-        /// <summary>
-        /// Retorna uma string representando um filtro de caixa de dialogo WinForms
-        /// </summary>
-        /// <returns></returns>
-        public string ToFilterString() => this.SelectJoinString(x => x.ToFilterString(), "|");
-
-        /// <summary>
-        /// Busca arquivos que correspondam com as extensões desta lista
-        /// </summary>
-        /// <param name="Directory">   Diretório</param>
-        /// <param name="SearchOption">Tipo de busca</param>
-        /// <returns></returns>
-        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
+        public IEnumerable<string> Descriptions => (IEnumerable<string>)this.SelectMany(x => x.Description).Distinct();
 
         /// <summary>
         /// Retorna todas as extensões da lista
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> Extensions => this.SelectMany(x => x.Extensions).Distinct();
+
+        public IEnumerable<string> FirstTypes => this.SelectMany(x => x.Types).Distinct();
 
         /// <summary>
         /// Retorna todas os MIME Types da lista
@@ -396,8 +378,18 @@ namespace InnerLibs
 
         public IEnumerable<string> SubTypes => this.SelectMany(x => x.SubTypes).Distinct();
 
-        public IEnumerable<string> FirstTypes => this.SelectMany(x => x.Types).Distinct();
+        /// <summary>
+        /// Busca arquivos que correspondam com as extensões desta lista
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">Tipo de busca</param>
+        /// <returns></returns>
+        public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
 
-        public IEnumerable<string> Descriptions => (IEnumerable<string>)this.SelectMany(x => x.Description).Distinct();
+        /// <summary>
+        /// Retorna uma string representando um filtro de caixa de dialogo WinForms
+        /// </summary>
+        /// <returns></returns>
+        public string ToFilterString() => this.SelectJoinString(x => x.ToFilterString(), "|");
     }
 }
