@@ -163,35 +163,15 @@ namespace InnerLibs.LINQ
 
         #region FilterDateRange
 
-        public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range)
-        => List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate).Compile());
+        public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null)
+        => List.Where(x => Range.Contains(Property.Compile()(x), FilterBehavior ?? Range.FilterBehavior));
 
-        public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range)
-        => List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate).Compile());
+        public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null)
+        => List.Where(x => Range.Contains(Property.Compile()(x), FilterBehavior ?? Range.FilterBehavior));
 
-        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range)
-        {
-            if (Range.IsSingleDateTime())
-            {
-                return List.Where(Property.IsEqual(Range.StartDate));
-            }
-            else
-            {
-                return List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate));
-            }
-        }
+        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range));
 
-        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range)
-        {
-            if (Range.IsSingleDateTime())
-            {
-                return List.Where(Property.IsEqual(Range.StartDate));
-            }
-            else
-            {
-                return List.Where(Property.IsBetweenOrEqual(Range.StartDate, Range.EndDate));
-            }
-        }
+        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range));
 
         #endregion FilterDateRange
 
@@ -223,13 +203,13 @@ namespace InnerLibs.LINQ
         public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange)
         {
             if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
-            else return WhereExpression(Property, "between", new[] { DateRange.StartDate, (IComparable)DateRange.EndDate });
+            else return WhereExpression(Property, "between", new IComparable[] { DateRange.StartDate, DateRange.EndDate });
         }
 
         public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange)
         {
             if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
-            else return WhereExpression(Property, "between", new[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
+            else return WhereExpression(Property, "between", new IComparable[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
         }
 
         #endregion IsBetween
@@ -250,19 +230,35 @@ namespace InnerLibs.LINQ
         public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
         {
             if (MinValue.Equals(MaxValue)) return IsEqual(Property, MinValue);
-            else return WhereExpression(Property, "betweenorequal", new[] { (IComparable)MinValue, (IComparable)MaxValue });
+            else return WhereExpression(Property, "betweenorequal", new IComparable[] { (IComparable)MinValue, (IComparable)MaxValue });
         }
 
-        public static Expression<Func<T, bool>> IsBetweenOrEqual<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange)
+        public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
         {
             if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
-            else return WhereExpression(Property, "betweenorequal", new[] { DateRange.StartDate, (IComparable)DateRange.EndDate });
+
+            var icomp = new IComparable[] { DateRange.StartDate, DateRange.EndDate };
+            switch (FilterBehavior ?? DateRange.FilterBehavior)
+            {
+                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp);
+                case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return WhereExpression(Property, "between", icomp).Or(WhereExpression(Property, "equal", new IComparable[] { DateRange.StartDate }));
+                case DateRangeFilterBehavior.BetweenOrEqual:
+                default: return WhereExpression(Property, "betweenorequal", icomp);
+            }
         }
 
-        public static Expression<Func<T, bool>> IsBetweenOrEqual<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange)
+        public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
         {
-            if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
-            else return WhereExpression(Property, "betweenorequal", new[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
+            if (DateRange.IsSingleDateTime()) return IsEqual(Property, (DateTime?)DateRange.StartDate);
+
+            var icomp = new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate };
+            switch (FilterBehavior ?? DateRange.FilterBehavior)
+            {
+                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp);
+                case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return WhereExpression(Property, "between", icomp).Or(IsEqual(Property, (DateTime?)DateRange.StartDate));
+                case DateRangeFilterBehavior.BetweenOrEqual:
+                default: return WhereExpression(Property, "betweenorequal", icomp);
+            }
         }
 
         #endregion IsBetweenOrEqual

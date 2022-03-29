@@ -107,7 +107,8 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/> e retorna a mesma instancia deste <see cref="Dictionary(Of TKey, TValue)"/>
+        /// Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/> e retorna
+        /// a mesma instancia deste <see cref="Dictionary(Of TKey, TValue)"/>
         /// </summary>
         /// <typeparam name="KeyType">Tipo da Key</typeparam>
         /// <typeparam name="ValueType">Tipo do valor</typeparam>
@@ -160,46 +161,61 @@ namespace InnerLibs
             return List;
         }
 
-        public static bool IsEqual<T>(this T Value1, T Value2) where T : IComparable => Value1.Equals(Value2);
+        public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
 
-        public static bool IsGreaterThan<T>(this T Value1, T Value2) where T : IComparable => Value1.CompareTo(Value2) > 0;
+        public static bool IsGreaterThan<T>(this T Value, T MinValue) where T : IComparable => Value.CompareTo(MinValue) > 0;
 
-        public static bool IsGreaterThanOrEqual<T>(this T Value1, T Value2) where T : IComparable => Value1.IsGreaterThan(Value2) || Value1.IsEqual(Value2);
+        public static bool IsGreaterThanOrEqual<T>(this T Value, T MinValue) where T : IComparable => Value.IsGreaterThan(MinValue) || Value.IsEqual(MinValue);
 
-        public static bool IsLessThan<T>(this T Value1, T Value2) where T : IComparable => Value1.CompareTo(Value2) < 0;
+        public static bool IsLessThan<T>(this T Value, T MaxValue) where T : IComparable => Value.CompareTo(MaxValue) < 0;
 
-        public static bool IsLessThanOrEqual<T>(this T Value1, T Value2) where T : IComparable => Value1.IsLessThan(Value2) || Value1.IsEqual(Value2);
+        public static bool IsLessThanOrEqual<T>(this T Value, T MaxValue) where T : IComparable => Value.IsLessThan(MaxValue) || Value.IsEqual(MaxValue);
 
         /// <summary>
         /// Verifica se um valor numerico ou data está entre outros 2 valores
         /// </summary>
-        /// <param name="Value">      Numero</param>
-        /// <param name="Value1"> Primeiro numero comparador</param>
-        /// <param name="Value2">Segundo numero comparador</param>
+        /// <param name="Value">Numero</param>
+        /// <param name="MinValue">Primeiro numero comparador</param>
+        /// <param name="MaxValue">Segundo numero comparador</param>
         /// <returns></returns>
-        public static bool IsBetween(this IComparable Value, IComparable Value1, IComparable Value2)
+        public static bool IsBetween(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
-            FixOrder(ref Value1, ref Value2);
-            return Value1 == Value2 ? Value == Value1 : Value.IsLessThan(Value2) && Value.IsGreaterThan(Value1);
+            FixOrder(ref MinValue, ref MaxValue);
+            return MinValue == MaxValue ? Value == MinValue : Value.IsLessThan(MaxValue) && Value.IsGreaterThan(MinValue);
         }
 
         /// <summary>
         /// Verifica se um valor numerico ou data está entre outros 2 valores
         /// </summary>
-        /// <param name="Value">      Numero</param>
-        /// <param name="Value1"> Primeiro numero comparador</param>
-        /// <param name="Value2">Segundo numero comparador</param>
+        /// <param name="Value">Numero</param>
+        /// <param name="MinValue">Primeiro numero comparador</param>
+        /// <param name="MaxValue">Segundo numero comparador</param>
         /// <returns></returns>
-        public static bool IsBetweenOrEqual(this IComparable Value, IComparable Value1, IComparable Value2)
+        public static bool IsBetweenOrEqual(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
-            FixOrder(ref Value1, ref Value2);
-            if (Value1 == Value2) return Value == Value1;
-            else return Value.IsLessThanOrEqual(Value2) && Value.IsGreaterThanOrEqual(Value1);
+            FixOrder(ref MinValue, ref MaxValue);
+            if (MinValue == MaxValue) return Value == MinValue;
+            else return Value.IsLessThanOrEqual(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
         }
 
         /// <summary>
-        /// Troca ou não a ordem das variaveis de inicio e fim  fazendo com que a Value1
-        /// sempre seja menor que a Value2. Util para tratar ranges
+        /// Verifica se um valor numerico ou data está entre outros 2 valores, excluindo <paramref
+        /// name="MaxValue"/> da comparaçao
+        /// </summary>
+        /// <param name="Value">Numero</param>
+        /// <param name="MinValue">Primeiro numero comparador</param>
+        /// <param name="MaxValue">Segundo numero comparador</param>
+        /// <returns></returns>
+        public static bool IsBetweenOrEqualExcludeMax(this IComparable Value, IComparable MinValue, IComparable MaxValue)
+        {
+            FixOrder(ref MinValue, ref MaxValue);
+            if (MinValue == MaxValue) return Value == MinValue;
+            else return Value.IsLessThan(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
+        }
+
+        /// <summary>
+        /// Troca ou não a ordem das variaveis de inicio e fim fazendo com que a Value1 sempre seja
+        /// menor que a Value2. Util para tratar ranges
         /// </summary>
         public static void FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
@@ -213,7 +229,8 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Troca o valor de <paramref name="FirstValue"/> pelo valor de <paramref name="SecondValue"/> e o  valor de <paramref name="SecondValue"/> pelo valor de <paramref name="FirstValue"/>
+        /// Troca o valor de <paramref name="FirstValue"/> pelo valor de <paramref
+        /// name="SecondValue"/> e o valor de <paramref name="SecondValue"/> pelo valor de <paramref name="FirstValue"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="FirstValue"></param>
@@ -266,7 +283,8 @@ namespace InnerLibs
         public static FileInfo CreateXmlFile(this object obj, string FilePath) => obj.CreateXML().ToXMLString().WriteToFile(FilePath);
 
         /// <summary>
-        /// Cria um <see cref="Guid"/> a partir de uma string ou um novo <see cref="Guid"/> se a conversão falhar
+        /// Cria um <see cref="Guid"/> a partir de uma string ou um novo <see cref="Guid"/> se a
+        /// conversão falhar
         /// </summary>
         /// <param name="Source"></param>
         /// <returns></returns>
@@ -285,7 +303,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Concatena todas as  <see cref="Exception.InnerException"/> em uma única string
+        /// Concatena todas as <see cref="Exception.InnerException"/> em uma única string
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
@@ -386,12 +404,14 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays formando uma tabela
+        /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de
+        /// arrays formando uma tabela
         /// </summary>
         public static IEnumerable<object[]> ToTableArray<GroupKeyType, GroupValueType>(this Dictionary<GroupKeyType, GroupValueType> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
 
         /// <summary>
-        /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada grupo a partir de outra propriedade do mesmo objeto
+        /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada
+        /// grupo a partir de outra propriedade do mesmo objeto
         /// </summary>
         /// <typeparam name="Type"></typeparam>
         /// <typeparam name="Group"></typeparam>
@@ -432,7 +452,8 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Agrupa itens de uma lista a partir de duas propriedades de um objeto resultado em um grupo com subgrupos daquele objeto
+        /// Agrupa itens de uma lista a partir de duas propriedades de um objeto resultado em um
+        /// grupo com subgrupos daquele objeto
         /// </summary>
         /// <typeparam name="Type"></typeparam>
         /// <typeparam name="Group"></typeparam>
@@ -453,7 +474,7 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="BoolExp">Expressão de teste de Valor boolean</param>
-        /// <param name="TrueValue"> Valor se verdadeiro</param>
+        /// <param name="TrueValue">Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
         public static R AsIf<T, R>(this T obj, Expression<Func<T, bool>> BoolExp, R TrueValue, R FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
@@ -462,8 +483,8 @@ namespace InnerLibs
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="Bool">      Valor boolean</param>
-        /// <param name="TrueValue"> Valor se verdadeiro</param>
+        /// <param name="Bool">Valor boolean</param>
+        /// <param name="TrueValue">Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
         public static T AsIf<T>(this bool Bool, T TrueValue, T FalseValue = default) => Bool ? TrueValue : FalseValue;
@@ -472,24 +493,24 @@ namespace InnerLibs
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="Bool">      Valor boolean</param>
-        /// <param name="TrueValue"> Valor se verdadeiro</param>
+        /// <param name="Bool">Valor boolean</param>
+        /// <param name="TrueValue">Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
         public static T AsIf<T>(this bool? Bool, T TrueValue, T FalseValue = default) => (Bool.HasValue && Bool.Value).AsIf(TrueValue, FalseValue);
 
         /// <summary>
-        /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que
-        /// possuir um valor
+        /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento
+        /// que possuir um valor
         /// </summary>
         /// <param name="First">Primeiro Item</param>
-        /// <param name="N">    Outros itens</param>
+        /// <param name="N">Outros itens</param>
         /// <returns></returns>
         public static string BlankCoalesce(this string First, params string[] N) => BlankCoalesce(new[] { First }.Union(N ?? Array.Empty<string>()).ToArray());
 
         /// <summary>
-        /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento que
-        /// possuir um valor
+        /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento
+        /// que possuir um valor
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
@@ -654,7 +675,8 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Conta de maneira distinta N items de uma coleçao a partir de uma propriedade e agrupa o resto em outra
+        /// Conta de maneira distinta N items de uma coleçao a partir de uma propriedade e agrupa o
+        /// resto em outra
         /// </summary>
         /// <typeparam name="Type">TIpo de Objeto</typeparam>
         /// <param name="Arr">colecao</param>
@@ -884,7 +906,7 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se um tipo possui uma propriedade
         /// </summary>
-        /// <param name="Type">        </param>
+        /// <param name="Type"></param>
         /// <param name="PropertyName"></param>
         /// <returns></returns>
         public static bool HasProperty(this Type Type, string PropertyName, bool GetPrivate = false)
@@ -936,7 +958,7 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se um tipo possui uma propriedade
         /// </summary>
-        /// <param name="Obj"> </param>
+        /// <param name="Obj"></param>
         /// <param name="Name"></param>
         /// <returns></returns>
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
@@ -968,7 +990,7 @@ namespace InnerLibs
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
         /// </summary>
         /// <typeparam name="Type">Tipo do objeto</typeparam>
-        /// <param name="Obj"> objeto</param>
+        /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
         public static bool IsIn<Type>(this Type Obj, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList());
@@ -979,7 +1001,7 @@ namespace InnerLibs
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
         /// </summary>
         /// <typeparam name="Type">Tipo do objeto</typeparam>
-        /// <param name="Obj"> objeto</param>
+        /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
         public static bool IsIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => Comparer is null ? List.Contains(Obj) : List.Contains(Obj, Comparer);
@@ -988,7 +1010,7 @@ namespace InnerLibs
         /// Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays.
         /// </summary>
         /// <typeparam name="Type">Tipo do objeto</typeparam>
-        /// <param name="Obj"> objeto</param>
+        /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
         public static bool IsInAny<Type>(this Type Obj, IEnumerable<Type>[] List, IEqualityComparer<Type> Comparer = null) => (List ?? Array.Empty<IEnumerable<Type>>()).Any(x => Obj.IsIn(x, Comparer));
@@ -1019,7 +1041,7 @@ namespace InnerLibs
         /// Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
         /// </summary>
         /// <typeparam name="Type">Tipo do objeto</typeparam>
-        /// <param name="Obj"> objeto</param>
+        /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
         public static bool IsNotIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => Comparer == null ? !List.Contains(Obj) : !List.Contains(Obj, Comparer);
@@ -1028,7 +1050,7 @@ namespace InnerLibs
         /// Verifica se o objeto não existe dentro de um texto
         /// </summary>
         /// <typeparam name="Type">Tipo do objeto</typeparam>
-        /// <param name="Obj"> objeto</param>
+        /// <param name="Obj">objeto</param>
         /// <param name="TExt">Texto</param>
         /// <returns></returns>
         public static bool IsNotIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text.Contains(Obj.ToString()) : Text.Contains(Obj.ToString(), Comparer.Value);
@@ -1040,9 +1062,7 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se o objeto é do tipo numérico.
         /// </summary>
-        /// <remarks>
-        /// Boolean is not considered numeric.
-        /// </remarks>
+        /// <remarks>Boolean is not considered numeric.</remarks>
         public static bool IsNumericType<T>(this T Obj) => Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
 
         public static bool IsNullableType(this Type t) => t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
@@ -1100,11 +1120,14 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna o <see cref="Type"/> equivalente a <typeparamref name="T"/>   ou o <see cref="Type"/> do objeto <see cref="Nullable(Of T)"/>
+        /// Retorna o <see cref="Type"/> equivalente a <typeparamref name="T"/> ou o <see
+        /// cref="Type"/> do objeto <see cref="Nullable(Of T)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
-        /// <returns>o tipo do objeto ou o tipo do objeto anulavel ou o prorio objeto se ele for um <see cref="Type"/></returns>
+        /// <returns>
+        /// o tipo do objeto ou o tipo do objeto anulavel ou o prorio objeto se ele for um <see cref="Type"/>
+        /// </returns>
         public static Type GetNullableTypeOf<T>(this T Obj)
         {
             var tt = Obj.GetTypeOf();
@@ -1130,7 +1153,7 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="First">Primeiro Item</param>
-        /// <param name="N">    Outros itens</param>
+        /// <param name="N">Outros itens</param>
         /// <returns></returns>
         public static T? NullCoalesce<T>(this T? First, params T?[] N) where T : struct
         {
@@ -1155,7 +1178,7 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="First">Primeiro Item</param>
-        /// <param name="N">    Outros itens</param>
+        /// <param name="N">Outros itens</param>
         /// <returns></returns>
         public static T NullCoalesce<T>(this T First, params T[] N) where T : class => First ?? NullCoalesce((N ?? Array.Empty<T>()).AsEnumerable());
 
@@ -1172,7 +1195,7 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="Tvalue"></typeparam>
-        /// <param name="dic"> </param>
+        /// <param name="dic"></param>
         /// <param name="Keys"></param>
         public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, params TKey[] Keys)
         {
@@ -1184,16 +1207,16 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="Tvalue"></typeparam>
-        /// <param name="dic">      </param>
+        /// <param name="dic"></param>
         /// <param name="predicate"></param>
         public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate) => dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
 
         /// <summary>
         /// Seta o valor de uma propriedade de um objeto
         /// </summary>
-        /// <param name="MyObject">    Objeto</param>
+        /// <param name="MyObject">Objeto</param>
         /// <param name="PropertyName">Nome da properiedade</param>
-        /// <param name="Value">       Valor da propriedade definida por <paramref name="PropertyName"/></param>
+        /// <param name="Value">Valor da propriedade definida por <paramref name="PropertyName"/></param>
         /// <typeparam name="Type">
         /// Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
         /// </typeparam>

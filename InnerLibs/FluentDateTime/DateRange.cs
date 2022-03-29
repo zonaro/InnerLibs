@@ -424,8 +424,9 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DateTime> GetNonRelevantDays() => GetDays(NonRelevantDaysOfWeek);
 
         /// <summary>
-        /// Convert a <see cref="DateRange"/> to a human readable string.
+        /// Convert a <see cref="DateRange"/> to a human readable string using default <see cref="DateRangeDisplay"/>.
         /// </summary>
+        /// <returns></returns>
         public string ToDisplayString() => ToDisplayString(null);
 
         /// <summary>
@@ -507,7 +508,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Convert a <see cref="DateRange"/> to a human readable string.
+        /// Convert a <see cref="DateRange"/> to a human readable string using default <see cref="DateRangeDisplay"/>.
         /// </summary>
         /// <returns></returns>
         public override string ToString() => ToDisplayString();
@@ -681,36 +682,30 @@ namespace InnerLibs.TimeMachine
         /// <returns>The result of the conversion.</returns>
         public static implicit operator DateRange(TimeSpan timeSpan) => new DateRange(timeSpan);
 
-        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            if (obj == null)
+            switch (obj)
             {
-                return false;
-            }
-            var type = obj.GetType();
-            if (type == typeof(DateRange))
-            {
-                return this == (DateRange)obj;
-            }
-            if (type == typeof(TimeSpan))
-            {
-                return this == (TimeSpan)obj;
-            }
-            if (type == typeof(int))
-            {
-                return this.GetHashCode() == type.ToInt();
-            }
+                case null:
+                    return false;
 
-            if (type == typeof(long))
-            {
-                return this.Ticks == type.ToLong();
-            }
+                case DateRange dr:
+                    return this == dr;
 
-            return false;
+                case TimeSpan ts:
+                    return TimeSpan == ts;
+
+                case int i:
+                    return GetHashCode() == i;
+
+                case long l:
+                    return Ticks == l;
+
+                default:
+                    return false;
+            }
         }
 
-        /// <inheritdoc/>
         public override int GetHashCode() => Months.GetHashCode() ^ Years.GetHashCode() ^ Days.GetHashCode() ^ Hours.GetHashCode() ^ Minutes.GetHashCode() ^ Seconds.GetHashCode() ^ Milliseconds.GetHashCode();
 
         private static DateRange AddInternal(DateRange left, TimeSpan right) => new DateRange(left.StartDate, right);
@@ -737,9 +732,9 @@ namespace InnerLibs.TimeMachine
 
         public static implicit operator DateRange((DateTime, DateTime) Dates) => new DateRange(Dates.Item1, Dates.Item2);
 
-        public static implicit operator List<DateTime>(DateRange dateRange) => dateRange?.Pair().ToList();
+        public static implicit operator List<DateTime>(DateRange dateRange) => dateRange?.PairArray().ToList();
 
-        public static implicit operator DateTime[](DateRange dateRange) => dateRange?.Pair().ToArray();
+        public static implicit operator DateTime[](DateRange dateRange) => dateRange?.PairArray().ToArray();
 
         public static implicit operator Dictionary<string, DateTime>(DateRange dateRange) => dateRange?.Dictionary();
 
@@ -777,62 +772,75 @@ namespace InnerLibs.TimeMachine
 
             switch (Interval)
             {
-                case DateRangeInterval.Milliseconds: return TotalMilliseconds;
-                case DateRangeInterval.Seconds: return TotalSeconds;
-                case DateRangeInterval.Minutes: return TotalMinutes;
-                case DateRangeInterval.Hours: return TotalHours;
-                case DateRangeInterval.Days: return TotalDays;
-                case DateRangeInterval.Weeks: return TotalWeeks;
-                case DateRangeInterval.Months: return TotalMonths;
                 case DateRangeInterval.Years: return TotalYears;
-                default: return -1;
+                case DateRangeInterval.Months: return TotalMonths;
+                case DateRangeInterval.Weeks: return TotalWeeks;
+                case DateRangeInterval.Days: return TotalDays;
+                case DateRangeInterval.Hours: return TotalHours;
+                case DateRangeInterval.Minutes: return TotalMinutes;
+                case DateRangeInterval.Seconds: return TotalSeconds;
+                case DateRangeInterval.Milliseconds:
+                case DateRangeInterval.LessAccurate:
+                default: return TotalMilliseconds;
             };
         }
 
         /// <summary>
-        /// Move um periodo a partir de um <paramref name="Total"/> especificado por <paramref name="DateRangeInterval"/>
+        /// Return a new instance os <see cref="DateRange"/> by adding a <see
+        /// cref="DateRangeInterval"/> multiplied by <paramref name="Amount"/> to this <see cref="DateRange"/>
         /// </summary>
-        /// <param name="DateRangeInterval"></param>
-        /// <param name="Total"></param>
         /// <returns></returns>
-        public DateRange MovePeriod(DateRangeInterval DateRangeInterval, double Total)
+
+        public DateRange AddInterval(DateRangeInterval DateRangeInterval, double Amount)
         {
             if (DateRangeInterval == DateRangeInterval.LessAccurate)
             {
                 DateRangeInterval = GetLessAccurateDateRangeInterval();
             }
 
-            return new DateRange(StartDate.AddInterval(DateRangeInterval, Total), EndDate.AddInterval(DateRangeInterval, Total), ForceFirstAndLastMoments);
+            return new DateRange(StartDate.AddInterval(DateRangeInterval, Amount), EndDate.AddInterval(DateRangeInterval, Amount), ForceFirstAndLastMoments);
         }
 
+        /// <summary>
+        /// Return a new identical instance of this <see cref="DateRange"/>
+        /// </summary>
+        /// <returns></returns>
         object ICloneable.Clone() => this.Clone();
 
         /// <summary>
-        /// Clona este DateRange
+        /// Return a new identical instance of this <see cref="DateRange"/>
         /// </summary>
         /// <returns></returns>
         public DateRange Clone() => new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _isDefault = _isDefault };
 
         /// <summary>
-        /// Pula um determinado numero de periodos
+        /// Return a new <see cref="DateRange"/> with equivalent number of <see
+        /// cref="DateRangeInterval"/> multiplied by <paramref name="Amount"/>
         /// </summary>
         /// <returns></returns>
-        public DateRange JumpPeriod(int Amount, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => Amount == 0 ? Clone() : MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval) * Amount);
+        /// <remarks>
+        /// Negative <paramref name="Amount"/> return a period before <see cref="StartDate"/>,
+        /// Positive <paramref name="Amount"/> return a period after <see cref="EndDate"/>
+        /// </remarks>
+        public DateRange JumpPeriod(int Amount, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => Amount == 0 ? Clone() : AddInterval(DateRangeInterval, GetPeriodAs(DateRangeInterval) * Amount);
 
         /// <summary>
-        /// Move para o periodo equivalente anterior
+        /// Return a new <see cref="DateRange"/> with equivalent number of <see
+        /// cref="DateRangeInterval"/> before <see cref="StartDate"/>
         /// </summary>
         /// <returns></returns>
-        public DateRange PreviousPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => MovePeriod(DateRangeInterval, -GetPeriodAs(DateRangeInterval));
+        public DateRange PreviousPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => AddInterval(DateRangeInterval, GetPeriodAs(DateRangeInterval).ForceNegative());
 
         /// <summary>
-        /// Move para ao proximo periodo equivalente
+        /// Return a new <see cref="DateRange"/> with equivalent number of <see
+        /// cref="DateRangeInterval"/> after <see cref="EndDate"/>
         /// </summary>
         /// <returns></returns>
-        public DateRange NextPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => MovePeriod(DateRangeInterval, GetPeriodAs(DateRangeInterval));
+        public DateRange NextPeriod(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => AddInterval(DateRangeInterval, GetPeriodAs(DateRangeInterval).ForcePositive());
 
         /// <summary>
-        /// Retorna o <see cref="DateRangeInterval"/> menos preciso para calcular periodos
+        /// Return the less accurate <see cref="DateRangeInterval"/> by checking the most hight
+        /// non-zero total propety of this <see cref="DateRange"/>
         /// </summary>
         /// <returns></returns>
         public DateRangeInterval GetLessAccurateDateRangeInterval()
@@ -866,16 +874,37 @@ namespace InnerLibs.TimeMachine
         public FortnightGroup CreateFortnightGroup() => FortnightGroup.CreateFromDateRange(this);
 
         /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
+        /// Returns a new <see cref="IEnumerable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
+        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime>> PropertyExpression, DateRangeFilterBehavior FilterBehavior) => List.FilterDateRange(PropertyExpression, this, FilterBehavior);
+
+        /// <summary>
+        /// Returns a new <see cref="IEnumerable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="PropertyExpression"></param>
         public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
+        /// Returns a new <see cref="IQueryable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="PropertyExpression"></param>
+        /// <returns></returns>
+        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime>> PropertyExpression, DateRangeFilterBehavior FilterBehavior) => List.FilterDateRange(PropertyExpression, this, FilterBehavior);
+
+        /// <summary>
+        /// Returns a new <see cref="IQueryable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
@@ -884,7 +913,18 @@ namespace InnerLibs.TimeMachine
         public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
+        /// Returns a new <see cref="IEnumerable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="PropertyExpression"></param>
+        /// <returns></returns>
+        public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression, DateRangeFilterBehavior FilterBehavior) => List.FilterDateRange(PropertyExpression, this, FilterBehavior);
+
+        /// <summary>
+        /// Returns a new <see cref="IEnumerable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
@@ -893,12 +933,22 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<T> FilterList<T>(IEnumerable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
-        /// Filtra uma lista considerando o periodo deste DateRange
+        /// Returns a new <see cref="IQueryable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <param name="PropertyExpression"></param>
         /// <returns></returns>
+        public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression, DateRangeFilterBehavior FilterBehavior) => List.FilterDateRange(PropertyExpression, this, FilterBehavior);
+
+        /// <summary>
+        /// Returns a new <see cref="IQueryable{T}"/> filtered from a property where its value is
+        /// tested through the function <see cref="Contains(DateTime, DateRangeFilterBehavior)"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="PropertyExpression"></param>
         public IQueryable<T> FilterList<T>(IQueryable<T> List, Expression<Func<T, DateTime?>> PropertyExpression) => List.FilterDateRange(PropertyExpression, this);
 
         /// <summary>
@@ -952,39 +1002,106 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Verifica se 2 periodos possuem interseção de datas
+        /// Check if this <see cref="DateRange"/> overlaps another <see cref="DateRange"/>
         /// </summary>
-        /// <param name="Period">Periodo</param>
+        /// <param name="Period"></param>
         /// <returns></returns>
         public bool Overlaps(DateRange Period) => (Period.StartDate <= EndDate && Period.StartDate >= StartDate) || (StartDate <= Period.EndDate && StartDate >= Period.StartDate);
 
         /// <summary>
-        /// Verifica se 2 periodos coincidem datas (interseção, esta dentro de um periodo de ou
-        /// contém um periodo)
+        /// Check if 2 dateranges maches any date (Intersect, Contains or Overlaps)
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>
         public bool MatchAny(DateRange Period) => Overlaps(Period) || Contains(Period) || IsIn(Period);
 
         /// <summary>
-        /// Verifica se este periodo contém um outro periodo
+        /// Check if this <see cref="DateRange"/> contains another <see cref="DateRange"/>
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>
         public bool Contains(DateRange Period) => StartDate <= Period.StartDate && Period.EndDate <= EndDate;
 
         /// <summary>
-        /// Verifica se este periodo contém uma data
+        /// Check if this <see cref="DateRange"/> contains a <see cref="DateTime"/> using a
+        /// <paramref name="FilterBehavior"/>
         /// </summary>
         /// <param name="Day"></param>
         /// <returns></returns>
-        public bool Contains(DateTime Day) => Day.IsBetweenOrEqual(StartDate, EndDate);
+        public bool Contains(DateTime Day, DateRangeFilterBehavior FilterBehavior)
+        {
+            if (IsSingleDateTime())
+            {
+                return StartDate == Day;
+            }
+            else
+            {
+                switch (FilterBehavior)
+                {
+                    case DateRangeFilterBehavior.Between: return Day.IsBetween(StartDate, EndDate);
+                    case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return Day.IsBetweenOrEqualExcludeMax(StartDate, EndDate);
+                    case DateRangeFilterBehavior.BetweenOrEqual:
+                    default: return Day.IsBetweenOrEqual(StartDate, EndDate);
+                }
+            }
+        }
 
         /// <summary>
-        /// Verifica se hoje está dentro deste periodo
+        /// Check if this <see cref="DateRange"/> contains a <see cref="DateTime"/> using a
+        /// <paramref name="FilterBehavior"/>
+        /// </summary>
+        /// <param name="Day"></param>
+        /// <returns></returns>
+        public bool Contains(DateTime? Day, DateRangeFilterBehavior FilterBehavior) => Day.HasValue && Contains(Day.Value, FilterBehavior);
+
+        /// <summary>
+        /// Check if this <see cref="DateRange"/> contains a <see cref="DateTime"/> using the
+        /// configured <see name="FilterBehavior"/>
+        /// </summary>
+        /// <param name="Day"></param>
+        /// <returns></returns>
+        public bool Contains(DateTime Day) => Contains(Day, this.FilterBehavior);
+
+        /// <summary>
+        /// Check if this <see cref="DateRange"/> contains a <see cref="DateTime"/> using the
+        /// configured <see name="FilterBehavior"/>
+        /// </summary>
+        /// <param name="Day"></param>
+        /// <returns></returns>
+        public bool Contains(DateTime? Day) => Contains(Day, this.FilterBehavior);
+
+        /// <summary>
+        /// Configuration to compare a <see cref="DateTime"/> to <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        public DateRangeFilterBehavior FilterBehavior { get; set; } = DateRangeFilterBehavior.BetweenOrEqual;
+
+        /// <summary>
+        /// Check if this <see cref="DateRange"/> contains <see cref="DateTime.Now"/> using the
+        /// configured <see cref="FilterBehavior"/>
         /// </summary>
         /// <returns></returns>
-        public bool IsNow() => Contains(DateTime.Now);
+        public bool IsNow() => IsNow(this.FilterBehavior);
+
+        /// <summary>
+        /// Check if this <see cref="DateRange"/> contains <see cref="DateTime.Now"/> using the
+        /// giving <paramref name="FilterBehavior"/>
+        /// </summary>
+        /// <returns></returns>
+        public bool IsNow(DateRangeFilterBehavior FilterBehavior) => Contains(DateTime.Now, FilterBehavior);
+
+        /// <summary>
+        /// Check if this <see cref="DateRange"/> contains <see cref="DateTime.Today"/> using the
+        /// configured <see cref="FilterBehavior"/>
+        /// </summary>
+        /// <returns></returns>
+        public bool IsToday() => IsToday(this.FilterBehavior);
+
+        /// <summary>
+        /// Check if this <see cref="DateRange"/> contains <see cref="DateTime.Today"/> using the
+        /// giving <paramref name="FilterBehavior"/>
+        /// </summary>
+        /// <returns></returns>
+        public bool IsToday(DateRangeFilterBehavior FilterBehavior) => Contains(DateTime.Today, FilterBehavior);
 
         /// <summary>
         /// Verifica se este periodo está dentro de outro periodo
@@ -1000,10 +1117,22 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public decimal CalculatePercent(DateTime? Date = default) => (Date ?? DateTime.Now).CalculateTimelinePercent(StartDate, EndDate);
 
-        public IEnumerable<DateTime> Pair() => new[] { StartDate, EndDate };
+        /// <summary>
+        /// Return the <see cref="StartDate"/> and <see cref="EndDate"/> inside a <see cref="IEnumerable{DateTime}"/>
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<DateTime> PairArray() => new[] { StartDate, EndDate };
 
+        /// <summary>
+        /// Return the <see cref="StartDate"/> and <see cref="EndDate"/> as <see
+        /// cref="Tuple{DateTime, DateTime}"/>
+        /// </summary>
+        /// <returns></returns>
         public Tuple<DateTime, DateTime> Tuple() => new Tuple<DateTime, DateTime>(StartDate, EndDate);
 
+        // <summary>
+        /// Return the <see cref="StartDate"/> and <see cref="EndDate"/> as <see
+        /// cref="Dictionary{string, DateTime}"/> </summary> <returns></returns>
         public Dictionary<string, DateTime> Dictionary(string StartDateLabel = null, string EndDateLabel = null) => new Dictionary<string, DateTime>()
         {
             [StartDateLabel.IfBlank("StartDate")] = StartDate,
@@ -1011,30 +1140,45 @@ namespace InnerLibs.TimeMachine
         };
 
         /// <summary>
-        /// Retorna uma lista com as datas entre <see cref="StartDate"/> e <see cref="EndDate"/>
-        /// utilizando um Intervalo
+        /// Return a <see cref="IEnumerable{T}"/> of <see cref="DateTime"/> between <see
+        /// cref="StartDate"/> and <see cref="EndDate"/> using a <see cref="DateRangeInterval"/>
+        /// between each <see cref="DateTime"/> and configured <see cref="FilterBehavior"/>
         /// </summary>
         /// <param name="DateRangeInterval"></param>
         /// <returns></returns>
-        public IEnumerable<DateTime> GetDates(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
+
+        public IEnumerable<DateTime> GetDates(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => GetDates(this.FilterBehavior, DateRangeInterval);
+
+        /// <summary>
+        /// Return a <see cref="IEnumerable{T}"/> of <see cref="DateTime"/> between <see
+        /// cref="StartDate"/> and <see cref="EndDate"/> using a <see cref="DateRangeInterval"/>
+        /// between each <see cref="DateTime"/> and giving <paramref name="FilterBehavior"/>
+        /// </summary>
+        /// <param name="DateRangeInterval"></param>
+        /// <returns></returns>
+        public IEnumerable<DateTime> GetDates(DateRangeFilterBehavior FilterBehavior, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate)
         {
             DateRangeInterval = DateRangeInterval == DateRangeInterval.LessAccurate ? GetLessAccurateDateRangeInterval() : DateRangeInterval;
 
-            var l = new List<DateTime>() { StartDate };
+            var l = new List<DateTime>() { StartDate, EndDate };
             var curdate = StartDate;
-            while (curdate < EndDate)
+            while (curdate <= EndDate)
             {
                 curdate = curdate.AddInterval(DateRangeInterval, 1d);
-                l.Add(curdate);
+                if (!l.Contains(curdate)) l.Add(curdate);
             }
 
-            l.Add(EndDate);
-            return l.Where(x => x.IsBetweenOrEqual(StartDate, EndDate)).Distinct();
+            l.RemoveAll(x => !this.Contains(x, FilterBehavior));
+            l.Sort();
+            return l;
         }
 
-        public bool Equals(DateRange other) => this.Equals(other.TimeSpan);
+        public bool Equals(DateRange other) => this.Ticks.Equals(other.TimeSpan.Round().Ticks);
     }
 
+    /// <summary>
+    /// The display configuration for generate human readable strings from a <see cref="DateRange"/>
+    /// </summary>
     public class DateRangeDisplay
     {
         public DateRangeDisplay()
@@ -1056,6 +1200,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="SecondsWord">'Seconds'</param>
         /// <param name="MillisecondsWord">'Milliseconds'</param>
         /// <param name="FormatRule">Rules for returning the string</param>
+        /// <remarks>Keep all string in plural form</remarks>
         public DateRangeDisplay(string AndWord, string MillisecondsWord, string SecondsWord, string MinutesWord, string HoursWord, string DaysWord, string MonthsWord, string YearsWord, DateRangeString FormatRule = DateRangeString.FullStringSkipZero)
         {
             this.AndWord = AndWord;
@@ -1117,5 +1262,114 @@ namespace InnerLibs.TimeMachine
         public static DateRangeDisplay DefaultPtBr() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses", "anos");
 
         public static DateRangeDisplay Default() => new DateRangeDisplay();
+    }
+
+    /// <summary>
+    /// Intervals used <see cref="DateRange.AddInterval(DateRangeInterval, double)(DateRangeInterval)"/>
+    /// </summary>
+    public enum DateRangeInterval
+    {
+        /// <summary>
+        /// <see cref="DateRange"/> will use the most hight <see cref="DateRangeInterval"/> avaible.
+        /// </summary>
+        LessAccurate = -1,
+
+        /// <summary>
+        /// Milliseconds
+        /// </summary>
+        Milliseconds = 0,
+
+        /// <summary>
+        /// Seconds
+        /// </summary>
+        Seconds = 1,
+
+        /// <summary>
+        /// Minutes
+        /// </summary>
+        Minutes = 2,
+
+        /// <summary>
+        /// Hours
+        /// </summary>
+        Hours = 3,
+
+        /// <summary>
+        /// Days
+        /// </summary>
+        Days = 4,
+
+        /// <summary>
+        /// Weeks
+        /// </summary>
+        Weeks = 5,
+
+        /// <summary>
+        /// Months
+        /// </summary>
+        Months = 6,
+
+        /// <summary>
+        /// Years
+        /// </summary>
+        Years = 7
+    }
+
+    /// <summary>
+    /// Behavior for <see cref="DateRange.FilterBehavior"/>
+    /// </summary>
+    public enum DateRangeFilterBehavior
+    {
+        /// <summary>
+        /// Check if <see cref="DateTime"/> is between <see cref="DateRange.StartDate"/> and <see
+        /// cref="DateRange.EndDate"/> but not equal them
+        /// </summary>
+        Between,
+
+        /// <summary>
+        /// Check if <see cref="DateTime"/> is Between or equal <see cref="DateRange.StartDate"/>
+        /// and <see cref="DateRange.EndDate"/>
+        /// </summary>
+        BetweenOrEqual,
+
+        /// <summary>
+        /// Check if <see cref="DateTime"/> is greater than or equal <see
+        /// cref="DateRange.StartDate"/> and less than <see cref="DateRange.EndDate"/>
+        /// </summary>
+        BetweenOrEqualExcludeEnd,
+    }
+
+    /// <summary>
+    /// Format rules for <see cref="DateRangeDisplay"/>
+    /// </summary>
+    public enum DateRangeString
+    {
+        /// <summary>
+        /// Return the full string, including Zeros
+        /// </summary>
+        FullStringWithZero = 0,
+
+        /// <summary>
+        /// Return the full string, but skip zeros. This is the DEFAULT behavior
+        /// </summary>
+        FullStringSkipZero = 1,
+
+        /// <summary>
+        /// If <see cref="DateRange"/> value is greater than 1 day, the hours, minutes and seconds
+        /// are ignored
+        /// </summary>
+        ReduceToDays = 2,
+
+        /// <summary>
+        /// If <see cref="DateRange"/> value is greater than 1 month, the days, hours, minutes and
+        /// seconds are ignored
+        /// </summary>
+        ReduceToMonths = 3,
+
+        /// <summary>
+        /// If <see cref="DateRange"/> value is greater than 1 year, the months, days, hours,
+        /// minutes and seconds are ignored
+        /// </summary>
+        ReduceToYears = 4
     }
 }
