@@ -16,9 +16,15 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Create a new <see cref="DateRange"/> for today (from 00:00:00.000 to 23:59:59.999)
         /// </summary>
-        public DateRange() : this(DateTime.Now, DateTime.Now, true) => _isDefault = true;
+        public DateRange() : this(DateTime.Now, DateTime.Now, true) { }
 
-        public DateRange(RoundTo RoundTo) : this(DateTime.Now, DateTime.Now, true, RoundTo) => _isDefault = true;
+        public DateRange(RoundTo RoundTo) : this(DateTime.Now, RoundTo)
+        {
+        }
+
+        public DateRange(DateTime StartDate, RoundTo RoundTo) : this(StartDate, StartDate, true, RoundTo)
+        {
+        }
 
         /// <summary>
         /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
@@ -77,7 +83,6 @@ namespace InnerLibs.TimeMachine
             this.RelevantDaysOfWeek = RelevantDaysOfWeek.ToList();
             _roundTo = RoundTo;
             _forceFirstAndLastMoments = ForceFirstAndLastMoments;
-            _isDefault = false;
             _startDate = StartDate;
             _endDate = EndDate;
             CalcRange();
@@ -256,7 +261,6 @@ namespace InnerLibs.TimeMachine
             {
                 if (_startDate != value)
                 {
-                    _isDefault = false;
                     _startDate = value;
                     CalcRange();
                 }
@@ -271,7 +275,6 @@ namespace InnerLibs.TimeMachine
             {
                 if (_endDate != value)
                 {
-                    _isDefault = false;
                     _endDate = value;
                     CalcRange();
                 }
@@ -738,13 +741,10 @@ namespace InnerLibs.TimeMachine
 
         public static implicit operator Dictionary<string, DateTime>(DateRange dateRange) => dateRange?.Dictionary();
 
-        private bool _isDefault = false;
-
         /// <summary>
         /// Indica se este <see cref="DateRange"/> foi construido sem nenhuma data definida
         /// </summary>
         /// <returns></returns>
-        public bool IsDefaultDateRange => _isDefault;
 
         private DateTime _startDate;
         private DateTime _endDate;
@@ -811,7 +811,7 @@ namespace InnerLibs.TimeMachine
         /// Return a new identical instance of this <see cref="DateRange"/>
         /// </summary>
         /// <returns></returns>
-        public DateRange Clone() => new DateRange(StartDate, EndDate, ForceFirstAndLastMoments) { _isDefault = _isDefault };
+        public DateRange Clone() => new DateRange(StartDate, EndDate, ForceFirstAndLastMoments);
 
         /// <summary>
         /// Return a new <see cref="DateRange"/> with equivalent number of <see
