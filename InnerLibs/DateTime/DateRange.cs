@@ -1,9 +1,9 @@
+using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using InnerLibs.LINQ;
 
 namespace InnerLibs.TimeMachine
 {
@@ -13,13 +13,13 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public partial class DateRange : IEquatable<TimeSpan>, IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>, ICloneable, IComparable
     {
+        private int _days;
         private DateRangeDisplay _display = null;
 
         private DateTime _endDate;
 
         private bool _forceFirstAndLastMoments = false;
-
-        private RoundTo _roundTo = RoundTo.None;
+        private bool _noTime = false;
 
         private DateTime _startDate;
 
@@ -56,9 +56,22 @@ namespace InnerLibs.TimeMachine
                 _endDate = _endDate.EndOfDay();
             }
 
-            this._timeSpanBase = _endDate.Round(this.RoundTo) - _startDate.Round(this.RoundTo);
+            if (NoTime)
+            {
+                _startDate = _startDate.Date;
+                _endDate = _endDate.Date;
+            }
 
-            var CurDate = _startDate.Round(this.RoundTo);
+            if (IsSingleDateTime())
+            {
+                this._timeSpanBase = new TimeSpan(1, 0, 0, 0);
+            }
+            else
+            {
+                this._timeSpanBase = _endDate - _startDate;
+            }
+
+            var CurDate = _startDate;
 
             while (_phase != Phase.Done)
             {
@@ -66,7 +79,7 @@ namespace InnerLibs.TimeMachine
                 {
                     case Phase.Years:
                         {
-                            if (CurDate.AddYears(years + 1) > _endDate.Round(this.RoundTo))
+                            if (CurDate.AddYears(years + 1) > _endDate)
                             {
                                 _phase = Phase.Months;
                                 CurDate = CurDate.AddYears(years);
@@ -81,7 +94,7 @@ namespace InnerLibs.TimeMachine
 
                     case Phase.Months:
                         {
-                            if (CurDate.AddMonths(months + 1) > _endDate.Round(this.RoundTo))
+                            if (CurDate.AddMonths(months + 1) > _endDate)
                             {
                                 _phase = Phase.Days;
                                 CurDate = CurDate.AddMonths(months);
@@ -96,7 +109,7 @@ namespace InnerLibs.TimeMachine
 
                     case Phase.Days:
                         {
-                            if (CurDate.AddDays(days + 1) > _endDate.Round(this.RoundTo))
+                            if (CurDate.AddDays(days + 1) > _endDate)
                             {
                                 CurDate = CurDate.AddDays(days);
 
@@ -126,7 +139,7 @@ namespace InnerLibs.TimeMachine
             switch (obj)
             {
                 case null: return false;
-                case DateRange dr: return TimeSpan.Equals(dr.TimeSpan);
+                case DateRange dr: return this.GetHashCode() == dr.GetHashCode();
                 case TimeSpan ts: return TimeSpan.Equals(ts);
                 case int i: return GetHashCode() == i;
                 case long l: return Ticks == l;
@@ -137,50 +150,14 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Create a new <see cref="DateRange"/> for today (from 00:00:00.000 to 23:59:59.999)
         /// </summary>
-        public DateRange() : this(DateTime.Now, DateTime.Now, true) { }
-
-        public DateRange(RoundTo RoundTo) : this(DateTime.Now, RoundTo)
-        {
-        }
-
-        public DateRange(DateTime StartDate, RoundTo RoundTo) : this(StartDate, StartDate, true, RoundTo)
-        {
-        }
+        public DateRange() : this(DateTime.Now) { }
 
         /// <summary>
-        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
+        /// Create a instace of <see cref="DateRange"/> from the first moment of <paramref
+        /// name="StartDate"/> to <paramref name="StartDate"/> using a <paramref name="RoundTo"/> precision
         /// </summary>
         /// <param name="StartDate"></param>
-        /// <param name="EndDate"></param>
-        /// <param name="ForceFirstAndLastMoments">
-        /// Force <paramref name="StartDate"/> to the first moment of day (Midnight) and <paramref
-        /// name="EndDate"/> to last moment of day (23:59:59.999)
-        /// </param>
-        public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments) : this(StartDate, EndDate) => this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
-
-        /// <summary>
-        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
-        /// </summary>
-        /// <param name="StartDate"></param>
-        /// <param name="EndDate"></param>
-        /// <param name="ForceFirstAndLastMoments">
-        /// Force <see cref="StartDate"/> to the first moment of day (Midnight) and <see
-        /// cref="EndDate"/> to last moment of day (23:59:59.999)
-        /// </param>
-        public DateRange(DateTime StartDate, DateTime EndDate, params DayOfWeek[] RelevantDaysOfWeek) : this(StartDate, EndDate, false, RoundTo.None, RelevantDaysOfWeek)
-        {
-        }
-
-        /// <summary>
-        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> to <paramref name="EndDate"/>
-        /// </summary>
-        /// <param name="StartDate"></param>
-        /// <param name="EndDate"></param>
-        /// <param name="ForceFirstAndLastMoments">
-        /// Force <see cref="StartDate"/> to the first moment of day (Midnight) and <see
-        /// cref="EndDate"/> to last moment of day (23:59:59.999)
-        /// </param>
-        public DateRange(DateTime StartDate, DateTime EndDate, RoundTo RoundTo, params DayOfWeek[] RelevantDaysOfWeek) : this(StartDate, EndDate, false, RoundTo, RelevantDaysOfWeek)
+        public DateRange(DateTime StartDate) : this(StartDate, StartDate)
         {
         }
 
@@ -194,7 +171,7 @@ namespace InnerLibs.TimeMachine
         /// cref="EndDate"/> to last moment of day (23:59:59.999)
         /// </param>
         /// <param name="RelevantDaysOfWeek">Business Days of Week</param>
-        public DateRange(DateTime StartDate, DateTime EndDate, bool ForceFirstAndLastMoments, RoundTo RoundTo, params DayOfWeek[] RelevantDaysOfWeek)
+        public DateRange(DateTime StartDate, DateTime EndDate, params DayOfWeek[] RelevantDaysOfWeek)
         {
             if (RelevantDaysOfWeek == null || !RelevantDaysOfWeek.Any())
             {
@@ -202,8 +179,7 @@ namespace InnerLibs.TimeMachine
             }
 
             this.RelevantDaysOfWeek = RelevantDaysOfWeek.ToList();
-            _roundTo = RoundTo;
-            _forceFirstAndLastMoments = ForceFirstAndLastMoments;
+
             _startDate = StartDate;
             _endDate = EndDate;
             CalcRange();
@@ -227,33 +203,6 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> plus <paramref name="Span"/>
-        /// </summary>
-        /// <param name="StartDate">Start date</param>
-        /// <param name="Span">Interval</param>
-        public DateRange(DateTime StartDate, TimeSpan Span, RoundTo RoundTo) : this(StartDate, StartDate.Add(Span), RoundTo)
-        {
-        }
-
-        /// <summary>
-        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> plus <paramref name="Span"/>
-        /// </summary>
-        /// <param name="StartDate">Start date</param>
-        /// <param name="Span">Interval</param>
-        public DateRange(DateTime StartDate, TimeSpan Span, bool ForceFirstAndLastMoments) : this(StartDate, StartDate.Add(Span), ForceFirstAndLastMoments)
-        {
-        }
-
-        /// <summary>
-        /// Create a new <see cref="DateRange"/> from <paramref name="StartDate"/> plus <paramref name="Span"/>
-        /// </summary>
-        /// <param name="StartDate">Start date</param>
-        /// <param name="Span">Interval</param>
-        public DateRange(DateTime StartDate, TimeSpan Span, bool ForceFirstAndLastMoments, RoundTo RoundTo) : this(StartDate, StartDate.Add(Span), ForceFirstAndLastMoments, RoundTo)
-        {
-        }
-
-        /// <summary>
         /// Create a new instance of <see cref="DateRange"/> using the smallest and largest date
         /// from a list
         /// </summary>
@@ -263,42 +212,31 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// create a new instance of <see cref="DateRange"/> using the smallest and largest date
+        /// Create a new instance of <see cref="DateRange"/> using the smallest and largest date
         /// from a list
         /// </summary>
         /// <param name="Dates"></param>
         public DateRange(IEnumerable<DateTime?> Dates, bool ForceFirstAndLastMoments) : this(Dates) => this.ForceFirstAndLastMoments = ForceFirstAndLastMoments;
 
-        public DateRange(DateTime StartEndDate) : this(StartEndDate, StartEndDate, true)
-        {
-        }
-
+        /// <summary>
+        /// Create a instace of <see cref="DateRange"/> from the first moment of <paramref
+        /// name="StartEndDate"/> to last moment of <paramref name="StartEndDate"/>
+        /// </summary>
+        /// <param name="StartEndDate"></param>
         public DateRange(DateTime? StartEndDate) : this(StartEndDate.OrNow())
         {
         }
 
         /// <summary>
-        /// create a new instance of <see cref="DateRange"/> using the smallest and largest date
+        /// Create a new instance of <see cref="DateRange"/> using the smallest and largest date
         /// from a list
         /// </summary>
         /// <param name="Dates"></param>
-        public DateRange(IEnumerable<DateTime> Dates) : this(Dates, false)
-        {
-        }
-
-        /// <summary>
-        /// create a new instance of <see cref="DateRange"/> using the smallest and largest date
-        /// from a list
-        /// </summary>
-        /// <param name="Dates"></param>
-        public DateRange(IEnumerable<DateTime> Dates, bool ForceFirstAndLastMoments) : this(Dates.Min(), Dates.Max(), ForceFirstAndLastMoments)
+        public DateRange(IEnumerable<DateTime> Dates) : this(Dates.Min(), Dates.Max())
         { }
 
-        /// <summary>
-        /// Numero de Dias
-        /// </summary>
-        /// <returns></returns>
-        public int Days { get; private set; }
+        /// <inheritdoc cref="TimeSpan.Days"/>
+        public int Days { get => IsSingleDateTime() ? 1 : _days; private set => _days = value; }
 
         /// <summary>
         /// String configurations for <see cref="DateRange.ToDisplayString(DateRangeDisplay)"/>
@@ -315,6 +253,9 @@ namespace InnerLibs.TimeMachine
             }
         }
 
+        /// <summary>
+        /// The end date of this <see cref="DateRange"/>
+        /// </summary>
         public DateTime EndDate
         {
             get => _endDate;
@@ -338,28 +279,28 @@ namespace InnerLibs.TimeMachine
         /// When <b>TRUE</b>, force <see cref="StartDate"/> to the first moment of day (Midnight)
         /// and <see cref="EndDate"/> to last moment of day (23:59:59.999)
         /// </summary>
+        /// <remarks>When <b>true</b>, auto sets <see cref="NoTime"/> to <b>false</b></remarks>
         public bool ForceFirstAndLastMoments
         {
             get => _forceFirstAndLastMoments;
-            set { _forceFirstAndLastMoments = value; CalcRange(); }
+            set
+            {
+                _forceFirstAndLastMoments = value;
+                if (value)
+                {
+                    _noTime = false;
+                }
+                CalcRange();
+            }
         }
 
-        /// <summary>
-        /// Numero de Horas
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="TimeSpan.Hours"/>
         public int Hours => TimeSpan.Hours;
 
-        /// <summary>
-        /// Numero de milisegundos
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="TimeSpan.Milliseconds"/>
         public int Milliseconds => TimeSpan.Milliseconds;
 
-        /// <summary>
-        /// Numero de Minutos
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="TimeSpan.Minutes"/>
         public int Minutes => TimeSpan.Minutes;
 
         /// <summary>
@@ -375,23 +316,36 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DayOfWeek> NonRelevantDaysOfWeek => PredefinedArrays.SundayToSaturday.Where(x => x.IsNotIn(RelevantDaysOfWeek));
 
         /// <summary>
+        /// When <b>true</b>, auto clear the time part of <see cref="StartDate"/> and <see cref="EndDate"/>
+        /// </summary>
+        /// <remarks>When <b>true</b>, auto sets <see cref="ForceFirstAndLastMoments"/> to <b>false</b></remarks>
+        public bool NoTime
+        {
+            get => _noTime;
+            set
+            {
+                _noTime = value;
+                if (value)
+                {
+                    _forceFirstAndLastMoments = false;
+                }
+
+                CalcRange();
+            }
+        }
+
+        /// <summary>
         /// Relevant days of week (Business Days)
         /// </summary>
         /// <returns></returns>
         public List<DayOfWeek> RelevantDaysOfWeek { get; private set; } = new List<DayOfWeek>();
 
-        public RoundTo RoundTo
-        {
-            get => _roundTo;
-            set { _roundTo = value; CalcRange(); }
-        }
-
-        /// <summary>
-        /// Numero de Segundos
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="TimeSpan.Seconds"/>
         public int Seconds => TimeSpan.Seconds;
 
+        /// <summary>
+        /// The start date of this <see cref="DateRange"/>
+        /// </summary>
         public DateTime StartDate
         {
             get => _startDate;
@@ -406,9 +360,8 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        /// <summary>
-        /// Total Ticks between <see cref="StartDate"/> and <see cref="EndDate"/>
-        /// </summary>
+        /// <inheritdoc cref="TimeSpan.Ticks"/>
+
         public long Ticks => TimeSpan.Ticks;
 
         /// <summary>
@@ -574,20 +527,11 @@ namespace InnerLibs.TimeMachine
         /// <returns>
         /// <c>true</c> is <paramref name="left"/> is equal to <paramref name="right"/>; otherwise <c>false</c>.
         /// </returns>
-        public static bool operator ==(DateRange left, DateRange right)
-        {
-            return left.Years == right.Years &&
-                   left.Months == right.Months &&
-                   left.Days == right.Days &&
-                   left.Hours == right.Hours &&
-                   left.Minutes == right.Minutes &&
-                   left.Seconds == right.Seconds &&
-                   left.Milliseconds == right.Milliseconds;
-        }
+        public static bool operator ==(DateRange left, DateRange right) => left != null && left.Equals(right);
 
-        public static bool operator ==(TimeSpan left, DateRange right) => (DateRange)left == right;
+        public static bool operator ==(TimeSpan left, DateRange right) => left != null && right.Equals(left);
 
-        public static bool operator ==(DateRange left, TimeSpan right) => left == (DateRange)right;
+        public static bool operator ==(DateRange left, TimeSpan right) => left != null && left.Equals(right);
 
         public static bool operator >(DateRange left, DateRange right) => (TimeSpan)left > (TimeSpan)right;
 
@@ -623,7 +567,10 @@ namespace InnerLibs.TimeMachine
                 DateRangeInterval = GetLessAccurateDateRangeInterval();
             }
 
-            return new DateRange(StartDate.AddInterval(DateRangeInterval, Amount), EndDate.AddInterval(DateRangeInterval, Amount), ForceFirstAndLastMoments);
+            var dr = this.Clone();
+            dr.StartDate = StartDate.AddInterval(DateRangeInterval, Amount);
+            dr.EndDate = EndDate.AddInterval(DateRangeInterval, Amount);
+            return dr;
         }
 
         /// <summary>
@@ -631,13 +578,19 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="[Date]">Data correspondente</param>
         /// <returns></returns>
-        public decimal CalculatePercent(DateTime? Date = default) => (Date ?? DateTime.Now).CalculateTimelinePercent(StartDate, EndDate);
+        public decimal CalculatePercent(DateTime? Date = default) => (Date.OrNow()).CalculateTimelinePercent(StartDate, EndDate);
 
         /// <summary>
         /// Return a new identical instance of this <see cref="DateRange"/>
         /// </summary>
         /// <returns></returns>
-        public DateRange Clone() => new DateRange(StartDate, EndDate, ForceFirstAndLastMoments);
+        public DateRange Clone() => new DateRange(StartDate, EndDate)
+        {
+            RelevantDaysOfWeek = this.RelevantDaysOfWeek,
+            FilterBehavior = this.FilterBehavior,
+            NoTime = this.NoTime,
+            ForceFirstAndLastMoments = this.ForceFirstAndLastMoments
+        };
 
         public int CompareTo(TimeSpan other) => TimeSpan.CompareTo(other);
 
@@ -864,7 +817,7 @@ namespace InnerLibs.TimeMachine
             if (TotalYears.ForcePositive() >= 1d) return DateRangeInterval.Years;
             else if (TotalMonths.ForcePositive() >= 1d) return DateRangeInterval.Months;
             else if (TotalWeeks.ForcePositive() >= 1d) return DateRangeInterval.Weeks;
-            else if (TotalDays.ForcePositive() >= 1d) return DateRangeInterval.Days;
+            else if (TotalDays.ForcePositive() >= 1d || IsSingleDateTime()) return DateRangeInterval.Days;
             else if (TotalHours.ForcePositive() >= 1d) return DateRangeInterval.Hours;
             else if (TotalMinutes.ForcePositive() >= 1d) return DateRangeInterval.Minutes;
             else if (TotalSeconds.ForcePositive() >= 1d) return DateRangeInterval.Seconds;
@@ -1088,7 +1041,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public string ToDisplayString(DateRangeDisplay display)
         {
-            display = display ?? _display;
+            display = display ?? Display;
 
             string ano = Text.QuantifyText(display.YearsWord, Years).Prepend($"{Years} ").NullIf(x => display.YearsWord.IsBlank());
             string mes = Text.QuantifyText(display.MonthsWord, Months).Prepend($"{Months} ").NullIf(x => display.MonthsWord.IsBlank());

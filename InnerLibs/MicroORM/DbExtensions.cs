@@ -106,39 +106,52 @@ namespace InnerLibs.MicroORM
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
 
         /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
+        /// String, Object)"/>, tratando os parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, Dictionary<string, object> Parameters)
+        {
+            if (SQLFile != null && SQLFile.Exists)
+            {
+                return CreateCommand(Connection, SQLFile.ReadAllText(), Parameters);
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
         /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
-        /// <param name="FilePathOrSQL"></param>
+        /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, NameValueCollection Parameters) => Connection.CreateCommand(FilePathOrSQL, Parameters.ToDictionary());
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, NameValueCollection Parameters) => Connection.CreateCommand(SQLFile, Parameters.ToDictionary());
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
+        /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, NameValueCollection Parameters) => Connection.CreateCommand(SQL, Parameters.ToDictionary());
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
         /// String, Object)"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
-        /// <param name="FilePathOrSQL"></param>
+        /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, Dictionary<string, object> Parameters)
+        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, Dictionary<string, object> Parameters)
         {
             if (Connection != null)
             {
-                if (FilePathOrSQL.IsFilePath())
-                {
-                    if (File.Exists(FilePathOrSQL))
-                    {
-                        FilePathOrSQL = File.ReadAllText(FilePathOrSQL);
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-
                 var command = Connection.CreateCommand();
-                command.CommandText = FilePathOrSQL;
+                command.CommandText = SQL;
                 if (Parameters != null && Parameters.Any())
                 {
                     foreach (var p in Parameters.Keys)
@@ -174,29 +187,26 @@ namespace InnerLibs.MicroORM
         /// parametros {p} desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
-        /// <param name="FilePathOrSQL"></param>
+        /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string FilePathOrSQL, params string[] Args)
+        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, params string[] Args)
         {
-            if (FilePathOrSQL.IsNotBlank())
+            if (SQL.IsNotBlank())
             {
-                if (FilePathOrSQL.IsFilePath())
-                {
-                    if (File.Exists(FilePathOrSQL))
-                    {
-                        FilePathOrSQL = File.ReadAllText(FilePathOrSQL);
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-
-                return Connection.CreateCommand(FilePathOrSQL.ToFormattableString(Args));
+                return Connection.CreateCommand(SQL.ToFormattableString(Args));
             }
 
             return null;
         }
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
+        /// parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args));
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
