@@ -14,10 +14,10 @@ namespace InnerLibs.Console
         /// Toca um Beep
         /// </summary>
         /// <param name="Times">Numero de beeps</param>
-        public static void Beep(int Times = 1)
+        public static string Beep(this string Text, int Times = 1)
         {
-            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++)
-                System.Console.Beep();
+            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++) System.Console.Beep();
+            return Text;
         }
 
         /// <summary>
@@ -25,32 +25,23 @@ namespace InnerLibs.Console
         /// </summary>
         /// <param name="Frequency">Frequencia</param>
         /// <param name="Duration">Duracao em milisegundos</param>
-        public static void Beep(int Frequency, int Duration, int Times = 1)
+        public static string Beep(this string Text, int Frequency, int Duration, int Times = 1)
         {
-            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++)
-                System.Console.Beep(Frequency.LimitRange(37, 32767), Duration);
+            for (int index = 1, loopTo = Times.SetMinValue(1); index <= loopTo; index++) System.Console.Beep(Frequency.LimitRange(37, 32767), Duration);
+            return Text;
         }
 
         /// <summary>
         /// Pula uma ou mais linhas no console
         /// </summary>
         /// <param name="Lines">Numero de linhas</param>
-        public static void ConsoleBreakLine(int Lines = 1)
+        public static string ConsoleBreakLine(this string Text, int Lines = 1)
         {
             while (Lines > 0)
             {
                 System.Console.WriteLine(string.Empty);
                 Lines = Lines - 1;
             }
-        }
-
-        /// <summary>
-        /// Pula uma ou mais linhas no console e retorna a mesma string (usada como chaining)
-        /// </summary>
-        /// <param name="Lines">Numero de linhas</param>
-        public static string ConsoleBreakLine(this string Text, int Lines = 1)
-        {
-            ConsoleBreakLine(Lines);
             return Text;
         }
 
@@ -94,8 +85,7 @@ namespace InnerLibs.Console
             }
 
             System.Console.ForegroundColor = lastcolor;
-            ConsoleBreakLine(BreakLines);
-            return Text;
+            return Text.ConsoleBreakLine(BreakLines);
         }
 
         /// <summary>
@@ -115,8 +105,7 @@ namespace InnerLibs.Console
             System.Console.ForegroundColor = Color;
             System.Console.Write(Text ?? "");
             System.Console.ForegroundColor = lastcolor;
-            ConsoleBreakLine(BreakLines);
-            return Text;
+            return Text.ConsoleBreakLine(BreakLines);
         }
 
         /// <summary>
@@ -138,26 +127,28 @@ namespace InnerLibs.Console
         /// <param name="Color">Cor</param>
         public static T ConsoleWriteError<T>(this T Exception, string Separator, ConsoleColor Color = ConsoleColor.Red, int Lines = 1) where T : Exception
         {
-            Lines = Lines.SetMinValue(1);
-            Exception.ToFullExceptionString(Separator).ConsoleWrite(Color, Lines);
+            Exception.ToFullExceptionString(Separator).ConsoleWrite(Color, Lines.SetMinValue(1));
             return Exception;
         }
 
         /// <summary>
         /// Escreve o texto de uma exception no console
         /// </summary>
-        public static T ConsoleWriteError<T>(this T Exception, string Message) where T : Exception
-        {
-            return Exception.ConsoleWriteError(Message, " >> ");
-        }
+        public static T ConsoleWriteError<T>(this T Exception, string Message) where T : Exception => Exception.ConsoleWriteError(Message, " >> ");
 
         /// <summary>
         /// Escreve o texto de uma exception no console
         /// </summary>
         public static T ConsoleWriteError<T>(this T Exception) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, 1);
 
+        /// <summary>
+        /// Escreve o texto de uma exception no console
+        /// </summary>
         public static T ConsoleWriteError<T>(this T Exception, ConsoleColor Color, int Lines = 1) where T : Exception => Exception.ConsoleWriteError(" >> ", Color, Lines);
 
+        /// <summary>
+        /// Escreve o texto de uma exception no console
+        /// </summary>
         public static T ConsoleWriteError<T>(this T Exception, int Lines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, Lines);
 
         /// <summary>
@@ -175,28 +166,17 @@ namespace InnerLibs.Console
         /// <param name="Text">Texto</param>
         /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
 
-        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 1)
-        {
-            Lines = Lines.SetMinValue(1);
-            Text.ConsoleWrite(CustomColoredWords, Lines);
-            return Text;
-        }
+        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 1) => Text.ConsoleWrite(CustomColoredWords, Lines.SetMinValue(1));
 
         /// <summary>
         /// Escreve uma linha no console usando uma cor especifica
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="Color">Cor</param>
-
-        public static string ConsoleWriteLine(this string Text, ConsoleColor Color, int Lines = 1)
-        {
-            Lines = Lines.SetMinValue(1);
-            Text.ConsoleWrite(Color, Lines);
-            return Text;
-        }
+        public static string ConsoleWriteLine(this string Text, ConsoleColor Color, int Lines = 1) => Text.ConsoleWrite(Color, Lines.SetMinValue(1));
 
         /// <summary>
-        /// Escreve uma linha no console usando uma cor especifica
+        /// Escreve uma linha no console e pula um numero de linhas
         /// </summary>
         /// <param name="Text">Texto</param>
         public static string ConsoleWriteLine(this string Text, int Lines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, Lines);
@@ -205,27 +185,18 @@ namespace InnerLibs.Console
         /// Le o proximo caractere inserido no console pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static char ReadChar()
-        {
-            return System.Console.ReadKey().KeyChar;
-        }
+        public static char ReadChar() => System.Console.ReadKey().KeyChar;
 
         /// <summary>
         /// Le a proxima tecla pressionada pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static ConsoleKey ReadKey()
-        {
-            return System.Console.ReadKey().Key;
-        }
+        public static ConsoleKey ReadConsoleKey() => System.Console.ReadKey().Key;
 
         /// <summary>
         /// Le a proxima linha inserida no console pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static string ReadLine()
-        {
-            return System.Console.ReadLine();
-        }
+        public static string ReadLine() => System.Console.ReadLine();
     }
 }

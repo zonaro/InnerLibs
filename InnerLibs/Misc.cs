@@ -529,17 +529,21 @@ namespace InnerLibs
             }
         }
 
-        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default)
-        {
-            if (Dic != null && Dic.ContainsKey(Key))
-            {
-                return Dic[Key];
-            }
-            else
-            {
-                return ReplaceValue;
-            }
-        }
+        /// <summary>
+        /// Tries to get a value from <see cref="Dictionary{TKey, TValue}"/>. if fails, return
+        /// <paramref name="ReplaceValue"/>
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Key"></param>
+        /// <param name="ReplaceValue"></param>
+        /// <remarks>
+        /// if <paramref name="ReplaceValue"/> is not provided. the default value for type
+        /// <typeparamref name="TValue"/> is returned
+        /// </remarks>
+        /// <returns></returns>
+        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default) => Dic != null && Dic.ContainsKey(Key) ? Dic[Key] : ReplaceValue;
 
         /// <summary>
         /// Agrupa e conta os itens de uma lista a partir de uma propriedade
@@ -873,14 +877,33 @@ namespace InnerLibs
         /// <summary>
         /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
         /// </summary>
-        /// <param name="NVC"></param>
+        /// <param name="Collections"></param>
         /// <returns></returns>
-        public static NameValueCollection Merge(params NameValueCollection[] NVC)
+
+        public static NameValueCollection Merge(this IEnumerable<NameValueCollection> Collections)
         {
-            var all = new NameValueCollection();
-            foreach (var i in NVC)
-                all.Add(i);
-            return all;
+            Collections = Collections ?? new List<NameValueCollection>();
+            switch (Collections.Count())
+            {
+                case 0: return new NameValueCollection();
+                case 1: return new NameValueCollection(Collections.FirstOrDefault() ?? new NameValueCollection());
+                default:
+                    var all = new NameValueCollection(Collections.FirstOrDefault() ?? new NameValueCollection());
+                    foreach (var i in Collections) all.Add(i);
+                    return all;
+            }
+        }
+
+        /// <summary>
+        /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
+        /// </summary>
+        /// <param name="OtherCollections"></param>
+        /// <returns></returns>
+        public static NameValueCollection Merge(this NameValueCollection FirstCollection, params NameValueCollection[] OtherCollections)
+        {
+            OtherCollections = OtherCollections ?? Array.Empty<NameValueCollection>();
+            OtherCollections = new[] { FirstCollection }.Union(OtherCollections).ToArray();
+            return OtherCollections.Merge();
         }
 
         /// <summary>
@@ -912,15 +935,7 @@ namespace InnerLibs
         /// <param name="First">Primeiro Item</param>
         /// <param name="N">Outros itens</param>
         /// <returns></returns>
-        public static T? NullCoalesce<T>(this T? First, params T?[] N) where T : struct
-        {
-            var l = new List<T?>();
-            l.Add(First);
-            l.AddRange(N);
-            if (First != null)
-                return (T)First;
-            return N.NullCoalesce<T>();
-        }
+        public static T? NullCoalesce<T>(this T? First, params T?[] N) where T : struct => (T?)(T)First ?? N.NullCoalesce<T>();
 
         /// <summary>
         /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
@@ -1029,6 +1044,13 @@ namespace InnerLibs
         /// <param name="predicate"></param>
         public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate) => dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
 
+        /// <summary>
+        /// Remove <paramref name="Count"/> elementos de uma <paramref name="List"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="Count"></param>
+        /// <returns></returns>
         public static List<T> RemoveLast<T>(this List<T> List, int Count = 1)
         {
             for (int index = 1, loopTo = Count; index <= loopTo; index++)
@@ -1061,7 +1083,7 @@ namespace InnerLibs
             return Dic;
         }
 
-        public static IDictionary<KeyType, string> SetOrRemove<KeyType, KT>(this IDictionary<KeyType, string> Dic, KT Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank ? Value.NullIf(x => x.IsBlank()) : Value);
+        public static IDictionary<KeyType, string> SetOrRemove<KeyType, KT>(this IDictionary<KeyType, string> Dic, KT Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
 
         public static IDictionary<KeyType, ValueType> SetOrRemove<KeyType, ValueType, KT, VT>(this IDictionary<KeyType, ValueType> Dic, KT Key, VT Value)
         {
