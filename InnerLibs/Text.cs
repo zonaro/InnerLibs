@@ -490,7 +490,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
-        public static string EscapeQuotesToQuery(this string Text) => Text.Replace("'", "''");
+        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace("'", "''").QuoteIf(AlsoQuoteText && Text.IsNotNumber(), '\'');
 
         /// <summary>
         /// Extrai emails de uma string

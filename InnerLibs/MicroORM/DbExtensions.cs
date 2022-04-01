@@ -52,6 +52,9 @@ namespace InnerLibs.MicroORM
         public const string Values = "VALUES";
     }
 
+    /// <summary>
+    /// Enxtensões para <see cref="DbConnection"/> e classes derivadas
+    /// </summary>
     public static class DbExtensions
     {
         private static Dictionary<Type, DbType> typeMap = null;
@@ -455,8 +458,9 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static DbCommand LogCommand(this DbCommand Command)
+        public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
         {
+            LogWriter = LogWriter ?? DbExtensions.LogWriter ?? new DebugTextWriter();
             if (LogWriter != null)
             {
                 var oldout = System.Console.Out;
@@ -521,13 +525,12 @@ namespace InnerLibs.MicroORM
                     }
                     else
                     {
-                        var propnames = name.PropertyNamesFor();
-                        var PropInfos = Misc.GetTypeOf(d).GetProperties();
-                        var FieldInfos = Misc.GetTypeOf(d).GetFields();
+                        var propnames = name.PropertyNamesFor().ToList();
+                        var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                        var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
                         foreach (var info in PropInfos)
                         {
-                            var attrs = info.GetCustomAttributes<ColumnName>().SelectMany(x => x.Names).Union(propnames);
-                            if (info.CanWrite && name.IsIn(attrs, StringComparer.InvariantCultureIgnoreCase))
+                            if (info.CanWrite)
                             {
                                 if (ReferenceEquals(value.GetType(), typeof(DBNull)))
                                 {
@@ -542,20 +545,13 @@ namespace InnerLibs.MicroORM
 
                         foreach (var info in FieldInfos)
                         {
-                            var attrs = info.GetCustomAttributes<ColumnName>().SelectMany(x => x.Names).Union(propnames);
-                            if (!PropInfos.Select(x => x.Name).ContainsAny(attrs, StringComparer.InvariantCultureIgnoreCase))
+                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
                             {
-                                if (name.IsIn(attrs, StringComparer.InvariantCultureIgnoreCase))
-                                {
-                                    if (ReferenceEquals(value.GetType(), typeof(DBNull)))
-                                    {
-                                        info.SetValue(d, null);
-                                    }
-                                    else
-                                    {
-                                        info.SetValue(d, Converter.ChangeType(value, info.FieldType));
-                                    }
-                                }
+                                info.SetValue(d, null);
+                            }
+                            else
+                            {
+                                info.SetValue(d, Converter.ChangeType(value, info.FieldType));
                             }
                         }
                     }
@@ -869,7 +865,7 @@ namespace InnerLibs.MicroORM
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
+        /// tipos específicos
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
