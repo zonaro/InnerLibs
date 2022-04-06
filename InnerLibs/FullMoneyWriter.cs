@@ -8,16 +8,16 @@ namespace InnerLibs
     public class FullMoneyWriter : FullNumberWriter
     {
         /// <summary>
-        /// Par de strings que representam os nomes da moeda em sua forma singular ou plural
-        /// </summary>
-        /// <returns></returns>
-        public QuantityTextPair CurrencyName { get; set; } = new QuantityTextPair("dollars", "dollar");
-
-        /// <summary>
         /// Par de strings que representam os centavos desta moeda em sua forma singular ou plural
         /// </summary>
         /// <returns></returns>
         public QuantityTextPair CurrencyCentsName { get; set; } = new QuantityTextPair("cents", "cent");
+
+        /// <summary>
+        /// Par de strings que representam os nomes da moeda em sua forma singular ou plural
+        /// </summary>
+        /// <returns></returns>
+        public QuantityTextPair CurrencyName { get; set; } = new QuantityTextPair("dollars", "dollar");
 
         /// <summary>
         /// Escreve um numero por extenso

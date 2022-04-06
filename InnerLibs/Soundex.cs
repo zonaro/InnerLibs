@@ -1,33 +1,10 @@
 ﻿using System;
 using System.Text;
-using Microsoft.VisualBasic;
 
 namespace InnerLibs
 {
     public static class SoundExType
     {
-
-        /// <summary>
-        /// Gera um código SOUNDEX para comparação de fonemas
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <returns>Um código soundex</returns>
-        public static string SoundEx(this string Text)
-        {
-            return SoundEx(Text, 4);
-        }
-
-        /// <summary>
-        /// Compara 2 palavras e verifica se elas possuem fonema parecido
-        /// </summary>
-        /// <param name="FirstText">Primeira palavra</param>
-        /// <param name="SecondText">Segunda palavra</param>
-        /// <returns>TRUE se possuirem o mesmo fonema</returns>
-        public static bool SoundsLike(this string FirstText, string SecondText)
-        {
-            return (FirstText.SoundEx() ?? "") == (SecondText.SoundEx() ?? "");
-        }
-
         /// <summary>
         /// Gera um código SOUNDEX para comparação de fonemas
         /// </summary>
@@ -151,6 +128,27 @@ namespace InnerLibs
             // Return the computed soundex
             return Value;
         }
+
+        /// <summary>
+        /// Gera um código SOUNDEX para comparação de fonemas
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns>Um código soundex</returns>
+        public static string SoundEx(this string Text)
+        {
+            return SoundEx(Text, 4);
+        }
+
+        /// <summary>
+        /// Compara 2 palavras e verifica se elas possuem fonema parecido
+        /// </summary>
+        /// <param name="FirstText">Primeira palavra</param>
+        /// <param name="SecondText">Segunda palavra</param>
+        /// <returns>TRUE se possuirem o mesmo fonema</returns>
+        public static bool SoundsLike(this string FirstText, string SecondText)
+        {
+            return (FirstText.SoundEx() ?? "") == (SecondText.SoundEx() ?? "");
+        }
     }
 
     /// <summary>
@@ -158,24 +156,6 @@ namespace InnerLibs
     /// </summary>
     public sealed class Phonetic
     {
-        public override string ToString() => SoundExCode;
-
-        /// <summary>
-        /// Compara o fonema de uma palavra em portugues com outra palavra
-        /// </summary>
-        /// <param name="Word">Palavra para comparar</param>
-        /// <returns></returns>
-        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? "") == (SoundExCode ?? "") | (Word ?? "") == (this.Word ?? "");
-
-
-        
-
-        /// <summary>
-        /// Palavra Original
-        /// </summary>
-        /// <returns></returns>
-        public string Word { get; set; }
-
         /// <summary>
         /// Cria um novo Phonetic a partir de uma palavra
         /// </summary>
@@ -186,7 +166,7 @@ namespace InnerLibs
             {
                 this.Word = Word.Split(" ")[0];
             }
-            catch  
+            catch
             {
                 this.Word = Word;
             }
@@ -287,7 +267,7 @@ namespace InnerLibs
                     {
                         frasesaida += Convert.ToString(sb[0]);
                     }
-                    catch  
+                    catch
                     {
                     }
 
@@ -307,5 +287,20 @@ namespace InnerLibs
                 }
             }
         }
+
+        /// <summary>
+        /// Palavra Original
+        /// </summary>
+        /// <returns></returns>
+        public string Word { get; set; }
+
+        /// <summary>
+        /// Compara o fonema de uma palavra em portugues com outra palavra
+        /// </summary>
+        /// <param name="Word">Palavra para comparar</param>
+        /// <returns></returns>
+        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? "") == (SoundExCode ?? "") | (Word ?? "") == (this.Word ?? "");
+
+        public override string ToString() => SoundExCode;
     }
 }

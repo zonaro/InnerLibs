@@ -1,5 +1,4 @@
 using System;
- 
 
 namespace InnerLibs
 {
@@ -14,6 +13,10 @@ namespace InnerLibs
         public QuantityTextPair()
         {
         }
+
+        public string Plural { get; set; } = "Items";
+
+        public string Singular { get; set; } = "Item";
 
         public string this[IComparable Number]
         {
@@ -34,9 +37,6 @@ namespace InnerLibs
                 }
             }
         }
-
-        public string Singular { get; set; } = "Item";
-        public string Plural { get; set; } = "Items";
 
         public override string ToString()
         {

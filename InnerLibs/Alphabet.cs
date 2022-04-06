@@ -9,6 +9,10 @@ namespace InnerLibs
     /// </summary>
     public class AlphabetType
     {
+        public readonly string Alphabet;
+
+        public readonly string Seed = null;
+
         public AlphabetType()
         {
         }
@@ -26,11 +30,27 @@ namespace InnerLibs
             }
         }
 
-        public readonly string Alphabet;
+        /// <summary>
+        /// Gera um link com a hash
+        /// </summary>
+        /// <param name="ID">Valor da Hash</param>
+        /// <returns></returns>
+        public Uri CreateLink(string UrlPattern, int ID) => new Uri(UrlPattern.Inject(new { id = ID, hash = Encode(ID) }));
 
-        public readonly string Seed = null;
-
-        public string RandomHash() => Encode(Generate.RandomNumber());
+        public int Decode(string s)
+        {
+            int i = 0;
+            try
+            {
+                foreach (var c in s.Trim().Trim('0'))
+                    i = i * Alphabet.Length + Alphabet.IndexOf(c);
+                return i;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
 
         public string Encode(int i)
         {
@@ -51,28 +71,8 @@ namespace InnerLibs
             return string.Join(string.Empty, s.Reverse());
         }
 
-        public int Decode(string s)
-        {
-            int i = 0;
-            try
-            {
-                foreach (var c in s.Trim().Trim('0'))
-                    i = i * Alphabet.Length + Alphabet.IndexOf(c);
-                return i;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
+        public string RandomHash() => Encode(Generate.RandomNumber());
 
         public override string ToString() => Alphabet;
-
-        /// <summary>
-        /// Gera um link com a hash
-        /// </summary>
-        /// <param name="ID">Valor da Hash</param>
-        /// <returns></returns>
-        public Uri CreateLink(string UrlPattern, int ID) => new Uri(UrlPattern.Inject(new { id = ID, hash = Encode(ID) }));
     }
 }

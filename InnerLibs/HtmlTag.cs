@@ -1,6 +1,6 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
-using InnerLibs.LINQ;
 
 namespace InnerLibs
 {
@@ -9,22 +9,11 @@ namespace InnerLibs
     /// </summary>
     public class HtmlTag
     {
-        public string TagName { get; set; } = "div";
-        public string InnerHtml { get; set; }
-        public Dictionary<string, string> Attributes
-        {
-            get
-            {
-                attrs = attrs ?? new Dictionary<string, string>();
-                return attrs;
-            }
-        }
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
 
         public HtmlTag()
         {
         }
-
 
         public HtmlTag(string TagName, string InnerHtml = "")
         {
@@ -41,10 +30,13 @@ namespace InnerLibs
                 this.Attributes.SetOrRemove(Attr.Key, Attr.Value);
         }
 
-        public string this[string key]
+        public Dictionary<string, string> Attributes
         {
-            get => Attributes.GetValueOr(key, "");
-            set => Attributes.Set(key, value);
+            get
+            {
+                attrs = attrs ?? new Dictionary<string, string>();
+                return attrs;
+            }
         }
 
         public string Class
@@ -61,7 +53,49 @@ namespace InnerLibs
             set => Class = (value ?? Array.Empty<string>()).JoinString(" ");
         }
 
+        public string InnerHtml { get; set; }
         public bool SelfCloseTag { get; set; } = false;
+        public string TagName { get; set; } = "div";
+
+        public string this[string key]
+        {
+            get => Attributes.GetValueOr(key, "");
+            set => Attributes.Set(key, value);
+        }
+
+        public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self", object htmlAttributes = null)
+        {
+            return new HtmlTag("a", htmlAttributes, Name).With(x =>
+            {
+                x.Attributes
+                .SetOrRemove("href", URL, true)
+                .SetOrRemove("target", Target, true);
+            });
+        }
+
+        public static HtmlTag CreateImage(string URL, object htmlAttributes = null)
+        {
+            return new HtmlTag("img", htmlAttributes, null).With(x =>
+          {
+              x.SelfCloseTag = true;
+              x.Attributes
+               .SetOrRemove("src", URL, true);
+          });
+        }
+
+        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text", object htmlAttributes = null)
+        {
+            return new HtmlTag("input", htmlAttributes, null).With(x =>
+             {
+                 x.SelfCloseTag = true;
+                 x.Attributes
+                  .SetOrRemove("name", Name, true)
+                  .SetOrRemove("value", Value, true)
+                  .SetOrRemove("type", Type.IfBlank("text"), true);
+             });
+        }
+
+        public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
         public override string ToString()
         {
@@ -75,48 +109,5 @@ namespace InnerLibs
                 return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => $"{x.Key.ToLower()}={x.Value.Wrap()}")}>{InnerHtml}</{TagName.IfBlank("div")}>";
             }
         }
-
-        public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
-
-        public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self", object htmlAttributes = null)
-        {
-            return new HtmlTag("a", htmlAttributes, Name).With(x =>
-            {
-                x.Attributes
-                .SetOrRemove("href", URL, true)
-                .SetOrRemove("target", Target, true);
-
-            });
-        }
-
-        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text", object htmlAttributes = null)
-        {
-            return new HtmlTag("input", htmlAttributes, null).With(x =>
-             {
-                 x.SelfCloseTag = true;
-                 x.Attributes
-                  .SetOrRemove("name", Name, true)
-                  .SetOrRemove("value", Value, true)
-                  .SetOrRemove("type", Type.IfBlank("text"), true);
-
-             });
-        }
-
-        public static HtmlTag CreateImage(string URL, object htmlAttributes = null)
-        {
-            return new HtmlTag("img", htmlAttributes, null).With(x =>
-          {
-              x.SelfCloseTag = true;
-              x.Attributes
-               .SetOrRemove("src", URL, true);
-
-          });
-        }
-
-
     }
-
-
-
-
 }

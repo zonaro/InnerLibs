@@ -489,7 +489,7 @@
       <item> application/keychain_access</item>
     </MimeTypes>
   </item>
- 
+
   <item>
     <Description>Patch Source File</Description>
     <Extensions>
@@ -2659,7 +2659,7 @@
       <item>x-world/x-vrml</item>
     </MimeTypes>
   </item>
-  
+
   <item>
     <Description>Html File</Description>
     <Extensions>

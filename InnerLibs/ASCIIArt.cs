@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.VisualBasic;
 
 namespace InnerLibs
 {
     public static class AsciiArt
     {
+        private static string[] asciiChars = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
+
         public static string ToAsciiArt(this Bitmap image, int ratio)
         {
             image = (Bitmap)image.Negative();
@@ -22,7 +21,7 @@ namespace InnerLibs
                 {
                     var pixelColor = image.GetPixel(w, h);
                     int red, green, blue;
-                    red = (int)Math.Round((pixelColor.R.ToInteger() + pixelColor.G.ToInteger() + pixelColor.B.ToInteger()) / 3d);
+                    red = (int)Math.Round((pixelColor.R.ToInt() + pixelColor.G.ToInt() + pixelColor.B.ToInt()) / 3d);
                     green = red;
                     blue = green;
                     var grayColor = Color.FromArgb(red, green, blue);
@@ -50,9 +49,5 @@ namespace InnerLibs
 
             return sb.ToString();
         }
-
-        private static string[] asciiChars = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
-
-      
     }
 }

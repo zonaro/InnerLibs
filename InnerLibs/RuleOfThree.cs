@@ -1,32 +1,20 @@
 using System;
 using System.Data;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-
 
 namespace InnerLibs
 {
-
     public class RuleOfThree : RuleOfThree<decimal>
     {
-
     }
-
 
     public class RuleOfThree<T> where T : struct
     {
-        /// <summary>
-        /// Calcula uma regra de tres
-        /// </summary>
-        /// <param name="FirstEquation"></param>
-        /// <param name="SecondEquation"></param>
-        public RuleOfThree(EquationPair<T> FirstEquation, EquationPair<T> SecondEquation)
-        {
-            this.FirstEquation = FirstEquation;
-            this.SecondEquation = SecondEquation;
-            GetExpression();
-        }
+        private string custom_param_name;
+
+        private Func<T?> equationexp;
+
+        private string paramname;
 
         private void GetExpression()
         {
@@ -63,30 +51,6 @@ namespace InnerLibs
             }
         }
 
-        /// <summary>
-        /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>
-        /// </summary>
-        /// <returns></returns>
-        public RuleOfThree<T> Resolve()
-        {
-            GetExpression();
-            if (FirstEquation.IsComplete && SecondEquation.IsNotComplete)
-            {
-                SecondEquation.SetMissing(UnknownValue ?? default);
-            }
-            else if (SecondEquation.IsComplete && FirstEquation.IsNotComplete)
-            {
-                FirstEquation.SetMissing(UnknownValue ?? default);
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Calcula uma regra de três
-        /// </summary>
-        public RuleOfThree(params T?[] Numbers) => RuleExpression(Numbers);
-
         private void RuleExpression(params T?[] numbers)
         {
             FirstEquation = FirstEquation ?? new EquationPair<T>(default, default);
@@ -104,7 +68,6 @@ namespace InnerLibs
                 FirstEquation.Y = numbers[1];
                 SecondEquation.X = numbers[2];
                 SecondEquation.Y = default;
-
             }
             else if (numbers.All(x => x.HasValue))
             {
@@ -123,16 +86,24 @@ namespace InnerLibs
                 GetExpression();
                 Resolve();
             }
-
         }
 
-        public T? UnknownValue => equationexp();
+        /// <summary>
+        /// Calcula uma regra de tres
+        /// </summary>
+        /// <param name="FirstEquation"></param>
+        /// <param name="SecondEquation"></param>
+        public RuleOfThree(EquationPair<T> FirstEquation, EquationPair<T> SecondEquation)
+        {
+            this.FirstEquation = FirstEquation;
+            this.SecondEquation = SecondEquation;
+            GetExpression();
+        }
 
-        public string UnknownName => custom_param_name.IfBlank(paramname);
-
-        private Func<T?> equationexp;
-        private string paramname;
-        private string custom_param_name;
+        /// <summary>
+        /// Calcula uma regra de três
+        /// </summary>
+        public RuleOfThree(params T?[] Numbers) => RuleExpression(Numbers);
 
         public RuleOfThree(string Equation)
         {
@@ -177,6 +148,29 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public EquationPair<T> SecondEquation { get; private set; }
+
+        public string UnknownName => custom_param_name.IfBlank(paramname);
+
+        public T? UnknownValue => equationexp();
+
+        /// <summary>
+        /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>
+        /// </summary>
+        /// <returns></returns>
+        public RuleOfThree<T> Resolve()
+        {
+            GetExpression();
+            if (FirstEquation.IsComplete && SecondEquation.IsNotComplete)
+            {
+                SecondEquation.SetMissing(UnknownValue ?? default);
+            }
+            else if (SecondEquation.IsComplete && FirstEquation.IsNotComplete)
+            {
+                FirstEquation.SetMissing(UnknownValue ?? default);
+            }
+
+            return this;
+        }
 
         public T?[][] ToArray() => new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
 

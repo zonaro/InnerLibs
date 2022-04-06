@@ -4,137 +4,14 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.VisualBasic;
 
 namespace InnerLibs.Printer
 {
-    internal class RawPrinterHelper
-    {
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public class DOCINFOA
-        {
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string pDocName;
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string pOutputFile;
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string pDataType;
-        }
-
-        #region Declaration Dll
-
-        [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool OpenPrinter([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, IntPtr pd);
-        [DllImport("winspool.Drv", EntryPoint = "ClosePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool ClosePrinter(IntPtr hPrinter);
-        [DllImport("winspool.Drv", EntryPoint = "StartDocPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool StartDocPrinter(IntPtr hPrinter, int level, [In][MarshalAs(UnmanagedType.LPStruct)] DOCINFOA di);
-        [DllImport("winspool.Drv", EntryPoint = "EndDocPrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool EndDocPrinter(IntPtr hPrinter);
-        [DllImport("winspool.Drv", EntryPoint = "StartPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool StartPagePrinter(IntPtr hPrinter);
-        [DllImport("winspool.Drv", EntryPoint = "EndPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool EndPagePrinter(IntPtr hPrinter);
-        [DllImport("winspool.Drv", EntryPoint = "WritePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, int dwCount, out int dwWritten);
-
-        #endregion
-
-        #region Methods
-
-        // SendBytesToPrinter()
-        // When the function is given a printer name and an unmanaged array
-        // of bytes, the function sends those bytes to the printer queue.
-        // Returns true on success, false on failure.
-        public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, int dwCount)
-        {
-            int dwError = 0;
-            int dwWritten = 0;
-            var hPrinter = new IntPtr(0);
-            var di = new DOCINFOA();
-            bool bSuccess = false; // Assume failure unless you specifically succeed.
-            di.pDocName = "RAW Printer Document";
-            di.pDataType = "RAW";
-
-            // Open the printer.
-            if (OpenPrinter(szPrinterName.Normalize(), out hPrinter, IntPtr.Zero))
-            {
-                // Start a document.
-                if (StartDocPrinter(hPrinter, 1, di))
-                {
-                    // Start a page.
-                    if (StartPagePrinter(hPrinter))
-                    {
-                        // Write your bytes.
-                        bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
-                        EndPagePrinter(hPrinter);
-                    }
-
-                    EndDocPrinter(hPrinter);
-                }
-
-                ClosePrinter(hPrinter);
-            }
-            // If you did not succeed, GetLastError may give more information
-            // about why not.
-            if (bSuccess == false)
-                dwError = Marshal.GetLastWin32Error();
-            return bSuccess;
-        }
-
-        public static bool SendFileToPrinter(string szPrinterName, string szFileName)
-        {
-            // Open the file.
-            var fs = new FileStream(szFileName, FileMode.Open);
-
-            // Create a BinaryReader on the file.
-            var br = new BinaryReader(fs);
-
-            // Dim an array of bytes big enough to hold the file's contents.
-            var bytes = new byte[(int)(fs.Length - 1L + 1)];
-            bool bSuccess = false;
-
-            // Your unmanaged pointer.
-            var pUnmanagedBytes = new IntPtr(0);
-            int nLength = Convert.ToInt32(fs.Length);
-
-            // Read the contents of the file into the array.
-            bytes = br.ReadBytes(nLength);
-            // Allocate some unmanaged memory for those bytes.
-            pUnmanagedBytes = Marshal.AllocCoTaskMem(nLength);
-            // Copy the managed byte array into the unmanaged array.
-            Marshal.Copy(bytes, 0, pUnmanagedBytes, nLength);
-            // Send the unmanaged bytes to the printer.
-            bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
-            // Free the unmanaged memory that you allocated earlier.
-            Marshal.FreeCoTaskMem(pUnmanagedBytes);
-            return bSuccess;
-        }
-
-        public static bool SendBytesToPrinter(string szPrinterName, byte[] data)
-        {
-            var pUnmanagedBytes = Marshal.AllocCoTaskMem(data.Length); // Allocate unmanaged memory
-            Marshal.Copy(data, 0, pUnmanagedBytes, data.Length); // copy bytes into unmanaged memory
-            bool retval = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, data.Length);
-            Marshal.FreeCoTaskMem(pUnmanagedBytes); // Free the allocated unmanaged memory
-            return retval;
-        }
-
-        #endregion
-    }
-
     internal enum Justifications
     {
         Left,
         Right,
         Center
-    }
-
-    public enum QrCodeSize
-    {
-        Size0,
-        Size1,
-        Size2
     }
 
     internal static class PrinterByteExtensions
@@ -150,19 +27,18 @@ namespace InnerLibs.Printer
             for (int i = 0, loopTo = send.Length - 1; i <= loopTo; i++)
                 data[i] = (byte)Text.ToAsc(send[i]);
             list.AddRange(data);
-            data[0] =  Text.ToAscByte('\0');
-            data[1] =  Text.ToAscByte('\0');
-            data[2] =  Text.ToAscByte('\0'); // Clear
+            data[0] = Text.ToAscByte('\0');
+            data[1] = Text.ToAscByte('\0');
+            data[2] = Text.ToAscByte('\0'); // Clear
 
-            // ESC * m nL nH d1…dk   Select bitmap mode
+            // ESC * m nL nH d1…dk Select bitmap mode
             var escBmp = new[] { (byte)0x1B, (byte)0x2A, (byte)0x0, (byte)0x0, (byte)0x0 };
             escBmp[2] = Text.ToAscByte('!');
             // nL, nH
             escBmp[3] = (byte)(bmp.Width % 256);
             escBmp[4] = (byte)Math.Round(bmp.Width / 256d);
 
-            // Cycle picture pixel print
-            // High cycle
+            // Cycle picture pixel print High cycle
             for (double i = 0d, loopTo1 = bmp.Height / 24d + 1d - 1d; i <= loopTo1; i++)
             {
                 // Set the bitmap mode
@@ -200,6 +76,46 @@ namespace InnerLibs.Printer
             return list.ToArray();
         }
 
+        public static byte[] AddBytes(this byte[] bytes, byte[] pAddBytes)
+        {
+            if (pAddBytes is null)
+                return bytes;
+            var list = new List<byte>();
+            list.AddRange(bytes);
+            list.AddRange(pAddBytes);
+            return list.ToArray();
+        }
+
+        public static byte[] AddCrLF(this byte[] bytes, Encoding Encoding = null)
+        {
+            return bytes.AddTextBytes(Environment.NewLine, Encoding);
+        }
+
+        public static byte[] AddLF(this byte[] bytes, Encoding Encoding = null)
+        {
+            return bytes.AddTextBytes(Environment.NewLine, Encoding);
+        }
+
+        public static byte[] AddTextBytes(this byte[] bytes, string value, Encoding Encoding)
+        {
+            if (value.IsBlank())
+                return bytes;
+            var list = new List<byte>();
+            list.AddRange(bytes);
+            list.AddRange(value.TextBytes(Encoding));
+            return list.ToArray();
+        }
+
+        public static bool IsNullOrEmpty(this string value)
+        {
+            return string.IsNullOrEmpty(value);
+        }
+
+        public static byte[] TextBytes(this string Value, Encoding Encoding)
+        {
+            return (Encoding ?? Encoding.Default).GetBytes(Value);
+        }
+
         public static byte ToByte(this char c)
         {
             return (byte)c.ToAsc();
@@ -219,45 +135,133 @@ namespace InnerLibs.Printer
         {
             return (byte)c;
         }
+    }
 
-        public static byte[] AddBytes(this byte[] bytes, byte[] pAddBytes)
+    internal class RawPrinterHelper
+    {
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        public class DOCINFOA
         {
-            if (pAddBytes is null)
-                return bytes;
-            var list = new List<byte>();
-            list.AddRange(bytes);
-            list.AddRange(pAddBytes);
-            return list.ToArray();
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string pDocName;
+
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string pOutputFile;
+
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string pDataType;
         }
 
-        public static byte[] AddTextBytes(this byte[] bytes, string value, Encoding Encoding)
+        #region Declaration Dll
+
+        [DllImport("winspool.Drv", EntryPoint = "ClosePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool ClosePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "EndDocPrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool EndDocPrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "EndPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool EndPagePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool OpenPrinter([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, IntPtr pd);
+
+        [DllImport("winspool.Drv", EntryPoint = "StartDocPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool StartDocPrinter(IntPtr hPrinter, int level, [In][MarshalAs(UnmanagedType.LPStruct)] DOCINFOA di);
+
+        [DllImport("winspool.Drv", EntryPoint = "StartPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool StartPagePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "WritePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, int dwCount, out int dwWritten);
+
+        #endregion Declaration Dll
+
+        #region Methods
+
+        // SendBytesToPrinter() When the function is given a printer name and an unmanaged array of
+        // bytes, the function sends those bytes to the printer queue. Returns true on success,
+        // false on failure.
+        public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, int dwCount)
         {
-            if (value.IsBlank())
-                return bytes;
-            var list = new List<byte>();
-            list.AddRange(bytes);
-            list.AddRange(value.TextBytes(Encoding));
-            return list.ToArray();
+            int dwError = 0;
+            int dwWritten = 0;
+            var hPrinter = new IntPtr(0);
+            var di = new DOCINFOA();
+            bool bSuccess = false; // Assume failure unless you specifically succeed.
+            di.pDocName = "RAW Printer Document";
+            di.pDataType = "RAW";
+
+            // Open the printer.
+            if (OpenPrinter(szPrinterName.Normalize(), out hPrinter, IntPtr.Zero))
+            {
+                // Start a document.
+                if (StartDocPrinter(hPrinter, 1, di))
+                {
+                    // Start a page.
+                    if (StartPagePrinter(hPrinter))
+                    {
+                        // Write your bytes.
+                        bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
+                        EndPagePrinter(hPrinter);
+                    }
+
+                    EndDocPrinter(hPrinter);
+                }
+
+                ClosePrinter(hPrinter);
+            }
+            // If you did not succeed, GetLastError may give more information about why not.
+            if (bSuccess == false)
+                dwError = Marshal.GetLastWin32Error();
+            return bSuccess;
         }
 
-        public static byte[] TextBytes(this string Value, Encoding Encoding)
+        public static bool SendBytesToPrinter(string szPrinterName, byte[] data)
         {
-            return (Encoding ?? Encoding.Default).GetBytes(Value);
+            var pUnmanagedBytes = Marshal.AllocCoTaskMem(data.Length); // Allocate unmanaged memory
+            Marshal.Copy(data, 0, pUnmanagedBytes, data.Length); // copy bytes into unmanaged memory
+            bool retval = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, data.Length);
+            Marshal.FreeCoTaskMem(pUnmanagedBytes); // Free the allocated unmanaged memory
+            return retval;
         }
 
-        public static byte[] AddLF(this byte[] bytes, Encoding Encoding = null)
+        public static bool SendFileToPrinter(string szPrinterName, string szFileName)
         {
-            return bytes.AddTextBytes(Environment.NewLine, Encoding);
+            // Open the file.
+            var fs = new FileStream(szFileName, FileMode.Open);
+
+            // Create a BinaryReader on the file.
+            var br = new BinaryReader(fs);
+
+            // Dim an array of bytes big enough to hold the file's contents.
+            var bytes = new byte[(int)(fs.Length - 1L + 1)];
+            bool bSuccess = false;
+
+            // Your unmanaged pointer.
+            var pUnmanagedBytes = new IntPtr(0);
+            int nLength = Convert.ToInt32(fs.Length);
+
+            // Read the contents of the file into the array.
+            bytes = br.ReadBytes(nLength);
+            // Allocate some unmanaged memory for those bytes.
+            pUnmanagedBytes = Marshal.AllocCoTaskMem(nLength);
+            // Copy the managed byte array into the unmanaged array.
+            Marshal.Copy(bytes, 0, pUnmanagedBytes, nLength);
+            // Send the unmanaged bytes to the printer.
+            bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
+            // Free the unmanaged memory that you allocated earlier.
+            Marshal.FreeCoTaskMem(pUnmanagedBytes);
+            return bSuccess;
         }
 
-        public static byte[] AddCrLF(this byte[] bytes, Encoding Encoding = null)
-        {
-            return bytes.AddTextBytes(Environment.NewLine, Encoding);
-        }
+        #endregion Methods
+    }
 
-        public static bool IsNullOrEmpty(this string value)
-        {
-            return string.IsNullOrEmpty(value);
-        }
+    public enum QrCodeSize
+    {
+        Size0,
+        Size1,
+        Size2
     }
 }

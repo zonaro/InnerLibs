@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualBasic;
-
 
 namespace InnerLibs
 {
@@ -32,7 +30,6 @@ namespace InnerLibs
             num.Reverse();
             return num.JoinString("");
         }
-
 
         /// <summary>
         /// Descriptografa uma string previamente criptografada com InnerCrypt

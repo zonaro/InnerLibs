@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
- 
 
 namespace InnerLibs
 {
-
     /// <summary>
     /// Modulo para manipulação de numeros romanos
     /// </summary>
@@ -69,16 +67,16 @@ namespace InnerLibs
                 return 0;
             }
 
-            // Os numerais que representam números que começam com um '5'(V, L e D) podem
-            // aparecer apenas uma vez em cada numeral romano. Esta regra permite XVI, mas não VIV.
+            // Os numerais que representam números que começam com um '5'(V, L e D) podem aparecer
+            // apenas uma vez em cada numeral romano. Esta regra permite XVI, mas não VIV.
             if (RomanNumber.Split('V').Length > 2 || RomanNumber.Split('L').Length > 2 || RomanNumber.Split('D').Length > 2)
             {
                 throw new ArgumentException("Roman number with invalid numerals. The number has a V, L or D number repeated.");
             }
 
-            // Uma única letra pode ser repetida até três vezes consecutivamente sendo
-            // que cada ocorrência será somanda. Isto significa que I é um, II e III
-            // significa dois é três. No entanto, IIII não é permitido.
+            // Uma única letra pode ser repetida até três vezes consecutivamente sendo que cada
+            // ocorrência será somanda. Isto significa que I é um, II e III significa dois é três.
+            // No entanto, IIII não é permitido.
             int contador = 1;
             char ultimo = 'Z';
             foreach (char numeral in RomanNumber)
@@ -115,10 +113,10 @@ namespace InnerLibs
                 char numeral = RomanNumber[ptr];
                 int digito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
 
-                // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior
-                // Quando isto ocorre, por exemplo IX, o menor número é subtraído do maior
-                // O dígito subtraído deve ser de pelo menos um décimo do valor do maior numeral e deve ser ou I, X ou C
-                // Valores como MCMD ou CMC não são permitidos
+                // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior Quando
+                // isto ocorre, por exemplo IX, o menor número é subtraído do maior O dígito
+                // subtraído deve ser de pelo menos um décimo do valor do maior numeral e deve ser
+                // ou I, X ou C Valores como MCMD ou CMC não são permitidos
                 if (digito > digitoMaximo)
                 {
                     throw new ArgumentException("Roman number with invalid positioning.");
@@ -148,10 +146,10 @@ namespace InnerLibs
                 ptr += 1;
             }
 
-            // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da esquerda para a direita.
-            // O valor nunca deve aumentar a partir de uma letra para a próxima.
-            // Onde houver um numeral subtrativo, esta regra se aplica ao valor
-            // combinado dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
+            // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da
+            // esquerda para a direita. O valor nunca deve aumentar a partir de uma letra para a
+            // próxima. Onde houver um numeral subtrativo, esta regra se aplica ao valor combinado
+            // dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
             // Isto significa que XIX é aceitável, mas XIM e IIV não são.
             for (int i = 0, loopTo = valores.Count - 2; i <= loopTo; i++)
             {
@@ -161,8 +159,8 @@ namespace InnerLibs
                 }
             }
 
-            // Numerais maiores devem ser colocados à esquerda dos números menores para
-            // continuar a combinação aditiva. Assim VI é igual a seis e MDCLXI é 1.661.
+            // Numerais maiores devem ser colocados à esquerda dos números menores para continuar a
+            // combinação aditiva. Assim VI é igual a seis e MDCLXI é 1.661.
             int total = 0;
             foreach (int digito in valores)
                 total += digito;
@@ -194,8 +192,8 @@ namespace InnerLibs
             // percorre os valores nos arrays
             for (int i = 0; i <= 12; i++)
             {
-                // se o numero a ser convertido é menor que o valor então anexa
-                // o numero correspondente ou o par ao resultado
+                // se o numero a ser convertido é menor que o valor então anexa o numero
+                // correspondente ou o par ao resultado
                 while (ArabicNumber >= algarismosArabicos[i])
                 {
                     ArabicNumber -= algarismosArabicos[i];

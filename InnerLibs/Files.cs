@@ -12,6 +12,33 @@ namespace InnerLibs
     public static class Files
     {
         /// <summary>
+        /// Retorna o nome do diretorio onde o arquivo se encontra
+        /// </summary>
+        /// <param name="Path">Caminho do arquivo</param>
+        /// <returns>o nome do diretório sem o caminho</returns>
+        public static string GetLatestDirectoryName(this FileInfo Path)
+        {
+            return System.IO.Path.GetDirectoryName(Path.DirectoryName);
+        }
+
+        /// <summary>
+        /// Retorna o conteudo de um arquivo de texto
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null)
+        {
+            try
+            {
+                return System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8);
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
+        /// <summary>
         /// Salva um anexo para um diretório
         /// </summary>
         /// <param name="attachment"></param>
@@ -60,19 +87,36 @@ namespace InnerLibs
         /// <returns></returns>
         public static byte[] ToBytes(this Stream stream)
         {
-            using (var ms = new MemoryStream())
+            if (stream != null)
+                using (var ms = new MemoryStream())
+                {
+                    stream.CopyTo(ms);
+                    return ms.ToArray();
+                }
+            return Array.Empty<byte>();
+        }
+
+        public static byte[] ToBytes(this FileInfo File)
+        {
+            var fInfo = new FileInfo(File.FullName);
+            using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
             {
-                stream.CopyTo(ms);
-                return ms.ToArray();
+                using (var br = new BinaryReader(fStream))
+                {
+                    return br.ReadBytes((int)fInfo.Length);
+                }
             }
         }
 
         /// <summary>
-        /// Transforma um  Array de Bytes em um arquivo
+        /// Transforma um Array de Bytes em um arquivo
         /// </summary>
-        /// <param name="Bytes">A MAtriz com os Bytes  a ser escrita</param>
+        /// <param name="Bytes">A MAtriz com os Bytes a ser escrita</param>
         /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
-        /// <param name="DateAndTime">DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de substituição nos Path. default é <see cref="DateTime.Now"/></param>
+        /// <param name="DateAndTime">
+        /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
+        /// substituição nos Path. default é <see cref="DateTime.Now"/>
+        /// </param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this byte[] Bytes, string FilePath, DateTime? DateAndTime = null)
         {
@@ -97,43 +141,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna o conteudo de um arquivo de texto
-        /// </summary>
-        /// <param name="File">Arquivo</param>
-        /// <returns></returns>
-        public static string ReadText(this FileInfo File)
-        {
-            try
-            {
-                using (var f = File.OpenText())
-                {
-                    return f.ReadToEnd();
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Transforma um arquivo em um Array de Bytes
         /// </summary>
         /// <param name="File">O arquivo a ser convertido</param>
         /// <returns>Um array do tipo Byte()</returns>
-
-        public static byte[] ToBytes(this FileInfo File)
-        {
-            var fInfo = new FileInfo(File.FullName);
-            using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
-            {
-                using (var br = new BinaryReader(fStream))
-                {
-                    return br.ReadBytes((int)fInfo.Length);
-                }
-            }
-        }
-
         /// <summary>
         /// Salva um texto em um arquivo
         /// </summary>
@@ -161,16 +172,6 @@ namespace InnerLibs
         public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null)
         {
             return Text.WriteToFile(File.FullName, Append, Enconding);
-        }
-
-        /// <summary>
-        /// Retorna o nome do diretorio onde o arquivo se encontra
-        /// </summary>
-        /// <param name="Path">Caminho do arquivo</param>
-        /// <returns>o nome do diretório sem o caminho</returns>
-        public static string GetLatestDirectoryName(this FileInfo Path)
-        {
-            return System.IO.Path.GetDirectoryName(Path.DirectoryName);
         }
     }
 }

@@ -2,31 +2,7 @@
 
 namespace InnerLibs.MenuBuilder
 {
-
-    /// <summary>
-    /// Estrutura para criação de menus com submenus
-    /// </summary>
-    public class MenuList<T> : List<MenuItem<T>>
-    {
-
-        /// <summary>
-        /// Verifica se este menu possui itens
-        /// </summary>
-        /// <returns></returns>
-        public object HasItems
-        {
-            get
-            {
-                return Count > 0;
-            }
-        }
-    }
-
     public class MenuItem : MenuItem<object>
-    {
-    }
-
-    public class MenuList : MenuList<object>
     {
     }
 
@@ -35,74 +11,6 @@ namespace InnerLibs.MenuBuilder
     /// </summary>
     public class MenuItem<T>
     {
-
-        /// <summary>
-        /// Icone correspondente a este menu
-        /// </summary>
-        /// <returns></returns>
-        public string Icon { get; set; }
-
-        /// <summary>
-        /// Titulo do menu
-        /// </summary>
-        /// <returns></returns>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// URL do menu
-        /// </summary>
-        /// <returns></returns>
-        public string URL { get; set; } = "#";
-
-        /// <summary>
-        /// Target do menu
-        /// </summary>
-        /// <returns></returns>
-        public string Target { get; set; } = "_self";
-
-        /// <summary>
-        /// Subitens do menu
-        /// </summary>
-        /// <returns></returns>
-
-        public MenuList<T> SubItems { get; set; }
-
-        /// <summary>
-        /// Informações relacionadas a este item
-        /// </summary>
-        /// <returns></returns>
-        public T Data { get; set; }
-
-        /// <summary>
-        /// Indica se o menu está ativo (selecionado)
-        /// </summary>
-        /// <returns></returns>
-        public bool Active { get; set; } = false;
-
-        /// <summary>
-        /// Indica se o menu está habilitado
-        /// </summary>
-        /// <returns></returns>
-        public bool Enabled { get; set; } = true;
-
-        /// <summary>
-        /// Indica se o menu está visivel
-        /// </summary>
-        /// <returns></returns>
-        public bool Visible { get; set; } = true;
-
-        /// <summary>
-        /// Verifica se este item possui subitens
-        /// </summary>
-        /// <returns></returns>
-        public bool HasItems
-        {
-            get
-            {
-                return SubItems.Count > 0;
-            }
-        }
-
         /// <summary>
         /// Inicializa um novo MenuBuilderItem
         /// </summary>
@@ -135,5 +43,93 @@ namespace InnerLibs.MenuBuilder
         public MenuItem()
         {
         }
+
+        /// <summary>
+        /// Indica se o menu está ativo (selecionado)
+        /// </summary>
+        /// <returns></returns>
+        public bool Active { get; set; } = false;
+
+        /// <summary>
+        /// Informações relacionadas a este item
+        /// </summary>
+        /// <returns></returns>
+        public T Data { get; set; }
+
+        /// <summary>
+        /// Indica se o menu está habilitado
+        /// </summary>
+        /// <returns></returns>
+        public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Verifica se este item possui subitens
+        /// </summary>
+        /// <returns></returns>
+        public bool HasItems
+        {
+            get
+            {
+                return SubItems.Count > 0;
+            }
+        }
+
+        /// <summary>
+        /// Icone correspondente a este menu
+        /// </summary>
+        /// <returns></returns>
+        public string Icon { get; set; }
+
+        public MenuList<T> SubItems { get; set; }
+
+        /// <summary>
+        /// Target do menu
+        /// </summary>
+        /// <returns></returns>
+        public string Target { get; set; } = "_self";
+
+        /// <summary>
+        /// Titulo do menu
+        /// </summary>
+        /// <returns></returns>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// URL do menu
+        /// </summary>
+        /// <returns></returns>
+        public string URL { get; set; } = "#";
+
+        /// <summary>
+        /// Subitens do menu
+        /// </summary>
+        /// <returns></returns>
+        /// <summary>
+        /// Indica se o menu está visivel
+        /// </summary>
+        /// <returns></returns>
+        public bool Visible { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Estrutura para criação de menus com submenus
+    /// </summary>
+    public class MenuList<T> : List<MenuItem<T>>
+    {
+        /// <summary>
+        /// Verifica se este menu possui itens
+        /// </summary>
+        /// <returns></returns>
+        public object HasItems
+        {
+            get
+            {
+                return Count > 0;
+            }
+        }
+    }
+
+    public class MenuList : MenuList<object>
+    {
     }
 }
