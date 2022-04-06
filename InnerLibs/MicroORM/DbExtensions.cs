@@ -1349,4 +1349,12 @@ namespace InnerLibs.MicroORM
             return null;
         }
     }
+
+    public class SQLResponse<T>
+    {
+        public T Data { get; set; }
+        public string Message { get; set; }
+        public string SQL { get; set; }
+        public string Status { get; set; }
+    }
 }
