@@ -15,10 +15,17 @@ namespace InnerLibs
     {
         private static Random init_rnd = new Random();
 
+        /// <summary>
+        /// Generate a password with specific lenght for each char type
+        /// </summary>
+        /// <param name="AlphaLenght"></param>
+        /// <param name="NumberLenght"></param>
+        /// <param name="SpecialLenght"></param>
+        /// <returns></returns>
         public static string Password(int AlphaLenght, int NumberLenght, int SpecialLenght) => Password((AlphaLenght / 2d).CeilInt(), (AlphaLenght / 2d).FloorInt(), NumberLenght, SpecialLenght);
 
         /// <summary>
-        /// Gera uma senha
+        /// Generate a password with specific lenght for each char type
         /// </summary>
         /// <returns></returns>
         public static string Password(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
@@ -59,6 +66,11 @@ namespace InnerLibs
             return pass.Shuffle();
         }
 
+        /// <summary>
+        /// Generate a password with specific <paramref name="Lenght"/>
+        /// </summary>
+        /// <param name="Lenght"></param>
+        /// <returns></returns>
         public static string Password(int Lenght = 8)
         {
             var basenumber = Lenght / 3d;
@@ -97,6 +109,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static List<Color> RandomColorList(int Quantity, int Red = -1, int Green = -1, int Blue = -1)
         {
+            Red = Red.SetMinValue(-1);
+            Green = Green.SetMinValue(-1);
+            Blue = Blue.SetMinValue(-1);
+
             var l = new List<Color>();
             if (Red == Green && Green == Blue && Blue != -1)
             {
@@ -162,7 +178,7 @@ namespace InnerLibs
             string word = "";
             if (Length == 1)
             {
-                return Text.RandomItem(PredefinedArrays.LowerConsonants.Union(PredefinedArrays.LowerVowels).ToArray());
+                return Text.RandomItem(PredefinedArrays.AlphaLowerChars.ToArray());
             }
 
             // Generate the word in consonant / vowel pairs

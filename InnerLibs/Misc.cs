@@ -60,7 +60,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), "");
+        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), string.Empty);
 
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
@@ -122,7 +122,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Converte uma classe para um <see cref="Dictionary"/>
+        /// Converte um objeto para um <see cref="Dictionary"/>
         /// </summary>
         /// <typeparam name="Type">Tipo da classe</typeparam>
         /// <param name="Obj">Object</param>
@@ -146,14 +146,8 @@ namespace InnerLibs
         public static Guid CreateGuidOrDefault(this string Source)
         {
             var g = Guid.NewGuid();
-            if (Source.IsNotBlank())
-            {
-                if (!Guid.TryParse(Source, out g))
-                {
-                    g = Guid.NewGuid();
-                }
-            }
-
+            if (Source.IsNotBlank() || !Guid.TryParse(Source, out g))
+                g = Guid.NewGuid();
             return g;
         }
 
@@ -238,10 +232,7 @@ namespace InnerLibs
         /// <typeparam name="Type">TIpo de Objeto</typeparam>
         /// <param name="Arr">colecao</param>
         /// <returns></returns>
-        public static Dictionary<PropT, long> DistinctCount<Type, PropT>(this IEnumerable<Type> Arr, Func<Type, PropT> Prop)
-        {
-            return Arr.GroupBy(Prop).ToDictionary(x => x.Key, x => x.LongCount()).OrderByDescending(p => p.Value).ToDictionary();
-        }
+        public static Dictionary<PropT, long> DistinctCount<Type, PropT>(this IEnumerable<Type> Arr, Func<Type, PropT> Prop) => Arr.GroupBy(Prop).ToDictionary(x => x.Key, x => x.LongCount()).OrderByDescending(p => p.Value).ToDictionary();
 
         /// <summary>
         /// Conta de maneira distinta N items de uma coleçao e agrupa o resto
@@ -266,8 +257,7 @@ namespace InnerLibs
         public static Dictionary<PropT, long> DistinctCountTop<Type, PropT>(this IEnumerable<Type> Arr, Func<Type, PropT> Prop, int Top, PropT Others)
         {
             var a = Arr.DistinctCount(Prop);
-            if (Top < 1)
-                return a;
+            if (Top < 1) return a;
             var topN = a.TakeTop(Top, Others);
             return topN;
         }
@@ -307,9 +297,15 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Troca ou não a ordem das variaveis de inicio e fim fazendo com que a Value1 sempre seja
-        /// menor que a Value2. Util para tratar ranges
+        /// Troca valor de <paramref name="FirstValue"/> pelo de <paramref name="SecondValue"/> se
+        /// <paramref name="FirstValue"/> for maior que <paramref name="SecondValue"/> fazendo com
+        /// que <paramref name="FirstValue"/> seja sempre menor que <paramref name="SecondValue"/>.
+        /// Util para tratar ranges
         /// </summary>
+        /// <remarks>
+        /// Caso <paramref name="FirstValue"/> e/ou <paramref name="SecondValue"/> forem
+        /// <b>null</b>, nada acontece
+        /// </remarks>
         public static void FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
             if (FirstValue != null && SecondValue != null)
@@ -345,11 +341,11 @@ namespace InnerLibs
             }
 
             var val = ((T[])Enum.GetValues(typeof(T)))[0];
-            if (!string.IsNullOrEmpty(Name))
+            if (Name.IsNotBlank())
             {
                 foreach (T enumValue in (T[])Enum.GetValues(typeof(T)))
                 {
-                    if (enumValue.ToString().ToUpper().Equals(Name.ToUpper()))
+                    if (enumValue.ToString().Equals(Name, StringComparison.InvariantCultureIgnoreCase))
                     {
                         val = enumValue;
                         break;
@@ -451,6 +447,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static PropertyInfo GetProperty<O>(this O MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
 
+        /// <summary>
+        /// Retorna uma HashTable das propriedades de um objeto
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="properties"></param>
+        /// <returns></returns>
         public static Hashtable GetPropertyHash<T>(T properties)
         {
             Hashtable values = null;
@@ -466,7 +468,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Traz uma propriedade de um objeto
+        /// Traz o valor de uma propriedade de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
@@ -824,6 +826,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsNotIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text.Contains(Obj.ToString()) : Text.Contains(Obj.ToString(), Comparer.Value);
 
+        /// <summary>
+        /// Checks if a <paramref name="List"/> is not <b>null</b> and contains at least one item
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <returns></returns>
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List) => (List ?? Array.Empty<T>()).Any();
 
         public static bool IsNullableType(this Type t) => t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
@@ -846,6 +854,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsNullableTypeOf<O>(this O Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
 
+        /// <summary>
+        /// Checks if a <paramref name="List"/> is <b>null</b> or empty
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <returns></returns>
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> List) => !List.IsNotNullOrEmpty();
 
         /// <summary>
@@ -1159,8 +1173,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static Dictionary<K, T> TakeTop<K, T>(this IDictionary<K, T> Dic, int Top, K GroupOthersLabel) where T : IConvertible
         {
-            if (Top < 1)
-                return (Dictionary<K, T>)Dic;
+            if (Top < 1) return (Dictionary<K, T>)Dic;
             var novodic = Dic.Take(Top).ToDictionary();
             if (GroupOthersLabel != null)
             {
@@ -1180,8 +1193,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static Dictionary<K, IEnumerable<T>> TakeTop<K, T>(this IDictionary<K, IEnumerable<T>> Dic, int Top, K GroupOthersLabel)
         {
-            if (Top < 1)
-                return (Dictionary<K, IEnumerable<T>>)Dic;
+            if (Top < 1) return (Dictionary<K, IEnumerable<T>>)Dic;
             var novodic = Dic.Take(Top).ToDictionary();
             if (GroupOthersLabel != null)
             {
@@ -1244,8 +1256,7 @@ namespace InnerLibs
                 {
                     x.Key // GroupKey
                 };
-                foreach (var item in x.Value.OrderBy(k => k.Key).Select(v => v.Value))
-                    l.Add(item); // SubGroupValue
+                foreach (var item in x.Value.OrderBy(k => k.Key).Select(v => v.Value)) l.Add(item); // SubGroupValue
                 return l;
             }));
             return lista;

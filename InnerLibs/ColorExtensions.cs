@@ -213,6 +213,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static Color RandomColor(int Red = -1, int Green = -1, int Blue = -1, int Alpha = 255)
         {
+            Red = Red.SetMinValue(-1);
+            Green = Green.SetMinValue(-1);
+            Blue = Blue.SetMinValue(-1);
+
             Red = (Red < 0 ? Generate.RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
             Green = (Green < 0 ? Generate.RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
             Blue = (Blue < 0 ? Generate.RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);

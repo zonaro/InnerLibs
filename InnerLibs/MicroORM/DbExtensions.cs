@@ -109,6 +109,25 @@ namespace InnerLibs.MicroORM
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
 
         /// <summary>
+        /// Valida se uma conexao e um comando nao sao nulos. Valida se o texto do comando esta em
+        /// branco e associa este comando a conexao especifica. Escreve o comando no <see
+        /// cref="LogWriter"/> e retorna o mesmo
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static DbCommand BeforeRun(ref DbConnection Connection, ref DbCommand Command)
+        {
+            Connection = Connection ?? Command.Connection;
+            if (Connection == null) throw new ArgumentException("Connection is null");
+            if (Command == null || Command.CommandText.IsBlank()) throw new ArgumentException("Command is null or empty");
+            Command.Connection = Connection;
+            if (!Connection.IsOpen()) Connection.Open();
+            return Command.LogCommand();
+        }
+
+        /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
         /// String, Object)"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
@@ -143,8 +162,8 @@ namespace InnerLibs.MicroORM
         public static DbCommand CreateCommand(this DbConnection Connection, string SQL, NameValueCollection Parameters) => Connection.CreateCommand(SQL, Parameters.ToDictionary());
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
-        /// String, Object)"/>, tratando os parametros desta string como parametros SQL
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
+        /// cref="Dictionary{TKey, TValue}"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -229,12 +248,12 @@ namespace InnerLibs.MicroORM
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
-                        var v = Converter.ForceArray(valores, typeof(object));
+                        var v = Converter.ForceArray(valores, typeof(object)).ToList();
                         var param_names = new List<string>();
                         for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
                         {
                             var param = cmd.CreateParameter();
-                            if (v.Count() == 1)
+                            if (v.Count == 1)
                             {
                                 param.ParameterName = $"__p{index}";
                             }
@@ -1013,20 +1032,7 @@ namespace InnerLibs.MicroORM
         /// <summary>
         /// Executa um comando SQL e retorna o numero de linhas afetadas
         /// </summary>
-        public static int RunSQLNone(this DbConnection Connection, DbCommand Command)
-        {
-            if (Connection != null && Command != null)
-            {
-                if (!Connection.IsOpen())
-                {
-                    Connection.Open();
-                }
-
-                return Command.LogCommand().ExecuteNonQuery();
-            }
-
-            return -1;
-        }
+        public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRun(ref Connection, ref Command).ExecuteNonQuery();
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
@@ -1052,15 +1058,15 @@ namespace InnerLibs.MicroORM
         /// </summary>
         public static Dictionary<K, V> RunSQLPairs<K, V>(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLPairs<K, V>(Connection.CreateCommand(SQL));
 
+        /// <summary>
+        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// </summary>
         public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL) => Connection.RunSQLReader(Connection.CreateCommand(SQL));
 
-        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command)
-        {
-            if (Connection == null) throw new ArgumentException("Connection is null");
-            if (Command == null || Command.CommandText.IsBlank()) throw new ArgumentException("Command is null or empty");
-            if (!Connection.IsOpen()) Connection.Open();
-            return Command.LogCommand().ExecuteReader();
-        }
+        /// <summary>
+        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// </summary>
+        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRun(ref Connection, ref Command).ExecuteReader();
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um
@@ -1170,20 +1176,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static object RunSQLValue(this DbConnection Connection, DbCommand Command)
-        {
-            if (Connection != null && Command != null)
-            {
-                if (!Connection.IsOpen())
-                {
-                    Connection.Open();
-                }
-
-                return Command.LogCommand().ExecuteScalar();
-            }
-
-            return null;
-        }
+        public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRun(ref Connection, ref Command).ExecuteScalar();
 
         /// <summary>
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
@@ -1227,8 +1220,6 @@ namespace InnerLibs.MicroORM
             }
         }
 
-        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Keys);
-
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos
         /// de um NameValueCollection como parametros da procedure
@@ -1237,6 +1228,8 @@ namespace InnerLibs.MicroORM
         /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
         /// <returns>Um DbCommand parametrizado</returns>
+        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Keys);
+
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades
         /// específicas de um objeto como parametros da procedure
@@ -1247,6 +1240,14 @@ namespace InnerLibs.MicroORM
         /// <returns>Um DbCommand parametrizado</returns>
         public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Keys);
 
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
+        /// específicos de um <see cref="Dictionary{TKey, TValue}"/> como parametros da procedure
+        /// </summary>
+        /// <param name="Dic">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
         public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, params string[] Keys)
         {
             Dic = Dic ?? new Dictionary<string, object>();
@@ -1261,14 +1262,11 @@ namespace InnerLibs.MicroORM
             }
 
             string sql = $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
+
             return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value));
         }
 
-        /// <summary> Monta um Comando SQL para executar uma procedure especifica e utiliza os pares
-        /// de um dicionario como parametros da procedure </summary> <param name="Dic">Dicionario
-        /// com os parametros</param> <param name="ProcedureName">Nome da Procedure</param> <param
-        /// name="Keys">CHaves de Dicionário que devem ser utilizadas</param> <returns>Um DbCommand
-        /// parametrizado</returns> <summary> Monta um Comando SQL para executar um SELECT com
+        ///<summary> Monta um Comando SQL para executar um SELECT com
         /// filtros a partir de um <see cref="NameValueCollection" /> </summary> <remarks>
         /// NameValueCollection pode usar a seguinte estrutura:
         /// &name=value1&or:surname=like:%value2% => WHERE [name] = 'value1' OR [surname] like
@@ -1276,6 +1274,14 @@ namespace InnerLibs.MicroORM
         /// Nome da Tabela</param> <returns>Uma string com o comando montado</returns>
         public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
 
+        /// <summary>
+        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
+        /// cref="Dictionary(Of String, Object)"/>
+        /// </summary>
+        /// <param name="Dic">Dicionario</param>
+        /// <param name="TableName">Nome da Tabela</param>
+        /// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+        /// <returns>Uma string com o comando montado</returns>
         public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
 
         /// <summary>
@@ -1283,13 +1289,13 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static string ToSQLString(object Obj) => ToSQLString($"{Obj}");
+        public static string ToSQLString(this object Obj, bool Parenthesis = true) => ToSQLString($"{Obj}", Parenthesis);
 
         /// <summary>
         /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
         /// parametros como parametros da query
         /// </summary>
-        public static string ToSQLString(this FormattableString SQL)
+        public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
         {
             if (SQL != null)
             {
@@ -1329,7 +1335,7 @@ namespace InnerLibs.MicroORM
 
                             return x.ToString().Quote('\'');
                         }).ToList();
-                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
+                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
                     }
 
                     return CommandText;
@@ -1342,14 +1348,5 @@ namespace InnerLibs.MicroORM
 
             return null;
         }
-
-        /// <summary>
-        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
-        /// cref="Dictionary(Of String, Object)"/>
-        /// </summary>
-        /// <param name="Dic">Dicionario</param>
-        /// <param name="TableName">Nome da Tabela</param>
-        /// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
-        /// <returns>Uma string com o comando montado</returns>
     }
 }

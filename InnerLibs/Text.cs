@@ -1145,26 +1145,13 @@ namespace InnerLibs
         {
             if (injectionObject != null)
             {
-                if (injectionObject.IsDictionary())
-                {
-                    return formatString.Inject((IDictionary)injectionObject);
-                }
-                else
-                {
-                    return formatString.Inject(Misc.GetPropertyHash(injectionObject));
-                }
+                return injectionObject.IsDictionary()
+                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject))
+                    : formatString.Inject(Misc.GetPropertyHash(injectionObject));
             }
 
             return formatString;
         }
-
-        /// <summary>
-        /// Inject a <see cref="IDictionary"/> into <see cref="String"/>
-        /// </summary>
-        /// <param name="formatString"></param>
-        /// <param name="dictionary"></param>
-        /// <returns></returns>
-        public static string Inject(this string formatString, IDictionary dictionary) => formatString.Inject(new Hashtable(dictionary));
 
         /// <summary>
         /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
@@ -1177,8 +1164,7 @@ namespace InnerLibs
             string result = formatString;
             if (attributes != null && formatString != null)
             {
-                foreach (string attributeKey in attributes.Keys)
-                    result = result.InjectSingleValue(attributeKey, attributes[attributeKey]);
+                foreach (string attributeKey in attributes.Keys) result = result.InjectSingleValue(attributeKey, attributes[attributeKey]);
             }
 
             return result;
@@ -1299,8 +1285,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
         {
-            if (IgnoreWhiteSpaces)
-                Text = Text.RemoveAny(" ");
+            if (IgnoreWhiteSpaces) Text = Text.RemoveAny(" ");
             return Text == Text.ToCharArray().Reverse().JoinString();
         }
 
@@ -1402,13 +1387,13 @@ namespace InnerLibs
         public static string MaskTelephoneNumber(this string Number)
         {
             Number = Number ?? "";
-            string mask = "";
             Number = Number.ParseDigits().RemoveAny(",", ".");
             if (Number.IsBlank())
             {
                 return "";
             }
 
+            string mask;
             switch (Number.Length)
             {
                 case var @case when @case <= 4:
@@ -1462,32 +1447,19 @@ namespace InnerLibs
             return string.Format(mask, long.Parse(Number));
         }
 
-        /// <summary>
-        /// Aplica uma mascara a um numero de telefone
-        /// </summary>
-        /// <param name="Number"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
+
         public static string MaskTelephoneNumber(this long Number) => Number.ToString().MaskTelephoneNumber();
 
-        /// <summary>
-        /// Aplica uma mascara a um numero de telefone
-        /// </summary>
-        /// <param name="Number"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="MaskTelephoneNumber(string)"/>
+
         public static string MaskTelephoneNumber(this int Number) => Number.ToString().MaskTelephoneNumber();
 
-        /// <summary>
-        /// Aplica uma mascara a um numero de telefone
-        /// </summary>
-        /// <param name="Number"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
+
         public static string MaskTelephoneNumber(this decimal Number) => Number.ToString().MaskTelephoneNumber();
 
-        /// <summary>
-        /// Aplica uma mascara a um numero de telefone
-        /// </summary>
-        /// <param name="Number"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
         public static string MaskTelephoneNumber(this double Number) => Number.ToString().MaskTelephoneNumber();
 
         /// <summary>
@@ -1532,10 +1504,12 @@ namespace InnerLibs
             return strDigits;
         }
 
-        public static Type ParseDigits<Type>(this string Text, CultureInfo Culture = null) where Type : IConvertible
-        {
-            return Text.ParseDigits(Culture).ChangeType<Type, string>();
-        }
+        /// <summary>
+        /// Remove caracteres não numéricos de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static Type ParseDigits<Type>(this string Text, CultureInfo Culture = null) where Type : IConvertible => Text.ParseDigits(Culture).ChangeType<Type, string>();
 
         /// <summary>
         /// </summary>
@@ -1550,7 +1524,7 @@ namespace InnerLibs
                 var parts = segment.Split('=');
                 if (parts.Any())
                 {
-                    string key = parts[0].Trim(new char[] { '?', ' ' });
+                    string key = parts.First().Trim(new char[] { '?', ' ' });
                     string val = "";
                     if (parts.Skip(1).Any())
                     {
