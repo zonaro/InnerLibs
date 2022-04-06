@@ -83,7 +83,7 @@ namespace InnerLibs
                 byte[] Results = default;
                 var UTF8 = new UTF8Encoding();
                 var HashProvider = new MD5CryptoServiceProvider();
-                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("12345")));
+                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("1234567890")));
                 var TDESAlgorithm = new TripleDESCryptoServiceProvider();
                 TDESAlgorithm.Key = TDESKey;
                 TDESAlgorithm.Mode = CipherMode.ECB;
@@ -118,7 +118,7 @@ namespace InnerLibs
                 byte[] Results = default;
                 var UTF8 = new UTF8Encoding();
                 var HashProvider = new MD5CryptoServiceProvider();
-                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("12345")));
+                var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("1234567890")));
                 var TDESAlgorithm = new TripleDESCryptoServiceProvider();
                 TDESAlgorithm.Key = TDESKey;
                 TDESAlgorithm.Mode = CipherMode.ECB;

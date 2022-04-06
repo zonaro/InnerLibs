@@ -139,7 +139,7 @@ namespace InnerLibs.MicroORM
         {
             if (TableOrSubQuery.IsNotBlank())
             {
-                _from = TableOrSubQuery.QuoteIf(TableOrSubQuery.StartsWith("SELECT "), "(");
+                _from = TableOrSubQuery.QuoteIf(TableOrSubQuery.StartsWith("SELECT "), '(');
                 _fromsub = null;
             }
 
@@ -496,7 +496,7 @@ namespace InnerLibs.MicroORM
                             string logic = col.GetBefore(":", true).IfBlank("AND");
                             string op = v.GetBefore(":", true).IfBlank("=");
                             col = col.GetAfter(":");
-                            col = col.Contains(" ").AsIf(col.UnQuote("[", true).Quote('['), col);
+                            col = col.Contains(" ").AsIf(col.UnQuote('[', true).Quote('['), col);
                             string valor = v.GetAfter(":").NullIf("null", StringComparison.InvariantCultureIgnoreCase);
                             if (valor is null)
                             {
@@ -1011,7 +1011,7 @@ namespace InnerLibs.MicroORM
         /// Returns the condition statement as a SQL query.
         /// </summary>
         /// <returns>The condition statement as a SQL query</returns>
-        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, "(");
+        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, '(');
     }
 
     internal class Join
