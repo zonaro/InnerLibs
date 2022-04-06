@@ -1,5 +1,4 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
@@ -8,264 +7,16 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using InnerLibs.LINQ;
+using Microsoft.VisualBasic;
 
 namespace InnerLibs.MicroORM
 {
-    internal class Join
-    {
-        private string JoinString
-        {
-            get
-            {
-                switch (Type)
-                {
-                    case JoinType.Inner:
-                        {
-                            return "INNER JOIN";
-                        }
-
-                    case JoinType.LeftOuterJoin:
-                        {
-                            return "LEFT OUTER JOIN";
-                        }
-
-                    case JoinType.RightOuterJoin:
-                        {
-                            return "RIGHT OUTER JOIN";
-                        }
-
-                    case JoinType.FullOuterJoin:
-                        {
-                            return "FULL OUTER JOIN";
-                        }
-
-                    case JoinType.CrossJoin:
-                        {
-                            return "CROSS JOIN";
-                        }
-
-                    case JoinType.CrossApply:
-                        {
-                            return "CROSS APPLY";
-                        }
-
-                    default:
-                        {
-                            return "JOIN";
-                        }
-                }
-            }
-        }
-
-        internal Condition On { get; set; }
-        internal string Table { get; set; }
-        internal JoinType Type { get; set; }
-
-        public override string ToString() => On == null ? string.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table) : string.Format(CultureInfo.InvariantCulture, "{0} {1} On {2}", JoinString, Table, On);
-    }
-
-    public enum JoinType
-    {
-        Join,
-        Inner,
-        LeftOuterJoin,
-        RightOuterJoin,
-        FullOuterJoin,
-        CrossJoin,
-        CrossApply
-    }
-
     public interface ISelect
     {
         string ToString();
 
         string ToString(bool SubQuery);
-    }
-
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-    public class ColumnName : Attribute
-    {
-        public ColumnName(params string[] Name)
-        {
-            Names = (string[])(Name ?? Array.Empty<string>()).Select(x => x.UnQuote());
-        }
-
-        public string[] Names { get; private set; }
-    }
-
-    /// <summary>
-    /// A condition with optional AND and OR clauses that can be used in WHERE or JOIN ON statements.
-    /// </summary>
-    public class Condition
-    {
-        private readonly List<string> _tokens = new List<string>();
-
-        public Condition(string LogicOperator, params FormattableString[] Conditions)
-        {
-            foreach (var condition in Conditions ?? Array.Empty<FormattableString>())
-            {
-                if (condition != null && condition.ToString().IsNotBlank())
-                {
-                    if (LogicOperator.IsIn("Or", "OR"))
-                    {
-                        Or(condition);
-                    }
-                    else
-                    {
-                        And(condition);
-                    }
-                }
-            }
-        }
-
-        public Condition(string LogicOperator, params Condition[] Conditions)
-        {
-            foreach (var condition in Conditions ?? Array.Empty<Condition>())
-            {
-                if (condition != null && condition.ToString().IsNotBlank())
-                {
-                    if (LogicOperator.IsIn("Or", "OR"))
-                    {
-                        Or(condition);
-                    }
-                    else
-                    {
-                        And(condition);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Select class constructor
-        /// </summary>
-        /// <param name="condition">Condition to set in this instance</param>
-        public Condition(FormattableString condition)
-        {
-            if (condition.IsNotBlank())
-            {
-                _tokens.Add(condition.ToSQLString());
-            }
-        }
-
-        /// <summary>
-        /// Select class constructor
-        /// </summary>
-        /// <param name="condition">Copies to the condition being constructed</param>
-        public Condition(Condition condition)
-        {
-            if (condition != null && condition.ToString().IsNotBlank())
-            {
-                _tokens.Add(condition.ParenthesisToString());
-            }
-        }
-
-        /// <summary>
-        /// condition class constructor
-        /// </summary>
-        public Condition(string Column, object Value, string Operator = "=")
-        {
-            if (Column.IsNotBlank())
-            {
-                _tokens.Add($"{Column} {Operator.IfBlank("=")} {DbExtensions.ToSQLString(Value)}");
-            }
-        }
-
-        public static Condition AndMany(params FormattableString[] conditions) => new Condition("And", conditions);
-
-        public static Condition OrMany(params FormattableString[] conditions) => new Condition("Or", conditions);
-
-        /// <summary>
-        /// Appends the given condition with AND in this condition.
-        /// </summary>
-        /// <param name="condition">Condition to be appended</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Condition And(FormattableString condition)
-        {
-            if (!(condition == null) && condition.ToString().IsNotBlank())
-            {
-                if (_tokens.Any())
-                {
-                    _tokens.Add("And");
-                }
-
-                _tokens.Add(condition.ToSQLString());
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Appends the given condition with AND in this condition.
-        /// </summary>
-        /// <param name="condition">Condition to be appended</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Condition And(Condition condition) => And(condition.ParenthesisToString().ToFormattableString());
-
-        public Condition AndAll(params FormattableString[] Conditions) => And(AndMany(Conditions));
-
-        public Condition AndAny(params FormattableString[] Conditions) => And(OrMany(Conditions));
-
-        /// <summary>
-        /// Appends the given condition with OR in this condition.
-        /// </summary>
-        /// <param name="condition">Condition to be appended</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Condition Or(FormattableString condition)
-        {
-            if (condition != null && condition.ToString().IsNotBlank())
-            {
-                if (_tokens.Any())
-                {
-                    _tokens.Add("Or");
-                }
-
-                _tokens.Add(condition.ToSQLString());
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Appends the given condition with OR in this condition.
-        /// </summary>
-        /// <param name="condition">Condition to be appended</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Condition Or(Condition condition) => Or(condition.ParenthesisToString().ToFormattableString());
-
-        public Condition OrAll(params FormattableString[] Conditions) => Or(AndMany(Conditions));
-
-        public Condition OrAny(params FormattableString[] Conditions) => Or(OrMany(Conditions));
-
-        /// <summary>
-        /// Returns the condition statement as a SQL query in parenthesis.
-        /// </summary>
-        /// <returns>The condition statement as a SQL query in parenthesis</returns>
-        public string ParenthesisToString() => ToString().Quote('(');
-
-        /// <summary>
-        /// Returns the condition statement as a SQL query.
-        /// </summary>
-        /// <returns>The condition statement as a SQL query</returns>
-        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, '(');
-    }
-
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class FromSQL : Attribute
-    {
-        public FromSQL(string QueryOrFilePath)
-        {
-            if (QueryOrFilePath.IsFilePath() && File.Exists(QueryOrFilePath))
-            {
-                SQL = File.ReadAllText(QueryOrFilePath);
-            }
-            else
-            {
-                SQL = QueryOrFilePath;
-            }
-        }
-
-        public string SQL { get; private set; }
     }
 
     public class Select : Select<Dictionary<string, object>>
@@ -285,28 +36,6 @@ namespace InnerLibs.MicroORM
 
     public class Select<T> : ISelect where T : class
     {
-        internal List<string> _columns;
-
-        internal string _from;
-
-        internal ISelect _fromsub;
-
-        internal string _fromsubname;
-
-        internal List<string> _groupBy;
-
-        internal string _having;
-
-        internal List<Join> _joins;
-
-        internal string _offset;
-
-        internal List<string> _orderBy;
-
-        internal Condition _where;
-
-        public char ColumnChar = '[';
-
         public Select()
         {
             SetColumns<T>();
@@ -330,15 +59,26 @@ namespace InnerLibs.MicroORM
             From<T>();
         }
 
-        /// <summary>
-        /// Operator overload that allows using the class wherever a string is expected.
-        /// </summary>
-        public static implicit operator FormattableString(Select<T> select) => (select?.ToString()).ToFormattableString();
+        public Select<T> ColumnQuote(char QuoteChar)
+        {
+            var _nova = new List<string>();
+            foreach (var item in _columns ?? new List<string>())
+                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.UnQuote().Quote(QuoteChar), "."));
+            SetColumns(_nova.ToArray());
+            return this;
+        }
 
-        /// <summary>
-        /// Operator overload that allows using the class wherever a string is expected.
-        /// </summary>
-        public static implicit operator string(Select<T> select) => select?.ToString();
+        internal List<string> _columns;
+        internal string _from;
+        internal ISelect _fromsub;
+        internal string _fromsubname;
+        internal List<Join> _joins;
+        internal Condition _where;
+        internal List<string> _groupBy;
+        internal string _having;
+        internal List<string> _orderBy;
+        internal string _offset;
+
 
         public Select<T> AddColumns<O>(O Obj = null) where O : class
         {
@@ -352,7 +92,7 @@ namespace InnerLibs.MicroORM
             }
             else
             {
-                return AddColumns(eltipo.GetProperties().Select(x => x.Name).ToArray());
+                AddColumns(eltipo.GetProperties().Select(x => x.Name).ToArray());
             }
 
             return this;
@@ -366,118 +106,29 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an AND clause.
-        /// </summary>
-        /// <param name="conditions">Condition to set</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> And(params FormattableString[] conditions) => And((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
-
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an AND clause.
-        /// </summary>
-        /// <param name="conditions">Condition to set</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> And(params Condition[] conditions)
+        public Select<T> SetColumns(params string[] Columns)
         {
-            foreach (var condition in conditions ?? Array.Empty<Condition>())
+            _columns = null;
+            AddColumns(Columns);
+            return this;
+        }
+
+        public Select<T> SetColumns<O>(O Obj = null) where O : class
+        {
+            _columns = null;
+            AddColumns(Obj);
+            return this;
+        }
+
+        public Select<T> RemoveColumns(params string[] Columns)
+        {
+            if (_columns != null)
             {
-                if (condition != null && condition.ToString().IsNotBlank())
-                {
-                    if (_where is null)
-                        Where(condition);
-                    else
-                        _where.And(condition);
-                }
+                _columns = _columns.Where(x => x.IsNotIn(Columns ?? Array.Empty<string>())).ToList();
             }
 
             return this;
         }
-
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an AND clause.
-        /// </summary>
-        /// <param name="conditions">Condition to set</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> AndAll(params FormattableString[] conditions)
-        {
-            conditions = conditions ?? Array.Empty<FormattableString>();
-            if (conditions.Any())
-            {
-                if (_where is null)
-                {
-                    _where = new Condition("AND", conditions);
-                }
-                else
-                {
-                    _where.AndAll(conditions);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an AND clause.
-        /// </summary>
-        /// <param name="conditions">Condition to set</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> AndAny(params FormattableString[] conditions)
-        {
-            conditions = conditions ?? Array.Empty<FormattableString>();
-            if (conditions.Any())
-            {
-                if (_where is null)
-                {
-                    _where = new Condition("OR", conditions);
-                }
-                else
-                {
-                    _where.AndAny(conditions);
-                }
-            }
-
-            return this;
-        }
-
-        public Select<T> AndSearch(string Value, params string[] Columns) => AndAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
-
-        public Select<T> AndSearch(IEnumerable<string> Value, params string[] Columns)
-        {
-            foreach (var item in (Value ?? Array.Empty<string>()).Where(x => x.IsNotBlank()))
-                AndSearch(item, Columns);
-            return this;
-        }
-
-        public Select<T> ColumnQuote(char QuoteChar)
-        {
-            var _nova = new List<string>();
-            foreach (var item in _columns ?? new List<string>())
-                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.UnQuote().Quote(QuoteChar), "."));
-            return SetColumns(_nova.ToArray());
-        }
-
-        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic) => Connection.CreateCommand(ToString(), dic);
-
-        public DbCommand CreateDbCommand(DbConnection Connection) => CreateDbCommand(Connection, null);
-
-        /// <summary>
-        /// Sets a CROSS JOIN clause in the SELECT being built.
-        /// </summary>
-        /// <param name="table">Table to be join</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> CrossApply(string table) => Join(JoinType.CrossApply, table, null);
-
-        /// <summary>
-        /// Sets a CROSS JOIN clause in the SELECT being built.
-        /// </summary>
-        /// <param name="table">Table to be join</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> CrossJoin(string table) => Join(JoinType.CrossJoin, table, null);
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
@@ -534,64 +185,33 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="SubQuery">Subquery to be selected from</param>
         /// <returns></returns>
-        public Select<T> From(Action<Select> SubQuery) => SubQuery != null ? From((Action<Select<Dictionary<string, object>>>)SubQuery) : this;
+        public Select<T> From(Action<Select> SubQuery)
+        {
+            if (SubQuery != null)
+            {
+                From((Action<Select<Dictionary<string, object>>>)SubQuery);
+            }
+
+            return this;
+        }
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
         /// </summary>
         /// <returns></returns>
-        public Select<T> From<O>() => From(typeof(O).GetNullableTypeOf().Name);
-
-        /// <summary>
-        /// Sets a FULL OUTER JOIN clause in the SELECT being built.
-        /// </summary>
-        /// <param name="table">Table to be join</param>
-        /// <param name="on">Condition of the join (ON clause)</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> FullOuterJoin(string table, FormattableString on) => Join(JoinType.FullOuterJoin, table, new Condition(on));
-
-        /// <summary>
-        /// Sets a FULL OUTER JOIN clause in the SELECT being built.
-        /// </summary>
-        /// <param name="table">Table to be join</param>
-        /// <param name="on">Condition of the join (ON clause)</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
-
-        /// <summary>
-        /// Sets the GROUP BY clause in the SELECT being built.
-        /// </summary>
-        /// <param name="columns">Columns to be grouped by</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> GroupBy(params string[] columns)
+        public Select<T> From<O>()
         {
-            columns = columns ?? Array.Empty<string>();
-            if (_groupBy is null)
-            {
-                _groupBy = new List<string>(columns);
-            }
-            else
-            {
-                _groupBy.AddRange(columns);
-            }
-
+            From(typeof(O).GetNullableTypeOf().Name);
             return this;
         }
 
         /// <summary>
-        /// Sets or overwrite the HAVING clause in the SELECT being built.
+        /// Sets a JOIN clause in the SELECT being built.
         /// </summary>
-        /// <param name="condition">Condition to set</param>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Having(string condition)
-        {
-            if (condition.IsNotBlank())
-            {
-                _having = condition;
-            }
-
-            return this;
-        }
+        public Select<T> Join(string table, FormattableString on) => Join(JoinType.Join, table, new Condition(on));
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -615,31 +235,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Join(string table, FormattableString on) => Join(JoinType.Join, table, new Condition(on));
-
-        /// <summary>
-        /// Sets a JOIN clause in the SELECT being built.
-        /// </summary>
-        /// <param name="table">Table to be join</param>
-        /// <param name="on">Condition of the join (ON clause)</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Join(string table, Condition on) => Join(JoinType.Join, table, on);
-
-        public Select<T> Join(JoinType JoinType, string Table, Condition on)
-        {
-            if (Table.IsNotBlank() && !(on == null) && on.ToString().IsNotBlank())
-            {
-                _joins = _joins ?? new List<Join>();
-                _joins.Add(new Join()
-                {
-                    Type = JoinType,
-                    Table = Table,
-                    On = on
-                });
-            }
-
-            return this;
-        }
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -657,138 +253,6 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> LeftOuterJoin(string table, Condition on) => Join(JoinType.LeftOuterJoin, table, on);
 
-        public Select<T> OffSet(int Page, int PageSize)
-        {
-            if (Page < 0)
-            {
-                _offset = null;
-            }
-            else
-            {
-                PageSize = PageSize.SetMinValue(0);
-                _offset = $"OFFSET {Page} ROWS FETCH NEXT {PageSize} ROWS ONLY";
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an OR clause.
-        /// </summary>
-        /// <param name="conditions">Condition to set</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Or(params FormattableString[] conditions) => Or((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
-
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an OR clause.
-        /// </summary>
-        /// <param name="conditions">Condition of the WHERE clause</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Or(params Condition[] conditions)
-        {
-            foreach (var condition in conditions ?? Array.Empty<Condition>())
-            {
-                if (condition != null && condition.ToString().IsNotBlank())
-                {
-                    if (_where is null)
-                        Where(condition);
-                    else
-                        _where.Or(condition);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an AND clause.
-        /// </summary>
-        /// <param name="conditions">Condition to set</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> OrAll(params FormattableString[] conditions)
-        {
-            conditions = conditions ?? Array.Empty<FormattableString>();
-            if (conditions.Any())
-            {
-                if (_where is null)
-                {
-                    _where = new Condition("AND", conditions);
-                }
-                else
-                {
-                    _where.OrAll(conditions);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an AND clause.
-        /// </summary>
-        /// <param name="conditions">Condition to set</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> OrAny(params FormattableString[] conditions)
-        {
-            conditions = conditions ?? Array.Empty<FormattableString>();
-            if (conditions.Any())
-            {
-                if (_where is null)
-                {
-                    _where = new Condition("OR", conditions);
-                }
-                else
-                {
-                    _where.OrAny(conditions);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the ORDER BY clause in the SELECT being built.
-        /// </summary>
-        /// <param name="columns">Columns to be ordered by</param>
-        /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> OrderBy(params string[] columns)
-        {
-            columns = columns ?? Array.Empty<string>();
-            if (_orderBy is null)
-            {
-                _orderBy = new List<string>(columns);
-            }
-            else
-            {
-                _orderBy.AddRange(columns);
-            }
-
-            return this;
-        }
-
-        public Select<T> OrSearch(string Value, params string[] Columns) => OrAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
-
-        public Select<T> OrSearch(IEnumerable<string> Value, params string[] Columns)
-        {
-            foreach (var item in (Value ?? Array.Empty<string>()).Where(x => x.IsNotBlank()))
-                OrSearch(item, Columns);
-            return this;
-        }
-
-        public Select<T> RemoveColumns(params string[] Columns)
-        {
-            if (_columns != null)
-            {
-                _columns = _columns.Where(x => x.IsNotIn(Columns ?? Array.Empty<string>())).ToList();
-            }
-
-            return this;
-        }
-
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
         /// </summary>
@@ -805,81 +269,46 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> RightOuterJoin(string table, Condition on) => Join(JoinType.RightOuterJoin, table, on);
 
-        public Select<T> SetColumns(params string[] Columns)
-        {
-            _columns = null;
-            AddColumns(Columns);
-            return this;
-        }
-
-        public Select<T> SetColumns<O>(O Obj = null) where O : class
-        {
-            _columns = null;
-            AddColumns(Obj);
-            return this;
-        }
+        /// <summary>
+        /// Sets a FULL OUTER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> FullOuterJoin(string table, FormattableString on) => Join(JoinType.FullOuterJoin, table, new Condition(on));
 
         /// <summary>
-        /// Returns the SELECT statement as a SQL query.
+        /// Sets a FULL OUTER JOIN clause in the SELECT being built.
         /// </summary>
-        /// <returns>The SELECT statement as a SQL query</returns>
-        public override string ToString() => ToString(false);
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
 
         /// <summary>
-        /// Returns the SELECT statement as a SQL query.
+        /// Sets a CROSS JOIN clause in the SELECT being built.
         /// </summary>
-        /// <param name="AsSubquery">when TRUE, prevent uncompatibble statements for subqueries</param>
-        /// <returns>The SELECT statement as a SQL query</returns>
-        public string ToString(bool AsSubquery)
+        /// <param name="table">Table to be join</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> CrossJoin(string table) => Join(JoinType.CrossJoin, table, null);
+
+        /// <summary>
+        /// Sets a CROSS JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> CrossApply(string table) => Join(JoinType.CrossApply, table, null);
+
+        public Select<T> WhereObject<O>(O Obj) where O : class => WhereObject(Obj, "AND");
+
+        public Select<T> WhereObject<O>(O Obj, string LogicOperator = "AND") where O : class
         {
-            var sql = new StringBuilder("SELECT ");
-            sql.Append(string.Join(", ", _columns.Distinct().ToArray()).IfBlank(" * "));
-            if (_fromsub != null && _fromsub.ToString().IsNotBlank())
+            if (Obj != null)
             {
-                _from = _fromsub.ToString(true).Quote('(') + " as " + _fromsubname;
+                Where(new Condition(LogicOperator, Obj.GetNullableTypeOf().GetProperties().Where(x => x.CanRead).Select(x => (x.Name + " = {0}").ToFormattableString(x.GetValue(Obj))).ToArray()));
             }
 
-            if (_from.IsNotBlank())
-            {
-                sql.Append(" FROM ");
-                sql.Append(_from);
-            }
-
-            if (_joins != null && _joins.Any())
-            {
-                sql.Append(_joins.SelectJoinString(j => string.Format(CultureInfo.InvariantCulture, " {0}", j), " "));
-            }
-
-            if (_where != null)
-            {
-                sql.Append(" WHERE ");
-                sql.Append(_where);
-            }
-
-            if (_groupBy != null)
-            {
-                sql.Append(" GROUP BY ");
-                sql.Append(string.Join(", ", _groupBy));
-            }
-
-            if (!Equals(_having, null))
-            {
-                sql.Append(" HAVING ");
-                sql.Append(_having);
-            }
-
-            if (_orderBy != null && AsSubquery == false)
-            {
-                sql.Append(" ORDER BY ");
-                sql.Append(string.Join(", ", _orderBy));
-            }
-
-            if (_offset.IsNotBlank() && AsSubquery == false)
-            {
-                sql.Append($" {_offset} ");
-            }
-
-            return sql.ToString();
+            return this;
         }
 
         /// <summary>
@@ -955,8 +384,7 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Sets the WHERE clause in the SELECT being built using a lambda expression. This method
-        /// is experimental
+        /// Sets the WHERE clause in the SELECT being built using a lambda expression. This method is experimental
         /// </summary>
         /// <param name="predicate">Condition to set</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
@@ -1002,21 +430,20 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
-        /// condition with an AND clause.
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an AND clause.
         /// </summary>
         /// <param name="conditions">Conditions to set</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Where(params Condition[] conditions) => And(conditions);
 
         /// <summary>
-        /// Sets the WHERE clause in the SELECT being built using a <see cref="Dictionary(Of String,
-        /// Object)"/> as column/value
+        /// Sets the WHERE clause in the SELECT being built using a <see cref="Dictionary(Of String, Object)"/> as column/value
         /// </summary>
         /// <param name="Dic"></param>
         /// <param name="FilterKeys"></param>
         /// <returns></returns>
-        public Select<T> Where(Dictionary<string, object> Dic, DbExtensions.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
+        public object Where(Dictionary<string, object> Dic, DbExtensions.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
         {
             FilterKeys = FilterKeys ?? Array.Empty<string>();
             if (FilterKeys.Any())
@@ -1047,10 +474,12 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        /// <summary> Sets the WHERE clause in the SELECT being built using a <see
-        /// cref="NameValueCollection"/> as column/operator/value </summary> <remarks>use <paramref
-        /// name="FilterKeys"/> as &operator:column=value</remarks> <param name="NVC"></param>
-        /// <param name="FilterKeys"></param> <returns></returns>
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built using a <see cref="NameValueCollection"/> as column/operator/value
+        /// </summary>
+        /// <param name="NVC"></param>
+        /// <param name="FilterKeys"></param>
+        /// <returns></returns>
         public Select<T> Where(NameValueCollection NVC, params string[] FilterKeys)
         {
             FilterKeys = FilterKeys ?? Array.Empty<string>();
@@ -1061,14 +490,15 @@ namespace InnerLibs.MicroORM
                     string col = k.UrlDecode();
                     if (!FilterKeys.Any() || col.IsLikeAny(FilterKeys))
                     {
-                        foreach (var v in NVC.GetValues(k) ?? new string[] { })
+                        var values = NVC.GetValues(k) ?? new string[] { };
+                        foreach (var v in values)
                         {
                             string logic = col.GetBefore(":", true).IfBlank("AND");
                             string op = v.GetBefore(":", true).IfBlank("=");
                             col = col.GetAfter(":");
-                            col = col.Contains(" ").AsIf(col.UnQuote().Quote(ColumnChar), col);
+                            col = col.Contains(" ").AsIf(col.UnQuote('[', true).Quote('['), col);
                             string valor = v.GetAfter(":").NullIf("null", StringComparison.InvariantCultureIgnoreCase);
-                            if (valor == null)
+                            if (valor is null)
                             {
                                 op = "is";
                             }
@@ -1088,29 +518,592 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> WhereObject<O>(O Obj) where O : class => WhereObject(Obj, "AND");
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> And(params FormattableString[] conditions) => And((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
 
-        public Select<T> WhereObject<O>(O Obj, string LogicOperator = "AND") where O : class
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> And(params Condition[] conditions)
         {
-            if (Obj != null)
+            foreach (var condition in conditions ?? Array.Empty<Condition>())
             {
-                Where(new Condition(LogicOperator, Obj.GetNullableTypeOf().GetProperties().Where(x => x.CanRead).Select(x => (x.Name + " = {0}").ToFormattableString(x.GetValue(Obj))).ToArray()));
+                if (condition != null && condition.ToString().IsNotBlank())
+                {
+                    if (_where is null)
+                        Where(condition);
+                    else
+                        _where.And(condition);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> AndAny(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("OR", conditions);
+                }
+                else
+                {
+                    _where.AndAny(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> OrAny(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("OR", conditions);
+                }
+                else
+                {
+                    _where.OrAny(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> AndAll(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("AND", conditions);
+                }
+                else
+                {
+                    _where.AndAll(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> OrAll(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("AND", conditions);
+                }
+                else
+                {
+                    _where.OrAll(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an OR clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Or(params FormattableString[] conditions) => Or((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// If WHERE is already set, appends the condition with an OR clause.
+        /// </summary>
+        /// <param name="conditions">Condition of the WHERE clause</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Or(params Condition[] conditions)
+        {
+            foreach (var condition in conditions ?? Array.Empty<Condition>())
+            {
+                if (condition != null && condition.ToString().IsNotBlank())
+                {
+                    if (_where is null)
+                        Where(condition);
+                    else
+                        _where.Or(condition);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the GROUP BY clause in the SELECT being built.
+        /// </summary>
+        /// <param name="columns">Columns to be grouped by</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> GroupBy(params string[] columns)
+        {
+            columns = columns ?? Array.Empty<string>();
+            if (_groupBy is null)
+            {
+                _groupBy = new List<string>(columns);
+            }
+            else
+            {
+                _groupBy.AddRange(columns);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets or overwrite the HAVING clause in the SELECT being built.
+        /// </summary>
+        /// <param name="condition">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Having(string condition)
+        {
+            if (condition.IsNotBlank())
+            {
+                _having = condition;
+            }
+
+            return this;
+        }
+
+        public Select<T> OffSet(int Page, int PageSize)
+        {
+            if (Page < 0)
+            {
+                _offset = null;
+            }
+            else
+            {
+                PageSize = PageSize.SetMinValue(0);
+                _offset = $"OFFSET {Page} ROWS FETCH NEXT {PageSize} ROWS ONLY";
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the ORDER BY clause in the SELECT being built.
+        /// </summary>
+        /// <param name="columns">Columns to be ordered by</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> OrderBy(params string[] columns)
+        {
+            columns = columns ?? Array.Empty<string>();
+            if (_orderBy is null)
+            {
+                _orderBy = new List<string>(columns);
+            }
+            else
+            {
+                _orderBy.AddRange(columns);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Operator overload that allows using the class wherever a string is expected.
+        /// </summary>
+        public static implicit operator string(Select<T> select) => select?.ToString();
+
+        /// <summary>
+        /// Operator overload that allows using the class wherever a string is expected.
+        /// </summary>
+        public static implicit operator FormattableString(Select<T> select) => (select?.ToString()).ToFormattableString();
+
+        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic) => Connection.CreateCommand(ToString(), dic);
+
+        public DbCommand CreateDbCommand(DbConnection Connection) => CreateDbCommand(Connection, null);
+
+        public Select<T> AndSearch(string Value, params string[] Columns) => AndAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
+
+        public Select<T> OrSearch(string Value, params string[] Columns) => OrAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
+
+        public Select<T> OrSearch(IEnumerable<string> Value, params string[] Columns)
+        {
+            foreach (var item in (Value ?? Array.Empty<string>()).Where(x => x.IsNotBlank()))
+                OrSearch(item, Columns);
+            return this;
+        }
+
+        public Select<T> AndSearch(IEnumerable<string> Value, params string[] Columns)
+        {
+            foreach (var item in (Value ?? Array.Empty<string>()).Where(x => x.IsNotBlank()))
+                AndSearch(item, Columns);
+            return this;
+        }
+
+        /// <summary>
+        /// Returns the SELECT statement as a SQL query.
+        /// </summary>
+        /// <returns>The SELECT statement as a SQL query</returns>
+        public override string ToString() => ToString(false);
+
+        /// <summary>
+        /// Returns the SELECT statement as a SQL query.
+        /// </summary>
+        /// <param name="AsSubquery">when TRUE, prevent uncompatibble statements for subqueries</param>
+        /// <returns>The SELECT statement as a SQL query</returns>
+        public string ToString(bool AsSubquery)
+        {
+            var sql = new StringBuilder("SELECT ");
+            sql.Append(string.Join(", ", _columns.Distinct().ToArray()).IfBlank(" * "));
+            if (_fromsub != null && _fromsub.ToString().IsNotBlank())
+            {
+                _from = _fromsub.ToString(true).Quote('(') + " as " + _fromsubname;
+            }
+
+            if (_from.IsNotBlank())
+            {
+                sql.Append(" FROM ");
+                sql.Append(_from);
+            }
+
+            if (_joins != null && _joins.Any())
+            {
+                sql.Append(_joins.SelectJoinString(j => string.Format(CultureInfo.InvariantCulture, " {0}", j), " "));
+            }
+
+            if (_where != null)
+            {
+                sql.Append(" WHERE ");
+                sql.Append(_where);
+            }
+
+            if (_groupBy != null)
+            {
+                sql.Append(" GROUP BY ");
+                sql.Append(string.Join(", ", _groupBy));
+            }
+
+            if (!Equals(_having, null))
+            {
+                sql.Append(" HAVING ");
+                sql.Append(_having);
+            }
+
+            if (_orderBy != null && AsSubquery == false)
+            {
+                sql.Append(" ORDER BY ");
+                sql.Append(string.Join(", ", _orderBy));
+            }
+
+            if (_offset.IsNotBlank() && AsSubquery == false)
+            {
+                sql.Append($" {_offset} ");
+            }
+
+            return sql.ToString();
+        }
+
+        public Select<T> Join(JoinType JoinType, string Table, Condition on)
+        {
+            if (Table.IsNotBlank() && !(on == null) && on.ToString().IsNotBlank())
+            {
+                _joins = _joins ?? new List<Join>();
+                _joins.Add(new Join()
+                {
+                    Type = JoinType,
+                    Table = Table,
+                    On = on
+                });
             }
 
             return this;
         }
     }
 
-    public class SQLResponse<T>
+    /// <summary>
+    /// A condition with optional AND and OR clauses that can be used in WHERE or JOIN ON statements.
+    /// </summary>
+    public class Condition
     {
-        public T Data { get; set; } = default;
-        public string Message { get; set; }
-        public string SQL { get; set; }
+        private readonly List<string> _tokens = new List<string>();
 
-        public string Status { get; set; }
+        public Condition(string LogicOperator, params FormattableString[] Conditions)
+        {
+            foreach (var condition in Conditions ?? Array.Empty<FormattableString>())
+            {
+                if (condition != null && condition.ToString().IsNotBlank())
+                {
+                    if (LogicOperator.IsIn("Or", "OR"))
+                    {
+                        Or(condition);
+                    }
+                    else
+                    {
+                        And(condition);
+                    }
+                }
+            }
+        }
+
+        public Condition(string LogicOperator, params Condition[] Conditions)
+        {
+            foreach (var condition in Conditions ?? Array.Empty<Condition>())
+            {
+                if (condition != null && condition.ToString().IsNotBlank())
+                {
+                    if (LogicOperator.IsIn("Or", "OR"))
+                    {
+                        Or(condition);
+                    }
+                    else
+                    {
+                        And(condition);
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Select class constructor
+        /// </summary>
+        /// <param name="condition">Condition to set in this instance</param>
+        public Condition(FormattableString condition)
+        {
+            if (condition.IsNotBlank())
+            {
+                _tokens.Add(condition.ToSQLString());
+            }
+        }
+
+        /// <summary>
+        /// Select class constructor
+        /// </summary>
+        /// <param name="condition">Copies to the condition being constructed</param>
+        public Condition(Condition condition)
+        {
+            if (condition != null && condition.ToString().IsNotBlank())
+            {
+                _tokens.Add(condition.ParenthesisToString());
+            }
+        }
+
+        /// <summary>
+        /// condition class constructor
+        /// </summary>
+        public Condition(string Column, object Value, string Operator = "=")
+        {
+            if (Column.IsNotBlank())
+            {
+                _tokens.Add($"{Column} {Operator.IfBlank("=")} {DbExtensions.ToSQLString(Value)}");
+            }
+        }
+
+        public static Condition OrMany(params FormattableString[] conditions) => new Condition("Or", conditions);
+
+        public static Condition AndMany(params FormattableString[] conditions) => new Condition("And", conditions);
+
+        public Condition OrAll(params FormattableString[] Conditions) => Or(AndMany(Conditions));
+
+        public Condition OrAny(params FormattableString[] Conditions) => Or(OrMany(Conditions));
+
+        public Condition AndAll(params FormattableString[] Conditions) => And(AndMany(Conditions));
+
+        public Condition AndAny(params FormattableString[] Conditions) => And(OrMany(Conditions));
+
+        /// <summary>
+        /// Appends the given condition with AND in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition And(FormattableString condition)
+        {
+            if (!(condition == null) && condition.ToString().IsNotBlank())
+            {
+                if (_tokens.Any())
+                {
+                    _tokens.Add("And");
+                }
+
+                _tokens.Add(condition.ToSQLString());
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Appends the given condition with AND in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition And(Condition condition) => And(condition.ParenthesisToString().ToFormattableString());
+
+        /// <summary>
+        /// Appends the given condition with OR in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition Or(FormattableString condition)
+        {
+            if (!(condition == null) && condition.ToString().IsNotBlank())
+            {
+                if (_tokens.Any())
+                {
+                    _tokens.Add("Or");
+                }
+
+                _tokens.Add(condition.ToSQLString());
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Appends the given condition with OR in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition Or(Condition condition) => Or(condition.ParenthesisToString().ToFormattableString());
+
+        /// <summary>
+        /// Returns the condition statement as a SQL query in parenthesis.
+        /// </summary>
+        /// <returns>The condition statement as a SQL query in parenthesis</returns>
+        public string ParenthesisToString() => ToString().Quote('(');
+
+        /// <summary>
+        /// Returns the condition statement as a SQL query.
+        /// </summary>
+        /// <returns>The condition statement as a SQL query</returns>
+        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, '(');
     }
 
-    public class SQLResponse : SQLResponse<object>
+    internal class Join
     {
+        internal JoinType Type { get; set; }
+        internal string Table { get; set; }
+        internal Condition On { get; set; }
+
+        private string JoinString
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case JoinType.Inner:
+                        {
+                            return "INNER JOIN";
+                        }
+
+                    case JoinType.LeftOuterJoin:
+                        {
+                            return "LEFT OUTER JOIN";
+                        }
+
+                    case JoinType.RightOuterJoin:
+                        {
+                            return "RIGHT OUTER JOIN";
+                        }
+
+                    case JoinType.FullOuterJoin:
+                        {
+                            return "FULL OUTER JOIN";
+                        }
+
+                    case JoinType.CrossJoin:
+                        {
+                            return "CROSS JOIN";
+                        }
+
+                    case JoinType.CrossApply:
+                        {
+                            return "CROSS APPLY";
+                        }
+
+                    default:
+                        {
+                            return "JOIN";
+                        }
+                }
+            }
+        }
+
+        public override string ToString() => On == null ? string.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table) : string.Format(CultureInfo.InvariantCulture, "{0} {1} On {2}", JoinString, Table, On);
+    }
+
+    public enum JoinType
+    {
+        Join,
+        Inner,
+        LeftOuterJoin,
+        RightOuterJoin,
+        FullOuterJoin,
+        CrossJoin,
+        CrossApply
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public class FromSQL : Attribute
+    {
+        public FromSQL(string QueryOrFilePath)
+        {
+            if (QueryOrFilePath.IsFilePath() && File.Exists(QueryOrFilePath))
+            {
+                SQL = File.ReadAllText(QueryOrFilePath);
+            }
+            else
+            {
+                SQL = QueryOrFilePath;
+            }
+        }
+
+        public string SQL { get; private set; }
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
+    public class ColumnName : Attribute
+    {
+        public ColumnName(params string[] Name)
+        {
+            Names = (string[])(Name ?? Array.Empty<string>()).Select(x => x.UnQuote());
+        }
+
+        public string[] Names { get; private set; }
     }
 }
