@@ -128,6 +128,16 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL e um objeto,
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj) => CreateCommand(Connection, SQLFile.ReadAllText(), obj);
+
+        public static DbCommand CreateCommand<T>(DbConnection connection, string SQL, T obj) => CreateCommand(connection, SQL.Inject(obj, true));
+
+        /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
         /// String, Object)"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
@@ -1187,22 +1197,24 @@ namespace InnerLibs.MicroORM
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo
         /// <typeparamref name="V"/>
         /// </summary>
-        public static V? RunSQLValue<V>(this DbConnection Connection, DbCommand Command) where V : struct
+        public static V RunSQLValue<V>(this DbConnection Connection, DbCommand Command)
         {
-            var vv = Connection.RunSQLValue(Command);
-            if (vv != null && vv != DBNull.Value)
+            if (!typeof(V).IsValueType() )
             {
-                return (V)vv;
+                throw new ArgumentException("The type param V is not a value type or string");
             }
-
-            return default;
+            var vv = Connection.RunSQLValue(Command);
+            return vv != null && vv != DBNull.Value ? vv.ChangeType<V>() : default(V);
         }
+
+
+
 
         /// <summary>
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo
         /// <typeparamref name="V"/>
         /// </summary>
-        public static V? RunSQLValue<V>(this DbConnection Connection, FormattableString SQL) where V : struct => Connection.RunSQLValue<V>(Connection.CreateCommand(SQL));
+        public static V RunSQLValue<V>(this DbConnection Connection, FormattableString SQL) where V : struct => Connection.RunSQLValue<V>(Connection.CreateCommand(SQL));
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma

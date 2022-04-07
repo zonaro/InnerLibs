@@ -24,7 +24,7 @@ namespace InnerLibs
         public static IEnumerable<DayOfWeek> MondayToFriday => new[] { 1, 2, 3, 4, 5 }.Cast<DayOfWeek>();
         public static IEnumerable<DayOfWeek> MondayToSaturday => new[] { 1, 2, 3, 4, 5, 6 }.Cast<DayOfWeek>();
         public static IEnumerable<string> NumberChars => new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }.AsEnumerable();
-        public static IEnumerable<Type> NumericTypes => new[] { typeof(float), typeof(ushort), typeof(short), typeof(int), typeof(uint), typeof(ulong), typeof(long), typeof(double), typeof(decimal) }.AsEnumerable();
+        public static IEnumerable<Type> NumericTypes => new[] { typeof(float), typeof(ushort), typeof(short), typeof(int), typeof(uint), typeof(ulong), typeof(long), typeof(double), typeof(decimal)  }.AsEnumerable();
         public static IEnumerable<string> OpenWrappers => new[] { "\"", "'", "(", "{", "[", "<" }.AsEnumerable();
         public static IEnumerable<string> PasswordSpecialChars => SpecialChars.Union(WordWrappers).Union(EndOfSentencePunctuation).Union(MidSentencePunctuation).Where(x => x.IsNotAny("\"", "\'")).AsEnumerable();
         public static IEnumerable<char> RegexChars => new[] { '.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '|' }.AsEnumerable();
@@ -35,7 +35,7 @@ namespace InnerLibs
 
         public static IEnumerable<string> UpperVowels => LowerVowels.Select(x => x.ToUpper()).AsEnumerable();
 
-        public static IEnumerable<Type> ValueTypes => new[] { typeof(string), typeof(char), typeof(byte), typeof(sbyte), typeof(DateTime) }.Union(NumericTypes);
+        public static IEnumerable<Type> ValueTypes => new[] { typeof(string), typeof(char), typeof(byte), typeof(sbyte), typeof(DateTime),typeof(Guid) }.Union(NumericTypes);
 
         public static IEnumerable<string> Vowels => UpperVowels.Union(LowerVowels).AsEnumerable();
 

@@ -20,6 +20,8 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
+
+
         public static IEnumerable<string> AdjustBlankSpaces(this IEnumerable<string> Texts) => Texts.AdjustWhiteSpaces();
 
         public static string AdjustBlankSpaces(this string Text) => Text.AdjustWhiteSpaces();
@@ -1132,7 +1134,7 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank("").Inject(Obj);
+        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank("").Inject(Obj,IsSQL);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -1141,13 +1143,13 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this string formatString, T injectionObject)
+        public static string Inject<T>(this string formatString, T injectionObject, bool IsSQL = false)
         {
             if (injectionObject != null)
             {
                 return injectionObject.IsDictionary()
-                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject))
-                    : formatString.Inject(Misc.GetPropertyHash(injectionObject));
+                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject), IsSQL)
+                    : formatString.Inject(Misc.GetPropertyHash(injectionObject), IsSQL);
             }
 
             return formatString;
@@ -1159,16 +1161,17 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="attributes"></param>
         /// <returns></returns>
-        public static string Inject(this string formatString, Hashtable attributes)
+        public static string Inject(this string formatString, Hashtable attributes, bool IsSQL = false)
         {
             string result = formatString;
             if (attributes != null && formatString != null)
             {
-                foreach (string attributeKey in attributes.Keys) result = result.InjectSingleValue(attributeKey, attributes[attributeKey]);
+                foreach (string attributeKey in attributes.Keys) result = result.InjectSingleValue(attributeKey, attributes[attributeKey], IsSQL);
             }
 
             return result;
         }
+
 
         /// <summary>
         /// Replace te found <paramref name="key"/> with <paramref name="replacementValue"/>
@@ -1177,7 +1180,7 @@ namespace InnerLibs
         /// <param name="key"></param>
         /// <param name="replacementValue"></param>
         /// <returns></returns>
-        public static string InjectSingleValue(this string formatString, string key, object replacementValue)
+        public static string InjectSingleValue(this string formatString, string key, object replacementValue, bool IsSQL = false, CultureInfo cultureInfo = null)
         {
             string result = formatString;
             var attributeRegex = new Regex("{(" + key + ")(?:}|(?::(.[^}]*)}))");
@@ -1187,12 +1190,19 @@ namespace InnerLibs
                 if (m.Groups[2].Length > 0)
                 {
                     string attributeFormatString = string.Format(CultureInfo.InvariantCulture, "{{0:{0}}}", m.Groups[2]);
-                    replacement = string.Format(CultureInfo.CurrentCulture, attributeFormatString, replacementValue);
+                    replacement = string.Format(cultureInfo ?? CultureInfo.CurrentCulture, attributeFormatString, replacementValue);
+
                 }
                 else
                 {
-                    replacement = (replacementValue ?? string.Empty).ToString();
+                    replacement = (replacementValue ?? default).ToString();
                 }
+
+                if (IsSQL)
+                {
+                    replacement = MicroORM.DbExtensions.ToSQLString(replacement);
+                }
+
 
                 result = result.Replace(m.ToString(), replacement);
             }

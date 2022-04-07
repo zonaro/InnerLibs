@@ -16,10 +16,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Path">Caminho do arquivo</param>
         /// <returns>o nome do diretório sem o caminho</returns>
-        public static string GetLatestDirectoryName(this FileInfo Path)
-        {
-            return System.IO.Path.GetDirectoryName(Path.DirectoryName);
-        }
+        public static string GetLatestDirectoryName(this FileInfo Path) => System.IO.Path.GetDirectoryName(Path.DirectoryName);
 
         /// <summary>
         /// Retorna o conteudo de um arquivo de texto
@@ -75,10 +72,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public static byte[] ToBytes(this System.Net.Mail.Attachment attachment)
-        {
-            return attachment.ContentStream.ToBytes();
-        }
+        public static byte[] ToBytes(this System.Net.Mail.Attachment attachment) => attachment.ContentStream.ToBytes();
 
         /// <summary>
         /// Converte um stream em Bytes
@@ -87,13 +81,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static byte[] ToBytes(this Stream stream)
         {
-            if (stream != null)
-                using (var ms = new MemoryStream())
-                {
-                    stream.CopyTo(ms);
-                    return ms.ToArray();
-                }
-            return Array.Empty<byte>();
+            if (stream == null) return Array.Empty<byte>();
+
+            using (var ms = new MemoryStream())
+            {
+                stream.CopyTo(ms);
+                return ms.ToArray();
+            }
         }
 
         public static byte[] ToBytes(this FileInfo File)
@@ -109,7 +103,19 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Transforma um Array de Bytes em um arquivo
+        /// salva um <see cref="Stream"/> em um arquivo
+        /// </summary>
+        /// <param name="Stream">stream a ser escrita</param>
+        /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
+        /// <param name="DateAndTime">
+        /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
+        /// substituição nos Path. default é <see cref="DateTime.Now"/>
+        /// </param>
+        /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+        public static FileInfo WriteToFile(this Stream Stream, string FilePath, DateTime? DateAndTime = null) => Stream.ToBytes().WriteToFile(FilePath, DateAndTime);
+
+        /// <summary>
+        /// alva um Array de Bytes em um arquivo
         /// </summary>
         /// <param name="Bytes">A MAtriz com os Bytes a ser escrita</param>
         /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
