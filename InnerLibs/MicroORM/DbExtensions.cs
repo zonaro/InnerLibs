@@ -1313,27 +1313,11 @@ namespace InnerLibs.MicroORM
 
                         var pv = paramvalues.Select(x =>
                         {
-                            if (x == null)
-                            {
-                                return "NULL";
-                            }
-
-                            if (Misc.GetNullableTypeOf(x).IsNumericType() || x.ToString().IsNumber())
-                            {
-                                return x.ToString();
-                            }
-
-                            if (Verify.IsDate(x))
-                            {
-                                return Convert.ToDateTime(x).ToSQLDateString().Quote('\'');
-                            }
-
-                            if (Verify.IsBoolean(x))
-                            {
-                                return Convert.ToBoolean(x).AsIf(1, 0).ToString();
-                            }
-
-                            return x.ToString().Quote('\'');
+                            if (x == null) return "NULL";
+                            else if (Misc.GetNullableTypeOf(x).IsNumericType() || x.ToString().IsNumber()) return x.ToString();
+                            else if (Verify.IsDate(x)) return Convert.ToDateTime(x).ToSQLDateString().Quote('\'');
+                            else if (Verify.IsBoolean(x)) return Convert.ToBoolean(x).AsIf(1, 0).ToString();
+                            else return x.ToString().Quote('\'');
                         }).ToList();
                         CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
                     }
