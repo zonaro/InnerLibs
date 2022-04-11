@@ -123,6 +123,9 @@ namespace InnerLibs.RolePlayingGame
         /// <returns></returns>
         public bool IsVicious => Faces.AsEnumerable().Any(x => x.IsVicious);
 
+        /// <summary>
+        /// Ultima vez que este dado foi rolado
+        /// </summary>
         public DateTime? LastRoll
         {
             get
@@ -320,10 +323,7 @@ namespace InnerLibs.RolePlayingGame
             return this;
         }
 
-        public override string ToString()
-        {
-            return $"{this.Type} - {Value}";
-        }
+        public override string ToString() => $"{this.Type}{$"{Value}".PrependIf(" - ", x => x.IsNotBlank())}";
 
         /// <summary>
         /// Face de um dado. Pode ser viciada ou não
@@ -358,7 +358,7 @@ namespace InnerLibs.RolePlayingGame
                     {
                         if (dice.Type == DiceType.Coin)
                         {
-                            return (Number == 1 ? "head" : "tails").ToTitle();
+                            return (Number == 1 ? "heads" : "tails").ToTitle();
                         }
 
                         return new FullNumberWriter().ToString(Number, 0).ToTitle();
@@ -504,10 +504,7 @@ namespace InnerLibs.RolePlayingGame
         /// <param name="Combo">Dado 1</param>
         /// <param name="Dice">Dado 2</param>
         /// <returns></returns>
-        public static DiceRoller operator +(Dice Dice, DiceRoller Combo)
-        {
-            return Combo + Dice;
-        }
+        public static DiceRoller operator +(Dice Dice, DiceRoller Combo) => Combo + Dice;
 
         /// <summary>
         /// Combina um dado com DiceRoller
@@ -521,9 +518,6 @@ namespace InnerLibs.RolePlayingGame
         /// Rola todos os dados (não travados) e retorna a soma de seus valores
         /// </summary>
         /// <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
-        public IEnumerable<Dice.DiceFace> Roll(int Times = 1)
-        {
-            return this.Select(x => x.Roll(Times.SetMinValue(1)));
-        }
+        public IEnumerable<Dice.DiceFace> Roll(int Times = 1) => this.Select(x => x.Roll(Times.SetMinValue(1)));
     }
 }

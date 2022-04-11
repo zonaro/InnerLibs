@@ -20,8 +20,6 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
-
-
         public static IEnumerable<string> AdjustBlankSpaces(this IEnumerable<string> Texts) => Texts.AdjustWhiteSpaces();
 
         public static string AdjustBlankSpaces(this string Text) => Text.AdjustWhiteSpaces();
@@ -932,115 +930,28 @@ namespace InnerLibs
         {
             switch (Text.GetFirstChars() ?? "")
             {
-                case "\"":
-                    {
-                        return "\"";
-                    }
-
-                case "'":
-                    {
-                        return "'";
-                    }
-
-                case "(":
-                    {
-                        return ")";
-                    }
-
-                case ")":
-                    {
-                        return "(";
-                    }
-
-                case "[":
-                    {
-                        return "]";
-                    }
-
-                case "]":
-                    {
-                        return "[";
-                    }
-
-                case "{":
-                    {
-                        return "}";
-                    }
-
-                case "}":
-                    {
-                        return "{";
-                    }
-
-                case "<":
-                    {
-                        return ">";
-                    }
-
-                case ">":
-                    {
-                        return "<";
-                    }
-
-                case @"\":
-                    {
-                        return "/";
-                    }
-
-                case "/":
-                    {
-                        return @"\";
-                    }
-
-                case "¿":
-                    {
-                        return "?";
-                    }
-
-                case "?":
-                    {
-                        return "¿";
-                    }
-
-                case "!":
-                    {
-                        return "¡";
-                    }
-
-                case "¡":
-                    {
-                        return "!";
-                    }
-
-                case ".":
-                    {
-                        return ".";
-                    }
-
-                case ":":
-                    {
-                        return ":";
-                    }
-
-                case ";":
-                    {
-                        return ";";
-                    }
-
-                case "_":
-                    {
-                        return "_";
-                    }
-
-                case "*":
-                    {
-                        return "*";
-                    }
-
-                default:
-                    {
-                        return Text;
-                    }
+                case "\"": return "\"";
+                case "'": return "'";
+                case "(": return ")";
+                case ")": return "(";
+                case "[": return "]";
+                case "]": return "[";
+                case "{": return "}";
+                case "}": return "{";
+                case "<": return ">";
+                case ">": return "<";
+                case @"\": return "/";
+                case "/": return @"\";
+                case "¿": return "?";
+                case "?": return "¿";
+                case "!": return "¡";
+                case "¡": return "!";
+                case ".": return ".";
+                case ":": return ":";
+                case ";": return ";";
+                case "_": return "_";
+                case "*": return "*";
+                default: return Text;
             }
         }
 
@@ -1050,10 +961,7 @@ namespace InnerLibs
         /// <typeparam name="Type">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static Type GetRandomItem<Type>(this Type[] Array)
-        {
-            return Array[Generate.RandomNumber(0, Array.Count() - 1)];
-        }
+        public static Type GetRandomItem<Type>(this Type[] Array) => Array[Generate.RandomNumber(0, Array.Count() - 1)];
 
         /// <summary>
         /// Retorna o caminho relativo da url
@@ -1134,7 +1042,7 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank("").Inject(Obj,IsSQL);
+        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank("").Inject(Obj, IsSQL);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -1172,7 +1080,6 @@ namespace InnerLibs
             return result;
         }
 
-
         /// <summary>
         /// Replace te found <paramref name="key"/> with <paramref name="replacementValue"/>
         /// </summary>
@@ -1191,7 +1098,6 @@ namespace InnerLibs
                 {
                     string attributeFormatString = string.Format(CultureInfo.InvariantCulture, "{{0:{0}}}", m.Groups[2]);
                     replacement = string.Format(cultureInfo ?? CultureInfo.CurrentCulture, attributeFormatString, replacementValue);
-
                 }
                 else
                 {
@@ -1202,7 +1108,6 @@ namespace InnerLibs
                 {
                     replacement = MicroORM.DbExtensions.ToSQLString(replacement);
                 }
-
 
                 result = result.Replace(m.ToString(), replacement);
             }

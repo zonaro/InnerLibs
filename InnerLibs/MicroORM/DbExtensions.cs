@@ -50,6 +50,9 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <remarks>pode tambem ser representado pelas strings "ARRAY", "LIST"</remarks>
         public const string Values = "VALUES";
+
+        public static IEnumerable<string> ToList() => new List<string>() { Many, Pair, Row, Value, Values };
+
     }
 
     /// <summary>
@@ -57,7 +60,13 @@ namespace InnerLibs.MicroORM
     /// </summary>
     public static class DbExtensions
     {
-        private static Dictionary<Type, DbType> typeMap = null;
+
+        public static DbConnection OpenConnection<t>(this ConnectionStringParser connection) where t : DbConnection
+        {
+            DbConnection dbcon = Activator.CreateInstance<t>();
+            dbcon.ConnectionString = connection.ConnectionString;
+            return dbcon;
+        }
 
         public enum LogicConcatenationOperator
         {
@@ -69,41 +78,30 @@ namespace InnerLibs.MicroORM
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
         /// </summary>
         /// <returns></returns>
-        public static Dictionary<Type, DbType> DbTypes
+        public static Dictionary<Type, DbType> DbTypes => new Dictionary<Type, DbType>()
         {
-            get
-            {
-                if (typeMap == null)
-                {
-                    typeMap = new Dictionary<Type, DbType>()
-                    {
-                        [typeof(byte)] = DbType.Byte,
-                        [typeof(sbyte)] = DbType.SByte,
-                        [typeof(short)] = DbType.Int16,
-                        [typeof(ushort)] = DbType.UInt16,
-                        [typeof(int)] = DbType.Int32,
-                        [typeof(uint)] = DbType.UInt32,
-                        [typeof(long)] = DbType.Int64,
-                        [typeof(ulong)] = DbType.UInt64,
-                        [typeof(float)] = DbType.Single,
-                        [typeof(double)] = DbType.Double,
-                        [typeof(decimal)] = DbType.Decimal,
-                        [typeof(bool)] = DbType.Boolean,
-                        [typeof(string)] = DbType.String,
-                        [typeof(char)] = DbType.StringFixedLength,
-                        [typeof(Guid)] = DbType.Guid,
-                        [typeof(DateTime)] = DbType.DateTime,
-                        [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
-                        [typeof(byte[])] = DbType.Binary
-                    };
-                }
-
-                return typeMap;
-            }
-        }
+            [typeof(byte)] = DbType.Byte,
+            [typeof(sbyte)] = DbType.SByte,
+            [typeof(short)] = DbType.Int16,
+            [typeof(ushort)] = DbType.UInt16,
+            [typeof(int)] = DbType.Int32,
+            [typeof(uint)] = DbType.UInt32,
+            [typeof(long)] = DbType.Int64,
+            [typeof(ulong)] = DbType.UInt64,
+            [typeof(float)] = DbType.Single,
+            [typeof(double)] = DbType.Double,
+            [typeof(decimal)] = DbType.Decimal,
+            [typeof(bool)] = DbType.Boolean,
+            [typeof(string)] = DbType.String,
+            [typeof(char)] = DbType.StringFixedLength,
+            [typeof(Guid)] = DbType.Guid,
+            [typeof(DateTime)] = DbType.DateTime,
+            [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
+            [typeof(byte[])] = DbType.Binary
+        };
 
         /// <summary>
-        /// Quando Configurado, escreve os parametros e queries executadas no TextWriter específico
+        /// Quando Configurado, escreve os parametros e queries executadas no <see cref="TextWriter"/>  específico
         /// </summary>
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
@@ -117,14 +115,14 @@ namespace InnerLibs.MicroORM
         /// <param name="Command"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static DbCommand BeforeRun(ref DbConnection Connection, ref DbCommand Command)
+        public static DbCommand BeforeRun(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
         {
-            Connection = Connection ?? Command.Connection;
+            Connection = Connection ?? Command?.Connection;
             if (Connection == null) throw new ArgumentException("Connection is null");
-            if (Command == null || Command.CommandText.IsBlank()) throw new ArgumentException("Command is null or empty");
+            if (Command == null || Command.CommandText.IsBlank()) throw new ArgumentException("Command is null or blank");
             Command.Connection = Connection;
             if (!Connection.IsOpen()) Connection.Open();
-            return Command.LogCommand();
+            return Command.LogCommand(LogWriter);
         }
 
         /// <summary>
@@ -133,7 +131,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj) => CreateCommand(Connection, SQLFile.ReadAllText(), obj);
+        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : "", obj);
 
         public static DbCommand CreateCommand<T>(DbConnection connection, string SQL, T obj) => CreateCommand(connection, SQL.Inject(obj, true));
 
@@ -180,7 +178,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, string SQL, Dictionary<string, object> Parameters)
         {
-            if (Connection != null)
+            if (Connection != null && SQL.IsNotBlank())
             {
                 var command = Connection.CreateCommand();
                 command.CommandText = SQL;
@@ -232,8 +230,7 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
-        /// parametros desta string como parametros SQL
+        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL 
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -249,7 +246,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL)
         {
-            if (SQL != null && Connection != null)
+            if (SQL != null && Connection != null && SQL.IsNotBlank())
             {
                 var cmd = Connection.CreateCommand();
                 if (SQL.ArgumentCount > 0)
@@ -314,7 +311,7 @@ namespace InnerLibs.MicroORM
                 {
                     dic = (Dictionary<string, object>)(object)obj;
                 }
-                else if (ReferenceEquals(obj.GetType(), typeof(NameValueCollection)))
+                else if (ReferenceEquals(obj.GetTypeOf(), typeof(NameValueCollection)))
                 {
                     dic = ((NameValueCollection)(object)obj).ToDictionary();
                 }
@@ -417,13 +414,15 @@ namespace InnerLibs.MicroORM
         {
             var d = typeof(T);
             var dic = new Dictionary<string, object>();
-            if (obj == null && Connection == null)
+            WhereClausule = WhereClausule.IfBlank("").RemoveFirstEqual("WHERE").Trim();
+
+            if (obj != null && Connection != null)
             {
                 if (obj.IsDictionary())
                 {
                     dic = (Dictionary<string, object>)(object)obj;
                 }
-                else if (ReferenceEquals(obj.GetType(), typeof(NameValueCollection)))
+                else if (ReferenceEquals(obj.GetTypeOf(), typeof(NameValueCollection)))
                 {
                     dic = ((NameValueCollection)(object)obj).ToDictionary();
                 }
@@ -444,8 +443,8 @@ namespace InnerLibs.MicroORM
                 }
 
                 cmd.CommandText = cmd.CommandText.TrimAny(Environment.NewLine, ",", " ");
-                if (WhereClausule.IfBlank("").Trim().StartsWith("where"))
-                    WhereClausule = WhereClausule.IfBlank("").RemoveFirstEqual("WHERE").Trim();
+
+
                 if (WhereClausule.IsNotBlank())
                 {
                     cmd.CommandText += $"{Environment.NewLine} WHERE {WhereClausule}";
@@ -469,7 +468,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Type"></param>
         /// <param name="Def"></param>
         /// <returns></returns>
-        public static Type GetTypeFromDb<T>(this DbType Type, Type Def = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? Def ?? typeof(object);
+        public static Type GetTypeFromDb(this DbType Type, Type Def = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? Def ?? typeof(object);
 
         public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
 
@@ -492,8 +491,6 @@ namespace InnerLibs.MicroORM
             LogWriter = LogWriter ?? DbExtensions.LogWriter ?? new DebugTextWriter();
             if (LogWriter != null)
             {
-                var oldout = System.Console.Out;
-                System.Console.SetOut(LogWriter);
                 LogWriter.WriteLine("=".Repeat(10));
                 if (Command != null)
                 {
@@ -512,7 +509,6 @@ namespace InnerLibs.MicroORM
                 }
 
                 LogWriter.WriteLine("=".Repeat(10));
-                System.Console.SetOut(oldout);
             }
 
             return Command;
@@ -867,7 +863,7 @@ namespace InnerLibs.MicroORM
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see
-        /// cref="Dictionary(Of String, Object)"/>
+        /// cref="Dictionary{TKey, TValue}"/>
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -1199,16 +1195,13 @@ namespace InnerLibs.MicroORM
         /// </summary>
         public static V RunSQLValue<V>(this DbConnection Connection, DbCommand Command)
         {
-            if (!typeof(V).IsValueType() )
+            if (!typeof(V).IsValueType())
             {
                 throw new ArgumentException("The type param V is not a value type or string");
             }
             var vv = Connection.RunSQLValue(Command);
             return vv != null && vv != DBNull.Value ? vv.ChangeType<V>() : default(V);
         }
-
-
-
 
         /// <summary>
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo
@@ -1279,11 +1272,10 @@ namespace InnerLibs.MicroORM
         }
 
         ///<summary> Monta um Comando SQL para executar um SELECT com
-        /// filtros a partir de um <see cref="NameValueCollection" /> </summary> <remarks>
-        /// NameValueCollection pode usar a seguinte estrutura:
-        /// &name=value1&or:surname=like:%value2% => WHERE [name] = 'value1' OR [surname] like
-        /// '%value2%' </remarks> <param name="NVC"> Dicionario</param> <param name="TableName">
-        /// Nome da Tabela</param> <returns>Uma string com o comando montado</returns>
+        /// filtros a partir de um <see cref="NameValueCollection" />
+        /// </summary>
+        /// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
+
         public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
 
         /// <summary>
@@ -1307,6 +1299,7 @@ namespace InnerLibs.MicroORM
         /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
         /// parametros como parametros da query
         /// </summary>
+        /// <param name="Parenthesis">indica se o parametro deve ser encapsulando em parentesis</param>
         public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
         {
             if (SQL != null)
@@ -1329,6 +1322,7 @@ namespace InnerLibs.MicroORM
                             else if (Misc.GetNullableTypeOf(x).IsNumericType() || x.ToString().IsNumber()) return x.ToString();
                             else if (Verify.IsDate(x)) return Convert.ToDateTime(x).ToSQLDateString().Quote('\'');
                             else if (Verify.IsBoolean(x)) return Convert.ToBoolean(x).AsIf(1, 0).ToString();
+                            else if (x.IsTypeOf<Select>()) return x.ToString();
                             else return x.ToString().Quote('\'');
                         }).ToList();
                         CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
