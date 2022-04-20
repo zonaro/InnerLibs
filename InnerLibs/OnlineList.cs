@@ -288,8 +288,8 @@ namespace InnerLibs.Online
                     {
                         var cvn = new UserConversation<UserType, IdType>();
                         cvn.chatlist = Chat;
-                        cvn.FromUserID = ii.FromUserID.ChangeType<IdType, string>();
-                        cvn.ToUserID = ii.ToUserID.ChangeType<IdType, string>();
+                        cvn.FromUserID = ii.FromUserID.ChangeType<IdType>();
+                        cvn.ToUserID = ii.ToUserID.ChangeType<IdType>();
                         cvn.SentDate = ii.SentDate;
                         cvn.ViewedDate = ii.ViewedDate;
                         cvn.Message = ii.Message;

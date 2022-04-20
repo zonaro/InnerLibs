@@ -71,77 +71,35 @@ namespace InnerLibs
             else
             {
                 bool blank_flag;
-                if (Value.GetType() == typeof(string))
+                try
                 {
-                    blank_flag = Value.ToString().IsBlank();
+
+
+
+                    if (typeof(T).IsNumericType())
+                    {
+                        blank_flag = Value.ChangeType<decimal>() == 0;
+                    }
+                    else if (typeof(T).IsNullableTypeOf<string>() || typeof(T).IsNullableTypeOf<char>())
+                    {
+                        blank_flag = Value.ToString().IsBlank();
+                    }
+                    else if (typeof(T).IsNullableTypeOf<DateTime>())
+                    {
+                        blank_flag = ((DateTime)Value).Equals(DateTime.MinValue);
+                    }
+                    else if (typeof(T).IsNullableTypeOf<TimeSpan>())
+                    {
+                        blank_flag = ((TimeSpan)Value).Equals(TimeSpan.MinValue);
+                    }
+                    else
+                    {
+                        blank_flag = Value == default;
+                    }
                 }
-                else if (Value.GetType() == typeof(char))
+                catch
                 {
-                    blank_flag = Value.ToString().IsBlank();
-                }
-                else if (Value.GetType() == typeof(long))
-                {
-                    blank_flag = ((long)Value) == 0;
-                }
-                else if (Value.GetType() == typeof(decimal))
-                {
-                    blank_flag = ((decimal)Value) == 0.00M;
-                }
-                else if (Value.GetType() == typeof(short))
-                {
-                    blank_flag = ((short)Value) == 0;
-                }
-                else if (Value.GetType() == typeof(double))
-                {
-                    blank_flag = ((double)Value) == 0d;
-                }
-                else if (Value.GetType() == typeof(int))
-                {
-                    blank_flag = ((int)Value) == 0d;
-                }
-                else if (Value.GetType() == typeof(char?))
-                {
-                    blank_flag = ((char?)Value).HasValue && ((char?)Value).ToString().IsBlank();
-                }
-                else if (Value.GetType() == typeof(bool?))
-                {
-                    blank_flag = ((bool?)Value).HasValue;
-                }
-                else if (Value.GetType() == typeof(long?))
-                {
-                    blank_flag = ((long?)Value).HasValue;
-                }
-                else if (Value.GetType() == typeof(decimal?))
-                {
-                    blank_flag = ((decimal?)Value).HasValue;
-                }
-                else if (Value.GetType() == typeof(short?))
-                {
-                    blank_flag = ((short?)Value).HasValue;
-                }
-                else if (Value.GetType() == typeof(double?))
-                {
-                    blank_flag = ((double?)Value).HasValue;
-                }
-                else if (Value.GetType() == typeof(int?))
-                {
-                    blank_flag = ((int?)Value).HasValue;
-                }
-                else if (Value.GetType() == typeof(DateTime?))
-                {
-                    blank_flag = ((DateTime?)Value).HasValue;
-                }
-                else if (Value.GetType() == typeof(DateTime))
-                {
-                    blank_flag = ((DateTime)Value).Equals(DateTime.MinValue);
-                }
-                else if (Value.GetType() == typeof(TimeSpan))
-                {
-                    blank_flag = ((TimeSpan)Value).Equals(TimeSpan.MinValue);
-                }
-                else
-                {
-                    blank_flag = Value == null;
+                    blank_flag = false;
                 }
 
                 return blank_flag ? ValueIfBlank : Value.ChangeType<T>();
@@ -181,17 +139,7 @@ namespace InnerLibs
         /// <param name="Value">Valor</param>
         /// <param name="ValuesIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static T[] IfNullOrEmpty<T>(this object[] Value, params T[] ValuesIfBlank)
-        {
-            if (Value is null || !Value.Any())
-            {
-                return ValuesIfBlank ?? Array.Empty<T>();
-            }
-            else
-            {
-                return Value.ChangeArrayType<T, object>();
-            }
-        }
+        public static T[] IfNullOrEmpty<T>(this object[] Value, params T[] ValuesIfBlank) => Value == null || !Value.Any() ? ValuesIfBlank ?? Array.Empty<T>() : Value.ChangeArrayType<T, object>();
 
         /// <summary>
         /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
@@ -200,17 +148,7 @@ namespace InnerLibs
         /// <param name="Value">Valor</param>
         /// <param name="ValuesIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, params T[] ValuesIfBlank)
-        {
-            if (Value != null && Value.Any())
-            {
-                return Value.ChangeIEnumerableType<T, object[]>();
-            }
-            else
-            {
-                return ValuesIfBlank;
-            }
-        }
+        public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, params T[] ValuesIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValuesIfBlank;
 
         /// <summary>
         /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
@@ -219,24 +157,14 @@ namespace InnerLibs
         /// <param name="Value">Valor</param>
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank)
-        {
-            if (Value != null && Value.Any())
-            {
-                return Value.ChangeIEnumerableType<T, object[]>();
-            }
-            else
-            {
-                return ValueIfBlank;
-            }
-        }
+        public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
 
         public static bool IsArray<T>(T Obj)
         {
             try
             {
                 var ValueType = Obj.GetType();
-                return !ReferenceEquals(ValueType, typeof(string)) && ValueType.IsArray; //  GetType(T).IsAssignableFrom(ValueType.GetElementType())
+                return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(T).IsAssignableFrom(ValueType.GetElementType())
             }
             catch
             {
@@ -258,7 +186,7 @@ namespace InnerLibs
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
         public static bool IsBlank(this FormattableString Text) => Text == null || Text.ToString().IsBlank();
 
-        public static bool IsBoolean<T>(this T Obj) => ReferenceEquals(Misc.GetNullableTypeOf(Obj), typeof(bool)) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
+        public static bool IsBoolean<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
 
         public static bool IsDate(this string Obj)
         {
@@ -272,7 +200,7 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsDate<T>(this T Obj) => ReferenceEquals(Misc.GetNullableTypeOf(Obj), typeof(DateTime)) || Obj?.ToString().IsDate() == true;
+        public static bool IsDate<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(DateTime) ||  $"{Obj}".IsDate();
 
         /// <summary>
         /// Verifica se uma string é um caminho de diretório válido
@@ -318,11 +246,12 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsEmail(this string Text)
-        {
-            var emailExpression = new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
-            return Text.IsNotBlank() && emailExpression.IsMatch(Text);
-        }
+        /// <summary>
+        /// Verifica se um determinado texto é um email
+        /// </summary>
+        /// <param name="Text">Texto a ser validado</param>
+        /// <returns>TRUE se for um email, FALSE se não for email</returns>
+        public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
 
         /// <summary>
         /// Verifica se um numero é par
@@ -336,21 +265,35 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsEven(this int Value) => Value.ChangeType<decimal, int>().IsEven();
+        public static bool IsEven(this int Value) => Value % 2 == 0;
 
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsEven(this long Value) => Value.ChangeType<decimal, long>().IsEven();
+        public static bool IsEven(this short Value) => Value % 2 == 0;
 
         /// <summary>
         /// Verifica se um numero é par
         /// </summary>
         /// <param name="Value">Valor</param>
         /// <returns></returns>
-        public static bool IsEven(this double Value) => Value.ChangeType<decimal, double>().IsEven();
+        public static bool IsEven(this float Value) => Value % 2f == 0f;
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this long Value) => Value % 2L == 0L;
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this double Value) => Value % 2d == 0d;
 
         /// <summary>
         /// Verifica se uma string é um caminho de arquivo válido
@@ -446,11 +389,6 @@ namespace InnerLibs
         public static bool IsNotNumber(this object Value) => !Value.IsNumber();
 
         /// <summary>
-        /// Verifica se o arquivo está em uso por outro procedimento
-        /// </summary>
-        /// <param name="File">o Arquivo a ser verificado</param>
-        /// <returns>TRUE se o arquivo estiver em uso, FALSE se não estiver</returns>
-        /// <summary>
         /// Verifica se o valor é um numero
         /// </summary>
         /// <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
@@ -490,6 +428,20 @@ namespace InnerLibs
         public static bool IsOdd(this long Value) => !Value.IsEven();
 
         /// <summary>
+        /// Verifica se um numero é impar
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsOdd(this short Value) => !Value.IsEven();
+
+        /// <summary>
+        /// Verifica se um numero é impar
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsOdd(this float Value) => !Value.IsEven();
+
+        /// <summary>
         /// Verifica se uma string é um caminho de arquivo ou diretório válido
         /// </summary>
         /// <param name="Text">Texto</param>
@@ -503,7 +455,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsTelephone(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
 
-        public static bool IsURL(this string Text) => Uri.TryCreate(Text, UriKind.Absolute, out _) && !Text.Contains(" ");
+
+        /// <summary>
+        /// Verifica se um determinado texto é uma URL válida
+        /// </summary>
+        /// <param name="Text">Texto a ser verificado</param>
+        /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
+        public static bool IsURL(this string Text) => Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
 
         /// <summary>
         /// Verifica se uma string é um cep válido
@@ -653,7 +611,12 @@ namespace InnerLibs
         /// <param name="Text">CPF ou CNPJ</param>
         /// <returns></returns>
         public static bool IsValidCPFOrCNPJ(this string Text) => Text.IsValidCPF() || Text.IsValidCNPJ();
-
+        /// <summary>
+        /// Verifica se o dominio é válido (existe) em uma URL ou email
+        /// </summary>
+        /// <param name="DomainOrEmail">Uma String contendo a URL ou email</param>
+        /// <returns>TRUE se o dominio existir, FALSE se o dominio não existir</returns>
+        /// <remarks>Retornara sempre false quando nao houver conexao com a internet</remarks>
         public static bool IsValidDomain(this string DomainOrEmail)
         {
             System.Net.IPHostEntry ObjHost;
@@ -674,22 +637,7 @@ namespace InnerLibs
             }
         }
 
-        /// <summary>
-        /// Verifica se um determinado texto é um email
-        /// </summary>
-        /// <param name="Text">Texto a ser validado</param>
-        /// <returns>TRUE se for um email, FALSE se não for email</returns>
-        /// <summary>
-        /// Verifica se um determinado texto é uma URL válida
-        /// </summary>
-        /// <param name="Text">Texto a ser verificado</param>
-        /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
-        /// <summary>
-        /// Verifica se o dominio é válido (existe) em uma URL ou email
-        /// </summary>
-        /// <param name="DomainOrEmail">Uma String contendo a URL ou email</param>
-        /// <returns>TRUE se o dominio existir, FALSE se o dominio não existir</returns>
-        /// <remarks>Retornara sempre false quando nao houver conexao com a internet</remarks>
+
         /// <summary>
         /// Anula o valor de um objeto se ele for igual a outro objeto
         /// </summary>

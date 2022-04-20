@@ -67,7 +67,7 @@ namespace InnerLibs.Select2
         {
             if (ReferenceEquals(typeof(T), typeof(OptionType)))
             {
-                return item.ChangeType<OptionType, T>();
+                return item.ChangeType<OptionType>();
             }
             else
             {

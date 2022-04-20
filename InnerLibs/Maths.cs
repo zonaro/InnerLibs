@@ -130,8 +130,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static Dictionary<TKey, decimal> CalculatePercent<TKey, TValue>(this Dictionary<TKey, TValue> Dic) where TValue : struct
         {
-            decimal total = Dic.Sum(x => x.Value.ChangeType<decimal, TValue>());
-            return Dic.Select(x => new KeyValuePair<TKey, decimal>(x.Key, x.Value.ChangeType<decimal, TValue>().CalculatePercent(total))).ToDictionary();
+            decimal total = Dic.Sum(x => x.Value.ChangeType<decimal>());
+            return Dic.Select(x => new KeyValuePair<TKey, decimal>(x.Key, x.Value.ChangeType<decimal>().CalculatePercent(total))).ToDictionary();
         }
 
         /// <summary>
@@ -581,7 +581,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
-        public static bool HasDecimalPart(this double Value) => Value.ChangeType<decimal, double>().HasDecimalPart();
+        public static bool HasDecimalPart(this double Value) => Value.ToDecimal().HasDecimalPart();
 
         /// <summary>
         /// Verifica se um numero é inteiro (não possui casas decimais)

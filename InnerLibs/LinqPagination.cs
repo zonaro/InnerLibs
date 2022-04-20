@@ -36,6 +36,21 @@ namespace InnerLibs.LINQ
 
         private static MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+
+        public static IEnumerable<T> Each<T>(this IEnumerable<T> items, Action<T> Action)
+        {
+            if (items != null && Action != null)
+            {
+
+                foreach (var item in items)
+                {
+                    Action(item);
+                }
+
+            }
+            return items;
+        }
+
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
         /// </summary>
@@ -99,20 +114,20 @@ namespace InnerLibs.LINQ
         public static ConstantExpression CreateConstant<Type>(IComparable Value) => CreateConstant(typeof(Type), Value);
 
         /// <summary>
-        /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
+        /// Retorna um <see cref="PaginationFilter{T})"/> para a lista especificada
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static PaginationFilter<T, T> CreateFilter<T>(this IEnumerable<T> List) where T : class => new PaginationFilter<T, T>().SetData(List);
+        public static PaginationFilter<T> CreateFilter<T>(this IEnumerable<T> List) where T : class => (PaginationFilter<T>)new PaginationFilter<T>().SetData(List);
 
         /// <summary>
-        /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
+        /// Retorna um <see cref="PaginationFilter{T,T})"/> para a lista especificada
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="List"></param>
         /// <returns></returns>
-        public static PaginationFilter<T, T> CreateFilter<T>(this IEnumerable<T> List, Action<PaginationFilter<T, T>> Configuration) where T : class => new PaginationFilter<T, T>(Configuration).SetData(List);
+        public static PaginationFilter<T> CreateFilter<T>(this IEnumerable<T> List, Action<PaginationFilter<T, T>> Configuration) where T : class => (PaginationFilter<T>)new PaginationFilter<T>(Configuration).SetData(List);
 
         /// <summary>
         /// Retorna um <see cref="PaginationFilter(Of T,T)"/> para a lista especificada
@@ -1227,20 +1242,15 @@ namespace InnerLibs.LINQ
         /// <param name="items">colecao</param>
         /// <param name="Priority">Seletores que define a prioridade da ordem dos itens</param>
         /// <returns></returns>
-        public static IEnumerable<T> OrderByWithPriority<T>(this IEnumerable<T> items, params Func<T, bool>[] Priority)
+        public static IOrderedEnumerable<T> OrderByWithPriority<T>(this IEnumerable<T> items, params Func<T, bool>[] Priority)
         {
             if (items != null)
             {
-                var l = new List<T>();
-                foreach (var p in Priority ?? Array.Empty<Func<T, bool>>())
-                {
-                    if (p != null) l.AddRange(items.Where(p).Union(items.Where(i => !p(i))));
-                }
+                Priority = Priority ?? Array.Empty<Func<T, bool>>();
 
-                items = l.OrderBy(x => 0);
+                return items.OrderByDescending(x => Priority.Sum(y => y(x).ToInt()));
             }
-
-            return items;
+            return null;
         }
 
         public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)

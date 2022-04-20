@@ -1,32 +1,35 @@
-﻿/// <summary>
-/// Uma estrutura <see cref="IDictionary"/> que utiliza como Key uma propriedade de Value
-/// </summary>
-/// <typeparam name="KeyType">Tipo da Key</typeparam>
-/// <typeparam name="ClassType">Tipo da</typeparam>
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace InnerLibs
 {
-    public class SelfKeyDictionary<KeyType, ClassType> : IDictionary<KeyType, ClassType>
+    /// <summary>
+    /// Uma estrutura <see cref="IDictionary"/> que utiliza como Key uma propriedade de Value
+    /// </summary>
+    /// <typeparam name="KeyType">Tipo da Key</typeparam>
+    /// <typeparam name="ClassType">Tipo da</typeparam>
+    public class SelfKeyDictionary<KeyType, ClassType> : IDictionary<KeyType, ClassType>, IDictionary
         where KeyType : IComparable
         where ClassType : class
     {
         private List<ClassType> collection = new List<ClassType>();
         private Func<ClassType, KeyType> keyselector;
 
-        private void Add(KeyType key, ClassType value)
+        public void Add(KeyType key, ClassType value)
         {
             if (value != null)
             {
-                if (!ContainsKey(keyselector(value)))
+                if (!ContainsKey(keyselector(value)) && !ContainsKey(key))
                 {
                     collection.Add(value);
                 }
             }
         }
+
+
+
 
         private IEnumerator IEnumerable_GetEnumerator() => ((IEnumerable)this).GetEnumerator();
 
@@ -42,44 +45,29 @@ namespace InnerLibs
             }
         }
 
-        public int Count
-        {
-            get
-            {
-                return collection.Count;
-            }
-        }
+        public int Count => collection.Count;
 
-        public bool IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsReadOnly => false;
 
-        public ICollection<KeyType> Keys
-        {
-            get
-            {
-                return collection?.Select(x => keyselector(x)).ToArray();
-            }
-        }
+        public ICollection<KeyType> Keys => collection?.Select(x => keyselector(x)).ToArray();
 
-        public ICollection<ClassType> Values
-        {
-            get
-            {
-                return collection;
-            }
-        }
+        public ICollection<ClassType> Values => collection;
+
+        ICollection IDictionary.Keys => (ICollection)Keys;
+
+        ICollection IDictionary.Values => (ICollection)Values;
+
+        public bool IsFixedSize => false;
+
+        public object SyncRoot => SyncRoot;
+
+        public bool IsSynchronized => throw new NotImplementedException();
+
+        public object this[object key] { get => this[((KeyType)key)]; set => this[((KeyType)key)] = (ClassType)value; }
 
         public ClassType this[KeyType key]
         {
-            get
-            {
-                return collection.Where(x => keyselector(x).Equals(key)).SingleOrDefault();
-            }
+            get => collection.Where(x => keyselector(x).Equals(key)).SingleOrDefault();
 
             set
             {
@@ -100,17 +88,14 @@ namespace InnerLibs
         {
             if (Value != null)
             {
-                this.Add(keyselector(Value), Value);
+                Add(keyselector(Value), Value);
                 return keyselector(Value);
             }
 
             return default;
         }
 
-        public IEnumerable<KeyType> AddRange(params ClassType[] Values)
-        {
-            return AddRange((Values ?? Array.Empty<ClassType>()).AsEnumerable());
-        }
+        public IEnumerable<KeyType> AddRange(params ClassType[] Values) => AddRange((Values ?? Array.Empty<ClassType>()).AsEnumerable());
 
         public IEnumerable<KeyType> AddRange(IEnumerable<ClassType> Values)
         {
@@ -120,30 +105,15 @@ namespace InnerLibs
             return Values.Select(x => keyselector(x));
         }
 
-        public void Clear()
-        {
-            collection.Clear();
-        }
+        public void Clear() => collection.Clear();
 
-        public bool Contains(KeyValuePair<KeyType, ClassType> item)
-        {
-            return collection.Any(x => keyselector(x).Equals(item.Key));
-        }
+        public bool Contains(KeyValuePair<KeyType, ClassType> item) => collection.Any(x => keyselector(x).Equals(item.Key));
 
-        public bool ContainsKey(KeyType key)
-        {
-            return Keys.Contains(key);
-        }
+        public bool ContainsKey(KeyType key) => Keys.Contains(key);
 
-        public void CopyTo(KeyValuePair<KeyType, ClassType>[] array, int arrayIndex)
-        {
-            collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
-        }
+        public void CopyTo(KeyValuePair<KeyType, ClassType>[] array, int arrayIndex) => collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
 
-        public IEnumerator<KeyValuePair<KeyType, ClassType>> GetEnumerator()
-        {
-            return collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<KeyType, ClassType>> GetEnumerator() => collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).GetEnumerator();
 
         public bool Remove(KeyType key)
         {
@@ -155,15 +125,9 @@ namespace InnerLibs
             return ContainsKey(key);
         }
 
-        public bool Remove(ClassType Value)
-        {
-            return Remove(keyselector(Value));
-        }
+        public bool Remove(ClassType Value) => Remove(keyselector(Value));
 
-        public bool Remove(KeyValuePair<KeyType, ClassType> item)
-        {
-            return collection.Remove(item.Value);
-        }
+        public bool Remove(KeyValuePair<KeyType, ClassType> item) => collection.Remove(item.Value);
 
         public bool TryGetValue(KeyType key, out ClassType value)
         {
@@ -179,19 +143,35 @@ namespace InnerLibs
             }
         }
 
-        void ICollection<KeyValuePair<KeyType, ClassType>>.Add(KeyValuePair<KeyType, ClassType> item)
+        void ICollection<KeyValuePair<KeyType, ClassType>>.Add(KeyValuePair<KeyType, ClassType> item) => collection.Add(item.Value);
+
+        void IDictionary<KeyType, ClassType>.Add(KeyType key, ClassType value) => Add(key, value);
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public bool Contains(object key)
         {
-            collection.Add(item.Value);
+            throw new NotImplementedException();
         }
 
-        void IDictionary<KeyType, ClassType>.Add(KeyType key, ClassType value)
+        public void Add(object key, object value)
         {
-            this.Add(key, value);
+            throw new NotImplementedException();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        IDictionaryEnumerator IDictionary.GetEnumerator()
         {
-            return GetEnumerator();
+            throw new NotImplementedException();
+        }
+
+        public void Remove(object key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(Array array, int index)
+        {
+            throw new NotImplementedException();
         }
     }
 }

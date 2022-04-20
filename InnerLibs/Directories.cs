@@ -21,8 +21,8 @@ namespace InnerLibs
         {
             foreach (var diretorio in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
             {
-                foreach (var subdiretorio in diretorio.GetDirectories())
-                    subdiretorio.CleanDirectory(true);
+                diretorio.GetDirectories().Each(subdiretorio => subdiretorio.CleanDirectory(true));
+
                 if (diretorio.HasDirectories())
                 {
                     diretorio.CleanDirectory(true);
@@ -46,7 +46,7 @@ namespace InnerLibs
         /// <param name="List">Arquivos</param>
         /// <param name="DestinationDirectory">Diretório de destino</param>
         /// <returns></returns>
-        public static List<FileInfo> CopyTo(this List<FileInfo> List, DirectoryInfo DestinationDirectory)
+        public static IEnumerable<FileInfo> CopyTo(this IEnumerable<FileInfo> List, DirectoryInfo DestinationDirectory)
         {
             var lista = new List<FileInfo>();
             if (!DestinationDirectory.Exists)
@@ -215,50 +215,35 @@ namespace InnerLibs
         /// Se TRUE, utiliza <see cref="IO.Path.AltDirectorySeparatorChar"/> ao invés de <see cref="IO.Path.DirectorySeparatorChar"/>
         /// </param>
         /// <returns></returns>
-        public static string FixPathSeparator(this string Path, bool Alternative = false)
-        {
-            return Path.Split(new[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.Trim(), Convert.ToString(Alternative ? System.IO.Path.AltDirectorySeparatorChar : System.IO.Path.DirectorySeparatorChar)).TrimAny(System.IO.Path.AltDirectorySeparatorChar.ToString(), System.IO.Path.DirectorySeparatorChar.ToString());
-        }
+        public static string FixPathSeparator(this string Path, bool Alternative = false) => Path.Split(new[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.Trim(), Convert.ToString(Alternative ? System.IO.Path.AltDirectorySeparatorChar : System.IO.Path.DirectorySeparatorChar)).TrimAny(System.IO.Path.AltDirectorySeparatorChar.ToString(), System.IO.Path.DirectorySeparatorChar.ToString());
 
         /// <summary>
         /// Verifica se um diretório possui subdiretórios
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool HasDirectories(this DirectoryInfo Directory)
-        {
-            return Directory.GetDirectories().Any();
-        }
+        public static bool HasDirectories(this DirectoryInfo Directory) => Directory.EnumerateDirectories().Any();
 
         /// <summary>
         /// Verifica se um diretório possui arquivos
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool HasFiles(this DirectoryInfo Directory)
-        {
-            return Directory.GetFiles().Any();
-        }
+        public static bool HasFiles(this DirectoryInfo Directory) => Directory.EnumerateDirectories().Any();
 
         /// <summary>
         /// Verifica se um diretório está vazio
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool IsEmpty(this DirectoryInfo Directory)
-        {
-            return !Directory.HasFiles() & !Directory.HasDirectories();
-        }
+        public static bool IsEmpty(this DirectoryInfo Directory) => !Directory.HasFiles() & !Directory.HasDirectories();
 
         /// <summary>
         /// Verifica se um diretório não está vazio
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool IsNotEmpty(this DirectoryInfo Directory)
-        {
-            return !Directory.IsEmpty();
-        }
+        public static bool IsNotEmpty(this DirectoryInfo Directory) => !Directory.IsEmpty();
 
         public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, SearchOption Option, params string[] Patterns) => directory.SearchFiles(Option, Patterns).Select(x => x.ReadAllText());
 

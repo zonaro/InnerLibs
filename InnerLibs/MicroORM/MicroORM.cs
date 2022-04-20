@@ -754,9 +754,9 @@ namespace InnerLibs.MicroORM
         /// </summary>
         public static implicit operator FormattableString(Select<T> select) => (select?.ToString()).ToFormattableString();
 
-        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic) => Connection.CreateCommand(ToString(), dic);
+        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic, DbTransaction Transaction = null) => Connection.CreateCommand(ToString(), dic,Transaction);
 
-        public DbCommand CreateDbCommand(DbConnection Connection) => CreateDbCommand(Connection, null);
+        public DbCommand CreateDbCommand(DbConnection Connection, DbTransaction Transaction = null) => CreateDbCommand(Connection, null,Transaction);
 
         public Select<T> AndSearch(string Value, params string[] Columns) => AndAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
 

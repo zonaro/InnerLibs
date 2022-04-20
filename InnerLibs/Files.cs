@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace InnerLibs
@@ -73,13 +74,20 @@ namespace InnerLibs
         {
             if (stream == null) return Array.Empty<byte>();
 
+            var pos = stream.Position;
             using (var ms = new MemoryStream())
             {
                 stream.CopyTo(ms);
+                stream.Position = pos;
                 return ms.ToArray();
             }
         }
 
+        /// <summary>
+        /// Converte o conteúdo de um <see cref="FileInfo"/> em <see cref="byte[]"/>
+        /// </summary>
+        /// <param name="File"></param>
+        /// <returns></returns>
         public static byte[] ToBytes(this FileInfo File)
         {
             var fInfo = new FileInfo(File.FullName);
@@ -105,7 +113,7 @@ namespace InnerLibs
         public static FileInfo WriteToFile(this Stream Stream, string FilePath, DateTime? DateAndTime = null) => Stream.ToBytes().WriteToFile(FilePath, DateAndTime);
 
         /// <summary>
-        /// alva um Array de Bytes em um arquivo
+        /// alva um Array de Bytes em um arquivo 
         /// </summary>
         /// <param name="Bytes">A MAtriz com os Bytes a ser escrita</param>
         /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
@@ -118,16 +126,27 @@ namespace InnerLibs
         {
             if (FilePath.IsFilePath())
             {
+                Bytes = Bytes ?? Array.Empty<byte>();
                 DateAndTime = DateAndTime ?? DateTime.Now;
                 FilePath = FilePath.Replace($"#timestamp#", DateAndTime.Value.Ticks.ToString());
                 FilePath = FilePath.Replace($"#datedir#", $@"{DateAndTime.Value.Year}\{DateAndTime.Value.Month}\{DateAndTime.Value.Day}");
 
                 foreach (string item in new[] { "d", "dd", "ddd", "dddd", "hh", "HH", "m", "mm", "M", "MM", "MMM", "MMMM", "s", "ss", "t", "tt", "Y", "YY", "YYY", "YYYY", "f", "ff", "fff", "ffff", "fffff", "ffffff", "fffffff" })
                     FilePath = FilePath.SensitiveReplace($"#{item}#", DateAndTime.Value.ToString(item));
+               
+                FilePath = FilePath.FixPathSeparator();
 
                 FilePath.CreateDirectoryIfNotExists();
-                File.WriteAllBytes(FilePath, Bytes);
-                Debug.WriteLine(FilePath, "File Written");
+                if (Bytes.Any())
+                {
+                    File.WriteAllBytes(FilePath, Bytes);
+                    Debug.WriteLine(FilePath, "File Written");
+                }
+                else
+                {
+                    Debug.WriteLine("Bytes is empty", "File not Written");
+                }
+
                 return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });
             }
             else

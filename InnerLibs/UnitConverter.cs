@@ -11,6 +11,7 @@ namespace InnerLibs
     public class UnitConverter
     {
         private Dictionary<decimal, string> Units = new Dictionary<decimal, string>();
+        private CultureInfo culture = CultureInfo.InvariantCulture;
 
         /// <summary>
         /// Retorna a unidade e a base a partir do nome da unidade
@@ -46,10 +47,7 @@ namespace InnerLibs
         /// <remarks>
         /// Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)
         /// </remarks>
-        public UnitConverter(Dictionary<decimal, string> Units)
-        {
-            this.Units = Units;
-        }
+        public UnitConverter(Dictionary<decimal, string> Units) => this.Units = Units;
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> utilizando um <see cref="Dictionary(Of
@@ -61,10 +59,7 @@ namespace InnerLibs
         /// <remarks>
         /// Utilize ponto e virgula (;) para separar unidades de medidas com singular;plural (EX.: Centimetro;Centimetros)
         /// </remarks>
-        public UnitConverter(Dictionary<string, decimal> Units)
-        {
-            this.Units = Units.ToDictionary(x => x.Value, x => x.Key);
-        }
+        public UnitConverter(Dictionary<string, decimal> Units) => this.Units = Units.ToDictionary(x => x.Value, x => x.Key);
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> utilizando um numero inicial, uma base
@@ -110,57 +105,51 @@ namespace InnerLibs
         {
         }
 
-        public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
+        public CultureInfo Culture { get => culture ?? CultureInfo.CurrentCulture; set => culture = value; }
         public StringComparison UnitComparisonType { get; set; } = StringComparison.Ordinal;
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> de Base 1000 (de y a E)
         /// </summary>
         /// <returns></returns>
-        public static UnitConverter CreateBase1000Converter()
-        {
-            return new UnitConverter(1000m, 0.000000000000000000000001m, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E");
-        }
+        public static UnitConverter CreateBase1000Converter() => new UnitConverter(1000m, 0.000000000000000000000001m, "y", "z", "a", "f", "p", "n", "µ", "m", "", "K", "M", "G", "T", "P", "E");
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> de de Massa (peso) complexos de base 10 (de mg a kg)
         /// </summary>
         /// <returns></returns>
-        public static UnitConverter CreateComplexMassConverter()
-        {
-            return new UnitConverter(10, "mg", "cg", "dg", "g", "dag", "hg", "kg") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
-        }
+        public static UnitConverter CreateComplexMassConverter() => new UnitConverter(10, "mg", "cg", "dg", "g", "dag", "hg", "kg") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> de Base 1024 (Bytes) de (B a EB)
         /// </summary>
         /// <returns></returns>
-        public static UnitConverter CreateFileSizeConverter()
-        {
-            return new UnitConverter(1024, "B", "KB", "MB", "GB", "TB", "PB", "EB") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
-        }
+        public static UnitConverter CreateFileSizeConverter() => new UnitConverter(1024, "B", "KB", "MB", "GB", "TB", "PB", "EB") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> de de Massa (peso) simples de base 1000 (de mg a T)
         /// </summary>
         /// <returns></returns>
-        public static UnitConverter CreateSimpleMassConverter()
-        {
-            return new UnitConverter(1000, "mg", "g", "kg", "T") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
-        }
+        public static UnitConverter CreateSimpleMassConverter() => new UnitConverter(1000, "mg", "g", "kg", "T") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
 
         /// <summary>
         /// Abrevia um numero com a unidade mais alta encontrada dentro do conversor
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public string Abbreviate(decimal Number, int DecimalPlaces)
+        public string Abreviate(decimal Number, int DecimalPlaces = -1)
         {
+
+            if (DecimalPlaces < 0)
+            {
+                DecimalPlaces = culture.NumberFormat.NumberDecimalDigits;
+            }
+
             switch (Units.Count)
             {
                 case 0:
                     {
-                        return decimal.Round(DecimalPlaces).ToString();
+                        return Number.RoundDecimal(DecimalPlaces).ToString(Culture);
                     }
 
                 default:
@@ -181,7 +170,7 @@ namespace InnerLibs
                             }
                             else
                             {
-                                u = u.Split(";")[1];
+                                u = u.Split(";").Last();
                             }
                         }
 
@@ -196,41 +185,28 @@ namespace InnerLibs
                     }
             }
         }
-
-        public string Abreviate(decimal Number)
-        {
-            return Abbreviate(Number, Culture.NumberFormat.NumberDecimalDigits);
-        }
+ 
 
         /// <summary>
         /// Abrevia um numero com a unidade mais alta encontrada dentro do conversor
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public string Abreviate(int Number)
-        {
-            return Abreviate(Number.ChangeType<decimal, int>());
-        }
+        public string Abreviate(int Number) => Abreviate(Number.ToDecimal());
 
         /// <summary>
         /// Abrevia um numero com a unidade mais alta encontrada dentro do conversor
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public string Abreviate(short Number)
-        {
-            return Abreviate(Number.ChangeType<decimal, short>());
-        }
+        public string Abreviate(short Number) => Abreviate(Number.ToDecimal());
 
         /// <summary>
         /// Abrevia um numero com a unidade mais alta encontrada dentro do conversor
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public string Abreviate(long Number)
-        {
-            return Abreviate(Number.ChangeType<decimal, long>());
-        }
+        public string Abreviate(long Number) => Abreviate(Number.ToDecimal());
 
         /// <summary>
         /// Converte um numero decimal em outro numero decimal a partir de unidades de medida
@@ -239,10 +215,7 @@ namespace InnerLibs
         /// <param name="From">Unidade de Medida de origem</param>
         /// <param name="[To]">Unidade de medida de destino</param>
         /// <returns></returns>
-        public decimal Convert(decimal Number, string To, string From)
-        {
-            return Convert(Number + From, To);
-        }
+        public decimal Convert(decimal Number, string From, string To) => Convert(Number + From, To);
 
         /// <summary>
         /// Converte um numero abreviado em decimal
@@ -262,11 +235,7 @@ namespace InnerLibs
         /// <param name="AbreviatedNumber">Numero abreviado</param>
         /// <param name="[To]">Unidade de destino</param>
         /// <returns></returns>
-        public string ConvertAbreviate(string AbreviatedNumber, string To)
-        {
-            decimal nn = Parse(AbreviatedNumber);
-            return (nn / this.GetUnit(To).Key + " " + To).Trim();
-        }
+        public string ConvertAbreviate(string AbreviatedNumber, string To) => $"{Convert(AbreviatedNumber, To)}{To}";
 
         /// <summary>
         /// Retorna o numero decimal a partir de uma string abreviada
@@ -275,6 +244,10 @@ namespace InnerLibs
         /// <returns></returns>
         public decimal Parse(string Number, int DecimalPlaces = -1)
         {
+            if(DecimalPlaces < 0)
+            {
+                DecimalPlaces = culture.NumberFormat.NumberDecimalDigits;
+            }
             if (Number.IsBlank())
             {
                 return 0m;
@@ -283,16 +256,18 @@ namespace InnerLibs
             if (!Number.IsNumber())
             {
                 string i = Number;
-                while (i.StartsWithAny(1.ToString(), 2.ToString(), 3.ToString(), 4.ToString(), 5.ToString(), 6.ToString(), 7.ToString(), 8.ToString(), 9.ToString(), 0.ToString(), ",", "."))
+                var l = PredefinedArrays.NumberChars.Union(new[] { Culture.NumberFormat.NumberDecimalSeparator, Culture.NumberFormat.NumberGroupSeparator });
+
+                while (i.StartsWithAny(UnitComparisonType, l.ToArray()))
                     i = i.RemoveFirstChars();
                 var p = GetUnit(i);
                 if (p.Key > 0m)
                 {
-                    return (p.Key * Number.ParseDigits().ToDecimal()).RoundDecimal(DecimalPlaces);
+                    return (p.Key * Number.ParseDigits(Culture).ToDecimal()).RoundDecimal(DecimalPlaces);
                 }
                 else
                 {
-                    return Number.ParseDigits().ToDecimal().RoundDecimal(DecimalPlaces);
+                    return Number.ParseDigits(Culture).ToDecimal().RoundDecimal(DecimalPlaces);
                 }
             }
 
@@ -307,19 +282,20 @@ namespace InnerLibs
         public string ParseUnit(string Number)
         {
             string i = Number;
-            while (i.StartsWithAny(1.ToString(), 2.ToString(), 3.ToString(), 4.ToString(), 5.ToString(), 6.ToString(), 7.ToString(), 8.ToString(), 9.ToString(), 0.ToString(), ",", "."))
+            var l = PredefinedArrays.NumberChars.Union(new[] { Culture.NumberFormat.NumberDecimalSeparator, Culture.NumberFormat.NumberGroupSeparator });
+            while (i.StartsWithAny(UnitComparisonType, l.ToArray()))
                 i = i.RemoveFirstChars();
             var p = GetUnit(i);
             string u = p.Value.IfBlank("");
             if (u.Contains(";"))
             {
-                if (Number.ParseDigits().IfBlank(1) == 1)
+                if (Number.ParseDigits(Culture).IfBlank(1) == 1)
                 {
                     u = u.Split(";").First();
                 }
                 else
                 {
-                    u = u.Split(";")[1];
+                    u = u.Split(";").Last();
                 }
             }
 

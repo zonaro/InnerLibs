@@ -391,7 +391,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="InputFormat"></param>
         /// <param name="Culture"></param>
         /// <returns></returns>
-        public static string ChangeFormat(this string DateString, string InputFormat, string OutputFormat, CultureInfo Culture = null) => DateString.ConvertDateString(InputFormat, Culture).ToString(OutputFormat);
+        public static string ChangeDateFormat(this string DateString, string InputFormat, string OutputFormat, CultureInfo Culture = null) => DateString.ConvertDateString(InputFormat, Culture).ToString(OutputFormat);
 
         /// <summary>
         /// Clear Milliseconds from <see cref="DateTime"/>
@@ -413,11 +413,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="Format"></param>
         /// <param name="Culture"></param>
         /// <returns></returns>
-        public static DateTime ConvertDateString(this string DateString, string Format, CultureInfo Culture = null)
-        {
-            Culture = Culture ?? CultureInfo.CurrentCulture;
-            return DateTime.ParseExact(DateString, Format, Culture);
-        }
+        public static DateTime ConvertDateString(this string DateString, string Format, CultureInfo Culture = null) => DateTime.ParseExact(DateString, Format, Culture ?? CultureInfo.CurrentCulture);
 
         /// <summary>
         /// Create a <see cref="DateRange"/> from giving <paramref name="List"/> and/or <paramref

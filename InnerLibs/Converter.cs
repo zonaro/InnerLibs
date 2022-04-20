@@ -42,14 +42,6 @@ namespace InnerLibs
         /// <returns>Array convertido em novo tipo</returns>
         public static IEnumerable<object> ChangeIEnumerableType<FromType>(this IEnumerable<FromType> Value, Type ToType) => (Value ?? Array.Empty<FromType>()).Select(el => el.ChangeType(ToType));
 
-        /// <summary>
-        /// Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="ToType">Tipo</typeparam>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
-        public static ToType ChangeType<ToType, FromType>(this FromType Value) => (ToType)Value.ChangeType(typeof(ToType).GetNullableTypeOf());
 
         /// <summary>
         /// Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
@@ -254,6 +246,7 @@ namespace InnerLibs
             // dicionario que está sendo gerado a partir dos outros
             var result = new Dictionary<Tkey, object>();
 
+            Dictionaries = Dictionaries ?? Array.Empty<Dictionary<Tkey, object>>();
             // adiciona o primeiro dicionario ao array principal e exclui dicionarios vazios
             Dictionaries = Dictionaries.Union(new[] { FirstDictionary }).Where(x => x.Count > 0).ToArray();
 
@@ -349,10 +342,7 @@ namespace InnerLibs
             return Dics;
         }
 
-        public static T SetValuesIn<T>(this Dictionary<string, object> Dic)
-        {
-            return (T)Dic.CreateOrSetObject(null, typeof(T));
-        }
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic) => (T)Dic.CreateOrSetObject(null, typeof(T));
 
         /// <summary>
         /// Seta as propriedades de uma classe a partir de um dictionary
@@ -365,10 +355,7 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="Dic"></param>
         /// <param name="Obj"></param>
-        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj, params object[] args)
-        {
-            return (T)Dic.CreateOrSetObject(obj, typeof(T), args);
-        }
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj, params object[] args) => (T)Dic.CreateOrSetObject(obj, typeof(T), args);
 
         /// <summary>
         /// Seta as propriedades e campos de uma classe a partir de um dictionary
@@ -376,10 +363,7 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="Dic"></param>
         /// <param name="Obj"></param>
-        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj)
-        {
-            return (T)Dic.CreateOrSetObject(obj, typeof(T), null);
-        }
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj) => (T)Dic.CreateOrSetObject(obj, typeof(T), null);
 
         /// <summary>
         /// Cria uma e adciona um objeto a ela. Util para tipos anonimos
@@ -403,7 +387,7 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static bool ToBoolean<FromType>(this FromType Value) => Value.ChangeType<bool, FromType>();
+        public static bool ToBoolean<FromType>(this FromType Value) => Value.ChangeType<bool>();
 
         /// <summary>
         /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
@@ -411,7 +395,7 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static DateTime ToDateTime<FromType>(this FromType Value) => Value.ChangeType<DateTime, FromType>();
+        public static DateTime ToDateTime<FromType>(this FromType Value) => Value.ChangeType<DateTime>();
 
         /// <summary>
         /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
@@ -435,7 +419,7 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static decimal ToDecimal<FromType>(this FromType Value) => Value.ChangeType<decimal, FromType>();
+        public static decimal ToDecimal<FromType>(this FromType Value) => Value.ChangeType<decimal>();
 
         /// <summary>
         /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
@@ -452,10 +436,7 @@ namespace InnerLibs
         /// <typeparam name="TValue"></typeparam>
         /// <param name="groupings"></param>
         /// <returns></returns>
-        public static Dictionary<TKey, IEnumerable<TValue>> ToDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> groupings)
-        {
-            return groupings.ToDictionary(group => group.Key, group => group.AsEnumerable());
-        }
+        public static Dictionary<TKey, IEnumerable<TValue>> ToDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> groupings) => groupings.ToDictionary(group => group.Key, group => group.AsEnumerable());
 
         /// <summary>
         /// Transforma uma lista de pares em um Dictionary
@@ -464,13 +445,10 @@ namespace InnerLibs
         /// <typeparam name="TValue"></typeparam>
         /// <param name="items"></param>
         /// <returns></returns>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items)
-        {
-            return items.DistinctBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
-        }
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items) => items.DistinctBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
         /// <summary>
-        /// Converte um NameValueCollection para um <see cref="Dictionary(Of String, Object)"/>
+        /// Converte um NameValueCollection para um <see cref="Dictionary{TKey, TValue}"/>
         /// </summary>
         /// <param name="[NameValueCollection]">Formulario</param>
         /// <returns></returns>
@@ -610,7 +588,14 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static double ToDouble<FromType>(this FromType Value) => Value.ChangeType<double, FromType>();
+        public static double ToDouble<FromType>(this FromType Value) => Value.ChangeType<double>();
+        /// <summary>
+        /// Converte um tipo para short. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static double ToShort<FromType>(this FromType Value) => Value.ChangeType<short>();
 
         /// <summary>
         /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
@@ -618,7 +603,7 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int, FromType>();
+        public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int>();
 
         /// <summary>
         /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
@@ -626,7 +611,7 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static long ToLong<FromType>(this FromType Value) => Value.ChangeType<long, FromType>();
+        public static long ToLong<FromType>(this FromType Value) => Value.ChangeType<long>();
 
         /// <summary>
         /// Converte um tipo para Single. Retorna Nothing (NULL) se a conversão falhar
@@ -634,6 +619,6 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float, FromType>();
+        public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float>();
     }
 }

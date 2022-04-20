@@ -26,9 +26,9 @@ namespace InnerLibs.LINQ
 
         private Func<ClassType, RemapType> remapexp;
 
-        private IEnumerable<ClassType> ApplyFilter()
+        private IEnumerable<ClassType> ApplyFilter(IEnumerable<ClassType> FilteredData)
         {
-            var FilteredData = Data;
+            FilteredData = FilteredData ?? Data;
             _total = default;
             if (FilteredData != null)
             {
@@ -66,7 +66,7 @@ namespace InnerLibs.LINQ
 
         private IEnumerable<ClassType> ApplyPage(IEnumerable<ClassType> FilteredData)
         {
-            if (Data != null)
+            if (FilteredData != null)
             {
                 if (PageNumber > 0 && PageSize > 0)
                 {
@@ -78,17 +78,25 @@ namespace InnerLibs.LINQ
                     {
                         FilteredData = ((IQueryable<ClassType>)FilteredData).Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
+                    else if (FilteredData is IOrderedEnumerable<ClassType>)
+                    {
+                        FilteredData = ((IOrderedEnumerable<ClassType>)FilteredData).Skip((PageNumber - 1) * PageSize).Take(PageSize);
+                    }
+
+                    else if (Data is IEnumerable<ClassType>)
+                    {
+                        FilteredData = FilteredData.Skip((PageNumber - 1) * PageSize).Take(PageSize);
+                    }
                 }
 
-                return FilteredData;
             }
 
-            return Data;
+            return FilteredData ?? Data;
         }
 
-        internal List<PropertyFilter<ClassType, RemapType>> _filters = new List<PropertyFilter<ClassType, RemapType>>();
+        public List<PropertyFilter<ClassType, RemapType>> _filters = new List<PropertyFilter<ClassType, RemapType>>();
 
-        internal ParameterExpression param = LINQExtensions.GenerateParameterExpression<ClassType>();
+        public ParameterExpression param = LINQExtensions.GenerateParameterExpression<ClassType>();
 
         public PaginationFilter()
         {
@@ -97,10 +105,7 @@ namespace InnerLibs.LINQ
         /// <summary>
         /// Cria uma nova instancia e seta a exclusividade de filtro
         /// </summary>
-        public PaginationFilter(Func<ClassType, RemapType> RemapExpression)
-        {
-            this.RemapExpression = RemapExpression;
-        }
+        public PaginationFilter(Func<ClassType, RemapType> RemapExpression) => this.RemapExpression = RemapExpression;
 
         public PaginationFilter(Func<ClassType, RemapType> RemapExpression, Action<PaginationFilter<ClassType, RemapType>> Options)
         {
@@ -108,10 +113,7 @@ namespace InnerLibs.LINQ
             Config(Options);
         }
 
-        public PaginationFilter(Action<PaginationFilter<ClassType, RemapType>> Options)
-        {
-            Config(Options);
-        }
+        public PaginationFilter(Action<PaginationFilter<ClassType, RemapType>> Options) => Config(Options);
 
         /// <summary>
         /// Fonte de Dados deste filtro
@@ -290,20 +292,7 @@ namespace InnerLibs.LINQ
         /// Quantidade de páginas
         /// </summary>
         /// <returns></returns>
-        public int PageCount
-        {
-            get
-            {
-                if (PageSize > 0)
-                {
-                    return (int)Math.Round((Total / (double)PageSize).Ceil());
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-        }
+        public int PageCount => PageSize > 0 ? (Total / (double)PageSize).CeilInt() : 1;
 
         /// <summary>
         /// Numero da pagina
@@ -311,7 +300,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public int PageNumber
         {
-            get { return pgnumber; }
+            get => pgnumber;
             set
             {
                 if (value < 1)
@@ -331,15 +320,9 @@ namespace InnerLibs.LINQ
 
         public string PageNumberQueryParameter
         {
-            get
-            {
-                return pnp.IfBlank(nameof(PageNumber));
-            }
+            get => pnp.IfBlank(nameof(PageNumber));
 
-            set
-            {
-                pnp = value;
-            }
+            set => pnp = value;
         }
 
         /// <summary>
@@ -378,10 +361,7 @@ namespace InnerLibs.LINQ
                 return psp.IfBlank(nameof(PageSize));
             }
 
-            set
-            {
-                psp = value;
-            }
+            set => psp = value;
         }
 
         /// <summary>
@@ -391,15 +371,9 @@ namespace InnerLibs.LINQ
 
         public string PaginationOffsetQueryParameter
         {
-            get
-            {
-                return pop.IfBlank(nameof(PaginationOffset));
-            }
+            get => pop.IfBlank(nameof(PaginationOffset));
 
-            set
-            {
-                pop = value;
-            }
+            set => pop = value;
         }
 
         /// <summary>
@@ -474,43 +448,19 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PageNumber"></param>
         /// <returns></returns>
-        public RemapType[] this[int PageNumber]
-        {
-            get
-            {
-                return GetPage(PageNumber);
-            }
-        }
+        public RemapType[] this[int PageNumber] => GetPage(PageNumber);
 
-        public static implicit operator List<RemapType>(PaginationFilter<ClassType, RemapType> obj)
-        {
-            return obj.GetPage().ToList();
-        }
+        public static implicit operator List<RemapType>(PaginationFilter<ClassType, RemapType> obj) => obj.GetPage().ToList();
 
-        public static implicit operator PaginationFilter<ClassType, RemapType>(NameValueCollection NVC)
-        {
-            return new PaginationFilter<ClassType, RemapType>().UseNameValueCollection(NVC);
-        }
+        public static implicit operator PaginationFilter<ClassType, RemapType>(NameValueCollection NVC) => new PaginationFilter<ClassType, RemapType>().UseNameValueCollection(NVC);
 
-        public static implicit operator PaginationFilter<ClassType, RemapType>(string QueryString)
-        {
-            return new PaginationFilter<ClassType, RemapType>().UseQueryStringExpression(QueryString);
-        }
+        public static implicit operator PaginationFilter<ClassType, RemapType>(string QueryString) => new PaginationFilter<ClassType, RemapType>().UseQueryStringExpression(QueryString);
 
-        public static implicit operator RemapType[](PaginationFilter<ClassType, RemapType> obj)
-        {
-            return obj.GetPage();
-        }
+        public static implicit operator RemapType[](PaginationFilter<ClassType, RemapType> obj) => obj.GetPage();
 
-        public PropertyFilter<ClassType, RemapType> And<T>(string PropertyName, bool Enabled = true)
-        {
-            return SetMember(PropertyName, FilterConditional.And, Enabled);
-        }
+        public PropertyFilter<ClassType, RemapType> And<T>(string PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.And, Enabled);
 
-        public PropertyFilter<ClassType, RemapType> And<T>(Expression<Func<ClassType, T>> PropertyName, bool Enabled = true)
-        {
-            return SetMember(PropertyName, FilterConditional.And, Enabled);
-        }
+        public PropertyFilter<ClassType, RemapType> And<T>(Expression<Func<ClassType, T>> PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.And, Enabled);
 
         /// <summary>
         /// Quantidade de botões de paginação
@@ -535,7 +485,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PaginationFilter<ClassType, RemapType> Config(Action<PaginationFilter<ClassType, RemapType>> options)
         {
-            options(this);
+            if (options != null) options(this);
             return this;
         }
 
@@ -696,29 +646,20 @@ namespace InnerLibs.LINQ
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <returns></returns>
-        public IQueryable<ClassType> GetEnumerablePage()
-        {
-            return (IQueryable<ClassType>)GetEnumerablePage(PageNumber);
-        }
+        public IQueryable<ClassType> GetEnumerablePage() => (IQueryable<ClassType>)GetEnumerablePage(PageNumber);
 
         /// <summary>
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <param name="PageNumber"></param>
         /// <returns></returns>
-        public IEnumerable<ClassType> GetEnumerablePage(int PageNumber)
-        {
-            return GetQueryablePage(PageNumber).AsEnumerable();
-        }
+        public IEnumerable<ClassType> GetEnumerablePage(int PageNumber) => GetQueryablePage(PageNumber).AsEnumerable();
 
         /// <summary>
         /// Cria uma querystring com os filtros ativos
         /// </summary>
         /// <returns></returns>
-        public string GetFilterQueryString(bool ForceEnabled = false)
-        {
-            return Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()).JoinString("&");
-        }
+        public string GetFilterQueryString(bool ForceEnabled = false) => Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()).JoinString("&");
 
         /// <summary>
         /// Executa o Filtro e retorna os dados paginados
@@ -745,10 +686,7 @@ namespace InnerLibs.LINQ
         /// Retorna a pagina atual
         /// </summary>
         /// <returns></returns>
-        public RemapType[] GetPage()
-        {
-            return GetPage(PageNumber);
-        }
+        public RemapType[] GetPage() => GetPage(PageNumber);
 
         /// <summary>
         /// Retorna a parte da querystring usada para paginacao
@@ -777,10 +715,7 @@ namespace InnerLibs.LINQ
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <returns></returns>
-        public IQueryable<ClassType> GetQueryablePage()
-        {
-            return GetQueryablePage(PageNumber);
-        }
+        public IQueryable<ClassType> GetQueryablePage() => GetQueryablePage(PageNumber);
 
         /// <summary>
         /// Retorna <see cref="Data"/> com os filtros aplicados
@@ -792,12 +727,12 @@ namespace InnerLibs.LINQ
             this.PageNumber = PageNumber;
             if (Data != null)
             {
-                var filtereddata = ApplyFilter();
+                var filtereddata = ApplyFilter(Data);
                 filtereddata = ApplyPage(filtereddata);
-                return (IQueryable<ClassType>)filtereddata;
+                return filtereddata.AsQueryable();
             }
 
-            return (IQueryable<ClassType>)Data;
+            throw new Exception("Data is NULL.");
         }
 
         /// <summary>
@@ -805,10 +740,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Index"></param>
         /// <returns></returns>
-        public bool IsCurrentPage(int Index)
-        {
-            return Index == PageNumber;
-        }
+        public bool IsCurrentPage(int Index) => Index == PageNumber;
 
         /// <summary>
         /// Pula um determinado numero de páginas a partir da pagina atual
@@ -821,15 +753,15 @@ namespace InnerLibs.LINQ
             {
                 if (Quantity < 0)
                 {
-                    PageNumber = PageNumber - 1;
-                    Quantity = Quantity + 1;
+                    PageNumber--;
+                    Quantity++;
                 }
                 else
 
                 if (Quantity > 0)
                 {
-                    PageNumber = PageNumber + 1;
-                    Quantity = Quantity - 1;
+                    PageNumber++;
+                    Quantity--;
                 }
                 else
                 {
@@ -838,24 +770,15 @@ namespace InnerLibs.LINQ
             }
         }
 
-        public PropertyFilter<ClassType, RemapType> Or<T>(string PropertyName, bool Enabled = true)
-        {
-            return SetMember(PropertyName, FilterConditional.Or, Enabled);
-        }
+        public PropertyFilter<ClassType, RemapType> Or<T>(string PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
 
-        public PropertyFilter<ClassType, RemapType> Or<T>(Expression<Func<ClassType, T>> PropertyName, bool Enabled = true)
-        {
-            return SetMember(PropertyName, FilterConditional.Or, Enabled);
-        }
+        public PropertyFilter<ClassType, RemapType> Or<T>(Expression<Func<ClassType, T>> PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
 
         public PaginationFilter<ClassType, RemapType> OrderBy<T>(params Expression<Func<ClassType, T>>[] Selectors)
         {
             foreach (var Selector in Selectors ?? Array.Empty<Expression<Func<ClassType, T>>>())
             {
-                if (Selector != null)
-                {
-                    OrderBy(Selector);
-                }
+                if (Selector != null) OrderBy(Selector);
             }
 
             return this;
@@ -964,18 +887,11 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Descending"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> OrderBy(string Selector, bool Descending = false)
-        {
-            return OrderBy(Selector.IfBlank("").SplitAny(" ", "/", ","), Descending);
-        }
+        public PaginationFilter<ClassType, RemapType> OrderBy(string Selector, bool Descending = false) => OrderBy(Selector.IfBlank("").SplitAny(" ", "/", ","), Descending);
 
         public PaginationFilter<ClassType, RemapType> OrderByDescending<T>(Expression<Func<ClassType, T>> Selector)
         {
-            if (Selector != null)
-            {
-                OrderBy(Selector, true);
-            }
-
+            if (Selector != null) OrderBy(Selector, true);
             return this;
         }
 
@@ -986,47 +902,28 @@ namespace InnerLibs.LINQ
         /// <param name="TraillingTemplate">emplate de botoes de reticencias</param>
         /// <param name="Trailling">botao de reticencias</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = "", string Trailling = "...")
+        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = "", string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : CreatePaginationButtons(Trailling).Select(x =>
         {
-            if (Template.IsNotBlank())
+            if (x.IsNumber())
             {
-                if (TraillingTemplate.IsBlank() || Trailling.IsBlank())
-                {
-                    return PageButtonsFromTemplate(Template, SeparatorTemplate);
-                }
-                else
-                {
-                    return CreatePaginationButtons(Trailling).Select(x =>
-                    {
-                        if (x.IsNumber())
-                        {
-                            return Template.Inject(new { Page = x });
-                        }
-
-                        if ((x ?? "") == (Trailling ?? ""))
-                        {
-                            return TraillingTemplate.Inject(new { Page = x, Trailling });
-                        }
-
-                        return "";
-                    }).JoinString(SeparatorTemplate.IfBlank(""));
-                }
+                return Template.Inject(new { Page = x });
             }
-
-            return "";
-        }
+            else if ((x ?? "") == (Trailling ?? ""))
+            {
+                return TraillingTemplate.Inject(new { Page = x, Trailling });
+            }
+            else
+            {
+                return "";
+            }
+        }).JoinString(SeparatorTemplate.IfBlank("")) : "";
 
         /// <summary>
         /// Aplica a paginação a um template
         /// </summary>
         /// <param name="Template">Template de pagina</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = "")
-        {
-            if (Template.IsNotBlank())
-                return CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })).JoinString(SeparatorTemplate.IfBlank(""));
-            return "";
-        }
+        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = "") => Template.IsNotBlank() ? CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })).JoinString(SeparatorTemplate.IfBlank("")) : "";
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1035,9 +932,10 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PaginationFilter<ClassType, RemapType> SetData(IEnumerable<ClassType> List)
         {
-            Data = List;
+            Data = List.AsEnumerable();
             return this;
         }
+
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1126,24 +1024,15 @@ namespace InnerLibs.LINQ
             return this;
         }
 
-        public Dictionary<string, object> ToDictionary(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            return ToNameValueCollection(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ToDictionary();
-        }
+        public Dictionary<string, object> ToDictionary(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false) => ToNameValueCollection(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ToDictionary();
 
-        public NameValueCollection ToNameValueCollection(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
-        {
-            return CreateQueryString(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ParseQueryString();
-        }
+        public NameValueCollection ToNameValueCollection(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false) => CreateQueryString(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset).ParseQueryString();
 
         /// <summary>
         /// Retorna uma QueryString que representa este filtro
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return CreateQueryString().ToString();
-        }
+        public override string ToString() => CreateQueryString().ToString();
 
         /// <summary>
         /// Configura este LambDafilter para utilizar um Dictionary como Filtro.
@@ -1282,33 +1171,31 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PaginationFilter<ClassType, RemapType> WhereIf(bool Test, Expression<Func<ClassType, bool>> predicate)
         {
-            if (Test)
-                Where(predicate);
+            if (Test) Where(predicate);
             return this;
         }
     }
 
     public class PaginationFilter<ClassType> : PaginationFilter<ClassType, ClassType> where ClassType : class
     {
-        public PaginationFilter()
+        public PaginationFilter() : base()
         {
         }
 
         /// <summary>
         /// Cria uma nova instancia e seta a exclusividade de filtro
         /// </summary>
-        public PaginationFilter(Action<PaginationFilter<ClassType>> Options)
+        public PaginationFilter(Action<PaginationFilter<ClassType>> Options) : base() => this.Config(Options);
+
+        public PaginationFilter<ClassType> Config(Action<PaginationFilter<ClassType>> options)
         {
-            Options(this);
+            if (options != null) options(this);
+            return this;
         }
     }
-
     public class PropertyFilter<ClassType, RemapType> where ClassType : class
     {
-        internal PropertyFilter(PaginationFilter<ClassType, RemapType> LB)
-        {
-            PaginationFilter = LB;
-        }
+        public PropertyFilter(PaginationFilter<ClassType, RemapType> LB) => PaginationFilter = LB;
 
         /// <summary>
         /// Configura este filtro para utilização de valores nulos na query
@@ -1316,15 +1203,10 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public bool AcceptNullValues { get; set; } = false;
 
-        public bool CompareWith
-        {
-            get
-            {
-                return !Operator.StartsWithAny("!");
-            }
-        }
+        public bool CompareWith => !Operator.StartsWithAny("!");
 
         public FilterConditional Conditional { get; set; } = FilterConditional.Or;
+
 
         /// <summary>
         /// Indica se este filtro está ativo
@@ -1336,19 +1218,7 @@ namespace InnerLibs.LINQ
         /// Expressão binaria deste filtro, se ativo
         /// </summary>
         /// <returns></returns>
-        public BinaryExpression Filter
-        {
-            get
-            {
-                if (Enabled)
-                {
-                    var v = ValidValues();
-                    return LINQExtensions.GetOperatorExpression(Member, Operator.IfBlank(""), v, ValuesConditional);
-                }
-
-                return null;
-            }
-        }
+        public BinaryExpression Filter => Enabled ? LINQExtensions.GetOperatorExpression(Member, Operator.IfBlank(""), ValidValues(), ValuesConditional) : null;
 
         /// <summary>
         /// Comparara o valor do filtro com TRUE ou FALSE
@@ -1374,21 +1244,9 @@ namespace InnerLibs.LINQ
         /// Parametro da expressão lambda
         /// </summary>
         /// <returns></returns>
-        public ParameterExpression Parameter
-        {
-            get
-            {
-                return PaginationFilter.Parameter;
-            }
-        }
+        public ParameterExpression Parameter => PaginationFilter.Parameter;
 
-        public string PropertyName
-        {
-            get
-            {
-                return Member.ToString().GetAfter(".");
-            }
-        }
+        public string PropertyName => Member.ToString().GetAfter(".");
 
         /// <summary>
         /// Valores a serem testados por esse filtro
@@ -1433,7 +1291,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PropertyFilter<ClassType, RemapType> CompareFalse()
         {
-            if (CompareWith == true)
+            if (CompareWith)
             {
                 Negate();
             }
@@ -1738,10 +1596,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PropertySelector"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetMember<T>(Expression<Func<ClassType, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or)
-        {
-            return SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).JoinString("."), Conditional);
-        }
+        public PropertyFilter<ClassType, RemapType> SetMember<T>(Expression<Func<ClassType, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).JoinString("."), Conditional);
 
         /// <summary>
         /// Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão
@@ -1785,10 +1640,9 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PropertyFilter<ClassType, RemapType> SetValue<T>(T? Value) where T : struct
         {
-            if (Value.HasValue)
-                PropertyValues = (IEnumerable<IComparable>)new T[] { Value.Value }.AsEnumerable();
-            else
-                PropertyValues = (IEnumerable<IComparable>)new T[] { }.AsEnumerable();
+            PropertyValues = Value.HasValue
+                ? (IEnumerable<IComparable>)new T[] { Value.Value }.AsEnumerable()
+                : (IEnumerable<IComparable>)new T[] { }.AsEnumerable();
             return this;
         }
 
@@ -1836,10 +1690,7 @@ namespace InnerLibs.LINQ
             return PaginationFilter;
         }
 
-        public override string ToString()
-        {
-            return CreateQueryParameter();
-        }
+        public override string ToString() => CreateQueryParameter();
 
         /// <summary>
         /// Retorna apenas os valores validos para este filtro ( <see cref="AcceptNullValues"/> e

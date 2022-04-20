@@ -919,34 +919,14 @@ namespace InnerLibs.Printer
         /// </summary>
         /// <param name="Format"></param>
         /// <returns></returns>
-        public Printer WriteDate(DateTime DateAndTime, string Format = null)
-        {
-            if (Format.IsNotBlank())
-            {
-                return Write(DateAndTime.ToString(Format));
-            }
-            else
-            {
-                return Write(DateAndTime.ToString());
-            }
-        }
+        public Printer WriteDate(DateTime DateAndTime, string Format = null) => Format.IsNotBlank() ? Write(DateAndTime.ToString(Format)) : Write(DateAndTime.ToString());
 
         /// <summary>
         /// Escreve uma data usando uma Cultura especifica
         /// </summary>
         /// <param name="Format"></param>
         /// <returns></returns>
-        public Printer WriteDate(DateTime DateAndTime, CultureInfo Format = null)
-        {
-            if (Format != null)
-            {
-                return Write(DateAndTime.ToString(Format));
-            }
-            else
-            {
-                return Write(DateAndTime.ToString());
-            }
-        }
+        public Printer WriteDate(DateTime DateAndTime, CultureInfo Format = null) => Format != null ? Write(DateAndTime.ToString(Format)) : Write(DateAndTime.ToString());
 
         /// <summary>
         /// Escreve a data atual usando formato especifico

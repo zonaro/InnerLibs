@@ -81,7 +81,7 @@ namespace InnerLibs.RolePlayingGame
         /// Cria um novo dado de um tipo especifico
         /// </summary>
         /// <param name="Type">Tipo de dado</param>
-        public Dice(DiceType Type) : this(Type.ChangeType<int, DiceType>())
+        public Dice(DiceType Type) : this(Type.ToInt())
         {
         }
 
@@ -164,7 +164,7 @@ namespace InnerLibs.RolePlayingGame
         {
             get
             {
-                foreach (var i in InnerLibs.Misc.GetEnumValues<DiceType>())
+                foreach (var i in Misc.GetEnumValues<DiceType>())
                     if ((int)i == Faces.Count) return i;
                 return DiceType.Custom;
             }
@@ -323,7 +323,7 @@ namespace InnerLibs.RolePlayingGame
             return this;
         }
 
-        public override string ToString() => $"{this.Type}{$"{Value}".PrependIf(" - ", x => x.IsNotBlank())}";
+        public override string ToString() => $"{Type}{$"{Value}".PrependIf(" - ", x => x.IsNotBlank())}";
 
         /// <summary>
         /// Face de um dado. Pode ser viciada ou não

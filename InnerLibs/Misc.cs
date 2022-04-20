@@ -844,7 +844,7 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsNullableTypeOf<O, T>(this O Obj) => Obj.IsNullableTypeOf(typeof(T));
+        public static bool IsNullableTypeOf<T>(this object Obj) => Obj.IsNullableTypeOf(typeof(T));
 
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
@@ -1091,7 +1091,7 @@ namespace InnerLibs
         {
             if (Key != null)
             {
-                Dic[Key.ChangeType<KeyType, KT>()] = Value.ChangeType<ValueType, VT>();
+                Dic[Key.ChangeType<KeyType>()] = Value.ChangeType<ValueType>();
             }
 
             return Dic;
@@ -1105,11 +1105,11 @@ namespace InnerLibs
             {
                 if (Value != null)
                 {
-                    Dic[Key.ChangeType<KeyType, KT>()] = Value.ChangeType<ValueType, VT>();
+                    Dic[Key.ChangeType<KeyType>()] = Value.ChangeType<ValueType>();
                 }
                 else
                 {
-                    Dic.RemoveIfExist(Key.ChangeType<KeyType, KT>());
+                    Dic.RemoveIfExist(Key.ChangeType<KeyType>());
                 }
             }
 
@@ -1177,7 +1177,7 @@ namespace InnerLibs
             var novodic = Dic.Take(Top).ToDictionary();
             if (GroupOthersLabel != null)
             {
-                novodic[GroupOthersLabel] = Dic.Values.Skip(Top).Select(x => x.ChangeType<decimal, T>()).Sum().ChangeType<T, decimal>();
+                novodic[GroupOthersLabel] = Dic.Values.Skip(Top).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<T>();
             }
 
             return novodic;
@@ -1197,7 +1197,7 @@ namespace InnerLibs
             var novodic = Dic.Take(Top).ToDictionary();
             if (GroupOthersLabel != null)
             {
-                novodic[GroupOthersLabel] = (IEnumerable<T>)Dic.Values.Skip(Top).SelectMany(x => x).Select(x => x.ChangeType<decimal, T>()).Sum().ChangeType<T, decimal>();
+                novodic[GroupOthersLabel] = (IEnumerable<T>)Dic.Values.Skip(Top).SelectMany(x => x).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<T>();
             }
 
             return novodic;

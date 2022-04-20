@@ -490,7 +490,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
-        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace("'", "''").QuoteIf(AlsoQuoteText && Text.IsNotNumber(), '\'');
+        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace("'", "''").QuoteIf(AlsoQuoteText, '\'');
 
         /// <summary>
         /// Extrai emails de uma string
@@ -715,6 +715,26 @@ namespace InnerLibs
 
             return Document.ToString();
         }
+
+        /// <summary>
+        /// Formata um numero para CNPJ ou CNPJ se forem validos
+        /// </summary>
+        /// <param name="Document"></param>
+        /// <returns></returns>
+        public static string FormatCPFOrCNPJ(this string Document)
+        {
+            if (Document.IsValidCPF())
+            {
+                return Document.FormatCPF();
+            }
+
+            if (Document.IsValidCNPJ())
+            {
+                return Document.FormatCNPJ();
+            }
+            return Document;
+        }
+
 
         /// <summary>
         /// Extension Method para <see cref="String.Format(String,Object())"/>
@@ -1424,7 +1444,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static Type ParseDigits<Type>(this string Text, CultureInfo Culture = null) where Type : IConvertible => Text.ParseDigits(Culture).ChangeType<Type, string>();
+        public static Type ParseDigits<Type>(this string Text, CultureInfo Culture = null) where Type : IConvertible => Text.ParseDigits(Culture).ChangeType<Type>();
 
         /// <summary>
         /// </summary>
@@ -1512,7 +1532,7 @@ namespace InnerLibs
                 l = l.Floor();
                 if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLower().IsIn(PredefinedArrays.LowerVowels))
                 {
-                    l = l.ChangeType<int, decimal>() - 1;
+                    l = l.ToInt() - 1;
                 }
 
                 p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().JoinString().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).RemoveFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
@@ -2626,28 +2646,28 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
-        public static string ToFileSizeString(this double Size, int DecimalPlaces = -1) => Size.ChangeType<decimal, double>().ToFileSizeString(DecimalPlaces);
+        public static string ToFileSizeString(this double Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
-        public static string ToFileSizeString(this int Size, int DecimalPlaces = -1) => Size.ChangeType<decimal, int>().ToFileSizeString(DecimalPlaces);
+        public static string ToFileSizeString(this int Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
-        public static string ToFileSizeString(this long Size, int DecimalPlaces = -1) => Size.ChangeType<decimal, long>().ToFileSizeString(DecimalPlaces);
+        public static string ToFileSizeString(this long Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
-        public static string ToFileSizeString(this decimal Size, int DecimalPlaces = -1) => UnitConverter.CreateFileSizeConverter().Abbreviate(Size, DecimalPlaces);
+        public static string ToFileSizeString(this decimal Size, int DecimalPlaces = -1) => UnitConverter.CreateFileSizeConverter().Abreviate(Size, DecimalPlaces);
 
         public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
 

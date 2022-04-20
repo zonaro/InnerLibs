@@ -8,7 +8,7 @@ namespace InnerLibs.Console
     /// <summary>
     /// Métodos para manipulação de aplicações baseadas em Console (System.Console)
     /// </summary>
-    public static class ConsoleExtensions
+    public static class Cnsl
     {
         /// <summary>
         /// Toca um Beep
@@ -34,13 +34,13 @@ namespace InnerLibs.Console
         /// <summary>
         /// Pula uma ou mais linhas no console
         /// </summary>
-        /// <param name="Lines">Numero de linhas</param>
-        public static string ConsoleBreakLine(this string Text, int Lines = 1)
+        /// <param name="BreakLines">Numero de linhas</param>
+        public static string ConsoleBreakLine(this string Text, int BreakLines = 1)
         {
-            while (Lines > 0)
+            while (BreakLines > 0)
             {
                 System.Console.WriteLine(string.Empty);
-                Lines = Lines - 1;
+                BreakLines = BreakLines - 1;
             }
             return Text;
         }
@@ -59,7 +59,7 @@ namespace InnerLibs.Console
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
-        public static string ConsoleWrite(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 0) => Text.ConsoleWrite(CustomColoredWords, StringComparison.InvariantCultureIgnoreCase, Lines);
+        public static string ConsoleWrite(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int BreakLines = 0) => Text.ConsoleWrite(CustomColoredWords, StringComparison.InvariantCultureIgnoreCase, BreakLines);
 
         /// <summary>
         /// Escreve no console colorindo palavras especificas
@@ -114,20 +114,16 @@ namespace InnerLibs.Console
         /// <param name="Exception">Texto</param>
         /// <param name="Message">Mensagem Adicional de erro</param>
         /// <param name="Color">Cor</param>
-        public static T ConsoleWriteError<T>(this T Exception, string Message, string Separator, ConsoleColor Color = ConsoleColor.Red, int Lines = 1) where T : Exception
-        {
-            var ex = new Exception(Message.IfBlank("Error"), Exception);
-            return (T)ex.ConsoleWriteError(Separator, Color, Lines);
-        }
+        public static T ConsoleWriteError<T>(this T Exception, string Message, string Separator, ConsoleColor Color = ConsoleColor.Red, int BreakLines = 1) where T : Exception => (T)new Exception(Message.IfBlank("Error"), Exception).ConsoleWriteError(Separator, Color, BreakLines);
 
         /// <summary>
         /// Escreve o texto de uma exception no console
         /// </summary>
         /// <param name="Exception">Texto</param>
         /// <param name="Color">Cor</param>
-        public static T ConsoleWriteError<T>(this T Exception, string Separator, ConsoleColor Color = ConsoleColor.Red, int Lines = 1) where T : Exception
+        public static T ConsoleWriteError<T>(this T Exception, string Separator, ConsoleColor Color = ConsoleColor.Red, int BreakLines = 1) where T : Exception
         {
-            Exception.ToFullExceptionString(Separator).ConsoleWrite(Color, Lines.SetMinValue(1));
+            Exception.ToFullExceptionString(Separator).ConsoleWrite(Color, BreakLines.SetMinValue(1));
             return Exception;
         }
 
@@ -144,12 +140,12 @@ namespace InnerLibs.Console
         /// <summary>
         /// Escreve o texto de uma exception no console
         /// </summary>
-        public static T ConsoleWriteError<T>(this T Exception, ConsoleColor Color, int Lines = 1) where T : Exception => Exception.ConsoleWriteError(" >> ", Color, Lines);
+        public static T ConsoleWriteError<T>(this T Exception, ConsoleColor Color, int BreakLines = 1) where T : Exception => Exception.ConsoleWriteError(" >> ", Color, BreakLines);
 
         /// <summary>
-        /// Escreve o texto de uma exception no console
+        /// Escreve o texto de uma <typeparamref name="T"/> no console
         /// </summary>
-        public static T ConsoleWriteError<T>(this T Exception, int Lines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, Lines);
+        public static T ConsoleWriteError<T>(this T Exception, int BreakLines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, BreakLines);
 
         /// <summary>
         /// Escreve uma data com descrição no console e quebra 1 ou mais linhas
@@ -166,20 +162,20 @@ namespace InnerLibs.Console
         /// <param name="Text">Texto</param>
         /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
 
-        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int Lines = 1) => Text.ConsoleWrite(CustomColoredWords, Lines.SetMinValue(1));
+        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int BreakLines = 1) => Text.ConsoleWrite(CustomColoredWords, BreakLines.SetMinValue(1));
 
         /// <summary>
         /// Escreve uma linha no console usando uma cor especifica
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="Color">Cor</param>
-        public static string ConsoleWriteLine(this string Text, ConsoleColor Color, int Lines = 1) => Text.ConsoleWrite(Color, Lines.SetMinValue(1));
+        public static string ConsoleWriteLine(this string Text, ConsoleColor Color, int BreakLines = 1) => Text.ConsoleWrite(Color, BreakLines.SetMinValue(1));
 
         /// <summary>
         /// Escreve uma linha no console e pula um numero de linhas
         /// </summary>
         /// <param name="Text">Texto</param>
-        public static string ConsoleWriteLine(this string Text, int Lines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, Lines);
+        public static string ConsoleWriteLine(this string Text, int BreakLines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, BreakLines);
 
         /// <summary>
         /// Le o proximo caractere inserido no console pelo usuário
@@ -193,10 +189,6 @@ namespace InnerLibs.Console
         /// <returns></returns>
         public static ConsoleKey ReadConsoleKey() => System.Console.ReadKey().Key;
 
-        /// <summary>
-        /// Le a proxima linha inserida no console pelo usuário
-        /// </summary>
-        /// <returns></returns>
-        public static string ReadLine() => System.Console.ReadLine();
+   
     }
 }

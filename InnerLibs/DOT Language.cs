@@ -38,7 +38,7 @@ namespace InnerLibs.DOTLanguage
                 if (val.IsIn(new[] { "True", "False" }))
                     val = val.ToLower();
                 if (val.IsNumber())
-                    val = val.ChangeType<decimal, string>().ToString("00,00");
+                    val = val.ChangeType<decimal>().ToString("00,00");
                 dotstring += prop.Key + "=" + val + " ";
             }
 
