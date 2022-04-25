@@ -1349,7 +1349,7 @@ namespace InnerLibs.MicroORM
             {
                 if (SQL.ArgumentCount > 0)
                 {
-                    string CommandText = SQL.Format;
+                    string CommandText = SQL.Format.AdjustBlankSpaces();
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);

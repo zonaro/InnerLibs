@@ -123,7 +123,11 @@ namespace InnerLibs.Console
         /// <param name="Color">Cor</param>
         public static T ConsoleWriteError<T>(this T Exception, string Separator, ConsoleColor Color = ConsoleColor.Red, int BreakLines = 1) where T : Exception
         {
-            Exception.ToFullExceptionString(Separator).ConsoleWrite(Color, BreakLines.SetMinValue(1));
+            if (Exception != null)
+            {
+                Exception.ToFullExceptionString(Separator).ConsoleWrite(Color, BreakLines.SetMinValue(1));
+
+            }
             return Exception;
         }
 
@@ -189,6 +193,6 @@ namespace InnerLibs.Console
         /// <returns></returns>
         public static ConsoleKey ReadConsoleKey() => System.Console.ReadKey().Key;
 
-   
+
     }
 }

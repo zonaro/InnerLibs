@@ -15,6 +15,30 @@ namespace InnerLibs
 {
     public static class Misc
     {
+
+        /// <summary>
+        /// Run a <see cref="Action"/> inside a Try-catch block and return a <see cref="Exception"/> if fail
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public static Exception TryExecute(Action action)
+        {
+            try
+            {
+                if (action != null)
+                {
+
+                    action();
+                }
+                return null;
+            }
+            catch (Exception exx)
+            {
+                return exx;
+
+            }
+        }
+
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
         /// </summary>
