@@ -34,7 +34,10 @@ namespace InnerLibs
             return Text.Split(new[] { "/", @"\" }, StringSplitOptions.RemoveEmptyEntries).Select((x, i) =>
             {
                 if (i == 0 && x.Length == 2 && x.EndsWith(":"))
+                {
                     return x;
+                }
+
                 return x.ToFriendlyPathName();
             }).JoinString(InvertedBar.AsIf(@"\", "/"));
         }
@@ -56,7 +59,10 @@ namespace InnerLibs
                 Text = Text.Replace(":", ": ");
                 Text = Text.Replace(";", "; ");
                 foreach (var item in PredefinedArrays.AlphaChars)
+                {
                     Text = Text.SensitiveReplace($" -{item}", $" - {item}");
+                }
+
                 Text = Text.Replace("- ", " - ");
                 Text = Text.Replace("\"", " \"");
 
@@ -143,15 +149,15 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="AppendText">Texto adicional</param>
-        public static string AppendLine(this string Text, string AppendText)
-        {
-            return Text.Append(AppendText).Append(Environment.NewLine);
-        }
+        public static string AppendLine(this string Text, string AppendText) => Text.Append(AppendText).Append(Environment.NewLine);
 
         public static string AppendUrlParameter(this string Url, string Key, params string[] Value)
         {
             foreach (var v in Value ?? Array.Empty<string>())
+            {
                 Url += string.Format("&{0}={1}", Key, v.IfBlank(""));
+            }
+
             return Url;
         }
 
@@ -165,7 +171,10 @@ namespace InnerLibs
         {
             Test = Test ?? (x => false);
             while (Test(Text))
+            {
                 Text = Text.Append(AppendText);
+            }
+
             return Text;
         }
 
@@ -177,7 +186,10 @@ namespace InnerLibs
         public static string ApplySpaceOnWrapChars(this string Text)
         {
             foreach (var c in PredefinedArrays.WordWrappers)
+            {
                 Text = Text.Replace(c, " " + c + " ");
+            }
+
             return Text;
         }
 
@@ -197,12 +209,21 @@ namespace InnerLibs
             }
 
             for (int i = 0, loopTo = Lines.Count - 1; i <= loopTo; i++)
+            {
                 Lines[i] = Lines[i].PadRight(charcount);
+            }
+
             for (int i = 0, loopTo1 = Lines.Count - 1; i <= loopTo1; i++)
+            {
                 Lines[i] = $"* {Lines[i]} *";
+            }
+
             charcount = Lines.Max(x => x.Length);
             while (linha_longa.Length < charcount)
+            {
                 linha_longa += "* ";
+            }
+
             linha_longa = linha_longa.Trim();
             Lines.Insert(0, linha_longa);
             Lines.Add(linha_longa);
@@ -247,7 +268,10 @@ namespace InnerLibs
                 {
                     string censored = "";
                     for (int index = 1, loopTo = bad.Length; index <= loopTo; index++)
+                    {
                         censored += CensorshipCharacter;
+                    }
+
                     for (int index = 0, loopTo1 = words.Length - 1; index <= loopTo1; index++)
                     {
                         if ((words[index].RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLower() ?? "") == (bad.RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLower() ?? ""))
@@ -415,7 +439,10 @@ namespace InnerLibs
         public static Dictionary<string, long> CountWords(this string Text, bool RemoveDiacritics = true, string[] Words = null)
         {
             if (Words == null)
+            {
                 Words = Array.Empty<string>();
+            }
+
             var palavras = Text.Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToArray();
             if (Words.Any())
             {
@@ -430,7 +457,10 @@ namespace InnerLibs
 
             var dic = palavras.DistinctCount();
             foreach (var w in Words.Where(x => !dic.Keys.Contains(x)))
+            {
                 dic.Add(w, 0L);
+            }
+
             return dic;
         }
 
@@ -508,7 +538,10 @@ namespace InnerLibs
         {
             var textos = new List<string>();
             foreach (Match m in new Regex(Regex, RegexOptions).Matches(Text))
+            {
                 textos.Add(m.Value);
+            }
+
             return textos.ToArray();
         }
 
@@ -555,7 +588,10 @@ namespace InnerLibs
             {
                 sentences = Text.Split(dot, StringSplitOptions.None).ToList();
                 for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
+                {
                     sentences[index] = "" + sentences[index].Trim().GetFirstChars(1).ToUpper() + sentences[index].RemoveFirstChars(1);
+                }
+
                 Text = sentences.JoinString(dot);
             }
 
@@ -659,7 +695,9 @@ namespace InnerLibs
             if (CNPJ.IsValidCNPJ())
             {
                 if (CNPJ.IsNumber())
+                {
                     CNPJ = CNPJ.ToLong().FormatCNPJ();
+                }
             }
             else
             {
@@ -686,7 +724,9 @@ namespace InnerLibs
             if (CPF.IsValidCPF())
             {
                 if (CPF.IsNumber())
+                {
                     CPF = CPF.ToLong().FormatCPF();
+                }
             }
             else
             {
@@ -735,7 +775,6 @@ namespace InnerLibs
             return Document;
         }
 
-
         /// <summary>
         /// Extension Method para <see cref="String.Format(String,Object())"/>
         /// </summary>
@@ -753,7 +792,10 @@ namespace InnerLibs
         public static string GetAfter(this string Text, string Value, bool WhiteIfNotFound = false)
         {
             if (string.IsNullOrEmpty(Value))
+            {
                 Value = "";
+            }
+
             if (string.IsNullOrEmpty(Text) || Text.IndexOf(Value) == -1)
             {
                 if (WhiteIfNotFound)
@@ -782,7 +824,10 @@ namespace InnerLibs
             string regx = Before.RegexEscape() + "(.*?)" + After.IfBlank(Before).RegexEscape();
             var mm = new Regex(regx, (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Matches(Text);
             foreach (Match a in mm)
+            {
                 lista.Add(a.Value.RemoveFirstEqual(Before).RemoveLastEqual(After));
+            }
+
             return lista.ToArray();
         }
 
@@ -795,7 +840,10 @@ namespace InnerLibs
         public static string GetBefore(this string Text, string Value, bool WhiteIfNotFound = false)
         {
             if (Value == null)
+            {
                 Value = "";
+            }
+
             if (Text == null || Text.IndexOf(Value) == -1)
             {
                 if (WhiteIfNotFound)
@@ -998,7 +1046,10 @@ namespace InnerLibs
         public static string GetRelativeURL(this string URL, bool WithQueryString = true)
         {
             if (URL.IsURL())
+            {
                 return new Uri(URL).GetRelativeURL(WithQueryString);
+            }
+
             return null;
         }
 
@@ -1011,7 +1062,11 @@ namespace InnerLibs
         {
             var txt = new List<string>();
             var palavras = Text.AdjustWhiteSpaces().FixHTMLBreakLines().ToLower().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            foreach (var w in palavras) txt.Add(w);
+            foreach (var w in palavras)
+            {
+                txt.Add(w);
+            }
+
             return txt.Distinct().OrderBy(x => x);
         }
 
@@ -1094,7 +1149,10 @@ namespace InnerLibs
             string result = formatString;
             if (attributes != null && formatString != null)
             {
-                foreach (string attributeKey in attributes.Keys) result = result.InjectSingleValue(attributeKey, attributes[attributeKey], IsSQL);
+                foreach (string attributeKey in attributes.Keys)
+                {
+                    result = result.InjectSingleValue(attributeKey, attributes[attributeKey], IsSQL);
+                }
             }
 
             return result;
@@ -1220,7 +1278,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
         {
-            if (IgnoreWhiteSpaces) Text = Text.RemoveAny(" ");
+            if (IgnoreWhiteSpaces)
+            {
+                Text = Text.RemoveAny(" ");
+            }
+
             return Text == Text.ToCharArray().Reverse().JoinString();
         }
 
@@ -1286,9 +1348,14 @@ namespace InnerLibs
 
             // Step 2
             for (int i = 0, loopTo = n; i <= loopTo; i++)
+            {
                 d[i, 0] = i;
+            }
+
             for (int j = 0, loopTo1 = m; j <= loopTo1; j++)
+            {
                 d[0, j] = j;
+            }
 
             // Step 3
             for (int i = 1, loopTo2 = n; i <= loopTo2; i++)
@@ -1383,15 +1450,12 @@ namespace InnerLibs
         }
 
         /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-
         public static string MaskTelephoneNumber(this long Number) => Number.ToString().MaskTelephoneNumber();
 
         /// <inheritdoc cref="MaskTelephoneNumber(string)"/>
-
         public static string MaskTelephoneNumber(this int Number) => Number.ToString().MaskTelephoneNumber();
 
         /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-
         public static string MaskTelephoneNumber(this decimal Number) => Number.ToString().MaskTelephoneNumber();
 
         /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
@@ -1406,7 +1470,10 @@ namespace InnerLibs
         {
             var l = new List<string>();
             foreach (var item in Text.Split(" ", StringSplitOptions.RemoveEmptyEntries))
+            {
                 l.Add(Regex.Replace(item, "[^A-Za-z0-9]", ""));
+            }
+
             return l.JoinString(" ");
         }
 
@@ -1427,7 +1494,10 @@ namespace InnerLibs
             Culture = Culture ?? CultureInfo.CurrentCulture;
             string strDigits = "";
             if (string.IsNullOrEmpty(Text))
+            {
                 return strDigits;
+            }
+
             foreach (char c in Text.ToCharArray())
             {
                 if (char.IsDigit(c) || c == Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator))
@@ -1447,26 +1517,31 @@ namespace InnerLibs
         public static Type ParseDigits<Type>(this string Text, CultureInfo Culture = null) where Type : IConvertible => Text.ParseDigits(Culture).ChangeType<Type>();
 
         /// <summary>
+        /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>
         /// </summary>
-        /// <param name="querystring"></param>
+        /// <param name="QueryString">string contendo uma querystring valida</param>
+        /// <param name="Keys">Quando especificado, inclui apenas estas entradas no <see cref="NameValueCollection"/> </param>
         /// <returns></returns>
-        public static NameValueCollection ParseQueryString(this string Querystring)
+        public static NameValueCollection ParseQueryString(this string QueryString, params string[] Keys)
         {
+            Keys = Keys ?? Array.Empty<string>();
             var queryParameters = new NameValueCollection();
-            var querySegments = Querystring.Split('&');
+            var querySegments = QueryString.Split('&');
             foreach (string segment in querySegments)
             {
                 var parts = segment.Split('=');
                 if (parts.Any())
                 {
-                    string key = parts.First().Trim(new char[] { '?', ' ' });
+                    string key = parts.First().RemoveFirstAny(" ", "?");
                     string val = "";
                     if (parts.Skip(1).Any())
                     {
-                        val = parts[1].Trim();
+                        val = parts[1].Trim().UrlDecode();
                     }
-
-                    queryParameters.Add(key, val.UrlDecode());
+                    if (Keys.Contains(key) || Keys.Any() == false)
+                    {
+                        queryParameters.Add(key, val);
+                    }
                 }
             }
 
@@ -1653,7 +1728,10 @@ namespace InnerLibs
             Test = Test ?? (x => false);
 
             while (Test(Text))
+            {
                 Text = Text.Prepend(PrependText);
+            }
+
             return Text;
         }
 
@@ -1680,7 +1758,10 @@ namespace InnerLibs
                 string str = PluralText.Format.QuantifyText(PluralText.GetArguments().FirstOrDefault(), ref numero);
                 str = str.Replace("{0}", numero.ToString());
                 for (int index = 1, loopTo = PluralText.GetArguments().Count() - 1; index <= loopTo; index++)
+                {
                     str = str.Replace($"{{{index}}}", Convert.ToString(PluralText.GetArgument(index)));
+                }
+
                 return str;
             }
 
@@ -1929,7 +2010,9 @@ namespace InnerLibs
                     {
                         re = re.RemoveFirstEqual(item);
                         if (!ContinuouslyRemove)
+                        {
                             return re;
+                        }
                     }
                 }
             }
@@ -2026,7 +2109,9 @@ namespace InnerLibs
                     {
                         re = re.RemoveLastEqual(item);
                         if (!ContinuouslyRemove)
+                        {
                             return re;
+                        }
                     }
                 }
             }
@@ -2198,7 +2283,9 @@ namespace InnerLibs
             if (Dic != null && Text.IsNotBlank())
             {
                 foreach (var p in Dic)
+                {
                     Text = Text.Replace(p.Key, p.Value);
+                }
             }
 
             return Text;
@@ -2224,7 +2311,10 @@ namespace InnerLibs
                         case object _ when typeof(T).IsAssignableFrom(typeof(Array)):
                             {
                                 foreach (var item in Converter.ForceArray(p.Value, typeof(T)))
+                                {
                                     Text = Text.ReplaceMany(p.Key, Converter.ForceArray(p.Value, typeof(T)).Cast<string>().ToArray());
+                                }
+
                                 break;
                             }
 
@@ -2248,7 +2338,9 @@ namespace InnerLibs
             if (Dic != null && Text.IsNotBlank())
             {
                 foreach (var p in Dic)
+                {
                     Text = Text.SensitiveReplace(p.Key, p.Value);
+                }
             }
 
             return Text;
@@ -2262,7 +2354,9 @@ namespace InnerLibs
             if (Dic != null && Text.IsNotBlank())
             {
                 foreach (var p in Dic)
+                {
                     Text = Text.SensitiveReplace(p.Value, p.Key.ToArray(), Comparison);
+                }
             }
 
             return Text;
@@ -2280,9 +2374,14 @@ namespace InnerLibs
                     var froms = p.Key.ToList();
                     var tos = p.Value.ToList();
                     while (froms.Count > tos.Count)
+                    {
                         tos.Add(string.Empty);
+                    }
+
                     for (int i = 0, loopTo = froms.Count - 1; i <= loopTo; i++)
+                    {
                         Text = Text.SensitiveReplace(froms[i], tos[i], Comparison);
+                    }
                 }
             }
 
@@ -2318,7 +2417,11 @@ namespace InnerLibs
         public static string ReplaceMany(this string Text, string NewValue, params string[] OldValues)
         {
             Text = Text ?? "";
-            foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0)) Text = Text.Replace(word, NewValue);
+            foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0))
+            {
+                Text = Text.Replace(word, NewValue);
+            }
+
             return Text;
         }
 
@@ -2529,7 +2632,10 @@ namespace InnerLibs
             else
             {
                 if (TrimCarriage)
+                {
                     Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
+                }
+
                 return $"{Text.GetFirstChars(TextLength)}{Ellipsis}";
             }
         }
@@ -4056,9 +4162,13 @@ namespace InnerLibs
         public static string ToPhrase(this IEnumerable<string> Texts, string And = "and")
         {
             if (Texts != null && Texts.Count() > 1)
+            {
                 return AdjustBlankSpaces($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
+            }
             else
+            {
                 return AdjustBlankSpaces(Texts?.FirstOrDefault());
+            }
         }
 
         /// <summary>
@@ -4078,9 +4188,15 @@ namespace InnerLibs
         public static string ToProperCase(this string Text, bool ForceCase = false)
         {
             if (Text.IsBlank())
+            {
                 return Text;
+            }
+
             if (ForceCase)
+            {
                 Text = Text.ToLower();
+            }
+
             var l = Text.Split(" ", StringSplitOptions.None).ToList();
             for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
             {
@@ -4240,7 +4356,9 @@ namespace InnerLibs
             if ($"{OpenQuoteChar}".RemoveNonPrintable().IsBlank())
             {
                 while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToArray()))
+                {
                     Text = Text.TrimAny(ContinuouslyRemove, PredefinedArrays.WordWrappers.ToArray());
+                }
             }
             else
             {
@@ -4280,8 +4398,9 @@ namespace InnerLibs
         public static string UrlEncode(this string Text)
         {
             if (Text.IsNotBlank())
-
+            {
                 return System.Net.WebUtility.UrlEncode(Text);
+            }
 
             return "";
         }

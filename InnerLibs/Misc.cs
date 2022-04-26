@@ -15,30 +15,6 @@ namespace InnerLibs
 {
     public static class Misc
     {
-
-        /// <summary>
-        /// Run a <see cref="Action"/> inside a Try-catch block and return a <see cref="Exception"/> if fail
-        /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public static Exception TryExecute(Action action)
-        {
-            try
-            {
-                if (action != null)
-                {
-
-                    action();
-                }
-                return null;
-            }
-            catch (Exception exx)
-            {
-                return exx;
-
-            }
-        }
-
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
         /// </summary>
@@ -148,10 +124,30 @@ namespace InnerLibs
         /// <summary>
         /// Converte um objeto para um <see cref="Dictionary"/>
         /// </summary>
-        /// <typeparam name="Type">Tipo da classe</typeparam>
-        /// <param name="Obj">Object</param>
+        /// <typeparam name="Type">Tipo da classe,<see cref="NameValueCollection"/> ou <see cref="Dictionary{TKey, TValue}"/></typeparam>
+        /// <param name="Obj">valor do objeto</param>
+        /// <param name="Keys">Chaves incluidas no dicionario final</param>
         /// <returns></returns>
-        public static Dictionary<string, object> CreateDictionary<Type>(this Type Obj) => Obj != null ? typeof(Type).GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Obj, null)) : new Dictionary<string, object>();
+        public static Dictionary<string, object> CreateDictionary<Type>(this Type Obj, params string[] Keys)
+        {
+            if (Obj != null)
+            {
+                Keys = Keys ?? Array.Empty<string>();
+                if (Obj.IsDictionary())
+                {
+                    return ((Dictionary<string, object>)(object)Obj).ToDictionary(Keys);
+                }
+                else if (Obj.IsTypeOf<NameValueCollection>())
+                {
+                    return ((NameValueCollection)(object)Obj).ToDictionary(Keys);
+                }
+                else
+                {
+                    return Obj.GetTypeOf().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(x => (Keys.Any() == false || x.Name.IsLikeAny(Keys)) && x.CanRead).ToDictionary(prop => prop.Name, prop => prop.GetValue(Obj, null));
+                }
+            }
+            return new Dictionary<string, object>();
+        }
 
         /// <summary>
         /// Converte uma classe para um <see cref="Dictionary"/>
@@ -171,7 +167,10 @@ namespace InnerLibs
         {
             var g = Guid.NewGuid();
             if (Source.IsNotBlank() || !Guid.TryParse(Source, out g))
+            {
                 g = Guid.NewGuid();
+            }
+
             return g;
         }
 
@@ -281,7 +280,11 @@ namespace InnerLibs
         public static Dictionary<PropT, long> DistinctCountTop<Type, PropT>(this IEnumerable<Type> Arr, Func<Type, PropT> Prop, int Top, PropT Others)
         {
             var a = Arr.DistinctCount(Prop);
-            if (Top < 1) return a;
+            if (Top < 1)
+            {
+                return a;
+            }
+
             var topN = a.TakeTop(Top, Others);
             return topN;
         }
@@ -485,7 +488,9 @@ namespace InnerLibs
                 values = new Hashtable();
                 var props = TypeDescriptor.GetProperties(properties);
                 foreach (PropertyDescriptor prop in props)
+                {
                     values.Add(prop.Name, prop.GetValue(properties));
+                }
             }
 
             return values;
@@ -526,14 +531,19 @@ namespace InnerLibs
         {
             string txt = null;
             if (Assembly != null && FileName.IsNotBlank())
+            {
                 using (var x = Assembly.GetManifestResourceStream(FileName))
                 {
                     if (x != null)
+                    {
                         using (var r = new StreamReader(x))
                         {
                             txt = r.ReadToEnd();
-                        };
+                        }
+                    };
                 }
+            }
+
             return txt;
         }
 
@@ -662,11 +672,20 @@ namespace InnerLibs
                 for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
                 {
                     if (PropertyName[i] != '.')
+                    {
                         current += Convert.ToString(PropertyName[i]);
+                    }
+
                     if (PropertyName[i] == '(')
+                    {
                         stop = true;
+                    }
+
                     if (PropertyName[i] == ')')
+                    {
                         stop = false;
+                    }
+
                     if (PropertyName[i] == '.' && !stop || i == PropertyName.Length - 1)
                     {
                         parts.Add(current.ToString());
@@ -747,8 +766,14 @@ namespace InnerLibs
         public static bool IsBetweenOrEqual(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
             FixOrder(ref MinValue, ref MaxValue);
-            if (MinValue == MaxValue) return Value == MinValue;
-            else return Value.IsLessThanOrEqual(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
+            if (MinValue == MaxValue)
+            {
+                return Value == MinValue;
+            }
+            else
+            {
+                return Value.IsLessThanOrEqual(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
+            }
         }
 
         /// <summary>
@@ -762,8 +787,14 @@ namespace InnerLibs
         public static bool IsBetweenOrEqualExcludeMax(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
             FixOrder(ref MinValue, ref MaxValue);
-            if (MinValue == MaxValue) return Value == MinValue;
-            else return Value.IsLessThan(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
+            if (MinValue == MaxValue)
+            {
+                return Value == MinValue;
+            }
+            else
+            {
+                return Value.IsLessThan(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
+            }
         }
 
         /// <summary>
@@ -912,12 +943,6 @@ namespace InnerLibs
 
         public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
 
-        /// <summary>
-        /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
-        /// </summary>
-        /// <param name="Collections"></param>
-        /// <returns></returns>
-
         public static NameValueCollection Merge(this IEnumerable<NameValueCollection> Collections)
         {
             Collections = Collections ?? new List<NameValueCollection>();
@@ -927,11 +952,20 @@ namespace InnerLibs
                 case 1: return new NameValueCollection(Collections.FirstOrDefault() ?? new NameValueCollection());
                 default:
                     var all = new NameValueCollection(Collections.FirstOrDefault() ?? new NameValueCollection());
-                    foreach (var i in Collections) all.Add(i);
+                    foreach (var i in Collections)
+                    {
+                        all.Add(i);
+                    }
+
                     return all;
             }
         }
 
+        /// <summary>
+        /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
+        /// </summary>
+        /// <param name="Collections"></param>
+        /// <returns></returns>
         /// <summary>
         /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
         /// </summary>
@@ -1070,7 +1104,10 @@ namespace InnerLibs
         /// <param name="Keys"></param>
         public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, params TKey[] Keys)
         {
-            foreach (var k in (Keys ?? Array.Empty<TKey>()).Where(x => dic.ContainsKey(x))) dic.Remove(k);
+            foreach (var k in (Keys ?? Array.Empty<TKey>()).Where(x => dic.ContainsKey(x)))
+            {
+                dic.Remove(k);
+            }
         }
 
         /// <summary>
@@ -1197,7 +1234,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static Dictionary<K, T> TakeTop<K, T>(this IDictionary<K, T> Dic, int Top, K GroupOthersLabel) where T : IConvertible
         {
-            if (Top < 1) return (Dictionary<K, T>)Dic;
+            if (Top < 1)
+            {
+                return (Dictionary<K, T>)Dic;
+            }
+
             var novodic = Dic.Take(Top).ToDictionary();
             if (GroupOthersLabel != null)
             {
@@ -1217,7 +1258,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static Dictionary<K, IEnumerable<T>> TakeTop<K, T>(this IDictionary<K, IEnumerable<T>> Dic, int Top, K GroupOthersLabel)
         {
-            if (Top < 1) return (Dictionary<K, IEnumerable<T>>)Dic;
+            if (Top < 1)
+            {
+                return (Dictionary<K, IEnumerable<T>>)Dic;
+            }
+
             var novodic = Dic.Take(Top).ToDictionary();
             if (GroupOthersLabel != null)
             {
@@ -1272,7 +1317,11 @@ namespace InnerLibs
                 HeaderProp.Method.GetParameters().First().Name
             };
             Groups.Values.MergeKeys();
-            foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x)) header.Add(HeaderProp(h));
+            foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x))
+            {
+                header.Add(HeaderProp(h));
+            }
+
             lista.Add(header);
             lista.AddRange(Groups.Select(x =>
             {
@@ -1280,7 +1329,11 @@ namespace InnerLibs
                 {
                     x.Key // GroupKey
                 };
-                foreach (var item in x.Value.OrderBy(k => k.Key).Select(v => v.Value)) l.Add(item); // SubGroupValue
+                foreach (var item in x.Value.OrderBy(k => k.Key).Select(v => v.Value))
+                {
+                    l.Add(item); // SubGroupValue
+                }
+
                 return l;
             }));
             return lista;
@@ -1291,6 +1344,28 @@ namespace InnerLibs
         /// arrays formando uma tabela
         /// </summary>
         public static IEnumerable<object[]> ToTableArray<GroupKeyType, GroupValueType>(this Dictionary<GroupKeyType, GroupValueType> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
+
+        /// <summary>
+        /// Run a <see cref="Action"/> inside a Try-catch block and return a <see cref="Exception"/>
+        /// if fail
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public static Exception TryExecute(Action action)
+        {
+            try
+            {
+                if (action != null)
+                {
+                    action();
+                }
+                return null;
+            }
+            catch (Exception exx)
+            {
+                return exx;
+            }
+        }
 
         /// <summary>
         /// Metodo de extensão para utilizar qualquer objeto usando FluentAPI

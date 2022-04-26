@@ -98,6 +98,12 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
 
+        public static string AsSQLColumns(this IDictionary<string, object> obj, char Quote = '[') => obj.Select(x => x.Key.ToString().Quote(Quote)).SelectJoinString(",");
+
+        public static string AsSQLColumns<T>(this T obj, char Quote = '[') where T : class => obj.GetNullableTypeOf().GetProperties().Select(x => x.Name.Quote(Quote)).SelectJoinString(",");
+
+        public static string AsSQLColumns(this NameValueCollection obj, char Quote = '[', params string[] Keys) => obj.ToDictionary(Keys).AsSQLColumns(Quote);
+
         /// <summary>
         /// Valida se uma conexao e um comando nao sao nulos. Valida se o texto do comando esta em
         /// branco e associa este comando a conexao especifica. Escreve o comando no <see
@@ -110,9 +116,17 @@ namespace InnerLibs.MicroORM
         public static DbCommand BeforeRun(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
         {
             Connection = Connection ?? Command?.Connection;
-            if (Command == null || Command.CommandText.IsBlank()) throw new ArgumentException("Command is null or blank");
+            if (Command == null || Command.CommandText.IsBlank())
+            {
+                throw new ArgumentException("Command is null or blank");
+            }
+
             Command.Connection = Connection ?? throw new ArgumentException("Connection is null");
-            if (!Connection.IsOpen()) Connection.Open();
+            if (!Connection.IsOpen())
+            {
+                Connection.Open();
+            }
+
             return Command.LogCommand(LogWriter);
         }
 
@@ -317,24 +331,19 @@ namespace InnerLibs.MicroORM
         /// <summary>
         /// Cria um comando de INSERT para o objeto do tipo <typeparamref name="T"/>
         /// </summary>
+        /// <remarks>
+        /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
+        /// cref="Dictionary{TKey, TValue}"/>
+        /// </remarks>
         public static DbCommand CreateINSERTCommand<T>(this DbConnection Connection, T obj, string TableName = null, DbTransaction Transaction = null) where T : class
         {
             var d = typeof(T);
             var dic = new Dictionary<string, object>();
             if (obj != null && Connection != null)
             {
-                if (obj.IsDictionary())
-                {
-                    dic = (Dictionary<string, object>)(object)obj;
-                }
-                else if (obj.IsNullableTypeOf<NameValueCollection>())
-                {
-                    dic = ((NameValueCollection)(object)obj).ToDictionary();
-                }
-                else
-                {
-                    dic = obj.CreateDictionary();
-                }
+
+                dic = obj.CreateDictionary();
+
 
                 var cmd = Connection.CreateCommand();
                 cmd.CommandText = string.Format($"INSERT INTO " + TableName.IfBlank(d.Name) + " ({0}) values ({1})", dic.Keys.JoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
@@ -427,13 +436,17 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Cria um comando de INSERT para o objeto do tipo <typeparamref name="T"/>
+        /// Cria um comando de UPDATE para o objeto do tipo <typeparamref name="T"/>
         /// </summary>
-        public static DbCommand CreateUPDATECommand<T>(this DbConnection Connection, T obj, string WhereClausule, string TableName = null, DbTransaction Transaction = null) where T : class
+        /// <remarks>
+        /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
+        /// cref="Dictionary{TKey, TValue}"/>
+        /// </remarks>
+        public static DbCommand CreateUPDATECommand<T>(this DbConnection Connection, T obj, FormattableString WhereClausule, string TableName = null, DbTransaction Transaction = null) where T : class
         {
             var d = typeof(T);
             Dictionary<string, object> dic;
-            WhereClausule = WhereClausule.IfBlank("").RemoveFirstEqual("WHERE").Trim();
+
 
             if (obj != null && Connection != null)
             {
@@ -451,10 +464,10 @@ namespace InnerLibs.MicroORM
                 }
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"UPDATE " + TableName.IfBlank(d.Name) + " set" + Environment.NewLine);
+                cmd.CommandText = $"UPDATE " + TableName.IfBlank(d.Name) + " set" + Environment.NewLine;
                 foreach (var k in dic.Keys)
                 {
-                    cmd.CommandText += $"set {k} = @__{k}, {Environment.NewLine}";
+                    cmd.CommandText += $"{k} = @__{k}, {Environment.NewLine}";
                     var param = cmd.CreateParameter();
                     param.ParameterName = $"__{k}";
                     param.Value = dic.GetValueOr(k, DBNull.Value);
@@ -465,7 +478,7 @@ namespace InnerLibs.MicroORM
 
                 if (WhereClausule.IsNotBlank())
                 {
-                    cmd.CommandText += $"{Environment.NewLine} WHERE {WhereClausule}";
+                    cmd.CommandText += $"{Environment.NewLine} {WhereClausule.ToSQLString().PrependIf("WHERE", x => !x.StartsWith("WHERE"))}";
                 }
 
                 if (Transaction != null)
@@ -478,6 +491,8 @@ namespace InnerLibs.MicroORM
 
             return null;
         }
+
+
 
         /// <summary>
         /// Retorna um <see cref="DbType"/> a partir do <see cref="Type"/> do <paramref name="obj"/>
@@ -533,7 +548,7 @@ namespace InnerLibs.MicroORM
                     }
                     else
                     {
-                        LogWriter.WriteLine($"Transaction: No transaction specified");
+                        LogWriter.WriteLine($"No transaction specified");
                     }
                 }
                 else
@@ -548,7 +563,8 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Mapeia o resultado de um <see cref="DbDataReader"/> para um  <see cref="object"/>, <see cref="Dictionary{TKey, TValue}"/> ou <see cref="NameValueCollection"/>
+        /// Mapeia o resultado de um <see cref="DbDataReader"/> para um <see cref="object"/>, <see
+        /// cref="Dictionary{TKey, TValue}"/> ou <see cref="NameValueCollection"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Reader"></param>
@@ -579,16 +595,30 @@ namespace InnerLibs.MicroORM
                     }
                     else if (typeof(T) == typeof(NameValueCollection))
                     {
-                        ((NameValueCollection)(object)d).Add(name, Convert.ToString(value));
+                        ((NameValueCollection)(object)d).Add(name, $"{value}");
                     }
                     else
                     {
-                        var propnames = name.PropertyNamesFor().ToList();
-                        var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                        var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
-                        foreach (var info in PropInfos)
                         {
-                            if (info.CanWrite)
+                            var propnames = name.PropertyNamesFor().ToList();
+                            var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                            var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                            foreach (var info in PropInfos)
+                            {
+                                if (info.CanWrite)
+                                {
+                                    if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                    {
+                                        info.SetValue(d, null);
+                                    }
+                                    else
+                                    {
+                                        info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
+                                    }
+                                }
+                            }
+
+                            foreach (var info in FieldInfos)
                             {
                                 if (ReferenceEquals(value.GetType(), typeof(DBNull)))
                                 {
@@ -596,20 +626,8 @@ namespace InnerLibs.MicroORM
                                 }
                                 else
                                 {
-                                    info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
+                                    info.SetValue(d, Converter.ChangeType(value, info.FieldType));
                                 }
-                            }
-                        }
-
-                        foreach (var info in FieldInfos)
-                        {
-                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
-                            {
-                                info.SetValue(d, null);
-                            }
-                            else
-                            {
-                                info.SetValue(d, Converter.ChangeType(value, info.FieldType));
                             }
                         }
                     }
@@ -642,7 +660,9 @@ namespace InnerLibs.MicroORM
             if (Reader != null)
             {
                 do
+                {
                     l.Add(Reader.Map<Dictionary<string, object>>());
+                }
                 while (Reader != null && Reader.NextResult());
             }
 
@@ -819,14 +839,17 @@ namespace InnerLibs.MicroORM
                         var eltipo = prop.PropertyType.GetGenericArguments().FirstOrDefault();
                         Connection.RunSQLSet(Sql.ToFormattableString())
                         .Select<Dictionary<string, object>, T>(x =>
-                          {
-                              baselist.Add(x.CreateOrSetObject(null, eltipo));
-                              return default;
-                          });
+                         {
+                             baselist.Add(x.CreateOrSetObject(null, eltipo));
+                             return default;
+                         });
                         prop.SetValue(d, baselist);
                         if (Recursive)
                         {
-                            foreach (var uu in baselist) Connection.ProccessSubQuery(uu, Recursive);
+                            foreach (var uu in baselist)
+                            {
+                                Connection.ProccessSubQuery(uu, Recursive);
+                            }
                         }
 
                         return d;
@@ -876,7 +899,10 @@ namespace InnerLibs.MicroORM
         public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
         {
             foreach (var prop in Misc.GetProperties(d).Where(x => x.HasAttribute<FromSQL>()))
+            {
                 Connection.ProccessSubQuery(d, prop.Name, Recursive);
+            }
+
             return d;
         }
 
@@ -1316,7 +1342,6 @@ namespace InnerLibs.MicroORM
         /// filtros a partir de um <see cref="NameValueCollection" />
         /// </summary>
         /// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
-
         public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
 
         /// <summary>
@@ -1357,16 +1382,36 @@ namespace InnerLibs.MicroORM
                         var paramvalues = new List<object>();
 
                         for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
+                        {
                             paramvalues.Add(v[v_index]);
+                        }
 
                         var pv = paramvalues.Select(x =>
                         {
-                            if (x == null) return "NULL";
-                            else if (Misc.GetNullableTypeOf(x).IsNumericType()) return x.ToString();
-                            else if (Verify.IsDate(x)) return Convert.ToDateTime(x).ToSQLDateString().EscapeQuotesToQuery(true);
-                            else if (Verify.IsBoolean(x)) return Convert.ToBoolean(x).AsIf(1, 0).ToString();
-                            else if (x.IsTypeOf<Select>()) return x.ToString();
-                            else return x.ToString().EscapeQuotesToQuery(true);
+                            if (x == null)
+                            {
+                                return "NULL";
+                            }
+                            else if (Misc.GetNullableTypeOf(x).IsNumericType())
+                            {
+                                return x.ToString();
+                            }
+                            else if (Verify.IsDate(x))
+                            {
+                                return Convert.ToDateTime(x).ToSQLDateString().EscapeQuotesToQuery(true);
+                            }
+                            else if (Verify.IsBoolean(x))
+                            {
+                                return Convert.ToBoolean(x).AsIf(1, 0).ToString();
+                            }
+                            else if (x.IsTypeOf<Select>())
+                            {
+                                return x.ToString();
+                            }
+                            else
+                            {
+                                return x.ToString().EscapeQuotesToQuery(true);
+                            }
                         }).ToList();
                         CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
                     }
@@ -1382,8 +1427,6 @@ namespace InnerLibs.MicroORM
             return null;
         }
     }
-
-
 
     public class SQLResponse<T>
     {

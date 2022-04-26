@@ -42,7 +42,6 @@ namespace InnerLibs
         /// <returns>Array convertido em novo tipo</returns>
         public static IEnumerable<object> ChangeIEnumerableType<FromType>(this IEnumerable<FromType> Value, Type ToType) => (Value ?? Array.Empty<FromType>()).Select(el => el.ChangeType(ToType));
 
-
         /// <summary>
         /// Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
@@ -445,7 +444,7 @@ namespace InnerLibs
         /// <typeparam name="TValue"></typeparam>
         /// <param name="items"></param>
         /// <returns></returns>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items) => items.DistinctBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, params TKey[] Keys) => items.Where(x => Keys == null || Keys.Any() == false || x.Key.IsIn(Keys)).DistinctBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
         /// <summary>
         /// Converte um NameValueCollection para um <see cref="Dictionary{TKey, TValue}"/>
@@ -455,8 +454,12 @@ namespace InnerLibs
         public static Dictionary<string, object> ToDictionary(this NameValueCollection NameValueCollection, params string[] Keys)
         {
             var result = new Dictionary<string, object>();
-            if (!(Keys ?? Array.Empty<string>()).Any())
+            Keys = Keys ?? Array.Empty<string>();
+            if (Keys.Any() == false)
+            {
                 Keys = NameValueCollection.AllKeys;
+            }
+
             foreach (string key in NameValueCollection.Keys)
             {
                 if (key.IsNotBlank() && key.IsLikeAny(Keys))
@@ -589,13 +592,6 @@ namespace InnerLibs
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
         public static double ToDouble<FromType>(this FromType Value) => Value.ChangeType<double>();
-        /// <summary>
-        /// Converte um tipo para short. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
-        public static double ToShort<FromType>(this FromType Value) => Value.ChangeType<short>();
 
         /// <summary>
         /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
@@ -612,6 +608,14 @@ namespace InnerLibs
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
         public static long ToLong<FromType>(this FromType Value) => Value.ChangeType<long>();
+
+        /// <summary>
+        /// Converte um tipo para short. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo tipo</returns>
+        public static double ToShort<FromType>(this FromType Value) => Value.ChangeType<short>();
 
         /// <summary>
         /// Converte um tipo para Single. Retorna Nothing (NULL) se a conversão falhar
