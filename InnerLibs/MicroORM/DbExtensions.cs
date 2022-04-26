@@ -478,7 +478,16 @@ namespace InnerLibs.MicroORM
 
                 if (WhereClausule.IsNotBlank())
                 {
-                    cmd.CommandText += $"{Environment.NewLine} {WhereClausule.ToSQLString().PrependIf("WHERE", x => !x.StartsWith("WHERE"))}";
+                    var wherecmd = Connection.CreateCommand(WhereClausule);
+                    var wheretxt = wherecmd.CommandText;
+                    foreach (DbParameter item in wherecmd.Parameters)
+                    {
+                        var param = cmd.CreateParameter();
+                        param.ParameterName = item.ParameterName;
+                        param.Value = item.Value;
+                        cmd.Parameters.Add(param);
+                    }
+                    cmd.CommandText += $"{Environment.NewLine}{wheretxt.PrependIf("WHERE ", x => !x.StartsWith("WHERE"))}";
                 }
 
                 if (Transaction != null)
