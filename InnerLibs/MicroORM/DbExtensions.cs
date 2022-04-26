@@ -341,9 +341,7 @@ namespace InnerLibs.MicroORM
             var dic = new Dictionary<string, object>();
             if (obj != null && Connection != null)
             {
-
                 dic = obj.CreateDictionary();
-
 
                 var cmd = Connection.CreateCommand();
                 cmd.CommandText = string.Format($"INSERT INTO " + TableName.IfBlank(d.Name) + " ({0}) values ({1})", dic.Keys.JoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
@@ -447,21 +445,9 @@ namespace InnerLibs.MicroORM
             var d = typeof(T);
             Dictionary<string, object> dic;
 
-
             if (obj != null && Connection != null)
             {
-                if (obj.IsDictionary())
-                {
-                    dic = (Dictionary<string, object>)(object)obj;
-                }
-                else if (ReferenceEquals(obj.GetTypeOf(), typeof(NameValueCollection)))
-                {
-                    dic = ((NameValueCollection)(object)obj).ToDictionary();
-                }
-                else
-                {
-                    dic = obj.CreateDictionary();
-                }
+                dic = obj.CreateDictionary();
 
                 var cmd = Connection.CreateCommand();
                 cmd.CommandText = $"UPDATE " + TableName.IfBlank(d.Name) + " set" + Environment.NewLine;
@@ -488,6 +474,7 @@ namespace InnerLibs.MicroORM
                         cmd.Parameters.Add(param);
                     }
                     cmd.CommandText += $"{Environment.NewLine}{wheretxt.PrependIf("WHERE ", x => !x.StartsWith("WHERE"))}";
+                    wherecmd.Dispose();
                 }
 
                 if (Transaction != null)
@@ -500,8 +487,6 @@ namespace InnerLibs.MicroORM
 
             return null;
         }
-
-
 
         /// <summary>
         /// Retorna um <see cref="DbType"/> a partir do <see cref="Type"/> do <paramref name="obj"/>
@@ -538,6 +523,7 @@ namespace InnerLibs.MicroORM
             LogWriter = LogWriter ?? DbExtensions.LogWriter ?? new DebugTextWriter();
             if (LogWriter != null)
             {
+                LogWriter.WriteLine(Environment.NewLine);
                 LogWriter.WriteLine("=".Repeat(10));
                 if (Command != null)
                 {
@@ -566,6 +552,8 @@ namespace InnerLibs.MicroORM
                 }
 
                 LogWriter.WriteLine("=".Repeat(10));
+                LogWriter.WriteLine(Environment.NewLine);
+
             }
 
             return Command;
