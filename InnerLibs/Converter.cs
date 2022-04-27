@@ -365,13 +365,13 @@ namespace InnerLibs
         public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj) => (T)Dic.CreateOrSetObject(obj, typeof(T), null);
 
         /// <summary>
-        /// Cria uma e adciona um objeto a ela. Util para tipos anonimos
+        /// Cria uma <see cref="List{T}"/> e adciona um objeto a ela. Util para tipos anonimos
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static List<T> StartList<T>(this T ObjectForDefinition)
         {
-            var d = DefineEmptyList<T>(ObjectForDefinition);
+            var d = DefineEmptyList(ObjectForDefinition);
             if (ObjectForDefinition != null)
             {
                 d.Add(ObjectForDefinition);

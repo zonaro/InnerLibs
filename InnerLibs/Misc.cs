@@ -124,7 +124,9 @@ namespace InnerLibs
         /// <summary>
         /// Converte um objeto para um <see cref="Dictionary"/>
         /// </summary>
-        /// <typeparam name="Type">Tipo da classe,<see cref="NameValueCollection"/> ou <see cref="Dictionary{TKey, TValue}"/></typeparam>
+        /// <typeparam name="Type">
+        /// Tipo da classe, <see cref="NameValueCollection"/> ou <see cref="Dictionary{TKey, TValue}"/>
+        /// </typeparam>
         /// <param name="Obj">valor do objeto</param>
         /// <param name="Keys">Chaves incluidas no dicionario final</param>
         /// <returns></returns>
@@ -344,14 +346,46 @@ namespace InnerLibs
             }
         }
 
-        public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Func<TAttribute, TValue> ValueSelector) where TAttribute : Attribute
+        public static TValue GetAttributeValue<TAttribute, TValue>(this MemberInfo prop, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
-            TAttribute att = type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() as TAttribute;
+            TAttribute att = prop.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() as TAttribute;
             if (att != null)
             {
-                return ValueSelector(att);
+                return att.GetAttributeValue(ValueSelector);
             }
 
+            return default;
+        }
+
+        public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
+        {
+            TAttribute att = type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() as TAttribute;
+
+            if (att != null)
+            {
+                return att.GetAttributeValue(ValueSelector);
+            }
+
+            return default;
+        }
+
+        public static TValue GetAttributeValue<TAttribute, TValue>(this TAttribute att, Expression<Func<TAttribute, TValue>> ValueSelector)
+        {
+            if (att != null)
+            {
+                if (ValueSelector == null)
+                {
+                    ValueSelector = x => x.ToString().ChangeType<TValue>();
+                }
+                try
+                {
+                    return ValueSelector.Compile()(att);
+                }
+                catch (Exception)
+                {
+                    return default;
+                }
+            }
             return default;
         }
 

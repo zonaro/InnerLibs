@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -82,12 +81,20 @@ namespace InnerLibs.MicroORM
         string ToString(bool SubQuery);
     }
 
+
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
     public class ColumnName : Attribute
     {
-        public ColumnName(params string[] Name)
+        public ColumnName(string ColumnName, params string[] AlternativeNames)
         {
-            Names = (string[])(Name ?? Array.Empty<string>()).Select(x => x.UnQuote());
+            if (ColumnName.IsBlank())
+            {
+                throw new ArgumentException("ColumnName is null or blank");
+            }
+            var l = ColumnName.StartList();
+            l.AddRange(AlternativeNames ?? Array.Empty<string>());
+
+            Names = l.Select(x => x.UnQuote()).SelectMany(x => x.Split(",")).ToArray();
         }
 
         public string[] Names { get; private set; }
@@ -253,19 +260,64 @@ namespace InnerLibs.MicroORM
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class FromSQL : Attribute
     {
-        public FromSQL(string QueryOrFilePath)
+        private string sql;
+
+        public FromSQL() : base()
         {
-            if (QueryOrFilePath.IsFilePath() && File.Exists(QueryOrFilePath))
+        }
+
+        /// <summary>
+        /// Arquivo contendo as instruções sql para esta classe
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// Query SQL para esta classe
+        /// </summary>
+        public string SQL
+        {
+            get
             {
-                SQL = File.ReadAllText(QueryOrFilePath);
+                if (sql.IsNotBlank())
+                {
+                    return sql;
+                }
+
+                if (File.IsNotBlank())
+                {
+                    if (File.IsFilePath())
+                    {
+                        if (System.IO.File.Exists(File))
+                        {
+                            return System.IO.File.ReadAllText(File).ValidateOr(x => x.IsNotBlank(), new ArgumentException("No file content"));
+                        }
+                        else
+                        {
+                            throw new System.IO.FileNotFoundException("File not exists");
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException("File is not a file path");
+                    }
+                }
+
+                return $"SELECT * FROM {TableName.ValidateOr(x => x.IsNotBlank(), new ArgumentException("No table name defined"))}";
             }
-            else
+
+            set
             {
-                SQL = QueryOrFilePath;
+                if (value.IsNotBlank() && value != sql)
+                {
+                    sql = value;
+                }
             }
         }
 
-        public string SQL { get; private set; }
+        /// <summary>
+        /// Nome da tabela, gera automaticamente uma query padão para esta classe
+        /// </summary>
+        public string TableName { get; set; }
     }
 
     public class Select : Select<Dictionary<string, object>>
@@ -348,9 +400,15 @@ namespace InnerLibs.MicroORM
                     AddColumns(((Dictionary<string, object>)(object)Obj).Keys.ToArray());
                 }
             }
+            else if (eltipo == typeof(NameValueCollection))
+            {
+                AddColumns(((NameValueCollection)(object)Obj).AllKeys.ToArray());
+            }
             else
             {
-                AddColumns(eltipo.GetProperties().Select(x => x.Name).ToArray());
+                var props = eltipo.GetProperties().Select(x => x.GetAttributeValue<ColumnName, string>(y => y.Names.FirstOrDefault()).IfBlank(x.Name));
+
+                AddColumns(props.ToArray());
             }
 
             return this;
@@ -560,6 +618,7 @@ namespace InnerLibs.MicroORM
         public Select<T> From<O>()
         {
             From(typeof(O).GetNullableTypeOf().Name);
+
             return this;
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -73,9 +74,6 @@ namespace InnerLibs
                 bool blank_flag;
                 try
                 {
-
-
-
                     if (typeof(T).IsNumericType())
                     {
                         blank_flag = Value.ChangeType<decimal>() == 0;
@@ -200,7 +198,7 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsDate<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(DateTime) ||  $"{Obj}".IsDate();
+        public static bool IsDate<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
 
         /// <summary>
         /// Verifica se uma string é um caminho de diretório válido
@@ -336,12 +334,15 @@ namespace InnerLibs
             //Try-Catch so we dont crash the program and can check the exception
             try
             {
-                //The "using" is important because FileStream implements IDisposable and
-                //"using" will avoid a heap exhaustion situation when too many handles
-                //are left undisposed.
-                using (FileStream fileStream = System.IO.File.Open(File.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                if (File.Exists)
                 {
-                    if (fileStream != null) fileStream.Close();
+                    using (FileStream fileStream = System.IO.File.Open(File.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                    {
+                        if (fileStream != null)
+                        {
+                            fileStream.Close();
+                        }
+                    }
                 }
             }
             catch (IOException ex)
@@ -351,7 +352,7 @@ namespace InnerLibs
                 int errorCode = Marshal.GetHRForException(ex) & ((1 << 16) - 1);
 
                 if (errorCode == ERROR_SHARING_VIOLATION || errorCode == ERROR_LOCK_VIOLATION)
-                {                    // do something, eg File.Copy or present the user with a MsgBox - I do not recommend Killing the process that is locking the file
+                {
                     return true;
                 }
             }
@@ -398,7 +399,7 @@ namespace InnerLibs
             try
             {
                 Convert.ToDecimal(Value);
-                return !Value.ToString().IsIP() & !(Value.GetType() == typeof(DateTime));
+                return !Value.ToString().IsIP() && !(Value.GetType() == typeof(DateTime));
             }
             catch
             {
@@ -454,7 +455,6 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <returns></returns>
         public static bool IsTelephone(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
-
 
         /// <summary>
         /// Verifica se um determinado texto é uma URL válida
@@ -535,11 +535,17 @@ namespace InnerLibs
                 Text = Text.Trim();
                 Text = Text.Replace(".", "").Replace("-", "").Replace("/", "");
                 if (Text.Length != 14)
+                {
                     return false;
+                }
+
                 tempCnpj = Text.Substring(0, 12);
                 soma = 0;
                 for (int i = 0; i <= 12 - 1; i++)
+                {
                     soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
+                }
+
                 resto = soma % 11;
                 if (resto < 2)
                 {
@@ -554,7 +560,10 @@ namespace InnerLibs
                 tempCnpj = tempCnpj + digito;
                 soma = 0;
                 for (int i = 0; i <= 13 - 1; i++)
+                {
                     soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
+                }
+
                 resto = soma % 11;
                 if (resto < 2)
                 {
@@ -593,7 +602,10 @@ namespace InnerLibs
                     soma = 0;
                     var loopTo = 9 + (k - 1);
                     for (j = 0; j <= loopTo; j++)
+                    {
                         soma += int.Parse(Text[j].ToString()) * (10 + k - j);
+                    }
+
                     digito += (soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - soma % 11).ToString();
                 }
 
@@ -611,6 +623,7 @@ namespace InnerLibs
         /// <param name="Text">CPF ou CNPJ</param>
         /// <returns></returns>
         public static bool IsValidCPFOrCNPJ(this string Text) => Text.IsValidCPF() || Text.IsValidCNPJ();
+
         /// <summary>
         /// Verifica se o dominio é válido (existe) em uma URL ou email
         /// </summary>
@@ -637,7 +650,6 @@ namespace InnerLibs
             }
         }
 
-
         /// <summary>
         /// Anula o valor de um objeto se ele for igual a outro objeto
         /// </summary>
@@ -662,7 +674,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static T NullIf<T>(this T Value, T TestValue) where T : class
         {
-            if (Value != null && Value.Equals(TestValue)) return null;
+            if (Value != null && Value.Equals(TestValue))
+            {
+                return null;
+            }
+
             return Value;
         }
 
@@ -693,7 +709,32 @@ namespace InnerLibs
         /// <returns></returns>
         public static string NullIf(this string Value, string TestValue, StringComparison ComparisonType = StringComparison.InvariantCultureIgnoreCase)
         {
-            if (Value == null || Value.Equals(TestValue, ComparisonType)) return null;
+            if (Value == null || Value.Equals(TestValue, ComparisonType))
+            {
+                return null;
+            }
+
+            return Value;
+        }
+
+        /// <summary>
+        /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="E"/> se um teste falhar
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="E"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Test"></param>
+        /// <param name="Message"></param>
+        /// <returns></returns>
+        public static T ValidateOr<T, E>(this T Value, Expression<Func<T, bool>> Test, E Exception = null) where E : Exception
+        {
+            if (Test != null)
+            {
+                if (Test.Compile()(Value) == false)
+                {
+                    throw Exception ?? new Exception();
+                }
+            }
             return Value;
         }
 

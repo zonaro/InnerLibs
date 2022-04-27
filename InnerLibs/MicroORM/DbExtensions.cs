@@ -130,6 +130,14 @@ namespace InnerLibs.MicroORM
             return Command.LogCommand(LogWriter);
         }
 
+        public static IEnumerable<string> ColumnsFromClass<T>()
+        {
+            var PropInfos = typeof(T).GetProperties().Select(y => y.GetAttributeValue<ColumnName, string>(x => x.Names.FirstOrDefault()).IfBlank(y.Name));
+            var FieldInfos = typeof(T).GetProperties().Select(y => y.GetAttributeValue<ColumnName, string>(x => x.Names.FirstOrDefault()).IfBlank(y.Name)).Where(x => x.IsNotIn(PropInfos));
+
+            return PropInfos.Union(FieldInfos);
+        }
+
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL e um objeto,
         /// </summary>
@@ -465,12 +473,13 @@ namespace InnerLibs.MicroORM
                 if (WhereClausule.IsNotBlank())
                 {
                     var wherecmd = Connection.CreateCommand(WhereClausule);
-                    var wheretxt = wherecmd.CommandText;
+                    var wheretxt = wherecmd.CommandText.Trim();
                     foreach (DbParameter item in wherecmd.Parameters)
                     {
                         var param = cmd.CreateParameter();
                         param.ParameterName = item.ParameterName;
                         param.Value = item.Value;
+                        param.DbType = item.DbType;
                         cmd.Parameters.Add(param);
                     }
                     cmd.CommandText += $"{Environment.NewLine}{wheretxt.PrependIf("WHERE ", x => !x.StartsWith("WHERE"))}";
@@ -553,7 +562,6 @@ namespace InnerLibs.MicroORM
 
                 LogWriter.WriteLine("=".Repeat(10));
                 LogWriter.WriteLine(Environment.NewLine);
-
             }
 
             return Command;
@@ -596,35 +604,33 @@ namespace InnerLibs.MicroORM
                     }
                     else
                     {
+                        var propnames = name.PropertyNamesFor().ToList();
+                        var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                        var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        foreach (var info in PropInfos)
                         {
-                            var propnames = name.PropertyNamesFor().ToList();
-                            var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                            var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
-                            foreach (var info in PropInfos)
+                            if (info.CanWrite)
                             {
-                                if (info.CanWrite)
-                                {
-                                    if (ReferenceEquals(value.GetType(), typeof(DBNull)))
-                                    {
-                                        info.SetValue(d, null);
-                                    }
-                                    else
-                                    {
-                                        info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
-                                    }
-                                }
-                            }
-
-                            foreach (var info in FieldInfos)
-                            {
-                                if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
                                 {
                                     info.SetValue(d, null);
                                 }
                                 else
                                 {
-                                    info.SetValue(d, Converter.ChangeType(value, info.FieldType));
+                                    info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
                                 }
+                            }
+                        }
+
+                        foreach (var info in FieldInfos)
+                        {
+                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                            {
+                                info.SetValue(d, null);
+                            }
+                            else
+                            {
+                                info.SetValue(d, Converter.ChangeType(value, info.FieldType));
                             }
                         }
                     }
@@ -902,6 +908,8 @@ namespace InnerLibs.MicroORM
 
             return d;
         }
+
+        public static string QueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQL, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
@@ -1186,12 +1194,16 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
 
+        public static T RunSQLRow<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLRow<T>(Connection, QueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
+
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
         /// mapeados para uma lista de <typeparamref name="T"/>
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
+
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLSet<T>(Connection, QueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset

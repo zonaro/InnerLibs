@@ -27,7 +27,9 @@ namespace InnerLibs
             this.InnerHtml = InnerHtml;
 
             foreach (var Attr in Attributes.CreateDictionary())
+            {
                 this.Attributes.SetOrRemove(Attr.Key, Attr.Value);
+            }
         }
 
         public Dictionary<string, string> Attributes
@@ -54,7 +56,9 @@ namespace InnerLibs
         }
 
         public string InnerHtml { get; set; }
+
         public bool SelfCloseTag { get; set; } = false;
+
         public string TagName { get; set; } = "div";
 
         public string this[string key]
@@ -63,51 +67,50 @@ namespace InnerLibs
             set => Attributes.Set(key, value);
         }
 
-        public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self", object htmlAttributes = null)
-        {
-            return new HtmlTag("a", htmlAttributes, Name).With(x =>
-            {
-                x.Attributes
-                .SetOrRemove("href", URL, true)
-                .SetOrRemove("target", Target, true);
-            });
-        }
+        public static HtmlTag CreateAnchor(string URL, string Name, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Name).SetAttr("href", URL, true).SetAttr("target", Target, true);
 
-        public static HtmlTag CreateImage(string URL, object htmlAttributes = null)
-        {
-            return new HtmlTag("img", htmlAttributes, null).With(x =>
+        public static HtmlTag CreateImage(string URL, object htmlAttributes = null) => new HtmlTag("img", htmlAttributes, null).SetAttr("src", URL, true).With(x =>
           {
               x.SelfCloseTag = true;
-              x.Attributes
-               .SetOrRemove("src", URL, true);
           });
-        }
 
-        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text", object htmlAttributes = null)
-        {
-            return new HtmlTag("input", htmlAttributes, null).With(x =>
-             {
-                 x.SelfCloseTag = true;
-                 x.Attributes
-                  .SetOrRemove("name", Name, true)
-                  .SetOrRemove("value", Value, true)
-                  .SetOrRemove("type", Type.IfBlank("text"), true);
-             });
-        }
+        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text", object htmlAttributes = null) => new HtmlTag("input", htmlAttributes, null).With(x =>
+          {
+              x.SelfCloseTag = true;
+              x.SetAttr("name", Name, true)
+               .SetAttr("value", Value, true)
+               .SetAttr("type", Type.IfBlank("text"), true);
+          });
+
+        public static HtmlTag CreateOption(string Name, string Value = null, bool Selected = false) => new HtmlTag("option", null, null).With(x =>
+          {
+              x.InnerHtml = Name.RemoveHTML();
+              x.SetAttr("value", Value)
+               .SetProp("selected", Selected);
+          });
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
+        public bool HasAttribute(string AttrName) => Attributes.ContainsKey(AttrName);
+
+        public HtmlTag RemoveAttr(string AttrName)
+        {
+            Attributes.SetOrRemove(AttrName, null, true);
+            return this;
+        }
+
+        public HtmlTag SetAttr(string AttrName, string Value, bool RemoveIfBlank = false)
+        {
+            Attributes.SetOrRemove(AttrName, Value, RemoveIfBlank);
+            return this;
+        }
+
+        public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttr(AttrName, AttrName) : RemoveAttr(AttrName);
+
         public override string ToString()
         {
-            TagName = TagName.RemoveAny("/", @"\");
-            if (SelfCloseTag)
-            {
-                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => $"{x.Key.ToLower()}={x.Value.Wrap()}")} />";
-            }
-            else
-            {
-                return $"<{TagName.IfBlank("div")} {Attributes.SelectJoinString(x => $"{x.Key.ToLower()}={x.Value.Wrap()}")}>{InnerHtml}</{TagName.IfBlank("div")}>";
-            }
+            TagName = TagName.RemoveAny("/", @"\").IfBlank("div");
+            return $"<{TagName} {Attributes.SelectJoinString(x => x.Key == x.Value ? x.Key.ToLower() : $"{x.Key.ToLower()}={x.Value.Wrap()}")} " + (SelfCloseTag ? "/>" : $">{InnerHtml}</{TagName}>");
         }
     }
 }
