@@ -205,7 +205,7 @@ namespace InnerLibs
             int charcount = Lines.Max(x => x.Length);
             if (charcount.IsEven())
             {
-                charcount = charcount + 1;
+                charcount++;
             }
 
             for (int i = 0, loopTo = Lines.Count - 1; i <= loopTo; i++)
@@ -648,7 +648,7 @@ namespace InnerLibs
             }
             else if (!Text.EndsWithAny(pts))
             {
-                Text = Text + Punctuation;
+                Text += Punctuation;
             }
 
             return Text;
@@ -1202,7 +1202,7 @@ namespace InnerLibs
         public static bool IsAnagramOf(this string Text, string AnotherText)
         {
             var char1 = Text.ToLower().ToCharArray();
-            var char2 = Text.ToLower().ToCharArray();
+            var char2 = AnotherText.ToLower().ToCharArray();
             Array.Sort(char1);
             Array.Sort(char2);
             string NewWord1 = new string(char1);
@@ -2339,7 +2339,7 @@ namespace InnerLibs
             {
                 foreach (var p in Dic)
                 {
-                    Text = Text.SensitiveReplace(p.Key, p.Value);
+                    Text = Text.SensitiveReplace(p.Key, p.Value, Comparison);
                 }
             }
 
