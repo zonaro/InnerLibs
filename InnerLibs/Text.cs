@@ -1193,6 +1193,27 @@ namespace InnerLibs
             return result;
         }
 
+        public static string Interpolate(this string Text, params string[] Texts)
+        {
+            Text = Text.IfBlank("");
+            Texts = Texts ?? Array.Empty<string>();
+
+            var s = Texts.ToList();
+            s.Insert(0, Text);
+
+            var ns = @"";
+            var len = s.Max(x => x.Length);
+            for (int i = 0; i < len; i++)
+            {
+                foreach (var item in s)
+                {
+                    ns += item.AsEnumerable().IfNoIndex(i, ' ');
+                }
+            }
+
+            return ns;
+        }
+
         /// <summary>
         /// Verifica se uma palavra é um Anagrama de outra palavra
         /// </summary>
@@ -1520,7 +1541,7 @@ namespace InnerLibs
         /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>
         /// </summary>
         /// <param name="QueryString">string contendo uma querystring valida</param>
-        /// <param name="Keys">Quando especificado, inclui apenas estas entradas no <see cref="NameValueCollection"/> </param>
+        /// <param name="Keys">Quando especificado, inclui apenas estas entradas no <see cref="NameValueCollection"/></param>
         /// <returns></returns>
         public static NameValueCollection ParseQueryString(this string QueryString, params string[] Keys)
         {
