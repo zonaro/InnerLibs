@@ -17,7 +17,7 @@ namespace InnerLibs
         /// Remove todos os subdiretorios vazios
         /// </summary>
         /// <param name="TopDirectory">Diretorio da operação</param>
-        public static void CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)
+        public static DirectoryInfo CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)
         {
             foreach (var diretorio in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
             {
@@ -38,6 +38,7 @@ namespace InnerLibs
             {
                 TopDirectory.Delete();
             }
+            return TopDirectory;
         }
 
         /// <summary>
@@ -50,9 +51,15 @@ namespace InnerLibs
         {
             var lista = new List<FileInfo>();
             if (!DestinationDirectory.Exists)
+            {
                 DestinationDirectory.Create();
+            }
+
             foreach (var file in List)
+            {
                 lista.Add(file.CopyTo(DestinationDirectory.FullName + Path.DirectorySeparatorChar + file.Name));
+            }
+
             return lista;
         }
 
@@ -90,7 +97,10 @@ namespace InnerLibs
         public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName)
         {
             if (DirectoryName != null)
+            {
                 DirectoryName.FullName.CreateDirectoryIfNotExists();
+            }
+
             return DirectoryName;
         }
 
@@ -222,21 +232,21 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool HasDirectories(this DirectoryInfo Directory) => Directory.EnumerateDirectories().Any();
+        public static bool HasDirectories(this DirectoryInfo Directory) => Directory.GetDirectories().Any();
 
         /// <summary>
         /// Verifica se um diretório possui arquivos
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool HasFiles(this DirectoryInfo Directory) => Directory.EnumerateDirectories().Any();
+        public static bool HasFiles(this DirectoryInfo Directory) => Directory.GetFiles().Any();
 
         /// <summary>
         /// Verifica se um diretório está vazio
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool IsEmpty(this DirectoryInfo Directory) => !Directory.HasFiles() & !Directory.HasDirectories();
+        public static bool IsEmpty(this DirectoryInfo Directory) => !Directory.HasFiles() && !Directory.HasDirectories();
 
         /// <summary>
         /// Verifica se um diretório não está vazio
@@ -262,7 +272,10 @@ namespace InnerLibs
         {
             var FilteredList = new List<FileSystemInfo>();
             foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            {
                 FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
+            }
+
             return FilteredList;
         }
 
@@ -297,7 +310,10 @@ namespace InnerLibs
         {
             var FilteredList = new List<DirectoryInfo>();
             foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            {
                 FilteredList.AddRange(Directory.GetDirectories(pattern.Trim(), SearchOption));
+            }
+
             return FilteredList;
         }
 
