@@ -48,7 +48,17 @@ namespace InnerLibs
         /// <typeparam name="ToType">Tipo</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
-        public static ToType ChangeType<ToType>(this object Value) => (ToType)Value.ChangeType(typeof(ToType).GetNullableTypeOf());
+        public static ToType ChangeType<ToType>(this object Value)
+        {
+            try
+            {
+                return (ToType)Value?.ChangeType(typeof(ToType).GetNullableTypeOf());
+            }
+            catch (Exception)
+            {
+                return default;
+            }
+        }
 
         /// <summary>
         /// Converte um tipo para outro. Retorna Nothing (NULL) ou DEFAULT se a conversão falhar
