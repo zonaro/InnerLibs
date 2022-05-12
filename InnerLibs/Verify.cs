@@ -78,19 +78,23 @@ namespace InnerLibs
                     {
                         blank_flag = Value.ChangeType<decimal>() == 0;
                     }
-                    else if (typeof(T).IsNullableTypeOf<string>() || typeof(T).IsNullableTypeOf<char>())
+                    else if (Value is string)
                     {
                         blank_flag = Value.ToString().IsBlank();
                     }
-                    else if (typeof(T).IsNullableTypeOf<DateTime>())
+                    else if (Value is char)
+                    {
+                        blank_flag = $"{Value}".IsBlank();
+                    }
+                    else if (Value is DateTime)
                     {
                         blank_flag = ((DateTime)Value).Equals(DateTime.MinValue);
                     }
-                    else if (typeof(T).IsNullableTypeOf<TimeSpan>())
+                    else if (Value is TimeSpan)
                     {
                         blank_flag = ((TimeSpan)Value).Equals(TimeSpan.MinValue);
                     }
-                    else
+                    else //any other type
                     {
                         blank_flag = Value == default;
                     }
@@ -461,7 +465,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser verificado</param>
         /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
-        public static bool IsURL(this string Text) => Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
+        public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
 
         /// <summary>
         /// Verifica se uma string é um cep válido
