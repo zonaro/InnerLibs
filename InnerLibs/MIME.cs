@@ -90,7 +90,7 @@ namespace InnerLibs
     /// </summary>
     public class FileType
     {
-        private static FileTypeList l = new FileTypeList();
+        private static FileTypeList BaseList = new FileTypeList();
 
         internal void Build(string Extension, FileTypeList FileTypeList = null)
         {
@@ -203,6 +203,8 @@ namespace InnerLibs
                 MimeTypeOrExtensionOrPathOrDataURI = "." + MimeTypeOrExtensionOrPathOrDataURI.TrimAny(true, " ", ".");
             }
 
+
+
             return (FileTypeList ?? GetFileTypeList()).FirstOr(x => x.Extensions.ToArray().Union(x.GetMimeTypesOrDefault().ToArray()).Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase), new FileType());
         }
 
@@ -212,31 +214,41 @@ namespace InnerLibs
         /// <returns></returns>
         public static FileTypeList GetFileTypeList(bool Reset = false)
         {
-            if (Reset || l == null || l.Any() == false)
+            if (Reset || BaseList == null || BaseList.Any() == false)
             {
                 string r = Misc.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
                 if (r.IsNotBlank())
                 {
                     var doc = new XmlDocument();
                     doc.LoadXml(r);
-                    l = new FileTypeList();
+                    BaseList = new FileTypeList();
                     foreach (XmlNode node in doc["mimes"].ChildNodes)
                     {
-                        var ft = l.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.AdjustBlankSpaces() ?? ""), new FileType());
+                        var ft = BaseList.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.AdjustBlankSpaces() ?? ""), new FileType());
                         ft.Description = node["Description"].InnerText.AdjustBlankSpaces();
+
                         foreach (XmlNode item in node["MimeTypes"].ChildNodes)
+                        {
                             ft.MimeTypes.Add(item.InnerText.AdjustBlankSpaces());
+                        }
+
                         foreach (XmlNode item in node["Extensions"].ChildNodes)
+                        {
                             ft.Extensions.Add(item.InnerText.AdjustBlankSpaces());
+                        }
+
                         ft.MimeTypes = ft.MimeTypes.Distinct().ToList();
                         ft.Extensions = ft.Extensions.Distinct().ToList();
-                        if (!l.Contains(ft))
-                            l.Add(ft);
+
+                        if (!BaseList.Contains(ft))
+                        {
+                            BaseList.Add(ft);
+                        }
                     }
                 }
             }
 
-            return l;
+            return BaseList;
         }
 
         /// <summary>

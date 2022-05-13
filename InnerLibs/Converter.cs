@@ -396,7 +396,7 @@ namespace InnerLibs
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static bool ToBoolean<FromType>(this FromType Value) => Value.ChangeType<bool>();
+        public static bool ToBool<FromType>(this FromType Value) => Value.ChangeType<bool>();
 
         /// <summary>
         /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar

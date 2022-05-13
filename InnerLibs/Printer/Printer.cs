@@ -1426,11 +1426,11 @@ namespace InnerLibs.Printer.XmlTemplates
             foreach (var attr in Xml.Attributes())
             {
                 if (attr.Name.LocalName.ToLower() == "bold")
-                    this.Bold($"{attr.Value}".ToLower().IfBlank("true").ToBoolean());
+                    this.Bold($"{attr.Value}".ToLower().IfBlank("true").ToBool());
                 if (attr.Name.LocalName.ToLower() == "italic")
-                    this.Italic($"{attr.Value}".ToLower().IfBlank("true").ToBoolean());
+                    this.Italic($"{attr.Value}".ToLower().IfBlank("true").ToBool());
                 if (attr.Name.LocalName.ToLower() == "underline")
-                    this.UnderLine($"{attr.Value}".ToLower().IfBlank("true").ToBoolean());
+                    this.UnderLine($"{attr.Value}".ToLower().IfBlank("true").ToBool());
                 if (attr.Name.LocalName == "lines")
                 {
                     try

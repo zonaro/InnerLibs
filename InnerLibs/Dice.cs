@@ -230,7 +230,7 @@ namespace InnerLibs.RolePlayingGame
         {
             if (Faces.Count == 2)
             {
-                return (Roll(Times).Number - 1).ToBoolean();
+                return (Roll(Times).Number - 1).ToBool();
             }
 
             return true;

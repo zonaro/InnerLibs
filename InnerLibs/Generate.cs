@@ -96,7 +96,7 @@ namespace InnerLibs
         /// Gera um valor boolean aleatorio
         /// </summary>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean() => RandomNumber(0, 1).ToBoolean();
+        public static bool RandomBoolean() => RandomNumber(0, 1).ToBool();
 
         /// <summary>
         /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
