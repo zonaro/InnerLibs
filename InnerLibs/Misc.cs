@@ -640,6 +640,7 @@ namespace InnerLibs
         {
             var dic_of_dic = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, Dictionary<Count, long>>(x.Key, x.GroupBy(CountObjectBy).ToDictionary(y => y.Key, y => y.LongCount()))).ToDictionary();
             dic_of_dic.Values.MergeKeys();
+
             return dic_of_dic;
         }
 
@@ -659,20 +660,6 @@ namespace InnerLibs
             var dic_of_dic = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, Dictionary<SubGroup, IEnumerable<Type>>>(x.Key, x.GroupBy(SubGroupSelector).ToDictionary(y => y.Key, y => y.AsEnumerable()))).ToDictionary();
             dic_of_dic.Values.MergeKeys();
             return dic_of_dic;
-        }
-
-        /// <summary>
-        /// Agrupa e conta os itens de uma lista a partir de uma propriedade
-        /// </summary>
-        /// <typeparam name="Type"></typeparam>
-        /// <typeparam name="Group"></typeparam>
-        /// <param name="obj"></param>
-        /// <param name="GroupSelector"></param>
-        /// <returns></returns>
-        public static Dictionary<Group, long> GroupFirstAndCountBy<Type, Group>(this IEnumerable<Type> obj, int First, Func<Type, Group> GroupSelector, Group OtherLabel)
-        {
-            var grouped = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).OrderByDescending(x => x.Value);
-            return grouped.Take(First).Union(new[] { new KeyValuePair<Group, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
         }
 
         /// <summary>
@@ -1130,6 +1117,32 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Agrupa e conta os itens de uma lista a partir de uma propriedade
+        /// </summary>
+        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="Group"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="GroupSelector"></param>
+        /// <returns></returns>
+        public static Dictionary<Group, long> ReduceToTop<Group>(this Dictionary<Group, long> obj, int First, Group OtherLabel)
+        {
+            var grouped = obj.OrderByDescending(x => x.Value);
+            return grouped.Take(First).Union(new[] { new KeyValuePair<Group, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
+        }
+
+        public static Dictionary<Group, Dictionary<Count, long>> ReduceToTop<Group, Count>(this Dictionary<Group, Dictionary<Count, long>> Grouped, int First, Count OtherLabel)
+        {
+            foreach (var item in Grouped.ToArray())
+            {
+                var gp = item.Value.OrderByDescending(x => x.Value).ToDictionary();
+                Grouped[item.Key] = gp.Take(First).Union(new[] { new KeyValuePair<Count, long>(OtherLabel, gp.Skip(First).Sum(s => s.Value)) }).ToDictionary();
+            }
+
+            Grouped.Values.MergeKeys();
+            return Grouped;
+        }
+
+        /// <summary>
         /// Remove de um dicionario as respectivas Keys se as mesmas existirem
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
@@ -1242,6 +1255,24 @@ namespace InnerLibs
         {
             obj.GetPropertyInfo(Selector).SetValue(obj, Value);
             return obj;
+        }
+
+        public static Dictionary<Group, Dictionary<Count, long>> SkipZero<Group, Count>(this Dictionary<Group, Dictionary<Count, long>> Grouped)
+        {
+            foreach (var dic in Grouped.ToArray())
+            {
+                Grouped[dic.Key] = dic.Value.Where(x => x.Value > 0).ToDictionary();
+            }
+
+            Grouped = Grouped.Where(x => x.Value.Any()).ToDictionary();
+
+            return Grouped;
+        }
+
+        public static Dictionary<Count, long> SkipZero<Count>(this Dictionary<Count, long> Grouped)
+        {
+            Grouped = Grouped.Where(x => x.Value > 0).ToDictionary();
+            return Grouped;
         }
 
         /// <summary>
