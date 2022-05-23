@@ -52,9 +52,21 @@ namespace InnerLibs
         {
             try
             {
+                var met = Value.GetType().GetMethod($"To{typeof(ToType).Name}");
+                if (met != null && met.ReturnType == typeof(ToType))
+                {
+                    return (ToType)met.Invoke(Value, new object[] { });
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
                 return (ToType)Value?.ChangeType(typeof(ToType).GetNullableTypeOf());
             }
-            catch (Exception)
+            catch
             {
                 return default;
             }
@@ -203,12 +215,14 @@ namespace InnerLibs
             return Obj;
         }
 
+
         /// <summary>
         /// Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remover o parâmetro não utilizado", Justification = "<Pendente>")]
         public static List<T> DefineEmptyList<T>(this T ObjectForDefinition) => new List<T>();
 
         /// <summary>
@@ -220,7 +234,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static object[] ForceArray(this object Obj, Type Type)
         {
-            var a = new List<object>();
+
             Type = Type ?? typeof(object);
             if (Obj != null)
             {
@@ -388,6 +402,31 @@ namespace InnerLibs
             }
 
             return d;
+        }
+
+        /// <summary>
+        /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL, zero ou 'false' 
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool AsBool(this string Value)
+        {
+            if (Value == null)
+            {
+                return false;
+            }
+
+            Value = Value.AdjustBlankSpaces().ToLower();
+            switch (Value)
+            {
+                case "false":
+                case "0":
+                case "null":
+                case "":
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         /// <summary>

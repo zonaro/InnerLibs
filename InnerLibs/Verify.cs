@@ -78,21 +78,21 @@ namespace InnerLibs
                     {
                         blank_flag = Value.ChangeType<decimal>() == 0;
                     }
-                    else if (Value is string)
+                    else if (Value is string s)
                     {
-                        blank_flag = Value.ToString().IsBlank();
+                        blank_flag = s.IsBlank();
                     }
-                    else if (Value is char)
+                    else if (Value is char c)
                     {
-                        blank_flag = $"{Value}".IsBlank();
+                        blank_flag = $"{c}".IsBlank();
                     }
-                    else if (Value is DateTime)
+                    else if (Value is DateTime time)
                     {
-                        blank_flag = ((DateTime)Value).Equals(DateTime.MinValue);
+                        blank_flag = time.Equals(DateTime.MinValue);
                     }
-                    else if (Value is TimeSpan)
+                    else if (Value is TimeSpan span)
                     {
-                        blank_flag = ((TimeSpan)Value).Equals(TimeSpan.MinValue);
+                        blank_flag = span.Equals(TimeSpan.MinValue);
                     }
                     else //any other type
                     {
@@ -110,7 +110,7 @@ namespace InnerLibs
 
         /// <summary>
         /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
-        /// valor default se o index nao existir ou seu valor for branco ou nothing
+        /// valor default se o index nao existir ou seu valor for branco ou null
         /// </summary>
         /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
         /// <param name="Arr">Array</param>
@@ -188,7 +188,7 @@ namespace InnerLibs
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
         public static bool IsBlank(this FormattableString Text) => Text == null || Text.ToString().IsBlank();
 
-        public static bool IsBoolean<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
+        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
 
         public static bool IsDate(this string Obj)
         {
@@ -379,6 +379,8 @@ namespace InnerLibs
         /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
         public static bool IsNotBlank(this string Text) => !IsBlank(Text);
 
+
+
         /// <summary>
         /// Verifica se uma String não está em branco
         /// </summary>
@@ -561,7 +563,7 @@ namespace InnerLibs
                 }
 
                 digito = resto.ToString();
-                tempCnpj = tempCnpj + digito;
+                tempCnpj += digito;
                 soma = 0;
                 for (int i = 0; i <= 13 - 1; i++)
                 {
@@ -578,7 +580,7 @@ namespace InnerLibs
                     resto = 11 - resto;
                 }
 
-                digito = digito + resto.ToString();
+                digito += resto.ToString();
                 return Text.EndsWith(digito);
             }
             catch
@@ -773,10 +775,7 @@ namespace InnerLibs
                     return false;
                 }
 
-                if (FailAction != null)
-                {
-                    FailAction(MaxFailCount ?? -1);
-                }
+                FailAction?.Invoke(MaxFailCount ?? -1);
             }
             return true;
         }

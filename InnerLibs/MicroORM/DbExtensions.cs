@@ -1409,7 +1409,7 @@ namespace InnerLibs.MicroORM
                             {
                                 return Convert.ToDateTime(x).ToSQLDateString().EscapeQuotesToQuery(true);
                             }
-                            else if (Verify.IsBoolean(x))
+                            else if (Verify.IsBool(x))
                             {
                                 return Convert.ToBoolean(x).AsIf(1, 0).ToString();
                             }

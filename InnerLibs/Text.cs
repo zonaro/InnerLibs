@@ -1483,6 +1483,40 @@ namespace InnerLibs
         public static string MaskTelephoneNumber(this double Number) => Number.ToString().MaskTelephoneNumber();
 
         /// <summary>
+        /// Adciona caracteres ao inicio e final de uma string enquanto o <see
+        /// cref="string.Length"/> de <paramref name="Text"/> for menor que <paramref name="TotalLength"/>
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="TotalLength">Tamanho total</param>
+        /// <param name="PaddingChar">Caractere</param>
+        /// <param name="Trim">
+        /// Quando TRUE, elimina caracteres do começo e fim da string se ela for maior que <paramref name="TotalLength"/>
+        /// </param>
+        /// <returns></returns>
+        public static string Pad(this string Text, int TotalLength, char PaddingChar = ' ')
+        {
+            if (Text.Length < TotalLength)
+            {
+                if (Text.IsNotBlank())
+                {
+                    Text = Text.Wrap(" ");
+                }
+
+                while (Text.Length < TotalLength)
+                {
+                    Text = Text.Wrap(PaddingChar.ToString());
+                }
+
+                if (Text.Length > TotalLength)
+                {
+                    Text = Text.RemoveLastChars();
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
         /// limpa um texto deixando apenas os caracteres alfanumericos.
         /// </summary>
         /// <param name="Text"></param>

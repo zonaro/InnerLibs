@@ -28,7 +28,10 @@ namespace InnerLibs
                 var hash = md5.ComputeHash(inputBytes);
                 var sb = new StringBuilder();
                 for (int i = 0, loopTo = hash.Length - 1; i <= loopTo; i++)
+                {
                     sb.Append(hash[i].ToString("X2"));
+                }
+
                 return sb.ToString();
             }
 
@@ -84,10 +87,12 @@ namespace InnerLibs
                 var UTF8 = new UTF8Encoding();
                 var HashProvider = new MD5CryptoServiceProvider();
                 var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("1234567890")));
-                var TDESAlgorithm = new TripleDESCryptoServiceProvider();
-                TDESAlgorithm.Key = TDESKey;
-                TDESAlgorithm.Mode = CipherMode.ECB;
-                TDESAlgorithm.Padding = PaddingMode.PKCS7;
+                var TDESAlgorithm = new TripleDESCryptoServiceProvider
+                {
+                    Key = TDESKey,
+                    Mode = CipherMode.ECB,
+                    Padding = PaddingMode.PKCS7
+                };
                 var DataToEncrypt = UTF8.GetBytes(Text);
                 try
                 {
@@ -119,10 +124,12 @@ namespace InnerLibs
                 var UTF8 = new UTF8Encoding();
                 var HashProvider = new MD5CryptoServiceProvider();
                 var TDESKey = HashProvider.ComputeHash(UTF8.GetBytes(Key.IfBlank("1234567890")));
-                var TDESAlgorithm = new TripleDESCryptoServiceProvider();
-                TDESAlgorithm.Key = TDESKey;
-                TDESAlgorithm.Mode = CipherMode.ECB;
-                TDESAlgorithm.Padding = PaddingMode.PKCS7;
+                var TDESAlgorithm = new TripleDESCryptoServiceProvider
+                {
+                    Key = TDESKey,
+                    Mode = CipherMode.ECB,
+                    Padding = PaddingMode.PKCS7
+                };
                 var DataToDecrypt = Convert.FromBase64String(Text);
                 try
                 {
@@ -150,13 +157,15 @@ namespace InnerLibs
         {
             if (text.IsNotBlank())
             {
-                var aes = new AesCryptoServiceProvider();
-                aes.BlockSize = 128;
-                aes.KeySize = 256;
-                aes.IV = new UTF8Encoding(false).GetBytes(IV);
-                aes.Key = new UTF8Encoding(false).GetBytes(Key);
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+                var aes = new AesCryptoServiceProvider
+                {
+                    BlockSize = 128,
+                    KeySize = 256,
+                    IV = new UTF8Encoding(false).GetBytes(IV),
+                    Key = new UTF8Encoding(false).GetBytes(Key),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7
+                };
                 var src = new UTF8Encoding(false).GetBytes(text);
                 using (var eencrypt = aes.CreateEncryptor())
                 {
@@ -177,13 +186,15 @@ namespace InnerLibs
         {
             if (text.IsNotBlank())
             {
-                var aes = new AesCryptoServiceProvider();
-                aes.BlockSize = 128;
-                aes.KeySize = 256;
-                aes.IV = new UTF8Encoding(false).GetBytes(IV);
-                aes.Key = new UTF8Encoding(false).GetBytes(Key);
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+                var aes = new AesCryptoServiceProvider
+                {
+                    BlockSize = 128,
+                    KeySize = 256,
+                    IV = new UTF8Encoding(false).GetBytes(IV),
+                    Key = new UTF8Encoding(false).GetBytes(Key),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7
+                };
                 byte[] src;
                 try
                 {

@@ -22,7 +22,10 @@ namespace InnerLibs
         public static string Atob(this string Base, Encoding Encoding = null)
         {
             if (Base.IsNotBlank())
+            {
                 return (Encoding ?? new UTF8Encoding(false)).GetString(Convert.FromBase64String(Base));
+            }
+
             return null;
         }
 
@@ -41,7 +44,10 @@ namespace InnerLibs
             try
             {
                 if (DataUrlOrBase64String.IsBlank())
+                {
                     return null;
+                }
+
                 if (DataUrlOrBase64String.Contains(","))
                 {
                     DataUrlOrBase64String = DataUrlOrBase64String.Split(",")[1];
@@ -74,7 +80,10 @@ namespace InnerLibs
         public static string Btoa(this string Text, Encoding Encoding = null)
         {
             if (Text.IsNotBlank())
+            {
                 return Convert.ToBase64String((Encoding ?? new UTF8Encoding(false)).GetBytes(Text));
+            }
+
             return null;
         }
 
@@ -336,13 +345,7 @@ namespace InnerLibs
         /// MIME type completo
         /// </summary>
         /// <returns></returns>
-        public string FullMimeType
-        {
-            get
-            {
-                return Mime + "/" + Extension;
-            }
-        }
+        public string FullMimeType => Mime + "/" + Extension;
 
         /// <summary>
         /// Tipo do arquivo encontrado
@@ -354,10 +357,7 @@ namespace InnerLibs
         /// Converte esta dataURI em Bytes()
         /// </summary>
         /// <returns></returns>
-        public byte[] ToBytes()
-        {
-            return ToString().Base64ToBytes();
-        }
+        public byte[] ToBytes() => ToString().Base64ToBytes();
 
         /// <summary>
         /// Informaçoes referentes ao tipo do arquivo
@@ -369,19 +369,18 @@ namespace InnerLibs
         /// Retorna uma string da dataURL
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return "data:" + FullMimeType + ";" + Encoding + "," + Data;
-        }
+        public override string ToString() => "data:" + FullMimeType + ";" + Encoding + "," + Data;
 
         /// <summary>
         /// Transforma este datauri em arquivo
         /// </summary>
         /// <param name="Path"></param>
         /// <returns></returns>
-        public FileInfo WriteToFile(string Path)
-        {
-            return ToBytes().WriteToFile(Path);
-        }
+        public FileInfo WriteToFile(string Path, DateTime? dateTime = null) => ToBytes().WriteToFile(Path, dateTime);
+
+        public static implicit operator byte[](DataURI d) => d.ToBytes();
+        public static implicit operator string(DataURI d) => d.ToString();
+        public static implicit operator FileType(DataURI d) => d.ToFileType();
+
     }
 }
