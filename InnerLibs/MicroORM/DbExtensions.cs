@@ -1116,11 +1116,11 @@ namespace InnerLibs.MicroORM
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
         /// um <see cref="Dictionary{Object, Object}"/>
         /// </summary>
-        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
+        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).DistinctBy(x => x.Values.FirstOrDefault()).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-        /// um <see cref="Dictionary(Of Object, Object)"/>
+        /// um <see cref="Dictionary{object,object}"/>
         /// </summary>
         public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs(Connection.CreateCommand(SQL, Transaction));
 
