@@ -473,7 +473,7 @@ namespace InnerLibs
 
         /// <summary>
         /// Retorna o <see cref="Type"/> equivalente a <typeparamref name="T"/> ou o <see
-        /// cref="Type"/> do objeto <see cref="Nullable(Of T)"/>
+        /// cref="Type"/> do objeto <see cref="Nullable{T}"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
