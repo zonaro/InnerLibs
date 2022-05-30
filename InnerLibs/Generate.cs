@@ -35,7 +35,10 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < AlphaLowerLenght)
+                {
                     ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItemOr());
+                }
+
                 pass = pass.Append(ss);
             }
 
@@ -43,7 +46,10 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < AlphaUpperLenght)
+                {
                     ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem());
+                }
+
                 pass = pass.Append(ss);
             }
 
@@ -51,7 +57,10 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < NumberLenght)
+                {
                     ss = ss.Append(PredefinedArrays.NumberChars.RandomItem());
+                }
+
                 pass = pass.Append(ss);
             }
 
@@ -59,7 +68,10 @@ namespace InnerLibs
             {
                 string ss = "";
                 while (ss.Length < SpecialLenght)
+                {
                     ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem());
+                }
+
                 pass = pass.Append(ss);
             }
 
@@ -81,7 +93,7 @@ namespace InnerLibs
         /// Gera um valor boolean aleatorio considerando uma porcentagem de chance
         /// </summary>
         /// <returns>TRUE ou FALSE.</returns>
-        public static bool RandomBoolean(int Percent) => RandomBoolean(x => x <= Percent, 0, 100);
+        public static bool RandomBool(int Percent) => RandomBool(x => x <= Percent, 0, 100);
 
         /// <summary>
         /// Gera um valor boolean aleatorio considerando uma condição de comparação com um numero
@@ -90,13 +102,13 @@ namespace InnerLibs
         /// <param name="Min">Numero minimo, Padrão 0</param>
         /// <param name="Max">Numero Maximo, Padrão 999999</param>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean(Func<int, bool> Condition, int Min = 0, int Max = int.MaxValue) => Condition(RandomNumber(Min, Max));
+        public static bool RandomBool(Func<int, bool> Condition, int Min = 0, int Max = int.MaxValue) => Condition(RandomNumber(Min, Max));
 
         /// <summary>
         /// Gera um valor boolean aleatorio
         /// </summary>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBoolean() => RandomNumber(0, 1).ToBool();
+        public static bool RandomBool() => RandomNumber(0, 1).ToBool();
 
         /// <summary>
         /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
@@ -150,7 +162,7 @@ namespace InnerLibs
         /// <param name="MinWordCount"></param>
         /// <param name="MaxWordCount"></param>
         /// <returns></returns>
-        public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBoolean(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBoolean(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
+        public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBool(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBool(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
 
         /// <summary>
         /// Gera um numero Aleatório entre 2 números
@@ -195,8 +207,11 @@ namespace InnerLibs
                 else
                 {
                     while (consonant == "q")
+                    {
                         // ReplaceFrom an orphaned "q"
                         consonant = PredefinedArrays.LowerConsonants.RandomItem();
+                    }
+
                     if (word.Length + 1 <= Length)
                     {
                         // Only add a consonant if there's enough room remaining

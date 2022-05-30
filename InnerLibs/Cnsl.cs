@@ -70,7 +70,7 @@ namespace InnerLibs.Console
             return $"{LogDateTime} - {Text}";
         }
 
-        public static string ConsoleLog(this DateTime DateTime, string Text, ConsoleColor? DateColor, ConsoleColor? MessageColor = null, int BreakLines = 1) => ConsoleLog(Text, DateTime, DateColor, MessageColor, BreakLines);
+        public static string ConsoleLog(this DateTime LogDateTime, string Text, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, int BreakLines = 1) => ConsoleLog(Text, LogDateTime, DateColor, MessageColor, BreakLines);
 
         /// <summary>
         /// Escreve no console colorindo palavras especificas

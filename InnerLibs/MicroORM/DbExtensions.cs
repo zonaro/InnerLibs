@@ -1261,12 +1261,12 @@ namespace InnerLibs.MicroORM
         public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRun(ref Connection, ref Command).ExecuteScalar();
 
         /// <summary>
-        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL
         /// </summary>
         public static object RunSQLValue(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
-        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
         /// <typeparamref name="V"/>
         /// </summary>
         public static V RunSQLValue<V>(this DbConnection Connection, DbCommand Command)
@@ -1280,10 +1280,10 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL como um tipo
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
         /// <typeparamref name="V"/>
         /// </summary>
-        public static V RunSQLValue<V>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) where V : struct => Connection.RunSQLValue<V>(Connection.CreateCommand(SQL, Transaction));
+        public static V RunSQLValue<V>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<V>(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
