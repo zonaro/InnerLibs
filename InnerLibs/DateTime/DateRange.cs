@@ -968,7 +968,7 @@ namespace InnerLibs.TimeMachine
         public bool IsSingleDate() => StartDate.Date == EndDate.Date;
 
         /// <summary>
-        /// Return <b>true</b> when <see cref="StartDate"/> and <see cref="EndDate"/> are equal
+        /// Return <b>true</b> when date and time parts of <see cref="StartDate"/> and <see cref="EndDate"/> are equal
         /// </summary>
         /// <returns></returns>
         public bool IsSingleDateTime() => StartDate == EndDate;
@@ -1133,7 +1133,7 @@ namespace InnerLibs.TimeMachine
         /// cref="Tuple{DateTime, DateTime}"/>
         /// </summary>
         /// <returns></returns>
-        public Tuple<DateTime, DateTime> Tuple() => new Tuple<DateTime, DateTime>(StartDate, EndDate);
+        public Tuple<DateTime, DateTime> ToTuple() => new Tuple<DateTime, DateTime>(StartDate, EndDate);
 
         /// <summary>
         /// Return a new instance os <see cref="DateRange"/> by adding a <see

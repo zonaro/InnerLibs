@@ -11,8 +11,6 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public static class DateTimeExtensions
     {
-
-
         public static DateTime BrazilianNow => TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"));
 
         public static DateTime BrazilianTomorrow => BrazilianNow.AddDays(1d);
@@ -247,6 +245,18 @@ namespace InnerLibs.TimeMachine
         public static DateTimeOffset Before(this DateRange from, DateTimeOffset originalValue) => originalValue.Add(-from);
 
         /// <summary>
+        /// Returns the Start day of the bimester changing the time to the very start of the day.
+        /// Eg, 2011-12-24T06:40:20.005 =&gt; 2011-10-01T00:00:00.000. <see cref="DateTime"/>
+        /// </summary>
+        public static DateTime BeginningOfBimester(this DateTime date) => date.FirstDayOfBimester().BeginningOfDay();
+
+        /// <summary>
+        /// Returns the timezone-adjusted Start day of the bimester changing the time to the very
+        /// start of the day. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-10-01T00:00:00.000. <see cref="DateTime"/>
+        /// </summary>
+        public static DateTime BeginningOfBimester(this DateTime date, int timezoneOffset) => date.FirstDayOfBimester().BeginningOfDay(timezoneOffset);
+
+        /// <summary>
         /// Returns the Start of the given day (the first millisecond of the given <see cref="DateTime"/>).
         /// </summary>
         public static DateTime BeginningOfDay(this DateTime date) => new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, 0, date.Kind);
@@ -262,6 +272,8 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         public static DateTimeOffset BeginningOfDay(this DateTimeOffset date)
         => new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, date.Offset);
+
+        public static DateTime BeginningOfFortnight(this DateTime date) => date.FirstDayOfFortnight().Date;
 
         /// <summary>
         /// Returns the Start day of the month changing the time to the very start of the day. Eg,
@@ -286,6 +298,18 @@ namespace InnerLibs.TimeMachine
         /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-10-01T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
         public static DateTime BeginningOfQuarter(this DateTime date, int timezoneOffset) => date.FirstDayOfQuarter().BeginningOfDay(timezoneOffset);
+
+        /// <summary>
+        /// Returns the timezone-adjusted Start day of the semester changing the time to the very
+        /// start of the day. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-10-01T00:00:00.000. <see cref="DateTime"/>
+        /// </summary>
+        public static DateTime BeginningOfSemester(this DateTime date, int timezoneOffset) => date.FirstDayOfSemester().BeginningOfDay(timezoneOffset);
+
+        /// <summary>
+        /// Returns the Start day of the semester changing the time to the very start of the day.
+        /// Eg, 2011-12-24T06:40:20.005 =&gt; 2011-10-01T00:00:00.000. <see cref="DateTime"/>
+        /// </summary>
+        public static DateTime BeginningOfSemester(this DateTime date) => date.FirstDayOfSemester().BeginningOfDay();
 
         /// <summary>
         /// Returns the Start day of the week changing the time to the very start of the day. Eg,
@@ -455,6 +479,18 @@ namespace InnerLibs.TimeMachine
         public static DateTimeOffset DecreaseTime(this DateTimeOffset startDate, TimeSpan toSubtract) => startDate - toSubtract;
 
         /// <summary>
+        /// Returns the last day of the bimester changing the time to the very end of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
+        /// </summary>
+        public static DateTime EndOfBimester(this DateTime date) => date.LastDayOfBimester().EndOfDay();
+
+        /// <summary>
+        /// Returns the last day of the bimester changing the time to the very end of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
+        /// </summary>
+        public static DateTime EndOfBimester(this DateTime date, int timeZoneOffset) => date.LastDayOfBimester().EndOfDay(timeZoneOffset);
+
+        /// <summary>
         /// Returns the very end of the given day (the last millisecond of the last hour for the
         /// given <see cref="DateTime"/>).
         /// </summary>
@@ -471,6 +507,8 @@ namespace InnerLibs.TimeMachine
         /// given <see cref="DateTimeOffset"/>).
         /// </summary>
         public static DateTimeOffset EndOfDay(this DateTimeOffset date) => new DateTimeOffset(date.Year, date.Month, date.Day, 23, 59, 59, 999, date.Offset);
+
+        public static DateTime EndOfFortnight(this DateTime date) => date.Day <= 15 ? new DateTime(date.Year, date.Month, 15, date.Hour, date.Minute, date.Second, date.Millisecond, date.Kind) : date.LastDayOfMonth();
 
         /// <summary>
         /// Returns the last day of the month changing the time to the very end of the day. Eg,
@@ -495,6 +533,18 @@ namespace InnerLibs.TimeMachine
         /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
         public static DateTime EndOfQuarter(this DateTime date, int timeZoneOffset) => date.LastDayOfQuarter().EndOfDay(timeZoneOffset);
+
+        /// <summary>
+        /// Returns the last day of the bimester changing the time to the very end of the day. Eg,
+        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
+        /// </summary>
+        public static DateTime EndOfSemester(this DateTime date) => date.LastDayOfSemester().EndOfDay();
+
+        /// <summary>
+        /// Returns the last day of the bimester changing the time to the very end of the day with
+        /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
+        /// </summary>
+        public static DateTime EndOfSemester(this DateTime date, int timeZoneOffset) => date.LastDayOfSemester().EndOfDay(timeZoneOffset);
 
         /// <summary>
         /// Returns the last day of the week changing the time to the very end of the day. Eg,
@@ -539,11 +589,9 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Retorna a primeira data da quinzena a partir de uma outra data
+        /// Returns the first day of the fortnight
         /// </summary>
-        /// <param name="[Date]">Data</param>
-        /// <returns></returns>
-        public static DateTime FirstDayOfFortnight(this DateTime Date) => new DateTime(Date.Year, Date.Month, Date.Day <= 15 ? 1 : 16, Date.Hour, Date.Minute, Date.Second, Date.Millisecond, Date.Kind);
+        public static DateTime FirstDayOfFortnight(this DateTime date) => new DateTime(date.Year, date.Month, date.Day > 15 ? 16 : 1, date.Hour, date.Minute, date.Second, date.Millisecond, date.Kind);
 
         /// <summary>
         /// Sets the day of the <see cref="DateTime"/> to the first day in that month.
@@ -712,7 +760,7 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Return the age at giving date
         /// </summary>
-        /// <param name="BirthDate">Birth Date</param>
+        /// <param name="BirthDate">Birth date</param>
         /// <param name="AtDate"></param>
         /// <returns></returns>
         public static int GetAge(this DateTime BirthDate, DateTime? AtDate = null)
@@ -730,7 +778,7 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Return the age at giving day, month and year
         /// </summary>
-        /// <param name="BirthDate">Birth Date</param>
+        /// <param name="BirthDate">Birth date</param>
         /// <param name="AtDate"></param>
         /// <returns></returns>
         public static int GetAge(this DateTime BirthDate, int Day, int Month, int Year) => GetAge(BirthDate, new DateTime(Year, Month, Day));
@@ -738,7 +786,7 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Return the age at giving month and year
         /// </summary>
-        /// <param name="BirthDate">Birth Date</param>
+        /// <param name="BirthDate">Birth date</param>
         /// <param name="AtDate"></param>
         /// <returns></returns>
         public static int GetAge(this DateTime BirthDate, int Month, int Year) => GetAge(BirthDate, DateTime.Today.SetMonth(Month).SetYear(Year));
@@ -746,7 +794,7 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Return the age at giving year
         /// </summary>
-        /// <param name="BirthDate">Birth Date</param>
+        /// <param name="BirthDate">Birth date</param>
         /// <param name="AtDate"></param>
         /// <returns></returns>
         public static int GetAge(this DateTime BirthDate, int Year) => GetAge(BirthDate, DateTime.Today.SetYear(Year));
@@ -1440,7 +1488,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="FromDate">Data de partida</param>
         /// <param name="Num">Numero de quinzenas para adiantar</param>
         /// <returns></returns>
-        public static DateTime NextFortnight(this DateTime FromDate, int Num = 1) => new FortnightGroup(FromDate, Num).Last().Period.StartDate;
+        public static DateTime NextFortnight(this DateTime FromDate, int Num = 1) => new FortnightGroup(FromDate, Num).Last().StartDate;
 
         /// <summary>
         /// Returns the next month keeping the time component intact. Eg, 2012-12-05T06:40:20.005
@@ -2155,8 +2203,6 @@ namespace InnerLibs.TimeMachine
         /// <returns>A human readable string for <paramref name="timeSpan"/></returns>
         public static string ToDisplayString(this TimeSpan timeSpan) => new DateRange(timeSpan).ToString();
 
-
-
         /// <summary>
         /// Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
         /// </summary>
@@ -2165,7 +2211,6 @@ namespace InnerLibs.TimeMachine
         /// <returns>Uma string com a despedida</returns>
         public static string ToGreeting(this DateTime Time, string Morning, string Afternoon, string Night)
         {
-
             if (Time.Hour < 12)
             {
                 return Morning;

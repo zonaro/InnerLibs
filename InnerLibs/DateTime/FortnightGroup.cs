@@ -8,7 +8,7 @@ namespace InnerLibs.TimeMachine
     public class FortnightGroup<DataType> : FortnightGroup
     {
         /// <summary>
-        /// Instancia um novo <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial
+        /// Instancia um novo <see cref="FortnightGroup{DataType}"/> a partir de uma data inicial
         /// e um numero fixo de quinzenas
         /// </summary>
         /// <param name="StartDate"></param>
@@ -47,7 +47,7 @@ namespace InnerLibs.TimeMachine
                     }
 
                     var periodo1 = new DateRange(datas.Min(), datas.Max());
-                    var periodo2 = new DateRange(base[Key].Period.StartDate, base[Key].Period.EndDate);
+                    var periodo2 = new DateRange(base[Key].StartDate, base[Key].EndDate);
                     if (periodo1.MatchAny(periodo2))
                     {
                         lista.Add(ii);
@@ -187,7 +187,7 @@ namespace InnerLibs.TimeMachine
             };
             for (int index = 2, loopTo = FortnightCount.SetMinValue(1); index <= loopTo; index++)
             {
-                StartDate = l.Last().Period.EndDate.AddDays(1d);
+                StartDate = l.Last().EndDate.AddDays(1d);
                 l.Add(new Fortnight(StartDate));
             }
 
@@ -207,25 +207,25 @@ namespace InnerLibs.TimeMachine
         /// Retorna uma lista com todos os dias entre as quinzenas
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DateTime> AllDays => this.SelectMany(x => x.Period.StartDate.GetDaysBetween(x.Period.EndDate));
+        public IEnumerable<DateTime> AllDays => this.SelectMany(x => x.StartDate.GetDaysBetween(x.EndDate));
 
         /// <summary>
         /// Retorna a ultima data do periodo
         /// </summary>
         /// <returns></returns>
-        public DateTime EndDate => this.Last().Period.EndDate;
+        public DateTime EndDate => this.Last().EndDate;
 
         /// <summary>
         /// Retorna um periodo equivalente a este grupo de quinzena
         /// </summary>
         /// <returns></returns>
-        public DateRange Period => new DateRange(StartDate, EndDate);
+        public DateRange GetPeriod() => new DateRange(StartDate, EndDate);
 
         /// <summary>
         /// Retorna a data inicial do periodo
         /// </summary>
         /// <returns></returns>
-        public DateTime StartDate => this.First().Period.StartDate;
+        public DateTime StartDate => this.First().StartDate;
 
         /// <summary>
         /// Retorna uma quinzena a partir da sua Key
