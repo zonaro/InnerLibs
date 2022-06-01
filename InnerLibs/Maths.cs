@@ -21,8 +21,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<int> ArithmeticProgression(this int FirstNumber, int Constant, int Length)
         {
-            var PA = new List<int>();
-            PA.Add(FirstNumber);
+            var PA = new List<int>
+            {
+                FirstNumber
+            };
             for (int index = 1, loopTo = Length - 1; index <= loopTo; index++)
             {
                 PA.Add(PA.Last() + Constant);
@@ -180,22 +182,7 @@ namespace InnerLibs
         /// <param name="StartValue"></param>
         /// <param name="EndValue"></param>
         /// <returns></returns>
-        public static decimal CalculatePercentVariation(this decimal StartValue, decimal EndValue)
-        {
-            if (StartValue == 0m)
-            {
-                if (EndValue > 0m)
-                {
-                    return 100m;
-                }
-                else
-                {
-                    return 0m;
-                }
-            }
-
-            return (EndValue / StartValue - 1m) * 100m;
-        }
+        public static decimal CalculatePercentVariation(this decimal StartValue, decimal EndValue) => StartValue == 0m ? EndValue > 0m ? 100m : 0m : (EndValue / StartValue - 1m) * 100m;
 
         /// <summary>
         /// Calcula a variação percentual entre 2 valores
@@ -431,7 +418,7 @@ namespace InnerLibs
         {
             if (Value > 0m)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -441,7 +428,7 @@ namespace InnerLibs
         {
             if (Value > 0)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -451,7 +438,7 @@ namespace InnerLibs
         {
             if (Value > 0)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -461,7 +448,7 @@ namespace InnerLibs
         {
             if (Value > 0d)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -471,7 +458,7 @@ namespace InnerLibs
         {
             if (Value > 0f)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -491,7 +478,7 @@ namespace InnerLibs
         {
             if (Value < 0m)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -501,7 +488,7 @@ namespace InnerLibs
         {
             if (Value < 0)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -511,7 +498,7 @@ namespace InnerLibs
         {
             if (Value < 0)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -521,7 +508,7 @@ namespace InnerLibs
         {
             if (Value < 0d)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -531,7 +518,7 @@ namespace InnerLibs
         {
             if (Value < 0f)
             {
-                Value = Value * -1;
+                Value *= -1;
             }
 
             return Value;
@@ -556,8 +543,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<int> GeometricProgression(this int FirstNumber, int Constant, int Length)
         {
-            var PG = new List<int>();
-            PG.Add(FirstNumber);
+            var PG = new List<int>
+            {
+                FirstNumber
+            };
             for (int index = 1, loopTo = Length - 1; index <= loopTo; index++)
             {
                 PG.Add(PG.Last() * Constant);
@@ -565,7 +554,6 @@ namespace InnerLibs
 
             return PG;
         }
-
 
         public static long GetDecimalPlaces(this decimal Value, int DecimalPlaces = 0)
         {
@@ -584,8 +572,7 @@ namespace InnerLibs
             return Value.ToLong();
         }
 
-
-        /// <inheritdoc cref="GetOrdinal(long)"/>      
+        /// <inheritdoc cref="GetOrdinal(long)"/>
         public static string GetOrdinal(this int Number) => Number.ToLong().GetOrdinal();
 
         /// <inheritdoc cref="GetOrdinal(long)"/>
@@ -598,7 +585,7 @@ namespace InnerLibs
         public static string GetOrdinal(this double Number) => Number.ToLong().GetOrdinal();
 
         /// <summary>
-        /// Returns the ordinal suffix for given <paramref name="Number"/> 
+        /// Returns the ordinal suffix for given <paramref name="Number"/>
         /// </summary>
         /// <param name="Number"></param>
         /// <returns></returns>
@@ -660,7 +647,7 @@ namespace InnerLibs
 
         public static int LimitIndex<AnyType>(this int Int, IEnumerable<AnyType> Collection) => Int.LimitRange<int>(0, Collection.Count() - 1);
 
-        public static long LimitIndex<AnyType>(this long Lng, IEnumerable<AnyType> Collection) => Lng.LimitRange<int>(0, Collection.LongCount() - 1L);
+        public static long LimitIndex<AnyType>(this long Lng, IEnumerable<AnyType> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
 
         /// <summary>
         /// Limita um range para um numero
@@ -684,10 +671,6 @@ namespace InnerLibs
             return (T)Number;
         }
 
-
-
-
-
         /// <summary>
         /// Limita um range para um caractere
         /// </summary>
@@ -696,8 +679,6 @@ namespace InnerLibs
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
         public static string LimitRange(this string Number, string MinValue = null, string MaxValue = null) => Number.LimitRange<string>(MinValue, MaxValue);
-
-
 
         /// <summary>
         /// Limita um range para um caractere
@@ -708,8 +689,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static char LimitRange(this char Number, char? MinValue = null, char? MaxValue = null) => Number.LimitRange<char>(MinValue, MaxValue);
 
-
-
         /// <summary>
         /// Limita um range para um numero
         /// </summary>
@@ -718,7 +697,6 @@ namespace InnerLibs
         /// <param name="MaxValue">Valor máximo para o numero</param>
         /// <returns></returns>
         public static float LimitRange(this float Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<float>(MinValue, MaxValue);
-
 
         /// <summary>
         /// Limita um range para um numero
