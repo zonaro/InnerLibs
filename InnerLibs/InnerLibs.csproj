@@ -7,6 +7,11 @@
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="MicroORM\Parser\**" />
+    <EmbeddedResource Remove="MicroORM\Parser\**" />
+    <None Remove="MicroORM\Parser\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Remove="JSminifier.cs" />
   </ItemGroup>
   <ItemGroup>
