@@ -1,5 +1,4 @@
 ﻿using InnerLibs.LINQ;
-using InnerLibs.TimeMachine;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -293,7 +292,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static List<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            DateTimeExtensions.FixDateOrder(ref FirstDate, ref SecondDate);
+            Misc.FixOrder(ref FirstDate, ref SecondDate);
             return Directory.Search(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -331,7 +330,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static List<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            DateTimeExtensions.FixDateOrder(ref FirstDate, ref SecondDate);
+            Misc.FixOrder(ref FirstDate, ref SecondDate);
             return Directory.SearchDirectories(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -363,7 +362,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static List<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            DateTimeExtensions.FixDateOrder(ref FirstDate, ref SecondDate);
+            Misc.FixOrder(ref FirstDate, ref SecondDate);
             return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
     }

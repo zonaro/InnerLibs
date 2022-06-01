@@ -149,7 +149,7 @@ namespace InnerLibs.TimeMachine
             Format = Format.Replace("{aa}", _period.EndDate.Year.ToString(Culture).GetLastChars(2));
             Format = Format.Replace("{aaa}", _period.EndDate.Year.ToString(Culture));
             Format = Format.Replace("{aaaa}", _period.EndDate.Year.ToString(Culture));
-            Format = Format.Replace("{o}", Number.ToOrdinalNumber(true));
+            Format = Format.Replace("{o}", Number.GetOrdinal());
             return Format;
         }
 

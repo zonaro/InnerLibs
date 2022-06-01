@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using InnerLibs;
-using InnerLibs.TimeMachine;
 
 namespace InnerLibs.TimeMachine
 {
@@ -13,61 +11,7 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public static class DateTimeExtensions
     {
-        private static string ToGreetingFarewell(this DateTime Time, string Language = "pt", bool Farewell = false)
-        {
-            string bomdia = "Bom dia";
-            string boatarde = "Boa tarde";
-            string boanoite = "Boa noite";
-            string boanoite_despedida = boanoite;
-            string seDespedidaManha = "tenha um ótimo dia";
-            string seDespedidaTarde = "tenha uma ótima tarde";
-            switch (Language.ToLower() ?? "")
-            {
-                case "en":
-                case "eng":
-                case "ingles":
-                case "english":
-                case "inglés":
-                    {
-                        bomdia = "Good morning";
-                        boatarde = "Good afternoon";
-                        boanoite = "Good evening";
-                        boanoite_despedida = "Good night";
-                        seDespedidaManha = "have a nice day";
-                        seDespedidaTarde = "have a great afternoon";
-                        break;
-                    }
 
-                case "es":
-                case "esp":
-                case "espanhol":
-                case "espanol":
-                case "español":
-                case "spanish":
-                    {
-                        bomdia = "Buenos días";
-                        boatarde = "Buenas tardes";
-                        boanoite = "Buenas noches";
-                        boanoite_despedida = boanoite;
-                        seDespedidaManha = "que tengas un buen día";
-                        seDespedidaTarde = "que tengas una buena tarde";
-                        break;
-                    }
-            }
-
-            if (Time.Hour < 12)
-            {
-                return Farewell ? seDespedidaManha : bomdia;
-            }
-            else if (Time.Hour >= 12 && Time.Hour < 18)
-            {
-                return Farewell ? seDespedidaTarde : boatarde;
-            }
-            else
-            {
-                return Farewell ? boanoite_despedida : boanoite;
-            }
-        }
 
         public static DateTime BrazilianNow => TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"));
 
@@ -376,11 +320,17 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static decimal CalculateTimelinePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
         {
-            FixDateOrder(ref StartDate, ref EndDate);
+            Misc.FixOrder(ref StartDate, ref EndDate);
             if (MidDate < StartDate)
+            {
                 return 0m;
+            }
+
             if (MidDate > EndDate)
+            {
                 return 100m;
+            }
+
             return (decimal)((MidDate - StartDate).Ticks * 100L / (double)(EndDate - StartDate).Ticks);
         }
 
@@ -684,7 +634,10 @@ namespace InnerLibs.TimeMachine
         public static DateTime FirstDayOfWeek(this DateTime Date, DayOfWeek FirstDayOfWeek)
         {
             while (Date.DayOfWeek > FirstDayOfWeek)
+            {
                 Date = Date.AddDays(-1);
+            }
+
             return Date;
         }
 
@@ -719,15 +672,6 @@ namespace InnerLibs.TimeMachine
         /// <param name="current">The DateTimeOffset to adjust</param>
         /// <returns></returns>
         public static DateTimeOffset FirstDayOfYear(this DateTimeOffset current) => current.SetDate(current.Year, 1, 1);
-
-        /// <summary>
-        /// Troca ou não a ordem das variaveis de inicio e fim de um periodo fazendo com que a
-        /// StartDate sempre seja uma data menor que a EndDate, prevenindo que o calculo entre 2
-        /// datas resulte em um <see cref="TimeSpan"/> negativo
-        /// </summary>
-        /// <param name="StartDate">Data Inicial</param>
-        /// <param name="EndDate">Data Final</param>
-        public static void FixDateOrder(ref DateTime StartDate, ref DateTime EndDate) => Misc.FixOrder(ref StartDate, ref EndDate);
 
         /// <summary>
         /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
@@ -776,7 +720,10 @@ namespace InnerLibs.TimeMachine
             AtDate = AtDate.OrNow();
             int age = AtDate.Value.Year - BirthDate.Year;
             if (BirthDate > AtDate?.AddYears(-age))
+            {
                 age -= 1;
+            }
+
             return age;
         }
 
@@ -811,12 +758,30 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static int GetBimesterOfYear(this DateTime DateAndtime)
         {
-            if (DateAndtime.Month <= 2) return 1;
-            else if (DateAndtime.Month <= 4) return 2;
-            else if (DateAndtime.Month <= 6) return 3;
-            else if (DateAndtime.Month <= 8) return 4;
-            else if (DateAndtime.Month <= 10) return 5;
-            else return 6;
+            if (DateAndtime.Month <= 2)
+            {
+                return 1;
+            }
+            else if (DateAndtime.Month <= 4)
+            {
+                return 2;
+            }
+            else if (DateAndtime.Month <= 6)
+            {
+                return 3;
+            }
+            else if (DateAndtime.Month <= 8)
+            {
+                return 4;
+            }
+            else if (DateAndtime.Month <= 10)
+            {
+                return 5;
+            }
+            else
+            {
+                return 6;
+            }
         }
 
         /// <summary>
@@ -941,10 +906,22 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static int GetQuarterOfYear(this DateTime DateAndTime)
         {
-            if (DateAndTime.Month <= 3) return 1;
-            else if (DateAndTime.Month <= 6) return 2;
-            else if (DateAndTime.Month <= 9) return 3;
-            else return 4;
+            if (DateAndTime.Month <= 3)
+            {
+                return 1;
+            }
+            else if (DateAndTime.Month <= 6)
+            {
+                return 2;
+            }
+            else if (DateAndTime.Month <= 9)
+            {
+                return 3;
+            }
+            else
+            {
+                return 4;
+            }
         }
 
         /// <summary>
@@ -962,58 +939,25 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static string GetShortMonthName(this DateTime Date, CultureInfo Culture = null) => Date.ToString("MM", Culture ?? CultureInfo.CurrentCulture);
 
-        public static Dictionary<string, string> GetWeekDays(this CultureInfo Culture, CalendarFormat TextType = CalendarFormat.LongName, CalendarFormat ValueType = CalendarFormat.Number)
+        public static string GetWeekDay(this int WeekDay, CalendarFormat Type = CalendarFormat.LongName, CultureInfo Culture = default)
         {
             Culture = Culture ?? CultureInfo.CurrentCulture;
+
+            switch (Type)
+            {
+                case CalendarFormat.LongName: return WeekDay.ToLongDayOfWeekName(Culture);
+                case CalendarFormat.ShortName: return WeekDay.ToShortDayOfWeekName(Culture);
+                default: return WeekDay.ToString();
+            }
+        }
+
+        public static Dictionary<string, string> GetWeekDays(this CultureInfo Culture, CalendarFormat TextType = CalendarFormat.LongName, CalendarFormat ValueType = CalendarFormat.Number)
+        {
             var WeekDaysRet = new Dictionary<string, string>();
 
-            for (int i = 1; i <= 7; i++)
+            for (int weekday = 1; weekday <= 7; weekday++)
             {
-                string key;
-                switch (TextType)
-                {
-                    case CalendarFormat.LongName:
-                        {
-                            key = i.ToLongDayOfWeekName(Culture);
-                            break;
-                        }
-
-                    case CalendarFormat.ShortName:
-                        {
-                            key = i.ToShortDayOfWeekName(Culture);
-                            break;
-                        }
-
-                    default:
-                        {
-                            key = i.ToString();
-                            break;
-                        }
-                }
-
-                string value;
-                switch (ValueType)
-                {
-                    case CalendarFormat.LongName:
-                        {
-                            value = i.ToLongDayOfWeekName(Culture);
-                            break;
-                        }
-
-                    case CalendarFormat.ShortName:
-                        {
-                            value = i.ToShortDayOfWeekName(Culture);
-                            break;
-                        }
-
-                    default:
-                        {
-                            value = i.ToString();
-                            break;
-                        }
-                }
-
-                WeekDaysRet[key] = value;
+                WeekDaysRet[weekday.GetWeekDay(TextType, Culture)] = weekday.GetWeekDay(ValueType, Culture);
             }
 
             return WeekDaysRet;
@@ -1116,17 +1060,9 @@ namespace InnerLibs.TimeMachine
         public static bool IsBefore(this DateTimeOffset current, DateTimeOffset toCompareWith)
         => current < toCompareWith;
 
-        /// <summary>
-        /// Verifica se uma data se encontra entre 2 datas
-        /// </summary>
-        /// <param name="MidDate">Data</param>
-        /// <param name="StartDate">Data Inicial</param>
-        /// <param name="EndDate">Data final</param>
-        /// <param name="IgnoreTime">Indica se o tempo deve ser ignorado na comparação</param>
-        /// <returns></returns>
         public static bool IsBetween(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime)
         {
-            FixDateOrder(ref StartDate, ref EndDate);
+            Misc.FixOrder(ref StartDate, ref EndDate);
 
             if (IgnoreTime)
             {
@@ -1135,6 +1071,37 @@ namespace InnerLibs.TimeMachine
             else
             {
                 return MidDate.IsBetween(StartDate, EndDate);
+            }
+        }
+
+        ///<inheritdoc cref="Misc.IsBetweenExclusive(IComparable, IComparable, IComparable)"/>
+        public static bool IsBetweenExclusive(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime)
+        {
+            Misc.FixOrder(ref StartDate, ref EndDate);
+
+            if (IgnoreTime)
+            {
+                return MidDate.IsBetweenExclusive(StartDate.Date, EndDate.Date);
+            }
+            else
+            {
+                return MidDate.IsBetweenExclusive(StartDate, EndDate);
+            }
+        }
+
+        ///<inheritdoc cref="Misc.IsBetween(IComparable, IComparable, IComparable)"/>
+        ///<inheritdoc cref="Misc.IsBetweenOrEqual(IComparable, IComparable, IComparable)"/>
+        public static bool IsBetweenOrEqual(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime)
+        {
+            Misc.FixOrder(ref StartDate, ref EndDate);
+
+            if (IgnoreTime)
+            {
+                return MidDate.IsBetweenOrEqual(StartDate.Date, EndDate.Date);
+            }
+            else
+            {
+                return MidDate.IsBetweenOrEqual(StartDate, EndDate);
             }
         }
 
@@ -1196,7 +1163,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Primeira data</param>
         /// <param name="AnotherDate">Segunda data</param>
         /// <returns></returns>
-        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate) => Date.IsBetween(AnotherDate.FirstDayOfMonth().Date, AnotherDate.EndOfMonth());
+        public static bool IsSameMonthAndYear(this DateTime Date, DateTime AnotherDate) => Date.IsBetweenOrEqual(AnotherDate.FirstDayOfMonth().Date, AnotherDate.EndOfMonth());
 
         /// <summary>
         /// Determines whether the specified <see cref="DateTime"/> value is exactly the same year
@@ -1232,7 +1199,10 @@ namespace InnerLibs.TimeMachine
         {
             FromDate = FromDate ?? DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
+            {
                 FromDate = FromDate.Value.AddDays(-1);
+            }
+
             return (DateTime)FromDate;
         }
 
@@ -1452,7 +1422,10 @@ namespace InnerLibs.TimeMachine
         {
             FromDate = FromDate ?? DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
+            {
                 FromDate = FromDate.Value.AddDays(1d);
+            }
+
             return (DateTime)FromDate;
         }
 
@@ -2182,18 +2155,7 @@ namespace InnerLibs.TimeMachine
         /// <returns>A human readable string for <paramref name="timeSpan"/></returns>
         public static string ToDisplayString(this TimeSpan timeSpan) => new DateRange(timeSpan).ToString();
 
-        /// <summary>
-        /// Verifica se o dia se encontra no fim de semana
-        /// </summary>
-        /// <param name="YourDate">Uma data qualquer</param>
-        /// <returns>TRUE se for sabado ou domingo, caso contrario FALSE</returns>
-        /// <summary>
-        /// Transforma um DateTime em uma despedida (Bom dia, Boa tarde, Boa noite)
-        /// </summary>
-        /// <param name="Time">Horario</param>
-        /// <param name="Language">Idioma da saudação (pt, en, es)</param>
-        /// <returns>Uma string com a despedida</returns>
-        public static string ToFarewell(this DateTime Time, string Language = "pt") => Time.ToGreetingFarewell(Language, true);
+
 
         /// <summary>
         /// Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
@@ -2201,7 +2163,22 @@ namespace InnerLibs.TimeMachine
         /// <param name="Time">Horario</param>
         /// <param name="Language">Idioma da saudação (pt, en, es)</param>
         /// <returns>Uma string com a despedida</returns>
-        public static string ToGreeting(this DateTime Time, string Language = "pt") => Time.ToGreetingFarewell(Language, false);
+        public static string ToGreeting(this DateTime Time, string Morning, string Afternoon, string Night)
+        {
+
+            if (Time.Hour < 12)
+            {
+                return Morning;
+            }
+            else if (Time.Hour >= 12 && Time.Hour < 18)
+            {
+                return Afternoon;
+            }
+            else
+            {
+                return Night;
+            }
+        }
 
         public static string ToLongDayOfWeekName(this int DayNumber, CultureInfo Culture = null) => (Culture ?? CultureInfo.CurrentCulture).DateTimeFormat.GetDayName((DayOfWeek)DayNumber);
 

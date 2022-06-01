@@ -43,7 +43,7 @@ namespace InnerLibs.TimeMachine
 
         private void CalcRange()
         {
-            DateTimeExtensions.FixDateOrder(ref _startDate, ref _endDate);
+            Misc.FixOrder(ref _startDate, ref _endDate);
 
             int days = 0;
             int years = 0;
@@ -64,11 +64,11 @@ namespace InnerLibs.TimeMachine
 
             if (IsSingleDateTime())
             {
-                this._timeSpanBase = new TimeSpan(1, 0, 0, 0);
+                _timeSpanBase = new TimeSpan(1, 0, 0, 0);
             }
             else
             {
-                this._timeSpanBase = _endDate - _startDate;
+                _timeSpanBase = _endDate - _startDate;
             }
 
             var CurDate = _startDate;
@@ -139,7 +139,7 @@ namespace InnerLibs.TimeMachine
             switch (obj)
             {
                 case null: return false;
-                case DateRange dr: return this.GetHashCode() == dr.GetHashCode();
+                case DateRange dr: return GetHashCode() == dr.GetHashCode();
                 case TimeSpan ts: return TimeSpan.Equals(ts);
                 case int i: return GetHashCode() == i;
                 case long l: return Ticks == l;
@@ -567,7 +567,7 @@ namespace InnerLibs.TimeMachine
                 DateRangeInterval = GetLessAccurateDateRangeInterval();
             }
 
-            var dr = this.Clone();
+            var dr = Clone();
             dr.StartDate = StartDate.AddInterval(DateRangeInterval, Amount);
             dr.EndDate = EndDate.AddInterval(DateRangeInterval, Amount);
             return dr;
@@ -586,10 +586,10 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateRange Clone() => new DateRange(StartDate, EndDate)
         {
-            RelevantDaysOfWeek = this.RelevantDaysOfWeek,
-            FilterBehavior = this.FilterBehavior,
-            NoTime = this.NoTime,
-            ForceFirstAndLastMoments = this.ForceFirstAndLastMoments
+            RelevantDaysOfWeek = RelevantDaysOfWeek,
+            FilterBehavior = FilterBehavior,
+            NoTime = NoTime,
+            ForceFirstAndLastMoments = ForceFirstAndLastMoments
         };
 
         public int CompareTo(TimeSpan other) => TimeSpan.CompareTo(other);
@@ -607,7 +607,7 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        public int CompareTo(DateRange value) => this.TimeSpan.CompareTo(value?.TimeSpan ?? TimeSpan.Zero);
+        public int CompareTo(DateRange value) => TimeSpan.CompareTo(value?.TimeSpan ?? TimeSpan.Zero);
 
         /// <summary>
         /// Check if this <see cref="DateRange"/> contains another <see cref="DateRange"/>
@@ -632,8 +632,8 @@ namespace InnerLibs.TimeMachine
             {
                 switch (FilterBehavior)
                 {
-                    case DateRangeFilterBehavior.Between: return Day.IsBetween(StartDate, EndDate);
-                    case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return Day.IsBetweenOrEqualExcludeMax(StartDate, EndDate);
+                    case DateRangeFilterBehavior.Between: return Day.IsBetweenExclusive(StartDate, EndDate);
+                    case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return Day.IsBetween(StartDate, EndDate);
                     case DateRangeFilterBehavior.BetweenOrEqual:
                     default: return Day.IsBetweenOrEqual(StartDate, EndDate);
                 }
@@ -654,7 +654,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Day"></param>
         /// <returns></returns>
-        public bool Contains(DateTime Day) => Contains(Day, this.FilterBehavior);
+        public bool Contains(DateTime Day) => Contains(Day, FilterBehavior);
 
         /// <summary>
         /// Check if this <see cref="DateRange"/> contains a <see cref="DateTime"/> using the
@@ -662,7 +662,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Day"></param>
         /// <returns></returns>
-        public bool Contains(DateTime? Day) => Contains(Day, this.FilterBehavior);
+        public bool Contains(DateTime? Day) => Contains(Day, FilterBehavior);
 
         /// <summary>
         /// Cria um grupo de quinzenas que contenham este periodo
@@ -770,7 +770,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DateRangeInterval"></param>
         /// <returns></returns>
-        public IEnumerable<DateTime> GetDates(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => GetDates(this.FilterBehavior, DateRangeInterval);
+        public IEnumerable<DateTime> GetDates(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => GetDates(FilterBehavior, DateRangeInterval);
 
         /// <summary>
         /// Return a <see cref="IEnumerable{T}"/> of <see cref="DateTime"/> between <see
@@ -788,10 +788,13 @@ namespace InnerLibs.TimeMachine
             while (curdate <= EndDate)
             {
                 curdate = curdate.AddInterval(DateRangeInterval, 1d);
-                if (!l.Contains(curdate)) l.Add(curdate);
+                if (!l.Contains(curdate))
+                {
+                    l.Add(curdate);
+                }
             }
 
-            l.RemoveAll(x => !this.Contains(x, FilterBehavior));
+            l.RemoveAll(x => !Contains(x, FilterBehavior));
             l.Sort();
             return l;
         }
@@ -814,14 +817,38 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateRangeInterval GetLessAccurateDateRangeInterval()
         {
-            if (TotalYears.ForcePositive() >= 1d) return DateRangeInterval.Years;
-            else if (TotalMonths.ForcePositive() >= 1d) return DateRangeInterval.Months;
-            else if (TotalWeeks.ForcePositive() >= 1d) return DateRangeInterval.Weeks;
-            else if (TotalDays.ForcePositive() >= 1d || IsSingleDateTime()) return DateRangeInterval.Days;
-            else if (TotalHours.ForcePositive() >= 1d) return DateRangeInterval.Hours;
-            else if (TotalMinutes.ForcePositive() >= 1d) return DateRangeInterval.Minutes;
-            else if (TotalSeconds.ForcePositive() >= 1d) return DateRangeInterval.Seconds;
-            else return DateRangeInterval.Milliseconds;
+            if (TotalYears.ForcePositive() >= 1d)
+            {
+                return DateRangeInterval.Years;
+            }
+            else if (TotalMonths.ForcePositive() >= 1d)
+            {
+                return DateRangeInterval.Months;
+            }
+            else if (TotalWeeks.ForcePositive() >= 1d)
+            {
+                return DateRangeInterval.Weeks;
+            }
+            else if (TotalDays.ForcePositive() >= 1d || IsSingleDateTime())
+            {
+                return DateRangeInterval.Days;
+            }
+            else if (TotalHours.ForcePositive() >= 1d)
+            {
+                return DateRangeInterval.Hours;
+            }
+            else if (TotalMinutes.ForcePositive() >= 1d)
+            {
+                return DateRangeInterval.Minutes;
+            }
+            else if (TotalSeconds.ForcePositive() >= 1d)
+            {
+                return DateRangeInterval.Seconds;
+            }
+            else
+            {
+                return DateRangeInterval.Milliseconds;
+            }
         }
 
         /// <summary>
@@ -925,7 +952,7 @@ namespace InnerLibs.TimeMachine
         /// configured <see cref="FilterBehavior"/>
         /// </summary>
         /// <returns></returns>
-        public bool IsNow() => IsNow(this.FilterBehavior);
+        public bool IsNow() => IsNow(FilterBehavior);
 
         /// <summary>
         /// Check if this <see cref="DateRange"/> contains <see cref="DateTime.Now"/> using the
@@ -935,13 +962,13 @@ namespace InnerLibs.TimeMachine
         public bool IsNow(DateRangeFilterBehavior FilterBehavior) => Contains(DateTime.Now, FilterBehavior);
 
         /// <summary>
-        /// Retorna TRUE se a data de inicio e fim for a mesma
+        /// Return <b>true</b> when the date part of <see cref="StartDate"/> and <see cref="EndDate"/> are equal
         /// </summary>
         /// <returns></returns>
         public bool IsSingleDate() => StartDate.Date == EndDate.Date;
 
         /// <summary>
-        /// Retorna TRUE se a data e hora de inicio e fim for a mesma
+        /// Return <b>true</b> when <see cref="StartDate"/> and <see cref="EndDate"/> are equal
         /// </summary>
         /// <returns></returns>
         public bool IsSingleDateTime() => StartDate == EndDate;
@@ -951,7 +978,7 @@ namespace InnerLibs.TimeMachine
         /// configured <see cref="FilterBehavior"/>
         /// </summary>
         /// <returns></returns>
-        public bool IsToday() => IsToday(this.FilterBehavior);
+        public bool IsToday() => IsToday(FilterBehavior);
 
         /// <summary>
         /// Check if this <see cref="DateRange"/> contains <see cref="DateTime.Today"/> using the
@@ -1117,8 +1144,8 @@ namespace InnerLibs.TimeMachine
         /// Return a new identical instance of this <see cref="DateRange"/>
         /// </summary>
         /// <returns></returns>
-        object ICloneable.Clone() => this.Clone();
+        object ICloneable.Clone() => Clone();
 
-        int IComparable.CompareTo(object value) => this.CompareTo(value);
+        int IComparable.CompareTo(object value) => CompareTo(value);
     }
 }

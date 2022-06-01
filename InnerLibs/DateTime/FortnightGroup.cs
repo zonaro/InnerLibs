@@ -42,9 +42,12 @@ namespace InnerLibs.TimeMachine
                 {
                     var datas = new List<DateTime>();
                     foreach (var sel in DateSelector)
+                    {
                         datas.Add(sel(ii));
+                    }
+
                     var periodo1 = new DateRange(datas.Min(), datas.Max());
-                    var periodo2 = new DateRange((DateTime)base[(string)Key].Period.StartDate, (DateTime)base[(string)Key].Period.EndDate);
+                    var periodo2 = new DateRange(base[Key].Period.StartDate, base[Key].Period.EndDate);
                     if (periodo1.MatchAny(periodo2))
                     {
                         lista.Add(ii);
@@ -123,17 +126,16 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public new static FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
+        public static new FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            DateTimeExtensions.FixDateOrder(ref StartDate, ref EndDate);
-            int fortcount = 1;
-            var fort = new FortnightGroup<DataType>(StartDate, fortcount);
-            while (fort.EndDate < EndDate)
+            Misc.FixOrder(ref StartDate, ref EndDate);
+            int fortcount = 0;
+            FortnightGroup<DataType> fort;
+            do
             {
-                fortcount++;
-                fort = new FortnightGroup<DataType>(StartDate, fortcount);
+                fort = new FortnightGroup<DataType>(StartDate, fortcount++);
             }
-
+            while (fort.EndDate.Date < EndDate.Date);
             return fort;
         }
 
@@ -144,7 +146,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public new static FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange((DateTime)DateRange.StartDate, (DateTime)DateRange.EndDate);
+        public static new FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange(DateRange.StartDate, DateRange.EndDate);
 
         /// <summary>
         /// Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informações agrupadas
@@ -159,7 +161,7 @@ namespace InnerLibs.TimeMachine
                 var dt = this[k.Key];
                 if (dt.Any() || IncludeFortnightsWithoutData)
                 {
-                    d.Add(k, dt);
+                    d.Add(k, dt ?? Array.Empty<DataType>().AsEnumerable());
                 }
             }
 
@@ -247,15 +249,13 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static FortnightGroup CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            DateTimeExtensions.FixDateOrder(ref StartDate, ref EndDate);
-            int fortcount = 1;
-            var fort = new FortnightGroup(StartDate, fortcount);
-            while (fort.EndDate < EndDate)
+            Misc.FixOrder(ref StartDate, ref EndDate);
+            int fortcount = 0;
+            FortnightGroup fort;
+            do
             {
-                fortcount = fortcount + 1;
-                fort = new FortnightGroup(StartDate, fortcount);
-            }
-
+                fort = new FortnightGroup(StartDate, fortcount++);
+            } while (fort.EndDate.Date < EndDate.Date);
             return fort;
         }
 

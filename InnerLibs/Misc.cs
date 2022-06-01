@@ -225,7 +225,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static T Detach<T>(this List<T> List, int Index)
         {
-            if (Index.IsBetween(0, List.Count - 1))
+            if (Index.IsBetween(0, List.Count))
             {
                 var p = List.ElementAt(Index);
                 List.RemoveAt(Index);
@@ -765,57 +765,48 @@ namespace InnerLibs
         public static bool IsArrayOf<T>(this object Obj) => Obj.GetTypeOf().IsArrayOf<T>();
 
         /// <summary>
-        /// Verifica se um valor numerico ou data está entre outros 2 valores
+        /// Verifica se <paramref name="Value"/> está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
         /// </summary>
+        /// <remarks>Retorna <see cref="false"/> se  <paramref name="Value"/> for igual a <paramref name="MinValue"/> ou <paramref name="MaxValue"/>. <br/>Utilize <see cref="IsBetween(IComparable, IComparable, IComparable)"/> para incluir <paramref name="MinValue"/> ou <see cref="IsBetweenOrEqual(IComparable, IComparable, IComparable)"/> para incluir ambos </remarks>
         /// <param name="Value">Numero</param>
-        /// <param name="MinValue">Primeiro numero comparador</param>
-        /// <param name="MaxValue">Segundo numero comparador</param>
+        /// <param name="MinValue">Primeiro comparador</param>
+        /// <param name="MaxValue">Segundo comparador</param>
         /// <returns></returns>
-        public static bool IsBetween(this IComparable Value, IComparable MinValue, IComparable MaxValue)
+        public static bool IsBetweenExclusive(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
             FixOrder(ref MinValue, ref MaxValue);
-            return MinValue == MaxValue ? Value == MinValue : Value.IsLessThan(MaxValue) && Value.IsGreaterThan(MinValue);
+            return MinValue != MaxValue && Value.IsGreaterThan(MinValue) && Value.IsLessThan(MaxValue);
         }
 
+
+
+
         /// <summary>
-        /// Verifica se um valor numerico ou data está entre outros 2 valores
+        /// Verifica se <paramref name="Value"/> é igual ou está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
         /// </summary>
+        /// <remarks>Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/> ou <paramref name="MaxValue"/>. <br/>Utilize <see cref="IsBetween(IComparable, IComparable, IComparable)" /> para excluir <paramref name="MaxValue"/> ou <see cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir ambos </remarks>
         /// <param name="Value">Numero</param>
-        /// <param name="MinValue">Primeiro numero comparador</param>
-        /// <param name="MaxValue">Segundo numero comparador</param>
+        /// <param name="MinValue">Primeiro comparador</param>
+        /// <param name="MaxValue">Segundo comparador</param>
         /// <returns></returns>
         public static bool IsBetweenOrEqual(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
             FixOrder(ref MinValue, ref MaxValue);
-            if (MinValue == MaxValue)
-            {
-                return Value == MinValue;
-            }
-            else
-            {
-                return Value.IsLessThanOrEqual(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
-            }
+            return MinValue == MaxValue ? Value == MinValue : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
         /// <summary>
-        /// Verifica se um valor numerico ou data está entre outros 2 valores, excluindo <paramref
-        /// name="MaxValue"/> da comparaçao
+        /// Verifica se <paramref name="Value"/> é igual a  <paramref name="MinValue"/> ou está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
         /// </summary>
+        /// <remarks>Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>. Retorna <b>false</b> se <paramref name="Value"/> for igual a <paramref name="MaxValue"/>. <br/>Utilize <see cref="IsBetweenOrEqual(IComparable, IComparable, IComparable)" /> para incluir <paramref name="MaxValue"/> ou <see cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir <paramref name="MinValue"/> </remarks>
         /// <param name="Value">Numero</param>
-        /// <param name="MinValue">Primeiro numero comparador</param>
-        /// <param name="MaxValue">Segundo numero comparador</param>
+        /// <param name="MinValue">Primeiro comparador</param>
+        /// <param name="MaxValue">Segundo comparador</param>
         /// <returns></returns>
-        public static bool IsBetweenOrEqualExcludeMax(this IComparable Value, IComparable MinValue, IComparable MaxValue)
+        public static bool IsBetween(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
             FixOrder(ref MinValue, ref MaxValue);
-            if (MinValue == MaxValue)
-            {
-                return Value == MinValue;
-            }
-            else
-            {
-                return Value.IsLessThan(MaxValue) && Value.IsGreaterThanOrEqual(MinValue);
-            }
+            return MinValue == MaxValue ? Value == MinValue : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
         }
 
         /// <summary>
@@ -964,29 +955,25 @@ namespace InnerLibs
 
         public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
 
-        public static NameValueCollection Merge(this IEnumerable<NameValueCollection> Collections)
-        {
-            Collections = Collections ?? new List<NameValueCollection>();
-            switch (Collections.Count())
-            {
-                case 0: return new NameValueCollection();
-                case 1: return new NameValueCollection(Collections.FirstOrDefault() ?? new NameValueCollection());
-                default:
-                    var all = new NameValueCollection(Collections.FirstOrDefault() ?? new NameValueCollection());
-                    foreach (var i in Collections)
-                    {
-                        all.Add(i);
-                    }
-
-                    return all;
-            }
-        }
-
         /// <summary>
         /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
         /// </summary>
         /// <param name="Collections"></param>
         /// <returns></returns>
+        public static NameValueCollection Merge(this IEnumerable<NameValueCollection> Collections)
+        {
+            Collections = Collections ?? new List<NameValueCollection>();
+            var all = new NameValueCollection();
+            foreach (var i in Collections)
+            {
+                all.Add(i);
+            }
+
+            return all;
+
+        }
+
+
         /// <summary>
         /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
         /// </summary>
@@ -1012,7 +999,7 @@ namespace InnerLibs
             ToList = ToList ?? new List<T>();
             if (FromList != null)
             {
-                Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count - 1)).ToArray() ?? Array.Empty<int>();
+                Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count)).ToArray() ?? Array.Empty<int>();
                 foreach (var index in Indexes ?? Array.Empty<int>())
                 {
                     ToList.Add(FromList.Detach(index));

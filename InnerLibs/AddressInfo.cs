@@ -108,6 +108,70 @@ namespace InnerLibs.Locations
         FullAddress = Street + LocationInfo + Neighborhood + CityStateCode + Country + PostalCode
     }
 
+    public static class AddressTypes
+    {
+        public static string[] Aeroporto => new[] { "Aeroporto", "Ar", "Aero", "Air" };
+        public static string[] Alameda => new[] { "Alameda", "Al", "Alm" };
+        public static string[] Área => new[] { "Área", "Area" };
+        public static string[] Avenida => new[] { "Avenida", "Av", "Avn" };
+        public static string[] Campo => new[] { "Cam", "Camp", "Campo" };
+        public static string[] Chácara => new[] { "Cha", "Chac", "Chacara" };
+        public static string[] Colônia => new[] { "Col", "Colonia" };
+        public static string[] Comunidade => new[] { "Com", "Comunidade" };
+        public static string[] Condomínio => new[] { "Condominio", "Cond" };
+        public static string[] Conjunto => new[] { "Conjunto", "Con" };
+        public static string[] Distrito => new[] { "Dis", "Dst", "Distrito" };
+        public static string[] Esplanada => new[] { "Esp", "Esplanada" };
+        public static string[] Estação => new[] { "Estacao", "Est", "St" };
+        public static string[] Estrada => new[] { "Et", "Es", "Estrada" };
+        public static string[] Favela => new[] { "Fav", "Favela" };
+        public static string[] Feira => new[] { "Fei", "Fr", "Feira" };
+        public static string[] Jardim => new[] { "Jd", "Jardim", "Jar" };
+        public static string[] Ladeira => new[] { "Lad", "Ld", "Ladeira" };
+        public static string[] Lago => new[] { "Lago", "Lg" };
+        public static string[] Lagoa => new[] { "Lagoa", "Lga" };
+        public static string[] Largo => new[] { "Lrg", "Largo", "Lgo" };
+        public static string[] Loteamento => new[] { "Lote", "Loteamento", "Lt" };
+        public static string[] Morro => new[] { "Mr", "Mrr", "Morro", "Mor" };
+        public static string[] Núcleo => new[] { "Nc", "Nucleo", "Nuc" };
+        public static string[] Parque => new[] { "Parque", "Pq", "Pk", "Par", "Parq", "Park" };
+        public static string[] Passarela => new[] { "Pass", "Pas", "Pa", "Passarela" };
+        public static string[] Pátio => new[] { "Pt", "Pat", "Pateo", "Patio" };
+        public static string[] Praça => new[] { "Praça", "Pc", "Praca", "Pç" };
+        public static string[] Quadra => new[] { "Qd", "Quadra", "Quad" };
+        public static string[] Recanto => new[] { "Rec", "Recanto", "Rc" };
+        public static string[] Residencial => new[] { "Residencial", "Residencia", "Res", "Resid" };
+        public static string[] Rodovia => new[] { "Rodovia", "Rod" };
+        public static string[] Rua => new[] { "Rua", "R" };
+        public static string[] Setor => new[] { "Setor", "Str" };
+        public static string[] Sítio => new[] { "Sitio", "Sit" };
+        public static string[] Travessa => new[] { "Trv", "Travessa", "Tvs" };
+        public static string[] Trecho => new[] { "Trc", "Trecho" };
+        public static string[] Trevo => new[] { "Trevo" };
+        public static string[] Vale => new[] { "Vale", "Val" };
+        public static string[] Vereda => new[] { "Vereda" };
+        public static string[] Via => new[] { "Via" };
+        public static string[] Viaduto => new[] { "Vd", "Viaduto" };
+        public static string[] Viela => new[] { "Viela" };
+        public static string[] Vila => new[] { "Vila", "Vl" };
+
+        public static string GetAddressType(string Endereco) => GetAddressTypeProperty(Endereco)?.Name.IfBlank("");
+
+        public static string[] GetAddressTypeList(string Endereco) => (string[])(GetAddressTypeProperty(Endereco)?.GetValue(null) ?? new string[] { });
+
+        public static PropertyInfo GetAddressTypeProperty(string Endereco)
+        {
+            string tp = Endereco.IfBlank("").Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).FirstOr("");
+            if (tp.IsNotBlank())
+            {
+                var df = typeof(AddressTypes);
+                return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).FirstOrDefault(x => x.Name == tp || tp.IsIn((string[])x.GetValue(null)));
+            }
+
+            return null;
+        }
+    }
+
     /// <summary>
     /// Representa um deteminado local com suas Informações
     /// </summary>
@@ -119,12 +183,6 @@ namespace InnerLibs.Locations
         private AddressPart _format = AddressPart.Default;
 
         private Dictionary<string, string> details = new Dictionary<string, string>();
-
-        internal static bool ContainsPart(AddressPart Parts, AddressPart OtherPart)
-        {
-            return Parts.HasFlag(OtherPart);
-            // Return ((Parts) And OtherPart) <> 0
-        }
 
         /// <summary>
         /// Cria um novo objeto de localização
@@ -158,54 +216,26 @@ namespace InnerLibs.Locations
 
         public string City
         {
-            get
-            {
-                return this["city"];
-            }
-
-            set
-            {
-                this["city"] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(City)];
+            set => this[nameof(City)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         public string Complement
         {
-            get
-            {
-                return this["complement"];
-            }
-
-            set
-            {
-                this["complement"] = value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(Complement)];
+            set => this[nameof(Complement)] = value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         public string Country
         {
-            get
-            {
-                return this["country"];
-            }
-
-            set
-            {
-                this["country"] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(Country)];
+            set => this[nameof(Country)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         public string CountryCode
         {
-            get
-            {
-                return this["countrycode"];
-            }
-
-            set
-            {
-                this["countrycode"] = value.IfBlank("").ToUpper().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(CountryCode)];
+            set => this[nameof(CountryCode)] = value.IfBlank("").ToUpper().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         /// <summary>
@@ -234,46 +264,19 @@ namespace InnerLibs.Locations
         /// Retorna o endereço completo
         /// </summary>
         /// <returns>Uma String com o endereço completo devidamente formatado</returns>
-        public string FullAddress
-        {
-            get
-            {
-                return ToString(AddressPart.FullAddress);
-            }
-        }
+        public string FullAddress => ToString(AddressPart.FullAddress);
 
         /// <summary>
         /// Logradouro, Numero e Complemento
         /// </summary>
         /// <returns>Uma String com o endereço completo devidamente formatado</returns>
-        public string FullLocationInfo
-        {
-            get
-            {
-                return ToString(AddressPart.FullLocationInfo);
-            }
-        }
+        public string FullLocationInfo => ToString(AddressPart.FullLocationInfo);
 
-        /// <summary>
-        /// País
-        /// </summary>
-        /// <value></value>
-        /// <returns>País</returns>
-        /// <summary>
-        /// País
-        /// </summary>
-        /// <value></value>
-        /// <returns>País</returns>
-        /// <summary>
-        /// Coordenada geográfica LATITUDE
-        /// </summary>
-        /// <value></value>
-        /// <returns>Latitude</returns>
         public decimal? Latitude
         {
             get
             {
-                string value = this["Latitude"];
+                string value = this[nameof(Latitude)];
                 if (value != null)
                 {
                     return Convert.ToDecimal(value, new CultureInfo("en-US"));
@@ -286,7 +289,11 @@ namespace InnerLibs.Locations
             {
                 if (value.HasValue)
                 {
-                    this["Latitude"] = Convert.ToString(value.Value, new CultureInfo("en-US"));
+                    this[nameof(Latitude)] = Convert.ToString(value.Value, new CultureInfo("en-US"));
+                }
+                else
+                {
+                    Remove(nameof(Latitude));
                 }
             }
         }
@@ -295,13 +302,7 @@ namespace InnerLibs.Locations
         /// Retorna o Logradouro e numero
         /// </summary>
         /// <returns>Uma String com o endereço completo devidamente formatado</returns>
-        public string LocationInfo
-        {
-            get
-            {
-                return ToString(AddressPart.LocationInfo);
-            }
-        }
+        public string LocationInfo => ToString(AddressPart.LocationInfo);
 
         /// <summary>
         /// Coordenada geográfica LONGITUDE
@@ -312,7 +313,7 @@ namespace InnerLibs.Locations
         {
             get
             {
-                string value = this["Longitude"];
+                string value = this[nameof(Longitude)];
                 if (value != null)
                 {
                     return Convert.ToDecimal(value, new CultureInfo("en-US"));
@@ -325,7 +326,11 @@ namespace InnerLibs.Locations
             {
                 if (value.HasValue)
                 {
-                    this["Longitude"] = Convert.ToString(value, new CultureInfo("en-US"));
+                    this[nameof(Longitude)] = Convert.ToString(value, new CultureInfo("en-US"));
+                }
+                else
+                {
+                    Remove(nameof(Longitude));
                 }
             }
         }
@@ -339,80 +344,38 @@ namespace InnerLibs.Locations
 
         public string Neighborhood
         {
-            get
-            {
-                return this["Neighborhood"];
-            }
-
-            set
-            {
-                this["Neighborhood"] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(Neighborhood)];
+            set => this[nameof(Neighborhood)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         public string Number
         {
-            get
-            {
-                return this["number"];
-            }
-
-            set
-            {
-                this["number"] = value;
-            }
+            get => this[nameof(Number)];
+            set => this[nameof(Number)] = value;
         }
 
         public string PostalCode
         {
-            get
-            {
-                return this["PostalCode"];
-            }
-
-            set
-            {
-                this["PostalCode"] = FormatPostalCode(value);
-            }
+            get => this[nameof(PostalCode)];
+            set => this[nameof(PostalCode)] = FormatPostalCode(value);
         }
 
         public string Region
         {
-            get
-            {
-                return this["region"];
-            }
-
-            set
-            {
-                this["region"] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(Region)];
+            set => this[nameof(Region)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         public string State
         {
-            get
-            {
-                return this["state"];
-            }
-
-            set
-            {
-                this["state"] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(State)];
+            set => this[nameof(State)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         public string StateCode
         {
-            get
-            {
-                return this["statecode"];
-            }
-
-            set
-            {
-                this["statecode"] = value.IfBlank("").ToUpper().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            get => this[nameof(StateCode)];
+            set => this[nameof(StateCode)] = value.IfBlank("").ToUpper().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         /// <summary>
@@ -421,20 +384,17 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public string Street
         {
-            get
-            {
-                return this["street"];
-            }
+            get => this[nameof(Street)];
 
             set
             {
                 if (value.IsNotBlank())
                 {
-                    this["street"] = $"{AddressTypes.GetAddressType(value)} {value.TrimAny(true, AddressTypes.GetAddressTypeList(value))}".AdjustBlankSpaces().ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+                    this[nameof(Street)] = $"{AddressTypes.GetAddressType(value)} {value.TrimAny(true, AddressTypes.GetAddressTypeList(value))}".AdjustBlankSpaces().ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
                 }
                 else
                 {
-                    this["street"] = null;
+                    this[nameof(Street)] = null;
                 }
             }
         }
@@ -452,15 +412,9 @@ namespace InnerLibs.Locations
         /// <returns>CEP</returns>
         public string ZipCode
         {
-            get
-            {
-                return PostalCode;
-            }
+            get => PostalCode;
 
-            set
-            {
-                PostalCode = value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
-            }
+            set => PostalCode = value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
         }
 
         public string this[string key]
@@ -468,7 +422,10 @@ namespace InnerLibs.Locations
             get
             {
                 if (details is null)
+                {
                     details = new Dictionary<string, string>();
+                }
+
                 key = key.ToLower();
                 if (!details.ContainsKey(key))
                 {
@@ -533,10 +490,7 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static AddressInfo CreateLocation(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "")
-        {
-            return CreateLocation<AddressInfo>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
-        }
+        public static AddressInfo CreateLocation(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "") => CreateLocation<AddressInfo>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
 
         /// <summary>
         /// Cria uma localização a partir de partes de endereço
@@ -570,7 +524,7 @@ namespace InnerLibs.Locations
             }
             else
             {
-                if ((State?.Length) == 2 == true)
+                if ((State?.Length) == 2)
                 {
                     l.StateCode = State;
                 }
@@ -579,9 +533,9 @@ namespace InnerLibs.Locations
                     l.State = State;
                 }
 
-                if ((Country?.Length) == 2 == true)
+                if ((Country?.Length) == 2)
                 {
-                    l.CountryCode = Country;
+                    l.CountryCode = Country.ToUpper();
                 }
                 else
                 {
@@ -604,36 +558,8 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static string FormatAddress(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "")
-        {
-            return CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).FullAddress;
-        }
+        public static string FormatAddress(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "") => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).FullAddress;
 
-        /// <summary>
-        /// Numero da casa, predio etc.
-        /// </summary>
-        /// <value></value>
-        /// <returns>Numero</returns>
-        /// <summary>
-        /// Complemento
-        /// </summary>
-        /// <value></value>
-        /// <returns>Complemento</returns>
-        /// <summary>
-        /// Bairro
-        /// </summary>
-        /// <value></value>
-        /// <returns>Bairro</returns>
-        /// <summary>
-        /// CEP - Codigo de Endereçamento Postal
-        /// </summary>
-        /// <value></value>
-        /// <returns>CEP</returns>
-        /// <summary>
-        /// Formata uma string de CEP
-        /// </summary>
-        /// <param name="CEP"></param>
-        /// <returns></returns>
         public static string FormatPostalCode(string CEP)
         {
             CEP = CEP.IfBlank("").Trim();
@@ -657,10 +583,7 @@ namespace InnerLibs.Locations
         /// <param name="Address">Endereço para Busca</param>
         /// <param name="Key">Chave de acesso da API</param>
         /// <returns></returns>
-        public static AddressInfo FromGoogleMaps(string Address, string Key, NameValueCollection NVC = null)
-        {
-            return FromGoogleMaps<AddressInfo>(Address, Key, NVC);
-        }
+        public static AddressInfo FromGoogleMaps(string Address, string Key, NameValueCollection NVC = null) => FromGoogleMaps<AddressInfo>(Address, Key, NVC);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para
@@ -784,10 +707,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(long PostalCode, string Number = null, string Complement = null)
-        {
-            return FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
-        }
+        public static AddressInfo FromViaCEP(long PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -795,10 +715,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null)
-        {
-            return FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
-        }
+        public static AddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -806,10 +723,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static T FromViaCEP<T>(long PostalCode, string Number = null, string Complement = null) where T : AddressInfo
-        {
-            return FromViaCEP<T>(PostalCode.ToString().PadLeft(8, '0'), Number, Complement);
-        }
+        public static T FromViaCEP<T>(long PostalCode, string Number = null, string Complement = null) where T : AddressInfo => FromViaCEP<T>(PostalCode.ToString().PadLeft(8, '0'), Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -823,9 +737,15 @@ namespace InnerLibs.Locations
             d["original_string"] = PostalCode;
             d.PostalCode = PostalCode;
             if (Number.IsNotBlank())
+            {
                 d.Number = Number;
+            }
+
             if (Complement.IsNotBlank())
+            {
                 d.Complement = Complement;
+            }
+
             try
             {
                 string url = "https://viacep.com.br/ws/" + d.PostalCode.RemoveAny("-") + "/xml/";
@@ -884,15 +804,9 @@ namespace InnerLibs.Locations
             return d;
         }
 
-        public static implicit operator AddressInfo(Point Point)
-        {
-            return new AddressInfo().SetLatitudeLongitudeFromPoint(Point);
-        }
+        public static implicit operator AddressInfo(Point Point) => new AddressInfo().SetLatitudeLongitudeFromPoint(Point);
 
-        public static implicit operator Point(AddressInfo AddressInfo)
-        {
-            return (Point)AddressInfo?.GetPoint();
-        }
+        public static implicit operator Point(AddressInfo AddressInfo) => (Point)AddressInfo?.GetPoint();
 
         /// <summary>
         /// Tenta extrair as partes de um endereço de uma string
@@ -1023,75 +937,23 @@ namespace InnerLibs.Locations
             return d;
         }
 
-        public void Add(string key, string value)
-        {
-            this[key] = value;
-        }
+        public void Add(string key, string value) => this[key] = value;
 
-        public void Clear()
-        {
-            details.Clear();
-        }
+        public void Clear() => details.Clear();
 
-        public bool ContainsKey(string key)
-        {
-            return details.ContainsKey(key.ToLower());
-        }
+        public bool ContainsKey(string key) => details.ContainsKey(key.ToLower());
 
         /// <summary>
         /// Retona uma informação deste endereço
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public Dictionary<string, string> GetDetails()
-        {
-            return details;
-        }
+        public Dictionary<string, string> GetDetails() => details.ToDictionary();
 
-        /// <summary>
-        /// Cidade
-        /// </summary>
-        /// <value></value>
-        /// <returns>Cidade</returns>
-        /// <summary>
-        /// Estado
-        /// </summary>
-        /// <value></value>
-        /// <returns>Estado</returns>
-        /// <summary>
-        /// Unidade federativa
-        /// </summary>
-        /// <value></value>
-        /// <returns>Sigla do estado</returns>
-        /// <summary>
-        /// País
-        /// </summary>
-        /// <value></value>
-        /// <returns>País</returns>
-        public Point GetPoint()
-        {
-            if (Latitude.HasValue && Longitude.HasValue)
-            {
-                return new Point((Longitude * 1000000).ToInt(), (Latitude * 1000000).ToInt());
-            }
+        public Point GetPoint() => Latitude.HasValue && Longitude.HasValue ? new Point((Longitude * 1000000).ToInt(), (Latitude * 1000000).ToInt()) : new Point();
 
-            return new Point();
-        }
+        public string LatitudeLongitude() => Latitude.HasValue && Longitude.HasValue ? $"{Latitude?.ToString(new CultureInfo("en-US"))}, {Longitude?.ToString(new CultureInfo("en-US"))}" : null;
 
-        public string LatitudeLongitude()
-        {
-            if (Latitude.HasValue && Longitude.HasValue)
-            {
-                return $"{Latitude?.ToString(new CultureInfo("en-US"))}, {Longitude?.ToString(new CultureInfo("en-US"))}";
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Retorna as coordenadas geográficas do Local
-        /// </summary>
-        /// <returns>Uma String contendo LATITUDE e LONGITUDE separados por virgula</returns>
         public bool Remove(string key)
         {
             if (ContainsKey(key))
@@ -1105,8 +967,8 @@ namespace InnerLibs.Locations
 
         public AddressInfo SetLatitudeLongitudeFromPoint(Point Point)
         {
-            Longitude = (decimal?)((double)Point.X.ToDecimal() * 0.000001d);
-            Latitude = (decimal?)((double)Point.Y.ToDecimal() * 0.000001d);
+            Longitude = Point.X * 0.000001m;
+            Latitude = Point.Y * 0.000001m;
             return this;
         }
 
@@ -1114,10 +976,7 @@ namespace InnerLibs.Locations
         /// Retorna uma String contendo as informações do Local
         /// </summary>
         /// <returns>string</returns>
-        public override string ToString()
-        {
-            return ToString(Format);
-        }
+        public override string ToString() => ToString(Format);
 
         /// <summary>
         /// Retorna uma string com as partes dos endereço especificas
@@ -1131,7 +990,10 @@ namespace InnerLibs.Locations
             {
                 var d = Parts.First();
                 foreach (var p in Parts.Skip(1))
-                    d = d | p;
+                {
+                    d |= p;
+                }
+
                 return ToString(d);
             }
 
@@ -1151,145 +1013,34 @@ namespace InnerLibs.Locations
                 Parts = Format;
             }
 
-            retorno = retorno.AppendIf(Type, Type.IsNotBlank() && ContainsPart(Parts, AddressPart.StreetType));
-            retorno = retorno.AppendIf($" {Name}", Name.IsNotBlank() && ContainsPart(Parts, AddressPart.StreetName));
-            retorno = retorno.AppendIf($", {Number}", Number.IsNotBlank() && ContainsPart(Parts, AddressPart.Number));
-            retorno = retorno.AppendIf($", {Complement}", Complement.IsNotBlank() && ContainsPart(Parts, AddressPart.Complement));
-            retorno = retorno.AppendIf($" - {Neighborhood}", Neighborhood.IsNotBlank() && ContainsPart(Parts, AddressPart.Neighborhood));
-            retorno = retorno.AppendIf($" - {City}", City.IsNotBlank() && ContainsPart(Parts, AddressPart.City));
-            if (ContainsPart(Parts, AddressPart.State) && State.IsNotBlank())
+            retorno = retorno.AppendIf(Type, Type.IsNotBlank() && Parts.HasFlag(AddressPart.StreetType));
+            retorno = retorno.AppendIf($" {Name}", Name.IsNotBlank() && Parts.HasFlag(AddressPart.StreetName));
+            retorno = retorno.AppendIf($", {Number}", Number.IsNotBlank() && Parts.HasFlag(AddressPart.Number));
+            retorno = retorno.AppendIf($", {Complement}", Complement.IsNotBlank() && Parts.HasFlag(AddressPart.Complement));
+            retorno = retorno.AppendIf($" - {Neighborhood}", Neighborhood.IsNotBlank() && Parts.HasFlag(AddressPart.Neighborhood));
+            retorno = retorno.AppendIf($" - {City}", City.IsNotBlank() && Parts.HasFlag(AddressPart.City));
+
+            if (Parts.HasFlag(AddressPart.State) && State.IsNotBlank())
             {
-                retorno = retorno.AppendIf($" - {State}", State.IsNotBlank() && ContainsPart(Parts, AddressPart.State));
+                retorno = retorno.AppendIf($" - {State}", State.IsNotBlank() && Parts.HasFlag(AddressPart.State));
             }
             else
             {
-                retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() && ContainsPart(Parts, AddressPart.StateCode));
+                retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() && Parts.HasFlag(AddressPart.StateCode));
             }
 
-            retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() && ContainsPart(Parts, AddressPart.PostalCode));
-            if (ContainsPart(Parts, AddressPart.Country) && Country.IsNotBlank())
+            retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() && Parts.HasFlag(AddressPart.PostalCode));
+
+            if (Parts.HasFlag(AddressPart.Country) && Country.IsNotBlank())
             {
-                retorno = retorno.AppendIf($" - {Country}", State.IsNotBlank() && ContainsPart(Parts, AddressPart.Country));
+                retorno = retorno.AppendIf($" - {Country}", Country.IsNotBlank() && Parts.HasFlag(AddressPart.Country));
             }
             else
             {
-                retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() && ContainsPart(Parts, AddressPart.CountryCode));
+                retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() && Parts.HasFlag(AddressPart.CountryCode));
             }
 
-            return retorno.AdjustBlankSpaces().TrimAny(true, ".", " ", ",", " ", "-");
-        }
-    }
-
-    public class AddressTypes
-    {
-        public string[] Aeroporto { get; private set; } = new[] { "Aeroporto", "Ar", "Aero" };
-
-        public string[] Alameda { get; private set; } = new[] { "Alameda", "Al", "Alm" };
-
-        public string[] Área { get; private set; } = new[] { "Área", "Area" };
-
-        public string[] Avenida { get; private set; } = new[] { "Avenida", "Av", "Avn" };
-
-        public string[] Campo { get; private set; } = new[] { "Cam", "Camp", "Campo" };
-
-        public string[] Chácara { get; private set; } = new[] { "Cha", "Chac", "Chacara" };
-
-        public string[] Colônia { get; private set; } = new[] { "Col", "Colonia" };
-
-        public string[] Comunidade { get; private set; } = new[] { "Com", "Comunidade" };
-
-        public string[] Condomínio { get; private set; } = new[] { "Condominio", "Cond" };
-
-        public string[] Conjunto { get; private set; } = new[] { "Conjunto", "Con" };
-
-        public string[] Distrito { get; private set; } = new[] { "Dis", "Dst", "Distrito" };
-
-        public string[] Esplanada { get; private set; } = new[] { "Esp", "Esplanada" };
-
-        public string[] Estação { get; private set; } = new[] { "Estacao", "Est", "st" };
-
-        public string[] Estrada { get; private set; } = new[] { "Et", "Es", "Estrada" };
-
-        public string[] Favela { get; private set; } = new[] { "Fav", "Favela" };
-
-        public string[] Feira { get; private set; } = new[] { "Fei", "Fr", "Feira" };
-
-        public string[] Jardim { get; private set; } = new[] { "Jd", "Jardim", "Jar" };
-
-        public string[] Ladeira { get; private set; } = new[] { "Lad", "Ld", "Ladeira" };
-
-        public string[] Lago { get; private set; } = new[] { "Lago", "Lg" };
-
-        public string[] Lagoa { get; private set; } = new[] { "Lagoa", "Lga" };
-
-        public string[] Largo { get; private set; } = new[] { "Lrg", "Largo", "Lgo" };
-
-        public string[] Loteamento { get; private set; } = new[] { "Lote", "Loteamento", "Lt" };
-
-        public string[] Morro { get; private set; } = new[] { "Mr", "Mrr", "Morro", "Mor" };
-
-        public string[] Núcleo { get; private set; } = new[] { "Nc", "Nucleo", "Nuc" };
-
-        public string[] Parque { get; private set; } = new[] { "Parque", "Pq", "Pk", "Par", "Parq", "Park" };
-
-        public string[] Passarela { get; private set; } = new[] { "Pass", "Pas", "Pa", "Passarela" };
-
-        public string[] Pátio { get; private set; } = new[] { "Pt", "Pat", "Pateo", "Patio" };
-
-        public string[] Praça { get; private set; } = new[] { "Praça", "Pc", "Praca", "Pç" };
-
-        public string[] Quadra { get; private set; } = new[] { "Qd", "Quadra", "Quad" };
-
-        public string[] Recanto { get; private set; } = new[] { "Rec", "Recanto", "Rc" };
-
-        public string[] Residencial { get; private set; } = new[] { "Residencial", "Residencia", "Res", "Resid" };
-
-        public string[] Rodovia { get; private set; } = new[] { "Rodovia", "Rod" };
-
-        public string[] Rua { get; private set; } = new[] { "Rua", "R" };
-
-        public string[] Setor { get; private set; } = new[] { "Setor", "Str" };
-
-        public string[] Sítio { get; private set; } = new[] { "Sitio", "Sit" };
-
-        public string[] Travessa { get; private set; } = new[] { "Trv", "Travessa", "Tvs" };
-
-        public string[] Trecho { get; private set; } = new[] { "Trc", "Trecho" };
-
-        public string[] Trevo { get; private set; } = new[] { "Trevo" };
-
-        public string[] Vale { get; private set; } = new[] { "Vale", "Val" };
-
-        public string[] Vereda { get; private set; } = new[] { "Vereda" };
-
-        public string[] Via { get; private set; } = new[] { "Via" };
-
-        public string[] Viaduto { get; private set; } = new[] { "Vd", "Viaduto" };
-
-        public string[] Viela { get; private set; } = new[] { "Viela" };
-
-        public string[] Vila { get; private set; } = new[] { "Vila", "Vl" };
-
-        public static string GetAddressType(string Endereco)
-        {
-            return GetAddressTypeProperty(Endereco)?.Name.IfBlank("");
-        }
-
-        public static string[] GetAddressTypeList(string Endereco)
-        {
-            return (string[])(GetAddressTypeProperty(Endereco)?.GetValue(new AddressTypes()) ?? new string[] { });
-        }
-
-        public static PropertyInfo GetAddressTypeProperty(string Endereco)
-        {
-            string tp = Endereco.IfBlank("").Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).FirstOr("");
-            if (tp.IsNotBlank())
-            {
-                var df = new AddressTypes();
-                return df.GetProperties().FirstOrDefault(x => tp.IsIn((string[])x.GetValue(df)) || (x.Name ?? "") == (tp ?? ""));
-            }
-
-            return null;
+            return retorno.AdjustBlankSpaces().TrimAny(".", " ", ",", " ", "-");
         }
     }
 }

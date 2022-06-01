@@ -24,7 +24,10 @@ namespace InnerLibs
             var PA = new List<int>();
             PA.Add(FirstNumber);
             for (int index = 1, loopTo = Length - 1; index <= loopTo; index++)
+            {
                 PA.Add(PA.Last() + Constant);
+            }
+
             return PA;
         }
 
@@ -236,7 +239,10 @@ namespace InnerLibs
             var c = Sets.Aggregate(emptyProduct, (accumulator, sequence) => (from accseq in accumulator from item in sequence select accseq.Concat(new T[] { item })));
             var aa = new List<IEnumerable<T>>();
             foreach (var item in c)
+            {
                 aa.Add(item);
+            }
+
             return aa;
         }
 
@@ -316,7 +322,11 @@ namespace InnerLibs
         public static int Factorial(this int Number)
         {
             Number = Number.ForcePositive();
-            if (Number == 0) return 0;
+            if (Number == 0)
+            {
+                return 0;
+            }
+
             int fact = Number;
             int counter = Number - 1;
             while (counter > 0)
@@ -338,7 +348,10 @@ namespace InnerLibs
             var lista = new List<int>();
             lista.AddRange(new[] { 0, 1 });
             for (int index = 2, loopTo = Length - 1; index <= loopTo; index++)
+            {
                 lista.Add(lista[index - 1] + lista[index - 2]);
+            }
+
             return lista;
         }
 
@@ -417,84 +430,120 @@ namespace InnerLibs
         public static decimal ForceNegative(this decimal Value)
         {
             if (Value > 0m)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static int ForceNegative(this int Value)
         {
             if (Value > 0)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static long ForceNegative(this long Value)
         {
             if (Value > 0)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static double ForceNegative(this double Value)
         {
             if (Value > 0d)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static float ForceNegative(this float Value)
         {
             if (Value > 0f)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static short ForceNegative(this short Value)
         {
             if (Value > 0)
+            {
                 Value = ((short)(Value * -1));
+            }
+
             return Value;
         }
 
         public static decimal ForcePositive(this decimal Value)
         {
             if (Value < 0m)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static int ForcePositive(this int Value)
         {
             if (Value < 0)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static long ForcePositive(this long Value)
         {
             if (Value < 0)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static double ForcePositive(this double Value)
         {
             if (Value < 0d)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static float ForcePositive(this float Value)
         {
             if (Value < 0f)
+            {
                 Value = Value * -1;
+            }
+
             return Value;
         }
 
         public static short ForcePositive(this short Value)
         {
             if (Value < 0)
+            {
                 Value = ((short)(Value * -1));
+            }
+
             return Value;
         }
 
@@ -510,57 +559,23 @@ namespace InnerLibs
             var PG = new List<int>();
             PG.Add(FirstNumber);
             for (int index = 1, loopTo = Length - 1; index <= loopTo; index++)
+            {
                 PG.Add(PG.Last() * Constant);
+            }
+
             return PG;
         }
 
-        /// <summary>
-        /// Retorna o percentual de um valor
-        /// </summary>
-        /// <param name="Value">Valor a ser calculado</param>
-        /// <param name="Total">Valor Total (Representa 100%)</param>
-        /// <returns>Um numero decimal contendo a porcentagem</returns>
-        /// <summary>
-        /// Retorna o percentual de um valor
-        /// </summary>
-        /// <param name="Value">Valor a ser calculado</param>
-        /// <param name="Total">Valor Total (Representa 100%)</param>
-        /// <returns>Um numero decimal contendo a porcentagem</returns>
-        /// <summary>
-        /// Retorna o valor de um determinado percentual de um valor total
-        /// </summary>
-        /// <param name="Percent">
-        /// Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
-        /// </param>
-        /// <param name="Total">Valor Total (Representa 100%)</param>
-        /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
-        /// <summary>
-        /// Retorna o valor de um determinado percentual de um valor total
-        /// </summary>
-        /// <param name="Percent">
-        /// Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
-        /// </param>
-        /// <param name="Total">Valor Total (Representa 100%)</param>
-        /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
-        /// <summary>
-        /// Retorna o valor de um determinado percentual de um valor total
-        /// </summary>
-        /// <param name="Percent">
-        /// Porcentagem, pode ser um numero ou uma string com o sinal de porcento. Ex.: 15 ou 15%
-        /// </param>
-        /// <param name="Total">Valor Total (Representa 100%)</param>
-        /// <returns>Um numero decimal contendo o valor relativo a porcentagem</returns>
-        /// <summary>
-        /// Retorna um numero inteiro representando a parte decimal de um numero decimal
-        /// </summary>
-        /// <param name="Value">Valor decimal</param>
-        /// <returns></returns>
+
         public static long GetDecimalPlaces(this decimal Value, int DecimalPlaces = 0)
         {
             Value = Value.ForcePositive();
-            Value = Value - Value.Floor();
+            Value -= Value.Floor();
             while (Value.HasDecimalPart())
-                Value = Value * 10m;
+            {
+                Value *= 10m;
+            }
+
             if (DecimalPlaces > 0)
             {
                 Value.ToString().GetFirstChars(DecimalPlaces).ToLong();
@@ -569,8 +584,40 @@ namespace InnerLibs
             return Value.ToLong();
         }
 
+
+        /// <inheritdoc cref="GetOrdinal(long)"/>      
+        public static string GetOrdinal(this int Number) => Number.ToLong().GetOrdinal();
+
+        /// <inheritdoc cref="GetOrdinal(long)"/>
+        public static string GetOrdinal(this decimal Number) => Number.ToLong().GetOrdinal();
+
+        /// <inheritdoc cref="GetOrdinal(long)"/>
+        public static string GetOrdinal(this short Number) => Number.ToLong().GetOrdinal();
+
+        /// <inheritdoc cref="GetOrdinal(long)"/>
+        public static string GetOrdinal(this double Number) => Number.ToLong().GetOrdinal();
+
         /// <summary>
-        /// Verifica se um numero possui parte decimal
+        /// Returns the ordinal suffix for given <paramref name="Number"/> 
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string GetOrdinal(this long Number)
+        {
+            switch (Number)
+            {
+                case 1L:
+                case -1L: return $"st";
+                case 2L:
+                case -2L: return $"nd";
+                case 3L:
+                case -3L: return $"rd";
+                default: return $"th";
+            }
+        }
+
+        /// <summary>
+        /// Check if number has decimal part
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
@@ -626,16 +673,52 @@ namespace InnerLibs
         {
             if (MaxValue != null)
             {
-                Number = Number.IsLessThan(MaxValue.ChangeType<T>()) ? Number : MaxValue.ChangeType<T>();
+                Number = Number.IsLessThan(MaxValue.ChangeType<T>()) ? Number.ChangeType<T>() : MaxValue.ChangeType<T>();
             }
 
             if (MinValue != null)
             {
-                Number = Number.IsGreaterThan(MinValue.ChangeType<T>()) ? Number : MinValue.ChangeType<T>();
+                Number = Number.IsGreaterThan(MinValue.ChangeType<T>()) ? Number.ChangeType<T>() : MinValue.ChangeType<T>();
             }
 
             return (T)Number;
         }
+
+
+
+
+
+        /// <summary>
+        /// Limita um range para um caractere
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static string LimitRange(this string Number, string MinValue = null, string MaxValue = null) => Number.LimitRange<string>(MinValue, MaxValue);
+
+
+
+        /// <summary>
+        /// Limita um range para um caractere
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static char LimitRange(this char Number, char? MinValue = null, char? MaxValue = null) => Number.LimitRange<char>(MinValue, MaxValue);
+
+
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static float LimitRange(this float Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<float>(MinValue, MaxValue);
+
 
         /// <summary>
         /// Limita um range para um numero
@@ -773,48 +856,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static string ToOrdinalNumber(this int Number, bool ExcludeNumber = false) => Number.ToLong().ToOrdinalNumber(ExcludeNumber);
+        public static string ToOrdinalNumber(this int Number) => Number.ToLong().ToOrdinalNumber();
 
         /// <summary>
         /// retorna o numeor em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
-        public static string ToOrdinalNumber(this long Number, bool ExcludeNumber = false)
-        {
-            var suffix = "";
-
-            var negative = Number < 0;
-            switch (Number.ForcePositive())
-            {
-                case 1L:
-                    {
-                        suffix = "st";
-                        break;
-                    }
-
-                case 2L:
-                    {
-                        suffix = "nd";
-                        break;
-                    }
-
-                case 3L:
-                    {
-                        suffix = "rd";
-                        break;
-                    }
-
-                default:
-                    {
-                        suffix = "th";
-                        break;
-                    }
-            }
-            Number = negative.AsIf(-Number, Number);
-
-            return $"{Number}{suffix}";
-        }
+        public static string ToOrdinalNumber(this long Number) => $"{Number}{Number.GetOrdinal()}";
 
         /// <summary>
         /// retorna o numeor em sua forma ordinal (inglês)

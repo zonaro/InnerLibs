@@ -35,7 +35,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateTime EndHour => StartHour.Add(TotalTime);
 
-        public bool IsJourney => this.JourneyTime.Milliseconds > 0;
+        public bool IsJourney => JourneyTime.Milliseconds > 0;
 
         /// <summary>
         /// Jornada de Trabalho/Produção
@@ -86,7 +86,7 @@ namespace InnerLibs.TimeMachine
         public JourneyDay SetJourney(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default)
         {
             this.StartHour = StartHour;
-            this.JourneyTime = Journey;
+            JourneyTime = Journey;
             this.LunchHour = LunchHour == default ? DateTime.MinValue.Date.AddHours(12d) : LunchHour;
             this.LunchTime = LunchTime == default ? new TimeSpan(0, 0, 0) : LunchTime;
             return this;
@@ -147,9 +147,9 @@ namespace InnerLibs.TimeMachine
         /// <param name="Quantity">Quantidade de itens</param>
         public TimeDemand(DateTime StartDate, TimeSpan Time, int Quantity)
         {
-            this.ItemQuantity = Quantity;
-            this.ItemProductionTime = Time;
-            this.Proccess(StartDate);
+            ItemQuantity = Quantity;
+            ItemProductionTime = Time;
+            Proccess(StartDate);
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data Inicial da produção</param>
         /// <param name="EndDate">Tempo do item</param>
         /// <param name="Quantity">Quantidade de itens</param>
-        public TimeDemand(DateTime StartDate, DateTime EndDate, int Quantity = 1) : this(StartDate, new TimeSpan(0), Quantity) => this.ItemProductionTime = GetWorkingTimeUntil(EndDate);
+        public TimeDemand(DateTime StartDate, DateTime EndDate, int Quantity = 1) : this(StartDate, new TimeSpan(0), Quantity) => ItemProductionTime = GetWorkingTimeUntil(EndDate);
 
         public DateRange DateRange
         {
@@ -179,7 +179,7 @@ namespace InnerLibs.TimeMachine
             {
                 if (_EndDate == null)
                 {
-                    _EndDate = Proccess(this.StartDate);
+                    _EndDate = Proccess(StartDate);
                 }
 
                 return _EndDate.Value;
@@ -278,14 +278,46 @@ namespace InnerLibs.TimeMachine
             get
             {
                 var dias = new List<DayOfWeek>();
-                if (Sunday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Sunday);
-                if (Monday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Monday);
-                if (Tuesday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Tuesday);
-                if (Wednesday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Wednesday);
-                if (Thursday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Thursday);
-                if (Friday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Friday);
-                if (Saturday.JourneyTime.TotalMilliseconds > 0d) dias.Add(DayOfWeek.Saturday);
-                if (dias.Count == 0) dias.AddRange(new[] { 0, 1, 2, 3, 4, 5, 6 }.Select(x => (DayOfWeek)x));
+                if (Sunday.JourneyTime.TotalMilliseconds > 0d)
+                {
+                    dias.Add(DayOfWeek.Sunday);
+                }
+
+                if (Monday.JourneyTime.TotalMilliseconds > 0d)
+                {
+                    dias.Add(DayOfWeek.Monday);
+                }
+
+                if (Tuesday.JourneyTime.TotalMilliseconds > 0d)
+                {
+                    dias.Add(DayOfWeek.Tuesday);
+                }
+
+                if (Wednesday.JourneyTime.TotalMilliseconds > 0d)
+                {
+                    dias.Add(DayOfWeek.Wednesday);
+                }
+
+                if (Thursday.JourneyTime.TotalMilliseconds > 0d)
+                {
+                    dias.Add(DayOfWeek.Thursday);
+                }
+
+                if (Friday.JourneyTime.TotalMilliseconds > 0d)
+                {
+                    dias.Add(DayOfWeek.Friday);
+                }
+
+                if (Saturday.JourneyTime.TotalMilliseconds > 0d)
+                {
+                    dias.Add(DayOfWeek.Saturday);
+                }
+
+                if (dias.Count == 0)
+                {
+                    dias.AddRange(new[] { 0, 1, 2, 3, 4, 5, 6 }.Select(x => (DayOfWeek)x));
+                }
+
                 return dias.ToArray();
             }
         }
@@ -402,7 +434,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DelayTime">Tempo adicionado entre uma demanda e outra</param>
         /// <returns></returns>
-        public TimeDemand CloneAndQueue(TimeSpan? DelayTime = null) => new TimeDemand(EndDate.Add(DelayTime ?? new TimeSpan(0L)), this.ItemProductionTime, ItemQuantity);
+        public TimeDemand CloneAndQueue(TimeSpan? DelayTime = null) => new TimeDemand(EndDate.Add(DelayTime ?? new TimeSpan(0L)), ItemProductionTime, ItemQuantity);
 
         public JourneyDay GetJourneyDay(DayOfWeek DoW)
         {
@@ -435,14 +467,14 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public IEnumerable<DateTime> GetWorkDays(params DayOfWeek[] DaysOfWeek) => StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
 
-        public TimeSpan GetWorkingTimeUntil(DateTime EndDate) => this.GetWorkTimeBetween(StartDate, EndDate);
+        public TimeSpan GetWorkingTimeUntil(DateTime EndDate) => GetWorkTimeBetween(StartDate, EndDate);
 
         /// <summary>
         /// Retorna o intervalo de horas trabalhadas entre duas datas baseado nas configuracoes
         /// desta demanda
         /// </summary>
         /// <returns></returns>
-        public TimeSpan GetWorkTimeBetween(DateTime StartDate, DateTime EndDate) => new TimeSpan(this.RelevantDays.Where(x => x.DayOfWeek.IsIn(RelevantDaysOfWeek) && x.IsBetweenOrEqual(StartDate, EndDate)).Sum(x => GetJourneyDay(x).JourneyTime.Ticks));
+        public TimeSpan GetWorkTimeBetween(DateTime StartDate, DateTime EndDate) => new TimeSpan(RelevantDays.Where(x => x.DayOfWeek.IsIn(RelevantDaysOfWeek) && x.IsBetweenOrEqual(StartDate, EndDate)).Sum(x => GetJourneyDay(x).JourneyTime.Ticks));
 
         public bool IsJourney(DateTime DateAndTime) => GetJourneyDay(DateAndTime).JourneyTime.TotalMilliseconds > 0;
 
@@ -500,16 +532,16 @@ namespace InnerLibs.TimeMachine
             {
                 if (!(dia.Date == FinalDate.Date))
                 {
-                    FinalDate = FinalDate.AddHours(24d - this.TotalTime(dia).TotalHours);
+                    FinalDate = FinalDate.AddHours(24d - TotalTime(dia).TotalHours);
                 }
-                else if (FinalDate.TimeOfDay > this.LunchStartHour(dia).TimeOfDay)
+                else if (FinalDate.TimeOfDay > LunchStartHour(dia).TimeOfDay)
                 {
                     FinalDate = FinalDate.Add(LunchTime(dia));
                 }
 
                 if (FinalDate.IsBetween(LunchStartHour(dia), LunchEndHour(dia)))
                 {
-                    FinalDate = FinalDate.Add(this.LunchEndHour(dia).TimeOfDay - dia.TimeOfDay);
+                    FinalDate = FinalDate.Add(LunchEndHour(dia).TimeOfDay - dia.TimeOfDay);
                 }
             }
 
@@ -517,9 +549,9 @@ namespace InnerLibs.TimeMachine
 
             FinalDate = FinalDate.AddDays(nrd.Count());
             var lasthours = new TimeSpan();
-            if (FinalDate.TimeOfDay > this.JourneyEndHour(FinalDate).TimeOfDay)
+            if (FinalDate.TimeOfDay > JourneyEndHour(FinalDate).TimeOfDay)
             {
-                lasthours = FinalDate.TimeOfDay - this.JourneyEndHour(FinalDate).TimeOfDay;
+                lasthours = FinalDate.TimeOfDay - JourneyEndHour(FinalDate).TimeOfDay;
             }
 
             FinalDate = PushDateIntoJourney(FinalDate);
@@ -535,8 +567,10 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Data a ser Verificada</param>
         public DateTime PushDateIntoJourney(DateTime Date)
         {
-            while (Date.TimeOfDay > this.JourneyEndHour(Date).TimeOfDay || Date.TimeOfDay < this.JourneyStartHour(Date).TimeOfDay || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
+            while (Date.TimeOfDay > JourneyEndHour(Date).TimeOfDay || Date.TimeOfDay < JourneyStartHour(Date).TimeOfDay || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
+            {
                 Date = Date.AddMilliseconds(1d);
+            }
 
             return Date;
         }
@@ -605,7 +639,7 @@ namespace InnerLibs.TimeMachine
         /// Retorna uma string representado a quantidade de itens e o tempo gasto com a produção
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => ItemQuantity.ToString() + " " + ItemQuantity.QuantifyText(ItemName) + " - " + this.DateRange.ToString();
+        public override string ToString() => ItemQuantity.ToString() + " " + ItemQuantity.QuantifyText(ItemName) + " - " + DateRange.ToString();
 
         /// <summary>
         /// Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as

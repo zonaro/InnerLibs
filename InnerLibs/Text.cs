@@ -1023,6 +1023,8 @@ namespace InnerLibs
             }
         }
 
+        public static char GetOppositeWrapChar(this char Char) => $"{Char}".GetOppositeWrapChar().FirstOrDefault();
+
         /// <summary>
         /// Sorteia um item da Lista
         /// </summary>
@@ -1249,6 +1251,8 @@ namespace InnerLibs
 
         public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.CloseWrappers);
 
+        public static bool IsCloseWrapChar(this char Char) => IsCloseWrapChar($"{Char}");
+
         public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x) || x.Like(Text));
 
         /// <summary>
@@ -1289,6 +1293,8 @@ namespace InnerLibs
         /// <param name="Text">Caractere</param>
         /// <returns></returns>
         public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.OpenWrappers);
+
+        public static bool IsOpenWrapChar(this char Char) => IsOpenWrapChar($"{Char}");
 
         /// <summary>
         /// Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da
@@ -1410,7 +1416,7 @@ namespace InnerLibs
         public static string MaskTelephoneNumber(this string Number)
         {
             Number = Number ?? "";
-            Number = Number.ParseDigits().RemoveAny(",", ".");
+            Number = Number.ParseDigits().RemoveAny(",", ".").ToLong().ToString();
             if (Number.IsBlank())
             {
                 return "";
@@ -1419,13 +1425,13 @@ namespace InnerLibs
             string mask;
             switch (Number.Length)
             {
-                case var @case when @case <= 4:
+                case var fourOrLess when fourOrLess <= 4:
                     {
                         mask = "{0:####}";
                         break;
                     }
 
-                case var case1 when case1 <= 8:
+                case var eightOrLess when eightOrLess <= 8:
                     {
                         mask = "{0:####-####}";
                         break;
@@ -1957,10 +1963,10 @@ namespace InnerLibs
         {
             if (Convert.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
             {
-                OpenQuoteChar = OpenQuoteChar.ToString().GetOppositeWrapChar().FirstOrDefault();
+                OpenQuoteChar = OpenQuoteChar.GetOppositeWrapChar();
             }
 
-            return $"{OpenQuoteChar}{Text}{OpenQuoteChar.ToString().GetOppositeWrapChar()}";
+            return $"{OpenQuoteChar}{Text}{OpenQuoteChar.GetOppositeWrapChar()}";
         }
 
         /// <summary>
@@ -2063,7 +2069,7 @@ namespace InnerLibs
                 {
                     if (re.StartsWith(item, comparison))
                     {
-                        re = re.RemoveFirstEqual(item);
+                        re = re.RemoveFirstEqual(item, comparison);
                         if (!ContinuouslyRemove)
                         {
                             return re;
@@ -2140,7 +2146,7 @@ namespace InnerLibs
                 return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", string.Empty).HtmlDecode();
             }
 
-            return "";
+            return Text;
         }
 
         /// <summary>
@@ -2162,7 +2168,7 @@ namespace InnerLibs
                 {
                     if (re.EndsWith(item, comparison))
                     {
-                        re = re.RemoveLastEqual(item);
+                        re = re.RemoveLastEqual(item, comparison);
                         if (!ContinuouslyRemove)
                         {
                             return re;
@@ -2789,35 +2795,62 @@ namespace InnerLibs
         public static byte ToAscByte(this char c) => (byte)c.ToAsc();
 
         /// <summary>
-        /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
+        /// Returns a CSV String from <see cref="IEnumerable{T}"/>
+        /// </summary>
+        /// <param name="Items"></param>
+        /// <param name="Separator"></param>
+        /// <param name="IncludeHeader"></param>
+        /// <returns></returns>
+        public static string ToCSV(this IEnumerable<Dictionary<string, object>> Items, string Separator = ",", bool IncludeHeader = false)
+        {
+            Separator = Separator.IfBlank(",");
+            var str = $"sep={Separator}{Environment.NewLine}";
+            if (Items != null && Items.Any())
+            {
+                Items = Items.MergeKeys();
+
+                if (IncludeHeader && Items.All(x => x.Keys.Any()))
+                {
+                    str += $"{Items.FirstOrDefault()?.Keys.SelectJoinString(Separator)}";
+                }
+                str += $"{Items.SelectJoinString(x => x.Values.SelectJoinString(Separator), Environment.NewLine)}";
+            }
+
+            return str;
+        }
+
+        public static string ToCSV<T>(this IEnumerable<T> Items, string Separator = ",", bool IncludeHeader = false) where T : class => (Items ?? Array.Empty<T>()).Select(x => x.CreateDictionary()).ToCSV(Separator, IncludeHeader);
+
+        /// <summary>
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => Size.LongLength.ToFileSizeString(DecimalPlaces);
 
         /// <summary>
-        /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this FileInfo Size, int DecimalPlaces = -1) => Size.Length.ToFileSizeString(DecimalPlaces);
 
         /// <summary>
-        /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this double Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
 
         /// <summary>
-        /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this int Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
 
         /// <summary>
-        /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
@@ -2858,1291 +2891,1287 @@ namespace InnerLibs
         /// Converte um texto para Leet (1337)
         /// </summary>
         /// <param name="text">TExto original</param>
-        /// <param name="degree">Grau de itensidade (0 - 100%)</param>
+        /// <param name="degree">Grau de itensidade (0 a 7)</param>
         /// <returns>Texto em 1337</returns>
         public static string ToLeet(this string Text, int Degree = 30)
         {
             // Adjust degree between 0 - 100
-            Degree = Degree.LimitRange(0, 100);
+            Degree = Degree.LimitRange(0, 7);
             // No Leet Translator
             if (Degree == 0)
             {
                 return Text;
             }
             // StringBuilder to store result.
-            var sb = new StringBuilder(Text.Length);
+            var sb = new StringBuilder();
             foreach (char c in Text)
             {
-                if (Degree < 17 && Degree > 0)
+                switch (Degree)
                 {
-                    switch (c)
-                    {
-                        case 'e':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                }
-                else if (Degree < 33 && Degree > 16)
-                {
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                }
-                else if (Degree < 49 && Degree > 32)
-                {
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                }
-                else if (Degree < 65 && Degree > 48)
-                {
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append("9");
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append("9");
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                }
-                else if (Degree < 81 && Degree > 64)
-                {
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append("9");
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append("6");
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'n':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'N':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'w':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'W':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'h':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'H':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'v':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'V':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'm':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'M':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                }
-                else if (Degree > 80 && Degree < 100)
-                {
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append("9");
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append("6");
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'n':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'N':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'w':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'W':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'h':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'H':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'v':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'V':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'r':
-                            {
-                                sb.Append("®");
-                                break;
-                            }
-
-                        case 'R':
-                            {
-                                sb.Append("®");
-                                break;
-                            }
-
-                        case 'm':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'M':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'b':
-                            {
-                                sb.Append("ß");
-                                break;
-                            }
-
-                        case 'B':
-                            {
-                                sb.Append("ß");
-                                break;
-                            }
-
-                        case 'q':
-                            {
-                                sb.Append("Q");
-                                break;
-                            }
-
-                        case 'Q':
-                            {
-                                sb.Append("Q¸");
-                                break;
-                            }
-
-                        case 'x':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        case 'X':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                }
-                else if (Degree > 99)
-                {
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append("4");
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append("3");
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append("1");
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append("0");
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append("$");
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append("9");
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append("6");
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append("£");
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append("(");
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append("7");
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append("2");
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append("¥");
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append("µ");
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append("ƒ");
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append("Ð");
-                                break;
-                            }
-
-                        case 'n':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'N':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'w':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'W':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'h':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'H':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'v':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'V':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'r':
-                            {
-                                sb.Append("®");
-                                break;
-                            }
-
-                        case 'R':
-                            {
-                                sb.Append("®");
-                                break;
-                            }
-
-                        case 'm':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'M':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'b':
-                            {
-                                sb.Append("ß");
-                                break;
-                            }
-
-                        case 'B':
-                            {
-                                sb.Append("ß");
-                                break;
-                            }
-
-                        case 'j':
-                            {
-                                sb.Append("_|");
-                                break;
-                            }
-
-                        case 'J':
-                            {
-                                sb.Append("_|");
-                                break;
-                            }
-
-                        case 'P':
-                            {
-                                sb.Append("|°");
-                                break;
-                            }
-
-                        case 'q':
-                            {
-                                sb.Append("¶");
-                                break;
-                            }
-
-                        case 'Q':
-                            {
-                                sb.Append("¶¸");
-                                break;
-                            }
-
-                        case 'x':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        case 'X':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
+                    case 1:
+                        switch (c)
+                        {
+                            case 'e':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+                    case 2:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+                    case 3:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+                    case 4:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append("9");
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append("9");
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+                    case 5:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append("9");
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append("6");
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'n':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'N':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'w':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'W':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'h':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'H':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'v':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'V':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'm':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'M':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+                    case 6:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append("9");
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append("6");
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'n':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'N':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'w':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'W':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'h':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'H':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'v':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'V':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'r':
+                                {
+                                    sb.Append("®");
+                                    break;
+                                }
+
+                            case 'R':
+                                {
+                                    sb.Append("®");
+                                    break;
+                                }
+
+                            case 'm':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'M':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'b':
+                                {
+                                    sb.Append("ß");
+                                    break;
+                                }
+
+                            case 'B':
+                                {
+                                    sb.Append("ß");
+                                    break;
+                                }
+
+                            case 'q':
+                                {
+                                    sb.Append("Q");
+                                    break;
+                                }
+
+                            case 'Q':
+                                {
+                                    sb.Append("Q¸");
+                                    break;
+                                }
+
+                            case 'x':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            case 'X':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+                    default:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append("4");
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append("3");
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append("1");
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append("0");
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append("$");
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append("9");
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append("6");
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append("£");
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append("(");
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append("7");
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append("2");
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append("¥");
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append("µ");
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append("ƒ");
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append("Ð");
+                                    break;
+                                }
+
+                            case 'n':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'N':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'w':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'W':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'h':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'H':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'v':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'V':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'r':
+                                {
+                                    sb.Append("®");
+                                    break;
+                                }
+
+                            case 'R':
+                                {
+                                    sb.Append("®");
+                                    break;
+                                }
+
+                            case 'm':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'M':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'b':
+                                {
+                                    sb.Append("ß");
+                                    break;
+                                }
+
+                            case 'B':
+                                {
+                                    sb.Append("ß");
+                                    break;
+                                }
+
+                            case 'j':
+                                {
+                                    sb.Append("_|");
+                                    break;
+                                }
+
+                            case 'J':
+                                {
+                                    sb.Append("_|");
+                                    break;
+                                }
+
+                            case 'P':
+                                {
+                                    sb.Append("|°");
+                                    break;
+                                }
+
+                            case 'q':
+                                {
+                                    sb.Append("¶");
+                                    break;
+                                }
+
+                            case 'Q':
+                                {
+                                    sb.Append("¶¸");
+                                    break;
+                                }
+
+                            case 'x':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            case 'X':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
                 }
             }
 
@@ -4376,7 +4405,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string TrimAny(this string Text, bool ContinuouslyRemove, params string[] StringTest)
         {
-            if (Text != null)
+            if (Text.IsNotBlank())
             {
                 Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest);
                 Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest);
