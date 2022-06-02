@@ -53,6 +53,10 @@ namespace InnerLibs.Console
             return Text;
         }
 
+        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine("", BreakLines);
+
+        public static string ConsoleBreakLine() => ConsoleBreakLine(1);
+
         /// <summary>
         /// Escreve uma data com descrição no console
         /// </summary>
@@ -151,7 +155,7 @@ namespace InnerLibs.Console
         /// <summary>
         /// Escreve o texto de uma exception no console
         /// </summary>
-        public static T ConsoleWriteError<T>(this T Exception, string Message) where T : Exception => Exception.ConsoleWriteError(Message, " >> ");
+        public static T ConsoleWriteError<T>(this T Exception, string Message) where T : Exception => Exception.ConsoleWriteError(Message, " => ");
 
         /// <summary>
         /// Escreve o texto de uma exception no console

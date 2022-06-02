@@ -29,9 +29,9 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string AdjustPathChars(this string Text, bool InvertedBar = false)
+        public static string AdjustPathChars(this string Text, bool AlternativeChar = false)
         {
-            return Text.Split(new[] { "/", @"\" }, StringSplitOptions.RemoveEmptyEntries).Select((x, i) =>
+            return Text.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
             {
                 if (i == 0 && x.Length == 2 && x.EndsWith(":"))
                 {
@@ -39,7 +39,7 @@ namespace InnerLibs
                 }
 
                 return x.ToFriendlyPathName();
-            }).JoinString(InvertedBar.AsIf(@"\", "/"));
+            }).JoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString()));
         }
 
         public static string AdjustWhiteSpaces(this string Text)
@@ -112,7 +112,9 @@ namespace InnerLibs
         /// <param name="AppendText">Texto adicional</param>
         public static string Append(this string Text, string AppendText)
         {
-            Text = (Text ?? "") + (AppendText ?? "");
+            Text = Text ?? "";
+            AppendText = AppendText ?? "";
+            Text += AppendText;
             return Text;
         }
 
@@ -124,12 +126,9 @@ namespace InnerLibs
         /// <param name="Test">Teste</param>
         public static string AppendIf(this string Text, string AppendText, bool Test)
         {
-            if (Test)
-            {
-                return Text.Append(AppendText);
-            }
-
-            return Text ?? "";
+            Text = Text ?? "";
+            AppendText = AppendText ?? "";
+            return Test ? Text.Append(AppendText) : Text;
         }
 
         /// <summary>
@@ -138,11 +137,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="AppendText">Texto adicional</param>
         /// <param name="Test">Teste</param>
-        public static string AppendIf(this string Text, string AppendText, Func<string, bool> Test)
-        {
-            Test = Test ?? (x => false);
-            return Text.AppendIf(AppendText, Test(Text));
-        }
+        public static string AppendIf(this string Text, string AppendText, Func<string, bool> Test) => AppendIf(Text, AppendText, (Test ?? (x => false))(Text));
 
         /// <summary>
         /// Adiciona texto ao final de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
@@ -1736,7 +1731,9 @@ namespace InnerLibs
         /// <param name="PrependText">Texto adicional</param>
         public static string Prepend(this string Text, string PrependText)
         {
-            Text = (PrependText ?? "") + (Text ?? "");
+            Text = Text ?? "";
+            PrependText = PrependText ?? "";
+            Text = PrependText + Text;
             return Text;
         }
 
@@ -1748,8 +1745,9 @@ namespace InnerLibs
         /// <param name="Test">Teste</param>
         public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test = null)
         {
-            Test = Test ?? (x => false);
-            return Text.PrependIf(PrependText, Test(Text));
+            Text = Text ?? "";
+            PrependText = PrependText ?? "";
+            return Text.PrependIf(PrependText, (Test ?? (x => false))(Text));
         }
 
         /// <summary>
@@ -1760,23 +1758,17 @@ namespace InnerLibs
         /// <param name="Test">Teste</param>
         public static string PrependIf(this string Text, string PrependText, bool Test)
         {
-            if (Test)
-            {
-                Text = Text.Prepend(PrependText);
-            }
-
-            return Text;
+            Text = Text ?? "";
+            PrependText = PrependText ?? "";
+            return Test ? Text.Prepend(PrependText) : Text;
         }
 
         /// <summary>
-        /// Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
+        /// Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="PrependText"/>
         /// </summary>
         /// <param name="Text">Texto</param>
-        /// <param name="AppendText">Texto adicional</param>
-        public static string PrependLine(this string Text, string AppendText)
-        {
-            return Text.Prepend(Environment.NewLine).Prepend(AppendText);
-        }
+        /// <param name="PrependText">Texto adicional</param>
+        public static string PrependLine(this string Text, string PrependText) => Text.Prepend(Environment.NewLine).Prepend(PrependText);
 
         /// <summary>
         /// Adiciona texto ao inicio de uma string enquanto um criterio for cumprido
@@ -2930,6 +2922,7 @@ namespace InnerLibs
                                 }
                         }
                         break;
+
                     case 2:
                         switch (c)
                         {
@@ -2988,6 +2981,7 @@ namespace InnerLibs
                                 }
                         }
                         break;
+
                     case 3:
                         switch (c)
                         {
@@ -3118,6 +3112,7 @@ namespace InnerLibs
                                 }
                         }
                         break;
+
                     case 4:
                         switch (c)
                         {
@@ -3308,6 +3303,7 @@ namespace InnerLibs
                                 }
                         }
                         break;
+
                     case 5:
                         switch (c)
                         {
@@ -3558,6 +3554,7 @@ namespace InnerLibs
                                 }
                         }
                         break;
+
                     case 6:
                         switch (c)
                         {
@@ -3856,6 +3853,7 @@ namespace InnerLibs
                                 }
                         }
                         break;
+
                     default:
                         switch (c)
                         {

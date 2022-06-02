@@ -697,12 +697,12 @@ namespace InnerLibs
                         current += Convert.ToString(PropertyName[i]);
                     }
 
-                    if (PropertyName[i] == '(')
+                    if (PropertyName[i] == '[')
                     {
                         stop = true;
                     }
 
-                    if (PropertyName[i] == ')')
+                    if (PropertyName[i] == ']')
                     {
                         stop = false;
                     }
@@ -715,7 +715,7 @@ namespace InnerLibs
                 }
 
                 PropertyInfo prop;
-                string propname = parts.First().GetBefore("(");
+                string propname = parts.First().GetBefore("[");
                 if (GetPrivate)
                 {
                     prop = Type.GetProperty(propname, (BindingFlags)((int)BindingFlags.Public + (int)BindingFlags.NonPublic + (int)BindingFlags.Instance));
@@ -1222,7 +1222,8 @@ namespace InnerLibs
         /// </typeparam>
         public static Type SetPropertyValue<Type>(this Type MyObject, string PropertyName, object Value)
         {
-            var prop = MyObject.GetProperties().Where(p => (p.Name ?? "") == (PropertyName ?? "")).FirstOrDefault();
+            var props = MyObject.GetProperties();
+            var prop = props.FirstOrDefault(p => (p.Name ?? "") == (PropertyName ?? ""));
             if (prop != null && prop.CanWrite)
             {
                 if (Value is DBNull)
@@ -1269,26 +1270,21 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="FirstValue"></param>
         /// <param name="SecondValue"></param>
-        public static void Swap<T>(ref T FirstValue, ref T SecondValue)
-        {
-            var temp = FirstValue;
-            FirstValue = SecondValue;
-            SecondValue = temp;
-        }
+        public static void Swap<T>(ref T FirstValue, ref T SecondValue) => (SecondValue, FirstValue) = (FirstValue, SecondValue);
 
         /// <summary>
-        /// traz os top N valores de um dicionario e agrupa os outros
+        /// Traz os top N valores de um dicionario e agrupa os outros
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Dic"></param>
         /// <param name="Top"></param>
         /// <param name="GroupOthersLabel"></param>
         /// <returns></returns>
-        public static Dictionary<K, T> TakeTop<K, T>(this IDictionary<K, T> Dic, int Top, K GroupOthersLabel) where T : IConvertible
+        public static Dictionary<K, T> TakeTop<K, T>(this Dictionary<K, T> Dic, int Top, K GroupOthersLabel) where T : IConvertible
         {
             if (Top < 1)
             {
-                return (Dictionary<K, T>)Dic;
+                return Dic;
             }
 
             var novodic = Dic.Take(Top).ToDictionary();
@@ -1308,11 +1304,11 @@ namespace InnerLibs
         /// <param name="Top"></param>
         /// <param name="GroupOthersLabel"></param>
         /// <returns></returns>
-        public static Dictionary<K, IEnumerable<T>> TakeTop<K, T>(this IDictionary<K, IEnumerable<T>> Dic, int Top, K GroupOthersLabel)
+        public static Dictionary<K, IEnumerable<T>> TakeTop<K, T>(this Dictionary<K, IEnumerable<T>> Dic, int Top, K GroupOthersLabel)
         {
             if (Top < 1)
             {
-                return (Dictionary<K, IEnumerable<T>>)Dic;
+                return Dic;
             }
 
             var novodic = Dic.Take(Top).ToDictionary();
@@ -1407,10 +1403,7 @@ namespace InnerLibs
         {
             try
             {
-                if (action != null)
-                {
-                    action();
-                }
+                action?.Invoke();
                 return null;
             }
             catch (Exception exx)
