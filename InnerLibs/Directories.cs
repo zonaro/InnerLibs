@@ -215,16 +215,6 @@ namespace InnerLibs
             }
         }
 
-        /// <summary>
-        /// Ajusta um caminho de arquivo ou diretório colocando o mesmo <see
-        /// cref="IO.Path.DirectorySeparatorChar"/> evitando barras duplas ou alternativas
-        /// </summary>
-        /// <param name="Path">String contendo o caminho</param>
-        /// <param name="Alternative">
-        /// Se TRUE, utiliza <see cref="IO.Path.AltDirectorySeparatorChar"/> ao invés de <see cref="IO.Path.DirectorySeparatorChar"/>
-        /// </param>
-        /// <returns></returns>
-        public static string FixPathSeparator(this string Path, bool Alternative = false) => Path.Split(new[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.Trim(), Convert.ToString(Alternative ? System.IO.Path.AltDirectorySeparatorChar : System.IO.Path.DirectorySeparatorChar)).TrimAny(System.IO.Path.AltDirectorySeparatorChar.ToString(), System.IO.Path.DirectorySeparatorChar.ToString());
 
         /// <summary>
         /// Verifica se um diretório possui subdiretórios

@@ -29,7 +29,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string AdjustPathChars(this string Text, bool AlternativeChar = false)
+        public static string FixPath(this string Text, bool AlternativeChar = false)
         {
             return Text.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
             {
@@ -39,7 +39,7 @@ namespace InnerLibs
                 }
 
                 return x.ToFriendlyPathName();
-            }).JoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString()));
+            }).JoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).RemoveLastAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         }
 
         public static string AdjustWhiteSpaces(this string Text)

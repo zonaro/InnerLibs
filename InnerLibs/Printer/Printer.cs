@@ -689,7 +689,7 @@ namespace InnerLibs.Printer
                 if (FileOrDirectoryPath.IsDirectoryPath())
                 {
                     FileOrDirectoryPath = $@"{FileOrDirectoryPath}\{Command.GetTypeOf().Name}\{PrinterName.ToFriendlyPathName()}\{DateTime.Now.Ticks}.{Command?.GetTypeOf()?.Name.IfBlank("bin")}";
-                    FileOrDirectoryPath = FileOrDirectoryPath.AdjustPathChars(true);
+                    FileOrDirectoryPath = FileOrDirectoryPath.FixPath(true);
                 }
 
                 if (FileOrDirectoryPath.IsFilePath())

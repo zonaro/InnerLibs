@@ -13,6 +13,37 @@ namespace InnerLibs
     public static class Files
     {
         /// <summary>
+        /// Format a file path using a <see cref="DateTime"/>
+        /// </summary>
+        /// <remarks>
+        /// You can use any Datetime format (from <see cref="DateTime.ToString(string)"/>) or:
+        /// <list type="table">
+        /// <term>#timestamp#</term>
+        /// <description>Will be replaced with <see cref="DateTime.Ticks"/></description>
+        /// <br/>
+        /// <term>#datedir#</term>
+        /// <description>Will be replaced with a directory path <b>year\month\day</b></description>
+        /// <br/>
+        /// </list>
+        /// </remarks>
+        /// <param name="DateAndTime"></param>
+        /// <param name="FilePath"></param>
+        /// <returns></returns>
+        public static string FormatPath(this DateTime? DateAndTime, string FilePath, bool AlternativeChar = false)
+        {
+            DateAndTime = DateAndTime ?? DateTime.Now;
+            FilePath = FilePath.Replace($"#timestamp#", DateAndTime.Value.Ticks.ToString());
+            FilePath = FilePath.Replace($"#datedir#", $@"{DateAndTime.Value.Year}\{DateAndTime.Value.Month}\{DateAndTime.Value.Day}");
+
+            foreach (string item in new[] { "d", "dd", "ddd", "dddd", "hh", "HH", "m", "mm", "M", "MM", "MMM", "MMMM", "s", "ss", "t", "tt", "Y", "YY", "YYY", "YYYY", "f", "ff", "fff", "ffff", "fffff", "ffffff", "fffffff" })
+            {
+                FilePath = FilePath.SensitiveReplace($"#{item}#", DateAndTime.Value.ToString(item));
+            }
+
+            return FilePath.FixPath(AlternativeChar);
+        }
+
+        /// <summary>
         /// Retorna o nome do diretorio onde o arquivo se encontra
         /// </summary>
         /// <param name="Path">Caminho do arquivo</param>
@@ -32,30 +63,22 @@ namespace InnerLibs
         /// <param name="attachment"></param>
         /// <param name="Directory"></param>
         /// <returns></returns>
-        public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, DirectoryInfo Directory)
-        {
-            Directory = Directory.FullName.CreateDirectoryIfNotExists();
-            return attachment.SaveMailAttachment(Directory.FullName + @"\" + attachment.Name.IfBlank(attachment.ContentId));
-        }
+        public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, DirectoryInfo Directory, DateTime? DateAndTime = null) => attachment.SaveMailAttachment(Directory.FullName, DateAndTime);
 
         /// <summary>
         /// Salva um anexo para um caminho
         /// </summary>
         /// <param name="attachment"></param>
-        /// <param name="Path"></param>
+        /// <param name="FilePath"></param>
         /// <returns></returns>
-        public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, string Path)
+        public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, string FilePath, DateTime? DateAndTime = null)
         {
-            Path.CreateDirectoryIfNotExists();
-            if (Path.IsDirectoryPath())
+            if (FilePath.IsDirectoryPath())
             {
-                Path = Path + @"\" + attachment.Name.IfBlank(attachment.ContentId);
+                FilePath = FilePath + @"\" + attachment.Name.IfBlank(attachment.ContentId);
             }
 
-            var writer = new BinaryWriter(new FileStream(Path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None));
-            writer.Write(attachment.ToBytes());
-            writer.Close();
-            return new FileInfo(Path);
+            return attachment.ToBytes().WriteToFile(FilePath, DateAndTime);
         }
 
         /// <summary>
@@ -72,7 +95,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static byte[] ToBytes(this Stream stream)
         {
-            if (stream == null) return Array.Empty<byte>();
+            if (stream == null)
+            {
+                return Array.Empty<byte>();
+            }
 
             var pos = stream.Position;
             using (var ms = new MemoryStream())
@@ -107,35 +133,30 @@ namespace InnerLibs
         /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
         /// <param name="DateAndTime">
         /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
-        /// substituição nos Path. default é <see cref="DateTime.Now"/>
+        /// substituição nos FilePath. default é <see cref="DateTime.Now"/>
         /// </param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this Stream Stream, string FilePath, DateTime? DateAndTime = null) => Stream.ToBytes().WriteToFile(FilePath, DateAndTime);
 
         /// <summary>
-        /// alva um Array de Bytes em um arquivo 
+        /// Salva um Array de Bytes em um arquivo
         /// </summary>
         /// <param name="Bytes">A MAtriz com os Bytes a ser escrita</param>
         /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
         /// <param name="DateAndTime">
         /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
-        /// substituição nos Path. default é <see cref="DateTime.Now"/>
+        /// substituição nos FilePath. default é <see cref="DateTime.Now"/> ( <see cref="FormatPath"/>)
         /// </param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this byte[] Bytes, string FilePath, DateTime? DateAndTime = null)
         {
+            Bytes = Bytes ?? Array.Empty<byte>();
+            DateAndTime = DateAndTime ?? DateTime.Now;
+
+            FilePath = DateAndTime.FormatPath(FilePath);
+
             if (FilePath.IsFilePath())
             {
-                Bytes = Bytes ?? Array.Empty<byte>();
-                DateAndTime = DateAndTime ?? DateTime.Now;
-                FilePath = FilePath.Replace($"#timestamp#", DateAndTime.Value.Ticks.ToString());
-                FilePath = FilePath.Replace($"#datedir#", $@"{DateAndTime.Value.Year}\{DateAndTime.Value.Month}\{DateAndTime.Value.Day}");
-
-                foreach (string item in new[] { "d", "dd", "ddd", "dddd", "hh", "HH", "m", "mm", "M", "MM", "MMM", "MMMM", "s", "ss", "t", "tt", "Y", "YY", "YYY", "YYYY", "f", "ff", "fff", "ffff", "fffff", "ffffff", "fffffff" })
-                    FilePath = FilePath.SensitiveReplace($"#{item}#", DateAndTime.Value.ToString(item));
-               
-                FilePath = FilePath.FixPathSeparator();
-
                 FilePath.CreateDirectoryIfNotExists();
                 if (Bytes.Any())
                 {
@@ -144,14 +165,14 @@ namespace InnerLibs
                 }
                 else
                 {
-                    Debug.WriteLine("Bytes is empty", "File not Written");
+                    Debug.WriteLine("Bytes array is empty", "File not Written");
                 }
 
                 return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });
             }
             else
             {
-                throw new ArgumentException($"FilePath is not a valid file Path: {FilePath}");
+                throw new ArgumentException($"FilePath is not a valid file FilePath: {FilePath}");
             }
         }
 
@@ -166,8 +187,10 @@ namespace InnerLibs
         /// <param name="Text">TExto</param>
         /// <param name="FilePath">Caminho do arquivo</param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
-        public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null)
+        public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null)
         {
+            DateAndTime = DateAndTime ?? DateTime.Now;
+            FilePath = DateAndTime.FormatPath(FilePath);
             FilePath.CreateDirectoryIfNotExists();
             using (var s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false)))
             {
@@ -184,9 +207,6 @@ namespace InnerLibs
         /// <param name="Text">TExto</param>
         /// <param name="File">Arquivo</param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
-        public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null)
-        {
-            return Text.WriteToFile(File.FullName, Append, Enconding);
-        }
+        public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(File.FullName, Append, Enconding, DateAndTime);
     }
 }
