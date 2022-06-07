@@ -390,7 +390,7 @@ namespace InnerLibs.Locations
             {
                 if (value.IsNotBlank())
                 {
-                    this[nameof(Street)] = $"{AddressTypes.GetAddressType(value)} {value.TrimAny(true, AddressTypes.GetAddressTypeList(value))}".AdjustBlankSpaces().ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+                    this[nameof(Street)] = $"{AddressTypes.GetAddressType(value)} {value.TrimAny(true, AddressTypes.GetAddressTypeList(value))}".TrimBetween().ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
                 }
                 else
                 {
@@ -830,16 +830,16 @@ namespace InnerLibs.Locations
             string Complement = "";
             string Number = "";
             string Country = "";
-            Address = Address.AdjustBlankSpaces(); // arruma os espacos do endereco
+            Address = Address.FixText().RemoveLastAny("."); // arruma os espacos do endereco
             var ceps = Address.FindCEP(); // procura ceps no endereco
             Address = Address.RemoveAny(ceps); // remove ceps
-            Address = Address.AdjustBlankSpaces(); // arruma os espacos do endereco
+            Address = Address.FixText().RemoveLastAny("."); // arruma os espacos do endereco
             if (ceps.Any())
             {
                 PostalCode = FormatPostalCode(ceps.First());
             }
 
-            Address = Address.AdjustBlankSpaces().TrimAny("-", ",", "/"); // arruma os espacos do endereco
+            Address = Address.FixText().TrimAny("-", ",", "/"); // arruma os espacos do endereco
             if (Address.Contains(" - "))
             {
                 var parts = Address.Split(" - ").ToList();
@@ -909,7 +909,7 @@ namespace InnerLibs.Locations
                 }
             }
 
-            Address = Address.AdjustBlankSpaces();
+            Address = Address.FixText();
             if (Address.Contains(","))
             {
                 var parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList();
@@ -930,8 +930,8 @@ namespace InnerLibs.Locations
                 }
             }
 
-            Number = Number.AdjustBlankSpaces().TrimAny(" ", ",", "-");
-            Complement = Complement.AdjustBlankSpaces().TrimAny(" ", ",", "-");
+            Number = Number.TrimBetween().TrimAny(" ", ",", "-");
+            Complement = Complement.TrimBetween().TrimAny(" ", ",", "-");
             var d = CreateLocation<T>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
             d["original_string"] = original;
             return d;
@@ -1040,7 +1040,7 @@ namespace InnerLibs.Locations
                 retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() && Parts.HasFlag(AddressPart.CountryCode));
             }
 
-            return retorno.AdjustBlankSpaces().TrimAny(".", " ", ",", " ", "-");
+            return retorno.TrimBetween().TrimAny(".", " ", ",", " ", "-");
         }
     }
 }

@@ -416,7 +416,7 @@ namespace InnerLibs
                 return false;
             }
 
-            Value = Value.AdjustBlankSpaces().ToLower();
+            Value = Value.TrimBetween().ToLower();
             switch (Value)
             {
                 case "false":

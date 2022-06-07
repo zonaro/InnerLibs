@@ -138,7 +138,7 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public static State GetState(string NameOrStateCode)
         {
-            NameOrStateCode = NameOrStateCode.AdjustBlankSpaces().ToSlugCase();
+            NameOrStateCode = NameOrStateCode.TrimBetween().ToSlugCase();
             return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? "") == (NameOrStateCode ?? "") || (x.StateCode.ToSlugCase() ?? "") == (NameOrStateCode ?? ""));
         }
 
@@ -154,7 +154,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="Region"></param>
         /// <returns></returns>
-        public static IEnumerable<State> GetStatesOf(string Region) => States.Where(x => (x.Region.ToSlugCase() ?? "") == (Region.ToSlugCase().AdjustBlankSpaces() ?? "") || Region.IsBlank());
+        public static IEnumerable<State> GetStatesOf(string Region) => States.Where(x => (x.Region.ToSlugCase() ?? "") == (Region.ToSlugCase().TrimBetween() ?? "") || Region.IsBlank());
     }
 
     /// <summary>

@@ -435,9 +435,9 @@ namespace InnerLibs
             {
                 switch (prop.Name ?? "")
                 {
-                    case "ExactlyOneHundred":
-                    case "DecimalSeparator":
-                    case "And":
+                    case nameof(ExactlyOneHundred):
+                    case nameof(DecimalSeparator):
+                    case nameof(And):
                         {
                             continue;
                         }
@@ -768,24 +768,15 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number"></param>
         /// <returns></returns>
-        public virtual string this[decimal Number, int DecimalPlaces = 2]
-        {
-            get
-            {
-                return ToString(Number, DecimalPlaces);
-            }
-        }
+        public virtual string this[decimal Number, int DecimalPlaces = 2] => ToString(Number, DecimalPlaces);
 
-        public override string ToString()
-        {
-            return ToString(0m);
-        }
+        public override string ToString() => ToString(0m);
 
         public virtual string ToString(decimal Number, int DecimalPlaces = 2)
         {
             long dec = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3));
             long num = (long)Math.Round(Number.Floor());
-            return (InExtensive(num) + (dec == 0L | DecimalPlaces == 0 ? "" : DecimalSeparator.Wrap(" ") + InExtensive(dec))).ToLower().AdjustWhiteSpaces();
+            return (InExtensive(num) + (dec == 0L | DecimalPlaces == 0 ? "" : DecimalSeparator.Wrap(" ") + InExtensive(dec))).ToLower().TrimBetween();
         }
     }
 }

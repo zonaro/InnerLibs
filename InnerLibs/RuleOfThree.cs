@@ -110,10 +110,10 @@ namespace InnerLibs
             var eqs = Equation.SplitAny(";", Environment.NewLine).Take(2);
             var e1 = eqs.First().Split("=");
             var e2 = eqs.Last().Split("=");
-            string e1xs = e1.FirstOrDefault()?.AdjustBlankSpaces();
-            string e1ys = e1.LastOrDefault()?.AdjustBlankSpaces();
-            string e2xs = e2.FirstOrDefault()?.AdjustBlankSpaces();
-            string e2ys = e2.LastOrDefault()?.AdjustBlankSpaces();
+            string e1xs = e1.FirstOrDefault()?.TrimBetween();
+            string e1ys = e1.LastOrDefault()?.TrimBetween();
+            string e2xs = e2.FirstOrDefault()?.TrimBetween();
+            string e2ys = e2.LastOrDefault()?.TrimBetween();
             T? e1x = default;
             if (e1xs.IsNumber())
                 e1x = Converter.ChangeType<T>(e1xs);

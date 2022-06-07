@@ -141,7 +141,7 @@ namespace InnerLibs
         {
             get
             {
-                return $"{Title} {FirstName} {MiddleName} {LastName} {Suffix}".AdjustBlankSpaces();
+                return $"{Title} {FirstName} {MiddleName} {LastName} {Suffix}".TrimBetween();
             }
         }
 

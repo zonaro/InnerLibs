@@ -224,17 +224,17 @@ namespace InnerLibs
                     BaseList = new FileTypeList();
                     foreach (XmlNode node in doc["mimes"].ChildNodes)
                     {
-                        var ft = BaseList.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.AdjustBlankSpaces() ?? ""), new FileType());
-                        ft.Description = node["Description"].InnerText.AdjustBlankSpaces();
+                        var ft = BaseList.FirstOr(x => (x.Description ?? "") == (node["Description"].InnerText.TrimBetween() ?? ""), new FileType());
+                        ft.Description = node["Description"].InnerText.TrimBetween();
 
                         foreach (XmlNode item in node["MimeTypes"].ChildNodes)
                         {
-                            ft.MimeTypes.Add(item.InnerText.AdjustBlankSpaces());
+                            ft.MimeTypes.Add(item.InnerText.TrimBetween());
                         }
 
                         foreach (XmlNode item in node["Extensions"].ChildNodes)
                         {
-                            ft.Extensions.Add(item.InnerText.AdjustBlankSpaces());
+                            ft.Extensions.Add(item.InnerText.TrimBetween());
                         }
 
                         ft.MimeTypes = ft.MimeTypes.Distinct().ToList();

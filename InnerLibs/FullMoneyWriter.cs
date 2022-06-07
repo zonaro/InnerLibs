@@ -28,7 +28,7 @@ namespace InnerLibs
         {
             long dec = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3));
             long num = (long)Math.Round(Number.Floor());
-            return (InExtensive(num) + CurrencyCentsName[num].Wrap(" ") + (dec == 0L | DecimalPlaces == 0 ? "" : And.Wrap(" ") + InExtensive(dec) + CurrencyCentsName[dec].Wrap(" "))).ToLower().AdjustWhiteSpaces();
+            return (InExtensive(num) + CurrencyCentsName[num].Wrap(" ") + (dec == 0L | DecimalPlaces == 0 ? "" : And.Wrap(" ") + InExtensive(dec) + CurrencyCentsName[dec].Wrap(" "))).ToLower().TrimBetween();
         }
 
         public override string ToString() => ToString(0m);

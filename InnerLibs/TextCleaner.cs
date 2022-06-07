@@ -8,7 +8,7 @@ namespace InnerLibs
 {
     public class Paragraph : List<Sentence>
     {
-        internal Paragraph(string Text, StructuredText StructuredText)
+        internal Paragraph(string Text, TextStructure StructuredText)
         {
             this.StructuredText = StructuredText;
             if (Text.IsNotBlank())
@@ -20,41 +20,31 @@ namespace InnerLibs
                 var regex = new Regex(pattern);
                 var matches = regex.Matches(Text);
                 foreach (Match match in matches)
+                {
                     Add(new Sentence(match.ToString(), this));
+                }
             }
         }
 
-        public StructuredText StructuredText { get; set; }
+        public TextStructure StructuredText { get; set; }
 
-        public int WordCount
-        {
-            get
-            {
-                return Words.Count();
-            }
-        }
+        public int WordCount => Words.Count();
 
-        public IEnumerable<string> Words
-        {
-            get
-            {
-                return this.SelectMany(x => x.Words);
-            }
-        }
+        public IEnumerable<string> Words => this.SelectMany(x => x.Words);
 
         public static implicit operator string(Paragraph paragraph) => paragraph.ToString();
 
-        public override string ToString()
-        {
-            return ToString(0);
-        }
+        public override string ToString() => ToString(0);
 
         public string ToString(int Ident)
         {
             string ss = "";
             foreach (var s in this)
+            {
                 ss += s.ToString() + " ";
-            ss = ss.AdjustBlankSpaces();
+            }
+
+            //ss = ss.TrimBetween();
             return ss.PadLeft(ss.Length + Ident);
         }
     }
@@ -75,11 +65,14 @@ namespace InnerLibs
 
                 // remove quaisquer caracteres nao desejados do inicio da frase
                 while (charlist.Count > 0 && charlist.First().ToString().IsIn(PredefinedArrays.EndOfSentencePunctuation))
+                {
                     charlist.Remove(charlist.First());
+                }
 
                 // processa caractere a caractere
                 foreach (var p in charlist)
                 {
+
                     switch (true)
                     {
                         // caso for algum tipo de pontuacao, wrapper ou virgula
@@ -157,37 +150,34 @@ namespace InnerLibs
 
         public Paragraph Paragraph { get; private set; }
 
-        public int WordCount
-        {
-            get
-            {
-                return Words.Count();
-            }
-        }
+        public int WordCount => Words.Count();
 
-        public IEnumerable<string> Words
-        {
-            get
-            {
-                return this.Where(x => x.IsWord()).Select(x => x.Text);
-            }
-        }
+        public IEnumerable<string> Words => this.Where(x => x.IsWord).Select(x => x.Text);
 
         public static implicit operator string(Sentence sentence) => sentence.ToString();
+
+
+
 
         public override string ToString()
         {
             string sent = "";
             foreach (var s in this)
             {
-                sent += s.ToString();
-                if (s.Next() != null)
+                if (s.IsClosingQuote)
                 {
-                    if (s.NeedSpaceOnNext())
-                    {
-                        sent += " ";
-                    }
+                    sent += s.GetMatchQuote().ToString();
                 }
+                else
+                {
+                    sent += s.ToString();
+                }
+
+                if (s.NeedSpaceOnNext)
+                {
+                    sent += " ";
+                }
+
             }
 
             return sent;
@@ -219,101 +209,92 @@ namespace InnerLibs
         /// Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
         /// </summary>
         /// <returns></returns>
-        public bool IsCloseWrapChar()
-        {
-            return PredefinedArrays.CloseWrappers.Contains(Text);
-        }
+        public bool IsCloseWrapChar => PredefinedArrays.CloseWrappers.Contains(Text) && !IsOpeningQuote;
 
         /// <summary>
         /// Retorna TRUE se esta parte de sentença é uma vírgula
         /// </summary>
         /// <returns></returns>
-        public bool IsComma()
-        {
-            return Text == ",";
-        }
+        public bool IsComma => Text == ",";
+        public bool IsQuote => IsSingleQuote || IsDoubleQuote;
+        public bool IsSingleQuote => Text == "'";
+        public bool IsDoubleQuote => Text == "\"";
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
         /// </summary>
         /// <returns></returns>
-        public bool IsEndOfSentencePunctuation()
-        {
-            return PredefinedArrays.EndOfSentencePunctuation.Contains(Text);
-        }
+        public bool IsEndOfSentencePunctuation => PredefinedArrays.EndOfSentencePunctuation.Contains(Text);
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de de meio de sentença (dois
         /// pontos ou ponto e vírgula)
         /// </summary>
         /// <returns></returns>
-        public bool IsMidSentencePunctuation()
-        {
-            return PredefinedArrays.MidSentencePunctuation.Contains(Text);
-        }
+        public bool IsMidSentencePunctuation => PredefinedArrays.MidSentencePunctuation.Contains(Text);
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça não for uma palavra
         /// </summary>
         /// <returns></returns>
-        public bool IsNotWord()
-        {
-            return IsOpenWrapChar() || IsCloseWrapChar() || IsComma() || IsEndOfSentencePunctuation() || IsMidSentencePunctuation();
-        }
+        public bool IsNotWord => IsOpenWrapChar || IsCloseWrapChar || IsComma || IsEndOfSentencePunctuation || IsMidSentencePunctuation || IsQuote;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento
         /// </summary>
         /// <returns></returns>
-        public bool IsOpenWrapChar()
-        {
-            return PredefinedArrays.OpenWrappers.Contains(Text);
-        }
+        public bool IsOpenWrapChar => PredefinedArrays.OpenWrappers.Contains(Text) && !IsClosingQuote;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for qualquer tipo de pontuaçao
         /// </summary>
         /// <returns></returns>
-        public bool IsPunctuation()
-        {
-            return IsEndOfSentencePunctuation() | IsMidSentencePunctuation();
-        }
+        public bool IsPunctuation => IsEndOfSentencePunctuation || IsMidSentencePunctuation;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for uma palavra
         /// </summary>
         /// <returns></returns>
-        public bool IsWord()
-        {
-            return !IsNotWord();
-        }
+        public bool IsWord => !IsNotWord;
 
         /// <summary>
         /// Retorna true se é nescessário espaço andes da proxima sentença
         /// </summary>
         /// <returns></returns>
-        public bool NeedSpaceOnNext()
-        {
-            return Next() != null && (Next().IsWord() || Next().IsOpenWrapChar());
-        }
+        public bool NeedSpaceOnNext => GetNextPart() != null && !IsOpeningQuote && !IsOpenWrapChar && !GetNextPart().IsClosingQuote && (IsClosingQuote || IsCloseWrapChar || GetNextPart().IsWord || GetNextPart().IsOpenWrapChar);
 
         /// <summary>
         /// Parte da próxima sentença
         /// </summary>
         /// <returns></returns>
-        public SentencePart Next()
-        {
-            return Sentence.IfNoIndex(Sentence.IndexOf(this) + 1);
-        }
+        public SentencePart GetNextPart() => Sentence.IfNoIndex(Sentence.IndexOf(this) + 1);
 
         /// <summary>
         /// Parte de sentença anterior
         /// </summary>
         /// <returns></returns>
-        public SentencePart Previous()
+        public SentencePart GetPreviousPart() => Sentence.IfNoIndex(Sentence.IndexOf(this) - 1);
+
+        public bool IsOpeningQuote => IsQuote && Sentence.Where(x => x.IsQuote).GetIndexOf(this).IsEven();
+        public bool IsClosingQuote => IsQuote && Sentence.Where(x => x.IsQuote).GetIndexOf(this).IsOdd();
+
+        public SentencePart GetMatchQuote()
         {
-            return Sentence.IfNoIndex(Sentence.IndexOf(this) - 1);
+            var quotes = Sentence.Where(x => x.IsQuote).ToList();
+
+            if (IsOpeningQuote)
+            {
+                return quotes.IfNoIndex(quotes.GetIndexOf(this) + 1);
+            }
+
+            if (IsClosingQuote)
+            {
+                return quotes.IfNoIndex(quotes.GetIndexOf(this) - 1);
+            }
+
+            return null;
         }
+
 
         public override string ToString()
         {
@@ -335,7 +316,7 @@ namespace InnerLibs
     /// <summary>
     /// Texto estruturado (Dividido em parágrafos)
     /// </summary>
-    public class StructuredText : List<Paragraph>
+    public class TextStructure : List<Paragraph>
     {
         private string _originaltext = "";
 
@@ -343,28 +324,21 @@ namespace InnerLibs
         /// Cria um novo texto estruturado (dividido em paragrafos, sentenças e palavras)
         /// </summary>
         /// <param name="OriginalText"></param>
-        public StructuredText(string OriginalText)
+        public TextStructure(string OriginalText)
         {
             Text = OriginalText;
         }
 
+
+
         public int BreakLinesBetweenParagraph { get; set; } = 0;
         public int Ident { get; set; } = 0;
 
-        public string OriginalText
-        {
-            get
-            {
-                return _originaltext;
-            }
-        }
+        public string OriginalText => _originaltext;
 
         public string Text
         {
-            get
-            {
-                return ToString();
-            }
+            get => ToString();
 
             set
             {
@@ -383,41 +357,17 @@ namespace InnerLibs
             }
         }
 
-        public int WordCount
-        {
-            get
-            {
-                return Words.Count();
-            }
-        }
+        public int WordCount => Words.Count();
 
-        public IEnumerable<string> Words
-        {
-            get
-            {
-                return this.SelectMany(x => x.Words);
-            }
-        }
+        public IEnumerable<string> Words => this.SelectMany(x => x.Words);
 
-        public static implicit operator int(StructuredText s)
-        {
-            return s.Count;
-        }
+        public static implicit operator int(TextStructure s) => s.Count;
 
-        public static implicit operator long(StructuredText s)
-        {
-            return s.LongCount();
-        }
+        public static implicit operator long(TextStructure s) => s.LongCount();
 
-        public static implicit operator string(StructuredText s)
-        {
-            return s.ToString();
-        }
+        public static implicit operator string(TextStructure s) => s.ToString();
 
-        public static StructuredText operator +(StructuredText a, StructuredText b)
-        {
-            return new StructuredText(a.ToString() + b.ToString());
-        }
+        public static TextStructure operator +(TextStructure a, TextStructure b) => new TextStructure($"{a}{Environment.NewLine}{b}");
 
         public Paragraph GetParagraph(int Index) => this.IfNoIndex(Index, null);
 
@@ -429,9 +379,6 @@ namespace InnerLibs
         /// Retorna o texto corretamente formatado
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
-            return this.SelectJoinString(parag => parag.ToString(Ident), Enumerable.Range(1, 1 + BreakLinesBetweenParagraph.SetMinValue(0)).SelectJoinString(x => Environment.NewLine));
-        }
+        public override string ToString() => this.SelectJoinString(parag => parag.ToString(Ident), Enumerable.Range(1, 1 + BreakLinesBetweenParagraph.SetMinValue(0)).SelectJoinString(x => Environment.NewLine));
     }
 }

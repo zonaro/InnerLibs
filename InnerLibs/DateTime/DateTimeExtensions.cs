@@ -1456,7 +1456,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns <see cref="DateTime"/> increased by 24 hours ie Next Day.
+        /// Returns <see cref="DateTime"/> increased by 24 hours ie GetNextPart Day.
         /// </summary>
         public static DateTime NextDay(this DateTime start) => start + 1.Days();
 
@@ -1478,7 +1478,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> increased by 24 hours ie Next Day.
+        /// Returns <see cref="DateTimeOffset"/> increased by 24 hours ie GetNextPart Day.
         /// </summary>
         public static DateTimeOffset NextDay(this DateTimeOffset start) => start + 1.Days();
 
@@ -1660,12 +1660,12 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns <see cref="DateTime"/> decreased by 24h period ie Previous Day.
+        /// Returns <see cref="DateTime"/> decreased by 24h period ie GetPreviousPart Day.
         /// </summary>
         public static DateTime PreviousDay(this DateTime start) => start - 1.Days();
 
         /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> decreased by 24h period ie Previous Day.
+        /// Returns <see cref="DateTimeOffset"/> decreased by 24h period ie GetPreviousPart Day.
         /// </summary>
         public static DateTimeOffset PreviousDay(this DateTimeOffset start) => start - 1.Days();
 
@@ -2264,22 +2264,22 @@ namespace InnerLibs.TimeMachine
         public static DateTime ToTimeZoneUtc(this DateTime Date, TimeZoneInfo TimeZone) => TimeZoneInfo.ConvertTimeFromUtc(Date, TimeZone);
 
         /// <summary>
-        /// Increases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the Next Week.
+        /// Increases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the GetNextPart Week.
         /// </summary>
         public static DateTimeOffset WeekAfter(this DateTimeOffset start) => start + 1.Weeks();
 
         /// <summary>
-        /// Increases supplied <see cref="DateTime"/> for 7 days ie returns the Next Week.
+        /// Increases supplied <see cref="DateTime"/> for 7 days ie returns the GetNextPart Week.
         /// </summary>
         public static DateTime WeekAfter(this DateTime start) => start + 1.Weeks();
 
         /// <summary>
-        /// Decreases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the Previous Week.
+        /// Decreases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the GetPreviousPart Week.
         /// </summary>
         public static DateTimeOffset WeekEarlier(this DateTimeOffset start) => start - 1.Weeks();
 
         /// <summary>
-        /// Decreases supplied <see cref="DateTime"/> for 7 days ie returns the Previous Week.
+        /// Decreases supplied <see cref="DateTime"/> for 7 days ie returns the GetPreviousPart Week.
         /// </summary>
         public static DateTime WeekEarlier(this DateTime start) => start - 1.Weeks();
 

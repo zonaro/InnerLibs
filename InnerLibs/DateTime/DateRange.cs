@@ -1119,7 +1119,7 @@ namespace InnerLibs.TimeMachine
 
             string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.Where(x => x.IsNotBlank()).ToPhrase(display.AndWord);
 
-            return current.AdjustWhiteSpaces();
+            return current.FixText();
         }
 
         /// <summary>

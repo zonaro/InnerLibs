@@ -20,68 +20,35 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
-        public static IEnumerable<string> AdjustBlankSpaces(this IEnumerable<string> Texts) => Texts.AdjustWhiteSpaces();
-
-        public static string AdjustBlankSpaces(this string Text) => Text.AdjustWhiteSpaces();
+        public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.TrimBetween();
 
         /// <summary>
-        /// Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
+        /// Arruma a ortografia do texto captalizando corretamente, adcionando pontuação ao final de
+        /// frase caso nescessário e removendo espaços excessivos ou incorretos
         /// </summary>
-        /// <param name="Text"></param>
+        /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool AlternativeChar = false)
+        public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0)
         {
-            return Text.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
+            var removedot = !Text.Trim().EndsWith(".");
+            var addComma = Text.Trim().EndsWith(",");
+            Text = new TextStructure(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
+            if (removedot)
             {
-                if (i == 0 && x.Length == 2 && x.EndsWith(":"))
-                {
-                    return x;
-                }
-
-                return x.ToFriendlyPathName();
-            }).JoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).RemoveLastAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+                Text = Text.TrimEnd().RemoveLastAny(".");
+            }
+            if (addComma)
+            {
+                Text = Text.TrimEnd().RemoveLastAny(".").Append(",");
+            }
+            return Text.Trim();
         }
 
-        public static string AdjustWhiteSpaces(this string Text)
+        public static string TrimBetween(this string Text)
         {
             Text = Text.IfBlank("");
             if (Text.IsNotBlank())
             {
-                // adiciona espaco quando nescessario
-                Text = Text.Replace(")", ") ");
-                Text = Text.Replace("]", "] ");
-                Text = Text.Replace("}", "} ");
-                Text = Text.Replace(">", "> ");
-                Text = Text.Replace("(", " (");
-                Text = Text.Replace("<", " <");
-                Text = Text.Replace("[", " [");
-                Text = Text.Replace("{", " {");
-                Text = Text.Replace(":", ": ");
-                Text = Text.Replace(";", "; ");
-                foreach (var item in PredefinedArrays.AlphaChars)
-                {
-                    Text = Text.SensitiveReplace($" -{item}", $" - {item}");
-                }
-
-                Text = Text.Replace("- ", " - ");
-                Text = Text.Replace("\"", " \"");
-
-                // remove espaco quando nescessario
-                Text = Text.Replace(" ,", ",");
-                Text = Text.Replace(" .", ".");
-                Text = Text.Replace(" !", "!");
-                Text = Text.Replace(" ?", "?");
-                Text = Text.Replace(" ;", ";");
-                Text = Text.Replace(" :", ":");
-                Text = Text.Replace(" )", ")");
-                Text = Text.Replace(" ]", "]");
-                Text = Text.Replace(" }", "}");
-                Text = Text.Replace(" >", ">");
-                Text = Text.Replace("( ", "(");
-                Text = Text.Replace("[ ", "[");
-                Text = Text.Replace("{ ", "{");
-                Text = Text.Replace("< ", "<");
-                Text = Text.Replace("\" ", "\"");
                 var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 Text = arr.JoinString(Environment.NewLine);
                 arr = Text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -91,7 +58,6 @@ namespace InnerLibs
             return Text.TrimAny(" ", Environment.NewLine);
         }
 
-        public static IEnumerable<string> AdjustWhiteSpaces(this IEnumerable<string> Texts) => Texts?.Select(s => s.AdjustWhiteSpaces());
 
         /// <summary>
         /// Retorna uma string em ordem afabética baseada em uma outra string
@@ -150,7 +116,7 @@ namespace InnerLibs
         {
             foreach (var v in Value ?? Array.Empty<string>())
             {
-                Url += string.Format("&{0}={1}", Key, v.IfBlank(""));
+                Url += string.Format("&{0}={1}", Key, v.UrlEncode().IfBlank(""));
             }
 
             return Url;
@@ -626,6 +592,24 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string FixPath(this string Text, bool AlternativeChar = false)
+        {
+            return Text.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
+            {
+                if (i == 0 && x.Length == 2 && x.EndsWith(":"))
+                {
+                    return x;
+                }
+
+                return x.ToFriendlyPathName();
+            }).JoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).RemoveLastAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+        }
+
+        /// <summary>
         /// Adciona pontuação ao final de uma string se a mesma não terminar com alguma pontuacao.
         /// </summary>
         /// <param name="Text">Frase, Texto a ser pontuado</param>
@@ -649,13 +633,7 @@ namespace InnerLibs
             return Text;
         }
 
-        /// <summary>
-        /// Arruma a ortografia do texto captalizando corretamente, adcionando pontuação ao final de
-        /// frase caso nescessário e removendo espaços excessivos ou incorretos
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <returns></returns>
-        public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0) => new StructuredText(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
+
 
         /// <summary>
         /// Executa uma ação para cada linha de um texto
@@ -742,13 +720,14 @@ namespace InnerLibs
             {
                 return Document.FormatCPF();
             }
-
-            if (Document.ToString().IsValidCNPJ())
+            else if (Document.ToString().IsValidCNPJ())
             {
                 return Document.FormatCNPJ();
             }
-
-            return Document.ToString();
+            else
+            {
+                return Document.ToString();
+            }
         }
 
         /// <summary>
@@ -762,12 +741,14 @@ namespace InnerLibs
             {
                 return Document.FormatCPF();
             }
-
-            if (Document.IsValidCNPJ())
+            else if (Document.IsValidCNPJ())
             {
                 return Document.FormatCNPJ();
             }
-            return Document;
+            else
+            {
+                return Document;
+            }
         }
 
         /// <summary>
@@ -1040,15 +1021,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">Url</param>
         /// <returns></returns>
-        public static string GetRelativeURL(this string URL, bool WithQueryString = true)
-        {
-            if (URL.IsURL())
-            {
-                return new Uri(URL).GetRelativeURL(WithQueryString);
-            }
-
-            return null;
-        }
+        public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
 
         /// <summary>
         /// Retorna uma lista de palavras encontradas no texto em ordem alfabetica
@@ -1058,7 +1031,7 @@ namespace InnerLibs
         public static IOrderedEnumerable<string> GetWords(this string Text)
         {
             var txt = new List<string>();
-            var palavras = Text.AdjustWhiteSpaces().FixHTMLBreakLines().ToLower().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            var palavras = Text.TrimBetween().FixHTMLBreakLines().ToLower().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             foreach (var w in palavras)
             {
                 txt.Add(w);
@@ -1677,10 +1650,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string Poopfy(this string Text)
-        {
-            return Poopfy(Text.Split(" ")).JoinString(" ");
-        }
+        public static string Poopfy(this string Text) => Poopfy(Text.Split(" ")).JoinString(" ");
 
         /// <summary>
         /// Return a Idented XML string
@@ -2666,7 +2636,7 @@ namespace InnerLibs
                 }
             }
 
-            return phrase.JoinString(" ").AdjustWhiteSpaces();
+            return phrase.JoinString(" ").TrimBetween();
         }
 
         /// <summary>
@@ -2866,7 +2836,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns>string amigavel para URL</returns>
-        public static string ToFriendlyPathName(this string Text) => Text.Replace("&", "e").Replace("@", "a").RemoveAny(Path.GetInvalidPathChars()).AdjustBlankSpaces();
+        public static string ToFriendlyPathName(this string Text) => Text.RemoveAny(Path.GetInvalidPathChars()).TrimBetween();
 
         /// <summary>
         /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
@@ -2885,7 +2855,7 @@ namespace InnerLibs
         /// <param name="text">TExto original</param>
         /// <param name="degree">Grau de itensidade (0 a 7)</param>
         /// <returns>Texto em 1337</returns>
-        public static string ToLeet(this string Text, int Degree = 30)
+        public static string ToLeet(this string Text, int Degree = 7)
         {
             // Adjust degree between 0 - 100
             Degree = Degree.LimitRange(0, 7);
@@ -4245,11 +4215,11 @@ namespace InnerLibs
         {
             if (Texts != null && Texts.Count() > 1)
             {
-                return AdjustBlankSpaces($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
+                return TrimBetween($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
             }
             else
             {
-                return AdjustBlankSpaces(Texts?.FirstOrDefault());
+                return TrimBetween(Texts?.FirstOrDefault());
             }
         }
 

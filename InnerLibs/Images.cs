@@ -909,23 +909,23 @@ namespace InnerLibs
             if (Percent.Contains("x"))
             {
                 var parts = Percent.Split("x");
-                if (parts[0].AdjustBlankSpaces().EndsWith("%"))
+                if (parts[0].TrimBetween().EndsWith("%"))
                 {
-                    parts[0] = parts[0].AdjustBlankSpaces().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString();
+                    parts[0] = parts[0].TrimBetween().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString();
                 }
 
-                if (parts[1].AdjustBlankSpaces().EndsWith("%"))
+                if (parts[1].TrimBetween().EndsWith("%"))
                 {
-                    parts[1] = parts[1].AdjustBlankSpaces().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString();
+                    parts[1] = parts[1].TrimBetween().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString();
                 }
 
                 size = new Size(parts[0].ToInt(), parts[1].ToInt());
             }
             else
             {
-                if (Percent.AdjustBlankSpaces().EndsWith("%"))
+                if (Percent.TrimBetween().EndsWith("%"))
                 {
-                    Percent = Percent.Trim('%').AdjustBlankSpaces();
+                    Percent = Percent.Trim('%').TrimBetween();
                 }
 
                 if (Percent.IsNumber())
