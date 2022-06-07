@@ -157,8 +157,6 @@ namespace InnerLibs
         public static implicit operator string(Sentence sentence) => sentence.ToString();
 
 
-
-
         public override string ToString()
         {
             string sent = "";
