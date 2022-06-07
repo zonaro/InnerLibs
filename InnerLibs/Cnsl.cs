@@ -230,6 +230,16 @@ namespace InnerLibs.Console
         }
 
         /// <summary>
+        /// Retorna o valor de um argumento de uma linha de comando
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="ArgName"></param>
+        /// <param name="ValueIfNull"></param>
+        /// <returns></returns>
+        public static T GetArgumentValue<T>(this string[] args, string ArgName, T ValueIfNull = default) => GetArgumentValue(args, ArgName, ValueIfNull.ChangeType<T>()).ChangeType<T>();
+
+
+        /// <summary>
         /// Le o proximo caractere inserido no console pelo usuário
         /// </summary>
         /// <returns></returns>
