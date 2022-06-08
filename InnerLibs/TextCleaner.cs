@@ -72,7 +72,6 @@ namespace InnerLibs
                 // processa caractere a caractere
                 foreach (var p in charlist)
                 {
-
                     switch (true)
                     {
                         // caso for algum tipo de pontuacao, wrapper ou virgula
@@ -156,7 +155,6 @@ namespace InnerLibs
 
         public static implicit operator string(Sentence sentence) => sentence.ToString();
 
-
         public override string ToString()
         {
             string sent = "";
@@ -175,7 +173,6 @@ namespace InnerLibs
                 {
                     sent += " ";
                 }
-
             }
 
             return sent;
@@ -193,29 +190,20 @@ namespace InnerLibs
             this.Sentence = Sentence;
         }
 
-        public Sentence Sentence { get; private set; }
-
-        /// <summary>
-        /// Texto desta parte de sentença
-        /// </summary>
-        /// <returns></returns>
-        public string Text { get; set; }
-
-        public static implicit operator string(SentencePart sentencePart) => sentencePart.ToString();
-
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
         /// </summary>
         /// <returns></returns>
         public bool IsCloseWrapChar => PredefinedArrays.CloseWrappers.Contains(Text) && !IsOpeningQuote;
 
+        public bool IsClosingQuote => IsQuote && Sentence.Where(x => x.IsQuote).GetIndexOf(this).IsOdd();
+
         /// <summary>
         /// Retorna TRUE se esta parte de sentença é uma vírgula
         /// </summary>
         /// <returns></returns>
         public bool IsComma => Text == ",";
-        public bool IsQuote => IsSingleQuote || IsDoubleQuote;
-        public bool IsSingleQuote => Text == "'";
+
         public bool IsDoubleQuote => Text == "\"";
 
         /// <summary>
@@ -237,6 +225,8 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsNotWord => IsOpenWrapChar || IsCloseWrapChar || IsComma || IsEndOfSentencePunctuation || IsMidSentencePunctuation || IsQuote;
 
+        public bool IsOpeningQuote => IsQuote && Sentence.Where(x => x.IsQuote).GetIndexOf(this).IsEven();
+
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento
         /// </summary>
@@ -248,6 +238,9 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public bool IsPunctuation => IsEndOfSentencePunctuation || IsMidSentencePunctuation;
+
+        public bool IsQuote => IsSingleQuote || IsDoubleQuote;
+        public bool IsSingleQuote => Text == "'";
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for uma palavra
@@ -261,20 +254,15 @@ namespace InnerLibs
         /// <returns></returns>
         public bool NeedSpaceOnNext => GetNextPart() != null && !IsOpeningQuote && !IsOpenWrapChar && !GetNextPart().IsClosingQuote && (IsClosingQuote || IsCloseWrapChar || GetNextPart().IsWord || GetNextPart().IsOpenWrapChar);
 
-        /// <summary>
-        /// Parte da próxima sentença
-        /// </summary>
-        /// <returns></returns>
-        public SentencePart GetNextPart() => Sentence.IfNoIndex(Sentence.IndexOf(this) + 1);
+        public Sentence Sentence { get; private set; }
 
         /// <summary>
-        /// Parte de sentença anterior
+        /// Texto desta parte de sentença
         /// </summary>
         /// <returns></returns>
-        public SentencePart GetPreviousPart() => Sentence.IfNoIndex(Sentence.IndexOf(this) - 1);
+        public string Text { get; set; }
 
-        public bool IsOpeningQuote => IsQuote && Sentence.Where(x => x.IsQuote).GetIndexOf(this).IsEven();
-        public bool IsClosingQuote => IsQuote && Sentence.Where(x => x.IsQuote).GetIndexOf(this).IsOdd();
+        public static implicit operator string(SentencePart sentencePart) => sentencePart.ToString();
 
         public SentencePart GetMatchQuote()
         {
@@ -293,6 +281,17 @@ namespace InnerLibs
             return null;
         }
 
+        /// <summary>
+        /// Parte da próxima sentença
+        /// </summary>
+        /// <returns></returns>
+        public SentencePart GetNextPart() => Sentence.IfNoIndex(Sentence.IndexOf(this) + 1);
+
+        /// <summary>
+        /// Parte de sentença anterior
+        /// </summary>
+        /// <returns></returns>
+        public SentencePart GetPreviousPart() => Sentence.IfNoIndex(Sentence.IndexOf(this) - 1);
 
         public override string ToString()
         {
@@ -326,8 +325,6 @@ namespace InnerLibs
         {
             Text = OriginalText;
         }
-
-
 
         public int BreakLinesBetweenParagraph { get; set; } = 0;
         public int Ident { get; set; } = 0;

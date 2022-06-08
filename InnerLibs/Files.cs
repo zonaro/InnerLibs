@@ -177,7 +177,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Transforma um arquivo em um Array de Bytes
+        /// Salva um array de bytes em um arquivo
         /// </summary>
         /// <param name="File">O arquivo a ser convertido</param>
         /// <returns>Um array do tipo Byte()</returns>

@@ -64,17 +64,18 @@ namespace InnerLibs.Console
         /// <param name="Text"></param>
         /// <param name="BreakLines"></param>
         /// <returns></returns>
-        public static string ConsoleLog(this string Text, DateTime? LogDateTime = null, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, int BreakLines = 1)
+        public static string ConsoleLog(this string Text, DateTime? LogDateTime = null, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, string DateFormat = default, int BreakLines = 1)
         {
+            DateFormat = DateFormat.IfBlank("yyyy-MM-dd HH: mm:ss");
             LogDateTime = LogDateTime ?? DateTime.Now;
             DateColor = DateColor ?? System.Console.ForegroundColor;
             MessageColor = MessageColor ?? DateColor;
             ConsoleWrite($"{LogDateTime}", DateColor.Value);
             ConsoleWriteLine($" - {Text}", MessageColor.Value, BreakLines);
-            return $"{LogDateTime} - {Text}";
+            return $"{LogDateTime.Value.ToString(DateFormat)} - {Text}";
         }
 
-        public static string ConsoleLog(this DateTime LogDateTime, string Text, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, int BreakLines = 1) => ConsoleLog(Text, LogDateTime, DateColor, MessageColor, BreakLines);
+        public static string ConsoleLog(this DateTime LogDateTime, string Text, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, string DateFormat = default, int BreakLines = 1) => ConsoleLog(Text, LogDateTime, DateColor, MessageColor, DateFormat, BreakLines);
 
         /// <summary>
         /// Escreve no console colorindo palavras especificas

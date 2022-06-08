@@ -335,21 +335,23 @@ namespace InnerLibs
         /// Caso <paramref name="FirstValue"/> e/ou <paramref name="SecondValue"/> forem
         /// <b>null</b>, nada acontece
         /// </remarks>
-        public static void FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
+        public static (T, T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
+            var tp = (FirstValue, SecondValue);
             if (FirstValue != null && SecondValue != null)
             {
                 if (FirstValue.IsGreaterThan(SecondValue))
                 {
-                    Swap(ref FirstValue, ref SecondValue);
+                    tp = Swap(ref FirstValue, ref SecondValue);
                 }
             }
+
+            return tp;
         }
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this MemberInfo prop, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
-            TAttribute att = prop.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() as TAttribute;
-            if (att != null)
+            if (prop.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att && att != null)
             {
                 return att.GetAttributeValue(ValueSelector);
             }
@@ -359,9 +361,7 @@ namespace InnerLibs
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
-            TAttribute att = type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() as TAttribute;
-
-            if (att != null)
+            if (type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att && att != null)
             {
                 return att.GetAttributeValue(ValueSelector);
             }
@@ -746,7 +746,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
 
-        public static bool IsAny<Type>(this Type Obj, params Type[] List) => IsIn(Obj, List);
+
 
         /// <summary>
         /// Verifica se o tipo é um array de um objeto especifico
@@ -845,6 +845,7 @@ namespace InnerLibs
         /// <param name="List">Lista</param>
         /// <returns></returns>
         public static bool IsIn<Type>(this Type Obj, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList());
+        public static bool IsIn<Type>(this Type Obj, IEqualityComparer<Type> Comparer = null, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList(), Comparer);
 
         /// <summary>
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
@@ -1270,7 +1271,11 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="FirstValue"></param>
         /// <param name="SecondValue"></param>
-        public static void Swap<T>(ref T FirstValue, ref T SecondValue) => (SecondValue, FirstValue) = (FirstValue, SecondValue);
+        public static (T, T) Swap<T>(ref T FirstValue, ref T SecondValue)
+        {
+            (SecondValue, FirstValue) = (FirstValue, SecondValue);
+            return (FirstValue, SecondValue);
+        }
 
         /// <summary>
         /// Traz os top N valores de um dicionario e agrupa os outros

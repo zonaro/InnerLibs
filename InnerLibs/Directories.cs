@@ -63,7 +63,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Cria um diretório se o mesmo nao existir e retorna um DirectoryInfo deste diretório
+        /// Cria um diretório se o mesmo nao existir e retorna um <see cref="DirectoryInfo"/> deste diretório
         /// </summary>
         /// <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3"</param>
         /// <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
@@ -246,7 +246,7 @@ namespace InnerLibs
 
         public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, SearchOption Option, params string[] Patterns) => directory.SearchFiles(Option, Patterns).Select(x => x.ReadAllText());
 
-        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, params string[] Patterns) => directory.SearchFiles(SearchOption.TopDirectoryOnly, Patterns).Select(x => x.ReadAllText());
+        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, params string[] Patterns) => directory.ReadManyText(SearchOption.TopDirectoryOnly, Patterns);
 
         /// <summary>
         /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
@@ -260,7 +260,7 @@ namespace InnerLibs
         public static List<FileSystemInfo> Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
         {
             var FilteredList = new List<FileSystemInfo>();
-            foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
             {
                 FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
             }
@@ -333,10 +333,7 @@ namespace InnerLibs
         /// </param>
         /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
         /// <returns></returns>
-        public static IEnumerable<FileInfo> SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
-        {
-            return (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*").SelectMany(x => Directory.GetFiles(x.Trim(), SearchOption));
-        }
+        public static IEnumerable<FileInfo> SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches) => (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*").SelectMany(x => Directory.GetFiles(x.Trim(), SearchOption));
 
         /// <summary>
         /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
