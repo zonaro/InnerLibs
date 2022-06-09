@@ -4253,7 +4253,7 @@ namespace InnerLibs
             for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
             {
                 string pal = l[index];
-                bool artigo = index > 0 && pal.IsIn("o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e");
+                bool artigo = index > 0 && Misc.IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e");
                 if (pal.IsNotBlank())
                 {
                     if (ForceCase || artigo == false)

@@ -746,8 +746,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
 
-
-
         /// <summary>
         /// Verifica se o tipo é um array de um objeto especifico
         /// </summary>
@@ -765,9 +763,37 @@ namespace InnerLibs
         public static bool IsArrayOf<T>(this object Obj) => Obj.GetTypeOf().IsArrayOf<T>();
 
         /// <summary>
+        /// Verifica se <paramref name="Value"/> é igual a <paramref name="MinValue"/> ou está entre
+        /// <paramref name="MinValue"/> e <paramref name="MaxValue"/>
+        /// </summary>
+        /// <remarks>
+        /// Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>.
+        /// Retorna <b>false</b> se <paramref name="Value"/> for igual a <paramref
+        /// name="MaxValue"/>. <br/> Utilize <see cref="IsBetweenOrEqual(IComparable, IComparable,
+        /// IComparable)"/> para incluir <paramref name="MaxValue"/> ou <see
+        /// cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir
+        /// <paramref name="MinValue"/>
+        /// </remarks>
+        /// <param name="Value">Numero</param>
+        /// <param name="MinValue">Primeiro comparador</param>
+        /// <param name="MaxValue">Segundo comparador</param>
+        /// <returns></returns>
+        public static bool IsBetween(this IComparable Value, IComparable MinValue, IComparable MaxValue)
+        {
+            FixOrder(ref MinValue, ref MaxValue);
+            return MinValue == MaxValue ? Value == MinValue : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
+        }
+
+        /// <summary>
         /// Verifica se <paramref name="Value"/> está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
         /// </summary>
-        /// <remarks>Retorna <see cref="false"/> se  <paramref name="Value"/> for igual a <paramref name="MinValue"/> ou <paramref name="MaxValue"/>. <br/>Utilize <see cref="IsBetween(IComparable, IComparable, IComparable)"/> para incluir <paramref name="MinValue"/> ou <see cref="IsBetweenOrEqual(IComparable, IComparable, IComparable)"/> para incluir ambos </remarks>
+        /// <remarks>
+        /// Retorna <see cref="false"/> se <paramref name="Value"/> for igual a <paramref
+        /// name="MinValue"/> ou <paramref name="MaxValue"/>. <br/> Utilize <see
+        /// cref="IsBetween(IComparable, IComparable, IComparable)"/> para incluir <paramref
+        /// name="MinValue"/> ou <see cref="IsBetweenOrEqual(IComparable, IComparable,
+        /// IComparable)"/> para incluir ambos
+        /// </remarks>
         /// <param name="Value">Numero</param>
         /// <param name="MinValue">Primeiro comparador</param>
         /// <param name="MaxValue">Segundo comparador</param>
@@ -778,13 +804,16 @@ namespace InnerLibs
             return MinValue != MaxValue && Value.IsGreaterThan(MinValue) && Value.IsLessThan(MaxValue);
         }
 
-
-
-
         /// <summary>
-        /// Verifica se <paramref name="Value"/> é igual ou está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
+        /// Verifica se <paramref name="Value"/> é igual ou está entre <paramref name="MinValue"/> e
+        /// <paramref name="MaxValue"/>
         /// </summary>
-        /// <remarks>Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/> ou <paramref name="MaxValue"/>. <br/>Utilize <see cref="IsBetween(IComparable, IComparable, IComparable)" /> para excluir <paramref name="MaxValue"/> ou <see cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir ambos </remarks>
+        /// <remarks>
+        /// Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>
+        /// ou <paramref name="MaxValue"/>. <br/> Utilize <see cref="IsBetween(IComparable,
+        /// IComparable, IComparable)"/> para excluir <paramref name="MaxValue"/> ou <see
+        /// cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir ambos
+        /// </remarks>
         /// <param name="Value">Numero</param>
         /// <param name="MinValue">Primeiro comparador</param>
         /// <param name="MaxValue">Segundo comparador</param>
@@ -793,20 +822,6 @@ namespace InnerLibs
         {
             FixOrder(ref MinValue, ref MaxValue);
             return MinValue == MaxValue ? Value == MinValue : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
-        }
-
-        /// <summary>
-        /// Verifica se <paramref name="Value"/> é igual a  <paramref name="MinValue"/> ou está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
-        /// </summary>
-        /// <remarks>Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>. Retorna <b>false</b> se <paramref name="Value"/> for igual a <paramref name="MaxValue"/>. <br/>Utilize <see cref="IsBetweenOrEqual(IComparable, IComparable, IComparable)" /> para incluir <paramref name="MaxValue"/> ou <see cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir <paramref name="MinValue"/> </remarks>
-        /// <param name="Value">Numero</param>
-        /// <param name="MinValue">Primeiro comparador</param>
-        /// <param name="MaxValue">Segundo comparador</param>
-        /// <returns></returns>
-        public static bool IsBetween(this IComparable Value, IComparable MinValue, IComparable MaxValue)
-        {
-            FixOrder(ref MinValue, ref MaxValue);
-            return MinValue == MaxValue ? Value == MinValue : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
         }
 
         /// <summary>
@@ -845,6 +860,7 @@ namespace InnerLibs
         /// <param name="List">Lista</param>
         /// <returns></returns>
         public static bool IsIn<Type>(this Type Obj, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList());
+
         public static bool IsIn<Type>(this Type Obj, IEqualityComparer<Type> Comparer = null, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList(), Comparer);
 
         /// <summary>
@@ -855,6 +871,8 @@ namespace InnerLibs
         /// <param name="List">Lista</param>
         /// <returns></returns>
         public static bool IsIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => Comparer is null ? List.Contains(Obj) : List.Contains(Obj, Comparer);
+
+        public static bool IsIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text.Contains(Obj.ToString()) : Text.Contains(Obj.ToString(), Comparer.Value);
 
         /// <summary>
         /// Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays.
@@ -883,7 +901,7 @@ namespace InnerLibs
         /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsNotIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => Comparer == null ? !List.Contains(Obj) : !List.Contains(Obj, Comparer);
+        public static bool IsNotIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => !Obj.IsIn(List, Comparer);
 
         /// <summary>
         /// Verifica se o objeto não existe dentro de um texto
@@ -892,7 +910,7 @@ namespace InnerLibs
         /// <param name="Obj">objeto</param>
         /// <param name="TExt">Texto</param>
         /// <returns></returns>
-        public static bool IsNotIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text.Contains(Obj.ToString()) : Text.Contains(Obj.ToString(), Comparer.Value);
+        public static bool IsNotIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
 
         /// <summary>
         /// Checks if a <paramref name="List"/> is not <b>null</b> and contains at least one item
@@ -971,9 +989,7 @@ namespace InnerLibs
             }
 
             return all;
-
         }
-
 
         /// <summary>
         /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>

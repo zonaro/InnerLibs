@@ -1322,7 +1322,7 @@ namespace InnerLibs.Printer.XmlTemplates
         public Printer WriteXmlTemplate<T>(T Item, XElement Xml)
         {
             int lines = 0;
-            if (Xml.Name.LocalName.ToLower().IsIn("br"))
+            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "br"))
             {
                 try
                 {
@@ -1336,17 +1336,17 @@ namespace InnerLibs.Printer.XmlTemplates
                 return NewLine(lines);
             }
 
-            if (Xml.Name.LocalName.ToLower().IsIn("partialcut", "partialpapercut"))
+            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "partialcut", "partialpapercut"))
             {
                 return PartialPaperCut();
             }
 
-            if (Xml.Name.LocalName.ToLower().IsIn("cut", "fullcut", "fullpapercut", "hr"))
+            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "cut", "fullcut", "fullpapercut", "hr"))
             {
                 return FullPaperCut();
             }
 
-            if (Xml.Name.LocalName.ToLower().IsIn("sep", "separator"))
+            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "sep", "separator"))
             {
                 string sep = "-";
                 foreach (var attr in Xml.Attributes())
@@ -1367,7 +1367,7 @@ namespace InnerLibs.Printer.XmlTemplates
                 return Separator(sep.FirstOrDefault());
             }
 
-            if (Xml.Name.LocalName.ToLower().IsIn("list"))
+            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "list"))
             {
                 string v = Xml.Attribute("property")?.Value;
                 if (v.IsNotBlank())
@@ -1394,7 +1394,7 @@ namespace InnerLibs.Printer.XmlTemplates
                 return this;
             }
 
-            if (Xml.Name.LocalName.ToLower().IsIn("pair"))
+            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "pair"))
             {
                 string dotchar = Xml.Attribute("char")?.Value;
                 dotchar = dotchar.GetFirstChars().IfBlank(" ");
@@ -1418,7 +1418,7 @@ namespace InnerLibs.Printer.XmlTemplates
                 return this;
             }
             // se chegou aqui, é so tratar como texto mesmo
-            if (Xml.Name.LocalName.ToLower().IsIn("line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6"))
+            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6"))
             {
                 lines = 1;
             }

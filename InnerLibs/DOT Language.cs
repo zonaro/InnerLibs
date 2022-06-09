@@ -35,7 +35,7 @@ namespace InnerLibs.DOTLanguage
             foreach (var prop in this)
             {
                 string val = prop.Value.ToString().QuoteIf(prop.Value.ToString().Contains(" ") | prop.Value.ToString().IsBlank() | prop.Value.ToString().IsURL());
-                if (val.IsIn(new[] { "True", "False" }))
+                if (Misc.IsIn(val, new[] { "True", "False" }))
                     val = val.ToLower();
                 if (val.IsNumber())
                     val = val.ChangeType<decimal>().ToString("00,00");

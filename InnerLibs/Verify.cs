@@ -188,7 +188,7 @@ namespace InnerLibs
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
         public static bool IsBlank(this FormattableString Text) => Text == null || Text.ToString().IsBlank();
 
-        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLower().IsIn("true", "false") == true;
+        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLower().IsIn<string>("true", "false") == true;
 
         public static bool IsDate(this string Obj)
         {

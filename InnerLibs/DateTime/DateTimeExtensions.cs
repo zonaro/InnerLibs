@@ -38,7 +38,7 @@ namespace InnerLibs.TimeMachine
                 do
                 {
                     current = current.AddDays(sign);
-                } while (current.DayOfWeek.IsAny(DaysOff));
+                } while (current.DayOfWeek.IsIn(DaysOff));
             }
             return current;
         }
@@ -62,7 +62,7 @@ namespace InnerLibs.TimeMachine
                 do
                 {
                     current = current.AddDays(sign);
-                } while (current.DayOfWeek.IsAny(DaysOff));
+                } while (current.DayOfWeek.IsIn(DaysOff));
             }
 
             return current;

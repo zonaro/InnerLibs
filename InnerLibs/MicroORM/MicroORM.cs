@@ -113,7 +113,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (LogicOperator.IsIn("Or", "OR"))
+                    if (Misc.IsIn(LogicOperator, "Or", "OR"))
                     {
                         Or(condition);
                     }
@@ -131,7 +131,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (LogicOperator.IsIn("Or", "OR"))
+                    if (Misc.IsIn(LogicOperator, "Or", "OR"))
                     {
                         Or(condition);
                     }
@@ -1002,7 +1002,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (LogicOperator.IsIn("OR", "or"))
+                    if (Misc.IsIn(LogicOperator, "OR", "or"))
                     {
                         Or(condition);
                     }
@@ -1027,7 +1027,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null)
                 {
-                    if (LogicOperator.IsIn("OR", "or"))
+                    if (Misc.IsIn(LogicOperator, "OR", "or"))
                     {
                         Or(condition);
                     }
