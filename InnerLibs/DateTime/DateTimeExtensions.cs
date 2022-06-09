@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace InnerLibs.TimeMachine
 {
@@ -13,11 +14,11 @@ namespace InnerLibs.TimeMachine
     {
         public static DateTime BrazilianNow => TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"));
 
-        public static DateTime BrazilianTomorrow => BrazilianNow.AddDays(1d);
+        public static DateTime BrazilianTomorrow => BrazilianNow.AddDays(1);
 
         public static DateTime BrazilianYesterday => BrazilianNow.AddDays(-1);
 
-        public static DateTime Tomorrow => DateTime.Now.AddDays(1d);
+        public static DateTime Tomorrow => DateTime.Now.AddDays(1);
 
         public static DateTime Yesterday => DateTime.Now.AddDays(-1);
 
@@ -315,13 +316,17 @@ namespace InnerLibs.TimeMachine
         /// Returns the Start day of the week changing the time to the very start of the day. Eg,
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-19T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
-        public static DateTime BeginningOfWeek(this DateTime date) => date.FirstDayOfWeek().BeginningOfDay();
+        public static DateTime BeginningOfWeek(this DateTime date, CultureInfo culture = null) => date.FirstDayOfWeek(culture).BeginningOfDay();
+
+        public static DateTime BeginningOfWeek(this DateTime date, DayOfWeek FirstDayOfWeek) => date.FirstDayOfWeek(FirstDayOfWeek).BeginningOfDay();
+
+        public static DateTime BeginningOfWeek(this DateTime date, DayOfWeek FirstDayOfWeek, int timezoneOffset) => date.FirstDayOfWeek(FirstDayOfWeek).BeginningOfDay(timezoneOffset);
 
         /// <summary>
         /// Returns the Start day of the week changing the time to the very start of the day with
         /// timezone-adjusted. Eg, 2011-12-24T06:40:20.005 =&gt; 2011-12-19T00:00:00.000. <see cref="DateTime"/>
         /// </summary>
-        public static DateTime BeginningOfWeek(this DateTime date, int timezoneOffset) => date.FirstDayOfWeek().BeginningOfDay(timezoneOffset);
+        public static DateTime BeginningOfWeek(this DateTime date, int timezoneOffset, CultureInfo culture = null) => date.FirstDayOfWeek(culture).BeginningOfDay(timezoneOffset);
 
         /// <summary>
         /// Returns the Start day of the year changing the time to the very start of the day. Eg,
@@ -508,7 +513,9 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         public static DateTimeOffset EndOfDay(this DateTimeOffset date) => new DateTimeOffset(date.Year, date.Month, date.Day, 23, 59, 59, 999, date.Offset);
 
-        public static DateTime EndOfFortnight(this DateTime date) => date.Day <= 15 ? new DateTime(date.Year, date.Month, 15, date.Hour, date.Minute, date.Second, date.Millisecond, date.Kind) : date.LastDayOfMonth();
+        public static DateTime EndOfFortnight(this DateTime date, int timeZoneOffset) => date.LastDayOfFortnight().EndOfDay(timeZoneOffset);
+
+        public static DateTime EndOfFortnight(this DateTime date) => date.LastDayOfFortnight().EndOfDay();
 
         /// <summary>
         /// Returns the last day of the month changing the time to the very end of the day. Eg,
@@ -551,6 +558,10 @@ namespace InnerLibs.TimeMachine
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-25T23:59:59.999
         /// </summary>
         public static DateTime EndOfWeek(this DateTime date) => date.LastDayOfWeek().EndOfDay();
+
+        public static DateTime EndOfWeek(this DateTime date, DayOfWeek FirstDayOfWeek) => date.LastDayOfWeek(FirstDayOfWeek).EndOfDay();
+
+        public static DateTime EndOfWeek(this DateTime date, DayOfWeek FirstDayOfWeek, int timeZoneOffset) => date.LastDayOfWeek(FirstDayOfWeek).EndOfDay(timeZoneOffset);
 
         /// <summary>
         /// Returns the last day of the week changing the time to the very end of the day with
@@ -666,10 +677,10 @@ namespace InnerLibs.TimeMachine
         /// <param name="dateTime">The DateTime to adjust</param>
         /// <returns>A DateTime instance adjusted to the beginning of the current week</returns>
         /// <remarks>the beginning of the week is controlled by the current Culture</remarks>
-        public static DateTime FirstDayOfWeek(this DateTime dateTime, CultureInfo currentCulture = null)
+        public static DateTime FirstDayOfWeek(this DateTime dateTime, CultureInfo culture = null)
         {
-            currentCulture = currentCulture ?? CultureInfo.CurrentCulture;
-            var firstDayOfWeek = currentCulture.DateTimeFormat.FirstDayOfWeek;
+            culture = culture ?? CultureInfo.CurrentCulture;
+            var firstDayOfWeek = culture.DateTimeFormat.FirstDayOfWeek;
             return dateTime.FirstDayOfWeek(firstDayOfWeek);
         }
 
@@ -800,7 +811,7 @@ namespace InnerLibs.TimeMachine
         public static int GetAge(this DateTime BirthDate, int Year) => GetAge(BirthDate, DateTime.Today.SetYear(Year));
 
         /// <summary>
-        /// Pega o numero do Bimestre a partir de uma data
+        /// Pega o numero do Bimesre a partir de uma data
         /// </summary>
         /// <param name="DateAndtime"></param>
         /// <returns></returns>
@@ -831,6 +842,10 @@ namespace InnerLibs.TimeMachine
                 return 6;
             }
         }
+
+        public static DateRange GetBimesterRange(this DateTime Date) => new DateRange(Date.BeginningOfBimester(), Date.EndOfBimester());
+
+        public static DateRange GetDayRange(this DateTime Date) => new DateRange(Date.BeginningOfDay(), Date.EndOfDay());
 
         /// <summary>
         /// Retorna as datas entre um periodo
@@ -866,6 +881,10 @@ namespace InnerLibs.TimeMachine
         /// <param name="SecondDate"></param>
         /// <returns></returns>
         public static DateRange GetDifference(this DateTime InitialDate, DateTime SecondDate) => new DateRange(InitialDate, SecondDate);
+
+        public static int GetFortnightNumber(this DateTime datetime) => (datetime.Day <= 15 ? 1 : 2);
+
+        public static DateRange GetFortnightRange(this DateTime Date) => new DateRange(Date.BeginningOfFortnight(), Date.EndOfFortnight());
 
         /// <summary>
         /// Retorna o nome do mês a partir da data
@@ -947,6 +966,8 @@ namespace InnerLibs.TimeMachine
             return MonthsRet;
         }
 
+        public static DateRange GetMonthRange(this DateTime Date) => new DateRange(Date.BeginningOfMonth(), Date.EndOfMonth());
+
         /// <summary>
         /// Pega o numero do trimestre a partir de uma data
         /// </summary>
@@ -972,6 +993,8 @@ namespace InnerLibs.TimeMachine
             }
         }
 
+        public static DateRange GetQuarterRange(this DateTime Date) => new DateRange(Date.BeginningOfQuarter(), Date.EndOfQuarter());
+
         /// <summary>
         /// Pega o numero do semestre a partir de uma data
         /// </summary>
@@ -979,13 +1002,15 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static int GetSemester(this DateTime DateAndTime) => DateAndTime.Month <= 6 ? 1 : 2;
 
+        public static DateRange GetSemesterRange(this DateTime Date) => new DateRange(Date.BeginningOfSemester(), Date.EndOfSemester());
+
         /// <summary>
         /// Retorna o nome do mês a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <param name="Culture"></param>
         /// <returns></returns>
-        public static string GetShortMonthName(this DateTime Date, CultureInfo Culture = null) => Date.ToString("MM", Culture ?? CultureInfo.CurrentCulture);
+        public static string GetShortMonthName(this DateTime Date, CultureInfo Culture = null) => Date.ToString("MMM", Culture ?? CultureInfo.CurrentCulture);
 
         public static string GetWeekDay(this int WeekDay, CalendarFormat Type = CalendarFormat.LongName, CultureInfo Culture = default)
         {
@@ -1040,7 +1065,11 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Data</param>
         /// <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é domingo)</param>
         /// <returns></returns>
-        public static DateRange GetWeekRange(this DateTime Date, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.FirstDayOfWeek(FirstDayOfWeek), Date.LastDayOfWeek(FirstDayOfWeek));
+        public static DateRange GetWeekRange(this DateTime Date, DayOfWeek FirstDayOfWeek) => new DateRange(Date.FirstDayOfWeek(FirstDayOfWeek), Date.LastDayOfWeek(FirstDayOfWeek));
+
+        public static DateRange GetWeekRange(this DateTime Date, CultureInfo culture = null) => new DateRange(Date.FirstDayOfWeek(culture), Date.LastDayOfWeek(culture));
+
+        public static DateRange GetYearRange(this DateTime Date) => new DateRange(Date.BeginningOfYear(), Date.EndOfYear());
 
         /// <summary>
         /// Returns <see cref="TimeSpan"/> for given number of Hours.
@@ -1362,6 +1391,8 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static DateTime LastDayOfWeek(this DateTime Date, DayOfWeek FirstDayOfWeek) => Date.FirstDayOfWeek(FirstDayOfWeek).AddDays(6d);
 
+        public static DateTime LastDayOfWeek(this DateTime Date, CultureInfo culture) => Date.FirstDayOfWeek(culture).AddDays(6d);
+
         /// <summary>
         /// Returns the last day of the week keeping the time component intact. Eg,
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-25T06:40:20.005
@@ -1632,6 +1663,68 @@ namespace InnerLibs.TimeMachine
         /// <param name="Date"></param>
         /// <returns></returns>
         public static DateTime OrToday(this DateTime? Date) => Date ?? DateTime.Today;
+
+        public static DateRange PeriodRange(this DateTime date, string Group, CultureInfo culture)
+        {
+            culture = culture ?? CultureInfo.CurrentCulture;
+            return PeriodRange(date, Group, culture.DateTimeFormat.FirstDayOfWeek);
+        }
+
+        public static DateRange PeriodRange(this DateTime date, string Group) => PeriodRange(date, Group, CultureInfo.CurrentCulture);
+
+        public static DateRange PeriodRange(this DateTime date, string Group, DayOfWeek FirstDayOfWeek)
+        {
+            switch (Group.ToLower().QuantifyText(1))
+            {
+                case "month":
+                case "mensal":
+                case "mes":
+                    return date.GetMonthRange();
+                case "semanal":
+                case "week":
+                case "semana":
+                    return date.GetWeekRange(FirstDayOfWeek);
+                case "quinzenal":
+                case "fortnight":
+                case "quinzena":
+                    return date.GetFortnightRange();
+                case "bimestral":
+                case "bimester":
+                case "bimestre":
+                    return date.GetBimesterRange();
+                case "trimestral":
+                case "quarter":
+                case "trimestre":
+                    return date.GetQuarterRange();
+                case "semestral":
+                case "halfyear":
+                case "semester":
+                case "semestre":
+                    return date.GetSemesterRange();
+                case "anual":
+                case "year":
+                case "ano":
+                    return date.GetYearRange();
+                case "diario":
+                case "day":
+                case "dia":
+                    return date.GetDayRange();
+                default:
+                    throw new ArgumentException("Group is not valid");
+            }
+        }
+
+        public static DateRange PeriodRange(this DateRange dates, string Group) => PeriodRange(dates, Group, CultureInfo.CurrentCulture);
+
+        public static DateRange PeriodRange(this DateRange dates, string Group, DayOfWeek FirstDayOfWeek)
+        {
+            return new DateRange(dates.StartDate.PeriodRange(Group, FirstDayOfWeek).StartDate, dates.EndDate.PeriodRange(Group, FirstDayOfWeek).EndDate);
+        }
+
+        public static DateRange PeriodRange(this DateRange Dates, string Group, CultureInfo culture)
+        {
+            return new DateRange(Dates.StartDate.PeriodRange(Group, culture).StartDate, Dates.EndDate.PeriodRange(Group, culture).EndDate);
+        }
 
         /// <summary>
         /// Returns first next occurrence of specified <see cref="DayOfWeek"/>.
@@ -2225,13 +2318,13 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        public static string ToLongDayOfWeekName(this int DayNumber, CultureInfo Culture = null) => (Culture ?? CultureInfo.CurrentCulture).DateTimeFormat.GetDayName((DayOfWeek)DayNumber);
+        public static string ToLongDayOfWeekName(this int DayNumber, CultureInfo Culture = null) => (Culture ?? CultureInfo.CurrentCulture).DateTimeFormat.GetDayName((DayOfWeek)DayNumber.LimitRange(0, 6));
 
-        public static string ToLongMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber, 1).GetLongMonthName(Culture);
+        public static string ToLongMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber.LimitRange(1, 12), 1).GetLongMonthName(Culture);
 
-        public static string ToShortDayOfWeekName(this int DayNumber, CultureInfo Culture = null) => (Culture ?? CultureInfo.CurrentCulture).DateTimeFormat.GetShortestDayName((DayOfWeek)DayNumber);
+        public static string ToShortDayOfWeekName(this int DayNumber, CultureInfo Culture = null) => (Culture ?? CultureInfo.CurrentCulture).DateTimeFormat.GetShortestDayName((DayOfWeek)DayNumber.LimitRange(0, 6));
 
-        public static string ToShortMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber, 1).GetShortMonthName(Culture);
+        public static string ToShortMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber.LimitRange(1, 12), 1).GetShortMonthName(Culture);
 
         /// <summary>
         /// COnverte um datetime para o formato de string do SQL server ou Mysql
@@ -2245,7 +2338,8 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
-        public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Convert.ToDateTime(Date, new CultureInfo(FromCulture, false).DateTimeFormat).ToSQLDateString();
+        public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Date.ToSQLDateString(new CultureInfo(FromCulture, false));
+        public static string ToSQLDateString(this string Date, CultureInfo FromCulture) => Convert.ToDateTime(Date, (FromCulture ?? CultureInfo.CurrentCulture).DateTimeFormat).ToSQLDateString();
 
         /// <summary>
         /// Converte um <see cref="Date"/> para um timezone Especifico
@@ -2274,7 +2368,8 @@ namespace InnerLibs.TimeMachine
         public static DateTime WeekAfter(this DateTime start) => start + 1.Weeks();
 
         /// <summary>
-        /// Decreases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the GetPreviousPart Week.
+        /// Decreases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the
+        /// GetPreviousPart Week.
         /// </summary>
         public static DateTimeOffset WeekEarlier(this DateTimeOffset start) => start - 1.Weeks();
 
@@ -2297,5 +2392,144 @@ namespace InnerLibs.TimeMachine
         /// Generates <see cref="TimeSpan"/> value for given number of Years.
         /// </summary>
         public static TimeSpan Years(this int years, DateTime? fromDateTime = null) => fromDateTime.OrNow().Date.AddYears(years) - fromDateTime.OrNow().Date;
+
+        #region DateStrings
+
+        public static string BimesterString(this DateTime datetime, string format = null)
+        {
+            return format.IfBlank("{number}{ordinal} B/{year}").Inject(new { number = datetime.GetBimesterOfYear(), ordinal = datetime.GetBimesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
+        }
+
+        public static string DayString(this DateTime datetime, string format = null, CultureInfo culture = null)
+        {
+            return format.IfBlank("{day}/{monthname}/{year}").Inject(new { day = datetime.Day, year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
+        }
+
+        public static string FortnightString(this DateTime datetime, string format = null, CultureInfo culture = null)
+        {
+            return format.IfBlank("{number}{ordinal} F/{monthname}/{year}").Inject(new { number = datetime.GetFortnightNumber(), ordinal = datetime.GetFortnightNumber().GetOrdinal(), shortyear = datetime.Year.ToString().GetLastChars(2), year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture) });
+        }
+
+        public static string MonthString(this DateTime datetime, string format = null, CultureInfo culture = null)
+        {
+            return format.IfBlank("{monthname}/{year}").Inject(new { year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
+        }
+
+        public static string QuarterString(this DateTime datetime, string format = null)
+        {
+            return format.IfBlank("{number}{ordinal} Q/{year}").Inject(new { number = datetime.GetQuarterOfYear(), ordinal = datetime.GetQuarterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
+        }
+
+        public static string SemesterString(this DateTime datetime, string format = null)
+        {
+            return format.IfBlank("{number}{ordinal} S/{year}").Inject(new { number = datetime.GetSemester(), ordinal = datetime.GetSemester().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
+        }
+
+        public static string WeekString(this DateTime datetime, string format = null, CultureInfo culture = null)
+        {
+            var info = datetime.GetWeekInfoOfMonth();
+            return format.IfBlank("{number}{ordinal} W/{monthname}/{year}").Inject(new { number = info.Week, ordinal = info.Week.GetOrdinal(), year = info.Year, month = info.Month, monthname = info.Month.ToLongMonthName(culture), shortmonthname = info.Month.ToShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
+        }
+
+        public static string YearString(this DateTime datetime, string format = null)
+        {
+            return format.IfBlank("{year}").Inject(new { year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
+        }
+
+        public static Expression<Func<T, string>> GetGroupByPeriodExpression<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats)
+        {
+            data = data ?? Array.Empty<T>();
+            return (formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop);
+        }
+
+
+        #endregion DateStrings
+    }
+
+    public class PeriodGroup
+    {
+        public string BimesterFormat { get; set; }
+        public CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
+        public string DayFormat { get; set; }
+        public string FortnightFormat { get; set; }
+        public string MonthFormat { get; set; }
+        public string QuarterFormat { get; set; }
+        public string SemesterFormat { get; set; }
+        public string WeekFormat { get; set; }
+        public string YearFormat { get; set; }
+
+
+        public Expression<Func<T, string>> GroupByPeriodExpression<T>(string Group, Expression<Func<T, DateTime>> prop)
+        {
+            var param = prop.Parameters.First();
+
+            MethodInfo method = typeof(DateTime).GetMethod(nameof(DateTime.ToString), new Type[] { });
+            MethodCallExpression exp = Expression.Call(prop.Body, method);
+            Expression c = Expression.Constant(Culture ?? CultureInfo.CurrentCulture);
+            switch (Group.ToLower().QuantifyText(1))
+            {
+                case "month":
+                case "mensal":
+                case "mes":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.MonthString), new[] { typeof(DateTime), typeof(string), typeof(CultureInfo) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(MonthFormat), c);
+                    break;
+
+                case "semanal":
+                case "week":
+                case "semana":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.WeekString), new[] { typeof(DateTime), typeof(string), typeof(CultureInfo) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(WeekFormat), c);
+                    break;
+
+                case "quinzenal":
+                case "fortnight":
+                case "quinzena":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.FortnightString), new[] { typeof(DateTime), typeof(string), typeof(CultureInfo) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(FortnightFormat), c);
+                    break;
+
+                case "bimestral":
+                case "bimester":
+                case "bimestre":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.BimesterString), new[] { typeof(DateTime), typeof(string) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(BimesterFormat));
+                    break;
+
+                case "trimestral":
+                case "quarter":
+                case "trimestre":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.QuarterString), new[] { typeof(DateTime), typeof(string) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(QuarterFormat));
+                    break;
+
+                case "semestral":
+                case "halfyear":
+                case "semester":
+                case "semestre":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.SemesterString), new[] { typeof(DateTime), typeof(string) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(SemesterFormat));
+                    break;
+
+                case "anual":
+                case "year":
+                case "ano":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.YearString), new[] { typeof(DateTime), typeof(string) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(YearFormat));
+                    break;
+
+                case "diario":
+                case "day":
+                case "dia":
+                    method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.DayString), new[] { typeof(DateTime), typeof(string), typeof(CultureInfo) });
+                    exp = Expression.Call(null, method, prop.Body, Expression.Constant(DayFormat), c);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return Expression.Lambda<Func<T, string>>(exp, param);
+        }
     }
 }

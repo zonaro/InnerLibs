@@ -1240,18 +1240,17 @@ namespace InnerLibs
         public static Type SetPropertyValue<Type>(this Type MyObject, string PropertyName, object Value)
         {
             var props = MyObject.GetProperties();
-            var prop = props.FirstOrDefault(p => (p.Name ?? "") == (PropertyName ?? ""));
-            if (prop != null && prop.CanWrite)
+            var prop = props.FirstOrDefault(p => p != null && p.CanWrite && p.Name == PropertyName);
+
+            if (Value is DBNull)
             {
-                if (Value is DBNull)
-                {
-                    prop.SetValue(MyObject, null);
-                }
-                else
-                {
-                    prop.SetValue(MyObject, Converter.ChangeType(Value, prop.PropertyType));
-                }
+                prop.SetValue(MyObject, null);
             }
+            else
+            {
+                prop.SetValue(MyObject, Converter.ChangeType(Value, prop.PropertyType));
+            }
+
 
             return MyObject;
         }

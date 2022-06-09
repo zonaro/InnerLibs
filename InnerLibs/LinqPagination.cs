@@ -21,7 +21,10 @@ namespace InnerLibs.LINQ
         public override Expression Visit(Expression node)
         {
             if (node.Equals(_source))
+            {
                 return _dest;
+            }
+
             return base.Visit(node);
         }
     }
@@ -35,21 +38,6 @@ namespace InnerLibs.LINQ
         private static MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) });
 
         private static MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
-
-
-        public static IEnumerable<T> Each<T>(this IEnumerable<T> items, Action<T> Action)
-        {
-            if (items != null && Action != null)
-            {
-
-                foreach (var item in items)
-                {
-                    Action(item);
-                }
-
-            }
-            return items;
-        }
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
@@ -88,6 +76,13 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> AndSearch<T>(this Expression<Func<T, bool>> FirstExpression, string Text, params Expression<Func<T, string>>[] Properties)
         => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
+
+        public static Expression<Func<TModel, TToProperty>> ConvertParameterType<TModel, TFromProperty, TToProperty>(this Expression<Func<TModel, TFromProperty>> expression)
+        {
+            Expression converted = Expression.Convert(expression.Body, typeof(TToProperty));
+
+            return Expression.Lambda<Func<TModel, TToProperty>>(converted, expression.Parameters);
+        }
 
         /// <summary>
         /// Cria uma constante a partir de um valor para ser usada em expressões lambda
@@ -148,7 +143,10 @@ namespace InnerLibs.LINQ
         public static Type CreateNullableType(this Type type)
         {
             if (type.IsValueType && (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(object)))
+            {
                 return typeof(object).MakeGenericType(type);
+            }
+
             return type;
         }
 
@@ -206,6 +204,18 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IQueryable<T> DistinctBy<T, TKey>(this IQueryable<T> Items, Expression<Func<T, TKey>> Property)
         => Items.GroupBy(Property).Select(x => x.First());
+
+        public static IEnumerable<T> Each<T>(this IEnumerable<T> items, Action<T> Action)
+        {
+            if (items != null && Action != null)
+            {
+                foreach (var item in items)
+                {
+                    Action(item);
+                }
+            }
+            return items;
+        }
 
         /// <summary>
         /// Constroi uma expressão "igual a"
@@ -561,16 +571,16 @@ namespace InnerLibs.LINQ
                             }
                             else if (Conditional == FilterConditional.And)
                             {
-                                body = Expression.AndAlso(body, (Expression)exp);
+                                body = Expression.AndAlso(body, exp);
                             }
                             else
                             {
-                                body = Expression.OrElse(body, (Expression)exp);
+                                body = Expression.OrElse(body, exp);
                             }
 
                             if (comparewith == false)
                             {
-                                body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                                body = Expression.Equal(exp, Expression.Constant(false));
                             }
                         }
 
@@ -1008,10 +1018,16 @@ namespace InnerLibs.LINQ
             var type = typeof(TSource);
             MemberExpression member = propertyLambda.Body as MemberExpression;
             if (member is null)
+            {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
+            }
+
             PropertyInfo propInfo = member.Member as PropertyInfo;
             if (propInfo is null)
+            {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
+            }
+
             return propInfo;
         }
 
@@ -1027,11 +1043,20 @@ namespace InnerLibs.LINQ
         {
             var type = typeof(TSource);
             if (!(propertyLambda.Body is MemberExpression member))
+            {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
+            }
+
             if (!(member.Member is PropertyInfo propInfo))
+            {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
+            }
+
             if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
+            {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a property that is not from type {1}.", propertyLambda.ToString(), type));
+            }
+
             return propInfo;
         }
 
@@ -1293,7 +1318,9 @@ namespace InnerLibs.LINQ
             if (PropertyName.IfBlank("this") != "this")
             {
                 foreach (var name in PropertyName.SplitAny(".", "/"))
+                {
                     prop = Expression.Property(prop, name);
+                }
             }
 
             return prop;
@@ -1338,7 +1365,7 @@ namespace InnerLibs.LINQ
             {
                 foreach (var s in Text)
                 {
-                    if (s != default && s.IsNotBlank())
+                    if (s.IsNotBlank())
                     {
                         var param = prop.Parameters.First();
                         var con = Expression.Constant(s);
@@ -1372,7 +1399,10 @@ namespace InnerLibs.LINQ
             SearchRet = null;
             Table = Table.Where(SearchTerms.SearchExpression(Properties).Compile());
             foreach (var prop in Properties)
+            {
                 SearchRet = (SearchRet ?? Table.OrderBy(x => true)).ThenByLike(prop.Compile(), true, SearchTerms.ToArray());
+            }
+
             return SearchRet;
         }
 
@@ -1380,7 +1410,10 @@ namespace InnerLibs.LINQ
         {
             var SearchRet = Table.Search(SearchTerms, Properties).OrderBy(x => true);
             foreach (var prop in Properties)
+            {
                 SearchRet = SearchRet.ThenByLike(SearchTerms, prop);
+            }
+
             return SearchRet;
         }
 
@@ -1718,7 +1751,9 @@ namespace InnerLibs.LINQ
                 var next = stack.Pop();
                 yield return next;
                 foreach (var child in ChildSelector(next))
+                {
                     stack.Push(child);
+                }
             }
         }
 
@@ -1844,6 +1879,8 @@ namespace InnerLibs.LINQ
 
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> List) => List.Where(x => x != null);
 
+        public static IEnumerable<Type> WhereType<BaseType, Type>(this IEnumerable<BaseType> List) where Type : BaseType => List.Where(x => x is Type).Cast<Type>();
+
         #region FilterDateRange
 
         public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null)
@@ -1866,7 +1903,10 @@ namespace InnerLibs.LINQ
         {
             var exp = false.CreateWhereExpression<T>();
             foreach (var item in Values ?? Array.Empty<V>())
+            {
                 exp = exp.Or(WhereExpression(MinProperty, "<", new[] { (IComparable)item }).And(WhereExpression(MaxProperty, ">", new[] { (IComparable)item })));
+            }
+
             return exp;
         }
 
@@ -1875,20 +1915,38 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
         {
-            if (MinValue.Equals(MaxValue)) return IsEqual(Property, MinValue);
-            else return WhereExpression(Property, "between", new[] { (IComparable)MinValue, (IComparable)MaxValue });
+            if (MinValue.Equals(MaxValue))
+            {
+                return IsEqual(Property, MinValue);
+            }
+            else
+            {
+                return WhereExpression(Property, "between", new[] { (IComparable)MinValue, (IComparable)MaxValue });
+            }
         }
 
         public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange)
         {
-            if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
-            else return WhereExpression(Property, "between", new IComparable[] { DateRange.StartDate, DateRange.EndDate });
+            if (DateRange.IsSingleDateTime())
+            {
+                return IsEqual(Property, DateRange.StartDate);
+            }
+            else
+            {
+                return WhereExpression(Property, "between", new IComparable[] { DateRange.StartDate, DateRange.EndDate });
+            }
         }
 
         public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange)
         {
-            if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
-            else return WhereExpression(Property, "between", new IComparable[] { (DateTime?)DateRange.StartDate, (IComparable)(DateTime?)DateRange.EndDate });
+            if (DateRange.IsSingleDateTime())
+            {
+                return IsEqual(Property, DateRange.StartDate);
+            }
+            else
+            {
+                return WhereExpression(Property, "between", new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate });
+            }
         }
 
         #endregion IsBetween
@@ -1899,7 +1957,10 @@ namespace InnerLibs.LINQ
         {
             var exp = false.CreateWhereExpression<T>();
             foreach (var item in Values ?? Array.Empty<V>())
+            {
                 exp = exp.Or(WhereExpression(MinProperty, "<=", new[] { (IComparable)item }).And(WhereExpression(MaxProperty, ">=", new[] { (IComparable)item })));
+            }
+
             return exp;
         }
 
@@ -1908,13 +1969,22 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
         {
-            if (MinValue.Equals(MaxValue)) return IsEqual(Property, MinValue);
-            else return WhereExpression(Property, "betweenorequal", new IComparable[] { (IComparable)MinValue, (IComparable)MaxValue });
+            if (MinValue.Equals(MaxValue))
+            {
+                return IsEqual(Property, MinValue);
+            }
+            else
+            {
+                return WhereExpression(Property, "betweenorequal", new IComparable[] { (IComparable)MinValue, (IComparable)MaxValue });
+            }
         }
 
         public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
         {
-            if (DateRange.IsSingleDateTime()) return IsEqual(Property, DateRange.StartDate);
+            if (DateRange.IsSingleDateTime())
+            {
+                return IsEqual(Property, DateRange.StartDate);
+            }
 
             var icomp = new IComparable[] { DateRange.StartDate, DateRange.EndDate };
             switch (FilterBehavior ?? DateRange.FilterBehavior)
@@ -1928,7 +1998,10 @@ namespace InnerLibs.LINQ
 
         public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
         {
-            if (DateRange.IsSingleDateTime()) return IsEqual(Property, (DateTime?)DateRange.StartDate);
+            if (DateRange.IsSingleDateTime())
+            {
+                return IsEqual(Property, (DateTime?)DateRange.StartDate);
+            }
 
             var icomp = new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate };
             switch (FilterBehavior ?? DateRange.FilterBehavior)

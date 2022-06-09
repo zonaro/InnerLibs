@@ -19,6 +19,7 @@
 //     DEALINGS IN THE SOFTWARE.
 // </copyright>
 // ***********************************************************************
+using InnerLibs.LINQ;
 using InnerLibs.Printer.Command;
 using System;
 using System.Collections.Generic;
@@ -90,7 +91,10 @@ namespace InnerLibs.Printer
             }
 
             if (Columns > 0 == true)
-                return new string(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange((IComparable)0, (IComparable)Columns.Value));
+            {
+                return new string(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange(0, Columns.Value));
+            }
+
             return "";
         }
 
@@ -152,7 +156,10 @@ namespace InnerLibs.Printer
         {
             txw = new PrinterWriter(this);
             if (PrinterName.IsBlank())
+            {
                 throw new ArgumentException("Printername cannot be null or empty", "PrinterName");
+            }
+
             this.Command = Command ?? new InnerLibs.EscPosCommands.EscPos();
             if (Encoding != null)
             {
@@ -306,7 +313,7 @@ namespace InnerLibs.Printer
         /// TextWriter interno desta Printer
         /// </summary>
         /// <returns></returns>
-        public TextWriter TextWriter => (TextWriter)txw;
+        public TextWriter TextWriter => txw;
 
         public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : InnerLibs.Printer.Command.IPrintCommand
         {
@@ -328,21 +335,21 @@ namespace InnerLibs.Printer
         {
             Align = "Center";
             _ommit = true;
-            return this.Write(Command.Center());
+            return Write(Command.Center());
         }
 
         public Printer AlignLeft()
         {
             Align = "Left";
             _ommit = true;
-            return this.Write(Command.Left());
+            return Write(Command.Left());
         }
 
         public Printer AlignRight()
         {
             Align = "Right";
             _ommit = true;
-            return this.Write(Command.Right());
+            return Write(Command.Right());
         }
 
         /// <summary>
@@ -352,14 +359,14 @@ namespace InnerLibs.Printer
         public Printer AutoTest()
         {
             _ommit = true;
-            return this.Write(Command.AutoTest());
+            return Write(Command.AutoTest());
         }
 
         public Printer Bold(bool state = true)
         {
             _ommit = true;
             IsBold = state;
-            return this.Write(Command.Bold(state));
+            return Write(Command.Bold(state));
         }
 
         /// <summary>
@@ -377,20 +384,20 @@ namespace InnerLibs.Printer
         public Printer Code128(string code)
         {
             _ommit = true;
-            return this.Write(Command.Code128(code));
+            return Write(Command.Code128(code));
         }
 
         public Printer Code39(string code)
         {
             _ommit = true;
-            return this.Write(Command.Code39(code));
+            return Write(Command.Code39(code));
         }
 
         public Printer Condensed(bool state = true)
         {
             IsCondensed = state;
             _ommit = true;
-            return this.Write(Command.Condensed(state));
+            return Write(Command.Condensed(state));
         }
 
         /// <summary>
@@ -402,21 +409,21 @@ namespace InnerLibs.Printer
         public Printer Ean13(string code)
         {
             _ommit = true;
-            return this.Write(Command.Ean13(code));
+            return Write(Command.Ean13(code));
         }
 
         public Printer Expanded(bool state = true)
         {
             _ommit = true;
             IsExpanded = state;
-            return this.Write(Command.Expanded(state));
+            return Write(Command.Expanded(state));
         }
 
         public Printer FullPaperCut()
         {
             HTMLDocument.Root.Add("<hr class='FullPaperCut'/>");
             _ommit = true;
-            return this.Write(Command.FullCut());
+            return Write(Command.FullCut());
         }
 
         /// <summary>
@@ -428,25 +435,43 @@ namespace InnerLibs.Printer
             if (IsCondensed)
             {
                 if (IsLarge)
+                {
                     return (int)Math.Round(ColumnsCondensed / 3d);
+                }
+
                 if (IsMedium)
+                {
                     return (int)Math.Round(ColumnsCondensed / 2d);
+                }
+
                 return ColumnsCondensed;
             }
             else if (IsExpanded)
             {
                 if (IsLarge)
+                {
                     return (int)Math.Round(ColumnsExpanded / 3d);
+                }
+
                 if (IsMedium)
+                {
                     return (int)Math.Round(ColumnsExpanded / 2d);
+                }
+
                 return ColumnsExpanded;
             }
             else
             {
                 if (IsLarge)
+                {
                     return (int)Math.Round(ColumnsNormal / 3d);
+                }
+
                 if (IsMedium)
+                {
                     return (int)Math.Round(ColumnsNormal / 2d);
+                }
+
                 return ColumnsNormal;
             }
         }
@@ -454,9 +479,15 @@ namespace InnerLibs.Printer
         public Printer Image(string Path, bool HighDensity = true)
         {
             if (!Path.IsFilePath())
+            {
                 throw new FileNotFoundException("Invalid Path");
+            }
+
             if (!File.Exists(Path))
+            {
                 throw new FileNotFoundException("Image file not found");
+            }
+
             var img = System.Drawing.Image.FromFile(Path);
             Image(img, HighDensity);
             img.Dispose();
@@ -488,7 +519,7 @@ namespace InnerLibs.Printer
         {
             HTMLDocument.Root.Add(XElement.Parse($"<img class='image{HighDensity.AsIf(" HighDensity")}'  src='{Img.ToDataURL()}' />"));
             _ommit = true;
-            return this.Write(Command.PrintImage(Img, HighDensity));
+            return Write(Command.PrintImage(Img, HighDensity));
         }
 
         public Printer Initialize()
@@ -505,21 +536,21 @@ namespace InnerLibs.Printer
         {
             _ommit = true;
             IsItalic = state;
-            return this.Write(Command.Italic(state));
+            return Write(Command.Italic(state));
         }
 
         public Printer LargeFontSize()
         {
             IsLarge = true;
             _ommit = true;
-            return this.Write(Command.LargerFont());
+            return Write(Command.LargerFont());
         }
 
         public Printer MediumFontSize()
         {
             IsMedium = true;
             _ommit = true;
-            return this.Write(Command.LargeFont());
+            return Write(Command.LargeFont());
         }
 
         /// <summary>
@@ -542,7 +573,7 @@ namespace InnerLibs.Printer
         {
             FontMode = "Normal";
             _ommit = true;
-            return this.Write(Command.NormalFont());
+            return Write(Command.NormalFont());
         }
 
         public Printer NormalFontStretch() => NotCondensed().NotExpanded();
@@ -562,14 +593,14 @@ namespace InnerLibs.Printer
         public Printer OpenDrawer()
         {
             _ommit = true;
-            return this.Write(Command.OpenDrawer());
+            return Write(Command.OpenDrawer());
         }
 
         public Printer PartialPaperCut()
         {
             HTMLDocument.Root.Add("<hr class='PartialPaperCut'/>");
             _ommit = true;
-            return this.Write(Command.PartialCut());
+            return Write(Command.PartialCut());
         }
 
         /// <summary>
@@ -601,7 +632,9 @@ namespace InnerLibs.Printer
                 if (Directory.Exists(FileOrDirectoryPath))
                 {
                     foreach (var item in Directory.GetFiles(FileOrDirectoryPath))
+                    {
                         PrintDocument(item, Copies);
+                    }
                 }
             }
             else if (FileOrDirectoryPath.IsFilePath())
@@ -650,13 +683,13 @@ namespace InnerLibs.Printer
         public Printer QrCode(string qrData)
         {
             _ommit = true;
-            return this.Write(Command.PrintQrData(qrData));
+            return Write(Command.PrintQrData(qrData));
         }
 
         public Printer QrCode(string qrData, InnerLibs.Printer.QrCodeSize qrCodeSize)
         {
             _ommit = true;
-            return this.Write(Command.PrintQrData(qrData, qrCodeSize));
+            return Write(Command.PrintQrData(qrData, qrCodeSize));
         }
 
         /// <summary>
@@ -733,7 +766,10 @@ namespace InnerLibs.Printer
         public Printer Space(int Spaces = 1)
         {
             if (Spaces > 0)
+            {
                 Write(new string(' ', Spaces));
+            }
+
             return this;
         }
 
@@ -751,7 +787,7 @@ namespace InnerLibs.Printer
         {
             _ommit = true;
             IsUnderline = state;
-            return this.Write(Command.Underline(state));
+            return Write(Command.Underline(state));
         }
 
         /// <summary>
@@ -787,7 +823,10 @@ namespace InnerLibs.Printer
             {
                 var list = new List<byte>();
                 if (DocumentBuffer != null)
+                {
                     list.AddRange(DocumentBuffer);
+                }
+
                 list.AddRange(value);
                 DocumentBuffer = list.ToArray();
                 if (_ommit == false)
@@ -833,7 +872,9 @@ namespace InnerLibs.Printer
                 if (value.ContainsAny(PredefinedArrays.BreakLineChars.ToArray()))
                 {
                     foreach (var line in value.SplitAny(PredefinedArrays.BreakLineChars.ToArray()))
-                        this.WriteLine(line, Test && line.IsNotBlank());
+                    {
+                        WriteLine(line, Test && line.IsNotBlank());
+                    }
                 }
                 else if (value.IsNotBlank())
                 {
@@ -847,7 +888,7 @@ namespace InnerLibs.Printer
                         value = RewriteFunction.Invoke(value);
                     }
 
-                    this.Write(Command.Encoding.GetBytes(value));
+                    Write(Command.Encoding.GetBytes(value));
                 }
             }
 
@@ -879,14 +920,19 @@ namespace InnerLibs.Printer
                 if (obj != null)
                 {
                     if (PartialCutOnEach)
+                    {
                         PartialPaperCut();
+                    }
                     else
+                    {
                         Separator();
+                    }
+
                     foreach (var item in obj.GetNullableTypeOf().GetProperties())
                     {
                         if (item.CanRead)
                         {
-                            this.WritePair(item.Name.ToNormalCase(), item.GetValue(obj));
+                            WritePair(item.Name.ToNormalCase(), item.GetValue(obj));
                         }
                     }
 
@@ -897,9 +943,13 @@ namespace InnerLibs.Printer
             if (Objects.Any())
             {
                 if (PartialCutOnEach)
+                {
                     PartialPaperCut();
+                }
                 else
+                {
                     Separator();
+                }
             }
 
             return this;
@@ -984,11 +1034,19 @@ namespace InnerLibs.Printer
                 if (dic != null)
                 {
                     if (PartialCutOnEach)
+                    {
                         PartialPaperCut();
+                    }
                     else
+                    {
                         Separator();
+                    }
+
                     foreach (var item in dic)
-                        this.WritePair($"{item.Key}".ToNormalCase(), (object)item.Value);
+                    {
+                        WritePair($"{item.Key}".ToNormalCase(), item.Value);
+                    }
+
                     AlignLeft();
                 }
             }
@@ -996,9 +1054,13 @@ namespace InnerLibs.Printer
             if (Dictionaries.Any())
             {
                 if (PartialCutOnEach)
+                {
                     PartialPaperCut();
+                }
                 else
+                {
                     Separator();
+                }
             }
 
             return this;
@@ -1031,7 +1093,7 @@ namespace InnerLibs.Printer
             values = (values ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
             if (values.Any())
             {
-                this.WriteLine(values.JoinString(Environment.NewLine));
+                WriteLine(values.JoinString(Environment.NewLine));
             }
 
             return this;
@@ -1047,7 +1109,10 @@ namespace InnerLibs.Printer
         {
             Items = (Items ?? Array.Empty<object>()).AsEnumerable();
             for (int index = 0, loopTo = Items.Count() - 1; index <= loopTo; index++)
+            {
                 WriteLine($"{index + ListOrdenator} {Items.ElementAtOrDefault(index)}");
+            }
+
             return this;
         }
 
@@ -1055,7 +1120,10 @@ namespace InnerLibs.Printer
         {
             Items = (Items ?? Array.Empty<object>()).AsEnumerable();
             for (int index = 0, loopTo = Items.Count() - 1; index <= loopTo; index++)
+            {
                 WriteLine($"{ListOrdenator} {Items.ElementAtOrDefault(index)}");
+            }
+
             return this;
         }
 
@@ -1067,7 +1135,7 @@ namespace InnerLibs.Printer
         /// <summary>
         /// Escreve um par de informações no <see cref="DocumentBuffer"/>.
         /// </summary>
-        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => this.WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsNotBlank());
+        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsNotBlank());
 
         /// <summary>
         /// Escreve uma linha de preço no <see cref="DocumentBuffer"/>
@@ -1090,7 +1158,10 @@ namespace InnerLibs.Printer
         public Printer WritePriceList(IEnumerable<Tuple<string, decimal>> List, CultureInfo Culture = null, int? Columns = default, char CharLine = '.')
         {
             foreach (var item in List ?? new List<Tuple<string, decimal>>())
-                this.WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine);
+            {
+                WritePriceLine(item.Item1, item.Item2, Culture, Columns, CharLine);
+            }
+
             return this;
         }
 
@@ -1109,7 +1180,7 @@ namespace InnerLibs.Printer
             NewLine(5);
             AlignCenter();
             Separator('_', Columns);
-            this.WriteLine(Name, Name.IsNotBlank());
+            WriteLine(Name, Name.IsNotBlank());
             ResetFont();
             return this;
         }
@@ -1118,7 +1189,7 @@ namespace InnerLibs.Printer
         /// Escreve uma tabela no <see cref="DocumentBuffer"/>
         /// </summary>
         /// <returns></returns>
-        public Printer WriteTable<T>(IEnumerable<T> Items) where T : class => this.Write(ConsoleTables.ConsoleTable.From(Items).ToString());
+        public Printer WriteTable<T>(IEnumerable<T> Items) where T : class => Write(ConsoleTables.ConsoleTable.From(Items).ToString());
 
         /// <summary>
         /// Escreve uma tabela no <see cref="DocumentBuffer"/>
@@ -1151,11 +1222,15 @@ namespace InnerLibs.Printer
                 foreach (var item in Objects)
                 {
                     string ns = TemplateString.Inject(item);
-                    this.WriteLine(ns.SplitAny(InnerLibs.PredefinedArrays.BreakLineChars.ToArray()));
+                    WriteLine(ns.SplitAny(InnerLibs.PredefinedArrays.BreakLineChars.ToArray()));
                     if (PartialCutOnEach)
+                    {
                         PartialPaperCut();
+                    }
                     else
+                    {
                         Separator();
+                    }
                 }
             }
 
@@ -1192,7 +1267,7 @@ namespace InnerLibs.Printer
         /// <param name="obj"></param>
         /// <param name="PartialCutOnEach"></param>
         /// <returns></returns>
-        public Printer WriteTemplate<T>(string TemplateString, T obj, bool PartialCutOnEach = false) where T : class => this.WriteTemplate(TemplateString, PartialCutOnEach, InnerLibs.Converter.ForceArray(obj, typeof(T)));
+        public Printer WriteTemplate<T>(string TemplateString, T obj, bool PartialCutOnEach = false) where T : class => WriteTemplate(TemplateString, PartialCutOnEach, InnerLibs.Converter.ForceArray(obj, typeof(T)));
 
         /// <summary>
         /// Escreve um teste de 48 colunas no <see cref="DocumentBuffer"/>
@@ -1294,14 +1369,20 @@ namespace InnerLibs.Printer.XmlTemplates
         public Printer WriteXmlTemplate<T>(IEnumerable<T> Items, XElement Xml)
         {
             foreach (var item in Items ?? Array.Empty<T>())
+            {
                 WriteXmlTemplate(item, Xml);
+            }
+
             return this;
         }
 
         public Printer WriteXmlTemplate<T>(IEnumerable<T> Items, string Xml)
         {
             foreach (var item in Items ?? Array.Empty<T>())
+            {
                 WriteXmlTemplate(item, Xml);
+            }
+
             return this;
         }
 
@@ -1322,7 +1403,9 @@ namespace InnerLibs.Printer.XmlTemplates
         public Printer WriteXmlTemplate<T>(T Item, XElement Xml)
         {
             int lines = 0;
-            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "br"))
+
+            string name = Xml.Name.LocalName.ToLower();
+            if (name.IsIn("br"))
             {
                 try
                 {
@@ -1336,17 +1419,17 @@ namespace InnerLibs.Printer.XmlTemplates
                 return NewLine(lines);
             }
 
-            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "partialcut", "partialpapercut"))
+            if (name.IsIn("partialcut", "partialpapercut"))
             {
                 return PartialPaperCut();
             }
 
-            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "cut", "fullcut", "fullpapercut", "hr"))
+            if (name.IsIn("cut", "fullcut", "fullpapercut", "hr"))
             {
                 return FullPaperCut();
             }
 
-            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "sep", "separator"))
+            if (name.IsIn("sep", "separator"))
             {
                 string sep = "-";
                 foreach (var attr in Xml.Attributes())
@@ -1367,7 +1450,7 @@ namespace InnerLibs.Printer.XmlTemplates
                 return Separator(sep.FirstOrDefault());
             }
 
-            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "list"))
+            if (name.IsIn("list"))
             {
                 string v = Xml.Attribute("property")?.Value;
                 if (v.IsNotBlank())
@@ -1380,8 +1463,10 @@ namespace InnerLibs.Printer.XmlTemplates
                         {
                             if (Xml.HasElements)
                             {
-                                foreach (XElement node in Xml.Nodes().Where(x => ReferenceEquals(x.GetType(), typeof(XElement))))
+                                foreach (XElement node in Xml.Nodes().WhereType<XNode, XElement>())
+                                {
                                     WriteXmlTemplate(itens.AsEnumerable(), node);
+                                }
                             }
                             else
                             {
@@ -1394,7 +1479,7 @@ namespace InnerLibs.Printer.XmlTemplates
                 return this;
             }
 
-            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "pair"))
+            if (name.IsIn("pair"))
             {
                 string dotchar = Xml.Attribute("char")?.Value;
                 dotchar = dotchar.GetFirstChars().IfBlank(" ");
@@ -1413,25 +1498,38 @@ namespace InnerLibs.Printer.XmlTemplates
 
             if (Xml.HasElements)
             {
-                foreach (XElement node in Xml.Nodes().Where(x => ReferenceEquals(x.GetType(), typeof(XElement))))
+                foreach (XElement node in Xml.Nodes().WhereType<XNode, XElement>())
+                {
                     WriteXmlTemplate(Item, node);
+                }
+
                 return this;
             }
             // se chegou aqui, é so tratar como texto mesmo
-            if (Misc.IsIn(Xml.Name.LocalName.ToLower(), "line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6"))
+            if (name.IsIn("line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6"))
             {
                 lines = 1;
             }
 
             foreach (var attr in Xml.Attributes())
             {
-                if (attr.Name.LocalName.ToLower() == "bold")
-                    this.Bold($"{attr.Value}".ToLower().IfBlank("true").ToBool());
-                if (attr.Name.LocalName.ToLower() == "italic")
-                    this.Italic($"{attr.Value}".ToLower().IfBlank("true").ToBool());
-                if (attr.Name.LocalName.ToLower() == "underline")
-                    this.UnderLine($"{attr.Value}".ToLower().IfBlank("true").ToBool());
-                if (attr.Name.LocalName == "lines")
+                string atname = attr.Name.LocalName.ToLower();
+                if (atname == "bold")
+                {
+                    Bold($"{attr.Value}".ToLower().IfBlank("true").ToBool());
+                }
+
+                if (atname == "italic")
+                {
+                    Italic($"{attr.Value}".ToLower().IfBlank("true").ToBool());
+                }
+
+                if (atname == "underline")
+                {
+                    UnderLine($"{attr.Value}".ToLower().IfBlank("true").ToBool());
+                }
+
+                if (atname == "lines")
                 {
                     try
                     {
@@ -1443,7 +1541,7 @@ namespace InnerLibs.Printer.XmlTemplates
                     }
                 }
 
-                if (attr.Name.LocalName == "align")
+                if (atname == "align")
                 {
                     switch (attr.Value?.ToLower() ?? "")
                     {
@@ -1467,7 +1565,7 @@ namespace InnerLibs.Printer.XmlTemplates
                     }
                 }
 
-                if (attr.Name.LocalName == "font-size")
+                if (atname == "font-size")
                 {
                     switch (attr.Value?.ToLower() ?? "")
                     {
@@ -1493,7 +1591,7 @@ namespace InnerLibs.Printer.XmlTemplates
                     }
                 }
 
-                if (attr.Name.LocalName == "font-stretch")
+                if (atname == "font-stretch")
                 {
                     switch (attr.Value?.ToLower() ?? "")
                     {

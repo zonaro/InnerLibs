@@ -1,14 +1,13 @@
-using InnerLibs.TimeMachine;
 using System;
 
 namespace InnerLibs.TimeMachine
 {
-    public class WeekInfo
+    public struct WeekInfo
     {
         public WeekInfo(DateTime DateAndTime)
         {
             DateAndTime = DateAndTime.Date;
-            var firstMonthDay = DateAndTime.FirstDayOfMonth();
+            var firstMonthDay = DateAndTime.BeginningOfMonth();
             var firstMonthMonday = firstMonthDay.AddDays(((int)DayOfWeek.Monday + 7 - (int)firstMonthDay.DayOfWeek) % 7);
             if (firstMonthMonday > DateAndTime)
             {
@@ -39,11 +38,8 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        public static implicit operator int[](WeekInfo Info) => new int[] { Info?.Week ?? -1, Info?.Month ?? -1, Info?.Year ?? -1 };
+        public static implicit operator int[](WeekInfo Info) => new int[] { Info.Week, Info.Month, Info.Year };
 
-        public override string ToString()
-        {
-            return $"{Week}/{Month}/{Year}";
-        }
+        public override string ToString() => $"{Week}-{Month}/{Year}";
     }
 }
