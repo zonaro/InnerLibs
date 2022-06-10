@@ -631,8 +631,7 @@ namespace InnerLibs.TimeMachine
         /// <returns>
         /// given <see cref="DateTimeOffset"/> with the day part set to the first day in that month.
         /// </returns>
-        public static DateTimeOffset FirstDayOfMonth(this DateTimeOffset current)
-        => current.SetDay(1);
+        public static DateTimeOffset FirstDayOfMonth(this DateTimeOffset current) => current.SetDay(1);
 
         /// <summary>
         /// Sets the day of the <see cref="DateTime"/> to the first day in that calendar quarter.
@@ -776,11 +775,15 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static int GetAge(this DateTime BirthDate, DateTime? AtDate = null)
         {
+            int age = 0;
             AtDate = AtDate.OrNow();
-            int age = AtDate.Value.Year - BirthDate.Year;
-            if (BirthDate > AtDate?.AddYears(-age))
+            if (BirthDate <= AtDate)
             {
-                age -= 1;
+                age = AtDate.Value.Year - BirthDate.Year;
+                if (BirthDate > AtDate?.AddYears(-age))
+                {
+                    age -= 1;
+                }
             }
 
             return age;
@@ -874,17 +877,22 @@ namespace InnerLibs.TimeMachine
             return l.Distinct().Where(x => x.DayOfWeek.IsIn(DaysOfWeek));
         }
 
-        /// <summary>
-        /// Retorna uma <see cref="DateRange"/> com a diferença entre 2 Datas
-        /// </summary>
-        /// <param name="InitialDate"></param>
-        /// <param name="SecondDate"></param>
-        /// <returns></returns>
-        public static DateRange GetDifference(this DateTime InitialDate, DateTime SecondDate) => new DateRange(InitialDate, SecondDate);
-
         public static int GetFortnightNumber(this DateTime datetime) => (datetime.Day <= 15 ? 1 : 2);
 
         public static DateRange GetFortnightRange(this DateTime Date) => new DateRange(Date.BeginningOfFortnight(), Date.EndOfFortnight());
+
+        public static Expression<Func<T, string>> GetGroupByPeriodExpression<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats = null)
+        {
+            data = data ?? Array.Empty<T>();
+            return (formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop);
+        }
+
+        public static IEnumerable<IGrouping<string, T>> GroupByPeriod<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats = null)
+        {
+            data = data ?? Array.Empty<T>();
+            return data.GroupBy((formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop).Compile());
+        }
+
 
         /// <summary>
         /// Retorna o nome do mês a partir da data
@@ -1134,53 +1142,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="current">The current value.</param>
         /// <param name="toCompareWith">Value to compare with.</param>
         /// <returns><c>true</c> if the specified current is before; otherwise, <c>false</c>.</returns>
-        public static bool IsBefore(this DateTimeOffset current, DateTimeOffset toCompareWith)
-        => current < toCompareWith;
-
-        public static bool IsBetween(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime)
-        {
-            Misc.FixOrder(ref StartDate, ref EndDate);
-
-            if (IgnoreTime)
-            {
-                return MidDate.IsBetween(StartDate.Date, EndDate.Date);
-            }
-            else
-            {
-                return MidDate.IsBetween(StartDate, EndDate);
-            }
-        }
-
-        ///<inheritdoc cref="Misc.IsBetweenExclusive(IComparable, IComparable, IComparable)"/>
-        public static bool IsBetweenExclusive(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime)
-        {
-            Misc.FixOrder(ref StartDate, ref EndDate);
-
-            if (IgnoreTime)
-            {
-                return MidDate.IsBetweenExclusive(StartDate.Date, EndDate.Date);
-            }
-            else
-            {
-                return MidDate.IsBetweenExclusive(StartDate, EndDate);
-            }
-        }
-
-        ///<inheritdoc cref="Misc.IsBetween(IComparable, IComparable, IComparable)"/>
-        ///<inheritdoc cref="Misc.IsBetweenOrEqual(IComparable, IComparable, IComparable)"/>
-        public static bool IsBetweenOrEqual(this DateTime MidDate, DateTime StartDate, DateTime EndDate, bool IgnoreTime)
-        {
-            Misc.FixOrder(ref StartDate, ref EndDate);
-
-            if (IgnoreTime)
-            {
-                return MidDate.IsBetweenOrEqual(StartDate.Date, EndDate.Date);
-            }
-            else
-            {
-                return MidDate.IsBetweenOrEqual(StartDate, EndDate);
-            }
-        }
+        public static bool IsBefore(this DateTimeOffset current, DateTimeOffset toCompareWith) => current < toCompareWith;
 
         /// <summary>
         /// Determine if a <see cref="DateTime"/> is in the future.
@@ -1418,7 +1380,7 @@ namespace InnerLibs.TimeMachine
         public static DateTimeOffset LastDayOfYear(this DateTimeOffset current) => current.SetDate(current.Year, 12, 31);
 
         /// <summary>
-        /// Retorn the last sunday
+        /// Return the last sunday
         /// </summary>
         /// <returns></returns>
         public static DateTime LastSunday(DateTime? FromDate = null) => LastDay(DayOfWeek.Sunday, FromDate);
@@ -1664,14 +1626,24 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static DateTime OrToday(this DateTime? Date) => Date ?? DateTime.Today;
 
+        /// <summary>
+        /// Returns a group-defined period from a date. The dates will be adjusted for the beginning
+        /// and end of this period
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="Group"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public static DateRange PeriodRange(this DateTime date, string Group, CultureInfo culture)
         {
             culture = culture ?? CultureInfo.CurrentCulture;
             return PeriodRange(date, Group, culture.DateTimeFormat.FirstDayOfWeek);
         }
 
+        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
         public static DateRange PeriodRange(this DateTime date, string Group) => PeriodRange(date, Group, CultureInfo.CurrentCulture);
 
+        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
         public static DateRange PeriodRange(this DateTime date, string Group, DayOfWeek FirstDayOfWeek)
         {
             switch (Group.ToLower().QuantifyText(1))
@@ -1680,47 +1652,58 @@ namespace InnerLibs.TimeMachine
                 case "mensal":
                 case "mes":
                     return date.GetMonthRange();
+
                 case "semanal":
                 case "week":
                 case "semana":
                     return date.GetWeekRange(FirstDayOfWeek);
+
                 case "quinzenal":
                 case "fortnight":
                 case "quinzena":
                     return date.GetFortnightRange();
+
                 case "bimestral":
                 case "bimester":
                 case "bimestre":
                     return date.GetBimesterRange();
+
                 case "trimestral":
                 case "quarter":
                 case "trimestre":
                     return date.GetQuarterRange();
+
                 case "semestral":
                 case "halfyear":
                 case "semester":
                 case "semestre":
                     return date.GetSemesterRange();
+
                 case "anual":
                 case "year":
                 case "ano":
                     return date.GetYearRange();
+
                 case "diario":
                 case "day":
                 case "dia":
                     return date.GetDayRange();
+
                 default:
                     throw new ArgumentException("Group is not valid");
             }
         }
 
+        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
         public static DateRange PeriodRange(this DateRange dates, string Group) => PeriodRange(dates, Group, CultureInfo.CurrentCulture);
 
+        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
         public static DateRange PeriodRange(this DateRange dates, string Group, DayOfWeek FirstDayOfWeek)
         {
             return new DateRange(dates.StartDate.PeriodRange(Group, FirstDayOfWeek).StartDate, dates.EndDate.PeriodRange(Group, FirstDayOfWeek).EndDate);
         }
 
+        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
         public static DateRange PeriodRange(this DateRange Dates, string Group, CultureInfo culture)
         {
             return new DateRange(Dates.StartDate.PeriodRange(Group, culture).StartDate, Dates.EndDate.PeriodRange(Group, culture).EndDate);
@@ -2221,7 +2204,7 @@ namespace InnerLibs.TimeMachine
         public static DateTime Since(this TimeSpan from, DateTime originalValue) => From(from, originalValue);
 
         /// <summary>
-        /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
+        /// Adds given <see cref="DateRange"/> to supplied <paramref name="originalValue"/><see
         /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the future.
         /// </summary>
         /// <seealso cref="From(DateRange, DateTime)"/>
@@ -2290,6 +2273,14 @@ namespace InnerLibs.TimeMachine
         public static TimeSpan Ticks(this long ticks) => TimeSpan.FromTicks(ticks);
 
         /// <summary>
+        /// Returns a <see cref="DateRange"/> from <paramref name="InitialDate"/> to <paramref name="SecondDate"/>
+        /// </summary>
+        /// <param name="InitialDate"></param>
+        /// <param name="SecondDate"></param>
+        /// <returns></returns>
+        public static DateRange To(this DateTime InitialDate, DateTime SecondDate) => new DateRange(InitialDate, SecondDate);
+
+        /// <summary>
         /// Convert a <see cref="TimeSpan"/> to a human readable string.
         /// </summary>
         /// <param name="timeSpan">The <see cref="TimeSpan"/> to convert</param>
@@ -2301,8 +2292,8 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Time">Horario</param>
         /// <param name="Language">Idioma da saudação (pt, en, es)</param>
-        /// <returns>Uma string com a despedida</returns>
-        public static string ToGreeting(this DateTime Time, string Morning, string Afternoon, string Night)
+        /// <returns>Uma string com a saudação</returns>
+        public static string ToGreeting(this DateTime Time, string Morning, string Afternoon, string EveningOrNight)
         {
             if (Time.Hour < 12)
             {
@@ -2314,7 +2305,7 @@ namespace InnerLibs.TimeMachine
             }
             else
             {
-                return Night;
+                return EveningOrNight;
             }
         }
 
@@ -2339,6 +2330,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
         public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Date.ToSQLDateString(new CultureInfo(FromCulture, false));
+
         public static string ToSQLDateString(this string Date, CultureInfo FromCulture) => Convert.ToDateTime(Date, (FromCulture ?? CultureInfo.CurrentCulture).DateTimeFormat).ToSQLDateString();
 
         /// <summary>
@@ -2395,35 +2387,17 @@ namespace InnerLibs.TimeMachine
 
         #region DateStrings
 
-        public static string BimesterString(this DateTime datetime, string format = null)
-        {
-            return format.IfBlank("{number}{ordinal} B/{year}").Inject(new { number = datetime.GetBimesterOfYear(), ordinal = datetime.GetBimesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
-        }
+        public static string BimesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} B/{year}").Inject(new { number = datetime.GetBimesterOfYear(), ordinal = datetime.GetBimesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
-        public static string DayString(this DateTime datetime, string format = null, CultureInfo culture = null)
-        {
-            return format.IfBlank("{day}/{monthname}/{year}").Inject(new { day = datetime.Day, year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
-        }
+        public static string DayString(this DateTime datetime, string format = null, CultureInfo culture = null) => format.IfBlank("{day}/{monthname}/{year}").Inject(new { day = datetime.Day, year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
 
-        public static string FortnightString(this DateTime datetime, string format = null, CultureInfo culture = null)
-        {
-            return format.IfBlank("{number}{ordinal} F/{monthname}/{year}").Inject(new { number = datetime.GetFortnightNumber(), ordinal = datetime.GetFortnightNumber().GetOrdinal(), shortyear = datetime.Year.ToString().GetLastChars(2), year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture) });
-        }
+        public static string FortnightString(this DateTime datetime, string format = null, CultureInfo culture = null) => format.IfBlank("{number}{ordinal} F/{monthname}/{year}").Inject(new { number = datetime.GetFortnightNumber(), ordinal = datetime.GetFortnightNumber().GetOrdinal(), shortyear = datetime.Year.ToString().GetLastChars(2), year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture) });
 
-        public static string MonthString(this DateTime datetime, string format = null, CultureInfo culture = null)
-        {
-            return format.IfBlank("{monthname}/{year}").Inject(new { year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
-        }
+        public static string MonthString(this DateTime datetime, string format = null, CultureInfo culture = null) => format.IfBlank("{monthname}/{year}").Inject(new { year = datetime.Year, month = datetime.Month, monthname = datetime.GetLongMonthName(culture), shortmonthname = datetime.GetShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
 
-        public static string QuarterString(this DateTime datetime, string format = null)
-        {
-            return format.IfBlank("{number}{ordinal} Q/{year}").Inject(new { number = datetime.GetQuarterOfYear(), ordinal = datetime.GetQuarterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
-        }
+        public static string QuarterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} Q/{year}").Inject(new { number = datetime.GetQuarterOfYear(), ordinal = datetime.GetQuarterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
-        public static string SemesterString(this DateTime datetime, string format = null)
-        {
-            return format.IfBlank("{number}{ordinal} S/{year}").Inject(new { number = datetime.GetSemester(), ordinal = datetime.GetSemester().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
-        }
+        public static string SemesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} S/{year}").Inject(new { number = datetime.GetSemester(), ordinal = datetime.GetSemester().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
         public static string WeekString(this DateTime datetime, string format = null, CultureInfo culture = null)
         {
@@ -2431,17 +2405,7 @@ namespace InnerLibs.TimeMachine
             return format.IfBlank("{number}{ordinal} W/{monthname}/{year}").Inject(new { number = info.Week, ordinal = info.Week.GetOrdinal(), year = info.Year, month = info.Month, monthname = info.Month.ToLongMonthName(culture), shortmonthname = info.Month.ToShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
         }
 
-        public static string YearString(this DateTime datetime, string format = null)
-        {
-            return format.IfBlank("{year}").Inject(new { year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
-        }
-
-        public static Expression<Func<T, string>> GetGroupByPeriodExpression<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats)
-        {
-            data = data ?? Array.Empty<T>();
-            return (formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop);
-        }
-
+        public static string YearString(this DateTime datetime, string format = null) => format.IfBlank("{year}").Inject(new { year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
         #endregion DateStrings
     }
@@ -2457,7 +2421,6 @@ namespace InnerLibs.TimeMachine
         public string SemesterFormat { get; set; }
         public string WeekFormat { get; set; }
         public string YearFormat { get; set; }
-
 
         public Expression<Func<T, string>> GroupByPeriodExpression<T>(string Group, Expression<Func<T, DateTime>> prop)
         {
