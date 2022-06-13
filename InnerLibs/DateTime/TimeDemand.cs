@@ -10,6 +10,10 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class JourneyDay
     {
+        public override string ToString()
+        {
+            return DayOfWeek.ToString();
+        }
         private TimeSpan lunch_hour = default;
 
         private TimeSpan start_hour = new TimeSpan(12, 0, 0);
@@ -503,13 +507,20 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Data a ser Verificada</param>
         public DateTime PushDateIntoJourney(DateTime Date)
         {
-            while (!Date.IsTimeBetween(JourneyEndHour(Date).TimeOfDay, JourneyStartHour(Date).TimeOfDay) || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
+
+            if (HasJourney)
             {
-                Date = Date.AddMilliseconds(1d);
+                while (!Date.IsTimeBetween(JourneyStartHour(Date).TimeOfDay, JourneyEndHour(Date).TimeOfDay) || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsTimeBetween(LunchStartHour(Date).TimeOfDay, LunchEndHour(Date).TimeOfDay))
+                {
+                    Date = Date.AddMilliseconds(1d);
+                }
             }
 
             return Date;
         }
+
+
+        public bool HasJourney => _journeys.Any(x => x.IsJourney);
 
         /// <summary>
         /// Ajusta a jornada de trabalho de um dia da semana
